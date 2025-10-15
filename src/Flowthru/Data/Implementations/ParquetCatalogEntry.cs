@@ -63,8 +63,8 @@ public class ParquetCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
           $"Parquet file not found for catalog entry '{Key}'", _filePath);
     }
 
-    using var fileStream = File.OpenRead(_filePath);
-    var records = await ParquetSerializer.DeserializeAsync<T>(fileStream);
+    // ParquetSerializer.DeserializeAsync in v5.x accepts file path directly
+    var records = await ParquetSerializer.DeserializeAsync<T>(_filePath);
 
     return records;
   }

@@ -39,11 +39,12 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
 
   /// <summary>
   /// Creates a new CSV catalog entry with default configuration.
+  /// Uses attribute-based mapping from the type T (e.g., [Name("column_name")] attributes).
   /// </summary>
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the CSV file (absolute or relative to working directory)</param>
   public CsvCatalogEntry(string key, string filePath)
-      : this(key, filePath, new CsvConfiguration(CultureInfo.InvariantCulture)
+      : this(key, filePath, new CsvConfiguration(CultureInfo.InvariantCulture, typeof(T))
       {
         HasHeaderRecord = true
       })

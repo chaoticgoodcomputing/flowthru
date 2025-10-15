@@ -16,7 +16,7 @@ public class Program
   {
     Console.WriteLine("=== DEBUG: Program.Main() started ===");
     Console.WriteLine($"=== DEBUG: Args: [{string.Join(", ", args)}] ===");
-    
+
     // ═══════════════════════════════════════════════════════════════
     // STEP 1: Configure Dependency Injection and Logging
     // ═══════════════════════════════════════════════════════════════
@@ -31,12 +31,16 @@ public class Program
     var serviceProvider = services.BuildServiceProvider();
     var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
+    Console.WriteLine("=== DEBUG: Logger configured ===");
+
     // ═══════════════════════════════════════════════════════════════
     // STEP 2: Build Data Catalog
     // ═══════════════════════════════════════════════════════════════
 
     logger.LogInformation("Building data catalog...");
-    var catalog = SpaceflightsCatalog.Build();
+    Console.WriteLine("=== DEBUG: About to build catalog ===");
+    var catalog = SpaceflightsCatalog.Build("tests/Flowthru.Spaceflights/Data/Datasets");
+    Console.WriteLine("=== DEBUG: Catalog built ===");
     logger.LogInformation("Data catalog built successfully");
 
     // ═══════════════════════════════════════════════════════════════
@@ -76,25 +80,32 @@ public class Program
 
     // Parse command line arguments
     var pipelineName = args.Length > 0 ? args[0] : "data_processing";
+    Console.WriteLine($"=== DEBUG: Pipeline name: {pipelineName} ===");
 
     if (!pipelines.ContainsKey(pipelineName))
     {
       logger.LogError("Pipeline '{Name}' not found. Available: {Names}",
           pipelineName,
           string.Join(", ", pipelines.Keys));
+      Console.WriteLine($"=== DEBUG: Pipeline not found! ===");
       return;
     }
 
     logger.LogInformation("Running pipeline: {Name}", pipelineName);
+    Console.WriteLine($"=== DEBUG: About to get pipeline from registry ===");
     var pipeline = pipelines[pipelineName];
+    Console.WriteLine($"=== DEBUG: Got pipeline, about to run ===");
 
     try
     {
+      Console.WriteLine($"=== DEBUG: Calling pipeline.RunAsync() ===");
       var result = await pipeline.RunAsync();
+      Console.WriteLine($"=== DEBUG: RunAsync() returned, Success={result.Success} ===");
 
       if (result.Success)
       {
         logger.LogInformation("✓ Pipeline '{Name}' completed successfully", pipelineName);
+        Console.WriteLine($"=== DEBUG: Pipeline succeeded ===");
         logger.LogInformation("Executed {Count} nodes", result.NodeResults.Count);
 
         foreach (var (nodeName, nodeResult) in result.NodeResults)
@@ -106,9 +117,12 @@ public class Program
       }
       else
       {
+        Console.WriteLine($"=== DEBUG: Pipeline FAILED ===");
         logger.LogError("✗ Pipeline '{Name}' failed",
             pipelineName);
         logger.LogError("Error: {Message}", result.Exception?.Message);
+        Console.WriteLine($"=== DEBUG: Exception: {result.Exception?.Message} ===");
+        Console.WriteLine($"=== DEBUG: Stack: {result.Exception?.StackTrace} ===");
 
         // Find the failed node
         var failedNode = result.NodeResults.Values.FirstOrDefault(n => !n.Success);
@@ -121,8 +135,13 @@ public class Program
     }
     catch (Exception ex)
     {
+      Console.WriteLine($"=== DEBUG: EXCEPTION CAUGHT ===");
+      Console.WriteLine($"=== DEBUG: Message: {ex.Message} ===");
+      Console.WriteLine($"=== DEBUG: Stack: {ex.StackTrace} ===");
       logger.LogError(ex, "Unhandled exception during pipeline execution");
     }
+
+    Console.WriteLine($"=== DEBUG: Program.Main() ending ===");
 
     // ═══════════════════════════════════════════════════════════════
     // EXAMPLE OUTPUT:
