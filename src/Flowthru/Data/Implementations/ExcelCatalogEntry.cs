@@ -127,15 +127,30 @@ public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
         .Where(p => p.CanWrite)
         .ToList();
 
+    // Build a case-insensitive column name mapping (also handles snake_case → PascalCase)
+    var columnMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    foreach (DataColumn column in table.Columns)
+    {
+      columnMap[column.ColumnName] = column.ColumnName;
+
+      // Also map snake_case to PascalCase (e.g., "company_id" → "CompanyId")
+      var pascalCase = ConvertSnakeCaseToPascalCase(column.ColumnName);
+      if (!columnMap.ContainsKey(pascalCase))
+      {
+        columnMap[pascalCase] = column.ColumnName;
+      }
+    }
+
     foreach (DataRow row in table.Rows)
     {
       var record = new T();
 
       foreach (var property in properties)
       {
-        if (table.Columns.Contains(property.Name))
+        // Try to find column by property name (case-insensitive, with snake_case support)
+        if (columnMap.TryGetValue(property.Name, out var columnName))
         {
-          var value = row[property.Name];
+          var value = row[columnName];
 
           if (value != DBNull.Value)
           {
@@ -150,6 +165,20 @@ public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
     }
 
     return records;
+  }
+
+  /// <summary>
+  /// Converts snake_case column names to PascalCase property names.
+  /// Example: "company_id" → "CompanyId", "review_scores_rating" → "ReviewScoresRating"
+  /// </summary>
+  private static string ConvertSnakeCaseToPascalCase(string snakeCase)
+  {
+    if (string.IsNullOrWhiteSpace(snakeCase))
+      return snakeCase;
+
+    var parts = snakeCase.Split('_', StringSplitOptions.RemoveEmptyEntries);
+    return string.Concat(parts.Select(part =>
+      char.ToUpperInvariant(part[0]) + part.Substring(1).ToLowerInvariant()));
   }
 
   private static void EnsureEncodingProviderRegistered()

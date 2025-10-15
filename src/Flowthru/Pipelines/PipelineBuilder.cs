@@ -250,7 +250,8 @@ public class PipelineBuilder
       name: name ?? typeof(TNode).Name,
       nodeInstance: node,
       inputs: new[] { input },
-      outputs: outputEntries.ToList()
+      outputs: outputEntries.ToList(),
+      outputMappings: output.Mappings
     );
 
     _pipeline.AddNode(pipelineNode);

@@ -86,6 +86,17 @@ internal class PipelineNode
   public IReadOnlyList<Mapping.CatalogMapping>? InputMappings { get; }
 
   /// <summary>
+  /// Property-to-catalog mappings for multi-output nodes.
+  /// Null for single-output nodes (pass-through).
+  /// </summary>
+  /// <remarks>
+  /// When a node has multiple outputs (via CatalogMap), this stores the mapping
+  /// between property names on the output schema and catalog entries.
+  /// Used during execution to save the output properties to correct catalog entries.
+  /// </remarks>
+  public IReadOnlyList<Mapping.CatalogMapping>? OutputMappings { get; }
+
+  /// <summary>
   /// Creates a new pipeline node.
   /// </summary>
   /// <param name="name">Unique identifier for this node</param>
@@ -93,18 +104,21 @@ internal class PipelineNode
   /// <param name="inputs">Catalog entries this node reads</param>
   /// <param name="outputs">Catalog entries this node writes</param>
   /// <param name="inputMappings">Optional property-to-catalog mappings for multi-input nodes</param>
+  /// <param name="outputMappings">Optional property-to-catalog mappings for multi-output nodes</param>
   public PipelineNode(
     string name,
     object nodeInstance,
     IReadOnlyList<ICatalogEntry> inputs,
     IReadOnlyList<ICatalogEntry> outputs,
-    IReadOnlyList<Mapping.CatalogMapping>? inputMappings = null)
+    IReadOnlyList<Mapping.CatalogMapping>? inputMappings = null,
+    IReadOnlyList<Mapping.CatalogMapping>? outputMappings = null)
   {
     Name = name;
     NodeInstance = nodeInstance;
     Inputs = inputs;
     Outputs = outputs;
     InputMappings = inputMappings;
+    OutputMappings = outputMappings;
   }
 
   /// <summary>

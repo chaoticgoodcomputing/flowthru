@@ -53,6 +53,25 @@ public static class DataProcessingPipeline
         output: catalog.ModelInputTable,             // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
         name: "create_model_input_table_node"
       );
+
+      // Diagnostic Nodes: Export Parquet data as CSV for inspection
+      pipeline.AddNode<ExportToCsvNode<CompanySchema>, CompanySchema, CompanySchema, NoParams>(
+        input: catalog.PreprocessedCompanies,
+        output: catalog.PreprocessedCompaniesCsv,
+        name: "export_companies_csv_node"
+      );
+
+      pipeline.AddNode<ExportToCsvNode<ShuttleSchema>, ShuttleSchema, ShuttleSchema, NoParams>(
+        input: catalog.PreprocessedShuttles,
+        output: catalog.PreprocessedShuttlesCsv,
+        name: "export_shuttles_csv_node"
+      );
+
+      pipeline.AddNode<ExportToCsvNode<ModelInputSchema>, ModelInputSchema, ModelInputSchema, NoParams>(
+        input: catalog.ModelInputTable,
+        output: catalog.ModelInputTableCsv,
+        name: "export_model_input_csv_node"
+      );
     });
   }
 }

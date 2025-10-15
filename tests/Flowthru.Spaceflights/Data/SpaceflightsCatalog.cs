@@ -79,6 +79,25 @@ public class SpaceflightsCatalog
   public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable { get; }
 
   // ═══════════════════════════════════════════════════════════
+  // DIAGNOSTIC CSV EXPORTS (for debugging)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Preprocessed companies exported as CSV (for debugging).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<CompanySchema>> PreprocessedCompaniesCsv { get; }
+
+  /// <summary>
+  /// Preprocessed shuttles exported as CSV (for debugging).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> PreprocessedShuttlesCsv { get; }
+
+  /// <summary>
+  /// Model input table exported as CSV (for debugging).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv { get; }
+
+  // ═══════════════════════════════════════════════════════════
   // MODEL DATA (In-Memory Split Results)
   // ═══════════════════════════════════════════════════════════
 
@@ -138,6 +157,9 @@ public class SpaceflightsCatalog
     ICatalogEntry<IEnumerable<CompanySchema>> preprocessedCompanies,
     ICatalogEntry<IEnumerable<ShuttleSchema>> preprocessedShuttles,
     ICatalogEntry<IEnumerable<ModelInputSchema>> modelInputTable,
+    ICatalogEntry<IEnumerable<CompanySchema>> preprocessedCompaniesCsv,
+    ICatalogEntry<IEnumerable<ShuttleSchema>> preprocessedShuttlesCsv,
+    ICatalogEntry<IEnumerable<ModelInputSchema>> modelInputTableCsv,
     ICatalogEntry<IEnumerable<FeatureRow>> xTrain,
     ICatalogEntry<IEnumerable<FeatureRow>> xTest,
     ICatalogEntry<IEnumerable<decimal>> yTrain,
@@ -151,6 +173,9 @@ public class SpaceflightsCatalog
     PreprocessedCompanies = preprocessedCompanies;
     PreprocessedShuttles = preprocessedShuttles;
     ModelInputTable = modelInputTable;
+    PreprocessedCompaniesCsv = preprocessedCompaniesCsv;
+    PreprocessedShuttlesCsv = preprocessedShuttlesCsv;
+    ModelInputTableCsv = modelInputTableCsv;
     XTrain = xTrain;
     XTest = xTest;
     YTrain = yTrain;
@@ -191,6 +216,18 @@ public class SpaceflightsCatalog
       modelInputTable: new ParquetCatalogEntry<ModelInputSchema>(
         "model_input_table",
         $"{basePath}/03_Primary/model_input_table.parquet"),
+
+      preprocessedCompaniesCsv: new CsvCatalogEntry<CompanySchema>(
+        "preprocessed_companies_csv",
+        $"{basePath}/02_Intermediate/preprocessed_companies.csv"),
+
+      preprocessedShuttlesCsv: new CsvCatalogEntry<ShuttleSchema>(
+        "preprocessed_shuttles_csv",
+        $"{basePath}/02_Intermediate/preprocessed_shuttles.csv"),
+
+      modelInputTableCsv: new CsvCatalogEntry<ModelInputSchema>(
+        "model_input_table_csv",
+        $"{basePath}/03_Primary/model_input_table.csv"),
 
       xTrain: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_train"),
       xTest: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_test"),

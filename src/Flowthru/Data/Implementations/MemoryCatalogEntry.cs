@@ -73,6 +73,28 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T>
     }
   }
 
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Optimized implementation that doesn't require loading data.
+  /// </remarks>
+  public override Task<int> GetCountAsync()
+  {
+    lock (_lock)
+    {
+      if (!_hasData || _data == null)
+        return Task.FromResult(0);
+
+      // For IEnumerable<T>, count the items
+      if (_data is System.Collections.IEnumerable enumerable and not string)
+      {
+        return Task.FromResult(enumerable.Cast<object>().Count());
+      }
+
+      // For non-enumerable types (singletons), return 1
+      return Task.FromResult(1);
+    }
+  }
+
   /// <summary>
   /// Clears the stored data.
   /// </summary>

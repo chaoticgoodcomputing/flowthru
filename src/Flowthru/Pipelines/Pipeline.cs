@@ -245,16 +245,23 @@ public class Pipeline
   private async Task<NodeResult> ExecuteNodeWithTrackingAsync(PipelineNode pipelineNode)
   {
     var stopwatch = Stopwatch.StartNew();
-    Logger?.LogInformation("Executing node: {NodeName}", pipelineNode.Name);
 
     try
     {
+      // Get input counts for diagnostics (before loading data)
+      var inputCountTasks = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
+      var inputCounts = await Task.WhenAll(inputCountTasks);
+      var totalInputCount = inputCounts.Sum();
+
+      Logger?.LogInformation(
+        "Executing node: {NodeName} (inputs: {InputCount} observations from {EntryCount} entries)",
+        pipelineNode.Name,
+        totalInputCount,
+        pipelineNode.Inputs.Count);
+
       // Load inputs from catalog entries
       var inputTasks = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
       var inputs = await Task.WhenAll(inputTasks);
-      var inputCount = inputs.Sum(input => input is System.Collections.IEnumerable enumerable
-        ? enumerable.Cast<object>().Count()
-        : 1);
 
       // Invoke node transformation via reflection
       // Find ExecuteAsync method on the node instance
@@ -283,7 +290,7 @@ public class Pipeline
         // The ExecuteAsync signature is: Task<IEnumerable<TOutput>> ExecuteAsync(IEnumerable<TInput> input)
         // For multi-input, TInput is a record/class with properties for each catalog entry
         // We need to wrap the composite object in a singleton IEnumerable
-        
+
         // Get TInput type from ExecuteAsync method signature
         var executeParams = executeMethod.GetParameters();
         if (executeParams.Length != 1)
@@ -291,10 +298,10 @@ public class Pipeline
           throw new InvalidOperationException(
             $"ExecuteAsync for node {pipelineNode.Name} should have exactly one parameter");
         }
-        
+
         var inputEnumerableType = executeParams[0].ParameterType; // IEnumerable<TInput>
         var inputItemType = inputEnumerableType.GetGenericArguments()[0]; // TInput
-        
+
         // Create instance of TInput
         var compositeInput = Activator.CreateInstance(inputItemType);
         if (compositeInput == null)
@@ -302,7 +309,7 @@ public class Pipeline
           throw new InvalidOperationException(
             $"Failed to create instance of {inputItemType.Name} for node {pipelineNode.Name}");
         }
-        
+
         // Map loaded data to properties using InputMappings
         if (pipelineNode.InputMappings != null)
         {
@@ -313,22 +320,22 @@ public class Pipeline
               // Find the corresponding loaded data
               var catalogEntry = propertyMapping.CatalogEntry;
               var inputIndex = pipelineNode.Inputs.ToList().FindIndex(e => e.Key == catalogEntry.Key);
-              
+
               if (inputIndex >= 0 && inputIndex < inputs.Length)
               {
                 var data = inputs[inputIndex];
-                
+
                 Logger?.LogDebug(
                   "Mapping catalog entry '{Key}' to property '{PropertyName}' on {TypeName}",
                   catalogEntry.Key,
                   propertyMapping.Property.Name,
                   inputItemType.Name);
-                
+
                 // Set the property value
                 if (propertyMapping.Property.CanWrite)
                 {
                   propertyMapping.Property.SetValue(compositeInput, data);
-                  
+
                   Logger?.LogDebug(
                     "Set property '{PropertyName}' with data of type {DataType}",
                     propertyMapping.Property.Name,
@@ -338,7 +345,7 @@ public class Pipeline
             }
           }
         }
-        
+
         // Wrap in singleton enumerable
         var listType = typeof(List<>).MakeGenericType(inputItemType);
         var list = (System.Collections.IList?)Activator.CreateInstance(listType);
@@ -370,20 +377,41 @@ public class Pipeline
         }
         else
         {
-          // For multi-output nodes, the output should be an object with properties
-          // matching the output catalog entries (handled by CatalogMap)
-          var outputType = output.GetType();
-          foreach (var catalogEntry in pipelineNode.Outputs)
+          // For multi-output nodes, use OutputMappings to correctly map properties to catalog entries
+          if (pipelineNode.OutputMappings == null || pipelineNode.OutputMappings.Count == 0)
           {
-            // Find property on output object that corresponds to this catalog entry
-            var property = outputType.GetProperty(catalogEntry.Key);
-            if (property != null)
+            throw new InvalidOperationException(
+              $"Node '{pipelineNode.Name}' has multiple outputs but no OutputMappings configured.");
+          }
+
+          // Multi-output nodes return IEnumerable<TOutputSchema>, extract the single item
+          if (output is not System.Collections.IEnumerable outputEnumerable)
+          {
+            throw new InvalidOperationException(
+              $"Multi-output node '{pipelineNode.Name}' returned non-enumerable output: {output.GetType().Name}");
+          }
+
+          var outputItem = outputEnumerable.Cast<object>().FirstOrDefault();
+          if (outputItem == null)
+          {
+            throw new InvalidOperationException(
+              $"Multi-output node '{pipelineNode.Name}' returned empty output collection");
+          }
+
+          foreach (var mapping in pipelineNode.OutputMappings)
+          {
+            // OutputMappings should be CatalogPropertyMapping instances
+            if (mapping is not Mapping.CatalogPropertyMapping propertyMapping)
             {
-              var propertyValue = property.GetValue(output);
-              if (propertyValue != null)
-              {
-                await catalogEntry.SaveUntyped(propertyValue);
-              }
+              throw new InvalidOperationException(
+                $"Node '{pipelineNode.Name}' has an invalid mapping type: {mapping.GetType().Name}");
+            }
+
+            // Use the property info from the mapping (which has the correct property name)
+            var propertyValue = propertyMapping.Property.GetValue(outputItem);
+            if (propertyValue != null)
+            {
+              await propertyMapping.CatalogEntry.SaveUntyped(propertyValue);
             }
           }
         }
@@ -391,23 +419,23 @@ public class Pipeline
 
       stopwatch.Stop();
 
-      // Calculate output count
-      var outputCount = output is System.Collections.IEnumerable enumerable
-        ? enumerable.Cast<object>().Count()
-        : (output != null ? 1 : 0);
+      // Get output counts for diagnostics (after saving data)
+      var outputCountTasks = pipelineNode.Outputs.Select(entry => entry.GetCountAsync());
+      var outputCounts = await Task.WhenAll(outputCountTasks);
+      var totalOutputCount = outputCounts.Sum();
 
       Logger?.LogInformation(
-        "Node {NodeName} completed successfully: {InputCount} inputs → {OutputCount} outputs in {ElapsedMs}ms",
+        "Node {NodeName} completed: {InputCount} observations in → {OutputCount} observations out ({ElapsedMs}ms)",
         pipelineNode.Name,
-        inputCount,
-        outputCount,
+        totalInputCount,
+        totalOutputCount,
         stopwatch.ElapsedMilliseconds);
 
       return NodeResult.CreateSuccess(
         pipelineNode.Name,
         stopwatch.Elapsed,
-        inputCount,
-        outputCount);
+        totalInputCount,
+        totalOutputCount);
     }
     catch (Exception ex)
     {

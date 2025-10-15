@@ -46,6 +46,21 @@ public interface ICatalogEntry
   /// </summary>
   /// <returns>True if data exists, false otherwise</returns>
   Task<bool> Exists();
+
+  /// <summary>
+  /// Gets the count of items in this catalog entry.
+  /// </summary>
+  /// <returns>
+  /// The number of items/observations in the catalog entry.
+  /// For collections, this is the enumerable count.
+  /// For singleton entries, this returns 1 if data exists, 0 otherwise.
+  /// For empty or non-existent entries, this returns 0.
+  /// </returns>
+  /// <remarks>
+  /// Used for diagnostic logging and pipeline observability.
+  /// Implementations should return the count efficiently without loading all data into memory when possible.
+  /// </remarks>
+  Task<int> GetCountAsync();
 }
 
 /// <summary>

@@ -96,6 +96,9 @@ public class Program
     var pipeline = pipelines[pipelineName];
     Console.WriteLine($"=== DEBUG: Got pipeline, about to run ===");
 
+    // Attach logger to pipeline for node execution diagnostics
+    pipeline.Logger = logger;
+
     try
     {
       Console.WriteLine($"=== DEBUG: Calling pipeline.RunAsync() ===");

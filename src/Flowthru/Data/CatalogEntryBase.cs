@@ -46,6 +46,28 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>
 
   /// <inheritdoc/>
   /// <remarks>
+  /// Default implementation loads the data and counts it.
+  /// Derived classes should override this for better performance when possible.
+  /// </remarks>
+  public virtual async Task<int> GetCountAsync()
+  {
+    if (!await Exists())
+      return 0;
+
+    var data = await Load();
+
+    // For IEnumerable<T>, count the items
+    if (data is System.Collections.IEnumerable enumerable and not string)
+    {
+      return enumerable.Cast<object>().Count();
+    }
+
+    // For non-enumerable types (singletons), return 1 if data exists
+    return data != null ? 1 : 0;
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
   /// Default implementation delegates to strongly-typed Load() and boxes the result.
   /// </remarks>
   public virtual async Task<object> LoadUntyped()

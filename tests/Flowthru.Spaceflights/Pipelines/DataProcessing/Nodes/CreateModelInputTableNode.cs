@@ -28,6 +28,23 @@ public class CreateModelInputTableNode
     var shuttleDict = shuttles.ToDictionary(s => s.Id);
     var companyDict = companies.ToDictionary(c => c.Id);
 
+    // Diagnostic: Check review shuttle IDs
+    var reviewCount = reviews.Count();
+    var validReviewShuttleIds = reviews
+        .Where(r => !string.IsNullOrWhiteSpace(r.ShuttleId))
+        .Where(r => shuttleDict.ContainsKey(r.ShuttleId))
+        .Count();
+    Console.WriteLine($"=== Reviews: {reviewCount} total, {validReviewShuttleIds} with valid shuttle IDs ===");
+
+    if (validReviewShuttleIds == 0 && reviewCount > 0)
+    {
+      // Sample some IDs to see what's wrong
+      var sampleReviewIds = reviews.Take(5).Select(r => r.ShuttleId).ToList();
+      var sampleShuttleIds = shuttles.Take(5).Select(s => s.Id).ToList();
+      Console.WriteLine($"=== Sample review shuttle_ids: {string.Join(", ", sampleReviewIds)} ===");
+      Console.WriteLine($"=== Sample shuttle ids: {string.Join(", ", sampleShuttleIds)} ===");
+    }
+
     // Join reviews with shuttles and companies
     var modelInput = reviews
         .Where(review => !string.IsNullOrWhiteSpace(review.ShuttleId))
