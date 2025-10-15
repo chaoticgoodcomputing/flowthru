@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "nx g @nx-dotnet/core:restore"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,8 @@
     "nx": "^21.6.4"
   },
   "devDependencies": {
+    "@nx-dotnet/core": "^3.0.2",
+    "@nx/js": "21.6.4",
     "nx": "21.6.4"
   },
   "nx": {}
