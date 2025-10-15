@@ -235,7 +235,9 @@ public class SpaceflightsCatalog
       yTest: new MemoryCatalogEntry<IEnumerable<decimal>>("y_test"),
 
       regressor: new MemoryCatalogEntry<IEnumerable<ITransformer>>("regressor"),
-      modelMetrics: new MemoryCatalogEntry<IEnumerable<ModelMetrics>>("model_metrics")
+      modelMetrics: new CsvCatalogEntry<ModelMetrics>(
+        "model_metrics",
+        $"{basePath}/07_Model_Output/model_metrics.csv")
     );
   }
 }
