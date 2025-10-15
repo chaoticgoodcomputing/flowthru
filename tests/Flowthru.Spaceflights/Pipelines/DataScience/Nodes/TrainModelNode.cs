@@ -14,7 +14,7 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// </summary>
 public class TrainModelNode : Node<TrainTestSplit, ITransformer>
 {
-    protected override Task<IEnumerable<ITransformer>> TransformInternal(
+    protected override Task<IEnumerable<ITransformer>> Transform(
         IEnumerable<TrainTestSplit> input)
     {
         var split = input.Single();

@@ -14,7 +14,7 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 public class CreateModelInputTableNode
     : Node<ShuttleSchema, CompanySchema, ReviewRawSchema, ModelInputSchema>
 {
-  protected override Task<IEnumerable<ModelInputSchema>> TransformInternal(
+  protected override Task<IEnumerable<ModelInputSchema>> Transform(
       IEnumerable<ShuttleSchema> shuttles,
       IEnumerable<CompanySchema> companies,
       IEnumerable<ReviewRawSchema> reviews)

@@ -18,7 +18,7 @@ public class SplitDataNode : Node<ModelInputSchema, TrainTestSplit, ModelOptions
   // Parameters property inherited from Node<TInput, TOutput, TParameters>
   // public ModelOptions Parameters { get; set; } = new();
 
-  protected override Task<IEnumerable<TrainTestSplit>> TransformInternal(
+  protected override Task<IEnumerable<TrainTestSplit>> Transform(
       IEnumerable<ModelInputSchema> input)
   {
     var data = input.ToList();

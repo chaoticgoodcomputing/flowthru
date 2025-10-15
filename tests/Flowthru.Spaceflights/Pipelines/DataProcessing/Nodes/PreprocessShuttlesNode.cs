@@ -13,7 +13,7 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// </summary>
 public class PreprocessShuttlesNode : Node<ShuttleRawSchema, ShuttleSchema>
 {
-  protected override Task<IEnumerable<ShuttleSchema>> TransformInternal(
+  protected override Task<IEnumerable<ShuttleSchema>> Transform(
       IEnumerable<ShuttleRawSchema> input)
   {
     var processed = input.Select(shuttle => new ShuttleSchema

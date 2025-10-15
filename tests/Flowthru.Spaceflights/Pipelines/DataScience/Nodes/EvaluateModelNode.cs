@@ -21,7 +21,7 @@ public class EvaluateModelNode : Node<ITransformer, TrainTestSplit, ModelMetrics
   /// </summary>
   public ILogger<EvaluateModelNode>? Logger { get; set; }
 
-  protected override Task<IEnumerable<ModelMetrics>> TransformInternal(
+  protected override Task<IEnumerable<ModelMetrics>> Transform(
       IEnumerable<ITransformer> models,
       IEnumerable<TrainTestSplit> splits)
   {

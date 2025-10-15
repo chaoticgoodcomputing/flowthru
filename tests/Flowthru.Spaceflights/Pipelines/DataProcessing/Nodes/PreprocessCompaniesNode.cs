@@ -13,7 +13,7 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// </summary>
 public class PreprocessCompaniesNode : Node<CompanyRawSchema, CompanySchema>
 {
-  protected override Task<IEnumerable<CompanySchema>> TransformInternal(
+  protected override Task<IEnumerable<CompanySchema>> Transform(
       IEnumerable<CompanyRawSchema> input)
   {
     var processed = input.Select(company => new CompanySchema
