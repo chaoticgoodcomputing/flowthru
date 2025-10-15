@@ -22,93 +22,93 @@ namespace Flowthru.Data;
 /// </remarks>
 public class DataCatalog
 {
-    private readonly ConcurrentDictionary<string, ICatalogEntry> _entries = new();
+  private readonly ConcurrentDictionary<string, ICatalogEntry> _entries = new();
 
-    /// <summary>
-    /// Registers a catalog entry with the specified key.
-    /// </summary>
-    /// <typeparam name="T">The type of data stored in the catalog entry</typeparam>
-    /// <param name="key">Unique identifier for the catalog entry</param>
-    /// <param name="entry">The catalog entry to register</param>
-    /// <exception cref="ArgumentException">
-    /// Thrown if a catalog entry with the same key is already registered
-    /// </exception>
-    public void Register<T>(string key, ICatalogEntry<T> entry)
+  /// <summary>
+  /// Registers a catalog entry with the specified key.
+  /// </summary>
+  /// <typeparam name="T">The type of data stored in the catalog entry</typeparam>
+  /// <param name="key">Unique identifier for the catalog entry</param>
+  /// <param name="entry">The catalog entry to register</param>
+  /// <exception cref="ArgumentException">
+  /// Thrown if a catalog entry with the same key is already registered
+  /// </exception>
+  public void Register<T>(string key, ICatalogEntry<T> entry)
+  {
+    if (!_entries.TryAdd(key, entry))
     {
-        if (!_entries.TryAdd(key, entry))
-        {
-            throw new ArgumentException(
-                $"Catalog entry with key '{key}' is already registered", nameof(key));
-        }
+      throw new ArgumentException(
+          $"Catalog entry with key '{key}' is already registered", nameof(key));
+    }
+  }
+
+  /// <summary>
+  /// Retrieves a strongly-typed catalog entry by key.
+  /// </summary>
+  /// <typeparam name="T">The expected type of data in the catalog entry</typeparam>
+  /// <param name="key">The key of the catalog entry to retrieve</param>
+  /// <returns>The catalog entry</returns>
+  /// <exception cref="KeyNotFoundException">
+  /// Thrown if no catalog entry with the specified key exists
+  /// </exception>
+  /// <exception cref="InvalidCastException">
+  /// Thrown if the catalog entry exists but stores a different type than expected
+  /// </exception>
+  public ICatalogEntry<T> Get<T>(string key)
+  {
+    if (!_entries.TryGetValue(key, out var entry))
+    {
+      throw new KeyNotFoundException(
+          $"No catalog entry found with key '{key}'");
     }
 
-    /// <summary>
-    /// Retrieves a strongly-typed catalog entry by key.
-    /// </summary>
-    /// <typeparam name="T">The expected type of data in the catalog entry</typeparam>
-    /// <param name="key">The key of the catalog entry to retrieve</param>
-    /// <returns>The catalog entry</returns>
-    /// <exception cref="KeyNotFoundException">
-    /// Thrown if no catalog entry with the specified key exists
-    /// </exception>
-    /// <exception cref="InvalidCastException">
-    /// Thrown if the catalog entry exists but stores a different type than expected
-    /// </exception>
-    public ICatalogEntry<T> Get<T>(string key)
+    if (entry is not ICatalogEntry<T> typedEntry)
     {
-        if (!_entries.TryGetValue(key, out var entry))
-        {
-            throw new KeyNotFoundException(
-                $"No catalog entry found with key '{key}'");
-        }
-
-        if (entry is not ICatalogEntry<T> typedEntry)
-        {
-            throw new InvalidCastException(
-                $"Catalog entry '{key}' has type {entry.DataType.Name}, " +
-                $"but {typeof(T).Name} was expected");
-        }
-
-        return typedEntry;
+      throw new InvalidCastException(
+          $"Catalog entry '{key}' has type {entry.DataType.Name}, " +
+          $"but {typeof(T).Name} was expected");
     }
 
-    /// <summary>
-    /// Retrieves an untyped catalog entry by key.
-    /// </summary>
-    /// <param name="key">The key of the catalog entry to retrieve</param>
-    /// <returns>The catalog entry (untyped)</returns>
-    /// <exception cref="KeyNotFoundException">
-    /// Thrown if no catalog entry with the specified key exists
-    /// </exception>
-    /// <remarks>
-    /// Used internally by the mapping layer for reflection-based operations.
-    /// Prefer the strongly-typed Get&lt;T&gt;() method when possible.
-    /// </remarks>
-    public ICatalogEntry GetUntyped(string key)
-    {
-        if (!_entries.TryGetValue(key, out var entry))
-        {
-            throw new KeyNotFoundException(
-                $"No catalog entry found with key '{key}'");
-        }
+    return typedEntry;
+  }
 
-        return entry;
+  /// <summary>
+  /// Retrieves an untyped catalog entry by key.
+  /// </summary>
+  /// <param name="key">The key of the catalog entry to retrieve</param>
+  /// <returns>The catalog entry (untyped)</returns>
+  /// <exception cref="KeyNotFoundException">
+  /// Thrown if no catalog entry with the specified key exists
+  /// </exception>
+  /// <remarks>
+  /// Used internally by the mapping layer for reflection-based operations.
+  /// Prefer the strongly-typed Get&lt;T&gt;() method when possible.
+  /// </remarks>
+  public ICatalogEntry GetUntyped(string key)
+  {
+    if (!_entries.TryGetValue(key, out var entry))
+    {
+      throw new KeyNotFoundException(
+          $"No catalog entry found with key '{key}'");
     }
 
-    /// <summary>
-    /// Checks if a catalog entry with the specified key exists.
-    /// </summary>
-    /// <param name="key">The key to check</param>
-    /// <returns>True if a catalog entry with the key exists, false otherwise</returns>
-    public bool Contains(string key) => _entries.ContainsKey(key);
+    return entry;
+  }
 
-    /// <summary>
-    /// Gets all registered catalog entry keys.
-    /// </summary>
-    public IEnumerable<string> Keys => _entries.Keys;
+  /// <summary>
+  /// Checks if a catalog entry with the specified key exists.
+  /// </summary>
+  /// <param name="key">The key to check</param>
+  /// <returns>True if a catalog entry with the key exists, false otherwise</returns>
+  public bool Contains(string key) => _entries.ContainsKey(key);
 
-    /// <summary>
-    /// Gets all registered catalog entries.
-    /// </summary>
-    public IEnumerable<ICatalogEntry> Entries => _entries.Values;
+  /// <summary>
+  /// Gets all registered catalog entry keys.
+  /// </summary>
+  public IEnumerable<string> Keys => _entries.Keys;
+
+  /// <summary>
+  /// Gets all registered catalog entries.
+  /// </summary>
+  public IEnumerable<ICatalogEntry> Entries => _entries.Values;
 }

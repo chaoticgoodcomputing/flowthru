@@ -9,18 +9,18 @@ namespace Flowthru.Pipelines.Mapping;
 /// </summary>
 internal class CatalogPropertyMapping : CatalogMapping
 {
-    /// <summary>
-    /// The catalog entry that this property maps to/from.
-    /// </summary>
-    public ICatalogEntry CatalogEntry { get; }
+  /// <summary>
+  /// The catalog entry that this property maps to/from.
+  /// </summary>
+  public ICatalogEntry CatalogEntry { get; }
 
-    public CatalogPropertyMapping(PropertyInfo property, ICatalogEntry catalogEntry)
-        : base(property)
-    {
-        CatalogEntry = catalogEntry ?? throw new ArgumentNullException(nameof(catalogEntry));
-    }
+  public CatalogPropertyMapping(PropertyInfo property, ICatalogEntry catalogEntry)
+      : base(property)
+  {
+    CatalogEntry = catalogEntry ?? throw new ArgumentNullException(nameof(catalogEntry));
+  }
 
-    /// <inheritdoc/>
-    public override string Description =>
-        $"Property '{Property.Name}' mapped to catalog entry '{CatalogEntry.Key}'";
+  /// <inheritdoc/>
+  public override string Description =>
+      $"Property '{Property.Name}' mapped to catalog entry '{CatalogEntry.Key}'";
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Flowthru.Spaceflights.Data.Schemas.Raw;
 
 /// <summary>
@@ -9,12 +11,14 @@ public record ShuttleRawSchema
   /// <summary>
   /// Shuttle identifier
   /// </summary>
-  public required string Id { get; init; }
+  [Required]
+  public string Id { get; init; } = null!;
 
   /// <summary>
   /// Company identifier (foreign key to companies)
   /// </summary>
-  public required string CompanyId { get; init; }
+  [Required]
+  public string CompanyId { get; init; } = null!;
 
   /// <summary>
   /// Shuttle type/model
@@ -39,15 +43,18 @@ public record ShuttleRawSchema
   /// <summary>
   /// Price as currency string (e.g., "$1,234,567")
   /// </summary>
-  public required string Price { get; init; }
+  [Required]
+  public string Price { get; init; } = null!;
 
   /// <summary>
   /// D-check completion status as "t" or "f"
   /// </summary>
-  public required string DCheckComplete { get; init; }
+  [Required]
+  public string DCheckComplete { get; init; } = null!;
 
   /// <summary>
   /// Moon clearance completion status as "t" or "f"
   /// </summary>
-  public required string MoonClearanceComplete { get; init; }
+  [Required]
+  public string MoonClearanceComplete { get; init; } = null!;
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Flowthru.Spaceflights.Data.Schemas.Processed;
 
 /// <summary>
@@ -9,7 +11,8 @@ public record CompanySchema
   /// <summary>
   /// Company identifier
   /// </summary>
-  public required string Id { get; init; }
+  [Required]
+  public string Id { get; init; } = null!;
 
   /// <summary>
   /// Company rating as decimal (0.0 to 1.0)

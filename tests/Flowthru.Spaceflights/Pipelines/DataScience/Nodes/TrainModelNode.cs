@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Flowthru.Nodes;
 using Flowthru.Spaceflights.Data.Schemas.Models;
 using Microsoft.ML;
@@ -13,14 +14,15 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class TrainModelNode : Node<IEnumerable<FeatureRow>, IEnumerable<decimal>, ITransformer>
+public class TrainModelNode : NodeBase<TrainModelInputs, ITransformer>
 {
     protected override Task<IEnumerable<ITransformer>> Transform(
-        IEnumerable<IEnumerable<FeatureRow>> xTrain,
-        IEnumerable<IEnumerable<decimal>> yTrain)
+        IEnumerable<TrainModelInputs> inputs)
     {
-        var xTrainData = xTrain.Single();
-        var yTrainData = yTrain.Single();
+        // Extract the singleton input containing all catalog data
+        var input = inputs.Single();
+        var xTrainData = input.XTrain;
+        var yTrainData = input.YTrain;
 
         var mlContext = new MLContext(seed: 0);
 
@@ -61,3 +63,26 @@ public class TrainModelNode : Node<IEnumerable<FeatureRow>, IEnumerable<decimal>
         return Task.FromResult(new[] { model }.AsEnumerable());
     }
 }
+
+#region Node Artifacts (Colocated)
+
+/// <summary>
+/// Multi-input schema for TrainModelNode.
+/// Bundles training features and targets for model training.
+/// </summary>
+public record TrainModelInputs
+{
+    /// <summary>
+    /// Training features
+    /// </summary>
+    [Required]
+    public IEnumerable<FeatureRow> XTrain { get; init; } = null!;
+
+    /// <summary>
+    /// Training targets (prices)
+    /// </summary>
+    [Required]
+    public IEnumerable<decimal> YTrain { get; init; } = null!;
+}
+
+#endregion

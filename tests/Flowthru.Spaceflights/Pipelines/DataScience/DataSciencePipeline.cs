@@ -1,5 +1,10 @@
+using Microsoft.ML;
+using Flowthru.Nodes;
 using Flowthru.Pipelines;
+using Flowthru.Pipelines.Mapping;
 using Flowthru.Spaceflights.Data;
+using Flowthru.Spaceflights.Data.Schemas.Models;
+using Flowthru.Spaceflights.Data.Schemas.Processed;
 using Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 
 namespace Flowthru.Spaceflights.Pipelines.DataScience;
@@ -12,7 +17,7 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience;
 /// This pipeline uses a strongly-typed catalog (SpaceflightsCatalog) to ensure:
 /// - All catalog references are validated at compile-time
 /// - Node input/output types must match catalog entry types
-/// - OutputMapping enforces property-to-catalog type consistency
+/// - CatalogMap enforces property-to-catalog type consistency
 /// - Refactoring tools work seamlessly (rename, find references)
 /// - IntelliSense shows available catalog entries with their types
 /// </para>
@@ -29,34 +34,42 @@ public static class DataSciencePipeline
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
-      // Node 1: Split data into train/test sets (multi-output with compile-time type checking)
-      // OutputMapping<T>.Add<TProp> ensures each property type matches its catalog entry type
-      var splitOutputs = new OutputMapping<SplitDataOutputs>();
-      splitOutputs.Add(s => s.XTrain, catalog.XTrain);  // ✅ Both IEnumerable<FeatureRow>
-      splitOutputs.Add(s => s.XTest, catalog.XTest);    // ✅ Both IEnumerable<FeatureRow>
-      splitOutputs.Add(s => s.YTrain, catalog.YTrain);  // ✅ Both IEnumerable<decimal>
-      splitOutputs.Add(s => s.YTest, catalog.YTest);    // ✅ Both IEnumerable<decimal>
+      // Node 1: Split data into train/test sets (single input → multi-output)
+      var splitOutputs = new CatalogMap<SplitDataOutputs>()
+        .Map(s => s.XTrain, catalog.XTrain)   // ✅ Both IEnumerable<FeatureRow>
+        .Map(s => s.XTest, catalog.XTest)     // ✅ Both IEnumerable<FeatureRow>
+        .Map(s => s.YTrain, catalog.YTrain)   // ✅ Both IEnumerable<decimal>
+        .Map(s => s.YTest, catalog.YTest);    // ✅ Both IEnumerable<decimal>
 
-      pipeline.AddNode<SplitDataNode>(
-        input: catalog.ModelInputTable,  // ✅ Type-checked: ICatalogEntry<ModelInputSchema>
-        outputMapping: splitOutputs,
+      pipeline.AddNode<SplitDataNode, IEnumerable<ModelInputSchema>, SplitDataOutputs, ModelOptions>(
+        input: catalog.ModelInputTable,       // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
+        output: splitOutputs,                 // ✅ Type-checked via CatalogMap
         name: "split_data_node",
-        configureNode: node => node.Parameters = options ?? new ModelOptions()
+        configure: node => node.Parameters = options ?? new ModelOptions()
       );
 
-      // Node 2: Train regression model (multi-input with compile-time type checking)
-      pipeline.AddNode<TrainModelNode>(
-        inputs: (catalog.XTrain, catalog.YTrain),  // ✅ Tuple type-checked against node signature
-        output: catalog.Regressor,                  // ✅ Type-checked: ICatalogEntry<ITransformer>
+      // Node 2: Train regression model (multi-input → single output)
+      var trainInputs = new CatalogMap<TrainModelInputs>()
+        .Map(x => x.XTrain, catalog.XTrain)   // ✅ Both IEnumerable<FeatureRow>
+        .Map(x => x.YTrain, catalog.YTrain);  // ✅ Both IEnumerable<decimal>
+
+      pipeline.AddNode<TrainModelNode, TrainModelInputs, IEnumerable<ITransformer>, NoParams>(
+        input: trainInputs,                   // ✅ Type-checked via CatalogMap
+        output: catalog.Regressor,            // ✅ Type-checked: ICatalogEntry<ITransformer>
         name: "train_model_node"
       );
 
-      // Node 3: Evaluate model (three inputs with compile-time type checking)
-      pipeline.AddNode<EvaluateModelNode>(
-        inputs: (catalog.Regressor, catalog.XTest, catalog.YTest),  // ✅ All types validated
-        output: catalog.ModelMetrics,                                // ✅ Type-checked: ICatalogEntry<ModelMetrics>
+      // Node 3: Evaluate model (multi-input → single output)
+      var evaluateInputs = new CatalogMap<EvaluateModelInputs>()
+        .Map(x => x.Regressor, catalog.Regressor)  // ✅ Both ITransformer
+        .Map(x => x.XTest, catalog.XTest)          // ✅ Both IEnumerable<FeatureRow>
+        .Map(x => x.YTest, catalog.YTest);         // ✅ Both IEnumerable<decimal>
+
+      pipeline.AddNode<EvaluateModelNode, EvaluateModelInputs, ModelMetrics, NoParams>(
+        input: evaluateInputs,                // ✅ Type-checked via CatalogMap
+        output: catalog.ModelMetrics,         // ✅ Type-checked: ICatalogEntry<ModelMetrics>
         name: "evaluate_model_node"
-      // Optional: configureNode: node => node.Logger = logger
+      // Optional: configure: node => node.Logger = logger
       );
     });
   }

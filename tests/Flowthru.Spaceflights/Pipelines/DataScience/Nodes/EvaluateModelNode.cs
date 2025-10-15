@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Flowthru.Nodes;
 using Flowthru.Spaceflights.Data.Schemas.Models;
 using Microsoft.ML;
@@ -16,22 +17,18 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// Uses property injection for ILogger to maintain parameterless constructor
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
-public class EvaluateModelNode : Node<ITransformer, IEnumerable<FeatureRow>, IEnumerable<decimal>, ModelMetrics>
+public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
 {
-  /// <summary>
-  /// Optional logger for outputting model evaluation metrics.
-  /// Can be set via property injection from DI container.
-  /// </summary>
-  public ILogger<EvaluateModelNode>? Logger { get; set; }
+  // Note: Logger property is inherited from NodeBase and automatically available
 
   protected override Task<IEnumerable<ModelMetrics>> Transform(
-      IEnumerable<ITransformer> models,
-      IEnumerable<IEnumerable<FeatureRow>> xTest,
-      IEnumerable<IEnumerable<decimal>> yTest)
+      IEnumerable<EvaluateModelInputs> inputs)
   {
-    var model = models.Single();
-    var xTestData = xTest.Single();
-    var yTestData = yTest.Single();
+    // Extract the singleton input containing all catalog data
+    var input = inputs.Single();
+    var model = input.Regressor;
+    var xTestData = input.XTest;
+    var yTestData = input.YTest;
 
     var mlContext = new MLContext(seed: 0);
 
@@ -70,3 +67,32 @@ public class EvaluateModelNode : Node<ITransformer, IEnumerable<FeatureRow>, IEn
     return Task.FromResult(new[] { metrics }.AsEnumerable());
   }
 }
+
+#region Node Artifacts (Colocated)
+
+/// <summary>
+/// Multi-input schema for EvaluateModelNode.
+/// Bundles trained model with test features and targets for evaluation.
+/// </summary>
+public record EvaluateModelInputs
+{
+  /// <summary>
+  /// Trained regression model
+  /// </summary>
+  [Required]
+  public ITransformer Regressor { get; init; } = null!;
+
+  /// <summary>
+  /// Test features
+  /// </summary>
+  [Required]
+  public IEnumerable<FeatureRow> XTest { get; init; } = null!;
+
+  /// <summary>
+  /// Test targets (prices)
+  /// </summary>
+  [Required]
+  public IEnumerable<decimal> YTest { get; init; } = null!;
+}
+
+#endregion

@@ -11,41 +11,41 @@ namespace Flowthru.Data;
 /// </remarks>
 public interface ICatalogEntry
 {
-    /// <summary>
-    /// Unique key identifying this catalog entry within the data catalog.
-    /// </summary>
-    string Key { get; }
+  /// <summary>
+  /// Unique key identifying this catalog entry within the data catalog.
+  /// </summary>
+  string Key { get; }
 
-    /// <summary>
-    /// The runtime type of data stored in this catalog entry.
-    /// </summary>
-    Type DataType { get; }
+  /// <summary>
+  /// The runtime type of data stored in this catalog entry.
+  /// </summary>
+  Type DataType { get; }
 
-    /// <summary>
-    /// Loads data from the catalog entry as an untyped object.
-    /// </summary>
-    /// <returns>The loaded data as object</returns>
-    /// <remarks>
-    /// Used internally by CatalogMap for reflection-based property mapping.
-    /// Callers should prefer the strongly-typed Load() method when possible.
-    /// </remarks>
-    Task<object> LoadUntyped();
+  /// <summary>
+  /// Loads data from the catalog entry as an untyped object.
+  /// </summary>
+  /// <returns>The loaded data as object</returns>
+  /// <remarks>
+  /// Used internally by CatalogMap for reflection-based property mapping.
+  /// Callers should prefer the strongly-typed Load() method when possible.
+  /// </remarks>
+  Task<object> LoadUntyped();
 
-    /// <summary>
-    /// Saves untyped data to the catalog entry.
-    /// </summary>
-    /// <param name="data">The data to save (must be assignable to DataType)</param>
-    /// <remarks>
-    /// Used internally by CatalogMap for reflection-based property mapping.
-    /// Callers should prefer the strongly-typed Save() method when possible.
-    /// </remarks>
-    Task SaveUntyped(object data);
+  /// <summary>
+  /// Saves untyped data to the catalog entry.
+  /// </summary>
+  /// <param name="data">The data to save (must be assignable to DataType)</param>
+  /// <remarks>
+  /// Used internally by CatalogMap for reflection-based property mapping.
+  /// Callers should prefer the strongly-typed Save() method when possible.
+  /// </remarks>
+  Task SaveUntyped(object data);
 
-    /// <summary>
-    /// Checks if data exists at this catalog entry location.
-    /// </summary>
-    /// <returns>True if data exists, false otherwise</returns>
-    Task<bool> Exists();
+  /// <summary>
+  /// Checks if data exists at this catalog entry location.
+  /// </summary>
+  /// <returns>True if data exists, false otherwise</returns>
+  Task<bool> Exists();
 }
 
 /// <summary>
@@ -71,23 +71,23 @@ public interface ICatalogEntry
 /// </remarks>
 public interface ICatalogEntry<T> : ICatalogEntry
 {
-    /// <summary>
-    /// Loads data from the catalog entry.
-    /// </summary>
-    /// <returns>The loaded data of type T</returns>
-    /// <remarks>
-    /// Implementations should be idempotent - calling Load() multiple times
-    /// should return equivalent data (though not necessarily the same instance).
-    /// </remarks>
-    Task<T> Load();
+  /// <summary>
+  /// Loads data from the catalog entry.
+  /// </summary>
+  /// <returns>The loaded data of type T</returns>
+  /// <remarks>
+  /// Implementations should be idempotent - calling Load() multiple times
+  /// should return equivalent data (though not necessarily the same instance).
+  /// </remarks>
+  Task<T> Load();
 
-    /// <summary>
-    /// Saves data to the catalog entry.
-    /// </summary>
-    /// <param name="data">The data to save</param>
-    /// <remarks>
-    /// Implementations may overwrite existing data or append, depending on
-    /// the storage strategy. Consult specific implementation documentation.
-    /// </remarks>
-    Task Save(T data);
+  /// <summary>
+  /// Saves data to the catalog entry.
+  /// </summary>
+  /// <param name="data">The data to save</param>
+  /// <remarks>
+  /// Implementations may overwrite existing data or append, depending on
+  /// the storage strategy. Consult specific implementation documentation.
+  /// </remarks>
+  Task Save(T data);
 }

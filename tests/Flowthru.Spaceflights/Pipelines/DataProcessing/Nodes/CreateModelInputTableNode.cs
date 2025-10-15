@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Flowthru.Nodes;
 using Flowthru.Spaceflights.Data.Schemas.Raw;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
@@ -12,13 +13,17 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
 public class CreateModelInputTableNode
-    : Node<ShuttleSchema, CompanySchema, ReviewRawSchema, ModelInputSchema>
+    : NodeBase<CreateModelInputTableInputs, ModelInputSchema>
 {
   protected override Task<IEnumerable<ModelInputSchema>> Transform(
-      IEnumerable<ShuttleSchema> shuttles,
-      IEnumerable<CompanySchema> companies,
-      IEnumerable<ReviewRawSchema> reviews)
+      IEnumerable<CreateModelInputTableInputs> inputs)
   {
+    // Extract the singleton input containing all catalog data
+    var input = inputs.Single();
+    var shuttles = input.Shuttles;
+    var companies = input.Companies;
+    var reviews = input.Reviews;
+
     // Create dictionaries for efficient lookup
     var shuttleDict = shuttles.ToDictionary(s => s.Id);
     var companyDict = companies.ToDictionary(c => c.Id);
@@ -79,3 +84,43 @@ public class CreateModelInputTableNode
     return null;
   }
 }
+
+#region Node Artifacts (Colocated)
+
+// Following FlowThru's artifact colocation policy:
+// Node-specific types (input/output schemas) are defined with the node that uses them.
+// This mirrors the React Props pattern where component-specific types live with the component.
+// Pure domain schemas (catalog entry types) remain in Data/Schemas/.
+
+/// <summary>
+/// Multi-input schema for CreateModelInputTableNode.
+/// Bundles three catalog entries (shuttles, companies, reviews) for join operation.
+/// </summary>
+/// <remarks>
+/// Properties will be mapped to catalog entries at pipeline registration time
+/// using CatalogMap&lt;T&gt; to maintain separation of concerns:
+/// - Schema layer: Pure data shape definitions
+/// - Catalog layer: Data storage/naming bindings
+/// </remarks>
+public record CreateModelInputTableInputs
+{
+  /// <summary>
+  /// Preprocessed shuttle data
+  /// </summary>
+  [Required]
+  public IEnumerable<ShuttleSchema> Shuttles { get; init; } = null!;
+
+  /// <summary>
+  /// Preprocessed company data
+  /// </summary>
+  [Required]
+  public IEnumerable<CompanySchema> Companies { get; init; } = null!;
+
+  /// <summary>
+  /// Raw review data
+  /// </summary>
+  [Required]
+  public IEnumerable<ReviewRawSchema> Reviews { get; init; } = null!;
+}
+
+#endregion

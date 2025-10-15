@@ -15,18 +15,18 @@ namespace Flowthru.Pipelines.Mapping;
 /// </remarks>
 internal abstract class CatalogMapping
 {
-    /// <summary>
-    /// The property info for the property being mapped.
-    /// </summary>
-    public PropertyInfo Property { get; }
+  /// <summary>
+  /// The property info for the property being mapped.
+  /// </summary>
+  public PropertyInfo Property { get; }
 
-    protected CatalogMapping(PropertyInfo property)
-    {
-        Property = property ?? throw new ArgumentNullException(nameof(property));
-    }
+  protected CatalogMapping(PropertyInfo property)
+  {
+    Property = property ?? throw new ArgumentNullException(nameof(property));
+  }
 
-    /// <summary>
-    /// Gets a descriptive string for this mapping (for error messages and logging).
-    /// </summary>
-    public abstract string Description { get; }
+  /// <summary>
+  /// Gets a descriptive string for this mapping (for error messages and logging).
+  /// </summary>
+  public abstract string Description { get; }
 }

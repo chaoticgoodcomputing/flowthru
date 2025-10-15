@@ -1,6 +1,6 @@
 using Flowthru.Spaceflights.Data;
 using Flowthru.Spaceflights.Pipelines;
-using Flowthru.Spaceflights.Pipelines.DataScience.Parameters;
+using Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 

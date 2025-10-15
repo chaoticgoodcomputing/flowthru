@@ -2,7 +2,7 @@ using Flowthru.Pipelines;
 using Flowthru.Spaceflights.Data;
 using Flowthru.Spaceflights.Pipelines.DataProcessing;
 using Flowthru.Spaceflights.Pipelines.DataScience;
-using Flowthru.Spaceflights.Pipelines.DataScience.Parameters;
+using Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 
 namespace Flowthru.Spaceflights.Pipelines;
 
@@ -19,7 +19,7 @@ public static class PipelineRegistry
   /// <param name="modelOptions">Optional model training parameters</param>
   /// <returns>Dictionary of pipeline names to pipeline instances</returns>
   public static Dictionary<string, Pipeline> RegisterPipelines(
-      DataCatalog catalog,
+      SpaceflightsCatalog catalog,
       ModelOptions? modelOptions = null)
   {
     var pipelines = new Dictionary<string, Pipeline>
@@ -29,7 +29,7 @@ public static class PipelineRegistry
     };
 
     // Create default pipeline that runs all pipelines in sequence
-    pipelines["__default__"] = CombinePipelines(catalog, pipelines.Values);
+    pipelines["__default__"] = CombinePipelines(pipelines.Values);
 
     return pipelines;
   }
@@ -37,15 +37,15 @@ public static class PipelineRegistry
   /// <summary>
   /// Combines multiple pipelines into a single sequential pipeline.
   /// </summary>
-  private static Pipeline CombinePipelines(DataCatalog catalog, IEnumerable<Pipeline> pipelines)
+  private static Pipeline CombinePipelines(IEnumerable<Pipeline> pipelines)
   {
-    return PipelineBuilder.CreatePipeline(catalog, pipeline =>
+    return PipelineBuilder.CreatePipeline(builder =>
     {
       // In a full implementation, this would merge node graphs
       // For now, this is a placeholder showing the intended API
       foreach (var p in pipelines)
       {
-        // pipeline.Merge(p);
+        // builder.Merge(p);
       }
     });
   }

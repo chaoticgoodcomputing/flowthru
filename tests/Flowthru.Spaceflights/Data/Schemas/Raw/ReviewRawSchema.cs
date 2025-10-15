@@ -1,4 +1,4 @@
-namespace Flowthru.Spaeflights.Data.Schemas.Raw;
+namespace Flowthru.Spaceflights.Data.Schemas.Raw;
 
 /// <summary>
 /// Raw review data as read from CSV file.

@@ -11,7 +11,7 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessShuttlesNode : Node<ShuttleRawSchema, ShuttleSchema>
+public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema>
 {
   protected override Task<IEnumerable<ShuttleSchema>> Transform(
       IEnumerable<ShuttleRawSchema> input)

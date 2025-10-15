@@ -25,63 +25,63 @@ namespace Flowthru.Data.Implementations;
 /// </remarks>
 public class MemoryCatalogEntry<T> : CatalogEntryBase<T>
 {
-    private T? _data;
-    private bool _hasData;
-    private readonly object _lock = new();
+  private T? _data;
+  private bool _hasData;
+  private readonly object _lock = new();
 
-    /// <summary>
-    /// Creates a new in-memory catalog entry.
-    /// </summary>
-    /// <param name="key">Unique identifier for this catalog entry</param>
-    public MemoryCatalogEntry(string key) : base(key)
+  /// <summary>
+  /// Creates a new in-memory catalog entry.
+  /// </summary>
+  /// <param name="key">Unique identifier for this catalog entry</param>
+  public MemoryCatalogEntry(string key) : base(key)
+  {
+  }
+
+  /// <inheritdoc/>
+  public override Task<T> Load()
+  {
+    lock (_lock)
     {
+      if (!_hasData)
+      {
+        throw new InvalidOperationException(
+            $"Cannot load from memory catalog entry '{Key}' - no data has been saved yet");
+      }
+
+      return Task.FromResult(_data)!;
+    }
+  }
+
+  /// <inheritdoc/>
+  public override Task Save(T data)
+  {
+    lock (_lock)
+    {
+      _data = data;
+      _hasData = true;
     }
 
-    /// <inheritdoc/>
-    public override Task<T> Load()
+    return Task.CompletedTask;
+  }
+
+  /// <inheritdoc/>
+  public override Task<bool> Exists()
+  {
+    lock (_lock)
     {
-        lock (_lock)
-        {
-            if (!_hasData)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot load from memory catalog entry '{Key}' - no data has been saved yet");
-            }
-
-            return Task.FromResult(_data)!;
-        }
+      return Task.FromResult(_hasData);
     }
+  }
 
-    /// <inheritdoc/>
-    public override Task Save(T data)
+  /// <summary>
+  /// Clears the stored data.
+  /// </summary>
+  public void Clear()
+  {
+    lock (_lock)
     {
-        lock (_lock)
-        {
-            _data = data;
-            _hasData = true;
-        }
-
-        return Task.CompletedTask;
+      _data = default;
+      _hasData = false;
     }
-
-    /// <inheritdoc/>
-    public override Task<bool> Exists()
-    {
-        lock (_lock)
-        {
-            return Task.FromResult(_hasData);
-        }
-    }
-
-    /// <summary>
-    /// Clears the stored data.
-    /// </summary>
-    public void Clear()
-    {
-        lock (_lock)
-        {
-            _data = default;
-            _hasData = false;
-        }
-    }
+  }
 }

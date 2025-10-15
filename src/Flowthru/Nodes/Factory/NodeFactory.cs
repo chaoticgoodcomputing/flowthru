@@ -18,24 +18,24 @@ namespace Flowthru.Nodes.Factory;
 /// </remarks>
 public static class NodeFactory
 {
-    /// <summary>
-    /// Creates a new instance of the specified node type.
-    /// </summary>
-    /// <typeparam name="TNode">The node type to instantiate</typeparam>
-    /// <returns>A new node instance</returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Requirements:</strong>
-    /// - TNode must inherit from NodeBase&lt;TInput, TOutput&gt;
-    /// - TNode must have a parameterless constructor
-    /// </para>
-    /// <para>
-    /// These requirements are enforced at compile-time via generic constraints in
-    /// PipelineBuilder.AddNode methods.
-    /// </para>
-    /// </remarks>
-    public static TNode Create<TNode>() where TNode : new()
-    {
-        return TypeActivator.Create<TNode>();
-    }
+  /// <summary>
+  /// Creates a new instance of the specified node type.
+  /// </summary>
+  /// <typeparam name="TNode">The node type to instantiate</typeparam>
+  /// <returns>A new node instance</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Requirements:</strong>
+  /// - TNode must inherit from NodeBase&lt;TInput, TOutput&gt;
+  /// - TNode must have a parameterless constructor
+  /// </para>
+  /// <para>
+  /// These requirements are enforced at compile-time via generic constraints in
+  /// PipelineBuilder.AddNode methods.
+  /// </para>
+  /// </remarks>
+  public static TNode Create<TNode>() where TNode : new()
+  {
+    return TypeActivator.Create<TNode>();
+  }
 }

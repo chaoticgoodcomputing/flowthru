@@ -30,9 +30,9 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </para>
 /// </summary>
-public class SplitDataNode : Node<ModelInputSchema, SplitDataOutputs, ModelOptions>
+public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelOptions>
 {
-  // Parameters property inherited from Node<TInput, TOutput, TParameters>
+  // Parameters property inherited from NodeBase<TInput, TOutput, TParameters>
   // public ModelOptions Parameters { get; set; } = new();
 
   protected override Task<IEnumerable<SplitDataOutputs>> Transform(
@@ -104,22 +104,22 @@ public record SplitDataOutputs
   /// <summary>
   /// Training features
   /// </summary>
-  public required IEnumerable<FeatureRow> XTrain { get; init; }
+  public IEnumerable<FeatureRow> XTrain { get; init; } = null!;
 
   /// <summary>
   /// Testing features
   /// </summary>
-  public required IEnumerable<FeatureRow> XTest { get; init; }
+  public IEnumerable<FeatureRow> XTest { get; init; } = null!;
 
   /// <summary>
   /// Training targets (prices)
   /// </summary>
-  public required IEnumerable<decimal> YTrain { get; init; }
+  public IEnumerable<decimal> YTrain { get; init; } = null!;
 
   /// <summary>
   /// Testing targets (prices)
   /// </summary>
-  public required IEnumerable<decimal> YTest { get; init; }
+  public IEnumerable<decimal> YTest { get; init; } = null!;
 }
 
 /// <summary>

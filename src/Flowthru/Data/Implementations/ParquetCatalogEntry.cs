@@ -36,56 +36,56 @@ namespace Flowthru.Data.Implementations;
 public class ParquetCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
     where T : new()
 {
-    private readonly string _filePath;
+  private readonly string _filePath;
 
-    /// <summary>
-    /// Creates a new Parquet catalog entry.
-    /// </summary>
-    /// <param name="key">Unique identifier for this catalog entry</param>
-    /// <param name="filePath">Path to the Parquet file (absolute or relative to working directory)</param>
-    public ParquetCatalogEntry(string key, string filePath)
-        : base(key)
+  /// <summary>
+  /// Creates a new Parquet catalog entry.
+  /// </summary>
+  /// <param name="key">Unique identifier for this catalog entry</param>
+  /// <param name="filePath">Path to the Parquet file (absolute or relative to working directory)</param>
+  public ParquetCatalogEntry(string key, string filePath)
+      : base(key)
+  {
+    _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+  }
+
+  /// <summary>
+  /// Gets the file path for this Parquet catalog entry.
+  /// </summary>
+  public string FilePath => _filePath;
+
+  /// <inheritdoc/>
+  public override async Task<IEnumerable<T>> Load()
+  {
+    if (!File.Exists(_filePath))
     {
-        _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
+      throw new FileNotFoundException(
+          $"Parquet file not found for catalog entry '{Key}'", _filePath);
     }
 
-    /// <summary>
-    /// Gets the file path for this Parquet catalog entry.
-    /// </summary>
-    public string FilePath => _filePath;
+    using var fileStream = File.OpenRead(_filePath);
+    var records = await ParquetSerializer.DeserializeAsync<T>(fileStream);
 
-    /// <inheritdoc/>
-    public override async Task<IEnumerable<T>> Load()
+    return records;
+  }
+
+  /// <inheritdoc/>
+  public override async Task Save(IEnumerable<T> data)
+  {
+    // Ensure directory exists
+    var directory = Path.GetDirectoryName(_filePath);
+    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
     {
-        if (!File.Exists(_filePath))
-        {
-            throw new FileNotFoundException(
-                $"Parquet file not found for catalog entry '{Key}'", _filePath);
-        }
-
-        using var fileStream = File.OpenRead(_filePath);
-        var records = await ParquetSerializer.DeserializeAsync<T>(fileStream);
-
-        return records;
+      Directory.CreateDirectory(directory);
     }
 
-    /// <inheritdoc/>
-    public override async Task Save(IEnumerable<T> data)
-    {
-        // Ensure directory exists
-        var directory = Path.GetDirectoryName(_filePath);
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
+    using var fileStream = File.Create(_filePath);
+    await ParquetSerializer.SerializeAsync(data, fileStream);
+  }
 
-        using var fileStream = File.Create(_filePath);
-        await ParquetSerializer.SerializeAsync(data, fileStream);
-    }
-
-    /// <inheritdoc/>
-    public override Task<bool> Exists()
-    {
-        return Task.FromResult(File.Exists(_filePath));
-    }
+  /// <inheritdoc/>
+  public override Task<bool> Exists()
+  {
+    return Task.FromResult(File.Exists(_filePath));
+  }
 }

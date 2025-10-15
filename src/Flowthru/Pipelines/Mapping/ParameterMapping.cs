@@ -13,19 +13,19 @@ namespace Flowthru.Pipelines.Mapping;
 /// </remarks>
 internal class ParameterMapping : CatalogMapping
 {
-    /// <summary>
-    /// The constant value to map to this property.
-    /// </summary>
-    public object Value { get; }
+  /// <summary>
+  /// The constant value to map to this property.
+  /// </summary>
+  public object Value { get; }
 
-    public ParameterMapping(PropertyInfo property, object value)
-        : base(property)
-    {
-        Value = value; // Null is allowed as a parameter value
-    }
+  public ParameterMapping(PropertyInfo property, object value)
+      : base(property)
+  {
+    Value = value; // Null is allowed as a parameter value
+  }
 
-    /// <inheritdoc/>
-    public override string Description =>
-        $"Property '{Property.Name}' mapped to parameter value " +
-        $"of type {Value?.GetType().Name ?? "null"}";
+  /// <inheritdoc/>
+  public override string Description =>
+      $"Property '{Property.Name}' mapped to parameter value " +
+      $"of type {Value?.GetType().Name ?? "null"}";
 }

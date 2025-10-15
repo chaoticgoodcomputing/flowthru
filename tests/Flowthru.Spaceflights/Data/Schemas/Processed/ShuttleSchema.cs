@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Flowthru.Spaceflights.Data.Schemas.Processed;
 
 /// <summary>
@@ -9,12 +11,14 @@ public record ShuttleSchema
   /// <summary>
   /// Shuttle identifier
   /// </summary>
-  public required string Id { get; init; }
+  [Required]
+  public string Id { get; init; } = null!;
 
   /// <summary>
   /// Company identifier (foreign key to companies)
   /// </summary>
-  public required string CompanyId { get; init; }
+  [Required]
+  public string CompanyId { get; init; } = null!;
 
   /// <summary>
   /// Shuttle type/model
