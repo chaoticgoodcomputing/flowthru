@@ -14,33 +14,28 @@ public static class DataSciencePipeline
   {
     return PipelineBuilder.CreatePipeline(catalog, pipeline =>
     {
-      // Node 1: Split data into train/test sets (parameterized)
-      var splitNode = new SplitDataNode
-      {
-        Parameters = options ?? new ModelOptions()
-      };
-
-      pipeline.AddNode(
-        node: splitNode,
+      // Node 1: Split data into train/test sets (parameterized via property injection)
+      pipeline.AddNode<SplitDataNode>(
         inputs: "model_input_table",
         outputs: "train_test_split",
-        name: "split_data_node"
+        name: "split_data_node",
+        configureNode: node => node.Parameters = options ?? new ModelOptions()
       );
 
       // Node 2: Train regression model
-      pipeline.AddNode(
-        node: new TrainModelNode(),
+      pipeline.AddNode<TrainModelNode>(
         inputs: "train_test_split",
         outputs: "regressor",
         name: "train_model_node"
       );
 
       // Node 3: Evaluate model (2 inputs: model + test data)
-      pipeline.AddNode(
-        node: new EvaluateModelNode(),
+      // Logger can be injected via configureNode if needed
+      pipeline.AddNode<EvaluateModelNode>(
         inputs: new[] { "regressor", "train_test_split" },
         outputs: "model_metrics",
         name: "evaluate_model_node"
+      // Optional: configureNode: node => node.Logger = logger
       );
     });
   }

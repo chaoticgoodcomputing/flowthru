@@ -7,6 +7,9 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// <summary>
 /// Preprocesses raw shuttle data by converting string values to proper types.
 /// Converts price strings ($1,234,567) to decimals and "t"/"f" to booleans.
+/// 
+/// Stateless node with implicit parameterless constructor,
+/// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
 public class PreprocessShuttlesNode : Node<ShuttleRawSchema, ShuttleSchema>
 {

@@ -14,24 +14,21 @@ public static class DataProcessingPipeline
     return PipelineBuilder.CreatePipeline(catalog, pipeline =>
     {
       // Node 1: Preprocess companies
-      pipeline.AddNode(
-        node: new PreprocessCompaniesNode(),
+      pipeline.AddNode<PreprocessCompaniesNode>(
         inputs: "companies",
         outputs: "preprocessed_companies",
         name: "preprocess_companies_node"
       );
 
       // Node 2: Preprocess shuttles
-      pipeline.AddNode(
-        node: new PreprocessShuttlesNode(),
+      pipeline.AddNode<PreprocessShuttlesNode>(
         inputs: "shuttles",
         outputs: "preprocessed_shuttles",
         name: "preprocess_shuttles_node"
       );
 
       // Node 3: Create model input table (3 inputs)
-      pipeline.AddNode(
-        node: new CreateModelInputTableNode(),
+      pipeline.AddNode<CreateModelInputTableNode>(
         inputs: new[] { "preprocessed_shuttles", "preprocessed_companies", "reviews" },
         outputs: "model_input_table",
         name: "create_model_input_table_node"

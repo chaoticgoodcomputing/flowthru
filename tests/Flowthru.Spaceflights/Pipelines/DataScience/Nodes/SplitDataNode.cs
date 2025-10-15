@@ -8,12 +8,15 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// <summary>
 /// Splits model input data into training and testing sets.
 /// Extracts features and target variable (price) for ML training.
+/// 
+/// Uses third type parameter (ModelOptions) for parameters, which provides
+/// the Parameters property via inheritance. Maintains parameterless constructor
+/// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
-public class SplitDataNode
-    : Node<ModelInputSchema, TrainTestSplit>
-    , IParameterizedNode<ModelInputSchema, TrainTestSplit, ModelOptions>
+public class SplitDataNode : Node<ModelInputSchema, TrainTestSplit, ModelOptions>
 {
-  public ModelOptions Parameters { get; set; } = new();
+  // Parameters property inherited from Node<TInput, TOutput, TParameters>
+  // public ModelOptions Parameters { get; set; } = new();
 
   protected override Task<IEnumerable<TrainTestSplit>> TransformInternal(
       IEnumerable<ModelInputSchema> input)

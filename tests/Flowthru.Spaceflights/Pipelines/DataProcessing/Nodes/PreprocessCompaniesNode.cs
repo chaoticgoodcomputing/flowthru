@@ -7,6 +7,9 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// <summary>
 /// Preprocesses raw company data by converting string values to proper types.
 /// Converts percentage strings to decimals and "t"/"f" to booleans.
+/// 
+/// Stateless node with implicit parameterless constructor,
+/// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
 public class PreprocessCompaniesNode : Node<CompanyRawSchema, CompanySchema>
 {

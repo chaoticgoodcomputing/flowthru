@@ -8,6 +8,9 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// <summary>
 /// Trains a linear regression model using ML.NET.
 /// Takes training features and targets, returns trained model.
+/// 
+/// Stateless node with implicit parameterless constructor,
+/// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
 public class TrainModelNode : Node<TrainTestSplit, ITransformer>
 {

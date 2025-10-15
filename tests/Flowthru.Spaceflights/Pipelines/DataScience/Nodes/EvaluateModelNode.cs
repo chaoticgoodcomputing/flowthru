@@ -9,15 +9,17 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// <summary>
 /// Evaluates the trained model on test data and logs metrics.
 /// This is a side-effect node that produces metrics but primarily logs results.
+/// 
+/// Uses property injection for ILogger to maintain parameterless constructor
+/// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
 public class EvaluateModelNode : Node<ITransformer, TrainTestSplit, ModelMetrics>
 {
-  private readonly ILogger<EvaluateModelNode>? _logger;
-
-  public EvaluateModelNode(ILogger<EvaluateModelNode>? logger = null)
-  {
-    _logger = logger;
-  }
+  /// <summary>
+  /// Optional logger for outputting model evaluation metrics.
+  /// Can be set via property injection from DI container.
+  /// </summary>
+  public ILogger<EvaluateModelNode>? Logger { get; set; }
 
   protected override Task<IEnumerable<ModelMetrics>> TransformInternal(
       IEnumerable<ITransformer> models,
@@ -49,13 +51,13 @@ public class EvaluateModelNode : Node<ITransformer, TrainTestSplit, ModelMetrics
     };
 
     // Log results
-    _logger?.LogInformation(
+    Logger?.LogInformation(
         "Model has a coefficient R² of {R2Score:F3} on test data.",
         metrics.R2Score);
-    _logger?.LogInformation(
+    Logger?.LogInformation(
         "Mean Absolute Error: {MAE:F2}",
         metrics.MeanAbsoluteError);
-    _logger?.LogInformation(
+    Logger?.LogInformation(
         "Root Mean Squared Error: {RMSE:F2}",
         metrics.RootMeanSquaredError);
 
