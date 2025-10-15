@@ -1,5 +1,4 @@
 using Flowthru.Nodes;
-using Flowthru.Nodes.Attributes;
 using Flowthru.Spaceflights.Data.Schemas.Raw;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
 
@@ -9,9 +8,6 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// Preprocesses raw company data by converting string values to proper types.
 /// Converts percentage strings to decimals and "t"/"f" to booleans.
 /// </summary>
-[Node("preprocess_companies", "Preprocesses the data for companies")]
-[NodeInput("companies")]
-[NodeOutput("preprocessed_companies")]
 public class PreprocessCompaniesNode : Node<CompanyRawSchema, CompanySchema>
 {
   protected override Task<IEnumerable<CompanySchema>> TransformInternal(

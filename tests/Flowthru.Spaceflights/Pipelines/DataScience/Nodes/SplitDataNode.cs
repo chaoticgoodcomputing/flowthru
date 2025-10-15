@@ -1,5 +1,4 @@
 using Flowthru.Nodes;
-using Flowthru.Nodes.Attributes;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
 using Flowthru.Spaceflights.Data.Schemas.Models;
 using Flowthru.Spaceflights.Pipelines.DataScience.Parameters;
@@ -10,9 +9,6 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// Splits model input data into training and testing sets.
 /// Extracts features and target variable (price) for ML training.
 /// </summary>
-[Node("split_data", "Splits data into features and targets training and test sets")]
-[NodeInput("model_input_table")]
-[NodeOutput("train_test_split")]
 public class SplitDataNode
     : Node<ModelInputSchema, TrainTestSplit>
     , IParameterizedNode<ModelInputSchema, TrainTestSplit, ModelOptions>

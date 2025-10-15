@@ -1,5 +1,4 @@
 using Flowthru.Nodes;
-using Flowthru.Nodes.Attributes;
 using Flowthru.Spaceflights.Data.Schemas.Raw;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
 
@@ -9,9 +8,6 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// Preprocesses raw shuttle data by converting string values to proper types.
 /// Converts price strings ($1,234,567) to decimals and "t"/"f" to booleans.
 /// </summary>
-[Node("preprocess_shuttles", "Preprocesses the data for shuttles")]
-[NodeInput("shuttles")]
-[NodeOutput("preprocessed_shuttles")]
 public class PreprocessShuttlesNode : Node<ShuttleRawSchema, ShuttleSchema>
 {
   protected override Task<IEnumerable<ShuttleSchema>> TransformInternal(

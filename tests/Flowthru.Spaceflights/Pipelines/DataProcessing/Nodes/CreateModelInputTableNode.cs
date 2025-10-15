@@ -1,5 +1,4 @@
 using Flowthru.Nodes;
-using Flowthru.Nodes.Attributes;
 using Flowthru.Spaceflights.Data.Schemas.Raw;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
 
@@ -9,11 +8,6 @@ namespace Flowthru.Spaceflights.Pipelines.DataProcessing.Nodes;
 /// Combines preprocessed shuttles, companies, and raw reviews into a single model input table.
 /// Performs inner joins and drops rows with missing data.
 /// </summary>
-[Node("create_model_input_table", "Combines all data to create a model input table")]
-[NodeInput("preprocessed_shuttles", position: 0)]
-[NodeInput("preprocessed_companies", position: 1)]
-[NodeInput("reviews", position: 2)]
-[NodeOutput("model_input_table")]
 public class CreateModelInputTableNode
     : Node<ShuttleSchema, CompanySchema, ReviewRawSchema, ModelInputSchema>
 {

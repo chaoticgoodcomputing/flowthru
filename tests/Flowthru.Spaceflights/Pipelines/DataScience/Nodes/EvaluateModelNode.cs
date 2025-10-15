@@ -1,30 +1,15 @@
 using Flowthru.Nodes;
-using Flowthru.Nodes.Attributes;
 using Flowthru.Spaceflights.Data.Schemas.Models;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.Extensions.Logging;
-using LanguageExt;
 
 namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
-
-/// <summary>
-/// Input composite for evaluation node (model + test data).
-/// </summary>
-public record ModelAndTestData
-{
-  public required ITransformer Model { get; init; }
-  public required TrainTestSplit TestData { get; init; }
-}
 
 /// <summary>
 /// Evaluates the trained model on test data and logs metrics.
 /// This is a side-effect node that produces metrics but primarily logs results.
 /// </summary>
-[Node("evaluate_model", "Calculates and logs model performance metrics")]
-[NodeInput("regressor")]
-[NodeInput("train_test_split")]
-[NodeOutput("model_metrics")]
 public class EvaluateModelNode : Node<ITransformer, TrainTestSplit, ModelMetrics>
 {
   private readonly ILogger<EvaluateModelNode>? _logger;
