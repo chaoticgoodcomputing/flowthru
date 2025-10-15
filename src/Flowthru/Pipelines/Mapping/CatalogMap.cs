@@ -106,6 +106,12 @@ public class CatalogMap<T> where T : new()
   private readonly ICatalogEntry<T>? _passThroughEntry;
 
   /// <summary>
+  /// Gets the property-to-catalog mappings for this map.
+  /// Exposed for pipeline execution to correctly map inputs/outputs.
+  /// </summary>
+  internal IReadOnlyList<CatalogMapping> Mappings => _mappings.AsReadOnly();
+
+  /// <summary>
   /// Creates a new mapped catalog map (for multi-input/output scenarios).
   /// </summary>
   public CatalogMap()

@@ -75,22 +75,36 @@ internal class PipelineNode
   public int Layer { get; set; } = -1; // -1 indicates not yet assigned
 
   /// <summary>
+  /// Property-to-catalog mappings for multi-input nodes.
+  /// Null for single-input nodes (pass-through).
+  /// </summary>
+  /// <remarks>
+  /// When a node has multiple inputs (via CatalogMap), this stores the mapping
+  /// between property names on the input schema and catalog entries.
+  /// Used during execution to construct the input object correctly.
+  /// </remarks>
+  public IReadOnlyList<Mapping.CatalogMapping>? InputMappings { get; }
+
+  /// <summary>
   /// Creates a new pipeline node.
   /// </summary>
   /// <param name="name">Unique identifier for this node</param>
   /// <param name="nodeInstance">The node instance that performs the transformation</param>
   /// <param name="inputs">Catalog entries this node reads</param>
   /// <param name="outputs">Catalog entries this node writes</param>
+  /// <param name="inputMappings">Optional property-to-catalog mappings for multi-input nodes</param>
   public PipelineNode(
     string name,
     object nodeInstance,
     IReadOnlyList<ICatalogEntry> inputs,
-    IReadOnlyList<ICatalogEntry> outputs)
+    IReadOnlyList<ICatalogEntry> outputs,
+    IReadOnlyList<Mapping.CatalogMapping>? inputMappings = null)
   {
     Name = name;
     NodeInstance = nodeInstance;
     Inputs = inputs;
     Outputs = outputs;
+    InputMappings = inputMappings;
   }
 
   /// <summary>

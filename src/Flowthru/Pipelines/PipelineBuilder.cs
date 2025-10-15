@@ -180,7 +180,8 @@ public class PipelineBuilder
       name: name ?? typeof(TNode).Name,
       nodeInstance: node,
       inputs: inputEntries.ToList(),
-      outputs: new[] { output }
+      outputs: new[] { output },
+      inputMappings: input.Mappings
     );
 
     _pipeline.AddNode(pipelineNode);

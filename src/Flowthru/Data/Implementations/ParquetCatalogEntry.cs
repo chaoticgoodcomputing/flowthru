@@ -79,8 +79,8 @@ public class ParquetCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
       Directory.CreateDirectory(directory);
     }
 
-    using var fileStream = File.Create(_filePath);
-    await ParquetSerializer.SerializeAsync(data, fileStream);
+    // ParquetSerializer.SerializeAsync in v5.x accepts file path directly
+    await ParquetSerializer.SerializeAsync(data, _filePath);
   }
 
   /// <inheritdoc/>

@@ -36,8 +36,8 @@ public class CreateModelInputTableNode
         {
           var shuttle = shuttleDict[review.ShuttleId];
 
-          // Check if company exists
-          if (!companyDict.ContainsKey(shuttle.CompanyId))
+          // Check if company exists (handle null CompanyIds gracefully)
+          if (string.IsNullOrWhiteSpace(shuttle.CompanyId) || !companyDict.ContainsKey(shuttle.CompanyId))
             return null;
 
           var company = companyDict[shuttle.CompanyId];
