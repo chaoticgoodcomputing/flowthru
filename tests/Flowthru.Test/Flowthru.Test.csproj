@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Flowthru\Flowthru.csproj" />
+    <ProjectReference Include="..\..\src\Flowthru\Flowthru.csproj" />
   </ItemGroup>
 
 </Project>
