@@ -26,7 +26,7 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
   {
     // Extract the singleton input containing all catalog data
     var input = inputs.Single();
-    var model = input.Regressor;
+    var model = input.Regressor.Single(); // Extract single model from collection
     var xTestData = input.XTest;
     var yTestData = input.YTest;
 
@@ -77,10 +77,10 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
 public record EvaluateModelInputs
 {
   /// <summary>
-  /// Trained regression model
+  /// Trained regression model (singleton collection from catalog)
   /// </summary>
   [Required]
-  public ITransformer Regressor { get; init; } = null!;
+  public IEnumerable<ITransformer> Regressor { get; init; } = null!;
 
   /// <summary>
   /// Test features

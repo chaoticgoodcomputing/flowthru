@@ -41,7 +41,7 @@ public static class DataSciencePipeline
         .Map(s => s.YTrain, catalog.YTrain)   // ✅ Both IEnumerable<decimal>
         .Map(s => s.YTest, catalog.YTest);    // ✅ Both IEnumerable<decimal>
 
-      pipeline.AddNode<SplitDataNode, IEnumerable<ModelInputSchema>, SplitDataOutputs, ModelOptions>(
+      pipeline.AddNode<SplitDataNode, ModelInputSchema, SplitDataOutputs, ModelOptions>(
         input: catalog.ModelInputTable,       // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
         output: splitOutputs,                 // ✅ Type-checked via CatalogMap
         name: "split_data_node",
@@ -53,21 +53,21 @@ public static class DataSciencePipeline
         .Map(x => x.XTrain, catalog.XTrain)   // ✅ Both IEnumerable<FeatureRow>
         .Map(x => x.YTrain, catalog.YTrain);  // ✅ Both IEnumerable<decimal>
 
-      pipeline.AddNode<TrainModelNode, TrainModelInputs, IEnumerable<ITransformer>, NoParams>(
+      pipeline.AddNode<TrainModelNode, TrainModelInputs, ITransformer, NoParams>(
         input: trainInputs,                   // ✅ Type-checked via CatalogMap
-        output: catalog.Regressor,            // ✅ Type-checked: ICatalogEntry<ITransformer>
+        output: catalog.Regressor,            // ✅ Type-checked: ICatalogEntry<IEnumerable<ITransformer>>
         name: "train_model_node"
       );
 
       // Node 3: Evaluate model (multi-input → single output)
       var evaluateInputs = new CatalogMap<EvaluateModelInputs>()
-        .Map(x => x.Regressor, catalog.Regressor)  // ✅ Both ITransformer
+        .Map(x => x.Regressor, catalog.Regressor)  // ✅ Both IEnumerable<ITransformer>
         .Map(x => x.XTest, catalog.XTest)          // ✅ Both IEnumerable<FeatureRow>
         .Map(x => x.YTest, catalog.YTest);         // ✅ Both IEnumerable<decimal>
 
       pipeline.AddNode<EvaluateModelNode, EvaluateModelInputs, ModelMetrics, NoParams>(
         input: evaluateInputs,                // ✅ Type-checked via CatalogMap
-        output: catalog.ModelMetrics,         // ✅ Type-checked: ICatalogEntry<ModelMetrics>
+        output: catalog.ModelMetrics,         // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelMetrics>>
         name: "evaluate_model_node"
       // Optional: configure: node => node.Logger = logger
       );

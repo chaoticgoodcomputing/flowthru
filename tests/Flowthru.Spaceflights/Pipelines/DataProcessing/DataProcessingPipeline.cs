@@ -29,14 +29,14 @@ public static class DataProcessingPipeline
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       // Node 1: Preprocess companies (simple: single input → single output)
-      pipeline.AddNode<PreprocessCompaniesNode, IEnumerable<CompanyRawSchema>, IEnumerable<CompanySchema>, NoParams>(
+      pipeline.AddNode<PreprocessCompaniesNode, CompanyRawSchema, CompanySchema, NoParams>(
         input: catalog.Companies,                    // ✅ Type-checked: ICatalogEntry<IEnumerable<CompanyRawSchema>>
         output: catalog.PreprocessedCompanies,       // ✅ Type-checked: ICatalogEntry<IEnumerable<CompanySchema>>
         name: "preprocess_companies_node"
       );
 
       // Node 2: Preprocess shuttles (simple: single input → single output)
-      pipeline.AddNode<PreprocessShuttlesNode, IEnumerable<ShuttleRawSchema>, IEnumerable<ShuttleSchema>, NoParams>(
+      pipeline.AddNode<PreprocessShuttlesNode, ShuttleRawSchema, ShuttleSchema, NoParams>(
         input: catalog.Shuttles,                     // ✅ Type-checked: ICatalogEntry<IEnumerable<ShuttleRawSchema>>
         output: catalog.PreprocessedShuttles,        // ✅ Type-checked: ICatalogEntry<IEnumerable<ShuttleSchema>>
         name: "preprocess_shuttles_node"
@@ -48,7 +48,7 @@ public static class DataProcessingPipeline
         .Map(x => x.Companies, catalog.PreprocessedCompanies) // ✅ Both IEnumerable<CompanySchema>
         .Map(x => x.Reviews, catalog.Reviews);                // ✅ Both IEnumerable<ReviewRawSchema>
 
-      pipeline.AddNode<CreateModelInputTableNode, CreateModelInputTableInputs, IEnumerable<ModelInputSchema>, NoParams>(
+      pipeline.AddNode<CreateModelInputTableNode, CreateModelInputTableInputs, ModelInputSchema, NoParams>(
         input: createModelInputs,                    // ✅ Type-checked via CatalogMap
         output: catalog.ModelInputTable,             // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
         name: "create_model_input_table_node"

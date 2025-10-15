@@ -6,14 +6,35 @@ namespace Flowthru.Nodes;
 /// Abstract base class for all transformation nodes in a Flowthru pipeline.
 /// </summary>
 /// <typeparam name="TInput">
-/// The input type for this node. Can be:
-/// - A single data type for simple nodes (e.g., IEnumerable&lt;CompanySchema&gt;)
-/// - A schema type with multiple properties for multi-input nodes (e.g., TrainModelInputs)
+/// <para>
+/// The <strong>individual item type</strong> for this node's input, NOT a collection type.
+/// </para>
+/// <para>
+/// For simple nodes: Use the item type directly (e.g., CompanySchema, not IEnumerable&lt;CompanySchema&gt;).
+/// The Transform method will receive IEnumerable&lt;TInput&gt;, but TInput refers to individual items.
+/// </para>
+/// <para>
+/// For multi-input nodes: Use a schema type that bundles multiple input properties
+/// (e.g., TrainModelInputs containing XTrain and YTrain properties).
+/// </para>
+/// <para>
+/// <strong>Important:</strong> Catalog entries store IEnumerable&lt;TInput&gt;, but node definitions
+/// use TInput to represent the item type. This semantic distinction aligns type parameters with
+/// what developers think about (individual items) while maintaining collection-based storage.
+/// </para>
 /// </typeparam>
 /// <typeparam name="TOutput">
-/// The output type for this node. Can be:
-/// - A single data type for simple nodes (e.g., IEnumerable&lt;ProcessedData&gt;)
-/// - A schema type with multiple properties for multi-output nodes (e.g., SplitDataOutputs)
+/// <para>
+/// The <strong>individual item type</strong> for this node's output, NOT a collection type.
+/// </para>
+/// <para>
+/// For simple nodes: Use the item type directly (e.g., ProcessedData, not IEnumerable&lt;ProcessedData&gt;).
+/// The Transform method returns IEnumerable&lt;TOutput&gt;, but TOutput refers to individual items.
+/// </para>
+/// <para>
+/// For multi-output nodes: Use a schema type that bundles multiple output properties
+/// (e.g., SplitDataOutputs containing Train and Test properties).
+/// </para>
 /// </typeparam>
 /// <typeparam name="TParameters">
 /// The parameters type for configuring this node. Use NoParams if no parameters are needed.
@@ -127,14 +148,43 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// This is where the node's core logic resides.
   /// </summary>
   /// <param name="input">
-  /// Input data for transformation. For multi-input nodes, this will be an enumerable
-  /// containing a single schema instance with all input properties populated.
+  /// <para>
+  /// Collection of input items to transform. Note that while the parameter type is
+  /// IEnumerable&lt;TInput&gt;, the generic type parameter TInput represents the
+  /// <strong>individual item type</strong>, not a collection.
+  /// </para>
+  /// <para>
+  /// For simple nodes: Process each TInput item in the collection.
+  /// Example: IEnumerable&lt;CompanyRawSchema&gt; where TInput = CompanyRawSchema.
+  /// </para>
+  /// <para>
+  /// For multi-input nodes: This will be a singleton collection containing one schema
+  /// instance with all input properties populated from multiple catalog entries.
+  /// Example: IEnumerable&lt;TrainModelInputs&gt; with a single element.
+  /// </para>
   /// </param>
   /// <returns>
-  /// Transformed output data. For multi-output nodes, return an enumerable containing
-  /// a single schema instance with all output properties populated.
+  /// <para>
+  /// Collection of transformed output items. The generic type parameter TOutput represents
+  /// the <strong>individual output item type</strong>, not a collection.
+  /// </para>
+  /// <para>
+  /// For simple nodes: Return a collection of TOutput items.
+  /// Example: IEnumerable&lt;CompanySchema&gt; where TOutput = CompanySchema.
+  /// </para>
+  /// <para>
+  /// For multi-output nodes: Return a singleton collection containing one schema
+  /// instance with all output properties populated for distribution to multiple catalog entries.
+  /// Example: new[] { splitOutputs } where splitOutputs contains Train and Test properties.
+  /// </para>
   /// </returns>
   /// <remarks>
+  /// <para>
+  /// <strong>Type Parameter Semantics:</strong> TInput and TOutput represent item types,
+  /// while the method signature uses IEnumerable&lt;TInput&gt; and IEnumerable&lt;TOutput&gt;
+  /// for the actual data flow. This design keeps node definitions intuitive (thinking about
+  /// individual items) while maintaining collection-based processing for efficiency.
+  /// </para>
   /// <para>
   /// <strong>Important:</strong> Implementations should be pure functions where possible.
   /// Avoid side effects except for necessary I/O operations.
@@ -191,14 +241,28 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
 /// Equivalent to NodeBase&lt;TInput, TOutput, NoParams&gt;.
 /// </summary>
 /// <typeparam name="TInput">
-/// The input type for this node. Can be:
-/// - A single data type for simple nodes (e.g., IEnumerable&lt;CompanySchema&gt;)
-/// - A schema type with multiple properties for multi-input nodes (e.g., TrainModelInputs)
+/// <para>
+/// The <strong>individual item type</strong> for this node's input, NOT a collection type.
+/// </para>
+/// <para>
+/// For simple nodes: Use the item type directly (e.g., CompanySchema).
+/// For multi-input nodes: Use a schema type (e.g., TrainModelInputs).
+/// </para>
+/// <para>
+/// See NodeBase&lt;TInput, TOutput, TParameters&gt; for detailed type parameter semantics.
+/// </para>
 /// </typeparam>
 /// <typeparam name="TOutput">
-/// The output type for this node. Can be:
-/// - A single data type for simple nodes (e.g., IEnumerable&lt;ProcessedData&gt;)
-/// - A schema type with multiple properties for multi-output nodes (e.g., SplitDataOutputs)
+/// <para>
+/// The <strong>individual item type</strong> for this node's output, NOT a collection type.
+/// </para>
+/// <para>
+/// For simple nodes: Use the item type directly (e.g., ProcessedData).
+/// For multi-output nodes: Use a schema type (e.g., SplitDataOutputs).
+/// </para>
+/// <para>
+/// See NodeBase&lt;TInput, TOutput, TParameters&gt; for detailed type parameter semantics.
+/// </para>
 /// </typeparam>
 /// <remarks>
 /// <para>

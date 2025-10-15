@@ -113,8 +113,9 @@ public class SpaceflightsCatalog
   /// <summary>
   /// Trained regression model.
   /// ML.NET ITransformer for price prediction.
+  /// Stored as a singleton collection (pipeline produces single model).
   /// </summary>
-  public ICatalogEntry<ITransformer> Regressor { get; }
+  public ICatalogEntry<IEnumerable<ITransformer>> Regressor { get; }
 
   // ═══════════════════════════════════════════════════════════
   // REPORTING (08_Reporting)
@@ -123,8 +124,9 @@ public class SpaceflightsCatalog
   /// <summary>
   /// Model evaluation metrics.
   /// Contains R², MAE, RMSE, etc.
+  /// Stored as a singleton collection (pipeline produces single metrics object).
   /// </summary>
-  public ICatalogEntry<ModelMetrics> ModelMetrics { get; }
+  public ICatalogEntry<IEnumerable<ModelMetrics>> ModelMetrics { get; }
 
   /// <summary>
   /// Private constructor - use Build() factory method.
@@ -140,8 +142,8 @@ public class SpaceflightsCatalog
     ICatalogEntry<IEnumerable<FeatureRow>> xTest,
     ICatalogEntry<IEnumerable<decimal>> yTrain,
     ICatalogEntry<IEnumerable<decimal>> yTest,
-    ICatalogEntry<ITransformer> regressor,
-    ICatalogEntry<ModelMetrics> modelMetrics)
+    ICatalogEntry<IEnumerable<ITransformer>> regressor,
+    ICatalogEntry<IEnumerable<ModelMetrics>> modelMetrics)
   {
     Companies = companies;
     Reviews = reviews;
@@ -195,8 +197,8 @@ public class SpaceflightsCatalog
       yTrain: new MemoryCatalogEntry<IEnumerable<decimal>>("y_train"),
       yTest: new MemoryCatalogEntry<IEnumerable<decimal>>("y_test"),
 
-      regressor: new MemoryCatalogEntry<ITransformer>("regressor"),
-      modelMetrics: new MemoryCatalogEntry<ModelMetrics>("model_metrics")
+      regressor: new MemoryCatalogEntry<IEnumerable<ITransformer>>("regressor"),
+      modelMetrics: new MemoryCatalogEntry<IEnumerable<ModelMetrics>>("model_metrics")
     );
   }
 }

@@ -59,8 +59,8 @@ public class TrainModelNode : NodeBase<TrainModelInputs, ITransformer>
         // Train the model
         var model = pipeline.Fit(trainingData);
 
-        // Return as singleton collection
-        return Task.FromResult(new[] { model }.AsEnumerable());
+        // Return as singleton collection, cast to ITransformer interface
+        return Task.FromResult(new ITransformer[] { model }.AsEnumerable());
     }
 }
 
