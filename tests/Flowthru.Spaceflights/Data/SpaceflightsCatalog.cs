@@ -1,0 +1,201 @@
+using Flowthru.Data;
+using Flowthru.Spaceflights.Data.Schemas.Raw;
+using Flowthru.Spaceflights.Data.Schemas.Processed;
+using Flowthru.Spaceflights.Data.Schemas.Models;
+using Microsoft.ML;
+
+namespace Flowthru.Spaceflights.Data;
+
+/// <summary>
+/// Strongly-typed catalog for the Spaceflights project.
+/// 
+/// <para><strong>Compile-Time Type Safety:</strong></para>
+/// <para>
+/// Each catalog entry is a strongly-typed property (ICatalogEntry&lt;T&gt;), ensuring:
+/// - Pipelines cannot reference non-existent entries (compile error)
+/// - Nodes cannot receive wrong input types (compile error)
+/// - IntelliSense shows all available entries with their types
+/// - Refactoring tools work seamlessly (rename, find references)
+/// </para>
+/// 
+/// <para><strong>Data Layering Convention (Kedro):</strong></para>
+/// <list type="bullet">
+/// <item>01_Raw: Raw input data from external sources</item>
+/// <item>02_Intermediate: Preprocessed/cleaned data</item>
+/// <item>03_Primary: Primary model inputs</item>
+/// <item>06_Models: Trained ML models</item>
+/// <item>08_Reporting: Reports and metrics</item>
+/// </list>
+/// </summary>
+public class SpaceflightsCatalog
+{
+  // ═══════════════════════════════════════════════════════════
+  // RAW DATA (01_Raw)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Raw company data from CSV file.
+  /// Contains company ratings and information.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<CompanyRawSchema>> Companies { get; }
+
+  /// <summary>
+  /// Raw review data from CSV file.
+  /// Contains customer reviews with scores.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ReviewRawSchema>> Reviews { get; }
+
+  /// <summary>
+  /// Raw shuttle data from Excel file.
+  /// Contains shuttle specifications and pricing.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ShuttleRawSchema>> Shuttles { get; }
+
+  // ═══════════════════════════════════════════════════════════
+  // INTERMEDIATE DATA (02_Intermediate)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Preprocessed company data in Parquet format.
+  /// Cleaned and validated company records.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<CompanySchema>> PreprocessedCompanies { get; }
+
+  /// <summary>
+  /// Preprocessed shuttle data in Parquet format.
+  /// Cleaned and validated shuttle records.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> PreprocessedShuttles { get; }
+
+  // ═══════════════════════════════════════════════════════════
+  // PRIMARY DATA (03_Primary)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Model input table in Parquet format.
+  /// Joined dataset ready for ML training.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable { get; }
+
+  // ═══════════════════════════════════════════════════════════
+  // MODEL DATA (In-Memory Split Results)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Training features (X_train).
+  /// Feature vectors for model training.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTrain { get; }
+
+  /// <summary>
+  /// Testing features (X_test).
+  /// Feature vectors for model evaluation.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTest { get; }
+
+  /// <summary>
+  /// Training targets (y_train).
+  /// Target prices for model training.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<decimal>> YTrain { get; }
+
+  /// <summary>
+  /// Testing targets (y_test).
+  /// Target prices for model evaluation.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<decimal>> YTest { get; }
+
+  // ═══════════════════════════════════════════════════════════
+  // MODELS (06_Models)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Trained regression model.
+  /// ML.NET ITransformer for price prediction.
+  /// </summary>
+  public ICatalogEntry<ITransformer> Regressor { get; }
+
+  // ═══════════════════════════════════════════════════════════
+  // REPORTING (08_Reporting)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Model evaluation metrics.
+  /// Contains R², MAE, RMSE, etc.
+  /// </summary>
+  public ICatalogEntry<ModelMetrics> ModelMetrics { get; }
+
+  /// <summary>
+  /// Private constructor - use Build() factory method.
+  /// </summary>
+  private SpaceflightsCatalog(
+    ICatalogEntry<IEnumerable<CompanyRawSchema>> companies,
+    ICatalogEntry<IEnumerable<ReviewRawSchema>> reviews,
+    ICatalogEntry<IEnumerable<ShuttleRawSchema>> shuttles,
+    ICatalogEntry<IEnumerable<CompanySchema>> preprocessedCompanies,
+    ICatalogEntry<IEnumerable<ShuttleSchema>> preprocessedShuttles,
+    ICatalogEntry<IEnumerable<ModelInputSchema>> modelInputTable,
+    ICatalogEntry<IEnumerable<FeatureRow>> xTrain,
+    ICatalogEntry<IEnumerable<FeatureRow>> xTest,
+    ICatalogEntry<IEnumerable<decimal>> yTrain,
+    ICatalogEntry<IEnumerable<decimal>> yTest,
+    ICatalogEntry<ITransformer> regressor,
+    ICatalogEntry<ModelMetrics> modelMetrics)
+  {
+    Companies = companies;
+    Reviews = reviews;
+    Shuttles = shuttles;
+    PreprocessedCompanies = preprocessedCompanies;
+    PreprocessedShuttles = preprocessedShuttles;
+    ModelInputTable = modelInputTable;
+    XTrain = xTrain;
+    XTest = xTest;
+    YTrain = yTrain;
+    YTest = yTest;
+    Regressor = regressor;
+    ModelMetrics = modelMetrics;
+  }
+
+  /// <summary>
+  /// Builds and returns a configured SpaceflightsCatalog instance.
+  /// </summary>
+  /// <param name="basePath">Base path for dataset files</param>
+  /// <returns>Fully configured typed catalog</returns>
+  public static SpaceflightsCatalog Build(string basePath = "Data/Datasets")
+  {
+    return new SpaceflightsCatalog(
+      companies: new CsvCatalogEntry<CompanyRawSchema>(
+        "companies",
+        $"{basePath}/01_Raw/companies.csv"),
+
+      reviews: new CsvCatalogEntry<ReviewRawSchema>(
+        "reviews",
+        $"{basePath}/01_Raw/reviews.csv"),
+
+      shuttles: new ExcelCatalogEntry<ShuttleRawSchema>(
+        "shuttles",
+        $"{basePath}/01_Raw/shuttles.xlsx",
+        "Sheet1"),
+
+      preprocessedCompanies: new ParquetCatalogEntry<CompanySchema>(
+        "preprocessed_companies",
+        $"{basePath}/02_Intermediate/preprocessed_companies.parquet"),
+
+      preprocessedShuttles: new ParquetCatalogEntry<ShuttleSchema>(
+        "preprocessed_shuttles",
+        $"{basePath}/02_Intermediate/preprocessed_shuttles.parquet"),
+
+      modelInputTable: new ParquetCatalogEntry<ModelInputSchema>(
+        "model_input_table",
+        $"{basePath}/03_Primary/model_input_table.parquet"),
+
+      xTrain: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_train"),
+      xTest: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_test"),
+      yTrain: new MemoryCatalogEntry<IEnumerable<decimal>>("y_train"),
+      yTest: new MemoryCatalogEntry<IEnumerable<decimal>>("y_test"),
+
+      regressor: new MemoryCatalogEntry<ITransformer>("regressor"),
+      modelMetrics: new MemoryCatalogEntry<ModelMetrics>("model_metrics")
+    );
+  }
+}
