@@ -1,10 +1,15 @@
 namespace Flowthru.Spaceflights.Data.Schemas.Models;
 
 /// <summary>
-/// Train/test split output containing all four split datasets.
-/// Output of SplitDataNode (Option A: Composite type).
+/// Multi-output schema for train/test split operation.
+/// Pure data schema with no catalog coupling.
+/// 
+/// Properties will be mapped to catalog entries at pipeline registration time
+/// using OutputMapping&lt;T&gt; to maintain separation of concerns:
+/// - Schema layer: Pure data shape definitions
+/// - Catalog layer: Data storage/naming bindings
 /// </summary>
-public record TrainTestSplit
+public record SplitDataOutputs
 {
   /// <summary>
   /// Training features

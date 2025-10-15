@@ -10,10 +10,13 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// Evaluates the trained model on test data and logs metrics.
 /// This is a side-effect node that produces metrics but primarily logs results.
 /// 
+/// Multi-input node - receives model (regressor), test features (x_test), 
+/// and test targets (y_test) as separate catalog entries.
+/// 
 /// Uses property injection for ILogger to maintain parameterless constructor
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
-public class EvaluateModelNode : Node<ITransformer, TrainTestSplit, ModelMetrics>
+public class EvaluateModelNode : Node<ITransformer, IEnumerable<FeatureRow>, IEnumerable<decimal>, ModelMetrics>
 {
   /// <summary>
   /// Optional logger for outputting model evaluation metrics.
@@ -23,15 +26,17 @@ public class EvaluateModelNode : Node<ITransformer, TrainTestSplit, ModelMetrics
 
   protected override Task<IEnumerable<ModelMetrics>> Transform(
       IEnumerable<ITransformer> models,
-      IEnumerable<TrainTestSplit> splits)
+      IEnumerable<IEnumerable<FeatureRow>> xTest,
+      IEnumerable<IEnumerable<decimal>> yTest)
   {
     var model = models.Single();
-    var split = splits.Single();
+    var xTestData = xTest.Single();
+    var yTestData = yTest.Single();
 
     var mlContext = new MLContext(seed: 0);
 
     // Convert test data to ML.NET format
-    var testData = mlContext.Data.LoadFromEnumerable(split.XTest);
+    var testData = mlContext.Data.LoadFromEnumerable(xTestData);
 
     // Make predictions
     var predictions = model.Transform(testData);

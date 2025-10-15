@@ -81,9 +81,13 @@ public static class CatalogConfiguration
 
       // ═══════════════════════════════════════════════════════════
       // MODEL DATA (Split results - in memory)
+      // Multi-output from SplitDataNode mapped via OutputMapping<SplitDataOutputs>
       // ═══════════════════════════════════════════════════════════
 
-      catalog.Register("train_test_split", new MemoryDataset<TrainTestSplit>());
+      catalog.Register("x_train", new MemoryDataset<IEnumerable<FeatureRow>>());
+      catalog.Register("x_test", new MemoryDataset<IEnumerable<FeatureRow>>());
+      catalog.Register("y_train", new MemoryDataset<IEnumerable<decimal>>());
+      catalog.Register("y_test", new MemoryDataset<IEnumerable<decimal>>());
 
       // ═══════════════════════════════════════════════════════════
       // MODELS (06_Models)

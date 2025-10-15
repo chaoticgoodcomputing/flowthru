@@ -7,22 +7,25 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 
 /// <summary>
 /// Trains a linear regression model using ML.NET.
-/// Takes training features and targets, returns trained model.
+/// Takes training features (x_train) and targets (y_train) as separate inputs.
 /// 
+/// Multi-input node - receives two catalog entries independently.
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class TrainModelNode : Node<TrainTestSplit, ITransformer>
+public class TrainModelNode : Node<IEnumerable<FeatureRow>, IEnumerable<decimal>, ITransformer>
 {
     protected override Task<IEnumerable<ITransformer>> Transform(
-        IEnumerable<TrainTestSplit> input)
+        IEnumerable<IEnumerable<FeatureRow>> xTrain,
+        IEnumerable<IEnumerable<decimal>> yTrain)
     {
-        var split = input.Single();
+        var xTrainData = xTrain.Single();
+        var yTrainData = yTrain.Single();
 
         var mlContext = new MLContext(seed: 0);
 
         // Convert training data to ML.NET format
-        var trainingData = mlContext.Data.LoadFromEnumerable(split.XTrain);
+        var trainingData = mlContext.Data.LoadFromEnumerable(xTrainData);
 
         // Define ML pipeline
         var pipeline = mlContext.Transforms.CopyColumns(

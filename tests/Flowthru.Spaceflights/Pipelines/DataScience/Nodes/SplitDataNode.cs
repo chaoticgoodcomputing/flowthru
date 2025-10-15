@@ -9,16 +9,20 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 /// Splits model input data into training and testing sets.
 /// Extracts features and target variable (price) for ML training.
 /// 
+/// Produces multi-output via SplitDataOutputs schema. The pipeline uses
+/// OutputMapping&lt;SplitDataOutputs&gt; to map each property to a separate catalog entry,
+/// allowing downstream nodes to reference individual datasets independently.
+/// 
 /// Uses third type parameter (ModelOptions) for parameters, which provides
 /// the Parameters property via inheritance. Maintains parameterless constructor
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
-public class SplitDataNode : Node<ModelInputSchema, TrainTestSplit, ModelOptions>
+public class SplitDataNode : Node<ModelInputSchema, SplitDataOutputs, ModelOptions>
 {
   // Parameters property inherited from Node<TInput, TOutput, TParameters>
   // public ModelOptions Parameters { get; set; } = new();
 
-  protected override Task<IEnumerable<TrainTestSplit>> Transform(
+  protected override Task<IEnumerable<SplitDataOutputs>> Transform(
       IEnumerable<ModelInputSchema> input)
   {
     var data = input.ToList();
@@ -47,8 +51,9 @@ public class SplitDataNode : Node<ModelInputSchema, TrainTestSplit, ModelOptions
     var trainData = shuffled.Take(trainCount).ToList();
     var testData = shuffled.Skip(trainCount).ToList();
 
-    // Extract features and targets
-    var split = new TrainTestSplit
+    // Create multi-output result
+    // Framework will unpack this into separate catalog entries based on [CatalogOutput] attributes
+    var outputs = new SplitDataOutputs
     {
       XTrain = trainData,
       XTest = testData,
@@ -57,6 +62,6 @@ public class SplitDataNode : Node<ModelInputSchema, TrainTestSplit, ModelOptions
     };
 
     // Return as singleton collection
-    return Task.FromResult(new[] { split }.AsEnumerable());
+    return Task.FromResult(new[] { outputs }.AsEnumerable());
   }
 }
