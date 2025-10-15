@@ -1,7 +1,5 @@
 using Flowthru.Spaceflights.Data.Schemas.Processed;
-using Flowthru.Spaceflights.Data.Schemas.Models;
 using Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
-using Flowthru.Spaceflights.Pipelines.DataScience.Parameters;
 using NUnit.Framework;
 
 namespace Flowthru.Spaceflights.Tests.Pipelines.DataScience;

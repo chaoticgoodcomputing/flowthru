@@ -1,15 +1,18 @@
 namespace Flowthru.Spaceflights.Data.Schemas.Models;
 
 /// <summary>
-/// Multi-output schema for train/test split operation.
-/// Pure data schema with no catalog coupling.
+/// [DEPRECATED - Kept for reference]
 /// 
-/// Properties will be mapped to catalog entries at pipeline registration time
-/// using OutputMapping&lt;T&gt; to maintain separation of concerns:
-/// - Schema layer: Pure data shape definitions
-/// - Catalog layer: Data storage/naming bindings
+/// Train/test split output containing all four split datasets as a composite type.
+/// This was the original approach before adopting multi-output with OutputMapping&lt;T&gt;.
+/// 
+/// Current implementation uses SplitDataOutputs with OutputMapping to create
+/// individual catalog entries (x_train, x_test, y_train, y_test) instead.
+/// 
+/// This composite pattern is still valid for cases where outputs are truly atomic
+/// and should always be consumed together.
 /// </summary>
-public record SplitDataOutputs
+public record TrainTestSplit
 {
   /// <summary>
   /// Training features
