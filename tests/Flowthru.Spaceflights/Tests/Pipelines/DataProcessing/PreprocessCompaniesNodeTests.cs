@@ -30,7 +30,7 @@ public class PreprocessCompaniesNodeTests
     };
 
     // Act
-    var result = node.Transform(input).Result.ToList();
+    var result = node.TestTransform(input).Result.ToList();
 
     // Assert
     var company = result.Single();
@@ -64,7 +64,7 @@ public class PreprocessCompaniesNodeTests
     };
 
     // Act
-    var result = node.Transform(input).Result.ToList();
+    var result = node.TestTransform(input).Result.ToList();
 
     // Assert
     Assert.That(result[0].IataApproved, Is.True);
@@ -97,7 +97,7 @@ public class PreprocessCompaniesNodeTests
     };
 
     // Act
-    var result = node.Transform(input).Result.ToList();
+    var result = node.TestTransform(input).Result.ToList();
 
     // Assert
     Assert.That(result[0].CompanyRating, Is.EqualTo(0m));
@@ -122,7 +122,7 @@ public class PreprocessCompaniesNodeTests
     };
 
     // Act
-    var result = node.Transform(input).Result.Single();
+    var result = node.TestTransform(input).Result.Single();
 
     // Assert
     Assert.That(result.TotalFleetCount, Is.EqualTo(15m));
@@ -146,7 +146,7 @@ public class PreprocessCompaniesNodeTests
     };
 
     // Act
-    var result = node.Transform(input).Result.Single();
+    var result = node.TestTransform(input).Result.Single();
 
     // Assert
     Assert.That(result.TotalFleetCount, Is.Null);
@@ -170,7 +170,7 @@ public class PreprocessCompaniesNodeTests
     };
 
     // Act
-    var result = node.Transform(input).Result.Single();
+    var result = node.TestTransform(input).Result.Single();
 
     // Assert
     Assert.That(result.Id, Is.EqualTo("space-corp-123"));

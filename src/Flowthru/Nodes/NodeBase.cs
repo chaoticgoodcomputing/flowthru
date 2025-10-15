@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Nodes;
@@ -195,6 +196,27 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// </para>
   /// </remarks>
   protected abstract Task<IEnumerable<TOutput>> Transform(IEnumerable<TInput> input);
+
+  /// <summary>
+  /// Test helper method that exposes Transform() for unit testing.
+  /// </summary>
+  /// <param name="input">Input data for transformation</param>
+  /// <returns>Transformed output data</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>For Testing Only:</strong> This method is provided to enable unit testing
+  /// of node transformation logic without requiring full pipeline execution.
+  /// </para>
+  /// <para>
+  /// In production code, nodes should only be executed through the pipeline executor.
+  /// This method bypasses pipeline orchestration, dependency resolution, and catalog I/O.
+  /// </para>
+  /// </remarks>
+  [EditorBrowsable(EditorBrowsableState.Never)]
+  public Task<IEnumerable<TOutput>> TestTransform(IEnumerable<TInput> input)
+  {
+    return Transform(input);
+  }
 
   /// <summary>
   /// Internal execution method called by the pipeline executor.

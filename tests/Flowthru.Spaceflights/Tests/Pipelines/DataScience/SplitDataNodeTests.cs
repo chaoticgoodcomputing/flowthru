@@ -65,7 +65,7 @@ public class SplitDataNodeTests
     };
 
     // Act
-    var result = node.Transform(inputData).Result.Single();
+    var result = node.TestTransform(inputData).Result.Single();
 
     // Assert - verify multi-output structure
     Assert.That(result, Is.Not.Null);
@@ -102,7 +102,7 @@ public class SplitDataNodeTests
     };
 
     // Act
-    var result = node.Transform(inputData).Result.Single();
+    var result = node.TestTransform(inputData).Result.Single();
 
     // Assert
     var trainRow = result.XTrain.Single();
@@ -140,7 +140,7 @@ public class SplitDataNodeTests
     };
 
     // Act
-    var result = node.Transform(inputData).Result.Single();
+    var result = node.TestTransform(inputData).Result.Single();
 
     // Assert
     var trainRow = result.XTrain.Single();
@@ -180,12 +180,12 @@ public class SplitDataNodeTests
     };
 
     // Act
-    var result1 = node1.Transform(inputData).Result.Single();
-    var result2 = node2.Transform(inputData).Result.Single();
+    var result1 = node1.TestTransform(inputData).Result.Single();
+    var result2 = node2.TestTransform(inputData).Result.Single();
 
     // Assert - Same sizes
-    Assert.That(result1.XTrain.Count, Is.EqualTo(result2.XTrain.Count));
-    Assert.That(result1.XTest.Count, Is.EqualTo(result2.XTest.Count));
+    Assert.That(result1.XTrain.Count(), Is.EqualTo(result2.XTrain.Count()));
+    Assert.That(result1.XTest.Count(), Is.EqualTo(result2.XTest.Count()));
 
     // Assert - Different ordering (highly probable with different seeds)
     var firstTrainPrice1 = result1.YTrain.First();

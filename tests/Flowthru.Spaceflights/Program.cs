@@ -14,6 +14,9 @@ public class Program
 {
   public static async Task Main(string[] args)
   {
+    Console.WriteLine("=== DEBUG: Program.Main() started ===");
+    Console.WriteLine($"=== DEBUG: Args: [{string.Join(", ", args)}] ===");
+    
     // ═══════════════════════════════════════════════════════════════
     // STEP 1: Configure Dependency Injection and Logging
     // ═══════════════════════════════════════════════════════════════
@@ -33,7 +36,7 @@ public class Program
     // ═══════════════════════════════════════════════════════════════
 
     logger.LogInformation("Building data catalog...");
-    var catalog = CatalogConfiguration.BuildCatalog();
+    var catalog = SpaceflightsCatalog.Build();
     logger.LogInformation("Data catalog built successfully");
 
     // ═══════════════════════════════════════════════════════════════
@@ -103,16 +106,16 @@ public class Program
       }
       else
       {
-        logger.LogError("✗ Pipeline '{Name}' failed at node: {FailedNode}",
-            pipelineName,
-            result.FailedNode);
+        logger.LogError("✗ Pipeline '{Name}' failed",
+            pipelineName);
+        logger.LogError("Error: {Message}", result.Exception?.Message);
 
-        if (result.NodeResults.TryGetValue(result.FailedNode!, out var failedResult))
+        // Find the failed node
+        var failedNode = result.NodeResults.Values.FirstOrDefault(n => !n.Success);
+        if (failedNode != null)
         {
-          logger.LogError("Error: {Message}",
-              failedResult.Exception?.Message);
-          logger.LogError("{StackTrace}",
-              failedResult.Exception?.StackTrace);
+          logger.LogError("Failed at node: {NodeName}", failedNode.NodeName);
+          logger.LogError("{StackTrace}", failedNode.Exception?.StackTrace);
         }
       }
     }
