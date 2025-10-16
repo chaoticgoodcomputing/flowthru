@@ -48,20 +48,20 @@ public static class DataSciencePipeline
         configure: node => node.Parameters = options ?? new ModelOptions()
       );
 
-      // Node 2: Train regression model (multi-input → single output)
+      // Node 2: Train OLS regression model (multi-input → single output)
       var trainInputs = new CatalogMap<TrainModelInputs>()
         .Map(x => x.XTrain, catalog.XTrain)   // ✅ Both IEnumerable<FeatureRow>
         .Map(x => x.YTrain, catalog.YTrain);  // ✅ Both IEnumerable<decimal>
 
-      pipeline.AddNode<TrainModelNode, TrainModelInputs, ITransformer, NoParams>(
+      pipeline.AddNode<TrainModelNode, TrainModelInputs, LinearRegressionModel, NoParams>(
         input: trainInputs,                   // ✅ Type-checked via CatalogMap
-        output: catalog.Regressor,            // ✅ Type-checked: ICatalogEntry<IEnumerable<ITransformer>>
+        output: catalog.Regressor,            // ✅ Type-checked: ICatalogEntry<IEnumerable<LinearRegressionModel>>
         name: "train_model_node"
       );
 
-      // Node 3: Evaluate model (multi-input → single output)
+      // Node 3: Evaluate OLS model (multi-input → single output)
       var evaluateInputs = new CatalogMap<EvaluateModelInputs>()
-        .Map(x => x.Regressor, catalog.Regressor)  // ✅ Both IEnumerable<ITransformer>
+        .Map(x => x.Regressor, catalog.Regressor)  // ✅ Both IEnumerable<LinearRegressionModel>
         .Map(x => x.XTest, catalog.XTest)          // ✅ Both IEnumerable<FeatureRow>
         .Map(x => x.YTest, catalog.YTest);         // ✅ Both IEnumerable<decimal>
 
@@ -70,6 +70,14 @@ public static class DataSciencePipeline
         output: catalog.ModelMetrics,         // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelMetrics>>
         name: "evaluate_model_node"
       // Optional: configure: node => node.Logger = logger
+      );
+
+      // Node 4: Cross-validation for R² distribution analysis
+      pipeline.AddNode<CrossValidateModelNode, ModelInputSchema, CrossValidationResults, CrossValidationOptions>(
+        input: catalog.ModelInputTable,       // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
+        output: catalog.CrossValidationResults, // ✅ Type-checked: ICatalogEntry<IEnumerable<CrossValidationResults>>
+        name: "cross_validate_model_node",
+        configure: node => node.Parameters = new CrossValidationOptions { NumFolds = 10 }
       );
     });
   }

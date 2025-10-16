@@ -10,7 +10,7 @@ namespace Flowthru.Spaceflights.Data.Schemas.Processed;
 public record ModelInputSchema
 {
   // Shuttle columns (from shuttles table)
-  
+
   /// <summary>
   /// Shuttle location/origin
   /// </summary>

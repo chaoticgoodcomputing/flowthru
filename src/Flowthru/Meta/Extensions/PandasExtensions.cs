@@ -20,7 +20,7 @@ public static class PandasExtensions
   public static IEnumerable<T> DropNa<T>(this IEnumerable<T> source) where T : class
   {
     var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-    
+
     return source.Where(item =>
     {
       if (item == null) return false;
@@ -28,7 +28,7 @@ public static class PandasExtensions
       foreach (var prop in properties)
       {
         var value = prop.GetValue(item);
-        
+
         // Check if property is nullable value type (int?, decimal?, bool?, etc.)
         var underlyingType = Nullable.GetUnderlyingType(prop.PropertyType);
         if (underlyingType != null)
@@ -83,7 +83,7 @@ public static class PandasExtensions
       {
         var prop = propertyMap[propName];
         var value = prop.GetValue(item);
-        
+
         var underlyingType = Nullable.GetUnderlyingType(prop.PropertyType);
         if (underlyingType != null)
         {

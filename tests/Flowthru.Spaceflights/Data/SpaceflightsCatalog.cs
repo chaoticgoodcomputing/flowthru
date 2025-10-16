@@ -4,7 +4,7 @@ using Flowthru.Spaceflights.Data.Schemas.Raw;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
 using Flowthru.Spaceflights.Data.Schemas.Models;
 using Flowthru.Spaceflights.Data.Schemas.Reference;
-using Microsoft.ML;
+using Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 
 namespace Flowthru.Spaceflights.Data;
 
@@ -141,11 +141,11 @@ public class SpaceflightsCatalog
   // ═══════════════════════════════════════════════════════════
 
   /// <summary>
-  /// Trained regression model.
-  /// ML.NET ITransformer for price prediction.
+  /// Trained ordinary least squares linear regression model.
+  /// Contains intercept and coefficients for price prediction.
   /// Stored as a singleton collection (pipeline produces single model).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ITransformer>> Regressor { get; }
+  public ICatalogEntry<IEnumerable<LinearRegressionModel>> Regressor { get; }
 
   // ═══════════════════════════════════════════════════════════
   // REPORTING (08_Reporting)
@@ -157,6 +157,12 @@ public class SpaceflightsCatalog
   /// Stored as a singleton collection (pipeline produces single metrics object).
   /// </summary>
   public ICatalogEntry<IEnumerable<ModelMetrics>> ModelMetrics { get; }
+
+  /// <summary>
+  /// Cross-validation results with R² distribution analysis.
+  /// Contains metrics for each fold, mean, std dev, and comparison to Kedro.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<CrossValidationResults>> CrossValidationResults { get; }
 
   /// <summary>
   /// Private constructor - use Build() factory method.
@@ -176,8 +182,9 @@ public class SpaceflightsCatalog
     ICatalogEntry<IEnumerable<FeatureRow>> xTest,
     ICatalogEntry<IEnumerable<decimal>> yTrain,
     ICatalogEntry<IEnumerable<decimal>> yTest,
-    ICatalogEntry<IEnumerable<ITransformer>> regressor,
-    ICatalogEntry<IEnumerable<ModelMetrics>> modelMetrics)
+    ICatalogEntry<IEnumerable<LinearRegressionModel>> regressor,
+    ICatalogEntry<IEnumerable<ModelMetrics>> modelMetrics,
+    ICatalogEntry<IEnumerable<CrossValidationResults>> crossValidationResults)
   {
     Companies = companies;
     Reviews = reviews;
@@ -195,6 +202,7 @@ public class SpaceflightsCatalog
     YTest = yTest;
     Regressor = regressor;
     ModelMetrics = modelMetrics;
+    CrossValidationResults = crossValidationResults;
   }
 
   /// <summary>
@@ -251,11 +259,15 @@ public class SpaceflightsCatalog
       yTrain: new MemoryCatalogEntry<IEnumerable<decimal>>("y_train"),
       yTest: new MemoryCatalogEntry<IEnumerable<decimal>>("y_test"),
 
-      regressor: new MemoryCatalogEntry<IEnumerable<ITransformer>>("regressor"),
+      regressor: new MemoryCatalogEntry<IEnumerable<LinearRegressionModel>>("regressor"),
 
       modelMetrics: new CsvCatalogEntry<ModelMetrics>(
         "model_metrics",
-        $"{basePath}/07_Model_Output/model_metrics.csv")
+        $"{basePath}/07_Model_Output/model_metrics.csv"),
+
+      crossValidationResults: new CsvCatalogEntry<CrossValidationResults>(
+        "cross_validation_results",
+        $"{basePath}/08_Reporting/cross_validation_results.csv")
     );
   }
 }

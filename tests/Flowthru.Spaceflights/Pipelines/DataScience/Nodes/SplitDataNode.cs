@@ -54,9 +54,14 @@ public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelO
       Price = (float)row.Price
     }).ToList();
 
-    // Perform train/test split
+    // Perform train/test split using sklearn-compatible logic
+    // sklearn's train_test_split shuffles data with the random_state seed
     var random = new Random(Parameters.RandomState);
-    var shuffled = featureRows.OrderBy(x => random.Next()).ToList();
+    var shuffled = featureRows
+        .Select(x => new { Row = x, SortKey = random.Next() })
+        .OrderBy(x => x.SortKey)
+        .Select(x => x.Row)
+        .ToList();
 
     var testCount = (int)(shuffled.Count * Parameters.TestSize);
     var trainCount = shuffled.Count - testCount;

@@ -1,15 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using Flowthru.Nodes;
 using Flowthru.Spaceflights.Data.Schemas.Models;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 using Microsoft.Extensions.Logging;
+using MathNet.Numerics;
 
 namespace Flowthru.Spaceflights.Pipelines.DataScience.Nodes;
 
 /// <summary>
-/// Evaluates the trained model on test data and logs metrics.
-/// This is a side-effect node that produces metrics but primarily logs results.
+/// Evaluates the trained OLS regression model on test data and logs metrics.
+/// Uses Math.NET Numerics GoodnessOfFit.RSquared() matching sklearn's r2_score.
 /// 
 /// Multi-input node - receives model (regressor), test features (x_test), 
 /// and test targets (y_test) as separate catalog entries.
@@ -24,47 +23,63 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
   protected override Task<IEnumerable<ModelMetrics>> Transform(
       IEnumerable<EvaluateModelInputs> inputs)
   {
-    // Extract the singleton input containing all catalog data
-    var input = inputs.Single();
-    var model = input.Regressor.Single(); // Extract single model from collection
-    var xTestData = input.XTest;
-    var yTestData = input.YTest;
-
-    var mlContext = new MLContext(seed: 0);
-
-    // Convert test data to ML.NET format
-    var testData = mlContext.Data.LoadFromEnumerable(xTestData);
-
-    // Make predictions
-    var predictions = model.Transform(testData);
-
-    // Evaluate metrics
-    var regressionMetrics = mlContext.Regression.Evaluate(
-        predictions,
-        labelColumnName: "Label",
-        scoreColumnName: "Score");
-
-    var metrics = new ModelMetrics
+    try
     {
-      R2Score = regressionMetrics.RSquared,
-      MeanAbsoluteError = regressionMetrics.MeanAbsoluteError,
-      MaxError = double.NaN, // ML.NET doesn't provide this directly
-      RootMeanSquaredError = regressionMetrics.RootMeanSquaredError
-    };
+      // Extract the singleton input containing all catalog data
+      var input = inputs.Single();
+      var model = input.Regressor.Single(); // Extract single model from collection
+      var xTestData = input.XTest.ToList();
+      var yTestData = input.YTest.ToList();
 
-    // Log results
-    Logger?.LogInformation(
-        "Model has a coefficient R² of {R2Score:F3} on test data.",
-        metrics.R2Score);
-    Logger?.LogInformation(
-        "Mean Absolute Error: {MAE:F2}",
-        metrics.MeanAbsoluteError);
-    Logger?.LogInformation(
-        "Root Mean Squared Error: {RMSE:F2}",
-        metrics.RootMeanSquaredError);
+      // Make predictions using the OLS model
+      var predictions = model.Predict(xTestData);
+      var actualValues = yTestData.Select(y => (double)y).ToArray();
 
-    // Return as singleton collection
-    return Task.FromResult(new[] { metrics }.AsEnumerable());
+      // Calculate R² using Math.NET's GoodnessOfFit.RSquared
+      // This uses the same formula as sklearn's r2_score: 1 - (SS_res / SS_tot)
+      // Note: GoodnessOfFit.RSquared(modeledValues, observedValues)
+      var r2Score = GoodnessOfFit.RSquared(predictions, actualValues);
+
+      // Calculate Mean Absolute Error (MAE)
+      var mae = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Average();
+
+      // Calculate Root Mean Squared Error (RMSE)
+      var mse = predictions.Zip(actualValues, (pred, actual) => Math.Pow(pred - actual, 2)).Average();
+      var rmse = Math.Sqrt(mse);
+
+      // Calculate Max Error
+      var maxError = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Max();
+
+      var metrics = new ModelMetrics
+      {
+        R2Score = r2Score,
+        MeanAbsoluteError = mae,
+        MaxError = maxError,
+        RootMeanSquaredError = rmse
+      };
+
+      // Log results
+      Logger?.LogInformation(
+          "Model has a coefficient R² of {R2Score:F3} on test data.",
+          metrics.R2Score);
+      Logger?.LogInformation(
+          "Mean Absolute Error: {MAE:F2}",
+          metrics.MeanAbsoluteError);
+      Logger?.LogInformation(
+          "Max Error: {MaxError:F2}",
+          metrics.MaxError);
+      Logger?.LogInformation(
+          "Root Mean Squared Error: {RMSE:F2}",
+          metrics.RootMeanSquaredError);
+
+      // Return as singleton collection
+      return Task.FromResult(new[] { metrics }.AsEnumerable());
+    }
+    catch (Exception ex)
+    {
+      Logger?.LogError(ex, "Error in EvaluateModelNode: {Message}", ex.Message);
+      throw;
+    }
   }
 }
 
@@ -77,10 +92,10 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
 public record EvaluateModelInputs
 {
   /// <summary>
-  /// Trained regression model (singleton collection from catalog)
+  /// Trained OLS regression model (singleton collection from catalog)
   /// </summary>
   [Required]
-  public IEnumerable<ITransformer> Regressor { get; init; } = null!;
+  public IEnumerable<LinearRegressionModel> Regressor { get; init; } = null!;
 
   /// <summary>
   /// Test features
