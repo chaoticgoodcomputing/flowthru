@@ -1,3 +1,4 @@
+using Flowthru.Data.Implementations;
 using Flowthru.Nodes;
 using Flowthru.Pipelines;
 using Flowthru.Pipelines.Mapping;
@@ -71,6 +72,20 @@ public static class DataProcessingPipeline
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableCsv,
         name: "export_model_input_csv_node"
+      );
+
+      // Validation Node: Compare Flowthru output against Kedro reference
+      var validationInputs = new CatalogMap<ValidateAgainstKedroInputs>()
+        .Map(x => x.FlowthruData, catalog.ModelInputTable)
+        .Map(x => x.KedroData, catalog.KedroModelInputTable);
+
+      // Use throwaway MemoryCatalogEntry for diagnostic node output (not persisted)
+      var throwawayOutput = new MemoryCatalogEntry<IEnumerable<ModelInputSchema>>("_validation_throwaway");
+
+      pipeline.AddNode<ValidateAgainstKedroNode, ValidateAgainstKedroInputs, ModelInputSchema, NoParams>(
+        input: validationInputs,
+        output: throwawayOutput,
+        name: "validate_against_kedro_node"
       );
     });
   }

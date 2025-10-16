@@ -20,10 +20,14 @@ public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema>
     {
       Id = shuttle.Id,
       CompanyId = shuttle.CompanyId,
+      ShuttleLocation = shuttle.ShuttleLocation,
       ShuttleType = shuttle.ShuttleType,
+      EngineType = shuttle.EngineType,
+      EngineVendor = shuttle.EngineVendor,
       Engines = ParseInt(shuttle.Engines),
       PassengerCapacity = ParseInt(shuttle.PassengerCapacity),
       Crew = ParseInt(shuttle.Crew),
+      CancellationPolicy = shuttle.CancellationPolicy,
       Price = ParseMoney(shuttle.Price),
       DCheckComplete = IsTrue(shuttle.DCheckComplete),
       MoonClearanceComplete = IsTrue(shuttle.MoonClearanceComplete)

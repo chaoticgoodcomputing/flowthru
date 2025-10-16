@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Flowthru.Meta.Extensions;
 using Flowthru.Nodes;
 using Flowthru.Spaceflights.Data.Schemas.Raw;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
@@ -25,14 +26,14 @@ public class CreateModelInputTableNode
     var reviews = input.Reviews;
 
     // Create dictionaries for efficient lookup
-    var shuttleDict = shuttles.ToDictionary(s => s.Id);
     var companyDict = companies.ToDictionary(c => c.Id);
 
-    // Diagnostic: Check review shuttle IDs
+    // Diagnostic: Check review shuttle IDs (before filtering)
+    var allShuttlesDict = shuttles.ToDictionary(s => s.Id);
     var reviewCount = reviews.Count();
     var validReviewShuttleIds = reviews
         .Where(r => !string.IsNullOrWhiteSpace(r.ShuttleId))
-        .Where(r => shuttleDict.ContainsKey(r.ShuttleId))
+        .Where(r => allShuttlesDict.ContainsKey(r.ShuttleId))
         .Count();
     Console.WriteLine($"=== Reviews: {reviewCount} total, {validReviewShuttleIds} with valid shuttle IDs ===");
 
@@ -46,43 +47,64 @@ public class CreateModelInputTableNode
     }
 
     // Join reviews with shuttles and companies
-    var modelInput = reviews
-        .Where(review => !string.IsNullOrWhiteSpace(review.ShuttleId))
-        .Where(review => shuttleDict.ContainsKey(review.ShuttleId))
+    // Apply pandas-style dropna() to filter out rows with ANY null values
+    var validShuttles = shuttles.DropNa().ToDictionary(s => s.Id);
+    var validReviews = reviews.DropNa();
+    var validCompanies = companies.DropNa();
+    var validCompanyDict = validCompanies.ToDictionary(c => c.Id);
+
+    var modelInput = validReviews
+        .Where(review => validShuttles.ContainsKey(review.ShuttleId))
         .Select(review =>
         {
-          var shuttle = shuttleDict[review.ShuttleId];
+          var shuttle = validShuttles[review.ShuttleId];
 
-          // Check if company exists (handle null CompanyIds gracefully)
-          if (string.IsNullOrWhiteSpace(shuttle.CompanyId) || !companyDict.ContainsKey(shuttle.CompanyId))
+          // Skip if company doesn't exist or is invalid
+          if (!validCompanyDict.ContainsKey(shuttle.CompanyId))
             return null;
 
-          var company = companyDict[shuttle.CompanyId];
+          var company = validCompanyDict[shuttle.CompanyId];
 
           return new ModelInputSchema
           {
-            ShuttleId = shuttle.Id,
-            CompanyId = company.Id,
-            CompanyLocation = company.CompanyLocation,
+            // Shuttle columns (matching Kedro's column order)
+            ShuttleLocation = shuttle.ShuttleLocation,
             ShuttleType = shuttle.ShuttleType,
+            EngineType = shuttle.EngineType,
+            EngineVendor = shuttle.EngineVendor,
             Engines = shuttle.Engines,
             PassengerCapacity = shuttle.PassengerCapacity,
+            CancellationPolicy = shuttle.CancellationPolicy,
             Crew = shuttle.Crew,
             DCheckComplete = shuttle.DCheckComplete,
             MoonClearanceComplete = shuttle.MoonClearanceComplete,
-            IataApproved = company.IataApproved,
-            CompanyRating = company.CompanyRating,
+            Price = shuttle.Price,
+            CompanyId = shuttle.CompanyId,
+            ShuttleId = shuttle.Id,
+
+            // Review columns
             ReviewScoresRating = ParseDecimal(review.ReviewScoresRating),
-            Price = shuttle.Price
+            ReviewScoresComfort = ParseDecimal(review.ReviewScoresComfort),
+            ReviewScoresAmenities = ParseDecimal(review.ReviewScoresAmenities),
+            ReviewScoresTrip = ParseDecimal(review.ReviewScoresTrip),
+            ReviewScoresCrew = ParseDecimal(review.ReviewScoresCrew),
+            ReviewScoresLocation = ParseDecimal(review.ReviewScoresLocation),
+            ReviewScoresPrice = ParseDecimal(review.ReviewScoresPrice),
+            NumberOfReviews = ParseInt(review.NumberOfReviews),
+            ReviewsPerMonth = ParseDecimal(review.ReviewsPerMonth),
+
+            // Company columns
+            Id = company.Id,
+            CompanyRating = company.CompanyRating,
+            CompanyLocation = company.CompanyLocation,
+            TotalFleetCount = company.TotalFleetCount,
+            IataApproved = company.IataApproved
           };
         })
         .Where(row => row != null)
         .Select(row => row!)
-        // Drop rows with missing critical data
-        .Where(row => row.ReviewScoresRating.HasValue)
-        .Where(row => row.Engines.HasValue)
-        .Where(row => row.PassengerCapacity.HasValue)
-        .Where(row => row.Crew.HasValue);
+        // Final dropna() on the merged result (matching Kedro's behavior)
+        .DropNa();
 
     return Task.FromResult(modelInput);
   }
@@ -96,6 +118,20 @@ public class CreateModelInputTableNode
       return null;
 
     if (decimal.TryParse(value, out var result))
+      return result;
+
+    return null;
+  }
+
+  /// <summary>
+  /// Parses integer from string, returns null if empty/invalid
+  /// </summary>
+  private static int? ParseInt(string? value)
+  {
+    if (string.IsNullOrWhiteSpace(value))
+      return null;
+
+    if (int.TryParse(value, out var result))
       return result;
 
     return null;

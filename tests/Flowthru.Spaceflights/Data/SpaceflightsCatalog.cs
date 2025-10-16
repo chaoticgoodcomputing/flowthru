@@ -3,6 +3,7 @@ using Flowthru.Data.Implementations;
 using Flowthru.Spaceflights.Data.Schemas.Raw;
 using Flowthru.Spaceflights.Data.Schemas.Processed;
 using Flowthru.Spaceflights.Data.Schemas.Models;
+using Flowthru.Spaceflights.Data.Schemas.Reference;
 using Microsoft.ML;
 
 namespace Flowthru.Spaceflights.Data;
@@ -98,6 +99,16 @@ public class SpaceflightsCatalog
   public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv { get; }
 
   // ═══════════════════════════════════════════════════════════
+  // REFERENCE DATA (09_Reference - for validation)
+  // ═══════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Reference model input table from Kedro pipeline (for validation).
+  /// Used to compare Flowthru implementation against original Kedro output.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable { get; }
+
+  // ═══════════════════════════════════════════════════════════
   // MODEL DATA (In-Memory Split Results)
   // ═══════════════════════════════════════════════════════════
 
@@ -160,6 +171,7 @@ public class SpaceflightsCatalog
     ICatalogEntry<IEnumerable<CompanySchema>> preprocessedCompaniesCsv,
     ICatalogEntry<IEnumerable<ShuttleSchema>> preprocessedShuttlesCsv,
     ICatalogEntry<IEnumerable<ModelInputSchema>> modelInputTableCsv,
+    ICatalogEntry<IEnumerable<KedroModelInputSchema>> kedroModelInputTable,
     ICatalogEntry<IEnumerable<FeatureRow>> xTrain,
     ICatalogEntry<IEnumerable<FeatureRow>> xTest,
     ICatalogEntry<IEnumerable<decimal>> yTrain,
@@ -176,6 +188,7 @@ public class SpaceflightsCatalog
     PreprocessedCompaniesCsv = preprocessedCompaniesCsv;
     PreprocessedShuttlesCsv = preprocessedShuttlesCsv;
     ModelInputTableCsv = modelInputTableCsv;
+    KedroModelInputTable = kedroModelInputTable;
     XTrain = xTrain;
     XTest = xTest;
     YTrain = yTrain;
@@ -229,12 +242,17 @@ public class SpaceflightsCatalog
         "model_input_table_csv",
         $"{basePath}/03_Primary/model_input_table.csv"),
 
+      kedroModelInputTable: new CsvCatalogEntry<KedroModelInputSchema>(
+        "kedro_model_input_table",
+        $"{basePath}/09_Reference/kedro_model_input_table.csv"),
+
       xTrain: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_train"),
       xTest: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_test"),
       yTrain: new MemoryCatalogEntry<IEnumerable<decimal>>("y_train"),
       yTest: new MemoryCatalogEntry<IEnumerable<decimal>>("y_test"),
 
       regressor: new MemoryCatalogEntry<IEnumerable<ITransformer>>("regressor"),
+
       modelMetrics: new CsvCatalogEntry<ModelMetrics>(
         "model_metrics",
         $"{basePath}/07_Model_Output/model_metrics.csv")

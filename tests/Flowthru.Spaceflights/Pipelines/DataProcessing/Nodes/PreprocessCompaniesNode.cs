@@ -35,17 +35,18 @@ public class PreprocessCompaniesNode : NodeBase<CompanyRawSchema, CompanySchema>
 
   /// <summary>
   /// Parses percentage string (e.g., "100%") to decimal (e.g., 1.0)
+  /// Returns null for empty/invalid values to match Kedro's NaN handling
   /// </summary>
-  private static decimal ParsePercentage(string? value)
+  private static decimal? ParsePercentage(string? value)
   {
     if (string.IsNullOrWhiteSpace(value))
-      return 0m;
+      return null;
 
     var cleaned = value.Replace("%", "").Trim();
     if (decimal.TryParse(cleaned, out var result))
       return result / 100m;
 
-    return 0m;
+    return null;
   }
 
   /// <summary>

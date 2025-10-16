@@ -15,9 +15,9 @@ public record CompanySchema
   public string Id { get; init; } = null!;
 
   /// <summary>
-  /// Company rating as decimal (0.0 to 1.0)
+  /// Company rating as decimal (0.0 to 1.0), null if not provided
   /// </summary>
-  public decimal CompanyRating { get; init; }
+  public decimal? CompanyRating { get; init; }
 
   /// <summary>
   /// Company location/country

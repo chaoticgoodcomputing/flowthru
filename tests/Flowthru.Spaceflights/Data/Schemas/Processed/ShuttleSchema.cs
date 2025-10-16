@@ -21,9 +21,24 @@ public record ShuttleSchema
   public string CompanyId { get; init; } = null!;
 
   /// <summary>
+  /// Shuttle location/origin
+  /// </summary>
+  public string? ShuttleLocation { get; init; }
+
+  /// <summary>
   /// Shuttle type/model
   /// </summary>
   public string? ShuttleType { get; init; }
+
+  /// <summary>
+  /// Engine type (e.g., Plasma, Quantum)
+  /// </summary>
+  public string? EngineType { get; init; }
+
+  /// <summary>
+  /// Engine vendor/manufacturer
+  /// </summary>
+  public string? EngineVendor { get; init; }
 
   /// <summary>
   /// Number of engines
@@ -39,6 +54,11 @@ public record ShuttleSchema
   /// Crew size
   /// </summary>
   public int? Crew { get; init; }
+
+  /// <summary>
+  /// Cancellation policy (e.g., moderate, strict, flexible)
+  /// </summary>
+  public string? CancellationPolicy { get; init; }
 
   /// <summary>
   /// Price in dollars
