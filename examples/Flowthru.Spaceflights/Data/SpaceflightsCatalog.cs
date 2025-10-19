@@ -28,9 +28,33 @@ namespace Flowthru.Spaceflights.Data;
 /// <item>06_Models: Trained ML models</item>
 /// <item>08_Reporting: Reports and metrics</item>
 /// </list>
+/// 
+/// <para><strong>Zero-Ceremony Construction with Reflection-Based Caching:</strong></para>
+/// <para>
+/// Inherits from DataCatalogBase which provides automatic instance caching via reflection.
+/// Catalog entries are defined ONCE via expression-bodied properties, with GetOrCreateEntry
+/// ensuring object identity for DAG dependency resolution.
+/// </para>
+/// <para>
+/// Usage: <c>var catalog = new SpaceflightsCatalog("Data/Datasets");</c>
+/// </para>
 /// </summary>
-public class SpaceflightsCatalog
+public class SpaceflightsCatalog : DataCatalogBase
 {
+  private readonly string _basePath;
+
+  /// <summary>
+  /// Initializes a new instance of SpaceflightsCatalog with the specified base path.
+  /// </summary>
+  /// <param name="basePath">Base path for dataset files (default: "Data/Datasets")</param>
+  public SpaceflightsCatalog(string basePath = "Data/Datasets")
+  {
+    _basePath = basePath;
+
+    // Eagerly initialize all catalog entries to populate cache
+    // This ensures object identity for DAG dependency resolution
+    InitializeCatalogProperties();
+  }
   // ═══════════════════════════════════════════════════════════
   // RAW DATA (01_Raw)
   // ═══════════════════════════════════════════════════════════
@@ -39,19 +63,22 @@ public class SpaceflightsCatalog
   /// Raw company data from CSV file.
   /// Contains company ratings and information.
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanyRawSchema>> Companies { get; }
+  public ICatalogEntry<IEnumerable<CompanyRawSchema>> Companies =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<CompanyRawSchema>("companies", $"{_basePath}/01_Raw/companies.csv"));
 
   /// <summary>
   /// Raw review data from CSV file.
   /// Contains customer reviews with scores.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ReviewRawSchema>> Reviews { get; }
+  public ICatalogEntry<IEnumerable<ReviewRawSchema>> Reviews =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<ReviewRawSchema>("reviews", $"{_basePath}/01_Raw/reviews.csv"));
 
   /// <summary>
   /// Raw shuttle data from Excel file.
   /// Contains shuttle specifications and pricing.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleRawSchema>> Shuttles { get; }
+  public ICatalogEntry<IEnumerable<ShuttleRawSchema>> Shuttles =>
+    GetOrCreateEntry(() => new ExcelCatalogEntry<ShuttleRawSchema>("shuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1"));
 
   // ═══════════════════════════════════════════════════════════
   // INTERMEDIATE DATA (02_Intermediate)
@@ -61,13 +88,15 @@ public class SpaceflightsCatalog
   /// Preprocessed company data in Parquet format.
   /// Cleaned and validated company records.
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanySchema>> PreprocessedCompanies { get; }
+  public ICatalogEntry<IEnumerable<CompanySchema>> PreprocessedCompanies =>
+    GetOrCreateEntry(() => new ParquetCatalogEntry<CompanySchema>("preprocessed_companies", $"{_basePath}/02_Intermediate/preprocessed_companies.parquet"));
 
   /// <summary>
   /// Preprocessed shuttle data in Parquet format.
   /// Cleaned and validated shuttle records.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> PreprocessedShuttles { get; }
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> PreprocessedShuttles =>
+    GetOrCreateEntry(() => new ParquetCatalogEntry<ShuttleSchema>("preprocessed_shuttles", $"{_basePath}/02_Intermediate/preprocessed_shuttles.parquet"));
 
   // ═══════════════════════════════════════════════════════════
   // PRIMARY DATA (03_Primary)
@@ -77,7 +106,8 @@ public class SpaceflightsCatalog
   /// Model input table in Parquet format.
   /// Joined dataset ready for ML training.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable { get; }
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable =>
+    GetOrCreateEntry(() => new ParquetCatalogEntry<ModelInputSchema>("model_input_table", $"{_basePath}/03_Primary/model_input_table.parquet"));
 
   // ═══════════════════════════════════════════════════════════
   // DIAGNOSTIC CSV EXPORTS (for debugging)
@@ -86,17 +116,20 @@ public class SpaceflightsCatalog
   /// <summary>
   /// Preprocessed companies exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanySchema>> PreprocessedCompaniesCsv { get; }
+  public ICatalogEntry<IEnumerable<CompanySchema>> PreprocessedCompaniesCsv =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<CompanySchema>("preprocessed_companies_csv", $"{_basePath}/02_Intermediate/preprocessed_companies.csv"));
 
   /// <summary>
   /// Preprocessed shuttles exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> PreprocessedShuttlesCsv { get; }
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> PreprocessedShuttlesCsv =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<ShuttleSchema>("preprocessed_shuttles_csv", $"{_basePath}/02_Intermediate/preprocessed_shuttles.csv"));
 
   /// <summary>
   /// Model input table exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv { get; }
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<ModelInputSchema>("model_input_table_csv", $"{_basePath}/03_Primary/model_input_table.csv"));
 
   // ═══════════════════════════════════════════════════════════
   // REFERENCE DATA (09_Reference - for validation)
@@ -106,7 +139,8 @@ public class SpaceflightsCatalog
   /// Reference model input table from Kedro pipeline (for validation).
   /// Used to compare Flowthru implementation against original Kedro output.
   /// </summary>
-  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable { get; }
+  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<KedroModelInputSchema>("kedro_model_input_table", $"{_basePath}/09_Reference/kedro_model_input_table.csv"));
 
   // ═══════════════════════════════════════════════════════════
   // MODEL DATA (In-Memory Split Results)
@@ -116,25 +150,29 @@ public class SpaceflightsCatalog
   /// Training features (X_train).
   /// Feature vectors for model training.
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureRow>> XTrain { get; }
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTrain =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_train"));
 
   /// <summary>
   /// Testing features (X_test).
   /// Feature vectors for model evaluation.
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureRow>> XTest { get; }
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTest =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_test"));
 
   /// <summary>
   /// Training targets (y_train).
   /// Target prices for model training.
   /// </summary>
-  public ICatalogEntry<IEnumerable<decimal>> YTrain { get; }
+  public ICatalogEntry<IEnumerable<decimal>> YTrain =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<IEnumerable<decimal>>("y_train"));
 
   /// <summary>
   /// Testing targets (y_test).
   /// Target prices for model evaluation.
   /// </summary>
-  public ICatalogEntry<IEnumerable<decimal>> YTest { get; }
+  public ICatalogEntry<IEnumerable<decimal>> YTest =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<IEnumerable<decimal>>("y_test"));
 
   // ═══════════════════════════════════════════════════════════
   // MODELS (06_Models)
@@ -145,7 +183,8 @@ public class SpaceflightsCatalog
   /// Contains intercept and coefficients for price prediction.
   /// Stored as a singleton collection (pipeline produces single model).
   /// </summary>
-  public ICatalogEntry<IEnumerable<LinearRegressionModel>> Regressor { get; }
+  public ICatalogEntry<IEnumerable<LinearRegressionModel>> Regressor =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<IEnumerable<LinearRegressionModel>>("regressor"));
 
   // ═══════════════════════════════════════════════════════════
   // REPORTING (08_Reporting)
@@ -156,118 +195,13 @@ public class SpaceflightsCatalog
   /// Contains R², MAE, RMSE, etc.
   /// Stored as a singleton collection (pipeline produces single metrics object).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelMetrics>> ModelMetrics { get; }
+  public ICatalogEntry<IEnumerable<ModelMetrics>> ModelMetrics =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<ModelMetrics>("model_metrics", $"{_basePath}/07_Model_Output/model_metrics.csv"));
 
   /// <summary>
   /// Cross-validation results with R² distribution analysis.
   /// Contains metrics for each fold, mean, std dev, and comparison to Kedro.
   /// </summary>
-  public ICatalogEntry<IEnumerable<CrossValidationResults>> CrossValidationResults { get; }
-
-  /// <summary>
-  /// Private constructor - use Build() factory method.
-  /// </summary>
-  private SpaceflightsCatalog(
-    ICatalogEntry<IEnumerable<CompanyRawSchema>> companies,
-    ICatalogEntry<IEnumerable<ReviewRawSchema>> reviews,
-    ICatalogEntry<IEnumerable<ShuttleRawSchema>> shuttles,
-    ICatalogEntry<IEnumerable<CompanySchema>> preprocessedCompanies,
-    ICatalogEntry<IEnumerable<ShuttleSchema>> preprocessedShuttles,
-    ICatalogEntry<IEnumerable<ModelInputSchema>> modelInputTable,
-    ICatalogEntry<IEnumerable<CompanySchema>> preprocessedCompaniesCsv,
-    ICatalogEntry<IEnumerable<ShuttleSchema>> preprocessedShuttlesCsv,
-    ICatalogEntry<IEnumerable<ModelInputSchema>> modelInputTableCsv,
-    ICatalogEntry<IEnumerable<KedroModelInputSchema>> kedroModelInputTable,
-    ICatalogEntry<IEnumerable<FeatureRow>> xTrain,
-    ICatalogEntry<IEnumerable<FeatureRow>> xTest,
-    ICatalogEntry<IEnumerable<decimal>> yTrain,
-    ICatalogEntry<IEnumerable<decimal>> yTest,
-    ICatalogEntry<IEnumerable<LinearRegressionModel>> regressor,
-    ICatalogEntry<IEnumerable<ModelMetrics>> modelMetrics,
-    ICatalogEntry<IEnumerable<CrossValidationResults>> crossValidationResults)
-  {
-    Companies = companies;
-    Reviews = reviews;
-    Shuttles = shuttles;
-    PreprocessedCompanies = preprocessedCompanies;
-    PreprocessedShuttles = preprocessedShuttles;
-    ModelInputTable = modelInputTable;
-    PreprocessedCompaniesCsv = preprocessedCompaniesCsv;
-    PreprocessedShuttlesCsv = preprocessedShuttlesCsv;
-    ModelInputTableCsv = modelInputTableCsv;
-    KedroModelInputTable = kedroModelInputTable;
-    XTrain = xTrain;
-    XTest = xTest;
-    YTrain = yTrain;
-    YTest = yTest;
-    Regressor = regressor;
-    ModelMetrics = modelMetrics;
-    CrossValidationResults = crossValidationResults;
-  }
-
-  /// <summary>
-  /// Builds and returns a configured SpaceflightsCatalog instance.
-  /// </summary>
-  /// <param name="basePath">Base path for dataset files</param>
-  /// <returns>Fully configured typed catalog</returns>
-  public static SpaceflightsCatalog Build(string basePath = "Data/Datasets")
-  {
-    return new SpaceflightsCatalog(
-      companies: new CsvCatalogEntry<CompanyRawSchema>(
-        "companies",
-        $"{basePath}/01_Raw/companies.csv"),
-
-      reviews: new CsvCatalogEntry<ReviewRawSchema>(
-        "reviews",
-        $"{basePath}/01_Raw/reviews.csv"),
-
-      shuttles: new ExcelCatalogEntry<ShuttleRawSchema>(
-        "shuttles",
-        $"{basePath}/01_Raw/shuttles.xlsx",
-        "Sheet1"),
-
-      preprocessedCompanies: new ParquetCatalogEntry<CompanySchema>(
-        "preprocessed_companies",
-        $"{basePath}/02_Intermediate/preprocessed_companies.parquet"),
-
-      preprocessedShuttles: new ParquetCatalogEntry<ShuttleSchema>(
-        "preprocessed_shuttles",
-        $"{basePath}/02_Intermediate/preprocessed_shuttles.parquet"),
-
-      modelInputTable: new ParquetCatalogEntry<ModelInputSchema>(
-        "model_input_table",
-        $"{basePath}/03_Primary/model_input_table.parquet"),
-
-      preprocessedCompaniesCsv: new CsvCatalogEntry<CompanySchema>(
-        "preprocessed_companies_csv",
-        $"{basePath}/02_Intermediate/preprocessed_companies.csv"),
-
-      preprocessedShuttlesCsv: new CsvCatalogEntry<ShuttleSchema>(
-        "preprocessed_shuttles_csv",
-        $"{basePath}/02_Intermediate/preprocessed_shuttles.csv"),
-
-      modelInputTableCsv: new CsvCatalogEntry<ModelInputSchema>(
-        "model_input_table_csv",
-        $"{basePath}/03_Primary/model_input_table.csv"),
-
-      kedroModelInputTable: new CsvCatalogEntry<KedroModelInputSchema>(
-        "kedro_model_input_table",
-        $"{basePath}/09_Reference/kedro_model_input_table.csv"),
-
-      xTrain: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_train"),
-      xTest: new MemoryCatalogEntry<IEnumerable<FeatureRow>>("x_test"),
-      yTrain: new MemoryCatalogEntry<IEnumerable<decimal>>("y_train"),
-      yTest: new MemoryCatalogEntry<IEnumerable<decimal>>("y_test"),
-
-      regressor: new MemoryCatalogEntry<IEnumerable<LinearRegressionModel>>("regressor"),
-
-      modelMetrics: new CsvCatalogEntry<ModelMetrics>(
-        "model_metrics",
-        $"{basePath}/07_Model_Output/model_metrics.csv"),
-
-      crossValidationResults: new CsvCatalogEntry<CrossValidationResults>(
-        "cross_validation_results",
-        $"{basePath}/08_Reporting/cross_validation_results.csv")
-    );
-  }
+  public ICatalogEntry<IEnumerable<CrossValidationResults>> CrossValidationResults =>
+    GetOrCreateEntry(() => new CsvCatalogEntry<CrossValidationResults>("cross_validation_results", $"{_basePath}/08_Reporting/cross_validation_results.csv"));
 }

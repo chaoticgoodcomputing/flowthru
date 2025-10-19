@@ -19,7 +19,7 @@ public class DataSciencePipelineTests
   public void Create_ShouldBuildPipelineWithThreeNodes()
   {
     // Arrange
-    var catalog = SpaceflightsCatalog.Build();
+    var catalog = new SpaceflightsCatalog();
 
     // Act
     var pipeline = DataSciencePipeline.Create(catalog);
@@ -34,7 +34,7 @@ public class DataSciencePipelineTests
   public async Task Run_ShouldExecuteFullPipelineSuccessfully()
   {
     // Arrange
-    var catalog = SpaceflightsCatalog.Build();
+    var catalog = new SpaceflightsCatalog();
 
     // Create dummy model input data
     var modelInputData = new[]
@@ -105,7 +105,7 @@ public class DataSciencePipelineTests
   public async Task Run_WithCustomParameters_ShouldUseThem()
   {
     // Arrange
-    var catalog = SpaceflightsCatalog.Build();
+    var catalog = new SpaceflightsCatalog();
 
     var modelInputData = CreateLargerDummyDataset(100); // Helper method
     // catalog.Register<ModelInputSchema>("model_input_table", modelInputData);
@@ -140,7 +140,7 @@ public class DataSciencePipelineTests
   public async Task Run_WithMissingInput_ShouldFail()
   {
     // Arrange
-    var catalog = SpaceflightsCatalog.Build();
+    var catalog = new SpaceflightsCatalog();
     // Intentionally NOT registering model_input_table - will fail when trying to load non-existent data
 
     var pipeline = DataSciencePipeline.Create(catalog);

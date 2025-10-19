@@ -108,7 +108,7 @@ public class Pipeline
   }
 
   /// <summary>
-  /// Builds and executes the pipeline, returning comprehensive execution results.
+  /// /// Builds and executes the pipeline, returning comprehensive execution results.
   /// </summary>
   /// <returns>PipelineResult containing execution status, timing, and node results</returns>
   /// <remarks>
@@ -116,21 +116,6 @@ public class Pipeline
   /// This is the primary high-level API for executing pipelines. It automatically
   /// calls Build() if the pipeline hasn't been built yet, then executes and tracks results.
   /// </para>
-  /// <para>
-  /// <strong>Usage Pattern:</strong>
-  /// </para>
-  /// <code>
-  /// var result = await pipeline.RunAsync();
-  /// 
-  /// if (result.Success)
-  /// {
-  ///     Console.WriteLine($"Pipeline completed in {result.ExecutionTime.TotalSeconds:F2}s");
-  /// }
-  /// else
-  /// {
-  ///     Console.WriteLine($"Pipeline failed: {result.Exception?.Message}");
-  /// }
-  /// </code>
   /// </remarks>
   public async Task<PipelineResult> RunAsync()
   {

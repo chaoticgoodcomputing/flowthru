@@ -35,15 +35,11 @@ public class CreateModelInputTableNode
         .Where(r => !string.IsNullOrWhiteSpace(r.ShuttleId))
         .Where(r => allShuttlesDict.ContainsKey(r.ShuttleId))
         .Count();
-    Console.WriteLine($"=== Reviews: {reviewCount} total, {validReviewShuttleIds} with valid shuttle IDs ===");
-
     if (validReviewShuttleIds == 0 && reviewCount > 0)
     {
       // Sample some IDs to see what's wrong
       var sampleReviewIds = reviews.Take(5).Select(r => r.ShuttleId).ToList();
-      var sampleShuttleIds = shuttles.Take(5).Select(s => s.Id).ToList();
-      Console.WriteLine($"=== Sample review shuttle_ids: {string.Join(", ", sampleReviewIds)} ===");
-      Console.WriteLine($"=== Sample shuttle ids: {string.Join(", ", sampleShuttleIds)} ===");
+      var sampleShuttleIds = shuttles.Take(5).Select(s => s.Id).ToList(); Console.WriteLine($"=== Sample shuttle ids: {string.Join(", ", sampleShuttleIds)} ===");
     }
 
     // Join reviews with shuttles and companies

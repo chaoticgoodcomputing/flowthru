@@ -28,41 +28,22 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     var input = inputs.Single();
     var flowthruData = input.FlowthruData.ToList();
     var kedroData = input.KedroData.ToList();
-
-    Console.WriteLine("\n" + new string('═', 80));
     Console.WriteLine("FLOWTHRU vs KEDRO MODEL INPUT TABLE VALIDATION");
-    Console.WriteLine(new string('═', 80));
-
-    // Step 1: Schema Comparison
-    Console.WriteLine("\n[1] SCHEMA COMPARISON");
-    Console.WriteLine(new string('-', 80));
+    // Step 1: Schema Comparison    Console.WriteLine(new string('-', 80));
     CompareSchemas();
 
-    // Step 2: Row Count Comparison
-    Console.WriteLine("\n[2] ROW COUNT COMPARISON");
-    Console.WriteLine(new string('-', 80));
-    Console.WriteLine($"  Flowthru rows: {flowthruData.Count:N0}");
-    Console.WriteLine($"  Kedro rows:    {kedroData.Count:N0}");
+    // Step 2: Row Count Comparison    Console.WriteLine(new string('-', 80));    Console.WriteLine($"  Kedro rows:    {kedroData.Count:N0}");
 
     if (flowthruData.Count == kedroData.Count)
-    {
-      Console.WriteLine($"  ✓ Row counts match!");
-    }
+    { }
     else
     {
       var diff = flowthruData.Count - kedroData.Count;
-      Console.WriteLine($"  ✗ Row count mismatch: {(diff > 0 ? "+" : "")}{diff:N0} rows difference");
     }
 
-    // Step 3: Data Value Comparison
-    Console.WriteLine("\n[3] DATA VALUE COMPARISON");
-    Console.WriteLine(new string('-', 80));
+    // Step 3: Data Value Comparison    Console.WriteLine(new string('-', 80));
     CompareDataValues(flowthruData, kedroData);
-
-    Console.WriteLine("\n" + new string('═', 80));
     Console.WriteLine("VALIDATION COMPLETE");
-    Console.WriteLine(new string('═', 80) + "\n");
-
     // Pass through Flowthru data unchanged
     return Task.FromResult(flowthruData.AsEnumerable());
   }
@@ -71,16 +52,12 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
   {
     var flowthruProps = typeof(ModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
     var kedroProps = typeof(KedroModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-    Console.WriteLine($"  Flowthru schema: {flowthruProps.Length} properties");
     Console.WriteLine($"  Kedro schema:    {kedroProps.Length} properties");
 
     // Find common property names (case-insensitive)
     var flowthruPropNames = flowthruProps.Select(p => p.Name.ToLowerInvariant()).ToHashSet();
     var kedroPropNames = kedroProps.Select(p => p.Name.ToLowerInvariant()).ToHashSet();
     var commonProps = flowthruPropNames.Intersect(kedroPropNames).Count();
-
-    Console.WriteLine($"  Common properties: {commonProps}");
     Console.WriteLine($"  ℹ Kedro has additional columns not used by Flowthru (shuttle_location, engine_type, etc.)");
   }
 
@@ -90,7 +67,6 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
 
     if (minCount == 0)
     {
-      Console.WriteLine("  ⚠ Cannot compare values - one or both datasets are empty");
       return;
     }
 
@@ -104,25 +80,15 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     var commonKeys = flowthruKeys.Intersect(kedroKeys).ToHashSet();
     var flowthruOnlyKeys = flowthruKeys.Except(kedroKeys).ToList();
     var kedroOnlyKeys = kedroKeys.Except(flowthruKeys).ToList();
-
-    Console.WriteLine($"  Common shuttle IDs: {commonKeys.Count:N0}");
     Console.WriteLine($"  Flowthru-only IDs:  {flowthruOnlyKeys.Count:N0}");
-    Console.WriteLine($"  Kedro-only IDs:     {kedroOnlyKeys.Count:N0}");
-
     if (flowthruOnlyKeys.Any())
-    {
-      Console.WriteLine($"\n  ℹ Sample Flowthru-only IDs: {string.Join(", ", flowthruOnlyKeys.Take(5))}");
-    }
+    { }
 
     if (kedroOnlyKeys.Any())
-    {
-      Console.WriteLine($"  ℹ Sample Kedro-only IDs: {string.Join(", ", kedroOnlyKeys.Take(5))}");
-    }
+    { }
 
     if (commonKeys.Any())
     {
-      Console.WriteLine($"\n  Comparing {Math.Min(10, commonKeys.Count)} sample records with matching IDs...");
-
       var mismatchCount = 0;
       var sampleCount = 0;
 
@@ -173,31 +139,20 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
 
         if (mismatches.Any())
         {
-          Console.WriteLine($"\n    Shuttle {shuttleId} - {mismatches.Count} mismatches:");
           foreach (var mismatch in mismatches.Take(3))
-          {
-            Console.WriteLine($"      • {mismatch}");
-          }
+          { }
           if (mismatches.Count > 3)
-          {
-            Console.WriteLine($"      ... and {mismatches.Count - 3} more");
-          }
+          { }
           mismatchCount++;
         }
         else if (sampleCount <= 3)
-        {
-          Console.WriteLine($"    ✓ Shuttle {shuttleId} - All compared fields match");
-        }
+        { }
       }
 
       if (mismatchCount == 0)
-      {
-        Console.WriteLine($"\n  ✓ All sampled records match perfectly!");
-      }
+      { }
       else
-      {
-        Console.WriteLine($"\n  ⚠ Found mismatches in {mismatchCount}/{sampleCount} sampled records");
-      }
+      { }
     }
   }
 

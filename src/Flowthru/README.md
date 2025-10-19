@@ -131,8 +131,6 @@ var pipeline = PipelineBuilder.CreatePipeline(builder =>
 
 // Execute the pipeline
 var result = await pipeline.ExecuteAsync();
-
-Console.WriteLine($"Pipeline completed in {result.Duration}");
 ```
 
 ### What You've Learned
@@ -414,15 +412,15 @@ pipeline.AddNode<ProcessDataNode>(
 
 **Decision Guide:**
 
-| Use Case | Catalog Entry Type | Notes |
-|----------|-------------------|-------|
-| Raw CSV input data | `CsvCatalogEntry<T>` | Best for external data sources, human-readable |
-| Intermediate processed data | `ParquetCatalogEntry<T>` | Columnar format, good compression, fast reads |
-| Large feature tables | `ParquetCatalogEntry<T>` | Efficient for analytics workloads |
-| Excel input files | `ExcelCatalogEntry<T>` | Read-only, use for business-provided data |
-| Temporary pipeline data | `MemoryCatalogEntry<T>` | No disk I/O, lost when app terminates |
-| ML models | `MemoryCatalogEntry<ITransformer>` | Keep in memory during training/evaluation |
-| Output reports | `CsvCatalogEntry<T>` | Human-readable output format |
+| Use Case                    | Catalog Entry Type                 | Notes                                          |
+| --------------------------- | ---------------------------------- | ---------------------------------------------- |
+| Raw CSV input data          | `CsvCatalogEntry<T>`               | Best for external data sources, human-readable |
+| Intermediate processed data | `ParquetCatalogEntry<T>`           | Columnar format, good compression, fast reads  |
+| Large feature tables        | `ParquetCatalogEntry<T>`           | Efficient for analytics workloads              |
+| Excel input files           | `ExcelCatalogEntry<T>`             | Read-only, use for business-provided data      |
+| Temporary pipeline data     | `MemoryCatalogEntry<T>`            | No disk I/O, lost when app terminates          |
+| ML models                   | `MemoryCatalogEntry<ITransformer>` | Keep in memory during training/evaluation      |
+| Output reports              | `CsvCatalogEntry<T>`               | Human-readable output format                   |
 
 **Example: Choosing Entries for a Data Science Pipeline**
 
@@ -888,16 +886,16 @@ src/Flowthru/
 
 ### Comparison with Kedro
 
-| Feature | Kedro (Python) | Flowthru (.NET) |
-|---------|---------------|-----------------|
-| **Type Safety** | Runtime (duck typing) | Compile-time (generics) |
-| **Catalog** | YAML + string keys | Typed catalog entries |
-| **Nodes** | Functions with decorators | Classes inheriting NodeBase |
-| **Parameters** | YAML configuration | Strongly-typed parameter objects |
-| **Pipeline Definition** | Python code | C# with fluent builder API |
-| **Error Detection** | Runtime | Compile-time + build-time |
-| **IDE Support** | Basic | Full (IntelliSense, refactoring, Go To Definition) |
-| **Inspiration** | Data engineering best practices | Kedro patterns + .NET type system |
+| Feature                 | Kedro (Python)                  | Flowthru (.NET)                                    |
+| ----------------------- | ------------------------------- | -------------------------------------------------- |
+| **Type Safety**         | Runtime (duck typing)           | Compile-time (generics)                            |
+| **Catalog**             | YAML + string keys              | Typed catalog entries                              |
+| **Nodes**               | Functions with decorators       | Classes inheriting NodeBase                        |
+| **Parameters**          | YAML configuration              | Strongly-typed parameter objects                   |
+| **Pipeline Definition** | Python code                     | C# with fluent builder API                         |
+| **Error Detection**     | Runtime                         | Compile-time + build-time                          |
+| **IDE Support**         | Basic                           | Full (IntelliSense, refactoring, Go To Definition) |
+| **Inspiration**         | Data engineering best practices | Kedro patterns + .NET type system                  |
 
 ---
 
