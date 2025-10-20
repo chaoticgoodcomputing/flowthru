@@ -127,14 +127,14 @@ public class SplitDataNodeTests
     {
       new ModelInputSchema
       {
-        Engines = null,
-        PassengerCapacity = null,
-        Crew = null,
+        Engines = 0,
+        PassengerCapacity = 0,
+        Crew = 0,
         DCheckComplete = false,
         MoonClearanceComplete = false,
         IataApproved = false,
         CompanyRating = 0.5m,
-        ReviewScoresRating = null,
+        ReviewScoresRating = 0m,
         Price = 5000m
       }
     };
@@ -144,10 +144,10 @@ public class SplitDataNodeTests
 
     // Assert
     var trainRow = result.XTrain.Single();
-    Assert.That(trainRow.Engines, Is.EqualTo(0f)); // null → 0
-    Assert.That(trainRow.PassengerCapacity, Is.EqualTo(0f)); // null → 0
-    Assert.That(trainRow.Crew, Is.EqualTo(0f)); // null → 0
-    Assert.That(trainRow.ReviewScoresRating, Is.EqualTo(0f)); // null → 0
+    Assert.That(trainRow.Engines, Is.EqualTo(0f));
+    Assert.That(trainRow.PassengerCapacity, Is.EqualTo(0f));
+    Assert.That(trainRow.Crew, Is.EqualTo(0f));
+    Assert.That(trainRow.ReviewScoresRating, Is.EqualTo(0f));
   }
 
   [Test]

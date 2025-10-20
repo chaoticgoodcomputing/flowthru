@@ -34,12 +34,12 @@ public record ModelInputSchema
   /// <summary>
   /// Number of engines
   /// </summary>
-  public int? Engines { get; init; }
+  public int Engines { get; init; }
 
   /// <summary>
   /// Passenger capacity
   /// </summary>
-  public int? PassengerCapacity { get; init; }
+  public int PassengerCapacity { get; init; }
 
   /// <summary>
   /// Cancellation policy
@@ -49,7 +49,7 @@ public record ModelInputSchema
   /// <summary>
   /// Crew size
   /// </summary>
-  public int? Crew { get; init; }
+  public int Crew { get; init; }
 
   /// <summary>
   /// D-check completion status
@@ -83,7 +83,7 @@ public record ModelInputSchema
   /// <summary>
   /// Overall review score rating
   /// </summary>
-  public decimal? ReviewScoresRating { get; init; }
+  public decimal ReviewScoresRating { get; init; }
 
   /// <summary>
   /// Review comfort score
@@ -135,7 +135,7 @@ public record ModelInputSchema
   /// <summary>
   /// Company rating (0.0 to 1.0)
   /// </summary>
-  public decimal? CompanyRating { get; init; }
+  public decimal CompanyRating { get; init; }
 
   /// <summary>
   /// Company location/country

@@ -40,17 +40,17 @@ public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelO
   {
     var data = input.ToList();
 
-    // Convert to feature rows
+    // Convert to feature rows (no null-coalescing needed after DropNa)
     var featureRows = data.Select(row => new FeatureRow
     {
-      Engines = (float)(row.Engines ?? 0),
-      PassengerCapacity = (float)(row.PassengerCapacity ?? 0),
-      Crew = (float)(row.Crew ?? 0),
+      Engines = (float)row.Engines,
+      PassengerCapacity = (float)row.PassengerCapacity,
+      Crew = (float)row.Crew,
       DCheckComplete = row.DCheckComplete,
       MoonClearanceComplete = row.MoonClearanceComplete,
       IataApproved = row.IataApproved,
       CompanyRating = (float)row.CompanyRating,
-      ReviewScoresRating = (float)(row.ReviewScoresRating ?? 0),
+      ReviewScoresRating = (float)row.ReviewScoresRating,
       Price = (float)row.Price
     }).ToList();
 
