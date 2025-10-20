@@ -27,13 +27,12 @@ public class DataCatalog
   /// <summary>
   /// Registers a catalog entry with the specified key.
   /// </summary>
-  /// <typeparam name="T">The type of data stored in the catalog entry</typeparam>
   /// <param name="key">Unique identifier for the catalog entry</param>
   /// <param name="entry">The catalog entry to register</param>
   /// <exception cref="ArgumentException">
   /// Thrown if a catalog entry with the same key is already registered
   /// </exception>
-  public void Register<T>(string key, ICatalogEntry<T> entry)
+  public void Register(string key, ICatalogEntry entry)
   {
     if (!_entries.TryAdd(key, entry))
     {
@@ -43,18 +42,14 @@ public class DataCatalog
   }
 
   /// <summary>
-  /// Retrieves a strongly-typed catalog entry by key.
+  /// Retrieves a catalog entry by key.
   /// </summary>
-  /// <typeparam name="T">The expected type of data in the catalog entry</typeparam>
   /// <param name="key">The key of the catalog entry to retrieve</param>
-  /// <returns>The catalog entry</returns>
+  /// <returns>The catalog entry (untyped)</returns>
   /// <exception cref="KeyNotFoundException">
   /// Thrown if no catalog entry with the specified key exists
   /// </exception>
-  /// <exception cref="InvalidCastException">
-  /// Thrown if the catalog entry exists but stores a different type than expected
-  /// </exception>
-  public ICatalogEntry<T> Get<T>(string key)
+  public ICatalogEntry Get(string key)
   {
     if (!_entries.TryGetValue(key, out var entry))
     {
@@ -62,14 +57,7 @@ public class DataCatalog
           $"No catalog entry found with key '{key}'");
     }
 
-    if (entry is not ICatalogEntry<T> typedEntry)
-    {
-      throw new InvalidCastException(
-          $"Catalog entry '{key}' has type {entry.DataType.Name}, " +
-          $"but {typeof(T).Name} was expected");
-    }
-
-    return typedEntry;
+    return entry;
   }
 
   /// <summary>

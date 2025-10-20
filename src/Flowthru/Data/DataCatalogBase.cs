@@ -56,33 +56,59 @@ public abstract class DataCatalogBase
   private readonly ConcurrentDictionary<string, ICatalogEntry> _propertyCache = new();
 
   /// <summary>
-  /// Gets or creates a catalog entry, caching it for subsequent accesses.
+  /// Gets or creates a catalog dataset (collection), caching it for subsequent accesses.
   /// </summary>
-  /// <typeparam name="T">The type of data in the catalog entry</typeparam>
-  /// <param name="factory">Factory function to create the entry on first access</param>
+  /// <typeparam name="T">The type of individual items in the dataset (NOT IEnumerable&lt;T&gt;)</typeparam>
+  /// <param name="factory">Factory function to create the dataset on first access</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog entry instance</returns>
+  /// <returns>Cached catalog dataset instance</returns>
   /// <remarks>
   /// <para>
-  /// This method should be called from expression-bodied property getters.
-  /// The <paramref name="propertyName"/> is automatically filled by the compiler's
-  /// CallerMemberName attribute, ensuring each property gets its own cache slot.
+  /// <strong>New in v0.2.0:</strong> Replaces GetOrCreateEntry for collection semantics.
+  /// Use this for tabular data, lists of entities, CSV files, database query results.
   /// </para>
   /// <para>
-  /// <strong>Thread Safety:</strong> Uses ConcurrentDictionary for thread-safe caching.
-  /// The factory function may be called multiple times in race conditions, but only
-  /// one instance will be stored and returned.
+  /// <strong>Usage:</strong>
+  /// <code>
+  /// public ICatalogDataset&lt;Company&gt; Companies =>
+  ///     GetOrCreateDataset(() => new CsvCatalogEntry&lt;Company&gt;("companies", $"{BasePath}/companies.csv"));
+  /// </code>
   /// </para>
   /// </remarks>
-  protected ICatalogEntry<T> GetOrCreateEntry<T>(
-      Func<ICatalogEntry<T>> factory,
+  protected ICatalogDataset<T> GetOrCreateDataset<T>(
+      Func<ICatalogDataset<T>> factory,
       [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
   {
-    // GetOrAdd is thread-safe but may invoke factory multiple times in race conditions
-    // This is acceptable since catalog entries are immutable configurations
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
+    return (ICatalogDataset<T>)entry;
+  }
 
-    return (ICatalogEntry<T>)entry;
+  /// <summary>
+  /// Gets or creates a catalog object (singleton), caching it for subsequent accesses.
+  /// </summary>
+  /// <typeparam name="T">The type of the singleton object</typeparam>
+  /// <param name="factory">Factory function to create the object entry on first access</param>
+  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
+  /// <returns>Cached catalog object instance</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>New in v0.2.0:</strong> Provides explicit support for singleton objects.
+  /// Use this for ML models, configuration objects, aggregated metrics.
+  /// </para>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// <code>
+  /// public ICatalogObject&lt;LinearRegressionModel&gt; Regressor =>
+  ///     GetOrCreateObject(() => new MemoryCatalogObject&lt;LinearRegressionModel&gt;("regressor"));
+  /// </code>
+  /// </para>
+  /// </remarks>
+  protected ICatalogObject<T> GetOrCreateObject<T>(
+      Func<ICatalogObject<T>> factory,
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
+  {
+    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
+    return (ICatalogObject<T>)entry;
   }
 
   /// <summary>

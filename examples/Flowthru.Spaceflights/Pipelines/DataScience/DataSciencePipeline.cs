@@ -30,54 +30,68 @@ namespace Flowthru.Spaceflights.Pipelines.DataScience;
 /// </summary>
 public static class DataSciencePipeline
 {
-  public static Pipeline Create(SpaceflightsCatalog catalog, ModelOptions? options = null)
+  public static Pipeline Create(SpaceflightsCatalog catalog)
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       // Node 1: Split data into train/test sets (single input → multi-output)
-      var splitOutputs = new CatalogMap<SplitDataOutputs>()
-        .Map(s => s.XTrain, catalog.XTrain)   // ✅ Both IEnumerable<FeatureRow>
-        .Map(s => s.XTest, catalog.XTest)     // ✅ Both IEnumerable<FeatureRow>
-        .Map(s => s.YTrain, catalog.YTrain)   // ✅ Both IEnumerable<decimal>
-        .Map(s => s.YTest, catalog.YTest);    // ✅ Both IEnumerable<decimal>
-
-      pipeline.AddNode<SplitDataNode, ModelInputSchema, SplitDataOutputs, ModelOptions>(
-        input: catalog.ModelInputTable,       // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
-        output: splitOutputs,                 // ✅ Type-checked via CatalogMap
-        name: "split_data_node",
-        configure: node => node.Parameters = options ?? new ModelOptions()
+      var splitOutputs = pipeline.AddNode<SplitDataNode, ModelInputSchema, SplitDataOutputs, ModelOptions>(
+        name: "SplitData",
+        input: catalog.ModelInputTable,
+        output: new CatalogMap<SplitDataOutputs>()
+          .Map(s => s.XTrain, catalog.XTrain)
+          .Map(s => s.XTest, catalog.XTest)
+          .Map(s => s.YTrain, catalog.YTrain)
+          .Map(s => s.YTest, catalog.YTest),
+        configure: node => node.Parameters = new ModelOptions()
+        {
+          TestSize = 0.2,
+          RandomState = 3,
+          Features = new List<string> {
+            "Engines",
+            "PassengerCapacity",
+            "Crew",
+            "DCheckComplete",
+            "MoonClearanceComplete",
+            "IataApproved",
+            "CompanyRating",
+            "ReviewScoresRating"
+          }
+        }
       );
 
       // Node 2: Train OLS regression model (multi-input → single output)
-      var trainInputs = new CatalogMap<TrainModelInputs>()
-        .Map(x => x.XTrain, catalog.XTrain)   // ✅ Both IEnumerable<FeatureRow>
-        .Map(x => x.YTrain, catalog.YTrain);  // ✅ Both IEnumerable<decimal>
-
       pipeline.AddNode<TrainModelNode, TrainModelInputs, LinearRegressionModel, NoParams>(
-        input: trainInputs,                   // ✅ Type-checked via CatalogMap
-        output: catalog.Regressor,            // ✅ Type-checked: ICatalogEntry<IEnumerable<LinearRegressionModel>>
-        name: "train_model_node"
+        input: new CatalogMap<TrainModelInputs>()
+          .Map(x => x.XTrain, catalog.XTrain)
+          .Map(x => x.YTrain, catalog.YTrain),
+        output: catalog.Regressor,
+        name: "TrainModel"
       );
 
       // Node 3: Evaluate OLS model (multi-input → single output)
-      var evaluateInputs = new CatalogMap<EvaluateModelInputs>()
-        .Map(x => x.Regressor, catalog.Regressor)  // ✅ Both IEnumerable<LinearRegressionModel>
-        .Map(x => x.XTest, catalog.XTest)          // ✅ Both IEnumerable<FeatureRow>
-        .Map(x => x.YTest, catalog.YTest);         // ✅ Both IEnumerable<decimal>
-
-      pipeline.AddNode<EvaluateModelNode, EvaluateModelInputs, ModelMetrics, NoParams>(
-        input: evaluateInputs,                // ✅ Type-checked via CatalogMap
-        output: catalog.ModelMetrics,         // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelMetrics>>
-        name: "evaluate_model_node"
-      // Optional: configure: node => node.Logger = logger
+      var evaluateInputs = pipeline.AddNode<EvaluateModelNode, EvaluateModelInputs, ModelMetrics, NoParams>(
+        name: "EvaluateModel",
+        input: new CatalogMap<EvaluateModelInputs>()
+          .Map(x => x.Regressor, catalog.Regressor)
+          .Map(x => x.XTest, catalog.XTest)
+          .Map(x => x.YTest, catalog.YTest),
+        output: catalog.ModelMetrics
       );
 
-      // Node 4: Cross-validation for R² distribution analysis
+      // Node 4: Cross-validation for R² distribution analysis and comparison to the original Kedro
+      // spaceflights example.
       pipeline.AddNode<CrossValidateModelNode, ModelInputSchema, CrossValidationResults, CrossValidationOptions>(
-        input: catalog.ModelInputTable,       // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
-        output: catalog.CrossValidationResults, // ✅ Type-checked: ICatalogEntry<IEnumerable<CrossValidationResults>>
-        name: "cross_validate_model_node",
-        configure: node => node.Parameters = new CrossValidationOptions { NumFolds = 10 }
+        name: "CrossValidateAndCompareToKedroSource",
+        input: catalog.ModelInputTable,
+        output: catalog.CrossValidationResults,
+        configure: node => node.Parameters = new CrossValidationOptions
+        {
+          NumFolds = 10, // Standard 10-fold cross-validation  
+          BaseSeed = 42, // A magic number, nothing up our sleeves!
+          KedroReferenceR2Score = 0.387f  // Baseline comparison to the seeded run of the
+                                          // unmodified Kedro implementation in Python.
+        }
       );
     });
   }

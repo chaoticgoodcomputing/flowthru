@@ -79,12 +79,16 @@ public class PipelineBuilder
   /// <typeparam name="TItem">The input item type (what the node processes)</typeparam>
   /// <typeparam name="TOutputItem">The output item type (what the node produces)</typeparam>
   /// <typeparam name="TParameters">The parameters type (defaults to NoParams)</typeparam>
-  /// <param name="input">Catalog entry containing a collection of input items</param>
-  /// <param name="output">Catalog entry to store a collection of output items</param>
+  /// <param name="input">Catalog entry (dataset or object) containing input data</param>
+  /// <param name="output">Catalog entry (dataset or object) to store output data</param>
   /// <param name="name">Optional node name (defaults to node type name)</param>
   /// <param name="configure">Optional action to configure the node instance</param>
   /// <returns>This builder for fluent chaining</returns>
   /// <remarks>
+  /// <para>
+  /// <strong>Breaking Change (v0.2.0):</strong> Now accepts ICatalogEntry (base interface) instead of
+  /// ICatalogEntry&lt;IEnumerable&lt;T&gt;&gt;, allowing both ICatalogDataset and ICatalogObject.
+  /// </para>
   /// <para>
   /// This is the most common overload for simple transformations. The node receives
   /// data directly from the input catalog entry and writes directly to the output entry.
@@ -92,13 +96,13 @@ public class PipelineBuilder
   /// <para>
   /// <strong>Type Parameter Semantics:</strong>
   /// TItem and TOutputItem represent individual item types (e.g., CompanySchema), 
-  /// while catalog entries store collections (e.g., IEnumerable&lt;CompanySchema&gt;).
+  /// while catalog entries may store collections (ICatalogDataset&lt;T&gt;) or singletons (ICatalogObject&lt;T&gt;).
   /// This matches the semantic meaning in NodeBase where TInput refers to the item type.
   /// </para>
   /// </remarks>
   public PipelineBuilder AddNode<TNode, TItem, TOutputItem, TParameters>(
-    ICatalogEntry<IEnumerable<TItem>> input,
-    ICatalogEntry<IEnumerable<TOutputItem>> output,
+    ICatalogEntry input,
+    ICatalogEntry output,
     string? name = null,
     Action<TNode>? configure = null)
     where TNode : NodeBase<TItem, TOutputItem, TParameters>, new()
@@ -160,7 +164,7 @@ public class PipelineBuilder
   /// </remarks>
   public PipelineBuilder AddNode<TNode, TInputSchema, TOutputItem, TParameters>(
     CatalogMap<TInputSchema> input,
-    ICatalogEntry<IEnumerable<TOutputItem>> output,
+    ICatalogEntry output,
     string? name = null,
     Action<TNode>? configure = null)
     where TNode : NodeBase<TInputSchema, TOutputItem, TParameters>, new()
@@ -229,7 +233,7 @@ public class PipelineBuilder
   /// </para>
   /// </remarks>
   public PipelineBuilder AddNode<TNode, TItem, TOutputSchema, TParameters>(
-    ICatalogEntry<IEnumerable<TItem>> input,
+    ICatalogEntry input,
     CatalogMap<TOutputSchema> output,
     string? name = null,
     Action<TNode>? configure = null)

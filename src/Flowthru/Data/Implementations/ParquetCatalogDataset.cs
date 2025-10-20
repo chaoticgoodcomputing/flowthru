@@ -33,7 +33,7 @@ namespace Flowthru.Data.Implementations;
 /// <strong>Dependencies:</strong> Requires Parquet.Net NuGet package.
 /// </para>
 /// </remarks>
-public class ParquetCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
+public class ParquetCatalogDataset<T> : CatalogDatasetBase<T>
     where T : new()
 {
   private readonly string _filePath;
@@ -43,7 +43,7 @@ public class ParquetCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
   /// </summary>
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the Parquet file (absolute or relative to working directory)</param>
-  public ParquetCatalogEntry(string key, string filePath)
+  public ParquetCatalogDataset(string key, string filePath)
       : base(key)
   {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));

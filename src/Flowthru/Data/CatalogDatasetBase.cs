@@ -1,30 +1,30 @@
 namespace Flowthru.Data;
 
 /// <summary>
-/// Abstract base class for catalog entry implementations.
+/// Abstract base class for catalog dataset implementations (collections).
 /// Provides default implementations of untyped operations using the strongly-typed methods.
 /// </summary>
-/// <typeparam name="T">The type of data stored in this catalog entry</typeparam>
+/// <typeparam name="T">The type of individual items in the dataset (NOT IEnumerable&lt;T&gt;)</typeparam>
 /// <remarks>
 /// <para>
 /// <strong>Template Method Pattern:</strong> This class defines the skeleton of catalog
-/// entry operations. Derived classes implement the abstract Load() and Save() methods,
+/// dataset operations. Derived classes implement the abstract Load() and Save() methods,
 /// while this base class provides the untyped variants by delegating to the typed versions.
 /// </para>
 /// <para>
 /// Implementations must provide:
-/// - Load(): Retrieve data from storage
-/// - Save(T data): Persist data to storage
-/// - Exists(): Check if data is present
+/// - Load(): Retrieve dataset from storage (returns IEnumerable&lt;T&gt;)
+/// - Save(IEnumerable&lt;T&gt; data): Persist dataset to storage
+/// - Exists(): Check if dataset is present
 /// </para>
 /// </remarks>
-public abstract class CatalogEntryBase<T> : ICatalogEntry<T>
+public abstract class CatalogDatasetBase<T> : ICatalogDataset<T>
 {
   /// <summary>
-  /// Creates a new catalog entry with the specified key.
+  /// Creates a new catalog dataset with the specified key.
   /// </summary>
-  /// <param name="key">Unique identifier for this catalog entry</param>
-  protected CatalogEntryBase(string key)
+  /// <param name="key">Unique identifier for this catalog dataset</param>
+  protected CatalogDatasetBase(string key)
   {
     Key = key ?? throw new ArgumentNullException(nameof(key));
   }
@@ -33,21 +33,22 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>
   public string Key { get; }
 
   /// <inheritdoc/>
-  public Type DataType => typeof(T);
+  public Type DataType => typeof(IEnumerable<T>);
 
   /// <inheritdoc/>
-  public abstract Task<T> Load();
+  public abstract Task<IEnumerable<T>> Load();
 
   /// <inheritdoc/>
-  public abstract Task Save(T data);
+  public abstract Task Save(IEnumerable<T> data);
 
   /// <inheritdoc/>
   public abstract Task<bool> Exists();
 
   /// <inheritdoc/>
   /// <remarks>
-  /// Default implementation loads the data and counts it.
-  /// Derived classes should override this for better performance when possible.
+  /// Default implementation loads the data and counts the items.
+  /// Derived classes should override this for better performance when possible
+  /// (e.g., reading record count from file metadata without loading all data).
   /// </remarks>
   public virtual async Task<int> GetCountAsync()
   {
@@ -55,15 +56,7 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>
       return 0;
 
     var data = await Load();
-
-    // For IEnumerable<T>, count the items
-    if (data is System.Collections.IEnumerable enumerable and not string)
-    {
-      return enumerable.Cast<object>().Count();
-    }
-
-    // For non-enumerable types (singletons), return 1 if data exists
-    return data != null ? 1 : 0;
+    return data.Count();
   }
 
   /// <inheritdoc/>
@@ -78,18 +71,18 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>
 
   /// <inheritdoc/>
   /// <remarks>
-  /// Default implementation casts the object to T and delegates to strongly-typed Save().
+  /// Default implementation casts the object to IEnumerable&lt;T&gt; and delegates to strongly-typed Save().
   /// </remarks>
   /// <exception cref="InvalidCastException">
-  /// Thrown if <paramref name="data"/> cannot be cast to type <typeparamref name="T"/>
+  /// Thrown if <paramref name="data"/> cannot be cast to type IEnumerable&lt;T&gt;
   /// </exception>
   public virtual async Task SaveUntyped(object data)
   {
-    if (data is not T typedData)
+    if (data is not IEnumerable<T> typedData)
     {
       throw new InvalidCastException(
           $"Cannot save data of type {data?.GetType().Name ?? "null"} " +
-          $"to catalog entry expecting type {typeof(T).Name}");
+          $"to catalog dataset expecting type IEnumerable<{typeof(T).Name}>");
     }
 
     await Save(typedData);

@@ -37,7 +37,7 @@ namespace Flowthru.Data.Implementations;
 /// </code>
 /// </para>
 /// </remarks>
-public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
+public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
     where T : new()
 {
   private readonly string _filePath;
@@ -51,7 +51,7 @@ public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the Excel file (absolute or relative to working directory)</param>
   /// <param name="sheetName">Name of the worksheet to read (defaults to "Sheet1")</param>
-  public ExcelCatalogEntry(string key, string filePath, string sheetName = "Sheet1")
+  public ExcelCatalogDataset(string key, string filePath, string sheetName = "Sheet1")
       : base(key)
   {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));

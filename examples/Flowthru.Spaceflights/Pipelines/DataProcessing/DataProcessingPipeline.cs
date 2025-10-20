@@ -31,62 +31,67 @@ public static class DataProcessingPipeline
     {
       // Node 1: Preprocess companies (simple: single input → single output)
       pipeline.AddNode<PreprocessCompaniesNode, CompanyRawSchema, CompanySchema, NoParams>(
-        input: catalog.Companies,                    // ✅ Type-checked: ICatalogEntry<IEnumerable<CompanyRawSchema>>
-        output: catalog.PreprocessedCompanies,       // ✅ Type-checked: ICatalogEntry<IEnumerable<CompanySchema>>
-        name: "preprocess_companies_node"
+        input: catalog.Companies,
+        output: catalog.PreprocessedCompanies,
+        name: "PreprocessCompanies"
       );
 
       // Node 2: Preprocess shuttles (simple: single input → single output)
       pipeline.AddNode<PreprocessShuttlesNode, ShuttleRawSchema, ShuttleSchema, NoParams>(
-        input: catalog.Shuttles,                     // ✅ Type-checked: ICatalogEntry<IEnumerable<ShuttleRawSchema>>
-        output: catalog.PreprocessedShuttles,        // ✅ Type-checked: ICatalogEntry<IEnumerable<ShuttleSchema>>
-        name: "preprocess_shuttles_node"
+        input: catalog.Shuttles,
+        output: catalog.PreprocessedShuttles,
+        name: "PreprocessShuttles"
       );
 
       // Node 3: Create model input table (multi-input: 3 inputs → single output)
-      var createModelInputs = new CatalogMap<CreateModelInputTableInputs>()
-        .Map(x => x.Shuttles, catalog.PreprocessedShuttles)   // ✅ Both IEnumerable<ShuttleSchema>
-        .Map(x => x.Companies, catalog.PreprocessedCompanies) // ✅ Both IEnumerable<CompanySchema>
-        .Map(x => x.Reviews, catalog.Reviews);                // ✅ Both IEnumerable<ReviewRawSchema>
-
-      pipeline.AddNode<CreateModelInputTableNode, CreateModelInputTableInputs, ModelInputSchema, NoParams>(
-        input: createModelInputs,                    // ✅ Type-checked via CatalogMap
-        output: catalog.ModelInputTable,             // ✅ Type-checked: ICatalogEntry<IEnumerable<ModelInputSchema>>
-        name: "create_model_input_table_node"
+      var createModelInputs = pipeline.AddNode<CreateModelInputTableNode, CreateModelInputTableInputs, ModelInputSchema, NoParams>(
+        name: "CreateModelInputTable",
+        input: new CatalogMap<CreateModelInputTableInputs>()
+          .Map(x => x.Shuttles, catalog.PreprocessedShuttles)
+          .Map(x => x.Companies, catalog.PreprocessedCompanies)
+          .Map(x => x.Reviews, catalog.Reviews),
+        output: catalog.ModelInputTable
       );
 
-      // Diagnostic Nodes: Export Parquet data as CSV for inspection
-      pipeline.AddNode<ExportToCsvNode<CompanySchema>, CompanySchema, CompanySchema, NoParams>(
-        input: catalog.PreprocessedCompanies,
-        output: catalog.PreprocessedCompaniesCsv,
-        name: "export_companies_csv_node"
-      );
+      // DIAGNOSTIC NODES
+      //
+      // This differs from the original Kedro source — however, for manual inspection, these nodes
+      // are useful for manual review. They also flex additional points of functionality, such as:
+      // - Ability to perform pure, no-ouput diagnostics;
+      // - Ability to re-use generic nodes like ExportToCsvNode with generic types; and
+      // - Ability to re-use the same node for different inputs of the same schema.
 
-      pipeline.AddNode<ExportToCsvNode<ShuttleSchema>, ShuttleSchema, ShuttleSchema, NoParams>(
-        input: catalog.PreprocessedShuttles,
-        output: catalog.PreprocessedShuttlesCsv,
-        name: "export_shuttles_csv_node"
-      );
-
-      pipeline.AddNode<ExportToCsvNode<ModelInputSchema>, ModelInputSchema, ModelInputSchema, NoParams>(
-        input: catalog.ModelInputTable,
-        output: catalog.ModelInputTableCsv,
-        name: "export_model_input_csv_node"
-      );
-
-      // Validation Node: Compare Flowthru output against Kedro reference
-      var validationInputs = new CatalogMap<ValidateAgainstKedroInputs>()
-        .Map(x => x.FlowthruData, catalog.ModelInputTable)
-        .Map(x => x.KedroData, catalog.KedroModelInputTable);
-
-      // Use throwaway MemoryCatalogEntry for diagnostic node output (not persisted)
-      var throwawayOutput = new MemoryCatalogEntry<IEnumerable<ModelInputSchema>>("_validation_throwaway");
-
+      // Validation: validate quality of our generated model input table against the original Kedro
+      // output.
       pipeline.AddNode<ValidateAgainstKedroNode, ValidateAgainstKedroInputs, ModelInputSchema, NoParams>(
-        input: validationInputs,
-        output: throwawayOutput,
-        name: "validate_against_kedro_node"
+        name: "ValidateModelInputTableAgainstKedroSource",
+        input: new CatalogMap<ValidateAgainstKedroInputs>()
+          .Map(x => x.FlowthruData, catalog.ModelInputTable)
+          .Map(x => x.KedroData, catalog.KedroModelInputTable),
+        output: new MemoryCatalogDataset<ModelInputSchema>("_validation_throwaway")
       );
+
+      // Siphon off postprocessed companies for manual inspection
+      pipeline.AddNode<ExportToCsvNode<CompanySchema>, CompanySchema, CompanySchema, NoParams>(
+        name: "ExportCompaniesToDiagnosticCsv",
+        input: catalog.PreprocessedCompanies,
+        output: catalog.PreprocessedCompaniesCsv
+      );
+
+      // Siphon off postprocessed shuttles for manual inspection
+      pipeline.AddNode<ExportToCsvNode<ShuttleSchema>, ShuttleSchema, ShuttleSchema, NoParams>(
+        name: "ExportShuttlesToDiagnosticCsv",
+        input: catalog.PreprocessedShuttles,
+        output: catalog.PreprocessedShuttlesCsv
+      );
+
+      // Siphon off model output for manual inspection
+      pipeline.AddNode<ExportToCsvNode<ModelInputSchema>, ModelInputSchema, ModelInputSchema, NoParams>(
+        name: "ExportModelInputTableToDiagnosticCsv",
+        input: catalog.ModelInputTable,
+        output: catalog.ModelInputTableCsv
+      );
+
     });
   }
 }

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Flowthru.Data;
 
 namespace Flowthru.Pipelines;
 
@@ -245,7 +246,29 @@ public class Pipeline
         pipelineNode.Inputs.Count);
 
       // Load inputs from catalog entries
-      var inputTasks = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
+      var inputTasks = pipelineNode.Inputs.Select(async entry =>
+      {
+        var data = await entry.LoadUntyped();
+
+        // Check if this is a singleton object vs a dataset
+        // Nodes always expect IEnumerable<T>, so wrap singletons
+        var isSingletonObject = entry.GetType().GetInterfaces()
+          .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
+
+        if (isSingletonObject)
+        {
+          // Wrap singleton in array so node receives IEnumerable<T>
+          var arrayType = typeof(object[]);
+          var wrappedArray = Array.CreateInstance(data.GetType(), 1);
+          wrappedArray.SetValue(data, 0);
+          return (object)wrappedArray;
+        }
+        else
+        {
+          // Dataset: return collection directly
+          return data;
+        }
+      });
       var inputs = await Task.WhenAll(inputTasks);
 
       // Invoke node transformation via reflection
@@ -358,7 +381,35 @@ public class Pipeline
         // For single output nodes
         if (pipelineNode.Outputs.Count == 1)
         {
-          await pipelineNode.Outputs[0].SaveUntyped(output);
+          var catalogEntry = pipelineNode.Outputs[0];
+
+          // Check if this is a singleton object vs a dataset
+          // Nodes always return IEnumerable<T>, but ICatalogObject expects T
+          var isSingletonObject = catalogEntry.GetType().GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
+
+          if (isSingletonObject && output is System.Collections.IEnumerable enumerable)
+          {
+            // Unwrap singleton from collection
+            var enumerator = enumerable.GetEnumerator();
+            if (!enumerator.MoveNext())
+            {
+              throw new InvalidOperationException(
+                $"Node '{pipelineNode.Name}' returned empty collection for singleton object output '{catalogEntry.Key}'");
+            }
+            var singletonValue = enumerator.Current;
+            if (enumerator.MoveNext())
+            {
+              throw new InvalidOperationException(
+                $"Node '{pipelineNode.Name}' returned multiple items for singleton object output '{catalogEntry.Key}'");
+            }
+            await catalogEntry.SaveUntyped(singletonValue!);
+          }
+          else
+          {
+            // Dataset: save collection directly
+            await catalogEntry.SaveUntyped(output);
+          }
         }
         else
         {
@@ -396,7 +447,32 @@ public class Pipeline
             var propertyValue = propertyMapping.Property.GetValue(outputItem);
             if (propertyValue != null)
             {
-              await propertyMapping.CatalogEntry.SaveUntyped(propertyValue);
+              // Check if the catalog entry is a singleton object
+              var isSingletonObject = propertyMapping.CatalogEntry.GetType().GetInterfaces()
+                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
+
+              if (isSingletonObject && propertyValue is System.Collections.IEnumerable enumerable and not string)
+              {
+                // Unwrap singleton from collection
+                var enumerator = enumerable.GetEnumerator();
+                if (!enumerator.MoveNext())
+                {
+                  throw new InvalidOperationException(
+                    $"Node '{pipelineNode.Name}' property '{propertyMapping.Property.Name}' returned empty collection for singleton object output '{propertyMapping.CatalogEntry.Key}'");
+                }
+                var singletonValue = enumerator.Current;
+                if (enumerator.MoveNext())
+                {
+                  throw new InvalidOperationException(
+                    $"Node '{pipelineNode.Name}' property '{propertyMapping.Property.Name}' returned multiple items for singleton object output '{propertyMapping.CatalogEntry.Key}'");
+                }
+                await propertyMapping.CatalogEntry.SaveUntyped(singletonValue!);
+              }
+              else
+              {
+                // Dataset or already unwrapped: save directly
+                await propertyMapping.CatalogEntry.SaveUntyped(propertyValue);
+              }
             }
           }
         }

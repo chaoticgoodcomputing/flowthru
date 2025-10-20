@@ -5,10 +5,15 @@ using System.Globalization;
 namespace Flowthru.Data.Implementations;
 
 /// <summary>
-/// CSV file-based catalog entry using CsvHelper.
+/// CSV file-based catalog dataset using CsvHelper.
 /// </summary>
-/// <typeparam name="T">The type of data (typically a schema class with properties)</typeparam>
+/// <typeparam name="T">The type of individual rows in the CSV (NOT IEnumerable&lt;T&gt;)</typeparam>
 /// <remarks>
+/// <para>
+/// <strong>Breaking Change (v0.2.0):</strong> This class now extends CatalogDatasetBase&lt;T&gt; instead of CatalogEntryBase&lt;IEnumerable&lt;T&gt;&gt;.
+/// Previously: <c>CsvCatalogEntry&lt;IEnumerable&lt;Company&gt;&gt;</c>
+/// Now: <c>CsvCatalogEntry&lt;Company&gt;</c>
+/// </para>
 /// <para>
 /// <strong>Use Cases:</strong>
 /// - Raw input data from external sources (01_Raw layer)
@@ -32,7 +37,7 @@ namespace Flowthru.Data.Implementations;
 /// - Custom configuration can be provided via constructor
 /// </para>
 /// </remarks>
-public class CsvCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
+public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
 {
   private readonly string _filePath;
   private readonly CsvConfiguration _configuration;
@@ -43,7 +48,7 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
   /// </summary>
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the CSV file (absolute or relative to working directory)</param>
-  public CsvCatalogEntry(string key, string filePath)
+  public CsvCatalogDataset(string key, string filePath)
       : this(key, filePath, new CsvConfiguration(CultureInfo.InvariantCulture, typeof(T))
       {
         HasHeaderRecord = true
@@ -57,7 +62,7 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the CSV file</param>
   /// <param name="configuration">CsvHelper configuration</param>
-  public CsvCatalogEntry(string key, string filePath, CsvConfiguration configuration)
+  public CsvCatalogDataset(string key, string filePath, CsvConfiguration configuration)
       : base(key)
   {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));

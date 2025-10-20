@@ -64,32 +64,121 @@ public interface ICatalogEntry
 }
 
 /// <summary>
-/// Strongly-typed catalog entry interface.
-/// Represents a storage location for data of type <typeparamref name="T"/>.
+/// Strongly-typed catalog entry for datasets (collections of items).
+/// Represents a storage location for collections of type <typeparamref name="T"/>.
 /// </summary>
-/// <typeparam name="T">The type of data stored in this catalog entry</typeparam>
+/// <typeparam name="T">The type of individual items in the dataset (NOT IEnumerable&lt;T&gt;)</typeparam>
 /// <remarks>
 /// <para>
-/// Catalog entries abstract away storage implementation details (CSV, Parquet, memory, etc.)
-/// and provide a consistent async API for loading and saving data.
+/// <strong>Breaking Change (v0.2.0):</strong> This interface replaces the generic ICatalogEntry&lt;IEnumerable&lt;T&gt;&gt; pattern.
+/// Users now declare <c>ICatalogDataset&lt;Company&gt;</c> instead of <c>ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt;</c>.
+/// </para>
+/// <para>
+/// <strong>Semantic Distinction:</strong> Use ICatalogDataset&lt;T&gt; for collections (CSV files, database tables, lists of entities).
+/// For singleton objects (ML models, configuration, metrics), use <see cref="ICatalogObject{T}"/>.
+/// </para>
+/// <para>
+/// <strong>LINQ Compatibility:</strong> Load() returns IEnumerable&lt;T&gt; which enables fluent LINQ operations:
+/// <code>
+/// var topCompanies = await catalog.Companies.Load()
+///     .Where(c => c.Rating > 4.0)
+///     .OrderByDescending(c => c.Rating)
+///     .Take(10);
+/// </code>
 /// </para>
 /// <para>
 /// <strong>Design Pattern:</strong> Strategy Pattern - different implementations provide
-/// different storage strategies (MemoryCatalogEntry, CsvCatalogEntry, etc.)
+/// different storage strategies (CsvCatalogEntry, ParquetCatalogEntry, MemoryCatalogEntry, etc.)
 /// </para>
 /// <para>
 /// <strong>Compile-Time Safety:</strong> The generic type parameter T ensures that:
-/// - Load() returns the expected type
-/// - Save() accepts only the correct type
+/// - Load() returns IEnumerable&lt;T&gt; with the correct item type
+/// - Save() accepts only IEnumerable&lt;T&gt; with the correct item type
 /// - Type mismatches are caught at compilation, not runtime
 /// </para>
 /// </remarks>
-public interface ICatalogEntry<T> : ICatalogEntry
+/// <example>
+/// <code>
+/// // User declaration (in SpaceflightsCatalog)
+/// public ICatalogDataset&lt;Company&gt; Companies => Dataset(() => 
+///     new CsvCatalogEntry&lt;Company&gt;("data/companies.csv"));
+/// 
+/// // Usage (in nodes or pipelines)
+/// var companies = await catalog.Companies.Load(); // IEnumerable&lt;Company&gt;
+/// await catalog.Companies.Save(filteredCompanies);
+/// </code>
+/// </example>
+public interface ICatalogDataset<T> : ICatalogEntry
 {
   /// <summary>
-  /// Loads data from the catalog entry.
+  /// Loads the dataset as a collection of items.
   /// </summary>
-  /// <returns>The loaded data of type T</returns>
+  /// <returns>An enumerable collection of items of type T</returns>
+  /// <remarks>
+  /// Implementations should be idempotent - calling Load() multiple times
+  /// should return equivalent data (though not necessarily the same instances).
+  /// For large datasets, implementations may return lazy-loading enumerables.
+  /// </remarks>
+  Task<IEnumerable<T>> Load();
+
+  /// <summary>
+  /// Saves a collection of items to the catalog entry.
+  /// </summary>
+  /// <param name="data">The collection of items to save</param>
+  /// <remarks>
+  /// Implementations typically overwrite existing data.
+  /// For append-only semantics, use specialized catalog entry implementations.
+  /// </remarks>
+  Task Save(IEnumerable<T> data);
+}
+
+/// <summary>
+/// Strongly-typed catalog entry for singleton objects (non-collection data).
+/// Represents a storage location for a single object of type <typeparamref name="T"/>.
+/// </summary>
+/// <typeparam name="T">The type of the singleton object</typeparam>
+/// <remarks>
+/// <para>
+/// <strong>Breaking Change (v0.2.0):</strong> This interface is new. Previously, singletons were awkwardly
+/// wrapped in IEnumerable: <c>ICatalogEntry&lt;IEnumerable&lt;LinearRegressionModel&gt;&gt;</c>.
+/// Now use: <c>ICatalogObject&lt;LinearRegressionModel&gt;</c>.
+/// </para>
+/// <para>
+/// <strong>Semantic Distinction:</strong> Use ICatalogObject&lt;T&gt; for singular entities:
+/// - Machine learning models (ITransformer, LinearRegressionModel)
+/// - Configuration objects (ModelOptions, PipelineConfig)
+/// - Aggregated metrics (ModelMetrics, PerformanceReport)
+/// - Reference data (schema definitions, lookup tables as single objects)
+/// </para>
+/// <para>
+/// For collections of entities, use <see cref="ICatalogDataset{T}"/>.
+/// </para>
+/// <para>
+/// <strong>No LINQ Operations:</strong> Unlike ICatalogDataset, Load() returns a single T object,
+/// not a collection. This prevents confusion where LINQ operations wouldn't make semantic sense.
+/// </para>
+/// <para>
+/// <strong>Design Pattern:</strong> Strategy Pattern - different implementations provide
+/// different storage strategies (MemoryCatalogObject, JsonCatalogObject, etc.)
+/// </para>
+/// </remarks>
+/// <example>
+/// <code>
+/// // User declaration (in SpaceflightsCatalog)
+/// public ICatalogObject&lt;LinearRegressionModel&gt; Regressor => Object(() => 
+///     new MemoryCatalogObject&lt;LinearRegressionModel&gt;("regressor"));
+/// 
+/// // Usage (in nodes or pipelines)
+/// var model = await catalog.Regressor.Load(); // LinearRegressionModel (not IEnumerable)
+/// await catalog.Regressor.Save(trainedModel);
+/// </code>
+/// </example>
+public interface ICatalogObject<T> : ICatalogEntry
+{
+  /// <summary>
+  /// Loads the singleton object.
+  /// </summary>
+  /// <returns>The loaded object of type T</returns>
   /// <remarks>
   /// Implementations should be idempotent - calling Load() multiple times
   /// should return equivalent data (though not necessarily the same instance).
@@ -97,12 +186,11 @@ public interface ICatalogEntry<T> : ICatalogEntry
   Task<T> Load();
 
   /// <summary>
-  /// Saves data to the catalog entry.
+  /// Saves the singleton object to the catalog entry.
   /// </summary>
-  /// <param name="data">The data to save</param>
+  /// <param name="data">The object to save</param>
   /// <remarks>
-  /// Implementations may overwrite existing data or append, depending on
-  /// the storage strategy. Consult specific implementation documentation.
+  /// Implementations typically overwrite existing data.
   /// </remarks>
   Task Save(T data);
 }

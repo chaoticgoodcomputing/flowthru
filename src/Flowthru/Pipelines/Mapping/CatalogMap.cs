@@ -103,7 +103,7 @@ public class CatalogMap<T> where T : new()
 {
   private readonly List<CatalogMapping> _mappings = new();
   private readonly bool _isPassThrough;
-  private readonly ICatalogEntry<T>? _passThroughEntry;
+  private readonly ICatalogEntry? _passThroughEntry;
 
   /// <summary>
   /// Gets the property-to-catalog mappings for this map.
@@ -122,7 +122,7 @@ public class CatalogMap<T> where T : new()
   /// <summary>
   /// Private constructor for pass-through mode (single catalog entry).
   /// </summary>
-  private CatalogMap(ICatalogEntry<T> entry)
+  private CatalogMap(ICatalogEntry entry)
   {
     _isPassThrough = true;
     _passThroughEntry = entry ?? throw new ArgumentNullException(nameof(entry));
@@ -135,6 +135,10 @@ public class CatalogMap<T> where T : new()
   /// <param name="propertySelector">Expression selecting the property to map</param>
   /// <param name="catalogEntry">The catalog entry to map to this property</param>
   /// <remarks>
+  /// <para>
+  /// <strong>Breaking Change (v0.2.0):</strong> Now accepts ICatalogEntry (base interface) instead of
+  /// ICatalogEntry&lt;TProp&gt;, allowing both ICatalogDataset and ICatalogObject.
+  /// </para>
   /// <para>
   /// <strong>Compile-Time Type Safety:</strong>
   /// The generic constraint ensures that TProp matches the property type exactly.
@@ -151,7 +155,7 @@ public class CatalogMap<T> where T : new()
   /// </remarks>
   public CatalogMap<T> Map<TProp>(
       Expression<Func<T, TProp>> propertySelector,
-      ICatalogEntry<TProp> catalogEntry)
+      ICatalogEntry catalogEntry)
   {
     if (_isPassThrough)
     {
@@ -212,7 +216,7 @@ public class CatalogMap<T> where T : new()
   /// Used by PipelineBuilder overloads 1 and 3 to automatically wrap single
   /// catalog entries for simple nodes.
   /// </remarks>
-  public static CatalogMap<T> FromEntry(ICatalogEntry<T> entry)
+  public static CatalogMap<T> FromEntry(ICatalogEntry entry)
   {
     return new CatalogMap<T>(entry);
   }
@@ -305,8 +309,9 @@ public class CatalogMap<T> where T : new()
   {
     if (_isPassThrough)
     {
-      // Pass-through: load directly from catalog entry
-      return await _passThroughEntry!.Load();
+      // Pass-through: load directly from catalog entry (using untyped API)
+      var data = await _passThroughEntry!.LoadUntyped();
+      return (T)data;
     }
     else
     {
@@ -328,8 +333,8 @@ public class CatalogMap<T> where T : new()
   {
     if (_isPassThrough)
     {
-      // Pass-through: save directly to catalog entry
-      await _passThroughEntry!.Save(data);
+      // Pass-through: save directly to catalog entry (using untyped API)
+      await _passThroughEntry!.SaveUntyped(data!);
     }
     else
     {

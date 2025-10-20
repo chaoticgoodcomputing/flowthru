@@ -1,18 +1,24 @@
-using System.Collections.Concurrent;
-
 namespace Flowthru.Data.Implementations;
 
 /// <summary>
-/// In-memory catalog entry for transient data storage.
+/// In-memory catalog entry for transient singleton object storage.
 /// </summary>
-/// <typeparam name="T">The type of data to store</typeparam>
+/// <typeparam name="T">The type of the singleton object to store</typeparam>
 /// <remarks>
 /// <para>
+/// <strong>New in v0.2.0:</strong> This class provides in-memory storage for singleton objects.
+/// Previously, singletons were stored using MemoryCatalogEntry&lt;IEnumerable&lt;T&gt;&gt; which
+/// required awkward wrapping.
+/// </para>
+/// <para>
 /// <strong>Use Cases:</strong>
-/// - Intermediate pipeline datasets that don't need persistence
-/// - ML models in memory during training/evaluation
-/// - Test data that doesn't require file I/O
-/// - Temporary results between pipeline stages
+/// - ML models in memory during training/evaluation (LinearRegressionModel, ITransformer)
+/// - Configuration objects during pipeline execution (ModelOptions, PipelineConfig)
+/// - Aggregated metrics (ModelMetrics, PerformanceReport)
+/// - Test objects that don't require file I/O
+/// </para>
+/// <para>
+/// For collections of entities, use <see cref="MemoryCatalogDataset{T}"/>.
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> This implementation is thread-safe for concurrent
@@ -23,17 +29,17 @@ namespace Flowthru.Data.Implementations;
 /// Data is lost when the application terminates.
 /// </para>
 /// </remarks>
-public class MemoryCatalogEntry<T> : CatalogEntryBase<T>
+public class MemoryCatalogObject<T> : CatalogObjectBase<T>
 {
   private T? _data;
   private bool _hasData;
   private readonly object _lock = new();
 
   /// <summary>
-  /// Creates a new in-memory catalog entry.
+  /// Creates a new in-memory catalog object.
   /// </summary>
-  /// <param name="key">Unique identifier for this catalog entry</param>
-  public MemoryCatalogEntry(string key) : base(key)
+  /// <param name="key">Unique identifier for this catalog object</param>
+  public MemoryCatalogObject(string key) : base(key)
   {
   }
 
@@ -45,7 +51,7 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T>
       if (!_hasData)
       {
         throw new InvalidOperationException(
-            $"Cannot load from memory catalog entry '{Key}' - no data has been saved yet");
+            $"Cannot load from memory catalog object '{Key}' - no data has been saved yet");
       }
 
       return Task.FromResult(_data)!;
@@ -70,28 +76,6 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T>
     lock (_lock)
     {
       return Task.FromResult(_hasData);
-    }
-  }
-
-  /// <inheritdoc/>
-  /// <remarks>
-  /// Optimized implementation that doesn't require loading data.
-  /// </remarks>
-  public override Task<int> GetCountAsync()
-  {
-    lock (_lock)
-    {
-      if (!_hasData || _data == null)
-        return Task.FromResult(0);
-
-      // For IEnumerable<T>, count the items
-      if (_data is System.Collections.IEnumerable enumerable and not string)
-      {
-        return Task.FromResult(enumerable.Cast<object>().Count());
-      }
-
-      // For non-enumerable types (singletons), return 1
-      return Task.FromResult(1);
     }
   }
 

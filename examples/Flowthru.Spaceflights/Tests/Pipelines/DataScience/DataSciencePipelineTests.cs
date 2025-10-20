@@ -80,13 +80,7 @@ public class DataSciencePipelineTests
     // Register test data in catalog
     // catalog.Register<ModelInputSchema>("model_input_table", modelInputData);
 
-    var options = new ModelOptions
-    {
-      TestSize = 0.2,
-      RandomState = 42
-    };
-
-    var pipeline = DataSciencePipeline.Create(catalog, options);
+    var pipeline = DataSciencePipeline.Create(catalog);
 
     // Act
     var result = await pipeline.RunAsync();
@@ -108,15 +102,8 @@ public class DataSciencePipelineTests
     var catalog = new SpaceflightsCatalog();
 
     var modelInputData = CreateLargerDummyDataset(100); // Helper method
-    // catalog.Register<ModelInputSchema>("model_input_table", modelInputData);
 
-    var customOptions = new ModelOptions
-    {
-      TestSize = 0.3, // 30% test split instead of default 20%
-      RandomState = 999
-    };
-
-    var pipeline = DataSciencePipeline.Create(catalog, customOptions);
+    var pipeline = DataSciencePipeline.Create(catalog);
 
     // Act
     var result = await pipeline.RunAsync();

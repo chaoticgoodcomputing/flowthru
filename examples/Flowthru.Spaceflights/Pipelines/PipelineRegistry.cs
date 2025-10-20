@@ -19,13 +19,12 @@ public static class PipelineRegistry
   /// <param name="modelOptions">Optional model training parameters</param>
   /// <returns>Dictionary of pipeline names to pipeline instances</returns>
   public static Dictionary<string, Pipeline> RegisterPipelines(
-      SpaceflightsCatalog catalog,
-      ModelOptions? modelOptions = null)
+      SpaceflightsCatalog catalog)
   {
     var pipelines = new Dictionary<string, Pipeline>
     {
       ["data_processing"] = DataProcessingPipeline.Create(catalog),
-      ["data_science"] = DataSciencePipeline.Create(catalog, modelOptions),
+      ["data_science"] = DataSciencePipeline.Create(catalog),
     };
 
     // Create default pipeline that runs all pipelines in sequence

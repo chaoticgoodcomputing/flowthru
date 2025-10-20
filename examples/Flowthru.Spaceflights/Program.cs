@@ -37,32 +37,11 @@ public class Program
     logger.LogInformation("Data catalog built successfully");
 
     // ═══════════════════════════════════════════════════════════════
-    // STEP 3: Configure Model Options (Parameters)
-    // ═══════════════════════════════════════════════════════════════
-
-    var modelOptions = new ModelOptions
-    {
-      TestSize = 0.2,
-      RandomState = 3,
-      Features = new List<string>
-            {
-                "Engines",
-                "PassengerCapacity",
-                "Crew",
-                "DCheckComplete",
-                "MoonClearanceComplete",
-                "IataApproved",
-                "CompanyRating",
-                "ReviewScoresRating"
-            }
-    };
-
-    // ═══════════════════════════════════════════════════════════════
     // STEP 4: Register Pipelines
     // ═══════════════════════════════════════════════════════════════
 
     logger.LogInformation("Registering pipelines...");
-    var pipelines = PipelineRegistry.RegisterPipelines(catalog, modelOptions);
+    var pipelines = PipelineRegistry.RegisterPipelines(catalog);
     logger.LogInformation("Registered {Count} pipelines: {Names}",
         pipelines.Count,
         string.Join(", ", pipelines.Keys));
