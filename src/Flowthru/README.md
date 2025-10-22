@@ -117,14 +117,14 @@ The C# compiler becomes your documentation, showing all available datasets, para
 
 ## Comparison with Kedro
 
-| Aspect | Kedro | Flowthru |
-|--------|-------|----------|
-| **Type Safety** | Runtime (duck typing) | Compile-time (generics) |
-| **Catalog** | YAML + string keys | C# properties |
-| **Nodes** | Functions with decorators | Classes inheriting `NodeBase<TIn,TOut>` |
-| **Parameters** | YAML dictionaries | Strongly-typed record classes |
-| **Error Detection** | During execution | During compilation |
-| **IDE Support** | Basic | Full (IntelliSense, refactoring, navigation) |
+| Aspect              | Kedro                     | Flowthru                                     |
+| ------------------- | ------------------------- | -------------------------------------------- |
+| **Type Safety**     | Runtime (duck typing)     | Compile-time (generics)                      |
+| **Catalog**         | YAML + string keys        | C# properties                                |
+| **Nodes**           | Functions with decorators | Classes inheriting `NodeBase<TIn,TOut>`      |
+| **Parameters**      | YAML dictionaries         | Strongly-typed record classes                |
+| **Error Detection** | During execution          | During compilation                           |
+| **IDE Support**     | Basic                     | Full (IntelliSense, refactoring, navigation) |
 
 ---
 
