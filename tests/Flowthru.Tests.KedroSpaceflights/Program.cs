@@ -3,6 +3,8 @@ using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Tests.KedroSpaceflights;
@@ -19,12 +21,12 @@ public class Program {
 
       // Register pipelines inline (no separate registry class needed)
       builder
-          .RegisterPipeline<SpaceflightsCatalog>("data_processing", DataProcessingPipeline.Create)
+          .RegisterPipeline<SpaceflightsCatalog>("DataProcessing", DataProcessingPipeline.Create)
           .WithDescription("Preprocesses raw data and creates model input table");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog, DataSciencePipelineParams>(
-          "data_science",
+          "DataScience",
           DataSciencePipeline.Create,
           // Provide parameters for the data science pipeline
           new DataSciencePipelineParams(
@@ -43,7 +45,17 @@ public class Program {
                   "CompanyRating",
                   "ReviewScoresRating"
                 ]
-            },
+            }
+          )
+        )
+        .WithDescription("Trains and evaluates ML model");
+
+      builder
+        .RegisterPipeline<SpaceflightsCatalog, DataValidationPipelineParams>(
+          "DataValidation",
+          DataValidationPipeline.Create,
+          // Provide parameters for the data validation pipeline
+          new DataValidationPipelineParams(
             // Options for cross-validation
             new CrossValidationParams {
               NumFolds = 10, // Standard 10-fold cross-validation  
@@ -53,7 +65,7 @@ public class Program {
             }
           )
         )
-        .WithDescription("Trains and evaluates ML model");
+        .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
 
       // Configure logging
       builder.ConfigureLogging(logging => {

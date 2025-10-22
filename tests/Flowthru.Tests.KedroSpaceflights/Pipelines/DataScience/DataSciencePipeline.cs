@@ -1,11 +1,8 @@
-using Flowthru.Nodes;
 using Flowthru.Pipelines;
 using Flowthru.Pipelines.Mapping;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
-using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
-using Microsoft.ML;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 
@@ -16,12 +13,7 @@ public record DataSciencePipelineParams(
   /// <summary>
   /// Options for model training.
   /// </summary>
-  ModelParams ModelParams,
-
-  /// <summary>
-  /// Options for cross-validation.
-  /// </summary>
-  CrossValidationParams CrossValidationParams
+  ModelParams ModelParams
 );
 
 /// <summary>
@@ -42,13 +34,19 @@ public record DataSciencePipelineParams(
 /// If this code compiles, the pipeline is correctly wired. Type mismatches
 /// between nodes and catalog entries will cause compilation failures, not runtime errors.
 /// </para>
+/// 
+/// <para><strong>Matches Kedro 1:1:</strong></para>
+/// <para>
+/// This pipeline now matches the original Kedro spaceflights data_science pipeline exactly.
+/// Cross-validation has been moved to the DataValidation pipeline.
+/// </para>
 /// </summary>
 public static class DataSciencePipeline {
   public static Pipeline Create(SpaceflightsCatalog catalog, DataSciencePipelineParams parameters) {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
       // Node 1: Split data into train/test sets (single input → multi-output)
-      var splitOutputs = pipeline.AddNode<SplitDataNode>(
+      pipeline.AddNode<SplitDataNode>(
         name: "SplitData",
         input: catalog.ModelInputTable,
         output: new CatalogMap<SplitDataOutputs>()
@@ -69,22 +67,13 @@ public static class DataSciencePipeline {
       );
 
       // Node 3: Evaluate OLS model (multi-input → single output)
-      var evaluateInputs = pipeline.AddNode<EvaluateModelNode>(
+      pipeline.AddNode<EvaluateModelNode>(
         name: "EvaluateModel",
         input: new CatalogMap<EvaluateModelInputs>()
           .Map(x => x.Regressor, catalog.Regressor)
           .Map(x => x.XTest, catalog.XTest)
           .Map(x => x.YTest, catalog.YTest),
         output: catalog.ModelMetrics
-      );
-
-      // Node 4: Cross-validation for R² distribution analysis and comparison to the original Kedro
-      // spaceflights example.
-      pipeline.AddNode<CrossValidateModelNode>(
-        name: "CrossValidateAndCompareToKedroSource",
-        input: catalog.ModelInputTable,
-        output: catalog.CrossValidationResults,
-        configure: node => node.Parameters = parameters.CrossValidationParams
       );
     });
   }

@@ -4,7 +4,7 @@ using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Reference;
 
-namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
+namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
 
 /// <summary>
 /// Diagnostic node that validates Flowthru's model input table against Kedro's reference output.
