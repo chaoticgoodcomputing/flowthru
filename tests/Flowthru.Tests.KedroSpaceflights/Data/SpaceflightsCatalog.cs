@@ -24,7 +24,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data;
 /// <list type="bullet">
 /// <item>01_Raw: Raw input data from external sources</item>
 /// <item>02_Intermediate: Preprocessed/cleaned data</item>
-/// <item>03_Primary: Primary model inputs</item>
+/// <item>03_TrainingData: Primary model inputs</item>
 /// <item>06_Models: Trained ML models</item>
 /// <item>08_Reporting: Reports and metrics</item>
 /// </list>
@@ -46,8 +46,8 @@ public class SpaceflightsCatalog : DataCatalogBase
   /// <summary>
   /// Initializes a new instance of SpaceflightsCatalog with the specified base path.
   /// </summary>
-  /// <param name="basePath">Base path for dataset files (default: "Data/Datasets")</param>
-  public SpaceflightsCatalog(string basePath = "Data/Datasets")
+  /// <param name="basePath">Base path for dataset files</param>
+  public SpaceflightsCatalog(string basePath)
   {
     _basePath = basePath;
 
@@ -88,25 +88,25 @@ public class SpaceflightsCatalog : DataCatalogBase
   /// Preprocessed company data in Parquet format.
   /// Cleaned and validated company records.
   /// </summary>
-  public ICatalogDataset<CompanySchema> PreprocessedCompanies =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<CompanySchema>("preprocessed_companies", $"{_basePath}/02_Intermediate/preprocessed_companies.parquet"));
+  public ICatalogDataset<CompanySchema> CleanedCompanies =>
+    GetOrCreateDataset(() => new ParquetCatalogDataset<CompanySchema>("cleaned_companies", $"{_basePath}/02_Cleaned/cleaned_companies.parquet"));
 
   /// <summary>
   /// Preprocessed shuttle data in Parquet format.
   /// Cleaned and validated shuttle records.
   /// </summary>
-  public ICatalogDataset<ShuttleSchema> PreprocessedShuttles =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<ShuttleSchema>("preprocessed_shuttles", $"{_basePath}/02_Intermediate/preprocessed_shuttles.parquet"));
+  public ICatalogDataset<ShuttleSchema> CleanedShuttles =>
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ShuttleSchema>("cleaned_shuttles", $"{_basePath}/02_Cleaned/cleaned_shuttles.parquet"));
 
   /// <summary>
   /// Preprocessed review data in Parquet format.
   /// Cleaned and validated review records with parsed numeric scores.
   /// </summary>
-  public ICatalogDataset<ReviewSchema> PreprocessedReviews =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<ReviewSchema>("preprocessed_reviews", $"{_basePath}/02_Intermediate/preprocessed_reviews.parquet"));
+  public ICatalogDataset<ReviewSchema> CleanedReviews =>
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ReviewSchema>("cleaned_reviews", $"{_basePath}/02_Cleaned/cleaned_reviews.parquet"));
 
   // ═══════════════════════════════════════════════════════════
-  // PRIMARY DATA (03_Primary)
+  // PRIMARY DATA (03_TrainingData)
   // ═══════════════════════════════════════════════════════════
 
   /// <summary>
@@ -114,7 +114,7 @@ public class SpaceflightsCatalog : DataCatalogBase
   /// Joined dataset ready for ML training.
   /// </summary>
   public ICatalogDataset<ModelInputSchema> ModelInputTable =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<ModelInputSchema>("model_input_table", $"{_basePath}/03_Primary/model_input_table.parquet"));
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ModelInputSchema>("model_input_table", $"{_basePath}/03_TrainingData/model_input_table.parquet"));
 
   // ═══════════════════════════════════════════════════════════
   // DIAGNOSTIC CSV EXPORTS (for debugging)
@@ -123,20 +123,20 @@ public class SpaceflightsCatalog : DataCatalogBase
   /// <summary>
   /// Preprocessed companies exported as CSV (for debugging).
   /// </summary>
-  public ICatalogDataset<CompanySchema> PreprocessedCompaniesCsv =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<CompanySchema>("preprocessed_companies_csv", $"{_basePath}/02_Intermediate/preprocessed_companies.csv"));
+  public ICatalogDataset<CompanySchema> CleanedCompaniesCsv =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<CompanySchema>("cleaned_companies_csv", $"{_basePath}/02_Cleaned/cleaned_companies.csv"));
 
   /// <summary>
   /// Preprocessed shuttles exported as CSV (for debugging).
   /// </summary>
-  public ICatalogDataset<ShuttleSchema> PreprocessedShuttlesCsv =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<ShuttleSchema>("preprocessed_shuttles_csv", $"{_basePath}/02_Intermediate/preprocessed_shuttles.csv"));
+  public ICatalogDataset<ShuttleSchema> CleanedShuttlesCsv =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<ShuttleSchema>("cleaned_shuttles_csv", $"{_basePath}/02_Cleaned/cleaned_shuttles.csv"));
 
   /// <summary>
   /// Model input table exported as CSV (for debugging).
   /// </summary>
   public ICatalogDataset<ModelInputSchema> ModelInputTableCsv =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<ModelInputSchema>("model_input_table_csv", $"{_basePath}/03_Primary/model_input_table.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<ModelInputSchema>("model_input_table_csv", $"{_basePath}/03_TrainingData/model_input_table.csv"));
 
   // ═══════════════════════════════════════════════════════════
   // REFERENCE DATA (09_Reference - for validation)
@@ -147,7 +147,7 @@ public class SpaceflightsCatalog : DataCatalogBase
   /// Used to compare Flowthru implementation against original Kedro output.
   /// </summary>
   public ICatalogDataset<KedroModelInputSchema> KedroModelInputTable =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<KedroModelInputSchema>("kedro_model_input_table", $"{_basePath}/09_Reference/kedro_model_input_table.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<KedroModelInputSchema>("kedro_model_input_table", $"{_basePath}/99_Reference/kedro_model_input_table.csv"));
 
   // ═══════════════════════════════════════════════════════════
   // MODEL DATA (In-Memory Split Results)
@@ -210,5 +210,5 @@ public class SpaceflightsCatalog : DataCatalogBase
   /// Contains metrics for each fold, mean, std dev, and comparison to Kedro.
   /// </summary>
   public ICatalogDataset<CrossValidationResults> CrossValidationResults =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<CrossValidationResults>("cross_validation_results", $"{_basePath}/08_Reporting/cross_validation_results.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<CrossValidationResults>("cross_validation_results", $"{_basePath}/05_ModelOutput/kedro_comparison.csv"));
 }

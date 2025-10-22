@@ -32,21 +32,21 @@ public static class DataProcessingPipeline
       // Node 1: Preprocess companies (simple: single input → single output)
       pipeline.AddNode<PreprocessCompaniesNode, CompanyRawSchema, CompanySchema, NoParams>(
         input: catalog.Companies,
-        output: catalog.PreprocessedCompanies,
+        output: catalog.CleanedCompanies,
         name: "PreprocessCompanies"
       );
 
       // Node 2: Preprocess shuttles (simple: single input → single output)
       pipeline.AddNode<PreprocessShuttlesNode, ShuttleRawSchema, ShuttleSchema, NoParams>(
         input: catalog.Shuttles,
-        output: catalog.PreprocessedShuttles,
+        output: catalog.CleanedShuttles,
         name: "PreprocessShuttles"
       );
 
       // Node 3: Preprocess reviews (simple: single input → single output)
       pipeline.AddNode<PreprocessReviewsNode, ReviewRawSchema, ReviewSchema, NoParams>(
         input: catalog.Reviews,
-        output: catalog.PreprocessedReviews,
+        output: catalog.CleanedReviews,
         name: "PreprocessReviews"
       );
 
@@ -54,9 +54,9 @@ public static class DataProcessingPipeline
       var createModelInputs = pipeline.AddNode<CreateModelInputTableNode, CreateModelInputTableInputs, ModelInputSchema, NoParams>(
         name: "CreateModelInputTable",
         input: new CatalogMap<CreateModelInputTableInputs>()
-          .Map(x => x.Shuttles, catalog.PreprocessedShuttles)
-          .Map(x => x.Companies, catalog.PreprocessedCompanies)
-          .Map(x => x.Reviews, catalog.PreprocessedReviews),
+          .Map(x => x.Shuttles, catalog.CleanedShuttles)
+          .Map(x => x.Companies, catalog.CleanedCompanies)
+          .Map(x => x.Reviews, catalog.CleanedReviews),
         output: catalog.ModelInputTable
       );
 
@@ -81,15 +81,15 @@ public static class DataProcessingPipeline
       // Siphon off postprocessed companies for manual inspection
       pipeline.AddNode<ExportToCsvNode<CompanySchema>, CompanySchema, CompanySchema, NoParams>(
         name: "ExportCompaniesToDiagnosticCsv",
-        input: catalog.PreprocessedCompanies,
-        output: catalog.PreprocessedCompaniesCsv
+        input: catalog.CleanedCompanies,
+        output: catalog.CleanedCompaniesCsv
       );
 
       // Siphon off postprocessed shuttles for manual inspection
       pipeline.AddNode<ExportToCsvNode<ShuttleSchema>, ShuttleSchema, ShuttleSchema, NoParams>(
         name: "ExportShuttlesToDiagnosticCsv",
-        input: catalog.PreprocessedShuttles,
-        output: catalog.PreprocessedShuttlesCsv
+        input: catalog.CleanedShuttles,
+        output: catalog.CleanedShuttlesCsv
       );
 
       // Siphon off model output for manual inspection
