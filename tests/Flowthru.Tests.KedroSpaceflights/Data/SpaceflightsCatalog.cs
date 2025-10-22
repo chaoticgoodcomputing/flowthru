@@ -200,8 +200,8 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Contains R², MAE, RMSE, etc.
   /// Stored as a singleton object (pipeline produces single metrics object).
   /// </summary>
-  public ICatalogObject<ModelMetrics> ModelMetrics =>
-    GetOrCreateObject(() => new MemoryCatalogObject<ModelMetrics>("model_metrics"));
+  public ICatalogDataset<ModelMetrics> ModelMetrics =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<ModelMetrics>("model_metrics", $"{_basePath}/05_ModelOutput/model_metrics.csv"));
 
   /// <summary>
   /// Cross-validation results with R² distribution analysis.
