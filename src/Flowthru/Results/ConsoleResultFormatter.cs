@@ -21,11 +21,11 @@ public class ConsoleResultFormatter : IPipelineResultFormatter {
   }
 
   private void FormatSuccess(PipelineResult result, ILogger logger) {
-    logger.LogInformation("════════════════════════════════════════════════════════════════");
+    logger.LogInformation("================================================================");
     logger.LogInformation("Pipeline: {PipelineName}", result.PipelineName ?? "Unknown");
     logger.LogInformation("Status: ✓ SUCCESS");
     logger.LogInformation("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
-    logger.LogInformation("════════════════════════════════════════════════════════════════");
+    logger.LogInformation("================================================================");
     logger.LogInformation("");
 
     if (result.NodeResults.Count > 0) {
@@ -51,15 +51,15 @@ public class ConsoleResultFormatter : IPipelineResultFormatter {
       logger.LogInformation("");
     }
 
-    logger.LogInformation("════════════════════════════════════════════════════════════════");
+    logger.LogInformation("================================================================");
   }
 
   private void FormatFailure(PipelineResult result, ILogger logger) {
-    logger.LogError("════════════════════════════════════════════════════════════════");
+    logger.LogError("================================================================");
     logger.LogError("Pipeline: {PipelineName}", result.PipelineName ?? "Unknown");
     logger.LogError("Status: ✗ FAILED");
     logger.LogError("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
-    logger.LogError("════════════════════════════════════════════════════════════════");
+    logger.LogError("================================================================");
     logger.LogError("");
 
     // Show which nodes succeeded before failure
@@ -113,6 +113,6 @@ public class ConsoleResultFormatter : IPipelineResultFormatter {
     }
 
     logger.LogError("");
-    logger.LogError("════════════════════════════════════════════════════════════════");
+    logger.LogError("================================================================");
   }
 }

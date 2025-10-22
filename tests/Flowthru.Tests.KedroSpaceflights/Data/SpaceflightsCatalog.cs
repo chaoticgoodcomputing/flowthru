@@ -53,9 +53,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
     // This ensures object identity for DAG dependency resolution
     InitializeCatalogProperties();
   }
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // RAW DATA (01_Raw)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Raw company data from CSV file.
@@ -78,9 +78,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogDataset<ShuttleRawSchema> Shuttles =>
     GetOrCreateDataset(() => new ExcelCatalogDataset<ShuttleRawSchema>("shuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1"));
 
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // INTERMEDIATE DATA (02_Intermediate)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Preprocessed company data in Parquet format.
@@ -103,9 +103,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogDataset<ReviewSchema> CleanedReviews =>
     GetOrCreateDataset(() => new ParquetCatalogDataset<ReviewSchema>("cleaned_reviews", $"{_basePath}/02_Cleaned/cleaned_reviews.parquet"));
 
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // PRIMARY DATA (03_TrainingData)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Model input table in Parquet format.
@@ -114,9 +114,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogDataset<ModelInputSchema> ModelInputTable =>
     GetOrCreateDataset(() => new ParquetCatalogDataset<ModelInputSchema>("model_input_table", $"{_basePath}/03_TrainingData/model_input_table.parquet"));
 
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // DIAGNOSTIC CSV EXPORTS (for debugging)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Preprocessed companies exported as CSV (for debugging).
@@ -136,9 +136,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogDataset<ModelInputSchema> ModelInputTableCsv =>
     GetOrCreateDataset(() => new CsvCatalogDataset<ModelInputSchema>("model_input_table_csv", $"{_basePath}/03_TrainingData/model_input_table.csv"));
 
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // REFERENCE DATA (09_Reference - for validation)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Reference model input table from Kedro pipeline (for validation).
@@ -147,9 +147,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogDataset<KedroModelInputSchema> KedroModelInputTable =>
     GetOrCreateDataset(() => new CsvCatalogDataset<KedroModelInputSchema>("kedro_model_input_table", $"{_basePath}/99_Reference/kedro_model_input_table.csv"));
 
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // MODEL DATA (In-Memory Split Results)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Training features (X_train).
@@ -179,9 +179,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogDataset<decimal> YTest =>
     GetOrCreateDataset(() => new MemoryCatalogDataset<decimal>("y_test"));
 
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // MODELS (06_Models)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Trained ordinary least squares linear regression model.
@@ -191,9 +191,9 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogObject<LinearRegressionModel> Regressor =>
     GetOrCreateObject(() => new MemoryCatalogObject<LinearRegressionModel>("regressor"));
 
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
   // REPORTING (08_Reporting)
-  // ═══════════════════════════════════════════════════════════
+  // ===========================================================
 
   /// <summary>
   /// Model evaluation metrics.
