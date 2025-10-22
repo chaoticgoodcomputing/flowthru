@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Registry;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
@@ -10,42 +10,38 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines;
 /// Central registry for all pipelines in the Spaceflights project.
 /// Provides named access to configured pipelines.
 /// </summary>
-public static class PipelineRegistry
+public class SpaceflightsPipelineRegistry : PipelineRegistry<SpaceflightsCatalog>
 {
   /// <summary>
-  /// Registers and returns all available pipelines.
+  /// Registers all available pipelines.
   /// </summary>
-  /// <param name="catalog">The data catalog to use for pipeline construction</param>
-  /// <param name="modelOptions">Optional model training parameters</param>
-  /// <returns>Dictionary of pipeline names to pipeline instances</returns>
-  public static Dictionary<string, Pipeline> RegisterPipelines(
-      SpaceflightsCatalog catalog)
+  protected override void RegisterPipelines(IPipelineRegistrar<SpaceflightsCatalog> registrar)
   {
-    var pipelines = new Dictionary<string, Pipeline>
-    {
-      ["data_processing"] = DataProcessingPipeline.Create(catalog),
-      ["data_science"] = DataSciencePipeline.Create(catalog),
-    };
+    // Register data processing pipeline (no parameters)
+    registrar
+      .Register("data_processing", DataProcessingPipeline.Create)
+      .WithDescription("Preprocesses raw data and creates model input table")
+      .WithTags("etl", "preprocessing");
 
-    // Create default pipeline that runs all pipelines in sequence
-    pipelines["__default__"] = CombinePipelines(pipelines.Values);
-
-    return pipelines;
-  }
-
-  /// <summary>
-  /// Combines multiple pipelines into a single sequential pipeline.
-  /// </summary>
-  private static Pipeline CombinePipelines(IEnumerable<Pipeline> pipelines)
-  {
-    return PipelineBuilder.CreatePipeline(builder =>
-    {
-      // In a full implementation, this would merge node graphs
-      // For now, this is a placeholder showing the intended API
-      foreach (var p in pipelines)
+    // Register data science pipeline (with parameters)
+    registrar
+      .Register("data_science", DataSciencePipeline.Create, new ModelOptions
       {
-        // builder.Merge(p);
-      }
-    });
+        TestSize = 0.2,
+        RandomState = 3,
+        Features = new List<string>
+        {
+          "Engines",
+          "PassengerCapacity",
+          "Crew",
+          "DCheckComplete",
+          "MoonClearanceComplete",
+          "IataApproved",
+          "CompanyRating",
+          "ReviewScoresRating"
+        }
+      })
+      .WithDescription("Trains and evaluates ML model")
+      .WithTags("ml", "training");
   }
 }

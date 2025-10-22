@@ -15,6 +15,23 @@ namespace Flowthru.Tests.KedroSpaceflights.Tests.Pipelines.DataScience;
 [TestFixture]
 public class DataSciencePipelineTests
 {
+  private static ModelOptions CreateDefaultOptions() => new()
+  {
+    TestSize = 0.2,
+    RandomState = 3,
+    Features = new List<string>
+    {
+      "Engines",
+      "PassengerCapacity",
+      "Crew",
+      "DCheckComplete",
+      "MoonClearanceComplete",
+      "IataApproved",
+      "CompanyRating",
+      "ReviewScoresRating"
+    }
+  };
+
   [Test]
   public void Create_ShouldBuildPipelineWithThreeNodes()
   {
@@ -22,7 +39,7 @@ public class DataSciencePipelineTests
     var catalog = new SpaceflightsCatalog();
 
     // Act
-    var pipeline = DataSciencePipeline.Create(catalog);
+    var pipeline = DataSciencePipeline.Create(catalog, CreateDefaultOptions());
 
     // Assert
     Assert.That(pipeline, Is.Not.Null);
@@ -80,7 +97,7 @@ public class DataSciencePipelineTests
     // Register test data in catalog
     // catalog.Register<ModelInputSchema>("model_input_table", modelInputData);
 
-    var pipeline = DataSciencePipeline.Create(catalog);
+    var pipeline = DataSciencePipeline.Create(catalog, CreateDefaultOptions());
 
     // Act
     var result = await pipeline.RunAsync();
@@ -103,7 +120,7 @@ public class DataSciencePipelineTests
 
     var modelInputData = CreateLargerDummyDataset(100); // Helper method
 
-    var pipeline = DataSciencePipeline.Create(catalog);
+    var pipeline = DataSciencePipeline.Create(catalog, CreateDefaultOptions());
 
     // Act
     var result = await pipeline.RunAsync();
@@ -130,7 +147,7 @@ public class DataSciencePipelineTests
     var catalog = new SpaceflightsCatalog();
     // Intentionally NOT registering model_input_table - will fail when trying to load non-existent data
 
-    var pipeline = DataSciencePipeline.Create(catalog);
+    var pipeline = DataSciencePipeline.Create(catalog, CreateDefaultOptions());
 
     // Act
     var result = await pipeline.RunAsync();

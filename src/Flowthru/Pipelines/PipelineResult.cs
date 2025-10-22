@@ -31,6 +31,11 @@ namespace Flowthru.Pipelines;
 public class PipelineResult
 {
     /// <summary>
+    /// The name of the pipeline that was executed.
+    /// </summary>
+    public string? PipelineName { get; init; }
+
+    /// <summary>
     /// Indicates whether the pipeline executed successfully.
     /// </summary>
     public bool Success { get; init; }
@@ -63,13 +68,15 @@ public class PipelineResult
     /// </summary>
     public static PipelineResult CreateSuccess(
         TimeSpan executionTime,
-        Dictionary<string, NodeResult> nodeResults)
+        Dictionary<string, NodeResult> nodeResults,
+        string? pipelineName = null)
     {
         return new PipelineResult
         {
             Success = true,
             ExecutionTime = executionTime,
-            NodeResults = nodeResults
+            NodeResults = nodeResults,
+            PipelineName = pipelineName
         };
     }
 
@@ -79,14 +86,16 @@ public class PipelineResult
     public static PipelineResult CreateFailure(
         TimeSpan executionTime,
         Exception exception,
-        Dictionary<string, NodeResult>? nodeResults = null)
+        Dictionary<string, NodeResult>? nodeResults = null,
+        string? pipelineName = null)
     {
         return new PipelineResult
         {
             Success = false,
             ExecutionTime = executionTime,
             Exception = exception,
-            NodeResults = nodeResults ?? new()
+            NodeResults = nodeResults ?? new(),
+            PipelineName = pipelineName
         };
     }
 }

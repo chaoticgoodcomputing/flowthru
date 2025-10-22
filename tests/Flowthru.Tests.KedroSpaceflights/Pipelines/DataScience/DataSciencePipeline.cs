@@ -30,7 +30,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 /// </summary>
 public static class DataSciencePipeline
 {
-  public static Pipeline Create(SpaceflightsCatalog catalog)
+  public static Pipeline Create(SpaceflightsCatalog catalog, ModelOptions options)
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
@@ -43,21 +43,7 @@ public static class DataSciencePipeline
           .Map(s => s.XTest, catalog.XTest)
           .Map(s => s.YTrain, catalog.YTrain)
           .Map(s => s.YTest, catalog.YTest),
-        configure: node => node.Parameters = new ModelOptions()
-        {
-          TestSize = 0.2,
-          RandomState = 3,
-          Features = new List<string> {
-            "Engines",
-            "PassengerCapacity",
-            "Crew",
-            "DCheckComplete",
-            "MoonClearanceComplete",
-            "IataApproved",
-            "CompanyRating",
-            "ReviewScoresRating"
-          }
-        }
+        configure: node => node.Parameters = options
       );
 
       // Node 2: Train OLS regression model (multi-input → single output)

@@ -47,6 +47,33 @@ public class Pipeline
   public ILogger? Logger { get; set; }
 
   /// <summary>
+  /// Optional service provider for dependency injection into nodes.
+  /// </summary>
+  /// <remarks>
+  /// Set by FlowthruApplication before pipeline execution to enable nodes
+  /// to resolve services (e.g., database connections, external APIs).
+  /// </remarks>
+  public IServiceProvider? ServiceProvider { get; set; }
+
+  /// <summary>
+  /// Pipeline name for identification and logging.
+  /// </summary>
+  /// <remarks>
+  /// Set by PipelineRegistry during pipeline registration.
+  /// </remarks>
+  public string? Name { get; internal set; }
+
+  /// <summary>
+  /// Optional description of what this pipeline does.
+  /// </summary>
+  public string? Description { get; internal set; }
+
+  /// <summary>
+  /// Tags for categorizing and filtering pipelines.
+  /// </summary>
+  public IReadOnlyList<string> Tags { get; internal set; } = Array.Empty<string>();
+
+  /// <summary>
   /// Indicates whether the pipeline has been built (dependencies analyzed and layers assigned).
   /// </summary>
   public bool IsBuilt => ExecutionLayers != null;
@@ -151,7 +178,8 @@ public class Pipeline
             return PipelineResult.CreateFailure(
               stopwatch.Elapsed,
               nodeResult.Exception!,
-              nodeResults);
+              nodeResults,
+              Name);
           }
         }
       }
@@ -161,13 +189,13 @@ public class Pipeline
         "Pipeline execution completed successfully in {ElapsedMs}ms",
         stopwatch.ElapsedMilliseconds);
 
-      return PipelineResult.CreateSuccess(stopwatch.Elapsed, nodeResults);
+      return PipelineResult.CreateSuccess(stopwatch.Elapsed, nodeResults, Name);
     }
     catch (Exception ex)
     {
       stopwatch.Stop();
       Logger?.LogError(ex, "Pipeline execution failed: {ErrorMessage}", ex.Message);
-      return PipelineResult.CreateFailure(stopwatch.Elapsed, ex, nodeResults);
+      return PipelineResult.CreateFailure(stopwatch.Elapsed, ex, nodeResults, Name);
     }
   }
 

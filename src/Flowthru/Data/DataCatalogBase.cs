@@ -56,6 +56,15 @@ public abstract class DataCatalogBase
   private readonly ConcurrentDictionary<string, ICatalogEntry> _propertyCache = new();
 
   /// <summary>
+  /// Optional service provider for dependency injection into catalog entries.
+  /// </summary>
+  /// <remarks>
+  /// Set by FlowthruApplication before pipeline execution to enable catalog
+  /// entries to resolve services (e.g., database connections, HTTP clients).
+  /// </remarks>
+  public IServiceProvider? Services { get; set; }
+
+  /// <summary>
   /// Gets or creates a catalog dataset (collection), caching it for subsequent accesses.
   /// </summary>
   /// <typeparam name="T">The type of individual items in the dataset (NOT IEnumerable&lt;T&gt;)</typeparam>
@@ -84,6 +93,37 @@ public abstract class DataCatalogBase
   }
 
   /// <summary>
+  /// Gets or creates a catalog dataset with service provider access.
+  /// </summary>
+  /// <typeparam name="T">The type of individual items in the dataset</typeparam>
+  /// <param name="factory">Factory function that receives service provider to create the dataset</param>
+  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
+  /// <returns>Cached catalog dataset instance</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>New in v0.3.0:</strong> Enables catalog entries to access services during construction.
+  /// </para>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// <code>
+  /// public ICatalogDataset&lt;Company&gt; Companies =>
+  ///     GetOrCreateDataset(services => 
+  ///     {
+  ///         var dbContext = services?.GetService&lt;MyDbContext&gt;();
+  ///         return new DatabaseCatalogEntry&lt;Company&gt;("companies", dbContext);
+  ///     });
+  /// </code>
+  /// </para>
+  /// </remarks>
+  protected ICatalogDataset<T> GetOrCreateDataset<T>(
+      Func<IServiceProvider?, ICatalogDataset<T>> factory,
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
+  {
+    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
+    return (ICatalogDataset<T>)entry;
+  }
+
+  /// <summary>
   /// Gets or creates a catalog object (singleton), caching it for subsequent accesses.
   /// </summary>
   /// <typeparam name="T">The type of the singleton object</typeparam>
@@ -108,6 +148,26 @@ public abstract class DataCatalogBase
       [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
   {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
+    return (ICatalogObject<T>)entry;
+  }
+
+  /// <summary>
+  /// Gets or creates a catalog object with service provider access.
+  /// </summary>
+  /// <typeparam name="T">The type of the singleton object</typeparam>
+  /// <param name="factory">Factory function that receives service provider to create the object</param>
+  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
+  /// <returns>Cached catalog object instance</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>New in v0.3.0:</strong> Enables catalog entries to access services during construction.
+  /// </para>
+  /// </remarks>
+  protected ICatalogObject<T> GetOrCreateObject<T>(
+      Func<IServiceProvider?, ICatalogObject<T>> factory,
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
+  {
+    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
     return (ICatalogObject<T>)entry;
   }
 
