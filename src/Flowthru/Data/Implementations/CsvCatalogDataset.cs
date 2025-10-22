@@ -88,12 +88,23 @@ public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
           $"CSV file not found for catalog entry '{Key}'", _filePath);
     }
 
-    using var reader = new StreamReader(_filePath);
+    // Use an async FileStream to avoid blocking thread pool on large files
+    await using var stream = new FileStream(
+      _filePath,
+      FileMode.Open,
+      FileAccess.Read,
+      FileShare.Read,
+      bufferSize: 4096,
+      useAsync: true);
+
+    using var reader = new StreamReader(stream);
     using var csv = new CsvReader(reader, _configuration);
 
-    // Read all records into memory
-    // Note: CsvReader must be disposed before returning, so we materialize the enumerable
-    var records = csv.GetRecords<T>().ToList();
+    var records = new List<T>();
+    await foreach (var record in csv.GetRecordsAsync<T>())
+    {
+      records.Add(record);
+    }
 
     return records;
   }

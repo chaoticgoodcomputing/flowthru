@@ -26,28 +26,20 @@ public class MyCatalog : DataCatalogBase
     }
 }
 
-// Create your pipeline registry
-public class MyPipelineRegistry : PipelineRegistry<MyCatalog>
-{
-    protected override void RegisterPipelines(IPipelineRegistrar<MyCatalog> registrar)
-    {
-        registrar
-            .Register("data_processing", DataProcessingPipeline.Create)
-            .WithDescription("Process raw data")
-            .WithTags("etl");
-    }
-}
-
-// Run your application
+// Run your application (inline registration)
 public class Program
 {
     public static Task<int> Main(string[] args)
     {
         return FlowthruApplication.Create(args, builder =>
         {
+            builder.UseCatalog(new MyCatalog());
+            
+            // Register pipelines directly in the builder
             builder
-                .UseCatalog(new MyCatalog())
-                .RegisterPipelines<MyPipelineRegistry>();
+                .RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
+                .WithDescription("Process raw data")
+                .WithTags("etl");
         });
     }
 }
@@ -75,6 +67,7 @@ dotnet run data_processing
 
 **Problem-oriented:** Practical guides for specific tasks.
 
+- [Choose Pipeline Registration Approach](docs/how-to/pipeline-registration-approaches.md) - Inline vs registry classes
 - [Leverage Compile-Time Safety](docs/how-to/compile-time-safety.md) - Maximize type safety
 - [Structure Multi-Input/Output Nodes](docs/how-to/multi-input-output.md) - Handle complex data flows
 - [Add Logging and Dependencies](docs/how-to/logging-dependencies.md) - Inject services into nodes

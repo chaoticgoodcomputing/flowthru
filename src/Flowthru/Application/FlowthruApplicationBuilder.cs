@@ -15,7 +15,21 @@ namespace Flowthru.Application;
 /// catalog, pipelines, services, logging, and execution options.
 /// </para>
 /// <para>
-/// <strong>Usage:</strong>
+/// <strong>Inline Registration (Recommended):</strong>
+/// <code>
+/// var app = FlowthruApplication.Create(args, builder =>
+/// {
+///     builder.UseCatalog(new MyCatalog("Data"));
+///     builder
+///         .RegisterPipeline&lt;MyCatalog&gt;("pipeline_name", MyPipeline.Create)
+///         .WithDescription("Pipeline description")
+///         .WithTags("tag1", "tag2");
+///     builder.ConfigureLogging(logging => logging.AddConsole());
+/// });
+/// </code>
+/// </para>
+/// <para>
+/// <strong>Registry Class Alternative:</strong>
 /// <code>
 /// var app = FlowthruApplication.Create(args, builder =>
 /// {
@@ -32,6 +46,7 @@ public class FlowthruApplicationBuilder
   private DataCatalogBase? _catalog;
   private Func<IServiceProvider, DataCatalogBase>? _catalogFactory;
   private Type? _pipelineRegistryType;
+  private readonly List<Action<PipelineRegistrar<DataCatalogBase>>> _inlineRegistrations = new();
   private readonly ServiceCollection _services = new();
   private readonly ParameterStore _parameters = new();
   private ExecutionOptions _executionOptions = new();
@@ -103,6 +118,92 @@ public class FlowthruApplicationBuilder
     where TRegistry : class, new()
   {
     _pipelineRegistryType = typeof(TRegistry);
+    _inlineRegistrations.Clear(); // Clear inline registrations if using registry class
+    return this;
+  }
+
+  /// <summary>
+  /// Registers a pipeline with a parameterless factory function (inline registration).
+  /// </summary>
+  /// <typeparam name="TCatalog">The catalog type</typeparam>
+  /// <param name="name">Unique pipeline name</param>
+  /// <param name="pipelineFactory">Factory function that creates the pipeline from catalog</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// Use this for inline pipeline registration without a separate registry class.
+  /// Fluent chaining with WithDescription() and WithTags() is supported.
+  /// </remarks>
+  public FlowthruApplicationBuilder RegisterPipeline<TCatalog>(
+    string name,
+    Func<TCatalog, Pipelines.Pipeline> pipelineFactory)
+    where TCatalog : DataCatalogBase
+  {
+    _inlineRegistrations.Add(registrar =>
+      registrar.Register(name, catalog => pipelineFactory((TCatalog)catalog)));
+    _pipelineRegistryType = null; // Clear registry type if using inline registration
+    return this;
+  }
+
+  /// <summary>
+  /// Registers a pipeline with a parameterized factory function (inline registration).
+  /// </summary>
+  /// <typeparam name="TCatalog">The catalog type</typeparam>
+  /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
+  /// <param name="name">Unique pipeline name</param>
+  /// <param name="pipelineFactory">Factory function that creates the pipeline from catalog and parameters</param>
+  /// <param name="parameters">Parameter instance to pass to the pipeline</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// Use this for inline pipeline registration with parameters.
+  /// Fluent chaining with WithDescription() and WithTags() is supported.
+  /// </remarks>
+  public FlowthruApplicationBuilder RegisterPipeline<TCatalog, TParams>(
+    string name,
+    Func<TCatalog, TParams, Pipelines.Pipeline> pipelineFactory,
+    TParams parameters)
+    where TCatalog : DataCatalogBase
+  {
+    _inlineRegistrations.Add(registrar =>
+      registrar.Register(name, (catalog, p) => pipelineFactory((TCatalog)catalog, (TParams)p), parameters));
+    _pipelineRegistryType = null; // Clear registry type if using inline registration
+    return this;
+  }
+
+  /// <summary>
+  /// Adds a description to the most recently registered pipeline.
+  /// </summary>
+  /// <param name="description">Human-readable description of what the pipeline does</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// Use this after RegisterPipeline() to add metadata.
+  /// </remarks>
+  public FlowthruApplicationBuilder WithDescription(string description)
+  {
+    if (_inlineRegistrations.Count == 0)
+      throw new InvalidOperationException(
+        "WithDescription() can only be used after RegisterPipeline(). " +
+        "If using RegisterPipelines<T>(), use WithDescription() in the registry class instead.");
+
+    _inlineRegistrations.Add(registrar => registrar.WithDescription(description));
+    return this;
+  }
+
+  /// <summary>
+  /// Adds tags to the most recently registered pipeline.
+  /// </summary>
+  /// <param name="tags">Tags for categorizing the pipeline</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// Use this after RegisterPipeline() to add metadata.
+  /// </remarks>
+  public FlowthruApplicationBuilder WithTags(params string[] tags)
+  {
+    if (_inlineRegistrations.Count == 0)
+      throw new InvalidOperationException(
+        "WithTags() can only be used after RegisterPipeline(). " +
+        "If using RegisterPipelines<T>(), use WithTags() in the registry class instead.");
+
+    _inlineRegistrations.Add(registrar => registrar.WithTags(tags));
     return this;
   }
 
@@ -181,29 +282,47 @@ public class FlowthruApplicationBuilder
     catalog.Services = services;
 
     // 3. Create pipeline registry and get pipelines
-    if (_pipelineRegistryType == null)
+    Dictionary<string, Pipelines.Pipeline> pipelines;
+
+    if (_inlineRegistrations.Count > 0)
+    {
+      // Use inline registration approach
+      var registrar = new PipelineRegistrar<DataCatalogBase>(catalog);
+
+      // Replay all registration actions
+      foreach (var registration in _inlineRegistrations)
+      {
+        registration(registrar);
+      }
+
+      pipelines = registrar.Build();
+    }
+    else if (_pipelineRegistryType != null)
+    {
+      // Use registry class approach
+      var registry = Activator.CreateInstance(_pipelineRegistryType);
+      if (registry == null)
+        throw new InvalidOperationException(
+          $"Failed to create instance of pipeline registry type {_pipelineRegistryType.Name}");
+
+      // Use reflection to call GetPipelines with the catalog
+      var getPipelinesMethod = _pipelineRegistryType.GetMethod(
+        "GetPipelines",
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+      if (getPipelinesMethod == null)
+        throw new InvalidOperationException(
+          $"Pipeline registry type {_pipelineRegistryType.Name} does not have a GetPipelines method");
+
+      pipelines = getPipelinesMethod.Invoke(registry, new object[] { catalog })
+        as Dictionary<string, Pipelines.Pipeline>
+        ?? throw new InvalidOperationException("Failed to get pipelines from registry");
+    }
+    else
+    {
       throw new InvalidOperationException(
-        "No pipeline registry configured. Call RegisterPipelines<T>() before building the application.");
-
-    var registry = Activator.CreateInstance(_pipelineRegistryType);
-    if (registry == null)
-      throw new InvalidOperationException(
-        $"Failed to create instance of pipeline registry type {_pipelineRegistryType.Name}");
-
-    // Use reflection to call GetPipelines with the catalog
-    var getPipelinesMethod = _pipelineRegistryType.GetMethod(
-      "GetPipelines",
-      System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-    if (getPipelinesMethod == null)
-      throw new InvalidOperationException(
-        $"Pipeline registry type {_pipelineRegistryType.Name} does not have a GetPipelines method");
-
-    var pipelines = getPipelinesMethod.Invoke(registry, new object[] { catalog })
-      as Dictionary<string, Pipelines.Pipeline>;
-
-    if (pipelines == null)
-      throw new InvalidOperationException("Failed to get pipelines from registry");
+        "No pipelines configured. Call RegisterPipeline() or RegisterPipelines<T>() before building the application.");
+    }
 
     // 4. Create and return application
     return new FlowthruApplication(

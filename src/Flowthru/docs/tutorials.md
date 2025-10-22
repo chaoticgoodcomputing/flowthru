@@ -66,9 +66,58 @@ public static class DataProcessingPipeline
 }
 ```
 
-### Step 4: Create Pipeline Registry
+### Step 4: Register Pipelines and Create Application Entry Point
 
-The registry connects named pipelines to their factory methods. Inherit from `PipelineRegistry<TCatalog>`:
+Flowthru supports two approaches for pipeline registration: **inline registration** (recommended for simplicity) and **registry classes** (for complex scenarios).
+
+#### Approach 1: Inline Registration (Recommended)
+
+Register pipelines directly in the application builder:
+
+```csharp
+public class Program
+{
+    public static Task<int> Main(string[] args)
+    {
+        return FlowthruApplication.Create(args, builder =>
+        {
+            builder.UseCatalog(new MyCatalog());
+            
+            // Register pipeline without parameters
+            builder
+                .RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
+                .WithDescription("Extract, transform, and load raw data")
+                .WithTags("etl", "preprocessing");
+            
+            // Register pipeline with parameters
+            builder
+                .RegisterPipeline<MyCatalog, ModelOptions>("data_science", DataSciencePipeline.Create, new ModelOptions
+                {
+                    TestSize = 0.2,
+                    RandomState = 42,
+                    Features = new List<string> { /* ... */ }
+                })
+                .WithDescription("Train and evaluate ML model")
+                .WithTags("ml", "training");
+            
+            builder.ConfigureLogging(logging =>
+            {
+                logging.AddConsole();
+                logging.SetMinimumLevel(LogLevel.Information);
+            });
+        });
+    }
+}
+```
+
+**Benefits:**
+- No separate registry class needed
+- All configuration in one place
+- Simple projects stay simple
+
+#### Approach 2: Registry Class (For Complex Scenarios)
+
+For applications with many pipelines or complex registration logic, you can extract registrations to a separate class:
 
 ```csharp
 using Flowthru.Registry;
@@ -77,13 +126,11 @@ public class MyPipelineRegistry : PipelineRegistry<MyCatalog>
 {
     protected override void RegisterPipelines(IPipelineRegistrar<MyCatalog> registrar)
     {
-        // Pipeline without parameters
         registrar
             .Register("data_processing", DataProcessingPipeline.Create)
             .WithDescription("Extract, transform, and load raw data")
             .WithTags("etl", "preprocessing");
         
-        // Pipeline with parameters
         registrar
             .Register("data_science", DataSciencePipeline.Create, new ModelOptions
             {
@@ -95,19 +142,7 @@ public class MyPipelineRegistry : PipelineRegistry<MyCatalog>
             .WithTags("ml", "training");
     }
 }
-```
 
-**Key Design Points:**
-- `Register()` captures the catalog type in the factory signature
-- Compiler verifies `DataProcessingPipeline.Create` accepts `MyCatalog`
-- Parameters are strongly-typed (no string-based configuration)
-- Fluent API allows chaining metadata
-
-### Step 5: Create Application Entry Point
-
-The `FlowthruApplication` handles DI, logging, catalog initialization, and pipeline execution:
-
-```csharp
 public class Program
 {
     public static Task<int> Main(string[] args)
@@ -127,9 +162,19 @@ public class Program
 }
 ```
 
-**That's it!** Your entire application fits in 15 lines.
+**Benefits:**
+- Testable in isolation
+- Reusable across multiple entry points
+- Better organization for 10+ pipelines
 
-### Step 6: Run Your Pipeline
+**Key Design Points:**
+- `RegisterPipeline<TCatalog>()` captures the catalog type in the factory signature
+- Compiler verifies `DataProcessingPipeline.Create` accepts `MyCatalog`
+- Parameters are strongly-typed (no string-based configuration)
+- Fluent API allows chaining metadata
+- Both approaches provide identical compile-time safety
+
+### Step 5: Run Your Pipeline
 
 ```bash
 # Run specific pipeline

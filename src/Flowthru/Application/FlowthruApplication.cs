@@ -19,7 +19,22 @@ namespace Flowthru.Application;
 /// - Exit code generation
 /// </para>
 /// <para>
-/// <strong>Usage:</strong>
+/// <strong>Inline Registration Example:</strong>
+/// <code>
+/// public static async Task&lt;int&gt; Main(string[] args)
+/// {
+///     var app = FlowthruApplication.Create(args, builder =>
+///     {
+///         builder.UseCatalog(new MyCatalog("Data"));
+///         builder.RegisterPipeline&lt;MyCatalog&gt;("my_pipeline", MyPipeline.Create);
+///     });
+///     
+///     return await app.RunAsync();
+/// }
+/// </code>
+/// </para>
+/// <para>
+/// <strong>Registry Class Example:</strong>
 /// <code>
 /// public static async Task&lt;int&gt; Main(string[] args)
 /// {

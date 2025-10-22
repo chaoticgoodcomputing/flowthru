@@ -496,7 +496,8 @@ Flowthru is in active development. Upcoming features maintain compile-time safet
 
 **Phase 1 (Current):**
 - ✅ Application builder pattern (`FlowthruApplication`)
-- ✅ Generic pipeline registry (`PipelineRegistry<TCatalog>`)
+- ✅ Inline pipeline registration (`builder.RegisterPipeline<TCatalog>()`)
+- ✅ Generic pipeline registry (`PipelineRegistry<TCatalog>` for complex scenarios)
 - ✅ Type-safe parameter injection
 - ✅ Property-based dependency injection
 - ✅ Formatted console output
