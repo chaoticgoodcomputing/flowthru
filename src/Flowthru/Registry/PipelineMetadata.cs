@@ -1,3 +1,5 @@
+using Flowthru.Pipelines.Validation;
+
 namespace Flowthru.Registry;
 
 /// <summary>
@@ -22,4 +24,9 @@ internal class PipelineMetadata {
   /// Tags for categorizing and filtering pipelines.
   /// </summary>
   public IReadOnlyList<string> Tags { get; set; } = Array.Empty<string>();
+
+  /// <summary>
+  /// Validation configuration for this pipeline.
+  /// </summary>
+  public ValidationOptions ValidationOptions { get; set; } = ValidationOptions.Default();
 }

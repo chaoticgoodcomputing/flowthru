@@ -41,8 +41,57 @@ Flowthru's core design philosophy is **fail at compile-time, not runtime**. This
 | Input/output type mismatch | ❌ Runtime type error          | ✅ Generic constraint violation |
 | Unmapped required property | ⚠️ Build-time validation*      | ⚠️ Build-time validation*       |
 | Pipeline DAG cycle         | ⚠️ Build-time validation*      | ⚠️ Build-time validation*       |
+| Invalid external data      | ❌ Runtime error (after work)  | ⚠️ Pre-execution validation**   |
 
 *\*These validations occur when building the pipeline, before execution begins (fail-fast).*
+
+*\*\*Optional eager schema validation catches data quality issues before pipeline execution.*
+
+### Extending Fail-Fast to External Data
+
+Flowthru's compile-time safety catches most errors before execution, but there's one category that can't be validated at compile-time: **external data quality**.
+
+**The Problem:**
+- Your C# code is correct (types match, no typos)
+- Pipeline DAG is valid (no cycles, no conflicts)
+- But the CSV file has a typo in a column name, or Excel file is missing rows, or Parquet schema changed
+
+Traditional approach: discover the error after 30 minutes of computation.
+
+**Flowthru's Solution: Eager Schema Validation**
+
+Flowthru provides an **optional inspection system** that validates external data sources before pipeline execution begins:
+
+```csharp
+builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
+  .WithValidation(validation => {
+    // Validate external data before pipeline runs
+    validation.Inspect(catalog.Companies, InspectionLevel.Deep);
+    validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
+  });
+```
+
+**What happens:**
+1. Pipeline builds and analyzes DAG
+2. **Inspection phase:** Validates all Layer 0 inputs (external data sources)
+   - File exists?
+   - Format valid (CSV/Excel/Parquet)?
+   - Headers match expected schema?
+   - Sample rows (or all rows) deserialize correctly?
+3. If validation fails → immediate `ValidationException` with all errors
+4. If validation passes → pipeline executes normally
+
+**Result:** Catch data quality issues in seconds, not minutes. Fail-fast extends from compile-time to pre-execution time.
+
+**Inspection Levels:**
+
+| Level | Validates | Performance | When to Use |
+|-------|-----------|-------------|-------------|
+| **None** | Nothing (skips inspection) | Instant | Known-good data, performance-critical |
+| **Shallow** (default) | File exists, format valid, schema matches, sample rows | Fast (seconds) | Development, testing, most production |
+| **Deep** (opt-in) | Everything + all rows validated | Slow (minutes for large datasets) | Critical production data, first-time ingestion |
+
+See [How-to: Configure Dataset Inspection](./how-to/dataset-inspection.md) for details.
 
 ### The Type System as Documentation
 

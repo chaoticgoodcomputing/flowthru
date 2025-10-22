@@ -164,15 +164,23 @@ public class FlowthruApplication : IFlowthruApplication
     pipeline.Logger = _logger;
     pipeline.ServiceProvider = _services;
 
-    // 3. Build and execute
+    // 3. Build the pipeline
     if (!pipeline.IsBuilt)
     {
       pipeline.Build();
     }
 
+    // 4. Validate external inputs if configured
+    var validationResult = await pipeline.ValidateExternalInputsAsync();
+    if (!validationResult.IsValid)
+    {
+      validationResult.ThrowIfInvalid();
+    }
+
+    // 5. Execute pipeline
     var result = await pipeline.RunAsync();
 
-    // 4. Format results
+    // 6. Format results
     var formatter = _executionOptions.GetFormatter();
     formatter.Format(result, _logger);
 
@@ -188,12 +196,20 @@ public class FlowthruApplication : IFlowthruApplication
   {
     _logger.LogInformation("Running merged pipeline: {Name}", mergedPipeline.Name);
 
-    // Build and execute
+    // Build the pipeline
     if (!mergedPipeline.IsBuilt)
     {
       mergedPipeline.Build();
     }
 
+    // Validate external inputs if configured
+    var validationResult = await mergedPipeline.ValidateExternalInputsAsync();
+    if (!validationResult.IsValid)
+    {
+      validationResult.ThrowIfInvalid();
+    }
+
+    // Execute pipeline
     var result = await mergedPipeline.RunAsync();
 
     // Format results

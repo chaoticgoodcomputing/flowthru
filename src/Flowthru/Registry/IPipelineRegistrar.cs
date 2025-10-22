@@ -86,4 +86,27 @@ public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase {
   /// Tags can be used for filtering and organizing pipelines (e.g., "etl", "ml", "reporting").
   /// </remarks>
   IPipelineRegistrar<TCatalog> WithTags(params string[] tags);
+
+  /// <summary>
+  /// Configures validation options for the most recently registered pipeline.
+  /// </summary>
+  /// <param name="configure">Action to configure validation behavior</param>
+  /// <returns>This registrar for method chaining</returns>
+  /// <remarks>
+  /// <para>
+  /// Use this to opt into deep inspection for critical external data sources
+  /// or to explicitly disable inspection for specific inputs.
+  /// </para>
+  /// <para>
+  /// <strong>Example:</strong>
+  /// </para>
+  /// <code>
+  /// registrar.Register("data_processing", ProcessingPipeline.Create)
+  ///   .WithValidation(validation => {
+  ///     validation.Inspect(catalog.Companies, InspectionLevel.Deep);
+  ///     validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
+  ///   });
+  /// </code>
+  /// </remarks>
+  IPipelineRegistrar<TCatalog> WithValidation(Action<Pipelines.Validation.ValidationOptions> configure);
 }

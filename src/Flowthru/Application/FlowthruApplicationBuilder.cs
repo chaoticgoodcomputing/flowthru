@@ -79,6 +79,29 @@ public class FlowthruApplicationBuilder {
   }
 
   /// <summary>
+  /// Gets the configured catalog instance.
+  /// </summary>
+  /// <typeparam name="TCatalog">The catalog type</typeparam>
+  /// <returns>The catalog instance</returns>
+  /// <exception cref="InvalidOperationException">Thrown if catalog hasn't been configured yet</exception>
+  /// <remarks>
+  /// Use this to reference catalog entries when configuring validation options.
+  /// </remarks>
+  public TCatalog GetCatalog<TCatalog>() where TCatalog : DataCatalogBase {
+    if (_catalog == null) {
+      throw new InvalidOperationException(
+        "Catalog has not been configured yet. Call UseCatalog() first.");
+    }
+
+    if (_catalog is not TCatalog typedCatalog) {
+      throw new InvalidOperationException(
+        $"Catalog is of type {_catalog.GetType().Name}, not {typeof(TCatalog).Name}");
+    }
+
+    return typedCatalog;
+  }
+
+  /// <summary>
   /// Configures the data catalog using a factory function that receives services.
   /// </summary>
   /// <param name="catalogFactory">Factory function to create the catalog</param>
@@ -196,6 +219,38 @@ public class FlowthruApplicationBuilder {
     }
 
     _inlineRegistrations.Add(registrar => registrar.WithTags(tags));
+    return this;
+  }
+
+  /// <summary>
+  /// Configures validation options for the most recently registered pipeline.
+  /// </summary>
+  /// <param name="configure">Action to configure validation behavior</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// <para>
+  /// Use this after RegisterPipeline() to opt into deep inspection for critical
+  /// external data sources or to explicitly disable inspection for specific inputs.
+  /// </para>
+  /// <para>
+  /// <strong>Example:</strong>
+  /// </para>
+  /// <code>
+  /// builder.RegisterPipeline&lt;MyCatalog&gt;("data_processing", ProcessingPipeline.Create)
+  ///   .WithValidation(validation => {
+  ///     validation.Inspect(catalog.Companies, InspectionLevel.Deep);
+  ///     validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
+  ///   });
+  /// </code>
+  /// </remarks>
+  public FlowthruApplicationBuilder WithValidation(Action<Pipelines.Validation.ValidationOptions> configure) {
+    if (_inlineRegistrations.Count == 0) {
+      throw new InvalidOperationException(
+        "WithValidation() can only be used after RegisterPipeline(). " +
+        "If using RegisterPipelines<T>(), use WithValidation() in the registry class instead.");
+    }
+
+    _inlineRegistrations.Add(registrar => registrar.WithValidation(configure));
     return this;
   }
 

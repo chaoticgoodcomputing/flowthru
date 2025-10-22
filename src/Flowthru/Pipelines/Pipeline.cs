@@ -74,6 +74,15 @@ public class Pipeline
   public IReadOnlyList<string> Tags { get; internal set; } = Array.Empty<string>();
 
   /// <summary>
+  /// Validation options for this pipeline.
+  /// </summary>
+  /// <remarks>
+  /// Configures how external data sources (Layer 0 inputs) are validated
+  /// before pipeline execution begins.
+  /// </remarks>
+  public Validation.ValidationOptions ValidationOptions { get; internal set; } = Validation.ValidationOptions.Default();
+
+  /// <summary>
   /// Indicates whether the pipeline has been built (dependencies analyzed and layers assigned).
   /// </summary>
   public bool IsBuilt => ExecutionLayers != null;
@@ -180,6 +189,203 @@ public class Pipeline
         layerNodes.Count,
         string.Join(", ", layerNodes.Select(n => n.Name)));
     }
+  }
+
+  /// <summary>
+  /// Validates all external inputs (Layer 0) before pipeline execution.
+  /// </summary>
+  /// <returns>ValidationResult containing any errors found</returns>
+  /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
+  /// <remarks>
+  /// <para>
+  /// This method inspects catalog entries that serve as inputs to Layer 0 nodes.
+  /// These are pre-existing external data sources (files, databases, APIs) that
+  /// must exist and be valid before the pipeline can execute.
+  /// </para>
+  /// <para>
+  /// <strong>Inspection Levels:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item><strong>None:</strong> Skip inspection entirely</item>
+  /// <item><strong>Shallow:</strong> Validate file exists, check headers/schema, deserialize sample rows</item>
+  /// <item><strong>Deep:</strong> Validate all rows in the dataset (expensive!)</item>
+  /// </list>
+  /// <para>
+  /// <strong>Default Behavior:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>If explicitly configured via WithValidation() → use that level</item>
+  /// <item>If entry implements IShallowInspectable → Shallow</item>
+  /// <item>Otherwise → None (skip)</item>
+  /// </list>
+  /// <para>
+  /// <strong>Important:</strong> Only Layer 0 inputs are inspected. Intermediate pipeline
+  /// outputs (Layer 1+) are never inspected, as they don't exist yet.
+  /// </para>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// </para>
+  /// <code>
+  /// pipeline.Build();
+  /// var validationResult = await pipeline.ValidateExternalInputsAsync();
+  /// if (!validationResult.IsValid) {
+  ///   // Handle validation errors before execution
+  ///   validationResult.ThrowIfInvalid();
+  /// }
+  /// await pipeline.RunAsync();
+  /// </code>
+  /// </remarks>
+  public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync()
+  {
+    if (!IsBuilt)
+    {
+      throw new InvalidOperationException(
+        "Pipeline must be built before validation. Call Build() first.");
+    }
+
+    var result = Data.Validation.ValidationResult.Success();
+
+    // No Layer 0? No external inputs to validate
+    if (ExecutionLayers!.Count == 0)
+    {
+      Logger?.LogInformation("No nodes in pipeline, nothing to validate");
+      return result;
+    }
+
+    var layer0Nodes = ExecutionLayers[0];
+    Logger?.LogInformation("Validating external inputs from {Layer0NodeCount} Layer 0 nodes", layer0Nodes.Count);
+
+    // Extract all unique input catalog entries from Layer 0 nodes
+    var externalInputs = layer0Nodes
+      .SelectMany(node => node.Inputs)
+      .DistinctBy(entry => entry.Key)
+      .ToList();
+
+    Logger?.LogInformation("Found {ExternalInputCount} unique external input(s) to validate", externalInputs.Count);
+
+    // Inspect each external input based on configured or default level
+    foreach (var catalogEntry in externalInputs)
+    {
+      var inspectionLevel = ValidationOptions.GetEffectiveInspectionLevel(catalogEntry);
+
+      if (inspectionLevel == Data.Validation.InspectionLevel.None)
+      {
+        Logger?.LogDebug("Skipping inspection for '{CatalogKey}' (level: None)", catalogEntry.Key);
+        continue;
+      }
+
+      Logger?.LogInformation(
+        "Inspecting '{CatalogKey}' with {InspectionLevel} inspection",
+        catalogEntry.Key,
+        inspectionLevel);
+
+      try
+      {
+        Data.Validation.ValidationResult inspectionResult;
+
+        if (inspectionLevel == Data.Validation.InspectionLevel.Shallow)
+        {
+          // Try shallow inspection
+          var shallowInterface = catalogEntry.GetType()
+            .GetInterfaces()
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IShallowInspectable<>));
+
+          if (shallowInterface != null)
+          {
+            inspectionResult = await InvokeShallowInspectionAsync(catalogEntry, shallowInterface);
+          }
+          else
+          {
+            // Entry doesn't support shallow inspection but was configured for it
+            inspectionResult = Data.Validation.ValidationResult.Failure(
+              catalogEntry.Key,
+              Data.Validation.ValidationErrorType.InspectionFailure,
+              "Entry does not implement IShallowInspectable<T>");
+          }
+        }
+        else // Deep
+        {
+          // Try deep inspection
+          var deepInterface = catalogEntry.GetType()
+            .GetInterfaces()
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDeepInspectable<>));
+
+          if (deepInterface != null)
+          {
+            inspectionResult = await InvokeDeepInspectionAsync(catalogEntry, deepInterface);
+          }
+          else
+          {
+            // Entry doesn't support deep inspection but was configured for it
+            inspectionResult = Data.Validation.ValidationResult.Failure(
+              catalogEntry.Key,
+              Data.Validation.ValidationErrorType.InspectionFailure,
+              "Entry does not implement IDeepInspectable<T>");
+          }
+        }
+
+        result.Merge(inspectionResult);
+
+        if (!inspectionResult.IsValid)
+        {
+          Logger?.LogWarning(
+            "Validation failed for '{CatalogKey}': {ErrorCount} error(s)",
+            catalogEntry.Key,
+            inspectionResult.Errors.Count);
+        }
+        else
+        {
+          Logger?.LogInformation("'{CatalogKey}' passed {InspectionLevel} inspection", catalogEntry.Key, inspectionLevel);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger?.LogError(ex, "Exception during inspection of '{CatalogKey}'", catalogEntry.Key);
+        result.AddError(new Data.Validation.ValidationError(
+          catalogEntry.Key,
+          Data.Validation.ValidationErrorType.InspectionFailure,
+          $"Inspection threw exception: {ex.Message}",
+          ex.ToString()));
+      }
+    }
+
+    if (result.IsValid)
+    {
+      Logger?.LogInformation("All external inputs passed validation");
+    }
+    else
+    {
+      Logger?.LogError(
+        "Validation failed with {ErrorCount} error(s) across {CatalogCount} catalog entries",
+        result.Errors.Count,
+        result.Errors.Select(e => e.CatalogKey).Distinct().Count());
+    }
+
+    return result;
+  }
+
+  /// <summary>
+  /// Invokes shallow inspection on a catalog entry using reflection to handle generic types.
+  /// </summary>
+  private async Task<Data.Validation.ValidationResult> InvokeShallowInspectionAsync(
+    ICatalogEntry catalogEntry,
+    Type shallowInterface)
+  {
+    var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
+    var task = (Task<Data.Validation.ValidationResult>)method!.Invoke(catalogEntry, new object[] { 10 })!;
+    return await task;
+  }
+
+  /// <summary>
+  /// Invokes deep inspection on a catalog entry using reflection to handle generic types.
+  /// </summary>
+  private async Task<Data.Validation.ValidationResult> InvokeDeepInspectionAsync(
+    ICatalogEntry catalogEntry,
+    Type deepInterface)
+  {
+    var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
+    var task = (Task<Data.Validation.ValidationResult>)method!.Invoke(catalogEntry, Array.Empty<object>())!;
+    return await task;
   }
 
   /// <summary>

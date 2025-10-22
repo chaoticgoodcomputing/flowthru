@@ -22,7 +22,13 @@ public class Program {
       // Register pipelines inline (no separate registry class needed)
       builder
           .RegisterPipeline<SpaceflightsCatalog>("DataProcessing", DataProcessingPipeline.Create)
-          .WithDescription("Preprocesses raw data and creates model input table");
+          .WithDescription("Preprocesses raw data and creates model input table")
+          .WithValidation(validation => {
+            // Opt into deep inspection for critical input datasets
+            validation.Inspect(builder.GetCatalog<SpaceflightsCatalog>().Companies, Flowthru.Data.Validation.InspectionLevel.Deep);
+            validation.Inspect(builder.GetCatalog<SpaceflightsCatalog>().Shuttles, Flowthru.Data.Validation.InspectionLevel.Deep);
+            validation.Inspect(builder.GetCatalog<SpaceflightsCatalog>().Reviews, Flowthru.Data.Validation.InspectionLevel.Deep);
+          });
 
       builder
         .RegisterPipeline<SpaceflightsCatalog, DataSciencePipelineParams>(

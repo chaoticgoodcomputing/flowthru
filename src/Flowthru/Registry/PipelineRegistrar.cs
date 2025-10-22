@@ -95,6 +95,20 @@ internal class PipelineRegistrar<TCatalog> : IPipelineRegistrar<TCatalog>
     return this;
   }
 
+  /// <inheritdoc />
+  public IPipelineRegistrar<TCatalog> WithValidation(Action<Pipelines.Validation.ValidationOptions> configure) {
+    if (_lastRegisteredPipeline == null) {
+      throw new InvalidOperationException("No pipeline has been registered yet. Call Register() first.");
+    }
+
+    if (!_metadata.ContainsKey(_lastRegisteredPipeline)) {
+      throw new InvalidOperationException($"Pipeline '{_lastRegisteredPipeline}' has not been registered");
+    }
+
+    configure(_metadata[_lastRegisteredPipeline].ValidationOptions);
+    return this;
+  }
+
   /// <summary>
   /// Builds and returns all registered pipelines with their metadata applied.
   /// </summary>
@@ -112,6 +126,7 @@ internal class PipelineRegistrar<TCatalog> : IPipelineRegistrar<TCatalog>
       if (_metadata.TryGetValue(name, out var metadata)) {
         pipeline.Description = metadata.Description;
         pipeline.Tags = metadata.Tags;
+        pipeline.ValidationOptions = metadata.ValidationOptions;
       }
 
       pipelines[name] = pipeline;
