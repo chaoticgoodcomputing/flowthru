@@ -1,3 +1,5 @@
+using Flowthru.Data.Validation;
+
 namespace Flowthru.Data;
 
 /// <summary>
@@ -17,8 +19,13 @@ namespace Flowthru.Data;
 /// - Save(IEnumerable&lt;T&gt; data): Persist dataset to storage
 /// - Exists(): Check if dataset is present
 /// </para>
+/// <para>
+/// <strong>Inspection Capabilities:</strong> This base class implements both shallow and deep
+/// inspection interfaces by default. Derived classes can override these methods to provide
+/// more efficient or format-specific validation logic.
+/// </para>
 /// </remarks>
-public abstract class CatalogDatasetBase<T> : ICatalogDataset<T> {
+public abstract class CatalogDatasetBase<T> : ICatalogDataset<T>, IShallowInspectable<T>, IDeepInspectable<T> {
   /// <summary>
   /// Creates a new catalog dataset with the specified key.
   /// </summary>
@@ -81,5 +88,83 @@ public abstract class CatalogDatasetBase<T> : ICatalogDataset<T> {
     }
 
     await Save(typedData);
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// <strong>Default Implementation:</strong> Checks existence and attempts to load the first
+  /// <paramref name="sampleSize"/> rows to validate deserialization.
+  /// </para>
+  /// <para>
+  /// Derived classes should override this method to provide more efficient or format-specific
+  /// validation (e.g., checking CSV headers without loading data, validating Parquet metadata).
+  /// </para>
+  /// </remarks>
+  public virtual async Task<ValidationResult> InspectShallow(int sampleSize = 100) {
+    var result = new ValidationResult();
+
+    try {
+      // 1. Check existence
+      if (!await Exists()) {
+        result.AddError(new ValidationError(
+          Key,
+          ValidationErrorType.NotFound,
+          $"Data source does not exist",
+          $"Catalog entry '{Key}' of type {GetType().Name}"));
+        return result;
+      }
+
+      // 2. Attempt to load sample rows
+      var data = await Load();
+      var sample = data.Take(sampleSize).ToList();
+
+      // 3. Check if empty when data was expected
+      if (sample.Count == 0) {
+        result.AddError(new ValidationError(
+          Key,
+          ValidationErrorType.EmptyDataset,
+          $"Dataset is empty",
+          $"Expected at least one row in '{Key}'"));
+        return result;
+      }
+
+      // Success - data exists and sample rows loaded successfully
+      return ValidationResult.Success();
+    } catch (Exception ex) {
+      return ValidationResult.FromException(Key, ex);
+    }
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// <strong>Default Implementation:</strong> Loads the entire dataset to validate all rows
+  /// can be deserialized successfully.
+  /// </para>
+  /// <para>
+  /// <strong>Performance Warning:</strong> This implementation loads all data into memory.
+  /// Derived classes should override with streaming validation when possible.
+  /// </para>
+  /// </remarks>
+  public virtual async Task<ValidationResult> InspectDeep() {
+    var result = new ValidationResult();
+
+    try {
+      // 1. Perform shallow inspection first
+      var shallowResult = await InspectShallow(sampleSize: 100);
+      if (shallowResult.HasErrors) {
+        return shallowResult;
+      }
+
+      // 2. Load and count ALL rows
+      var data = await Load();
+      var count = data.Count();
+
+      // Success - all rows loaded successfully
+      return ValidationResult.Success();
+    } catch (Exception ex) {
+      return ValidationResult.FromException(Key, ex);
+    }
   }
 }
