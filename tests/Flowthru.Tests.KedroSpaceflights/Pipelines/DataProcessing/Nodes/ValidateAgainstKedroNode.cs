@@ -26,19 +26,17 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     var input = inputs.Single();
     var flowthruData = input.FlowthruData.ToList();
     var kedroData = input.KedroData.ToList();
-    Console.WriteLine("FLOWTHRU vs KEDRO MODEL INPUT TABLE VALIDATION");
-    // Step 1: Schema Comparison    Console.WriteLine(new string('-', 80));
+    // Step 1: Schema Comparison
     CompareSchemas();
 
-    // Step 2: Row Count Comparison    Console.WriteLine(new string('-', 80));    Console.WriteLine($"  Kedro rows:    {kedroData.Count:N0}");
+    // Step 2: Row Count Comparison
 
     if (flowthruData.Count == kedroData.Count) { } else {
       var diff = flowthruData.Count - kedroData.Count;
     }
 
-    // Step 3: Data Value Comparison    Console.WriteLine(new string('-', 80));
+    // Step 3: Data Value Comparison
     CompareDataValues(flowthruData, kedroData);
-    Console.WriteLine("VALIDATION COMPLETE");
     // Pass through Flowthru data unchanged
     return Task.FromResult(flowthruData.AsEnumerable());
   }
@@ -46,13 +44,11 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
   private void CompareSchemas() {
     var flowthruProps = typeof(ModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
     var kedroProps = typeof(KedroModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-    Console.WriteLine($"  Kedro schema:    {kedroProps.Length} properties");
 
     // Find common property names (case-insensitive)
     var flowthruPropNames = flowthruProps.Select(p => p.Name.ToLowerInvariant()).ToHashSet();
     var kedroPropNames = kedroProps.Select(p => p.Name.ToLowerInvariant()).ToHashSet();
     var commonProps = flowthruPropNames.Intersect(kedroPropNames).Count();
-    Console.WriteLine($"  ℹ Kedro has additional columns not used by Flowthru (shuttle_location, engine_type, etc.)");
   }
 
   private void CompareDataValues(List<ModelInputSchema> flowthruData, List<KedroModelInputSchema> kedroData) {
@@ -72,7 +68,6 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     var commonKeys = flowthruKeys.Intersect(kedroKeys).ToHashSet();
     var flowthruOnlyKeys = flowthruKeys.Except(kedroKeys).ToList();
     var kedroOnlyKeys = kedroKeys.Except(flowthruKeys).ToList();
-    Console.WriteLine($"  Flowthru-only IDs:  {flowthruOnlyKeys.Count:N0}");
     if (flowthruOnlyKeys.Any()) { }
 
     if (kedroOnlyKeys.Any()) { }
