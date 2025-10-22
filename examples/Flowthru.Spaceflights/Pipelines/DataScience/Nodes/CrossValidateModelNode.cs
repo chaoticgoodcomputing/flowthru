@@ -95,10 +95,10 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
     Logger?.LogInformation("Cross-validation complete:");
     Logger?.LogInformation("  Mean R²:    {MeanR2:F4} ± {StdDev:F4}", meanR2, stdDevR2);
     Logger?.LogInformation("  Range:      [{Min:F4}, {Max:F4}]", minR2, maxR2);
-    Logger?.LogInformation("  Kedro R²:   0.387");
+    Logger?.LogInformation("  Kedro R²:   {KedroR2:F4}", Parameters.KedroReferenceR2Score);
     Logger?.LogInformation("  Difference: {Diff:F4} ({Pct:F1}%)",
-        Math.Abs(meanR2 - 0.387),
-        Math.Abs(meanR2 - 0.387) / 0.387 * 100);
+        Math.Abs(meanR2 - Parameters.KedroReferenceR2Score),
+        Math.Abs(meanR2 - Parameters.KedroReferenceR2Score) / Parameters.KedroReferenceR2Score * 100);
 
     foreach (var fold in foldMetrics)
     {
@@ -114,8 +114,8 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
       MinR2Score = minR2,
       MaxR2Score = maxR2,
       NumFolds = Parameters.NumFolds,
-      KedroR2Score = 0.387,
-      DifferenceFromKedro = Math.Abs(meanR2 - 0.387)
+      KedroR2Score = Parameters.KedroReferenceR2Score,
+      DifferenceFromKedro = Math.Abs(meanR2 - Parameters.KedroReferenceR2Score)
     };
 
     return Task.FromResult(new[] { results }.AsEnumerable());

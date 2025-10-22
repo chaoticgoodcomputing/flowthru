@@ -16,16 +16,41 @@ public class PreprocessCompaniesNode : NodeBase<CompanyRawSchema, CompanySchema>
   protected override Task<IEnumerable<CompanySchema>> Transform(
       IEnumerable<CompanyRawSchema> input)
   {
-    var processed = input.Select(company => new CompanySchema
-    {
-      Id = company.Id,
-      CompanyRating = ParsePercentage(company.CompanyRating),
-      CompanyLocation = company.CompanyLocation,
-      TotalFleetCount = ParseDecimal(company.TotalFleetCount),
-      IataApproved = IsTrue(company.IataApproved)
-    });
+    var processed = input
+        .Select(c => Parse(c))
+        .Where(c => c != null)
+        .Cast<CompanySchema>();
 
     return Task.FromResult(processed);
+  }
+
+  /// <summary>
+  /// Attempts to parse a raw company record into a processed company.
+  /// Returns null if any required field is missing or invalid.
+  /// </summary>
+  private static CompanySchema? Parse(CompanyRawSchema raw)
+  {
+    // Parse fields that might fail
+    var companyRating = ParsePercentage(raw.CompanyRating);
+    var totalFleetCount = ParseDecimal(raw.TotalFleetCount);
+
+    // Validation: all required fields must be present
+    if (!companyRating.HasValue
+        || !totalFleetCount.HasValue
+        || string.IsNullOrWhiteSpace(raw.CompanyLocation))
+    {
+      return null; // Parse failed - incomplete record
+    }
+
+    // Parse succeeded - return validated, non-nullable type
+    return new CompanySchema
+    {
+      Id = raw.Id,
+      CompanyRating = companyRating.Value,
+      CompanyLocation = raw.CompanyLocation,
+      TotalFleetCount = totalFleetCount.Value,
+      IataApproved = IsTrue(raw.IataApproved)
+    };
   }
 
   /// <summary>

@@ -43,13 +43,20 @@ public static class DataProcessingPipeline
         name: "PreprocessShuttles"
       );
 
-      // Node 3: Create model input table (multi-input: 3 inputs → single output)
+      // Node 3: Preprocess reviews (simple: single input → single output)
+      pipeline.AddNode<PreprocessReviewsNode, ReviewRawSchema, ReviewSchema, NoParams>(
+        input: catalog.Reviews,
+        output: catalog.PreprocessedReviews,
+        name: "PreprocessReviews"
+      );
+
+      // Node 4: Create model input table (multi-input: 3 inputs → single output)
       var createModelInputs = pipeline.AddNode<CreateModelInputTableNode, CreateModelInputTableInputs, ModelInputSchema, NoParams>(
         name: "CreateModelInputTable",
         input: new CatalogMap<CreateModelInputTableInputs>()
           .Map(x => x.Shuttles, catalog.PreprocessedShuttles)
           .Map(x => x.Companies, catalog.PreprocessedCompanies)
-          .Map(x => x.Reviews, catalog.Reviews),
+          .Map(x => x.Reviews, catalog.PreprocessedReviews),
         output: catalog.ModelInputTable
       );
 

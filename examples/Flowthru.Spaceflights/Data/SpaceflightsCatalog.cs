@@ -98,6 +98,13 @@ public class SpaceflightsCatalog : DataCatalogBase
   public ICatalogDataset<ShuttleSchema> PreprocessedShuttles =>
     GetOrCreateDataset(() => new ParquetCatalogDataset<ShuttleSchema>("preprocessed_shuttles", $"{_basePath}/02_Intermediate/preprocessed_shuttles.parquet"));
 
+  /// <summary>
+  /// Preprocessed review data in Parquet format.
+  /// Cleaned and validated review records with parsed numeric scores.
+  /// </summary>
+  public ICatalogDataset<ReviewSchema> PreprocessedReviews =>
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ReviewSchema>("preprocessed_reviews", $"{_basePath}/02_Intermediate/preprocessed_reviews.parquet"));
+
   // ═══════════════════════════════════════════════════════════
   // PRIMARY DATA (03_Primary)
   // ═══════════════════════════════════════════════════════════

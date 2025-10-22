@@ -15,19 +15,19 @@ public record CompanySchema
   public string Id { get; init; } = null!;
 
   /// <summary>
-  /// Company rating as decimal (0.0 to 1.0), null if not provided
+  /// Company rating as decimal (0.0 to 1.0)
   /// </summary>
-  public decimal? CompanyRating { get; init; }
+  public decimal CompanyRating { get; init; }
 
   /// <summary>
   /// Company location/country
   /// </summary>
-  public string? CompanyLocation { get; init; }
+  public string CompanyLocation { get; init; } = null!;
 
   /// <summary>
   /// Total fleet count
   /// </summary>
-  public decimal? TotalFleetCount { get; init; }
+  public decimal TotalFleetCount { get; init; }
 
   /// <summary>
   /// IATA approval status

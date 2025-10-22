@@ -23,42 +23,42 @@ public record ShuttleSchema
   /// <summary>
   /// Shuttle location/origin
   /// </summary>
-  public string? ShuttleLocation { get; init; }
+  public string ShuttleLocation { get; init; } = null!;
 
   /// <summary>
   /// Shuttle type/model
   /// </summary>
-  public string? ShuttleType { get; init; }
+  public string ShuttleType { get; init; } = null!;
 
   /// <summary>
   /// Engine type (e.g., Plasma, Quantum)
   /// </summary>
-  public string? EngineType { get; init; }
+  public string EngineType { get; init; } = null!;
 
   /// <summary>
   /// Engine vendor/manufacturer
   /// </summary>
-  public string? EngineVendor { get; init; }
+  public string EngineVendor { get; init; } = null!;
 
   /// <summary>
   /// Number of engines
   /// </summary>
-  public int? Engines { get; init; }
+  public int Engines { get; init; }
 
   /// <summary>
   /// Passenger capacity
   /// </summary>
-  public int? PassengerCapacity { get; init; }
+  public int PassengerCapacity { get; init; }
 
   /// <summary>
   /// Crew size
   /// </summary>
-  public int? Crew { get; init; }
+  public int Crew { get; init; }
 
   /// <summary>
   /// Cancellation policy (e.g., moderate, strict, flexible)
   /// </summary>
-  public string? CancellationPolicy { get; init; }
+  public string CancellationPolicy { get; init; } = null!;
 
   /// <summary>
   /// Price in dollars
