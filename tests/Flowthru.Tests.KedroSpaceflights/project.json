@@ -1,0 +1,18 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test-flights",
+  "sourceRoot": "tests/Flowthru.Tests.KedroSpaceflights",
+  "targets": {
+    "run": {
+      "//": "Run the Spaceflights tests. Defaults to full setup, but the name of a pipeline can be passed in as an argument to run a specific pipeline.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "dotnet run"
+        ],
+        "cwd": "tests/Flowthru.Tests.KedroSpaceflights",
+        "parallel": false
+      }
+    }
+  }
+}
