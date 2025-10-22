@@ -74,28 +74,3 @@ public record FoldMetric {
   /// </summary>
   public double LossFunctionValue { get; init; }
 }
-
-/// <summary>
-/// Parameters for cross-validation analysis
-/// </summary>
-public record CrossValidationOptions {
-  /// <summary>
-  /// Number of folds for k-fold cross-validation
-  /// </summary>
-  public int NumFolds { get; init; }
-
-  /// <summary>
-  /// Base random seed for reproducibility
-  /// </summary>
-  public int BaseSeed { get; init; }
-
-  /// <summary>
-  /// Kedro's reference R² score for comparison.
-  /// 
-  /// As an additional clarification, this metric is NOT meant to determine if our pipeline "beats"
-  /// Kedro's implementation. Rather, it serves as a benchmark to ensure our implementation is
-  /// comfortably close to Kedro's original spaceflights example, indicating that our data processing
-  /// and modeling steps are correctly aligned.
-  /// </summary>
-  public float KedroReferenceR2Score { get; init; }
-}

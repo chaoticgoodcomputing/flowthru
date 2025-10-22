@@ -29,10 +29,10 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 /// </para>
 /// </summary>
 public static class DataSciencePipeline {
-  public static Pipeline Create(SpaceflightsCatalog catalog, ModelOptions options) {
+  public static Pipeline Create(SpaceflightsCatalog catalog, DataSciencePipelineParams parameters) {
     return PipelineBuilder.CreatePipeline(pipeline => {
       // Node 1: Split data into train/test sets (single input → multi-output)
-      var splitOutputs = pipeline.AddNode<SplitDataNode, ModelInputSchema, SplitDataOutputs, ModelOptions>(
+      var splitOutputs = pipeline.AddNode<SplitDataNode>(
         name: "SplitData",
         input: catalog.ModelInputTable,
         output: new CatalogMap<SplitDataOutputs>()
@@ -40,11 +40,11 @@ public static class DataSciencePipeline {
           .Map(s => s.XTest, catalog.XTest)
           .Map(s => s.YTrain, catalog.YTrain)
           .Map(s => s.YTest, catalog.YTest),
-        configure: node => node.Parameters = options
+        configure: node => node.Parameters = parameters.ModelParams
       );
 
       // Node 2: Train OLS regression model (multi-input → single output)
-      pipeline.AddNode<TrainModelNode, TrainModelInputs, LinearRegressionModel, NoParams>(
+      pipeline.AddNode<TrainModelNode>(
         input: new CatalogMap<TrainModelInputs>()
           .Map(x => x.XTrain, catalog.XTrain)
           .Map(x => x.YTrain, catalog.YTrain),
@@ -53,7 +53,7 @@ public static class DataSciencePipeline {
       );
 
       // Node 3: Evaluate OLS model (multi-input → single output)
-      var evaluateInputs = pipeline.AddNode<EvaluateModelNode, EvaluateModelInputs, ModelMetrics, NoParams>(
+      var evaluateInputs = pipeline.AddNode<EvaluateModelNode>(
         name: "EvaluateModel",
         input: new CatalogMap<EvaluateModelInputs>()
           .Map(x => x.Regressor, catalog.Regressor)
@@ -64,17 +64,27 @@ public static class DataSciencePipeline {
 
       // Node 4: Cross-validation for R² distribution analysis and comparison to the original Kedro
       // spaceflights example.
-      pipeline.AddNode<CrossValidateModelNode, ModelInputSchema, CrossValidationResults, CrossValidationOptions>(
+      pipeline.AddNode<CrossValidateModelNode>(
         name: "CrossValidateAndCompareToKedroSource",
         input: catalog.ModelInputTable,
         output: catalog.CrossValidationResults,
-        configure: node => node.Parameters = new CrossValidationOptions {
-          NumFolds = 10, // Standard 10-fold cross-validation  
-          BaseSeed = 42, // A magic number, nothing up our sleeves!
-          KedroReferenceR2Score = 0.387f  // Baseline comparison to the seeded run of the
-                                          // unmodified Kedro implementation in Python.
-        }
+        configure: node => node.Parameters = parameters.CrossValidationParams
       );
     });
   }
 }
+
+/// <summary>
+/// Parameters for the data science pipeline nodes.
+/// </summary>
+public record DataSciencePipelineParams(
+  /// <summary>
+  /// Options for model training.
+  /// </summary>
+  ModelParams ModelParams,
+
+  /// <summary>
+  /// Options for cross-validation.
+  /// </summary>
+  CrossValidationParams CrossValidationParams
+);

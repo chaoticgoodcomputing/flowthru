@@ -24,78 +24,78 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing;
 /// </para>
 /// </summary>
 public static class DataProcessingPipeline {
-  public static Pipeline Create(SpaceflightsCatalog catalog) {
-    return PipelineBuilder.CreatePipeline(pipeline => {
-      // Node 1: Preprocess companies (simple: single input → single output)
-      pipeline.AddNode<PreprocessCompaniesNode, CompanyRawSchema, CompanySchema, NoParams>(
-          input: catalog.Companies,
-          output: catalog.CleanedCompanies,
-          name: "PreprocessCompanies"
-      );
+    public static Pipeline Create(SpaceflightsCatalog catalog) {
+        return PipelineBuilder.CreatePipeline(pipeline => {
+            // Node 1: Preprocess companies (simple: single input → single output)
+            pipeline.AddNode<PreprocessCompaniesNode>(
+                input: catalog.Companies,
+                output: catalog.CleanedCompanies,
+                name: "PreprocessCompanies"
+            );
 
-      // Node 2: Preprocess shuttles (simple: single input → single output)
-      pipeline.AddNode<PreprocessShuttlesNode, ShuttleRawSchema, ShuttleSchema, NoParams>(
-          input: catalog.Shuttles,
-          output: catalog.CleanedShuttles,
-          name: "PreprocessShuttles"
-      );
+            // Node 2: Preprocess shuttles (simple: single input → single output)
+            pipeline.AddNode<PreprocessShuttlesNode>(
+                input: catalog.Shuttles,
+                output: catalog.CleanedShuttles,
+                name: "PreprocessShuttles"
+            );
 
-      // Node 3: Preprocess reviews (simple: single input → single output)
-      pipeline.AddNode<PreprocessReviewsNode, ReviewRawSchema, ReviewSchema, NoParams>(
-          input: catalog.Reviews,
-          output: catalog.CleanedReviews,
-          name: "PreprocessReviews"
-      );
+            // Node 3: Preprocess reviews (simple: single input → single output)
+            pipeline.AddNode<PreprocessReviewsNode>(
+                input: catalog.Reviews,
+                output: catalog.CleanedReviews,
+                name: "PreprocessReviews"
+            );
 
-      // Node 4: Create model input table (multi-input: 3 inputs → single output)
-      var createModelInputs = pipeline.AddNode<CreateModelInputTableNode, CreateModelInputTableInputs, ModelInputSchema, NoParams>(
-          name: "CreateModelInputTable",
-          input: new CatalogMap<CreateModelInputTableInputs>()
-              .Map(x => x.Shuttles, catalog.CleanedShuttles)
-              .Map(x => x.Companies, catalog.CleanedCompanies)
-              .Map(x => x.Reviews, catalog.CleanedReviews),
-          output: catalog.ModelInputTable
-      );
+            // Node 4: Create model input table (multi-input: 3 inputs → single output)
+            var createModelInputs = pipeline.AddNode<CreateModelInputTableNode>(
+                name: "CreateModelInputTable",
+                input: new CatalogMap<CreateModelInputTableInputs>()
+                    .Map(x => x.Shuttles, catalog.CleanedShuttles)
+                    .Map(x => x.Companies, catalog.CleanedCompanies)
+                    .Map(x => x.Reviews, catalog.CleanedReviews),
+                output: catalog.ModelInputTable
+            );
 
-      // DIAGNOSTIC NODES
-      //
-      // This differs from the original Kedro source — however, for manual inspection, these nodes
-      // are useful for manual review. They also flex additional points of functionality, such as:
-      // - Ability to perform pure, no-ouput diagnostics;
-      // - Ability to re-use generic nodes like ExportToCsvNode with generic types; and
-      // - Ability to re-use the same node for different inputs of the same schema.
+            // DIAGNOSTIC NODES
+            //
+            // This differs from the original Kedro source — however, for manual inspection, these nodes
+            // are useful for manual review. They also flex additional points of functionality, such as:
+            // - Ability to perform pure, no-ouput diagnostics;
+            // - Ability to re-use generic nodes like ExportToCsvNode with generic types; and
+            // - Ability to re-use the same node for different inputs of the same schema.
 
-      // Validation: validate quality of our generated model input table against the original Kedro
-      // output.
-      pipeline.AddNode<ValidateAgainstKedroNode, ValidateAgainstKedroInputs, ModelInputSchema, NoParams>(
-        name: "ValidateModelInputTableAgainstKedroSource",
-        input: new CatalogMap<ValidateAgainstKedroInputs>()
-            .Map(x => x.FlowthruData, catalog.ModelInputTable)
-            .Map(x => x.KedroData, catalog.KedroModelInputTable),
-        output: new MemoryCatalogDataset<ModelInputSchema>("_validation_throwaway")
-      );
+            // Validation: validate quality of our generated model input table against the original Kedro
+            // output.
+            pipeline.AddNode<ValidateAgainstKedroNode>(
+              name: "ValidateModelInputTableAgainstKedroSource",
+              input: new CatalogMap<ValidateAgainstKedroInputs>()
+                  .Map(x => x.FlowthruData, catalog.ModelInputTable)
+                  .Map(x => x.KedroData, catalog.KedroModelInputTable),
+              output: new MemoryCatalogDataset<ModelInputSchema>("_validation_throwaway")
+            );
 
-      // Siphon off postprocessed companies for manual inspection
-      pipeline.AddNode<ExportToCsvNode<CompanySchema>, CompanySchema, CompanySchema, NoParams>(
-          name: "ExportCompaniesToDiagnosticCsv",
-          input: catalog.CleanedCompanies,
-          output: catalog.CleanedCompaniesCsv
-      );
+            // Siphon off postprocessed companies for manual inspection
+            pipeline.AddNode<ExportToCsvNode<CompanySchema>>(
+                name: "ExportCompaniesToDiagnosticCsv",
+                input: catalog.CleanedCompanies,
+                output: catalog.CleanedCompaniesCsv
+            );
 
-      // Siphon off postprocessed shuttles for manual inspection
-      pipeline.AddNode<ExportToCsvNode<ShuttleSchema>, ShuttleSchema, ShuttleSchema, NoParams>(
-          name: "ExportShuttlesToDiagnosticCsv",
-          input: catalog.CleanedShuttles,
-          output: catalog.CleanedShuttlesCsv
-      );
+            // Siphon off postprocessed shuttles for manual inspection
+            pipeline.AddNode<ExportToCsvNode<ShuttleSchema>>(
+                name: "ExportShuttlesToDiagnosticCsv",
+                input: catalog.CleanedShuttles,
+                output: catalog.CleanedShuttlesCsv
+            );
 
-      // Siphon off model output for manual inspection
-      pipeline.AddNode<ExportToCsvNode<ModelInputSchema>, ModelInputSchema, ModelInputSchema, NoParams>(
-          name: "ExportModelInputTableToDiagnosticCsv",
-          input: catalog.ModelInputTable,
-          output: catalog.ModelInputTableCsv
-      );
+            // Siphon off model output for manual inspection
+            pipeline.AddNode<ExportToCsvNode<ModelInputSchema>>(
+                name: "ExportModelInputTableToDiagnosticCsv",
+                input: catalog.ModelInputTable,
+                output: catalog.ModelInputTableCsv
+            );
 
-    });
-  }
+        });
+    }
 }

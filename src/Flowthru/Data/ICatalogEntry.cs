@@ -144,7 +144,7 @@ public interface ICatalogDataset<T> : ICatalogEntry {
 /// <para>
 /// <strong>Semantic Distinction:</strong> Use ICatalogObject&lt;T&gt; for singular entities:
 /// - Machine learning models (ITransformer, LinearRegressionModel)
-/// - Configuration objects (ModelOptions, PipelineConfig)
+/// - Configuration objects (ModelParams, PipelineConfig)
 /// - Aggregated metrics (ModelMetrics, PerformanceReport)
 /// - Reference data (schema definitions, lookup tables as single objects)
 /// </para>

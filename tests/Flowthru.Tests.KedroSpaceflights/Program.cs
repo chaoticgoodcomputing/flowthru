@@ -27,25 +27,38 @@ public class Program
           .WithTags("etl", "preprocessing");
 
       builder
-        .RegisterPipeline<SpaceflightsCatalog, ModelOptions>(
+        .RegisterPipeline<SpaceflightsCatalog, DataSciencePipelineParams>(
           "data_science",
           DataSciencePipeline.Create,
-          new ModelOptions
-          {
-            TestSize = 0.2,
-            RandomState = 3,
-            Features = new List<string>
-              {
-                "Engines",
-                "PassengerCapacity",
-                "Crew",
-                "DCheckComplete",
-                "MoonClearanceComplete",
-                "IataApproved",
-                "CompanyRating",
-                "ReviewScoresRating"
-              }
-          })
+          // Provide parameters for the data science pipeline
+          new DataSciencePipelineParams(
+            // Options for model training
+            new ModelParams
+            {
+              TestSize = 0.2,
+              RandomState = 3,
+              Features = new List<string>
+                {
+                  "Engines",
+                  "PassengerCapacity",
+                  "Crew",
+                  "DCheckComplete",
+                  "MoonClearanceComplete",
+                  "IataApproved",
+                  "CompanyRating",
+                  "ReviewScoresRating"
+                }
+            },
+            // Options for cross-validation
+            new CrossValidationParams
+            {
+              NumFolds = 10, // Standard 10-fold cross-validation  
+              BaseSeed = 42, // A magic number, nothing up our sleeves!
+              KedroReferenceR2Score = 0.387f // Baseline comparison to the seeded run of the
+                                             // unmodified Kedro implementation in Python.
+            }
+          )
+        )
         .WithDescription("Trains and evaluates ML model")
         .WithTags("ml", "training");
 

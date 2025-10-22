@@ -21,7 +21,7 @@ namespace Flowthru.Registry;
 ///     protected override void RegisterPipelines(IPipelineRegistrar&lt;MyCatalog&gt; registrar)
 ///     {
 ///         registrar.Register("data_processing", DataProcessingPipeline.Create);
-///         registrar.Register("data_science", DataSciencePipeline.Create, new ModelOptions());
+///         registrar.Register("data_science", DataSciencePipeline.Create, new ModelParams());
 ///     }
 /// }
 /// </code>

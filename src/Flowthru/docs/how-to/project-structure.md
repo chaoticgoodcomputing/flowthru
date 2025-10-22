@@ -15,7 +15,7 @@ MyPipeline/
 │       ├── Processed/
 │       │   └── CompanyProcessed.cs      # Processed schemas
 │       └── Parameters/
-│           └── ModelOptions.cs          # Parameter schemas
+│           └── ModelParams.cs          # Parameter schemas
 ├── Pipelines/
 │   ├── PipelineRegistry.cs              # Central registry
 │   ├── DataProcessing/

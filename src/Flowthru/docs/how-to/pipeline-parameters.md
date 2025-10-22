@@ -71,14 +71,17 @@ public class Program
 ```csharp
 public static class MlPipeline
 {
-    public static Pipeline Create(MyCatalog catalog, ModelOptions options)
+    public static Pipeline Create(MyCatalog catalog, ModelParams options)
     {
-        var inputMap = new CatalogMap<SplitInputs>();
-        inputMap.Map(i => i.Data, catalog.Features);
-        inputMap.MapParameter(i => i.Options, options); // Inject parameters
+        var inputMap = new CatalogMap<SplitInputs>()
+            .Map(i => i.Data, catalog.Features)
+            .MapParameter(i => i.Options, options); // Inject parameters
         
         return new PipelineBuilder()
-            .AddNode<SplitDataNode>(inputMap: inputMap, /* ... */)
+            .AddNode<SplitDataNode, SplitInputs>(
+                input: inputMap,
+                output: catalog.SplitResults,
+                name: "split_data")
             .AddNode<TrainModelNode>(/* ... */)
             .AddNode<EvaluateModelNode>(/* ... */)
             .Build();
@@ -98,7 +101,7 @@ public class Program
             builder.UseCatalog(new MyCatalog());
             
             builder
-                .RegisterPipeline<MyCatalog, ModelOptions>("ml_training", MlPipeline.Create, new ModelOptions
+                .RegisterPipeline<MyCatalog, ModelParams>("ml_training", MlPipeline.Create, new ModelParams
                 {
                     TestSize = 0.2,
                     RandomState = 42,
@@ -118,7 +121,7 @@ public class MyPipelineRegistry : PipelineRegistry<MyCatalog>
 {
     protected override void RegisterPipelines(IPipelineRegistrar<MyCatalog> registrar)
     {
-        var options = new ModelOptions
+        var options = new ModelParams
         {
             TestSize = 0.2,
             RandomState = 42,

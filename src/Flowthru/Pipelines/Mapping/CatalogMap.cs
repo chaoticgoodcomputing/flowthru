@@ -99,7 +99,7 @@ namespace Flowthru.Pipelines.Mapping;
 /// Current recommendation: Wait for concrete use cases before adding complexity.
 /// </para>
 /// </remarks>
-public class CatalogMap<T> where T : new() {
+public class CatalogMap<T> : ICatalogEntry where T : new() {
   private readonly List<CatalogMapping> _mappings = new();
   private readonly bool _isPassThrough;
   private readonly ICatalogEntry? _passThroughEntry;
@@ -109,6 +109,21 @@ public class CatalogMap<T> where T : new() {
   /// Exposed for pipeline execution to correctly map inputs/outputs.
   /// </summary>
   internal IReadOnlyList<CatalogMapping> Mappings => _mappings.AsReadOnly();
+
+  /// <summary>
+  /// Unique key identifying this catalog map.
+  /// For pass-through mode, returns the underlying entry's key.
+  /// For mapped mode, returns a generated key based on the schema type.
+  /// </summary>
+  public string Key => _isPassThrough
+    ? _passThroughEntry!.Key
+    : $"CatalogMap<{typeof(T).Name}>";
+
+  /// <summary>
+  /// The runtime type of data stored in this catalog map.
+  /// Always returns typeof(T) since this map produces instances of T.
+  /// </summary>
+  public Type DataType => typeof(T);
 
   /// <summary>
   /// Creates a new mapped catalog map (for multi-input/output scenarios).
@@ -180,7 +195,7 @@ public class CatalogMap<T> where T : new() {
   /// </para>
   /// <para>
   /// <strong>Use Cases:</strong>
-  /// - Configuration values (e.g., ModelOptions with TestSize, RandomState)
+  /// - Configuration values (e.g., ModelParams with TestSize, RandomState)
   /// - Algorithm parameters
   /// - Pipeline-level settings
   /// </para>
@@ -211,6 +226,68 @@ public class CatalogMap<T> where T : new() {
   /// </remarks>
   public static CatalogMap<T> FromEntry(ICatalogEntry entry) {
     return new CatalogMap<T>(entry);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // ICatalogEntry Implementation
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  /// <summary>
+  /// Loads data from catalog entries as an untyped object.
+  /// Implements ICatalogEntry.LoadUntyped().
+  /// </summary>
+  public async Task<object> LoadUntyped() {
+    var data = await LoadAsync();
+    return data!;
+  }
+
+  /// <summary>
+  /// Saves untyped data to catalog entries.
+  /// Implements ICatalogEntry.SaveUntyped(object).
+  /// </summary>
+  public async Task SaveUntyped(object data) {
+    if (data is not T typedData) {
+      throw new InvalidOperationException(
+        $"Cannot save data of type {data.GetType().Name} to CatalogMap<{typeof(T).Name}>. " +
+        "Data must be of the correct type.");
+    }
+    await SaveAsync(typedData);
+  }
+
+  /// <summary>
+  /// Checks if data exists at the catalog entry location(s).
+  /// For pass-through mode, checks the underlying entry.
+  /// For mapped mode, checks if all mapped catalog entries exist.
+  /// </summary>
+  public async Task<bool> Exists() {
+    if (_isPassThrough) {
+      return await _passThroughEntry!.Exists();
+    }
+
+    // For mapped mode, check if all catalog entries exist
+    var catalogMappings = _mappings.OfType<CatalogPropertyMapping>().ToList();
+    if (!catalogMappings.Any()) {
+      return false;
+    }
+
+    var existsTasks = catalogMappings.Select(m => m.CatalogEntry.Exists());
+    var results = await Task.WhenAll(existsTasks);
+    return results.All(exists => exists);
+  }
+
+  /// <summary>
+  /// Gets the count of items in this catalog map.
+  /// For pass-through mode, returns the underlying entry's count.
+  /// For mapped mode, returns 1 (singleton schema instance).
+  /// </summary>
+  public async Task<int> GetCountAsync() {
+    if (_isPassThrough) {
+      return await _passThroughEntry!.GetCountAsync();
+    }
+
+    // For mapped mode, we return 1 because we produce a single schema instance
+    // (see class-level remarks about singleton behavior)
+    return 1;
   }
 
   /// <summary>

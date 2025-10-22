@@ -91,7 +91,7 @@ public class Program
             
             // Register pipeline with parameters
             builder
-                .RegisterPipeline<MyCatalog, ModelOptions>("data_science", DataSciencePipeline.Create, new ModelOptions
+                .RegisterPipeline<MyCatalog, ModelParams>("data_science", DataSciencePipeline.Create, new ModelParams
                 {
                     TestSize = 0.2,
                     RandomState = 42,
@@ -132,7 +132,7 @@ public class MyPipelineRegistry : PipelineRegistry<MyCatalog>
             .WithTags("etl", "preprocessing");
         
         registrar
-            .Register("data_science", DataSciencePipeline.Create, new ModelOptions
+            .Register("data_science", DataSciencePipeline.Create, new ModelParams
             {
                 TestSize = 0.2,
                 RandomState = 42,
@@ -370,12 +370,12 @@ public class JoinNode : NodeBase<JoinInputs, EnrichedCompany>
 Wire it up with `CatalogMap<T>`:
 
 ```csharp
-var inputMap = new CatalogMap<JoinInputs>();
-inputMap.Map(i => i.Companies, catalog.Companies);
-inputMap.Map(i => i.Reviews, catalog.Reviews);
+var inputMap = new CatalogMap<JoinInputs>()
+    .Map(i => i.Companies, catalog.Companies)
+    .Map(i => i.Reviews, catalog.Reviews);
 
-builder.AddNode<JoinNode>(
-    inputMap: inputMap,
+builder.AddNode<JoinNode, JoinInputs>(
+    input: inputMap,
     output: catalog.EnrichedCompanies,
     name: "join_data");
 ```
@@ -397,10 +397,10 @@ public record SplitInputs
     public required IEnumerable<FeatureRow> Data { get; init; }
     
     [Required]
-    public required ModelOptions Options { get; init; } // Parameter
+    public required ModelParams Options { get; init; } // Parameter
 }
 
-public record ModelOptions
+public record ModelParams
 {
     public double TestSize { get; init; } = 0.2;
     public int RandomState { get; init; } = 42;
@@ -411,17 +411,20 @@ public record ModelOptions
 Map parameters using `MapParameter()`:
 
 ```csharp
-var options = new ModelOptions { TestSize = 0.3, RandomState = 42 };
+var options = new ModelParams { TestSize = 0.3, RandomState = 42 };
 
-var inputMap = new CatalogMap<SplitInputs>();
-inputMap.Map(i => i.Data, catalog.FeatureData);
-inputMap.MapParameter(i => i.Options, options);
+var inputMap = new CatalogMap<SplitInputs>()
+    .Map(i => i.Data, catalog.FeatureData)
+    .MapParameter(i => i.Options, options);
 
-builder.AddNode<SplitDataNode>(inputMap: inputMap, /* ... */);
+builder.AddNode<SplitDataNode, SplitInputs>(
+    input: inputMap,
+    output: catalog.SplitResults,
+    name: "split_data");
 ```
 
 **Compile-Time Safety:**
-- ✅ `ModelOptions` is a real class, not a dictionary
+- ✅ `ModelParams` is a real class, not a dictionary
 - ✅ IntelliSense shows all available options
 - ✅ Typo in option name = **compilation error**
 - ✅ Wrong type for option value = **compilation error**

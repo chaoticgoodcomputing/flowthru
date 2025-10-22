@@ -13,7 +13,7 @@ namespace Flowthru.Data.Implementations;
 /// <para>
 /// <strong>Use Cases:</strong>
 /// - ML models in memory during training/evaluation (LinearRegressionModel, ITransformer)
-/// - Configuration objects during pipeline execution (ModelOptions, PipelineConfig)
+/// - Configuration objects during pipeline execution (ModelParams, PipelineConfig)
 /// - Aggregated metrics (ModelMetrics, PerformanceReport)
 /// - Test objects that don't require file I/O
 /// </para>

@@ -32,7 +32,7 @@ public class Program
                 .WithTags("data");
             
             builder
-                .RegisterPipeline<MyCatalog, ModelOptions>("ml", MlPipeline.Create, new ModelOptions
+                .RegisterPipeline<MyCatalog, ModelParams>("ml", MlPipeline.Create, new ModelParams
                 {
                     TestSize = 0.2,
                     RandomState = 42
@@ -85,7 +85,7 @@ public class MyPipelineRegistry : PipelineRegistry<MyCatalog>
             .WithTags("data");
         
         registrar
-            .Register("ml", MlPipeline.Create, new ModelOptions
+            .Register("ml", MlPipeline.Create, new ModelParams
             {
                 TestSize = 0.2,
                 RandomState = 42

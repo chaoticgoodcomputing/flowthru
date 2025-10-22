@@ -14,34 +14,43 @@ namespace Flowthru.Pipelines;
 /// input/output types match their catalog entries.
 /// </para>
 /// <para>
-/// <strong>Four AddNode Overloads:</strong>
+/// <strong>Unified API (v0.3.0):</strong>
+/// AddNode now has a single overload that handles all cases. CatalogMap&lt;T&gt; implements
+/// ICatalogEntry, allowing both simple catalog entries and multi-input/output maps to be
+/// passed uniformly.
 /// </para>
-/// <list type="number">
-/// <item>Simple: Single input → single output (most common)</item>
-/// <item>Multi-Input: CatalogMap&lt;TInput&gt; → single output</item>
-/// <item>Multi-Output: Single input → CatalogMap&lt;TOutput&gt;</item>
-/// <item>Multi-Input-Output: CatalogMap&lt;TInput&gt; → CatalogMap&lt;TOutput&gt;</item>
-/// </list>
 /// <para>
-/// <strong>Usage Pattern:</strong>
+/// <strong>Usage Patterns:</strong>
 /// </para>
 /// <code>
 /// var pipeline = PipelineBuilder.CreatePipeline(builder =>
 /// {
-///     // Simple node
+///     // Simple node: single input → single output
 ///     builder.AddNode&lt;PreprocessNode&gt;(
 ///         input: catalog.RawData,
 ///         output: catalog.ProcessedData
 ///     );
 ///     
-///     // Multi-input node
-///     var inputs = new CatalogMap&lt;JoinInputs&gt;()
-///         .Map(x => x.DataA, catalog.DataA)
-///         .Map(x => x.DataB, catalog.DataB);
-///     
+///     // Multi-input node: CatalogMap → single output
 ///     builder.AddNode&lt;JoinNode&gt;(
-///         input: inputs,
+///         input: new CatalogMap&lt;JoinInputs&gt;()
+///             .Map(x => x.DataA, catalog.DataA)
+///             .Map(x => x.DataB, catalog.DataB),
 ///         output: catalog.JoinedData
+///     );
+///     
+///     // Multi-output node: single input → CatalogMap
+///     builder.AddNode&lt;SplitNode&gt;(
+///         input: catalog.Data,
+///         output: new CatalogMap&lt;SplitOutputs&gt;()
+///             .Map(x => x.Train, catalog.Train)
+///             .Map(x => x.Test, catalog.Test)
+///     );
+///     
+///     // Multi-input-output: CatalogMap → CatalogMap
+///     builder.AddNode&lt;ComplexNode&gt;(
+///         input: new CatalogMap&lt;ComplexInputs&gt;()...
+///         output: new CatalogMap&lt;ComplexOutputs&gt;()...
 ///     );
 /// });
 /// 
@@ -67,251 +76,138 @@ public class PipelineBuilder {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // OVERLOAD 1: Simple (Single Input → Single Output)
+  // UNIFIED API: Single AddNode Overload for All Cases
   // ═══════════════════════════════════════════════════════════════════════════════
 
   /// <summary>
-  /// Adds a simple node with single input and single output to the pipeline.
+  /// Adds a node to the pipeline.
+  /// Handles all cases: simple, multi-input, multi-output, and multi-input-output.
   /// </summary>
   /// <typeparam name="TNode">The node type (must inherit from NodeBase)</typeparam>
-  /// <typeparam name="TItem">The input item type (what the node processes)</typeparam>
-  /// <typeparam name="TOutputItem">The output item type (what the node produces)</typeparam>
-  /// <typeparam name="TParameters">The parameters type (defaults to NoParams)</typeparam>
-  /// <param name="input">Catalog entry (dataset or object) containing input data</param>
-  /// <param name="output">Catalog entry (dataset or object) to store output data</param>
+  /// <param name="input">
+  /// Input catalog entry or CatalogMap.
+  /// - For simple nodes: pass catalog entry directly (e.g., catalog.RawData)
+  /// - For multi-input nodes: pass CatalogMap&lt;TInputSchema&gt; with mapped properties
+  /// </param>
+  /// <param name="output">
+  /// Output catalog entry or CatalogMap.
+  /// - For simple nodes: pass catalog entry directly (e.g., catalog.ProcessedData)
+  /// - For multi-output nodes: pass CatalogMap&lt;TOutputSchema&gt; with mapped properties
+  /// </param>
   /// <param name="name">Optional node name (defaults to node type name)</param>
   /// <param name="configure">Optional action to configure the node instance</param>
   /// <returns>This builder for fluent chaining</returns>
   /// <remarks>
   /// <para>
-  /// <strong>Breaking Change (v0.2.0):</strong> Now accepts ICatalogEntry (base interface) instead of
-  /// ICatalogEntry&lt;IEnumerable&lt;T&gt;&gt;, allowing both ICatalogDataset and ICatalogObject.
+  /// <strong>Unified API (v0.3.0):</strong> CatalogMap now implements ICatalogEntry,
+  /// allowing a single AddNode overload to handle all scenarios uniformly.
   /// </para>
   /// <para>
-  /// This is the most common overload for simple transformations. The node receives
-  /// data directly from the input catalog entry and writes directly to the output entry.
+  /// <strong>Examples:</strong>
   /// </para>
-  /// <para>
-  /// <strong>Type Parameter Semantics:</strong>
-  /// TItem and TOutputItem represent individual item types (e.g., CompanySchema), 
-  /// while catalog entries may store collections (ICatalogDataset&lt;T&gt;) or singletons (ICatalogObject&lt;T&gt;).
-  /// This matches the semantic meaning in NodeBase where TInput refers to the item type.
+  /// <code>
+  /// // Simple: single input → single output
+  /// builder.AddNode&lt;PreprocessNode&gt;(
+  ///     input: catalog.RawData,
+  ///     output: catalog.ProcessedData
+  /// );
+  /// 
+  /// // Multi-input: CatalogMap → single output
+  /// builder.AddNode&lt;JoinNode&gt;(
+  ///     input: new CatalogMap&lt;JoinInputs&gt;()
+  ///         .Map(x => x.DataA, catalog.DataA)
+  ///         .Map(x => x.DataB, catalog.DataB),
+  ///     output: catalog.JoinedData
+  /// );
+  /// 
+  /// // Multi-output: single input → CatalogMap
+  /// builder.AddNode&lt;SplitNode&gt;(
+  ///     input: catalog.Data,
+  ///     output: new CatalogMap&lt;SplitOutputs&gt;()
+  ///         .Map(x => x.Train, catalog.Train)
+  ///         .Map(x => x.Test, catalog.Test)
+  /// );
+  /// 
+  /// // Multi-input-output: CatalogMap → CatalogMap
+  /// builder.AddNode&lt;ComplexNode&gt;(
+  ///     input: new CatalogMap&lt;Inputs&gt;()...,
+  ///     output: new CatalogMap&lt;Outputs&gt;()...
+  /// );
+  /// </code>
   /// </para>
   /// </remarks>
-  public PipelineBuilder AddNode<TNode, TItem, TOutputItem, TParameters>(
+  public PipelineBuilder AddNode<TNode>(
     ICatalogEntry input,
     ICatalogEntry output,
     string? name = null,
     Action<TNode>? configure = null)
-    where TNode : NodeBase<TItem, TOutputItem, TParameters>, new()
-    where TParameters : new() {
+    where TNode : class, new() {
+    // Extract type parameters from node's base class
+    var nodeType = typeof(TNode);
+    var (tInput, tOutput, tParameters) = NodeTypeInfo.ExtractTypeArguments(nodeType);
+
+    // Create node instance
     var node = new TNode();
     configure?.Invoke(node);
 
+    // Determine if inputs/outputs are CatalogMaps
+    var inputIsCatalogMap = input.GetType().IsGenericType &&
+                            input.GetType().GetGenericTypeDefinition() == typeof(CatalogMap<>);
+    var outputIsCatalogMap = output.GetType().IsGenericType &&
+                             output.GetType().GetGenericTypeDefinition() == typeof(CatalogMap<>);
+
+    // Build the pipeline node based on input/output types
+    List<ICatalogEntry> inputEntries;
+    List<ICatalogEntry> outputEntries;
+    IReadOnlyList<CatalogMapping>? inputMappings = null;
+    IReadOnlyList<CatalogMapping>? outputMappings = null;
+
+    if (inputIsCatalogMap) {
+      // Multi-input: extract entries and mappings from CatalogMap
+      var catalogMapType = input.GetType();
+      var getMappedEntriesMethod = catalogMapType.GetMethod("GetMappedEntries",
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+      var mappingsProperty = catalogMapType.GetProperty("Mappings",
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+      var validateMethod = catalogMapType.GetMethod("ValidateComplete");
+
+      validateMethod?.Invoke(input, null);
+      var entries = getMappedEntriesMethod?.Invoke(input, null) as IEnumerable<ICatalogEntry>;
+      inputEntries = entries?.ToList() ?? new List<ICatalogEntry>();
+      inputMappings = mappingsProperty?.GetValue(input) as IReadOnlyList<CatalogMapping>;
+    } else {
+      inputEntries = new List<ICatalogEntry> { input };
+    }
+
+    if (outputIsCatalogMap) {
+      // Multi-output: extract entries and mappings from CatalogMap
+      var catalogMapType = output.GetType();
+      var getMappedEntriesMethod = catalogMapType.GetMethod("GetMappedEntries",
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+      var mappingsProperty = catalogMapType.GetProperty("Mappings",
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+      var validateMethod = catalogMapType.GetMethod("ValidateComplete");
+
+      validateMethod?.Invoke(output, null);
+      var entries = getMappedEntriesMethod?.Invoke(output, null) as IEnumerable<ICatalogEntry>;
+      outputEntries = entries?.ToList() ?? new List<ICatalogEntry>();
+      outputMappings = mappingsProperty?.GetValue(output) as IReadOnlyList<CatalogMapping>;
+    } else {
+      outputEntries = new List<ICatalogEntry> { output };
+    }
+
     var pipelineNode = new PipelineNode(
-      name: name ?? typeof(TNode).Name,
+      name: name ?? nodeType.Name,
       nodeInstance: node,
-      inputs: new[] { input },
-      outputs: new[] { output }
+      inputs: inputEntries,
+      outputs: outputEntries,
+      inputMappings: inputMappings,
+      outputMappings: outputMappings
     );
 
     _pipeline.AddNode(pipelineNode);
     return this;
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // OVERLOAD 2: Multi-Input → Single Output
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  /// <summary>
-  /// Adds a multi-input node to the pipeline using CatalogMap for input mapping.
-  /// </summary>
-  /// <typeparam name="TNode">The node type (must inherit from NodeBase)</typeparam>
-  /// <typeparam name="TInputSchema">The input schema type containing multiple properties</typeparam>
-  /// <typeparam name="TOutputItem">The output item type (what the node produces)</typeparam>
-  /// <typeparam name="TParameters">The parameters type (defaults to NoParams)</typeparam>
-  /// <param name="input">CatalogMap that maps input schema properties to catalog entries</param>
-  /// <param name="output">Catalog entry to store a collection of output items</param>
-  /// <param name="name">Optional node name (defaults to node type name)</param>
-  /// <param name="configure">Optional action to configure the node instance</param>
-  /// <returns>This builder for fluent chaining</returns>
-  /// <remarks>
-  /// <para>
-  /// Use this overload when a node needs to read from multiple catalog entries.
-  /// The CatalogMap bundles multiple entries into a single input schema instance.
-  /// </para>
-  /// <para>
-  /// <strong>Type Parameter Semantics:</strong>
-  /// TInputSchema is the multi-input schema type (e.g., JoinInputs),
-  /// while TOutputItem is the individual output item type (e.g., JoinedRecord).
-  /// The output catalog entry stores IEnumerable&lt;TOutputItem&gt;.
-  /// </para>
-  /// <para>
-  /// Example:
-  /// <code>
-  /// var inputs = new CatalogMap&lt;JoinInputs&gt;()
-  ///     .Map(x => x.TableA, catalog.TableA)
-  ///     .Map(x => x.TableB, catalog.TableB);
-  /// 
-  /// builder.AddNode&lt;JoinNode, JoinInputs, JoinedRecord, NoParams&gt;(
-  ///     input: inputs, 
-  ///     output: catalog.Joined);
-  /// </code>
-  /// </para>
-  /// </remarks>
-  public PipelineBuilder AddNode<TNode, TInputSchema, TOutputItem, TParameters>(
-    CatalogMap<TInputSchema> input,
-    ICatalogEntry output,
-    string? name = null,
-    Action<TNode>? configure = null)
-    where TNode : NodeBase<TInputSchema, TOutputItem, TParameters>, new()
-    where TInputSchema : new()
-    where TParameters : new() {
-    var node = new TNode();
-    configure?.Invoke(node);
-
-    // Validate that all required input properties are mapped
-    input.ValidateComplete();
-
-    // Extract all catalog entries from the input map
-    var inputEntries = input.GetMappedEntries();
-
-    var pipelineNode = new PipelineNode(
-      name: name ?? typeof(TNode).Name,
-      nodeInstance: node,
-      inputs: inputEntries.ToList(),
-      outputs: new[] { output },
-      inputMappings: input.Mappings
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // OVERLOAD 3: Single Input → Multi-Output
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  /// <summary>
-  /// Adds a multi-output node to the pipeline using CatalogMap for output mapping.
-  /// </summary>
-  /// <typeparam name="TNode">The node type (must inherit from NodeBase)</typeparam>
-  /// <typeparam name="TItem">The input item type (what the node processes)</typeparam>
-  /// <typeparam name="TOutputSchema">The output schema type containing multiple properties</typeparam>
-  /// <typeparam name="TParameters">The parameters type (defaults to NoParams)</typeparam>
-  /// <param name="input">Catalog entry containing a collection of input items</param>
-  /// <param name="output">CatalogMap that maps output schema properties to catalog entries</param>
-  /// <param name="name">Optional node name (defaults to node type name)</param>
-  /// <param name="configure">Optional action to configure the node instance</param>
-  /// <returns>This builder for fluent chaining</returns>
-  /// <remarks>
-  /// <para>
-  /// Use this overload when a node produces multiple outputs (e.g., train/test split).
-  /// The CatalogMap distributes output schema properties to separate catalog entries.
-  /// </para>
-  /// <para>
-  /// <strong>Type Parameter Semantics:</strong>
-  /// TItem is the individual input item type (e.g., ModelInputSchema),
-  /// while TOutputSchema is the multi-output schema type (e.g., SplitDataOutputs).
-  /// The input catalog entry stores IEnumerable&lt;TItem&gt;.
-  /// </para>
-  /// <para>
-  /// Example:
-  /// <code>
-  /// var outputs = new CatalogMap&lt;SplitOutputs&gt;()
-  ///     .Map(x => x.Train, catalog.TrainData)
-  ///     .Map(x => x.Test, catalog.TestData);
-  /// 
-  /// builder.AddNode&lt;SplitNode, ModelInput, SplitOutputs, NoParams&gt;(
-  ///     input: catalog.FullData, 
-  ///     output: outputs);
-  /// </code>
-  /// </para>
-  /// </remarks>
-  public PipelineBuilder AddNode<TNode, TItem, TOutputSchema, TParameters>(
-    ICatalogEntry input,
-    CatalogMap<TOutputSchema> output,
-    string? name = null,
-    Action<TNode>? configure = null)
-    where TNode : NodeBase<TItem, TOutputSchema, TParameters>, new()
-    where TOutputSchema : new()
-    where TParameters : new() {
-    var node = new TNode();
-    configure?.Invoke(node);
-
-    // Validate that all required output properties are mapped
-    output.ValidateComplete();
-
-    // Extract all catalog entries from the output map
-    var outputEntries = output.GetMappedEntries();
-
-    var pipelineNode = new PipelineNode(
-      name: name ?? typeof(TNode).Name,
-      nodeInstance: node,
-      inputs: new[] { input },
-      outputs: outputEntries.ToList(),
-      outputMappings: output.Mappings
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // OVERLOAD 4: Multi-Input → Multi-Output
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  /// <summary>
-  /// Adds a multi-input, multi-output node to the pipeline using CatalogMaps.
-  /// </summary>
-  /// <typeparam name="TNode">The node type (must inherit from NodeBase)</typeparam>
-  /// <typeparam name="TInputSchema">The input schema type containing multiple properties</typeparam>
-  /// <typeparam name="TOutputSchema">The output schema type containing multiple properties</typeparam>
-  /// <typeparam name="TParameters">The parameters type (defaults to NoParams)</typeparam>
-  /// <param name="input">CatalogMap that maps input schema properties to catalog entries</param>
-  /// <param name="output">CatalogMap that maps output schema properties to catalog entries</param>
-  /// <param name="name">Optional node name (defaults to node type name)</param>
-  /// <param name="configure">Optional action to configure the node instance</param>
-  /// <returns>This builder for fluent chaining</returns>
-  /// <remarks>
-  /// <para>
-  /// This overload handles the most complex scenario: multiple inputs and multiple outputs.
-  /// Both inputs and outputs are bundled via CatalogMaps.
-  /// </para>
-  /// <para>
-  /// <strong>Type Parameter Semantics:</strong>
-  /// Both TInputSchema and TOutputSchema are schema types containing multiple properties
-  /// that represent collections of data from different catalog entries.
-  /// </para>
-  /// </remarks>
-  public PipelineBuilder AddNode<TNode, TInputSchema, TOutputSchema, TParameters>(
-    CatalogMap<TInputSchema> input,
-    CatalogMap<TOutputSchema> output,
-    string? name = null,
-    Action<TNode>? configure = null)
-    where TNode : NodeBase<TInputSchema, TOutputSchema, TParameters>, new()
-    where TInputSchema : new()
-    where TOutputSchema : new()
-    where TParameters : new() {
-    var node = new TNode();
-    configure?.Invoke(node);
-
-    // Validate that all required properties are mapped
-    input.ValidateComplete();
-    output.ValidateComplete();
-
-    // Extract all catalog entries
-    var inputEntries = input.GetMappedEntries();
-    var outputEntries = output.GetMappedEntries();
-
-    var pipelineNode = new PipelineNode(
-      name: name ?? typeof(TNode).Name,
-      nodeInstance: node,
-      inputs: inputEntries.ToList(),
-      outputs: outputEntries.ToList()
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
 }
+

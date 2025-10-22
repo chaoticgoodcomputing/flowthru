@@ -35,19 +35,19 @@ For complex nodes with multiple inputs, outputs, or parameters:
 
 ```csharp
 // Multi-input
-var inputMap = new CatalogMap<ComplexInputs>();
-inputMap.Map(i => i.Dataset1, catalog.Dataset1);
-inputMap.Map(i => i.Dataset2, catalog.Dataset2);
-inputMap.MapParameter(i => i.Options, options);
+var inputMap = new CatalogMap<ComplexInputs>()
+    .Map(i => i.Dataset1, catalog.Dataset1)
+    .Map(i => i.Dataset2, catalog.Dataset2)
+    .MapParameter(i => i.Options, options);
 
 // Multi-output
-var outputMap = new CatalogMap<ComplexOutputs>();
-outputMap.Map(o => o.Result1, catalog.Result1);
-outputMap.Map(o => o.Result2, catalog.Result2);
+var outputMap = new CatalogMap<ComplexOutputs>()
+    .Map(o => o.Result1, catalog.Result1)
+    .Map(o => o.Result2, catalog.Result2);
 
 builder.AddNode<ComplexNode>(
-    inputMap: inputMap,
-    outputMap: outputMap,
+    input: inputMap,
+    output: outputMap,
     name: "complex_transform");
 ```
 

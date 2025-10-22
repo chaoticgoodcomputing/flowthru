@@ -63,16 +63,16 @@ var parameters = new Dictionary<string, object>
 
 **✅ Prefer (compile-time safety):**
 ```csharp
-public record ModelOptions
+public record ModelParams
 {
     public double TestSize { get; init; } = 0.2;
     public int RandomState { get; init; } = 42;
 }
 
-var options = new ModelOptions
+var options = new ModelParams
 {
     TestSize = 0.2,
-    RandomStat = 42 // ❌ Compile error: 'ModelOptions' does not contain 'RandomStat'
+    RandomStat = 42 // ❌ Compile error: 'ModelParams' does not contain 'RandomStat'
 };
 ```
 

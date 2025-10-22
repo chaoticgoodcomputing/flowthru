@@ -31,13 +31,13 @@ public class JoinNode : NodeBase<JoinInputs, EnrichedCompany>
 }
 
 // 3. Map catalog entries to properties
-var inputMap = new CatalogMap<JoinInputs>();
-inputMap.Map(i => i.Companies, catalog.Companies);
-inputMap.Map(i => i.Reviews, catalog.Reviews);
+var inputMap = new CatalogMap<JoinInputs>()
+    .Map(i => i.Companies, catalog.Companies)
+    .Map(i => i.Reviews, catalog.Reviews);
 
 // 4. Wire into pipeline
 builder.AddNode<JoinNode>(
-    inputMap: inputMap,
+    input: inputMap,
     output: catalog.EnrichedCompanies,
     name: "join_data");
 ```
@@ -81,14 +81,14 @@ public class SplitNode : NodeBase<FeatureRow, SplitOutputs>
 }
 
 // 3. Map properties to catalog entries
-var outputMap = new CatalogMap<SplitOutputs>();
-outputMap.Map(o => o.TrainData, catalog.TrainData);
-outputMap.Map(o => o.TestData, catalog.TestData);
+var outputMap = new CatalogMap<SplitOutputs>()
+    .Map(o => o.TrainData, catalog.TrainData)
+    .Map(o => o.TestData, catalog.TestData);
 
 // 4. Wire into pipeline
 builder.AddNode<SplitNode>(
     input: catalog.Features,
-    outputMap: outputMap,
+    output: outputMap,
     name: "split_data");
 ```
 

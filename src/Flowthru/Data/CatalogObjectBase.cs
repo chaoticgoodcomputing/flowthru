@@ -13,7 +13,7 @@ namespace Flowthru.Data;
 /// <para>
 /// <strong>Use Cases:</strong>
 /// - Machine learning models (LinearRegressionModel, ITransformer)
-/// - Configuration objects (ModelOptions, PipelineConfig)
+/// - Configuration objects (ModelParams, PipelineConfig)
 /// - Aggregated metrics (ModelMetrics, PerformanceReport)
 /// - Reference lookups as single objects
 /// </para>
