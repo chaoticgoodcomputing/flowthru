@@ -27,15 +27,19 @@ using Flowthru.Data.Implementations;
 
 public class MyCatalog : DataCatalogBase
 {
-    // Raw CSV inputs
-    public CsvCatalogDataset<RawData> RawData { get; }
+    // Raw CSV inputs (read-write)
+    public ICatalogDataset<RawData> RawData { get; }
     
-    // Processed parquet outputs
-    public ParquetCatalogDataset<ProcessedData> ProcessedData { get; }
+    // Raw Excel inputs (read-only - cannot be used as outputs)
+    public IReadableCatalogDataset<LegacyData> LegacyExcelData { get; }
+    
+    // Processed parquet outputs (read-write)
+    public ICatalogDataset<ProcessedData> ProcessedData { get; }
     
     public MyCatalog()
     {
         RawData = CreateCsvDataset<RawData>("raw_data", "data/raw.csv");
+        LegacyExcelData = CreateReadOnlyExcelDataset<LegacyData>("legacy", "data/legacy.xlsx");
         ProcessedData = CreateParquetDataset<ProcessedData>("processed", "data/processed.parquet");
     }
 }
@@ -45,6 +49,7 @@ public class MyCatalog : DataCatalogBase
 - Catalog entries are **properties**, not method calls or string lookups
 - Compiler enforces correct types at every usage site
 - IntelliSense shows all available datasets
+- **New in v0.3.0:** Read-only datasets (`IReadableCatalogDataset<T>`) prevent write errors at compile-time
 
 ### Step 3: Create Pipeline Factory Methods
 

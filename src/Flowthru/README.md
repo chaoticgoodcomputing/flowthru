@@ -74,6 +74,7 @@ dotnet run data_processing
 - [Register Pipelines with Parameters](docs/how-to/pipeline-parameters.md) - Configure pipeline behavior
 - [Choose CatalogMap Modes](docs/how-to/catalog-map-modes.md) - Pass-through vs mapped
 - [Structure Your Project](docs/how-to/project-structure.md) - Organize code for maintainability
+- [Work with Read-Only Data Sources](docs/how-to/read-only-data-sources.md) - Excel files, APIs, immutable data
 
 ### [Explanation](docs/explanation.md)
 
@@ -92,6 +93,7 @@ dotnet run data_processing
 ## Core Features
 
 ✅ **Compile-Time Type Safety** - Catch errors before execution, not during  
+✅ **Read/Write Capability Enforcement** - Prevent writes to read-only sources (Excel, APIs)  
 ✅ **Generic Pipeline Registry** - Type-safe pipeline registration with parameters  
 ✅ **Property-Based Catalogs** - IntelliSense-driven dataset access  
 ✅ **Expression-Based Mapping** - Refactoring-safe multi-input/output nodes  

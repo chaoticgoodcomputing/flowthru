@@ -148,6 +148,73 @@ builder.AddNode<ProcessNode>(
 - ❌ Never use `object` or `dynamic` as node types
 - ❌ Don't cast away type information
 
+### Layer 2.5: Read/Write Capability Enforcement (New in v0.3.0)
+
+**Mechanism:** Catalog entries declare read-only or read-write capabilities through interface inheritance.
+
+**What It Prevents:**
+- Using read-only data sources (Excel files, HTTP APIs) as pipeline outputs
+- Runtime "write not supported" errors
+- Attempting to save to immutable data sources
+
+**How It Works:**
+```csharp
+// Read-only dataset (e.g., Excel file - no write support)
+public IReadableCatalogDataset<ShuttleRawSchema> Shuttles =>
+    GetOrCreateReadOnlyDataset(() => 
+        new ExcelCatalogDataset<ShuttleRawSchema>("shuttles", "data/shuttles.xlsx"));
+
+// Read-write dataset (e.g., CSV or Parquet - full access)
+public ICatalogDataset<ShuttleSchema> CleanedShuttles =>
+    GetOrCreateDataset(() => 
+        new ParquetCatalogDataset<ShuttleSchema>("cleaned_shuttles", "data/cleaned.parquet"));
+
+// Pipeline usage - compiler enforces correctness
+pipeline.AddNode<PreprocessShuttlesNode>(
+    input: catalog.Shuttles,           // ✅ IReadableCatalogDataset<T> - read-only OK for input
+    output: catalog.CleanedShuttles,   // ✅ ICatalogDataset<T> - read-write OK for output
+    name: "PreprocessShuttles"
+);
+
+// This would cause a compile error (if we had stricter generic constraints):
+pipeline.AddNode<SomeNode>(
+    input: catalog.SomeInput,
+    output: catalog.Shuttles,          // ❌ Cannot use IReadableCatalogDataset<T> as output!
+    name: "WontCompile"
+);
+// Error: Cannot convert IReadableCatalogDataset<T> to writable output type
+```
+
+**Interface Hierarchy:**
+```csharp
+// Base capability interfaces
+IReadableCatalogDataset<T>   // Can Load() only
+IWritableCatalogDataset<T>   // Can Save() only
+
+// Full read-write interface inherits both
+ICatalogDataset<T> : IReadableCatalogDataset<T>, IWritableCatalogDataset<T>
+
+// Same pattern for singleton objects
+IReadableCatalogObject<T>    // Can Load() only
+IWritableCatalogObject<T>    // Can Save() only
+ICatalogObject<T> : IReadableCatalogObject<T>, IWritableCatalogObject<T>
+```
+
+**When to Use Each:**
+- **`IReadableCatalogDataset<T>`**: Excel files, database views, HTTP APIs, immutable reference data
+- **`IWritableCatalogDataset<T>`**: Log sinks, metrics collectors (rare - usually use read-write)
+- **`ICatalogDataset<T>`**: CSV, Parquet, in-memory datasets, any read-write source
+- **`IReadableCatalogObject<T>`**: Immutable config files, pre-trained models from external sources
+- **`ICatalogObject<T>`**: Trained models, mutable configuration, aggregated metrics
+
+**Best Practices:**
+- ✅ Use `IReadableCatalogDataset<T>` for Excel files and other read-only sources
+- ✅ Use `GetOrCreateReadOnlyDataset()` helper in catalog for read-only datasets
+- ✅ Use `ICatalogDataset<T>` (full read-write) for most processing pipelines
+- ✅ Declare capabilities explicitly in catalog property types
+- ❌ Don't try to use read-only datasets as pipeline outputs
+- ❌ Don't implement Save() methods that throw exceptions (use read-only base classes instead)
+
 ### Layer 3: Expression-Based Mapping (Use for Multi-Input/Output)
 
 **Mechanism:** `CatalogMap<T>` uses expression trees to validate property mappings at compile-time.

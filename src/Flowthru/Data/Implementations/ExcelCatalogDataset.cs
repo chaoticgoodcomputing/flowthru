@@ -4,14 +4,20 @@ using ExcelDataReader;
 namespace Flowthru.Data.Implementations;
 
 /// <summary>
-/// Excel file-based read-only catalog entry using ExcelDataReader.
+/// Excel file-based read-only catalog dataset using ExcelDataReader.
 /// </summary>
 /// <typeparam name="T">The type of data (must have parameterless constructor)</typeparam>
 /// <remarks>
 /// <para>
 /// <strong>IMPORTANT: Read-Only Implementation</strong>
-/// This catalog entry is READ-ONLY. The Save() method throws NotSupportedException.
-/// Use CsvCatalogEntry or ParquetCatalogEntry for output datasets.
+/// This catalog dataset is READ-ONLY and implements <see cref="IReadableCatalogDataset{T}"/>.
+/// It cannot be used as a pipeline output. Attempting to use this as an output mapping
+/// will result in a compile-time error.
+/// </para>
+/// <para>
+/// <strong>Compile-Time Safety:</strong> By inheriting from <see cref="ReadOnlyCatalogDatasetBase{T}"/>,
+/// this class provides no Save() method, making it impossible to accidentally write to Excel files.
+/// Use CsvCatalogDataset or ParquetCatalogDataset for output datasets.
 /// </para>
 /// <para>
 /// <strong>Use Cases:</strong>
@@ -37,7 +43,7 @@ namespace Flowthru.Data.Implementations;
 /// </code>
 /// </para>
 /// </remarks>
-public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
+public class ExcelCatalogDataset<T> : ReadOnlyCatalogDatasetBase<T>
     where T : new() {
   private readonly string _filePath;
   private readonly string _sheetName;
@@ -94,16 +100,6 @@ public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
     var records = ConvertDataTableToRecords(table);
 
     return await Task.FromResult(records);
-  }
-
-  /// <inheritdoc/>
-  /// <exception cref="NotSupportedException">
-  /// Always thrown - Excel catalog entries are read-only
-  /// </exception>
-  public override Task Save(IEnumerable<T> data) {
-    throw new NotSupportedException(
-        $"Excel catalog entry '{Key}' is read-only. " +
-        "Use CsvCatalogEntry or ParquetCatalogEntry for output datasets.");
   }
 
   /// <inheritdoc/>

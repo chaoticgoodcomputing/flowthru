@@ -91,6 +91,37 @@ public abstract class DataCatalogBase {
   }
 
   /// <summary>
+  /// Gets or creates a read-only catalog dataset (collection), caching it for subsequent accesses.
+  /// </summary>
+  /// <typeparam name="T">The type of individual items in the dataset</typeparam>
+  /// <param name="factory">Factory function to create the read-only dataset on first access</param>
+  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
+  /// <returns>Cached read-only catalog dataset instance</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>New in v0.3.0:</strong> Provides explicit support for read-only datasets.
+  /// Use this for Excel files, database views, HTTP APIs, or any data source that cannot be written to.
+  /// </para>
+  /// <para>
+  /// <strong>Compile-Time Safety:</strong> Properties typed as <see cref="IReadableCatalogDataset{T}"/>
+  /// cannot be used as pipeline outputs, preventing runtime write errors.
+  /// </para>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// <code>
+  /// public IReadableCatalogDataset&lt;Company&gt; CompaniesExcel =>
+  ///     GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset&lt;Company&gt;("companies", $"{BasePath}/companies.xlsx"));
+  /// </code>
+  /// </para>
+  /// </remarks>
+  protected IReadableCatalogDataset<T> GetOrCreateReadOnlyDataset<T>(
+      Func<IReadableCatalogDataset<T>> factory,
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
+    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
+    return (IReadableCatalogDataset<T>)entry;
+  }
+
+  /// <summary>
   /// Gets or creates a catalog dataset with service provider access.
   /// </summary>
   /// <typeparam name="T">The type of individual items in the dataset</typeparam>
@@ -145,6 +176,38 @@ public abstract class DataCatalogBase {
       [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
     return (ICatalogObject<T>)entry;
+  }
+
+  /// <summary>
+  /// Gets or creates a read-only catalog object (singleton), caching it for subsequent accesses.
+  /// </summary>
+  /// <typeparam name="T">The type of the singleton object</typeparam>
+  /// <param name="factory">Factory function to create the read-only object entry on first access</param>
+  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
+  /// <returns>Cached read-only catalog object instance</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>New in v0.3.0:</strong> Provides explicit support for read-only singleton objects.
+  /// Use this for immutable configuration files, pre-trained models from external sources,
+  /// or any singleton object that cannot be written to.
+  /// </para>
+  /// <para>
+  /// <strong>Compile-Time Safety:</strong> Properties typed as <see cref="IReadableCatalogObject{T}"/>
+  /// cannot be used as pipeline outputs, preventing runtime write errors.
+  /// </para>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// <code>
+  /// public IReadableCatalogObject&lt;ModelConfig&gt; Config =>
+  ///     GetOrCreateReadOnlyObject(() => new JsonReadOnlyCatalogObject&lt;ModelConfig&gt;("config"));
+  /// </code>
+  /// </para>
+  /// </remarks>
+  protected IReadableCatalogObject<T> GetOrCreateReadOnlyObject<T>(
+      Func<IReadableCatalogObject<T>> factory,
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
+    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
+    return (IReadableCatalogObject<T>)entry;
   }
 
   /// <summary>

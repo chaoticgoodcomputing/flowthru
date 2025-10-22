@@ -72,11 +72,15 @@ public class SpaceflightsCatalog : DataCatalogBase {
     GetOrCreateDataset(() => new CsvCatalogDataset<ReviewRawSchema>("reviews", $"{_basePath}/01_Raw/reviews.csv"));
 
   /// <summary>
-  /// Raw shuttle data from Excel file.
+  /// Raw shuttle data from Excel file (read-only).
   /// Contains shuttle specifications and pricing.
   /// </summary>
-  public ICatalogDataset<ShuttleRawSchema> Shuttles =>
-    GetOrCreateDataset(() => new ExcelCatalogDataset<ShuttleRawSchema>("shuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1"));
+  /// <remarks>
+  /// This dataset is read-only because Excel files cannot be written to by the ExcelDataReader library.
+  /// It can only be used as a pipeline input, not as an output.
+  /// </remarks>
+  public IReadableCatalogDataset<ShuttleRawSchema> Shuttles =>
+    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<ShuttleRawSchema>("shuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1"));
 
   // ===========================================================
   // INTERMEDIATE DATA (02_Intermediate)
