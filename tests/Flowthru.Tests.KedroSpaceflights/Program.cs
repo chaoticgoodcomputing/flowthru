@@ -11,20 +11,16 @@ namespace Flowthru.Tests.KedroSpaceflights;
 /// Entry point for the Spaceflights FlowThru example.
 /// Demonstrates the complete user-facing API for defining and running data pipelines.
 /// </summary>
-public class Program
-{
-  public static async Task<int> Main(string[] args)
-  {
-    var app = FlowthruApplication.Create(args, builder =>
-    {
+public class Program {
+  public static async Task<int> Main(string[] args) {
+    var app = FlowthruApplication.Create(args, builder => {
       // Configure catalog
       builder.UseCatalog(new SpaceflightsCatalog("Data/Datasets"));
 
       // Register pipelines inline (no separate registry class needed)
       builder
           .RegisterPipeline<SpaceflightsCatalog>("data_processing", DataProcessingPipeline.Create)
-          .WithDescription("Preprocesses raw data and creates model input table")
-          .WithTags("etl", "preprocessing");
+          .WithDescription("Preprocesses raw data and creates model input table");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog, DataSciencePipelineParams>(
@@ -33,12 +29,11 @@ public class Program
           // Provide parameters for the data science pipeline
           new DataSciencePipelineParams(
             // Options for model training
-            new ModelParams
-            {
+            new ModelParams {
               TestSize = 0.2,
               RandomState = 3,
-              Features = new List<string>
-                {
+              Features =
+                [
                   "Engines",
                   "PassengerCapacity",
                   "Crew",
@@ -47,11 +42,10 @@ public class Program
                   "IataApproved",
                   "CompanyRating",
                   "ReviewScoresRating"
-                }
+                ]
             },
             // Options for cross-validation
-            new CrossValidationParams
-            {
+            new CrossValidationParams {
               NumFolds = 10, // Standard 10-fold cross-validation  
               BaseSeed = 42, // A magic number, nothing up our sleeves!
               KedroReferenceR2Score = 0.387f // Baseline comparison to the seeded run of the
@@ -59,12 +53,10 @@ public class Program
             }
           )
         )
-        .WithDescription("Trains and evaluates ML model")
-        .WithTags("ml", "training");
+        .WithDescription("Trains and evaluates ML model");
 
       // Configure logging
-      builder.ConfigureLogging(logging =>
-      {
+      builder.ConfigureLogging(logging => {
         logging.AddConsole();
         logging.SetMinimumLevel(LogLevel.Information);
       });

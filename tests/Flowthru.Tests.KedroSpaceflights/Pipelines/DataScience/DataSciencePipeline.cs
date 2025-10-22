@@ -10,6 +10,21 @@ using Microsoft.ML;
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 
 /// <summary>
+/// Parameters for the data science pipeline nodes.
+/// </summary>
+public record DataSciencePipelineParams(
+  /// <summary>
+  /// Options for model training.
+  /// </summary>
+  ModelParams ModelParams,
+
+  /// <summary>
+  /// Options for cross-validation.
+  /// </summary>
+  CrossValidationParams CrossValidationParams
+);
+
+/// <summary>
 /// Data science pipeline that splits data, trains model, and evaluates performance.
 /// 
 /// <para><strong>Compile-Time Type Safety:</strong></para>
@@ -31,6 +46,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 public static class DataSciencePipeline {
   public static Pipeline Create(SpaceflightsCatalog catalog, DataSciencePipelineParams parameters) {
     return PipelineBuilder.CreatePipeline(pipeline => {
+
       // Node 1: Split data into train/test sets (single input → multi-output)
       var splitOutputs = pipeline.AddNode<SplitDataNode>(
         name: "SplitData",
@@ -73,18 +89,3 @@ public static class DataSciencePipeline {
     });
   }
 }
-
-/// <summary>
-/// Parameters for the data science pipeline nodes.
-/// </summary>
-public record DataSciencePipelineParams(
-  /// <summary>
-  /// Options for model training.
-  /// </summary>
-  ModelParams ModelParams,
-
-  /// <summary>
-  /// Options for cross-validation.
-  /// </summary>
-  CrossValidationParams CrossValidationParams
-);
