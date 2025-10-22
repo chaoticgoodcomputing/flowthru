@@ -1,5 +1,5 @@
-using ExcelDataReader;
 using System.Data;
+using ExcelDataReader;
 
 namespace Flowthru.Data.Implementations;
 
@@ -38,8 +38,7 @@ namespace Flowthru.Data.Implementations;
 /// </para>
 /// </remarks>
 public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
-    where T : new()
-{
+    where T : new() {
   private readonly string _filePath;
   private readonly string _sheetName;
   private static bool _encodingRegistered;
@@ -52,8 +51,7 @@ public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
   /// <param name="filePath">Path to the Excel file (absolute or relative to working directory)</param>
   /// <param name="sheetName">Name of the worksheet to read (defaults to "Sheet1")</param>
   public ExcelCatalogDataset(string key, string filePath, string sheetName = "Sheet1")
-      : base(key)
-  {
+      : base(key) {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
     _sheetName = sheetName ?? throw new ArgumentNullException(nameof(sheetName));
 
@@ -71,10 +69,8 @@ public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
   public string SheetName => _sheetName;
 
   /// <inheritdoc/>
-  public override async Task<IEnumerable<T>> Load()
-  {
-    if (!File.Exists(_filePath))
-    {
+  public override async Task<IEnumerable<T>> Load() {
+    if (!File.Exists(_filePath)) {
       throw new FileNotFoundException(
           $"Excel file not found for catalog entry '{Key}'", _filePath);
     }
@@ -82,17 +78,14 @@ public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
     using var stream = File.Open(_filePath, FileMode.Open, FileAccess.Read);
     using var reader = ExcelReaderFactory.CreateReader(stream);
 
-    var dataSet = reader.AsDataSet(new ExcelDataSetConfiguration
-    {
-      ConfigureDataTable = _ => new ExcelDataTableConfiguration
-      {
+    var dataSet = reader.AsDataSet(new ExcelDataSetConfiguration {
+      ConfigureDataTable = _ => new ExcelDataTableConfiguration {
         UseHeaderRow = true
       }
     });
 
     var table = dataSet.Tables[_sheetName];
-    if (table == null)
-    {
+    if (table == null) {
       throw new InvalidOperationException(
           $"Worksheet '{_sheetName}' not found in Excel file '{_filePath}' " +
           $"for catalog entry '{Key}'");
@@ -107,21 +100,18 @@ public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
   /// <exception cref="NotSupportedException">
   /// Always thrown - Excel catalog entries are read-only
   /// </exception>
-  public override Task Save(IEnumerable<T> data)
-  {
+  public override Task Save(IEnumerable<T> data) {
     throw new NotSupportedException(
         $"Excel catalog entry '{Key}' is read-only. " +
         "Use CsvCatalogEntry or ParquetCatalogEntry for output datasets.");
   }
 
   /// <inheritdoc/>
-  public override Task<bool> Exists()
-  {
+  public override Task<bool> Exists() {
     return Task.FromResult(File.Exists(_filePath));
   }
 
-  private List<T> ConvertDataTableToRecords(DataTable table)
-  {
+  private List<T> ConvertDataTableToRecords(DataTable table) {
     var records = new List<T>();
     var properties = typeof(T).GetProperties()
         .Where(p => p.CanWrite)
@@ -129,31 +119,25 @@ public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
 
     // Build a case-insensitive column name mapping (also handles snake_case → PascalCase)
     var columnMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    foreach (DataColumn column in table.Columns)
-    {
+    foreach (DataColumn column in table.Columns) {
       columnMap[column.ColumnName] = column.ColumnName;
 
       // Also map snake_case to PascalCase (e.g., "company_id" → "CompanyId")
       var pascalCase = ConvertSnakeCaseToPascalCase(column.ColumnName);
-      if (!columnMap.ContainsKey(pascalCase))
-      {
+      if (!columnMap.ContainsKey(pascalCase)) {
         columnMap[pascalCase] = column.ColumnName;
       }
     }
 
-    foreach (DataRow row in table.Rows)
-    {
+    foreach (DataRow row in table.Rows) {
       var record = new T();
 
-      foreach (var property in properties)
-      {
+      foreach (var property in properties) {
         // Try to find column by property name (case-insensitive, with snake_case support)
-        if (columnMap.TryGetValue(property.Name, out var columnName))
-        {
+        if (columnMap.TryGetValue(property.Name, out var columnName)) {
           var value = row[columnName];
 
-          if (value != DBNull.Value)
-          {
+          if (value != DBNull.Value) {
             // Handle type conversion
             var convertedValue = Convert.ChangeType(value, property.PropertyType);
             property.SetValue(record, convertedValue);
@@ -171,24 +155,20 @@ public class ExcelCatalogDataset<T> : CatalogDatasetBase<T>
   /// Converts snake_case column names to PascalCase property names.
   /// Example: "company_id" → "CompanyId", "review_scores_rating" → "ReviewScoresRating"
   /// </summary>
-  private static string ConvertSnakeCaseToPascalCase(string snakeCase)
-  {
-    if (string.IsNullOrWhiteSpace(snakeCase))
+  private static string ConvertSnakeCaseToPascalCase(string snakeCase) {
+    if (string.IsNullOrWhiteSpace(snakeCase)) {
       return snakeCase;
+    }
 
     var parts = snakeCase.Split('_', StringSplitOptions.RemoveEmptyEntries);
     return string.Concat(parts.Select(part =>
       char.ToUpperInvariant(part[0]) + part.Substring(1).ToLowerInvariant()));
   }
 
-  private static void EnsureEncodingProviderRegistered()
-  {
-    if (!_encodingRegistered)
-    {
-      lock (_encodingLock)
-      {
-        if (!_encodingRegistered)
-        {
+  private static void EnsureEncodingProviderRegistered() {
+    if (!_encodingRegistered) {
+      lock (_encodingLock) {
+        if (!_encodingRegistered) {
           System.Text.Encoding.RegisterProvider(
               System.Text.CodePagesEncodingProvider.Instance);
           _encodingRegistered = true;

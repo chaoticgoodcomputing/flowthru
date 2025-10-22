@@ -34,8 +34,7 @@ namespace Flowthru.Data.Implementations;
 /// </para>
 /// </remarks>
 public class ParquetCatalogDataset<T> : CatalogDatasetBase<T>
-    where T : new()
-{
+    where T : new() {
   private readonly string _filePath;
 
   /// <summary>
@@ -44,8 +43,7 @@ public class ParquetCatalogDataset<T> : CatalogDatasetBase<T>
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the Parquet file (absolute or relative to working directory)</param>
   public ParquetCatalogDataset(string key, string filePath)
-      : base(key)
-  {
+      : base(key) {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
   }
 
@@ -55,10 +53,8 @@ public class ParquetCatalogDataset<T> : CatalogDatasetBase<T>
   public string FilePath => _filePath;
 
   /// <inheritdoc/>
-  public override async Task<IEnumerable<T>> Load()
-  {
-    if (!File.Exists(_filePath))
-    {
+  public override async Task<IEnumerable<T>> Load() {
+    if (!File.Exists(_filePath)) {
       throw new FileNotFoundException(
           $"Parquet file not found for catalog entry '{Key}'", _filePath);
     }
@@ -70,12 +66,10 @@ public class ParquetCatalogDataset<T> : CatalogDatasetBase<T>
   }
 
   /// <inheritdoc/>
-  public override async Task Save(IEnumerable<T> data)
-  {
+  public override async Task Save(IEnumerable<T> data) {
     // Ensure directory exists
     var directory = Path.GetDirectoryName(_filePath);
-    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-    {
+    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
       Directory.CreateDirectory(directory);
     }
 
@@ -84,8 +78,7 @@ public class ParquetCatalogDataset<T> : CatalogDatasetBase<T>
   }
 
   /// <inheritdoc/>
-  public override Task<bool> Exists()
-  {
+  public override Task<bool> Exists() {
     return Task.FromResult(File.Exists(_filePath));
   }
 }

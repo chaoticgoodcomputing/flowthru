@@ -6,8 +6,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 /// Processed company data with type conversions applied.
 /// Output of PreprocessCompaniesNode.
 /// </summary>
-public record CompanySchema
-{
+public record CompanySchema {
   /// <summary>
   /// Company identifier
   /// </summary>

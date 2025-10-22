@@ -1,6 +1,6 @@
 using Flowthru.Nodes;
-using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
+using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 
@@ -30,19 +30,16 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </para>
 /// </summary>
-public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelOptions>
-{
+public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelOptions> {
   // Parameters property inherited from NodeBase<TInput, TOutput, TParameters>
   // public ModelOptions Parameters { get; set; } = new();
 
   protected override Task<IEnumerable<SplitDataOutputs>> Transform(
-      IEnumerable<ModelInputSchema> input)
-  {
+      IEnumerable<ModelInputSchema> input) {
     var data = input.ToList();
 
     // Convert to feature rows (no null-coalescing needed after DropNa)
-    var featureRows = data.Select(row => new FeatureRow
-    {
+    var featureRows = data.Select(row => new FeatureRow {
       Engines = (float)row.Engines,
       PassengerCapacity = (float)row.PassengerCapacity,
       Crew = (float)row.Crew,
@@ -71,8 +68,7 @@ public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelO
 
     // Create multi-output result
     // Framework will unpack this into separate catalog entries based on [CatalogOutput] attributes
-    var outputs = new SplitDataOutputs
-    {
+    var outputs = new SplitDataOutputs {
       XTrain = trainData,
       XTest = testData,
       YTrain = trainData.Select(r => (decimal)r.Price).ToList(),
@@ -104,8 +100,7 @@ public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelO
 /// <item>Catalog layer: Data storage/naming bindings</item>
 /// </list>
 /// </summary>
-public record SplitDataOutputs
-{
+public record SplitDataOutputs {
   /// <summary>
   /// Training features
   /// </summary>
@@ -131,8 +126,7 @@ public record SplitDataOutputs
 /// Parameters for data science pipeline model training.
 /// Configures train/test split and feature selection.
 /// </summary>
-public record ModelOptions
-{
+public record ModelOptions {
   /// <summary>
   /// Proportion of data to use for testing (e.g., 0.2 for 20%)
   /// </summary>
@@ -148,7 +142,7 @@ public record ModelOptions
   /// Should match properties on ModelInputSchema.
   /// </summary>
   public List<string> Features { get; init; } = new()
-    {
+  {
         "Engines",
         "PassengerCapacity",
         "Crew",

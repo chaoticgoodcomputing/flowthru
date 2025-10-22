@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
-using Microsoft.Extensions.Logging;
 using MathNet.Numerics;
+using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 
@@ -16,15 +16,12 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// Uses property injection for ILogger to maintain parameterless constructor
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
-public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
-{
+public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics> {
   // Note: Logger property is inherited from NodeBase and automatically available
 
   protected override Task<IEnumerable<ModelMetrics>> Transform(
-      IEnumerable<EvaluateModelInputs> inputs)
-  {
-    try
-    {
+      IEnumerable<EvaluateModelInputs> inputs) {
+    try {
       // Extract the singleton input containing all catalog data
       var input = inputs.Single();
       var model = input.Regressor.Single(); // Extract single model from collection
@@ -50,8 +47,7 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
       // Calculate Max Error
       var maxError = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Max();
 
-      var metrics = new ModelMetrics
-      {
+      var metrics = new ModelMetrics {
         R2Score = r2Score,
         MeanAbsoluteError = mae,
         MaxError = maxError,
@@ -74,9 +70,7 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
 
       // Return as singleton collection
       return Task.FromResult(new[] { metrics }.AsEnumerable());
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       Logger?.LogError(ex, "Error in EvaluateModelNode: {Message}", ex.Message);
       throw;
     }
@@ -89,8 +83,7 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics>
 /// Multi-input schema for EvaluateModelNode.
 /// Bundles trained model with test features and targets for evaluation.
 /// </summary>
-public record EvaluateModelInputs
-{
+public record EvaluateModelInputs {
   /// <summary>
   /// Trained OLS regression model (singleton collection from catalog)
   /// </summary>

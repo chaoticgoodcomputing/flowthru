@@ -40,8 +40,7 @@ namespace Flowthru.Application;
 /// </code>
 /// </para>
 /// </remarks>
-public class FlowthruApplicationBuilder
-{
+public class FlowthruApplicationBuilder {
   private readonly string[] _args;
   private DataCatalogBase? _catalog;
   private Func<IServiceProvider, DataCatalogBase>? _catalogFactory;
@@ -49,19 +48,17 @@ public class FlowthruApplicationBuilder
   private readonly List<Action<PipelineRegistrar<DataCatalogBase>>> _inlineRegistrations = new();
   private readonly ServiceCollection _services = new();
   private readonly ParameterStore _parameters = new();
-  private ExecutionOptions _executionOptions = new();
+  private readonly ExecutionOptions _executionOptions = new();
 
   /// <summary>
   /// Initializes a new instance of FlowthruApplicationBuilder.
   /// </summary>
   /// <param name="args">Command-line arguments</param>
-  internal FlowthruApplicationBuilder(string[] args)
-  {
+  internal FlowthruApplicationBuilder(string[] args) {
     _args = args;
 
     // Set up default logging
-    _services.AddLogging(logging =>
-    {
+    _services.AddLogging(logging => {
       logging.AddConsole();
       logging.SetMinimumLevel(LogLevel.Information);
     });
@@ -75,8 +72,7 @@ public class FlowthruApplicationBuilder
   /// <remarks>
   /// Use this overload when your catalog doesn't require dependency injection.
   /// </remarks>
-  public FlowthruApplicationBuilder UseCatalog(DataCatalogBase catalog)
-  {
+  public FlowthruApplicationBuilder UseCatalog(DataCatalogBase catalog) {
     _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
     _catalogFactory = null; // Clear factory if set
     return this;
@@ -98,8 +94,7 @@ public class FlowthruApplicationBuilder
   /// });
   /// </code>
   /// </remarks>
-  public FlowthruApplicationBuilder UseCatalog(Func<IServiceProvider, DataCatalogBase> catalogFactory)
-  {
+  public FlowthruApplicationBuilder UseCatalog(Func<IServiceProvider, DataCatalogBase> catalogFactory) {
     _catalogFactory = catalogFactory ?? throw new ArgumentNullException(nameof(catalogFactory));
     _catalog = null; // Clear instance if set
     return this;
@@ -115,8 +110,7 @@ public class FlowthruApplicationBuilder
   /// a parameterless constructor.
   /// </remarks>
   public FlowthruApplicationBuilder RegisterPipelines<TRegistry>()
-    where TRegistry : class, new()
-  {
+    where TRegistry : class, new() {
     _pipelineRegistryType = typeof(TRegistry);
     _inlineRegistrations.Clear(); // Clear inline registrations if using registry class
     return this;
@@ -136,8 +130,7 @@ public class FlowthruApplicationBuilder
   public FlowthruApplicationBuilder RegisterPipeline<TCatalog>(
     string name,
     Func<TCatalog, Pipelines.Pipeline> pipelineFactory)
-    where TCatalog : DataCatalogBase
-  {
+    where TCatalog : DataCatalogBase {
     _inlineRegistrations.Add(registrar =>
       registrar.Register(name, catalog => pipelineFactory((TCatalog)catalog)));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
@@ -161,8 +154,7 @@ public class FlowthruApplicationBuilder
     string name,
     Func<TCatalog, TParams, Pipelines.Pipeline> pipelineFactory,
     TParams parameters)
-    where TCatalog : DataCatalogBase
-  {
+    where TCatalog : DataCatalogBase {
     _inlineRegistrations.Add(registrar =>
       registrar.Register(name, (catalog, p) => pipelineFactory((TCatalog)catalog, (TParams)p), parameters));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
@@ -177,12 +169,12 @@ public class FlowthruApplicationBuilder
   /// <remarks>
   /// Use this after RegisterPipeline() to add metadata.
   /// </remarks>
-  public FlowthruApplicationBuilder WithDescription(string description)
-  {
-    if (_inlineRegistrations.Count == 0)
+  public FlowthruApplicationBuilder WithDescription(string description) {
+    if (_inlineRegistrations.Count == 0) {
       throw new InvalidOperationException(
         "WithDescription() can only be used after RegisterPipeline(). " +
         "If using RegisterPipelines<T>(), use WithDescription() in the registry class instead.");
+    }
 
     _inlineRegistrations.Add(registrar => registrar.WithDescription(description));
     return this;
@@ -196,12 +188,12 @@ public class FlowthruApplicationBuilder
   /// <remarks>
   /// Use this after RegisterPipeline() to add metadata.
   /// </remarks>
-  public FlowthruApplicationBuilder WithTags(params string[] tags)
-  {
-    if (_inlineRegistrations.Count == 0)
+  public FlowthruApplicationBuilder WithTags(params string[] tags) {
+    if (_inlineRegistrations.Count == 0) {
       throw new InvalidOperationException(
         "WithTags() can only be used after RegisterPipeline(). " +
         "If using RegisterPipelines<T>(), use WithTags() in the registry class instead.");
+    }
 
     _inlineRegistrations.Add(registrar => registrar.WithTags(tags));
     return this;
@@ -218,8 +210,7 @@ public class FlowthruApplicationBuilder
   /// - Pipelines (via pipeline.ServiceProvider)
   /// - Nodes (via property injection)
   /// </remarks>
-  public FlowthruApplicationBuilder ConfigureServices(Action<IServiceCollection> configure)
-  {
+  public FlowthruApplicationBuilder ConfigureServices(Action<IServiceCollection> configure) {
     configure?.Invoke(_services);
     return this;
   }
@@ -233,12 +224,10 @@ public class FlowthruApplicationBuilder
   /// By default, console logging at Information level is configured.
   /// Use this method to override or enhance the default configuration.
   /// </remarks>
-  public FlowthruApplicationBuilder ConfigureLogging(Action<ILoggingBuilder> configure)
-  {
+  public FlowthruApplicationBuilder ConfigureLogging(Action<ILoggingBuilder> configure) {
     // Remove existing logging configuration
     var loggingDescriptor = _services.FirstOrDefault(d => d.ServiceType == typeof(ILoggingBuilder));
-    if (loggingDescriptor != null)
-    {
+    if (loggingDescriptor != null) {
       _services.Remove(loggingDescriptor);
     }
 
@@ -254,8 +243,7 @@ public class FlowthruApplicationBuilder
   /// <remarks>
   /// Use this to configure result formatting, error handling, and other execution settings.
   /// </remarks>
-  public FlowthruApplicationBuilder ConfigureExecution(Action<ExecutionOptions> configure)
-  {
+  public FlowthruApplicationBuilder ConfigureExecution(Action<ExecutionOptions> configure) {
     configure?.Invoke(_executionOptions);
     return this;
   }
@@ -267,16 +255,16 @@ public class FlowthruApplicationBuilder
   /// <exception cref="InvalidOperationException">
   /// Thrown if catalog or pipeline registry is not configured
   /// </exception>
-  internal IFlowthruApplication Build()
-  {
+  internal IFlowthruApplication Build() {
     // 1. Build service provider
     var services = _services.BuildServiceProvider();
 
     // 2. Resolve or create catalog
     var catalog = _catalog ?? _catalogFactory?.Invoke(services);
-    if (catalog == null)
+    if (catalog == null) {
       throw new InvalidOperationException(
         "No catalog configured. Call UseCatalog() before building the application.");
+    }
 
     // Inject services into catalog
     catalog.Services = services;
@@ -284,42 +272,38 @@ public class FlowthruApplicationBuilder
     // 3. Create pipeline registry and get pipelines
     Dictionary<string, Pipelines.Pipeline> pipelines;
 
-    if (_inlineRegistrations.Count > 0)
-    {
+    if (_inlineRegistrations.Count > 0) {
       // Use inline registration approach
       var registrar = new PipelineRegistrar<DataCatalogBase>(catalog);
 
       // Replay all registration actions
-      foreach (var registration in _inlineRegistrations)
-      {
+      foreach (var registration in _inlineRegistrations) {
         registration(registrar);
       }
 
       pipelines = registrar.Build();
-    }
-    else if (_pipelineRegistryType != null)
-    {
+    } else if (_pipelineRegistryType != null) {
       // Use registry class approach
       var registry = Activator.CreateInstance(_pipelineRegistryType);
-      if (registry == null)
+      if (registry == null) {
         throw new InvalidOperationException(
           $"Failed to create instance of pipeline registry type {_pipelineRegistryType.Name}");
+      }
 
       // Use reflection to call GetPipelines with the catalog
       var getPipelinesMethod = _pipelineRegistryType.GetMethod(
         "GetPipelines",
         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
-      if (getPipelinesMethod == null)
+      if (getPipelinesMethod == null) {
         throw new InvalidOperationException(
           $"Pipeline registry type {_pipelineRegistryType.Name} does not have a GetPipelines method");
+      }
 
       pipelines = getPipelinesMethod.Invoke(registry, new object[] { catalog })
         as Dictionary<string, Pipelines.Pipeline>
         ?? throw new InvalidOperationException("Failed to get pipelines from registry");
-    }
-    else
-    {
+    } else {
       throw new InvalidOperationException(
         "No pipelines configured. Call RegisterPipeline() or RegisterPipelines<T>() before building the application.");
     }

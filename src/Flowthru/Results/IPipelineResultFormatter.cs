@@ -19,8 +19,7 @@ namespace Flowthru.Results;
 /// Future formatters: JSON, Markdown, compact CI/CD format.
 /// </para>
 /// </remarks>
-public interface IPipelineResultFormatter
-{
+public interface IPipelineResultFormatter {
   /// <summary>
   /// Formats and outputs the pipeline result.
   /// </summary>

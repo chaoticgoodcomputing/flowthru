@@ -9,8 +9,7 @@ namespace Flowthru.Application;
 /// This interface defines the contract for running pipelines. The primary
 /// implementation is <see cref="FlowthruApplication"/>.
 /// </remarks>
-public interface IFlowthruApplication
-{
+public interface IFlowthruApplication {
   /// <summary>
   /// Runs the application, selecting a pipeline based on command-line arguments.
   /// </summary>

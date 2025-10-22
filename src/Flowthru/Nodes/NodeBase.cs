@@ -110,8 +110,7 @@ namespace Flowthru.Nodes;
 /// </para>
 /// </remarks>
 public abstract class NodeBase<TInput, TOutput, TParameters>
-  where TParameters : new()
-{
+  where TParameters : new() {
   /// <summary>
   /// Optional logger for this node.
   /// Injected via property during pipeline configuration.
@@ -213,8 +212,7 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// </para>
   /// </remarks>
   [EditorBrowsable(EditorBrowsableState.Never)]
-  public Task<IEnumerable<TOutput>> TestTransform(IEnumerable<TInput> input)
-  {
+  public Task<IEnumerable<TOutput>> TestTransform(IEnumerable<TInput> input) {
     return Transform(input);
   }
 
@@ -228,14 +226,12 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// This method is internal and should not be called directly by user code.
   /// The pipeline executor invokes this method during pipeline execution.
   /// </remarks>
-  internal async Task<IEnumerable<TOutput>> ExecuteAsync(IEnumerable<TInput> input)
-  {
+  internal async Task<IEnumerable<TOutput>> ExecuteAsync(IEnumerable<TInput> input) {
     var nodeName = GetType().Name;
 
     Logger?.LogInformation("Starting transformation for node {NodeName}", nodeName);
 
-    try
-    {
+    try {
       var result = await Transform(input);
       var count = result?.Count() ?? 0;
 
@@ -245,9 +241,7 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
           count);
 
       return result ?? Enumerable.Empty<TOutput>();
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       Logger?.LogError(ex,
           "Error during transformation in node {NodeName}: {ErrorMessage}",
           nodeName,
@@ -313,8 +307,7 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
 /// }
 /// </code>
 /// </remarks>
-public abstract class NodeBase<TInput, TOutput> : NodeBase<TInput, TOutput, NoParams>
-{
+public abstract class NodeBase<TInput, TOutput> : NodeBase<TInput, TOutput, NoParams> {
   // Inherits all functionality from three-parameter base class
   // Parameters property will be of type NoParams (empty marker)
 }

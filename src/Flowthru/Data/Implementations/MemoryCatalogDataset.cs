@@ -31,8 +31,7 @@ namespace Flowthru.Data.Implementations;
 /// Data is lost when the application terminates.
 /// </para>
 /// </remarks>
-public class MemoryCatalogDataset<T> : CatalogDatasetBase<T>
-{
+public class MemoryCatalogDataset<T> : CatalogDatasetBase<T> {
   private IEnumerable<T>? _data;
   private bool _hasData;
   private readonly object _lock = new();
@@ -41,17 +40,13 @@ public class MemoryCatalogDataset<T> : CatalogDatasetBase<T>
   /// Creates a new in-memory catalog entry.
   /// </summary>
   /// <param name="key">Unique identifier for this catalog entry</param>
-  public MemoryCatalogDataset(string key) : base(key)
-  {
+  public MemoryCatalogDataset(string key) : base(key) {
   }
 
   /// <inheritdoc/>
-  public override Task<IEnumerable<T>> Load()
-  {
-    lock (_lock)
-    {
-      if (!_hasData)
-      {
+  public override Task<IEnumerable<T>> Load() {
+    lock (_lock) {
+      if (!_hasData) {
         throw new InvalidOperationException(
             $"Cannot load from memory catalog entry '{Key}' - no data has been saved yet");
       }
@@ -61,10 +56,8 @@ public class MemoryCatalogDataset<T> : CatalogDatasetBase<T>
   }
 
   /// <inheritdoc/>
-  public override Task Save(IEnumerable<T> data)
-  {
-    lock (_lock)
-    {
+  public override Task Save(IEnumerable<T> data) {
+    lock (_lock) {
       // Materialize the enumerable to avoid deferred execution issues
       _data = data.ToList();
       _hasData = true;
@@ -74,10 +67,8 @@ public class MemoryCatalogDataset<T> : CatalogDatasetBase<T>
   }
 
   /// <inheritdoc/>
-  public override Task<bool> Exists()
-  {
-    lock (_lock)
-    {
+  public override Task<bool> Exists() {
+    lock (_lock) {
       return Task.FromResult(_hasData);
     }
   }
@@ -87,12 +78,11 @@ public class MemoryCatalogDataset<T> : CatalogDatasetBase<T>
   /// Optimized implementation that doesn't require loading data.
   /// Returns the count of items in the stored collection.
   /// </remarks>
-  public override Task<int> GetCountAsync()
-  {
-    lock (_lock)
-    {
-      if (!_hasData || _data == null)
+  public override Task<int> GetCountAsync() {
+    lock (_lock) {
+      if (!_hasData || _data == null) {
         return Task.FromResult(0);
+      }
 
       return Task.FromResult(_data.Count());
     }
@@ -101,10 +91,8 @@ public class MemoryCatalogDataset<T> : CatalogDatasetBase<T>
   /// <summary>
   /// Clears the stored data.
   /// </summary>
-  public void Clear()
-  {
-    lock (_lock)
-    {
+  public void Clear() {
+    lock (_lock) {
       _data = default;
       _hasData = false;
     }

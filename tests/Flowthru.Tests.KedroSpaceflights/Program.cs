@@ -11,28 +11,24 @@ namespace Flowthru.Tests.KedroSpaceflights;
 /// Entry point for the Spaceflights FlowThru example.
 /// Demonstrates the complete user-facing API for defining and running data pipelines.
 /// </summary>
-public class Program
-{
-  public static async Task<int> Main(string[] args)
-  {
-    var app = FlowthruApplication.Create(args, builder =>
-    {
+public class Program {
+  public static async Task<int> Main(string[] args) {
+    var app = FlowthruApplication.Create(args, builder => {
       // Configure catalog
       builder.UseCatalog(new SpaceflightsCatalog("Data/Datasets"));
 
       // Register pipelines inline (no separate registry class needed)
       builder
-        .RegisterPipeline<SpaceflightsCatalog>("data_processing", DataProcessingPipeline.Create)
-        .WithDescription("Preprocesses raw data and creates model input table")
-        .WithTags("etl", "preprocessing");
+    .RegisterPipeline<SpaceflightsCatalog>("data_processing", DataProcessingPipeline.Create)
+    .WithDescription("Preprocesses raw data and creates model input table")
+    .WithTags("etl", "preprocessing");
 
       builder
-        .RegisterPipeline<SpaceflightsCatalog, ModelOptions>("data_science", DataSciencePipeline.Create, new ModelOptions
+    .RegisterPipeline<SpaceflightsCatalog, ModelOptions>("data_science", DataSciencePipeline.Create, new ModelOptions {
+      TestSize = 0.2,
+      RandomState = 3,
+      Features = new List<string>
         {
-          TestSize = 0.2,
-          RandomState = 3,
-          Features = new List<string>
-          {
             "Engines",
             "PassengerCapacity",
             "Crew",
@@ -41,14 +37,13 @@ public class Program
             "IataApproved",
             "CompanyRating",
             "ReviewScoresRating"
-          }
-        })
-        .WithDescription("Trains and evaluates ML model")
-        .WithTags("ml", "training");
+        }
+    })
+    .WithDescription("Trains and evaluates ML model")
+    .WithTags("ml", "training");
 
       // Configure logging
-      builder.ConfigureLogging(logging =>
-      {
+      builder.ConfigureLogging(logging => {
         logging.AddConsole();
         logging.SetMinimumLevel(LogLevel.Information);
       });

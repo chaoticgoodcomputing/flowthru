@@ -20,8 +20,7 @@ namespace Flowthru.Data;
 /// be instantiated directly if needed.
 /// </para>
 /// </remarks>
-public class DataCatalog
-{
+public class DataCatalog {
   private readonly ConcurrentDictionary<string, ICatalogEntry> _entries = new();
 
   /// <summary>
@@ -32,10 +31,8 @@ public class DataCatalog
   /// <exception cref="ArgumentException">
   /// Thrown if a catalog entry with the same key is already registered
   /// </exception>
-  public void Register(string key, ICatalogEntry entry)
-  {
-    if (!_entries.TryAdd(key, entry))
-    {
+  public void Register(string key, ICatalogEntry entry) {
+    if (!_entries.TryAdd(key, entry)) {
       throw new ArgumentException(
           $"Catalog entry with key '{key}' is already registered", nameof(key));
     }
@@ -49,10 +46,8 @@ public class DataCatalog
   /// <exception cref="KeyNotFoundException">
   /// Thrown if no catalog entry with the specified key exists
   /// </exception>
-  public ICatalogEntry Get(string key)
-  {
-    if (!_entries.TryGetValue(key, out var entry))
-    {
+  public ICatalogEntry Get(string key) {
+    if (!_entries.TryGetValue(key, out var entry)) {
       throw new KeyNotFoundException(
           $"No catalog entry found with key '{key}'");
     }
@@ -72,10 +67,8 @@ public class DataCatalog
   /// Used internally by the mapping layer for reflection-based operations.
   /// Prefer the strongly-typed Get&lt;T&gt;() method when possible.
   /// </remarks>
-  public ICatalogEntry GetUntyped(string key)
-  {
-    if (!_entries.TryGetValue(key, out var entry))
-    {
+  public ICatalogEntry GetUntyped(string key) {
+    if (!_entries.TryGetValue(key, out var entry)) {
       throw new KeyNotFoundException(
           $"No catalog entry found with key '{key}'");
     }

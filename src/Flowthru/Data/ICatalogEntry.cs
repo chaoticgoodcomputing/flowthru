@@ -9,8 +9,7 @@ namespace Flowthru.Data;
 /// without knowing their specific type parameter at compile-time, using
 /// reflection-based property mapping.
 /// </remarks>
-public interface ICatalogEntry
-{
+public interface ICatalogEntry {
   /// <summary>
   /// Unique key identifying this catalog entry within the data catalog.
   /// </summary>
@@ -108,8 +107,7 @@ public interface ICatalogEntry
 /// await catalog.Companies.Save(filteredCompanies);
 /// </code>
 /// </example>
-public interface ICatalogDataset<T> : ICatalogEntry
-{
+public interface ICatalogDataset<T> : ICatalogEntry {
   /// <summary>
   /// Loads the dataset as a collection of items.
   /// </summary>
@@ -173,8 +171,7 @@ public interface ICatalogDataset<T> : ICatalogEntry
 /// await catalog.Regressor.Save(trainedModel);
 /// </code>
 /// </example>
-public interface ICatalogObject<T> : ICatalogEntry
-{
+public interface ICatalogObject<T> : ICatalogEntry {
   /// <summary>
   /// Loads the singleton object.
   /// </summary>

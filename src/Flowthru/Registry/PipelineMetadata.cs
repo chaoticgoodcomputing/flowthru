@@ -7,8 +7,7 @@ namespace Flowthru.Registry;
 /// Used internally by the pipeline registry to store pipeline information
 /// beyond just the pipeline instance itself.
 /// </remarks>
-internal class PipelineMetadata
-{
+internal class PipelineMetadata {
   /// <summary>
   /// Pipeline name (unique identifier).
   /// </summary>

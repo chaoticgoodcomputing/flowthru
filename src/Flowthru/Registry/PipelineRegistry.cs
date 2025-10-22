@@ -34,8 +34,7 @@ namespace Flowthru.Registry;
 /// - IntelliSense shows correct catalog properties in pipeline definitions
 /// </para>
 /// </remarks>
-public abstract class PipelineRegistry<TCatalog> where TCatalog : DataCatalogBase
-{
+public abstract class PipelineRegistry<TCatalog> where TCatalog : DataCatalogBase {
   /// <summary>
   /// Override this method to register all pipelines in your project.
   /// </summary>
@@ -73,8 +72,7 @@ public abstract class PipelineRegistry<TCatalog> where TCatalog : DataCatalogBas
   /// This method is called internally by FlowthruApplication. Users typically
   /// don't call this directly.
   /// </remarks>
-  internal Dictionary<string, Pipeline> GetPipelines(TCatalog catalog)
-  {
+  internal Dictionary<string, Pipeline> GetPipelines(TCatalog catalog) {
     var registrar = new PipelineRegistrar<TCatalog>(catalog);
     RegisterPipelines(registrar);
     return registrar.Build();

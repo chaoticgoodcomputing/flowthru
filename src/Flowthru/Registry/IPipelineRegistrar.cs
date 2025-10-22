@@ -30,8 +30,7 @@ namespace Flowthru.Registry;
 /// </code>
 /// </para>
 /// </remarks>
-public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase
-{
+public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase {
   /// <summary>
   /// Registers a pipeline with a parameterless factory function.
   /// </summary>

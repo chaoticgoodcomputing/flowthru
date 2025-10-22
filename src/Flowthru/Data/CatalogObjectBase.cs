@@ -29,14 +29,12 @@ namespace Flowthru.Data;
 /// - Exists(): Check if object is present
 /// </para>
 /// </remarks>
-public abstract class CatalogObjectBase<T> : ICatalogObject<T>
-{
+public abstract class CatalogObjectBase<T> : ICatalogObject<T> {
   /// <summary>
   /// Creates a new catalog object with the specified key.
   /// </summary>
   /// <param name="key">Unique identifier for this catalog object</param>
-  protected CatalogObjectBase(string key)
-  {
+  protected CatalogObjectBase(string key) {
     Key = key ?? throw new ArgumentNullException(nameof(key));
   }
 
@@ -59,8 +57,7 @@ public abstract class CatalogObjectBase<T> : ICatalogObject<T>
   /// <remarks>
   /// For singleton objects, this returns 1 if the object exists, 0 otherwise.
   /// </remarks>
-  public virtual async Task<int> GetCountAsync()
-  {
+  public virtual async Task<int> GetCountAsync() {
     return await Exists() ? 1 : 0;
   }
 
@@ -68,8 +65,7 @@ public abstract class CatalogObjectBase<T> : ICatalogObject<T>
   /// <remarks>
   /// Default implementation delegates to strongly-typed Load() and boxes the result.
   /// </remarks>
-  public virtual async Task<object> LoadUntyped()
-  {
+  public virtual async Task<object> LoadUntyped() {
     var data = await Load();
     return data!;
   }
@@ -81,10 +77,8 @@ public abstract class CatalogObjectBase<T> : ICatalogObject<T>
   /// <exception cref="InvalidCastException">
   /// Thrown if <paramref name="data"/> cannot be cast to type <typeparamref name="T"/>
   /// </exception>
-  public virtual async Task SaveUntyped(object data)
-  {
-    if (data is not T typedData)
-    {
+  public virtual async Task SaveUntyped(object data) {
+    if (data is not T typedData) {
       throw new InvalidCastException(
           $"Cannot save data of type {data?.GetType().Name ?? "null"} " +
           $"to catalog object expecting type {typeof(T).Name}");

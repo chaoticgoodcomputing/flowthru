@@ -6,8 +6,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 /// Processed review data with type conversions applied and nulls removed.
 /// Output of PreprocessReviewsNode.
 /// </summary>
-public record ReviewSchema
-{
+public record ReviewSchema {
   /// <summary>
   /// Shuttle identifier (foreign key to shuttles)
   /// </summary>

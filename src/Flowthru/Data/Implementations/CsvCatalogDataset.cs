@@ -1,6 +1,6 @@
+using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using System.Globalization;
 
 namespace Flowthru.Data.Implementations;
 
@@ -37,8 +37,7 @@ namespace Flowthru.Data.Implementations;
 /// - Custom configuration can be provided via constructor
 /// </para>
 /// </remarks>
-public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
-{
+public class CsvCatalogDataset<T> : CatalogDatasetBase<T> {
   private readonly string _filePath;
   private readonly CsvConfiguration _configuration;
 
@@ -49,11 +48,9 @@ public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the CSV file (absolute or relative to working directory)</param>
   public CsvCatalogDataset(string key, string filePath)
-      : this(key, filePath, new CsvConfiguration(CultureInfo.InvariantCulture, typeof(T))
-      {
+      : this(key, filePath, new CsvConfiguration(CultureInfo.InvariantCulture, typeof(T)) {
         HasHeaderRecord = true
-      })
-  {
+      }) {
   }
 
   /// <summary>
@@ -63,8 +60,7 @@ public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
   /// <param name="filePath">Path to the CSV file</param>
   /// <param name="configuration">CsvHelper configuration</param>
   public CsvCatalogDataset(string key, string filePath, CsvConfiguration configuration)
-      : base(key)
-  {
+      : base(key) {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
   }
@@ -80,10 +76,8 @@ public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
   public CsvConfiguration Configuration => _configuration;
 
   /// <inheritdoc/>
-  public override async Task<IEnumerable<T>> Load()
-  {
-    if (!File.Exists(_filePath))
-    {
+  public override async Task<IEnumerable<T>> Load() {
+    if (!File.Exists(_filePath)) {
       throw new FileNotFoundException(
           $"CSV file not found for catalog entry '{Key}'", _filePath);
     }
@@ -101,8 +95,7 @@ public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
     using var csv = new CsvReader(reader, _configuration);
 
     var records = new List<T>();
-    await foreach (var record in csv.GetRecordsAsync<T>())
-    {
+    await foreach (var record in csv.GetRecordsAsync<T>()) {
       records.Add(record);
     }
 
@@ -110,12 +103,10 @@ public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
   }
 
   /// <inheritdoc/>
-  public override Task Save(IEnumerable<T> data)
-  {
+  public override Task Save(IEnumerable<T> data) {
     // Ensure directory exists
     var directory = Path.GetDirectoryName(_filePath);
-    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-    {
+    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
       Directory.CreateDirectory(directory);
     }
 
@@ -128,8 +119,7 @@ public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
   }
 
   /// <inheritdoc/>
-  public override Task<bool> Exists()
-  {
+  public override Task<bool> Exists() {
     return Task.FromResult(File.Exists(_filePath));
   }
 }

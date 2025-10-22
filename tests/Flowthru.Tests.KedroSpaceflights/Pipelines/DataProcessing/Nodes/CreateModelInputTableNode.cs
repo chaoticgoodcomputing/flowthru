@@ -13,11 +13,9 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
 public class CreateModelInputTableNode
-    : NodeBase<CreateModelInputTableInputs, ModelInputSchema>
-{
+    : NodeBase<CreateModelInputTableInputs, ModelInputSchema> {
   protected override Task<IEnumerable<ModelInputSchema>> Transform(
-      IEnumerable<CreateModelInputTableInputs> inputs)
-  {
+      IEnumerable<CreateModelInputTableInputs> inputs) {
     // Extract the singleton input containing all preprocessed catalog data
     var input = inputs.Single();
 
@@ -29,19 +27,18 @@ public class CreateModelInputTableNode
     // Perform inner joins: reviews → shuttles → companies
     var modelInput = input.Reviews
         .Where(review => shuttles.ContainsKey(review.ShuttleId))
-        .Select(review =>
-        {
+        .Select(review => {
           var shuttle = shuttles[review.ShuttleId];
 
           // Skip if company doesn't exist (inner join semantics)
-          if (!companies.ContainsKey(shuttle.CompanyId))
+          if (!companies.ContainsKey(shuttle.CompanyId)) {
             return null;
+          }
 
           var company = companies[shuttle.CompanyId];
 
           // All fields are non-nullable - direct assignment with no .Value calls
-          return new ModelInputSchema
-          {
+          return new ModelInputSchema {
             // Shuttle columns
             ShuttleLocation = shuttle.ShuttleLocation,
             ShuttleType = shuttle.ShuttleType,
@@ -101,8 +98,7 @@ public class CreateModelInputTableNode
 /// - Schema layer: Pure data shape definitions
 /// - Catalog layer: Data storage/naming bindings
 /// </remarks>
-public record CreateModelInputTableInputs
-{
+public record CreateModelInputTableInputs {
   /// <summary>
   /// Preprocessed shuttle data (validated, non-nullable fields)
   /// </summary>

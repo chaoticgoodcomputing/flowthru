@@ -1,4 +1,3 @@
-using Microsoft.ML;
 using Flowthru.Nodes;
 using Flowthru.Pipelines;
 using Flowthru.Pipelines.Mapping;
@@ -6,6 +5,7 @@ using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
+using Microsoft.ML;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 
@@ -28,12 +28,9 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 /// between nodes and catalog entries will cause compilation failures, not runtime errors.
 /// </para>
 /// </summary>
-public static class DataSciencePipeline
-{
-  public static Pipeline Create(SpaceflightsCatalog catalog, ModelOptions options)
-  {
-    return PipelineBuilder.CreatePipeline(pipeline =>
-    {
+public static class DataSciencePipeline {
+  public static Pipeline Create(SpaceflightsCatalog catalog, ModelOptions options) {
+    return PipelineBuilder.CreatePipeline(pipeline => {
       // Node 1: Split data into train/test sets (single input → multi-output)
       var splitOutputs = pipeline.AddNode<SplitDataNode, ModelInputSchema, SplitDataOutputs, ModelOptions>(
         name: "SplitData",
@@ -71,8 +68,7 @@ public static class DataSciencePipeline
         name: "CrossValidateAndCompareToKedroSource",
         input: catalog.ModelInputTable,
         output: catalog.CrossValidationResults,
-        configure: node => node.Parameters = new CrossValidationOptions
-        {
+        configure: node => node.Parameters = new CrossValidationOptions {
           NumFolds = 10, // Standard 10-fold cross-validation  
           BaseSeed = 42, // A magic number, nothing up our sleeves!
           KedroReferenceR2Score = 0.387f  // Baseline comparison to the seeded run of the

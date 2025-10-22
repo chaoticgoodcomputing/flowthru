@@ -1,8 +1,8 @@
 using Flowthru.Data;
 using Flowthru.Data.Implementations;
-using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
-using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
+using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
+using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Reference;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 
@@ -39,16 +39,14 @@ namespace Flowthru.Tests.KedroSpaceflights.Data;
 /// Usage: <c>var catalog = new SpaceflightsCatalog("Data/Datasets");</c>
 /// </para>
 /// </summary>
-public class SpaceflightsCatalog : DataCatalogBase
-{
+public class SpaceflightsCatalog : DataCatalogBase {
   private readonly string _basePath;
 
   /// <summary>
   /// Initializes a new instance of SpaceflightsCatalog with the specified base path.
   /// </summary>
   /// <param name="basePath">Base path for dataset files</param>
-  public SpaceflightsCatalog(string basePath)
-  {
+  public SpaceflightsCatalog(string basePath) {
     _basePath = basePath;
 
     // Eagerly initialize all catalog entries to populate cache

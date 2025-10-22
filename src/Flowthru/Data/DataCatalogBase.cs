@@ -47,8 +47,7 @@ namespace Flowthru.Data;
 /// - Zero runtime overhead after first access (cached delegates)
 /// </para>
 /// </remarks>
-public abstract class DataCatalogBase
-{
+public abstract class DataCatalogBase {
   /// <summary>
   /// Cache of property values to ensure object identity for DAG resolution.
   /// Key: Property name, Value: Cached ICatalogEntry instance
@@ -86,8 +85,7 @@ public abstract class DataCatalogBase
   /// </remarks>
   protected ICatalogDataset<T> GetOrCreateDataset<T>(
       Func<ICatalogDataset<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
-  {
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
     return (ICatalogDataset<T>)entry;
   }
@@ -117,8 +115,7 @@ public abstract class DataCatalogBase
   /// </remarks>
   protected ICatalogDataset<T> GetOrCreateDataset<T>(
       Func<IServiceProvider?, ICatalogDataset<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
-  {
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
     return (ICatalogDataset<T>)entry;
   }
@@ -145,8 +142,7 @@ public abstract class DataCatalogBase
   /// </remarks>
   protected ICatalogObject<T> GetOrCreateObject<T>(
       Func<ICatalogObject<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
-  {
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
     return (ICatalogObject<T>)entry;
   }
@@ -165,8 +161,7 @@ public abstract class DataCatalogBase
   /// </remarks>
   protected ICatalogObject<T> GetOrCreateObject<T>(
       Func<IServiceProvider?, ICatalogObject<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
-  {
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
     return (ICatalogObject<T>)entry;
   }
@@ -190,14 +185,12 @@ public abstract class DataCatalogBase
   /// then invokes each getter once to populate the cache.
   /// </para>
   /// </remarks>
-  protected void InitializeCatalogProperties()
-  {
+  protected void InitializeCatalogProperties() {
     var catalogProperties = GetType()
         .GetProperties(BindingFlags.Public | BindingFlags.Instance)
         .Where(p => typeof(ICatalogEntry).IsAssignableFrom(p.PropertyType));
 
-    foreach (var property in catalogProperties)
-    {
+    foreach (var property in catalogProperties) {
       // Invoke getter to populate cache
       _ = property.GetValue(this);
     }
@@ -211,8 +204,7 @@ public abstract class DataCatalogBase
   /// Useful for diagnostic purposes or when you need to iterate over all entries
   /// (e.g., for validation, cleanup, or reporting).
   /// </remarks>
-  protected IEnumerable<ICatalogEntry> GetAllEntries()
-  {
+  protected IEnumerable<ICatalogEntry> GetAllEntries() {
     return _propertyCache.Values;
   }
 
@@ -229,8 +221,7 @@ public abstract class DataCatalogBase
   /// catalog state between test runs.
   /// </para>
   /// </remarks>
-  protected void ClearCache()
-  {
+  protected void ClearCache() {
     _propertyCache.Clear();
   }
 }

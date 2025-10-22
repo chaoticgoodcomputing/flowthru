@@ -22,8 +22,7 @@ namespace Flowthru.Pipelines;
 /// and enables simple DAG construction via topological sort.
 /// </para>
 /// </remarks>
-internal class PipelineNode
-{
+internal class PipelineNode {
   /// <summary>
   /// Unique identifier for this node within the pipeline.
   /// Typically the node type name or user-provided name.
@@ -111,8 +110,7 @@ internal class PipelineNode
     IReadOnlyList<ICatalogEntry> inputs,
     IReadOnlyList<ICatalogEntry> outputs,
     IReadOnlyList<Mapping.CatalogMapping>? inputMappings = null,
-    IReadOnlyList<Mapping.CatalogMapping>? outputMappings = null)
-  {
+    IReadOnlyList<Mapping.CatalogMapping>? outputMappings = null) {
     Name = name;
     NodeInstance = nodeInstance;
     Inputs = inputs;

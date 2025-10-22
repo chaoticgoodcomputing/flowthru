@@ -12,8 +12,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 /// This composite pattern is still valid for cases where outputs are truly atomic
 /// and should always be consumed together.
 /// </summary>
-public record TrainTestSplit
-{
+public record TrainTestSplit {
   /// <summary>
   /// Training features
   /// </summary>

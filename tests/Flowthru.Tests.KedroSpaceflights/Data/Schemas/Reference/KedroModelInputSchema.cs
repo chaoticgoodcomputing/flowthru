@@ -7,8 +7,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Reference;
 /// Contains all columns from the original Kedro spaceflights-pandas starter.
 /// Used for validation against Flowthru's implementation.
 /// </summary>
-public record KedroModelInputSchema
-{
+public record KedroModelInputSchema {
   // Shuttle properties
 
   [Name("shuttle_id")]

@@ -1,8 +1,8 @@
+using System.Reflection;
 using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Reference;
-using System.Reflection;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 
@@ -21,10 +21,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// but logs detailed comparison results for diagnostic purposes.
 /// </para>
 /// </remarks>
-public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, ModelInputSchema, NoParams>
-{
-  protected override Task<IEnumerable<ModelInputSchema>> Transform(IEnumerable<ValidateAgainstKedroInputs> inputs)
-  {
+public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, ModelInputSchema, NoParams> {
+  protected override Task<IEnumerable<ModelInputSchema>> Transform(IEnumerable<ValidateAgainstKedroInputs> inputs) {
     var input = inputs.Single();
     var flowthruData = input.FlowthruData.ToList();
     var kedroData = input.KedroData.ToList();
@@ -34,10 +32,7 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
 
     // Step 2: Row Count Comparison    Console.WriteLine(new string('-', 80));    Console.WriteLine($"  Kedro rows:    {kedroData.Count:N0}");
 
-    if (flowthruData.Count == kedroData.Count)
-    { }
-    else
-    {
+    if (flowthruData.Count == kedroData.Count) { } else {
       var diff = flowthruData.Count - kedroData.Count;
     }
 
@@ -48,8 +43,7 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     return Task.FromResult(flowthruData.AsEnumerable());
   }
 
-  private void CompareSchemas()
-  {
+  private void CompareSchemas() {
     var flowthruProps = typeof(ModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
     var kedroProps = typeof(KedroModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
     Console.WriteLine($"  Kedro schema:    {kedroProps.Length} properties");
@@ -61,12 +55,10 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     Console.WriteLine($"  ℹ Kedro has additional columns not used by Flowthru (shuttle_location, engine_type, etc.)");
   }
 
-  private void CompareDataValues(List<ModelInputSchema> flowthruData, List<KedroModelInputSchema> kedroData)
-  {
+  private void CompareDataValues(List<ModelInputSchema> flowthruData, List<KedroModelInputSchema> kedroData) {
     var minCount = Math.Min(flowthruData.Count, kedroData.Count);
 
-    if (minCount == 0)
-    {
+    if (minCount == 0) {
       return;
     }
 
@@ -81,19 +73,15 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     var flowthruOnlyKeys = flowthruKeys.Except(kedroKeys).ToList();
     var kedroOnlyKeys = kedroKeys.Except(flowthruKeys).ToList();
     Console.WriteLine($"  Flowthru-only IDs:  {flowthruOnlyKeys.Count:N0}");
-    if (flowthruOnlyKeys.Any())
-    { }
+    if (flowthruOnlyKeys.Any()) { }
 
-    if (kedroOnlyKeys.Any())
-    { }
+    if (kedroOnlyKeys.Any()) { }
 
-    if (commonKeys.Any())
-    {
+    if (commonKeys.Any()) {
       var mismatchCount = 0;
       var sampleCount = 0;
 
-      foreach (var shuttleId in commonKeys.Take(10))
-      {
+      foreach (var shuttleId in commonKeys.Take(10)) {
         var flowthru = flowthruDict[shuttleId];
         var kedro = kedroDict[shuttleId];
         sampleCount++;
@@ -101,70 +89,77 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
         var mismatches = new List<string>();
 
         // Compare common fields
-        if (!AreValuesEqual(flowthru.ShuttleType, kedro.ShuttleType))
+        if (!AreValuesEqual(flowthru.ShuttleType, kedro.ShuttleType)) {
           mismatches.Add($"ShuttleType: '{flowthru.ShuttleType}' vs '{kedro.ShuttleType}'");
-
-        if (!AreValuesEqual(flowthru.Engines, kedro.Engines))
-          mismatches.Add($"Engines: {flowthru.Engines} vs {kedro.Engines}");
-
-        if (!AreValuesEqual(flowthru.PassengerCapacity, kedro.PassengerCapacity))
-          mismatches.Add($"PassengerCapacity: {flowthru.PassengerCapacity} vs {kedro.PassengerCapacity}");
-
-        if (!AreValuesEqual(flowthru.Crew, kedro.Crew))
-          mismatches.Add($"Crew: {flowthru.Crew} vs {kedro.Crew}");
-
-        if (flowthru.DCheckComplete != kedro.DCheckComplete)
-          mismatches.Add($"DCheckComplete: {flowthru.DCheckComplete} vs {kedro.DCheckComplete}");
-
-        if (flowthru.MoonClearanceComplete != kedro.MoonClearanceComplete)
-          mismatches.Add($"MoonClearanceComplete: {flowthru.MoonClearanceComplete} vs {kedro.MoonClearanceComplete}");
-
-        if (!AreValuesEqual(flowthru.Price, kedro.Price))
-          mismatches.Add($"Price: {flowthru.Price} vs {kedro.Price}");
-
-        if (!AreValuesEqual(flowthru.CompanyId, kedro.CompanyId))
-          mismatches.Add($"CompanyId: '{flowthru.CompanyId}' vs '{kedro.CompanyId}'");
-
-        if (!AreValuesEqual(flowthru.CompanyRating, kedro.CompanyRating))
-          mismatches.Add($"CompanyRating: {flowthru.CompanyRating} vs {kedro.CompanyRating}");
-
-        if (!AreValuesEqual(flowthru.CompanyLocation, kedro.CompanyLocation))
-          mismatches.Add($"CompanyLocation: '{flowthru.CompanyLocation}' vs '{kedro.CompanyLocation}'");
-
-        if (flowthru.IataApproved != kedro.IataApproved)
-          mismatches.Add($"IataApproved: {flowthru.IataApproved} vs {kedro.IataApproved}");
-
-        if (!AreValuesEqual(flowthru.ReviewScoresRating, kedro.ReviewScoresRating))
-          mismatches.Add($"ReviewScoresRating: {flowthru.ReviewScoresRating} vs {kedro.ReviewScoresRating}");
-
-        if (mismatches.Any())
-        {
-          foreach (var mismatch in mismatches.Take(3))
-          { }
-          if (mismatches.Count > 3)
-          { }
-          mismatchCount++;
         }
-        else if (sampleCount <= 3)
-        { }
+
+        if (!AreValuesEqual(flowthru.Engines, kedro.Engines)) {
+          mismatches.Add($"Engines: {flowthru.Engines} vs {kedro.Engines}");
+        }
+
+        if (!AreValuesEqual(flowthru.PassengerCapacity, kedro.PassengerCapacity)) {
+          mismatches.Add($"PassengerCapacity: {flowthru.PassengerCapacity} vs {kedro.PassengerCapacity}");
+        }
+
+        if (!AreValuesEqual(flowthru.Crew, kedro.Crew)) {
+          mismatches.Add($"Crew: {flowthru.Crew} vs {kedro.Crew}");
+        }
+
+        if (flowthru.DCheckComplete != kedro.DCheckComplete) {
+          mismatches.Add($"DCheckComplete: {flowthru.DCheckComplete} vs {kedro.DCheckComplete}");
+        }
+
+        if (flowthru.MoonClearanceComplete != kedro.MoonClearanceComplete) {
+          mismatches.Add($"MoonClearanceComplete: {flowthru.MoonClearanceComplete} vs {kedro.MoonClearanceComplete}");
+        }
+
+        if (!AreValuesEqual(flowthru.Price, kedro.Price)) {
+          mismatches.Add($"Price: {flowthru.Price} vs {kedro.Price}");
+        }
+
+        if (!AreValuesEqual(flowthru.CompanyId, kedro.CompanyId)) {
+          mismatches.Add($"CompanyId: '{flowthru.CompanyId}' vs '{kedro.CompanyId}'");
+        }
+
+        if (!AreValuesEqual(flowthru.CompanyRating, kedro.CompanyRating)) {
+          mismatches.Add($"CompanyRating: {flowthru.CompanyRating} vs {kedro.CompanyRating}");
+        }
+
+        if (!AreValuesEqual(flowthru.CompanyLocation, kedro.CompanyLocation)) {
+          mismatches.Add($"CompanyLocation: '{flowthru.CompanyLocation}' vs '{kedro.CompanyLocation}'");
+        }
+
+        if (flowthru.IataApproved != kedro.IataApproved) {
+          mismatches.Add($"IataApproved: {flowthru.IataApproved} vs {kedro.IataApproved}");
+        }
+
+        if (!AreValuesEqual(flowthru.ReviewScoresRating, kedro.ReviewScoresRating)) {
+          mismatches.Add($"ReviewScoresRating: {flowthru.ReviewScoresRating} vs {kedro.ReviewScoresRating}");
+        }
+
+        if (mismatches.Any()) {
+          foreach (var mismatch in mismatches.Take(3)) { }
+          if (mismatches.Count > 3) { }
+          mismatchCount++;
+        } else if (sampleCount <= 3) { }
       }
 
-      if (mismatchCount == 0)
-      { }
-      else
-      { }
+      if (mismatchCount == 0) { } else { }
     }
   }
 
-  private bool AreValuesEqual(object? value1, object? value2)
-  {
-    if (value1 == null && value2 == null) return true;
-    if (value1 == null || value2 == null) return false;
+  private bool AreValuesEqual(object? value1, object? value2) {
+    if (value1 == null && value2 == null) {
+      return true;
+    }
+
+    if (value1 == null || value2 == null) {
+      return false;
+    }
 
     // Handle numeric comparisons (int vs double, decimal, etc.)
     // Convert both to double for comparison with tolerance
-    if (IsNumeric(value1) && IsNumeric(value2))
-    {
+    if (IsNumeric(value1) && IsNumeric(value2)) {
       var num1 = Convert.ToDouble(value1);
       var num2 = Convert.ToDouble(value2);
       return Math.Abs(num1 - num2) < 0.01;
@@ -173,8 +168,7 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
     return value1.Equals(value2);
   }
 
-  private bool IsNumeric(object value)
-  {
+  private bool IsNumeric(object value) {
     return value is int or long or short or byte
         or uint or ulong or ushort or sbyte
         or float or double or decimal;
@@ -186,8 +180,7 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
 /// <summary>
 /// Multi-input schema for ValidateAgainstKedroNode.
 /// </summary>
-public record ValidateAgainstKedroInputs
-{
+public record ValidateAgainstKedroInputs {
   /// <summary>
   /// Model input table produced by Flowthru pipeline
   /// </summary>

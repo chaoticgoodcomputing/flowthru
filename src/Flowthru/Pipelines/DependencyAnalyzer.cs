@@ -22,8 +22,7 @@ namespace Flowthru.Pipelines;
 /// - Layer N: Nodes whose dependencies are all in layers 0..N-1
 /// </para>
 /// </remarks>
-internal static class DependencyAnalyzer
-{
+internal static class DependencyAnalyzer {
   /// <summary>
   /// Analyzes dependencies and assigns execution layers to all nodes.
   /// </summary>
@@ -33,8 +32,7 @@ internal static class DependencyAnalyzer
   /// - Multiple nodes write to the same catalog entry (violates single producer rule)
   /// - A circular dependency is detected
   /// </exception>
-  public static void AnalyzeAndAssignLayers(List<PipelineNode> nodes)
-  {
+  public static void AnalyzeAndAssignLayers(List<PipelineNode> nodes) {
     // Step 1: Build producer map (catalog entry → node that produces it)
     var producerMap = BuildProducerMap(nodes);
 
@@ -53,16 +51,12 @@ internal static class DependencyAnalyzer
   /// <exception cref="InvalidOperationException">
   /// Thrown if multiple nodes write to the same catalog entry
   /// </exception>
-  private static Dictionary<ICatalogEntry, PipelineNode> BuildProducerMap(List<PipelineNode> nodes)
-  {
+  private static Dictionary<ICatalogEntry, PipelineNode> BuildProducerMap(List<PipelineNode> nodes) {
     var producerMap = new Dictionary<ICatalogEntry, PipelineNode>();
 
-    foreach (var node in nodes)
-    {
-      foreach (var output in node.Outputs)
-      {
-        if (producerMap.TryGetValue(output, out var existingProducer))
-        {
+    foreach (var node in nodes) {
+      foreach (var output in node.Outputs) {
+        if (producerMap.TryGetValue(output, out var existingProducer)) {
           throw new InvalidOperationException(
             $"Catalog entry '{output.Key}' is produced by multiple nodes: " +
             $"'{existingProducer.Name}' and '{node.Name}'. " +
@@ -83,18 +77,13 @@ internal static class DependencyAnalyzer
   /// <param name="producerMap">Map of catalog entries to their producer nodes</param>
   private static void ResolveDependencies(
     List<PipelineNode> nodes,
-    Dictionary<ICatalogEntry, PipelineNode> producerMap)
-  {
-    foreach (var node in nodes)
-    {
-      foreach (var input in node.Inputs)
-      {
+    Dictionary<ICatalogEntry, PipelineNode> producerMap) {
+    foreach (var node in nodes) {
+      foreach (var input in node.Inputs) {
         // If this input is produced by another node, add it as a dependency
-        if (producerMap.TryGetValue(input, out var producer))
-        {
+        if (producerMap.TryGetValue(input, out var producer)) {
           // Don't add self-dependencies (would be caught in cycle detection anyway)
-          if (producer != node)
-          {
+          if (producer != node) {
             node.Dependencies.Add(producer);
           }
         }
@@ -108,36 +97,32 @@ internal static class DependencyAnalyzer
   /// </summary>
   /// <param name="nodes">All nodes in the pipeline</param>
   /// <exception cref="InvalidOperationException">Thrown if a circular dependency is detected</exception>
-  private static void AssignLayers(List<PipelineNode> nodes)
-  {
+  private static void AssignLayers(List<PipelineNode> nodes) {
     // Track which nodes have been assigned layers
     var assigned = new HashSet<PipelineNode>();
     var currentLayer = 0;
 
     // Keep assigning layers until all nodes are processed
-    while (assigned.Count < nodes.Count)
-    {
+    while (assigned.Count < nodes.Count) {
       var nodesInCurrentLayer = new List<PipelineNode>();
 
       // Find nodes whose dependencies are all already assigned
-      foreach (var node in nodes)
-      {
-        if (assigned.Contains(node))
+      foreach (var node in nodes) {
+        if (assigned.Contains(node)) {
           continue; // Already assigned
+        }
 
         // Check if all dependencies have been assigned
         var allDependenciesAssigned = node.Dependencies.All(dep => assigned.Contains(dep));
 
-        if (allDependenciesAssigned)
-        {
+        if (allDependenciesAssigned) {
           node.Layer = currentLayer;
           nodesInCurrentLayer.Add(node);
         }
       }
 
       // If no nodes were assigned this iteration, we have a cycle
-      if (nodesInCurrentLayer.Count == 0)
-      {
+      if (nodesInCurrentLayer.Count == 0) {
         var unassignedNodes = nodes.Where(n => !assigned.Contains(n)).Select(n => n.Name);
         throw new InvalidOperationException(
           $"Circular dependency detected in pipeline. " +
@@ -145,8 +130,7 @@ internal static class DependencyAnalyzer
       }
 
       // Mark these nodes as assigned and move to next layer
-      foreach (var node in nodesInCurrentLayer)
-      {
+      foreach (var node in nodesInCurrentLayer) {
         assigned.Add(node);
       }
 
@@ -159,8 +143,7 @@ internal static class DependencyAnalyzer
   /// </summary>
   /// <param name="nodes">All nodes in the pipeline (must have layers assigned)</param>
   /// <returns>Nodes grouped by layer, ordered by layer number</returns>
-  public static IEnumerable<List<PipelineNode>> GroupByLayer(List<PipelineNode> nodes)
-  {
+  public static IEnumerable<List<PipelineNode>> GroupByLayer(List<PipelineNode> nodes) {
     return nodes
       .GroupBy(n => n.Layer)
       .OrderBy(g => g.Key)

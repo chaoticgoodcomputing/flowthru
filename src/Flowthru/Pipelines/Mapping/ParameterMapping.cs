@@ -11,16 +11,14 @@ namespace Flowthru.Pipelines.Mapping;
 /// Attempting to use a CatalogMap with parameter mappings in the output position will
 /// cause a runtime error.
 /// </remarks>
-internal class ParameterMapping : CatalogMapping
-{
+internal class ParameterMapping : CatalogMapping {
   /// <summary>
   /// The constant value to map to this property.
   /// </summary>
   public object Value { get; }
 
   public ParameterMapping(PropertyInfo property, object value)
-      : base(property)
-  {
+      : base(property) {
     Value = value; // Null is allowed as a parameter value
   }
 

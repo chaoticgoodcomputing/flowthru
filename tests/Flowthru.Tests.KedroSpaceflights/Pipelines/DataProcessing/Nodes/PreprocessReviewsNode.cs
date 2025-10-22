@@ -1,6 +1,6 @@
 using Flowthru.Nodes;
-using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
+using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 
@@ -11,11 +11,9 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessReviewsNode : NodeBase<ReviewRawSchema, ReviewSchema>
-{
+public class PreprocessReviewsNode : NodeBase<ReviewRawSchema, ReviewSchema> {
   protected override Task<IEnumerable<ReviewSchema>> Transform(
-      IEnumerable<ReviewRawSchema> input)
-  {
+      IEnumerable<ReviewRawSchema> input) {
     var processed = input
         .Select(r => TryParse(r))
         .Where(r => r != null)
@@ -28,8 +26,7 @@ public class PreprocessReviewsNode : NodeBase<ReviewRawSchema, ReviewSchema>
   /// Attempts to parse a raw review record into a processed review.
   /// Returns null if any required field is missing or invalid.
   /// </summary>
-  private static ReviewSchema? TryParse(ReviewRawSchema raw)
-  {
+  private static ReviewSchema? TryParse(ReviewRawSchema raw) {
     // Parse all fields
     var reviewScoresRating = ParseDecimal(raw.ReviewScoresRating);
     var reviewScoresComfort = ParseDecimal(raw.ReviewScoresComfort);
@@ -51,14 +48,12 @@ public class PreprocessReviewsNode : NodeBase<ReviewRawSchema, ReviewSchema>
         || !reviewScoresLocation.HasValue
         || !reviewScoresPrice.HasValue
         || !numberOfReviews.HasValue
-        || !reviewsPerMonth.HasValue)
-    {
+        || !reviewsPerMonth.HasValue) {
       return null; // Parse failed - incomplete record
     }
 
     // Parse succeeded - return validated, non-nullable type
-    return new ReviewSchema
-    {
+    return new ReviewSchema {
       ShuttleId = raw.ShuttleId,
       ReviewScoresRating = reviewScoresRating.Value,
       ReviewScoresComfort = reviewScoresComfort.Value,
@@ -75,13 +70,14 @@ public class PreprocessReviewsNode : NodeBase<ReviewRawSchema, ReviewSchema>
   /// <summary>
   /// Parses decimal from string, returns null if empty/invalid
   /// </summary>
-  private static decimal? ParseDecimal(string? value)
-  {
-    if (string.IsNullOrWhiteSpace(value))
+  private static decimal? ParseDecimal(string? value) {
+    if (string.IsNullOrWhiteSpace(value)) {
       return null;
+    }
 
-    if (decimal.TryParse(value, out var result))
+    if (decimal.TryParse(value, out var result)) {
       return result;
+    }
 
     return null;
   }
@@ -89,13 +85,14 @@ public class PreprocessReviewsNode : NodeBase<ReviewRawSchema, ReviewSchema>
   /// <summary>
   /// Parses integer from string, returns null if empty/invalid
   /// </summary>
-  private static int? ParseInt(string? value)
-  {
-    if (string.IsNullOrWhiteSpace(value))
+  private static int? ParseInt(string? value) {
+    if (string.IsNullOrWhiteSpace(value)) {
       return null;
+    }
 
-    if (int.TryParse(value, out var result))
+    if (int.TryParse(value, out var result)) {
       return result;
+    }
 
     return null;
   }

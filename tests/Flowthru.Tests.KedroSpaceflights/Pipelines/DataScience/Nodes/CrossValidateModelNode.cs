@@ -1,9 +1,9 @@
 using Flowthru.Nodes;
-using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
+using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
+using Microsoft.Extensions.Logging;
 using Microsoft.ML;
 using Microsoft.ML.Data;
-using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 
@@ -14,17 +14,14 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// This node runs the entire train/evaluate cycle multiple times with different
 /// random seeds to measure the natural variance in model performance.
 /// </summary>
-public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidationResults, CrossValidationOptions>
-{
+public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidationResults, CrossValidationOptions> {
   protected override Task<IEnumerable<CrossValidationResults>> Transform(
-      IEnumerable<ModelInputSchema> input)
-  {
+      IEnumerable<ModelInputSchema> input) {
     var data = input.ToList();
     Logger?.LogInformation("Starting cross-validation with {Folds} folds", Parameters.NumFolds);
 
     // Convert to feature rows
-    var featureRows = data.Select(row => new FeatureRow
-    {
+    var featureRows = data.Select(row => new FeatureRow {
       Engines = (float)row.Engines,
       PassengerCapacity = (float)row.PassengerCapacity,
       Crew = (float)row.Crew,
@@ -76,8 +73,7 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
         labelColumnName: "Label");
 
     // Extract metrics from each fold
-    var foldMetrics = cvResults.Select((result, index) => new FoldMetric
-    {
+    var foldMetrics = cvResults.Select((result, index) => new FoldMetric {
       FoldNumber = index + 1,
       R2Score = result.Metrics.RSquared,
       MeanAbsoluteError = result.Metrics.MeanAbsoluteError,
@@ -100,14 +96,12 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
         Math.Abs(meanR2 - Parameters.KedroReferenceR2Score),
         Math.Abs(meanR2 - Parameters.KedroReferenceR2Score) / Parameters.KedroReferenceR2Score * 100);
 
-    foreach (var fold in foldMetrics)
-    {
+    foreach (var fold in foldMetrics) {
       Logger?.LogInformation("  Fold {Fold}: R²={R2:F4}, MAE={MAE:F2}, RMSE={RMSE:F2}",
           fold.FoldNumber, fold.R2Score, fold.MeanAbsoluteError, fold.RootMeanSquaredError);
     }
 
-    var results = new CrossValidationResults
-    {
+    var results = new CrossValidationResults {
       FoldMetrics = foldMetrics,
       MeanR2Score = meanR2,
       StdDevR2Score = stdDevR2,

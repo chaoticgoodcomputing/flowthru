@@ -28,7 +28,6 @@ namespace Flowthru.Nodes;
 /// }
 /// </code>
 /// </remarks>
-public sealed class NoParams
-{
+public sealed class NoParams {
   // Empty marker class - no properties or methods needed
 }

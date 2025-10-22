@@ -49,8 +49,7 @@ namespace Flowthru.Pipelines;
 /// await pipeline.ExecuteAsync();
 /// </code>
 /// </remarks>
-public class PipelineBuilder
-{
+public class PipelineBuilder {
   private readonly Pipeline _pipeline = new();
 
   /// <summary>
@@ -61,8 +60,7 @@ public class PipelineBuilder
   /// <remarks>
   /// The returned pipeline must have Build() called before execution.
   /// </remarks>
-  public static Pipeline CreatePipeline(Action<PipelineBuilder> configure)
-  {
+  public static Pipeline CreatePipeline(Action<PipelineBuilder> configure) {
     var builder = new PipelineBuilder();
     configure(builder);
     return builder._pipeline;
@@ -106,8 +104,7 @@ public class PipelineBuilder
     string? name = null,
     Action<TNode>? configure = null)
     where TNode : NodeBase<TItem, TOutputItem, TParameters>, new()
-    where TParameters : new()
-  {
+    where TParameters : new() {
     var node = new TNode();
     configure?.Invoke(node);
 
@@ -169,8 +166,7 @@ public class PipelineBuilder
     Action<TNode>? configure = null)
     where TNode : NodeBase<TInputSchema, TOutputItem, TParameters>, new()
     where TInputSchema : new()
-    where TParameters : new()
-  {
+    where TParameters : new() {
     var node = new TNode();
     configure?.Invoke(node);
 
@@ -239,8 +235,7 @@ public class PipelineBuilder
     Action<TNode>? configure = null)
     where TNode : NodeBase<TItem, TOutputSchema, TParameters>, new()
     where TOutputSchema : new()
-    where TParameters : new()
-  {
+    where TParameters : new() {
     var node = new TNode();
     configure?.Invoke(node);
 
@@ -297,8 +292,7 @@ public class PipelineBuilder
     where TNode : NodeBase<TInputSchema, TOutputSchema, TParameters>, new()
     where TInputSchema : new()
     where TOutputSchema : new()
-    where TParameters : new()
-  {
+    where TParameters : new() {
     var node = new TNode();
     configure?.Invoke(node);
 

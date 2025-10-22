@@ -1,8 +1,8 @@
-using Flowthru.Data;
-using Flowthru.Nodes.Factory;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
+using Flowthru.Data;
+using Flowthru.Nodes.Factory;
 
 namespace Flowthru.Pipelines.Mapping;
 
@@ -99,8 +99,7 @@ namespace Flowthru.Pipelines.Mapping;
 /// Current recommendation: Wait for concrete use cases before adding complexity.
 /// </para>
 /// </remarks>
-public class CatalogMap<T> where T : new()
-{
+public class CatalogMap<T> where T : new() {
   private readonly List<CatalogMapping> _mappings = new();
   private readonly bool _isPassThrough;
   private readonly ICatalogEntry? _passThroughEntry;
@@ -114,16 +113,14 @@ public class CatalogMap<T> where T : new()
   /// <summary>
   /// Creates a new mapped catalog map (for multi-input/output scenarios).
   /// </summary>
-  public CatalogMap()
-  {
+  public CatalogMap() {
     _isPassThrough = false;
   }
 
   /// <summary>
   /// Private constructor for pass-through mode (single catalog entry).
   /// </summary>
-  private CatalogMap(ICatalogEntry entry)
-  {
+  private CatalogMap(ICatalogEntry entry) {
     _isPassThrough = true;
     _passThroughEntry = entry ?? throw new ArgumentNullException(nameof(entry));
   }
@@ -155,10 +152,8 @@ public class CatalogMap<T> where T : new()
   /// </remarks>
   public CatalogMap<T> Map<TProp>(
       Expression<Func<T, TProp>> propertySelector,
-      ICatalogEntry catalogEntry)
-  {
-    if (_isPassThrough)
-    {
+      ICatalogEntry catalogEntry) {
+    if (_isPassThrough) {
       throw new InvalidOperationException(
           "Cannot add mappings to a pass-through CatalogMap. " +
           "Pass-through maps are created via FromEntry() for single catalog entries.");
@@ -192,10 +187,8 @@ public class CatalogMap<T> where T : new()
   /// </remarks>
   public CatalogMap<T> MapParameter<TProp>(
       Expression<Func<T, TProp>> propertySelector,
-      TProp value)
-  {
-    if (_isPassThrough)
-    {
+      TProp value) {
+    if (_isPassThrough) {
       throw new InvalidOperationException(
           "Cannot add mappings to a pass-through CatalogMap.");
     }
@@ -216,8 +209,7 @@ public class CatalogMap<T> where T : new()
   /// Used by PipelineBuilder overloads 1 and 3 to automatically wrap single
   /// catalog entries for simple nodes.
   /// </remarks>
-  public static CatalogMap<T> FromEntry(ICatalogEntry entry)
-  {
+  public static CatalogMap<T> FromEntry(ICatalogEntry entry) {
     return new CatalogMap<T>(entry);
   }
 
@@ -242,10 +234,8 @@ public class CatalogMap<T> where T : new()
   /// See class-level remarks for Phase 2 upgrade path (Roslyn analyzer).
   /// </para>
   /// </remarks>
-  public void ValidateComplete()
-  {
-    if (_isPassThrough)
-    {
+  public void ValidateComplete() {
+    if (_isPassThrough) {
       // Pass-through maps are always "complete" by definition
       return;
     }
@@ -262,8 +252,7 @@ public class CatalogMap<T> where T : new()
         .Where(p => !mappedProperties.Contains(p))
         .ToList();
 
-    if (unmappedProperties.Any())
-    {
+    if (unmappedProperties.Any()) {
       var unmappedNames = string.Join(", ", unmappedProperties.Select(p => p.Name));
       throw new InvalidOperationException(
           $"CatalogMap<{typeof(T).Name}> is incomplete. " +
@@ -281,10 +270,8 @@ public class CatalogMap<T> where T : new()
   /// For mapped mode, returns all catalog entries from CatalogPropertyMappings
   /// (excludes ParameterMappings since they don't represent dependencies).
   /// </remarks>
-  internal IEnumerable<ICatalogEntry> GetMappedEntries()
-  {
-    if (_isPassThrough)
-    {
+  internal IEnumerable<ICatalogEntry> GetMappedEntries() {
+    if (_isPassThrough) {
       return new[] { _passThroughEntry! };
     }
 
@@ -305,16 +292,12 @@ public class CatalogMap<T> where T : new()
   /// <remarks>
   /// See class-level remarks for detailed explanation of singleton behavior and Phase 2 upgrade path.
   /// </remarks>
-  internal async Task<T> LoadAsync()
-  {
-    if (_isPassThrough)
-    {
+  internal async Task<T> LoadAsync() {
+    if (_isPassThrough) {
       // Pass-through: load directly from catalog entry (using untyped API)
       var data = await _passThroughEntry!.LoadUntyped();
       return (T)data;
-    }
-    else
-    {
+    } else {
       // Mapped: load all catalog entries and construct single T instance
       var instance = await LoadMappedInstanceAsync();
       return instance;
@@ -329,15 +312,11 @@ public class CatalogMap<T> where T : new()
   /// <exception cref="InvalidOperationException">
   /// Thrown if this CatalogMap contains parameter mappings (parameters are input-only)
   /// </exception>
-  internal async Task SaveAsync(T data)
-  {
-    if (_isPassThrough)
-    {
+  internal async Task SaveAsync(T data) {
+    if (_isPassThrough) {
       // Pass-through: save directly to catalog entry (using untyped API)
       await _passThroughEntry!.SaveUntyped(data!);
-    }
-    else
-    {
+    } else {
       // Mapped: extract properties and save to catalog entries
       await SaveMappedInstanceAsync(data);
     }
@@ -351,10 +330,8 @@ public class CatalogMap<T> where T : new()
   /// <summary>
   /// Gets the catalog entries referenced by this map (for dependency analysis).
   /// </summary>
-  internal IEnumerable<ICatalogEntry> GetCatalogEntries()
-  {
-    if (_isPassThrough)
-    {
+  internal IEnumerable<ICatalogEntry> GetCatalogEntries() {
+    if (_isPassThrough) {
       return new[] { _passThroughEntry! };
     }
 
@@ -363,13 +340,11 @@ public class CatalogMap<T> where T : new()
         .Select(m => m.CatalogEntry);
   }
 
-  private async Task<T> LoadMappedInstanceAsync()
-  {
+  private async Task<T> LoadMappedInstanceAsync() {
     // Load all catalog entries in parallel
     var catalogMappings = _mappings.OfType<CatalogPropertyMapping>().ToList();
     var loadTasks = catalogMappings
-        .Select(async m => new
-        {
+        .Select(async m => new {
           m.Property,
           Data = await m.CatalogEntry.LoadUntyped()
         })
@@ -384,14 +359,12 @@ public class CatalogMap<T> where T : new()
     var instance = TypeActivator.Create<T>();
 
     // Set properties from loaded data
-    foreach (var item in loadedData)
-    {
+    foreach (var item in loadedData) {
       item.Property.SetValue(instance, item.Data);
     }
 
     // Set properties from parameters
-    foreach (var param in parameterMappings)
-    {
+    foreach (var param in parameterMappings) {
       param.Property.SetValue(instance, param.Value);
     }
 
@@ -399,12 +372,10 @@ public class CatalogMap<T> where T : new()
     return instance;
   }
 
-  private async Task SaveMappedInstanceAsync(T data)
-  {
+  private async Task SaveMappedInstanceAsync(T data) {
     // Check for parameter mappings (invalid in output direction)
     var parameterMappings = _mappings.OfType<ParameterMapping>().ToList();
-    if (parameterMappings.Any())
-    {
+    if (parameterMappings.Any()) {
       throw new InvalidOperationException(
           "Cannot save using a CatalogMap that contains parameter mappings. " +
           "Parameter mappings are input-only.");
@@ -414,11 +385,9 @@ public class CatalogMap<T> where T : new()
 
     // Extract property values and save to catalog entries in parallel
     var saveTasks = catalogMappings
-        .Select(async m =>
-        {
+        .Select(async m => {
           var propertyValue = m.Property.GetValue(data);
-          if (propertyValue != null)
-          {
+          if (propertyValue != null) {
             await m.CatalogEntry.SaveUntyped(propertyValue);
           }
         });
@@ -426,11 +395,9 @@ public class CatalogMap<T> where T : new()
     await Task.WhenAll(saveTasks);
   }
 
-  private PropertyInfo ExtractPropertyInfo<TProp>(Expression<Func<T, TProp>> selector)
-  {
+  private PropertyInfo ExtractPropertyInfo<TProp>(Expression<Func<T, TProp>> selector) {
     if (selector.Body is MemberExpression memberExpression &&
-        memberExpression.Member is PropertyInfo propertyInfo)
-    {
+        memberExpression.Member is PropertyInfo propertyInfo) {
       return propertyInfo;
     }
 
@@ -439,10 +406,8 @@ public class CatalogMap<T> where T : new()
         nameof(selector));
   }
 
-  private void ValidatePropertyType(PropertyInfo property, Type expectedType)
-  {
-    if (property.PropertyType != expectedType)
-    {
+  private void ValidatePropertyType(PropertyInfo property, Type expectedType) {
+    if (property.PropertyType != expectedType) {
       throw new InvalidOperationException(
           $"Property '{property.Name}' has type {property.PropertyType.Name}, " +
           $"but mapping expects type {expectedType.Name}");

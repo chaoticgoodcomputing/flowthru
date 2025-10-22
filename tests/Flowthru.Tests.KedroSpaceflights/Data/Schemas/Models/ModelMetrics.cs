@@ -4,8 +4,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 /// Model evaluation metrics.
 /// Output of EvaluateModelNode.
 /// </summary>
-public record ModelMetrics
-{
+public record ModelMetrics {
   /// <summary>
   /// R² Score (coefficient of determination)
   /// </summary>

@@ -7,8 +7,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 /// Output of CreateModelInputTableNode.
 /// Matches Kedro's full merged dataset with all 27 columns for apples-to-apples comparison.
 /// </summary>
-public record ModelInputSchema
-{
+public record ModelInputSchema {
   // Shuttle columns (from shuttles table)
 
   /// <summary>

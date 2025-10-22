@@ -16,8 +16,7 @@ namespace Flowthru.Nodes.Factory;
 /// - Node decoration/wrapping
 /// </para>
 /// </remarks>
-public static class NodeFactory
-{
+public static class NodeFactory {
   /// <summary>
   /// Creates a new instance of the specified node type.
   /// </summary>
@@ -34,8 +33,7 @@ public static class NodeFactory
   /// PipelineBuilder.AddNode methods.
   /// </para>
   /// </remarks>
-  public static TNode Create<TNode>() where TNode : new()
-  {
+  public static TNode Create<TNode>() where TNode : new() {
     return TypeActivator.Create<TNode>();
   }
 }

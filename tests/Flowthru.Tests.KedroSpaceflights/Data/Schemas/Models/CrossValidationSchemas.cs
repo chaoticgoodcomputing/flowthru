@@ -3,8 +3,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 /// <summary>
 /// Results from cross-validation analysis
 /// </summary>
-public record CrossValidationResults
-{
+public record CrossValidationResults {
   /// <summary>
   /// Metrics for each fold
   /// </summary>
@@ -49,8 +48,7 @@ public record CrossValidationResults
 /// <summary>
 /// Metrics for a single cross-validation fold
 /// </summary>
-public record FoldMetric
-{
+public record FoldMetric {
   /// <summary>
   /// Fold number (1-indexed)
   /// </summary>
@@ -80,8 +78,7 @@ public record FoldMetric
 /// <summary>
 /// Parameters for cross-validation analysis
 /// </summary>
-public record CrossValidationOptions
-{
+public record CrossValidationOptions {
   /// <summary>
   /// Number of folds for k-fold cross-validation
   /// </summary>

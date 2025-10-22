@@ -13,15 +13,13 @@ namespace Flowthru.Pipelines.Mapping;
 /// entries vs. constant parameters).
 /// </para>
 /// </remarks>
-internal abstract class CatalogMapping
-{
+internal abstract class CatalogMapping {
   /// <summary>
   /// The property info for the property being mapped.
   /// </summary>
   public PropertyInfo Property { get; }
 
-  protected CatalogMapping(PropertyInfo property)
-  {
+  protected CatalogMapping(PropertyInfo property) {
     Property = property ?? throw new ArgumentNullException(nameof(property));
   }
 

@@ -14,8 +14,7 @@ namespace Flowthru.Parameters;
 /// accessed directly by user code.
 /// </para>
 /// </remarks>
-internal class ParameterStore
-{
+internal class ParameterStore {
   private readonly Dictionary<string, object> _parameters = new();
 
   /// <summary>
@@ -23,10 +22,10 @@ internal class ParameterStore
   /// </summary>
   /// <param name="pipelineName">The pipeline name</param>
   /// <param name="parameters">The parameter object</param>
-  public void Set(string pipelineName, object parameters)
-  {
-    if (string.IsNullOrWhiteSpace(pipelineName))
+  public void Set(string pipelineName, object parameters) {
+    if (string.IsNullOrWhiteSpace(pipelineName)) {
       throw new ArgumentException("Pipeline name cannot be null or empty", nameof(pipelineName));
+    }
 
     _parameters[pipelineName] = parameters ?? throw new ArgumentNullException(nameof(parameters));
   }
@@ -37,10 +36,8 @@ internal class ParameterStore
   /// <typeparam name="T">The expected parameter type</typeparam>
   /// <param name="pipelineName">The pipeline name</param>
   /// <returns>The parameters, or null if not found</returns>
-  public T? Get<T>(string pipelineName) where T : class
-  {
-    if (_parameters.TryGetValue(pipelineName, out var parameters))
-    {
+  public T? Get<T>(string pipelineName) where T : class {
+    if (_parameters.TryGetValue(pipelineName, out var parameters)) {
       return parameters as T;
     }
 
@@ -52,8 +49,7 @@ internal class ParameterStore
   /// </summary>
   /// <param name="pipelineName">The pipeline name</param>
   /// <returns>True if parameters exist for the pipeline</returns>
-  public bool Contains(string pipelineName)
-  {
+  public bool Contains(string pipelineName) {
     return _parameters.ContainsKey(pipelineName);
   }
 }

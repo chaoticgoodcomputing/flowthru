@@ -1,6 +1,6 @@
 using Flowthru.Nodes;
-using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
+using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 
@@ -11,11 +11,9 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema>
-{
+public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema> {
   protected override Task<IEnumerable<ShuttleSchema>> Transform(
-      IEnumerable<ShuttleRawSchema> input)
-  {
+      IEnumerable<ShuttleRawSchema> input) {
     var processed = input
         .Select(s => TryParse(s))
         .Where(s => s != null)
@@ -28,8 +26,7 @@ public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema>
   /// Attempts to parse a raw shuttle record into a processed shuttle.
   /// Returns null if any required field is missing or invalid.
   /// </summary>
-  private static ShuttleSchema? TryParse(ShuttleRawSchema raw)
-  {
+  private static ShuttleSchema? TryParse(ShuttleRawSchema raw) {
     // Parse fields that might fail
     var engines = ParseInt(raw.Engines);
     var passengerCapacity = ParseInt(raw.PassengerCapacity);
@@ -43,14 +40,12 @@ public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema>
         || string.IsNullOrWhiteSpace(raw.ShuttleType)
         || string.IsNullOrWhiteSpace(raw.EngineType)
         || string.IsNullOrWhiteSpace(raw.EngineVendor)
-        || string.IsNullOrWhiteSpace(raw.CancellationPolicy))
-    {
+        || string.IsNullOrWhiteSpace(raw.CancellationPolicy)) {
       return null; // Parse failed - incomplete record
     }
 
     // Parse succeeded - return validated, non-nullable type
-    return new ShuttleSchema
-    {
+    return new ShuttleSchema {
       Id = raw.Id,
       CompanyId = raw.CompanyId,
       ShuttleLocation = raw.ShuttleLocation,
@@ -75,14 +70,15 @@ public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema>
   /// <summary>
   /// Parses money string (e.g., "$1,234,567") to decimal
   /// </summary>
-  private static decimal ParseMoney(string value)
-  {
-    if (string.IsNullOrWhiteSpace(value))
+  private static decimal ParseMoney(string value) {
+    if (string.IsNullOrWhiteSpace(value)) {
       return 0m;
+    }
 
     var cleaned = value.Replace("$", "").Replace(",", "").Trim();
-    if (decimal.TryParse(cleaned, out var result))
+    if (decimal.TryParse(cleaned, out var result)) {
       return result;
+    }
 
     return 0m;
   }
@@ -90,13 +86,14 @@ public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema>
   /// <summary>
   /// Parses integer from string, returns null if empty/invalid
   /// </summary>
-  private static int? ParseInt(string? value)
-  {
-    if (string.IsNullOrWhiteSpace(value))
+  private static int? ParseInt(string? value) {
+    if (string.IsNullOrWhiteSpace(value)) {
       return null;
+    }
 
-    if (int.TryParse(value, out var result))
+    if (int.TryParse(value, out var result)) {
       return result;
+    }
 
     return null;
   }
