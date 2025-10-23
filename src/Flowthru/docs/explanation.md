@@ -85,11 +85,11 @@ builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Cr
 
 **Inspection Levels:**
 
-| Level | Validates | Performance | When to Use |
-|-------|-----------|-------------|-------------|
-| **None** | Nothing (skips inspection) | Instant | Known-good data, performance-critical |
-| **Shallow** (default) | File exists, format valid, schema matches, sample rows | Fast (seconds) | Development, testing, most production |
-| **Deep** (opt-in) | Everything + all rows validated | Slow (minutes for large datasets) | Critical production data, first-time ingestion |
+| Level                 | Validates                                              | Performance                       | When to Use                                    |
+| --------------------- | ------------------------------------------------------ | --------------------------------- | ---------------------------------------------- |
+| **None**              | Nothing (skips inspection)                             | Instant                           | Known-good data, performance-critical          |
+| **Shallow** (default) | File exists, format valid, schema matches, sample rows | Fast (seconds)                    | Development, testing, most production          |
+| **Deep** (opt-in)     | Everything + all rows validated                        | Slow (minutes for large datasets) | Critical production data, first-time ingestion |
 
 See [How-to: Configure Dataset Inspection](./how-to/dataset-inspection.md) for details.
 

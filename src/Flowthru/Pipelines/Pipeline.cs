@@ -28,8 +28,7 @@ namespace Flowthru.Pipelines;
 /// one node. This ensures deterministic execution order and prevents race conditions.
 /// </para>
 /// </remarks>
-public class Pipeline
-{
+public class Pipeline {
   /// <summary>
   /// All nodes in this pipeline, in the order they were added.
   /// </summary>
@@ -92,10 +91,8 @@ public class Pipeline
   /// </summary>
   /// <param name="node">The pipeline node to add</param>
   /// <exception cref="InvalidOperationException">Thrown if pipeline has already been built</exception>
-  internal void AddNode(PipelineNode node)
-  {
-    if (IsBuilt)
-    {
+  internal void AddNode(PipelineNode node) {
+    if (IsBuilt) {
       throw new InvalidOperationException(
         "Cannot add nodes to a pipeline that has already been built. " +
         "Create a new pipeline or use PipelineBuilder.");
@@ -121,19 +118,15 @@ public class Pipeline
   /// attempt to write to the same catalog entry, Build() will throw an InvalidOperationException.
   /// </para>
   /// </remarks>
-  public static Pipeline Merge(Dictionary<string, Pipeline> pipelines)
-  {
-    var mergedPipeline = new Pipeline
-    {
+  public static Pipeline Merge(Dictionary<string, Pipeline> pipelines) {
+    var mergedPipeline = new Pipeline {
       Name = "Pipelines",
       Description = $"Combined execution of: {string.Join(", ", pipelines.Keys)}"
     };
 
     // Combine all nodes from all pipelines, prefixing node names with pipeline name
-    foreach (var (pipelineName, pipeline) in pipelines)
-    {
-      foreach (var node in pipeline.Nodes)
-      {
+    foreach (var (pipelineName, pipeline) in pipelines) {
+      foreach (var node in pipeline.Nodes) {
         // Create a new node with prefixed name
         var prefixedNode = new PipelineNode(
           name: $"{pipelineName}.{node.Name}",
@@ -160,10 +153,8 @@ public class Pipeline
   /// - Multiple nodes write to the same catalog entry
   /// - A circular dependency is detected
   /// </exception>
-  public void Build()
-  {
-    if (IsBuilt)
-    {
+  public void Build() {
+    if (IsBuilt) {
       Logger?.LogWarning("Pipeline.Build() called on already-built pipeline. Rebuilding...");
     }
 
@@ -180,8 +171,7 @@ public class Pipeline
       ExecutionLayers.Count);
 
     // Log layer details
-    for (int i = 0; i < ExecutionLayers.Count; i++)
-    {
+    for (int i = 0; i < ExecutionLayers.Count; i++) {
       var layerNodes = ExecutionLayers[i];
       Logger?.LogDebug(
         "Layer {LayerIndex}: {NodeCount} nodes ({NodeNames})",
@@ -235,10 +225,8 @@ public class Pipeline
   /// await pipeline.RunAsync();
   /// </code>
   /// </remarks>
-  public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync()
-  {
-    if (!IsBuilt)
-    {
+  public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync() {
+    if (!IsBuilt) {
       throw new InvalidOperationException(
         "Pipeline must be built before validation. Call Build() first.");
     }
@@ -246,8 +234,7 @@ public class Pipeline
     var result = Data.Validation.ValidationResult.Success();
 
     // No Layer 0? No external inputs to validate
-    if (ExecutionLayers!.Count == 0)
-    {
+    if (ExecutionLayers!.Count == 0) {
       Logger?.LogInformation("No nodes in pipeline, nothing to validate");
       return result;
     }
@@ -264,12 +251,10 @@ public class Pipeline
     Logger?.LogInformation("Found {ExternalInputCount} unique external input(s) to validate", externalInputs.Count);
 
     // Inspect each external input based on configured or default level
-    foreach (var catalogEntry in externalInputs)
-    {
+    foreach (var catalogEntry in externalInputs) {
       var inspectionLevel = ValidationOptions.GetEffectiveInspectionLevel(catalogEntry);
 
-      if (inspectionLevel == Data.Validation.InspectionLevel.None)
-      {
+      if (inspectionLevel == Data.Validation.InspectionLevel.None) {
         Logger?.LogDebug("Skipping inspection for '{CatalogKey}' (level: None)", catalogEntry.Key);
         continue;
       }
@@ -279,43 +264,34 @@ public class Pipeline
         catalogEntry.Key,
         inspectionLevel);
 
-      try
-      {
+      try {
         Data.Validation.ValidationResult inspectionResult;
 
-        if (inspectionLevel == Data.Validation.InspectionLevel.Shallow)
-        {
+        if (inspectionLevel == Data.Validation.InspectionLevel.Shallow) {
           // Try shallow inspection
           var shallowInterface = catalogEntry.GetType()
             .GetInterfaces()
             .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IShallowInspectable<>));
 
-          if (shallowInterface != null)
-          {
+          if (shallowInterface != null) {
             inspectionResult = await InvokeShallowInspectionAsync(catalogEntry, shallowInterface);
-          }
-          else
-          {
+          } else {
             // Entry doesn't support shallow inspection but was configured for it
             inspectionResult = Data.Validation.ValidationResult.Failure(
               catalogEntry.Key,
               Data.Validation.ValidationErrorType.InspectionFailure,
               "Entry does not implement IShallowInspectable<T>");
           }
-        }
-        else // Deep
-        {
+        } else // Deep
+          {
           // Try deep inspection
           var deepInterface = catalogEntry.GetType()
             .GetInterfaces()
             .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDeepInspectable<>));
 
-          if (deepInterface != null)
-          {
+          if (deepInterface != null) {
             inspectionResult = await InvokeDeepInspectionAsync(catalogEntry, deepInterface);
-          }
-          else
-          {
+          } else {
             // Entry doesn't support deep inspection but was configured for it
             inspectionResult = Data.Validation.ValidationResult.Failure(
               catalogEntry.Key,
@@ -326,20 +302,15 @@ public class Pipeline
 
         result.Merge(inspectionResult);
 
-        if (!inspectionResult.IsValid)
-        {
+        if (!inspectionResult.IsValid) {
           Logger?.LogWarning(
             "Validation failed for '{CatalogKey}': {ErrorCount} error(s)",
             catalogEntry.Key,
             inspectionResult.Errors.Count);
-        }
-        else
-        {
+        } else {
           Logger?.LogInformation("'{CatalogKey}' passed {InspectionLevel} inspection", catalogEntry.Key, inspectionLevel);
         }
-      }
-      catch (Exception ex)
-      {
+      } catch (Exception ex) {
         Logger?.LogError(ex, "Exception during inspection of '{CatalogKey}'", catalogEntry.Key);
         result.AddError(new Data.Validation.ValidationError(
           catalogEntry.Key,
@@ -349,12 +320,9 @@ public class Pipeline
       }
     }
 
-    if (result.IsValid)
-    {
+    if (result.IsValid) {
       Logger?.LogInformation("All external inputs passed validation");
-    }
-    else
-    {
+    } else {
       Logger?.LogError(
         "Validation failed with {ErrorCount} error(s) across {CatalogCount} catalog entries",
         result.Errors.Count,
@@ -369,8 +337,7 @@ public class Pipeline
   /// </summary>
   private async Task<Data.Validation.ValidationResult> InvokeShallowInspectionAsync(
     ICatalogEntry catalogEntry,
-    Type shallowInterface)
-  {
+    Type shallowInterface) {
     var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
     var task = (Task<Data.Validation.ValidationResult>)method!.Invoke(catalogEntry, new object[] { 10 })!;
     return await task;
@@ -381,8 +348,7 @@ public class Pipeline
   /// </summary>
   private async Task<Data.Validation.ValidationResult> InvokeDeepInspectionAsync(
     ICatalogEntry catalogEntry,
-    Type deepInterface)
-  {
+    Type deepInterface) {
     var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
     var task = (Task<Data.Validation.ValidationResult>)method!.Invoke(catalogEntry, Array.Empty<object>())!;
     return await task;
@@ -398,16 +364,13 @@ public class Pipeline
   /// calls Build() if the pipeline hasn't been built yet, then executes and tracks results.
   /// </para>
   /// </remarks>
-  public async Task<PipelineResult> RunAsync()
-  {
+  public async Task<PipelineResult> RunAsync() {
     var stopwatch = Stopwatch.StartNew();
     var nodeResults = new Dictionary<string, NodeResult>();
 
-    try
-    {
+    try {
       // Ensure pipeline is built
-      if (!IsBuilt)
-      {
+      if (!IsBuilt) {
         Logger?.LogInformation("Building pipeline before execution");
         Build();
       }
@@ -415,18 +378,15 @@ public class Pipeline
       Logger?.LogInformation("Starting pipeline execution via RunAsync()");
 
       // Execute all layers
-      foreach (var layer in ExecutionLayers!)
-      {
+      foreach (var layer in ExecutionLayers!) {
         Logger?.LogInformation("Executing layer with {NodeCount} nodes", layer.Count);
 
-        foreach (var pipelineNode in layer)
-        {
+        foreach (var pipelineNode in layer) {
           var nodeResult = await ExecuteNodeWithTrackingAsync(pipelineNode);
           nodeResults[pipelineNode.Name] = nodeResult;
 
           // If node failed, stop execution
-          if (!nodeResult.Success)
-          {
+          if (!nodeResult.Success) {
             stopwatch.Stop();
             return PipelineResult.CreateFailure(
               stopwatch.Elapsed,
@@ -443,9 +403,7 @@ public class Pipeline
         stopwatch.ElapsedMilliseconds);
 
       return PipelineResult.CreateSuccess(stopwatch.Elapsed, nodeResults, Name);
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       stopwatch.Stop();
       Logger?.LogError(ex, "Pipeline execution failed: {ErrorMessage}", ex.Message);
       return PipelineResult.CreateFailure(stopwatch.Elapsed, ex, nodeResults, Name);
@@ -473,32 +431,25 @@ public class Pipeline
   /// nodes within the same layer concurrently.
   /// </para>
   /// </remarks>
-  public async Task ExecuteAsync()
-  {
-    if (!IsBuilt)
-    {
+  public async Task ExecuteAsync() {
+    if (!IsBuilt) {
       throw new InvalidOperationException(
         "Pipeline must be built before execution. Call Build() first.");
     }
 
     Logger?.LogInformation("Starting pipeline execution");
 
-    try
-    {
-      foreach (var layer in ExecutionLayers!)
-      {
+    try {
+      foreach (var layer in ExecutionLayers!) {
         Logger?.LogInformation("Executing layer with {NodeCount} nodes", layer.Count);
 
-        foreach (var pipelineNode in layer)
-        {
+        foreach (var pipelineNode in layer) {
           await ExecuteNodeAsync(pipelineNode);
         }
       }
 
       Logger?.LogInformation("Pipeline execution completed successfully");
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       Logger?.LogError(ex, "Pipeline execution failed: {ErrorMessage}", ex.Message);
       throw;
     }
@@ -509,12 +460,10 @@ public class Pipeline
   /// </summary>
   /// <param name="pipelineNode">The node to execute</param>
   /// <returns>NodeResult with execution details</returns>
-  private async Task<NodeResult> ExecuteNodeWithTrackingAsync(PipelineNode pipelineNode)
-  {
+  private async Task<NodeResult> ExecuteNodeWithTrackingAsync(PipelineNode pipelineNode) {
     var stopwatch = Stopwatch.StartNew();
 
-    try
-    {
+    try {
       // Get input counts for diagnostics (before loading data)
       var inputCountTasks = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
       var inputCounts = await Task.WhenAll(inputCountTasks);
@@ -527,8 +476,7 @@ public class Pipeline
         pipelineNode.Inputs.Count);
 
       // Load inputs from catalog entries
-      var inputTasks = pipelineNode.Inputs.Select(async entry =>
-      {
+      var inputTasks = pipelineNode.Inputs.Select(async entry => {
         var data = await entry.LoadUntyped();
 
         // Check if this is a singleton object vs a dataset
@@ -536,16 +484,13 @@ public class Pipeline
         var isSingletonObject = entry.GetType().GetInterfaces()
     .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
 
-        if (isSingletonObject)
-        {
+        if (isSingletonObject) {
           // Wrap singleton in array so node receives IEnumerable<T>
           var arrayType = typeof(object[]);
           var wrappedArray = Array.CreateInstance(data.GetType(), 1);
           wrappedArray.SetValue(data, 0);
           return (object)wrappedArray;
-        }
-        else
-        {
+        } else {
           // Dataset: return collection directly
           return data;
         }
@@ -558,8 +503,7 @@ public class Pipeline
       var executeMethod = nodeType.GetMethod("ExecuteAsync",
         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
-      if (executeMethod == null)
-      {
+      if (executeMethod == null) {
         throw new InvalidOperationException(
           $"Node {pipelineNode.Name} does not have an ExecuteAsync method");
       }
@@ -568,13 +512,10 @@ public class Pipeline
       // For single-input nodes: pass the data directly as IEnumerable<TInput>
       // For multi-input nodes: wrap in singleton IEnumerable containing a composite input object
       object inputParameter;
-      if (pipelineNode.Inputs.Count == 1 && pipelineNode.InputMappings == null)
-      {
+      if (pipelineNode.Inputs.Count == 1 && pipelineNode.InputMappings == null) {
         // Single input: pass data directly
         inputParameter = inputs[0];
-      }
-      else
-      {
+      } else {
         // Multi-input: create composite input object using InputMappings
         // The ExecuteAsync signature is: Task<IEnumerable<TOutput>> ExecuteAsync(IEnumerable<TInput> input)
         // For multi-input, TInput is a record/class with properties for each catalog entry
@@ -582,8 +523,7 @@ public class Pipeline
 
         // Get TInput type from ExecuteAsync method signature
         var executeParams = executeMethod.GetParameters();
-        if (executeParams.Length != 1)
-        {
+        if (executeParams.Length != 1) {
           throw new InvalidOperationException(
             $"ExecuteAsync for node {pipelineNode.Name} should have exactly one parameter");
         }
@@ -593,25 +533,20 @@ public class Pipeline
 
         // Create instance of TInput
         var compositeInput = Activator.CreateInstance(inputItemType);
-        if (compositeInput == null)
-        {
+        if (compositeInput == null) {
           throw new InvalidOperationException(
             $"Failed to create instance of {inputItemType.Name} for node {pipelineNode.Name}");
         }
 
         // Map loaded data to properties using InputMappings
-        if (pipelineNode.InputMappings != null)
-        {
-          foreach (var mapping in pipelineNode.InputMappings)
-          {
-            if (mapping is Mapping.CatalogPropertyMapping propertyMapping)
-            {
+        if (pipelineNode.InputMappings != null) {
+          foreach (var mapping in pipelineNode.InputMappings) {
+            if (mapping is Mapping.CatalogPropertyMapping propertyMapping) {
               // Find the corresponding loaded data
               var catalogEntry = propertyMapping.CatalogEntry;
               var inputIndex = pipelineNode.Inputs.ToList().FindIndex(e => e.Key == catalogEntry.Key);
 
-              if (inputIndex >= 0 && inputIndex < inputs.Length)
-              {
+              if (inputIndex >= 0 && inputIndex < inputs.Length) {
                 var data = inputs[inputIndex];
 
                 Logger?.LogDebug(
@@ -621,8 +556,7 @@ public class Pipeline
                   inputItemType.Name);
 
                 // Set the property value
-                if (propertyMapping.Property.CanWrite)
-                {
+                if (propertyMapping.Property.CanWrite) {
                   propertyMapping.Property.SetValue(compositeInput, data);
 
                   Logger?.LogDebug(
@@ -644,8 +578,7 @@ public class Pipeline
 
       // Invoke ExecuteAsync and await the result
       var executeTask = (Task?)executeMethod.Invoke(pipelineNode.NodeInstance, new[] { inputParameter });
-      if (executeTask == null)
-      {
+      if (executeTask == null) {
         throw new InvalidOperationException(
           $"ExecuteAsync invocation for node {pipelineNode.Name} returned null");
       }
@@ -657,11 +590,9 @@ public class Pipeline
       var output = resultProperty?.GetValue(executeTask);
 
       // Save outputs to catalog entries
-      if (output != null && pipelineNode.Outputs.Count > 0)
-      {
+      if (output != null && pipelineNode.Outputs.Count > 0) {
         // For single output nodes
-        if (pipelineNode.Outputs.Count == 1)
-        {
+        if (pipelineNode.Outputs.Count == 1) {
           var catalogEntry = pipelineNode.Outputs[0];
 
           // Check if this is a singleton object vs a dataset
@@ -669,88 +600,70 @@ public class Pipeline
           var isSingletonObject = catalogEntry.GetType().GetInterfaces()
             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
 
-          if (isSingletonObject && output is System.Collections.IEnumerable enumerable)
-          {
+          if (isSingletonObject && output is System.Collections.IEnumerable enumerable) {
             // Unwrap singleton from collection
             var enumerator = enumerable.GetEnumerator();
-            if (!enumerator.MoveNext())
-            {
+            if (!enumerator.MoveNext()) {
               throw new InvalidOperationException(
                 $"Node '{pipelineNode.Name}' returned empty collection for singleton object output '{catalogEntry.Key}'");
             }
             var singletonValue = enumerator.Current;
-            if (enumerator.MoveNext())
-            {
+            if (enumerator.MoveNext()) {
               throw new InvalidOperationException(
                 $"Node '{pipelineNode.Name}' returned multiple items for singleton object output '{catalogEntry.Key}'");
             }
             await catalogEntry.SaveUntyped(singletonValue!);
-          }
-          else
-          {
+          } else {
             // Dataset: save collection directly
             await catalogEntry.SaveUntyped(output);
           }
-        }
-        else
-        {
+        } else {
           // For multi-output nodes, use OutputMappings to correctly map properties to catalog entries
-          if (pipelineNode.OutputMappings == null || pipelineNode.OutputMappings.Count == 0)
-          {
+          if (pipelineNode.OutputMappings == null || pipelineNode.OutputMappings.Count == 0) {
             throw new InvalidOperationException(
               $"Node '{pipelineNode.Name}' has multiple outputs but no OutputMappings configured.");
           }
 
           // Multi-output nodes return IEnumerable<TOutputSchema>, extract the single item
-          if (output is not System.Collections.IEnumerable outputEnumerable)
-          {
+          if (output is not System.Collections.IEnumerable outputEnumerable) {
             throw new InvalidOperationException(
               $"Multi-output node '{pipelineNode.Name}' returned non-enumerable output: {output.GetType().Name}");
           }
 
           var outputItem = outputEnumerable.Cast<object>().FirstOrDefault();
-          if (outputItem == null)
-          {
+          if (outputItem == null) {
             throw new InvalidOperationException(
               $"Multi-output node '{pipelineNode.Name}' returned empty output collection");
           }
 
-          foreach (var mapping in pipelineNode.OutputMappings)
-          {
+          foreach (var mapping in pipelineNode.OutputMappings) {
             // OutputMappings should be CatalogPropertyMapping instances
-            if (mapping is not Mapping.CatalogPropertyMapping propertyMapping)
-            {
+            if (mapping is not Mapping.CatalogPropertyMapping propertyMapping) {
               throw new InvalidOperationException(
                 $"Node '{pipelineNode.Name}' has an invalid mapping type: {mapping.GetType().Name}");
             }
 
             // Use the property info from the mapping (which has the correct property name)
             var propertyValue = propertyMapping.Property.GetValue(outputItem);
-            if (propertyValue != null)
-            {
+            if (propertyValue != null) {
               // Check if the catalog entry is a singleton object
               var isSingletonObject = propertyMapping.CatalogEntry.GetType().GetInterfaces()
                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
 
-              if (isSingletonObject && propertyValue is System.Collections.IEnumerable enumerable and not string)
-              {
+              if (isSingletonObject && propertyValue is System.Collections.IEnumerable enumerable and not string) {
                 // Unwrap singleton from collection
                 var enumerator = enumerable.GetEnumerator();
-                if (!enumerator.MoveNext())
-                {
+                if (!enumerator.MoveNext()) {
                   throw new InvalidOperationException(
                     $"Node '{pipelineNode.Name}' property '{propertyMapping.Property.Name}' returned empty collection for singleton object output '{propertyMapping.CatalogEntry.Key}'");
                 }
                 var singletonValue = enumerator.Current;
-                if (enumerator.MoveNext())
-                {
+                if (enumerator.MoveNext()) {
                   throw new InvalidOperationException(
                     $"Node '{pipelineNode.Name}' property '{propertyMapping.Property.Name}' returned multiple items for singleton object output '{propertyMapping.CatalogEntry.Key}'");
                 }
                 await propertyMapping.CatalogEntry.SaveUntyped(singletonValue!);
-              }
-              else
-              {
+              } else {
                 // Dataset or already unwrapped: save directly
                 await propertyMapping.CatalogEntry.SaveUntyped(propertyValue);
               }
@@ -778,9 +691,7 @@ public class Pipeline
         stopwatch.Elapsed,
         totalInputCount,
         totalOutputCount);
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       stopwatch.Stop();
       Logger?.LogError(ex, "Node {NodeName} failed: {ErrorMessage}", pipelineNode.Name, ex.Message);
       return NodeResult.CreateFailure(pipelineNode.Name, stopwatch.Elapsed, ex);
@@ -792,12 +703,10 @@ public class Pipeline
   /// and saving its outputs.
   /// </summary>
   /// <param name="pipelineNode">The node to execute</param>
-  private async Task ExecuteNodeAsync(PipelineNode pipelineNode)
-  {
+  private async Task ExecuteNodeAsync(PipelineNode pipelineNode) {
     Logger?.LogInformation("Executing node: {NodeName}", pipelineNode.Name);
 
-    try
-    {
+    try {
       // Load inputs from catalog entries
       var inputTasks = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
       var inputs = await Task.WhenAll(inputTasks);
@@ -817,9 +726,7 @@ public class Pipeline
         inputs.Length);
 
       // TODO: Save outputs to catalog entries
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       Logger?.LogError(ex, "Node {NodeName} failed: {ErrorMessage}", pipelineNode.Name, ex.Message);
       throw;
     }

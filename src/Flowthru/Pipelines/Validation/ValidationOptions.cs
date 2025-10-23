@@ -33,8 +33,7 @@ namespace Flowthru.Pipelines.Validation;
 ///   });
 /// </code>
 /// </remarks>
-public class ValidationOptions
-{
+public class ValidationOptions {
   private readonly Dictionary<string, InspectionLevel> _catalogEntryInspectionLevels = new();
 
   /// <summary>
@@ -47,10 +46,8 @@ public class ValidationOptions
   /// This configuration only applies to Layer 0 inputs (external data).
   /// Intermediate outputs are never inspected regardless of this setting.
   /// </remarks>
-  public ValidationOptions Inspect(ICatalogEntry catalogEntry, InspectionLevel level)
-  {
-    if (catalogEntry == null)
-    {
+  public ValidationOptions Inspect(ICatalogEntry catalogEntry, InspectionLevel level) {
+    if (catalogEntry == null) {
       throw new ArgumentNullException(nameof(catalogEntry));
     }
 
@@ -63,8 +60,7 @@ public class ValidationOptions
   /// </summary>
   /// <param name="catalogKey">The catalog entry key</param>
   /// <returns>The configured inspection level, or null if using default behavior</returns>
-  internal InspectionLevel? GetInspectionLevel(string catalogKey)
-  {
+  internal InspectionLevel? GetInspectionLevel(string catalogKey) {
     return _catalogEntryInspectionLevels.TryGetValue(catalogKey, out var level)
       ? level
       : null;
@@ -85,17 +81,14 @@ public class ValidationOptions
   /// <item>Otherwise → None</item>
   /// </list>
   /// </remarks>
-  internal InspectionLevel GetEffectiveInspectionLevel(ICatalogEntry catalogEntry)
-  {
-    if (catalogEntry == null)
-    {
+  internal InspectionLevel GetEffectiveInspectionLevel(ICatalogEntry catalogEntry) {
+    if (catalogEntry == null) {
       throw new ArgumentNullException(nameof(catalogEntry));
     }
 
     // 1. Check for explicit configuration
     var configuredLevel = GetInspectionLevel(catalogEntry.Key);
-    if (configuredLevel.HasValue)
-    {
+    if (configuredLevel.HasValue) {
       return configuredLevel.Value;
     }
 
@@ -104,8 +97,7 @@ public class ValidationOptions
     var implementsShallowInspectable = entryType.GetInterfaces()
       .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IShallowInspectable<>));
 
-    if (implementsShallowInspectable)
-    {
+    if (implementsShallowInspectable) {
       return InspectionLevel.Shallow;
     }
 

@@ -77,11 +77,11 @@ builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Cr
 
 ## Inspection Levels Explained
 
-| Level | Validates | Performance | When to Use |
-|-------|-----------|-------------|-------------|
-| **None** | Nothing (skips inspection) | Instant | Known-good data, performance-critical paths |
-| **Shallow** | File exists, format valid, schema matches, sample rows deserialize | Fast (seconds) | Development, testing, CI/CD, most production cases |
-| **Deep** | Everything in Shallow + all rows deserialize correctly | Slow (minutes for large datasets) | Production with untrusted data, first-time ingestion |
+| Level       | Validates                                                          | Performance                       | When to Use                                          |
+| ----------- | ------------------------------------------------------------------ | --------------------------------- | ---------------------------------------------------- |
+| **None**    | Nothing (skips inspection)                                         | Instant                           | Known-good data, performance-critical paths          |
+| **Shallow** | File exists, format valid, schema matches, sample rows deserialize | Fast (seconds)                    | Development, testing, CI/CD, most production cases   |
+| **Deep**    | Everything in Shallow + all rows deserialize correctly             | Slow (minutes for large datasets) | Production with untrusted data, first-time ingestion |
 
 ## How Inspection Works
 

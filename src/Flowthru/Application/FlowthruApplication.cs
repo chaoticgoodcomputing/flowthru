@@ -49,8 +49,7 @@ namespace Flowthru.Application;
 /// </code>
 /// </para>
 /// </remarks>
-public class FlowthruApplication : IFlowthruApplication
-{
+public class FlowthruApplication : IFlowthruApplication {
   private readonly string[] _args;
   private readonly DataCatalogBase _catalog;
   private readonly Dictionary<string, Pipeline> _pipelines;
@@ -70,8 +69,7 @@ public class FlowthruApplication : IFlowthruApplication
     Dictionary<string, Pipeline> pipelines,
     IServiceProvider services,
     ExecutionOptions executionOptions,
-    ILogger<FlowthruApplication> logger)
-  {
+    ILogger<FlowthruApplication> logger) {
     _args = args;
     _catalog = catalog;
     _pipelines = pipelines;
@@ -91,29 +89,24 @@ public class FlowthruApplication : IFlowthruApplication
   /// </remarks>
   public static IFlowthruApplication Create(
     string[] args,
-    Action<FlowthruApplicationBuilder> configure)
-  {
+    Action<FlowthruApplicationBuilder> configure) {
     var builder = new FlowthruApplicationBuilder(args);
     configure(builder);
     return builder.Build();
   }
 
   /// <inheritdoc />
-  public Task<int> RunAsync()
-  {
+  public Task<int> RunAsync() {
     return RunAsync(CancellationToken.None);
   }
 
   /// <inheritdoc />
-  public async Task<int> RunAsync(CancellationToken cancellationToken)
-  {
-    try
-    {
+  public async Task<int> RunAsync(CancellationToken cancellationToken) {
+    try {
       // 1. Parse command-line arguments to select pipeline
       var pipelineName = SelectPipeline(_args, _pipelines.Keys);
 
-      if (pipelineName == null)
-      {
+      if (pipelineName == null) {
         // No pipeline specified - merge and run all pipelines
         _logger.LogInformation("No pipeline specified. Running all pipelines in dependency order.");
         _logger.LogInformation("Available pipelines: {Pipelines}",
@@ -138,20 +131,16 @@ public class FlowthruApplication : IFlowthruApplication
 
       // 3. Return appropriate exit code
       return result.Success ? 0 : 1;
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       _logger.LogCritical(ex, "Application failed: {Message}", ex.Message);
       return 1;
     }
   }
 
   /// <inheritdoc />
-  public async Task<PipelineResult> RunPipelineAsync(string pipelineName)
-  {
+  public async Task<PipelineResult> RunPipelineAsync(string pipelineName) {
     // 1. Get pipeline
-    if (!_pipelines.TryGetValue(pipelineName, out var pipeline))
-    {
+    if (!_pipelines.TryGetValue(pipelineName, out var pipeline)) {
       _logger.LogError("Pipeline '{Name}' not found. Available pipelines: {Available}",
         pipelineName,
         string.Join(", ", _pipelines.Keys));
@@ -165,15 +154,13 @@ public class FlowthruApplication : IFlowthruApplication
     pipeline.ServiceProvider = _services;
 
     // 3. Build the pipeline
-    if (!pipeline.IsBuilt)
-    {
+    if (!pipeline.IsBuilt) {
       pipeline.Build();
     }
 
     // 4. Validate external inputs if configured
     var validationResult = await pipeline.ValidateExternalInputsAsync();
-    if (!validationResult.IsValid)
-    {
+    if (!validationResult.IsValid) {
       validationResult.ThrowIfInvalid();
     }
 
@@ -192,20 +179,17 @@ public class FlowthruApplication : IFlowthruApplication
   /// </summary>
   /// <param name="mergedPipeline">The merged pipeline to execute</param>
   /// <returns>Pipeline execution result</returns>
-  private async Task<PipelineResult> RunMergedPipelineAsync(Pipeline mergedPipeline)
-  {
+  private async Task<PipelineResult> RunMergedPipelineAsync(Pipeline mergedPipeline) {
     _logger.LogInformation("Running merged pipeline: {Name}", mergedPipeline.Name);
 
     // Build the pipeline
-    if (!mergedPipeline.IsBuilt)
-    {
+    if (!mergedPipeline.IsBuilt) {
       mergedPipeline.Build();
     }
 
     // Validate external inputs if configured
     var validationResult = await mergedPipeline.ValidateExternalInputsAsync();
-    if (!validationResult.IsValid)
-    {
+    if (!validationResult.IsValid) {
       validationResult.ThrowIfInvalid();
     }
 
@@ -225,13 +209,11 @@ public class FlowthruApplication : IFlowthruApplication
   /// <param name="args">Command-line arguments</param>
   /// <param name="availablePipelines">Available pipeline names</param>
   /// <returns>Selected pipeline name, or null to run all</returns>
-  private string? SelectPipeline(string[] args, IEnumerable<string> availablePipelines)
-  {
+  private string? SelectPipeline(string[] args, IEnumerable<string> availablePipelines) {
     // Simple implementation: first argument is pipeline name
     // Future: add --list, --help, --dry-run flags
 
-    if (args.Length == 0)
-    {
+    if (args.Length == 0) {
       // No arguments - should run all pipelines (Phase 2)
       return null;
     }
@@ -239,8 +221,7 @@ public class FlowthruApplication : IFlowthruApplication
     var pipelineName = args[0];
 
     // Check if it's a valid pipeline name
-    if (!availablePipelines.Contains(pipelineName))
-    {
+    if (!availablePipelines.Contains(pipelineName)) {
       _logger.LogWarning("Pipeline '{Name}' not found. Available: {Available}",
         pipelineName,
         string.Join(", ", availablePipelines));
