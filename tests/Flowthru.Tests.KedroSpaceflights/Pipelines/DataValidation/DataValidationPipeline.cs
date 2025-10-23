@@ -73,7 +73,14 @@ public static class DataValidationPipeline {
         output: catalog.ModelInputTableCsv
       );
 
-      // Node 5: Cross-validation for R² distribution analysis and comparison to Kedro
+      // Node 5: Export model input table to minified JSON for production/compact storage
+      pipeline.AddNode<ExportToCsvNode<ModelInputSchema>>(
+        name: "ExportModelInputTableToMinifiedJson",
+        input: catalog.ModelInputTable,
+        output: catalog.ModelInputTableJsonMinified
+      );
+
+      // Node 6: Cross-validation for R² distribution analysis and comparison to Kedro
       pipeline.AddNode<CrossValidateModelNode>(
         name: "CrossValidateAndCompareToKedroSource",
         input: catalog.ModelInputTable,

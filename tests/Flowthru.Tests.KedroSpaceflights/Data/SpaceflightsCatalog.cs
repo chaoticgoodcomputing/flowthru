@@ -62,14 +62,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Contains company ratings and information.
   /// </summary>
   public ICatalogDataset<CompanyRawSchema> Companies =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<CompanyRawSchema>("companies", $"{_basePath}/01_Raw/companies.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<CompanyRawSchema>("RawCompanies", $"{_basePath}/01_Raw/companies.csv"));
 
   /// <summary>
   /// Raw review data from CSV file.
   /// Contains customer reviews with scores.
   /// </summary>
   public ICatalogDataset<ReviewRawSchema> Reviews =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<ReviewRawSchema>("reviews", $"{_basePath}/01_Raw/reviews.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<ReviewRawSchema>("RawReviews", $"{_basePath}/01_Raw/reviews.csv"));
 
   /// <summary>
   /// Raw shuttle data from Excel file (read-only).
@@ -80,7 +80,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// It can only be used as a pipeline input, not as an output.
   /// </remarks>
   public IReadableCatalogDataset<ShuttleRawSchema> Shuttles =>
-    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<ShuttleRawSchema>("shuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1"));
+    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<ShuttleRawSchema>("RawShuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1"));
 
   // ===========================================================
   // INTERMEDIATE DATA (02_Intermediate)
@@ -91,21 +91,21 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Cleaned and validated company records.
   /// </summary>
   public ICatalogDataset<CompanySchema> CleanedCompanies =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<CompanySchema>("cleaned_companies", $"{_basePath}/02_Cleaned/cleaned_companies.parquet"));
+    GetOrCreateDataset(() => new ParquetCatalogDataset<CompanySchema>("CleanedCompanies", $"{_basePath}/02_Cleaned/cleaned_companies.parquet"));
 
   /// <summary>
   /// Preprocessed shuttle data in Parquet format.
   /// Cleaned and validated shuttle records.
   /// </summary>
   public ICatalogDataset<ShuttleSchema> CleanedShuttles =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<ShuttleSchema>("cleaned_shuttles", $"{_basePath}/02_Cleaned/cleaned_shuttles.parquet"));
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ShuttleSchema>("CleanedShuttles", $"{_basePath}/02_Cleaned/cleaned_shuttles.parquet"));
 
   /// <summary>
   /// Preprocessed review data in Parquet format.
   /// Cleaned and validated review records with parsed numeric scores.
   /// </summary>
   public ICatalogDataset<ReviewSchema> CleanedReviews =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<ReviewSchema>("cleaned_reviews", $"{_basePath}/02_Cleaned/cleaned_reviews.parquet"));
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ReviewSchema>("CleanedReviews", $"{_basePath}/02_Cleaned/cleaned_reviews.parquet"));
 
   // ===========================================================
   // PRIMARY DATA (03_TrainingData)
@@ -116,7 +116,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Joined dataset ready for ML training.
   /// </summary>
   public ICatalogDataset<ModelInputSchema> ModelInputTable =>
-    GetOrCreateDataset(() => new ParquetCatalogDataset<ModelInputSchema>("model_input_table", $"{_basePath}/03_TrainingData/model_input_table.parquet"));
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ModelInputSchema>("ModelInputTable", $"{_basePath}/03_TrainingData/model_input_table.parquet"));
 
   // ===========================================================
   // DIAGNOSTIC CSV EXPORTS (for debugging)
@@ -126,19 +126,19 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Preprocessed companies exported as CSV (for debugging).
   /// </summary>
   public ICatalogDataset<CompanySchema> CleanedCompaniesCsv =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<CompanySchema>("cleaned_companies_csv", $"{_basePath}/02_Cleaned/cleaned_companies.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<CompanySchema>("CleanedCompaniesCsv", $"{_basePath}/02_Cleaned/cleaned_companies.csv"));
 
   /// <summary>
   /// Preprocessed shuttles exported as CSV (for debugging).
   /// </summary>
   public ICatalogDataset<ShuttleSchema> CleanedShuttlesCsv =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<ShuttleSchema>("cleaned_shuttles_csv", $"{_basePath}/02_Cleaned/cleaned_shuttles.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<ShuttleSchema>("CleanedShuttlesCsv", $"{_basePath}/02_Cleaned/cleaned_shuttles.csv"));
 
   /// <summary>
   /// Model input table exported as CSV (for debugging).
   /// </summary>
   public ICatalogDataset<ModelInputSchema> ModelInputTableCsv =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<ModelInputSchema>("model_input_table_csv", $"{_basePath}/03_TrainingData/model_input_table.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<ModelInputSchema>("ModelInputTableCsv", $"{_basePath}/03_TrainingData/model_input_table.csv"));
 
   // ===========================================================
   // REFERENCE DATA (09_Reference - for validation)
@@ -149,7 +149,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Used to compare Flowthru implementation against original Kedro output.
   /// </summary>
   public ICatalogDataset<KedroModelInputSchema> KedroModelInputTable =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<KedroModelInputSchema>("kedro_model_input_table", $"{_basePath}/99_Reference/kedro_model_input_table.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<KedroModelInputSchema>("KedroModelInputTable", $"{_basePath}/99_Reference/kedro_model_input_table.csv"));
 
   // ===========================================================
   // MODEL DATA (In-Memory Split Results)
@@ -160,28 +160,28 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Feature vectors for model training.
   /// </summary>
   public ICatalogDataset<FeatureRow> XTrain =>
-    GetOrCreateDataset(() => new MemoryCatalogDataset<FeatureRow>("x_train"));
+    GetOrCreateDataset(() => new MemoryCatalogDataset<FeatureRow>("XTrain"));
 
   /// <summary>
   /// Testing features (X_test).
   /// Feature vectors for model evaluation.
   /// </summary>
   public ICatalogDataset<FeatureRow> XTest =>
-    GetOrCreateDataset(() => new MemoryCatalogDataset<FeatureRow>("x_test"));
+    GetOrCreateDataset(() => new MemoryCatalogDataset<FeatureRow>("XTest"));
 
   /// <summary>
   /// Training targets (y_train).
   /// Target prices for model training.
   /// </summary>
   public ICatalogDataset<decimal> YTrain =>
-    GetOrCreateDataset(() => new MemoryCatalogDataset<decimal>("y_train"));
+    GetOrCreateDataset(() => new MemoryCatalogDataset<decimal>("YTrain"));
 
   /// <summary>
   /// Testing targets (y_test).
   /// Target prices for model evaluation.
   /// </summary>
   public ICatalogDataset<decimal> YTest =>
-    GetOrCreateDataset(() => new MemoryCatalogDataset<decimal>("y_test"));
+    GetOrCreateDataset(() => new MemoryCatalogDataset<decimal>("YTest"));
 
   // ===========================================================
   // MODELS (06_Models)
@@ -193,7 +193,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Stored as a singleton object (pipeline produces single model).
   /// </summary>
   public ICatalogObject<LinearRegressionModel> Regressor =>
-    GetOrCreateObject(() => new MemoryCatalogObject<LinearRegressionModel>("regressor"));
+    GetOrCreateObject(() => new MemoryCatalogObject<LinearRegressionModel>("Regressor"));
 
   // ===========================================================
   // REPORTING (08_Reporting)
@@ -205,12 +205,20 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Stored as a singleton object (pipeline produces single metrics object).
   /// </summary>
   public ICatalogDataset<ModelMetrics> ModelMetrics =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<ModelMetrics>("model_metrics", $"{_basePath}/05_ModelOutput/model_metrics.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<ModelMetrics>("ModelMetrics", $"{_basePath}/05_ModelOutput/model_metrics.csv"));
 
   /// <summary>
   /// Cross-validation results with R² distribution analysis.
   /// Contains metrics for each fold, mean, std dev, and comparison to Kedro.
+  /// Stored as JSON to preserve nested List&lt;FoldMetric&gt; structure.
   /// </summary>
-  public ICatalogDataset<CrossValidationResults> CrossValidationResults =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<CrossValidationResults>("cross_validation_results", $"{_basePath}/05_ModelOutput/kedro_comparison.csv"));
+  public ICatalogObject<CrossValidationResults> CrossValidationResults =>
+    GetOrCreateObject(() => new JsonCatalogObject<CrossValidationResults>("CrossValidationResults", $"{_basePath}/05_ModelOutput/cross_validation_results.json"));
+
+  /// <summary>
+  /// Model input table exported as minified JSON (compact, production-ready format).
+  /// Same data as ModelInputTableJson but without pretty-printing for smaller file size.
+  /// </summary>
+  public ICatalogDataset<ModelInputSchema> ModelInputTableJsonMinified =>
+    GetOrCreateDataset(() => new JsonCatalogDataset<ModelInputSchema>("ModelInputTableJsonMinified", $"{_basePath}/03_TrainingData/model_input_table.min.json", minified: true));
 }
