@@ -1,9 +1,11 @@
+using Flowthru.Abstractions;
+
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 
 /// <summary>
 /// Results from cross-validation analysis
 /// </summary>
-public record CrossValidationResults {
+public record CrossValidationResults : INestedSerializable {
   /// <summary>
   /// Metrics for each fold
   /// </summary>
@@ -48,7 +50,7 @@ public record CrossValidationResults {
 /// <summary>
 /// Metrics for a single cross-validation fold
 /// </summary>
-public record FoldMetric {
+public record FoldMetric : IFlatSerializable {
   /// <summary>
   /// Fold number (1-indexed)
   /// </summary>

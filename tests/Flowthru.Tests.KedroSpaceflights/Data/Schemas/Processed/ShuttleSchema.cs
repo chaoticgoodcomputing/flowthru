@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Flowthru.Abstractions;
 
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 
@@ -6,7 +7,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 /// Processed shuttle data with type conversions applied.
 /// Output of PreprocessShuttlesNode.
 /// </summary>
-public record ShuttleSchema {
+public record ShuttleSchema : IFlatSerializable {
   /// <summary>
   /// Shuttle identifier
   /// </summary>

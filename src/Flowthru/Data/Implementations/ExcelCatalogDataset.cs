@@ -1,5 +1,6 @@
 using System.Data;
 using ExcelDataReader;
+using Flowthru.Abstractions;
 using Flowthru.Data.Validation;
 
 namespace Flowthru.Data.Implementations;
@@ -16,6 +17,11 @@ namespace Flowthru.Data.Implementations;
 /// will result in a compile-time error.
 /// </para>
 /// <para>
+/// <strong>Breaking Change (v0.4.0):</strong> Type parameter T now requires <see cref="IFlatSerializable"/> constraint.
+/// Excel format cannot reliably represent nested structures. Schemas with nested data
+/// should be loaded from JSON or other hierarchical formats instead.
+/// </para>
+/// <para>
 /// <strong>Compile-Time Safety:</strong> By inheriting from <see cref="ReadOnlyCatalogDatasetBase{T}"/>,
 /// this class provides no Save() method, making it impossible to accidentally write to Excel files.
 /// Use CsvCatalogDataset or ParquetCatalogDataset for output datasets.
@@ -29,6 +35,7 @@ namespace Flowthru.Data.Implementations;
 /// <para>
 /// <strong>Requirements:</strong>
 /// Type T must:
+/// - Implement <see cref="IFlatSerializable"/> (all properties are primitives, no collections or nested objects)
 /// - Have a parameterless constructor
 /// - Have public properties matching Excel column names
 /// - Properties should be primitive types or strings
@@ -45,7 +52,7 @@ namespace Flowthru.Data.Implementations;
 /// </para>
 /// </remarks>
 public class ExcelCatalogDataset<T> : ReadOnlyCatalogDatasetBase<T>
-    where T : new() {
+    where T : IFlatSerializable, new() {
   private readonly string _filePath;
   private readonly string _sheetName;
   private static bool _encodingRegistered;

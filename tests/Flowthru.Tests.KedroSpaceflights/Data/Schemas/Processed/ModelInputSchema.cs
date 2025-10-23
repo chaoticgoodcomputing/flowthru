@@ -1,13 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using Flowthru.Abstractions;
 
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 
 /// <summary>
-/// Model input table combining shuttles, companies, and reviews.
-/// Output of CreateModelInputTableNode.
-/// Matches Kedro's full merged dataset with all 27 columns for apples-to-apples comparison.
+/// Final model input data schema (result of joining companies, shuttles, and reviews).
+/// Output of CreateModelInputNode.
 /// </summary>
-public record ModelInputSchema {
+public record ModelInputSchema : IFlatSerializable {
   // Shuttle columns (from shuttles table)
 
   /// <summary>

@@ -1,4 +1,5 @@
 using CsvHelper.Configuration.Attributes;
+using Flowthru.Abstractions;
 
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 
@@ -6,12 +7,12 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 /// Raw review data as read from CSV file.
 /// Matches structure of Datasets/01_Raw/reviews.csv
 /// </summary>
-public record ReviewRawSchema {
+public record ReviewRawSchema : IFlatSerializable {
   /// <summary>
   /// Shuttle identifier (foreign key to shuttles)
   /// </summary>
   [Name("shuttle_id")]
-  public required string ShuttleId { get; init; }
+  public string ShuttleId { get; init; } = null!;
 
   /// <summary>
   /// Overall review score rating

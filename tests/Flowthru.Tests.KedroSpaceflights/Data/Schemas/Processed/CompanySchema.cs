@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Flowthru.Abstractions;
 
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 
@@ -6,7 +7,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 /// Processed company data with type conversions applied.
 /// Output of PreprocessCompaniesNode.
 /// </summary>
-public record CompanySchema {
+public record CompanySchema : IFlatSerializable {
   /// <summary>
   /// Company identifier
   /// </summary>

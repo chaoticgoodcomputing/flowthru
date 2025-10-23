@@ -1,5 +1,6 @@
 using Parquet;
 using Parquet.Serialization;
+using Flowthru.Abstractions;
 using Flowthru.Data.Validation;
 
 namespace Flowthru.Data.Implementations;
@@ -9,6 +10,14 @@ namespace Flowthru.Data.Implementations;
 /// </summary>
 /// <typeparam name="T">The type of data (must have parameterless constructor)</typeparam>
 /// <remarks>
+/// <para>
+/// <strong>Schema Compatibility:</strong> Parquet format supports both <see cref="IFlatSerializable"/> 
+/// and <see cref="INestedSerializable"/> schemas through its columnar storage with nested column support.
+/// Use Parquet when:
+/// - High compression and query performance are priorities
+/// - Schema contains complex nested structures
+/// - Large datasets require efficient columnar access
+/// </para>
 /// <para>
 /// <strong>Use Cases:</strong>
 /// - Intermediate processed data (02_Intermediate layer)

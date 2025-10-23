@@ -1,10 +1,12 @@
+using Flowthru.Abstractions;
+
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 
 /// <summary>
 /// Feature row used for ML.NET training and prediction.
 /// Represents a single data point with features for regression.
 /// </summary>
-public class FeatureRow {
+public class FeatureRow : IFlatSerializable {
   public float Engines { get; set; }
   public float PassengerCapacity { get; set; }
   public float Crew { get; set; }

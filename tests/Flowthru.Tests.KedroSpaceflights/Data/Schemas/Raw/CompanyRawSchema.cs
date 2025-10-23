@@ -1,4 +1,5 @@
 using CsvHelper.Configuration.Attributes;
+using Flowthru.Abstractions;
 
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 
@@ -6,12 +7,12 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 /// Raw company data as read from CSV file.
 /// Matches structure of Datasets/01_Raw/companies.csv
 /// </summary>
-public record CompanyRawSchema {
+public record CompanyRawSchema : IFlatSerializable {
   /// <summary>
   /// Company identifier
   /// </summary>
   [Name("id")]
-  public required string Id { get; init; }
+  public string Id { get; init; } = null!;
 
   /// <summary>
   /// Company rating as percentage string (e.g., "100%", "38%", or empty)
@@ -35,5 +36,5 @@ public record CompanyRawSchema {
   /// IATA approval status as "t" (true) or "f" (false)
   /// </summary>
   [Name("iata_approved")]
-  public required string IataApproved { get; init; }
+  public string IataApproved { get; init; } = null!;
 }

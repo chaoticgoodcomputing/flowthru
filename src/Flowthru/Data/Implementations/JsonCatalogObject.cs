@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Flowthru.Abstractions;
 using Flowthru.Data.Validation;
 
 namespace Flowthru.Data.Implementations;
@@ -11,6 +12,13 @@ namespace Flowthru.Data.Implementations;
 /// <para>
 /// <strong>New in v0.4.0:</strong> This class provides JSON serialization for singleton objects.
 /// Use this for complex objects with nested structures that need human-readable storage.
+/// </para>
+/// <para>
+/// <strong>Schema Compatibility:</strong> JSON format supports both <see cref="IFlatSerializable"/> 
+/// and <see cref="INestedSerializable"/> schemas. Use JSON when:
+/// - Object contains nested structures or collections
+/// - Human-readable format is desired for inspection/debugging
+/// - Interchange with web APIs or configuration systems
 /// </para>
 /// <para>
 /// <strong>Use Cases:</strong>

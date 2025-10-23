@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Flowthru.Abstractions;
 using Flowthru.Data.Validation;
 
 namespace Flowthru.Data.Implementations;
@@ -13,6 +14,13 @@ namespace Flowthru.Data.Implementations;
 /// Use this for datasets with complex nested structures that need human-readable storage.
 /// </para>
 /// <para>
+/// <strong>Schema Compatibility:</strong> JSON format supports both <see cref="IFlatSerializable"/> 
+/// and <see cref="INestedSerializable"/> schemas. Use JSON when:
+/// - Schema contains nested objects or collections
+/// - Human-readable format is desired
+/// - Interchange with web APIs or JavaScript applications
+/// </para>
+/// <para>
 /// <strong>Use Cases:</strong>
 /// - Collections of complex objects with nested properties
 /// - Data interchange requiring human-readable format
@@ -21,7 +29,7 @@ namespace Flowthru.Data.Implementations;
 /// </para>
 /// <para>
 /// <strong>Comparison with CSV and Parquet:</strong>
-/// - CSV: Fast, widely compatible, but cannot preserve nested structures
+/// - CSV: Fast, widely compatible, but cannot preserve nested structures (IFlatSerializable only)
 /// - Parquet: Highly efficient columnar format, but binary and less human-readable
 /// - JSON: Human-readable, preserves full object hierarchy, but larger file size
 /// </para>

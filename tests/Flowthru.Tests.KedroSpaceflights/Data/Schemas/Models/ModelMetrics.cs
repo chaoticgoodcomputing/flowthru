@@ -1,10 +1,12 @@
+using Flowthru.Abstractions;
+
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 
 /// <summary>
 /// Model evaluation metrics.
 /// Output of EvaluateModelNode.
 /// </summary>
-public record ModelMetrics {
+public record ModelMetrics : IFlatSerializable {
   /// <summary>
   /// R² Score (coefficient of determination)
   /// </summary>

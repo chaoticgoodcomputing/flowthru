@@ -3,6 +3,7 @@ using System.Reflection;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
+using Flowthru.Abstractions;
 using Flowthru.Data.Validation;
 
 namespace Flowthru.Data.Implementations;
@@ -18,6 +19,11 @@ namespace Flowthru.Data.Implementations;
 /// Now: <c>CsvCatalogEntry&lt;Company&gt;</c>
 /// </para>
 /// <para>
+/// <strong>Breaking Change (v0.4.0):</strong> Type parameter T now requires <see cref="IFlatSerializable"/> constraint.
+/// CSV format cannot represent nested structures (collections, nested objects). Schemas with nested data
+/// must use <see cref="JsonCatalogDataset{T}"/> or <see cref="ParquetCatalogDataset{T}"/> instead.
+/// </para>
+/// <para>
 /// <strong>Use Cases:</strong>
 /// - Raw input data from external sources (01_Raw layer)
 /// - Simple tabular data export
@@ -25,9 +31,10 @@ namespace Flowthru.Data.Implementations;
 /// </para>
 /// <para>
 /// <strong>Requirements:</strong>
-/// Type T should have:
-/// - Public properties matching CSV column names
-/// - Parameterless constructor
+/// Type T must:
+/// - Implement <see cref="IFlatSerializable"/> (all properties are primitives, no collections or nested objects)
+/// - Have public properties matching CSV column names
+/// - Have a parameterless constructor
 /// - Properties should be primitive types or strings
 /// </para>
 /// <para>
@@ -40,7 +47,8 @@ namespace Flowthru.Data.Implementations;
 /// - Custom configuration can be provided via constructor
 /// </para>
 /// </remarks>
-public class CsvCatalogDataset<T> : CatalogDatasetBase<T> {
+public class CsvCatalogDataset<T> : CatalogDatasetBase<T>
+    where T : IFlatSerializable, new() {
   private readonly string _filePath;
   private readonly CsvConfiguration _configuration;
 
