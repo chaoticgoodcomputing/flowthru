@@ -53,28 +53,28 @@ public static class DataValidationPipeline {
       );
 
       // Node 2: Export cleaned companies to CSV for manual inspection
-      pipeline.AddNode<ExportToCsvNode<CompanySchema>>(
+      pipeline.AddNode<PassthroughInputToOutputNode<CompanySchema>>(
         name: "ExportCompaniesToDiagnosticCsv",
         input: catalog.CleanedCompanies,
         output: catalog.CleanedCompaniesCsv
       );
 
       // Node 3: Export cleaned shuttles to CSV for manual inspection
-      pipeline.AddNode<ExportToCsvNode<ShuttleSchema>>(
+      pipeline.AddNode<PassthroughInputToOutputNode<ShuttleSchema>>(
         name: "ExportShuttlesToDiagnosticCsv",
         input: catalog.CleanedShuttles,
         output: catalog.CleanedShuttlesCsv
       );
 
       // Node 4: Export model input table to CSV for manual inspection
-      pipeline.AddNode<ExportToCsvNode<ModelInputSchema>>(
+      pipeline.AddNode<PassthroughInputToOutputNode<ModelInputSchema>>(
         name: "ExportModelInputTableToDiagnosticCsv",
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableCsv
       );
 
       // Node 5: Export model input table to minified JSON for production/compact storage
-      pipeline.AddNode<ExportToCsvNode<ModelInputSchema>>(
+      pipeline.AddNode<PassthroughInputToOutputNode<ModelInputSchema>>(
         name: "ExportModelInputTableToMinifiedJson",
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableJsonMinified
@@ -86,6 +86,13 @@ public static class DataValidationPipeline {
         input: catalog.ModelInputTable,
         output: catalog.CrossValidationResults,
         configure: node => node.Parameters = parameters.CrossValidationParams
+      );
+
+      // Node 7: Generate human-readable Markdown report from cross-validation results
+      pipeline.AddNode<GenerateCrossValidationReportNode>(
+        name: "GenerateCrossValidationReport",
+        input: catalog.CrossValidationResults,
+        output: catalog.CrossValidationReport
       );
     });
   }

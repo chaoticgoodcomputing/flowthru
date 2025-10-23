@@ -221,4 +221,12 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// </summary>
   public ICatalogDataset<ModelInputSchema> ModelInputTableJsonMinified =>
     GetOrCreateDataset(() => new JsonCatalogDataset<ModelInputSchema>("ModelInputTableJsonMinified", $"{_basePath}/03_TrainingData/model_input_table.min.json", minified: true));
+
+  /// <summary>
+  /// Cross-validation summary report in Markdown format.
+  /// Human-readable report summarizing model performance and validation results.
+  /// </summary>
+  public ICatalogObject<string> CrossValidationReport =>
+    GetOrCreateObject(() => new FileCatalogObject("CrossValidationReport", $"{_basePath}/05_ModelOutput/cross_validation_report.md"));
+
 }

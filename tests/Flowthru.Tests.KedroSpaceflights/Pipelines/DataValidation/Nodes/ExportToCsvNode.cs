@@ -10,7 +10,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
 /// This is a diagnostic node that simply passes data through while writing
 /// it to a CSV catalog entry. Useful for debugging pipeline data issues.
 /// </remarks>
-public class ExportToCsvNode<T> : NodeBase<T, T, NoParams> {
+public class PassthroughInputToOutputNode<T> : NodeBase<T, T, NoParams> {
   protected override Task<IEnumerable<T>> Transform(IEnumerable<T> input) {
     // Pass-through: return input unchanged
     return Task.FromResult(input);
