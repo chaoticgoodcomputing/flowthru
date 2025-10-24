@@ -24,32 +24,29 @@ public class Program {
       // phase for subsequent pipelines.
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
-          "DataProcessing",
-          DataProcessingPipeline.Create
+          label: "DataProcessing",
+          creator: DataProcessingPipeline.Create
         )
         .WithDescription("Preprocesses raw data and creates model input table");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog, DataSciencePipelineParams>(
-          "DataScience",
-          DataSciencePipeline.Create,
-          // Provide parameters for the data science pipeline
-          new DataSciencePipelineParams(
-            // Options for model training
+          label: "DataScience",
+          creator: DataSciencePipeline.Create,
+          parameters: new DataSciencePipelineParams(
             new ModelParams {
               TestSize = 0.2,
               RandomState = 3,
-              Features =
-                [
-                  "Engines",
-                  "PassengerCapacity",
-                  "Crew",
-                  "DCheckComplete",
-                  "MoonClearanceComplete",
-                  "IataApproved",
-                  "CompanyRating",
-                  "ReviewScoresRating"
-                ]
+              Features = [
+                "Engines",
+                "PassengerCapacity",
+                "Crew",
+                "DCheckComplete",
+                "MoonClearanceComplete",
+                "IataApproved",
+                "CompanyRating",
+                "ReviewScoresRating"
+              ]
             }
           )
         )
@@ -57,10 +54,9 @@ public class Program {
 
       builder
         .RegisterPipeline<SpaceflightsCatalog, DataValidationPipelineParams>(
-          "DataValidation",
-          DataValidationPipeline.Create,
-          // Provide parameters for the data validation pipeline
-          new DataValidationPipelineParams(
+          label: "DataValidation",
+          creator: DataValidationPipeline.Create,
+          parameters: new DataValidationPipelineParams(
             // Options for cross-validation
             new CrossValidationParams {
               NumFolds = 10, // Standard 10-fold cross-validation  

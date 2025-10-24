@@ -14,7 +14,7 @@ public record SyntheticDataPoint : IFlatSerializable {
   /// Sequential index of the data point (0-based)
   /// </summary>
   public int Index { get; init; }
-  
+
   /// <summary>
   /// Random value sampled from a normal distribution
   /// </summary>

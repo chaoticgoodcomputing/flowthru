@@ -37,7 +37,7 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, NoD
 
     // Step 3: Data Value Comparison
     CompareDataValues(flowthruData, kedroData);
-    
+
     // This is a side-effect-only node - return NoData using simplified helper
     return NoData.Result();
   }

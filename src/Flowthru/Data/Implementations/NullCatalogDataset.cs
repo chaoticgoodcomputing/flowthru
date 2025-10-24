@@ -74,7 +74,7 @@ public class NullCatalogDataset<T> : CatalogDatasetBase<T> {
     var value = typeof(T) == typeof(Nodes.NoData)
         ? (T)(object)Nodes.NoData.Value
         : default(T)!;
-    
+
     return Task.FromResult(Enumerable.Repeat(value, 1));
   }
 

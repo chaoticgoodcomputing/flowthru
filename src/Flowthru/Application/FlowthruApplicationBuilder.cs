@@ -143,19 +143,19 @@ public class FlowthruApplicationBuilder {
   /// Registers a pipeline with a parameterless factory function (inline registration).
   /// </summary>
   /// <typeparam name="TCatalog">The catalog type</typeparam>
-  /// <param name="name">Unique pipeline name</param>
-  /// <param name="pipelineFactory">Factory function that creates the pipeline from catalog</param>
+  /// <param name="label">Unique pipeline name</param>
+  /// <param name="creator">Factory function that creates the pipeline from catalog</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
   /// Use this for inline pipeline registration without a separate registry class.
   /// Fluent chaining with WithDescription() and WithTags() is supported.
   /// </remarks>
   public FlowthruApplicationBuilder RegisterPipeline<TCatalog>(
-    string name,
-    Func<TCatalog, Pipelines.Pipeline> pipelineFactory)
+    string label,
+    Func<TCatalog, Pipelines.Pipeline> creator)
     where TCatalog : DataCatalogBase {
     _inlineRegistrations.Add(registrar =>
-      registrar.Register(name, catalog => pipelineFactory((TCatalog)catalog)));
+      registrar.Register(label, catalog => creator((TCatalog)catalog)));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
     return this;
   }
@@ -165,8 +165,8 @@ public class FlowthruApplicationBuilder {
   /// </summary>
   /// <typeparam name="TCatalog">The catalog type</typeparam>
   /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
-  /// <param name="name">Unique pipeline name</param>
-  /// <param name="pipelineFactory">Factory function that creates the pipeline from catalog and parameters</param>
+  /// <param name="label">Unique pipeline name</param>
+  /// <param name="creator">Factory function that creates the pipeline from catalog and parameters</param>
   /// <param name="parameters">Parameter instance to pass to the pipeline</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
@@ -174,12 +174,12 @@ public class FlowthruApplicationBuilder {
   /// Fluent chaining with WithDescription() and WithTags() is supported.
   /// </remarks>
   public FlowthruApplicationBuilder RegisterPipeline<TCatalog, TParams>(
-    string name,
-    Func<TCatalog, TParams, Pipelines.Pipeline> pipelineFactory,
+    string label,
+    Func<TCatalog, TParams, Pipelines.Pipeline> creator,
     TParams parameters)
     where TCatalog : DataCatalogBase {
     _inlineRegistrations.Add(registrar =>
-      registrar.Register(name, (catalog, p) => pipelineFactory((TCatalog)catalog, (TParams)p), parameters));
+      registrar.Register(label, (catalog, p) => creator((TCatalog)catalog, (TParams)p), parameters));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
     return this;
   }
