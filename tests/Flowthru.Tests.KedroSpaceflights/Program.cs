@@ -36,17 +36,7 @@ public class Program {
           parameters: new DataSciencePipelineParams(
             new ModelParams {
               TestSize = 0.2,
-              RandomState = 3,
-              Features = [
-                "Engines",
-                "PassengerCapacity",
-                "Crew",
-                "DCheckComplete",
-                "MoonClearanceComplete",
-                "IataApproved",
-                "CompanyRating",
-                "ReviewScoresRating"
-              ]
+              RandomState = 3
             }
           )
         )
