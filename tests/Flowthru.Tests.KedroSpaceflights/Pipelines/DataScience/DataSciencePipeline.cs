@@ -13,7 +13,12 @@ public record DataSciencePipelineParams(
   /// <summary>
   /// Options for model training.
   /// </summary>
-  ModelParams ModelParams
+  ModelParams ModelParams,
+
+  /// <summary>
+  /// Options for cross-validation.
+  /// </summary>
+  CrossValidationParams CrossValidationParams
 );
 
 /// <summary>
@@ -74,6 +79,14 @@ public static class DataSciencePipeline {
           .Map(x => x.XTest, catalog.XTest)
           .Map(x => x.YTest, catalog.YTest),
         output: catalog.ModelMetrics
+      );
+
+      // Node 4: Cross-validation for R² distribution analysis and comparison to Kedro
+      pipeline.AddNode<CrossValidateModelNode>(
+        name: "CrossValidateAndCompareToKedroSource",
+        input: catalog.ModelInputTable,
+        output: catalog.CrossValidationResults,
+        configure: node => node.Parameters = parameters.CrossValidationParams
       );
     });
   }

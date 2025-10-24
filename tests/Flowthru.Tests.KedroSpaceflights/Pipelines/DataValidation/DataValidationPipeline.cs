@@ -9,16 +9,6 @@ using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation;
 
 /// <summary>
-/// Parameters for the data validation pipeline.
-/// </summary>
-public record DataValidationPipelineParams(
-  /// <summary>
-  /// Options for cross-validation.
-  /// </summary>
-  CrossValidationParams CrossValidationParams
-);
-
-/// <summary>
 /// Data validation pipeline that performs diagnostic and validation operations on pipeline outputs.
 /// 
 /// <para>
@@ -41,7 +31,7 @@ public record DataValidationPipelineParams(
 /// </para>
 /// </summary>
 public static class DataValidationPipeline {
-  public static Pipeline Create(SpaceflightsCatalog catalog, DataValidationPipelineParams parameters) {
+  public static Pipeline Create(SpaceflightsCatalog catalog) {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
       // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
@@ -81,15 +71,7 @@ public static class DataValidationPipeline {
         output: catalog.ModelInputTableJsonMinified
       );
 
-      // Node 6: Cross-validation for R² distribution analysis and comparison to Kedro
-      pipeline.AddNode<CrossValidateModelNode>(
-        name: "CrossValidateAndCompareToKedroSource",
-        input: catalog.ModelInputTable,
-        output: catalog.CrossValidationResults,
-        configure: node => node.Parameters = parameters.CrossValidationParams
-      );
-
-      // Node 7: Generate human-readable Markdown report from cross-validation results
+      // Node 6: Generate human-readable Markdown report from cross-validation results
       pipeline.AddNode<GenerateCrossValidationReportNode>(
         name: "GenerateCrossValidationReport",
         input: catalog.CrossValidationResults,

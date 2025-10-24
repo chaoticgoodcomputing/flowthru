@@ -41,16 +41,7 @@ public class Program {
             new ModelParams {
               TestSize = 0.2,
               RandomState = 3
-            }
-          )
-        )
-        .WithDescription("Trains and evaluates ML model");
-
-      builder
-        .RegisterPipeline<SpaceflightsCatalog, DataValidationPipelineParams>(
-          label: "DataValidation",
-          creator: DataValidationPipeline.Create,
-          parameters: new DataValidationPipelineParams(
+            },
             // Options for cross-validation
             new CrossValidationParams {
               NumFolds = 10, // Standard 10-fold cross-validation  
@@ -59,6 +50,13 @@ public class Program {
                                              // unmodified Kedro implementation in Python.
             }
           )
+        )
+        .WithDescription("Trains and evaluates ML model");
+
+      builder
+        .RegisterPipeline<SpaceflightsCatalog>(
+          label: "DataValidation",
+          creator: DataValidationPipeline.Create
         )
         .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
 
