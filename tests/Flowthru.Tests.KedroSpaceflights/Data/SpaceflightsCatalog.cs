@@ -137,6 +137,13 @@ public class SpaceflightsCatalog : DataCatalogBase {
   // ===========================================================
 
   /// <summary>
+  /// Synthetically generated test data for diagnostic purposes.
+  /// Contains random values from a normal distribution.
+  /// </summary>
+  public ICatalogDataset<SyntheticDataPoint> SyntheticData =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<SyntheticDataPoint>("SyntheticData", $"{_basePath}/05_ModelOutput/synthetic_data.csv"));
+
+  /// <summary>
   /// Preprocessed companies exported as CSV (for debugging).
   /// </summary>
   public ICatalogDataset<CompanySchema> CleanedCompaniesCsv =>

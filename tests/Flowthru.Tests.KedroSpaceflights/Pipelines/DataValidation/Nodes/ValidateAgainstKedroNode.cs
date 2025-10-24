@@ -17,12 +17,12 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
 /// 3. Data value comparison - checks for discrepancies in actual values
 /// </para>
 /// <para>
-/// This is a pass-through node that outputs the Flowthru data unchanged,
+/// This is a side-effect-only node that produces no meaningful output (NoData),
 /// but logs detailed comparison results for diagnostic purposes.
 /// </para>
 /// </remarks>
-public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, ModelInputSchema, NoParams> {
-  protected override Task<IEnumerable<ModelInputSchema>> Transform(IEnumerable<ValidateAgainstKedroInputs> inputs) {
+public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, NoData, NoParams> {
+  protected override Task<IEnumerable<NoData>> Transform(IEnumerable<ValidateAgainstKedroInputs> inputs) {
     var input = inputs.Single();
     var flowthruData = input.FlowthruData.ToList();
     var kedroData = input.KedroData.ToList();
@@ -37,8 +37,9 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, Mod
 
     // Step 3: Data Value Comparison
     CompareDataValues(flowthruData, kedroData);
-    // Pass through Flowthru data unchanged
-    return Task.FromResult(flowthruData.AsEnumerable());
+    
+    // This is a side-effect-only node - return NoData using simplified helper
+    return NoData.Result();
   }
 
   private void CompareSchemas() {

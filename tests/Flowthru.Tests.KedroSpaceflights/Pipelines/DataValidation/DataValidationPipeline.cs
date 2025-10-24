@@ -29,13 +29,14 @@ public record DataValidationPipelineParams(
 /// 
 /// <para><strong>Diagnostic Nodes:</strong></para>
 /// <list type="bullet">
-/// <item>ValidateAgainstKedroNode - Compares Flowthru vs Kedro model input table</item>
+/// <item>GenerateSyntheticDataNode - Generates test data with NoData input (demonstrates no-input nodes)</item>
+/// <item>ValidateAgainstKedroNode - Compares Flowthru vs Kedro model input table (demonstrates no-output nodes)</item>
 /// <item>ExportToCsvNode - Exports intermediate datasets to CSV for debugging</item>
 /// <item>CrossValidateModelNode - Performs k-fold cross-validation and comparison to Kedro</item>
 /// </list>
 /// 
 /// <para>
-/// All nodes in this pipeline are pass-through nodes that output their inputs unchanged,
+/// Most nodes in this pipeline are pass-through nodes that output their inputs unchanged,
 /// making this pipeline safe to run alongside production pipelines without affecting results.
 /// </para>
 /// </summary>
@@ -43,13 +44,20 @@ public static class DataValidationPipeline {
   public static Pipeline Create(SpaceflightsCatalog catalog, DataValidationPipelineParams parameters) {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
-      // Node 1: Validate model input table against Kedro reference output
+      // Node 0: Generate synthetic data from no inputs (demonstrates NoData input pattern)
+      pipeline.AddNode<GenerateSyntheticDataNode>(
+        name: "GenerateSyntheticData",
+        input: NoData.Input,
+        output: catalog.SyntheticData
+      );
+
+      // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
       pipeline.AddNode<ValidateAgainstKedroNode>(
         name: "ValidateModelInputTableAgainstKedroSource",
         input: new CatalogMap<ValidateAgainstKedroInputs>()
           .Map(x => x.FlowthruData, catalog.ModelInputTable)
           .Map(x => x.KedroData, catalog.KedroModelInputTable),
-        output: new MemoryCatalogDataset<ModelInputSchema>("_validation_throwaway")
+        output: NoData.Discard
       );
 
       // Node 2: Export cleaned companies to CSV for manual inspection
