@@ -189,7 +189,7 @@ public class FileCatalogObject : CatalogObjectBase<string>, IShallowInspectable<
       // 2. Read first 4KB as sample
       const int sampleBufferSize = 4096;
       byte[] buffer;
-      
+
       await using (var stream = File.OpenRead(_filePath)) {
         var fileLength = (int)Math.Min(stream.Length, sampleBufferSize);
         buffer = new byte[fileLength];
@@ -272,7 +272,7 @@ public class FileCatalogObject : CatalogObjectBase<string>, IShallowInspectable<
       // 2. Read and decode entire file
       try {
         var content = await File.ReadAllTextAsync(_filePath, _encoding);
-        
+
         // Validate we got a string back (file may be empty, which is OK)
         if (content == null) {
           result.AddError(new ValidationError(
