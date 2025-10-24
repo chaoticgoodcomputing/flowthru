@@ -44,13 +44,6 @@ public static class DataValidationPipeline {
   public static Pipeline Create(SpaceflightsCatalog catalog, DataValidationPipelineParams parameters) {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
-      // Node 0: Generate synthetic data from no inputs (demonstrates NoData input pattern)
-      pipeline.AddNode<GenerateSyntheticDataNode>(
-        name: "GenerateSyntheticData",
-        input: NoData.Input,
-        output: catalog.SyntheticData
-      );
-
       // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
       pipeline.AddNode<ValidateAgainstKedroNode>(
         name: "ValidateModelInputTableAgainstKedroSource",

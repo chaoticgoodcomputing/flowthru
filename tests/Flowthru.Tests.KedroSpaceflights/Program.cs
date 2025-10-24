@@ -5,6 +5,7 @@ using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Tests.KedroSpaceflights;
@@ -57,6 +58,13 @@ public class Program {
           )
         )
         .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
+
+      builder
+        .RegisterPipeline<SpaceflightsCatalog>(
+          label: "Reporting",
+          creator: ReportingPipeline.Create
+        )
+        .WithDescription("Generate visualizations and reports from processed data");
 
       // Configure logging
       builder.ConfigureLogging(logging => {
