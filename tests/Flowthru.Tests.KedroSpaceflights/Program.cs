@@ -25,10 +25,10 @@ public class Program {
       // Enable metadata collection with provider configuration
       builder.IncludeMetadata(meta => meta
         .WithOutputDirectory("Data/Metadata")
-        .AddJson(json =>
-          json.UseCompactFormat())  // Export compact JSON
-        .AddMermaid(mermaid =>
-          mermaid.WithDirection(MermaidFlowchartDirection.TopToBottom)));
+        .AddJson(json => json
+          .UseCompactFormat())  // Export compact JSON
+        .AddMermaid(mermaid => mermaid
+          .WithDirection(MermaidFlowchartDirection.TopToBottom)));
 
       // Register the Data Processing Pipeline, which serves as the initial ingest and cleaning
       // phase for subsequent pipelines.
@@ -50,7 +50,7 @@ public class Program {
             },
             // Options for cross-validation
             new CrossValidationParams {
-              NumFolds = 10, // Standard 10-fold cross-validation  
+              NumFolds = 20, // 20-fold cross-validation
               BaseSeed = 42, // A magic number, nothing up our sleeves!
               KedroReferenceR2Score = 0.387f // Baseline comparison to the seeded run of the
                                              // unmodified Kedro implementation in Python.

@@ -2,7 +2,7 @@ using System.Text;
 using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 
-namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
+namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 
 /// <summary>
 /// Generates a human-readable Markdown report from cross-validation results.

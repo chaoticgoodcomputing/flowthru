@@ -90,6 +90,36 @@ public static class ReportingPipeline {
           output: catalog.ConfusionMatrixPlotPng,
           name: "ExportConfusionMatrixPng"
       );
+
+      // ===== Cross-Validation Results Visualization =====
+
+      // Step 1: Generate comprehensive cross-validation chart
+      pipeline.AddNode<VisualizeCrossValidationNode>(
+          input: catalog.CrossValidationResults,
+          output: catalog.CrossValidationChart,
+          name: "GenerateCrossValidationChart"
+      );
+
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddNode<PlotlyJsonExportNode>(
+          input: catalog.CrossValidationChart,
+          output: catalog.CrossValidationPlot,
+          name: "ExportCrossValidationJson"
+      );
+
+      // Step 3: Export chart to base64-encoded PNG for static reports
+      pipeline.AddNode<PlotlyImageExportNode>(
+          input: catalog.CrossValidationChart,
+          output: catalog.CrossValidationPlotPng,
+          name: "ExportCrossValidationPng"
+      );
+
+      // Node 6: Generate human-readable Markdown report from cross-validation results
+      pipeline.AddNode<GenerateCrossValidationReportNode>(
+        name: "GenerateCrossValidationReport",
+        input: catalog.CrossValidationResults,
+        output: catalog.CrossValidationReport
+      );
     });
   }
 }

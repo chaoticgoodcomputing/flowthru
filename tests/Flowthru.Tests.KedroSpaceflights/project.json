@@ -23,6 +23,8 @@
           "find Data/Datasets/03_TrainingData -mindepth 1 -type f ! -name '.gitkeep' -delete",
           "find Data/Datasets/04_Models -mindepth 1 -type f ! -name '.gitkeep' -delete",
           "find Data/Datasets/05_ModelOutput -mindepth 1 -type f ! -name '.gitkeep' -delete",
+          "find Data/Datasets/06_Reports -mindepth 1 -type f ! -name '.gitkeep' -delete",
+          "find Data/Metadata -mindepth 1 -type f ! -name '.gitkeep' -delete"
         ],
         "cwd": "tests/Flowthru.Tests.KedroSpaceflights",
         "parallel": false

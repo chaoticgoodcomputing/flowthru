@@ -324,37 +324,74 @@ public class SpaceflightsCatalog : DataCatalogBase {
       filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.json"));
 
   /// <summary>
-  /// Shuttle passenger capacity bar chart (base64-encoded PNG).
+  /// Shuttle passenger capacity bar chart (PNG image).
   /// Static image representation of the passenger capacity visualization.
-  /// Stored as base64-encoded string, can be decoded to raw PNG bytes if needed.
+  /// Stored as binary PNG file.
   /// </summary>
   /// <remarks>
-  /// Using base64 encoding allows PNG image data to be stored in a FileCatalogObject&lt;string&gt;
-  /// without requiring binary file support. The base64 string can be:
-  /// - Decoded to raw PNG bytes using Convert.FromBase64String()
-  /// - Embedded directly in HTML using data URLs: data:image/png;base64,{base64}
-  /// - Stored as text for easy versioning and inspection
-  /// File size is ~33% larger than raw PNG due to base64 encoding overhead.
+  /// Uses BinaryFileCatalogObject to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogObject<string> ShuttlePassengerCapacityPlotPng => GetOrCreateObject(()
-    => new FileCatalogObject(
+  public ICatalogObject<byte[]> ShuttlePassengerCapacityPlotPng => GetOrCreateObject(()
+    => new BinaryFileCatalogObject(
       key: "ShuttlePassengerCapacityPlotPng",
-      filePath: $"{_basePath}/08_Reporting/shuttle_passenger_capacity_plot.png.base64"));
+      filePath: $"{_basePath}/06_Reports/shuttle_passenger_capacity_plot.png",
+      expectedFileType: BinaryFileType.Png));
 
   /// <summary>
-  /// Confusion matrix heatmap (base64-encoded PNG).
+  /// Confusion matrix heatmap (PNG image).
   /// Static image representation of the confusion matrix visualization.
-  /// Stored as base64-encoded string for catalog compatibility.
+  /// Stored as binary PNG file.
   /// </summary>
   /// <remarks>
-  /// Using base64 encoding allows PNG image data to be stored in a FileCatalogObject&lt;string&gt;
-  /// without requiring binary file support. The base64 string can be decoded to raw PNG bytes
-  /// using Convert.FromBase64String() or embedded directly in HTML as a data URL.
+  /// Uses BinaryFileCatalogObject to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogObject<string> ConfusionMatrixPlotPng => GetOrCreateObject(()
-    => new FileCatalogObject(
+  public ICatalogObject<byte[]> ConfusionMatrixPlotPng => GetOrCreateObject(()
+    => new BinaryFileCatalogObject(
       key: "ConfusionMatrixPlotPng",
-      filePath: $"{_basePath}/08_Reporting/confusion_matrix_plot.png.base64"));
+      filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.png",
+      expectedFileType: BinaryFileType.Png));
+
+  /// <summary>
+  /// Cross-validation visualization chart (in-memory GenericChart).
+  /// Intermediate chart object showing R² distribution analysis with scatter plot,
+  /// normal curve, mean line, and Kedro reference line.
+  /// </summary>
+  public ICatalogObject<GenericChart> CrossValidationChart => GetOrCreateObject(()
+    => new MemoryCatalogObject<GenericChart>(
+      key: "CrossValidationChart"));
+
+  /// <summary>
+  /// Cross-validation visualization (Plotly JSON).
+  /// Multi-layer chart showing R² distribution from cross-validation with:
+  /// - Scatter plot of fold R² scores
+  /// - Normal distribution curve fit
+  /// - Mean R² vertical line
+  /// - Kedro reference R² vertical line
+  /// </summary>
+  /// <remarks>
+  /// Stored as Plotly JSON specification for interactive visualization.
+  /// </remarks>
+  public ICatalogObject<string> CrossValidationPlot => GetOrCreateObject(()
+    => new FileCatalogObject(
+      key: "CrossValidationPlot",
+      filePath: $"{_basePath}/06_Reports/cross_validation_plot.json"));
+
+  /// <summary>
+  /// Cross-validation visualization (PNG image).
+  /// Static image representation of the cross-validation analysis chart.
+  /// Stored as binary PNG file.
+  /// </summary>
+  /// <remarks>
+  /// Uses BinaryFileCatalogObject to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
+  /// </remarks>
+  public ICatalogObject<byte[]> CrossValidationPlotPng => GetOrCreateObject(()
+    => new BinaryFileCatalogObject(
+      key: "CrossValidationPlotPng",
+      filePath: $"{_basePath}/06_Reports/cross_validation_plot.png",
+      expectedFileType: BinaryFileType.Png));
 
 }
 

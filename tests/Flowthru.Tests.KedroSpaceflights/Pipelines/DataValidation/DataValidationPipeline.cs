@@ -70,13 +70,6 @@ public static class DataValidationPipeline {
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableJsonMinified
       );
-
-      // Node 6: Generate human-readable Markdown report from cross-validation results
-      pipeline.AddNode<GenerateCrossValidationReportNode>(
-        name: "GenerateCrossValidationReport",
-        input: catalog.CrossValidationResults,
-        output: catalog.CrossValidationReport
-      );
     });
   }
 }
