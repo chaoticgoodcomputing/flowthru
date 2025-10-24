@@ -1,3 +1,5 @@
+using Flowthru.Data.Validation;
+
 namespace Flowthru.Data;
 
 /// <summary>
@@ -30,6 +32,8 @@ namespace Flowthru.Data;
 /// </para>
 /// </remarks>
 public abstract class ReadOnlyCatalogObjectBase<T> : IReadableCatalogObject<T> {
+  private InspectionLevel? _preferredInspectionLevel;
+
   /// <summary>
   /// Creates a new read-only catalog object with the specified key.
   /// </summary>
@@ -43,6 +47,12 @@ public abstract class ReadOnlyCatalogObjectBase<T> : IReadableCatalogObject<T> {
 
   /// <inheritdoc/>
   public Type DataType => typeof(T);
+
+  /// <inheritdoc/>
+  public InspectionLevel? PreferredInspectionLevel {
+    get => _preferredInspectionLevel;
+    protected set => _preferredInspectionLevel = value;
+  }
 
   /// <inheritdoc/>
   public abstract Task<T> Load();
@@ -80,7 +90,35 @@ public abstract class ReadOnlyCatalogObjectBase<T> : IReadableCatalogObject<T> {
     throw new NotSupportedException(
         $"Cannot save to read-only catalog object '{Key}' of type {GetType().Name}. " +
         "This object implements IReadableCatalogObject<T> and does not support write operations. " +
-        "Use a read-write object implementation (MemoryCatalogObject, etc.) " +
+        "Use a read-write object implementation (MemoryCatalogObject, JsonCatalogObject) " +
         "if you need to save data.");
+  }
+
+  /// <summary>
+  /// Configures the preferred inspection level for this catalog entry.
+  /// </summary>
+  /// <param name="level">The inspection level to use for this entry</param>
+  /// <returns>This instance for fluent chaining</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Fluent Configuration:</strong> This method enables catalog-level validation configuration
+  /// using a fluent API pattern that integrates seamlessly with catalog property declarations.
+  /// </para>
+  /// <para>
+  /// <strong>Usage Example:</strong>
+  /// </para>
+  /// <code>
+  /// public IReadableCatalogObject&lt;ModelConfig&gt; Config =>
+  ///   GetOrCreateReadOnlyObject(() => new JsonCatalogObject&lt;ModelConfig&gt;("config", "config/model.json")
+  ///     .WithInspectionLevel(InspectionLevel.Shallow));
+  /// </code>
+  /// <para>
+  /// <strong>Note:</strong> Read-only catalog objects typically don't implement inspection interfaces
+  /// unless they represent external configuration files or other data sources that benefit from validation.
+  /// </para>
+  /// </remarks>
+  public ReadOnlyCatalogObjectBase<T> WithInspectionLevel(InspectionLevel level) {
+    PreferredInspectionLevel = level;
+    return this;
   }
 }

@@ -243,8 +243,28 @@ public class Pipeline {
     Logger?.LogInformation("Validating external inputs from {Layer0NodeCount} Layer 0 nodes", layer0Nodes.Count);
 
     // Extract all unique input catalog entries from Layer 0 nodes
+    // Handle CatalogMap entries by expanding them into their constituent catalog entries
     var externalInputs = layer0Nodes
       .SelectMany(node => node.Inputs)
+      .SelectMany(entry => {
+        // If this is a CatalogMap, expand it into its catalog entries
+        if (entry is Mapping.CatalogMap<object> catalogMap) {
+          return catalogMap.GetCatalogEntriesForInspection();
+        }
+        // Check for generic CatalogMap via reflection (since we don't know T at compile-time)
+        var entryType = entry.GetType();
+        if (entryType.IsGenericType && entryType.GetGenericTypeDefinition().Name == "CatalogMap`1") {
+          var method = entryType.GetMethod("GetCatalogEntriesForInspection",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+          if (method != null) {
+            if (method.Invoke(entry, null) is IEnumerable<ICatalogEntry> entries) {
+              return entries;
+            }
+          }
+        }
+        // Otherwise, return the entry itself
+        return new[] { entry };
+      })
       .DistinctBy(entry => entry.Key)
       .ToList();
 

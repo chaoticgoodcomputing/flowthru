@@ -1,5 +1,6 @@
 using Flowthru.Data;
 using Flowthru.Data.Implementations;
+using Flowthru.Data.Validation;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
@@ -61,15 +62,25 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Raw company data from CSV file.
   /// Contains company ratings and information.
   /// </summary>
+  /// <remarks>
+  /// This is a critical Layer 0 input from an external source, configured for deep inspection
+  /// to ensure data quality before pipeline execution.
+  /// </remarks>
   public ICatalogDataset<CompanyRawSchema> Companies =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<CompanyRawSchema>("RawCompanies", $"{_basePath}/01_Raw/companies.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<CompanyRawSchema>("RawCompanies", $"{_basePath}/01_Raw/companies.csv")
+      .WithInspectionLevel(InspectionLevel.Deep));
 
   /// <summary>
   /// Raw review data from CSV file.
   /// Contains customer reviews with scores.
   /// </summary>
+  /// <remarks>
+  /// This is a critical Layer 0 input from an external source, configured for deep inspection
+  /// to ensure data quality before pipeline execution.
+  /// </remarks>
   public ICatalogDataset<ReviewRawSchema> Reviews =>
-    GetOrCreateDataset(() => new CsvCatalogDataset<ReviewRawSchema>("RawReviews", $"{_basePath}/01_Raw/reviews.csv"));
+    GetOrCreateDataset(() => new CsvCatalogDataset<ReviewRawSchema>("RawReviews", $"{_basePath}/01_Raw/reviews.csv")
+      .WithInspectionLevel(InspectionLevel.Deep));
 
   /// <summary>
   /// Raw shuttle data from Excel file (read-only).
@@ -78,9 +89,12 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// <remarks>
   /// This dataset is read-only because Excel files cannot be written to by the ExcelDataReader library.
   /// It can only be used as a pipeline input, not as an output.
+  /// This is a critical Layer 0 input from an external source, configured for deep inspection
+  /// to ensure data quality before pipeline execution.
   /// </remarks>
   public IReadableCatalogDataset<ShuttleRawSchema> Shuttles =>
-    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<ShuttleRawSchema>("RawShuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1"));
+    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<ShuttleRawSchema>("RawShuttles", $"{_basePath}/01_Raw/shuttles.xlsx", "Sheet1")
+      .WithInspectionLevel(InspectionLevel.Deep));
 
   // ===========================================================
   // INTERMEDIATE DATA (02_Intermediate)

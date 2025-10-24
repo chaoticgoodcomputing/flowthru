@@ -27,13 +27,7 @@ public class Program {
           "DataProcessing",
           DataProcessingPipeline.Create
         )
-        .WithDescription("Preprocesses raw data and creates model input table")
-        .WithValidation(validation => {
-          // Opt into deep inspection for critical input datasets
-          validation.Inspect(builder.GetCatalog<SpaceflightsCatalog>().Companies, Flowthru.Data.Validation.InspectionLevel.Deep);
-          validation.Inspect(builder.GetCatalog<SpaceflightsCatalog>().Shuttles, Flowthru.Data.Validation.InspectionLevel.Deep);
-          validation.Inspect(builder.GetCatalog<SpaceflightsCatalog>().Reviews, Flowthru.Data.Validation.InspectionLevel.Deep);
-        });
+        .WithDescription("Preprocesses raw data and creates model input table");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog, DataSciencePipelineParams>(

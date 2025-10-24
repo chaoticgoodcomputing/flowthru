@@ -8,30 +8,48 @@ namespace Flowthru.Pipelines.Validation;
 /// </summary>
 /// <remarks>
 /// <para>
-/// ValidationOptions allows pipeline creators to configure how external data sources
-/// (Layer 0 inputs) are validated before pipeline execution begins.
+/// ValidationOptions provides pipeline-level overrides for validation configuration.
+/// The primary mechanism for validation configuration is catalog-level via the
+/// <see cref="ICatalogEntry.PreferredInspectionLevel"/> property and the fluent
+/// <c>.WithInspectionLevel()</c> API.
 /// </para>
 /// <para>
 /// <strong>Default Behavior (if not configured):</strong>
 /// </para>
 /// <list type="bullet">
+/// <item>Catalog entry has PreferredInspectionLevel set → use that level</item>
 /// <item>Layer 0 inputs that implement <see cref="IShallowInspectable{T}"/> → Shallow inspection</item>
 /// <item>Layer 0 inputs that don't implement inspection interfaces → None (skip)</item>
 /// <item>All intermediate outputs (Layer 1+) → None (never inspected)</item>
 /// </list>
 /// <para>
-/// <strong>Usage Example:</strong>
+/// <strong>Catalog-Level Configuration (Recommended):</strong>
+/// </para>
+/// <code>
+/// public ICatalogDataset&lt;Company&gt; Companies =>
+///   GetOrCreateDataset(() => new CsvCatalogDataset&lt;Company&gt;("companies", "data/companies.csv")
+///     .WithInspectionLevel(InspectionLevel.Deep));
+/// </code>
+/// <para>
+/// <strong>Pipeline-Level Override (Advanced):</strong>
 /// </para>
 /// <code>
 /// builder
 ///   .RegisterPipeline&lt;MyCatalog&gt;("data_processing", MyPipeline.Create)
 ///   .WithValidation(validation => {
-///     // Opt into deep inspection for critical inputs
-///     validation.Inspect(catalog.Companies, InspectionLevel.Deep);
-///     validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
-///     // Other Layer 0 inputs will use default Shallow inspection
+///     // Override catalog-level setting for this specific pipeline
+///     validation.Inspect(catalog.Companies, InspectionLevel.Shallow); // Temporarily use shallow
 ///   });
 /// </code>
+/// <para>
+/// <strong>Design Rationale:</strong>
+/// </para>
+/// <para>
+/// Validation configuration is primarily a property of the data source itself, not the pipeline
+/// consuming it. Critical external datasets should always be deeply validated, regardless of
+/// which pipeline uses them. Pipeline-level overrides exist for rare cases where different
+/// validation is needed temporarily (e.g., performance testing, debugging).
+/// </para>
 /// </remarks>
 public class ValidationOptions {
   private readonly Dictionary<string, InspectionLevel> _catalogEntryInspectionLevels = new();
@@ -73,26 +91,43 @@ public class ValidationOptions {
   /// <returns>The inspection level to use (considering configuration and defaults)</returns>
   /// <remarks>
   /// <para>
-  /// <strong>Resolution Logic:</strong>
+  /// <strong>Resolution Logic (Priority Order):</strong>
   /// </para>
   /// <list type="number">
-  /// <item>If explicitly configured via Inspect() → use that level</item>
-  /// <item>If entry implements <see cref="IShallowInspectable{T}"/> → Shallow</item>
-  /// <item>Otherwise → None</item>
+  /// <item><strong>Pipeline-level override:</strong> If explicitly configured via WithValidation().Inspect() → use that level (highest priority)</item>
+  /// <item><strong>Catalog-level preference:</strong> If entry.PreferredInspectionLevel is set → use that level (medium priority)</item>
+  /// <item><strong>Capability-based default:</strong> If entry implements <see cref="IShallowInspectable{T}"/> → Shallow, otherwise None (lowest priority)</item>
   /// </list>
+  /// <para>
+  /// <strong>Design Rationale:</strong>
+  /// </para>
+  /// <para>
+  /// Validation configuration follows a data-centric approach: the inspection level is primarily
+  /// a property of the data source itself, not the pipeline consuming it. Critical external datasets
+  /// should always be deeply validated, regardless of which pipeline uses them.
+  /// </para>
+  /// <para>
+  /// Pipeline-level overrides exist for rare cases where different validation is needed temporarily
+  /// (e.g., skipping validation in performance tests, or enabling deep validation during debugging).
+  /// </para>
   /// </remarks>
   internal InspectionLevel GetEffectiveInspectionLevel(ICatalogEntry catalogEntry) {
     if (catalogEntry == null) {
       throw new ArgumentNullException(nameof(catalogEntry));
     }
 
-    // 1. Check for explicit configuration
+    // 1. Check for explicit pipeline-level configuration (highest priority)
     var configuredLevel = GetInspectionLevel(catalogEntry.Key);
     if (configuredLevel.HasValue) {
       return configuredLevel.Value;
     }
 
-    // 2. Check if entry supports shallow inspection (default behavior)
+    // 2. Check for catalog-level preference (medium priority)
+    if (catalogEntry.PreferredInspectionLevel.HasValue) {
+      return catalogEntry.PreferredInspectionLevel.Value;
+    }
+
+    // 3. Use capability-based default (lowest priority)
     var entryType = catalogEntry.GetType();
     var implementsShallowInspectable = entryType.GetInterfaces()
       .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IShallowInspectable<>));
@@ -101,7 +136,7 @@ public class ValidationOptions {
       return InspectionLevel.Shallow;
     }
 
-    // 3. Default to None if no inspection capability
+    // 4. Default to None if no inspection capability
     return InspectionLevel.None;
   }
 

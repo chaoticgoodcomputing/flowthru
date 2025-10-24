@@ -4,6 +4,8 @@
 
 Flowthru provides an **eager schema validation** system that inspects external data sources (Layer 0 inputs) before pipeline execution begins. This fail-fast approach catches data quality issues early, saving computation time and providing clear error messages.
 
+**Configuration Philosophy:** Validation levels are configured at the **catalog level** where data sources are defined, not at the pipeline level. This ensures consistent validation across all pipelines that use the same data source.
+
 ## When to Use Inspection
 
 ### Use Cases for Shallow Inspection (Default)
@@ -42,42 +44,65 @@ Set inspection level to `None` when:
 
 ## Quick Start
 
-### Enable Deep Inspection for Critical Inputs
+### Configure Deep Inspection at Catalog Level (Recommended)
+
+Define validation requirements where you declare your data sources:
 
 ```csharp
-builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
-  .WithValidation(validation => {
-    // Opt into deep inspection for critical external data sources
-    validation.Inspect(catalog.Companies, InspectionLevel.Deep);
-    validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
-    validation.Inspect(catalog.Reviews, InspectionLevel.Deep);
-  });
+public class MyCatalog : DataCatalogBase
+{
+  private readonly string _basePath;
+
+  public MyCatalog(string basePath)
+  {
+    _basePath = basePath;
+    InitializeCatalogProperties();
+  }
+
+  // Critical external data - deep inspection
+  public ICatalogDataset<Company> Companies =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<Company>("companies", $"{_basePath}/companies.csv")
+      .WithInspectionLevel(InspectionLevel.Deep));
+
+  public IReadableCatalogDataset<Shuttle> Shuttles =>
+    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<Shuttle>("shuttles", $"{_basePath}/shuttles.xlsx")
+      .WithInspectionLevel(InspectionLevel.Deep));
+
+  // Standard external data - uses default shallow inspection
+  public ICatalogDataset<Review> Reviews =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<Review>("reviews", $"{_basePath}/reviews.csv"));
+
+  // Intermediate pipeline output - no inspection needed
+  public ICatalogDataset<ProcessedData> ProcessedData =>
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ProcessedData>("processed", $"{_basePath}/processed.parquet"));
+}
 ```
 
-### Use Default Shallow Inspection
-
-If you don't call `WithValidation()`, all Layer 0 inputs that implement `IShallowInspectable<T>` will be inspected at the `Shallow` level by default.
-
 ```csharp
-// No WithValidation() call - uses smart defaults
+// In your application - no validation configuration needed!
 builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
   .WithDescription("Preprocesses raw data");
-// Layer 0 inputs will be inspected with Shallow level automatically
+// Companies and Shuttles will be deeply inspected automatically
+// Reviews will use default shallow inspection
 ```
 
-### Explicitly Disable Inspection
+### Override Validation for Specific Pipeline (Advanced)
+
+In rare cases, you may need different validation for a specific pipeline:
 
 ```csharp
-builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
+builder.RegisterPipeline<MyCatalog>("performance_test", DataProcessingPipeline.Create)
   .WithValidation(validation => {
-    // Explicitly disable inspection for known-good source
-    validation.Inspect(catalog.CachedResults, InspectionLevel.None);
+    // Temporarily skip validation for performance testing
+    validation.Inspect(catalog.Companies, InspectionLevel.None);
+    validation.Inspect(catalog.Shuttles, InspectionLevel.None);
   });
 ```
 
 ## Inspection Levels Explained
 
 | Level       | Validates                                                          | Performance                       | When to Use                                          |
+````
 | ----------- | ------------------------------------------------------------------ | --------------------------------- | ---------------------------------------------------- |
 | **None**    | Nothing (skips inspection)                                         | Instant                           | Known-good data, performance-critical paths          |
 | **Shallow** | File exists, format valid, schema matches, sample rows deserialize | Fast (seconds)                    | Development, testing, CI/CD, most production cases   |
@@ -85,16 +110,17 @@ builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Cr
 
 ## How Inspection Works
 
-### 1. Pipeline Registration
+### 1. Catalog Entry Declaration
 
-When you register a pipeline and call `WithValidation()`, you configure inspection levels for specific catalog entries:
+Validation levels are configured when catalog entries are defined:
 
 ```csharp
-builder.RegisterPipeline<MyCatalog>("my_pipeline", MyPipeline.Create)
-  .WithValidation(validation => {
-    validation.Inspect(catalog.InputData, InspectionLevel.Deep);
-  });
+public ICatalogDataset<Company> Companies =>
+  GetOrCreateDataset(() => new CsvCatalogDataset<Company>("companies", "data/companies.csv")
+    .WithInspectionLevel(InspectionLevel.Deep));
 ```
+
+This ensures the data source is always validated consistently, regardless of which pipeline uses it.
 
 ### 2. DAG Analysis (Build Phase)
 
@@ -204,11 +230,13 @@ public class Company {
 
 ### Resolution Logic
 
-For each Layer 0 input, Flowthru determines the inspection level using this priority:
+For each Layer 0 input, Flowthru determines the inspection level using this priority (highest to lowest):
 
-1. **Explicitly configured** via `WithValidation()` → use that level
-2. **Entry implements** `IShallowInspectable<T>` → use `Shallow`
-3. **Otherwise** → use `None` (skip inspection)
+1. **Pipeline-level override** via `.WithValidation().Inspect()` → use that level (rare, advanced use case)
+2. **Catalog-level configuration** via `.WithInspectionLevel()` → use that level (recommended approach)
+3. **Capability-based default** → `Shallow` if entry implements `IShallowInspectable<T>`, otherwise `None`
+
+**Design Philosophy:** Validation configuration is primarily a property of the data source itself, not the pipeline consuming it. Critical external datasets should always be validated at the same level, regardless of which pipeline uses them.
 
 ### Built-in Support
 
@@ -253,51 +281,91 @@ Deep inspection can be expensive for large datasets (100K+ rows). Use strategica
 
 ### Optimization Tips
 
-1. **Use Shallow for Development/CI**
+1. **Environment-Specific Configuration**
    ```csharp
-   // Fast feedback loop during development
-   // Deep inspection only in production
-   #if DEBUG
-   validation.Inspect(catalog.BigDataset, InspectionLevel.Shallow);
-   #else
-   validation.Inspect(catalog.BigDataset, InspectionLevel.Deep);
-   #endif
+   // In your catalog definition
+   public ICatalogDataset<LargeDataset> BigDataset =>
+     GetOrCreateDataset(() => new CsvCatalogDataset<LargeDataset>("big", "data/large.csv")
+       #if DEBUG
+       .WithInspectionLevel(InspectionLevel.Shallow)  // Fast feedback in development
+       #else
+       .WithInspectionLevel(InspectionLevel.Deep)     // Thorough validation in production
+       #endif
+     );
    ```
 
 2. **Selective Deep Inspection**
    ```csharp
-   // Deep inspect only critical/small inputs
-   validation.Inspect(catalog.ConfigData, InspectionLevel.Deep);  // Small, critical
-   validation.Inspect(catalog.LargeDataset, InspectionLevel.Shallow);  // Large, less critical
+   // Critical/small data - deep inspection
+   public ICatalogDataset<Config> Config =>
+     GetOrCreateDataset(() => new JsonCatalogDataset<Config>("config", "config.json")
+       .WithInspectionLevel(InspectionLevel.Deep));
+   
+   // Large, less critical data - shallow inspection (or default)
+   public ICatalogDataset<LogData> Logs =>
+     GetOrCreateDataset(() => new CsvCatalogDataset<LogData>("logs", "data/logs.csv"));
    ```
 
-3. **Skip Inspection for Trusted Sources**
+3. **Skip Inspection for Trusted/Intermediate Data**
    ```csharp
-   // Skip inspection for known-good cached data
-   validation.Inspect(catalog.PreprocessedCache, InspectionLevel.None);
+   // Intermediate pipeline output - no inspection needed
+   public ICatalogDataset<CachedResults> Cache =>
+     GetOrCreateDataset(() => new ParquetCatalogDataset<CachedResults>("cache", "cache/results.parquet")
+       .WithInspectionLevel(InspectionLevel.None));
    ```
 
 ## Example: Real-World Configuration
 
 ```csharp
-// Production pipeline with strategic inspection levels
-builder.RegisterPipeline<SpaceflightsCatalog>("DataProcessing", DataProcessingPipeline.Create)
-  .WithDescription("Preprocesses raw data and creates model input table")
-  .WithValidation(validation => {
-    // Critical external data - deep inspect
-    validation.Inspect(catalog.Companies, InspectionLevel.Deep);
-    validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
-    
-    // Large dataset, less critical - shallow inspect
-    validation.Inspect(catalog.Reviews, InspectionLevel.Shallow);
-  });
+// Catalog with strategic inspection levels
+public class SpaceflightsCatalog : DataCatalogBase
+{
+  private readonly string _basePath;
 
+  public SpaceflightsCatalog(string basePath)
+  {
+    _basePath = basePath;
+    InitializeCatalogProperties();
+  }
+
+  // Critical external data - deep inspection
+  public ICatalogDataset<Company> Companies =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<Company>("companies", $"{_basePath}/companies.csv")
+      .WithInspectionLevel(InspectionLevel.Deep));
+
+  public IReadableCatalogDataset<Shuttle> Shuttles =>
+    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<Shuttle>("shuttles", $"{_basePath}/shuttles.xlsx")
+      .WithInspectionLevel(InspectionLevel.Deep));
+  
+  // Large dataset - uses default shallow inspection
+  public ICatalogDataset<Review> Reviews =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<Review>("reviews", $"{_basePath}/reviews.csv"));
+
+  // Intermediate output - no inspection
+  public ICatalogDataset<ProcessedData> ProcessedData =>
+    GetOrCreateDataset(() => new ParquetCatalogDataset<ProcessedData>("processed", $"{_basePath}/processed.parquet"));
+}
+
+// Pipeline registration - no validation configuration needed!
+builder.RegisterPipeline<SpaceflightsCatalog>("DataProcessing", DataProcessingPipeline.Create)
+  .WithDescription("Preprocesses raw data and creates model input table");
+
+// For pipelines consuming intermediate outputs, validation still works automatically
 builder.RegisterPipeline<SpaceflightsCatalog>("DataScience", DataSciencePipeline.Create, params)
-  .WithDescription("Trains ML model")
+  .WithDescription("Trains ML model");
+// Reads ProcessedData (intermediate output) - automatically skipped for inspection
+```
+
+### Pipeline-Level Override Example (Advanced)
+
+```csharp
+// Rare case: temporarily skip validation for performance testing
+builder.RegisterPipeline<SpaceflightsCatalog>("PerformanceTest", DataProcessingPipeline.Create)
+  .WithDescription("Performance benchmark without validation overhead")
   .WithValidation(validation => {
-    // This pipeline reads model_input_table (Layer 1 output from DataProcessing)
-    // No inspection needed - it doesn't exist yet!
-    // Flowthru automatically skips intermediate outputs
+    // Override catalog-level deep inspection temporarily
+    validation.Inspect(catalog.Companies, InspectionLevel.None);
+    validation.Inspect(catalog.Shuttles, InspectionLevel.None);
   });
 ```
 

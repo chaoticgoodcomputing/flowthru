@@ -26,6 +26,8 @@ namespace Flowthru.Data;
 /// </para>
 /// </remarks>
 public abstract class CatalogDatasetBase<T> : ICatalogDataset<T>, IShallowInspectable<T>, IDeepInspectable<T> {
+  private InspectionLevel? _preferredInspectionLevel;
+
   /// <summary>
   /// Creates a new catalog dataset with the specified key.
   /// </summary>
@@ -39,6 +41,12 @@ public abstract class CatalogDatasetBase<T> : ICatalogDataset<T>, IShallowInspec
 
   /// <inheritdoc/>
   public Type DataType => typeof(IEnumerable<T>);
+
+  /// <inheritdoc/>
+  public InspectionLevel? PreferredInspectionLevel {
+    get => _preferredInspectionLevel;
+    protected set => _preferredInspectionLevel = value;
+  }
 
   /// <inheritdoc/>
   public abstract Task<IEnumerable<T>> Load();
@@ -166,5 +174,37 @@ public abstract class CatalogDatasetBase<T> : ICatalogDataset<T>, IShallowInspec
     } catch (Exception ex) {
       return ValidationResult.FromException(Key, ex);
     }
+  }
+
+  /// <summary>
+  /// Configures the preferred inspection level for this catalog entry.
+  /// </summary>
+  /// <param name="level">The inspection level to use for this entry</param>
+  /// <returns>This instance for fluent chaining</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Fluent Configuration:</strong> This method enables catalog-level validation configuration
+  /// using a fluent API pattern that integrates seamlessly with catalog property declarations.
+  /// </para>
+  /// <para>
+  /// <strong>Usage Example:</strong>
+  /// </para>
+  /// <code>
+  /// public ICatalogDataset&lt;Company&gt; Companies =>
+  ///   GetOrCreateDataset(() => new CsvCatalogDataset&lt;Company&gt;("companies", "data/companies.csv")
+  ///     .WithInspectionLevel(InspectionLevel.Deep));
+  /// </code>
+  /// <para>
+  /// <strong>When to Use Each Level:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item><strong>Deep:</strong> Critical external data that must be fully validated (raw CSV/Excel from untrusted sources)</item>
+  /// <item><strong>Shallow:</strong> Standard external data (default for Layer 0 inputs with IShallowInspectable)</item>
+  /// <item><strong>None:</strong> Trusted or performance-critical data where validation overhead is unacceptable</item>
+  /// </list>
+  /// </remarks>
+  public CatalogDatasetBase<T> WithInspectionLevel(InspectionLevel level) {
+    PreferredInspectionLevel = level;
+    return this;
   }
 }

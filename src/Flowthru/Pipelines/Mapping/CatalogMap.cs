@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
 using Flowthru.Data;
+using Flowthru.Data.Validation;
 using Flowthru.Nodes.Factory;
 
 namespace Flowthru.Pipelines.Mapping;
@@ -111,6 +112,31 @@ public class CatalogMap<T> : ICatalogEntry where T : new() {
   internal IReadOnlyList<CatalogMapping> Mappings => _mappings.AsReadOnly();
 
   /// <summary>
+  /// Gets all catalog entries referenced by this map for inspection purposes.
+  /// </summary>
+  /// <returns>
+  /// For pass-through mode: A single-element collection containing the wrapped entry.
+  /// For mapped mode: All catalog entries from CatalogPropertyMappings.
+  /// </returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Validation Use Case:</strong>
+  /// When a CatalogMap appears as a Layer 0 input in a pipeline, the validation system
+  /// uses this method to extract all underlying catalog entries for individual inspection.
+  /// Each entry is inspected at its own configured level.
+  /// </para>
+  /// </remarks>
+  internal IEnumerable<ICatalogEntry> GetCatalogEntriesForInspection() {
+    if (_isPassThrough) {
+      return new[] { _passThroughEntry! };
+    }
+
+    return _mappings
+      .OfType<CatalogPropertyMapping>()
+      .Select(m => m.CatalogEntry);
+  }
+
+  /// <summary>
   /// Unique key identifying this catalog map.
   /// For pass-through mode, returns the underlying entry's key.
   /// For mapped mode, returns a generated key based on the schema type.
@@ -124,6 +150,33 @@ public class CatalogMap<T> : ICatalogEntry where T : new() {
   /// Always returns typeof(T) since this map produces instances of T.
   /// </summary>
   public Type DataType => typeof(T);
+
+  /// <summary>
+  /// Gets the preferred inspection level for this catalog map.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <strong>CatalogMap Inspection Behavior:</strong>
+  /// CatalogMap is an aggregation of multiple catalog entries. Its inspection level
+  /// is only relevant in pass-through mode where it wraps a single entry.
+  /// </para>
+  /// <para>
+  /// <strong>Pass-Through Mode:</strong> Returns the wrapped entry's PreferredInspectionLevel.
+  /// </para>
+  /// <para>
+  /// <strong>Mapped Mode:</strong> Always returns null. The pipeline validation logic
+  /// will inspect each individual catalog entry in the map at their configured levels.
+  /// </para>
+  /// <para>
+  /// <strong>Validation Strategy:</strong>
+  /// When a CatalogMap appears as a Layer 0 input, the validation system should:
+  /// 1. Recognize it's a CatalogMap (not a simple catalog entry)
+  /// 2. Extract all catalog entries from the mappings
+  /// 3. Inspect each entry individually at its own configured level
+  /// </para>
+  /// </remarks>
+  public InspectionLevel? PreferredInspectionLevel =>
+    _isPassThrough ? _passThroughEntry!.PreferredInspectionLevel : null;
 
   /// <summary>
   /// Creates a new mapped catalog map (for multi-input/output scenarios).

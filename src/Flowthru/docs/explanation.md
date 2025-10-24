@@ -60,15 +60,24 @@ Traditional approach: discover the error after 30 minutes of computation.
 
 **Flowthru's Solution: Eager Schema Validation**
 
-Flowthru provides an **optional inspection system** that validates external data sources before pipeline execution begins:
+Flowthru provides an **inspection system** that validates external data sources before pipeline execution begins. Validation levels are configured at the **catalog level** where data sources are defined:
 
 ```csharp
-builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
-  .WithValidation(validation => {
-    // Validate external data before pipeline runs
-    validation.Inspect(catalog.Companies, InspectionLevel.Deep);
-    validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
-  });
+public class MyCatalog : DataCatalogBase
+{
+  // Critical external data - deep inspection
+  public ICatalogDataset<Company> Companies =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<Company>("companies", "data/companies.csv")
+      .WithInspectionLevel(InspectionLevel.Deep));
+
+  public IReadableCatalogDataset<Shuttle> Shuttles =>
+    GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset<Shuttle>("shuttles", "data/shuttles.xlsx")
+      .WithInspectionLevel(InspectionLevel.Deep));
+
+  // Standard data - uses default shallow inspection
+  public ICatalogDataset<Review> Reviews =>
+    GetOrCreateDataset(() => new CsvCatalogDataset<Review>("reviews", "data/reviews.csv"));
+}
 ```
 
 **What happens:**
@@ -92,6 +101,13 @@ builder.RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Cr
 | **Deep** (opt-in)     | Everything + all rows validated                        | Slow (minutes for large datasets) | Critical production data, first-time ingestion |
 
 See [How-to: Configure Dataset Inspection](./how-to/dataset-inspection.md) for details.
+
+### The Type System as Documentation
+
+In Kedro, you must consult documentation or read code to know:
+- What datasets exist in the catalog
+- What type of data each dataset contains
+````
 
 ### The Type System as Documentation
 

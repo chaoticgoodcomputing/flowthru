@@ -1,3 +1,5 @@
+using Flowthru.Data.Validation;
+
 namespace Flowthru.Data;
 
 /// <summary>
@@ -19,6 +21,43 @@ public interface ICatalogEntry {
   /// The runtime type of data stored in this catalog entry.
   /// </summary>
   Type DataType { get; }
+
+  /// <summary>
+  /// Gets the preferred inspection level for this catalog entry.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <strong>Catalog-Level Validation Configuration:</strong> This property defines the default
+  /// inspection level for this data source. It represents a data-centric view: "This dataset
+  /// should always be validated at this level, regardless of which pipeline uses it."
+  /// </para>
+  /// <para>
+  /// <strong>Resolution Priority:</strong>
+  /// </para>
+  /// <list type="number">
+  /// <item>Pipeline-level override via WithValidation() (highest priority)</item>
+  /// <item>Catalog-level setting via this property (medium priority)</item>
+  /// <item>Capability-based default (IShallowInspectable → Shallow, otherwise None) (lowest priority)</item>
+  /// </list>
+  /// <para>
+  /// <strong>When to Set:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item><strong>Deep:</strong> Critical external data sources that must be fully validated (raw input files from untrusted sources)</item>
+  /// <item><strong>Shallow:</strong> Standard external data sources (default for most Layer 0 inputs)</item>
+  /// <item><strong>None:</strong> Trusted or performance-critical data sources where validation overhead is unacceptable</item>
+  /// <item><strong>null:</strong> Use capability-based default (recommended for intermediate pipeline outputs)</item>
+  /// </list>
+  /// <para>
+  /// <strong>Configuration via Fluent API:</strong>
+  /// </para>
+  /// <code>
+  /// public ICatalogDataset&lt;Company&gt; Companies =>
+  ///   GetOrCreateDataset(() => new CsvCatalogDataset&lt;Company&gt;("companies", "data/companies.csv")
+  ///     .WithInspectionLevel(InspectionLevel.Deep));
+  /// </code>
+  /// </remarks>
+  InspectionLevel? PreferredInspectionLevel { get; }
 
   /// <summary>
   /// Loads data from the catalog entry as an untyped object.
