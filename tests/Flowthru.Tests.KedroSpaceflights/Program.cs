@@ -21,6 +21,9 @@ public class Program {
       // Register the Spaceflights catalog for all pipelines in this application
       builder.UseCatalog(new SpaceflightsCatalog("Data/Datasets"));
 
+      // Enable metadata collection for Flowthru.Viz
+      builder.IncludeMetadata();
+
       // Register the Data Processing Pipeline, which serves as the initial ingest and cleaning
       // phase for subsequent pipelines.
       builder

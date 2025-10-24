@@ -1,4 +1,5 @@
 using Flowthru.Data;
+using Flowthru.Meta;
 using Flowthru.Parameters;
 using Flowthru.Registry;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +50,7 @@ public class FlowthruApplicationBuilder {
   private readonly ServiceCollection _services = new();
   private readonly ParameterStore _parameters = new();
   private readonly ExecutionOptions _executionOptions = new();
+  private FlowthruMetadataConfiguration? _metadataConfiguration;
 
   /// <summary>
   /// Initializes a new instance of FlowthruApplicationBuilder.
@@ -304,6 +306,37 @@ public class FlowthruApplicationBuilder {
   }
 
   /// <summary>
+  /// Enables metadata collection and export for Flowthru.Viz.
+  /// </summary>
+  /// <param name="configure">Action to configure metadata options</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// <para>
+  /// Metadata collection captures pipeline DAG structure (nodes, catalog entries, edges)
+  /// and exports it to JSON files for visualization in Flowthru.Viz.
+  /// </para>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// </para>
+  /// <code>
+  /// builder.IncludeMetadata(metadata => {
+  ///     metadata
+  ///         .WithOutputDirectory("Data/Metadata")
+  ///         .EnableAutoExport();
+  /// });
+  /// </code>
+  /// <para>
+  /// By default, DAG metadata is automatically exported after each pipeline build
+  /// to the "Data/Metadata" directory.
+  /// </para>
+  /// </remarks>
+  public FlowthruApplicationBuilder IncludeMetadata(Action<FlowthruMetadataConfiguration>? configure = null) {
+    _metadataConfiguration = new FlowthruMetadataConfiguration();
+    configure?.Invoke(_metadataConfiguration);
+    return this;
+  }
+
+  /// <summary>
   /// Builds the configured application.
   /// </summary>
   /// <returns>The configured Flowthru application</returns>
@@ -363,6 +396,16 @@ public class FlowthruApplicationBuilder {
         "No pipelines configured. Call RegisterPipeline() or RegisterPipelines<T>() before building the application.");
     }
 
+    // 3.5. Build all pipelines (metadata export happens after merge in RunAsync)
+    var logger = services.GetRequiredService<ILogger<FlowthruApplication>>();
+
+    foreach (var (name, pipeline) in pipelines) {
+      pipeline.Name = name;
+      pipeline.Logger = logger;
+      pipeline.ServiceProvider = services;
+      pipeline.Build();
+    }
+
     // 4. Create and return application
     return new FlowthruApplication(
       _args,
@@ -370,6 +413,7 @@ public class FlowthruApplicationBuilder {
       pipelines,
       services,
       _executionOptions,
-      services.GetRequiredService<ILogger<FlowthruApplication>>());
+      _metadataConfiguration,
+      logger);
   }
 }

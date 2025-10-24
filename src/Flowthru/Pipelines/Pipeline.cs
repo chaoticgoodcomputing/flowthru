@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Flowthru.Data;
+using Flowthru.Meta.Builders;
+using Flowthru.Meta.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Pipelines;
@@ -179,6 +181,48 @@ public class Pipeline {
         layerNodes.Count,
         string.Join(", ", layerNodes.Select(n => n.Name)));
     }
+  }
+
+  /// <summary>
+  /// Exports DAG metadata for this pipeline.
+  /// </summary>
+  /// <returns>Complete DAG metadata including nodes, catalog entries, and edges</returns>
+  /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
+  /// <remarks>
+  /// <para>
+  /// This method extracts structural metadata from the built pipeline, creating
+  /// a complete representation of the DAG (Directed Acyclic Graph) that can be
+  /// serialized to JSON for visualization in Flowthru.Viz.
+  /// </para>
+  /// <para>
+  /// <strong>Prerequisites:</strong> Pipeline must be built before calling this method.
+  /// Call Build() first if IsBuilt is false.
+  /// </para>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// </para>
+  /// <code>
+  /// var pipeline = DataProcessingPipeline.Create(catalog);
+  /// pipeline.Build();
+  /// 
+  /// var dag = pipeline.ExportDag();
+  /// var json = dag.ToJson();
+  /// File.WriteAllText("dag.json", json);
+  /// </code>
+  /// <para>
+  /// This method is non-destructive and idempotent - it can be called multiple
+  /// times without affecting the pipeline state.
+  /// </para>
+  /// </remarks>
+  public DagMetadata ExportDag() {
+    if (!IsBuilt) {
+      throw new InvalidOperationException(
+        "Cannot export DAG metadata from an unbuilt pipeline. Call Build() first.");
+    }
+
+    Logger?.LogDebug("Exporting DAG metadata for pipeline '{PipelineName}'", Name ?? "UnnamedPipeline");
+
+    return DagBuilder.Build(this);
   }
 
   /// <summary>

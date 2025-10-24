@@ -1,1 +1,3 @@
 Data/Datasets/**/*
+Data/Metadata/**/*
+!.gitkeep

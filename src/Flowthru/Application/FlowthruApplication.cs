@@ -1,4 +1,5 @@
 using Flowthru.Data;
+using Flowthru.Meta;
 using Flowthru.Pipelines;
 using Microsoft.Extensions.Logging;
 
@@ -55,6 +56,7 @@ public class FlowthruApplication : IFlowthruApplication {
   private readonly Dictionary<string, Pipeline> _pipelines;
   private readonly IServiceProvider _services;
   private readonly ExecutionOptions _executionOptions;
+  private readonly FlowthruMetadataConfiguration? _metadataConfiguration;
   private readonly ILogger<FlowthruApplication> _logger;
 
   /// <summary>
@@ -69,12 +71,14 @@ public class FlowthruApplication : IFlowthruApplication {
     Dictionary<string, Pipeline> pipelines,
     IServiceProvider services,
     ExecutionOptions executionOptions,
+    FlowthruMetadataConfiguration? metadataConfiguration,
     ILogger<FlowthruApplication> logger) {
     _args = args;
     _catalog = catalog;
     _pipelines = pipelines;
     _services = services;
     _executionOptions = executionOptions;
+    _metadataConfiguration = metadataConfiguration;
     _logger = logger;
   }
 
@@ -119,7 +123,20 @@ public class FlowthruApplication : IFlowthruApplication {
         mergedPipeline.Logger = _logger;
         mergedPipeline.ServiceProvider = _services;
 
-        // Build and execute merged pipeline
+        // Build merged pipeline
+        mergedPipeline.Build();
+
+        // Export merged DAG metadata if configured
+        if (_metadataConfiguration != null && _metadataConfiguration.AutoExportDag) {
+          try {
+            var dag = mergedPipeline.ExportDag();
+            Meta.Persistence.DagPersistence.SaveDag(dag, _metadataConfiguration.OutputDirectory, _logger, _metadataConfiguration.ExportMermaid);
+          } catch (Exception ex) {
+            _logger.LogWarning(ex, "Failed to export DAG metadata for merged pipeline");
+          }
+        }
+
+        // Execute merged pipeline
         var mergedResult = await RunMergedPipelineAsync(mergedPipeline);
 
         // Return appropriate exit code
@@ -156,6 +173,16 @@ public class FlowthruApplication : IFlowthruApplication {
     // 3. Build the pipeline
     if (!pipeline.IsBuilt) {
       pipeline.Build();
+    }
+
+    // 3.5. Export DAG metadata if configured
+    if (_metadataConfiguration != null && _metadataConfiguration.AutoExportDag) {
+      try {
+        var dag = pipeline.ExportDag();
+        Meta.Persistence.DagPersistence.SaveDag(dag, _metadataConfiguration.OutputDirectory, _logger, _metadataConfiguration.ExportMermaid);
+      } catch (Exception ex) {
+        _logger.LogWarning(ex, "Failed to export DAG metadata for pipeline '{PipelineName}'", pipelineName);
+      }
     }
 
     // 4. Validate external inputs if configured
