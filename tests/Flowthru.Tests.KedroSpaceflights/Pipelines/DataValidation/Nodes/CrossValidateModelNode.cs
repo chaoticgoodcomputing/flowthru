@@ -51,7 +51,6 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
       PassengerCapacity = (float)row.PassengerCapacity,
       Crew = (float)row.Crew,
       DCheckComplete = row.DCheckComplete,
-      MoonClearanceComplete = row.MoonClearanceComplete,
       IataApproved = row.IataApproved,
       CompanyRating = (float)row.CompanyRating,
       ReviewScoresRating = (float)row.ReviewScoresRating,
@@ -69,9 +68,6 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
             outputColumnName: "DCheckCompleteEncoded",
             inputColumnName: nameof(FeatureRow.DCheckComplete)))
         .Append(mlContext.Transforms.Categorical.OneHotEncoding(
-            outputColumnName: "MoonClearanceCompleteEncoded",
-            inputColumnName: nameof(FeatureRow.MoonClearanceComplete)))
-        .Append(mlContext.Transforms.Categorical.OneHotEncoding(
             outputColumnName: "IataApprovedEncoded",
             inputColumnName: nameof(FeatureRow.IataApproved)))
         .Append(mlContext.Transforms.Concatenate(
@@ -80,7 +76,6 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
             nameof(FeatureRow.PassengerCapacity),
             nameof(FeatureRow.Crew),
             "DCheckCompleteEncoded",
-            "MoonClearanceCompleteEncoded",
             "IataApprovedEncoded",
             nameof(FeatureRow.CompanyRating),
             nameof(FeatureRow.ReviewScoresRating)))

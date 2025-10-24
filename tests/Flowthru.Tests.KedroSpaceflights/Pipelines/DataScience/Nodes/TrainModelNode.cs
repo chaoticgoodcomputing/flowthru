@@ -24,36 +24,8 @@ public class TrainModelNode : NodeBase<TrainModelInputs, LinearRegressionModel> 
     var xTrainData = input.XTrain.ToList();
     var yTrainData = input.YTrain.ToList();
 
-    // Build design matrix (with one-hot encoding for boolean features)
-    // 
-    // CRITICAL DIFFERENCE: Python sklearn vs. C# Math.NET
-    // =====================================================
-    // sklearn's LinearRegression uses scipy.linalg.lstsq with a 'cond' parameter that enables
-    // pseudo-inverse calculations, allowing it to gracefully handle singular/rank-deficient matrices
-    // caused by zero-variance features. It effectively treats constant features as redundant.
-    //
-    // Math.NET's MultipleRegression.QR() uses strict QR decomposition which FAILS with singular
-    // matrices, producing NaN coefficients when zero-variance features are present.
-    //
-    // Python ecosystem preprocessing (sklearn.feature_selection.VarianceThreshold) typically
-    // removes zero-variance features BEFORE regression, making this a non-issue.
-    //
-    // In this dataset, MoonClearanceComplete has zero variance (all False), so we must exclude it
-    // manually to match sklearn's behavior and avoid NaN coefficients.
-    //
-    // This is NOT a bug in either library - it's a fundamental difference in numerical approaches:
-    // - sklearn prioritizes robustness (pseudo-inverse)
-    // - Math.NET prioritizes mathematical purity (strict decomposition)
-    var dataPoints = xTrainData.Select(row => new[]
-    {
-            (double)row.Engines,
-            (double)row.PassengerCapacity,
-            (double)row.Crew,
-            row.DCheckComplete ? 1.0 : 0.0,
-            row.IataApproved ? 1.0 : 0.0,
-            (double)row.CompanyRating,
-            (double)row.ReviewScoresRating
-        }).ToArray();
+    // Build design matrix using centralized feature extraction from FeatureRow
+    var dataPoints = xTrainData.Select(row => row.ToFeatureArray()).ToArray();
 
     // Convert target prices to double array
     var targets = yTrainData.Select(p => (double)p).ToArray();
@@ -69,16 +41,7 @@ public class TrainModelNode : NodeBase<TrainModelInputs, LinearRegressionModel> 
     var model = new LinearRegressionModel {
       Intercept = intercept,
       Coefficients = featureCoefficients,
-      FeatureNames = new[]
-        {
-                "Engines",
-                "PassengerCapacity",
-                "Crew",
-                "DCheckComplete",
-                "IataApproved",
-                "CompanyRating",
-                "ReviewScoresRating"
-            }
+      FeatureNames = FeatureRow.FeatureNames
     };
 
     // Return as singleton collection
@@ -142,23 +105,10 @@ public record LinearRegressionModel {
   }
 
   /// <summary>
-  /// Predict values for multiple feature rows.
-  /// 
-  /// Note: MoonClearanceComplete is excluded from predictions to match the training feature set.
-  /// This zero-variance feature would cause singular matrix errors in Math.NET's QR decomposition,
-  /// whereas sklearn's lstsq handles it via pseudo-inverse. See training comments for details.
+  /// Predict values for multiple feature rows using centralized feature extraction.
   /// </summary>
   public double[] Predict(IEnumerable<FeatureRow> rows) {
-    return rows.Select(row => Predict(new[]
-    {
-            (double)row.Engines,
-            (double)row.PassengerCapacity,
-            (double)row.Crew,
-            row.DCheckComplete ? 1.0 : 0.0,
-            row.IataApproved ? 1.0 : 0.0,
-            (double)row.CompanyRating,
-            (double)row.ReviewScoresRating
-        })).ToArray();
+    return rows.Select(row => Predict(row.ToFeatureArray())).ToArray();
   }
 }
 

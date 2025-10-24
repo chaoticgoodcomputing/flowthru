@@ -19,62 +19,52 @@ public class CreateModelInputTableNode
     // Extract the singleton input containing all preprocessed catalog data
     var input = inputs.Single();
 
-    // Create lookup dictionaries for join operations
-    // All data is already validated and non-nullable from preprocessing nodes
-    var shuttles = input.Shuttles.ToDictionary(s => s.Id);
-    var companies = input.Companies.ToDictionary(c => c.Id);
-
-    // Perform inner joins: reviews → shuttles → companies
+    // Perform inner joins using LINQ: reviews → shuttles → companies
+    // This is more memory-efficient than creating lookup dictionaries
     var modelInput = input.Reviews
-        .Where(review => shuttles.ContainsKey(review.ShuttleId))
-        .Select(review => {
-          var shuttle = shuttles[review.ShuttleId];
+        .Join(
+            input.Shuttles,
+            review => review.ShuttleId,
+            shuttle => shuttle.Id,
+            (review, shuttle) => new { Review = review, Shuttle = shuttle })
+        .Join(
+            input.Companies,
+            rs => rs.Shuttle.CompanyId,
+            company => company.Id,
+            (rs, company) => new ModelInputSchema {
+              // Shuttle columns
+              ShuttleLocation = rs.Shuttle.ShuttleLocation,
+              ShuttleType = rs.Shuttle.ShuttleType,
+              EngineType = rs.Shuttle.EngineType,
+              EngineVendor = rs.Shuttle.EngineVendor,
+              Engines = rs.Shuttle.Engines,
+              PassengerCapacity = rs.Shuttle.PassengerCapacity,
+              CancellationPolicy = rs.Shuttle.CancellationPolicy,
+              Crew = rs.Shuttle.Crew,
+              DCheckComplete = rs.Shuttle.DCheckComplete,
+              MoonClearanceComplete = rs.Shuttle.MoonClearanceComplete,
+              Price = rs.Shuttle.Price,
+              CompanyId = rs.Shuttle.CompanyId,
+              ShuttleId = rs.Shuttle.Id,
 
-          // Skip if company doesn't exist (inner join semantics)
-          if (!companies.ContainsKey(shuttle.CompanyId)) {
-            return null;
-          }
+              // Review columns
+              ReviewScoresRating = rs.Review.ReviewScoresRating,
+              ReviewScoresComfort = rs.Review.ReviewScoresComfort,
+              ReviewScoresAmenities = rs.Review.ReviewScoresAmenities,
+              ReviewScoresTrip = rs.Review.ReviewScoresTrip,
+              ReviewScoresCrew = rs.Review.ReviewScoresCrew,
+              ReviewScoresLocation = rs.Review.ReviewScoresLocation,
+              ReviewScoresPrice = rs.Review.ReviewScoresPrice,
+              NumberOfReviews = rs.Review.NumberOfReviews,
+              ReviewsPerMonth = rs.Review.ReviewsPerMonth,
 
-          var company = companies[shuttle.CompanyId];
-
-          // All fields are non-nullable - direct assignment with no .Value calls
-          return new ModelInputSchema {
-            // Shuttle columns
-            ShuttleLocation = shuttle.ShuttleLocation,
-            ShuttleType = shuttle.ShuttleType,
-            EngineType = shuttle.EngineType,
-            EngineVendor = shuttle.EngineVendor,
-            Engines = shuttle.Engines,
-            PassengerCapacity = shuttle.PassengerCapacity,
-            CancellationPolicy = shuttle.CancellationPolicy,
-            Crew = shuttle.Crew,
-            DCheckComplete = shuttle.DCheckComplete,
-            MoonClearanceComplete = shuttle.MoonClearanceComplete,
-            Price = shuttle.Price,
-            CompanyId = shuttle.CompanyId,
-            ShuttleId = shuttle.Id,
-
-            // Review columns
-            ReviewScoresRating = review.ReviewScoresRating,
-            ReviewScoresComfort = review.ReviewScoresComfort,
-            ReviewScoresAmenities = review.ReviewScoresAmenities,
-            ReviewScoresTrip = review.ReviewScoresTrip,
-            ReviewScoresCrew = review.ReviewScoresCrew,
-            ReviewScoresLocation = review.ReviewScoresLocation,
-            ReviewScoresPrice = review.ReviewScoresPrice,
-            NumberOfReviews = review.NumberOfReviews,
-            ReviewsPerMonth = review.ReviewsPerMonth,
-
-            // Company columns
-            Id = company.Id,
-            CompanyRating = company.CompanyRating,
-            CompanyLocation = company.CompanyLocation,
-            TotalFleetCount = company.TotalFleetCount,
-            IataApproved = company.IataApproved
-          };
-        })
-        .Where(row => row != null)
-        .Select(row => row!);
+              // Company columns
+              Id = company.Id,
+              CompanyRating = company.CompanyRating,
+              CompanyLocation = company.CompanyLocation,
+              TotalFleetCount = company.TotalFleetCount,
+              IataApproved = company.IataApproved
+            });
 
     return Task.FromResult(modelInput);
   }

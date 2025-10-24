@@ -38,27 +38,30 @@ public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelP
       IEnumerable<ModelInputSchema> input) {
     var data = input.ToList();
 
-    // Convert to feature rows (no null-coalescing needed after DropNa)
-    var featureRows = data.Select(row => new FeatureRow {
-      Engines = (float)row.Engines,
-      PassengerCapacity = (float)row.PassengerCapacity,
-      Crew = (float)row.Crew,
-      DCheckComplete = row.DCheckComplete,
-      MoonClearanceComplete = row.MoonClearanceComplete,
-      IataApproved = row.IataApproved,
-      CompanyRating = (float)row.CompanyRating,
-      ReviewScoresRating = (float)row.ReviewScoresRating,
-      Price = (float)row.Price
-    }).ToList();
+    // Convert to feature rows and extract prices in a single pass
+    var featureRowsAndPrices = data.Select(row => (
+      Features: new FeatureRow {
+        Engines = (float)row.Engines,
+        PassengerCapacity = (float)row.PassengerCapacity,
+        Crew = (float)row.Crew,
+        DCheckComplete = row.DCheckComplete,
+        IataApproved = row.IataApproved,
+        CompanyRating = (float)row.CompanyRating,
+        ReviewScoresRating = (float)row.ReviewScoresRating,
+        Price = (float)row.Price
+      },
+      Price: row.Price
+    )).ToList();
 
-    // Perform train/test split using sklearn-compatible logic
-    // sklearn's train_test_split shuffles data with the random_state seed
+    // Perform train/test split using Fisher-Yates shuffle
     var random = new Random(Parameters.RandomState);
-    var shuffled = featureRows
-        .Select(x => new { Row = x, SortKey = random.Next() })
-        .OrderBy(x => x.SortKey)
-        .Select(x => x.Row)
-        .ToList();
+    var shuffled = featureRowsAndPrices.ToList();
+
+    // In-place Fisher-Yates shuffle
+    for (int i = shuffled.Count - 1; i > 0; i--) {
+      int j = random.Next(i + 1);
+      (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+    }
 
     var testCount = (int)(shuffled.Count * Parameters.TestSize);
     var trainCount = shuffled.Count - testCount;
@@ -69,10 +72,10 @@ public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelP
     // Create multi-output result
     // Framework will unpack this into separate catalog entries based on [CatalogOutput] attributes
     var outputs = new SplitDataOutputs {
-      XTrain = trainData,
-      XTest = testData,
-      YTrain = trainData.Select(r => (decimal)r.Price).ToList(),
-      YTest = testData.Select(r => (decimal)r.Price).ToList()
+      XTrain = trainData.Select(x => x.Features).ToList(),
+      XTest = testData.Select(x => x.Features).ToList(),
+      YTrain = trainData.Select(x => x.Price).ToList(),
+      YTest = testData.Select(x => x.Price).ToList()
     };
 
     // Return as singleton collection
