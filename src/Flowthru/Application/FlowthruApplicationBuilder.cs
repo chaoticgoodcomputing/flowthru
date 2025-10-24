@@ -50,7 +50,7 @@ public class FlowthruApplicationBuilder {
   private readonly ServiceCollection _services = new();
   private readonly ParameterStore _parameters = new();
   private readonly ExecutionOptions _executionOptions = new();
-  private FlowthruMetadataConfiguration? _metadataConfiguration;
+  private FlowthruMetadataBuilder? _metadataBuilder;
 
   /// <summary>
   /// Initializes a new instance of FlowthruApplicationBuilder.
@@ -306,33 +306,39 @@ public class FlowthruApplicationBuilder {
   }
 
   /// <summary>
-  /// Enables metadata collection and export for Flowthru.Viz.
+  /// Enables metadata collection and export with configurable providers.
   /// </summary>
-  /// <param name="configure">Action to configure metadata options</param>
+  /// <param name="configure">Action to configure metadata providers and options</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
   /// <para>
   /// Metadata collection captures pipeline DAG structure (nodes, catalog entries, edges)
-  /// and exports it to JSON files for visualization in Flowthru.Viz.
+  /// and exports it using registered providers (JSON, Mermaid, etc.).
   /// </para>
   /// <para>
   /// <strong>Usage:</strong>
   /// </para>
   /// <code>
-  /// builder.IncludeMetadata(metadata => {
-  ///     metadata
-  ///         .WithOutputDirectory("Data/Metadata")
-  ///         .EnableAutoExport();
-  /// });
+  /// builder.IncludeMetadata(meta => meta
+  ///     .WithOutputDirectory("Data/Metadata")
+  ///     .AddJson(json => json.UseCompactFormat())
+  ///     .AddMermaid(mermaid => mermaid.WithDirection(MermaidFlowchartDirection.LeftToRight))
+  /// );
   /// </code>
   /// <para>
-  /// By default, DAG metadata is automatically exported after each pipeline build
-  /// to the "Data/Metadata" directory.
+  /// By default (if not configured), JSON and Mermaid providers are registered
+  /// with standard settings, auto-export enabled, and output to "metadata" directory.
   /// </para>
   /// </remarks>
-  public FlowthruApplicationBuilder IncludeMetadata(Action<FlowthruMetadataConfiguration>? configure = null) {
-    _metadataConfiguration = new FlowthruMetadataConfiguration();
-    configure?.Invoke(_metadataConfiguration);
+  public FlowthruApplicationBuilder IncludeMetadata(Action<FlowthruMetadataBuilder>? configure = null) {
+    _metadataBuilder = new FlowthruMetadataBuilder();
+    configure?.Invoke(_metadataBuilder);
+
+    // If no providers were explicitly registered, use defaults
+    if (_metadataBuilder.Providers.Count == 0) {
+      _metadataBuilder.AddJson().AddMermaid();
+    }
+
     return this;
   }
 
@@ -413,7 +419,7 @@ public class FlowthruApplicationBuilder {
       pipelines,
       services,
       _executionOptions,
-      _metadataConfiguration,
+      _metadataBuilder,
       logger);
   }
 }

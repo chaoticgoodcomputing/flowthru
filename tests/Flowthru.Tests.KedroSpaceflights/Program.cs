@@ -7,6 +7,7 @@ using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting;
 using Microsoft.Extensions.Logging;
+using static Flowthru.Meta.Providers.MermaidMetadataProvider;
 
 namespace Flowthru.Tests.KedroSpaceflights;
 
@@ -21,8 +22,13 @@ public class Program {
       // Register the Spaceflights catalog for all pipelines in this application
       builder.UseCatalog(new SpaceflightsCatalog("Data/Datasets"));
 
-      // Enable metadata collection for Flowthru.Viz
-      builder.IncludeMetadata();
+      // Enable metadata collection with provider configuration
+      builder.IncludeMetadata(meta => meta
+        .WithOutputDirectory("Data/Metadata")
+        .AddJson(json =>
+          json.UseCompactFormat())  // Export compact JSON
+        .AddMermaid(mermaid =>
+          mermaid.WithDirection(MermaidFlowchartDirection.TopToBottom)));
 
       // Register the Data Processing Pipeline, which serves as the initial ingest and cleaning
       // phase for subsequent pipelines.

@@ -1,5 +1,7 @@
 using Flowthru.Data;
 using Flowthru.Meta;
+using Flowthru.Meta.Builders;
+using Flowthru.Meta.Models;
 using Flowthru.Pipelines;
 using Microsoft.Extensions.Logging;
 
@@ -56,7 +58,7 @@ public class FlowthruApplication : IFlowthruApplication {
   private readonly Dictionary<string, Pipeline> _pipelines;
   private readonly IServiceProvider _services;
   private readonly ExecutionOptions _executionOptions;
-  private readonly FlowthruMetadataConfiguration? _metadataConfiguration;
+  private readonly FlowthruMetadataBuilder? _metadataBuilder;
   private readonly ILogger<FlowthruApplication> _logger;
 
   /// <summary>
@@ -71,14 +73,14 @@ public class FlowthruApplication : IFlowthruApplication {
     Dictionary<string, Pipeline> pipelines,
     IServiceProvider services,
     ExecutionOptions executionOptions,
-    FlowthruMetadataConfiguration? metadataConfiguration,
+    FlowthruMetadataBuilder? metadataBuilder,
     ILogger<FlowthruApplication> logger) {
     _args = args;
     _catalog = catalog;
     _pipelines = pipelines;
     _services = services;
     _executionOptions = executionOptions;
-    _metadataConfiguration = metadataConfiguration;
+    _metadataBuilder = metadataBuilder;
     _logger = logger;
   }
 
@@ -127,10 +129,10 @@ public class FlowthruApplication : IFlowthruApplication {
         mergedPipeline.Build();
 
         // Export merged DAG metadata if configured
-        if (_metadataConfiguration != null && _metadataConfiguration.AutoExportDag) {
+        if (_metadataBuilder != null && _metadataBuilder.AutoExport) {
           try {
             var dag = mergedPipeline.ExportDag();
-            Meta.Persistence.DagPersistence.SaveDag(dag, _metadataConfiguration.OutputDirectory, _logger, _metadataConfiguration.ExportMermaid);
+            ExportMetadata(dag, "Pipelines");
           } catch (Exception ex) {
             _logger.LogWarning(ex, "Failed to export DAG metadata for merged pipeline");
           }
@@ -176,10 +178,10 @@ public class FlowthruApplication : IFlowthruApplication {
     }
 
     // 3.5. Export DAG metadata if configured
-    if (_metadataConfiguration != null && _metadataConfiguration.AutoExportDag) {
+    if (_metadataBuilder != null && _metadataBuilder.AutoExport) {
       try {
         var dag = pipeline.ExportDag();
-        Meta.Persistence.DagPersistence.SaveDag(dag, _metadataConfiguration.OutputDirectory, _logger, _metadataConfiguration.ExportMermaid);
+        ExportMetadata(dag, pipelineName);
       } catch (Exception ex) {
         _logger.LogWarning(ex, "Failed to export DAG metadata for pipeline '{PipelineName}'", pipelineName);
       }
@@ -256,5 +258,42 @@ public class FlowthruApplication : IFlowthruApplication {
     }
 
     return pipelineName;
+  }
+
+  /// <summary>
+  /// Exports DAG metadata using all registered providers.
+  /// </summary>
+  /// <param name="dag">The DAG metadata to export</param>
+  /// <param name="name">Name for the exported files</param>
+  private void ExportMetadata(DagMetadata dag, string name) {
+    if (_metadataBuilder == null) {
+      return;
+    }
+
+    var outputDirectory = _metadataBuilder.OutputDirectory;
+
+    // Ensure output directory exists
+    if (!Directory.Exists(outputDirectory)) {
+      Directory.CreateDirectory(outputDirectory);
+    }
+
+    // Execute each provider
+    foreach (var provider in _metadataBuilder.Providers) {
+      try {
+        _logger.LogInformation("Exporting DAG metadata using {Provider} to {Directory}",
+          provider.Name, outputDirectory);
+
+        var success = provider.Export(dag, outputDirectory, _logger);
+
+        if (success) {
+          _logger.LogInformation("{Provider} export completed successfully", provider.Name);
+        } else {
+          _logger.LogWarning("{Provider} export failed", provider.Name);
+        }
+      } catch (Exception ex) {
+        _logger.LogWarning(ex, "Error during {Provider} export: {Message}",
+          provider.Name, ex.Message);
+      }
+    }
   }
 }

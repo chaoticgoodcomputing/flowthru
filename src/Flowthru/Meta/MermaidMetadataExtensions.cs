@@ -25,6 +25,7 @@ public static class MermaidMetadataExtensions {
   /// Generates a Mermaid flowchart representation of the DAG, wrapped in a code fence.
   /// </summary>
   /// <param name="dag">The DAG metadata to visualize</param>
+  /// <param name="direction">Flow direction code (TB, LR, BT, RL). Defaults to TB (Top to Bottom).</param>
   /// <returns>Complete Markdown document with Mermaid code fence</returns>
   /// <remarks>
   /// <para>
@@ -48,12 +49,12 @@ public static class MermaidMetadataExtensions {
   /// ```
   /// </code>
   /// </remarks>
-  public static string ToMermaidDiagram(this DagMetadata dag) {
+  public static string ToMermaidDiagram(this DagMetadata dag, string direction = "TB") {
     var sb = new StringBuilder();
 
-    // Start Mermaid code fence with flowchart (TB = Top to Bottom)
+    // Start Mermaid code fence with flowchart and specified direction
     sb.AppendLine("```mermaid");
-    sb.AppendLine("flowchart TB");
+    sb.AppendLine($"flowchart {direction}");
     sb.AppendLine();
 
     // Classify catalog entries into external and produced
