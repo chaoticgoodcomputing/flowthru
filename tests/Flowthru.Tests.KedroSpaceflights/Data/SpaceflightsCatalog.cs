@@ -323,5 +323,38 @@ public class SpaceflightsCatalog : DataCatalogBase {
       key: "ConfusionMatrixPlot",
       filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.json"));
 
+  /// <summary>
+  /// Shuttle passenger capacity bar chart (base64-encoded PNG).
+  /// Static image representation of the passenger capacity visualization.
+  /// Stored as base64-encoded string, can be decoded to raw PNG bytes if needed.
+  /// </summary>
+  /// <remarks>
+  /// Using base64 encoding allows PNG image data to be stored in a FileCatalogObject&lt;string&gt;
+  /// without requiring binary file support. The base64 string can be:
+  /// - Decoded to raw PNG bytes using Convert.FromBase64String()
+  /// - Embedded directly in HTML using data URLs: data:image/png;base64,{base64}
+  /// - Stored as text for easy versioning and inspection
+  /// File size is ~33% larger than raw PNG due to base64 encoding overhead.
+  /// </remarks>
+  public ICatalogObject<string> ShuttlePassengerCapacityPlotPng => GetOrCreateObject(()
+    => new FileCatalogObject(
+      key: "ShuttlePassengerCapacityPlotPng",
+      filePath: $"{_basePath}/08_Reporting/shuttle_passenger_capacity_plot.png.base64"));
+
+  /// <summary>
+  /// Confusion matrix heatmap (base64-encoded PNG).
+  /// Static image representation of the confusion matrix visualization.
+  /// Stored as base64-encoded string for catalog compatibility.
+  /// </summary>
+  /// <remarks>
+  /// Using base64 encoding allows PNG image data to be stored in a FileCatalogObject&lt;string&gt;
+  /// without requiring binary file support. The base64 string can be decoded to raw PNG bytes
+  /// using Convert.FromBase64String() or embedded directly in HTML as a data URL.
+  /// </remarks>
+  public ICatalogObject<string> ConfusionMatrixPlotPng => GetOrCreateObject(()
+    => new FileCatalogObject(
+      key: "ConfusionMatrixPlotPng",
+      filePath: $"{_basePath}/08_Reporting/confusion_matrix_plot.png.base64"));
+
 }
 
