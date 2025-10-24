@@ -16,6 +16,7 @@ namespace Flowthru.Meta;
 /// </para>
 /// <code>
 /// builder.IncludeMetadata(meta => meta
+///     .WithTimestamp("yyyy-MM-dd_HH-mm-ss")  // Optional: custom timestamp format
 ///     .AddJson(json => json.UseCompactFormat())
 ///     .AddMermaid(mermaid => mermaid.WithDirection(MermaidFlowchartDirection.LeftToRight))
 /// );
@@ -25,6 +26,7 @@ public class FlowthruMetadataBuilder {
   private readonly List<IMetadataProvider> _providers = new();
   private string _outputDirectory = "metadata";
   private bool _autoExport = true;
+  private readonly TimestampConfiguration _timestampConfig = new();
 
   /// <summary>
   /// Gets the list of registered metadata providers.
@@ -40,6 +42,11 @@ public class FlowthruMetadataBuilder {
   /// Gets whether metadata should be auto-exported during pipeline execution.
   /// </summary>
   internal bool AutoExport => _autoExport;
+
+  /// <summary>
+  /// Gets the timestamp configuration for metadata file naming.
+  /// </summary>
+  internal TimestampConfiguration TimestampConfig => _timestampConfig;
 
   /// <summary>
   /// Sets the output directory for metadata files.
@@ -58,6 +65,64 @@ public class FlowthruMetadataBuilder {
   /// <returns>This builder for fluent chaining</returns>
   public FlowthruMetadataBuilder WithAutoExport(bool enabled = true) {
     _autoExport = enabled;
+    return this;
+  }
+
+  /// <summary>
+  /// Enables timestamp inclusion in metadata filenames with optional custom format.
+  /// </summary>
+  /// <param name="format">Optional DateTime format string. If null, uses default "yyyyMMdd-HHmmss"</param>
+  /// <returns>This builder for fluent chaining</returns>
+  /// <exception cref="ArgumentException">Thrown if format string is invalid</exception>
+  /// <remarks>
+  /// <para>
+  /// This is the default behavior - timestamps are included unless explicitly disabled.
+  /// </para>
+  /// <para>
+  /// Examples of valid format strings:
+  /// </para>
+  /// <list type="bullet">
+  /// <item>"yyyyMMdd-HHmmss" → 20251024-143052 (default)</item>
+  /// <item>"yyyy-MM-dd_HH-mm-ss" → 2025-10-24_14-30-52</item>
+  /// <item>"yyyyMMddHHmmss" → 20251024143052</item>
+  /// <item>"yyyy-MM-dd" → 2025-10-24</item>
+  /// </list>
+  /// <para>
+  /// <strong>Usage:</strong>
+  /// </para>
+  /// <code>
+  /// // Use default format
+  /// .WithTimestamp()
+  /// 
+  /// // Use custom format
+  /// .WithTimestamp("yyyy-MM-dd_HH-mm-ss")
+  /// </code>
+  /// </remarks>
+  public FlowthruMetadataBuilder WithTimestamp(string? format = null) {
+    _timestampConfig.IncludeTimestamp = true;
+
+    if (format != null) {
+      if (string.IsNullOrWhiteSpace(format)) {
+        throw new ArgumentException("Timestamp format cannot be empty or whitespace", nameof(format));
+      }
+
+      _timestampConfig.Format = format;
+      _timestampConfig.Validate(); // Validate immediately
+    }
+
+    return this;
+  }
+
+  /// <summary>
+  /// Disables timestamp inclusion in metadata filenames.
+  /// </summary>
+  /// <remarks>
+  /// <strong>Warning:</strong> When timestamps are disabled, subsequent exports will overwrite
+  /// previous files with the same pipeline name.
+  /// </remarks>
+  /// <returns>This builder for fluent chaining</returns>
+  public FlowthruMetadataBuilder WithoutTimestamp() {
+    _timestampConfig.IncludeTimestamp = false;
     return this;
   }
 

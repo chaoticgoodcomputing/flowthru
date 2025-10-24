@@ -283,7 +283,7 @@ public class FlowthruApplication : IFlowthruApplication {
         _logger.LogInformation("Exporting DAG metadata using {Provider} to {Directory}",
           provider.Name, outputDirectory);
 
-        var success = provider.Export(dag, outputDirectory, _logger);
+        var success = provider.Export(dag, outputDirectory, _metadataBuilder.TimestampConfig, _logger);
 
         if (success) {
           _logger.LogInformation("{Provider} export completed successfully", provider.Name);

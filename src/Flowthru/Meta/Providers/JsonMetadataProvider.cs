@@ -26,14 +26,16 @@ public class JsonMetadataProvider : IMetadataProvider {
   public string Name => "JSON";
 
   /// <inheritdoc />
-  public bool Export(DagMetadata dag, string outputDirectory, ILogger? logger = null) {
+  public bool Export(DagMetadata dag, string outputDirectory, TimestampConfiguration timestampConfig, ILogger? logger = null) {
     try {
       // Ensure output directory exists
       Directory.CreateDirectory(outputDirectory);
 
-      // Generate timestamped filename
-      var timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
-      var filename = $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.json";
+      // Generate filename with optional timestamp
+      var timestamp = timestampConfig.GenerateTimestamp();
+      var filename = timestamp != null
+        ? $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.json"
+        : $"dag-{SanitizeFilename(dag.PipelineName)}.json";
       var filePath = Path.Combine(outputDirectory, filename);
 
       logger?.LogInformation("Exporting JSON metadata to {FilePath}", filePath);
