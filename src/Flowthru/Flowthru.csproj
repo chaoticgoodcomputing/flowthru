@@ -19,6 +19,12 @@
     <!-- Logging Abstractions (Serilog compatible) -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.10" />
     
+    <!-- Configuration Support -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.10" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.1.0" />
+    
     <!-- Data Format Support -->
     <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />

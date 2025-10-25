@@ -1,9 +1,12 @@
+using Flowthru.Configuration;
 using Flowthru.Data;
 using Flowthru.Meta;
 using Flowthru.Parameters;
 using Flowthru.Registry;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetEscapades.Configuration.Yaml;
 
 namespace Flowthru.Application;
 
@@ -51,6 +54,11 @@ public class FlowthruApplicationBuilder {
   private readonly ParameterStore _parameters = new();
   private readonly ExecutionOptions _executionOptions = new();
   private FlowthruMetadataBuilder? _metadataBuilder;
+  private IConfiguration? _configuration;
+  private FlowthruConfigurationOptions? _configurationOptions;
+  private bool _metadataConfiguredExplicitly = false;
+  private bool _catalogConfiguredExplicitly = false;
+  private bool _pipelinesConfiguredExplicitly = false;
 
   /// <summary>
   /// Initializes a new instance of FlowthruApplicationBuilder.
@@ -77,6 +85,7 @@ public class FlowthruApplicationBuilder {
   public FlowthruApplicationBuilder UseCatalog(DataCatalogBase catalog) {
     _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
     _catalogFactory = null; // Clear factory if set
+    _catalogConfiguredExplicitly = true;
     return this;
   }
 
@@ -122,6 +131,7 @@ public class FlowthruApplicationBuilder {
   public FlowthruApplicationBuilder UseCatalog(Func<IServiceProvider, DataCatalogBase> catalogFactory) {
     _catalogFactory = catalogFactory ?? throw new ArgumentNullException(nameof(catalogFactory));
     _catalog = null; // Clear instance if set
+    _catalogConfiguredExplicitly = true;
     return this;
   }
 
@@ -138,6 +148,7 @@ public class FlowthruApplicationBuilder {
     where TRegistry : class, new() {
     _pipelineRegistryType = typeof(TRegistry);
     _inlineRegistrations.Clear(); // Clear inline registrations if using registry class
+    _pipelinesConfiguredExplicitly = true;
     return this;
   }
 
@@ -159,6 +170,7 @@ public class FlowthruApplicationBuilder {
     _inlineRegistrations.Add(registrar =>
       registrar.Register(label, catalog => creator((TCatalog)catalog)));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
+    _pipelinesConfiguredExplicitly = true;
     return this;
   }
 
@@ -183,6 +195,151 @@ public class FlowthruApplicationBuilder {
     _inlineRegistrations.Add(registrar =>
       registrar.Register(label, (catalog, p) => creator((TCatalog)catalog, (TParams)p), parameters));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
+    _pipelinesConfiguredExplicitly = true;
+    return this;
+  }
+
+  /// <summary>
+  /// Registers a pipeline with parameters loaded from configuration (inline registration).
+  /// </summary>
+  /// <typeparam name="TCatalog">The catalog type</typeparam>
+  /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
+  /// <param name="label">Unique pipeline name</param>
+  /// <param name="creator">Factory function that creates the pipeline from catalog and parameters</param>
+  /// <param name="configurationSection">Configuration section path (e.g., "DataScience" or "DataScience:ModelParams")</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <exception cref="InvalidOperationException">Thrown if UseConfiguration() hasn't been called first</exception>
+  /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">Thrown if parameter validation fails</exception>
+  /// <remarks>
+  /// <para>
+  /// This method loads pipeline parameters from configuration files and validates them
+  /// using DataAnnotations attributes. Configuration must be set up first via UseConfiguration().
+  /// </para>
+  /// <para>
+  /// <strong>Example:</strong>
+  /// </para>
+  /// <code>
+  /// builder
+  ///   .UseConfiguration()
+  ///   .RegisterPipelineWithConfiguration&lt;MyCatalog, ModelParams&gt;(
+  ///     label: "data_science",
+  ///     creator: DataSciencePipeline.Create,
+  ///     configurationSection: "DataScience:ModelParams"
+  ///   );
+  /// </code>
+  /// </remarks>
+  public FlowthruApplicationBuilder RegisterPipelineWithConfiguration<TCatalog, TParams>(
+    string label,
+    Func<TCatalog, TParams, Pipelines.Pipeline> creator,
+    string configurationSection)
+    where TCatalog : DataCatalogBase
+    where TParams : class, new() {
+
+    if (_configuration == null) {
+      throw new InvalidOperationException(
+        "Configuration has not been set up. Call UseConfiguration() before RegisterPipelineWithConfiguration().");
+    }
+
+    // Load and validate parameters from configuration
+    var parameters = _configuration.GetValidated<TParams>(configurationSection);
+
+    _inlineRegistrations.Add(registrar =>
+      registrar.Register(label, (catalog, p) => creator((TCatalog)catalog, (TParams)p), parameters));
+    _pipelineRegistryType = null; // Clear registry type if using inline registration
+    _pipelinesConfiguredExplicitly = true;
+    return this;
+  }
+
+  /// <summary>
+  /// Enables configuration loading from JSON and YAML files.
+  /// </summary>
+  /// <param name="configure">Optional action to configure how configuration files are loaded</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// <para>
+  /// By default, configuration is loaded from:
+  /// </para>
+  /// <list type="number">
+  /// <item><c>appsettings.json</c> - Base configuration (required)</item>
+  /// <item><c>appsettings.{Environment}.json</c> - Environment overrides (optional)</item>
+  /// <item><c>appsettings.Local.json</c> - Local overrides (optional, gitignored)</item>
+  /// </list>
+  /// <para>
+  /// YAML files are also supported if NetEscapades.Configuration.Yaml is installed.
+  /// </para>
+  /// <para>
+  /// <strong>Example:</strong>
+  /// </para>
+  /// <code>
+  /// builder.UseConfiguration(config => config
+  ///   .WithConfigurationPath("conf")  // Use Kedro-style conf/ folder
+  ///   .WithEnvironment("Development")  // Override environment
+  ///   .WithConfigurationFileName("parameters")); // Use parameters.json instead
+  /// </code>
+  /// </remarks>
+  public FlowthruApplicationBuilder UseConfiguration(Action<FlowthruConfigurationOptions>? configure = null) {
+    _configurationOptions = new FlowthruConfigurationOptions();
+    configure?.Invoke(_configurationOptions);
+
+    var environment = _configurationOptions.GetResolvedEnvironment();
+    var configPath = _configurationOptions.ConfigurationPath;
+    var baseFileName = _configurationOptions.ConfigurationFileName;
+
+    var configBuilder = new ConfigurationBuilder()
+      .SetBasePath(Directory.GetCurrentDirectory());
+
+    // Add base configuration (required)
+    var baseJsonPath = Path.Combine(configPath, $"{baseFileName}.json");
+    configBuilder.AddJsonFile(baseJsonPath, optional: false, reloadOnChange: false);
+
+    // Add YAML support if enabled
+    if (_configurationOptions.EnableYamlSupport) {
+      var baseYamlPath = Path.Combine(configPath, $"{baseFileName}.yml");
+      var baseYamlAltPath = Path.Combine(configPath, $"{baseFileName}.yaml");
+
+      // Try .yml first, then .yaml
+      if (File.Exists(baseYamlPath)) {
+        configBuilder.AddYamlFile(baseYamlPath, optional: true, reloadOnChange: false);
+      } else if (File.Exists(baseYamlAltPath)) {
+        configBuilder.AddYamlFile(baseYamlAltPath, optional: true, reloadOnChange: false);
+      }
+    }
+
+    // Add environment-specific configuration (optional)
+    var envJsonPath = Path.Combine(configPath, $"{baseFileName}.{environment}.json");
+    configBuilder.AddJsonFile(envJsonPath, optional: true, reloadOnChange: false);
+
+    if (_configurationOptions.EnableYamlSupport) {
+      var envYamlPath = Path.Combine(configPath, $"{baseFileName}.{environment}.yml");
+      var envYamlAltPath = Path.Combine(configPath, $"{baseFileName}.{environment}.yaml");
+
+      if (File.Exists(envYamlPath)) {
+        configBuilder.AddYamlFile(envYamlPath, optional: true, reloadOnChange: false);
+      } else if (File.Exists(envYamlAltPath)) {
+        configBuilder.AddYamlFile(envYamlAltPath, optional: true, reloadOnChange: false);
+      }
+    }
+
+    // Add local configuration (optional, gitignored)
+    var localJsonPath = Path.Combine(configPath, $"{baseFileName}.Local.json");
+    configBuilder.AddJsonFile(localJsonPath, optional: true, reloadOnChange: false);
+
+    if (_configurationOptions.EnableYamlSupport) {
+      var localYamlPath = Path.Combine(configPath, $"{baseFileName}.Local.yml");
+      var localYamlAltPath = Path.Combine(configPath, $"{baseFileName}.Local.yaml");
+
+      if (File.Exists(localYamlPath)) {
+        configBuilder.AddYamlFile(localYamlPath, optional: true, reloadOnChange: false);
+      } else if (File.Exists(localYamlAltPath)) {
+        configBuilder.AddYamlFile(localYamlAltPath, optional: true, reloadOnChange: false);
+      }
+    }
+
+    _configuration = configBuilder.Build();
+
+    // Register configuration in DI container
+    _services.AddSingleton(_configuration);
+
     return this;
   }
 
@@ -339,6 +496,7 @@ public class FlowthruApplicationBuilder {
       _metadataBuilder.AddJson().AddMermaid();
     }
 
+    _metadataConfiguredExplicitly = true;
     return this;
   }
 
@@ -350,8 +508,68 @@ public class FlowthruApplicationBuilder {
   /// Thrown if catalog or pipeline registry is not configured
   /// </exception>
   internal IFlowthruApplication Build() {
-    // 1. Build service provider
+    // 1. Build service provider first (needed for catalog factory)
     var services = _services.BuildServiceProvider();
+
+    // Apply configuration-based defaults if available and not explicitly configured
+    if (_configuration != null) {
+      var flowthruOptions = _configuration.GetValidatedOrDefault<FlowthruOptions>("Flowthru");
+
+      if (flowthruOptions != null) {
+        // Apply catalog configuration if not explicitly set
+        if (!_catalogConfiguredExplicitly && flowthruOptions.Catalog != null) {
+          var catalogFactory = new Configuration.ReflectionCatalogFactory();
+          var catalogInstance = catalogFactory.CreateCatalog(flowthruOptions.Catalog, services);
+          _catalog = catalogInstance;
+        }
+
+        // Apply metadata configuration if not explicitly set
+        if (!_metadataConfiguredExplicitly && flowthruOptions.Metadata != null) {
+          _metadataBuilder = new FlowthruMetadataBuilder();
+
+          var metaConfig = flowthruOptions.Metadata;
+
+          // Configure output directory
+          if (!string.IsNullOrEmpty(metaConfig.OutputDirectory)) {
+            _metadataBuilder.WithOutputDirectory(metaConfig.OutputDirectory);
+          }
+
+          // Add configured providers (simplified - just add the providers)
+          if (metaConfig.Providers != null && metaConfig.Providers.Count > 0) {
+            foreach (var providerName in metaConfig.Providers) {
+              switch (providerName.ToLowerInvariant()) {
+                case "json":
+                  _metadataBuilder.AddJson();
+                  break;
+                case "mermaid":
+                  _metadataBuilder.AddMermaid();
+                  break;
+              }
+            }
+          } else {
+            // Default providers if none specified
+            _metadataBuilder.AddJson().AddMermaid();
+          }
+        }
+
+        // Apply pipeline auto-discovery if not explicitly configured
+        if (!_pipelinesConfiguredExplicitly && flowthruOptions.Pipelines != null && flowthruOptions.Pipelines.Count > 0) {
+          // Determine catalog type for pipeline discovery
+          Type catalogType = _catalog?.GetType() ?? typeof(DataCatalogBase);
+
+          var discoveredPipelines = Configuration.PipelineDiscoveryService.DiscoverPipelines(_configuration, catalogType);
+
+          // Convert to inline registrations
+          foreach (var (pipelineName, factoryInfo) in discoveredPipelines) {
+            _inlineRegistrations.Add(registrar => {
+              // Invoke the factory to create the pipeline
+              var pipeline = factoryInfo.CreatePipeline(_catalog!);
+              registrar.Register(pipelineName, _ => pipeline);
+            });
+          }
+        }
+      }
+    }
 
     // 2. Resolve or create catalog
     var catalog = _catalog ?? _catalogFactory?.Invoke(services);

@@ -68,6 +68,7 @@ dotnet run data_processing
 **Problem-oriented:** Practical guides for specific tasks.
 
 - [Choose Pipeline Registration Approach](docs/how-to/pipeline-registration-approaches.md) - Inline vs registry classes
+- [Use Configuration Files](docs/how-to/configuration-files.md) - External config with environment layering
 - [Leverage Compile-Time Safety](docs/how-to/compile-time-safety.md) - Maximize type safety
 - [Configure Dataset Inspection](docs/how-to/dataset-inspection.md) - Validate external data before execution
 - [Structure Multi-Input/Output Nodes](docs/how-to/multi-input-output.md) - Handle complex data flows
@@ -94,6 +95,7 @@ dotnet run data_processing
 ## Core Features
 
 ✅ **Compile-Time Type Safety** - Catch errors before execution, not during  
+✅ **Configuration File Support** - JSON/YAML configs with environment layering  
 ✅ **Eager Schema Validation** - Validate external data before pipeline runs (optional)  
 ✅ **Read/Write Capability Enforcement** - Prevent writes to read-only sources (Excel, APIs)  
 ✅ **Generic Pipeline Registry** - Type-safe pipeline registration with parameters  

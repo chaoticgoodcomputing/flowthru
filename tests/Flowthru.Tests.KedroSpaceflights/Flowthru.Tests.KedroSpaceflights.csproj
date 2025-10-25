@@ -32,4 +32,17 @@
     <PackageReference Include="Plotly.NET.ImageExport" Version="6.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Copy configuration files to output directory -->
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Local.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
@@ -14,11 +15,13 @@ public record CrossValidationParams {
   /// <summary>
   /// Number of folds for k-fold cross-validation
   /// </summary>
+  [Range(2, 100, ErrorMessage = "NumFolds must be between 2 and 100")]
   public int NumFolds { get; init; }
 
   /// <summary>
   /// Base random seed for reproducibility
   /// </summary>
+  [Range(0, int.MaxValue, ErrorMessage = "BaseSeed must be a non-negative integer")]
   public int BaseSeed { get; init; }
 
   /// <summary>
@@ -29,6 +32,7 @@ public record CrossValidationParams {
   /// comfortably close to Kedro's original spaceflights example, indicating that our data processing
   /// and modeling steps are correctly aligned.
   /// </summary>
+  [Range(0.0f, 1.0f, ErrorMessage = "KedroReferenceR2Score must be between 0.0 and 1.0")]
   public float KedroReferenceR2Score { get; init; }
 }
 

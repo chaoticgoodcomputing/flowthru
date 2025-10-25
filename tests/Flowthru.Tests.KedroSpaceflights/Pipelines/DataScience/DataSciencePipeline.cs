@@ -9,17 +9,17 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 /// <summary>
 /// Parameters for the data science pipeline nodes.
 /// </summary>
-public record DataSciencePipelineParams(
+public record DataSciencePipelineParams {
   /// <summary>
   /// Options for model training.
   /// </summary>
-  ModelParams ModelParams,
+  public ModelParams ModelParams { get; init; } = new();
 
   /// <summary>
   /// Options for cross-validation.
   /// </summary>
-  CrossValidationParams CrossValidationParams
-);
+  public CrossValidationParams CrossValidationParams { get; init; } = new();
+}
 
 /// <summary>
 /// Data science pipeline that splits data, trains model, and evaluates performance.
