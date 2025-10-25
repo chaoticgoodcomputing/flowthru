@@ -24,19 +24,14 @@ public class Program {
 
       // Enable configuration loading from appsettings.json files
       // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
-      // Catalog and metadata will be auto-configured from the Flowthru section
       builder.UseConfiguration();
-
-      // Register pipelines explicitly in code for compile-time safety and discoverability
-      // Parameters are loaded from configuration for easy tuning without code changes
 
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
           label: "DataProcessing",
           creator: DataProcessingPipeline.Create
         )
-        .WithDescription("Preprocesses raw data and creates model input table")
-        .WithTags("preprocessing", "features");
+        .WithDescription("Preprocesses raw data and creates model input table");
 
       builder
         .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataSciencePipelineParams>(
@@ -44,24 +39,21 @@ public class Program {
           creator: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
         )
-        .WithDescription("Trains and evaluates ML model")
-        .WithTags("ml", "training", "evaluation");
+        .WithDescription("Trains and evaluates ML model");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
           label: "DataValidation",
           creator: DataValidationPipeline.Create
         )
-        .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data")
-        .WithTags("validation", "quality");
+        .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
           label: "Reporting",
           creator: ReportingPipeline.Create
         )
-        .WithDescription("Generates reports and visualizations")
-        .WithTags("reporting", "visualization");
+        .WithDescription("Generates reports and visualizations");
     });
 
     return await app.RunAsync();

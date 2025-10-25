@@ -114,19 +114,6 @@ public class FlowthruMetadataBuilder {
   }
 
   /// <summary>
-  /// Disables timestamp inclusion in metadata filenames.
-  /// </summary>
-  /// <remarks>
-  /// <strong>Warning:</strong> When timestamps are disabled, subsequent exports will overwrite
-  /// previous files with the same pipeline name.
-  /// </remarks>
-  /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder WithoutTimestamp() {
-    _timestampConfig.IncludeTimestamp = false;
-    return this;
-  }
-
-  /// <summary>
   /// Adds a JSON metadata provider with optional configuration.
   /// </summary>
   /// <param name="configure">Optional configuration action for JSON provider</param>

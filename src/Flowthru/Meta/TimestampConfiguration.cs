@@ -32,7 +32,7 @@ public class TimestampConfiguration {
   /// Default: true
   /// When false, files will be named without timestamps and will overwrite on each export.
   /// </remarks>
-  public bool IncludeTimestamp { get; set; } = true;
+  public bool IncludeTimestamp { get; set; } = false;
 
   /// <summary>
   /// Gets or sets the timestamp format string.
@@ -42,7 +42,7 @@ public class TimestampConfiguration {
   /// Must be a valid DateTime format string compatible with DateTime.ToString().
   /// Only used when IncludeTimestamp is true.
   /// </remarks>
-  public string Format { get; set; } = "yyyyMMdd-HHmmss";
+  public string Format { get; set; } = "yyyy-MM-dd-HH-mm-ss";
 
   /// <summary>
   /// Validates the timestamp configuration.
