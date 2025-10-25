@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Flowthru.Data;
 using Flowthru.Meta;
 using Flowthru.Meta.Builders;
@@ -158,6 +159,8 @@ public class FlowthruApplication : IFlowthruApplication {
 
   /// <inheritdoc />
   public async Task<PipelineResult> RunPipelineAsync(string pipelineName) {
+    var totalStopwatch = Stopwatch.StartNew();
+
     // 1. Get pipeline
     if (!_pipelines.TryGetValue(pipelineName, out var pipeline)) {
       _logger.LogError("Pipeline '{Name}' not found. Available pipelines: {Available}",
@@ -166,32 +169,97 @@ public class FlowthruApplication : IFlowthruApplication {
       throw new KeyNotFoundException($"Pipeline '{pipelineName}' not found");
     }
 
-    _logger.LogInformation("Running pipeline: {Name}", pipelineName);
+    // ════════════════════════════════════════
+    // PRE-FLIGHT CHECKS
+    // ════════════════════════════════════════
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("PRE-FLIGHT CHECKS");
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("");
+
+    var preFlightStopwatch = Stopwatch.StartNew();
 
     // 2. Inject services into pipeline
+    _logger.LogInformation("→ Initializing pipeline: {Name}", pipelineName);
     pipeline.Logger = _logger;
     pipeline.ServiceProvider = _services;
 
     // 3. Build the pipeline
     if (!pipeline.IsBuilt) {
+      _logger.LogInformation("→ Building pipeline and analyzing dependencies...");
       pipeline.Build();
+      _logger.LogInformation("  ✓ Pipeline built successfully");
+      _logger.LogInformation("  ✓ {NodeCount} nodes organized into {LayerCount} execution layers",
+        pipeline.Nodes.Count,
+        pipeline.ExecutionLayers!.Count);
     }
 
     // 3.5. Export DAG metadata if configured
     if (_metadataBuilder != null && _metadataBuilder.AutoExport) {
       try {
+        _logger.LogInformation("→ Exporting DAG metadata...");
         var dag = pipeline.ExportDag();
         ExportMetadata(dag, pipelineName);
+        _logger.LogInformation("  ✓ Metadata exported successfully");
       } catch (Exception ex) {
-        _logger.LogWarning(ex, "Failed to export DAG metadata for pipeline '{PipelineName}'", pipelineName);
+        _logger.LogWarning(ex, "  ⚠ Failed to export DAG metadata: {Message}", ex.Message);
       }
     }
 
     // 4. Validate external inputs if configured
+    _logger.LogInformation("→ Validating external data sources...");
     var validationResult = await pipeline.ValidateExternalInputsAsync();
     if (!validationResult.IsValid) {
+      _logger.LogError("  ✗ Validation failed");
       validationResult.ThrowIfInvalid();
     }
+
+    // Count validated inputs
+    var layer0Nodes = pipeline.ExecutionLayers![0];
+    var validatedInputCount = layer0Nodes
+      .SelectMany(node => node.Inputs)
+      .Distinct()
+      .Count();
+
+    _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
+
+    preFlightStopwatch.Stop();
+    _logger.LogInformation("");
+    _logger.LogInformation("✅ Pre-flight completed in {Ms}ms", preFlightStopwatch.ElapsedMilliseconds);
+    _logger.LogInformation("");
+
+    // Check if dry run
+    if (_executionOptions.DryRun) {
+      _logger.LogInformation("════════════════════════════════════════");
+      _logger.LogInformation("DRY RUN SUCCESSFUL");
+      _logger.LogInformation("════════════════════════════════════════");
+      _logger.LogInformation("");
+      _logger.LogInformation("Pipeline: {Name}", pipelineName);
+      _logger.LogInformation("Nodes: {Count} nodes across {Layers} layers",
+        pipeline.Nodes.Count,
+        pipeline.ExecutionLayers!.Count);
+      _logger.LogInformation("External Inputs: {Count} validated", validatedInputCount);
+      _logger.LogInformation("Total Time: {Ms}ms", totalStopwatch.ElapsedMilliseconds);
+      _logger.LogInformation("");
+      _logger.LogInformation("✅ Pipeline is ready to execute");
+      _logger.LogInformation("");
+
+      totalStopwatch.Stop();
+      return PipelineResult.CreateDryRunSuccess(
+        totalStopwatch.Elapsed,
+        pipeline.Nodes.Count,
+        pipeline.ExecutionLayers!.Count,
+        validatedInputCount,
+        pipelineName);
+    }
+
+    // ════════════════════════════════════════
+    // PIPELINE EXECUTION
+    // ════════════════════════════════════════
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("PIPELINE EXECUTION");
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("");
 
     // 5. Execute pipeline
     var result = await pipeline.RunAsync();
@@ -209,18 +277,95 @@ public class FlowthruApplication : IFlowthruApplication {
   /// <param name="mergedPipeline">The merged pipeline to execute</param>
   /// <returns>Pipeline execution result</returns>
   private async Task<PipelineResult> RunMergedPipelineAsync(Pipeline mergedPipeline) {
-    _logger.LogInformation("Running merged pipeline: {Name}", mergedPipeline.Name);
+    var totalStopwatch = Stopwatch.StartNew();
+    var pipelineName = mergedPipeline.Name ?? "Pipelines";
+
+    // ════════════════════════════════════════
+    // PRE-FLIGHT CHECKS
+    // ════════════════════════════════════════
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("PRE-FLIGHT CHECKS");
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("");
+
+    var preFlightStopwatch = Stopwatch.StartNew();
 
     // Build the pipeline
     if (!mergedPipeline.IsBuilt) {
+      _logger.LogInformation("→ Building merged pipeline and analyzing dependencies...");
       mergedPipeline.Build();
+      _logger.LogInformation("  ✓ Pipeline built successfully");
+      _logger.LogInformation("  ✓ {NodeCount} nodes organized into {LayerCount} execution layers",
+        mergedPipeline.Nodes.Count,
+        mergedPipeline.ExecutionLayers!.Count);
+    }
+
+    // Export DAG metadata if configured
+    if (_metadataBuilder != null && _metadataBuilder.AutoExport) {
+      try {
+        _logger.LogInformation("→ Exporting DAG metadata...");
+        var dag = mergedPipeline.ExportDag();
+        ExportMetadata(dag, pipelineName);
+        _logger.LogInformation("  ✓ Metadata exported successfully");
+      } catch (Exception ex) {
+        _logger.LogWarning(ex, "  ⚠ Failed to export DAG metadata: {Message}", ex.Message);
+      }
     }
 
     // Validate external inputs if configured
+    _logger.LogInformation("→ Validating external data sources...");
     var validationResult = await mergedPipeline.ValidateExternalInputsAsync();
     if (!validationResult.IsValid) {
+      _logger.LogError("  ✗ Validation failed");
       validationResult.ThrowIfInvalid();
     }
+
+    // Count validated inputs
+    var layer0Nodes = mergedPipeline.ExecutionLayers![0];
+    var validatedInputCount = layer0Nodes
+      .SelectMany(node => node.Inputs)
+      .Distinct()
+      .Count();
+
+    _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
+
+    preFlightStopwatch.Stop();
+    _logger.LogInformation("");
+    _logger.LogInformation("✅ Pre-flight completed in {Ms}ms", preFlightStopwatch.ElapsedMilliseconds);
+    _logger.LogInformation("");
+
+    // Check if dry run
+    if (_executionOptions.DryRun) {
+      _logger.LogInformation("════════════════════════════════════════");
+      _logger.LogInformation("DRY RUN SUCCESSFUL");
+      _logger.LogInformation("════════════════════════════════════════");
+      _logger.LogInformation("");
+      _logger.LogInformation("Pipeline: {Name}", pipelineName);
+      _logger.LogInformation("Nodes: {Count} nodes across {Layers} layers",
+        mergedPipeline.Nodes.Count,
+        mergedPipeline.ExecutionLayers!.Count);
+      _logger.LogInformation("External Inputs: {Count} validated", validatedInputCount);
+      _logger.LogInformation("Total Time: {Ms}ms", totalStopwatch.ElapsedMilliseconds);
+      _logger.LogInformation("");
+      _logger.LogInformation("✅ Pipeline is ready to execute");
+      _logger.LogInformation("");
+
+      totalStopwatch.Stop();
+      return PipelineResult.CreateDryRunSuccess(
+        totalStopwatch.Elapsed,
+        mergedPipeline.Nodes.Count,
+        mergedPipeline.ExecutionLayers!.Count,
+        validatedInputCount,
+        pipelineName);
+    }
+
+    // ════════════════════════════════════════
+    // PIPELINE EXECUTION
+    // ════════════════════════════════════════
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("PIPELINE EXECUTION");
+    _logger.LogInformation("════════════════════════════════════════");
+    _logger.LogInformation("");
 
     // Execute pipeline
     var result = await mergedPipeline.RunAsync();
@@ -239,15 +384,23 @@ public class FlowthruApplication : IFlowthruApplication {
   /// <param name="availablePipelines">Available pipeline names</param>
   /// <returns>Selected pipeline name, or null to run all</returns>
   private string? SelectPipeline(string[] args, IEnumerable<string> availablePipelines) {
-    // Simple implementation: first argument is pipeline name
-    // Future: add --list, --help, --dry-run flags
+    // Filter out flags and extract pipeline name
+    var filteredArgs = new List<string>();
 
-    if (args.Length == 0) {
+    foreach (var arg in args) {
+      if (arg == "--dry-run") {
+        _executionOptions.DryRun = true;
+      } else {
+        filteredArgs.Add(arg);
+      }
+    }
+
+    if (filteredArgs.Count == 0) {
       // No arguments - should run all pipelines (Phase 2)
       return null;
     }
 
-    var pipelineName = args[0];
+    var pipelineName = filteredArgs[0];
 
     // Check if it's a valid pipeline name
     if (!availablePipelines.Contains(pipelineName)) {

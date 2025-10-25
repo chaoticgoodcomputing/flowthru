@@ -10,6 +10,16 @@ namespace Flowthru.Application;
 /// </remarks>
 public class ExecutionOptions {
   /// <summary>
+  /// Whether to perform a dry run (pre-flight checks only, no execution).
+  /// </summary>
+  /// <remarks>
+  /// When true, the application performs all pre-flight operations (pipeline build,
+  /// DAG analysis, metadata generation, Layer 0 validation) but stops before executing
+  /// the pipeline. Useful for validating pipeline structure and configuration.
+  /// </remarks>
+  public bool DryRun { get; set; } = false;
+
+  /// <summary>
   /// Whether to stop execution on the first node failure.
   /// </summary>
   /// <remarks>

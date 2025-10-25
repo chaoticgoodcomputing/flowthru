@@ -40,6 +40,11 @@ public class PipelineResult {
   public bool Success { get; init; }
 
   /// <summary>
+  /// Indicates whether this was a dry run (pre-flight checks only).
+  /// </summary>
+  public bool IsDryRun { get; init; }
+
+  /// <summary>
   /// Total execution time for the entire pipeline.
   /// </summary>
   public TimeSpan ExecutionTime { get; init; }
@@ -71,6 +76,7 @@ public class PipelineResult {
       string? pipelineName = null) {
     return new PipelineResult {
       Success = true,
+      IsDryRun = false,
       ExecutionTime = executionTime,
       NodeResults = nodeResults,
       PipelineName = pipelineName
@@ -87,9 +93,34 @@ public class PipelineResult {
       string? pipelineName = null) {
     return new PipelineResult {
       Success = false,
+      IsDryRun = false,
       ExecutionTime = executionTime,
       Exception = exception,
       NodeResults = nodeResults ?? new(),
+      PipelineName = pipelineName
+    };
+  }
+
+  /// <summary>
+  /// Creates a successful dry run result.
+  /// </summary>
+  /// <param name="preFlightDuration">Time spent on pre-flight checks</param>
+  /// <param name="nodeCount">Total number of nodes in the pipeline</param>
+  /// <param name="layerCount">Number of execution layers</param>
+  /// <param name="validatedInputCount">Number of external inputs validated</param>
+  /// <param name="pipelineName">Name of the pipeline</param>
+  /// <returns>A successful dry run result</returns>
+  public static PipelineResult CreateDryRunSuccess(
+      TimeSpan preFlightDuration,
+      int nodeCount,
+      int layerCount,
+      int validatedInputCount,
+      string? pipelineName = null) {
+    return new PipelineResult {
+      Success = true,
+      IsDryRun = true,
+      ExecutionTime = preFlightDuration,
+      NodeResults = new Dictionary<string, NodeResult>(),
       PipelineName = pipelineName
     };
   }
