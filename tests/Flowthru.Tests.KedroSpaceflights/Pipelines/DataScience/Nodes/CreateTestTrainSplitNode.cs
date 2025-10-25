@@ -31,7 +31,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </para>
 /// </summary>
-public class SplitDataNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelParams> {
+public class CreateTestTrainSplitNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelParams> {
   // Parameters property inherited from NodeBase<TInput, TOutput, TParameters>
   // public ModelParams Parameters { get; set; } = new();
 

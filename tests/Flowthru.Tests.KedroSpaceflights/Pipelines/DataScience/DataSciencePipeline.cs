@@ -51,8 +51,8 @@ public static class DataSciencePipeline {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
       // Node 1: Split data into train/test sets (single input → multi-output)
-      pipeline.AddNode<SplitDataNode>(
-        name: "SplitData",
+      pipeline.AddNode<CreateTestTrainSplitNode>(
+        label: "CreateTestTrainSplitDatasets",
         input: catalog.ModelInputTable,
         output: new CatalogMap<SplitDataOutputs>()
           .Map(s => s.XTrain, catalog.XTrain)
@@ -64,26 +64,28 @@ public static class DataSciencePipeline {
 
       // Node 2: Train OLS regression model (multi-input → single output)
       pipeline.AddNode<TrainModelNode>(
+        label: "TrainOLSModel",
         input: new CatalogMap<TrainModelInputs>()
           .Map(x => x.XTrain, catalog.XTrain)
           .Map(x => x.YTrain, catalog.YTrain),
-        output: catalog.Regressor,
-        name: "TrainModel"
+        output: catalog.Regressor
       );
 
       // Node 3: Evaluate OLS model (multi-input → single output)
       pipeline.AddNode<EvaluateModelNode>(
-        name: "EvaluateModel",
+        label: "EvaluateOLSModel",
         input: new CatalogMap<EvaluateModelInputs>()
           .Map(x => x.Regressor, catalog.Regressor)
           .Map(x => x.XTest, catalog.XTest)
           .Map(x => x.YTest, catalog.YTest),
-        output: catalog.ModelMetrics
+        output: new CatalogMap<EvaluateModelOutputs>()
+          .Map(x => x.Metrics, catalog.ModelMetrics)
+          .Map(x => x.Predictions, catalog.ModelPredictions)
       );
 
       // Node 4: Cross-validation for R² distribution analysis and comparison to Kedro
       pipeline.AddNode<CrossValidateModelNode>(
-        name: "CrossValidateAndCompareToKedroSource",
+        label: "PerformCrossValidatedOLSRegressionTest",
         input: catalog.ModelInputTable,
         output: catalog.CrossValidationResults,
         configure: node => node.Parameters = parameters.CrossValidationParams

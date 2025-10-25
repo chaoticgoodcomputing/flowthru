@@ -16,10 +16,10 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// Uses property injection for ILogger to maintain parameterless constructor
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
-public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics> {
+public class EvaluateModelNode : NodeBase<EvaluateModelInputs, EvaluateModelOutputs> {
   // Note: Logger property is inherited from NodeBase and automatically available
 
-  protected override Task<IEnumerable<ModelMetrics>> Transform(
+  protected override Task<IEnumerable<EvaluateModelOutputs>> Transform(
       IEnumerable<EvaluateModelInputs> inputs) {
     try {
       // Extract the singleton input containing all catalog data
@@ -69,38 +69,53 @@ public class EvaluateModelNode : NodeBase<EvaluateModelInputs, ModelMetrics> {
           metrics.RootMeanSquaredError);
 
       // Return as singleton collection
-      return Task.FromResult(new[] { metrics }.AsEnumerable());
-    } catch (Exception ex) {
-      Logger?.LogError(ex, "Error in EvaluateModelNode: {Message}", ex.Message);
-      throw;
+      return Task.FromResult(new EvaluateModelOutputs {
+        Metrics = metrics,
+        Predictions = predictions.Select((pred, index) => new ModelPredictions {
+          Actual = (double)yTestData[index],
+          Predicted = pred,
+        })
+      });
     }
+}
+
+  #region Node Artifacts (Colocated)
+
+  /// <summary>
+  /// Multi-input schema for EvaluateModelNode.
+  /// Bundles trained model with test features and targets for evaluation.
+  /// </summary>
+  public record EvaluateModelInputs {
+    /// <summary>
+    /// Trained OLS regression model (singleton collection from catalog)
+    /// </summary>
+    [Required]
+    public IEnumerable<LinearRegressionModel> Regressor { get; init; } = null!;
+
+    /// <summary>
+    /// Test features
+    /// </summary>
+    [Required]
+    public IEnumerable<FeatureRow> XTest { get; init; } = null!;
+
+    /// <summary>
+    /// Test targets (prices)
+    /// </summary>
+    [Required]
+    public IEnumerable<decimal> YTest { get; init; } = null!;
   }
-}
-
-#region Node Artifacts (Colocated)
-
-/// <summary>
-/// Multi-input schema for EvaluateModelNode.
-/// Bundles trained model with test features and targets for evaluation.
-/// </summary>
-public record EvaluateModelInputs {
-  /// <summary>
-  /// Trained OLS regression model (singleton collection from catalog)
-  /// </summary>
-  [Required]
-  public IEnumerable<LinearRegressionModel> Regressor { get; init; } = null!;
 
   /// <summary>
-  /// Test features
+  /// Multi-input schema for EvaluateModelNode.
+  /// Bundles trained model with test features and targets for evaluation.
   /// </summary>
-  [Required]
-  public IEnumerable<FeatureRow> XTest { get; init; } = null!;
+  public record EvaluateModelOutputs {
 
-  /// <summary>
-  /// Test targets (prices)
-  /// </summary>
-  [Required]
-  public IEnumerable<decimal> YTest { get; init; } = null!;
-}
+    [Required]
+    public ModelMetrics Metrics { get; init; } = null!;
+
+    [Required]
+    public IEnumerable<ModelPredictions> Predictions { get; init; } = null!;
+  }
 
 #endregion

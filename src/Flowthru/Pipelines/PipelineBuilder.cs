@@ -94,7 +94,7 @@ public class PipelineBuilder {
   /// - For simple nodes: pass catalog entry directly (e.g., catalog.ProcessedData)
   /// - For multi-output nodes: pass CatalogMap&lt;TOutputSchema&gt; with mapped properties
   /// </param>
-  /// <param name="name">Optional node name (defaults to node type name)</param>
+  /// <param name="label">Optional node name (defaults to node type name)</param>
   /// <param name="configure">Optional action to configure the node instance</param>
   /// <returns>This builder for fluent chaining</returns>
   /// <remarks>
@@ -139,7 +139,7 @@ public class PipelineBuilder {
   public PipelineBuilder AddNode<TNode>(
     ICatalogEntry input,
     ICatalogEntry output,
-    string? name = null,
+    string label,
     Action<TNode>? configure = null)
     where TNode : class, new() {
     // Extract type parameters from node's base class
@@ -197,7 +197,7 @@ public class PipelineBuilder {
     }
 
     var pipelineNode = new PipelineNode(
-      name: name ?? nodeType.Name,
+      name: label ?? nodeType.Name,
       nodeInstance: node,
       inputs: inputEntries,
       outputs: outputEntries,

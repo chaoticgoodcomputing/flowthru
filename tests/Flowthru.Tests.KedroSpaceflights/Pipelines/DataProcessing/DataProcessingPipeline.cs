@@ -33,14 +33,14 @@ public static class DataProcessingPipeline {
             pipeline.AddNode<PreprocessCompaniesNode>(
                 input: catalog.Companies,
                 output: catalog.CleanedCompanies,
-                name: "PreprocessCompanies"
+                label: "PreprocessCompanies"
             );
 
             // Node 2: Preprocess shuttles (simple: single input → single output)
             pipeline.AddNode<PreprocessShuttlesNode>(
                 input: catalog.Shuttles,
                 output: catalog.CleanedShuttles,
-                name: "PreprocessShuttles"
+                label: "PreprocessShuttles"
             );
 
             // Node 3: Preprocess reviews (simple: single input → single output)
@@ -49,12 +49,12 @@ public static class DataProcessingPipeline {
             pipeline.AddNode<PreprocessReviewsNode>(
                 input: catalog.Reviews,
                 output: catalog.CleanedReviews,
-                name: "PreprocessReviews"
+                label: "PreprocessReviews"
             );
 
             // Node 4: Create model input table (multi-input: 3 inputs → single output)
             pipeline.AddNode<CreateModelInputTableNode>(
-                name: "CreateModelInputTable",
+                label: "CreateModelInputTable",
                 input: new CatalogMap<CreateModelInputTableInputs>()
                     .Map(x => x.Shuttles, catalog.CleanedShuttles)
                     .Map(x => x.Companies, catalog.CleanedCompanies)

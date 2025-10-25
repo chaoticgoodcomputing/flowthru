@@ -36,7 +36,7 @@ public static class DataValidationPipeline {
 
       // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
       pipeline.AddNode<ValidateAgainstKedroNode>(
-        name: "ValidateModelInputTableAgainstKedroSource",
+        label: "ValidateModelInputTableAgainstKedroSource",
         input: new CatalogMap<ValidateAgainstKedroInputs>()
           .Map(x => x.FlowthruData, catalog.ModelInputTable)
           .Map(x => x.KedroData, catalog.KedroModelInputTable),
@@ -45,28 +45,28 @@ public static class DataValidationPipeline {
 
       // Node 2: Export cleaned companies to CSV for manual inspection
       pipeline.AddNode<PassthroughInputToOutputNode<CompanySchema>>(
-        name: "ExportCompaniesToDiagnosticCsv",
+        label: "ExportCompaniesToDiagnosticCsv",
         input: catalog.CleanedCompanies,
         output: catalog.CleanedCompaniesCsv
       );
 
       // Node 3: Export cleaned shuttles to CSV for manual inspection
       pipeline.AddNode<PassthroughInputToOutputNode<ShuttleSchema>>(
-        name: "ExportShuttlesToDiagnosticCsv",
+        label: "ExportShuttlesToDiagnosticCsv",
         input: catalog.CleanedShuttles,
         output: catalog.CleanedShuttlesCsv
       );
 
       // Node 4: Export model input table to CSV for manual inspection
       pipeline.AddNode<PassthroughInputToOutputNode<ModelInputSchema>>(
-        name: "ExportModelInputTableToDiagnosticCsv",
+        label: "ExportModelInputTableToDiagnosticCsv",
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableCsv
       );
 
       // Node 5: Export model input table to minified JSON for production/compact storage
       pipeline.AddNode<PassthroughInputToOutputNode<ModelInputSchema>>(
-        name: "ExportModelInputTableToMinifiedJson",
+        label: "ExportModelInputTableToMinifiedJson",
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableJsonMinified
       );

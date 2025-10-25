@@ -56,7 +56,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
     InitializeCatalogProperties();
   }
   // ===========================================================
-  // MARK: RAW DATA (01_Raw)
+  // MARK: RAW DATA
   // ===========================================================
 
   /// <summary>
@@ -245,7 +245,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
       key: "Regressor"));
 
   // ===========================================================
-  // MARK: REPORTING (06_Reports)
+  // MARK: MODEL OUTPUTS
   // ===========================================================
 
   /// <summary>
@@ -256,7 +256,17 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogDataset<ModelMetrics> ModelMetrics => GetOrCreateDataset(()
     => new CsvCatalogDataset<ModelMetrics>(
       key: "ModelMetrics",
-      filePath: $"{_basePath}/06_Reports/model_metrics.csv"));
+      filePath: $"{_basePath}/05_ModelOutput/model_metrics.csv"));
+
+  public ICatalogDataset<ModelPredictions> ModelPredictions => GetOrCreateDataset(()
+    => new CsvCatalogDataset<ModelPredictions>(
+      key: "ModelPredictions",
+      filePath: $"{_basePath}/05_ModelOutput/model_predictions.csv"));
+
+  // ===========================================================
+  // MARK: REPORTING
+  // ===========================================================
+
 
   /// <summary>
   /// Cross-validation results with R² distribution analysis.

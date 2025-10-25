@@ -42,84 +42,84 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting;
 /// </para>
 /// </remarks>
 public static class ReportingPipeline {
-  public static Pipeline Create(SpaceflightsCatalog catalog) {
-    return PipelineBuilder.CreatePipeline(pipeline => {
+    public static Pipeline Create(SpaceflightsCatalog catalog) {
+        return PipelineBuilder.CreatePipeline(pipeline => {
 
-      // ===== Shuttle Passenger Capacity Visualization =====
+            // ===== Shuttle Passenger Capacity Visualization =====
 
-      // Step 1: Generate chart from processed shuttle data
-      pipeline.AddNode<ComparePassengerCapacityNode>(
-          input: catalog.CleanedShuttles,
-          output: catalog.ShuttlePassengerCapacityChart,
-          name: "GeneratePassengerCapacityChart"
-      );
+            // Step 1: Generate chart from processed shuttle data
+            pipeline.AddNode<ComparePassengerCapacityNode>(
+                input: catalog.CleanedShuttles,
+                output: catalog.ShuttlePassengerCapacityChart,
+                label: "GeneratePassengerCapacityChart"
+            );
 
-      // Step 2: Export chart to JSON for interactive visualization
-      pipeline.AddNode<PlotlyJsonExportNode>(
-          input: catalog.ShuttlePassengerCapacityChart,
-          output: catalog.ShuttlePassengerCapacityPlot,
-          name: "ExportPassengerCapacityJson"
-      );
+            // Step 2: Export chart to JSON for interactive visualization
+            pipeline.AddNode<PlotlyJsonExportNode>(
+                input: catalog.ShuttlePassengerCapacityChart,
+                output: catalog.ShuttlePassengerCapacityPlot,
+                label: "ExportPassengerCapacityJson"
+            );
 
-      // Step 3: Export chart to base64-encoded PNG for static reports
-      pipeline.AddNode<PlotlyImageExportNode>(
-          input: catalog.ShuttlePassengerCapacityChart,
-          output: catalog.ShuttlePassengerCapacityPlotPng,
-          name: "ExportPassengerCapacityPng"
-      );
+            // Step 3: Export chart to base64-encoded PNG for static reports
+            pipeline.AddNode<PlotlyImageExportNode>(
+                input: catalog.ShuttlePassengerCapacityChart,
+                output: catalog.ShuttlePassengerCapacityPlotPng,
+                label: "ExportPassengerCapacityPng"
+            );
 
-      // ===== Confusion Matrix Visualization =====
+            // ===== Confusion Matrix Visualization =====
 
-      // Step 1: Generate confusion matrix heatmap from company data
-      pipeline.AddNode<CreateConfusionMatrixNode>(
-          input: catalog.CleanedCompanies,
-          output: catalog.ConfusionMatrixChart,
-          name: "GenerateConfusionMatrixChart"
-      );
+            // Step 1: Generate confusion matrix heatmap from company data
+            pipeline.AddNode<CreateConfusionMatrixNode>(
+                input: catalog.CleanedCompanies,
+                output: catalog.ConfusionMatrixChart,
+                label: "GenerateConfusionMatrixChart"
+            );
 
-      // Step 2: Export chart to JSON for interactive visualization
-      pipeline.AddNode<PlotlyJsonExportNode>(
-          input: catalog.ConfusionMatrixChart,
-          output: catalog.ConfusionMatrixPlot,
-          name: "ExportConfusionMatrixJson"
-      );
+            // Step 2: Export chart to JSON for interactive visualization
+            pipeline.AddNode<PlotlyJsonExportNode>(
+                input: catalog.ConfusionMatrixChart,
+                output: catalog.ConfusionMatrixPlot,
+                label: "ExportConfusionMatrixJson"
+            );
 
-      // Step 3: Export chart to base64-encoded PNG for static reports
-      pipeline.AddNode<PlotlyImageExportNode>(
-          input: catalog.ConfusionMatrixChart,
-          output: catalog.ConfusionMatrixPlotPng,
-          name: "ExportConfusionMatrixPng"
-      );
+            // Step 3: Export chart to base64-encoded PNG for static reports
+            pipeline.AddNode<PlotlyImageExportNode>(
+                input: catalog.ConfusionMatrixChart,
+                output: catalog.ConfusionMatrixPlotPng,
+                label: "ExportConfusionMatrixPng"
+            );
 
-      // ===== Cross-Validation Results Visualization =====
+            // ===== Cross-Validation Results Visualization =====
 
-      // Step 1: Generate comprehensive cross-validation chart
-      pipeline.AddNode<VisualizeCrossValidationNode>(
-          input: catalog.CrossValidationResults,
-          output: catalog.CrossValidationChart,
-          name: "GenerateCrossValidationChart"
-      );
+            // Step 1: Generate comprehensive cross-validation chart
+            pipeline.AddNode<VisualizeCrossValidationNode>(
+                input: catalog.CrossValidationResults,
+                output: catalog.CrossValidationChart,
+                label: "GenerateCrossValidationChart"
+            );
 
-      // Step 2: Export chart to JSON for interactive visualization
-      pipeline.AddNode<PlotlyJsonExportNode>(
-          input: catalog.CrossValidationChart,
-          output: catalog.CrossValidationPlot,
-          name: "ExportCrossValidationJson"
-      );
+            // Step 2: Export chart to JSON for interactive visualization
+            pipeline.AddNode<PlotlyJsonExportNode>(
+                input: catalog.CrossValidationChart,
+                output: catalog.CrossValidationPlot,
+                label: "ExportCrossValidationJson"
+            );
 
-      // Step 3: Export chart to base64-encoded PNG for static reports
-      pipeline.AddNode<PlotlyImageExportNode>(
-          input: catalog.CrossValidationChart,
-          output: catalog.CrossValidationPlotPng,
-          name: "ExportCrossValidationPng"
-      );
+            // Step 3: Export chart to base64-encoded PNG for static reports
+            pipeline.AddNode<PlotlyImageExportNode>(
+                input: catalog.CrossValidationChart,
+                output: catalog.CrossValidationPlotPng,
+                label: "ExportCrossValidationPng"
+            );
 
-      // Node 6: Generate human-readable Markdown report from cross-validation results
-      pipeline.AddNode<GenerateCrossValidationReportNode>(
-        name: "GenerateCrossValidationReport",
-        input: catalog.CrossValidationResults,
-        output: catalog.CrossValidationReport
-      );
-    });
-  }
+            // Node 6: Generate human-readable Markdown report from cross-validation results
+            pipeline.AddNode<GenerateCrossValidationReportNode>(
+              label: "GenerateCrossValidationReport",
+              input: catalog.CrossValidationResults,
+              output: catalog.CrossValidationReport
+            );
+        });
+    }
 }
