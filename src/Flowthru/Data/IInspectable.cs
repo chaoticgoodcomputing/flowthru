@@ -1,4 +1,5 @@
 using Flowthru.Data.Validation;
+using LanguageExt;
 
 namespace Flowthru.Data;
 
@@ -37,31 +38,9 @@ namespace Flowthru.Data;
 public interface IShallowInspectable<T> {
   /// <summary>
   /// Performs shallow inspection of this catalog entry.
+  /// Returns an effect that can fail.
   /// </summary>
-  /// <param name="sampleSize">
-  /// Number of rows to validate (default: 100).
-  /// Implementations may inspect fewer rows if the dataset is smaller.
-  /// </param>
-  /// <returns>
-  /// A <see cref="ValidationResult"/> containing any errors found during inspection.
-  /// Returns <see cref="ValidationResult.Success()"/> if validation passes.
-  /// </returns>
-  /// <remarks>
-  /// <para>
-  /// Implementations should validate:
-  /// </para>
-  /// <list type="number">
-  /// <item>The data source exists (file present, URL reachable, etc.)</item>
-  /// <item>The format is valid and parseable</item>
-  /// <item>Headers/schema match expectations</item>
-  /// <item>The first <paramref name="sampleSize"/> rows deserialize successfully</item>
-  /// </list>
-  /// <para>
-  /// This method should NOT load the entire dataset into memory. Use
-  /// <see cref="IDeepInspectable{T}.InspectDeep"/> for comprehensive validation.
-  /// </para>
-  /// </remarks>
-  Task<ValidationResult> InspectShallow(int sampleSize = 100);
+  Aff<ValidationResult> InspectShallow(int sampleSize = 100);
 }
 
 /// <summary>
@@ -125,5 +104,5 @@ public interface IDeepInspectable<T> {
   /// <item>Report multiple errors (don't fail on first error)</item>
   /// </list>
   /// </remarks>
-  Task<ValidationResult> InspectDeep();
+  Aff<ValidationResult> InspectDeep();
 }

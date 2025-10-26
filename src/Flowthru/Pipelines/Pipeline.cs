@@ -3,6 +3,8 @@ using Flowthru.Data;
 using Flowthru.Meta.Builders;
 using Flowthru.Meta.Models;
 using Microsoft.Extensions.Logging;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace Flowthru.Pipelines;
 
@@ -72,7 +74,7 @@ public class Pipeline {
   /// <summary>
   /// Tags for categorizing and filtering pipelines.
   /// </summary>
-  public IReadOnlyList<string> Tags { get; internal set; } = Array.Empty<string>();
+  public IReadOnlyList<string> Tags { get; internal set; } = System.Array.Empty<string>();
 
   /// <summary>
   /// Validation options for this pipeline.
@@ -134,9 +136,7 @@ public class Pipeline {
           name: $"{pipelineName}.{node.Name}",
           nodeInstance: node.NodeInstance,
           inputs: node.Inputs,
-          outputs: node.Outputs,
-          inputMappings: node.InputMappings,
-          outputMappings: node.OutputMappings
+          outputs: node.Outputs
         );
 
         mergedPipeline.AddNode(prefixedNode);
@@ -287,28 +287,9 @@ public class Pipeline {
     Logger?.LogInformation("Validating external inputs from {Layer0NodeCount} Layer 0 nodes", layer0Nodes.Count);
 
     // Extract all unique input catalog entries from Layer 0 nodes
-    // Handle CatalogMap entries by expanding them into their constituent catalog entries
+    // With the tuple-based approach, inputs are always direct ICatalogEntry references
     var externalInputs = layer0Nodes
       .SelectMany(node => node.Inputs)
-      .SelectMany(entry => {
-        // If this is a CatalogMap, expand it into its catalog entries
-        if (entry is Mapping.CatalogMap<object> catalogMap) {
-          return catalogMap.GetCatalogEntriesForInspection();
-        }
-        // Check for generic CatalogMap via reflection (since we don't know T at compile-time)
-        var entryType = entry.GetType();
-        if (entryType.IsGenericType && entryType.GetGenericTypeDefinition().Name == "CatalogMap`1") {
-          var method = entryType.GetMethod("GetCatalogEntriesForInspection",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-          if (method != null) {
-            if (method.Invoke(entry, null) is IEnumerable<ICatalogEntry> entries) {
-              return entries;
-            }
-          }
-        }
-        // Otherwise, return the entry itself
-        return new[] { entry };
-      })
       .DistinctBy(entry => entry.Key)
       .ToList();
 
@@ -403,8 +384,21 @@ public class Pipeline {
     ICatalogEntry catalogEntry,
     Type shallowInterface) {
     var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
-    var task = (Task<Data.Validation.ValidationResult>)method!.Invoke(catalogEntry, new object[] { 10 })!;
-    return await task;
+    var result = method!.Invoke(catalogEntry, new object[] { 10 })!;
+
+    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
+    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> aff) {
+      var fin = await aff.Run();
+      return fin.Match(
+        Succ: validationResult => validationResult,
+        Fail: error => throw new InvalidOperationException($"Shallow inspection failed: {error}")
+      );
+    } else if (result is Task<Data.Validation.ValidationResult> task) {
+      return await task;
+    } else {
+      throw new InvalidOperationException(
+        $"InspectShallow returned unexpected type: {result.GetType().FullName}");
+    }
   }
 
   /// <summary>
@@ -414,8 +408,21 @@ public class Pipeline {
     ICatalogEntry catalogEntry,
     Type deepInterface) {
     var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
-    var task = (Task<Data.Validation.ValidationResult>)method!.Invoke(catalogEntry, Array.Empty<object>())!;
-    return await task;
+    var result = method!.Invoke(catalogEntry, System.Array.Empty<object>())!;
+
+    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
+    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> aff) {
+      var fin = await aff.Run();
+      return fin.Match(
+        Succ: validationResult => validationResult,
+        Fail: error => throw new InvalidOperationException($"Deep inspection failed: {error}")
+      );
+    } else if (result is Task<Data.Validation.ValidationResult> task) {
+      return await task;
+    } else {
+      throw new InvalidOperationException(
+        $"InspectDeep returned unexpected type: {result.GetType().FullName}");
+    }
   }
 
   /// <summary>
@@ -529,8 +536,10 @@ public class Pipeline {
 
     try {
       // Get input counts for diagnostics (before loading data)
-      var inputCountTasks = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
-      var inputCounts = await Task.WhenAll(inputCountTasks);
+      var inputCountAffs = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
+      var inputCountTasks = inputCountAffs.Select(aff => aff.Run().AsTask());
+      var inputCountResults = await Task.WhenAll(inputCountTasks);
+      var inputCounts = inputCountResults.Select(fin => fin.ThrowIfFail()).ToArray();
       var totalInputCount = inputCounts.Sum();
 
       Logger?.LogInformation(
@@ -540,29 +549,13 @@ public class Pipeline {
         pipelineNode.Inputs.Count);
 
       // Load inputs from catalog entries
-      var inputTasks = pipelineNode.Inputs.Select(async entry => {
-        var data = await entry.LoadUntyped();
-
-        // Check if this is a singleton object vs a dataset
-        // Nodes always expect IEnumerable<T>, so wrap singletons
-        var isSingletonObject = entry.GetType().GetInterfaces()
-    .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
-
-        if (isSingletonObject) {
-          // Wrap singleton in array so node receives IEnumerable<T>
-          var arrayType = typeof(object[]);
-          var wrappedArray = Array.CreateInstance(data.GetType(), 1);
-          wrappedArray.SetValue(data, 0);
-          return (object)wrappedArray;
-        } else {
-          // Dataset: return collection directly
-          return data;
-        }
-      });
-      var inputs = await Task.WhenAll(inputTasks);
+      // LoadUntyped() returns T directly (singleton or collection), no wrapping needed
+      var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
+      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
+      var inputResults = await Task.WhenAll(inputLoadTasks);
+      var inputs = inputResults.Select(fin => fin.ThrowIfFail()).ToArray();
 
       // Invoke node transformation via reflection
-      // Find ExecuteAsync method on the node instance
       var nodeType = pipelineNode.NodeInstance.GetType();
       var executeMethod = nodeType.GetMethod("ExecuteAsync",
         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -573,18 +566,14 @@ public class Pipeline {
       }
 
       // Prepare input parameter
-      // For single-input nodes: pass the data directly as IEnumerable<TInput>
-      // For multi-input nodes: wrap in singleton IEnumerable containing a composite input object
+      // For single-input nodes: pass data directly (T)
+      // For multi-input nodes: construct tuple (T1, T2, ...)
       object inputParameter;
-      if (pipelineNode.Inputs.Count == 1 && pipelineNode.InputMappings == null) {
+      if (pipelineNode.Inputs.Count == 1) {
         // Single input: pass data directly
         inputParameter = inputs[0];
       } else {
-        // Multi-input: create composite input object using InputMappings
-        // The ExecuteAsync signature is: Task<IEnumerable<TOutput>> ExecuteAsync(IEnumerable<TInput> input)
-        // For multi-input, TInput is a record/class with properties for each catalog entry
-        // We need to wrap the composite object in a singleton IEnumerable
-
+        // Multi-input: construct tuple from loaded values
         // Get TInput type from ExecuteAsync method signature
         var executeParams = executeMethod.GetParameters();
         if (executeParams.Length != 1) {
@@ -592,52 +581,18 @@ public class Pipeline {
             $"ExecuteAsync for node {pipelineNode.Name} should have exactly one parameter");
         }
 
-        var inputEnumerableType = executeParams[0].ParameterType; // IEnumerable<TInput>
-        var inputItemType = inputEnumerableType.GetGenericArguments()[0]; // TInput
+        var tupleType = executeParams[0].ParameterType; // (T1, T2, ...)
 
-        // Create instance of TInput
-        var compositeInput = Activator.CreateInstance(inputItemType);
-        if (compositeInput == null) {
+        // Create tuple instance from input values
+        try {
+          inputParameter = Activator.CreateInstance(tupleType, inputs)
+            ?? throw new InvalidOperationException($"Activator returned null for tuple type {tupleType.Name}");
+        } catch (Exception ex) {
           throw new InvalidOperationException(
-            $"Failed to create instance of {inputItemType.Name} for node {pipelineNode.Name}");
+            $"Failed to create {inputs.Length}-tuple for node {pipelineNode.Name}. " +
+            $"Tuple type: {tupleType.FullName}, Input types: [{string.Join(", ", inputs.Select(v => v?.GetType().Name ?? "null"))}]",
+            ex);
         }
-
-        // Map loaded data to properties using InputMappings
-        if (pipelineNode.InputMappings != null) {
-          foreach (var mapping in pipelineNode.InputMappings) {
-            if (mapping is Mapping.CatalogPropertyMapping propertyMapping) {
-              // Find the corresponding loaded data
-              var catalogEntry = propertyMapping.CatalogEntry;
-              var inputIndex = pipelineNode.Inputs.ToList().FindIndex(e => e.Key == catalogEntry.Key);
-
-              if (inputIndex >= 0 && inputIndex < inputs.Length) {
-                var data = inputs[inputIndex];
-
-                Logger?.LogDebug(
-                  "Mapping catalog entry '{Key}' to property '{PropertyName}' on {TypeName}",
-                  catalogEntry.Key,
-                  propertyMapping.Property.Name,
-                  inputItemType.Name);
-
-                // Set the property value
-                if (propertyMapping.Property.CanWrite) {
-                  propertyMapping.Property.SetValue(compositeInput, data);
-
-                  Logger?.LogDebug(
-                    "Set property '{PropertyName}' with data of type {DataType}",
-                    propertyMapping.Property.Name,
-                    data?.GetType().Name ?? "null");
-                }
-              }
-            }
-          }
-        }
-
-        // Wrap in singleton enumerable
-        var listType = typeof(List<>).MakeGenericType(inputItemType);
-        var list = (System.Collections.IList?)Activator.CreateInstance(listType);
-        list?.Add(compositeInput);
-        inputParameter = list!;
       }
 
       // Invoke ExecuteAsync and await the result
@@ -654,84 +609,36 @@ public class Pipeline {
       var output = resultProperty?.GetValue(executeTask);
 
       // Save outputs to catalog entries
+      // SaveUntyped() accepts T directly (singleton or collection), no unwrapping needed
       if (output != null && pipelineNode.Outputs.Count > 0) {
-        // For single output nodes
         if (pipelineNode.Outputs.Count == 1) {
+          // Single output: save directly
           var catalogEntry = pipelineNode.Outputs[0];
-
-          // Check if this is a singleton object vs a dataset
-          // Nodes always return IEnumerable<T>, but ICatalogObject expects T
-          var isSingletonObject = catalogEntry.GetType().GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
-
-          if (isSingletonObject && output is System.Collections.IEnumerable enumerable) {
-            // Unwrap singleton from collection
-            var enumerator = enumerable.GetEnumerator();
-            if (!enumerator.MoveNext()) {
-              throw new InvalidOperationException(
-                $"Node '{pipelineNode.Name}' returned empty collection for singleton object output '{catalogEntry.Key}'");
-            }
-            var singletonValue = enumerator.Current;
-            if (enumerator.MoveNext()) {
-              throw new InvalidOperationException(
-                $"Node '{pipelineNode.Name}' returned multiple items for singleton object output '{catalogEntry.Key}'");
-            }
-            await catalogEntry.SaveUntyped(singletonValue!);
-          } else {
-            // Dataset: save collection directly
-            await catalogEntry.SaveUntyped(output);
-          }
+          var saveResult = await catalogEntry.SaveUntyped(output).Run().AsTask();
+          saveResult.ThrowIfFail();
         } else {
-          // For multi-output nodes, use OutputMappings to correctly map properties to catalog entries
-          if (pipelineNode.OutputMappings == null || pipelineNode.OutputMappings.Count == 0) {
+          // Multi-output: deconstruct tuple
+          var tupleType = output.GetType();
+          if (!tupleType.IsGenericType || !tupleType.FullName!.StartsWith("System.ValueTuple")) {
             throw new InvalidOperationException(
-              $"Node '{pipelineNode.Name}' has multiple outputs but no OutputMappings configured.");
+              $"Multi-output node '{pipelineNode.Name}' must return tuple, got: {tupleType.Name}");
           }
 
-          // Multi-output nodes return IEnumerable<TOutputSchema>, extract the single item
-          if (output is not System.Collections.IEnumerable outputEnumerable) {
+          // Get tuple fields (Item1, Item2, ...)
+          var tupleFields = tupleType.GetFields();
+          if (tupleFields.Length != pipelineNode.Outputs.Count) {
             throw new InvalidOperationException(
-              $"Multi-output node '{pipelineNode.Name}' returned non-enumerable output: {output.GetType().Name}");
+              $"Multi-output node '{pipelineNode.Name}': Tuple arity ({tupleFields.Length}) doesn't match output count ({pipelineNode.Outputs.Count})");
           }
 
-          var outputItem = outputEnumerable.Cast<object>().FirstOrDefault();
-          if (outputItem == null) {
-            throw new InvalidOperationException(
-              $"Multi-output node '{pipelineNode.Name}' returned empty output collection");
-          }
+          // Save each output directly from tuple field
+          for (int i = 0; i < pipelineNode.Outputs.Count; i++) {
+            var catalogEntry = pipelineNode.Outputs[i];
+            var field = tupleFields[i];
+            var outputData = field.GetValue(output);
 
-          foreach (var mapping in pipelineNode.OutputMappings) {
-            // OutputMappings should be CatalogPropertyMapping instances
-            if (mapping is not Mapping.CatalogPropertyMapping propertyMapping) {
-              throw new InvalidOperationException(
-                $"Node '{pipelineNode.Name}' has an invalid mapping type: {mapping.GetType().Name}");
-            }
-
-            // Use the property info from the mapping (which has the correct property name)
-            var propertyValue = propertyMapping.Property.GetValue(outputItem);
-            if (propertyValue != null) {
-              // Check if the catalog entry is a singleton object
-              var isSingletonObject = propertyMapping.CatalogEntry.GetType().GetInterfaces()
-                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICatalogObject<>));
-
-              if (isSingletonObject && propertyValue is System.Collections.IEnumerable enumerable and not string) {
-                // Unwrap singleton from collection
-                var enumerator = enumerable.GetEnumerator();
-                if (!enumerator.MoveNext()) {
-                  throw new InvalidOperationException(
-                    $"Node '{pipelineNode.Name}' property '{propertyMapping.Property.Name}' returned empty collection for singleton object output '{propertyMapping.CatalogEntry.Key}'");
-                }
-                var singletonValue = enumerator.Current;
-                if (enumerator.MoveNext()) {
-                  throw new InvalidOperationException(
-                    $"Node '{pipelineNode.Name}' property '{propertyMapping.Property.Name}' returned multiple items for singleton object output '{propertyMapping.CatalogEntry.Key}'");
-                }
-                await propertyMapping.CatalogEntry.SaveUntyped(singletonValue!);
-              } else {
-                // Dataset or already unwrapped: save directly
-                await propertyMapping.CatalogEntry.SaveUntyped(propertyValue);
-              }
-            }
+            var saveResult = await catalogEntry.SaveUntyped(outputData!).Run().AsTask();
+            saveResult.ThrowIfFail();
           }
         }
       }
@@ -739,8 +646,10 @@ public class Pipeline {
       stopwatch.Stop();
 
       // Get output counts for diagnostics (after saving data)
-      var outputCountTasks = pipelineNode.Outputs.Select(entry => entry.GetCountAsync());
-      var outputCounts = await Task.WhenAll(outputCountTasks);
+      var outputCountAffs = pipelineNode.Outputs.Select(entry => entry.GetCountAsync());
+      var outputCountTasks = outputCountAffs.Select(aff => aff.Run().AsTask());
+      var outputCountResults = await Task.WhenAll(outputCountTasks);
+      var outputCounts = outputCountResults.Select(fin => fin.ThrowIfFail()).ToArray();
       var totalOutputCount = outputCounts.Sum();
 
       Logger?.LogInformation(
@@ -772,8 +681,10 @@ public class Pipeline {
 
     try {
       // Load inputs from catalog entries
-      var inputTasks = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
-      var inputs = await Task.WhenAll(inputTasks);
+      var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
+      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
+      var inputResults = await Task.WhenAll(inputLoadTasks);
+      var inputs = inputResults.Select(fin => fin.ThrowIfFail()).ToArray();
 
       // TODO: Invoke node transformation
       // This requires either:

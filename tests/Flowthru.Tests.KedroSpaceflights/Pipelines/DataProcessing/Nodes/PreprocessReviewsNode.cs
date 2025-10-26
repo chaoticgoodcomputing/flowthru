@@ -11,7 +11,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessReviewsNode : NodeBase<ReviewRawSchema, ReviewSchema> {
+public class PreprocessReviewsNode : NodeBase<IEnumerable<ReviewRawSchema>, IEnumerable<ReviewSchema>> {
   protected override Task<IEnumerable<ReviewSchema>> Transform(
       IEnumerable<ReviewRawSchema> input) {
     var processed = input

@@ -1,6 +1,5 @@
 using Flowthru.Nodes;
 using Flowthru.Pipelines;
-using Flowthru.Pipelines.Mapping;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 

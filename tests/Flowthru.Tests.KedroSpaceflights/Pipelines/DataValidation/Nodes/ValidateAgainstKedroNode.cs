@@ -21,11 +21,17 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
 /// but logs detailed comparison results for diagnostic purposes.
 /// </para>
 /// </remarks>
-public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, NoData, NoParams> {
-  protected override Task<IEnumerable<NoData>> Transform(IEnumerable<ValidateAgainstKedroInputs> inputs) {
-    var input = inputs.Single();
+public class ValidateAgainstKedroNode
+  : NodeBase<
+      (IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<KedroModelInputSchema> KedroData),
+      NoData,
+      NoParams> {
+  protected override Task<NoData> Transform(
+      (IEnumerable<ModelInputSchema> FlowthruData,
+       IEnumerable<KedroModelInputSchema> KedroData) input) {
     var flowthruData = input.FlowthruData.ToList();
     var kedroData = input.KedroData.ToList();
+
     // Step 1: Schema Comparison
     CompareSchemas();
 
@@ -38,8 +44,8 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, NoD
     // Step 3: Data Value Comparison
     CompareDataValues(flowthruData, kedroData);
 
-    // This is a side-effect-only node - return NoData using simplified helper
-    return NoData.Result();
+    // This is a side-effect-only node - return NoData singleton
+    return Task.FromResult(NoData.Value);
   }
 
   private void CompareSchemas() {
@@ -170,22 +176,3 @@ public class ValidateAgainstKedroNode : NodeBase<ValidateAgainstKedroInputs, NoD
         or float or double or decimal;
   }
 }
-
-#region Node Artifacts (Colocated)
-
-/// <summary>
-/// Multi-input schema for ValidateAgainstKedroNode.
-/// </summary>
-public record ValidateAgainstKedroInputs {
-  /// <summary>
-  /// Model input table produced by Flowthru pipeline
-  /// </summary>
-  public IEnumerable<ModelInputSchema> FlowthruData { get; init; } = Enumerable.Empty<ModelInputSchema>();
-
-  /// <summary>
-  /// Reference model input table from Kedro pipeline
-  /// </summary>
-  public IEnumerable<KedroModelInputSchema> KedroData { get; init; } = Enumerable.Empty<KedroModelInputSchema>();
-}
-
-#endregion

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using MathNet.Numerics;
@@ -16,106 +17,73 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// Uses property injection for ILogger to maintain parameterless constructor
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </summary>
-public class EvaluateModelNode : NodeBase<EvaluateModelInputs, EvaluateModelOutputs> {
+public class EvaluateModelNode
+  : NodeBase<
+      (LinearRegressionModel Regressor,
+       IEnumerable<FeatureRow> XTest,
+       IEnumerable<decimal> YTest),
+      (IEnumerable<ModelMetrics> Metrics, IEnumerable<ModelPredictions> Predictions),
+      NoParams> {
   // Note: Logger property is inherited from NodeBase and automatically available
 
-  protected override Task<IEnumerable<EvaluateModelOutputs>> Transform(
-      IEnumerable<EvaluateModelInputs> inputs) {
-    try {
-      // Extract the singleton input containing all catalog data
-      var input = inputs.Single();
-      var model = input.Regressor.Single(); // Extract single model from collection
-      var xTestData = input.XTest.ToList();
-      var yTestData = input.YTest.ToList();
+  protected override Task<(
+    IEnumerable<ModelMetrics> Metrics,
+    IEnumerable<ModelPredictions> Predictions
+  )> Transform(
+      (LinearRegressionModel Regressor,
+       IEnumerable<FeatureRow> XTest,
+       IEnumerable<decimal> YTest) input) {
+    var model = input.Regressor; // Model is singleton, no unwrapping needed
+    var xTestData = input.XTest.ToList();
+    var yTestData = input.YTest.ToList();
 
-      // Make predictions using the OLS model
-      var predictions = model.Predict(xTestData);
-      var actualValues = yTestData.Select(y => (double)y).ToArray();
+    // Make predictions using the OLS model
+    var predictions = model.Predict(xTestData);
+    var actualValues = yTestData.Select(y => (double)y).ToArray();
 
-      // Calculate R² using Math.NET's GoodnessOfFit.RSquared
-      // This uses the same formula as sklearn's r2_score: 1 - (SS_res / SS_tot)
-      // Note: GoodnessOfFit.RSquared(modeledValues, observedValues)
-      var r2Score = GoodnessOfFit.RSquared(predictions, actualValues);
+    // Calculate R² using Math.NET's GoodnessOfFit.RSquared
+    // This uses the same formula as sklearn's r2_score: 1 - (SS_res / SS_tot)
+    // Note: GoodnessOfFit.RSquared(modeledValues, observedValues)
+    var r2Score = GoodnessOfFit.RSquared(predictions, actualValues);
 
-      // Calculate Mean Absolute Error (MAE)
-      var mae = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Average();
+    // Calculate Mean Absolute Error (MAE)
+    var mae = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Average();
 
-      // Calculate Root Mean Squared Error (RMSE)
-      var mse = predictions.Zip(actualValues, (pred, actual) => Math.Pow(pred - actual, 2)).Average();
-      var rmse = Math.Sqrt(mse);
+    // Calculate Root Mean Squared Error (RMSE)
+    var mse = predictions.Zip(actualValues, (pred, actual) => Math.Pow(pred - actual, 2)).Average();
+    var rmse = Math.Sqrt(mse);
 
-      // Calculate Max Error
-      var maxError = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Max();
+    // Calculate Max Error
+    var maxError = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Max();
 
-      var metrics = new ModelMetrics {
-        R2Score = r2Score,
-        MeanAbsoluteError = mae,
-        MaxError = maxError,
-        RootMeanSquaredError = rmse
-      };
+    var metrics = new ModelMetrics {
+      R2Score = r2Score,
+      MeanAbsoluteError = mae,
+      MaxError = maxError,
+      RootMeanSquaredError = rmse
+    };
 
-      // Log results
-      Logger?.LogInformation(
-          "Model has a coefficient R² of {R2Score:F3} on test data.",
-          metrics.R2Score);
-      Logger?.LogInformation(
-          "Mean Absolute Error: {MAE:F2}",
-          metrics.MeanAbsoluteError);
-      Logger?.LogInformation(
-          "Max Error: {MaxError:F2}",
-          metrics.MaxError);
-      Logger?.LogInformation(
-          "Root Mean Squared Error: {RMSE:F2}",
-          metrics.RootMeanSquaredError);
+    // Log results
+    Logger?.LogInformation(
+        "Model has a coefficient R² of {R2Score:F3} on test data.",
+        metrics.R2Score);
+    Logger?.LogInformation(
+        "Mean Absolute Error: {MAE:F2}",
+        metrics.MeanAbsoluteError);
+    Logger?.LogInformation(
+        "Max Error: {MaxError:F2}",
+        metrics.MaxError);
+    Logger?.LogInformation(
+        "Root Mean Squared Error: {RMSE:F2}",
+        metrics.RootMeanSquaredError);
 
-      // Return as singleton collection
-      return Task.FromResult(new EvaluateModelOutputs {
-        Metrics = metrics,
-        Predictions = predictions.Select((pred, index) => new ModelPredictions {
-          Actual = (double)yTestData[index],
-          Predicted = pred,
-        })
-      });
-    }
+    // Return tuple output (not wrapped in IEnumerable)
+    var metricsCollection = (IEnumerable<ModelMetrics>)new[] { metrics };
+    var predictionsCollection = predictions.Select((pred, index) => new ModelPredictions {
+      Actual = (double)yTestData[index],
+      Predicted = pred,
+    });
+
+    return Task.FromResult((Metrics: metricsCollection, Predictions: predictionsCollection));
+  }
 }
-
-  #region Node Artifacts (Colocated)
-
-  /// <summary>
-  /// Multi-input schema for EvaluateModelNode.
-  /// Bundles trained model with test features and targets for evaluation.
-  /// </summary>
-  public record EvaluateModelInputs {
-    /// <summary>
-    /// Trained OLS regression model (singleton collection from catalog)
-    /// </summary>
-    [Required]
-    public IEnumerable<LinearRegressionModel> Regressor { get; init; } = null!;
-
-    /// <summary>
-    /// Test features
-    /// </summary>
-    [Required]
-    public IEnumerable<FeatureRow> XTest { get; init; } = null!;
-
-    /// <summary>
-    /// Test targets (prices)
-    /// </summary>
-    [Required]
-    public IEnumerable<decimal> YTest { get; init; } = null!;
-  }
-
-  /// <summary>
-  /// Multi-input schema for EvaluateModelNode.
-  /// Bundles trained model with test features and targets for evaluation.
-  /// </summary>
-  public record EvaluateModelOutputs {
-
-    [Required]
-    public ModelMetrics Metrics { get; init; } = null!;
-
-    [Required]
-    public IEnumerable<ModelPredictions> Predictions { get; init; } = null!;
-  }
-
-#endregion

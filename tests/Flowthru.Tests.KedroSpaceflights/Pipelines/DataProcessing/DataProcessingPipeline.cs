@@ -1,5 +1,4 @@
 using Flowthru.Pipelines;
-using Flowthru.Pipelines.Mapping;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 
@@ -55,10 +54,7 @@ public static class DataProcessingPipeline {
             // Node 4: Create model input table (multi-input: 3 inputs → single output)
             pipeline.AddNode<CreateModelInputTableNode>(
                 label: "CreateModelInputTable",
-                input: new CatalogMap<CreateModelInputTableInputs>()
-                    .Map(x => x.Shuttles, catalog.CleanedShuttles)
-                    .Map(x => x.Companies, catalog.CleanedCompanies)
-                    .Map(x => x.Reviews, catalog.CleanedReviews),
+                input: (catalog.CleanedShuttles, catalog.CleanedCompanies, catalog.CleanedReviews),
                 output: catalog.ModelInputTable
             );
         });

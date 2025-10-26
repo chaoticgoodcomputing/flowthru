@@ -43,8 +43,8 @@ public record CrossValidationParams {
 /// This node runs the entire train/evaluate cycle multiple times with different
 /// random seeds to measure the natural variance in model performance.
 /// </summary>
-public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidationResults, CrossValidationParams> {
-  protected override Task<IEnumerable<CrossValidationResults>> Transform(
+public class CrossValidateModelNode : NodeBase<IEnumerable<ModelInputSchema>, CrossValidationResults, CrossValidationParams> {
+  protected override Task<CrossValidationResults> Transform(
       IEnumerable<ModelInputSchema> input) {
     var data = input.ToList();
     Logger?.LogInformation("Starting cross-validation with {Folds} folds", Parameters.NumFolds);
@@ -136,6 +136,6 @@ public class CrossValidateModelNode : NodeBase<ModelInputSchema, CrossValidation
       DifferenceFromKedro = Math.Abs(meanR2 - Parameters.KedroReferenceR2Score)
     };
 
-    return Task.FromResult(new[] { results }.AsEnumerable());
+    return Task.FromResult(results);
   }
 }

@@ -66,57 +66,24 @@ internal class PipelineNode {
   /// Execution layer determined by topological sort.
   /// Nodes in layer 0 have no dependencies. Nodes in layer N depend on nodes in layers 0..N-1.
   /// </summary>
-  /// <remarks>
-  /// Layers enable both sequential and parallel execution:
-  /// - Sequential: Execute all nodes in layer 0, then layer 1, then layer 2, etc.
-  /// - Parallel: Execute all nodes within the same layer concurrently (Phase 2)
-  /// </remarks>
   public int Layer { get; set; } = -1; // -1 indicates not yet assigned
 
   /// <summary>
-  /// Property-to-catalog mappings for multi-input nodes.
-  /// Null for single-input nodes (pass-through).
-  /// </summary>
-  /// <remarks>
-  /// When a node has multiple inputs (via CatalogMap), this stores the mapping
-  /// between property names on the input schema and catalog entries.
-  /// Used during execution to construct the input object correctly.
-  /// </remarks>
-  public IReadOnlyList<Mapping.CatalogMapping>? InputMappings { get; }
-
-  /// <summary>
-  /// Property-to-catalog mappings for multi-output nodes.
-  /// Null for single-output nodes (pass-through).
-  /// </summary>
-  /// <remarks>
-  /// When a node has multiple outputs (via CatalogMap), this stores the mapping
-  /// between property names on the output schema and catalog entries.
-  /// Used during execution to save the output properties to correct catalog entries.
-  /// </remarks>
-  public IReadOnlyList<Mapping.CatalogMapping>? OutputMappings { get; }
-
-  /// <summary>
-  /// Creates a new pipeline node.
+  /// Creates a new pipeline node (simplified tuple-based API).
   /// </summary>
   /// <param name="name">Unique identifier for this node</param>
   /// <param name="nodeInstance">The node instance that performs the transformation</param>
   /// <param name="inputs">Catalog entries this node reads</param>
   /// <param name="outputs">Catalog entries this node writes</param>
-  /// <param name="inputMappings">Optional property-to-catalog mappings for multi-input nodes</param>
-  /// <param name="outputMappings">Optional property-to-catalog mappings for multi-output nodes</param>
   public PipelineNode(
     string name,
     object nodeInstance,
     IReadOnlyList<ICatalogEntry> inputs,
-    IReadOnlyList<ICatalogEntry> outputs,
-    IReadOnlyList<Mapping.CatalogMapping>? inputMappings = null,
-    IReadOnlyList<Mapping.CatalogMapping>? outputMappings = null) {
+    IReadOnlyList<ICatalogEntry> outputs) {
     Name = name;
     NodeInstance = nodeInstance;
     Inputs = inputs;
     Outputs = outputs;
-    InputMappings = inputMappings;
-    OutputMappings = outputMappings;
   }
 
   /// <summary>

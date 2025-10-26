@@ -12,13 +12,13 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// <para>
 /// This node handles the PNG export concern separately from chart generation,
 /// enabling a clean separation of visualization logic from output format concerns.
-/// The PNG binary data can be stored in a BinaryFileCatalogObject&lt;byte[]&gt;.
+/// The PNG binary data can be stored in a BinaryFileCatalogEntry&lt;byte[]&gt;.
 /// </para>
 /// <para>
 /// <strong>Input:</strong> GenericChart object from memory catalog
 /// </para>
 /// <para>
-/// <strong>Output:</strong> PNG binary data as byte[] (can be stored in BinaryFileCatalogObject&lt;byte[]&gt;)
+/// <strong>Output:</strong> PNG binary data as byte[] (can be stored in BinaryFileCatalogEntry&lt;byte[]&gt;)
 /// </para>
 /// <para>
 /// <strong>Reusability:</strong> This node can be used for any Plotly chart type
@@ -31,35 +31,29 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// </para>
 /// </remarks>
 public class PlotlyImageExportNode : NodeBase<GenericChart, byte[]> {
-  protected override async Task<IEnumerable<byte[]>> Transform(IEnumerable<GenericChart> input) {
-    var results = new List<byte[]>();
+  protected override async Task<byte[]> Transform(GenericChart input) {
+    Logger?.LogInformation("Converting chart to PNG binary data");
 
-    foreach (var chart in input) {
-      Logger?.LogInformation("Converting chart to PNG binary data");
+    // Use Plotly.NET.ImageExport to convert the chart to a base64 PNG string
+    // This uses a headless browser (Chromium via PuppeteerSharp) to render the chart
+    var base64DataUri = await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
+      input,
+      Width: 600,
+      Height: 600);
 
-      // Use Plotly.NET.ImageExport to convert the chart to a base64 PNG string
-      // This uses a headless browser (Chromium via PuppeteerSharp) to render the chart
-      var base64DataUri = await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
-        chart,
-        Width: 600,
-        Height: 600);
+    // Strip the data URI prefix "data:image/png;base64," to get pure base64
+    const string dataUriPrefix = "data:image/png;base64,";
+    var base64String = base64DataUri.StartsWith(dataUriPrefix)
+        ? base64DataUri.Substring(dataUriPrefix.Length)
+        : base64DataUri;
 
-      // Strip the data URI prefix "data:image/png;base64," to get pure base64
-      const string dataUriPrefix = "data:image/png;base64,";
-      var base64String = base64DataUri.StartsWith(dataUriPrefix)
-          ? base64DataUri.Substring(dataUriPrefix.Length)
-          : base64DataUri;
+    // Decode base64 to raw PNG bytes
+    var pngBytes = Convert.FromBase64String(base64String);
 
-      // Decode base64 to raw PNG bytes
-      var pngBytes = Convert.FromBase64String(base64String);
+    Logger?.LogInformation(
+        "Successfully converted chart to PNG ({Size:N0} bytes)",
+        pngBytes.Length);
 
-      Logger?.LogInformation(
-          "Successfully converted chart to PNG ({Size:N0} bytes)",
-          pngBytes.Length);
-
-      results.Add(pngBytes);
-    }
-
-    return results;
+    return pngBytes;
   }
 }

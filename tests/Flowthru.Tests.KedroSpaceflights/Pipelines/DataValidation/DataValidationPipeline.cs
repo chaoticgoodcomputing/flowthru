@@ -1,7 +1,6 @@
 using Flowthru.Data.Implementations;
 using Flowthru.Nodes;
 using Flowthru.Pipelines;
-using Flowthru.Pipelines.Mapping;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
@@ -37,9 +36,7 @@ public static class DataValidationPipeline {
       // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
       pipeline.AddNode<ValidateAgainstKedroNode>(
         label: "ValidateModelInputTableAgainstKedroSource",
-        input: new CatalogMap<ValidateAgainstKedroInputs>()
-          .Map(x => x.FlowthruData, catalog.ModelInputTable)
-          .Map(x => x.KedroData, catalog.KedroModelInputTable),
+        input: (catalog.ModelInputTable, catalog.KedroModelInputTable),
         output: NoData.Discard
       );
 

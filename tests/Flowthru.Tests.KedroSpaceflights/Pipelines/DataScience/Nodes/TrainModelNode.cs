@@ -16,11 +16,13 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class TrainModelNode : NodeBase<TrainModelInputs, LinearRegressionModel> {
-  protected override Task<IEnumerable<LinearRegressionModel>> Transform(
-      IEnumerable<TrainModelInputs> inputs) {
-    // Extract the singleton input containing all catalog data
-    var input = inputs.Single();
+public class TrainModelNode
+  : NodeBase<
+      (IEnumerable<FeatureRow> XTrain, IEnumerable<decimal> YTrain),
+      LinearRegressionModel,
+      NoParams> {
+  protected override Task<LinearRegressionModel> Transform(
+      (IEnumerable<FeatureRow> XTrain, IEnumerable<decimal> YTrain) input) {
     var xTrainData = input.XTrain.ToList();
     var yTrainData = input.YTrain.ToList();
 
@@ -44,32 +46,11 @@ public class TrainModelNode : NodeBase<TrainModelInputs, LinearRegressionModel> 
       FeatureNames = FeatureRow.FeatureNames
     };
 
-    // Return as singleton collection
-    return Task.FromResult(new[] { model }.AsEnumerable());
+    return Task.FromResult(model);
   }
 }
 
 #region Node Artifacts (Colocated)
-
-/// <summary>
-/// Multi-input schema for TrainModelNode.
-/// Bundles training features and targets for model training.
-/// </summary>
-public record TrainModelInputs {
-  /// <summary>
-  /// Training features
-  /// </summary>
-  [Required]
-  public IEnumerable<FeatureRow> XTrain { get; init; } = null!;
-
-  /// <summary>
-  /// Training targets (prices)
-  /// </summary>
-  [Required]
-  public IEnumerable<decimal> YTrain { get; init; } = null!;
-}
-
-/// <summary>
 /// Trained ordinary least squares linear regression model.
 /// Contains intercept and feature coefficients.
 /// </summary>

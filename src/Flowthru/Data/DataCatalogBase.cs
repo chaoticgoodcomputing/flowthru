@@ -64,169 +64,81 @@ public abstract class DataCatalogBase {
   public IServiceProvider? Services { get; set; }
 
   /// <summary>
-  /// Gets or creates a catalog dataset (collection), caching it for subsequent accesses.
+  /// Gets or creates a unified catalog entry, caching it for subsequent accesses.
   /// </summary>
-  /// <typeparam name="T">The type of individual items in the dataset (NOT IEnumerable&lt;T&gt;)</typeparam>
-  /// <param name="factory">Factory function to create the dataset on first access</param>
+  /// <typeparam name="T">
+  /// The data type stored in this catalog entry.
+  /// For singletons: Use T directly (e.g., LinearRegressionModel)
+  /// For collections: Use Seq&lt;T&gt; or IEnumerable&lt;T&gt; (e.g., Seq&lt;FeatureRow&gt;)
+  /// </typeparam>
+  /// <param name="factory">Factory function to create the entry on first access</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog dataset instance</returns>
+  /// <returns>Cached catalog entry instance</returns>
   /// <remarks>
   /// <para>
-  /// <strong>New in v0.2.0:</strong> Replaces GetOrCreateEntry for collection semantics.
-  /// Use this for tabular data, lists of entities, CSV files, database query results.
+  /// <strong>Unified API (v0.5.0):</strong> This single method replaces GetOrCreateObject
+  /// and GetOrCreateDataset. Cardinality is determined by the type parameter T.
   /// </para>
   /// <para>
-  /// <strong>Usage:</strong>
+  /// <strong>Usage Examples:</strong>
   /// <code>
-  /// public ICatalogDataset&lt;Company&gt; Companies =>
-  ///     GetOrCreateDataset(() => new CsvCatalogEntry&lt;Company&gt;("companies", $"{BasePath}/companies.csv"));
+  /// // Singleton object
+  /// public ICatalogEntry&lt;LinearRegressionModel&gt; Model =>
+  ///     GetOrCreateEntry(() => new MemoryCatalogEntry&lt;LinearRegressionModel&gt;("model"));
+  /// 
+  /// // Collection
+  /// public ICatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt; Features =>
+  ///     GetOrCreateEntry(() => new CsvCatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt;("features", "data.csv"));
   /// </code>
   /// </para>
   /// </remarks>
-  protected ICatalogDataset<T> GetOrCreateDataset<T>(
-      Func<ICatalogDataset<T>> factory,
+  protected ICatalogEntry<T> GetOrCreateEntry<T>(
+      Func<ICatalogEntry<T>> factory,
       [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
-    return (ICatalogDataset<T>)entry;
+    return (ICatalogEntry<T>)entry;
   }
 
   /// <summary>
-  /// Gets or creates a read-only catalog dataset (collection), caching it for subsequent accesses.
+  /// Gets or creates a unified catalog entry with service provider access.
   /// </summary>
-  /// <typeparam name="T">The type of individual items in the dataset</typeparam>
-  /// <param name="factory">Factory function to create the read-only dataset on first access</param>
+  /// <typeparam name="T">The data type (singleton or collection)</typeparam>
+  /// <param name="factory">Factory function that receives service provider</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached read-only catalog dataset instance</returns>
-  /// <remarks>
-  /// <para>
-  /// <strong>New in v0.3.0:</strong> Provides explicit support for read-only datasets.
-  /// Use this for Excel files, database views, HTTP APIs, or any data source that cannot be written to.
-  /// </para>
-  /// <para>
-  /// <strong>Compile-Time Safety:</strong> Properties typed as <see cref="IReadableCatalogDataset{T}"/>
-  /// cannot be used as pipeline outputs, preventing runtime write errors.
-  /// </para>
-  /// <para>
-  /// <strong>Usage:</strong>
-  /// <code>
-  /// public IReadableCatalogDataset&lt;Company&gt; CompaniesExcel =>
-  ///     GetOrCreateReadOnlyDataset(() => new ExcelCatalogDataset&lt;Company&gt;("companies", $"{BasePath}/companies.xlsx"));
-  /// </code>
-  /// </para>
-  /// </remarks>
-  protected IReadableCatalogDataset<T> GetOrCreateReadOnlyDataset<T>(
-      Func<IReadableCatalogDataset<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
-    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
-    return (IReadableCatalogDataset<T>)entry;
-  }
-
-  /// <summary>
-  /// Gets or creates a catalog dataset with service provider access.
-  /// </summary>
-  /// <typeparam name="T">The type of individual items in the dataset</typeparam>
-  /// <param name="factory">Factory function that receives service provider to create the dataset</param>
-  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog dataset instance</returns>
-  /// <remarks>
-  /// <para>
-  /// <strong>New in v0.3.0:</strong> Enables catalog entries to access services during construction.
-  /// </para>
-  /// <para>
-  /// <strong>Usage:</strong>
-  /// <code>
-  /// public ICatalogDataset&lt;Company&gt; Companies =>
-  ///     GetOrCreateDataset(services => 
-  ///     {
-  ///         var dbContext = services?.GetService&lt;MyDbContext&gt;();
-  ///         return new DatabaseCatalogEntry&lt;Company&gt;("companies", dbContext);
-  ///     });
-  /// </code>
-  /// </para>
-  /// </remarks>
-  protected ICatalogDataset<T> GetOrCreateDataset<T>(
-      Func<IServiceProvider?, ICatalogDataset<T>> factory,
+  /// <returns>Cached catalog entry instance</returns>
+  protected ICatalogEntry<T> GetOrCreateEntry<T>(
+      Func<IServiceProvider?, ICatalogEntry<T>> factory,
       [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
-    return (ICatalogDataset<T>)entry;
+    return (ICatalogEntry<T>)entry;
   }
 
   /// <summary>
-  /// Gets or creates a catalog object (singleton), caching it for subsequent accesses.
+  /// Gets or creates a read-only catalog entry, caching it for subsequent accesses.
   /// </summary>
-  /// <typeparam name="T">The type of the singleton object</typeparam>
-  /// <param name="factory">Factory function to create the object entry on first access</param>
+  /// <typeparam name="T">The data type (singleton or collection)</typeparam>
+  /// <param name="factory">Factory function to create the read-only entry</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog object instance</returns>
-  /// <remarks>
-  /// <para>
-  /// <strong>New in v0.2.0:</strong> Provides explicit support for singleton objects.
-  /// Use this for ML models, configuration objects, aggregated metrics.
-  /// </para>
-  /// <para>
-  /// <strong>Usage:</strong>
-  /// <code>
-  /// public ICatalogObject&lt;LinearRegressionModel&gt; Regressor =>
-  ///     GetOrCreateObject(() => new MemoryCatalogObject&lt;LinearRegressionModel&gt;("regressor"));
-  /// </code>
-  /// </para>
-  /// </remarks>
-  protected ICatalogObject<T> GetOrCreateObject<T>(
-      Func<ICatalogObject<T>> factory,
+  /// <returns>Cached read-only catalog entry instance</returns>
+  protected IReadableCatalogEntry<T> GetOrCreateReadOnlyEntry<T>(
+      Func<IReadableCatalogEntry<T>> factory,
       [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
-    return (ICatalogObject<T>)entry;
+    return (IReadableCatalogEntry<T>)entry;
   }
 
   /// <summary>
-  /// Gets or creates a read-only catalog object (singleton), caching it for subsequent accesses.
+  /// Gets or creates a read-only catalog entry with service provider access.
   /// </summary>
-  /// <typeparam name="T">The type of the singleton object</typeparam>
-  /// <param name="factory">Factory function to create the read-only object entry on first access</param>
+  /// <typeparam name="T">The data type (singleton or collection)</typeparam>
+  /// <param name="factory">Factory function that receives service provider</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached read-only catalog object instance</returns>
-  /// <remarks>
-  /// <para>
-  /// <strong>New in v0.3.0:</strong> Provides explicit support for read-only singleton objects.
-  /// Use this for immutable configuration files, pre-trained models from external sources,
-  /// or any singleton object that cannot be written to.
-  /// </para>
-  /// <para>
-  /// <strong>Compile-Time Safety:</strong> Properties typed as <see cref="IReadableCatalogObject{T}"/>
-  /// cannot be used as pipeline outputs, preventing runtime write errors.
-  /// </para>
-  /// <para>
-  /// <strong>Usage:</strong>
-  /// <code>
-  /// public IReadableCatalogObject&lt;ModelConfig&gt; Config =>
-  ///     GetOrCreateReadOnlyObject(() => new JsonReadOnlyCatalogObject&lt;ModelConfig&gt;("config"));
-  /// </code>
-  /// </para>
-  /// </remarks>
-  protected IReadableCatalogObject<T> GetOrCreateReadOnlyObject<T>(
-      Func<IReadableCatalogObject<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
-    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
-    return (IReadableCatalogObject<T>)entry;
-  }
-
-  /// <summary>
-  /// Gets or creates a catalog object with service provider access.
-  /// </summary>
-  /// <typeparam name="T">The type of the singleton object</typeparam>
-  /// <param name="factory">Factory function that receives service provider to create the object</param>
-  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog object instance</returns>
-  /// <remarks>
-  /// <para>
-  /// <strong>New in v0.3.0:</strong> Enables catalog entries to access services during construction.
-  /// </para>
-  /// </remarks>
-  protected ICatalogObject<T> GetOrCreateObject<T>(
-      Func<IServiceProvider?, ICatalogObject<T>> factory,
+  /// <returns>Cached read-only catalog entry instance</returns>
+  protected IReadableCatalogEntry<T> GetOrCreateReadOnlyEntry<T>(
+      Func<IServiceProvider?, IReadableCatalogEntry<T>> factory,
       [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
-    return (ICatalogObject<T>)entry;
+    return (IReadableCatalogEntry<T>)entry;
   }
 
   /// <summary>

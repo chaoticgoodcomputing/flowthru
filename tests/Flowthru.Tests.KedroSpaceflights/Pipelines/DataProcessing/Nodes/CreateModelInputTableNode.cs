@@ -13,12 +13,16 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
 public class CreateModelInputTableNode
-    : NodeBase<CreateModelInputTableInputs, ModelInputSchema> {
+    : NodeBase<
+      (IEnumerable<ShuttleSchema> Shuttles,
+       IEnumerable<CompanySchema> Companies,
+       IEnumerable<ReviewSchema> Reviews),
+      IEnumerable<ModelInputSchema>,
+      NoParams> {
   protected override Task<IEnumerable<ModelInputSchema>> Transform(
-      IEnumerable<CreateModelInputTableInputs> inputs) {
-    // Extract the singleton input containing all preprocessed catalog data
-    var input = inputs.Single();
-
+      (IEnumerable<ShuttleSchema> Shuttles,
+       IEnumerable<CompanySchema> Companies,
+       IEnumerable<ReviewSchema> Reviews) input) {
     // Perform inner joins using LINQ: reviews → shuttles → companies
     // This is more memory-efficient than creating lookup dictionaries
     var modelInput = input.Reviews
@@ -69,43 +73,3 @@ public class CreateModelInputTableNode
     return Task.FromResult(modelInput);
   }
 }
-
-#region Node Artifacts (Colocated)
-
-// Following FlowThru's artifact colocation policy:
-// Node-specific types (input/output schemas) are defined with the node that uses them.
-// This mirrors the React Props pattern where component-specific types live with the component.
-// Pure domain schemas (catalog entry types) remain in Data/Schemas/.
-
-/// <summary>
-/// Multi-input schema for CreateModelInputTableNode.
-/// Bundles three catalog entries (shuttles, companies, reviews) for join operation.
-/// All inputs are preprocessed and validated - no null handling required.
-/// </summary>
-/// <remarks>
-/// Properties will be mapped to catalog entries at pipeline registration time
-/// using CatalogMap&lt;T&gt; to maintain separation of concerns:
-/// - Schema layer: Pure data shape definitions
-/// - Catalog layer: Data storage/naming bindings
-/// </remarks>
-public record CreateModelInputTableInputs {
-  /// <summary>
-  /// Preprocessed shuttle data (validated, non-nullable fields)
-  /// </summary>
-  [Required]
-  public IEnumerable<ShuttleSchema> Shuttles { get; init; } = null!;
-
-  /// <summary>
-  /// Preprocessed company data (validated, non-nullable fields)
-  /// </summary>
-  [Required]
-  public IEnumerable<CompanySchema> Companies { get; init; } = null!;
-
-  /// <summary>
-  /// Preprocessed review data (validated, non-nullable fields)
-  /// </summary>
-  [Required]
-  public IEnumerable<ReviewSchema> Reviews { get; init; } = null!;
-}
-
-#endregion

@@ -29,8 +29,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// separation of concerns and reusable export pipelines.
 /// </para>
 /// </remarks>
-public class ComparePassengerCapacityNode : NodeBase<ShuttleSchema, GenericChart> {
-  protected override Task<IEnumerable<GenericChart>> Transform(IEnumerable<ShuttleSchema> input) {
+public class ComparePassengerCapacityNode : NodeBase<IEnumerable<ShuttleSchema>, GenericChart> {
+  protected override Task<GenericChart> Transform(IEnumerable<ShuttleSchema> input) {
     // Aggregate by shuttle type and calculate mean passenger capacity
     var aggregated = input
         .GroupBy(s => s.ShuttleType)
@@ -63,7 +63,6 @@ public class ComparePassengerCapacityNode : NodeBase<ShuttleSchema, GenericChart
         "Generated GenericChart for passenger capacity comparison with {Count} shuttle types",
         shuttleTypes.Count);
 
-    // Return as singleton (single chart object)
-    return Task.FromResult<IEnumerable<GenericChart>>(new[] { chart });
+    return Task.FromResult(chart);
   }
 }

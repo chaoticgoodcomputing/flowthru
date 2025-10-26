@@ -36,8 +36,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// </para>
 /// </remarks>
 public class VisualizeCrossValidationNode : NodeBase<CrossValidationResults, GenericChart> {
-  protected override Task<IEnumerable<GenericChart>> Transform(IEnumerable<CrossValidationResults> input) {
-    var results = input.First();
+  protected override Task<GenericChart> Transform(CrossValidationResults input) {
+    var results = input;
 
     Logger?.LogInformation(
         "Generating cross-validation visualization for {NumFolds} folds",
@@ -113,7 +113,7 @@ public class VisualizeCrossValidationNode : NodeBase<CrossValidationResults, Gen
         results.MeanR2Score,
         results.KedroR2Score);
 
-    return Task.FromResult<IEnumerable<GenericChart>>(new[] { chart });
+    return Task.FromResult(chart);
   }
 
   /// <summary>

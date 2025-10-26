@@ -11,7 +11,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// Stateless node with implicit parameterless constructor,
 /// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessShuttlesNode : NodeBase<ShuttleRawSchema, ShuttleSchema> {
+public class PreprocessShuttlesNode : NodeBase<IEnumerable<ShuttleRawSchema>, IEnumerable<ShuttleSchema>> {
   protected override Task<IEnumerable<ShuttleSchema>> Transform(
       IEnumerable<ShuttleRawSchema> input) {
     var processed = input

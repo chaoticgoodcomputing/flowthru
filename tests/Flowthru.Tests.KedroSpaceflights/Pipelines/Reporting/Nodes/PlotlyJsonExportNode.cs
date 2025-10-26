@@ -26,21 +26,15 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// </para>
 /// </remarks>
 public class PlotlyJsonExportNode : NodeBase<GenericChart, string> {
-  protected override Task<IEnumerable<string>> Transform(IEnumerable<GenericChart> input) {
-    var results = new List<string>();
+  protected override Task<string> Transform(GenericChart input) {
+    // Serialize to Plotly JSON using GenericChart.toJson()
+    // This produces a JSON specification compatible with plotly.js
+    var plotlyJson = GenericChart.toJson(input);
 
-    foreach (var chart in input) {
-      // Serialize to Plotly JSON using GenericChart.toJson()
-      // This produces a JSON specification compatible with plotly.js
-      var plotlyJson = GenericChart.toJson(chart);
+    Logger?.LogInformation(
+        "Exported chart to JSON ({Length} characters)",
+        plotlyJson.Length);
 
-      Logger?.LogInformation(
-          "Exported chart to JSON ({Length} characters)",
-          plotlyJson.Length);
-
-      results.Add(plotlyJson);
-    }
-
-    return Task.FromResult<IEnumerable<string>>(results);
+    return Task.FromResult(plotlyJson);
   }
 }

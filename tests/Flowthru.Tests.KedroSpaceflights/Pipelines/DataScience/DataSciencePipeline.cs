@@ -1,5 +1,4 @@
 using Flowthru.Pipelines;
-using Flowthru.Pipelines.Mapping;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
@@ -54,33 +53,22 @@ public static class DataSciencePipeline {
       pipeline.AddNode<CreateTestTrainSplitNode>(
         label: "CreateTestTrainSplitDatasets",
         input: catalog.ModelInputTable,
-        output: new CatalogMap<SplitDataOutputs>()
-          .Map(s => s.XTrain, catalog.XTrain)
-          .Map(s => s.XTest, catalog.XTest)
-          .Map(s => s.YTrain, catalog.YTrain)
-          .Map(s => s.YTest, catalog.YTest),
+        output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest),
         configure: node => node.Parameters = parameters.ModelParams
       );
 
       // Node 2: Train OLS regression model (multi-input → single output)
       pipeline.AddNode<TrainModelNode>(
         label: "TrainOLSModel",
-        input: new CatalogMap<TrainModelInputs>()
-          .Map(x => x.XTrain, catalog.XTrain)
-          .Map(x => x.YTrain, catalog.YTrain),
+        input: (catalog.XTrain, catalog.YTrain),
         output: catalog.Regressor
       );
 
-      // Node 3: Evaluate OLS model (multi-input → single output)
+      // Node 3: Evaluate OLS model (multi-input → multi-output)
       pipeline.AddNode<EvaluateModelNode>(
         label: "EvaluateOLSModel",
-        input: new CatalogMap<EvaluateModelInputs>()
-          .Map(x => x.Regressor, catalog.Regressor)
-          .Map(x => x.XTest, catalog.XTest)
-          .Map(x => x.YTest, catalog.YTest),
-        output: new CatalogMap<EvaluateModelOutputs>()
-          .Map(x => x.Metrics, catalog.ModelMetrics)
-          .Map(x => x.Predictions, catalog.ModelPredictions)
+        input: (catalog.Regressor, catalog.XTest, catalog.YTest),
+        output: (catalog.ModelMetrics, catalog.ModelPredictions)
       );
 
       // Node 4: Cross-validation for R² distribution analysis and comparison to Kedro

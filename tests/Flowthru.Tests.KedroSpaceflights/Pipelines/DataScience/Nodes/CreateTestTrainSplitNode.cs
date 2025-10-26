@@ -31,12 +31,23 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// for type reference instantiation (required for distributed/parallel execution).
 /// </para>
 /// </summary>
-public class CreateTestTrainSplitNode : NodeBase<ModelInputSchema, SplitDataOutputs, ModelParams> {
+public class CreateTestTrainSplitNode
+  : NodeBase<
+      IEnumerable<ModelInputSchema>,
+      (IEnumerable<FeatureRow> XTrain,
+       IEnumerable<FeatureRow> XTest,
+       IEnumerable<decimal> YTrain,
+       IEnumerable<decimal> YTest),
+      ModelParams> {
   // Parameters property inherited from NodeBase<TInput, TOutput, TParameters>
   // public ModelParams Parameters { get; set; } = new();
 
-  protected override Task<IEnumerable<SplitDataOutputs>> Transform(
-      IEnumerable<ModelInputSchema> input) {
+  protected override Task<(
+    IEnumerable<FeatureRow> XTrain,
+    IEnumerable<FeatureRow> XTest,
+    IEnumerable<decimal> YTrain,
+    IEnumerable<decimal> YTest
+  )> Transform(IEnumerable<ModelInputSchema> input) {
     var data = input.ToList();
 
     // Convert to feature rows and extract prices in a single pass
@@ -70,63 +81,21 @@ public class CreateTestTrainSplitNode : NodeBase<ModelInputSchema, SplitDataOutp
     var trainData = shuffled.Take(trainCount).ToList();
     var testData = shuffled.Skip(trainCount).ToList();
 
-    // Create multi-output result
-    // Framework will unpack this into separate catalog entries based on [CatalogOutput] attributes
-    var outputs = new SplitDataOutputs {
-      XTrain = trainData.Select(x => x.Features).ToList(),
-      XTest = testData.Select(x => x.Features).ToList(),
-      YTrain = trainData.Select(x => x.Price).ToList(),
-      YTest = testData.Select(x => x.Price).ToList()
-    };
+    // Create multi-output result as tuple (not wrapped in IEnumerable)
+    var result = (
+      XTrain: (IEnumerable<FeatureRow>)trainData.Select(x => x.Features).ToList(),
+      XTest: (IEnumerable<FeatureRow>)testData.Select(x => x.Features).ToList(),
+      YTrain: (IEnumerable<decimal>)trainData.Select(x => x.Price).ToList(),
+      YTest: (IEnumerable<decimal>)testData.Select(x => x.Price).ToList()
+    );
 
-    // Return as singleton collection
-    return Task.FromResult(new[] { outputs }.AsEnumerable());
+    return Task.FromResult(result);
   }
 }
 
 #region Node Artifacts (Colocated)
 
 // Following FlowThru's artifact colocation policy:
-// Node-specific types (parameters, output schemas) are defined with the node that uses them.
-// This mirrors the React Props pattern where component-specific types live with the component.
-// Pure domain schemas (catalog entry types) remain in Data/Schemas/.
-
-/// <summary>
-/// Multi-output schema for train/test split operation.
-/// Pure data schema with no catalog coupling.
-/// 
-/// <para>
-/// Properties will be mapped to catalog entries at pipeline registration time
-/// using OutputMapping&lt;T&gt; to maintain separation of concerns:
-/// </para>
-/// <list type="bullet">
-/// <item>Schema layer: Pure data shape definitions</item>
-/// <item>Catalog layer: Data storage/naming bindings</item>
-/// </list>
-/// </summary>
-public record SplitDataOutputs {
-  /// <summary>
-  /// Training features
-  /// </summary>
-  public IEnumerable<FeatureRow> XTrain { get; init; } = null!;
-
-  /// <summary>
-  /// Testing features
-  /// </summary>
-  public IEnumerable<FeatureRow> XTest { get; init; } = null!;
-
-  /// <summary>
-  /// Training targets (prices)
-  /// </summary>
-  public IEnumerable<decimal> YTrain { get; init; } = null!;
-
-  /// <summary>
-  /// Testing targets (prices)
-  /// </summary>
-  public IEnumerable<decimal> YTest { get; init; } = null!;
-}
-
-/// <summary>
 /// Parameters for data science pipeline model training.
 /// Configures train/test split and feature selection.
 /// </summary>

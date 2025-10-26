@@ -8,33 +8,32 @@ namespace Flowthru.Nodes;
 /// </summary>
 /// <typeparam name="TInput">
 /// <para>
-/// The <strong>individual item type</strong> for this node's input, NOT a collection type.
+/// The input type for this node with cardinality matching the catalog entry.
 /// </para>
 /// <para>
-/// For simple nodes: Use the item type directly (e.g., CompanySchema, not IEnumerable&lt;CompanySchema&gt;).
-/// The Transform method will receive IEnumerable&lt;TInput&gt;, but TInput refers to individual items.
+/// For singleton catalog entries (ICatalogObject&lt;T&gt;): Use T directly (e.g., LinearRegressionModel).
 /// </para>
 /// <para>
-/// For multi-input nodes: Use a schema type that bundles multiple input properties
-/// (e.g., TrainModelInputs containing XTrain and YTrain properties).
+/// For collection catalog entries (ICatalogDataset&lt;T&gt;): Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;CompanySchema&gt;).
 /// </para>
 /// <para>
-/// <strong>Important:</strong> Catalog entries store IEnumerable&lt;TInput&gt;, but node definitions
-/// use TInput to represent the item type. This semantic distinction aligns type parameters with
-/// what developers think about (individual items) while maintaining collection-based storage.
+/// For multi-input nodes: Use a tuple combining singletons and collections
+/// (e.g., (LinearRegressionModel model, IEnumerable&lt;FeatureRow&gt; features)).
 /// </para>
 /// </typeparam>
 /// <typeparam name="TOutput">
 /// <para>
-/// The <strong>individual item type</strong> for this node's output, NOT a collection type.
+/// The output type for this node with cardinality matching the catalog entry.
 /// </para>
 /// <para>
-/// For simple nodes: Use the item type directly (e.g., ProcessedData, not IEnumerable&lt;ProcessedData&gt;).
-/// The Transform method returns IEnumerable&lt;TOutput&gt;, but TOutput refers to individual items.
+/// For singleton catalog entries: Use T directly (e.g., ModelMetrics).
 /// </para>
 /// <para>
-/// For multi-output nodes: Use a schema type that bundles multiple output properties
-/// (e.g., SplitDataOutputs containing Train and Test properties).
+/// For collection catalog entries: Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;ProcessedData&gt;).
+/// </para>
+/// <para>
+/// For multi-output nodes: Use a tuple combining singletons and collections
+/// (e.g., (ModelMetrics metrics, IEnumerable&lt;ModelPredictions&gt; predictions)).
 /// </para>
 /// </typeparam>
 /// <typeparam name="TParameters">
@@ -45,6 +44,11 @@ namespace Flowthru.Nodes;
 /// <para>
 /// <strong>Design Pattern:</strong> Template Method Pattern - defines the skeleton of node
 /// execution while allowing subclasses to implement specific transformation logic.
+/// </para>
+/// <para>
+/// <strong>Cardinality-Aware Type System:</strong>
+/// Node type parameters now directly reflect catalog entry cardinality without unnecessary
+/// IEnumerable wrapping. This eliminates ceremony and makes signatures match the mental model.
 /// </para>
 /// <para>
 /// <strong>Single Abstract Class Strategy:</strong>
@@ -149,41 +153,41 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// </summary>
   /// <param name="input">
   /// <para>
-  /// Collection of input items to transform. Note that while the parameter type is
-  /// IEnumerable&lt;TInput&gt;, the generic type parameter TInput represents the
-  /// <strong>individual item type</strong>, not a collection.
+  /// Input data with cardinality matching the catalog entry type:
   /// </para>
   /// <para>
-  /// For simple nodes: Process each TInput item in the collection.
-  /// Example: IEnumerable&lt;CompanyRawSchema&gt; where TInput = CompanyRawSchema.
+  /// For singleton nodes (ICatalogObject): TInput is the direct type (e.g., LinearRegressionModel).
+  /// Example: Transform(LinearRegressionModel input)
   /// </para>
   /// <para>
-  /// For multi-input nodes: This will be a singleton collection containing one schema
-  /// instance with all input properties populated from multiple catalog entries.
-  /// Example: IEnumerable&lt;TrainModelInputs&gt; with a single element.
+  /// For collection nodes (ICatalogDataset): TInput is IEnumerable&lt;T&gt;.
+  /// Example: Transform(IEnumerable&lt;CompanySchema&gt; input)
+  /// </para>
+  /// <para>
+  /// For multi-input nodes: TInput is a tuple combining singletons and collections.
+  /// Example: Transform((LinearRegressionModel model, IEnumerable&lt;FeatureRow&gt; features) input)
   /// </para>
   /// </param>
   /// <returns>
   /// <para>
-  /// Collection of transformed output items. The generic type parameter TOutput represents
-  /// the <strong>individual output item type</strong>, not a collection.
+  /// Output data with cardinality matching the catalog entry type:
   /// </para>
   /// <para>
-  /// For simple nodes: Return a collection of TOutput items.
-  /// Example: IEnumerable&lt;CompanySchema&gt; where TOutput = CompanySchema.
+  /// For singleton outputs: Return the single object directly (e.g., ModelMetrics).
   /// </para>
   /// <para>
-  /// For multi-output nodes: Return a singleton collection containing one schema
-  /// instance with all output properties populated for distribution to multiple catalog entries.
-  /// Example: new[] { splitOutputs } where splitOutputs contains Train and Test properties.
+  /// For collection outputs: Return IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;ProcessedData&gt;).
+  /// </para>
+  /// <para>
+  /// For multi-output nodes: Return a tuple combining singletons and collections.
+  /// Example: return (metrics, predictions) where metrics is ModelMetrics and predictions is IEnumerable&lt;ModelPredictions&gt;.
   /// </para>
   /// </returns>
   /// <remarks>
   /// <para>
-  /// <strong>Type Parameter Semantics:</strong> TInput and TOutput represent item types,
-  /// while the method signature uses IEnumerable&lt;TInput&gt; and IEnumerable&lt;TOutput&gt;
-  /// for the actual data flow. This design keeps node definitions intuitive (thinking about
-  /// individual items) while maintaining collection-based processing for efficiency.
+  /// <strong>Cardinality-Aware Type System:</strong> Node signatures now directly reflect
+  /// the catalog entry types without unnecessary IEnumerable wrapping. This eliminates ceremony
+  /// and makes the code match the mental model.
   /// </para>
   /// <para>
   /// <strong>Important:</strong> Implementations should be pure functions where possible.
@@ -194,7 +198,7 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// Task.FromResult() to maintain the async interface for consistency.
   /// </para>
   /// </remarks>
-  protected abstract Task<IEnumerable<TOutput>> Transform(IEnumerable<TInput> input);
+  protected abstract Task<TOutput> Transform(TInput input);
 
   /// <summary>
   /// Test helper method that exposes Transform() for unit testing.
@@ -212,7 +216,7 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// </para>
   /// </remarks>
   [EditorBrowsable(EditorBrowsableState.Never)]
-  public Task<IEnumerable<TOutput>> TestTransform(IEnumerable<TInput> input) {
+  public Task<TOutput> TestTransform(TInput input) {
     return Transform(input);
   }
 
@@ -226,21 +230,19 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// This method is internal and should not be called directly by user code.
   /// The pipeline executor invokes this method during pipeline execution.
   /// </remarks>
-  internal async Task<IEnumerable<TOutput>> ExecuteAsync(IEnumerable<TInput> input) {
+  internal async Task<TOutput> ExecuteAsync(TInput input) {
     var nodeName = GetType().Name;
 
     Logger?.LogInformation("Starting transformation for node {NodeName}", nodeName);
 
     try {
       var result = await Transform(input);
-      var count = result?.Count() ?? 0;
 
       Logger?.LogInformation(
-          "Completed transformation for node {NodeName}, produced {OutputCount} outputs",
-          nodeName,
-          count);
+          "Completed transformation for node {NodeName}",
+          nodeName);
 
-      return result ?? Enumerable.Empty<TOutput>();
+      return result;
     } catch (Exception ex) {
       Logger?.LogError(ex,
           "Error during transformation in node {NodeName}: {ErrorMessage}",

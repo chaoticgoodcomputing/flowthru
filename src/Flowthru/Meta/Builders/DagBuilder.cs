@@ -1,7 +1,6 @@
 using Flowthru.Data;
 using Flowthru.Meta.Models;
 using Flowthru.Pipelines;
-using Flowthru.Pipelines.Mapping;
 
 namespace Flowthru.Meta.Builders;
 
@@ -253,11 +252,11 @@ internal static class DagBuilder {
       }
     }
 
-    // Check if read-only (implements IReadableCatalogDataset but not ICatalogDataset)
+    // Check if read-only (implements IReadableCatalogEntry but not IWritableCatalogEntry)
     var isReadable = entryType.GetInterfaces()
-      .Any(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "IReadableCatalogDataset`1");
+      .Any(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "IReadableCatalogEntry`1");
     var isWritable = entryType.GetInterfaces()
-      .Any(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "ICatalogDataset`1");
+      .Any(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "IWritableCatalogEntry`1");
 
     if (isReadable && !isWritable) {
       fields["isReadOnly"] = true;

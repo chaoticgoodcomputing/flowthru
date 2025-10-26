@@ -29,8 +29,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// The same GenericChart can be exported to JSON, PNG, PDF, or other formats by downstream nodes.
 /// </para>
 /// </remarks>
-public class CreateConfusionMatrixNode : NodeBase<CompanySchema, GenericChart> {
-  protected override Task<IEnumerable<GenericChart>> Transform(IEnumerable<CompanySchema> input) {
+public class CreateConfusionMatrixNode : NodeBase<IEnumerable<CompanySchema>, GenericChart> {
+  protected override Task<GenericChart> Transform(IEnumerable<CompanySchema> input) {
     // Dummy confusion matrix data (matches Kedro spaceflights example)
     // In production, this would come from actual model predictions
     int[] actuals = [0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1];
@@ -72,6 +72,6 @@ public class CreateConfusionMatrixNode : NodeBase<CompanySchema, GenericChart> {
     Logger?.LogInformation(
         "Generated GenericChart heatmap for confusion matrix");
 
-    return Task.FromResult<IEnumerable<GenericChart>>(new[] { chart });
+    return Task.FromResult(chart);
   }
 }
