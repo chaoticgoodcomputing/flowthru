@@ -42,11 +42,6 @@ public class CircularDependencyTests {
     // ===========
     // Arrange: Node writes to its own input (A → A)
     // ===========
-    // NOTE: This test currently fails because the library does NOT detect self-loops.
-    // Self-dependencies are explicitly skipped in DependencyAnalyzer.cs:85-87 with the
-    // comment "would be caught in cycle detection anyway" - but they are NOT caught.
-    // This is a LIBRARY BUG that should be fixed. A node reading and writing to the
-    // same catalog entry creates an implicit circular dependency and should be rejected.
     var pipeline = PipelineBuilder.CreatePipeline(builder => {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.Input, "SelfLoop");
     });
