@@ -4,9 +4,8 @@ using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Microsoft.Extensions.Logging;
 using Microsoft.ML;
-using Microsoft.ML.Data;
 
-namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
+namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation.Nodes;
 
 /// <summary>
 /// Parameters for cross-validation analysis

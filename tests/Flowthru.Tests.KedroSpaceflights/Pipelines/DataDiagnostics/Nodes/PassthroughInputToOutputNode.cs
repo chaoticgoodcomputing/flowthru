@@ -1,6 +1,6 @@
 using Flowthru.Nodes;
 
-namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
+namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics.Nodes;
 
 /// <summary>
 /// Generic pass-through node that exports data to CSV format for debugging.

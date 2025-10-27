@@ -3,11 +3,12 @@ using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
-using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation;
-using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting;
 using Microsoft.Extensions.Logging;
 using static Flowthru.Meta.Providers.MermaidMetadataProvider;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation;
 
 namespace Flowthru.Tests.KedroSpaceflights;
 
@@ -39,14 +40,22 @@ public class Program {
           creator: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
         )
-        .WithDescription("Trains and evaluates ML model");
+        .WithDescription("Trains ML model");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
-          label: "DataValidation",
-          creator: DataValidationPipeline.Create
+          label: "DataDiagnostics",
+          creator: DataDiagnosticsPipeline.Create
         )
         .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
+
+      builder
+        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataEvaluationPipelineParams>(
+          label: "DataEvaluation",
+          creator: DataEvaluationPipeline.Create,
+          configurationSection: "Flowthru:Pipelines:DataEvaluation"
+        )
+        .WithDescription("Evaluates ML model performance and cross-validation");
 
       builder
         .RegisterPipeline<SpaceflightsCatalog>(

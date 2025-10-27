@@ -22,7 +22,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing;
 /// <para>
 /// This pipeline now matches the original Kedro spaceflights data_processing pipeline,
 /// with the addition of PreprocessReviewsNode (a minor refactor for better data handling).
-/// All diagnostic nodes have been moved to the DataValidation pipeline.
+/// All diagnostic nodes have been moved to the DataDiagnostics pipeline.
 /// </para>
 /// </summary>
 public static class DataProcessingPipeline {

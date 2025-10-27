@@ -1,6 +1,7 @@
 using Flowthru.Pipelines;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
@@ -13,11 +14,6 @@ public record DataSciencePipelineParams {
   /// Options for model training.
   /// </summary>
   public ModelParams ModelParams { get; init; } = new();
-
-  /// <summary>
-  /// Options for cross-validation.
-  /// </summary>
-  public CrossValidationParams CrossValidationParams { get; init; } = new();
 }
 
 /// <summary>
@@ -42,7 +38,7 @@ public record DataSciencePipelineParams {
 /// <para><strong>Matches Kedro 1:1:</strong></para>
 /// <para>
 /// This pipeline now matches the original Kedro spaceflights data_science pipeline exactly.
-/// Cross-validation has been moved to the DataValidation pipeline.
+/// Cross-validation has been moved to the DataDiagnostics pipeline.
 /// </para>
 /// </summary>
 public static class DataSciencePipeline {
@@ -62,21 +58,6 @@ public static class DataSciencePipeline {
         label: "TrainOLSModel",
         input: (catalog.XTrain, catalog.YTrain),
         output: catalog.Regressor
-      );
-
-      // Node 3: Evaluate OLS model (multi-input → multi-output)
-      pipeline.AddNode<EvaluateModelNode>(
-        label: "EvaluateOLSModel",
-        input: (catalog.Regressor, catalog.XTest, catalog.YTest),
-        output: (catalog.ModelMetrics, catalog.ModelPredictions)
-      );
-
-      // Node 4: Cross-validation for R² distribution analysis and comparison to Kedro
-      pipeline.AddNode<CrossValidateModelNode>(
-        label: "PerformCrossValidatedOLSRegressionTest",
-        input: catalog.ModelInputTable,
-        output: catalog.CrossValidationResults,
-        configure: node => node.Parameters = parameters.CrossValidationParams
       );
     });
   }

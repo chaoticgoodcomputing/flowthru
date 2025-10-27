@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "test-flights",
+  "name": "test/flights",
   "sourceRoot": "tests/Flowthru.Tests.KedroSpaceflights",
   "targets": {
     "run": {

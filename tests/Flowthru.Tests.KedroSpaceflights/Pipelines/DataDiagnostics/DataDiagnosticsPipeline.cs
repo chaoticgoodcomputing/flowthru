@@ -3,9 +3,9 @@ using Flowthru.Nodes;
 using Flowthru.Pipelines;
 using Flowthru.Tests.KedroSpaceflights.Data;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
-using Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation.Nodes;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics.Nodes;
 
-namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation;
+namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics;
 
 /// <summary>
 /// Data validation pipeline that performs diagnostic and validation operations on pipeline outputs.
@@ -29,7 +29,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataValidation;
 /// making this pipeline safe to run alongside production pipelines without affecting results.
 /// </para>
 /// </summary>
-public static class DataValidationPipeline {
+public static class DataDiagnosticsPipeline {
   public static Pipeline Create(SpaceflightsCatalog catalog) {
     return PipelineBuilder.CreatePipeline(pipeline => {
 

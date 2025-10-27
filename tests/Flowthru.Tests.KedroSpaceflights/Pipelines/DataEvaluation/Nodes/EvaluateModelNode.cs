@@ -2,10 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
+namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation.Nodes;
 
 /// <summary>
 /// Evaluates the trained OLS regression model on test data and logs metrics.
