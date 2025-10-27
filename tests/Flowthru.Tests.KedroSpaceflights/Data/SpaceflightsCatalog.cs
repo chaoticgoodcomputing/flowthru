@@ -202,6 +202,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// <summary>
   /// Training features (X_train).
   /// Feature vectors for model training.
+  /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
   public ICatalogEntry<IEnumerable<FeatureRow>> XTrain => GetOrCreateEntry(()
     => new MemoryCatalogEntry<IEnumerable<FeatureRow>>(
@@ -210,26 +211,31 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// <summary>
   /// Testing features (X_test).
   /// Feature vectors for model evaluation.
+  /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
   public ICatalogEntry<IEnumerable<FeatureRow>> XTest => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<IEnumerable<FeatureRow>>(
-      key: "XTest"));
+    => new ParquetCatalogEntry<IEnumerable<FeatureRow>>(
+      key: "XTest",
+      filePath: $"{_basePath}/03_TrainingData/x_test.parquet"));
 
   /// <summary>
   /// Training targets (y_train).
   /// Target prices for model training.
+  /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
-  public ICatalogEntry<IEnumerable<decimal>> YTrain => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<IEnumerable<decimal>>(
+  public ICatalogEntry<IEnumerable<TargetValue>> YTrain => GetOrCreateEntry(()
+    => new MemoryCatalogEntry<IEnumerable<TargetValue>>(
       key: "YTrain"));
 
   /// <summary>
   /// Testing targets (y_test).
   /// Target prices for model evaluation.
+  /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
-  public ICatalogEntry<IEnumerable<decimal>> YTest => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<IEnumerable<decimal>>(
-      key: "YTest"));
+  public ICatalogEntry<IEnumerable<TargetValue>> YTest => GetOrCreateEntry(()
+    => new ParquetCatalogEntry<IEnumerable<TargetValue>>(
+      key: "YTest",
+      filePath: $"{_basePath}/03_TrainingData/y_test.parquet"));
 
   // ===========================================================
   // MARK: MODELS
@@ -238,11 +244,12 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// <summary>
   /// Trained ordinary least squares linear regression model.
   /// Contains intercept and coefficients for price prediction.
-  /// Stored as a singleton object (pipeline produces single model).
+  /// Stored as JSON to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
   public ICatalogEntry<LinearRegressionModel> Regressor => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<LinearRegressionModel>(
-      key: "Regressor"));
+    => new JsonCatalogEntry<LinearRegressionModel>(
+      key: "Regressor",
+      filePath: $"{_basePath}/06_Models/regressor.json"));
 
   // ===========================================================
   // MARK: MODEL OUTPUTS
@@ -401,6 +408,46 @@ public class SpaceflightsCatalog : DataCatalogBase {
     => new BinaryFileCatalogEntry(
       key: "CrossValidationPlotPng",
       filePath: $"{_basePath}/06_Reports/cross_validation_plot.png",
+      expectedFileType: BinaryFileType.Png));
+
+  /// <summary>
+  /// Prediction scatter plot chart (in-memory GenericChart).
+  /// Intermediate chart object showing actual vs predicted values with color-coded dots
+  /// (yellow for over-estimates, red for under-estimates) and a 1:1 identity reference line.
+  /// </summary>
+  public ICatalogEntry<GenericChart> PredictionScatterChart => GetOrCreateEntry(()
+    => new MemoryCatalogEntry<GenericChart>(
+      key: "PredictionScatterChart"));
+
+  /// <summary>
+  /// Prediction scatter plot visualization (Plotly JSON).
+  /// Scatter plot showing actual vs predicted prices with:
+  /// - Yellow dots for over-estimates (predicted > actual)
+  /// - Red dots for under-estimates (predicted <= actual)
+  /// - Dotted gray line for perfect prediction (1:1 identity)
+  /// - R² score in title
+  /// </summary>
+  /// <remarks>
+  /// Stored as Plotly JSON specification for interactive visualization.
+  /// </remarks>
+  public ICatalogEntry<string> PredictionScatterPlot => GetOrCreateEntry(()
+    => new TextFileCatalogEntry(
+      key: "PredictionScatterPlot",
+      filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.json"));
+
+  /// <summary>
+  /// Prediction scatter plot visualization (PNG image).
+  /// Static image representation of the prediction accuracy visualization.
+  /// Stored as binary PNG file at 600x600 resolution.
+  /// </summary>
+  /// <remarks>
+  /// Uses BinaryFileCatalogEntry to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
+  /// </remarks>
+  public ICatalogEntry<byte[]> PredictionScatterPlotPng => GetOrCreateEntry(()
+    => new BinaryFileCatalogEntry(
+      key: "PredictionScatterPlotPng",
+      filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.png",
       expectedFileType: BinaryFileType.Png));
 
 }

@@ -22,7 +22,7 @@ public class EvaluateModelNode
   : NodeBase<
       (LinearRegressionModel Regressor,
        IEnumerable<FeatureRow> XTest,
-       IEnumerable<decimal> YTest),
+       IEnumerable<TargetValue> YTest),
       (IEnumerable<ModelMetrics> Metrics, IEnumerable<ModelPredictions> Predictions),
       NoParams> {
   // Note: Logger property is inherited from NodeBase and automatically available
@@ -33,14 +33,14 @@ public class EvaluateModelNode
   )> Transform(
       (LinearRegressionModel Regressor,
        IEnumerable<FeatureRow> XTest,
-       IEnumerable<decimal> YTest) input) {
+       IEnumerable<TargetValue> YTest) input) {
     var model = input.Regressor; // Model is singleton, no unwrapping needed
     var xTestData = input.XTest.ToList();
     var yTestData = input.YTest.ToList();
 
     // Make predictions using the OLS model
     var predictions = model.Predict(xTestData);
-    var actualValues = yTestData.Select(y => (double)y).ToArray();
+    var actualValues = yTestData.Select(t => (double)t.Price).ToArray();
 
     // Calculate R² using Math.NET's GoodnessOfFit.RSquared
     // This uses the same formula as sklearn's r2_score: 1 - (SS_res / SS_tot)
@@ -81,7 +81,7 @@ public class EvaluateModelNode
     // Return tuple output (not wrapped in IEnumerable)
     var metricsCollection = (IEnumerable<ModelMetrics>)new[] { metrics };
     var predictionsCollection = predictions.Select((pred, index) => new ModelPredictions {
-      Actual = (double)yTestData[index],
+      Actual = (double)yTestData[index].Price,
       Predicted = pred,
     });
 

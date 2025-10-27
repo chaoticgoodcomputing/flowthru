@@ -18,11 +18,11 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// </summary>
 public class TrainModelNode
   : NodeBase<
-      (IEnumerable<FeatureRow> XTrain, IEnumerable<decimal> YTrain),
+      (IEnumerable<FeatureRow> XTrain, IEnumerable<TargetValue> YTrain),
       LinearRegressionModel,
       NoParams> {
   protected override Task<LinearRegressionModel> Transform(
-      (IEnumerable<FeatureRow> XTrain, IEnumerable<decimal> YTrain) input) {
+      (IEnumerable<FeatureRow> XTrain, IEnumerable<TargetValue> YTrain) input) {
     var xTrainData = input.XTrain.ToList();
     var yTrainData = input.YTrain.ToList();
 
@@ -30,7 +30,7 @@ public class TrainModelNode
     var dataPoints = xTrainData.Select(row => row.ToFeatureArray()).ToArray();
 
     // Convert target prices to double array
-    var targets = yTrainData.Select(p => (double)p).ToArray();
+    var targets = yTrainData.Select(t => (double)t.Price).ToArray();
 
     // Train OLS regression using QR decomposition (same as sklearn's LinearRegression)
     // intercept: true adds a bias term automatically

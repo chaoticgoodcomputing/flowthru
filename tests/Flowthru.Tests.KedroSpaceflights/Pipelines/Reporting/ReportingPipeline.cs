@@ -119,6 +119,29 @@ public static class ReportingPipeline {
               input: catalog.CrossValidationResults,
               output: catalog.CrossValidationReport
             );
+
+            // ===== Prediction Scatter Plot Visualization =====
+
+            // Step 1: Generate scatter plot from model metrics and predictions
+            pipeline.AddNode<GeneratePredictionScatterNode>(
+                input: (catalog.ModelMetrics, catalog.ModelPredictions),
+                output: catalog.PredictionScatterChart,
+                label: "GeneratePredictionScatterChart"
+            );
+
+            // Step 2: Export chart to JSON for interactive visualization
+            pipeline.AddNode<PlotlyJsonExportNode>(
+                input: catalog.PredictionScatterChart,
+                output: catalog.PredictionScatterPlot,
+                label: "ExportPredictionScatterJson"
+            );
+
+            // Step 3: Export chart to PNG for static reports
+            pipeline.AddNode<PlotlyImageExportNode>(
+                input: catalog.PredictionScatterChart,
+                output: catalog.PredictionScatterPlotPng,
+                label: "ExportPredictionScatterPng"
+            );
         });
     }
 }

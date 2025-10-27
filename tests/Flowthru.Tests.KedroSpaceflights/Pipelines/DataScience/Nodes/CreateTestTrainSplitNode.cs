@@ -36,8 +36,8 @@ public class CreateTestTrainSplitNode
       IEnumerable<ModelInputSchema>,
       (IEnumerable<FeatureRow> XTrain,
        IEnumerable<FeatureRow> XTest,
-       IEnumerable<decimal> YTrain,
-       IEnumerable<decimal> YTest),
+       IEnumerable<TargetValue> YTrain,
+       IEnumerable<TargetValue> YTest),
       ModelParams> {
   // Parameters property inherited from NodeBase<TInput, TOutput, TParameters>
   // public ModelParams Parameters { get; set; } = new();
@@ -45,8 +45,8 @@ public class CreateTestTrainSplitNode
   protected override Task<(
     IEnumerable<FeatureRow> XTrain,
     IEnumerable<FeatureRow> XTest,
-    IEnumerable<decimal> YTrain,
-    IEnumerable<decimal> YTest
+    IEnumerable<TargetValue> YTrain,
+    IEnumerable<TargetValue> YTest
   )> Transform(IEnumerable<ModelInputSchema> input) {
     var data = input.ToList();
 
@@ -85,8 +85,8 @@ public class CreateTestTrainSplitNode
     var result = (
       XTrain: (IEnumerable<FeatureRow>)trainData.Select(x => x.Features).ToList(),
       XTest: (IEnumerable<FeatureRow>)testData.Select(x => x.Features).ToList(),
-      YTrain: (IEnumerable<decimal>)trainData.Select(x => x.Price).ToList(),
-      YTest: (IEnumerable<decimal>)testData.Select(x => x.Price).ToList()
+      YTrain: (IEnumerable<TargetValue>)trainData.Select(x => new TargetValue { Price = x.Price }).ToList(),
+      YTest: (IEnumerable<TargetValue>)testData.Select(x => new TargetValue { Price = x.Price }).ToList()
     );
 
     return Task.FromResult(result);
