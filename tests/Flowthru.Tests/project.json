@@ -1,5 +1,5 @@
 {
-  "name": "flowthru-tests",
+  "name": "test/unit",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "tests/Flowthru.Tests",
@@ -11,41 +11,34 @@
         "cwd": "tests/Flowthru.Tests"
       }
     },
-    "test": {
+    "run": {
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet test",
         "cwd": "tests/Flowthru.Tests"
       }
     },
-    "test:compilation": {
+    "compilation": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test --filter TestCategory=Compilation",
+        "command": "dotnet test --filter \"Category=Compilation\"",
         "cwd": "tests/Flowthru.Tests"
       }
     },
-    "test:validation": {
+    "validation": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test --filter TestCategory=Validation",
+        "command": "dotnet test --filter \"Category=Validation\"",
         "cwd": "tests/Flowthru.Tests"
       }
     },
-    "test:execution": {
+    "execution": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test --filter TestCategory=Execution",
-        "cwd": "tests/Flowthru.Tests"
-      }
-    },
-    "test:fast": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "dotnet test --filter 'TestCategory!=Integration'",
+        "command": "dotnet test --filter \"Category=Execution\"",
         "cwd": "tests/Flowthru.Tests"
       }
     }
   },
-  "tags": ["type:test", "scope:flowthru"]
+  "tags": [ "type:test", "scope:flowthru" ]
 }
