@@ -54,31 +54,12 @@ dotnet run data_processing
 
 ## Documentation
 
-### [Tutorials](docs/tutorials.md)
+### Tutorials
 
-**Learning-oriented:** Step-by-step guides to build your first pipeline application.
+TODO: Improve
+View Spaceflights test pipeline
 
-- Setting Up Your First Pipeline Application
-- Working with Data (Catalogs, Schemas, Storage Formats)
-- Building Pipelines (Nodes, DAGs, Execution)
-- Working with Nodes (Single/Multi-Input/Output, Parameters)
-
-### [How-To Guides](docs/how-to/)
-
-**Problem-oriented:** Practical guides for specific tasks.
-
-- [Choose Pipeline Registration Approach](docs/how-to/pipeline-registration-approaches.md) - Inline vs registry classes
-- [Use Configuration Files](docs/how-to/configuration-files.md) - External config with environment layering
-- [Leverage Compile-Time Safety](docs/how-to/compile-time-safety.md) - Maximize type safety
-- [Configure Dataset Inspection](docs/how-to/dataset-inspection.md) - Validate external data before execution
-- [Structure Multi-Input/Output Nodes](docs/how-to/multi-input-output.md) - Handle complex data flows
-- [Add Logging and Dependencies](docs/how-to/logging-dependencies.md) - Inject services into nodes
-- [Register Pipelines with Parameters](docs/how-to/pipeline-parameters.md) - Configure pipeline behavior
-- [Choose CatalogMap Modes](docs/how-to/catalog-map-modes.md) - Pass-through vs mapped
-- [Structure Your Project](docs/how-to/project-structure.md) - Organize code for maintainability
-- [Work with Read-Only Data Sources](docs/how-to/read-only-data-sources.md) - Excel files, APIs, immutable data
-
-### [Explanation](docs/explanation.md)
+### Explanation
 
 **Understanding-oriented:** Why Flowthru works the way it does.
 
