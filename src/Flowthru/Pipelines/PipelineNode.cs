@@ -4,14 +4,14 @@ using Flowthru.Nodes;
 namespace Flowthru.Pipelines;
 
 /// <summary>
-/// Represents a node within a pipeline, wrapping the node instance with metadata
+/// Represents a node within a pipeline, wrapping the transformation function with metadata
 /// about its inputs, outputs, and dependencies.
 /// </summary>
 /// <remarks>
 /// <para>
 /// PipelineNode serves as the internal representation of a node during pipeline
 /// construction and execution. It tracks:
-/// - The node instance (transformation logic)
+/// - The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)
 /// - Input catalog entries (what data it reads)
 /// - Output catalog entries (what data it writes)
 /// - Dependencies (other nodes that must run first)
@@ -20,6 +20,11 @@ namespace Flowthru.Pipelines;
 /// <strong>Single Producer Rule:</strong> Each catalog entry can be written by at most
 /// one node in a pipeline. This constraint ensures deterministic dependency resolution
 /// and enables simple DAG construction via topological sort.
+/// </para>
+/// <para>
+/// <strong>Function-Based Architecture (v0.5.0):</strong> Nodes are now pure transformation
+/// functions instead of class instances. This enables compile-time type safety through
+/// generic type inference at the pipeline construction site.
 /// </para>
 /// </remarks>
 internal class PipelineNode {
@@ -30,14 +35,19 @@ internal class PipelineNode {
   public string Name { get; }
 
   /// <summary>
-  /// The node instance that performs the transformation.
-  /// Type-erased to object since we need to store different node types together.
+  /// The transformation function that performs the node's work.
+  /// Type-erased to Delegate since we need to store different function signatures together.
   /// </summary>
   /// <remarks>
-  /// At execution time, this will be cast to the appropriate NodeBase&lt;TInput, TOutput, TParameters&gt;
-  /// type and invoked via reflection or compiled expressions.
+  /// <para>
+  /// At execution time, this delegate will be invoked via DynamicInvoke with the
+  /// appropriate input parameter(s). The function signature is:
+  /// - Single input: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
+  /// - Multi-input: Func&lt;(TIn1, TIn2, ...), Task&lt;TOutput&gt;&gt;
+  /// - Multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
+  /// </para>
   /// </remarks>
-  public object NodeInstance { get; }
+  public Delegate TransformFunction { get; }
 
   /// <summary>
   /// Catalog entries that this node reads as input.
@@ -69,19 +79,19 @@ internal class PipelineNode {
   public int Layer { get; set; } = -1; // -1 indicates not yet assigned
 
   /// <summary>
-  /// Creates a new pipeline node (simplified tuple-based API).
+  /// Creates a new pipeline node with a transformation function.
   /// </summary>
   /// <param name="name">Unique identifier for this node</param>
-  /// <param name="nodeInstance">The node instance that performs the transformation</param>
+  /// <param name="transformFunction">The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)</param>
   /// <param name="inputs">Catalog entries this node reads</param>
   /// <param name="outputs">Catalog entries this node writes</param>
   public PipelineNode(
     string name,
-    object nodeInstance,
+    Delegate transformFunction,
     IReadOnlyList<ICatalogEntry> inputs,
     IReadOnlyList<ICatalogEntry> outputs) {
     Name = name;
-    NodeInstance = nodeInstance;
+    TransformFunction = transformFunction;
     Inputs = inputs;
     Outputs = outputs;
   }

@@ -113,8 +113,8 @@ internal static class DagBuilder {
     var nodes = new List<NodeMetadata>();
 
     foreach (var pipelineNode in pipeline.Nodes) {
-      // Extract simple type name from node instance
-      var nodeTypeName = pipelineNode.NodeInstance.GetType().Name;
+      // Use node name directly (no longer extracting from instance type)
+      var nodeTypeName = pipelineNode.Name;
 
       // Get input catalog keys (expanding CatalogMaps, filtering _nodata)
       var inputKeys = pipelineNode.Inputs

@@ -44,18 +44,19 @@ public static class DataEvaluationPipeline {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
       // Node 1: Evaluate OLS model (multi-input → multi-output)
-      pipeline.AddNode<EvaluateModelNode>(
-        label: "EvaluateOLSModel",
+      pipeline.AddNode(
+        name: "EvaluateOLSModel",
+        transform: EvaluateModelNode.Create(),
         input: (catalog.Regressor, catalog.XTest, catalog.YTest),
         output: (catalog.ModelMetrics, catalog.ModelPredictions)
       );
 
       // Node 2: Cross-validation for R² distribution analysis and comparison to Kedro
-      pipeline.AddNode<CrossValidateModelNode>(
-        label: "PerformCrossValidatedOLSRegressionTest",
+      pipeline.AddNode(
+        name: "PerformCrossValidatedOLSRegressionTest",
+        transform: CrossValidateModelNode.Create(parameters.CrossValidationParams),
         input: catalog.ModelInputTable,
-        output: catalog.CrossValidationResults,
-        configure: node => node.Parameters = parameters.CrossValidationParams
+        output: catalog.CrossValidationResults
       );
 
     });

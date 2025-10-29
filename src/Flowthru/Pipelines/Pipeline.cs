@@ -134,7 +134,7 @@ public class Pipeline {
         // Create a new node with prefixed name
         var prefixedNode = new PipelineNode(
           name: $"{pipelineName}.{node.Name}",
-          nodeInstance: node.NodeInstance,
+          transformFunction: node.TransformFunction,
           inputs: node.Inputs,
           outputs: node.Outputs
         );
@@ -547,17 +547,7 @@ public class Pipeline {
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
-      // Invoke node transformation via reflection
-      var nodeType = pipelineNode.NodeInstance.GetType();
-      var executeMethod = nodeType.GetMethod("ExecuteAsync",
-        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-      if (executeMethod == null) {
-        throw new InvalidOperationException(
-          $"Node {pipelineNode.Name} does not have an ExecuteAsync method");
-      }
-
-      // Prepare input parameter
+      // Prepare input parameter for function invocation
       // For single-input nodes: pass data directly (T)
       // For multi-input nodes: construct tuple (T1, T2, ...)
       object inputParameter;
@@ -566,14 +556,17 @@ public class Pipeline {
         inputParameter = inputs[0];
       } else {
         // Multi-input: construct tuple from loaded values
-        // Get TInput type from ExecuteAsync method signature
-        var executeParams = executeMethod.GetParameters();
-        if (executeParams.Length != 1) {
+        // Use the function's actual parameter type to ensure correct tuple signature
+        var funcType = pipelineNode.TransformFunction.GetType();
+        var invokeMethod = funcType.GetMethod("Invoke");
+        var parameters = invokeMethod!.GetParameters();
+
+        if (parameters.Length != 1) {
           throw new InvalidOperationException(
-            $"ExecuteAsync for node {pipelineNode.Name} should have exactly one parameter");
+            $"Transform function for node {pipelineNode.Name} should have exactly 1 parameter (tuple), but has {parameters.Length}");
         }
 
-        var tupleType = executeParams[0].ParameterType; // (T1, T2, ...)
+        var tupleType = parameters[0].ParameterType;
 
         // Create tuple instance from input values
         try {
@@ -582,23 +575,24 @@ public class Pipeline {
         } catch (Exception ex) {
           throw new InvalidOperationException(
             $"Failed to create {inputs.Length}-tuple for node {pipelineNode.Name}. " +
-            $"Tuple type: {tupleType.FullName}, Input types: [{string.Join(", ", inputs.Select(v => v?.GetType().Name ?? "null"))}]",
+            $"Expected tuple type: {tupleType.FullName}, Input types: [{string.Join(", ", inputs.Select(v => v?.GetType().Name ?? "null"))}]",
             ex);
         }
       }
 
-      // Invoke ExecuteAsync and await the result
-      var executeTask = (Task?)executeMethod.Invoke(pipelineNode.NodeInstance, new[] { inputParameter });
-      if (executeTask == null) {
+      // Invoke transformation function directly via DynamicInvoke
+      var transformFunc = pipelineNode.TransformFunction;
+      var resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter);
+
+      if (resultTask == null) {
         throw new InvalidOperationException(
-          $"ExecuteAsync invocation for node {pipelineNode.Name} returned null");
+          $"Transform function for node {pipelineNode.Name} returned null");
       }
 
-      await executeTask.ConfigureAwait(false);
+      await resultTask.ConfigureAwait(false);
 
       // Extract result from Task<TOutput>
-      var resultProperty = executeTask.GetType().GetProperty("Result");
-      var output = resultProperty?.GetValue(executeTask);
+      var output = GetTaskResult(resultTask);
 
       // Save outputs to catalog entries
       // SaveUntyped() accepts T directly (singleton or collection), no unwrapping needed
@@ -676,24 +670,75 @@ public class Pipeline {
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
-      // TODO: Invoke node transformation
-      // This requires either:
-      // 1. Reflection to call ExecuteAsync on the NodeBase instance
-      // 2. A non-generic INode interface with ExecuteUntyped method
-      // 3. Compiled expression to invoke the generic method
-      // 
-      // For now, we'll need to implement this in the next iteration
-      // when we have the full execution context ready
+      // Prepare input parameter
+      object inputParameter;
+      if (pipelineNode.Inputs.Count == 1) {
+        inputParameter = inputs[0];
+      } else {
+        // Use the function's actual parameter type to ensure correct tuple signature
+        var funcType = pipelineNode.TransformFunction.GetType();
+        var invokeMethod = funcType.GetMethod("Invoke");
+        var parameters = invokeMethod!.GetParameters();
+        var tupleType = parameters[0].ParameterType;
 
-      Logger?.LogWarning(
-        "Node execution not yet implemented. Node {NodeName} would process {InputCount} inputs",
-        pipelineNode.Name,
-        inputs.Length);
+        inputParameter = Activator.CreateInstance(tupleType, inputs)
+          ?? throw new InvalidOperationException($"Failed to create tuple for node {pipelineNode.Name}");
+      }
 
-      // TODO: Save outputs to catalog entries
+      // Invoke transformation function
+      var transformFunc = pipelineNode.TransformFunction;
+      var resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter);
+
+      if (resultTask == null) {
+        throw new InvalidOperationException($"Transform function for {pipelineNode.Name} returned null");
+      }
+
+      await resultTask.ConfigureAwait(false);
+      var output = GetTaskResult(resultTask);
+
+      // Save outputs
+      if (output != null && pipelineNode.Outputs.Count > 0) {
+        if (pipelineNode.Outputs.Count == 1) {
+          await pipelineNode.Outputs[0].SaveUntyped(output).RunAsync();
+        } else {
+          var tupleFields = output.GetType().GetFields();
+          for (int i = 0; i < pipelineNode.Outputs.Count; i++) {
+            var outputData = tupleFields[i].GetValue(output);
+            await pipelineNode.Outputs[i].SaveUntyped(outputData!).RunAsync();
+          }
+        }
+      }
     } catch (Exception ex) {
       Logger?.LogError(ex, "Node {NodeName} failed: {ErrorMessage}", pipelineNode.Name, ex.Message);
       throw;
     }
+  }
+
+  /// <summary>
+  /// Helper method to dynamically create a tuple type from input values.
+  /// </summary>
+  private static Type GetTupleType(object[] values) {
+    return values.Length switch {
+      2 => typeof(ValueTuple<,>).MakeGenericType(values[0].GetType(), values[1].GetType()),
+      3 => typeof(ValueTuple<,,>).MakeGenericType(values[0].GetType(), values[1].GetType(), values[2].GetType()),
+      4 => typeof(ValueTuple<,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
+      5 => typeof(ValueTuple<,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
+      6 => typeof(ValueTuple<,,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
+      7 => typeof(ValueTuple<,,,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
+      8 => typeof(ValueTuple<,,,,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
+      _ => throw new NotSupportedException($"Tuples with {values.Length} elements not supported. Maximum is 8.")
+    };
+  }
+
+  /// <summary>
+  /// Helper method to extract the result from a Task&lt;T&gt;.
+  /// </summary>
+  private static object GetTaskResult(Task task) {
+    var taskType = task.GetType();
+    if (!taskType.IsGenericType) {
+      throw new InvalidOperationException("Task must be Task<T>, not Task");
+    }
+    var resultProperty = taskType.GetProperty("Result")!;
+    return resultProperty.GetValue(task)!;
   }
 }

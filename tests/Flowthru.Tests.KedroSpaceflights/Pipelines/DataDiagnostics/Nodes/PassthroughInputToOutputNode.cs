@@ -1,5 +1,3 @@
-using Flowthru.Nodes;
-
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics.Nodes;
 
 /// <summary>
@@ -10,9 +8,11 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics.Nodes;
 /// This is a diagnostic node that simply passes data through while writing
 /// it to a CSV catalog entry. Useful for debugging pipeline data issues.
 /// </remarks>
-public class PassthroughInputToOutputNode<T> : NodeBase<IEnumerable<T>, IEnumerable<T>, NoParams> {
-  protected override Task<IEnumerable<T>> Transform(IEnumerable<T> input) {
-    // Pass-through: return input unchanged
-    return Task.FromResult(input);
+public static class PassthroughInputToOutputNode<T> {
+  public static Func<IEnumerable<T>, Task<IEnumerable<T>>> Create() {
+    return async (input) => {
+      // Pass-through: return input unchanged
+      return input;
+    };
   }
 }

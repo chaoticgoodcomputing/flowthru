@@ -4,16 +4,20 @@ using Flowthru.Nodes;
 namespace Flowthru.Pipelines;
 
 /// <summary>
-/// Fluent builder for constructing type-safe data pipelines with tuple-based multi-input/output.
+/// Fluent builder for constructing type-safe data pipelines with function-based nodes.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Tuple-Based Design (v0.4.0):</strong>
-/// Multi-input/output nodes use C# tuples instead of schema classes:
-/// - Simple: catalog entry → catalog entry
-/// - Multi-input: tuple of catalog entries → catalog entry
-/// - Multi-output: catalog entry → tuple of catalog entries
-/// - Multi-input-output: tuple → tuple
+/// <strong>Function-Based Design (v0.5.0):</strong>
+/// Nodes are pure transformation functions with compile-time type safety:
+/// - Simple: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
+/// - Multi-input: Func&lt;(TIn1, TIn2, ...), Task&lt;TOutput&gt;&gt;
+/// - Multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
+/// - Multi-input-output: Func&lt;(TIn1, TIn2), Task&lt;(TOut1, TOut2)&gt;&gt;
+/// </para>
+/// <para>
+/// The compiler infers all types from function signatures and validates catalog entry
+/// types at pipeline construction time, catching type mismatches before execution.
 /// </para>
 /// <para>
 /// <strong>Usage Patterns:</strong>
@@ -22,27 +26,27 @@ namespace Flowthru.Pipelines;
 /// var pipeline = PipelineBuilder.CreatePipeline(builder =>
 /// {
 ///     // Simple node: single input → single output
-///     builder.AddNode&lt;PreprocessNode&gt;(
+///     builder.AddNode(
+///         name: "Preprocess",
+///         transform: PreprocessNode.Create(),
 ///         input: catalog.RawData,
 ///         output: catalog.ProcessedData
 ///     );
 ///     
 ///     // Multi-input node: tuple → single output
-///     builder.AddNode&lt;TrainModelNode&gt;(
+///     builder.AddNode(
+///         name: "TrainModel",
+///         transform: TrainModelNode.Create(),
 ///         input: (catalog.XTrain, catalog.YTrain),
 ///         output: catalog.Model
 ///     );
 ///     
 ///     // Multi-output node: single input → tuple
-///     builder.AddNode&lt;SplitDataNode&gt;(
+///     builder.AddNode(
+///         name: "SplitData",
+///         transform: SplitDataNode.Create(),
 ///         input: catalog.Data,
 ///         output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
-///     );
-///     
-///     // Multi-input-output: tuple → tuple
-///     builder.AddNode&lt;ComplexNode&gt;(
-///         input: (catalog.Input1, catalog.Input2),
-///         output: (catalog.Output1, catalog.Output2)
 ///     );
 /// });
 /// 
@@ -65,21 +69,25 @@ public class PipelineBuilder {
   }
 
   /// <summary>
-  /// Adds a simple node (single input → single output).
+  /// Adds a node with single input and single output.
+  /// All types are inferred from the transformation function signature.
   /// </summary>
-  public PipelineBuilder AddNode<TNode>(
-    ICatalogEntry input,
-    ICatalogEntry output,
-    string? label = null,
-    Action<TNode>? configure = null)
-    where TNode : class, new() {
-
-    var node = new TNode();
-    configure?.Invoke(node);
-
+  /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
+  /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
+  /// <param name="name">Unique identifier for this node</param>
+  /// <param name="transform">Transformation function from input to output</param>
+  /// <param name="input">Catalog entry providing input data</param>
+  /// <param name="output">Catalog entry to store output data</param>
+  /// <returns>This builder for method chaining</returns>
+  public PipelineBuilder AddNode<TInput, TOutput>(
+    string name,
+    Func<TInput, Task<TOutput>> transform,
+    ICatalogEntry<TInput> input,
+    ICatalogEntry<TOutput> output
+  ) {
     var pipelineNode = new PipelineNode(
-      name: label ?? typeof(TNode).Name,
-      nodeInstance: node,
+      name: name,
+      transformFunction: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output }
     );
@@ -89,54 +97,158 @@ public class PipelineBuilder {
   }
 
   /// <summary>
-  /// Adds a node with tuple-based inputs/outputs (extracted via reflection).
-  /// Handles all tuple combinations automatically.
+  /// Adds a node with two inputs and single output.
   /// </summary>
-  public PipelineBuilder AddNode<TNode>(
-    object input,  // Can be ICatalogEntry or ITuple
-    object output, // Can be ICatalogEntry or ITuple
-    string? label = null,
-    Action<TNode>? configure = null)
-    where TNode : class, new() {
-
-    var node = new TNode();
-    configure?.Invoke(node);
-
-    // Extract catalog entries from input (either single or tuple)
-    var inputEntries = ExtractCatalogEntries(input);
-    var outputEntries = ExtractCatalogEntries(output);
+  public PipelineBuilder AddNode<TIn1, TIn2, TOut>(
+    string name,
+    Func<(TIn1, TIn2), Task<TOut>> transform,
+    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input,
+    ICatalogEntry<TOut> output
+  ) {
+    var (input1, input2) = input;
 
     var pipelineNode = new PipelineNode(
-      name: label ?? typeof(TNode).Name,
-      nodeInstance: node,
-      inputs: inputEntries,
-      outputs: outputEntries
+      name: name,
+      transformFunction: transform,
+      inputs: new List<ICatalogEntry> { input1, input2 },
+      outputs: new List<ICatalogEntry> { output }
     );
 
     _pipeline.AddNode(pipelineNode);
     return this;
   }
 
-  private List<ICatalogEntry> ExtractCatalogEntries(object obj) {
-    if (obj is ICatalogEntry singleEntry) {
-      return new List<ICatalogEntry> { singleEntry };
-    }
+  /// <summary>
+  /// Adds a node with three inputs and single output.
+  /// </summary>
+  public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut>(
+    string name,
+    Func<(TIn1, TIn2, TIn3), Task<TOut>> transform,
+    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
+    ICatalogEntry<TOut> output
+  ) {
+    var (input1, input2, input3) = input;
 
-    if (obj is System.Runtime.CompilerServices.ITuple tuple) {
-      var entries = new List<ICatalogEntry>();
-      for (int i = 0; i < tuple.Length; i++) {
-        if (tuple[i] is ICatalogEntry entry) {
-          entries.Add(entry);
-        } else {
-          throw new InvalidOperationException(
-            $"Tuple element {i} is not an ICatalogEntry. Got: {tuple[i]?.GetType().Name ?? "null"}");
-        }
-      }
-      return entries;
-    }
+    var pipelineNode = new PipelineNode(
+      name: name,
+      transformFunction: transform,
+      inputs: new List<ICatalogEntry> { input1, input2, input3 },
+      outputs: new List<ICatalogEntry> { output }
+    );
 
-    throw new InvalidOperationException(
-      $"Input/output must be ICatalogEntry or tuple of ICatalogEntry. Got: {obj.GetType().Name}");
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
+  /// Adds a node with four inputs and single output.
+  /// </summary>
+  public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut>(
+    string name,
+    Func<(TIn1, TIn2, TIn3, TIn4), Task<TOut>> transform,
+    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input,
+    ICatalogEntry<TOut> output
+  ) {
+    var (input1, input2, input3, input4) = input;
+
+    var pipelineNode = new PipelineNode(
+      name: name,
+      transformFunction: transform,
+      inputs: new List<ICatalogEntry> { input1, input2, input3, input4 },
+      outputs: new List<ICatalogEntry> { output }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
+  /// Adds a node with single input and two outputs.
+  /// </summary>
+  public PipelineBuilder AddNode<TIn, TOut1, TOut2>(
+    string name,
+    Func<TIn, Task<(TOut1, TOut2)>> transform,
+    ICatalogEntry<TIn> input,
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output
+  ) {
+    var (output1, output2) = output;
+
+    var pipelineNode = new PipelineNode(
+      name: name,
+      transformFunction: transform,
+      inputs: new List<ICatalogEntry> { input },
+      outputs: new List<ICatalogEntry> { output1, output2 }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
+  /// Adds a node with single input and three outputs.
+  /// </summary>
+  public PipelineBuilder AddNode<TIn, TOut1, TOut2, TOut3>(
+    string name,
+    Func<TIn, Task<(TOut1, TOut2, TOut3)>> transform,
+    ICatalogEntry<TIn> input,
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output
+  ) {
+    var (output1, output2, output3) = output;
+
+    var pipelineNode = new PipelineNode(
+      name: name,
+      transformFunction: transform,
+      inputs: new List<ICatalogEntry> { input },
+      outputs: new List<ICatalogEntry> { output1, output2, output3 }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
+  /// Adds a node with single input and four outputs.
+  /// </summary>
+  public PipelineBuilder AddNode<TIn, TOut1, TOut2, TOut3, TOut4>(
+    string name,
+    Func<TIn, Task<(TOut1, TOut2, TOut3, TOut4)>> transform,
+    ICatalogEntry<TIn> input,
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output
+  ) {
+    var (output1, output2, output3, output4) = output;
+
+    var pipelineNode = new PipelineNode(
+      name: name,
+      transformFunction: transform,
+      inputs: new List<ICatalogEntry> { input },
+      outputs: new List<ICatalogEntry> { output1, output2, output3, output4 }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
+  /// Adds a node with three inputs and two outputs.
+  /// </summary>
+  public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(
+    string name,
+    Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2)>> transform,
+    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output
+  ) {
+    var (input1, input2, input3) = input;
+    var (output1, output2) = output;
+
+    var pipelineNode = new PipelineNode(
+      name: name,
+      transformFunction: transform,
+      inputs: new List<ICatalogEntry> { input1, input2, input3 },
+      outputs: new List<ICatalogEntry> { output1, output2 }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
   }
 }
 

@@ -1,4 +1,3 @@
-using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 
@@ -7,19 +6,20 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// <summary>
 /// Preprocesses raw review data by converting string values to proper types and filtering out incomplete records.
 /// Converts string scores to decimals and drops rows with missing required fields.
-/// 
-/// Stateless node with implicit parameterless constructor,
-/// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessReviewsNode : NodeBase<IEnumerable<ReviewRawSchema>, IEnumerable<ReviewSchema>> {
-  protected override Task<IEnumerable<ReviewSchema>> Transform(
-      IEnumerable<ReviewRawSchema> input) {
-    var processed = input
-        .Select(r => TryParse(r))
-        .Where(r => r != null)
-        .Cast<ReviewSchema>();
+public static class PreprocessReviewsNode {
+  /// <summary>
+  /// Creates a transformation function that preprocesses review data.
+  /// </summary>
+  public static Func<IEnumerable<ReviewRawSchema>, Task<IEnumerable<ReviewSchema>>> Create() {
+    return async (input) => {
+      var processed = input
+          .Select(r => TryParse(r))
+          .Where(r => r != null)
+          .Cast<ReviewSchema>();
 
-    return Task.FromResult(processed);
+      return await Task.FromResult(processed);
+    };
   }
 
   /// <summary>

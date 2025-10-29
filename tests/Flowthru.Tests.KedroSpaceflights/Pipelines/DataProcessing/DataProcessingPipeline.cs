@@ -29,31 +29,35 @@ public static class DataProcessingPipeline {
     public static Pipeline Create(SpaceflightsCatalog catalog) {
         return PipelineBuilder.CreatePipeline(pipeline => {
             // Node 1: Preprocess companies (simple: single input → single output)
-            pipeline.AddNode<PreprocessCompaniesNode>(
+            pipeline.AddNode(
+                name: "PreprocessCompanies",
+                transform: PreprocessCompaniesNode.Create(),
                 input: catalog.Companies,
-                output: catalog.CleanedCompanies,
-                label: "PreprocessCompanies"
+                output: catalog.CleanedCompanies
             );
 
             // Node 2: Preprocess shuttles (simple: single input → single output)
-            pipeline.AddNode<PreprocessShuttlesNode>(
+            pipeline.AddNode(
+                name: "PreprocessShuttles",
+                transform: PreprocessShuttlesNode.Create(),
                 input: catalog.Shuttles,
-                output: catalog.CleanedShuttles,
-                label: "PreprocessShuttles"
+                output: catalog.CleanedShuttles
             );
 
             // Node 3: Preprocess reviews (simple: single input → single output)
             // Note: Minor refactor compared to Kedro - we preprocess reviews separately
             // rather than handling raw reviews in create_model_input_table
-            pipeline.AddNode<PreprocessReviewsNode>(
+            pipeline.AddNode(
+                name: "PreprocessReviews",
+                transform: PreprocessReviewsNode.Create(),
                 input: catalog.Reviews,
-                output: catalog.CleanedReviews,
-                label: "PreprocessReviews"
+                output: catalog.CleanedReviews
             );
 
             // Node 4: Create model input table (multi-input: 3 inputs → single output)
-            pipeline.AddNode<CreateModelInputTableNode>(
-                label: "CreateModelInputTable",
+            pipeline.AddNode(
+                name: "CreateModelInputTable",
+                transform: CreateModelInputTableNode.Create(),
                 input: (catalog.CleanedShuttles, catalog.CleanedCompanies, catalog.CleanedReviews),
                 output: catalog.ModelInputTable
             );

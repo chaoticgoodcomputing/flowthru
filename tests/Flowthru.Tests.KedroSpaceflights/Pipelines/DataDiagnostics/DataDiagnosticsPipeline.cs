@@ -34,36 +34,41 @@ public static class DataDiagnosticsPipeline {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
       // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
-      pipeline.AddNode<ValidateAgainstKedroNode>(
-        label: "ValidateModelInputTableAgainstKedroSource",
+      pipeline.AddNode(
+        name: "ValidateModelInputTableAgainstKedroSource",
+        transform: ValidateAgainstKedroNode.Create(),
         input: (catalog.ModelInputTable, catalog.KedroModelInputTable),
         output: NoData.Discard
       );
 
       // Node 2: Export cleaned companies to CSV for manual inspection
-      pipeline.AddNode<PassthroughInputToOutputNode<CompanySchema>>(
-        label: "ExportCompaniesToDiagnosticCsv",
+      pipeline.AddNode(
+        name: "ExportCompaniesToDiagnosticCsv",
+        transform: PassthroughInputToOutputNode<CompanySchema>.Create(),
         input: catalog.CleanedCompanies,
         output: catalog.CleanedCompaniesCsv
       );
 
       // Node 3: Export cleaned shuttles to CSV for manual inspection
-      pipeline.AddNode<PassthroughInputToOutputNode<ShuttleSchema>>(
-        label: "ExportShuttlesToDiagnosticCsv",
+      pipeline.AddNode(
+        name: "ExportShuttlesToDiagnosticCsv",
+        transform: PassthroughInputToOutputNode<ShuttleSchema>.Create(),
         input: catalog.CleanedShuttles,
         output: catalog.CleanedShuttlesCsv
       );
 
       // Node 4: Export model input table to CSV for manual inspection
-      pipeline.AddNode<PassthroughInputToOutputNode<ModelInputSchema>>(
-        label: "ExportModelInputTableToDiagnosticCsv",
+      pipeline.AddNode(
+        name: "ExportModelInputTableToDiagnosticCsv",
+        transform: PassthroughInputToOutputNode<ModelInputSchema>.Create(),
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableCsv
       );
 
       // Node 5: Export model input table to minified JSON for production/compact storage
-      pipeline.AddNode<PassthroughInputToOutputNode<ModelInputSchema>>(
-        label: "ExportModelInputTableToMinifiedJson",
+      pipeline.AddNode(
+        name: "ExportModelInputTableToMinifiedJson",
+        transform: PassthroughInputToOutputNode<ModelInputSchema>.Create(),
         input: catalog.ModelInputTable,
         output: catalog.ModelInputTableJsonMinified
       );

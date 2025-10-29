@@ -21,34 +21,30 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics.Nodes;
 /// but logs detailed comparison results for diagnostic purposes.
 /// </para>
 /// </remarks>
-public class ValidateAgainstKedroNode
-  : NodeBase<
-      (IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<KedroModelInputSchema> KedroData),
-      NoData,
-      NoParams> {
-  protected override Task<NoData> Transform(
-      (IEnumerable<ModelInputSchema> FlowthruData,
-       IEnumerable<KedroModelInputSchema> KedroData) input) {
-    var flowthruData = input.FlowthruData.ToList();
-    var kedroData = input.KedroData.ToList();
+public static class ValidateAgainstKedroNode {
+  public static Func<(IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<KedroModelInputSchema> KedroData), Task<NoData>> Create() {
+    return async (input) => {
+      var flowthruData = input.FlowthruData.ToList();
+      var kedroData = input.KedroData.ToList();
 
-    // Step 1: Schema Comparison
-    CompareSchemas();
+      // Step 1: Schema Comparison
+      CompareSchemas();
 
-    // Step 2: Row Count Comparison
+      // Step 2: Row Count Comparison
 
-    if (flowthruData.Count == kedroData.Count) { } else {
-      var diff = flowthruData.Count - kedroData.Count;
-    }
+      if (flowthruData.Count == kedroData.Count) { } else {
+        var diff = flowthruData.Count - kedroData.Count;
+      }
 
-    // Step 3: Data Value Comparison
-    CompareDataValues(flowthruData, kedroData);
+      // Step 3: Data Value Comparison
+      CompareDataValues(flowthruData, kedroData);
 
-    // This is a side-effect-only node - return NoData singleton
-    return Task.FromResult(NoData.Value);
+      // This is a side-effect-only node - return NoData singleton
+      return NoData.Value;
+    };
   }
 
-  private void CompareSchemas() {
+  private static void CompareSchemas() {
     var flowthruProps = typeof(ModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
     var kedroProps = typeof(KedroModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -58,7 +54,7 @@ public class ValidateAgainstKedroNode
     var commonProps = flowthruPropNames.Intersect(kedroPropNames).Count();
   }
 
-  private void CompareDataValues(List<ModelInputSchema> flowthruData, List<KedroModelInputSchema> kedroData) {
+  private static void CompareDataValues(List<ModelInputSchema> flowthruData, List<KedroModelInputSchema> kedroData) {
     var minCount = Math.Min(flowthruData.Count, kedroData.Count);
 
     if (minCount == 0) {
@@ -150,7 +146,7 @@ public class ValidateAgainstKedroNode
     }
   }
 
-  private bool AreValuesEqual(object? value1, object? value2) {
+  private static bool AreValuesEqual(object? value1, object? value2) {
     if (value1 == null && value2 == null) {
       return true;
     }
@@ -170,7 +166,7 @@ public class ValidateAgainstKedroNode
     return value1.Equals(value2);
   }
 
-  private bool IsNumeric(object value) {
+  private static bool IsNumeric(object value) {
     return value is int or long or short or byte
         or uint or ulong or ushort or sbyte
         or float or double or decimal;

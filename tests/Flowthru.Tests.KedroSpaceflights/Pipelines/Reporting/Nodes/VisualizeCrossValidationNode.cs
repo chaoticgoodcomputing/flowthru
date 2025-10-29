@@ -1,4 +1,3 @@
-using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
@@ -35,91 +34,93 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// separation of concerns and reusable export pipelines.
 /// </para>
 /// </remarks>
-public class VisualizeCrossValidationNode : NodeBase<CrossValidationResults, GenericChart> {
-  protected override Task<GenericChart> Transform(CrossValidationResults input) {
-    var results = input;
+public static class VisualizeCrossValidationNode {
+  public static Func<CrossValidationResults, Task<GenericChart>> Create(ILogger? logger = null) {
+    return async (input) => {
+      var results = input;
 
-    Logger?.LogInformation(
-        "Generating cross-validation visualization for {NumFolds} folds",
-        results.NumFolds);
+      logger?.LogInformation(
+          "Generating cross-validation visualization for {NumFolds} folds",
+          results.NumFolds);
 
-    // Extract R² scores from fold metrics
-    var r2Scores = results.FoldMetrics.Select(f => f.R2Score).ToList();
+      // Extract R² scores from fold metrics
+      var r2Scores = results.FoldMetrics.Select(f => f.R2Score).ToList();
 
-    // Calculate normal distribution curve points (10x the number of folds)
-    var curvePoints = GenerateNormalCurvePoints(
-        mean: results.MeanR2Score,
-        stdDev: results.StdDevR2Score,
-        numPoints: results.NumFolds * 10,
-        stdDevRange: 5);
+      // Calculate normal distribution curve points (10x the number of folds)
+      var curvePoints = GenerateNormalCurvePoints(
+          mean: results.MeanR2Score,
+          stdDev: results.StdDevR2Score,
+          numPoints: results.NumFolds * 10,
+          stdDevRange: 5);
 
-    Logger?.LogInformation(
-        "Generated {CurvePoints} points for normal distribution curve",
-        curvePoints.Count);
+      logger?.LogInformation(
+          "Generated {CurvePoints} points for normal distribution curve",
+          curvePoints.Count);
 
-    // Calculate Y values for scatter points (their corresponding probability density)
-    var scatterX = r2Scores.ToList();
-    var scatterY = r2Scores.Select(r2 => NormalProbabilityDensity(r2, results.MeanR2Score, results.StdDevR2Score)).ToList();
+      // Calculate Y values for scatter points (their corresponding probability density)
+      var scatterX = r2Scores.ToList();
+      var scatterY = r2Scores.Select(r2 => NormalProbabilityDensity(r2, results.MeanR2Score, results.StdDevR2Score)).ToList();
 
-    // Find max probability density for vertical line height
-    var maxProbDensity = curvePoints.Max(p => p.Y);
+      // Find max probability density for vertical line height
+      var maxProbDensity = curvePoints.Max(p => p.Y);
 
-    // Create normal distribution curve
-    var curveTrace = CSharpChart.Line<double, double, double>(
-        curvePoints.Select(p => p.X).ToList(),
-        curvePoints.Select(p => p.Y).ToList()
-    )
-    .WithTraceInfo(Name: "Normal Distribution", ShowLegend: true)
-    .WithLineStyle(Color: Color.fromKeyword(ColorKeyword.Red), Width: 2.0);
+      // Create normal distribution curve
+      var curveTrace = CSharpChart.Line<double, double, double>(
+          curvePoints.Select(p => p.X).ToList(),
+          curvePoints.Select(p => p.Y).ToList()
+      )
+      .WithTraceInfo(Name: "Normal Distribution", ShowLegend: true)
+      .WithLineStyle(Color: Color.fromKeyword(ColorKeyword.Red), Width: 2.0);
 
-    // Create scatter plot of fold R² scores positioned on the curve
-    var scatterTrace = CSharpChart.Point<double, double, double>(
-        scatterX,
-        scatterY
-    )
-    .WithTraceInfo(Name: "Fold R² Scores", ShowLegend: true)
-    .WithMarkerStyle(Size: 10, Color: Color.fromKeyword(ColorKeyword.Blue));
+      // Create scatter plot of fold R² scores positioned on the curve
+      var scatterTrace = CSharpChart.Point<double, double, double>(
+          scatterX,
+          scatterY
+      )
+      .WithTraceInfo(Name: "Fold R² Scores", ShowLegend: true)
+      .WithMarkerStyle(Size: 10, Color: Color.fromKeyword(ColorKeyword.Blue));
 
-    // Create vertical line for mean R²
-    var meanLineTrace = CreateVerticalLine(
-        xValue: results.MeanR2Score,
-        yMin: 0,
-        yMax: maxProbDensity * 1.1,  // 10% higher than max for visibility
-        name: $"Mean R² ({results.MeanR2Score:F4})",
-        color: ColorKeyword.Green);
+      // Create vertical line for mean R²
+      var meanLineTrace = CreateVerticalLine(
+          xValue: results.MeanR2Score,
+          yMin: 0,
+          yMax: maxProbDensity * 1.1,  // 10% higher than max for visibility
+          name: $"Mean R² ({results.MeanR2Score:F4})",
+          color: ColorKeyword.Green);
 
-    // Create vertical line for Kedro reference R²
-    var kedroLineTrace = CreateVerticalLine(
-        xValue: results.KedroR2Score,
-        yMin: 0,
-        yMax: maxProbDensity * 1.1,
-        name: $"Kedro R² ({results.KedroR2Score:F4})",
-        color: ColorKeyword.Orange);
+      // Create vertical line for Kedro reference R²
+      var kedroLineTrace = CreateVerticalLine(
+          xValue: results.KedroR2Score,
+          yMin: 0,
+          yMax: maxProbDensity * 1.1,
+          name: $"Kedro R² ({results.KedroR2Score:F4})",
+          color: ColorKeyword.Orange);
 
-    // Combine all traces into a single chart
-    var chart = Plotly.NET.Chart.Combine(new[] {
-      curveTrace,
-      scatterTrace,
-      meanLineTrace,
-      kedroLineTrace
-    })
-    .WithXAxisStyle(Title.init("R² Value"))
-    .WithYAxisStyle(Title.init("Probability Density"))
-    .WithTitle($"Cross-Validation Results (n={results.NumFolds} folds)")
-    .WithLegend(true);
+      // Combine all traces into a single chart
+      var chart = Plotly.NET.Chart.Combine(new[] {
+        curveTrace,
+        scatterTrace,
+        meanLineTrace,
+        kedroLineTrace
+      })
+      .WithXAxisStyle(Title.init("R² Value"))
+      .WithYAxisStyle(Title.init("Probability Density"))
+      .WithTitle($"Cross-Validation Results (n={results.NumFolds} folds)")
+      .WithLegend(true);
 
-    Logger?.LogInformation(
-        "Generated cross-validation visualization with mean R²={MeanR2:F4}, Kedro R²={KedroR2:F4}",
-        results.MeanR2Score,
-        results.KedroR2Score);
+      logger?.LogInformation(
+          "Generated cross-validation visualization with mean R²={MeanR2:F4}, Kedro R²={KedroR2:F4}",
+          results.MeanR2Score,
+          results.KedroR2Score);
 
-    return Task.FromResult(chart);
+      return chart;
+    };
   }
 
   /// <summary>
   /// Generates points for a normal distribution curve
   /// </summary>
-  private List<(double X, double Y)> GenerateNormalCurvePoints(
+  private static List<(double X, double Y)> GenerateNormalCurvePoints(
       double mean,
       double stdDev,
       int numPoints,
@@ -143,7 +144,7 @@ public class VisualizeCrossValidationNode : NodeBase<CrossValidationResults, Gen
   /// <summary>
   /// Calculates the probability density function for a normal distribution
   /// </summary>
-  private double NormalProbabilityDensity(double x, double mean, double stdDev) {
+  private static double NormalProbabilityDensity(double x, double mean, double stdDev) {
     var coefficient = 1.0 / (stdDev * Math.Sqrt(2 * Math.PI));
     var exponent = -Math.Pow(x - mean, 2) / (2 * Math.Pow(stdDev, 2));
     return coefficient * Math.Exp(exponent);
@@ -152,7 +153,7 @@ public class VisualizeCrossValidationNode : NodeBase<CrossValidationResults, Gen
   /// <summary>
   /// Creates a vertical line trace for reference values
   /// </summary>
-  private GenericChart CreateVerticalLine(
+  private static GenericChart CreateVerticalLine(
       double xValue,
       double yMin,
       double yMax,

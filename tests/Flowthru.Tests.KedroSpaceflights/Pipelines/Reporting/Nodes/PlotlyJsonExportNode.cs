@@ -1,4 +1,3 @@
-using Flowthru.Nodes;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 
@@ -25,16 +24,18 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// (bar, scatter, heatmap, etc.) since it operates on the base GenericChart type.
 /// </para>
 /// </remarks>
-public class PlotlyJsonExportNode : NodeBase<GenericChart, string> {
-  protected override Task<string> Transform(GenericChart input) {
-    // Serialize to Plotly JSON using GenericChart.toJson()
-    // This produces a JSON specification compatible with plotly.js
-    var plotlyJson = GenericChart.toJson(input);
+public static class PlotlyJsonExportNode {
+  public static Func<GenericChart, Task<string>> Create(ILogger? logger = null) {
+    return async (input) => {
+      // Serialize to Plotly JSON using GenericChart.toJson()
+      // This produces a JSON specification compatible with plotly.js
+      var plotlyJson = GenericChart.toJson(input);
 
-    Logger?.LogInformation(
-        "Exported chart to JSON ({Length} characters)",
-        plotlyJson.Length);
+      logger?.LogInformation(
+          "Exported chart to JSON ({Length} characters)",
+          plotlyJson.Length);
 
-    return Task.FromResult(plotlyJson);
+      return plotlyJson;
+    };
   }
 }

@@ -1,4 +1,3 @@
-using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 
@@ -7,19 +6,20 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// <summary>
 /// Preprocesses raw company data by converting string values to proper types.
 /// Converts percentage strings to decimals and "t"/"f" to booleans.
-/// 
-/// Stateless node with implicit parameterless constructor,
-/// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessCompaniesNode : NodeBase<IEnumerable<CompanyRawSchema>, IEnumerable<CompanySchema>> {
-  protected override Task<IEnumerable<CompanySchema>> Transform(
-      IEnumerable<CompanyRawSchema> input) {
-    var processed = input
-        .Select(c => Parse(c))
-        .Where(c => c != null)
-        .Cast<CompanySchema>();
+public static class PreprocessCompaniesNode {
+  /// <summary>
+  /// Creates a transformation function that preprocesses company data.
+  /// </summary>
+  public static Func<IEnumerable<CompanyRawSchema>, Task<IEnumerable<CompanySchema>>> Create() {
+    return async (input) => {
+      var processed = input
+          .Select(c => Parse(c))
+          .Where(c => c != null)
+          .Cast<CompanySchema>();
 
-    return Task.FromResult(processed);
+      return await Task.FromResult(processed);
+    };
   }
 
   /// <summary>

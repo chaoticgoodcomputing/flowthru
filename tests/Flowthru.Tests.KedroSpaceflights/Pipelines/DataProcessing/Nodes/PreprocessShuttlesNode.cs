@@ -1,4 +1,3 @@
-using Flowthru.Nodes;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 
@@ -7,19 +6,20 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// <summary>
 /// Preprocesses raw shuttle data by converting string values to proper types.
 /// Converts price strings ($1,234,567) to decimals and "t"/"f" to booleans.
-/// 
-/// Stateless node with implicit parameterless constructor,
-/// compatible with type reference instantiation for distributed/parallel execution.
 /// </summary>
-public class PreprocessShuttlesNode : NodeBase<IEnumerable<ShuttleRawSchema>, IEnumerable<ShuttleSchema>> {
-  protected override Task<IEnumerable<ShuttleSchema>> Transform(
-      IEnumerable<ShuttleRawSchema> input) {
-    var processed = input
-        .Select(s => TryParse(s))
-        .Where(s => s != null)
-        .Cast<ShuttleSchema>();
+public static class PreprocessShuttlesNode {
+  /// <summary>
+  /// Creates a transformation function that preprocesses shuttle data.
+  /// </summary>
+  public static Func<IEnumerable<ShuttleRawSchema>, Task<IEnumerable<ShuttleSchema>>> Create() {
+    return async (input) => {
+      var processed = input
+          .Select(s => TryParse(s))
+          .Where(s => s != null)
+          .Cast<ShuttleSchema>();
 
-    return Task.FromResult(processed);
+      return await Task.FromResult(processed);
+    };
   }
 
   /// <summary>
