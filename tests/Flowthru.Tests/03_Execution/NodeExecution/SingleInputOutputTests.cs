@@ -19,7 +19,7 @@ public class SingleInputOutputTests {
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
     var testData = new[] { new TestData { Id = 1, Name = "Test", Value = 42.0 } };
-    await catalog.Input.Save(testData).Run();
+    await catalog.Input.Save(testData).RunAsync();
 
     var pipeline = PipelineBuilder.CreatePipeline(builder => {
       builder.AddNode<PassthroughNode>(catalog.Input, catalog.Output);
@@ -35,7 +35,7 @@ public class SingleInputOutputTests {
     // ===========
     // Assert
     // ===========
-    var resultFin = await catalog.Output.Load().Run();
+    var resultFin = await catalog.Output.Load().RunAsync();
     var result = resultFin.Match(
         Succ: data => data.ToList(),
         Fail: error => throw new Exception($"Load failed: {error}")
@@ -53,7 +53,7 @@ public class SingleInputOutputTests {
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
     var testData = new[] { new TestData { Id = 5, Name = "Test", Value = 10.0 } };
-    await catalog.Input.Save(testData).Run();
+    await catalog.Input.Save(testData).RunAsync();
 
     var pipeline = PipelineBuilder.CreatePipeline(builder => {
       builder.AddNode<IncrementNode>(catalog.Input, catalog.Output);
@@ -69,7 +69,7 @@ public class SingleInputOutputTests {
     // ===========
     // Assert
     // ===========
-    var resultFin = await catalog.Output.Load().Run();
+    var resultFin = await catalog.Output.Load().RunAsync();
     var result = resultFin.Match(
         Succ: data => data.ToList(),
         Fail: error => throw new Exception($"Load failed: {error}")
@@ -87,7 +87,7 @@ public class SingleInputOutputTests {
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
     var testData = new[] { new TestData { Id = 1, Name = "Test", Value = 21.0 } };
-    await catalog.Input.Save(testData).Run();
+    await catalog.Input.Save(testData).RunAsync();
 
     var pipeline = PipelineBuilder.CreatePipeline(builder => {
       builder.AddNode<DoubleValueNode>(catalog.Input, catalog.Output);
@@ -103,7 +103,7 @@ public class SingleInputOutputTests {
     // ===========
     // Assert
     // ===========
-    var resultFin = await catalog.Output.Load().Run();
+    var resultFin = await catalog.Output.Load().RunAsync();
     var result = resultFin.Match(
         Succ: data => data.ToList(),
         Fail: error => throw new Exception($"Load failed: {error}")
@@ -118,7 +118,7 @@ public class SingleInputOutputTests {
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
     var testData = new[] { new TestData { Id = 1, Name = "Test", Value = 1.0 } };
-    await catalog.Input.Save(testData).Run();
+    await catalog.Input.Save(testData).RunAsync();
 
     var pipeline = PipelineBuilder.CreatePipeline(builder => {
       builder.AddNode<FailingNode>(catalog.Input, catalog.Output);

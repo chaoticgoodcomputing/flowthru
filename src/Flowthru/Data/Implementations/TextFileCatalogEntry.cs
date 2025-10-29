@@ -61,8 +61,8 @@ namespace Flowthru.Data.Implementations;
 ///         Encoding.Latin1));
 /// 
 /// // Usage in node
-/// var reportContent = await catalog.OutputReport.Load().Run();
-/// await catalog.OutputReport.Save("# Report\n\nGenerated content...").Run();
+/// var reportContent = await catalog.OutputReport.Load().RunAsync();
+/// await catalog.OutputReport.Save("# Report\n\nGenerated content...").RunAsync();
 /// </code>
 /// </example>
 public class TextFileCatalogEntry : CatalogEntryBase<string>,
@@ -111,8 +111,8 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   public Encoding Encoding => _encoding;
 
   /// <inheritdoc/>
-  public override Aff<string> Load() {
-    return Aff(async () => {
+  public override IO<string> Load() {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         throw new FileNotFoundException(
             $"File not found for catalog entry '{Key}'", _filePath);
@@ -131,8 +131,8 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   }
 
   /// <inheritdoc/>
-  public override Aff<Unit> Save(string data) {
-    return Aff(async () => {
+  public override IO<Unit> Save(string data) {
+    return IO.liftAsync(async () => {
       if (data == null) {
         throw new ArgumentNullException(nameof(data),
             $"Cannot save null data to catalog entry '{Key}'");
@@ -150,13 +150,13 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   }
 
   /// <inheritdoc/>
-  public override Aff<bool> Exists() {
-    return Aff(async () => File.Exists(_filePath));
+  public override IO<bool> Exists() {
+    return IO.liftAsync(async () => File.Exists(_filePath));
   }
 
   /// <inheritdoc/>
-  public override Aff<ValidationResult> InspectShallow(int sampleSize = 100) {
-    return Aff(async () => {
+  public override IO<ValidationResult> InspectShallow(int sampleSize = 100) {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         return new ValidationResult(new[] {
           new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}")
@@ -188,8 +188,8 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   }
 
   /// <inheritdoc/>
-  public override Aff<ValidationResult> InspectDeep() {
-    return Aff(async () => {
+  public override IO<ValidationResult> InspectDeep() {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         return new ValidationResult(new[] {
           new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}")

@@ -84,8 +84,8 @@ public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>,
   public string SheetName => _sheetName;
 
   /// <inheritdoc/>
-  public override Aff<IEnumerable<T>> Load() {
-    return Aff(async () => {
+  public override IO<IEnumerable<T>> Load() {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         throw new FileNotFoundException(
             $"Excel file not found for catalog entry '{Key}'", _filePath);
@@ -115,15 +115,15 @@ public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>,
 
   /// <inheritdoc/>
   /// <exception cref="NotSupportedException">Always thrown - Excel files are read-only</exception>
-  public override Aff<Unit> Save(IEnumerable<T> data) {
-    return Aff<Unit>(() => throw new NotSupportedException(
+  public override IO<Unit> Save(IEnumerable<T> data) {
+    return IO.lift(() => throw new NotSupportedException(
         $"Cannot save to Excel catalog entry '{Key}'. " +
         "Excel entries are read-only. Use CsvCatalogEntry or ParquetCatalogEntry for writable datasets."));
   }
 
   /// <inheritdoc/>
-  public override Aff<bool> Exists() {
-    return Aff(async () => File.Exists(_filePath));
+  public override IO<bool> Exists() {
+    return IO.liftAsync(async () => File.Exists(_filePath));
   }
 
   private List<T> ConvertDataTableToRecords(DataTable table) {
@@ -195,8 +195,8 @@ public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>,
   /// <summary>
   /// Performs shallow inspection of the Excel file (validates structure and sample rows).
   /// </summary>
-  public override Aff<ValidationResult> InspectShallow(int sampleSize = 100) {
-    return Aff(async () => {
+  public override IO<ValidationResult> InspectShallow(int sampleSize = 100) {
+    return IO.liftAsync(async () => {
       try {
         // 1. Check file existence
         if (!File.Exists(_filePath)) {
@@ -288,8 +288,8 @@ public class ExcelCatalogEntry<T> : CatalogEntryBase<IEnumerable<T>>,
   /// <summary>
   /// Performs deep inspection of the Excel file (validates all rows).
   /// </summary>
-  public override Aff<ValidationResult> InspectDeep() {
-    return Aff(async () => {
+  public override IO<ValidationResult> InspectDeep() {
+    return IO.liftAsync(async () => {
       try {
         // Load and validate ALL rows
         using var stream = File.Open(_filePath, FileMode.Open, FileAccess.Read);

@@ -40,7 +40,7 @@ public static class CompilationTestHelper {
       references.Add(MetadataReference.CreateFromFile(typeof(CompilationTestHelper).Assembly.Location));
       
       // Add LanguageExt for Flowthru dependencies
-      references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.Aff<>).Assembly.Location));
+      references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.IO<>).Assembly.Location));
     }
 
     var compilation = CSharpCompilation.Create(

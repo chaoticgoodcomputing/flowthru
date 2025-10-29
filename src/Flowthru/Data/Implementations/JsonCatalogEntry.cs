@@ -32,8 +32,8 @@ public class JsonCatalogEntry<T> : CatalogEntryBase<T> {
     _options = options ?? throw new ArgumentNullException(nameof(options));
   }
 
-  public override Aff<T> Load() {
-    return Aff(async () => {
+  public override IO<T> Load() {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         throw new FileNotFoundException(
             $"JSON file not found for catalog entry '{Key}'", _filePath);
@@ -46,8 +46,8 @@ public class JsonCatalogEntry<T> : CatalogEntryBase<T> {
     });
   }
 
-  public override Aff<Unit> Save(T data) {
-    return Aff(async () => {
+  public override IO<Unit> Save(T data) {
+    return IO.liftAsync(async () => {
       var directory = Path.GetDirectoryName(_filePath);
       if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
         Directory.CreateDirectory(directory);
@@ -59,7 +59,7 @@ public class JsonCatalogEntry<T> : CatalogEntryBase<T> {
     });
   }
 
-  public override Aff<bool> Exists() {
-    return Aff(async () => File.Exists(_filePath));
+  public override IO<bool> Exists() {
+    return IO.liftAsync(async () => File.Exists(_filePath));
   }
 }

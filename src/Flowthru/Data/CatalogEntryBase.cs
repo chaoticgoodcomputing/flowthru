@@ -51,30 +51,30 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>, IShallowInspectabl
   /// Load data from storage.
   /// Subclasses must implement this method.
   /// </summary>
-  public abstract Aff<T> Load();
+  public abstract IO<T> Load();
 
   /// <summary>
   /// Save data to storage.
   /// Subclasses must implement this method.
   /// </summary>
-  public abstract Aff<Unit> Save(T data);
+  public abstract IO<Unit> Save(T data);
 
   /// <summary>
   /// Check if data exists.
   /// Subclasses must implement this method.
   /// </summary>
-  public abstract Aff<bool> Exists();
+  public abstract IO<bool> Exists();
 
   /// <inheritdoc/>
-  public virtual Aff<int> GetCountAsync() =>
+  public virtual IO<int> GetCountAsync() =>
     from exists in Exists()
-    from count in exists ? CalculateCount() : SuccessAff(0)
+    from count in exists ? CalculateCount() : IO.pure(0)
     select count;
 
   /// <summary>
   /// Calculates the count based on whether T is a collection or singleton.
   /// </summary>
-  private Aff<int> CalculateCount() {
+  private IO<int> CalculateCount() {
     var type = typeof(T);
 
     // Check if T is IEnumerable (but not string, which also implements IEnumerable)
@@ -88,7 +88,7 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>, IShallowInspectabl
       });
     } else {
       // T is a singleton type
-      return SuccessAff(1);
+      return IO.pure(1);
     }
   }
 
@@ -106,11 +106,11 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>, IShallowInspectabl
   }
 
   /// <inheritdoc/>
-  public virtual Aff<object> LoadUntyped() =>
+  public virtual IO<object> LoadUntyped() =>
     Load().Map(data => (object)data!);
 
   /// <inheritdoc/>
-  public virtual Aff<Unit> SaveUntyped(object data) {
+  public virtual IO<Unit> SaveUntyped(object data) {
     // Try direct cast first
     if (data is T typedData) {
       return Save(typedData);
@@ -138,20 +138,20 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>, IShallowInspectabl
     }
 
     // Type mismatch - fail with descriptive error
-    return FailAff<Unit>(new Exception(
+    return IO.fail<Unit>(new Exception(
       $"Cannot save data of type '{data?.GetType().Name ?? "null"}' " +
       $"to catalog entry '{Key}' expecting type '{typeof(T).Name}'"));
   }
 
   /// <inheritdoc/>
-  public virtual Aff<ValidationResult> InspectShallow(int sampleSize = 100) =>
+  public virtual IO<ValidationResult> InspectShallow(int sampleSize = 100) =>
     from exists in Exists()
     from result in !exists
-      ? SuccessAff(ValidationResult.Failure(Key, ValidationErrorType.NotFound, "Data source does not exist"))
+      ? IO.pure(ValidationResult.Failure(Key, ValidationErrorType.NotFound, "Data source does not exist"))
       : PerformShallowInspection(sampleSize)
     select result;
 
-  private Aff<ValidationResult> PerformShallowInspection(int sampleSize) {
+  private IO<ValidationResult> PerformShallowInspection(int sampleSize) {
     var type = typeof(T);
 
     if (IsCollectionType(type)) {
@@ -173,14 +173,14 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>, IShallowInspectabl
   }
 
   /// <inheritdoc/>
-  public virtual Aff<ValidationResult> InspectDeep() =>
+  public virtual IO<ValidationResult> InspectDeep() =>
     from shallow in InspectShallow(100)
     from result in shallow.HasErrors
-      ? SuccessAff(shallow)
+      ? IO.pure(shallow)
       : PerformDeepInspection()
     select result;
 
-  private Aff<ValidationResult> PerformDeepInspection() {
+  private IO<ValidationResult> PerformDeepInspection() {
     var type = typeof(T);
 
     if (IsCollectionType(type)) {
@@ -198,7 +198,7 @@ public abstract class CatalogEntryBase<T> : ICatalogEntry<T>, IShallowInspectabl
       });
     } else {
       // For singletons, already validated in shallow
-      return SuccessAff(ValidationResult.Success());
+      return IO.pure(ValidationResult.Success());
     }
   }
 

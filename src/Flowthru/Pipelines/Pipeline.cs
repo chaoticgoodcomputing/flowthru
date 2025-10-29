@@ -386,13 +386,9 @@ public class Pipeline {
     var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
     var result = method!.Invoke(catalogEntry, new object[] { 10 })!;
 
-    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
-    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> aff) {
-      var fin = await aff.Run();
-      return fin.Match(
-        Succ: validationResult => validationResult,
-        Fail: error => throw new InvalidOperationException($"Shallow inspection failed: {error}")
-      );
+    // Handle both IO<ValidationResult> and Task<ValidationResult> return types
+    if (result is LanguageExt.IO<Data.Validation.ValidationResult> io) {
+      return await io.RunAsync();
     } else if (result is Task<Data.Validation.ValidationResult> task) {
       return await task;
     } else {
@@ -410,13 +406,9 @@ public class Pipeline {
     var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
     var result = method!.Invoke(catalogEntry, System.Array.Empty<object>())!;
 
-    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
-    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> aff) {
-      var fin = await aff.Run();
-      return fin.Match(
-        Succ: validationResult => validationResult,
-        Fail: error => throw new InvalidOperationException($"Deep inspection failed: {error}")
-      );
+    // Handle both IO<ValidationResult> and Task<ValidationResult> return types
+    if (result is LanguageExt.IO<Data.Validation.ValidationResult> io) {
+      return await io.RunAsync();
     } else if (result is Task<Data.Validation.ValidationResult> task) {
       return await task;
     } else {
@@ -537,9 +529,9 @@ public class Pipeline {
     try {
       // Get input counts for diagnostics (before loading data)
       var inputCountAffs = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
-      var inputCountTasks = inputCountAffs.Select(aff => aff.Run().AsTask());
+      var inputCountTasks = inputCountAffs.Select(aff => aff.RunAsync().AsTask());
       var inputCountResults = await Task.WhenAll(inputCountTasks);
-      var inputCounts = inputCountResults.Select(fin => fin.ThrowIfFail()).ToArray();
+      var inputCounts = inputCountResults;
       var totalInputCount = inputCounts.Sum();
 
       Logger?.LogInformation(
@@ -551,9 +543,9 @@ public class Pipeline {
       // Load inputs from catalog entries
       // LoadUntyped() returns T directly (singleton or collection), no wrapping needed
       var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
-      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
+      var inputLoadTasks = inputAffs.Select(aff => aff.RunAsync().AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
-      var inputs = inputResults.Select(fin => fin.ThrowIfFail()).ToArray();
+      var inputs = inputResults;
 
       // Invoke node transformation via reflection
       var nodeType = pipelineNode.NodeInstance.GetType();
@@ -614,8 +606,7 @@ public class Pipeline {
         if (pipelineNode.Outputs.Count == 1) {
           // Single output: save directly
           var catalogEntry = pipelineNode.Outputs[0];
-          var saveResult = await catalogEntry.SaveUntyped(output).Run().AsTask();
-          saveResult.ThrowIfFail();
+          await catalogEntry.SaveUntyped(output).RunAsync();
         } else {
           // Multi-output: deconstruct tuple
           var tupleType = output.GetType();
@@ -637,8 +628,7 @@ public class Pipeline {
             var field = tupleFields[i];
             var outputData = field.GetValue(output);
 
-            var saveResult = await catalogEntry.SaveUntyped(outputData!).Run().AsTask();
-            saveResult.ThrowIfFail();
+            await catalogEntry.SaveUntyped(outputData!).RunAsync();
           }
         }
       }
@@ -647,9 +637,9 @@ public class Pipeline {
 
       // Get output counts for diagnostics (after saving data)
       var outputCountAffs = pipelineNode.Outputs.Select(entry => entry.GetCountAsync());
-      var outputCountTasks = outputCountAffs.Select(aff => aff.Run().AsTask());
+      var outputCountTasks = outputCountAffs.Select(aff => aff.RunAsync().AsTask());
       var outputCountResults = await Task.WhenAll(outputCountTasks);
-      var outputCounts = outputCountResults.Select(fin => fin.ThrowIfFail()).ToArray();
+      var outputCounts = outputCountResults;
       var totalOutputCount = outputCounts.Sum();
 
       Logger?.LogInformation(
@@ -682,9 +672,9 @@ public class Pipeline {
     try {
       // Load inputs from catalog entries
       var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
-      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
+      var inputLoadTasks = inputAffs.Select(aff => aff.RunAsync().AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
-      var inputs = inputResults.Select(fin => fin.ThrowIfFail()).ToArray();
+      var inputs = inputResults;
 
       // TODO: Invoke node transformation
       // This requires either:

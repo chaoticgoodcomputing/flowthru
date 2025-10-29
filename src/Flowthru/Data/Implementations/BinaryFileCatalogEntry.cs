@@ -106,8 +106,8 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   public BinaryFileType? ExpectedFileType => _expectedFileType;
 
   /// <inheritdoc/>
-  public override Aff<byte[]> Load() {
-    return Aff(async () => {
+  public override IO<byte[]> Load() {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         throw new FileNotFoundException(
             $"File not found for catalog entry '{Key}'", _filePath);
@@ -124,8 +124,8 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   }
 
   /// <inheritdoc/>
-  public override Aff<Unit> Save(byte[] data) {
-    return Aff(async () => {
+  public override IO<Unit> Save(byte[] data) {
+    return IO.liftAsync(async () => {
       if (data == null) {
         throw new ArgumentNullException(nameof(data),
             $"Cannot save null data to catalog entry '{Key}'");
@@ -143,13 +143,13 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   }
 
   /// <inheritdoc/>
-  public override Aff<bool> Exists() {
-    return Aff(async () => File.Exists(_filePath));
+  public override IO<bool> Exists() {
+    return IO.liftAsync(async () => File.Exists(_filePath));
   }
 
   /// <inheritdoc/>
-  public override Aff<ValidationResult> InspectShallow(int sampleSize = 100) {
-    return Aff(async () => {
+  public override IO<ValidationResult> InspectShallow(int sampleSize = 100) {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         return new ValidationResult(new[] {
           new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}")
@@ -197,8 +197,8 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   }
 
   /// <inheritdoc/>
-  public override Aff<ValidationResult> InspectDeep() {
-    return Aff(async () => {
+  public override IO<ValidationResult> InspectDeep() {
+    return IO.liftAsync(async () => {
       try {
         // Read entire file to validate no I/O errors
         var content = await File.ReadAllBytesAsync(_filePath);

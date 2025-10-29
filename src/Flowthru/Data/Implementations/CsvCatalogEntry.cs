@@ -80,8 +80,8 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
   public CsvConfiguration Configuration => _configuration;
 
   /// <inheritdoc/>
-  public override Aff<T> Load() {
-    return Aff(async () => {
+  public override IO<T> Load() {
+    return IO.liftAsync(async () => {
       if (!File.Exists(_filePath)) {
         throw new FileNotFoundException(
             $"CSV file not found for catalog entry '{Key}'", _filePath);
@@ -129,8 +129,8 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override Aff<Unit> Save(T data) {
-    return Aff(async () => {
+  public override IO<Unit> Save(T data) {
+    return IO.liftAsync(async () => {
       // Ensure directory exists
       var directory = Path.GetDirectoryName(_filePath);
       if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
@@ -160,8 +160,8 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override Aff<bool> Exists() {
-    return Aff(async () => File.Exists(_filePath));
+  public override IO<bool> Exists() {
+    return IO.liftAsync(async () => File.Exists(_filePath));
   }
 
   private static bool IsCollectionType(Type type) {

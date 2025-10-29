@@ -40,7 +40,7 @@ public interface IShallowInspectable<T> {
   /// Performs shallow inspection of this catalog entry.
   /// Returns an effect that can fail.
   /// </summary>
-  Aff<ValidationResult> InspectShallow(int sampleSize = 100);
+  IO<ValidationResult> InspectShallow(int sampleSize = 100);
 }
 
 /// <summary>
@@ -104,5 +104,5 @@ public interface IDeepInspectable<T> {
   /// <item>Report multiple errors (don't fail on first error)</item>
   /// </list>
   /// </remarks>
-  Aff<ValidationResult> InspectDeep();
+  IO<ValidationResult> InspectDeep();
 }

@@ -42,16 +42,16 @@ public class NullCatalogEntry<T> : CatalogEntryBase<T> {
   /// <summary>
   /// Always returns false - null entries don't persist data.
   /// </summary>
-  public override Aff<bool> Exists() => SuccessAff(false);
+  public override IO<bool> Exists() => IO.pure(false);
 
   /// <summary>
   /// Returns an empty result immediately without performing any I/O.
   /// </summary>
   /// <returns>Effect that returns default(T) immediately</returns>
-  public override Aff<T> Load() {
+  public override IO<T> Load() {
     // For NullCatalogEntry, return default value
     if (typeof(T) == typeof(Nodes.NoData)) {
-      return SuccessAff((T)(object)Nodes.NoData.Value);
+      return IO.pure((T)(object)Nodes.NoData.Value);
     }
 
     // For collection types, return empty Seq
@@ -62,11 +62,11 @@ public class NullCatalogEntry<T> : CatalogEntryBase<T> {
         .GetMethod("empty", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)!
         .MakeGenericMethod(elementType);
       var emptySeq = emptyMethod.Invoke(null, null);
-      return SuccessAff((T)emptySeq!);
+      return IO.pure((T)emptySeq!);
     }
 
     // Default: return default(T)
-    return SuccessAff(default(T)!);
+    return IO.pure(default(T)!);
   }
 
   /// <summary>
@@ -74,8 +74,8 @@ public class NullCatalogEntry<T> : CatalogEntryBase<T> {
   /// </summary>
   /// <param name="data">Data to discard</param>
   /// <returns>Effect that completes immediately</returns>
-  public override Aff<Unit> Save(T data) {
+  public override IO<Unit> Save(T data) {
     // NullCatalogEntry discards all data
-    return SuccessAff(unit);
+    return IO.pure(unit);
   }
 }

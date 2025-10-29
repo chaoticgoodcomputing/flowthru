@@ -21,7 +21,7 @@ public class ParquetCatalogEntry<T> : CatalogEntryBase<T>
 
   public string FilePath => _filePath;
 
-  public override Aff<T> Load() => Aff(async () => {
+  public override IO<T> Load() => IO.liftAsync(async () => {
     if (!File.Exists(_filePath)) {
       throw new FileNotFoundException(
           $"Parquet file not found for catalog entry '{Key}'", _filePath);
@@ -71,7 +71,7 @@ public class ParquetCatalogEntry<T> : CatalogEntryBase<T>
     return (T)records;
   });
 
-  public override Aff<Unit> Save(T data) => Aff(async () => {
+  public override IO<Unit> Save(T data) => IO.liftAsync(async () => {
     var directory = Path.GetDirectoryName(_filePath);
     if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
       Directory.CreateDirectory(directory);
@@ -99,7 +99,7 @@ public class ParquetCatalogEntry<T> : CatalogEntryBase<T>
     return unit;
   });
 
-  public override Aff<bool> Exists() {
-    return Aff(async () => File.Exists(_filePath));
+  public override IO<bool> Exists() {
+    return IO.pure(File.Exists(_filePath));
   }
 }

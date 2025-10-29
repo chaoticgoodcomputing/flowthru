@@ -35,27 +35,27 @@ public interface ICatalogEntry {
   /// Returns an effect that can fail.
   /// The returned type matches the DataType property.
   /// </summary>
-  Aff<object> LoadUntyped();
+  IO<object> LoadUntyped();
 
   /// <summary>
   /// Saves untyped data to the catalog entry.
   /// Returns an effect that can fail.
   /// The data type must be compatible with the DataType property.
   /// </summary>
-  Aff<Unit> SaveUntyped(object data);
+  IO<Unit> SaveUntyped(object data);
 
   /// <summary>
   /// Checks if data exists at this catalog entry location.
   /// Returns an effect that can fail.
   /// </summary>
-  Aff<bool> Exists();
+  IO<bool> Exists();
 
   /// <summary>
   /// Gets the count of items in this catalog entry.
   /// For collections (IEnumerable&lt;T&gt;), returns the enumerable count.
   /// For singletons, returns 1 if exists, 0 otherwise.
   /// </summary>
-  Aff<int> GetCountAsync();
+  IO<int> GetCountAsync();
 }
 
 /// <summary>
@@ -90,13 +90,13 @@ public interface ICatalogEntry<T> : ICatalogEntry {
   /// Load data as an effect (can fail, is async, can be cancelled).
   /// Returns T directly, which may itself be an IEnumerable or Seq.
   /// </summary>
-  Aff<T> Load();
+  IO<T> Load();
 
   /// <summary>
   /// Save data as an effect.
   /// Accepts T directly, which may itself be an IEnumerable or Seq.
   /// </summary>
-  Aff<Unit> Save(T data);
+  IO<Unit> Save(T data);
 }
 
 /// <summary>
@@ -108,7 +108,7 @@ public interface IReadableCatalogEntry<T> : ICatalogEntry {
   /// <summary>
   /// Load data as an effect.
   /// </summary>
-  Aff<T> Load();
+  IO<T> Load();
 }
 
 /// <summary>
@@ -120,5 +120,5 @@ public interface IWritableCatalogEntry<T> : ICatalogEntry {
   /// <summary>
   /// Save data as an effect.
   /// </summary>
-  Aff<Unit> Save(T data);
+  IO<Unit> Save(T data);
 }

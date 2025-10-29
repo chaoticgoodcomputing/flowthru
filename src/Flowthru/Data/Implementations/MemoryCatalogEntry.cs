@@ -38,13 +38,13 @@ namespace Flowthru.Data.Implementations;
 /// <code>
 /// // Singleton usage
 /// var modelEntry = new MemoryCatalogEntry&lt;LinearRegressionModel&gt;("model");
-/// await modelEntry.Save(model).Run();
-/// var loadedModel = await modelEntry.Load().Run();
+/// await modelEntry.Save(model).RunAsync();
+/// var loadedModel = await modelEntry.Load().RunAsync();
 /// 
 /// // Collection usage
 /// var dataEntry = new MemoryCatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt;("features");
-/// await dataEntry.Save(features.ToSeq()).Run();
-/// var loadedFeatures = await dataEntry.Load().Run();
+/// await dataEntry.Save(features.ToSeq()).RunAsync();
+/// var loadedFeatures = await dataEntry.Load().RunAsync();
 /// </code>
 /// </example>
 public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
@@ -60,8 +60,8 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override Aff<T> Load() {
-    return Aff(async () => {
+  public override IO<T> Load() {
+    return IO.liftAsync(async () => {
       lock (_lock) {
         if (!_hasData) {
           throw new InvalidOperationException(
@@ -73,8 +73,8 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override Aff<Unit> Save(T data) {
-    return Aff(async () => {
+  public override IO<Unit> Save(T data) {
+    return IO.liftAsync(async () => {
       lock (_lock) {
         _data = data;
         _hasData = true;
@@ -84,8 +84,8 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override Aff<bool> Exists() {
-    return Aff(async () => {
+  public override IO<bool> Exists() {
+    return IO.liftAsync(async () => {
       lock (_lock) {
         return _hasData;
       }
