@@ -8,16 +8,6 @@ using Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation.Nodes;
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation;
 
 /// <summary>
-/// Parameters for the data evaluation pipeline.
-/// </summary>
-public class DataEvaluationPipelineParams {
-  /// <summary>
-  /// Options for cross-validation.
-  /// </summary>
-  public CrossValidationParams CrossValidationParams { get; init; } = new();
-}
-
-/// <summary>
 /// Data validation pipeline that performs diagnostic and validation operations on pipeline outputs.
 /// 
 /// <para>
@@ -40,7 +30,18 @@ public class DataEvaluationPipelineParams {
 /// </para>
 /// </summary>
 public static class DataEvaluationPipeline {
-  public static Pipeline Create(SpaceflightsCatalog catalog, DataEvaluationPipelineParams parameters) {
+
+  /// <summary>
+  /// Parameters for the data evaluation pipeline.
+  /// </summary>
+  public class Params {
+    /// <summary>
+    /// Options for cross-validation.
+    /// </summary>
+    public CrossValidateModelNode.Params CrossValidationParams { get; init; } = new();
+  }
+
+  public static Pipeline Create(SpaceflightsCatalog catalog, Params parameters) {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
       // Node 1: Evaluate OLS model (multi-input → multi-output)

@@ -82,16 +82,16 @@ internal class PipelineNode {
   /// Creates a new pipeline node with a transformation function.
   /// </summary>
   /// <param name="name">Unique identifier for this node</param>
-  /// <param name="transformFunction">The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)</param>
+  /// <param name="node">The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)</param>
   /// <param name="inputs">Catalog entries this node reads</param>
   /// <param name="outputs">Catalog entries this node writes</param>
   public PipelineNode(
     string name,
-    Delegate transformFunction,
+    Delegate node,
     IReadOnlyList<ICatalogEntry> inputs,
     IReadOnlyList<ICatalogEntry> outputs) {
     Name = name;
-    TransformFunction = transformFunction;
+    TransformFunction = node;
     Inputs = inputs;
     Outputs = outputs;
   }

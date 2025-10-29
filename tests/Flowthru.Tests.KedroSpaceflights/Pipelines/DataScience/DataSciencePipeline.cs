@@ -7,16 +7,6 @@ using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
 
 /// <summary>
-/// Parameters for the data science pipeline nodes.
-/// </summary>
-public record DataSciencePipelineParams {
-  /// <summary>
-  /// Options for model training.
-  /// </summary>
-  public ModelParams ModelParams { get; init; } = new();
-}
-
-/// <summary>
 /// Data science pipeline that splits data, trains model, and evaluates performance.
 /// 
 /// <para><strong>Compile-Time Type Safety:</strong></para>
@@ -42,7 +32,18 @@ public record DataSciencePipelineParams {
 /// </para>
 /// </summary>
 public static class DataSciencePipeline {
-  public static Pipeline Create(SpaceflightsCatalog catalog, DataSciencePipelineParams parameters) {
+
+  /// <summary>
+  /// Parameters for the data science pipeline nodes.
+  /// </summary>
+  public record Params {
+    /// <summary>
+    /// Options for model training.
+    /// </summary>
+    public CreateTestTrainSplitNode.TestTrainSplitParams ModelParams { get; init; } = new();
+  }
+
+  public static Pipeline Create(SpaceflightsCatalog catalog, Params parameters) {
     return PipelineBuilder.CreatePipeline(pipeline => {
 
       // Node 1: Split data into train/test sets (single input → multi-output)

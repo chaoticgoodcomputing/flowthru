@@ -8,6 +8,23 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// Extracts features and target variable (price) for ML training.
 /// </summary>
 public static class CreateTestTrainSplitNode {
+
+  // Following FlowThru's artifact colocation policy:
+  /// Parameters for data science pipeline model training.
+  /// Configures train/test split and feature selection.
+  /// </summary>
+  public record TestTrainSplitParams {
+    /// <summary>
+    /// Proportion of data to use for testing (e.g., 0.2 for 20%)
+    /// </summary>
+    public double TestSize { get; init; } = 0.2;
+
+    /// <summary>
+    /// Random seed for reproducible splits
+    /// </summary>
+    public int RandomState { get; init; } = 3;
+  }
+
   /// <summary>
   /// Creates a transformation function that splits data into train/test sets.
   /// </summary>
@@ -17,8 +34,8 @@ public static class CreateTestTrainSplitNode {
       Task<(IEnumerable<FeatureRow> XTrain,
             IEnumerable<FeatureRow> XTest,
             IEnumerable<TargetValue> YTrain,
-            IEnumerable<TargetValue> YTest)>> Create(ModelParams? parameters = null) {
-    var config = parameters ?? new ModelParams();
+            IEnumerable<TargetValue> YTest)>> Create(TestTrainSplitParams? parameters = null) {
+    var config = parameters ?? new TestTrainSplitParams();
 
     return async (input) => {
       var data = input.ToList();
@@ -66,23 +83,3 @@ public static class CreateTestTrainSplitNode {
     };
   }
 }
-
-#region Node Artifacts (Colocated)
-
-// Following FlowThru's artifact colocation policy:
-/// Parameters for data science pipeline model training.
-/// Configures train/test split and feature selection.
-/// </summary>
-public record ModelParams {
-  /// <summary>
-  /// Proportion of data to use for testing (e.g., 0.2 for 20%)
-  /// </summary>
-  public double TestSize { get; init; } = 0.2;
-
-  /// <summary>
-  /// Random seed for reproducible splits
-  /// </summary>
-  public int RandomState { get; init; } = 3;
-}
-
-#endregion

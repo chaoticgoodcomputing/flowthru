@@ -134,7 +134,7 @@ public class Pipeline {
         // Create a new node with prefixed name
         var prefixedNode = new PipelineNode(
           name: $"{pipelineName}.{node.Name}",
-          transformFunction: node.TransformFunction,
+          node: node.TransformFunction,
           inputs: node.Inputs,
           outputs: node.Outputs
         );

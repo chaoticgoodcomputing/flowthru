@@ -87,7 +87,7 @@ public class PipelineBuilder {
   ) {
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output }
     );
@@ -109,7 +109,7 @@ public class PipelineBuilder {
 
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input1, input2 },
       outputs: new List<ICatalogEntry> { output }
     );
@@ -131,7 +131,7 @@ public class PipelineBuilder {
 
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input1, input2, input3 },
       outputs: new List<ICatalogEntry> { output }
     );
@@ -153,7 +153,7 @@ public class PipelineBuilder {
 
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input1, input2, input3, input4 },
       outputs: new List<ICatalogEntry> { output }
     );
@@ -175,7 +175,7 @@ public class PipelineBuilder {
 
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output1, output2 }
     );
@@ -197,7 +197,7 @@ public class PipelineBuilder {
 
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output1, output2, output3 }
     );
@@ -219,7 +219,7 @@ public class PipelineBuilder {
 
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output1, output2, output3, output4 }
     );
@@ -242,7 +242,7 @@ public class PipelineBuilder {
 
     var pipelineNode = new PipelineNode(
       name: name,
-      transformFunction: transform,
+      node: transform,
       inputs: new List<ICatalogEntry> { input1, input2, input3 },
       outputs: new List<ICatalogEntry> { output1, output2 }
     );

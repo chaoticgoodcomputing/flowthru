@@ -31,7 +31,7 @@ public class Program {
         .WithDescription("Preprocesses raw data and creates model input table");
 
       builder
-        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataSciencePipelineParams>(
+        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataSciencePipeline.Params>(
           label: "DataScience",
           creator: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
@@ -46,7 +46,7 @@ public class Program {
         .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
 
       builder
-        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataEvaluationPipelineParams>(
+        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataEvaluationPipeline.Params>(
           label: "DataEvaluation",
           creator: DataEvaluationPipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataEvaluation"
