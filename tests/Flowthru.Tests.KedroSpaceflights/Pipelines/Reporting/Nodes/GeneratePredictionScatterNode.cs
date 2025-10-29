@@ -32,9 +32,9 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// </para>
 /// </remarks>
 public static class GeneratePredictionScatterNode {
-    public static Func<(IEnumerable<ModelMetrics> Metrics, IEnumerable<ModelPredictions> Predictions), Task<GenericChart>> Create(ILogger? logger = null) {
+    public static Func<(ModelMetrics Metrics, IEnumerable<ModelPredictions> Predictions), Task<GenericChart>> Create(ILogger? logger = null) {
         return async (input) => {
-            var metrics = input.Metrics.First();
+            var metrics = input.Metrics;
             var predictions = input.Predictions.ToList();
 
             logger?.LogInformation(

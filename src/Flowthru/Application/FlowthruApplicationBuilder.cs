@@ -157,7 +157,7 @@ public class FlowthruApplicationBuilder {
   /// </summary>
   /// <typeparam name="TCatalog">The catalog type</typeparam>
   /// <param name="label">Unique pipeline name</param>
-  /// <param name="creator">Factory function that creates the pipeline from catalog</param>
+  /// <param name="pipeline">Factory function that creates the pipeline from catalog</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
   /// Use this for inline pipeline registration without a separate registry class.
@@ -165,10 +165,10 @@ public class FlowthruApplicationBuilder {
   /// </remarks>
   public FlowthruApplicationBuilder RegisterPipeline<TCatalog>(
     string label,
-    Func<TCatalog, Pipelines.Pipeline> creator)
+    Func<TCatalog, Pipelines.Pipeline> pipeline)
     where TCatalog : DataCatalogBase {
     _inlineRegistrations.Add(registrar =>
-      registrar.Register(label, catalog => creator((TCatalog)catalog)));
+      registrar.Register(label, catalog => pipeline((TCatalog)catalog)));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
     _pipelinesConfiguredExplicitly = true;
     return this;
@@ -180,7 +180,7 @@ public class FlowthruApplicationBuilder {
   /// <typeparam name="TCatalog">The catalog type</typeparam>
   /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
   /// <param name="label">Unique pipeline name</param>
-  /// <param name="creator">Factory function that creates the pipeline from catalog and parameters</param>
+  /// <param name="pipeline">Factory function that creates the pipeline from catalog and parameters</param>
   /// <param name="parameters">Parameter instance to pass to the pipeline</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
@@ -189,11 +189,11 @@ public class FlowthruApplicationBuilder {
   /// </remarks>
   public FlowthruApplicationBuilder RegisterPipeline<TCatalog, TParams>(
     string label,
-    Func<TCatalog, TParams, Pipelines.Pipeline> creator,
+    Func<TCatalog, TParams, Pipelines.Pipeline> pipeline,
     TParams parameters)
     where TCatalog : DataCatalogBase {
     _inlineRegistrations.Add(registrar =>
-      registrar.Register(label, (catalog, p) => creator((TCatalog)catalog, (TParams)p), parameters));
+      registrar.Register(label, (catalog, p) => pipeline((TCatalog)catalog, (TParams)p), parameters));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
     _pipelinesConfiguredExplicitly = true;
     return this;
@@ -205,7 +205,7 @@ public class FlowthruApplicationBuilder {
   /// <typeparam name="TCatalog">The catalog type</typeparam>
   /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
   /// <param name="label">Unique pipeline name</param>
-  /// <param name="creator">Factory function that creates the pipeline from catalog and parameters</param>
+  /// <param name="pipeline">Factory function that creates the pipeline from catalog and parameters</param>
   /// <param name="configurationSection">Configuration section path (e.g., "DataScience" or "DataScience:ModelParams")</param>
   /// <returns>This builder for method chaining</returns>
   /// <exception cref="InvalidOperationException">Thrown if UseConfiguration() hasn't been called first</exception>
@@ -223,14 +223,14 @@ public class FlowthruApplicationBuilder {
   ///   .UseConfiguration()
   ///   .RegisterPipelineWithConfiguration&lt;MyCatalog, ModelParams&gt;(
   ///     label: "data_science",
-  ///     creator: DataSciencePipeline.Create,
+  ///     pipeline: DataSciencePipeline.Create,
   ///     configurationSection: "DataScience:ModelParams"
   ///   );
   /// </code>
   /// </remarks>
   public FlowthruApplicationBuilder RegisterPipelineWithConfiguration<TCatalog, TParams>(
     string label,
-    Func<TCatalog, TParams, Pipelines.Pipeline> creator,
+    Func<TCatalog, TParams, Pipelines.Pipeline> pipeline,
     string configurationSection)
     where TCatalog : DataCatalogBase
     where TParams : class, new() {
@@ -244,7 +244,7 @@ public class FlowthruApplicationBuilder {
     var parameters = _configuration.GetValidated<TParams>(configurationSection);
 
     _inlineRegistrations.Add(registrar =>
-      registrar.Register(label, (catalog, p) => creator((TCatalog)catalog, (TParams)p), parameters));
+      registrar.Register(label, (catalog, p) => pipeline((TCatalog)catalog, (TParams)p), parameters));
     _pipelineRegistryType = null; // Clear registry type if using inline registration
     _pipelinesConfiguredExplicitly = true;
     return this;

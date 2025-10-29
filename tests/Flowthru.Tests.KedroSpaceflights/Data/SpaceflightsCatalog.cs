@@ -27,7 +27,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data;
 /// <item>01_Raw: Raw input data from external sources</item>
 /// <item>02_Intermediate: Preprocessed/cleaned data</item>
 /// <item>03_TrainingData: Primary model inputs</item>
-/// <item>06_Models: Trained ML models</item>
+/// <item>04_Models: Trained ML models</item>
 /// <item>06_Reports: Reports and metrics</item>
 /// </list>
 /// 
@@ -249,7 +249,7 @@ public class SpaceflightsCatalog : DataCatalogBase {
   public ICatalogEntry<LinearRegressionModel> Regressor => GetOrCreateEntry(()
     => new JsonCatalogEntry<LinearRegressionModel>(
       key: "Regressor",
-      filePath: $"{_basePath}/06_Models/regressor.json"));
+      filePath: $"{_basePath}/04_Models/regressor.json"));
 
   // ===========================================================
   // MARK: MODEL OUTPUTS
@@ -260,10 +260,10 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Contains R², MAE, RMSE, etc.
   /// Stored as a singleton object (pipeline produces single metrics object).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelMetrics>> ModelMetrics => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<ModelMetrics>>(
+  public ICatalogEntry<ModelMetrics> ModelMetrics => GetOrCreateEntry(()
+    => new JsonCatalogEntry<ModelMetrics>(
       key: "ModelMetrics",
-      filePath: $"{_basePath}/05_ModelOutput/model_metrics.csv"));
+      filePath: $"{_basePath}/05_ModelOutput/model_metrics.json"));
 
   public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions => GetOrCreateEntry(()
     => new CsvCatalogEntry<IEnumerable<ModelPredictions>>(

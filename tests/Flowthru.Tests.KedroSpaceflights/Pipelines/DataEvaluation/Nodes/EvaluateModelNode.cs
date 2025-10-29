@@ -18,7 +18,7 @@ public static class EvaluateModelNode {
       (LinearRegressionModel Regressor,
        IEnumerable<FeatureRow> XTest,
        IEnumerable<TargetValue> YTest),
-      Task<(IEnumerable<ModelMetrics> Metrics, IEnumerable<ModelPredictions> Predictions)>> Create(
+      Task<(ModelMetrics Metrics, IEnumerable<ModelPredictions> Predictions)>> Create(
         ILogger? logger = null) {
     return async (input) => {
       var model = input.Regressor; // Model is singleton, no unwrapping needed
@@ -65,14 +65,12 @@ public static class EvaluateModelNode {
           "Root Mean Squared Error: {RMSE:F2}",
           metrics.RootMeanSquaredError);
 
-      // Return tuple output (not wrapped in IEnumerable)
-      var metricsCollection = (IEnumerable<ModelMetrics>)new[] { metrics };
       var predictionsCollection = predictions.Select((pred, index) => new ModelPredictions {
         Actual = (double)yTestData[index].Price,
         Predicted = pred,
       });
 
-      return await Task.FromResult((Metrics: metricsCollection, Predictions: predictionsCollection));
+      return await Task.FromResult((Metrics: metrics, Predictions: predictionsCollection));
     };
   }
 }

@@ -26,14 +26,14 @@ public class Program {
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
           label: "DataProcessing",
-          creator: DataProcessingPipeline.Create
+          pipeline: DataProcessingPipeline.Create
         )
         .WithDescription("Preprocesses raw data and creates model input table");
 
       builder
         .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataSciencePipeline.Params>(
           label: "DataScience",
-          creator: DataSciencePipeline.Create,
+          pipeline: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
         )
         .WithDescription("Trains ML model");
@@ -41,14 +41,14 @@ public class Program {
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
           label: "DataDiagnostics",
-          creator: DataDiagnosticsPipeline.Create
+          pipeline: DataDiagnosticsPipeline.Create
         )
         .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
 
       builder
         .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataEvaluationPipeline.Params>(
           label: "DataEvaluation",
-          creator: DataEvaluationPipeline.Create,
+          pipeline: DataEvaluationPipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataEvaluation"
         )
         .WithDescription("Evaluates ML model performance and cross-validation");
@@ -56,7 +56,7 @@ public class Program {
       builder
         .RegisterPipeline<SpaceflightsCatalog>(
           label: "Reporting",
-          creator: ReportingPipeline.Create
+          pipeline: ReportingPipeline.Create
         )
         .WithDescription("Generates reports and visualizations");
     });
