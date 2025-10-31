@@ -1,4 +1,4 @@
-using Flowthru.Tests.Fixtures;
+using Flowthru.Tests.Common;
 using Microsoft.CodeAnalysis;
 
 namespace Flowthru.Tests.Compilation.TypeSafety;

@@ -1,0 +1,30 @@
+{
+  "name": "Flowthru.ML.Ext",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "src/Flowthru.ML.Ext",
+  "targets": {
+    "build": {
+      "executor": "@nx-dotnet/core:build",
+      "outputs": ["{workspaceRoot}/dist/src/Flowthru.ML.Ext"],
+      "options": {
+        "configuration": "Debug",
+        "noDependencies": true
+      },
+      "configurations": {
+        "production": {
+          "configuration": "Release"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx-dotnet/core:test",
+      "options": {}
+    },
+    "lint": {
+      "executor": "@nx-dotnet/core:format",
+      "options": {}
+    }
+  },
+  "tags": ["type:library", "scope:ml", "framework:mlnet", "language:csharp"]
+}
