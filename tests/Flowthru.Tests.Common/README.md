@@ -4,7 +4,7 @@ Shared test infrastructure for compilation testing across Flowthru test projects
 
 ## Overview
 
-This library provides reusable testing utilities for verifying compile-time type safety using Roslyn (Microsoft.CodeAnalysis.CSharp). It enables negative compilation tests that assert certain code patterns fail to compile, demonstrating the value of type-safe wrappers like Flowthru.ML.Ext.
+This library provides reusable testing utilities for verifying compile-time type safety using Roslyn (Microsoft.CodeAnalysis.CSharp). It enables negative compilation tests that assert certain code patterns fail to compile, demonstrating the value of type-safe wrappers like Flowthru.ML.Next.
 
 ## Purpose
 
@@ -25,7 +25,7 @@ Static class providing methods for compiling C# code snippets using Roslyn:
 // For testing Flowthru library
 var result = CompilationTestHelper.Compile(code, includeFlowthru: true);
 
-// For testing Flowthru.ML.Ext library
+// For testing Flowthru.ML.Next library
 var result = CompilationTestHelper.CompileWithMLExt(code);
 ```
 
@@ -48,8 +48,8 @@ public class CompilationResult {
 [Test]
 public void Schema_Mismatch_Should_Not_Compile() {
   var code = @"
-    using Flowthru.ML.Ext.Core.Schema;
-    using Flowthru.ML.Ext.Transform;
+    using Flowthru.ML.Next.Core.Schema;
+    using Flowthru.ML.Next.Transform;
 
     public interface ISchema1 : ISchemaDefinition { }
     public interface ISchema2 : ISchemaDefinition { }
@@ -116,7 +116,7 @@ public static CompilationResult Compile(string code, bool includeFlowthru = fals
 
 ### CompileWithMLExt() Method
 
-For testing Flowthru.ML.Ext library:
+For testing Flowthru.ML.Next library:
 
 ```csharp
 public static CompilationResult CompileWithMLExt(string code)
@@ -125,7 +125,7 @@ public static CompilationResult CompileWithMLExt(string code)
 **References Included:**
 - All basic .NET runtime assemblies
 - Microsoft.ML.dll
-- Flowthru.ML.Ext.dll
+- Flowthru.ML.Next.dll
 - LanguageExt.Core.dll (for Fin, Validation, etc.)
 
 ## Common Error Codes
@@ -145,7 +145,7 @@ public static CompilationResult CompileWithMLExt(string code)
 - **Flowthru.Tests**: Compilation tests for core Flowthru library
   - `01_Compilation/TypeSafety/CatalogPropertyCompilationTests.cs`
   
-- **Flowthru.Tests.ML.Ext.Samples**: Compilation tests for ML.Ext wrappers
+- **Flowthru.Tests.ML.Next.Samples**: Compilation tests for ML.Next wrappers
   - `Clustering_Iris/ClusteringIrisCompilationTests.cs` (7 tests)
   - `MulticlassClassification_Iris/MulticlassClassificationIrisCompilationTests.cs` (8 tests)
 
@@ -154,16 +154,16 @@ public static CompilationResult CompileWithMLExt(string code)
 - **.NET 9.0**
 - **Microsoft.CodeAnalysis.CSharp 4.12.0** - Roslyn compiler API
 - **NUnit 4.2.2** - Test framework
-- **Microsoft.ML 4.0.3** - For ML.Ext compilation tests
+- **Microsoft.ML 4.0.3** - For ML.Next compilation tests
 - **LanguageExt.Core 5.0.0-beta-54** - For monadic types
 - **Flowthru** (project reference)
-- **Flowthru.ML.Ext** (project reference)
+- **Flowthru.ML.Next** (project reference)
 
 ## Design Rationale
 
 ### Why Shared Infrastructure?
 
-Originally, `CompilationTestHelper` existed in `Flowthru.Tests/_Fixtures/`. When adding ML.Ext, we needed:
+Originally, `CompilationTestHelper` existed in `Flowthru.Tests/_Fixtures/`. When adding ML.Next, we needed:
 
 1. **Reusability**: Same Roslyn compilation pattern across multiple test projects
 2. **Maintainability**: Single source of truth for compilation testing logic
@@ -196,16 +196,16 @@ Roslyn (Microsoft.CodeAnalysis) provides:
 
 ## Example Test Suite
 
-See `Flowthru.Tests.ML.Ext.Samples` for a complete example:
+See `Flowthru.Tests.ML.Next.Samples` for a complete example:
 - 13 negative compilation tests (verifying incorrect patterns don't compile)
 - 2 positive control tests (verifying correct patterns DO compile)
-- Comprehensive coverage of ML.Ext type safety features
+- Comprehensive coverage of ML.Next type safety features
 
 ## Contributing
 
 When adding new compilation tests:
 
-1. Create test file in appropriate project (Flowthru.Tests or ML.Ext.Samples)
+1. Create test file in appropriate project (Flowthru.Tests or ML.Next.Samples)
 2. Import `Flowthru.Tests.Common` namespace
 3. Use `CompilationTestHelper.Compile()` or `.CompileWithMLExt()`
 4. Mark tests with `[Category("Compilation")]`

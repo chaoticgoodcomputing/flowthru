@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.ML" Version="4.0.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Flowthru.ML.Next\Flowthru.ML.Next.csproj" />
+    <ProjectReference Include="..\Flowthru.Tests.Common\Flowthru.Tests.Common.csproj" />
+  </ItemGroup>
+
+  <!-- Clustering_Iris data files -->
+  <ItemGroup>
+    <Content Include="Clustering_Iris\Data\iris-full.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- MulticlassClassification_Iris data files -->
+  <ItemGroup>
+    <Content Include="MulticlassClassification_Iris\Data\iris-train.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MulticlassClassification_Iris\Data\iris-test.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

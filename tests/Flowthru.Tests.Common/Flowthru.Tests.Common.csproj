@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/Flowthru/Flowthru.csproj" />
-    <ProjectReference Include="../../src/Flowthru.ML.Ext/Flowthru.ML.Ext.csproj" />
+    <ProjectReference Include="../../src/Flowthru.ML.Next/Flowthru.ML.Next.csproj" />
   </ItemGroup>
 
   <ItemGroup>
