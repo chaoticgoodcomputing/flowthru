@@ -1,6 +1,6 @@
 using ML.Next.Core.Schema;
 
-namespace ML.Next.Transform;
+namespace ML.Next.Transforms;
 
 /// <summary>
 /// Extension methods for transformer composition and pipeline building.

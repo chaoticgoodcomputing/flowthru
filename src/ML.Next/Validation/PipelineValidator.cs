@@ -2,6 +2,7 @@ using Microsoft.ML;
 using LanguageExt;
 using LanguageExt.Common;
 using ML.Next.Core.Schema;
+using ML.Next.Transforms;
 using static LanguageExt.Prelude;
 
 namespace ML.Next.Validation;
@@ -9,8 +10,7 @@ namespace ML.Next.Validation;
 /// <summary>
 /// End-to-end pipeline validation with accumulated error reporting.
 /// </summary>
-public static class PipelineValidator
-{
+public static class PipelineValidator {
   /// <summary>
   /// Validate an entire ETL pipeline by checking:
   /// - Data loading succeeds
@@ -24,16 +24,14 @@ public static class PipelineValidator
   /// <returns>Success or accumulated errors</returns>
   public static Validation<Error, DataView<TSchemaOut>> ValidatePipeline<TSchemaIn, TSchemaOut>(
       Func<Fin<DataView<TSchemaIn>>> dataLoader,
-      Transform.Transformer<TSchemaIn, TSchemaOut> transformer)
+      Transforms.Transformer<TSchemaIn, TSchemaOut> transformer)
       where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition
-  {
+      where TSchemaOut : ISchemaDefinition {
     // Attempt to load data
     var dataResult = dataLoader();
 
     return dataResult.Match(
-        Succ: data =>
-        {
+        Succ: data => {
           // Attempt to transform
           var transformResult = transformer.Transform(data);
 
@@ -54,17 +52,16 @@ public static class PipelineValidator
   /// <param name="data">Training data</param>
   /// <param name="estimator">Estimator to fit</param>
   /// <returns>Success with fitted transformer or accumulated errors</returns>
-  public static Validation<Error, Transform.Transformer<TSchemaIn, TSchemaOut>> ValidateEstimatorFit<TSchemaIn, TSchemaOut>(
+  public static Validation<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>> ValidateEstimatorFit<TSchemaIn, TSchemaOut>(
       DataView<TSchemaIn> data,
-      Transform.Estimator<TSchemaIn, TSchemaOut> estimator)
+      Transforms.Estimator<TSchemaIn, TSchemaOut> estimator)
       where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition
-  {
+      where TSchemaOut : ISchemaDefinition {
     var fitResult = estimator.Fit(data);
 
     return fitResult.Match(
-        Succ: transformer => Success<Error, Transform.Transformer<TSchemaIn, TSchemaOut>>(transformer),
-        Fail: err => Fail<Error, Transform.Transformer<TSchemaIn, TSchemaOut>>(LanguageExt.Seq.create(err))
+        Succ: transformer => Success<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>>(transformer),
+        Fail: err => Fail<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>>(LanguageExt.Seq.create(err))
     );
   }
 }

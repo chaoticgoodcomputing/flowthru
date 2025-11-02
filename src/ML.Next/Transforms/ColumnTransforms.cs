@@ -6,7 +6,7 @@ using LanguageExt.Common;
 using ML.Next.Core.Schema;
 using ML.Next.Core.Columns;
 
-namespace ML.Next.Transform;
+namespace ML.Next.Transforms;
 
 /// <summary>
 /// Type-safe column transformation operations.

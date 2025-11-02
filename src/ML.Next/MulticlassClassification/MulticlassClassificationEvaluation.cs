@@ -4,7 +4,7 @@ using Microsoft.ML.Data;
 using ML.Next.Core.Schema;
 using ML.Next.Core.Columns;
 
-namespace ML.Next.Validation;
+namespace ML.Next.MulticlassClassification;
 
 /// <summary>
 /// Type-safe multiclass classification evaluation APIs with compile-time column validation.

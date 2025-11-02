@@ -2,9 +2,9 @@ using System.Linq.Expressions;
 using Microsoft.ML;
 using ML.Next.Core.Schema;
 using ML.Next.Core.Columns;
-using ML.Next.Transform;
+using ML.Next.Transforms;
 
-namespace ML.Next.Train;
+namespace ML.Next.Clustering.Trainers;
 
 /// <summary>
 /// Type-safe clustering trainers with compile-time column validation.

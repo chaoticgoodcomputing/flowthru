@@ -3,7 +3,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using ML.Next.Core.Schema;
 
-namespace ML.Next.Transform;
+namespace ML.Next.Transforms;
 
 /// <summary>
 /// Type-safe transformer that tracks input and output schemas at compile-time.

@@ -5,10 +5,11 @@ using NUnit.Framework;
 using ML.Next.Tests.Samples.Samples.Clustering_Iris.Schemas;
 using ML.Next.Tests.Samples.Shared;
 using ML.Next.Core.Schema;
-using ML.Next.Extract;
-using ML.Next.Transform;
-using ML.Next.Load;
-using ML.Next.Train;
+using ML.Next.Data;
+using ML.Next.Transforms;
+using ML.Next.Model;
+using ML.Next.Clustering;
+using ML.Next.Clustering.Trainers;
 using static ML.Next.Tests.Samples.Samples.Clustering_Iris.Schemas.IrisClusteringSchemas;
 
 namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Parity;

@@ -1,7 +1,7 @@
 using LanguageExt;
 using ML.Next.Core.Schema;
 
-namespace ML.Next.Transform;
+namespace ML.Next.Transforms;
 
 /// <summary>
 /// Fluent builder for constructing transformation pipelines with compile-time schema tracking.

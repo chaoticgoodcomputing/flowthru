@@ -4,7 +4,7 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using ML.Next.Core.Schema;
 
-namespace ML.Next.Extract;
+namespace ML.Next.Data;
 
 /// <summary>
 /// Type-safe data loader with compile-time schema validation.

@@ -2,16 +2,16 @@ using Microsoft.ML;
 using LanguageExt;
 using LanguageExt.Common;
 using ML.Next.Core.Schema;
+using ML.Next.Transforms;
 using static LanguageExt.Prelude;
 
-namespace ML.Next.Load;
+namespace ML.Next.Model;
 
 /// <summary>
 /// Type-safe model persistence with schema metadata tracking.
 /// Ensures models can only be loaded if their schema matches the expected type.
 /// </summary>
-public static class ModelPersistence
-{
+public static class ModelPersistence {
   /// <summary>
   /// Save a trained model to disk with schema metadata.
   /// </summary>
@@ -24,23 +24,19 @@ public static class ModelPersistence
   /// <returns>Success or error</returns>
   public static Fin<Unit> SaveModel<TSchemaIn, TSchemaOut>(
       MLContext context,
-      Transform.Transformer<TSchemaIn, TSchemaOut> transformer,
+      Transforms.Transformer<TSchemaIn, TSchemaOut> transformer,
       DataView<TSchemaIn> trainingData,
       string filePath)
       where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition
-  {
-    try
-    {
+      where TSchemaOut : ISchemaDefinition {
+    try {
       context.Model.Save(
           transformer.Underlying,
           trainingData.Underlying.Schema,
           filePath);
 
       return Fin<Unit>.Succ(unit);
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       return Fin<Unit>.Fail(Error.New($"Failed to save model: {ex.Message}", ex));
     }
   }
@@ -54,26 +50,22 @@ public static class ModelPersistence
   /// <param name="context">MLContext</param>
   /// <param name="filePath">Path to the saved model</param>
   /// <returns>Loaded transformer or error</returns>
-  public static Fin<Transform.Transformer<TSchemaIn, TSchemaOut>> LoadModel<TSchemaIn, TSchemaOut>(
+  public static Fin<Transforms.Transformer<TSchemaIn, TSchemaOut>> LoadModel<TSchemaIn, TSchemaOut>(
       MLContext context,
       string filePath)
       where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition
-  {
-    try
-    {
+      where TSchemaOut : ISchemaDefinition {
+    try {
       var loadedTransformer = context.Model.Load(filePath, out var modelSchema);
 
       // Note: Runtime schema validation could be added here by comparing
       // modelSchema against expected TSchemaIn/TSchemaOut metadata.
       // For now, we trust the type parameters as compile-time documentation.
 
-      return Fin<Transform.Transformer<TSchemaIn, TSchemaOut>>.Succ(
-          Transform.Transformer<TSchemaIn, TSchemaOut>.From(loadedTransformer));
-    }
-    catch (Exception ex)
-    {
-      return Fin<Transform.Transformer<TSchemaIn, TSchemaOut>>.Fail(
+      return Fin<Transforms.Transformer<TSchemaIn, TSchemaOut>>.Succ(
+          Transforms.Transformer<TSchemaIn, TSchemaOut>.From(loadedTransformer));
+    } catch (Exception ex) {
+      return Fin<Transforms.Transformer<TSchemaIn, TSchemaOut>>.Fail(
           Error.New($"Failed to load model: {ex.Message}", ex));
     }
   }

@@ -4,7 +4,7 @@ using Microsoft.ML.Data;
 using ML.Next.Core.Schema;
 using ML.Next.Core.Columns;
 
-namespace ML.Next.Load;
+namespace ML.Next.Clustering;
 
 /// <summary>
 /// Type-safe clustering evaluation APIs with compile-time column validation.

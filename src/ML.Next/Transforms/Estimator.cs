@@ -3,7 +3,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using ML.Next.Core.Schema;
 
-namespace ML.Next.Transform;
+namespace ML.Next.Transforms;
 
 /// <summary>
 /// Type-safe estimator that learns from data and produces a transformer.

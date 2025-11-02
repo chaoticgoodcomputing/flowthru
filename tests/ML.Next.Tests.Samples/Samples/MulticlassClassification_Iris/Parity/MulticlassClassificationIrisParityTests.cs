@@ -4,10 +4,10 @@ using NUnit.Framework;
 using ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Schemas;
 using ML.Next.Tests.Samples.Shared;
 using ML.Next.Core.Schema;
-using ML.Next.Extract;
-using ML.Next.Transform;
-using ML.Next.Train;
-using ML.Next.Validation;
+using ML.Next.Data;
+using ML.Next.Transforms;
+using ML.Next.MulticlassClassification.Trainers;
+using ML.Next.MulticlassClassification;
 using static ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Schemas.IrisClassificationSchemas;
 
 namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Parity;
