@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B36A84DF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowthru.Tests.KedroSpaceflights", "tests\Flowthru.Tests.KedroSpaceflights\Flowthru.Tests.KedroSpaceflights.csproj", "{4AC86F47-072D-4EF6-82A5-CBFD3A81D529}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowthru.ML.Next", "src\Flowthru.ML.Next\Flowthru.ML.Next.csproj", "{DF2C5A5C-8E55-4CBC-B151-0BBCCC7DD2E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ML.Next", "src\ML.Next\ML.Next.csproj", "{DF2C5A5C-8E55-4CBC-B151-0BBCCC7DD2E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowthru.Tests.ML.Next.Samples", "tests\Flowthru.Tests.ML.Next.Samples\Flowthru.Tests.ML.Next.Samples.csproj", "{5E0829B1-DBC3-4975-87FD-8DC6314AE803}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ML.Next.Tests.Samples", "tests\ML.Next.Tests.Samples\ML.Next.Tests.Samples.csproj", "{5E0829B1-DBC3-4975-87FD-8DC6314AE803}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
