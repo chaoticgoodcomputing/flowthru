@@ -59,24 +59,25 @@ namespace Flowthru.Abstractions;
 ///     public int FoundedYear { get; init; }
 ///     public bool IataApproved { get; init; }
 /// }
-/// 
+///
 /// // ✅ Compiles successfully - flat schema with flat storage
 /// catalog.Companies = CreateCsvDataset&lt;CompanySchema&gt;("companies", "companies.csv");
-/// 
+///
 /// // ❌ Nested schema - requires JSON or Parquet
 /// public record CrossValidationResults : INestedSerializable
 /// {
 ///     public List&lt;FoldMetric&gt; FoldMetrics { get; init; } = new();
 ///     public double MeanR2Score { get; init; }
 /// }
-/// 
+///
 /// // ❌ Compile error: CrossValidationResults does not implement IFlatSerializable
 /// catalog.Results = CreateCsvDataset&lt;CrossValidationResults&gt;("results", "results.csv");
-/// 
+///
 /// // ✅ Correct: Use JSON for nested data
 /// catalog.Results = CreateJsonObject&lt;CrossValidationResults&gt;("results", "results.json");
 /// </code>
 /// </example>
-public interface IFlatSerializable {
+public interface IFlatSerializable
+{
   // Marker interface - no members required
 }
