@@ -217,7 +217,7 @@ Schema mismatches are the most critical errors ML.Next prevents. These tests ver
 using Flowthru.Tests.Common;
 using Microsoft.CodeAnalysis;
 
-namespace ML.Next.Tests.Samples.YourSampleName.Errors;
+namespace ML.Next.Tests.Samples.Samples.YourSampleName.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next prevents schema mismatches in pipeline composition.
@@ -348,7 +348,7 @@ Type mismatches involve using columns of the wrong data type (e.g., treating str
 using Flowthru.Tests.Common;
 using Microsoft.CodeAnalysis;
 
-namespace ML.Next.Tests.Samples.YourSampleName.Errors;
+namespace ML.Next.Tests.Samples.Samples.YourSampleName.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next catches type mismatches.
@@ -436,7 +436,7 @@ These tests verify that required preprocessing steps aren't skipped.
 using Flowthru.Tests.Common;
 using Microsoft.CodeAnalysis;
 
-namespace ML.Next.Tests.Samples.YourSampleName.Errors;
+namespace ML.Next.Tests.Samples.Samples.YourSampleName.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next catches missing required transformations.
@@ -528,7 +528,7 @@ public class MissingTransformTests
 using Flowthru.Tests.Common;
 using Microsoft.CodeAnalysis;
 
-namespace ML.Next.Tests.Samples.YourSampleName.Errors;
+namespace ML.Next.Tests.Samples.Samples.YourSampleName.Errors;
 
 /// <summary>
 /// Tests verifying that prediction engine input/output types match the model schema.

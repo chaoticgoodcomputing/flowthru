@@ -12,8 +12,7 @@ namespace ML.Next.Core.Columns;
 /// This is the Phase 1 version that tracks only the element type.
 /// Use ColumnSpec&lt;TType, TConst&gt; for Phase 2 with dimension/cardinality tracking.
 /// </remarks>
-public readonly record struct ColumnSpec<TType> : Identifier<ColumnSpec<TType>>
-{
+public readonly record struct ColumnSpec<TType> : Identifier<ColumnSpec<TType>> {
     /// <summary>
     /// The string name of the column.
     /// </summary>
@@ -38,18 +37,6 @@ public readonly record struct ColumnSpec<TType> : Identifier<ColumnSpec<TType>>
     /// </summary>
     public static implicit operator string(ColumnSpec<TType> columnSpec) =>
         columnSpec.Value;
-
-    /// <summary>
-    /// Conversion to ColumnName for backward compatibility.
-    /// </summary>
-    public static implicit operator ColumnName<TType>(ColumnSpec<TType> columnSpec) =>
-        ColumnName<TType>.From(columnSpec.Value);
-
-    /// <summary>
-    /// Conversion from ColumnName for backward compatibility.
-    /// </summary>
-    public static implicit operator ColumnSpec<TType>(ColumnName<TType> columnName) =>
-        From(columnName.Value);
 
     /// <summary>
     /// String representation of the column specification.
@@ -86,8 +73,7 @@ public readonly record struct ColumnSpec<TType> : Identifier<ColumnSpec<TType>>
 /// </para>
 /// </remarks>
 public readonly record struct ColumnSpec<TType, TConst>
-    where TConst : Constant<long>, new()
-{
+    where TConst : Constant<long>, new() {
     private static readonly long _constantValue = new TConst().Value;
 
     /// <summary>

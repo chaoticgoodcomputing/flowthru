@@ -6,12 +6,11 @@ namespace ML.Next.Core.Columns;
 /// Represents a column definition with type and optional annotations.
 /// </summary>
 /// <typeparam name="TType">The .NET type of values in the column</typeparam>
-public readonly record struct ColumnDefinition<TType>
-{
+public readonly record struct ColumnDefinition<TType> {
   /// <summary>
   /// The column name with type information.
   /// </summary>
-  public ColumnName<TType> Name { get; init; }
+  public ColumnSpec<TType> Name { get; init; }
 
   /// <summary>
   /// The ML.NET DataViewType for this column.
@@ -27,11 +26,10 @@ public readonly record struct ColumnDefinition<TType>
   /// Creates a column definition.
   /// </summary>
   public static ColumnDefinition<TType> Create(
-      ColumnName<TType> name,
+      ColumnSpec<TType> name,
       DataViewType type,
       bool isRequired = true) =>
-      new()
-      {
+      new() {
         Name = name,
         Type = type,
         IsRequired = isRequired
