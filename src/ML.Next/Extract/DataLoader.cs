@@ -9,8 +9,7 @@ namespace ML.Next.Extract;
 /// <summary>
 /// Type-safe data loader with compile-time schema validation.
 /// </summary>
-public static class DataLoader
-{
+public static class DataLoader {
   /// <summary>
   /// Load data from enumerable with compile-time schema tracking.
   /// </summary>
@@ -25,15 +24,11 @@ public static class DataLoader
       IEnumerable<T> data,
       SchemaDefinition? schemaDefinition = null)
       where TSchema : ISchemaDefinition
-      where T : class
-  {
-    try
-    {
+      where T : class {
+    try {
       var mlView = context.Data.LoadFromEnumerable(data, schemaDefinition);
       return Fin<DataView<TSchema>>.Succ(DataView<TSchema>.From(mlView));
-    }
-    catch (Exception ex)
-    {
+    } catch (Exception ex) {
       return Fin<DataView<TSchema>>.Fail(Error.New(ex));
     }
   }
@@ -50,16 +45,46 @@ public static class DataLoader
       MLContext context,
       string path,
       TextLoader.Options? options = null)
-      where TSchema : ISchemaDefinition
-  {
-    try
-    {
+      where TSchema : ISchemaDefinition {
+    try {
       var loader = context.Data.CreateTextLoader(options ?? new TextLoader.Options());
       var mlView = loader.Load(path);
       return Fin<DataView<TSchema>>.Succ(DataView<TSchema>.From(mlView));
+    } catch (Exception ex) {
+      return Fin<DataView<TSchema>>.Fail(Error.New(ex));
     }
-    catch (Exception ex)
-    {
+  }
+
+  /// <summary>
+  /// Load data from a text file using a typed class with LoadColumn attributes and compile-time schema tracking.
+  /// </summary>
+  /// <typeparam name="TData">The data class type with LoadColumn attributes</typeparam>
+  /// <typeparam name="TSchema">The compile-time schema definition</typeparam>
+  /// <param name="context">ML.NET context</param>
+  /// <param name="path">Path to the text file</param>
+  /// <param name="hasHeader">Whether the file has a header row (default: false)</param>
+  /// <param name="separatorChar">Column separator character (default: tab)</param>
+  /// <param name="allowQuoting">Allow quoted column values (default: false)</param>
+  /// <param name="allowSparse">Allow sparse format (default: false)</param>
+  /// <returns>Validated DataView with schema tracking, or validation errors</returns>
+  public static Fin<DataView<TSchema>> LoadFromTextFile<TData, TSchema>(
+      MLContext context,
+      string path,
+      bool hasHeader = false,
+      char separatorChar = '\t',
+      bool allowQuoting = false,
+      bool allowSparse = false)
+      where TData : class
+      where TSchema : ISchemaDefinition {
+    try {
+      var mlView = context.Data.LoadFromTextFile<TData>(
+        path,
+        hasHeader: hasHeader,
+        separatorChar: separatorChar,
+        allowQuoting: allowQuoting,
+        allowSparse: allowSparse);
+      return Fin<DataView<TSchema>>.Succ(DataView<TSchema>.From(mlView));
+    } catch (Exception ex) {
       return Fin<DataView<TSchema>>.Fail(Error.New(ex));
     }
   }
@@ -101,8 +126,7 @@ public static class DataLoader
       DataView<TSchema> data,
       double testFraction = 0.2,
       int? seed = null)
-      where TSchema : ISchemaDefinition
-  {
+      where TSchema : ISchemaDefinition {
     var split = context.Data.TrainTestSplit(data.Underlying, testFraction: testFraction, seed: seed);
     return (
       DataView<TSchema>.From(split.TrainSet),
