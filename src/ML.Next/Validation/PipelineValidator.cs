@@ -1,6 +1,6 @@
-using Microsoft.ML;
 using LanguageExt;
 using LanguageExt.Common;
+using Microsoft.ML;
 using ML.Next.Core.Schema;
 using ML.Next.Transforms;
 using static LanguageExt.Prelude;
@@ -10,7 +10,8 @@ namespace ML.Next.Validation;
 /// <summary>
 /// End-to-end pipeline validation with accumulated error reporting.
 /// </summary>
-public static class PipelineValidator {
+public static class PipelineValidator
+{
   /// <summary>
   /// Validate an entire ETL pipeline by checking:
   /// - Data loading succeeds
@@ -23,24 +24,27 @@ public static class PipelineValidator {
   /// <param name="transformer">Pipeline transformer</param>
   /// <returns>Success or accumulated errors</returns>
   public static Validation<Error, DataView<TSchemaOut>> ValidatePipeline<TSchemaIn, TSchemaOut>(
-      Func<Fin<DataView<TSchemaIn>>> dataLoader,
-      Transforms.Transformer<TSchemaIn, TSchemaOut> transformer)
-      where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition {
+    Func<Fin<DataView<TSchemaIn>>> dataLoader,
+    Transforms.Transformer<TSchemaIn, TSchemaOut> transformer
+  )
+    where TSchemaIn : ISchemaDefinition
+    where TSchemaOut : ISchemaDefinition
+  {
     // Attempt to load data
     var dataResult = dataLoader();
 
     return dataResult.Match(
-        Succ: data => {
-          // Attempt to transform
-          var transformResult = transformer.Transform(data);
+      Succ: data =>
+      {
+        // Attempt to transform
+        var transformResult = transformer.Transform(data);
 
-          return transformResult.Match(
-                  Succ: output => Success<Error, DataView<TSchemaOut>>(output),
-                  Fail: err => Fail<Error, DataView<TSchemaOut>>(LanguageExt.Seq.create(err))
-              );
-        },
-        Fail: err => Fail<Error, DataView<TSchemaOut>>(LanguageExt.Seq.create(err))
+        return transformResult.Match(
+          Succ: output => Success<Error, DataView<TSchemaOut>>(output),
+          Fail: err => Fail<Error, DataView<TSchemaOut>>(LanguageExt.Seq.create(err))
+        );
+      },
+      Fail: err => Fail<Error, DataView<TSchemaOut>>(LanguageExt.Seq.create(err))
     );
   }
 
@@ -52,16 +56,23 @@ public static class PipelineValidator {
   /// <param name="data">Training data</param>
   /// <param name="estimator">Estimator to fit</param>
   /// <returns>Success with fitted transformer or accumulated errors</returns>
-  public static Validation<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>> ValidateEstimatorFit<TSchemaIn, TSchemaOut>(
-      DataView<TSchemaIn> data,
-      Transforms.Estimator<TSchemaIn, TSchemaOut> estimator)
-      where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition {
+  public static Validation<
+    Error,
+    Transforms.Transformer<TSchemaIn, TSchemaOut>
+  > ValidateEstimatorFit<TSchemaIn, TSchemaOut>(
+    DataView<TSchemaIn> data,
+    Transforms.Estimator<TSchemaIn, TSchemaOut> estimator
+  )
+    where TSchemaIn : ISchemaDefinition
+    where TSchemaOut : ISchemaDefinition
+  {
     var fitResult = estimator.Fit(data);
 
     return fitResult.Match(
-        Succ: transformer => Success<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>>(transformer),
-        Fail: err => Fail<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>>(LanguageExt.Seq.create(err))
+      Succ: transformer =>
+        Success<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>>(transformer),
+      Fail: err =>
+        Fail<Error, Transforms.Transformer<TSchemaIn, TSchemaOut>>(LanguageExt.Seq.create(err))
     );
   }
 }

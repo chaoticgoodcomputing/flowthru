@@ -14,42 +14,58 @@ namespace Flowthru.Data.Implementations;
 /// For collections: Use Seq&lt;TItem&gt; or IEnumerable&lt;TItem&gt;
 /// For singletons: Use TItem directly
 /// </typeparam>
-public class JsonCatalogEntry<T> : CatalogEntryBase<T> {
+public class JsonCatalogEntry<T> : CatalogEntryBase<T>
+{
   private readonly string _filePath;
   private readonly JsonSerializerOptions _options;
 
   public JsonCatalogEntry(string key, string filePath, bool minified = false)
-      : this(key, filePath, new JsonSerializerOptions {
+    : this(
+      key,
+      filePath,
+      new JsonSerializerOptions
+      {
         WriteIndented = !minified,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-      }) {
-  }
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+      }
+    ) { }
 
   public JsonCatalogEntry(string key, string filePath, JsonSerializerOptions options)
-      : base(key) {
+    : base(key)
+  {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
     _options = options ?? throw new ArgumentNullException(nameof(options));
   }
 
-  public override IO<T> Load() {
-    return IO.liftAsync(async () => {
-      if (!File.Exists(_filePath)) {
+  public override IO<T> Load()
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (!File.Exists(_filePath))
+      {
         throw new FileNotFoundException(
-            $"JSON file not found for catalog entry '{Key}'", _filePath);
+          $"JSON file not found for catalog entry '{Key}'",
+          _filePath
+        );
       }
 
       await using var stream = File.OpenRead(_filePath);
       var result = await JsonSerializer.DeserializeAsync<T>(stream, _options);
-      return result ?? throw new InvalidOperationException(
-        $"Failed to deserialize JSON from '{_filePath}' for catalog entry '{Key}'");
+      return result
+        ?? throw new InvalidOperationException(
+          $"Failed to deserialize JSON from '{_filePath}' for catalog entry '{Key}'"
+        );
     });
   }
 
-  public override IO<Unit> Save(T data) {
-    return IO.liftAsync(async () => {
+  public override IO<Unit> Save(T data)
+  {
+    return IO.liftAsync(async () =>
+    {
       var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
+      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+      {
         Directory.CreateDirectory(directory);
       }
 
@@ -59,7 +75,8 @@ public class JsonCatalogEntry<T> : CatalogEntryBase<T> {
     });
   }
 
-  public override IO<bool> Exists() {
+  public override IO<bool> Exists()
+  {
     return IO.liftAsync(async () => File.Exists(_filePath));
   }
 }

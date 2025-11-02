@@ -10,20 +10,24 @@ namespace Flowthru.Tests.Validation.GraphConstruction;
 [TestFixture]
 [Category("Validation")]
 [Category("GraphConstruction")]
-public class MultipleWritersTests {
+public class MultipleWritersTests
+{
   private SimpleThreeNodeCatalog _catalog = null!;
 
   [SetUp]
-  public void SetUp() {
+  public void SetUp()
+  {
     _catalog = new SimpleThreeNodeCatalog();
   }
 
   [Test]
-  public void Build_WhenTwoNodesWriteSameOutput_ThrowsInvalidOperationException() {
+  public void Build_WhenTwoNodesWriteSameOutput_ThrowsInvalidOperationException()
+  {
     // ===========
     // Arrange: Two nodes both write to StepOne
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeB"); // Conflict!
     });
@@ -32,16 +36,21 @@ public class MultipleWritersTests {
     // Act & Assert
     // ===========
     var ex = Assert.Throws<InvalidOperationException>(() => pipeline.Build());
-    Assert.That(ex!.Message, Does.Contain("multiple").IgnoreCase,
-        "Error message should indicate multiple writers");
+    Assert.That(
+      ex!.Message,
+      Does.Contain("multiple").IgnoreCase,
+      "Error message should indicate multiple writers"
+    );
   }
 
   [Test]
-  public void Build_WhenThreeNodesWriteSameOutput_ThrowsInvalidOperationException() {
+  public void Build_WhenThreeNodesWriteSameOutput_ThrowsInvalidOperationException()
+  {
     // ===========
     // Arrange: Three nodes all write to Output
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.Output, "NodeA");
       builder.AddNode<PassthroughNode>(_catalog.StepOne, _catalog.Output, "NodeB");
       builder.AddNode<PassthroughNode>(_catalog.StepTwo, _catalog.Output, "NodeC");
@@ -54,11 +63,13 @@ public class MultipleWritersTests {
   }
 
   [Test]
-  public void Build_WhenEachNodeWritesDifferentOutput_SucceedsWithoutError() {
+  public void Build_WhenEachNodeWritesDifferentOutput_SucceedsWithoutError()
+  {
     // ===========
     // Arrange: Each node writes to a unique output
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepTwo, "NodeB");
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.Output, "NodeC");
@@ -72,11 +83,13 @@ public class MultipleWritersTests {
   }
 
   [Test]
-  public void Build_WhenNodeReadsWhatAnotherWrites_SucceedsWithoutError() {
+  public void Build_WhenNodeReadsWhatAnotherWrites_SucceedsWithoutError()
+  {
     // ===========
     // Arrange: Linear pipeline where each node reads from previous node's output
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
       builder.AddNode<PassthroughNode>(_catalog.StepOne, _catalog.StepTwo, "NodeB");
       builder.AddNode<PassthroughNode>(_catalog.StepTwo, _catalog.Output, "NodeC");

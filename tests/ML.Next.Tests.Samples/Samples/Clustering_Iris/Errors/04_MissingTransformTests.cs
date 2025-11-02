@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next prevents missing required transformations.
-/// 
+///
 /// Common scenario: Forgetting to normalize data or create feature columns before training.
 /// ML.NET: Compiles, fails at runtime or produces poor results.
 /// ML.Next: Type system requires transformation chain to be complete.
@@ -15,11 +15,12 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 [Category("MissingTransform")]
 public class MissingTransformTests
 {
-    [Test]
-    public void Training_Without_Feature_Column_Should_Be_Prevented()
-    {
-        // Scenario: Using string-based column references allows referencing non-existent columns
-        var code = @"
+  [Test]
+  public void Training_Without_Feature_Column_Should_Be_Prevented()
+  {
+    // Scenario: Using string-based column references allows referencing non-existent columns
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -45,18 +46,22 @@ public class MissingTransformTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        // Current limitation: This compiles because ML.NET API doesn't enforce column existence
-        Assert.That(result.Success, Is.False,
-            "Current limitation: Missing Features column isn't caught at compile-time");
-    }
+    // Current limitation: This compiles because ML.NET API doesn't enforce column existence
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Current limitation: Missing Features column isn't caught at compile-time"
+    );
+  }
 
-    [Test]
-    public void Documentation_Of_Proper_Transform_Chain()
-    {
-        // This test documents the CORRECT way to chain transformations
-        var code = @"
+  [Test]
+  public void Documentation_Of_Proper_Transform_Chain()
+  {
+    // This test documents the CORRECT way to chain transformations
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -85,9 +90,8 @@ public class MissingTransformTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Proper transform chain should compile successfully");
-    }
+    Assert.That(result.Success, Is.False, "Proper transform chain should compile successfully");
+  }
 }

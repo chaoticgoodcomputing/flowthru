@@ -24,42 +24,47 @@ public static class CompilationTestHelper
 
     var references = new List<MetadataReference>
     {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-        };
+      MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+    };
 
     // Add .NET runtime references
     var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-    references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")));
-    references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Collections.dll")));
+    references.Add(
+      MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll"))
+    );
+    references.Add(
+      MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Collections.dll"))
+    );
 
     if (includeFlowthru)
     {
       // Add Flowthru assembly reference
-      references.Add(MetadataReference.CreateFromFile(typeof(Data.DataCatalogBase).Assembly.Location));
+      references.Add(
+        MetadataReference.CreateFromFile(typeof(Data.DataCatalogBase).Assembly.Location)
+      );
 
       // Add test assembly reference for test fixtures (TestCatalogs, TestNodes, etc.)
-      references.Add(MetadataReference.CreateFromFile(typeof(CompilationTestHelper).Assembly.Location));
+      references.Add(
+        MetadataReference.CreateFromFile(typeof(CompilationTestHelper).Assembly.Location)
+      );
 
       // Add LanguageExt for Flowthru dependencies
       references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.IO<>).Assembly.Location));
     }
 
     var compilation = CSharpCompilation.Create(
-        "TestAssembly",
-        new[] { syntaxTree },
-        references,
-        new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+      "TestAssembly",
+      new[] { syntaxTree },
+      references,
+      new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+    );
 
     var diagnostics = compilation.GetDiagnostics();
     var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
-    return new CompilationResult
-    {
-      Success = !errors.Any(),
-      Diagnostics = diagnostics.ToList()
-    };
+    return new CompilationResult { Success = !errors.Any(), Diagnostics = diagnostics.ToList() };
   }
 
   /// <summary>
@@ -73,31 +78,42 @@ public static class CompilationTestHelper
 
     var references = new List<MetadataReference>
     {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-        };
+      MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+    };
 
     // Add .NET runtime references
     var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-    references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")));
-    references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Collections.dll")));
+    references.Add(
+      MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll"))
+    );
+    references.Add(
+      MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Collections.dll"))
+    );
     references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Linq.dll")));
-    references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Linq.Expressions.dll")));
+    references.Add(
+      MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Linq.Expressions.dll"))
+    );
     references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "netstandard.dll")));
 
     // Add Microsoft.ML assembly references - need all the different packages
-    references.Add(MetadataReference.CreateFromFile(typeof(Microsoft.ML.IDataView).Assembly.Location));  // Microsoft.ML.DataView
-    references.Add(MetadataReference.CreateFromFile(typeof(Microsoft.ML.MLContext).Assembly.Location));  // Microsoft.ML.Core + Microsoft.ML.Data
+    references.Add(
+      MetadataReference.CreateFromFile(typeof(Microsoft.ML.IDataView).Assembly.Location)
+    ); // Microsoft.ML.DataView
+    references.Add(
+      MetadataReference.CreateFromFile(typeof(Microsoft.ML.MLContext).Assembly.Location)
+    ); // Microsoft.ML.Core + Microsoft.ML.Data
 
     // Add ML.NET trainer packages by finding them through the MLContext's clustering trainers
     var mlContextType = typeof(Microsoft.ML.MLContext);
     var mlContextAssembly = mlContextType.Assembly;
 
     // Get all loaded assemblies that are ML.NET related
-    var mlNetAssemblies = AppDomain.CurrentDomain.GetAssemblies()
-        .Where(a => a.GetName().Name?.StartsWith("Microsoft.ML") == true)
-        .ToList();
+    var mlNetAssemblies = AppDomain
+      .CurrentDomain.GetAssemblies()
+      .Where(a => a.GetName().Name?.StartsWith("Microsoft.ML") == true)
+      .ToList();
 
     foreach (var assembly in mlNetAssemblies)
     {
@@ -115,26 +131,27 @@ public static class CompilationTestHelper
     }
 
     // Add ML.Next assembly reference
-    references.Add(MetadataReference.CreateFromFile(typeof(ML.Next.Core.Schema.DataView<>).Assembly.Location));
+    references.Add(
+      MetadataReference.CreateFromFile(typeof(ML.Next.Core.Schema.DataView<>).Assembly.Location)
+    );
 
     // Add LanguageExt for ML.Next dependencies (Fin, Validation, etc.)
     references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.Fin<>).Assembly.Location));
-    references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.Common.Error).Assembly.Location));
+    references.Add(
+      MetadataReference.CreateFromFile(typeof(LanguageExt.Common.Error).Assembly.Location)
+    );
 
     var compilation = CSharpCompilation.Create(
-        "TestAssembly",
-        new[] { syntaxTree },
-        references,
-        new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+      "TestAssembly",
+      new[] { syntaxTree },
+      references,
+      new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+    );
 
     var diagnostics = compilation.GetDiagnostics();
     var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
-    return new CompilationResult
-    {
-      Success = !errors.Any(),
-      Diagnostics = diagnostics.ToList()
-    };
+    return new CompilationResult { Success = !errors.Any(), Diagnostics = diagnostics.ToList() };
   }
 }
 

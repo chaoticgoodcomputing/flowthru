@@ -35,13 +35,14 @@ public static class ColumnExpressionExtractor
   /// interface IMySchema {
   ///   ColumnSpec&lt;float&gt; Temperature { get; }
   /// }
-  /// 
+  ///
   /// Expression&lt;Func&lt;IMySchema, ColumnSpec&lt;float&gt;&gt;&gt; selector = schema => schema.Temperature;
   /// string columnName = ExtractColumnName(selector);  // Returns "Temperature"
   /// </code>
   /// </example>
   public static string ExtractColumnName<TSchema, TColumn>(
-      Expression<Func<TSchema, TColumn>> selector)
+    Expression<Func<TSchema, TColumn>> selector
+  )
   {
     // Handle direct property access
     if (selector.Body is MemberExpression memberExpr)
@@ -50,16 +51,19 @@ public static class ColumnExpressionExtractor
     }
 
     // Handle conversion expressions (e.g., float -> object)
-    if (selector.Body is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpr
-        && unaryExpr.Operand is MemberExpression convertedMemberExpr)
+    if (
+      selector.Body is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpr
+      && unaryExpr.Operand is MemberExpression convertedMemberExpr
+    )
     {
       return convertedMemberExpr.Member.Name;
     }
 
     throw new ArgumentException(
-        $"Expression must be a simple property access (e.g., 'schema => schema.PropertyName'). " +
-        $"Got: {selector.Body.NodeType}",
-        nameof(selector));
+      $"Expression must be a simple property access (e.g., 'schema => schema.PropertyName'). "
+        + $"Got: {selector.Body.NodeType}",
+      nameof(selector)
+    );
   }
 
   /// <summary>
@@ -75,7 +79,8 @@ public static class ColumnExpressionExtractor
   /// If the ColumnSpec has not been initialized with a name, it falls back to the property name.
   /// </remarks>
   public static string ExtractColumnSpecName<TSchema, TType>(
-      Expression<Func<TSchema, ColumnSpec<TType>>> selector)
+    Expression<Func<TSchema, ColumnSpec<TType>>> selector
+  )
   {
     // For ColumnSpec, we want the Value property, not the property name
     // But since ColumnSpec might be declared inline, we need to handle both cases
@@ -108,9 +113,10 @@ public static class ColumnExpressionExtractor
     }
 
     throw new ArgumentException(
-        $"Expression must be a simple property access (e.g., 'schema => schema.PropertyName'). " +
-        $"Got: {selector.Body.NodeType}",
-        nameof(selector));
+      $"Expression must be a simple property access (e.g., 'schema => schema.PropertyName'). "
+        + $"Got: {selector.Body.NodeType}",
+      nameof(selector)
+    );
   }
 
   /// <summary>
@@ -122,8 +128,9 @@ public static class ColumnExpressionExtractor
   /// <param name="selector">Expression selecting a ColumnSpec property from the schema</param>
   /// <returns>The name stored in the ColumnSpec</returns>
   public static string ExtractColumnSpecName<TSchema, TType, TConst>(
-      Expression<Func<TSchema, ColumnSpec<TType, TConst>>> selector)
-      where TConst : Constants.Constant<long>, new()
+    Expression<Func<TSchema, ColumnSpec<TType, TConst>>> selector
+  )
+    where TConst : Constants.Constant<long>, new()
   {
     if (selector.Body is MemberExpression memberExpr)
     {
@@ -153,8 +160,9 @@ public static class ColumnExpressionExtractor
     }
 
     throw new ArgumentException(
-        $"Expression must be a simple property access (e.g., 'schema => schema.PropertyName'). " +
-        $"Got: {selector.Body.NodeType}",
-        nameof(selector));
+      $"Expression must be a simple property access (e.g., 'schema => schema.PropertyName'). "
+        + $"Got: {selector.Body.NodeType}",
+      nameof(selector)
+    );
   }
 }

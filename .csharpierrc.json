@@ -3,7 +3,7 @@
   "useTabs": false,
   "tabWidth": 2,
   "endOfLine": "lf",
-  "preprocessorSymbolSets": [],
+  "preprocessorSymbolSets": [ ],
   "exclude": [
     "docs/reference/misc/external/**"
   ]

@@ -6,7 +6,7 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next prevents schema mismatches in pipeline composition.
-/// 
+///
 /// Common scenario: Engineer chains transformations where output of one stage
 /// doesn't match input of next stage.
 /// ML.NET: Compiles, fails at runtime during Fit() or Transform().
@@ -17,11 +17,12 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 [Category("SchemaMismatch")]
 public class SchemaMismatchTests
 {
-    [Test]
-    public void IncompatibleSchemaAppend_Should_Not_Compile()
-    {
-        // Scenario: Trying to append transformers with incompatible schemas
-        var code = @"
+  [Test]
+  public void IncompatibleSchemaAppend_Should_Not_Compile()
+  {
+    // Scenario: Trying to append transformers with incompatible schemas
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -61,23 +62,25 @@ public class SchemaMismatchTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Appending transformers with incompatible schemas should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Appending transformers with incompatible schemas should not compile"
+    );
 
-        var errors = result.Diagnostics
-            .Where(d => d.Severity == DiagnosticSeverity.Error)
-            .ToList();
+    var errors = result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
-        Assert.That(errors, Is.Not.Empty, "Should have compilation errors");
-    }
+    Assert.That(errors, Is.Not.Empty, "Should have compilation errors");
+  }
 
-    [Test]
-    public void SkippingRequiredTransformation_Should_Not_Compile()
-    {
-        // Scenario: Trying to use a column before creating it
-        var code = @"
+  [Test]
+  public void SkippingRequiredTransformation_Should_Not_Compile()
+  {
+    // Scenario: Trying to use a column before creating it
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -110,11 +113,14 @@ public class SchemaMismatchTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        // Note: This actually compiles because ML.NET doesn't validate at compile-time
-        // This test documents current limitation - schema inheritance doesn't enforce requirements
-        Assert.That(result.Success, Is.False,
-            "Current limitation: Schema inheritance doesn't enforce column presence at compile-time");
-    }
+    // Note: This actually compiles because ML.NET doesn't validate at compile-time
+    // This test documents current limitation - schema inheritance doesn't enforce requirements
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Current limitation: Schema inheritance doesn't enforce column presence at compile-time"
+    );
+  }
 }

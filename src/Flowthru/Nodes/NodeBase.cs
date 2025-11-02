@@ -66,7 +66,7 @@ namespace Flowthru.Nodes;
 /// <code>
 /// // Without parameters
 /// public class SimpleNode : NodeBase&lt;Input, Output&gt; { }
-/// 
+///
 /// // With parameters
 /// public class ConfigurableNode : NodeBase&lt;Input, Output, MyParameters&gt;
 /// {
@@ -97,10 +97,10 @@ namespace Flowthru.Nodes;
 /// {
 ///     // Logger injected automatically by pipeline
 ///     public ILogger? Logger { get; set; }
-///     
+///
 ///     // Parameters injected via configureNode callback
 ///     public MyParameters Parameters { get; set; } = new();
-///     
+///
 ///     // Custom service injection
 ///     public IMyService? MyService { get; set; }
 /// }
@@ -114,7 +114,8 @@ namespace Flowthru.Nodes;
 /// </para>
 /// </remarks>
 public abstract class NodeBase<TInput, TOutput, TParameters>
-  where TParameters : new() {
+  where TParameters : new()
+{
   /// <summary>
   /// Optional logger for this node.
   /// Injected via property during pipeline configuration.
@@ -137,10 +138,10 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// pipeline.AddNode&lt;MyNode&gt;(
   ///     input: inputMap,
   ///     output: outputMap,
-  ///     configure: node =&gt; node.Parameters = new MyParameters 
-  ///     { 
+  ///     configure: node =&gt; node.Parameters = new MyParameters
+  ///     {
   ///         TestSize = 0.3,
-  ///         RandomSeed = 42 
+  ///         RandomSeed = 42
   ///     }
   /// );
   /// </code>
@@ -216,7 +217,8 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// </para>
   /// </remarks>
   [EditorBrowsable(EditorBrowsableState.Never)]
-  public Task<TOutput> TestTransform(TInput input) {
+  public Task<TOutput> TestTransform(TInput input)
+  {
     return Transform(input);
   }
 
@@ -230,24 +232,28 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
   /// This method is internal and should not be called directly by user code.
   /// The pipeline executor invokes this method during pipeline execution.
   /// </remarks>
-  internal async Task<TOutput> ExecuteAsync(TInput input) {
+  internal async Task<TOutput> ExecuteAsync(TInput input)
+  {
     var nodeName = GetType().Name;
 
     Logger?.LogInformation("Starting transformation for node {NodeName}", nodeName);
 
-    try {
+    try
+    {
       var result = await Transform(input);
 
-      Logger?.LogInformation(
-          "Completed transformation for node {NodeName}",
-          nodeName);
+      Logger?.LogInformation("Completed transformation for node {NodeName}", nodeName);
 
       return result;
-    } catch (Exception ex) {
-      Logger?.LogError(ex,
-          "Error during transformation in node {NodeName}: {ErrorMessage}",
-          nodeName,
-          ex.Message);
+    }
+    catch (Exception ex)
+    {
+      Logger?.LogError(
+        ex,
+        "Error during transformation in node {NodeName}: {ErrorMessage}",
+        nodeName,
+        ex.Message
+      );
 
       throw; // Re-throw to allow pipeline executor to handle
     }
@@ -303,13 +309,14 @@ public abstract class NodeBase<TInput, TOutput, TParameters>
 ///             CompanyRating = ParsePercentage(company.CompanyRating),
 ///             // ...
 ///         });
-///         
+///
 ///         return Task.FromResult(processed);
 ///     }
 /// }
 /// </code>
 /// </remarks>
-public abstract class NodeBase<TInput, TOutput> : NodeBase<TInput, TOutput, NoParams> {
+public abstract class NodeBase<TInput, TOutput> : NodeBase<TInput, TOutput, NoParams>
+{
   // Inherits all functionality from three-parameter base class
   // Parameters property will be of type NoParams (empty marker)
 }

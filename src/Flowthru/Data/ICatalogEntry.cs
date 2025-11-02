@@ -12,7 +12,8 @@ namespace Flowthru.Data;
 /// This interface enables the pipeline to work with catalog entries
 /// without knowing their specific type parameter at compile-time.
 /// </remarks>
-public interface ICatalogEntry {
+public interface ICatalogEntry
+{
   /// <summary>
   /// Unique key identifying this catalog entry within the data catalog.
   /// </summary>
@@ -85,7 +86,8 @@ public interface ICatalogEntry {
 /// - Functional composition
 /// </para>
 /// </remarks>
-public interface ICatalogEntry<T> : ICatalogEntry {
+public interface ICatalogEntry<T> : ICatalogEntry
+{
   /// <summary>
   /// Load data as an effect (can fail, is async, can be cancelled).
   /// Returns T directly, which may itself be an IEnumerable or Seq.
@@ -104,7 +106,8 @@ public interface ICatalogEntry<T> : ICatalogEntry {
 /// For catalog entries that can only be read from (e.g., Excel files, external APIs).
 /// </summary>
 /// <typeparam name="T">The data type stored in this catalog entry</typeparam>
-public interface IReadableCatalogEntry<T> : ICatalogEntry {
+public interface IReadableCatalogEntry<T> : ICatalogEntry
+{
   /// <summary>
   /// Load data as an effect.
   /// </summary>
@@ -116,7 +119,8 @@ public interface IReadableCatalogEntry<T> : ICatalogEntry {
 /// For catalog entries that can only be written to.
 /// </summary>
 /// <typeparam name="T">The data type stored in this catalog entry</typeparam>
-public interface IWritableCatalogEntry<T> : ICatalogEntry {
+public interface IWritableCatalogEntry<T> : ICatalogEntry
+{
   /// <summary>
   /// Save data as an effect.
   /// </summary>

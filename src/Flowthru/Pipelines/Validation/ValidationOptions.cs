@@ -51,7 +51,8 @@ namespace Flowthru.Pipelines.Validation;
 /// validation is needed temporarily (e.g., performance testing, debugging).
 /// </para>
 /// </remarks>
-public class ValidationOptions {
+public class ValidationOptions
+{
   private readonly Dictionary<string, InspectionLevel> _catalogEntryInspectionLevels = new();
 
   /// <summary>
@@ -64,8 +65,10 @@ public class ValidationOptions {
   /// This configuration only applies to Layer 0 inputs (external data).
   /// Intermediate outputs are never inspected regardless of this setting.
   /// </remarks>
-  public ValidationOptions Inspect(ICatalogEntry catalogEntry, InspectionLevel level) {
-    if (catalogEntry == null) {
+  public ValidationOptions Inspect(ICatalogEntry catalogEntry, InspectionLevel level)
+  {
+    if (catalogEntry == null)
+    {
       throw new ArgumentNullException(nameof(catalogEntry));
     }
 
@@ -78,10 +81,9 @@ public class ValidationOptions {
   /// </summary>
   /// <param name="catalogKey">The catalog entry key</param>
   /// <returns>The configured inspection level, or null if using default behavior</returns>
-  internal InspectionLevel? GetInspectionLevel(string catalogKey) {
-    return _catalogEntryInspectionLevels.TryGetValue(catalogKey, out var level)
-      ? level
-      : null;
+  internal InspectionLevel? GetInspectionLevel(string catalogKey)
+  {
+    return _catalogEntryInspectionLevels.TryGetValue(catalogKey, out var level) ? level : null;
   }
 
   /// <summary>
@@ -111,28 +113,34 @@ public class ValidationOptions {
   /// (e.g., skipping validation in performance tests, or enabling deep validation during debugging).
   /// </para>
   /// </remarks>
-  internal InspectionLevel GetEffectiveInspectionLevel(ICatalogEntry catalogEntry) {
-    if (catalogEntry == null) {
+  internal InspectionLevel GetEffectiveInspectionLevel(ICatalogEntry catalogEntry)
+  {
+    if (catalogEntry == null)
+    {
       throw new ArgumentNullException(nameof(catalogEntry));
     }
 
     // 1. Check for explicit pipeline-level configuration (highest priority)
     var configuredLevel = GetInspectionLevel(catalogEntry.Key);
-    if (configuredLevel.HasValue) {
+    if (configuredLevel.HasValue)
+    {
       return configuredLevel.Value;
     }
 
     // 2. Check for catalog-level preference (medium priority)
-    if (catalogEntry.PreferredInspectionLevel.HasValue) {
+    if (catalogEntry.PreferredInspectionLevel.HasValue)
+    {
       return catalogEntry.PreferredInspectionLevel.Value;
     }
 
     // 3. Use capability-based default (lowest priority)
     var entryType = catalogEntry.GetType();
-    var implementsShallowInspectable = entryType.GetInterfaces()
+    var implementsShallowInspectable = entryType
+      .GetInterfaces()
       .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IShallowInspectable<>));
 
-    if (implementsShallowInspectable) {
+    if (implementsShallowInspectable)
+    {
       return InspectionLevel.Shallow;
     }
 

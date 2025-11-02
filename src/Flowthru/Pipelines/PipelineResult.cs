@@ -13,7 +13,7 @@ namespace Flowthru.Pipelines;
 /// </para>
 /// <code>
 /// var result = await pipeline.RunAsync();
-/// 
+///
 /// if (result.Success)
 /// {
 ///     Console.WriteLine($"Pipeline completed in {result.ExecutionTime.TotalSeconds:F2}s");
@@ -28,7 +28,8 @@ namespace Flowthru.Pipelines;
 /// }
 /// </code>
 /// </remarks>
-public class PipelineResult {
+public class PipelineResult
+{
   /// <summary>
   /// The name of the pipeline that was executed.
   /// </summary>
@@ -71,15 +72,18 @@ public class PipelineResult {
   /// Creates a successful pipeline result.
   /// </summary>
   public static PipelineResult CreateSuccess(
-      TimeSpan executionTime,
-      Dictionary<string, NodeResult> nodeResults,
-      string? pipelineName = null) {
-    return new PipelineResult {
+    TimeSpan executionTime,
+    Dictionary<string, NodeResult> nodeResults,
+    string? pipelineName = null
+  )
+  {
+    return new PipelineResult
+    {
       Success = true,
       IsDryRun = false,
       ExecutionTime = executionTime,
       NodeResults = nodeResults,
-      PipelineName = pipelineName
+      PipelineName = pipelineName,
     };
   }
 
@@ -87,17 +91,20 @@ public class PipelineResult {
   /// Creates a failed pipeline result.
   /// </summary>
   public static PipelineResult CreateFailure(
-      TimeSpan executionTime,
-      Exception exception,
-      Dictionary<string, NodeResult>? nodeResults = null,
-      string? pipelineName = null) {
-    return new PipelineResult {
+    TimeSpan executionTime,
+    Exception exception,
+    Dictionary<string, NodeResult>? nodeResults = null,
+    string? pipelineName = null
+  )
+  {
+    return new PipelineResult
+    {
       Success = false,
       IsDryRun = false,
       ExecutionTime = executionTime,
       Exception = exception,
       NodeResults = nodeResults ?? new(),
-      PipelineName = pipelineName
+      PipelineName = pipelineName,
     };
   }
 
@@ -111,17 +118,20 @@ public class PipelineResult {
   /// <param name="pipelineName">Name of the pipeline</param>
   /// <returns>A successful dry run result</returns>
   public static PipelineResult CreateDryRunSuccess(
-      TimeSpan preFlightDuration,
-      int nodeCount,
-      int layerCount,
-      int validatedInputCount,
-      string? pipelineName = null) {
-    return new PipelineResult {
+    TimeSpan preFlightDuration,
+    int nodeCount,
+    int layerCount,
+    int validatedInputCount,
+    string? pipelineName = null
+  )
+  {
+    return new PipelineResult
+    {
       Success = true,
       IsDryRun = true,
       ExecutionTime = preFlightDuration,
       NodeResults = new Dictionary<string, NodeResult>(),
-      PipelineName = pipelineName
+      PipelineName = pipelineName,
     };
   }
 }
@@ -129,7 +139,8 @@ public class PipelineResult {
 /// <summary>
 /// Represents the execution result of a single pipeline node.
 /// </summary>
-public class NodeResult {
+public class NodeResult
+{
   /// <summary>
   /// The name of the node that was executed.
   /// </summary>
@@ -176,16 +187,19 @@ public class NodeResult {
   /// Creates a successful node result.
   /// </summary>
   public static NodeResult CreateSuccess(
-      string nodeName,
-      TimeSpan executionTime,
-      int inputCount,
-      int outputCount) {
-    return new NodeResult {
+    string nodeName,
+    TimeSpan executionTime,
+    int inputCount,
+    int outputCount
+  )
+  {
+    return new NodeResult
+    {
       NodeName = nodeName,
       Success = true,
       ExecutionTime = executionTime,
       InputCount = inputCount,
-      OutputCount = outputCount
+      OutputCount = outputCount,
     };
   }
 
@@ -193,17 +207,20 @@ public class NodeResult {
   /// Creates a failed node result.
   /// </summary>
   public static NodeResult CreateFailure(
-      string nodeName,
-      TimeSpan executionTime,
-      Exception exception,
-      int inputCount = 0) {
-    return new NodeResult {
+    string nodeName,
+    TimeSpan executionTime,
+    Exception exception,
+    int inputCount = 0
+  )
+  {
+    return new NodeResult
+    {
       NodeName = nodeName,
       Success = false,
       ExecutionTime = executionTime,
       Exception = exception,
       InputCount = inputCount,
-      OutputCount = 0
+      OutputCount = 0,
     };
   }
 }

@@ -10,7 +10,8 @@ namespace Flowthru.Meta.Models;
 /// intermediate pipeline outputs, or final results. Each entry is uniquely identified
 /// by its key.
 /// </remarks>
-public class CatalogEntryMetadata {
+public class CatalogEntryMetadata
+{
   /// <summary>
   /// Unique key identifying this catalog entry.
   /// </summary>

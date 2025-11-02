@@ -12,7 +12,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data;
 
 /// <summary>
 /// Strongly-typed catalog for the Spaceflights project.
-/// 
+///
 /// <para><strong>Compile-Time Type Safety:</strong></para>
 /// <para>
 /// Each catalog entry is a strongly-typed property (ICatalogEntry&lt;T&gt;), ensuring:
@@ -21,7 +21,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data;
 /// - IntelliSense shows all available entries with their types
 /// - Refactoring tools work seamlessly (rename, find references)
 /// </para>
-/// 
+///
 /// <para><strong>Data Layering Convention (Kedro):</strong></para>
 /// <list type="bullet">
 /// <item>01_Raw: Raw input data from external sources</item>
@@ -30,7 +30,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Data;
 /// <item>04_Models: Trained ML models</item>
 /// <item>06_Reports: Reports and metrics</item>
 /// </list>
-/// 
+///
 /// <para><strong>Zero-Ceremony Construction with Reflection-Based Caching:</strong></para>
 /// <para>
 /// Inherits from DataCatalogBase which provides automatic instance caching via reflection.
@@ -41,20 +41,23 @@ namespace Flowthru.Tests.KedroSpaceflights.Data;
 /// Usage: <c>var catalog = new SpaceflightsCatalog("Data/Datasets");</c>
 /// </para>
 /// </summary>
-public class SpaceflightsCatalog : DataCatalogBase {
+public class SpaceflightsCatalog : DataCatalogBase
+{
   private readonly string _basePath;
 
   /// <summary>
   /// Initializes a new instance of SpaceflightsCatalog with the specified base path.
   /// </summary>
   /// <param name="basePath">Base path for dataset files</param>
-  public SpaceflightsCatalog(string basePath) {
+  public SpaceflightsCatalog(string basePath)
+  {
     _basePath = basePath;
 
     // Eagerly initialize all catalog entries to populate cache
     // This ensures object identity for DAG dependency resolution
     InitializeCatalogProperties();
   }
+
   // ===========================================================
   // MARK: RAW DATA
   // ===========================================================
@@ -67,11 +70,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// This is a critical Layer 0 input from an external source, configured for deep inspection
   /// to ensure data quality before pipeline execution.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<CompanyRawSchema>> Companies => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<CompanyRawSchema>>(
-      key: "RawCompanies",
-      filePath: $"{_basePath}/01_Raw/companies.csv")
-    .WithInspectionLevel(InspectionLevel.Deep));
+  public ICatalogEntry<IEnumerable<CompanyRawSchema>> Companies =>
+    GetOrCreateEntry(
+      () =>
+        new CsvCatalogEntry<IEnumerable<CompanyRawSchema>>(
+          key: "RawCompanies",
+          filePath: $"{_basePath}/01_Raw/companies.csv"
+        ).WithInspectionLevel(InspectionLevel.Deep)
+    );
 
   /// <summary>
   /// Raw review data from CSV file.
@@ -81,11 +87,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// This is a critical Layer 0 input from an external source, configured for deep inspection
   /// to ensure data quality before pipeline execution.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<ReviewRawSchema>> Reviews => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<ReviewRawSchema>>(
-      key: "RawReviews",
-      filePath: $"{_basePath}/01_Raw/reviews.csv")
-    .WithInspectionLevel(InspectionLevel.Deep));
+  public ICatalogEntry<IEnumerable<ReviewRawSchema>> Reviews =>
+    GetOrCreateEntry(
+      () =>
+        new CsvCatalogEntry<IEnumerable<ReviewRawSchema>>(
+          key: "RawReviews",
+          filePath: $"{_basePath}/01_Raw/reviews.csv"
+        ).WithInspectionLevel(InspectionLevel.Deep)
+    );
 
   /// <summary>
   /// Raw shuttle data from Excel file (read-only).
@@ -97,12 +106,15 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// This is a critical Layer 0 input from an external source, configured for deep inspection
   /// to ensure data quality before pipeline execution.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<ShuttleRawSchema>> Shuttles => GetOrCreateEntry(()
-    => new ExcelCatalogEntry<ShuttleRawSchema>(
-      key: "RawShuttles",
-      filePath: $"{_basePath}/01_Raw/shuttles.xlsx",
-      sheetName: "Sheet1")
-    .WithInspectionLevel(InspectionLevel.Deep));
+  public ICatalogEntry<IEnumerable<ShuttleRawSchema>> Shuttles =>
+    GetOrCreateEntry(
+      () =>
+        new ExcelCatalogEntry<ShuttleRawSchema>(
+          key: "RawShuttles",
+          filePath: $"{_basePath}/01_Raw/shuttles.xlsx",
+          sheetName: "Sheet1"
+        ).WithInspectionLevel(InspectionLevel.Deep)
+    );
 
   // ===========================================================
   // MARK: CLEANED DATA
@@ -112,45 +124,64 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Preprocessed company data in Parquet format.
   /// Cleaned and validated company records.
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompanies => GetOrCreateEntry(()
-    => new ParquetCatalogEntry<IEnumerable<CompanySchema>>(
-      key: "CleanedCompanies",
-      filePath: $"{_basePath}/02_Cleaned/cleaned_companies.parquet"));
+  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompanies =>
+    GetOrCreateEntry(
+      () =>
+        new ParquetCatalogEntry<IEnumerable<CompanySchema>>(
+          key: "CleanedCompanies",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_companies.parquet"
+        )
+    );
 
   /// <summary>
   /// Preprocessed shuttle data in Parquet format.
   /// Cleaned and validated shuttle records.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttles => GetOrCreateEntry(()
-    => new ParquetCatalogEntry<IEnumerable<ShuttleSchema>>(
-      key: "CleanedShuttles",
-      filePath: $"{_basePath}/02_Cleaned/cleaned_shuttles.parquet"));
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttles =>
+    GetOrCreateEntry(
+      () =>
+        new ParquetCatalogEntry<IEnumerable<ShuttleSchema>>(
+          key: "CleanedShuttles",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_shuttles.parquet"
+        )
+    );
 
   /// <summary>
   /// Preprocessed review data in Parquet format.
   /// Cleaned and validated review records with parsed numeric scores.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ReviewSchema>> CleanedReviews => GetOrCreateEntry(()
-    => new ParquetCatalogEntry<IEnumerable<ReviewSchema>>(
-      key: "CleanedReviews",
-      filePath: $"{_basePath}/02_Cleaned/cleaned_reviews.parquet"));
+  public ICatalogEntry<IEnumerable<ReviewSchema>> CleanedReviews =>
+    GetOrCreateEntry(
+      () =>
+        new ParquetCatalogEntry<IEnumerable<ReviewSchema>>(
+          key: "CleanedReviews",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_reviews.parquet"
+        )
+    );
 
   /// <summary>
   /// Preprocessed companies exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompaniesCsv => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<CompanySchema>>(
-      key: "CleanedCompaniesCsv",
-      filePath: $"{_basePath}/02_Cleaned/cleaned_companies.csv"));
+  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompaniesCsv =>
+    GetOrCreateEntry(
+      () =>
+        new CsvCatalogEntry<IEnumerable<CompanySchema>>(
+          key: "CleanedCompaniesCsv",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_companies.csv"
+        )
+    );
 
   /// <summary>
   /// Preprocessed shuttles exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttlesCsv => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<ShuttleSchema>>(
-      key: "CleanedShuttlesCsv",
-      filePath: $"{_basePath}/02_Cleaned/cleaned_shuttles.csv"));
-
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttlesCsv =>
+    GetOrCreateEntry(
+      () =>
+        new CsvCatalogEntry<IEnumerable<ShuttleSchema>>(
+          key: "CleanedShuttlesCsv",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_shuttles.csv"
+        )
+    );
 
   // ===========================================================
   // MARK: TRAINING DATA
@@ -160,27 +191,39 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Model input table in Parquet format.
   /// Joined dataset ready for ML training.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable => GetOrCreateEntry(()
-    => new ParquetCatalogEntry<IEnumerable<ModelInputSchema>>(
-      key: "ModelInputTable",
-      filePath: $"{_basePath}/03_TrainingData/model_input_table.parquet"));
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable =>
+    GetOrCreateEntry(
+      () =>
+        new ParquetCatalogEntry<IEnumerable<ModelInputSchema>>(
+          key: "ModelInputTable",
+          filePath: $"{_basePath}/03_TrainingData/model_input_table.parquet"
+        )
+    );
 
   /// <summary>
   /// Model input table exported as minified JSON (compact, production-ready format).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableJsonMinified => GetOrCreateEntry(()
-    => new JsonCatalogEntry<IEnumerable<ModelInputSchema>>(
-      key: "ModelInputTableJsonMinified",
-      filePath: $"{_basePath}/03_TrainingData/model_input_table.min.json",
-      minified: true));
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableJsonMinified =>
+    GetOrCreateEntry(
+      () =>
+        new JsonCatalogEntry<IEnumerable<ModelInputSchema>>(
+          key: "ModelInputTableJsonMinified",
+          filePath: $"{_basePath}/03_TrainingData/model_input_table.min.json",
+          minified: true
+        )
+    );
 
   /// <summary>
   /// Model input table exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<ModelInputSchema>>(
-      key: "ModelInputTableCsv",
-      filePath: $"{_basePath}/03_TrainingData/model_input_table.csv"));
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv =>
+    GetOrCreateEntry(
+      () =>
+        new CsvCatalogEntry<IEnumerable<ModelInputSchema>>(
+          key: "ModelInputTableCsv",
+          filePath: $"{_basePath}/03_TrainingData/model_input_table.csv"
+        )
+    );
 
   // ===========================================================
   // MARK: REFERENCE DATA
@@ -190,10 +233,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Reference model input table from Kedro pipeline (for validation).
   /// Used to compare Flowthru implementation against original Kedro output.
   /// </summary>
-  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<KedroModelInputSchema>>(
-      key: "KedroModelInputTable",
-      filePath: $"{_basePath}/99_Reference/kedro_model_input_table.csv"));
+  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
+    GetOrCreateEntry(
+      () =>
+        new CsvCatalogEntry<IEnumerable<KedroModelInputSchema>>(
+          key: "KedroModelInputTable",
+          filePath: $"{_basePath}/99_Reference/kedro_model_input_table.csv"
+        )
+    );
 
   // ===========================================================
   // MARK: TEST-TRAIN SPLIT
@@ -204,38 +251,44 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Feature vectors for model training.
   /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureRow>> XTrain => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<IEnumerable<FeatureRow>>(
-      key: "XTrain"));
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTrain =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<IEnumerable<FeatureRow>>(key: "XTrain"));
 
   /// <summary>
   /// Testing features (X_test).
   /// Feature vectors for model evaluation.
   /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureRow>> XTest => GetOrCreateEntry(()
-    => new ParquetCatalogEntry<IEnumerable<FeatureRow>>(
-      key: "XTest",
-      filePath: $"{_basePath}/03_TrainingData/x_test.parquet"));
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTest =>
+    GetOrCreateEntry(
+      () =>
+        new ParquetCatalogEntry<IEnumerable<FeatureRow>>(
+          key: "XTest",
+          filePath: $"{_basePath}/03_TrainingData/x_test.parquet"
+        )
+    );
 
   /// <summary>
   /// Training targets (y_train).
   /// Target prices for model training.
   /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetValue>> YTrain => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<IEnumerable<TargetValue>>(
-      key: "YTrain"));
+  public ICatalogEntry<IEnumerable<TargetValue>> YTrain =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<IEnumerable<TargetValue>>(key: "YTrain"));
 
   /// <summary>
   /// Testing targets (y_test).
   /// Target prices for model evaluation.
   /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetValue>> YTest => GetOrCreateEntry(()
-    => new ParquetCatalogEntry<IEnumerable<TargetValue>>(
-      key: "YTest",
-      filePath: $"{_basePath}/03_TrainingData/y_test.parquet"));
+  public ICatalogEntry<IEnumerable<TargetValue>> YTest =>
+    GetOrCreateEntry(
+      () =>
+        new ParquetCatalogEntry<IEnumerable<TargetValue>>(
+          key: "YTest",
+          filePath: $"{_basePath}/03_TrainingData/y_test.parquet"
+        )
+    );
 
   // ===========================================================
   // MARK: MODELS
@@ -246,10 +299,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Contains intercept and coefficients for price prediction.
   /// Stored as JSON to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
-  public ICatalogEntry<LinearRegressionModel> Regressor => GetOrCreateEntry(()
-    => new JsonCatalogEntry<LinearRegressionModel>(
-      key: "Regressor",
-      filePath: $"{_basePath}/04_Models/regressor.json"));
+  public ICatalogEntry<LinearRegressionModel> Regressor =>
+    GetOrCreateEntry(
+      () =>
+        new JsonCatalogEntry<LinearRegressionModel>(
+          key: "Regressor",
+          filePath: $"{_basePath}/04_Models/regressor.json"
+        )
+    );
 
   // ===========================================================
   // MARK: MODEL OUTPUTS
@@ -260,15 +317,23 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Contains R², MAE, RMSE, etc.
   /// Stored as a singleton object (pipeline produces single metrics object).
   /// </summary>
-  public ICatalogEntry<ModelMetrics> ModelMetrics => GetOrCreateEntry(()
-    => new JsonCatalogEntry<ModelMetrics>(
-      key: "ModelMetrics",
-      filePath: $"{_basePath}/05_ModelOutput/model_metrics.json"));
+  public ICatalogEntry<ModelMetrics> ModelMetrics =>
+    GetOrCreateEntry(
+      () =>
+        new JsonCatalogEntry<ModelMetrics>(
+          key: "ModelMetrics",
+          filePath: $"{_basePath}/05_ModelOutput/model_metrics.json"
+        )
+    );
 
-  public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions => GetOrCreateEntry(()
-    => new CsvCatalogEntry<IEnumerable<ModelPredictions>>(
-      key: "ModelPredictions",
-      filePath: $"{_basePath}/05_ModelOutput/model_predictions.csv"));
+  public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions =>
+    GetOrCreateEntry(
+      () =>
+        new CsvCatalogEntry<IEnumerable<ModelPredictions>>(
+          key: "ModelPredictions",
+          filePath: $"{_basePath}/05_ModelOutput/model_predictions.csv"
+        )
+    );
 
   // ===========================================================
   // MARK: REPORTING
@@ -280,27 +345,36 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Contains metrics for each fold, mean, std dev, and comparison to Kedro.
   /// Stored as JSON to preserve nested List&lt;FoldMetric&gt; structure.
   /// </summary>
-  public ICatalogEntry<CrossValidationResults> CrossValidationResults => GetOrCreateEntry(()
-    => new JsonCatalogEntry<CrossValidationResults>(
-      key: "CrossValidationResults",
-      filePath: $"{_basePath}/06_Reports/cross_validation_results.json"));
+  public ICatalogEntry<CrossValidationResults> CrossValidationResults =>
+    GetOrCreateEntry(
+      () =>
+        new JsonCatalogEntry<CrossValidationResults>(
+          key: "CrossValidationResults",
+          filePath: $"{_basePath}/06_Reports/cross_validation_results.json"
+        )
+    );
 
   /// <summary>
   /// Cross-validation summary report in Markdown format.
   /// Human-readable report summarizing model performance and validation results.
   /// </summary>
-  public ICatalogEntry<string> CrossValidationReport => GetOrCreateEntry(()
-    => new TextFileCatalogEntry(
-      key: "CrossValidationReport",
-      filePath: $"{_basePath}/06_Reports/cross_validation_report.md"));
+  public ICatalogEntry<string> CrossValidationReport =>
+    GetOrCreateEntry(
+      () =>
+        new TextFileCatalogEntry(
+          key: "CrossValidationReport",
+          filePath: $"{_basePath}/06_Reports/cross_validation_report.md"
+        )
+    );
 
   /// <summary>
   /// Shuttle passenger capacity bar chart (in-memory GenericChart).
   /// Intermediate chart object stored in memory for downstream export to multiple formats.
   /// </summary>
-  public ICatalogEntry<GenericChart> ShuttlePassengerCapacityChart => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<GenericChart>(
-      key: "ShuttlePassengerCapacityChart"));
+  public ICatalogEntry<GenericChart> ShuttlePassengerCapacityChart =>
+    GetOrCreateEntry(
+      () => new MemoryCatalogEntry<GenericChart>(key: "ShuttlePassengerCapacityChart")
+    );
 
   /// <summary>
   /// Shuttle passenger capacity visualization (Plotly JSON).
@@ -312,18 +386,21 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// figure specification with data traces and layout configuration. Can be rendered in browsers
   /// using plotly.js or converted to static images using Plotly.NET.ImageExport.
   /// </remarks>
-  public ICatalogEntry<string> ShuttlePassengerCapacityPlot => GetOrCreateEntry(()
-    => new TextFileCatalogEntry(
-      key: "ShuttlePassengerCapacityPlot",
-      filePath: $"{_basePath}/06_Reports/shuttle_passenger_capacity_plot.json"));
+  public ICatalogEntry<string> ShuttlePassengerCapacityPlot =>
+    GetOrCreateEntry(
+      () =>
+        new TextFileCatalogEntry(
+          key: "ShuttlePassengerCapacityPlot",
+          filePath: $"{_basePath}/06_Reports/shuttle_passenger_capacity_plot.json"
+        )
+    );
 
   /// <summary>
   /// Confusion matrix heatmap (in-memory GenericChart).
   /// Intermediate chart object stored in memory for downstream export to multiple formats.
   /// </summary>
-  public ICatalogEntry<GenericChart> ConfusionMatrixChart => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<GenericChart>(
-      key: "ConfusionMatrixChart"));
+  public ICatalogEntry<GenericChart> ConfusionMatrixChart =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<GenericChart>(key: "ConfusionMatrixChart"));
 
   /// <summary>
   /// Confusion matrix heatmap visualization (Plotly JSON).
@@ -335,10 +412,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// The heatmap displays a 2x2 confusion matrix with color-coded cells showing classification
   /// performance. JSON format allows browser-based rendering and potential conversion to PNG.
   /// </remarks>
-  public ICatalogEntry<string> ConfusionMatrixPlot => GetOrCreateEntry(()
-    => new TextFileCatalogEntry(
-      key: "ConfusionMatrixPlot",
-      filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.json"));
+  public ICatalogEntry<string> ConfusionMatrixPlot =>
+    GetOrCreateEntry(
+      () =>
+        new TextFileCatalogEntry(
+          key: "ConfusionMatrixPlot",
+          filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.json"
+        )
+    );
 
   /// <summary>
   /// Shuttle passenger capacity bar chart (PNG image).
@@ -349,11 +430,15 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Uses BinaryFileCatalogEntry to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> ShuttlePassengerCapacityPlotPng => GetOrCreateEntry(()
-    => new BinaryFileCatalogEntry(
-      key: "ShuttlePassengerCapacityPlotPng",
-      filePath: $"{_basePath}/06_Reports/shuttle_passenger_capacity_plot.png",
-      expectedFileType: BinaryFileType.Png));
+  public ICatalogEntry<byte[]> ShuttlePassengerCapacityPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        new BinaryFileCatalogEntry(
+          key: "ShuttlePassengerCapacityPlotPng",
+          filePath: $"{_basePath}/06_Reports/shuttle_passenger_capacity_plot.png",
+          expectedFileType: BinaryFileType.Png
+        )
+    );
 
   /// <summary>
   /// Confusion matrix heatmap (PNG image).
@@ -364,20 +449,23 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Uses BinaryFileCatalogEntry to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> ConfusionMatrixPlotPng => GetOrCreateEntry(()
-    => new BinaryFileCatalogEntry(
-      key: "ConfusionMatrixPlotPng",
-      filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.png",
-      expectedFileType: BinaryFileType.Png));
+  public ICatalogEntry<byte[]> ConfusionMatrixPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        new BinaryFileCatalogEntry(
+          key: "ConfusionMatrixPlotPng",
+          filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.png",
+          expectedFileType: BinaryFileType.Png
+        )
+    );
 
   /// <summary>
   /// Cross-validation visualization chart (in-memory GenericChart).
   /// Intermediate chart object showing R² distribution analysis with scatter plot,
   /// normal curve, mean line, and Kedro reference line.
   /// </summary>
-  public ICatalogEntry<GenericChart> CrossValidationChart => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<GenericChart>(
-      key: "CrossValidationChart"));
+  public ICatalogEntry<GenericChart> CrossValidationChart =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<GenericChart>(key: "CrossValidationChart"));
 
   /// <summary>
   /// Cross-validation visualization (Plotly JSON).
@@ -390,10 +478,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// <remarks>
   /// Stored as Plotly JSON specification for interactive visualization.
   /// </remarks>
-  public ICatalogEntry<string> CrossValidationPlot => GetOrCreateEntry(()
-    => new TextFileCatalogEntry(
-      key: "CrossValidationPlot",
-      filePath: $"{_basePath}/06_Reports/cross_validation_plot.json"));
+  public ICatalogEntry<string> CrossValidationPlot =>
+    GetOrCreateEntry(
+      () =>
+        new TextFileCatalogEntry(
+          key: "CrossValidationPlot",
+          filePath: $"{_basePath}/06_Reports/cross_validation_plot.json"
+        )
+    );
 
   /// <summary>
   /// Cross-validation visualization (PNG image).
@@ -404,20 +496,23 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Uses BinaryFileCatalogEntry to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> CrossValidationPlotPng => GetOrCreateEntry(()
-    => new BinaryFileCatalogEntry(
-      key: "CrossValidationPlotPng",
-      filePath: $"{_basePath}/06_Reports/cross_validation_plot.png",
-      expectedFileType: BinaryFileType.Png));
+  public ICatalogEntry<byte[]> CrossValidationPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        new BinaryFileCatalogEntry(
+          key: "CrossValidationPlotPng",
+          filePath: $"{_basePath}/06_Reports/cross_validation_plot.png",
+          expectedFileType: BinaryFileType.Png
+        )
+    );
 
   /// <summary>
   /// Prediction scatter plot chart (in-memory GenericChart).
   /// Intermediate chart object showing actual vs predicted values with color-coded dots
   /// (yellow for over-estimates, red for under-estimates) and a 1:1 identity reference line.
   /// </summary>
-  public ICatalogEntry<GenericChart> PredictionScatterChart => GetOrCreateEntry(()
-    => new MemoryCatalogEntry<GenericChart>(
-      key: "PredictionScatterChart"));
+  public ICatalogEntry<GenericChart> PredictionScatterChart =>
+    GetOrCreateEntry(() => new MemoryCatalogEntry<GenericChart>(key: "PredictionScatterChart"));
 
   /// <summary>
   /// Prediction scatter plot visualization (Plotly JSON).
@@ -430,10 +525,14 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// <remarks>
   /// Stored as Plotly JSON specification for interactive visualization.
   /// </remarks>
-  public ICatalogEntry<string> PredictionScatterPlot => GetOrCreateEntry(()
-    => new TextFileCatalogEntry(
-      key: "PredictionScatterPlot",
-      filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.json"));
+  public ICatalogEntry<string> PredictionScatterPlot =>
+    GetOrCreateEntry(
+      () =>
+        new TextFileCatalogEntry(
+          key: "PredictionScatterPlot",
+          filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.json"
+        )
+    );
 
   /// <summary>
   /// Prediction scatter plot visualization (PNG image).
@@ -444,11 +543,13 @@ public class SpaceflightsCatalog : DataCatalogBase {
   /// Uses BinaryFileCatalogEntry to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> PredictionScatterPlotPng => GetOrCreateEntry(()
-    => new BinaryFileCatalogEntry(
-      key: "PredictionScatterPlotPng",
-      filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.png",
-      expectedFileType: BinaryFileType.Png));
-
+  public ICatalogEntry<byte[]> PredictionScatterPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        new BinaryFileCatalogEntry(
+          key: "PredictionScatterPlotPng",
+          filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.png",
+          expectedFileType: BinaryFileType.Png
+        )
+    );
 }
-

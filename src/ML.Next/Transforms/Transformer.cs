@@ -1,6 +1,6 @@
-using Microsoft.ML;
 using LanguageExt;
 using LanguageExt.Common;
+using Microsoft.ML;
 using ML.Next.Core.Schema;
 
 namespace ML.Next.Transforms;
@@ -16,8 +16,8 @@ namespace ML.Next.Transforms;
 /// can only be composed when their schemas are compatible.
 /// </remarks>
 public readonly record struct Transformer<TSchemaIn, TSchemaOut>
-    where TSchemaIn : ISchemaDefinition
-    where TSchemaOut : ISchemaDefinition
+  where TSchemaIn : ISchemaDefinition
+  where TSchemaOut : ISchemaDefinition
 {
   /// <summary>
   /// The underlying ML.NET transformer.
@@ -28,7 +28,7 @@ public readonly record struct Transformer<TSchemaIn, TSchemaOut>
   /// Creates a typed transformer from an ML.NET ITransformer.
   /// </summary>
   public static Transformer<TSchemaIn, TSchemaOut> From(ITransformer transformer) =>
-      new() { Underlying = transformer };
+    new() { Underlying = transformer };
 
   /// <summary>
   /// Apply transformation with compile-time schema tracking.
@@ -69,7 +69,7 @@ public readonly record struct Transformer<TSchemaIn, TSchemaOut>
   /// Converts to an Option, None if underlying is null.
   /// </summary>
   public Option<Transformer<TSchemaIn, TSchemaOut>> ToOption() =>
-      Underlying == null
-          ? Option<Transformer<TSchemaIn, TSchemaOut>>.None
-          : Option<Transformer<TSchemaIn, TSchemaOut>>.Some(this);
+    Underlying == null
+      ? Option<Transformer<TSchemaIn, TSchemaOut>>.None
+      : Option<Transformer<TSchemaIn, TSchemaOut>>.Some(this);
 }

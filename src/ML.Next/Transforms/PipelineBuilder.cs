@@ -8,7 +8,7 @@ namespace ML.Next.Transforms;
 /// </summary>
 /// <typeparam name="TSchema">The current schema in the pipeline</typeparam>
 public class PipelineBuilder<TSchema>
-    where TSchema : ISchemaDefinition
+  where TSchema : ISchemaDefinition
 {
   private readonly DataView<TSchema> _view;
   private readonly Lst<object> _transformers = Lst<object>.Empty;
@@ -29,16 +29,19 @@ public class PipelineBuilder<TSchema>
   /// <typeparam name="TSchemaOut">The new schema after transformation</typeparam>
   /// <param name="transformer">The transformer to apply</param>
   /// <returns>A new pipeline builder with the updated schema</returns>
-  public PipelineBuilder<TSchemaOut> Then<TSchemaOut>(
-      Transformer<TSchema, TSchemaOut> transformer)
-      where TSchemaOut : ISchemaDefinition
+  public PipelineBuilder<TSchemaOut> Then<TSchemaOut>(Transformer<TSchema, TSchemaOut> transformer)
+    where TSchemaOut : ISchemaDefinition
   {
     var result = transformer.Transform(_view);
 
     return result.Match(
-        Succ: view => new PipelineBuilder<TSchemaOut>(view),
-        Fail: error => throw new InvalidOperationException(
-            $"Transformation failed: {error.Message}", error.ToException()));
+      Succ: view => new PipelineBuilder<TSchemaOut>(view),
+      Fail: error =>
+        throw new InvalidOperationException(
+          $"Transformation failed: {error.Message}",
+          error.ToException()
+        )
+    );
   }
 
   /// <summary>

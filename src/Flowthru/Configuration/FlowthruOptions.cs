@@ -9,7 +9,8 @@ namespace Flowthru.Configuration;
 /// This class represents the top-level "Flowthru" section in configuration files.
 /// All Flowthru-specific configuration should be nested under this section.
 /// </remarks>
-public class FlowthruOptions {
+public class FlowthruOptions
+{
   /// <summary>
   /// Configuration section name in appsettings.json.
   /// </summary>
@@ -39,7 +40,8 @@ public class FlowthruOptions {
 /// <summary>
 /// Configuration options for metadata collection and export.
 /// </summary>
-public class MetadataOptions {
+public class MetadataOptions
+{
   /// <summary>
   /// Whether metadata collection is enabled.
   /// </summary>
@@ -69,7 +71,8 @@ public class MetadataOptions {
 /// <summary>
 /// Configuration options for JSON metadata export.
 /// </summary>
-public class JsonMetadataOptions {
+public class JsonMetadataOptions
+{
   /// <summary>
   /// Whether to use compact (minified) JSON format.
   /// </summary>
@@ -84,7 +87,8 @@ public class JsonMetadataOptions {
 /// <summary>
 /// Configuration options for Mermaid diagram export.
 /// </summary>
-public class MermaidMetadataOptions {
+public class MermaidMetadataOptions
+{
   /// <summary>
   /// Flowchart direction (TopToBottom, LeftToRight, etc.).
   /// </summary>
@@ -104,7 +108,8 @@ public class MermaidMetadataOptions {
 /// <summary>
 /// Configuration options for data catalog construction.
 /// </summary>
-public class CatalogOptions {
+public class CatalogOptions
+{
   /// <summary>
   /// The fully-qualified type name of the catalog class (e.g., "MyApp.Data.MyCatalog").
   /// </summary>
@@ -134,7 +139,8 @@ public class CatalogOptions {
 /// <summary>
 /// Configuration options for a single pipeline.
 /// </summary>
-public class PipelineOptions {
+public class PipelineOptions
+{
   /// <summary>
   /// The fully-qualified type name of the pipeline factory class.
   /// Must have a static Create method that accepts (catalog, parameters?).
@@ -171,7 +177,8 @@ public class PipelineOptions {
 /// <summary>
 /// Configuration options for pipeline validation behavior.
 /// </summary>
-public class PipelineValidationOptions {
+public class PipelineValidationOptions
+{
   /// <summary>
   /// Default inspection level for all Layer 0 inputs.
   /// </summary>
@@ -187,7 +194,8 @@ public class PipelineValidationOptions {
 /// <summary>
 /// Logging configuration options (extends standard .NET logging).
 /// </summary>
-public class LoggingOptions {
+public class LoggingOptions
+{
   /// <summary>
   /// Minimum log level (Trace, Debug, Information, Warning, Error, Critical).
   /// </summary>

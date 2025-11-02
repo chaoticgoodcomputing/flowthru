@@ -20,7 +20,8 @@ namespace Flowthru.Meta;
 /// - Produced data (has producer) inside their producer's pipeline subgraph
 /// </para>
 /// </remarks>
-public static class MermaidMetadataExtensions {
+public static class MermaidMetadataExtensions
+{
   /// <summary>
   /// Generates a Mermaid flowchart representation of the DAG, wrapped in a code fence.
   /// </summary>
@@ -39,7 +40,7 @@ public static class MermaidMetadataExtensions {
   /// ```mermaid
   /// flowchart TB
   ///     RawCompanies[("Raw Companies")]
-  ///     
+  ///
   ///     subgraph DataProcessing["DataProcessing"]
   ///         PreprocessCompanies["Preprocess Companies"]
   ///         CleanedCompanies[("Cleaned Companies")]
@@ -49,7 +50,8 @@ public static class MermaidMetadataExtensions {
   /// ```
   /// </code>
   /// </remarks>
-  public static string ToMermaidDiagram(this DagMetadata dag, string direction = "TB") {
+  public static string ToMermaidDiagram(this DagMetadata dag, string direction = "TB")
+  {
     var sb = new StringBuilder();
 
     // Start Mermaid code fence with flowchart and specified direction
@@ -58,29 +60,26 @@ public static class MermaidMetadataExtensions {
     sb.AppendLine();
 
     // Classify catalog entries into external and produced
-    var externalEntries = dag.CatalogEntries
-      .Where(e => string.IsNullOrEmpty(e.Producer))
-      .ToList();
+    var externalEntries = dag.CatalogEntries.Where(e => string.IsNullOrEmpty(e.Producer)).ToList();
 
-    var producedEntries = dag.CatalogEntries
-      .Where(e => !string.IsNullOrEmpty(e.Producer))
-      .ToList();
+    var producedEntries = dag.CatalogEntries.Where(e => !string.IsNullOrEmpty(e.Producer)).ToList();
 
     // Define all external data inputs first (cylindrical database shape)
-    if (externalEntries.Any()) {
+    if (externalEntries.Any())
+    {
       sb.AppendLine("    %% External Data Inputs");
-      foreach (var entry in externalEntries) {
+      foreach (var entry in externalEntries)
+      {
         sb.AppendLine($"    {SanitizeId(entry.Key)}[(\"{EscapeLabel(entry.Label)}\")]");
       }
       sb.AppendLine();
     }
 
     // Group nodes by pipeline
-    var pipelineGroups = dag.Nodes
-      .GroupBy(n => n.PipelineName)
-      .OrderBy(g => g.Key);
+    var pipelineGroups = dag.Nodes.GroupBy(n => n.PipelineName).OrderBy(g => g.Key);
 
-    foreach (var pipelineGroup in pipelineGroups) {
+    foreach (var pipelineGroup in pipelineGroups)
+    {
       var pipelineName = pipelineGroup.Key;
       var pipelineNodes = pipelineGroup.OrderBy(n => n.Layer).ThenBy(n => n.Id).ToList();
 
@@ -92,36 +91,44 @@ public static class MermaidMetadataExtensions {
         .ToList();
 
       // Define nodes (rectangles)
-      foreach (var node in pipelineNodes) {
+      foreach (var node in pipelineNodes)
+      {
         sb.AppendLine($"        {SanitizeId(node.Id)}[\"{EscapeLabel(node.Label)}\"]");
       }
 
       // Define catalog entries produced by this pipeline (cylindrical database shape)
-      foreach (var entry in pipelineCatalogEntries) {
+      foreach (var entry in pipelineCatalogEntries)
+      {
         sb.AppendLine($"        {SanitizeId(entry.Key)}[(\"{EscapeLabel(entry.Label)}\")]");
       }
 
       sb.AppendLine();
 
       // Generate edges for this pipeline
-      foreach (var node in pipelineNodes) {
+      foreach (var node in pipelineNodes)
+      {
         // Input edges - only include if the input is produced by this pipeline (not external!)
-        foreach (var input in node.Inputs) {
+        foreach (var input in node.Inputs)
+        {
           var inputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Key == input);
-          if (inputEntry != null) {
+          if (inputEntry != null)
+          {
             var isProducedByThisPipeline = pipelineCatalogEntries.Any(e => e.Key == input);
 
             // Only include edges from data produced within this pipeline
-            if (isProducedByThisPipeline) {
+            if (isProducedByThisPipeline)
+            {
               sb.AppendLine($"        {SanitizeId(input)} --> {SanitizeId(node.Id)}");
             }
           }
         }
 
         // Output edges - node to its produced catalog entries
-        foreach (var output in node.Outputs) {
+        foreach (var output in node.Outputs)
+        {
           var catalogEntry = pipelineCatalogEntries.FirstOrDefault(e => e.Key == output);
-          if (catalogEntry != null) {
+          if (catalogEntry != null)
+          {
             sb.AppendLine($"        {SanitizeId(node.Id)} --> {SanitizeId(output)}");
           }
         }
@@ -133,10 +140,13 @@ public static class MermaidMetadataExtensions {
 
     // Generate external data to node edges (outside subgraphs)
     sb.AppendLine("    %% External Data to Pipeline Edges");
-    foreach (var entry in externalEntries) {
-      foreach (var consumer in entry.Consumers) {
+    foreach (var entry in externalEntries)
+    {
+      foreach (var consumer in entry.Consumers)
+      {
         var consumerNode = dag.Nodes.FirstOrDefault(n => n.Id == consumer);
-        if (consumerNode != null) {
+        if (consumerNode != null)
+        {
           sb.AppendLine($"    {SanitizeId(entry.Key)} --> {SanitizeId(consumer)}");
         }
       }
@@ -146,24 +156,30 @@ public static class MermaidMetadataExtensions {
     // Generate cross-pipeline edges (catalog entries that connect different pipelines)
     var crossPipelineEdges = new List<(string source, string target)>();
 
-    foreach (var entry in producedEntries) {
+    foreach (var entry in producedEntries)
+    {
       var producerNode = dag.Nodes.FirstOrDefault(n => n.Id == entry.Producer);
-      if (producerNode == null) {
+      if (producerNode == null)
+      {
         continue;
       }
 
-      foreach (var consumer in entry.Consumers) {
+      foreach (var consumer in entry.Consumers)
+      {
         var consumerNode = dag.Nodes.FirstOrDefault(n => n.Id == consumer);
-        if (consumerNode != null && consumerNode.PipelineName != producerNode.PipelineName) {
+        if (consumerNode != null && consumerNode.PipelineName != producerNode.PipelineName)
+        {
           // This catalog entry connects two different pipelines
           crossPipelineEdges.Add((entry.Key, consumer));
         }
       }
     }
 
-    if (crossPipelineEdges.Any()) {
+    if (crossPipelineEdges.Any())
+    {
       sb.AppendLine("    %% Cross-Pipeline Data Flow");
-      foreach (var (source, target) in crossPipelineEdges.Distinct()) {
+      foreach (var (source, target) in crossPipelineEdges.Distinct())
+      {
         sb.AppendLine($"    {SanitizeId(source)} -.-> {SanitizeId(target)}");
       }
     }
@@ -183,7 +199,8 @@ public static class MermaidMetadataExtensions {
   /// Mermaid has specific requirements for identifiers. This method ensures
   /// the ID is compatible by replacing problematic characters.
   /// </remarks>
-  private static string SanitizeId(string id) {
+  private static string SanitizeId(string id)
+  {
     // Replace spaces and special characters with underscores
     return id.Replace(" ", "_")
       .Replace("-", "_")
@@ -199,7 +216,8 @@ public static class MermaidMetadataExtensions {
   /// </summary>
   /// <param name="label">The label to escape</param>
   /// <returns>Escaped label safe for Mermaid</returns>
-  private static string EscapeLabel(string label) {
+  private static string EscapeLabel(string label)
+  {
     // Escape special characters that might break Mermaid syntax
     return label.Replace("\"", "\\\"");
   }

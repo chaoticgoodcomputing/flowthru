@@ -32,7 +32,7 @@ namespace Flowthru.Pipelines;
 ///         input: catalog.RawData,
 ///         output: catalog.ProcessedData
 ///     );
-///     
+///
 ///     // Multi-input node: tuple → single output
 ///     builder.AddNode(
 ///         name: "TrainModel",
@@ -40,7 +40,7 @@ namespace Flowthru.Pipelines;
 ///         input: (catalog.XTrain, catalog.YTrain),
 ///         output: catalog.Model
 ///     );
-///     
+///
 ///     // Multi-output node: single input → tuple
 ///     builder.AddNode(
 ///         name: "SplitData",
@@ -49,12 +49,13 @@ namespace Flowthru.Pipelines;
 ///         output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
 ///     );
 /// });
-/// 
+///
 /// pipeline.Build();
 /// await pipeline.ExecuteAsync();
 /// </code>
 /// </remarks>
-public class PipelineBuilder {
+public class PipelineBuilder
+{
   private readonly Pipeline _pipeline = new();
 
   /// <summary>
@@ -62,7 +63,8 @@ public class PipelineBuilder {
   /// </summary>
   /// <param name="configure">Action to configure the pipeline by adding nodes</param>
   /// <returns>Configured but not yet built pipeline</returns>
-  public static Pipeline CreatePipeline(Action<PipelineBuilder> configure) {
+  public static Pipeline CreatePipeline(Action<PipelineBuilder> configure)
+  {
     var builder = new PipelineBuilder();
     configure(builder);
     return builder._pipeline;
@@ -84,7 +86,8 @@ public class PipelineBuilder {
     Func<TInput, Task<TOutput>> transform,
     ICatalogEntry<TInput> input,
     ICatalogEntry<TOutput> output
-  ) {
+  )
+  {
     var pipelineNode = new PipelineNode(
       name: name,
       node: transform,
@@ -104,7 +107,8 @@ public class PipelineBuilder {
     Func<(TIn1, TIn2), Task<TOut>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input,
     ICatalogEntry<TOut> output
-  ) {
+  )
+  {
     var (input1, input2) = input;
 
     var pipelineNode = new PipelineNode(
@@ -126,7 +130,8 @@ public class PipelineBuilder {
     Func<(TIn1, TIn2, TIn3), Task<TOut>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
     ICatalogEntry<TOut> output
-  ) {
+  )
+  {
     var (input1, input2, input3) = input;
 
     var pipelineNode = new PipelineNode(
@@ -148,7 +153,8 @@ public class PipelineBuilder {
     Func<(TIn1, TIn2, TIn3, TIn4), Task<TOut>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input,
     ICatalogEntry<TOut> output
-  ) {
+  )
+  {
     var (input1, input2, input3, input4) = input;
 
     var pipelineNode = new PipelineNode(
@@ -170,7 +176,8 @@ public class PipelineBuilder {
     Func<TIn, Task<(TOut1, TOut2)>> transform,
     ICatalogEntry<TIn> input,
     (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output
-  ) {
+  )
+  {
     var (output1, output2) = output;
 
     var pipelineNode = new PipelineNode(
@@ -192,7 +199,8 @@ public class PipelineBuilder {
     Func<TIn, Task<(TOut1, TOut2, TOut3)>> transform,
     ICatalogEntry<TIn> input,
     (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output
-  ) {
+  )
+  {
     var (output1, output2, output3) = output;
 
     var pipelineNode = new PipelineNode(
@@ -214,7 +222,8 @@ public class PipelineBuilder {
     Func<TIn, Task<(TOut1, TOut2, TOut3, TOut4)>> transform,
     ICatalogEntry<TIn> input,
     (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output
-  ) {
+  )
+  {
     var (output1, output2, output3, output4) = output;
 
     var pipelineNode = new PipelineNode(
@@ -236,7 +245,8 @@ public class PipelineBuilder {
     Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2)>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
     (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output
-  ) {
+  )
+  {
     var (input1, input2, input3) = input;
     var (output1, output2) = output;
 
@@ -251,4 +261,3 @@ public class PipelineBuilder {
     return this;
   }
 }
-

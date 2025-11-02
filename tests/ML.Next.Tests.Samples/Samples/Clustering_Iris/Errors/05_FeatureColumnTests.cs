@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next catches feature column errors at compile-time.
-/// 
+///
 /// Common scenario: Misnaming or misusing the Features column in trainers.
 /// ML.NET: Compiles, fails at runtime.
 /// ML.Next: Type system tracks feature column through transformations.
@@ -15,11 +15,12 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 [Category("FeatureColumn")]
 public class FeatureColumnTests
 {
-    [Test]
-    public void Trainer_With_Wrong_Feature_Column_Name()
-    {
-        // Scenario: Using string-based column names allows mismatches
-        var code = @"
+  [Test]
+  public void Trainer_With_Wrong_Feature_Column_Name()
+  {
+    // Scenario: Using string-based column names allows mismatches
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -49,18 +50,22 @@ public class FeatureColumnTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        // This compiles but would fail at runtime - column name mismatch
-        Assert.That(result.Success, Is.False,
-            "Current limitation: Column name mismatches in string parameters aren't caught at compile-time");
-    }
+    // This compiles but would fail at runtime - column name mismatch
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Current limitation: Column name mismatches in string parameters aren't caught at compile-time"
+    );
+  }
 
-    [Test]
-    public void Using_NonVector_Column_As_Features()
-    {
-        // Scenario: Trying to use a scalar column where vector is expected
-        var code = @"
+  [Test]
+  public void Using_NonVector_Column_As_Features()
+  {
+    // Scenario: Trying to use a scalar column where vector is expected
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using Microsoft.ML;
@@ -81,10 +86,13 @@ public class FeatureColumnTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        // Compiles - ML.NET doesn't type-check column contents
-        Assert.That(result.Success, Is.False,
-            "ML.NET doesn't enforce vector vs scalar at compile-time");
-    }
+    // Compiles - ML.NET doesn't type-check column contents
+    Assert.That(
+      result.Success,
+      Is.False,
+      "ML.NET doesn't enforce vector vs scalar at compile-time"
+    );
+  }
 }

@@ -7,7 +7,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 /// Raw company data as read from CSV file.
 /// Matches structure of Datasets/01_Raw/companies.csv
 /// </summary>
-public record CompanyRawSchema : IFlatSerializable {
+public record CompanyRawSchema : IFlatSerializable
+{
   /// <summary>
   /// Company identifier
   /// </summary>

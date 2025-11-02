@@ -8,7 +8,8 @@ namespace Flowthru.Application;
 /// <remarks>
 /// Controls how pipelines are executed and how results are presented.
 /// </remarks>
-public class ExecutionOptions {
+public class ExecutionOptions
+{
   /// <summary>
   /// Whether to perform a dry run (pre-flight checks only, no execution).
   /// </summary>
@@ -49,7 +50,8 @@ public class ExecutionOptions {
   /// Gets the configured formatter or creates a default one.
   /// </summary>
   /// <returns>The result formatter to use</returns>
-  internal IPipelineResultFormatter GetFormatter() {
+  internal IPipelineResultFormatter GetFormatter()
+  {
     return ResultFormatter ?? new ConsoleResultFormatter();
   }
 }

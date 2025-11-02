@@ -21,11 +21,11 @@ public readonly record struct NormalizedAnnotation : IAnnotations
   /// Creates a normalized annotation.
   /// </summary>
   public static NormalizedAnnotation Create(bool isNormalized, string? method = null) =>
-      new()
-      {
-        IsNormalized = isNormalized,
-        Method = method != null ? Option<string>.Some(method) : Option<string>.None
-      };
+    new()
+    {
+      IsNormalized = isNormalized,
+      Method = method != null ? Option<string>.Some(method) : Option<string>.None,
+    };
 }
 
 /// <summary>
@@ -42,13 +42,13 @@ public readonly record struct SlotNamesAnnotation : IAnnotations
   /// Creates a slot names annotation.
   /// </summary>
   public static SlotNamesAnnotation Create(params string[] slotNames) =>
-      new() { SlotNames = LanguageExt.Seq.create(slotNames) };
+    new() { SlotNames = LanguageExt.Seq.create(slotNames) };
 
   /// <summary>
   /// Creates a slot names annotation from a sequence.
   /// </summary>
   public static SlotNamesAnnotation Create(Seq<string> slotNames) =>
-      new() { SlotNames = slotNames };
+    new() { SlotNames = slotNames };
 }
 
 /// <summary>
@@ -65,24 +65,24 @@ public readonly record struct KeyTypeAnnotation : IAnnotations
   /// Creates a key type annotation.
   /// </summary>
   public static KeyTypeAnnotation Create(ulong? cardinality = null) =>
-      new()
-      {
-        Cardinality = cardinality.HasValue
-              ? Option<ulong>.Some(cardinality.Value)
-              : Option<ulong>.None
-      };
+    new()
+    {
+      Cardinality = cardinality.HasValue
+        ? Option<ulong>.Some(cardinality.Value)
+        : Option<ulong>.None,
+    };
 }
 
 /// <summary>
 /// Combines two annotation types.
 /// </summary>
 public readonly record struct AnnotationSet<T1, T2> : IAnnotations
-    where T1 : struct, IAnnotations
-    where T2 : struct, IAnnotations
+  where T1 : struct, IAnnotations
+  where T2 : struct, IAnnotations
 {
   public T1 First { get; init; }
   public T2 Second { get; init; }
 
   public static AnnotationSet<T1, T2> Create(T1 first, T2 second) =>
-      new() { First = first, Second = second };
+    new() { First = first, Second = second };
 }

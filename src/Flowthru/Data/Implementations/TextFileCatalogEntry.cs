@@ -52,22 +52,24 @@ namespace Flowthru.Data.Implementations;
 ///     GetOrCreateEntry(() => new TextFileCatalogEntry(
 ///         "report",
 ///         $"{BasePath}/reports/output.md"));
-/// 
+///
 /// // In catalog - specific encoding (e.g., Latin-1)
 /// public ICatalogEntry&lt;string&gt; LegacyLog =>
 ///     GetOrCreateEntry(() => new TextFileCatalogEntry(
 ///         "legacy_log",
 ///         $"{BasePath}/logs/legacy.txt",
 ///         Encoding.Latin1));
-/// 
+///
 /// // Usage in node
 /// var reportContent = await catalog.OutputReport.Load().RunAsync();
 /// await catalog.OutputReport.Save("# Report\n\nGenerated content...").RunAsync();
 /// </code>
 /// </example>
-public class TextFileCatalogEntry : CatalogEntryBase<string>,
+public class TextFileCatalogEntry
+  : CatalogEntryBase<string>,
     IShallowInspectable<string>,
-    IDeepInspectable<string> {
+    IDeepInspectable<string>
+{
   private readonly string _filePath;
   private readonly Encoding _encoding;
 
@@ -77,8 +79,7 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the file (absolute or relative to working directory)</param>
   public TextFileCatalogEntry(string key, string filePath)
-      : this(key, filePath, Encoding.UTF8) {
-  }
+    : this(key, filePath, Encoding.UTF8) { }
 
   /// <summary>
   /// Creates a new text file catalog entry with custom encoding.
@@ -95,7 +96,8 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   /// - <see cref="Encoding.Latin1"/> - ISO-8859-1, legacy Western European
   /// </remarks>
   public TextFileCatalogEntry(string key, string filePath, Encoding encoding)
-      : base(key) {
+    : base(key)
+  {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
     _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
   }
@@ -111,36 +113,48 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   public Encoding Encoding => _encoding;
 
   /// <inheritdoc/>
-  public override IO<string> Load() {
-    return IO.liftAsync(async () => {
-      if (!File.Exists(_filePath)) {
-        throw new FileNotFoundException(
-            $"File not found for catalog entry '{Key}'", _filePath);
+  public override IO<string> Load()
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (!File.Exists(_filePath))
+      {
+        throw new FileNotFoundException($"File not found for catalog entry '{Key}'", _filePath);
       }
 
-      try {
+      try
+      {
         return await File.ReadAllTextAsync(_filePath, _encoding);
-      } catch (DecoderFallbackException ex) {
+      }
+      catch (DecoderFallbackException ex)
+      {
         throw new InvalidOperationException(
-            $"Failed to decode file '{_filePath}' as {_encoding.EncodingName} for catalog entry '{Key}'. " +
-            "The file may contain binary data or use a different encoding. " +
-            "Consider using a different encoding or validating the file with inspection.",
-            ex);
+          $"Failed to decode file '{_filePath}' as {_encoding.EncodingName} for catalog entry '{Key}'. "
+            + "The file may contain binary data or use a different encoding. "
+            + "Consider using a different encoding or validating the file with inspection.",
+          ex
+        );
       }
     });
   }
 
   /// <inheritdoc/>
-  public override IO<Unit> Save(string data) {
-    return IO.liftAsync(async () => {
-      if (data == null) {
-        throw new ArgumentNullException(nameof(data),
-            $"Cannot save null data to catalog entry '{Key}'");
+  public override IO<Unit> Save(string data)
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (data == null)
+      {
+        throw new ArgumentNullException(
+          nameof(data),
+          $"Cannot save null data to catalog entry '{Key}'"
+        );
       }
 
       // Ensure directory exists
       var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
+      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+      {
         Directory.CreateDirectory(directory);
       }
 
@@ -150,20 +164,28 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
   }
 
   /// <inheritdoc/>
-  public override IO<bool> Exists() {
+  public override IO<bool> Exists()
+  {
     return IO.liftAsync(async () => File.Exists(_filePath));
   }
 
   /// <inheritdoc/>
-  public override IO<ValidationResult> InspectShallow(int sampleSize = 100) {
-    return IO.liftAsync(async () => {
-      if (!File.Exists(_filePath)) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}")
-        });
+  public override IO<ValidationResult> InspectShallow(int sampleSize = 100)
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (!File.Exists(_filePath))
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}"),
+          }
+        );
       }
 
-      try {
+      try
+      {
         // Read first 4KB to check encoding validity
         const int previewSize = 4096;
         await using var stream = File.OpenRead(_filePath);
@@ -174,43 +196,88 @@ public class TextFileCatalogEntry : CatalogEntryBase<string>,
         var preview = _encoding.GetString(buffer, 0, bytesRead);
 
         return new ValidationResult(); // Success - no errors
-      } catch (DecoderFallbackException ex) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.InvalidFormat,
-            $"File contains invalid {_encoding.EncodingName} data", ex.Message)
-        });
-      } catch (Exception ex) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.InspectionFailure, "Failed to read file", ex.Message)
-        });
+      }
+      catch (DecoderFallbackException ex)
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(
+              Key,
+              ValidationErrorType.InvalidFormat,
+              $"File contains invalid {_encoding.EncodingName} data",
+              ex.Message
+            ),
+          }
+        );
+      }
+      catch (Exception ex)
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(
+              Key,
+              ValidationErrorType.InspectionFailure,
+              "Failed to read file",
+              ex.Message
+            ),
+          }
+        );
       }
     });
   }
 
   /// <inheritdoc/>
-  public override IO<ValidationResult> InspectDeep() {
-    return IO.liftAsync(async () => {
-      if (!File.Exists(_filePath)) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}")
-        });
+  public override IO<ValidationResult> InspectDeep()
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (!File.Exists(_filePath))
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}"),
+          }
+        );
       }
 
-      try {
+      try
+      {
         // Read entire file to validate encoding
         var content = await File.ReadAllTextAsync(_filePath, _encoding);
         var fileSize = new FileInfo(_filePath).Length;
 
         return new ValidationResult(); // Success - no errors
-      } catch (DecoderFallbackException ex) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.InvalidFormat,
-            $"File contains invalid {_encoding.EncodingName} data", ex.Message)
-        });
-      } catch (Exception ex) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.InspectionFailure, "Failed to read file", ex.Message)
-        });
+      }
+      catch (DecoderFallbackException ex)
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(
+              Key,
+              ValidationErrorType.InvalidFormat,
+              $"File contains invalid {_encoding.EncodingName} data",
+              ex.Message
+            ),
+          }
+        );
+      }
+      catch (Exception ex)
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(
+              Key,
+              ValidationErrorType.InspectionFailure,
+              "Failed to read file",
+              ex.Message
+            ),
+          }
+        );
       }
     });
   }

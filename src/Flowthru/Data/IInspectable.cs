@@ -35,7 +35,8 @@ namespace Flowthru.Data;
 /// user explicitly opts out.
 /// </para>
 /// </remarks>
-public interface IShallowInspectable<T> {
+public interface IShallowInspectable<T>
+{
   /// <summary>
   /// Performs shallow inspection of this catalog entry.
   /// Returns an effect that can fail.
@@ -81,7 +82,8 @@ public interface IShallowInspectable<T> {
 /// the pipeline creator. It is never the default.
 /// </para>
 /// </remarks>
-public interface IDeepInspectable<T> {
+public interface IDeepInspectable<T>
+{
   /// <summary>
   /// Performs deep inspection of this catalog entry, validating ALL data.
   /// </summary>

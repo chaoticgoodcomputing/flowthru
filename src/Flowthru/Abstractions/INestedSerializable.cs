@@ -69,29 +69,30 @@ namespace Flowthru.Abstractions;
 /// {
 ///     // Collection of nested objects
 ///     public List&lt;FoldMetric&gt; FoldMetrics { get; init; } = new();
-///     
+///
 ///     // Flat properties are fine in nested schemas
 ///     public double MeanR2Score { get; init; }
 ///     public double StdDevR2Score { get; init; }
 ///     public int NumFolds { get; init; }
 /// }
-/// 
+///
 /// public record FoldMetric : IFlatSerializable  // Individual fold is flat
 /// {
 ///     public int FoldNumber { get; init; }
 ///     public double R2Score { get; init; }
 ///     public double MeanAbsoluteError { get; init; }
 /// }
-/// 
+///
 /// // ✅ Correct: Use JSON for nested data
 /// catalog.CrossValidationResults = CreateJsonObject&lt;CrossValidationResults&gt;(
 ///     "cross_validation_results",
 ///     "model_output/cross_validation_results.json");
-/// 
+///
 /// // ❌ Compile error if attempted with CSV (prevented by IFlatSerializable constraint)
 /// // catalog.CrossValidationResults = CreateCsvDataset&lt;CrossValidationResults&gt;(...);
 /// </code>
 /// </example>
-public interface INestedSerializable {
+public interface INestedSerializable
+{
   // Marker interface - no members required
 }

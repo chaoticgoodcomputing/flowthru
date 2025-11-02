@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.ML;
-using ML.Next.Core.Schema;
 using ML.Next.Core.Columns;
+using ML.Next.Core.Schema;
 using ML.Next.Transforms;
 
 namespace ML.Next.MulticlassClassification.Trainers;
@@ -9,7 +9,8 @@ namespace ML.Next.MulticlassClassification.Trainers;
 /// <summary>
 /// Type-safe multiclass classification trainers with compile-time column validation.
 /// </summary>
-public static class MulticlassClassificationTrainers {
+public static class MulticlassClassificationTrainers
+{
   /// <summary>
   /// SDCA Maximum Entropy multiclass classification trainer with compile-time column checking.
   /// </summary>
@@ -35,26 +36,30 @@ public static class MulticlassClassificationTrainers {
   /// </code>
   /// </example>
   public static Estimator<TSchemaIn, TSchemaOut> SdcaMaximumEntropy<TSchemaIn, TSchemaOut>(
-      MLContext context,
-      Expression<Func<TSchemaIn, object>> labelColumnSelector,
-      Expression<Func<TSchemaIn, object>> featureColumnSelector,
-      Expression<Func<TSchemaIn, object>>? exampleWeightColumnSelector = null,
-      float? l2Regularization = null,
-      float? l1Regularization = null,
-      int? maximumNumberOfIterations = null,
-      int? numberOfThreads = null)
-      where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition {
+    MLContext context,
+    Expression<Func<TSchemaIn, object>> labelColumnSelector,
+    Expression<Func<TSchemaIn, object>> featureColumnSelector,
+    Expression<Func<TSchemaIn, object>>? exampleWeightColumnSelector = null,
+    float? l2Regularization = null,
+    float? l1Regularization = null,
+    int? maximumNumberOfIterations = null,
+    int? numberOfThreads = null
+  )
+    where TSchemaIn : ISchemaDefinition
+    where TSchemaOut : ISchemaDefinition
+  {
     var labelColName = ColumnExpressionExtractor.ExtractColumnName(labelColumnSelector);
     var featureColName = ColumnExpressionExtractor.ExtractColumnName(featureColumnSelector);
-    var weightsColName = exampleWeightColumnSelector != null
+    var weightsColName =
+      exampleWeightColumnSelector != null
         ? ColumnExpressionExtractor.ExtractColumnName(exampleWeightColumnSelector)
         : null;
 
-    var options = new Microsoft.ML.Trainers.SdcaMaximumEntropyMulticlassTrainer.Options {
+    var options = new Microsoft.ML.Trainers.SdcaMaximumEntropyMulticlassTrainer.Options
+    {
       LabelColumnName = labelColName,
       FeatureColumnName = featureColName,
-      ExampleWeightColumnName = weightsColName
+      ExampleWeightColumnName = weightsColName,
     };
 
     if (l2Regularization.HasValue)
@@ -88,25 +93,29 @@ public static class MulticlassClassificationTrainers {
   /// <param name="loss">Loss function (default: null for Log)</param>
   /// <returns>Type-safe estimator for SDCA multiclass classification</returns>
   public static Estimator<TSchemaIn, TSchemaOut> SdcaNonCalibrated<TSchemaIn, TSchemaOut>(
-      MLContext context,
-      Expression<Func<TSchemaIn, object>> labelColumnSelector,
-      Expression<Func<TSchemaIn, object>> featureColumnSelector,
-      Expression<Func<TSchemaIn, object>>? exampleWeightColumnSelector = null,
-      float? l2Regularization = null,
-      float? l1Regularization = null,
-      Microsoft.ML.Trainers.ISupportSdcaClassificationLoss? loss = null)
-      where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition {
+    MLContext context,
+    Expression<Func<TSchemaIn, object>> labelColumnSelector,
+    Expression<Func<TSchemaIn, object>> featureColumnSelector,
+    Expression<Func<TSchemaIn, object>>? exampleWeightColumnSelector = null,
+    float? l2Regularization = null,
+    float? l1Regularization = null,
+    Microsoft.ML.Trainers.ISupportSdcaClassificationLoss? loss = null
+  )
+    where TSchemaIn : ISchemaDefinition
+    where TSchemaOut : ISchemaDefinition
+  {
     var labelColName = ColumnExpressionExtractor.ExtractColumnName(labelColumnSelector);
     var featureColName = ColumnExpressionExtractor.ExtractColumnName(featureColumnSelector);
-    var weightsColName = exampleWeightColumnSelector != null
+    var weightsColName =
+      exampleWeightColumnSelector != null
         ? ColumnExpressionExtractor.ExtractColumnName(exampleWeightColumnSelector)
         : null;
 
-    var options = new Microsoft.ML.Trainers.SdcaNonCalibratedMulticlassTrainer.Options {
+    var options = new Microsoft.ML.Trainers.SdcaNonCalibratedMulticlassTrainer.Options
+    {
       LabelColumnName = labelColName,
       FeatureColumnName = featureColName,
-      ExampleWeightColumnName = weightsColName
+      ExampleWeightColumnName = weightsColName,
     };
 
     if (l2Regularization.HasValue)

@@ -1,5 +1,5 @@
-using ML.Next.Core.Constants;
 using LanguageExt.Traits.Domain;
+using ML.Next.Core.Constants;
 
 namespace ML.Next.Core.Columns;
 
@@ -12,43 +12,40 @@ namespace ML.Next.Core.Columns;
 /// This is the Phase 1 version that tracks only the element type.
 /// Use ColumnSpec&lt;TType, TConst&gt; for Phase 2 with dimension/cardinality tracking.
 /// </remarks>
-public readonly record struct ColumnSpec<TType> : Identifier<ColumnSpec<TType>> {
-    /// <summary>
-    /// The string name of the column.
-    /// </summary>
-    public string Value { get; init; }
+public readonly record struct ColumnSpec<TType> : Identifier<ColumnSpec<TType>>
+{
+  /// <summary>
+  /// The string name of the column.
+  /// </summary>
+  public string Value { get; init; }
 
-    /// <summary>
-    /// Creates a new column specification from a string name.
-    /// </summary>
-    /// <param name="name">The column name</param>
-    /// <returns>A strongly-typed column reference</returns>
-    public static ColumnSpec<TType> From(string name) =>
-        new() { Value = name };
+  /// <summary>
+  /// Creates a new column specification from a string name.
+  /// </summary>
+  /// <param name="name">The column name</param>
+  /// <returns>A strongly-typed column reference</returns>
+  public static ColumnSpec<TType> From(string name) => new() { Value = name };
 
-    /// <summary>
-    /// Implicit conversion from string for convenience.
-    /// </summary>
-    public static implicit operator ColumnSpec<TType>(string name) =>
-        From(name);
+  /// <summary>
+  /// Implicit conversion from string for convenience.
+  /// </summary>
+  public static implicit operator ColumnSpec<TType>(string name) => From(name);
 
-    /// <summary>
-    /// Implicit conversion to string for ML.NET interop.
-    /// </summary>
-    public static implicit operator string(ColumnSpec<TType> columnSpec) =>
-        columnSpec.Value;
+  /// <summary>
+  /// Implicit conversion to string for ML.NET interop.
+  /// </summary>
+  public static implicit operator string(ColumnSpec<TType> columnSpec) => columnSpec.Value;
 
-    /// <summary>
-    /// String representation of the column specification.
-    /// </summary>
-    public override string ToString() => Value;
+  /// <summary>
+  /// String representation of the column specification.
+  /// </summary>
+  public override string ToString() => Value;
 
-    /// <summary>
-    /// Changes the type parameter while keeping the same name.
-    /// Use with caution - this is for type-level schema transformations.
-    /// </summary>
-    public ColumnSpec<TNewType> As<TNewType>() =>
-        ColumnSpec<TNewType>.From(Value);
+  /// <summary>
+  /// Changes the type parameter while keeping the same name.
+  /// Use with caution - this is for type-level schema transformations.
+  /// </summary>
+  public ColumnSpec<TNewType> As<TNewType>() => ColumnSpec<TNewType>.From(Value);
 }
 
 /// <summary>
@@ -73,63 +70,59 @@ public readonly record struct ColumnSpec<TType> : Identifier<ColumnSpec<TType>> 
 /// </para>
 /// </remarks>
 public readonly record struct ColumnSpec<TType, TConst>
-    where TConst : Constant<long>, new() {
-    private static readonly long _constantValue = new TConst().Value;
+  where TConst : Constant<long>, new()
+{
+  private static readonly long _constantValue = new TConst().Value;
 
-    /// <summary>
-    /// The string name of the column.
-    /// </summary>
-    public string Name { get; init; }
+  /// <summary>
+  /// The string name of the column.
+  /// </summary>
+  public string Name { get; init; }
 
-    /// <summary>
-    /// The dimension (for vectors) or cardinality (for keys) value.
-    /// </summary>
-    public long Dimension => _constantValue;
+  /// <summary>
+  /// The dimension (for vectors) or cardinality (for keys) value.
+  /// </summary>
+  public long Dimension => _constantValue;
 
-    /// <summary>
-    /// Creates a new column specification from a string name.
-    /// The dimension/cardinality is determined by the TConst type parameter.
-    /// </summary>
-    /// <param name="name">The column name</param>
-    /// <returns>A strongly-typed column reference with dimension/cardinality</returns>
-    public static ColumnSpec<TType, TConst> From(string name) =>
-        new() { Name = name };
+  /// <summary>
+  /// Creates a new column specification from a string name.
+  /// The dimension/cardinality is determined by the TConst type parameter.
+  /// </summary>
+  /// <param name="name">The column name</param>
+  /// <returns>A strongly-typed column reference with dimension/cardinality</returns>
+  public static ColumnSpec<TType, TConst> From(string name) => new() { Name = name };
 
-    /// <summary>
-    /// Implicit conversion from string for convenience.
-    /// </summary>
-    public static implicit operator ColumnSpec<TType, TConst>(string name) =>
-        From(name);
+  /// <summary>
+  /// Implicit conversion from string for convenience.
+  /// </summary>
+  public static implicit operator ColumnSpec<TType, TConst>(string name) => From(name);
 
-    /// <summary>
-    /// Implicit conversion to string for ML.NET interop.
-    /// </summary>
-    public static implicit operator string(ColumnSpec<TType, TConst> columnSpec) =>
-        columnSpec.Name;
+  /// <summary>
+  /// Implicit conversion to string for ML.NET interop.
+  /// </summary>
+  public static implicit operator string(ColumnSpec<TType, TConst> columnSpec) => columnSpec.Name;
 
-    /// <summary>
-    /// Conversion to simple ColumnSpec (loses dimension/cardinality info).
-    /// </summary>
-    public static implicit operator ColumnSpec<TType>(ColumnSpec<TType, TConst> columnSpec) =>
-        ColumnSpec<TType>.From(columnSpec.Name);
+  /// <summary>
+  /// Conversion to simple ColumnSpec (loses dimension/cardinality info).
+  /// </summary>
+  public static implicit operator ColumnSpec<TType>(ColumnSpec<TType, TConst> columnSpec) =>
+    ColumnSpec<TType>.From(columnSpec.Name);
 
-    /// <summary>
-    /// String representation including dimension/cardinality.
-    /// </summary>
-    public override string ToString() => $"{Name} ({typeof(TType).Name}[{_constantValue}])";
+  /// <summary>
+  /// String representation including dimension/cardinality.
+  /// </summary>
+  public override string ToString() => $"{Name} ({typeof(TType).Name}[{_constantValue}])";
 
-    /// <summary>
-    /// Changes the type parameter while keeping the same name and dimension.
-    /// Use with caution - this is for type-level schema transformations.
-    /// </summary>
-    public ColumnSpec<TNewType, TConst> As<TNewType>() =>
-        ColumnSpec<TNewType, TConst>.From(Name);
+  /// <summary>
+  /// Changes the type parameter while keeping the same name and dimension.
+  /// Use with caution - this is for type-level schema transformations.
+  /// </summary>
+  public ColumnSpec<TNewType, TConst> As<TNewType>() => ColumnSpec<TNewType, TConst>.From(Name);
 
-    /// <summary>
-    /// Changes the dimension/cardinality while keeping the same name and type.
-    /// Use with caution - this is for type-level schema transformations.
-    /// </summary>
-    public ColumnSpec<TType, TNewConst> WithDimension<TNewConst>()
-        where TNewConst : Constant<long>, new() =>
-        ColumnSpec<TType, TNewConst>.From(Name);
+  /// <summary>
+  /// Changes the dimension/cardinality while keeping the same name and type.
+  /// Use with caution - this is for type-level schema transformations.
+  /// </summary>
+  public ColumnSpec<TType, TNewConst> WithDimension<TNewConst>()
+    where TNewConst : Constant<long>, new() => ColumnSpec<TType, TNewConst>.From(Name);
 }

@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next enforces correct pipeline ordering.
-/// 
+///
 /// Common scenario: Applying transformations in wrong order.
 /// ML.NET: Compiles, produces incorrect results or runtime errors.
 /// ML.Next: Type system ensures transformations are ordered correctly.
@@ -15,11 +15,12 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 [Category("PipelineOrdering")]
 public class PipelineOrderingTests
 {
-    [Test]
-    public void Normalization_Before_Feature_Creation_Wrong_Order()
-    {
-        // Scenario: Trying to normalize Features before creating them
-        var code = @"
+  [Test]
+  public void Normalization_Before_Feature_Creation_Wrong_Order()
+  {
+    // Scenario: Trying to normalize Features before creating them
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -54,18 +55,22 @@ public class PipelineOrderingTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        // This compiles because ML.NET doesn't validate column existence
-        Assert.That(result.Success, Is.False,
-            "Current limitation: Pipeline ordering isn't fully enforced at compile-time");
-    }
+    // This compiles because ML.NET doesn't validate column existence
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Current limitation: Pipeline ordering isn't fully enforced at compile-time"
+    );
+  }
 
-    [Test]
-    public void Documentation_Of_Correct_Pipeline_Order()
-    {
-        // This test documents the CORRECT pipeline ordering
-        var code = @"
+  [Test]
+  public void Documentation_Of_Correct_Pipeline_Order()
+  {
+    // This test documents the CORRECT pipeline ordering
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -101,9 +106,8 @@ public class PipelineOrderingTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Correct pipeline ordering should compile successfully");
-    }
+    Assert.That(result.Success, Is.False, "Correct pipeline ordering should compile successfully");
+  }
 }

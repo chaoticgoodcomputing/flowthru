@@ -10,7 +10,8 @@ namespace Flowthru.Meta.Providers;
 /// Metadata providers handle exporting DAG metadata to different formats
 /// (JSON, Mermaid, GraphML, etc.) with provider-specific configuration.
 /// </remarks>
-public interface IMetadataProvider {
+public interface IMetadataProvider
+{
   /// <summary>
   /// Gets the unique name of this provider.
   /// </summary>
@@ -24,5 +25,10 @@ public interface IMetadataProvider {
   /// <param name="timestampConfig">Configuration for timestamp handling in filenames</param>
   /// <param name="logger">Optional logger for diagnostic messages</param>
   /// <returns>True if export succeeded, false otherwise</returns>
-  bool Export(DagMetadata dag, string outputDirectory, TimestampConfiguration timestampConfig, ILogger? logger = null);
+  bool Export(
+    DagMetadata dag,
+    string outputDirectory,
+    TimestampConfiguration timestampConfig,
+    ILogger? logger = null
+  );
 }

@@ -6,18 +6,22 @@ namespace Flowthru.Meta;
 /// <summary>
 /// Extension methods for serializing metadata to JSON.
 /// </summary>
-public static class MetadataJsonExtensions {
+public static class MetadataJsonExtensions
+{
   /// <summary>
   /// Shared JSON serialization options for all metadata.
   /// </summary>
-  private static readonly JsonSerializerOptions _jsonOptions = new() {
-    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    WriteIndented = true,
-    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-    Converters = {
-      new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-    }
-  };
+  private static readonly JsonSerializerOptions _jsonOptions =
+    new()
+    {
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+      WriteIndented = true,
+      DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+      Converters =
+      {
+        new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+      },
+    };
 
   /// <summary>
   /// Serializes DagMetadata to pretty-printed JSON string.
@@ -38,8 +42,10 @@ public static class MetadataJsonExtensions {
   /// This format is optimized for Flowthru.Viz consumption and human readability.
   /// </para>
   /// </remarks>
-  public static string ToJson(this DagMetadata metadata) {
-    if (metadata == null) {
+  public static string ToJson(this DagMetadata metadata)
+  {
+    if (metadata == null)
+    {
       throw new ArgumentNullException(nameof(metadata));
     }
 
@@ -52,14 +58,17 @@ public static class MetadataJsonExtensions {
   /// <param name="json">JSON string to deserialize</param>
   /// <returns>Deserialized DagMetadata object</returns>
   /// <exception cref="JsonException">Thrown if JSON is invalid or doesn't match schema</exception>
-  public static DagMetadata FromJson(string json) {
-    if (string.IsNullOrWhiteSpace(json)) {
+  public static DagMetadata FromJson(string json)
+  {
+    if (string.IsNullOrWhiteSpace(json))
+    {
       throw new ArgumentException("JSON string cannot be null or empty", nameof(json));
     }
 
     var metadata = JsonSerializer.Deserialize<DagMetadata>(json, _jsonOptions);
 
-    if (metadata == null) {
+    if (metadata == null)
+    {
       throw new JsonException("Failed to deserialize DagMetadata from JSON");
     }
 
@@ -75,14 +84,14 @@ public static class MetadataJsonExtensions {
   /// Use this for minimizing file size when human readability is not a concern,
   /// such as API responses or embedded metadata.
   /// </remarks>
-  public static string ToCompactJson(this DagMetadata metadata) {
-    if (metadata == null) {
+  public static string ToCompactJson(this DagMetadata metadata)
+  {
+    if (metadata == null)
+    {
       throw new ArgumentNullException(nameof(metadata));
     }
 
-    var compactOptions = new JsonSerializerOptions(_jsonOptions) {
-      WriteIndented = false
-    };
+    var compactOptions = new JsonSerializerOptions(_jsonOptions) { WriteIndented = false };
 
     return JsonSerializer.Serialize(metadata, compactOptions);
   }

@@ -17,7 +17,21 @@
         "command": "dotnet clean",
         "cwd": "tests/Flowthru.Tests.Common"
       }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
     }
   },
-  "tags": ["type:test-infrastructure", "scope:shared"]
+  "tags": [ "type:test-infrastructure", "scope:shared" ]
 }

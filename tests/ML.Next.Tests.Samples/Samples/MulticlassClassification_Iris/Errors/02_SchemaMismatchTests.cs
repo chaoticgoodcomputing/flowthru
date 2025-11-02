@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 
 /// <summary>
 /// Tests verifying ML.Next catches schema type mismatches at compile-time.
-/// 
+///
 /// Common scenario: Engineer chains transformations with incompatible schemas.
 /// ML.NET: Compiles fine, runtime error when schemas don't match expected columns.
 /// ML.Next: Compilation error - schema types must align.
@@ -13,11 +13,14 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 [TestFixture]
 [Category("CompilationSafety")]
 [Category("SchemaMismatch")]
-public class SchemaMismatchTests {
+public class SchemaMismatchTests
+{
   [Test]
-  public void MismatchedSchemaTypes_Should_Not_Compile() {
+  public void MismatchedSchemaTypes_Should_Not_Compile()
+  {
     // Scenario: Trying to chain transformations with incompatible schema types
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -57,14 +60,19 @@ public class SchemaMismatchTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Chaining transformers with mismatched schemas should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Chaining transformers with mismatched schemas should not compile"
+    );
   }
 
   [Test]
-  public void TransformerWithWrongInputSchema_Should_Not_Compile() {
+  public void TransformerWithWrongInputSchema_Should_Not_Compile()
+  {
     // Scenario: Applying transformer to data with wrong schema type
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using ML.Next.Extract;
@@ -89,14 +97,19 @@ public class SchemaMismatchTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Applying transformer to data with wrong schema should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Applying transformer to data with wrong schema should not compile"
+    );
   }
 
   [Test]
-  public void EstimatorFitWithWrongSchema_Should_Not_Compile() {
+  public void EstimatorFitWithWrongSchema_Should_Not_Compile()
+  {
     // Scenario: Fitting estimator with wrong schema type
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using ML.Next.Extract;
@@ -121,7 +134,10 @@ public class SchemaMismatchTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Fitting estimator with data of wrong schema should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Fitting estimator with data of wrong schema should not compile"
+    );
   }
 }

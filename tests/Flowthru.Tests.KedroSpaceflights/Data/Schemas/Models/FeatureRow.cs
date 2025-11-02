@@ -12,7 +12,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 /// QR decomposition. Sklearn handles this via pseudo-inverse, but Math.NET requires
 /// explicit feature selection.
 /// </remarks>
-public class FeatureRow : IFlatSerializable {
+public class FeatureRow : IFlatSerializable
+{
   public float Engines { get; set; }
   public float PassengerCapacity { get; set; }
   public float Crew { get; set; }
@@ -35,26 +36,30 @@ public class FeatureRow : IFlatSerializable {
   /// Array of features in the order expected by the linear regression model:
   /// [Engines, PassengerCapacity, Crew, DCheckComplete, IataApproved, CompanyRating, ReviewScoresRating]
   /// </returns>
-  public double[] ToFeatureArray() => new[] {
-    (double)Engines,
-    (double)PassengerCapacity,
-    (double)Crew,
-    DCheckComplete ? 1.0 : 0.0,
-    IataApproved ? 1.0 : 0.0,
-    (double)CompanyRating,
-    (double)ReviewScoresRating
-  };
+  public double[] ToFeatureArray() =>
+    new[]
+    {
+      (double)Engines,
+      (double)PassengerCapacity,
+      (double)Crew,
+      DCheckComplete ? 1.0 : 0.0,
+      IataApproved ? 1.0 : 0.0,
+      (double)CompanyRating,
+      (double)ReviewScoresRating,
+    };
 
   /// <summary>
   /// Gets the feature names in the same order as ToFeatureArray().
   /// </summary>
-  public static string[] FeatureNames => new[] {
-    "Engines",
-    "PassengerCapacity",
-    "Crew",
-    "DCheckComplete",
-    "IataApproved",
-    "CompanyRating",
-    "ReviewScoresRating"
-  };
+  public static string[] FeatureNames =>
+    new[]
+    {
+      "Engines",
+      "PassengerCapacity",
+      "Crew",
+      "DCheckComplete",
+      "IataApproved",
+      "CompanyRating",
+      "ReviewScoresRating",
+    };
 }

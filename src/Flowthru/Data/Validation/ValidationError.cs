@@ -7,7 +7,8 @@ namespace Flowthru.Data.Validation;
 /// ValidationError provides structured information about what went wrong during
 /// inspection, making it easier to diagnose and fix data issues.
 /// </remarks>
-public class ValidationError {
+public class ValidationError
+{
   /// <summary>
   /// Creates a new validation error.
   /// </summary>
@@ -19,7 +20,9 @@ public class ValidationError {
     string catalogKey,
     ValidationErrorType errorType,
     string message,
-    string? details = null) {
+    string? details = null
+  )
+  {
     CatalogKey = catalogKey ?? throw new ArgumentNullException(nameof(catalogKey));
     ErrorType = errorType;
     Message = message ?? throw new ArgumentNullException(nameof(message));
@@ -57,9 +60,11 @@ public class ValidationError {
   /// <summary>
   /// Returns a formatted string representation of the error.
   /// </summary>
-  public override string ToString() {
+  public override string ToString()
+  {
     var result = $"[{ErrorType}] {CatalogKey}: {Message}";
-    if (!string.IsNullOrEmpty(Details)) {
+    if (!string.IsNullOrEmpty(Details))
+    {
       result += $"\n  Details: {Details}";
     }
     return result;
@@ -69,7 +74,8 @@ public class ValidationError {
 /// <summary>
 /// Categories of validation errors that can occur during catalog entry inspection.
 /// </summary>
-public enum ValidationErrorType {
+public enum ValidationErrorType
+{
   /// <summary>
   /// The data source does not exist (file not found, URL unreachable, etc.).
   /// </summary>
@@ -103,5 +109,5 @@ public enum ValidationErrorType {
   /// <summary>
   /// An unexpected exception occurred during inspection.
   /// </summary>
-  InspectionFailure
+  InspectionFailure,
 }

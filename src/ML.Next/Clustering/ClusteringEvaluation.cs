@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using Microsoft.ML;
 using Microsoft.ML.Data;
-using ML.Next.Core.Schema;
 using ML.Next.Core.Columns;
+using ML.Next.Core.Schema;
 
 namespace ML.Next.Clustering;
 
@@ -32,23 +32,24 @@ public static class ClusteringEvaluation
   /// </code>
   /// </example>
   public static ClusteringMetrics Evaluate<TSchema>(
-      MLContext context,
-      DataView<TSchema> predictions,
-      Expression<Func<TSchema, object>> scoreColumn,
-      Expression<Func<TSchema, object>> featureColumn,
-      Expression<Func<TSchema, object>>? labelColumn = null)
-      where TSchema : ISchemaDefinition
+    MLContext context,
+    DataView<TSchema> predictions,
+    Expression<Func<TSchema, object>> scoreColumn,
+    Expression<Func<TSchema, object>> featureColumn,
+    Expression<Func<TSchema, object>>? labelColumn = null
+  )
+    where TSchema : ISchemaDefinition
   {
     var scoreColName = ColumnExpressionExtractor.ExtractColumnName(scoreColumn);
     var featureColName = ColumnExpressionExtractor.ExtractColumnName(featureColumn);
-    var labelColName = labelColumn != null
-        ? ColumnExpressionExtractor.ExtractColumnName(labelColumn)
-        : null;
+    var labelColName =
+      labelColumn != null ? ColumnExpressionExtractor.ExtractColumnName(labelColumn) : null;
 
     return context.Clustering.Evaluate(
-        predictions.Underlying,
-        scoreColumnName: scoreColName,
-        featureColumnName: featureColName,
-        labelColumnName: labelColName);
+      predictions.Underlying,
+      scoreColumnName: scoreColName,
+      featureColumnName: featureColName,
+      labelColumnName: labelColName
+    );
   }
 }

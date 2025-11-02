@@ -7,16 +7,16 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 /// Preprocesses raw company data by converting string values to proper types.
 /// Converts percentage strings to decimals and "t"/"f" to booleans.
 /// </summary>
-public static class PreprocessCompaniesNode {
+public static class PreprocessCompaniesNode
+{
   /// <summary>
   /// Creates a transformation function that preprocesses company data.
   /// </summary>
-  public static Func<IEnumerable<CompanyRawSchema>, Task<IEnumerable<CompanySchema>>> Create() {
-    return async (input) => {
-      var processed = input
-          .Select(c => Parse(c))
-          .Where(c => c != null)
-          .Cast<CompanySchema>();
+  public static Func<IEnumerable<CompanyRawSchema>, Task<IEnumerable<CompanySchema>>> Create()
+  {
+    return async (input) =>
+    {
+      var processed = input.Select(c => Parse(c)).Where(c => c != null).Cast<CompanySchema>();
 
       return await Task.FromResult(processed);
     };
@@ -26,25 +26,30 @@ public static class PreprocessCompaniesNode {
   /// Attempts to parse a raw company record into a processed company.
   /// Returns null if any required field is missing or invalid.
   /// </summary>
-  private static CompanySchema? Parse(CompanyRawSchema raw) {
+  private static CompanySchema? Parse(CompanyRawSchema raw)
+  {
     // Parse fields that might fail
     var companyRating = ParsePercentage(raw.CompanyRating);
     var totalFleetCount = ParseDecimal(raw.TotalFleetCount);
 
     // Validation: all required fields must be present
-    if (!companyRating.HasValue
-        || !totalFleetCount.HasValue
-        || string.IsNullOrWhiteSpace(raw.CompanyLocation)) {
+    if (
+      !companyRating.HasValue
+      || !totalFleetCount.HasValue
+      || string.IsNullOrWhiteSpace(raw.CompanyLocation)
+    )
+    {
       return null; // Parse failed - incomplete record
     }
 
     // Parse succeeded - return validated, non-nullable type
-    return new CompanySchema {
+    return new CompanySchema
+    {
       Id = raw.Id,
       CompanyRating = companyRating.Value,
       CompanyLocation = raw.CompanyLocation,
       TotalFleetCount = totalFleetCount.Value,
-      IataApproved = IsTrue(raw.IataApproved)
+      IataApproved = IsTrue(raw.IataApproved),
     };
   }
 
@@ -57,13 +62,16 @@ public static class PreprocessCompaniesNode {
   /// Parses percentage string (e.g., "100%") to decimal (e.g., 1.0)
   /// Returns null for empty/invalid values to match Kedro's NaN handling
   /// </summary>
-  private static decimal? ParsePercentage(string? value) {
-    if (string.IsNullOrWhiteSpace(value)) {
+  private static decimal? ParsePercentage(string? value)
+  {
+    if (string.IsNullOrWhiteSpace(value))
+    {
       return null;
     }
 
     var cleaned = value.Replace("%", "").Trim();
-    if (decimal.TryParse(cleaned, out var result)) {
+    if (decimal.TryParse(cleaned, out var result))
+    {
       return result / 100m;
     }
 
@@ -73,12 +81,15 @@ public static class PreprocessCompaniesNode {
   /// <summary>
   /// Parses decimal from string, returns null if empty/invalid
   /// </summary>
-  private static decimal? ParseDecimal(string? value) {
-    if (string.IsNullOrWhiteSpace(value)) {
+  private static decimal? ParseDecimal(string? value)
+  {
+    if (string.IsNullOrWhiteSpace(value))
+    {
       return null;
     }
 
-    if (decimal.TryParse(value, out var result)) {
+    if (decimal.TryParse(value, out var result))
+    {
       return result;
     }
 

@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 
 /// <summary>
 /// Tests verifying ML.Next catches schema drift/evolution issues at compile-time.
-/// 
+///
 /// Common scenario: Data schema changes in production (new columns, removed columns, type changes).
 /// ML.NET: Model continues to run, potentially with incorrect results or runtime errors.
 /// ML.Next: Type system tracks schema versions through phantom types.
@@ -13,11 +13,14 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 [TestFixture]
 [Category("CompilationSafety")]
 [Category("SchemaDrift")]
-public class SchemaDriftTests {
+public class SchemaDriftTests
+{
   [Test]
-  public void ModelTrainedOnV1_AppliedToV2_Should_Not_Compile() {
+  public void ModelTrainedOnV1_AppliedToV2_Should_Not_Compile()
+  {
     // Scenario: Schema evolves but model trained on old schema
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using ML.Next.Extract;
@@ -52,14 +55,19 @@ public class SchemaDriftTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Applying model trained on old schema to new schema should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Applying model trained on old schema to new schema should not compile"
+    );
   }
 
   [Test]
-  public void RemovedColumn_Should_Not_Compile() {
+  public void RemovedColumn_Should_Not_Compile()
+  {
     // Scenario: Schema evolution removes a column that model depends on
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using ML.Next.Extract;
@@ -94,14 +102,15 @@ public class SchemaDriftTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Using removed column should not compile");
+    Assert.That(result.Success, Is.False, "Using removed column should not compile");
   }
 
   [Test]
-  public void ColumnTypeChanged_Should_Require_New_Schema_Version() {
+  public void ColumnTypeChanged_Should_Require_New_Schema_Version()
+  {
     // Scenario: Column type changes from float to string
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -132,7 +141,10 @@ public class SchemaDriftTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Applying pipeline to data with changed column types should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Applying pipeline to data with changed column types should not compile"
+    );
   }
 }

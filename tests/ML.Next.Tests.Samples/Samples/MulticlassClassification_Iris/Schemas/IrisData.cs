@@ -5,7 +5,8 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Schemas;
 /// <summary>
 /// Iris flower measurement data with species label for multiclass classification.
 /// </summary>
-public class IrisData {
+public class IrisData
+{
   [LoadColumn(0)]
   public float Label;
 

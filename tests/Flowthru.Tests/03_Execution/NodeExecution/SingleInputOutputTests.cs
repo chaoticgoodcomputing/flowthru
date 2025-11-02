@@ -11,17 +11,28 @@ namespace Flowthru.Tests.Execution.NodeExecution;
 [TestFixture]
 [Category("Execution")]
 [Category("NodeExecution")]
-public class SingleInputOutputTests {
+public class SingleInputOutputTests
+{
   [Test]
-  public async Task Execute_WithPassthroughNode_PreservesData() {
+  public async Task Execute_WithPassthroughNode_PreservesData()
+  {
     // ===========
     // Arrange
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
-    var testData = new[] { new TestData { Id = 1, Name = "Test", Value = 42.0 } };
+    var testData = new[]
+    {
+      new TestData
+      {
+        Id = 1,
+        Name = "Test",
+        Value = 42.0,
+      },
+    };
     await catalog.Input.Save(testData).RunAsync();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(catalog.Input, catalog.Output);
     });
 
@@ -37,8 +48,8 @@ public class SingleInputOutputTests {
     // ===========
     var resultFin = await catalog.Output.Load().RunAsync();
     var result = resultFin.Match(
-        Succ: data => data.ToList(),
-        Fail: error => throw new Exception($"Load failed: {error}")
+      Succ: data => data.ToList(),
+      Fail: error => throw new Exception($"Load failed: {error}")
     );
     Assert.That(result, Has.Count.EqualTo(1));
     Assert.That(result[0].Id, Is.EqualTo(1));
@@ -47,15 +58,25 @@ public class SingleInputOutputTests {
   }
 
   [Test]
-  public async Task Execute_WithIncrementNode_IncrementsId() {
+  public async Task Execute_WithIncrementNode_IncrementsId()
+  {
     // ===========
     // Arrange
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
-    var testData = new[] { new TestData { Id = 5, Name = "Test", Value = 10.0 } };
+    var testData = new[]
+    {
+      new TestData
+      {
+        Id = 5,
+        Name = "Test",
+        Value = 10.0,
+      },
+    };
     await catalog.Input.Save(testData).RunAsync();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<IncrementNode>(catalog.Input, catalog.Output);
     });
 
@@ -71,8 +92,8 @@ public class SingleInputOutputTests {
     // ===========
     var resultFin = await catalog.Output.Load().RunAsync();
     var result = resultFin.Match(
-        Succ: data => data.ToList(),
-        Fail: error => throw new Exception($"Load failed: {error}")
+      Succ: data => data.ToList(),
+      Fail: error => throw new Exception($"Load failed: {error}")
     );
     Assert.That(result, Has.Count.EqualTo(1));
     Assert.That(result[0].Id, Is.EqualTo(6));
@@ -81,15 +102,25 @@ public class SingleInputOutputTests {
   }
 
   [Test]
-  public async Task Execute_WithDoubleValueNode_DoublesValue() {
+  public async Task Execute_WithDoubleValueNode_DoublesValue()
+  {
     // ===========
     // Arrange
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
-    var testData = new[] { new TestData { Id = 1, Name = "Test", Value = 21.0 } };
+    var testData = new[]
+    {
+      new TestData
+      {
+        Id = 1,
+        Name = "Test",
+        Value = 21.0,
+      },
+    };
     await catalog.Input.Save(testData).RunAsync();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<DoubleValueNode>(catalog.Input, catalog.Output);
     });
 
@@ -105,22 +136,32 @@ public class SingleInputOutputTests {
     // ===========
     var resultFin = await catalog.Output.Load().RunAsync();
     var result = resultFin.Match(
-        Succ: data => data.ToList(),
-        Fail: error => throw new Exception($"Load failed: {error}")
+      Succ: data => data.ToList(),
+      Fail: error => throw new Exception($"Load failed: {error}")
     );
     Assert.That(result[0].Value, Is.EqualTo(42.0));
   }
 
   [Test]
-  public async Task Execute_WithFailingNode_ThrowsExpectedException() {
+  public async Task Execute_WithFailingNode_ThrowsExpectedException()
+  {
     // ===========
     // Arrange
     // ===========
     var catalog = new SimpleThreeNodeCatalog();
-    var testData = new[] { new TestData { Id = 1, Name = "Test", Value = 1.0 } };
+    var testData = new[]
+    {
+      new TestData
+      {
+        Id = 1,
+        Name = "Test",
+        Value = 1.0,
+      },
+    };
     await catalog.Input.Save(testData).RunAsync();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<FailingNode>(catalog.Input, catalog.Output);
     });
 

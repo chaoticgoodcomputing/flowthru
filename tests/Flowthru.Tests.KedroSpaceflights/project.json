@@ -30,5 +30,19 @@
         "parallel": false
       }
     },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
+    }
   }
 }

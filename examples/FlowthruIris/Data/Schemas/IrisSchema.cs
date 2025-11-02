@@ -2,7 +2,7 @@ namespace FlowthruIris.Data.Schemas;
 
 /// <summary>
 /// Processed Iris schema with validated, typed data and engineered features.
-/// 
+///
 /// <para><strong>Type Safety Benefits</strong></para>
 /// <para>
 /// By converting to strongly-typed floats, the compiler ensures:
@@ -11,14 +11,14 @@ namespace FlowthruIris.Data.Schemas;
 /// - IntelliSense shows exact data types
 /// - Mathematical operations are type-safe
 /// </para>
-/// 
+///
 /// <para><strong>Feature Engineering</strong></para>
 /// <para>
 /// Adds derived features (ratios) that can improve model performance:
 /// - PetalRatio: Captures petal shape (length/width relationship)
 /// - SepalRatio: Captures sepal shape (length/width relationship)
 /// </para>
-/// 
+///
 /// <para><strong>Data Validation</strong></para>
 /// <para>
 /// Records reaching this schema have been validated during parsing:
@@ -27,7 +27,8 @@ namespace FlowthruIris.Data.Schemas;
 /// - Species is one of the three known classes
 /// </para>
 /// </summary>
-public record IrisSchema {
+public record IrisSchema
+{
   /// <summary>
   /// Sepal length in centimeters (validated float)
   /// </summary>

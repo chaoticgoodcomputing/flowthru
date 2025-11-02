@@ -1,6 +1,6 @@
-using Microsoft.ML;
 using LanguageExt;
 using LanguageExt.Common;
+using Microsoft.ML;
 using ML.Next.Core.Schema;
 
 namespace ML.Next.Transforms;
@@ -11,8 +11,8 @@ namespace ML.Next.Transforms;
 /// <typeparam name="TSchemaIn">The input schema</typeparam>
 /// <typeparam name="TSchemaOut">The output schema after fitting</typeparam>
 public readonly record struct Estimator<TSchemaIn, TSchemaOut>
-    where TSchemaIn : ISchemaDefinition
-    where TSchemaOut : ISchemaDefinition
+  where TSchemaIn : ISchemaDefinition
+  where TSchemaOut : ISchemaDefinition
 {
   /// <summary>
   /// The underlying ML.NET estimator.
@@ -23,7 +23,7 @@ public readonly record struct Estimator<TSchemaIn, TSchemaOut>
   /// Creates a typed estimator from an ML.NET IEstimator.
   /// </summary>
   public static Estimator<TSchemaIn, TSchemaOut> From(IEstimator<ITransformer> estimator) =>
-      new() { Underlying = estimator };
+    new() { Underlying = estimator };
 
   /// <summary>
   /// Fit the estimator to training data, producing a transformer.
@@ -36,7 +36,8 @@ public readonly record struct Estimator<TSchemaIn, TSchemaOut>
     {
       var transformer = Underlying.Fit(data.Underlying);
       return Fin<Transformer<TSchemaIn, TSchemaOut>>.Succ(
-          Transformer<TSchemaIn, TSchemaOut>.From(transformer));
+        Transformer<TSchemaIn, TSchemaOut>.From(transformer)
+      );
     }
     catch (Exception ex)
     {
@@ -48,8 +49,9 @@ public readonly record struct Estimator<TSchemaIn, TSchemaOut>
   /// Appends another estimator to this one, creating a pipeline.
   /// </summary>
   public Estimator<TSchemaIn, TSchemaFinal> Append<TSchemaFinal>(
-      Estimator<TSchemaOut, TSchemaFinal> next)
-      where TSchemaFinal : ISchemaDefinition
+    Estimator<TSchemaOut, TSchemaFinal> next
+  )
+    where TSchemaFinal : ISchemaDefinition
   {
     var composed = Underlying.Append(next.Underlying);
     return Estimator<TSchemaIn, TSchemaFinal>.From(composed);

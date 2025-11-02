@@ -10,7 +10,8 @@ namespace Flowthru.Meta.Models;
 /// of data flowing through catalog entries, enabling Flowthru.Viz to display
 /// data schemas and validate type compatibility.
 /// </remarks>
-public class SchemaMetadata {
+public class SchemaMetadata
+{
   /// <summary>
   /// List of fields (properties) in the schema.
   /// </summary>
@@ -21,7 +22,8 @@ public class SchemaMetadata {
 /// <summary>
 /// A single field (property) in a schema.
 /// </summary>
-public class SchemaField {
+public class SchemaField
+{
   /// <summary>
   /// Name of the property.
   /// </summary>

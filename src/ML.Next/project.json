@@ -24,6 +24,20 @@
     "lint": {
       "executor": "@nx-dotnet/core:format",
       "options": { }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
     }
   },
   "tags": [ "type:library", "scope:ml", "framework:mlnet", "language:csharp" ]

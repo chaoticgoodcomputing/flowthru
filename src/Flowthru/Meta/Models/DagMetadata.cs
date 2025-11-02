@@ -10,7 +10,8 @@ namespace Flowthru.Meta.Models;
 /// catalog entries, and their relationships. It serves as the backbone for
 /// Flowthru.Viz visualization.
 /// </remarks>
-public class DagMetadata {
+public class DagMetadata
+{
   /// <summary>
   /// Name of the pipeline this DAG represents.
   /// </summary>

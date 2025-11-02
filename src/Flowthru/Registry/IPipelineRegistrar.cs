@@ -20,17 +20,19 @@ namespace Flowthru.Registry;
 /// {
 ///     // Pipeline without parameters
 ///     registrar.Register("processing", ProcessingPipeline.Create);
-///     
+///
 ///     // Pipeline with parameters
 ///     registrar.Register("training", TrainPipeline.Create, new TrainOptions());
-///     
+///
 ///     // Add metadata
 ///     registrar.WithDescription("processing", "Cleans and transforms raw data");
 /// }
 /// </code>
 /// </para>
 /// </remarks>
-public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase {
+public interface IPipelineRegistrar<TCatalog>
+  where TCatalog : DataCatalogBase
+{
   /// <summary>
   /// Registers a pipeline with a parameterless factory function.
   /// </summary>
@@ -40,9 +42,7 @@ public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase {
   /// <remarks>
   /// Use this overload when the pipeline doesn't require parameters.
   /// </remarks>
-  IPipelineRegistrar<TCatalog> Register(
-    string name,
-    Func<TCatalog, Pipeline> pipelineFactory);
+  IPipelineRegistrar<TCatalog> Register(string name, Func<TCatalog, Pipeline> pipelineFactory);
 
   /// <summary>
   /// Registers a pipeline with a parameterized factory function.
@@ -64,7 +64,8 @@ public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase {
   IPipelineRegistrar<TCatalog> Register<TParams>(
     string name,
     Func<TCatalog, TParams, Pipeline> pipelineFactory,
-    TParams parameters);
+    TParams parameters
+  );
 
   /// <summary>
   /// Adds a description to the most recently registered pipeline.
@@ -108,5 +109,7 @@ public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase {
   ///   });
   /// </code>
   /// </remarks>
-  IPipelineRegistrar<TCatalog> WithValidation(Action<Pipelines.Validation.ValidationOptions> configure);
+  IPipelineRegistrar<TCatalog> WithValidation(
+    Action<Pipelines.Validation.ValidationOptions> configure
+  );
 }

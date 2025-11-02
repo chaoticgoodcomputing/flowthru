@@ -10,6 +10,4 @@ namespace ML.Next.Core.Schema;
 /// representing columns. The actual column definitions use ColumnName&lt;TType&gt;
 /// to provide type-level information about each column.
 /// </remarks>
-public interface ISchemaDefinition
-{
-}
+public interface ISchemaDefinition { }

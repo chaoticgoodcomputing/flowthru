@@ -24,7 +24,8 @@ namespace Flowthru.Meta;
 /// previous files with the same pipeline name.
 /// </para>
 /// </remarks>
-public class TimestampConfiguration {
+public class TimestampConfiguration
+{
   /// <summary>
   /// Gets or sets whether to include timestamps in metadata filenames.
   /// </summary>
@@ -48,17 +49,30 @@ public class TimestampConfiguration {
   /// Validates the timestamp configuration.
   /// </summary>
   /// <exception cref="ArgumentException">Thrown if format string is invalid</exception>
-  internal void Validate() {
-    if (IncludeTimestamp && string.IsNullOrWhiteSpace(Format)) {
-      throw new ArgumentException("Timestamp format cannot be null or empty when IncludeTimestamp is true", nameof(Format));
+  internal void Validate()
+  {
+    if (IncludeTimestamp && string.IsNullOrWhiteSpace(Format))
+    {
+      throw new ArgumentException(
+        "Timestamp format cannot be null or empty when IncludeTimestamp is true",
+        nameof(Format)
+      );
     }
 
     // Validate format string by attempting to format current time
-    if (IncludeTimestamp) {
-      try {
+    if (IncludeTimestamp)
+    {
+      try
+      {
         _ = DateTime.Now.ToString(Format);
-      } catch (FormatException ex) {
-        throw new ArgumentException($"Invalid timestamp format string: '{Format}'", nameof(Format), ex);
+      }
+      catch (FormatException ex)
+      {
+        throw new ArgumentException(
+          $"Invalid timestamp format string: '{Format}'",
+          nameof(Format),
+          ex
+        );
       }
     }
   }
@@ -67,7 +81,8 @@ public class TimestampConfiguration {
   /// Generates a timestamp string based on current configuration.
   /// </summary>
   /// <returns>Formatted timestamp string, or null if timestamps are disabled</returns>
-  internal string? GenerateTimestamp() {
+  internal string? GenerateTimestamp()
+  {
     return IncludeTimestamp ? DateTime.Now.ToString(Format) : null;
   }
 }

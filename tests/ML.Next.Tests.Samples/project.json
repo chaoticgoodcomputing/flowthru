@@ -25,6 +25,20 @@
         "command": "dotnet clean",
         "cwd": "tests/ML.Next.Tests.Samples"
       }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
     }
   },
   "tags": [ "type:test", "scope:ml" ]

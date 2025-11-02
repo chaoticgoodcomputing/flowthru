@@ -9,7 +9,8 @@ namespace ML.Next.Data;
 /// <summary>
 /// Type-safe data loader with compile-time schema validation.
 /// </summary>
-public static class DataLoader {
+public static class DataLoader
+{
   /// <summary>
   /// Load data from enumerable with compile-time schema tracking.
   /// </summary>
@@ -20,15 +21,20 @@ public static class DataLoader {
   /// <param name="schemaDefinition">Optional schema definition for customization</param>
   /// <returns>Validated DataView with schema tracking, or validation errors</returns>
   public static Fin<DataView<TSchema>> LoadFromEnumerable<TSchema, T>(
-      MLContext context,
-      IEnumerable<T> data,
-      SchemaDefinition? schemaDefinition = null)
-      where TSchema : ISchemaDefinition
-      where T : class {
-    try {
+    MLContext context,
+    IEnumerable<T> data,
+    SchemaDefinition? schemaDefinition = null
+  )
+    where TSchema : ISchemaDefinition
+    where T : class
+  {
+    try
+    {
       var mlView = context.Data.LoadFromEnumerable(data, schemaDefinition);
       return Fin<DataView<TSchema>>.Succ(DataView<TSchema>.From(mlView));
-    } catch (Exception ex) {
+    }
+    catch (Exception ex)
+    {
       return Fin<DataView<TSchema>>.Fail(Error.New(ex));
     }
   }
@@ -42,15 +48,20 @@ public static class DataLoader {
   /// <param name="options">Text loader options</param>
   /// <returns>Validated DataView with schema tracking, or validation errors</returns>
   public static Fin<DataView<TSchema>> LoadFromTextFile<TSchema>(
-      MLContext context,
-      string path,
-      TextLoader.Options? options = null)
-      where TSchema : ISchemaDefinition {
-    try {
+    MLContext context,
+    string path,
+    TextLoader.Options? options = null
+  )
+    where TSchema : ISchemaDefinition
+  {
+    try
+    {
       var loader = context.Data.CreateTextLoader(options ?? new TextLoader.Options());
       var mlView = loader.Load(path);
       return Fin<DataView<TSchema>>.Succ(DataView<TSchema>.From(mlView));
-    } catch (Exception ex) {
+    }
+    catch (Exception ex)
+    {
       return Fin<DataView<TSchema>>.Fail(Error.New(ex));
     }
   }
@@ -68,23 +79,29 @@ public static class DataLoader {
   /// <param name="allowSparse">Allow sparse format (default: false)</param>
   /// <returns>Validated DataView with schema tracking, or validation errors</returns>
   public static Fin<DataView<TSchema>> LoadFromTextFile<TData, TSchema>(
-      MLContext context,
-      string path,
-      bool hasHeader = false,
-      char separatorChar = '\t',
-      bool allowQuoting = false,
-      bool allowSparse = false)
-      where TData : class
-      where TSchema : ISchemaDefinition {
-    try {
+    MLContext context,
+    string path,
+    bool hasHeader = false,
+    char separatorChar = '\t',
+    bool allowQuoting = false,
+    bool allowSparse = false
+  )
+    where TData : class
+    where TSchema : ISchemaDefinition
+  {
+    try
+    {
       var mlView = context.Data.LoadFromTextFile<TData>(
         path,
         hasHeader: hasHeader,
         separatorChar: separatorChar,
         allowQuoting: allowQuoting,
-        allowSparse: allowSparse);
+        allowSparse: allowSparse
+      );
       return Fin<DataView<TSchema>>.Succ(DataView<TSchema>.From(mlView));
-    } catch (Exception ex) {
+    }
+    catch (Exception ex)
+    {
       return Fin<DataView<TSchema>>.Fail(Error.New(ex));
     }
   }
@@ -100,8 +117,7 @@ public static class DataLoader {
   /// Consider using with validation for safety.
   /// </remarks>
   public static DataView<TSchema> Wrap<TSchema>(IDataView view)
-      where TSchema : ISchemaDefinition =>
-      DataView<TSchema>.From(view);
+    where TSchema : ISchemaDefinition => DataView<TSchema>.From(view);
 
   /// <summary>
   /// Split data into train and test sets while preserving schema type information.
@@ -122,15 +138,18 @@ public static class DataLoader {
   /// </code>
   /// </example>
   public static (DataView<TSchema> TrainSet, DataView<TSchema> TestSet) TrainTestSplit<TSchema>(
-      MLContext context,
-      DataView<TSchema> data,
-      double testFraction = 0.2,
-      int? seed = null)
-      where TSchema : ISchemaDefinition {
-    var split = context.Data.TrainTestSplit(data.Underlying, testFraction: testFraction, seed: seed);
-    return (
-      DataView<TSchema>.From(split.TrainSet),
-      DataView<TSchema>.From(split.TestSet)
+    MLContext context,
+    DataView<TSchema> data,
+    double testFraction = 0.2,
+    int? seed = null
+  )
+    where TSchema : ISchemaDefinition
+  {
+    var split = context.Data.TrainTestSplit(
+      data.Underlying,
+      testFraction: testFraction,
+      seed: seed
     );
+    return (DataView<TSchema>.From(split.TrainSet), DataView<TSchema>.From(split.TestSet));
   }
 }

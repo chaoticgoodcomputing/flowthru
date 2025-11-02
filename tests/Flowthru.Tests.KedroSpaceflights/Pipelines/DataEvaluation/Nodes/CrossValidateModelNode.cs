@@ -6,17 +6,17 @@ using Microsoft.ML;
 
 namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation.Nodes;
 
-
 /// <summary>
 /// Performs k-fold cross-validation to generate R² distribution.
 /// Helps understand model stability and variance across different train/test splits.
 /// </summary>
-public static class CrossValidateModelNode {
-
+public static class CrossValidateModelNode
+{
   /// <summary>
   /// Parameters for cross-validation analysis
   /// </summary>
-  public record Params {
+  public record Params
+  {
     /// <summary>
     /// Number of folds for k-fold cross-validation
     /// </summary>
@@ -31,7 +31,7 @@ public static class CrossValidateModelNode {
 
     /// <summary>
     /// Kedro's reference R² score for comparison.
-    /// 
+    ///
     /// As an additional clarification, this metric is NOT meant to determine if our pipeline "beats"
     /// Kedro's implementation. Rather, it serves as a benchmark to ensure our implementation is
     /// comfortably close to Kedro's original spaceflights example, indicating that our data processing
@@ -42,69 +42,95 @@ public static class CrossValidateModelNode {
   }
 
   public static Func<IEnumerable<ModelInputSchema>, Task<CrossValidationResults>> Create(
-      Params? parameters = null,
-      ILogger? logger = null) {
+    Params? parameters = null,
+    ILogger? logger = null
+  )
+  {
     var config = parameters ?? new Params();
 
-    return async (input) => {
+    return async (input) =>
+    {
       var data = input.ToList();
       logger?.LogInformation("Starting cross-validation with {Folds} folds", config.NumFolds);
 
       // Convert to feature rows
-      var featureRows = data.Select(row => new FeatureRow {
-        Engines = (float)row.Engines,
-        PassengerCapacity = (float)row.PassengerCapacity,
-        Crew = (float)row.Crew,
-        DCheckComplete = row.DCheckComplete,
-        IataApproved = row.IataApproved,
-        CompanyRating = (float)row.CompanyRating,
-        ReviewScoresRating = (float)row.ReviewScoresRating,
-        Price = (float)row.Price
-      }).ToList();
+      var featureRows = data.Select(row => new FeatureRow
+        {
+          Engines = (float)row.Engines,
+          PassengerCapacity = (float)row.PassengerCapacity,
+          Crew = (float)row.Crew,
+          DCheckComplete = row.DCheckComplete,
+          IataApproved = row.IataApproved,
+          CompanyRating = (float)row.CompanyRating,
+          ReviewScoresRating = (float)row.ReviewScoresRating,
+          Price = (float)row.Price,
+        })
+        .ToList();
 
       var mlContext = new MLContext(seed: config.BaseSeed);
       var allData = mlContext.Data.LoadFromEnumerable(featureRows);
 
       // Define the ML pipeline (same as TrainModelNode)
-      var pipeline = mlContext.Transforms.CopyColumns(
-              outputColumnName: "Label",
-              inputColumnName: nameof(FeatureRow.Price))
-          .Append(mlContext.Transforms.Categorical.OneHotEncoding(
-              outputColumnName: "DCheckCompleteEncoded",
-              inputColumnName: nameof(FeatureRow.DCheckComplete)))
-          .Append(mlContext.Transforms.Categorical.OneHotEncoding(
-              outputColumnName: "IataApprovedEncoded",
-              inputColumnName: nameof(FeatureRow.IataApproved)))
-          .Append(mlContext.Transforms.Concatenate(
-              "Features",
-              nameof(FeatureRow.Engines),
-              nameof(FeatureRow.PassengerCapacity),
-              nameof(FeatureRow.Crew),
-              "DCheckCompleteEncoded",
-              "IataApprovedEncoded",
-              nameof(FeatureRow.CompanyRating),
-              nameof(FeatureRow.ReviewScoresRating)))
-          .Append(mlContext.Transforms.NormalizeMinMax("Features"))
-          .Append(mlContext.Regression.Trainers.OnlineGradientDescent(
-              labelColumnName: "Label",
-              featureColumnName: "Features",
-              numberOfIterations: 1000));
+      var pipeline = mlContext
+        .Transforms.CopyColumns(
+          outputColumnName: "Label",
+          inputColumnName: nameof(FeatureRow.Price)
+        )
+        .Append(
+          mlContext.Transforms.Categorical.OneHotEncoding(
+            outputColumnName: "DCheckCompleteEncoded",
+            inputColumnName: nameof(FeatureRow.DCheckComplete)
+          )
+        )
+        .Append(
+          mlContext.Transforms.Categorical.OneHotEncoding(
+            outputColumnName: "IataApprovedEncoded",
+            inputColumnName: nameof(FeatureRow.IataApproved)
+          )
+        )
+        .Append(
+          mlContext.Transforms.Concatenate(
+            "Features",
+            nameof(FeatureRow.Engines),
+            nameof(FeatureRow.PassengerCapacity),
+            nameof(FeatureRow.Crew),
+            "DCheckCompleteEncoded",
+            "IataApprovedEncoded",
+            nameof(FeatureRow.CompanyRating),
+            nameof(FeatureRow.ReviewScoresRating)
+          )
+        )
+        .Append(mlContext.Transforms.NormalizeMinMax("Features"))
+        .Append(
+          mlContext.Regression.Trainers.OnlineGradientDescent(
+            labelColumnName: "Label",
+            featureColumnName: "Features",
+            numberOfIterations: 1000
+          )
+        );
 
       // Perform cross-validation
       var cvResults = mlContext.Regression.CrossValidate(
-          allData,
-          pipeline,
-          numberOfFolds: config.NumFolds,
-          labelColumnName: "Label");
+        allData,
+        pipeline,
+        numberOfFolds: config.NumFolds,
+        labelColumnName: "Label"
+      );
 
       // Extract metrics from each fold
-      var foldMetrics = cvResults.Select((result, index) => new FoldMetric {
-        FoldNumber = index + 1,
-        R2Score = result.Metrics.RSquared,
-        MeanAbsoluteError = result.Metrics.MeanAbsoluteError,
-        RootMeanSquaredError = result.Metrics.RootMeanSquaredError,
-        LossFunctionValue = result.Metrics.LossFunction
-      }).ToList();
+      var foldMetrics = cvResults
+        .Select(
+          (result, index) =>
+            new FoldMetric
+            {
+              FoldNumber = index + 1,
+              R2Score = result.Metrics.RSquared,
+              MeanAbsoluteError = result.Metrics.MeanAbsoluteError,
+              RootMeanSquaredError = result.Metrics.RootMeanSquaredError,
+              LossFunctionValue = result.Metrics.LossFunction,
+            }
+        )
+        .ToList();
 
       // Calculate statistics
       var r2Scores = foldMetrics.Select(f => f.R2Score).ToList();
@@ -117,16 +143,25 @@ public static class CrossValidateModelNode {
       logger?.LogInformation("  Mean R²:    {MeanR2:F4} ± {StdDev:F4}", meanR2, stdDevR2);
       logger?.LogInformation("  Range:      [{Min:F4}, {Max:F4}]", minR2, maxR2);
       logger?.LogInformation("  Kedro R²:   {KedroR2:F4}", config.KedroReferenceR2Score);
-      logger?.LogInformation("  Difference: {Diff:F4} ({Pct:F1}%)",
-          Math.Abs(meanR2 - config.KedroReferenceR2Score),
-          Math.Abs(meanR2 - config.KedroReferenceR2Score) / config.KedroReferenceR2Score * 100);
+      logger?.LogInformation(
+        "  Difference: {Diff:F4} ({Pct:F1}%)",
+        Math.Abs(meanR2 - config.KedroReferenceR2Score),
+        Math.Abs(meanR2 - config.KedroReferenceR2Score) / config.KedroReferenceR2Score * 100
+      );
 
-      foreach (var fold in foldMetrics) {
-        logger?.LogInformation("  Fold {Fold}: R²={R2:F4}, MAE={MAE:F2}, RMSE={RMSE:F2}",
-            fold.FoldNumber, fold.R2Score, fold.MeanAbsoluteError, fold.RootMeanSquaredError);
+      foreach (var fold in foldMetrics)
+      {
+        logger?.LogInformation(
+          "  Fold {Fold}: R²={R2:F4}, MAE={MAE:F2}, RMSE={RMSE:F2}",
+          fold.FoldNumber,
+          fold.R2Score,
+          fold.MeanAbsoluteError,
+          fold.RootMeanSquaredError
+        );
       }
 
-      var results = new CrossValidationResults {
+      var results = new CrossValidationResults
+      {
         FoldMetrics = foldMetrics,
         MeanR2Score = meanR2,
         StdDevR2Score = stdDevR2,
@@ -134,7 +169,7 @@ public static class CrossValidateModelNode {
         MaxR2Score = maxR2,
         NumFolds = config.NumFolds,
         KedroR2Score = config.KedroReferenceR2Score,
-        DifferenceFromKedro = Math.Abs(meanR2 - config.KedroReferenceR2Score)
+        DifferenceFromKedro = Math.Abs(meanR2 - config.KedroReferenceR2Score),
       };
 
       return results;

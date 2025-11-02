@@ -1,6 +1,6 @@
-using Microsoft.ML;
 using LanguageExt;
 using LanguageExt.Common;
+using Microsoft.ML;
 using ML.Next.Core.Schema;
 using ML.Next.Transforms;
 using static LanguageExt.Prelude;
@@ -13,11 +13,13 @@ namespace ML.Next.Model;
 /// <typeparam name="TInput">Input data class (must match model's input schema)</typeparam>
 /// <typeparam name="TOutput">Output data class (must match model's output schema)</typeparam>
 public sealed class PredictionEngine<TInput, TOutput>
-    where TInput : class
-    where TOutput : class, new() {
+  where TInput : class
+  where TOutput : class, new()
+{
   private readonly Microsoft.ML.PredictionEngine<TInput, TOutput> _engine;
 
-  private PredictionEngine(Microsoft.ML.PredictionEngine<TInput, TOutput> engine) {
+  private PredictionEngine(Microsoft.ML.PredictionEngine<TInput, TOutput> engine)
+  {
     _engine = engine;
   }
 
@@ -30,16 +32,24 @@ public sealed class PredictionEngine<TInput, TOutput>
   /// <param name="transformer">Trained transformer</param>
   /// <returns>Prediction engine or error</returns>
   public static Fin<PredictionEngine<TInput, TOutput>> Create<TSchemaIn, TSchemaOut>(
-      MLContext context,
-      Transforms.Transformer<TSchemaIn, TSchemaOut> transformer)
-      where TSchemaIn : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition {
-    try {
+    MLContext context,
+    Transforms.Transformer<TSchemaIn, TSchemaOut> transformer
+  )
+    where TSchemaIn : ISchemaDefinition
+    where TSchemaOut : ISchemaDefinition
+  {
+    try
+    {
       var engine = context.Model.CreatePredictionEngine<TInput, TOutput>(transformer.Underlying);
-      return Fin<PredictionEngine<TInput, TOutput>>.Succ(new PredictionEngine<TInput, TOutput>(engine));
-    } catch (Exception ex) {
+      return Fin<PredictionEngine<TInput, TOutput>>.Succ(
+        new PredictionEngine<TInput, TOutput>(engine)
+      );
+    }
+    catch (Exception ex)
+    {
       return Fin<PredictionEngine<TInput, TOutput>>.Fail(
-          Error.New($"Failed to create prediction engine: {ex.Message}", ex));
+        Error.New($"Failed to create prediction engine: {ex.Message}", ex)
+      );
     }
   }
 
@@ -48,11 +58,15 @@ public sealed class PredictionEngine<TInput, TOutput>
   /// </summary>
   /// <param name="input">Input data</param>
   /// <returns>Prediction result or error</returns>
-  public Fin<TOutput> Predict(TInput input) {
-    try {
+  public Fin<TOutput> Predict(TInput input)
+  {
+    try
+    {
       var result = _engine.Predict(input);
       return Fin<TOutput>.Succ(result);
-    } catch (Exception ex) {
+    }
+    catch (Exception ex)
+    {
       return Fin<TOutput>.Fail(Error.New($"Prediction failed: {ex.Message}", ex));
     }
   }

@@ -10,7 +10,8 @@ namespace Flowthru.Meta.Models;
 /// catalog entries (inputs), performs a transformation, and writes to one or more
 /// catalog entries (outputs).
 /// </remarks>
-public class NodeMetadata {
+public class NodeMetadata
+{
   /// <summary>
   /// Unique identifier for this node within the pipeline.
   /// </summary>

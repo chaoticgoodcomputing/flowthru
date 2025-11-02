@@ -7,9 +7,7 @@ namespace ML.Next.Core.Annotations;
 /// Annotations represent metadata about columns (normalization status, slot names, etc.)
 /// that should be tracked through transformation pipelines.
 /// </remarks>
-public interface IAnnotations
-{
-}
+public interface IAnnotations { }
 
 /// <summary>
 /// No annotations present.

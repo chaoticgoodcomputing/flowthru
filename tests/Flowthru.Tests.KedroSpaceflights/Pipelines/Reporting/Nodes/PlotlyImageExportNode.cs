@@ -29,30 +29,36 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// then strips the data URI prefix and decodes the base64 string to raw PNG bytes.
 /// </para>
 /// </remarks>
-public static class PlotlyImageExportNode {
-  public static Func<GenericChart, Task<byte[]>> Create(ILogger? logger = null) {
-    return async (input) => {
+public static class PlotlyImageExportNode
+{
+  public static Func<GenericChart, Task<byte[]>> Create(ILogger? logger = null)
+  {
+    return async (input) =>
+    {
       logger?.LogInformation("Converting chart to PNG binary data");
 
       // Use Plotly.NET.ImageExport to convert the chart to a base64 PNG string
       // This uses a headless browser (Chromium via PuppeteerSharp) to render the chart
-      var base64DataUri = await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
-        input,
-        Width: 600,
-        Height: 600);
+      var base64DataUri =
+        await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
+          input,
+          Width: 600,
+          Height: 600
+        );
 
       // Strip the data URI prefix "data:image/png;base64," to get pure base64
       const string dataUriPrefix = "data:image/png;base64,";
       var base64String = base64DataUri.StartsWith(dataUriPrefix)
-          ? base64DataUri.Substring(dataUriPrefix.Length)
-          : base64DataUri;
+        ? base64DataUri.Substring(dataUriPrefix.Length)
+        : base64DataUri;
 
       // Decode base64 to raw PNG bytes
       var pngBytes = Convert.FromBase64String(base64String);
 
       logger?.LogInformation(
-          "Successfully converted chart to PNG ({Size:N0} bytes)",
-          pngBytes.Length);
+        "Successfully converted chart to PNG ({Size:N0} bytes)",
+        pngBytes.Length
+      );
 
       return pngBytes;
     };

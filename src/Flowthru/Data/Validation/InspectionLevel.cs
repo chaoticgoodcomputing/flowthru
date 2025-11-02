@@ -39,7 +39,8 @@ namespace Flowthru.Data.Validation;
 /// </item>
 /// </list>
 /// </remarks>
-public enum InspectionLevel {
+public enum InspectionLevel
+{
   /// <summary>
   /// Skip inspection entirely.
   /// </summary>
@@ -102,5 +103,5 @@ public enum InspectionLevel {
   /// <strong>Must be explicitly opted-in by the pipeline creator.</strong>
   /// </para>
   /// </remarks>
-  Deep = 2
+  Deep = 2,
 }

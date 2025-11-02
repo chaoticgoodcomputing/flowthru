@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "nx g @nx-dotnet/core:restore"
+    "prepare": "husky",
+    "format:all": "dotnet csharpier .",
+    "format:check": "dotnet csharpier . --check"
   },
-  "keywords": [],
+  "keywords": [ ],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.6.3",
@@ -17,7 +19,12 @@
   "devDependencies": {
     "@nx-dotnet/core": "^3.0.2",
     "@nx/js": "21.6.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
     "nx": "21.6.4"
   },
-  "nx": {}
+  "nx": { },
+  "lint-staged": {
+    "*.cs": "dotnet csharpier"
+  }
 }

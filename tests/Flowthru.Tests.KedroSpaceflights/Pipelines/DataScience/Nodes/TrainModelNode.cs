@@ -10,14 +10,18 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience.Nodes;
 /// Uses Math.NET Numerics MultipleRegression.QR() which matches sklearn's LinearRegression.
 /// Takes training features (x_train) and targets (y_train) as separate inputs.
 /// </summary>
-public static class TrainModelNode {
+public static class TrainModelNode
+{
   /// <summary>
   /// Creates a transformation function that trains a linear regression model.
   /// </summary>
   public static Func<
-      (IEnumerable<FeatureRow> XTrain, IEnumerable<TargetValue> YTrain),
-      Task<LinearRegressionModel>> Create() {
-    return async (input) => {
+    (IEnumerable<FeatureRow> XTrain, IEnumerable<TargetValue> YTrain),
+    Task<LinearRegressionModel>
+  > Create()
+  {
+    return async (input) =>
+    {
       var xTrainData = input.XTrain.ToList();
       var yTrainData = input.YTrain.ToList();
 
@@ -35,10 +39,11 @@ public static class TrainModelNode {
       var intercept = coefficients[0];
       var featureCoefficients = coefficients.Skip(1).ToArray();
 
-      var model = new LinearRegressionModel {
+      var model = new LinearRegressionModel
+      {
         Intercept = intercept,
         Coefficients = featureCoefficients,
-        FeatureNames = FeatureRow.FeatureNames
+        FeatureNames = FeatureRow.FeatureNames,
       };
 
       return await Task.FromResult(model);
@@ -50,7 +55,8 @@ public static class TrainModelNode {
 /// Trained ordinary least squares linear regression model.
 /// Contains intercept and feature coefficients.
 /// </summary>
-public record LinearRegressionModel {
+public record LinearRegressionModel
+{
   /// <summary>
   /// Model intercept (bias term)
   /// </summary>
@@ -69,13 +75,18 @@ public record LinearRegressionModel {
   /// <summary>
   /// Predict a single value given feature values
   /// </summary>
-  public double Predict(double[] features) {
-    if (features.Length != Coefficients.Length) {
-      throw new ArgumentException($"Expected {Coefficients.Length} features, got {features.Length}");
+  public double Predict(double[] features)
+  {
+    if (features.Length != Coefficients.Length)
+    {
+      throw new ArgumentException(
+        $"Expected {Coefficients.Length} features, got {features.Length}"
+      );
     }
 
     var prediction = Intercept;
-    for (int i = 0; i < features.Length; i++) {
+    for (int i = 0; i < features.Length; i++)
+    {
       prediction += Coefficients[i] * features[i];
     }
     return prediction;
@@ -84,7 +95,8 @@ public record LinearRegressionModel {
   /// <summary>
   /// Predict values for multiple feature rows using centralized feature extraction.
   /// </summary>
-  public double[] Predict(IEnumerable<FeatureRow> rows) {
+  public double[] Predict(IEnumerable<FeatureRow> rows)
+  {
     return rows.Select(row => Predict(row.ToFeatureArray())).ToArray();
   }
 }

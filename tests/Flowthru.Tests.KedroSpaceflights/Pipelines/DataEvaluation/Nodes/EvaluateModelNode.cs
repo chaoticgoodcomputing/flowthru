@@ -9,18 +9,23 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation.Nodes;
 /// Evaluates the trained OLS regression model on test data and logs metrics.
 /// Uses Math.NET Numerics GoodnessOfFit.RSquared() matching sklearn's r2_score.
 /// </summary>
-public static class EvaluateModelNode {
+public static class EvaluateModelNode
+{
   /// <summary>
   /// Creates a transformation function that evaluates a trained model.
   /// </summary>
   /// <param name="logger">Logger for outputting model metrics</param>
   public static Func<
-      (LinearRegressionModel Regressor,
-       IEnumerable<FeatureRow> XTest,
-       IEnumerable<TargetValue> YTest),
-      Task<(ModelMetrics Metrics, IEnumerable<ModelPredictions> Predictions)>> Create(
-        ILogger? logger = null) {
-    return async (input) => {
+    (
+      LinearRegressionModel Regressor,
+      IEnumerable<FeatureRow> XTest,
+      IEnumerable<TargetValue> YTest
+    ),
+    Task<(ModelMetrics Metrics, IEnumerable<ModelPredictions> Predictions)>
+  > Create(ILogger? logger = null)
+  {
+    return async (input) =>
+    {
       var model = input.Regressor; // Model is singleton, no unwrapping needed
       var xTestData = input.XTest.ToList();
       var yTestData = input.YTest.ToList();
@@ -38,37 +43,35 @@ public static class EvaluateModelNode {
       var mae = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Average();
 
       // Calculate Root Mean Squared Error (RMSE)
-      var mse = predictions.Zip(actualValues, (pred, actual) => Math.Pow(pred - actual, 2)).Average();
+      var mse = predictions
+        .Zip(actualValues, (pred, actual) => Math.Pow(pred - actual, 2))
+        .Average();
       var rmse = Math.Sqrt(mse);
 
       // Calculate Max Error
       var maxError = predictions.Zip(actualValues, (pred, actual) => Math.Abs(pred - actual)).Max();
 
-      var metrics = new ModelMetrics {
+      var metrics = new ModelMetrics
+      {
         R2Score = r2Score,
         MeanAbsoluteError = mae,
         MaxError = maxError,
-        RootMeanSquaredError = rmse
+        RootMeanSquaredError = rmse,
       };
 
       // Log results
       logger?.LogInformation(
-          "Model has a coefficient R² of {R2Score:F3} on test data.",
-          metrics.R2Score);
-      logger?.LogInformation(
-          "Mean Absolute Error: {MAE:F2}",
-          metrics.MeanAbsoluteError);
-      logger?.LogInformation(
-          "Max Error: {MaxError:F2}",
-          metrics.MaxError);
-      logger?.LogInformation(
-          "Root Mean Squared Error: {RMSE:F2}",
-          metrics.RootMeanSquaredError);
+        "Model has a coefficient R² of {R2Score:F3} on test data.",
+        metrics.R2Score
+      );
+      logger?.LogInformation("Mean Absolute Error: {MAE:F2}", metrics.MeanAbsoluteError);
+      logger?.LogInformation("Max Error: {MaxError:F2}", metrics.MaxError);
+      logger?.LogInformation("Root Mean Squared Error: {RMSE:F2}", metrics.RootMeanSquaredError);
 
-      var predictionsCollection = predictions.Select((pred, index) => new ModelPredictions {
-        Actual = (double)yTestData[index].Price,
-        Predicted = pred,
-      });
+      var predictionsCollection = predictions.Select(
+        (pred, index) =>
+          new ModelPredictions { Actual = (double)yTestData[index].Price, Predicted = pred }
+      );
 
       return await Task.FromResult((Metrics: metrics, Predictions: predictionsCollection));
     };

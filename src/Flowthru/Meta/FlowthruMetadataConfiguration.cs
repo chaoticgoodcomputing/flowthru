@@ -20,7 +20,8 @@ namespace Flowthru.Meta;
 /// });
 /// </code>
 /// </remarks>
-public class FlowthruMetadataConfiguration {
+public class FlowthruMetadataConfiguration
+{
   /// <summary>
   /// Directory where metadata JSON files will be written.
   /// </summary>
@@ -53,8 +54,10 @@ public class FlowthruMetadataConfiguration {
   /// </summary>
   /// <param name="directory">Directory path (absolute or relative to working directory)</param>
   /// <returns>This configuration for fluent chaining</returns>
-  public FlowthruMetadataConfiguration WithOutputDirectory(string directory) {
-    if (string.IsNullOrWhiteSpace(directory)) {
+  public FlowthruMetadataConfiguration WithOutputDirectory(string directory)
+  {
+    if (string.IsNullOrWhiteSpace(directory))
+    {
       throw new ArgumentException("Output directory cannot be null or empty", nameof(directory));
     }
 
@@ -66,7 +69,8 @@ public class FlowthruMetadataConfiguration {
   /// Enables automatic DAG export after pipeline builds.
   /// </summary>
   /// <returns>This configuration for fluent chaining</returns>
-  public FlowthruMetadataConfiguration EnableAutoExport() {
+  public FlowthruMetadataConfiguration EnableAutoExport()
+  {
     AutoExportDag = true;
     return this;
   }
@@ -78,7 +82,8 @@ public class FlowthruMetadataConfiguration {
   /// Use this when you want manual control over metadata export via Pipeline.ExportDag().
   /// </remarks>
   /// <returns>This configuration for fluent chaining</returns>
-  public FlowthruMetadataConfiguration DisableAutoExport() {
+  public FlowthruMetadataConfiguration DisableAutoExport()
+  {
     AutoExportDag = false;
     return this;
   }
@@ -87,7 +92,8 @@ public class FlowthruMetadataConfiguration {
   /// Enables Mermaid diagram export.
   /// </summary>
   /// <returns>This configuration for fluent chaining</returns>
-  public FlowthruMetadataConfiguration EnableMermaid() {
+  public FlowthruMetadataConfiguration EnableMermaid()
+  {
     ExportMermaid = true;
     return this;
   }
@@ -99,7 +105,8 @@ public class FlowthruMetadataConfiguration {
   /// Use this when you only want JSON output without Mermaid diagrams.
   /// </remarks>
   /// <returns>This configuration for fluent chaining</returns>
-  public FlowthruMetadataConfiguration DisableMermaid() {
+  public FlowthruMetadataConfiguration DisableMermaid()
+  {
     ExportMermaid = false;
     return this;
   }

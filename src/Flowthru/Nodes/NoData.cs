@@ -27,7 +27,7 @@ namespace Flowthru.Nodes;
 ///         return Task.FromResult(generatedData);
 ///     }
 /// }
-/// 
+///
 /// // Node with no outputs (side-effects only)
 /// public class ValidateNode : NodeBase&lt;InputSchema, NoData&gt;
 /// {
@@ -48,14 +48,15 @@ namespace Flowthru.Nodes;
 ///     input: catalog.InputData,
 ///     output: NoData.Output  // or just: NoData.Discard
 /// );
-/// 
+///
 /// pipeline.AddNode&lt;GenerateDataNode&gt;(
 ///     input: NoData.Input,  // or just: NoData.None
 ///     output: catalog.GeneratedData
 /// );
 /// </code>
 /// </remarks>
-public sealed class NoData {
+public sealed class NoData
+{
   private static int _uniqueIdCounter = 0;
 
   /// <summary>
@@ -112,13 +113,14 @@ public sealed class NoData {
   /// <code>
   /// // Instead of:
   /// return Task.FromResult(Enumerable.Repeat(NoData.Value, 1));
-  /// 
+  ///
   /// // Use:
   /// return NoData.Result();
   /// </code>
   /// </example>
   /// </remarks>
-  public static System.Threading.Tasks.Task<IEnumerable<NoData>> Result() {
+  public static System.Threading.Tasks.Task<IEnumerable<NoData>> Result()
+  {
     return System.Threading.Tasks.Task.FromResult(Enumerable.Repeat(Value, 1));
   }
 

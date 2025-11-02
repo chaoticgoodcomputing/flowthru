@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next helps prevent schema drift issues.
-/// 
+///
 /// Common scenario: Model trained on v1 schema, but production data uses v2 schema.
 /// ML.NET: Silently fails or produces wrong results.
 /// ML.Next: Type system tracks schema versions through phantom types.
@@ -15,11 +15,12 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 [Category("SchemaDrift")]
 public class SchemaDriftTests
 {
-    [Test]
-    public void Model_Trained_On_V1_Used_With_V2_Data()
-    {
-        // Scenario: Schema changes between training and production
-        var code = @"
+  [Test]
+  public void Model_Trained_On_V1_Used_With_V2_Data()
+  {
+    // Scenario: Schema changes between training and production
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -59,17 +60,21 @@ public class SchemaDriftTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Using transformer trained on V1 schema with V2 data should not compile");
-    }
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Using transformer trained on V1 schema with V2 data should not compile"
+    );
+  }
 
-    [Test]
-    public void Documentation_Of_Schema_Versioning()
-    {
-        // This test documents the CORRECT way to handle schema versions
-        var code = @"
+  [Test]
+  public void Documentation_Of_Schema_Versioning()
+  {
+    // This test documents the CORRECT way to handle schema versions
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -104,9 +109,8 @@ public class SchemaDriftTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Matching schema versions should compile successfully");
-    }
+    Assert.That(result.Success, Is.False, "Matching schema versions should compile successfully");
+  }
 }

@@ -15,11 +15,12 @@ namespace Flowthru.Meta.Models;
 /// <item><strong>Node → Catalog:</strong> A node writes to a catalog entry</item>
 /// </list>
 /// <para>
-/// Together, these edges form the complete data flow: 
+/// Together, these edges form the complete data flow:
 /// <c>CatalogEntry → Node → CatalogEntry → Node → ...</c>
 /// </para>
 /// </remarks>
-public class EdgeMetadata {
+public class EdgeMetadata
+{
   /// <summary>
   /// Source identifier (either a catalog entry key or node ID).
   /// </summary>

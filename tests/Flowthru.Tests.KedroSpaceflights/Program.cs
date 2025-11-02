@@ -1,10 +1,10 @@
 using Flowthru.Application;
 using Flowthru.Tests.KedroSpaceflights.Data;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics;
+using Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataProcessing;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.DataScience;
-using Flowthru.Tests.KedroSpaceflights.Pipelines.DataDiagnostics;
 using Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting;
-using Flowthru.Tests.KedroSpaceflights.Pipelines.DataEvaluation;
 
 namespace Flowthru.Tests.KedroSpaceflights;
 
@@ -15,51 +15,58 @@ namespace Flowthru.Tests.KedroSpaceflights;
 /// - Pipeline registration in code for compile-time safety
 /// - Pipeline parameters loaded from appsettings.json for easy tuning
 /// </summary>
-public class Program {
-  public static async Task<int> Main(string[] args) {
-    var app = FlowthruApplication.Create(args, builder => {
+public class Program
+{
+  public static async Task<int> Main(string[] args)
+  {
+    var app = FlowthruApplication.Create(
+      args,
+      builder =>
+      {
+        // Enable configuration loading from appsettings.json files
+        // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
+        builder.UseConfiguration();
 
-      // Enable configuration loading from appsettings.json files
-      // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
-      builder.UseConfiguration();
+        builder
+          .RegisterPipeline<SpaceflightsCatalog>(
+            label: "DataProcessing",
+            pipeline: DataProcessingPipeline.Create
+          )
+          .WithDescription("Preprocesses raw data and creates model input table");
 
-      builder
-        .RegisterPipeline<SpaceflightsCatalog>(
-          label: "DataProcessing",
-          pipeline: DataProcessingPipeline.Create
-        )
-        .WithDescription("Preprocesses raw data and creates model input table");
+        builder
+          .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataSciencePipeline.Params>(
+            label: "DataScience",
+            pipeline: DataSciencePipeline.Create,
+            configurationSection: "Flowthru:Pipelines:DataScience"
+          )
+          .WithDescription("Trains ML model");
 
-      builder
-        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataSciencePipeline.Params>(
-          label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataScience"
-        )
-        .WithDescription("Trains ML model");
+        builder
+          .RegisterPipeline<SpaceflightsCatalog>(
+            label: "DataDiagnostics",
+            pipeline: DataDiagnosticsPipeline.Create
+          )
+          .WithDescription(
+            "Validates pipeline outputs against Kedro reference and exports diagnostic data"
+          );
 
-      builder
-        .RegisterPipeline<SpaceflightsCatalog>(
-          label: "DataDiagnostics",
-          pipeline: DataDiagnosticsPipeline.Create
-        )
-        .WithDescription("Validates pipeline outputs against Kedro reference and exports diagnostic data");
+        builder
+          .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataEvaluationPipeline.Params>(
+            label: "DataEvaluation",
+            pipeline: DataEvaluationPipeline.Create,
+            configurationSection: "Flowthru:Pipelines:DataEvaluation"
+          )
+          .WithDescription("Evaluates ML model performance and cross-validation");
 
-      builder
-        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataEvaluationPipeline.Params>(
-          label: "DataEvaluation",
-          pipeline: DataEvaluationPipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataEvaluation"
-        )
-        .WithDescription("Evaluates ML model performance and cross-validation");
-
-      builder
-        .RegisterPipeline<SpaceflightsCatalog>(
-          label: "Reporting",
-          pipeline: ReportingPipeline.Create
-        )
-        .WithDescription("Generates reports and visualizations");
-    });
+        builder
+          .RegisterPipeline<SpaceflightsCatalog>(
+            label: "Reporting",
+            pipeline: ReportingPipeline.Create
+          )
+          .WithDescription("Generates reports and visualizations");
+      }
+    );
 
     return await app.RunAsync();
   }

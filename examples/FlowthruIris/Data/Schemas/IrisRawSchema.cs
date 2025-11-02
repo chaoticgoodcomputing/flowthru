@@ -4,7 +4,7 @@ namespace FlowthruIris.Data.Schemas;
 
 /// <summary>
 /// Raw schema for Iris CSV data - all fields as strings for type-safe parsing.
-/// 
+///
 /// <para><strong>Design Pattern: String-First Loading</strong></para>
 /// <para>
 /// By loading CSV data as strings first, we can:
@@ -13,14 +13,15 @@ namespace FlowthruIris.Data.Schemas;
 /// - Log parsing errors with row context
 /// - Demonstrate Flowthru's type safety at the schema transformation layer
 /// </para>
-/// 
+///
 /// <para><strong>CSV Mapping</strong></para>
 /// <para>
 /// Maps directly to iris.csv columns using CsvHelper attributes.
 /// This schema represents data "as it appears" in the CSV file.
 /// </para>
 /// </summary>
-public record IrisRawSchema {
+public record IrisRawSchema
+{
   /// <summary>
   /// Sepal length in centimeters (raw string from CSV)
   /// </summary>

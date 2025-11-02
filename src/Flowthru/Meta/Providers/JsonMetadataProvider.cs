@@ -11,14 +11,16 @@ namespace Flowthru.Meta.Providers;
 /// (nodes, catalog entries, edges, schema information) for consumption by Flowthru.Viz
 /// or other visualization tools.
 /// </remarks>
-public class JsonMetadataProvider : IMetadataProvider {
+public class JsonMetadataProvider : IMetadataProvider
+{
   private readonly bool _useCompactFormat;
 
   /// <summary>
   /// Initializes a new JSON metadata provider.
   /// </summary>
   /// <param name="useCompactFormat">Whether to use compact (minified) JSON format</param>
-  public JsonMetadataProvider(bool useCompactFormat = false) {
+  public JsonMetadataProvider(bool useCompactFormat = false)
+  {
     _useCompactFormat = useCompactFormat;
   }
 
@@ -26,16 +28,24 @@ public class JsonMetadataProvider : IMetadataProvider {
   public string Name => "JSON";
 
   /// <inheritdoc />
-  public bool Export(DagMetadata dag, string outputDirectory, TimestampConfiguration timestampConfig, ILogger? logger = null) {
-    try {
+  public bool Export(
+    DagMetadata dag,
+    string outputDirectory,
+    TimestampConfiguration timestampConfig,
+    ILogger? logger = null
+  )
+  {
+    try
+    {
       // Ensure output directory exists
       Directory.CreateDirectory(outputDirectory);
 
       // Generate filename with optional timestamp
       var timestamp = timestampConfig.GenerateTimestamp();
-      var filename = timestamp != null
-        ? $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.json"
-        : $"dag-{SanitizeFilename(dag.PipelineName)}.json";
+      var filename =
+        timestamp != null
+          ? $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.json"
+          : $"dag-{SanitizeFilename(dag.PipelineName)}.json";
       var filePath = Path.Combine(outputDirectory, filename);
 
       logger?.LogInformation("Exporting JSON metadata to {FilePath}", filePath);
@@ -46,33 +56,49 @@ public class JsonMetadataProvider : IMetadataProvider {
       // Atomic write: write to temp file first, then rename
       var tempPath = filePath + ".tmp";
 
-      try {
+      try
+      {
         File.WriteAllText(tempPath, json);
 
         // Rename temp file to final name (atomic operation on most filesystems)
-        if (File.Exists(filePath)) {
+        if (File.Exists(filePath))
+        {
           File.Delete(filePath);
         }
         File.Move(tempPath, filePath);
 
-        logger?.LogInformation("Successfully exported JSON metadata ({Nodes} nodes, {Entries} catalog entries, {Edges} edges)",
+        logger?.LogInformation(
+          "Successfully exported JSON metadata ({Nodes} nodes, {Entries} catalog entries, {Edges} edges)",
           dag.Nodes.Count,
           dag.CatalogEntries.Count,
-          dag.Edges.Count);
+          dag.Edges.Count
+        );
 
         return true;
-      } finally {
+      }
+      finally
+      {
         // Clean up temp file if it still exists
-        if (File.Exists(tempPath)) {
-          try {
+        if (File.Exists(tempPath))
+        {
+          try
+          {
             File.Delete(tempPath);
-          } catch {
+          }
+          catch
+          {
             // Ignore cleanup errors
           }
         }
       }
-    } catch (Exception ex) {
-      logger?.LogWarning(ex, "Failed to export JSON metadata to {OutputDirectory}", outputDirectory);
+    }
+    catch (Exception ex)
+    {
+      logger?.LogWarning(
+        ex,
+        "Failed to export JSON metadata to {OutputDirectory}",
+        outputDirectory
+      );
       return false;
     }
   }
@@ -80,15 +106,18 @@ public class JsonMetadataProvider : IMetadataProvider {
   /// <summary>
   /// Sanitizes a pipeline name for use in a filename.
   /// </summary>
-  private static string SanitizeFilename(string name) {
-    if (string.IsNullOrWhiteSpace(name)) {
+  private static string SanitizeFilename(string name)
+  {
+    if (string.IsNullOrWhiteSpace(name))
+    {
       return "UnnamedPipeline";
     }
 
     var invalidChars = Path.GetInvalidFileNameChars();
     var sanitized = name;
 
-    foreach (var c in invalidChars) {
+    foreach (var c in invalidChars)
+    {
       sanitized = sanitized.Replace(c, '_');
     }
 

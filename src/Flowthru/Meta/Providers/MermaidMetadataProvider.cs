@@ -10,28 +10,36 @@ namespace Flowthru.Meta.Providers;
 /// This provider creates Markdown files containing Mermaid flowchart diagrams
 /// for immediate visualization in GitHub, VS Code, and other Mermaid-compatible viewers.
 /// </remarks>
-public class MermaidMetadataProvider : IMetadataProvider {
+public class MermaidMetadataProvider : IMetadataProvider
+{
   private readonly MermaidFlowchartDirection _direction;
 
   /// <summary>
   /// Flow direction for Mermaid flowcharts.
   /// </summary>
-  public enum MermaidFlowchartDirection {
+  public enum MermaidFlowchartDirection
+  {
     /// <summary>Top to Bottom (default)</summary>
     TopToBottom,
+
     /// <summary>Left to Right</summary>
     LeftToRight,
+
     /// <summary>Bottom to Top</summary>
     BottomToTop,
+
     /// <summary>Right to Left</summary>
-    RightToLeft
+    RightToLeft,
   }
 
   /// <summary>
   /// Initializes a new Mermaid metadata provider.
   /// </summary>
   /// <param name="direction">Flow direction for the diagram</param>
-  public MermaidMetadataProvider(MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom) {
+  public MermaidMetadataProvider(
+    MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom
+  )
+  {
     _direction = direction;
   }
 
@@ -39,16 +47,24 @@ public class MermaidMetadataProvider : IMetadataProvider {
   public string Name => "Mermaid";
 
   /// <inheritdoc />
-  public bool Export(DagMetadata dag, string outputDirectory, TimestampConfiguration timestampConfig, ILogger? logger = null) {
-    try {
+  public bool Export(
+    DagMetadata dag,
+    string outputDirectory,
+    TimestampConfiguration timestampConfig,
+    ILogger? logger = null
+  )
+  {
+    try
+    {
       // Ensure output directory exists
       Directory.CreateDirectory(outputDirectory);
 
       // Generate filename with optional timestamp
       var timestamp = timestampConfig.GenerateTimestamp();
-      var filename = timestamp != null
-        ? $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.md"
-        : $"dag-{SanitizeFilename(dag.PipelineName)}.md";
+      var filename =
+        timestamp != null
+          ? $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.md"
+          : $"dag-{SanitizeFilename(dag.PipelineName)}.md";
       var filePath = Path.Combine(outputDirectory, filename);
 
       logger?.LogInformation("Exporting Mermaid diagram to {FilePath}", filePath);
@@ -59,11 +75,13 @@ public class MermaidMetadataProvider : IMetadataProvider {
       // Atomic write: write to temp file first, then rename
       var tempPath = filePath + ".tmp";
 
-      try {
+      try
+      {
         File.WriteAllText(tempPath, mermaid);
 
         // Rename temp file to final name
-        if (File.Exists(filePath)) {
+        if (File.Exists(filePath))
+        {
           File.Delete(filePath);
         }
         File.Move(tempPath, filePath);
@@ -71,18 +89,30 @@ public class MermaidMetadataProvider : IMetadataProvider {
         logger?.LogInformation("Successfully exported Mermaid diagram");
 
         return true;
-      } finally {
+      }
+      finally
+      {
         // Clean up temp file if it still exists
-        if (File.Exists(tempPath)) {
-          try {
+        if (File.Exists(tempPath))
+        {
+          try
+          {
             File.Delete(tempPath);
-          } catch {
+          }
+          catch
+          {
             // Ignore cleanup errors
           }
         }
       }
-    } catch (Exception ex) {
-      logger?.LogWarning(ex, "Failed to export Mermaid diagram to {OutputDirectory}", outputDirectory);
+    }
+    catch (Exception ex)
+    {
+      logger?.LogWarning(
+        ex,
+        "Failed to export Mermaid diagram to {OutputDirectory}",
+        outputDirectory
+      );
       return false;
     }
   }
@@ -90,15 +120,18 @@ public class MermaidMetadataProvider : IMetadataProvider {
   /// <summary>
   /// Sanitizes a pipeline name for use in a filename.
   /// </summary>
-  private static string SanitizeFilename(string name) {
-    if (string.IsNullOrWhiteSpace(name)) {
+  private static string SanitizeFilename(string name)
+  {
+    if (string.IsNullOrWhiteSpace(name))
+    {
       return "UnnamedPipeline";
     }
 
     var invalidChars = Path.GetInvalidFileNameChars();
     var sanitized = name;
 
-    foreach (var c in invalidChars) {
+    foreach (var c in invalidChars)
+    {
       sanitized = sanitized.Replace(c, '_');
     }
 
@@ -111,13 +144,15 @@ public class MermaidMetadataProvider : IMetadataProvider {
   /// <summary>
   /// Converts flow direction enum to Mermaid direction code.
   /// </summary>
-  private static string GetDirectionCode(MermaidFlowchartDirection direction) {
-    return direction switch {
+  private static string GetDirectionCode(MermaidFlowchartDirection direction)
+  {
+    return direction switch
+    {
       MermaidFlowchartDirection.TopToBottom => "TB",
       MermaidFlowchartDirection.LeftToRight => "LR",
       MermaidFlowchartDirection.BottomToTop => "BT",
       MermaidFlowchartDirection.RightToLeft => "RL",
-      _ => "TB"
+      _ => "TB",
     };
   }
 }

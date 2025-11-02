@@ -28,22 +28,27 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// separation of concerns and reusable export pipelines.
 /// </para>
 /// </remarks>
-public static class ComparePassengerCapacityNode {
-  public static Func<IEnumerable<ShuttleSchema>, Task<GenericChart>> Create(ILogger? logger = null) {
-    return async (input) => {
+public static class ComparePassengerCapacityNode
+{
+  public static Func<IEnumerable<ShuttleSchema>, Task<GenericChart>> Create(ILogger? logger = null)
+  {
+    return async (input) =>
+    {
       // Aggregate by shuttle type and calculate mean passenger capacity
       var aggregated = input
-          .GroupBy(s => s.ShuttleType)
-          .Select(g => new {
-            ShuttleType = g.Key,
-            AvgCapacity = g.Average(s => (double)s.PassengerCapacity)
-          })
-          .OrderByDescending(x => x.AvgCapacity)
-          .ToList();
+        .GroupBy(s => s.ShuttleType)
+        .Select(g => new
+        {
+          ShuttleType = g.Key,
+          AvgCapacity = g.Average(s => (double)s.PassengerCapacity),
+        })
+        .OrderByDescending(x => x.AvgCapacity)
+        .ToList();
 
       logger?.LogInformation(
-          "Aggregated passenger capacity for {Count} shuttle types",
-          aggregated.Count);
+        "Aggregated passenger capacity for {Count} shuttle types",
+        aggregated.Count
+      );
 
       // Extract data for chart
       var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
@@ -51,17 +56,16 @@ public static class ComparePassengerCapacityNode {
 
       // Create column/bar chart using Plotly.NET.CSharp API
       // Positional parameters: x values (keys), y values (heights)
-      var chart = CSharpChart.Column<string, double, double>(
-          shuttleTypes,
-          capacities
-      )
-      .WithXAxisStyle(Title.init("Shuttle Type"))
-      .WithYAxisStyle(Title.init("Average Passenger Capacity"))
-      .WithTitle("Shuttle Passenger Capacity by Type");
+      var chart = CSharpChart
+        .Column<string, double, double>(shuttleTypes, capacities)
+        .WithXAxisStyle(Title.init("Shuttle Type"))
+        .WithYAxisStyle(Title.init("Average Passenger Capacity"))
+        .WithTitle("Shuttle Passenger Capacity by Type");
 
       logger?.LogInformation(
-          "Generated GenericChart for passenger capacity comparison with {Count} shuttle types",
-          shuttleTypes.Count);
+        "Generated GenericChart for passenger capacity comparison with {Count} shuttle types",
+        shuttleTypes.Count
+      );
 
       return chart;
     };

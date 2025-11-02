@@ -30,9 +30,9 @@ namespace Flowthru.Data;
 ///         BasePath = basePath;
 ///         InitializeCatalogProperties();
 ///     }
-///     
+///
 ///     protected string BasePath { get; }
-///     
+///
 ///     // Declare once - automatically cached!
 ///     public ICatalogEntry&lt;IEnumerable&lt;MyData&gt;&gt; MyData =>
 ///         GetOrCreateEntry(() => new CsvCatalogEntry&lt;MyData&gt;("my_data", $"{BasePath}/data.csv"));
@@ -47,7 +47,8 @@ namespace Flowthru.Data;
 /// - Zero runtime overhead after first access (cached delegates)
 /// </para>
 /// </remarks>
-public abstract class DataCatalogBase {
+public abstract class DataCatalogBase
+{
   /// <summary>
   /// Cache of property values to ensure object identity for DAG resolution.
   /// Key: Property name, Value: Cached ICatalogEntry instance
@@ -85,7 +86,7 @@ public abstract class DataCatalogBase {
   /// // Singleton object
   /// public ICatalogEntry&lt;LinearRegressionModel&gt; Model =>
   ///     GetOrCreateEntry(() => new MemoryCatalogEntry&lt;LinearRegressionModel&gt;("model"));
-  /// 
+  ///
   /// // Collection
   /// public ICatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt; Features =>
   ///     GetOrCreateEntry(() => new CsvCatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt;("features", "data.csv"));
@@ -93,8 +94,10 @@ public abstract class DataCatalogBase {
   /// </para>
   /// </remarks>
   protected ICatalogEntry<T> GetOrCreateEntry<T>(
-      Func<ICatalogEntry<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
+    Func<ICatalogEntry<T>> factory,
+    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
+  )
+  {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
     return (ICatalogEntry<T>)entry;
   }
@@ -107,8 +110,10 @@ public abstract class DataCatalogBase {
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
   /// <returns>Cached catalog entry instance</returns>
   protected ICatalogEntry<T> GetOrCreateEntry<T>(
-      Func<IServiceProvider?, ICatalogEntry<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
+    Func<IServiceProvider?, ICatalogEntry<T>> factory,
+    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
+  )
+  {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
     return (ICatalogEntry<T>)entry;
   }
@@ -121,8 +126,10 @@ public abstract class DataCatalogBase {
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
   /// <returns>Cached read-only catalog entry instance</returns>
   protected IReadableCatalogEntry<T> GetOrCreateReadOnlyEntry<T>(
-      Func<IReadableCatalogEntry<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
+    Func<IReadableCatalogEntry<T>> factory,
+    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
+  )
+  {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
     return (IReadableCatalogEntry<T>)entry;
   }
@@ -135,8 +142,10 @@ public abstract class DataCatalogBase {
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
   /// <returns>Cached read-only catalog entry instance</returns>
   protected IReadableCatalogEntry<T> GetOrCreateReadOnlyEntry<T>(
-      Func<IServiceProvider?, IReadableCatalogEntry<T>> factory,
-      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "") {
+    Func<IServiceProvider?, IReadableCatalogEntry<T>> factory,
+    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
+  )
+  {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
     return (IReadableCatalogEntry<T>)entry;
   }
@@ -160,12 +169,14 @@ public abstract class DataCatalogBase {
   /// then invokes each getter once to populate the cache.
   /// </para>
   /// </remarks>
-  protected void InitializeCatalogProperties() {
+  protected void InitializeCatalogProperties()
+  {
     var catalogProperties = GetType()
-        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-        .Where(p => typeof(ICatalogEntry).IsAssignableFrom(p.PropertyType));
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+      .Where(p => typeof(ICatalogEntry).IsAssignableFrom(p.PropertyType));
 
-    foreach (var property in catalogProperties) {
+    foreach (var property in catalogProperties)
+    {
       // Invoke getter to populate cache
       _ = property.GetValue(this);
     }
@@ -179,7 +190,8 @@ public abstract class DataCatalogBase {
   /// Useful for diagnostic purposes or when you need to iterate over all entries
   /// (e.g., for validation, cleanup, or reporting).
   /// </remarks>
-  protected IEnumerable<ICatalogEntry> GetAllEntries() {
+  protected IEnumerable<ICatalogEntry> GetAllEntries()
+  {
     return _propertyCache.Values;
   }
 
@@ -196,7 +208,8 @@ public abstract class DataCatalogBase {
   /// catalog state between test runs.
   /// </para>
   /// </remarks>
-  protected void ClearCache() {
+  protected void ClearCache()
+  {
     _propertyCache.Clear();
   }
 }

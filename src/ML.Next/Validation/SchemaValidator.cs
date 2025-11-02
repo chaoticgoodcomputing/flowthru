@@ -1,8 +1,8 @@
-using Microsoft.ML;
 using LanguageExt;
 using LanguageExt.Common;
-using ML.Next.Core.Schema;
+using Microsoft.ML;
 using ML.Next.Core.Columns;
+using ML.Next.Core.Schema;
 using static LanguageExt.Prelude;
 
 namespace ML.Next.Validation;
@@ -27,8 +27,9 @@ public static class SchemaValidator
   /// <param name="requiredColumns">Expected column requirements</param>
   /// <returns>Success or accumulated errors</returns>
   public static Validation<Error, Unit> ValidateSchema(
-      IDataView dataView,
-      params ColumnRequirement[] requiredColumns)
+    IDataView dataView,
+    params ColumnRequirement[] requiredColumns
+  )
   {
     var schema = dataView.Schema;
     var errors = new List<Error>();
@@ -53,14 +54,17 @@ public static class SchemaValidator
 
       if (actualTypeName != expectedTypeName)
       {
-        errors.Add(Error.New(
-            $"Column '{required.Name}' has type '{actualTypeName}' but expected '{expectedTypeName}'"));
+        errors.Add(
+          Error.New(
+            $"Column '{required.Name}' has type '{actualTypeName}' but expected '{expectedTypeName}'"
+          )
+        );
       }
     }
 
     return errors.Count == 0
-        ? Success<Error, Unit>(unit)
-        : Fail<Error, Unit>(LanguageExt.Seq.create(errors.ToArray()));
+      ? Success<Error, Unit>(unit)
+      : Fail<Error, Unit>(LanguageExt.Seq.create(errors.ToArray()));
   }
 
   /// <summary>
@@ -70,8 +74,9 @@ public static class SchemaValidator
   /// <param name="inputSchema">Input schema expected by second transformer</param>
   /// <returns>Success or accumulated errors</returns>
   public static Validation<Error, Unit> ValidateSchemaCompatibility(
-      Microsoft.ML.DataViewSchema outputSchema,
-      Microsoft.ML.DataViewSchema inputSchema)
+    Microsoft.ML.DataViewSchema outputSchema,
+    Microsoft.ML.DataViewSchema inputSchema
+  )
   {
     var errors = new List<Error>();
 
@@ -88,13 +93,16 @@ public static class SchemaValidator
 
       if (inputColumn.Type.RawType != outputColumn.Value.Type.RawType)
       {
-        errors.Add(Error.New(
-            $"Column '{inputColumn.Name}' type mismatch: output has {outputColumn.Value.Type.RawType.Name}, input expects {inputColumn.Type.RawType.Name}"));
+        errors.Add(
+          Error.New(
+            $"Column '{inputColumn.Name}' type mismatch: output has {outputColumn.Value.Type.RawType.Name}, input expects {inputColumn.Type.RawType.Name}"
+          )
+        );
       }
     }
 
     return errors.Count == 0
-        ? Success<Error, Unit>(unit)
-        : Fail<Error, Unit>(LanguageExt.Seq.create(errors.ToArray()));
+      ? Success<Error, Unit>(unit)
+      : Fail<Error, Unit>(LanguageExt.Seq.create(errors.ToArray()));
   }
 }

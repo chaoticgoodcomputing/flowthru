@@ -40,14 +40,15 @@ namespace Flowthru.Data.Implementations;
 /// var modelEntry = new MemoryCatalogEntry&lt;LinearRegressionModel&gt;("model");
 /// await modelEntry.Save(model).RunAsync();
 /// var loadedModel = await modelEntry.Load().RunAsync();
-/// 
+///
 /// // Collection usage
 /// var dataEntry = new MemoryCatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt;("features");
 /// await dataEntry.Save(features.ToSeq()).RunAsync();
 /// var loadedFeatures = await dataEntry.Load().RunAsync();
 /// </code>
 /// </example>
-public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
+public class MemoryCatalogEntry<T> : CatalogEntryBase<T>
+{
   private T? _data;
   private bool _hasData;
   private readonly object _lock = new();
@@ -56,16 +57,21 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
   /// Creates a new in-memory catalog entry.
   /// </summary>
   /// <param name="key">Unique identifier for this catalog entry</param>
-  public MemoryCatalogEntry(string key) : base(key) {
-  }
+  public MemoryCatalogEntry(string key)
+    : base(key) { }
 
   /// <inheritdoc/>
-  public override IO<T> Load() {
-    return IO.liftAsync(async () => {
-      lock (_lock) {
-        if (!_hasData) {
+  public override IO<T> Load()
+  {
+    return IO.liftAsync(async () =>
+    {
+      lock (_lock)
+      {
+        if (!_hasData)
+        {
           throw new InvalidOperationException(
-              $"Cannot load from memory catalog entry '{Key}' - no data has been saved yet");
+            $"Cannot load from memory catalog entry '{Key}' - no data has been saved yet"
+          );
         }
         return _data!;
       }
@@ -73,9 +79,12 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override IO<Unit> Save(T data) {
-    return IO.liftAsync(async () => {
-      lock (_lock) {
+  public override IO<Unit> Save(T data)
+  {
+    return IO.liftAsync(async () =>
+    {
+      lock (_lock)
+      {
         _data = data;
         _hasData = true;
         return unit;
@@ -84,9 +93,12 @@ public class MemoryCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override IO<bool> Exists() {
-    return IO.liftAsync(async () => {
-      lock (_lock) {
+  public override IO<bool> Exists()
+  {
+    return IO.liftAsync(async () =>
+    {
+      lock (_lock)
+      {
         return _hasData;
       }
     });

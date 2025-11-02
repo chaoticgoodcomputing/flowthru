@@ -27,7 +27,8 @@ namespace Flowthru.Pipelines;
 /// generic type inference at the pipeline construction site.
 /// </para>
 /// </remarks>
-internal class PipelineNode {
+internal class PipelineNode
+{
   /// <summary>
   /// Unique identifier for this node within the pipeline.
   /// Typically the node type name or user-provided name.
@@ -89,7 +90,9 @@ internal class PipelineNode {
     string name,
     Delegate node,
     IReadOnlyList<ICatalogEntry> inputs,
-    IReadOnlyList<ICatalogEntry> outputs) {
+    IReadOnlyList<ICatalogEntry> outputs
+  )
+  {
     Name = name;
     TransformFunction = node;
     Inputs = inputs;

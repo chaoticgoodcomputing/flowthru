@@ -19,9 +19,12 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// - Visual representation using ASCII charts
 /// </para>
 /// </remarks>
-public static class GenerateCrossValidationReportNode {
-  public static Func<CrossValidationResults, Task<string>> Create() {
-    return async (input) => {
+public static class GenerateCrossValidationReportNode
+{
+  public static Func<CrossValidationResults, Task<string>> Create()
+  {
+    return async (input) =>
+    {
       var results = input;
 
       var report = new StringBuilder();
@@ -36,7 +39,9 @@ public static class GenerateCrossValidationReportNode {
       report.AppendLine("## Summary Statistics");
       report.AppendLine();
       report.AppendLine($"- **Number of Folds:** {results.NumFolds}");
-      report.AppendLine($"- **Mean R² Score:** {results.MeanR2Score:F4} ± {results.StdDevR2Score:F4}");
+      report.AppendLine(
+        $"- **Mean R² Score:** {results.MeanR2Score:F4} ± {results.StdDevR2Score:F4}"
+      );
       report.AppendLine($"- **Min R² Score:** {results.MinR2Score:F4}");
       report.AppendLine($"- **Max R² Score:** {results.MaxR2Score:F4}");
       report.AppendLine();
@@ -48,19 +53,31 @@ public static class GenerateCrossValidationReportNode {
       report.AppendLine($"- **Flowthru Mean R²:** {results.MeanR2Score:F4}");
       report.AppendLine($"- **Absolute Difference:** {results.DifferenceFromKedro:F4}");
 
-      var percentDiff = results.KedroR2Score != 0
-        ? (results.DifferenceFromKedro / Math.Abs(results.KedroR2Score)) * 100
-        : 0;
+      var percentDiff =
+        results.KedroR2Score != 0
+          ? (results.DifferenceFromKedro / Math.Abs(results.KedroR2Score)) * 100
+          : 0;
       report.AppendLine($"- **Relative Difference:** {percentDiff:F2}%");
       report.AppendLine();
 
       // Interpretation
-      if (results.DifferenceFromKedro < 0.01) {
-        report.AppendLine("✅ **Interpretation:** Excellent alignment with Kedro reference implementation.");
-      } else if (results.DifferenceFromKedro < 0.05) {
-        report.AppendLine("⚠️ **Interpretation:** Minor deviation from Kedro reference. This is likely due to implementation differences or random variation.");
-      } else {
-        report.AppendLine("❌ **Interpretation:** Significant deviation from Kedro reference. Review data processing and model training steps.");
+      if (results.DifferenceFromKedro < 0.01)
+      {
+        report.AppendLine(
+          "✅ **Interpretation:** Excellent alignment with Kedro reference implementation."
+        );
+      }
+      else if (results.DifferenceFromKedro < 0.05)
+      {
+        report.AppendLine(
+          "⚠️ **Interpretation:** Minor deviation from Kedro reference. This is likely due to implementation differences or random variation."
+        );
+      }
+      else
+      {
+        report.AppendLine(
+          "❌ **Interpretation:** Significant deviation from Kedro reference. Review data processing and model training steps."
+        );
       }
       report.AppendLine();
 
@@ -74,11 +91,12 @@ public static class GenerateCrossValidationReportNode {
       var maxR2 = results.FoldMetrics.Max(f => f.R2Score);
       var range = maxR2 - minR2;
 
-      foreach (var fold in results.FoldMetrics.OrderBy(f => f.FoldNumber)) {
+      foreach (var fold in results.FoldMetrics.OrderBy(f => f.FoldNumber))
+      {
         var normalizedScore = range > 0 ? (fold.R2Score - minR2) / range : 0.5;
         var barLength = (int)(normalizedScore * 40);
         var bar = new string('█', barLength);
-        report.AppendLine($"Fold {fold.FoldNumber,2}: {bar} {fold.R2Score:F4}");
+        report.AppendLine($"Fold {fold.FoldNumber, 2}: {bar} {fold.R2Score:F4}");
       }
 
       // Add markers for mean and Kedro score
@@ -86,7 +104,8 @@ public static class GenerateCrossValidationReportNode {
       var meanMarker = new string(' ', (int)(meanNormalized * 40)) + "↑ Mean";
       report.AppendLine($"        {meanMarker}");
 
-      if (results.KedroR2Score >= minR2 && results.KedroR2Score <= maxR2) {
+      if (results.KedroR2Score >= minR2 && results.KedroR2Score <= maxR2)
+      {
         var kedroNormalized = range > 0 ? (results.KedroR2Score - minR2) / range : 0.5;
         var kedroMarker = new string(' ', (int)(kedroNormalized * 40)) + "↑ Kedro";
         report.AppendLine($"        {kedroMarker}");
@@ -101,8 +120,11 @@ public static class GenerateCrossValidationReportNode {
       report.AppendLine("| Fold | R² Score | MAE | RMSE | Loss Function |");
       report.AppendLine("|------|----------|-----|------|---------------|");
 
-      foreach (var fold in results.FoldMetrics.OrderBy(f => f.FoldNumber)) {
-        report.AppendLine($"| {fold.FoldNumber} | {fold.R2Score:F4} | {fold.MeanAbsoluteError:F2} | {fold.RootMeanSquaredError:F2} | {fold.LossFunctionValue:F4} |");
+      foreach (var fold in results.FoldMetrics.OrderBy(f => f.FoldNumber))
+      {
+        report.AppendLine(
+          $"| {fold.FoldNumber} | {fold.R2Score:F4} | {fold.MeanAbsoluteError:F2} | {fold.RootMeanSquaredError:F2} | {fold.LossFunctionValue:F4} |"
+        );
       }
 
       report.AppendLine();
@@ -110,26 +132,42 @@ public static class GenerateCrossValidationReportNode {
       // Variability Analysis
       report.AppendLine("## Variability Analysis");
       report.AppendLine();
-      var coefficientOfVariation = results.MeanR2Score != 0
-        ? (results.StdDevR2Score / Math.Abs(results.MeanR2Score)) * 100
-        : 0;
+      var coefficientOfVariation =
+        results.MeanR2Score != 0
+          ? (results.StdDevR2Score / Math.Abs(results.MeanR2Score)) * 100
+          : 0;
       report.AppendLine($"- **Coefficient of Variation:** {coefficientOfVariation:F2}%");
 
-      if (coefficientOfVariation < 5) {
-        report.AppendLine("- **Model Stability:** Excellent - Low variance across folds indicates robust model");
-      } else if (coefficientOfVariation < 10) {
+      if (coefficientOfVariation < 5)
+      {
+        report.AppendLine(
+          "- **Model Stability:** Excellent - Low variance across folds indicates robust model"
+        );
+      }
+      else if (coefficientOfVariation < 10)
+      {
         report.AppendLine("- **Model Stability:** Good - Acceptable variance across folds");
-      } else if (coefficientOfVariation < 20) {
-        report.AppendLine("- **Model Stability:** Moderate - Consider feature engineering or hyperparameter tuning");
-      } else {
-        report.AppendLine("- **Model Stability:** Poor - High variance suggests overfitting or data quality issues");
+      }
+      else if (coefficientOfVariation < 20)
+      {
+        report.AppendLine(
+          "- **Model Stability:** Moderate - Consider feature engineering or hyperparameter tuning"
+        );
+      }
+      else
+      {
+        report.AppendLine(
+          "- **Model Stability:** Poor - High variance suggests overfitting or data quality issues"
+        );
       }
       report.AppendLine();
 
       // Footer
       report.AppendLine("---");
       report.AppendLine();
-      report.AppendLine("*This report was automatically generated by the Flowthru DataDiagnostics pipeline.*");
+      report.AppendLine(
+        "*This report was automatically generated by the Flowthru DataDiagnostics pipeline.*"
+      );
 
       return report.ToString();
     };

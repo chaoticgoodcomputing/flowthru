@@ -24,16 +24,17 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// (bar, scatter, heatmap, etc.) since it operates on the base GenericChart type.
 /// </para>
 /// </remarks>
-public static class PlotlyJsonExportNode {
-  public static Func<GenericChart, Task<string>> Create(ILogger? logger = null) {
-    return async (input) => {
+public static class PlotlyJsonExportNode
+{
+  public static Func<GenericChart, Task<string>> Create(ILogger? logger = null)
+  {
+    return async (input) =>
+    {
       // Serialize to Plotly JSON using GenericChart.toJson()
       // This produces a JSON specification compatible with plotly.js
       var plotlyJson = GenericChart.toJson(input);
 
-      logger?.LogInformation(
-          "Exported chart to JSON ({Length} characters)",
-          plotlyJson.Length);
+      logger?.LogInformation("Exported chart to JSON ({Length} characters)", plotlyJson.Length);
 
       return plotlyJson;
     };

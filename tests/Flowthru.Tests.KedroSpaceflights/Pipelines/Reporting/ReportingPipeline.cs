@@ -21,7 +21,7 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting;
 /// 1. Chart Generation (data → GenericChart in memory)
 /// 2. JSON Export (GenericChart → plotly.js JSON file)
 /// 3. PNG Export (GenericChart → base64-encoded PNG string)
-/// 
+///
 /// This separation enables:
 /// - Reusable export nodes across different chart types
 /// - Multiple output formats from single chart generation
@@ -40,121 +40,123 @@ namespace Flowthru.Tests.KedroSpaceflights.Pipelines.Reporting;
 /// pipeline, replacing matplotlib/plotly.express with Plotly.NET for .NET-native visualization.
 /// </para>
 /// </remarks>
-public static class ReportingPipeline {
-    public static Pipeline Create(SpaceflightsCatalog catalog) {
-        return PipelineBuilder.CreatePipeline(pipeline => {
+public static class ReportingPipeline
+{
+  public static Pipeline Create(SpaceflightsCatalog catalog)
+  {
+    return PipelineBuilder.CreatePipeline(pipeline =>
+    {
+      // ===== Shuttle Passenger Capacity Visualization =====
 
-            // ===== Shuttle Passenger Capacity Visualization =====
+      // Step 1: Generate chart from processed shuttle data
+      pipeline.AddNode(
+        name: "GeneratePassengerCapacityChart",
+        transform: ComparePassengerCapacityNode.Create(),
+        input: catalog.CleanedShuttles,
+        output: catalog.ShuttlePassengerCapacityChart
+      );
 
-            // Step 1: Generate chart from processed shuttle data
-            pipeline.AddNode(
-                name: "GeneratePassengerCapacityChart",
-                transform: ComparePassengerCapacityNode.Create(),
-                input: catalog.CleanedShuttles,
-                output: catalog.ShuttlePassengerCapacityChart
-            );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddNode(
+        name: "ExportPassengerCapacityJson",
+        transform: PlotlyJsonExportNode.Create(),
+        input: catalog.ShuttlePassengerCapacityChart,
+        output: catalog.ShuttlePassengerCapacityPlot
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddNode(
-                name: "ExportPassengerCapacityJson",
-                transform: PlotlyJsonExportNode.Create(),
-                input: catalog.ShuttlePassengerCapacityChart,
-                output: catalog.ShuttlePassengerCapacityPlot
-            );
+      // Step 3: Export chart to base64-encoded PNG for static reports
+      pipeline.AddNode(
+        name: "ExportPassengerCapacityPng",
+        transform: PlotlyImageExportNode.Create(),
+        input: catalog.ShuttlePassengerCapacityChart,
+        output: catalog.ShuttlePassengerCapacityPlotPng
+      );
 
-            // Step 3: Export chart to base64-encoded PNG for static reports
-            pipeline.AddNode(
-                name: "ExportPassengerCapacityPng",
-                transform: PlotlyImageExportNode.Create(),
-                input: catalog.ShuttlePassengerCapacityChart,
-                output: catalog.ShuttlePassengerCapacityPlotPng
-            );
+      // ===== Confusion Matrix Visualization =====
 
-            // ===== Confusion Matrix Visualization =====
+      // Step 1: Generate confusion matrix heatmap from company data
+      pipeline.AddNode(
+        name: "GenerateConfusionMatrixChart",
+        transform: CreateConfusionMatrixNode.Create(),
+        input: catalog.CleanedCompanies,
+        output: catalog.ConfusionMatrixChart
+      );
 
-            // Step 1: Generate confusion matrix heatmap from company data
-            pipeline.AddNode(
-                name: "GenerateConfusionMatrixChart",
-                transform: CreateConfusionMatrixNode.Create(),
-                input: catalog.CleanedCompanies,
-                output: catalog.ConfusionMatrixChart
-            );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddNode(
+        name: "ExportConfusionMatrixJson",
+        transform: PlotlyJsonExportNode.Create(),
+        input: catalog.ConfusionMatrixChart,
+        output: catalog.ConfusionMatrixPlot
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddNode(
-                name: "ExportConfusionMatrixJson",
-                transform: PlotlyJsonExportNode.Create(),
-                input: catalog.ConfusionMatrixChart,
-                output: catalog.ConfusionMatrixPlot
-            );
+      // Step 3: Export chart to base64-encoded PNG for static reports
+      pipeline.AddNode(
+        name: "ExportConfusionMatrixPng",
+        transform: PlotlyImageExportNode.Create(),
+        input: catalog.ConfusionMatrixChart,
+        output: catalog.ConfusionMatrixPlotPng
+      );
 
-            // Step 3: Export chart to base64-encoded PNG for static reports
-            pipeline.AddNode(
-                name: "ExportConfusionMatrixPng",
-                transform: PlotlyImageExportNode.Create(),
-                input: catalog.ConfusionMatrixChart,
-                output: catalog.ConfusionMatrixPlotPng
-            );
+      // ===== Cross-Validation Results Visualization =====
 
-            // ===== Cross-Validation Results Visualization =====
+      // Step 1: Generate comprehensive cross-validation chart
+      pipeline.AddNode(
+        name: "GenerateCrossValidationChart",
+        transform: VisualizeCrossValidationNode.Create(),
+        input: catalog.CrossValidationResults,
+        output: catalog.CrossValidationChart
+      );
 
-            // Step 1: Generate comprehensive cross-validation chart
-            pipeline.AddNode(
-                name: "GenerateCrossValidationChart",
-                transform: VisualizeCrossValidationNode.Create(),
-                input: catalog.CrossValidationResults,
-                output: catalog.CrossValidationChart
-            );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddNode(
+        name: "ExportCrossValidationJson",
+        transform: PlotlyJsonExportNode.Create(),
+        input: catalog.CrossValidationChart,
+        output: catalog.CrossValidationPlot
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddNode(
-                name: "ExportCrossValidationJson",
-                transform: PlotlyJsonExportNode.Create(),
-                input: catalog.CrossValidationChart,
-                output: catalog.CrossValidationPlot
-            );
+      // Step 3: Export chart to base64-encoded PNG for static reports
+      pipeline.AddNode(
+        name: "ExportCrossValidationPng",
+        transform: PlotlyImageExportNode.Create(),
+        input: catalog.CrossValidationChart,
+        output: catalog.CrossValidationPlotPng
+      );
 
-            // Step 3: Export chart to base64-encoded PNG for static reports
-            pipeline.AddNode(
-                name: "ExportCrossValidationPng",
-                transform: PlotlyImageExportNode.Create(),
-                input: catalog.CrossValidationChart,
-                output: catalog.CrossValidationPlotPng
-            );
+      // Node 6: Generate human-readable Markdown report from cross-validation results
+      pipeline.AddNode(
+        name: "GenerateCrossValidationReport",
+        transform: GenerateCrossValidationReportNode.Create(),
+        input: catalog.CrossValidationResults,
+        output: catalog.CrossValidationReport
+      );
 
-            // Node 6: Generate human-readable Markdown report from cross-validation results
-            pipeline.AddNode(
-                name: "GenerateCrossValidationReport",
-                transform: GenerateCrossValidationReportNode.Create(),
-                input: catalog.CrossValidationResults,
-                output: catalog.CrossValidationReport
-            );
+      // ===== Prediction Scatter Plot Visualization =====
 
-            // ===== Prediction Scatter Plot Visualization =====
+      // Step 1: Generate scatter plot from model metrics and predictions
+      pipeline.AddNode(
+        name: "GeneratePredictionScatterChart",
+        transform: GeneratePredictionScatterNode.Create(),
+        input: (catalog.ModelMetrics, catalog.ModelPredictions),
+        output: catalog.PredictionScatterChart
+      );
 
-            // Step 1: Generate scatter plot from model metrics and predictions
-            pipeline.AddNode(
-                name: "GeneratePredictionScatterChart",
-                transform: GeneratePredictionScatterNode.Create(),
-                input: (catalog.ModelMetrics, catalog.ModelPredictions),
-                output: catalog.PredictionScatterChart
-            );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddNode(
+        name: "ExportPredictionScatterJson",
+        transform: PlotlyJsonExportNode.Create(),
+        input: catalog.PredictionScatterChart,
+        output: catalog.PredictionScatterPlot
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddNode(
-                name: "ExportPredictionScatterJson",
-                transform: PlotlyJsonExportNode.Create(),
-                input: catalog.PredictionScatterChart,
-                output: catalog.PredictionScatterPlot
-            );
-
-            // Step 3: Export chart to PNG for static reports
-            pipeline.AddNode(
-                name: "ExportPredictionScatterPng",
-                transform: PlotlyImageExportNode.Create(),
-                input: catalog.PredictionScatterChart,
-                output: catalog.PredictionScatterPlotPng
-            );
-        });
-    }
+      // Step 3: Export chart to PNG for static reports
+      pipeline.AddNode(
+        name: "ExportPredictionScatterPng",
+        transform: PlotlyImageExportNode.Create(),
+        input: catalog.PredictionScatterChart,
+        output: catalog.PredictionScatterPlotPng
+      );
+    });
+  }
 }

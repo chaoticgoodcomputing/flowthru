@@ -7,7 +7,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 /// Raw shuttle data as read from Excel file.
 /// Matches structure of Datasets/01_Raw/shuttles.xlsx
 /// </summary>
-public record ShuttleRawSchema : IFlatSerializable {
+public record ShuttleRawSchema : IFlatSerializable
+{
   /// <summary>
   /// Shuttle identifier
   /// </summary>

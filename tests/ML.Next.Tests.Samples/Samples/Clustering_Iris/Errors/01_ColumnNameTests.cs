@@ -6,7 +6,7 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next catches column name typos in Iris clustering at compile-time.
-/// 
+///
 /// Common scenario: Engineer copies clustering code and misspells "SepalLength" as "SepelLength".
 /// ML.NET: Compiles fine, fails at runtime when pipeline executes.
 /// ML.Next: Compilation error - column doesn't exist in schema.
@@ -16,11 +16,12 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 [Category("ColumnNames")]
 public class ColumnNameTests
 {
-    [Test]
-    public void TypoInColumnName_Should_Not_Compile()
-    {
-        // Scenario: Engineer types "SepelLength" instead of "SepalLength"
-        var code = @"
+  [Test]
+  public void TypoInColumnName_Should_Not_Compile()
+  {
+    // Scenario: Engineer types "SepelLength" instead of "SepalLength"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -50,19 +51,23 @@ public class ColumnNameTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        // Should compile (typos in strings aren't caught at compile-time)
-        // This test documents ML.NET behavior - typos compile but fail at runtime
-        Assert.That(result.Success, Is.False,
-            "String-based column names allow typos - this is the ML.NET limitation ML.Next aims to fix");
-    }
+    // Should compile (typos in strings aren't caught at compile-time)
+    // This test documents ML.NET behavior - typos compile but fail at runtime
+    Assert.That(
+      result.Success,
+      Is.False,
+      "String-based column names allow typos - this is the ML.NET limitation ML.Next aims to fix"
+    );
+  }
 
-    [Test]
-    public void NonExistentColumn_Should_Not_Compile()
-    {
-        // Scenario: Referencing a column that doesn't exist in the schema
-        var code = @"
+  [Test]
+  public void NonExistentColumn_Should_Not_Compile()
+  {
+    // Scenario: Referencing a column that doesn't exist in the schema
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -92,15 +97,12 @@ public class ColumnNameTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Referencing non-existent type should not compile");
+    Assert.That(result.Success, Is.False, "Referencing non-existent type should not compile");
 
-        var errors = result.Diagnostics
-            .Where(d => d.Severity == DiagnosticSeverity.Error)
-            .ToList();
+    var errors = result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
-        Assert.That(errors, Is.Not.Empty, "Should have compilation errors");
-    }
+    Assert.That(errors, Is.Not.Empty, "Should have compilation errors");
+  }
 }

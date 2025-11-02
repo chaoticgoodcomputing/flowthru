@@ -25,7 +25,8 @@ namespace Flowthru.Nodes.Factory;
 /// call Create&lt;T&gt;() concurrently.
 /// </para>
 /// </remarks>
-public static class TypeActivator {
+public static class TypeActivator
+{
   private static readonly ConcurrentDictionary<Type, Delegate> _factoryCache = new();
 
   /// <summary>
@@ -48,7 +49,9 @@ public static class TypeActivator {
   /// - One cache entry per type T
   /// </para>
   /// </remarks>
-  public static T Create<T>() where T : new() {
+  public static T Create<T>()
+    where T : new()
+  {
     var type = typeof(T);
 
     // Get or create factory for this type
@@ -61,7 +64,9 @@ public static class TypeActivator {
   /// <summary>
   /// Compiles a factory function for type T using expression trees.
   /// </summary>
-  private static Func<T> CompileFactory<T>(Type type) where T : new() {
+  private static Func<T> CompileFactory<T>(Type type)
+    where T : new()
+  {
     // Create expression: () => new T()
     var newExpression = Expression.New(type);
     var lambda = Expression.Lambda<Func<T>>(newExpression);
@@ -77,7 +82,8 @@ public static class TypeActivator {
   /// Useful for testing or memory management in long-running applications
   /// that dynamically load/unload types.
   /// </remarks>
-  public static void ClearCache() {
+  public static void ClearCache()
+  {
     _factoryCache.Clear();
   }
 

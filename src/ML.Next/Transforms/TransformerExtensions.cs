@@ -18,16 +18,19 @@ public static class TransformerExtensions
   /// <param name="second">Second transformer in the chain</param>
   /// <returns>A composed transformer from TSchemaIn to TSchemaOut</returns>
   public static Transformer<TSchemaIn, TSchemaOut> Append<TSchemaIn, TSchemaMiddle, TSchemaOut>(
-      this Transformer<TSchemaIn, TSchemaMiddle> first,
-      Transformer<TSchemaMiddle, TSchemaOut> second)
-      where TSchemaIn : ISchemaDefinition
-      where TSchemaMiddle : ISchemaDefinition
-      where TSchemaOut : ISchemaDefinition
+    this Transformer<TSchemaIn, TSchemaMiddle> first,
+    Transformer<TSchemaMiddle, TSchemaOut> second
+  )
+    where TSchemaIn : ISchemaDefinition
+    where TSchemaMiddle : ISchemaDefinition
+    where TSchemaOut : ISchemaDefinition
   {
     // The type system guarantees TSchemaMiddle compatibility!
     // Chain transformers by applying second to first's output
     var composed = new Microsoft.ML.Data.TransformerChain<Microsoft.ML.ITransformer>(
-        first.Underlying, second.Underlying);
+      first.Underlying,
+      second.Underlying
+    );
 
     return Transformer<TSchemaIn, TSchemaOut>.From(composed);
   }
@@ -38,8 +41,6 @@ public static class TransformerExtensions
   /// <typeparam name="TSchema">The current schema</typeparam>
   /// <param name="view">The data view to start the pipeline from</param>
   /// <returns>A pipeline builder for fluent API</returns>
-  public static PipelineBuilder<TSchema> Pipeline<TSchema>(
-      this DataView<TSchema> view)
-      where TSchema : ISchemaDefinition =>
-      new(view);
+  public static PipelineBuilder<TSchema> Pipeline<TSchema>(this DataView<TSchema> view)
+    where TSchema : ISchemaDefinition => new(view);
 }

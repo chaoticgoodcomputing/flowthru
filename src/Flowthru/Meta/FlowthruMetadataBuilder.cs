@@ -22,7 +22,8 @@ namespace Flowthru.Meta;
 /// );
 /// </code>
 /// </remarks>
-public class FlowthruMetadataBuilder {
+public class FlowthruMetadataBuilder
+{
   private readonly List<IMetadataProvider> _providers = new();
   private string _outputDirectory = "metadata";
   private bool _autoExport = true;
@@ -53,7 +54,8 @@ public class FlowthruMetadataBuilder {
   /// </summary>
   /// <param name="directory">Directory path (relative or absolute)</param>
   /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder WithOutputDirectory(string directory) {
+  public FlowthruMetadataBuilder WithOutputDirectory(string directory)
+  {
     _outputDirectory = directory ?? throw new ArgumentNullException(nameof(directory));
     return this;
   }
@@ -63,7 +65,8 @@ public class FlowthruMetadataBuilder {
   /// </summary>
   /// <param name="enabled">True to auto-export (default), false to require manual export</param>
   /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder WithAutoExport(bool enabled = true) {
+  public FlowthruMetadataBuilder WithAutoExport(bool enabled = true)
+  {
     _autoExport = enabled;
     return this;
   }
@@ -93,17 +96,23 @@ public class FlowthruMetadataBuilder {
   /// <code>
   /// // Use default format
   /// .WithTimestamp()
-  /// 
+  ///
   /// // Use custom format
   /// .WithTimestamp("yyyy-MM-dd_HH-mm-ss")
   /// </code>
   /// </remarks>
-  public FlowthruMetadataBuilder WithTimestamp(string? format = null) {
+  public FlowthruMetadataBuilder WithTimestamp(string? format = null)
+  {
     _timestampConfig.IncludeTimestamp = true;
 
-    if (format != null) {
-      if (string.IsNullOrWhiteSpace(format)) {
-        throw new ArgumentException("Timestamp format cannot be empty or whitespace", nameof(format));
+    if (format != null)
+    {
+      if (string.IsNullOrWhiteSpace(format))
+      {
+        throw new ArgumentException(
+          "Timestamp format cannot be empty or whitespace",
+          nameof(format)
+        );
       }
 
       _timestampConfig.Format = format;
@@ -118,7 +127,8 @@ public class FlowthruMetadataBuilder {
   /// </summary>
   /// <param name="configure">Optional configuration action for JSON provider</param>
   /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder AddJson(Action<JsonMetadataProviderBuilder>? configure = null) {
+  public FlowthruMetadataBuilder AddJson(Action<JsonMetadataProviderBuilder>? configure = null)
+  {
     var builder = new JsonMetadataProviderBuilder();
     configure?.Invoke(builder);
     _providers.Add(builder.Build());
@@ -130,7 +140,10 @@ public class FlowthruMetadataBuilder {
   /// </summary>
   /// <param name="configure">Optional configuration action for Mermaid provider</param>
   /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder AddMermaid(Action<MermaidMetadataProviderBuilder>? configure = null) {
+  public FlowthruMetadataBuilder AddMermaid(
+    Action<MermaidMetadataProviderBuilder>? configure = null
+  )
+  {
     var builder = new MermaidMetadataProviderBuilder();
     configure?.Invoke(builder);
     _providers.Add(builder.Build());
@@ -142,7 +155,8 @@ public class FlowthruMetadataBuilder {
   /// </summary>
   /// <param name="provider">The metadata provider to register</param>
   /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder AddProvider(IMetadataProvider provider) {
+  public FlowthruMetadataBuilder AddProvider(IMetadataProvider provider)
+  {
     _providers.Add(provider ?? throw new ArgumentNullException(nameof(provider)));
     return this;
   }
@@ -151,7 +165,8 @@ public class FlowthruMetadataBuilder {
   /// Creates a default configuration with JSON and Mermaid providers.
   /// </summary>
   /// <returns>New metadata builder with default providers</returns>
-  internal static FlowthruMetadataBuilder CreateDefault() {
+  internal static FlowthruMetadataBuilder CreateDefault()
+  {
     var builder = new FlowthruMetadataBuilder();
     builder.AddJson();
     builder.AddMermaid();
@@ -162,14 +177,16 @@ public class FlowthruMetadataBuilder {
 /// <summary>
 /// Builder for configuring JSON metadata provider options.
 /// </summary>
-public class JsonMetadataProviderBuilder {
+public class JsonMetadataProviderBuilder
+{
   private bool _useCompactFormat = false;
 
   /// <summary>
   /// Enables compact JSON format (no indentation).
   /// </summary>
   /// <returns>This builder for fluent chaining</returns>
-  public JsonMetadataProviderBuilder UseCompactFormat() {
+  public JsonMetadataProviderBuilder UseCompactFormat()
+  {
     _useCompactFormat = true;
     return this;
   }
@@ -178,12 +195,14 @@ public class JsonMetadataProviderBuilder {
   /// Enables indented JSON format (default).
   /// </summary>
   /// <returns>This builder for fluent chaining</returns>
-  public JsonMetadataProviderBuilder UseIndentedFormat() {
+  public JsonMetadataProviderBuilder UseIndentedFormat()
+  {
     _useCompactFormat = false;
     return this;
   }
 
-  internal JsonMetadataProvider Build() {
+  internal JsonMetadataProvider Build()
+  {
     return new JsonMetadataProvider(_useCompactFormat);
   }
 }
@@ -191,21 +210,27 @@ public class JsonMetadataProviderBuilder {
 /// <summary>
 /// Builder for configuring Mermaid diagram provider options.
 /// </summary>
-public class MermaidMetadataProviderBuilder {
-  private MermaidMetadataProvider.MermaidFlowchartDirection _direction =
-    MermaidMetadataProvider.MermaidFlowchartDirection.TopToBottom;
+public class MermaidMetadataProviderBuilder
+{
+  private MermaidMetadataProvider.MermaidFlowchartDirection _direction = MermaidMetadataProvider
+    .MermaidFlowchartDirection
+    .TopToBottom;
 
   /// <summary>
   /// Sets the flowchart direction.
   /// </summary>
   /// <param name="direction">Direction for the flowchart (TB, LR, BT, RL)</param>
   /// <returns>This builder for fluent chaining</returns>
-  public MermaidMetadataProviderBuilder WithDirection(MermaidMetadataProvider.MermaidFlowchartDirection direction) {
+  public MermaidMetadataProviderBuilder WithDirection(
+    MermaidMetadataProvider.MermaidFlowchartDirection direction
+  )
+  {
     _direction = direction;
     return this;
   }
 
-  internal MermaidMetadataProvider Build() {
+  internal MermaidMetadataProvider Build()
+  {
     return new MermaidMetadataProvider(_direction);
   }
 }

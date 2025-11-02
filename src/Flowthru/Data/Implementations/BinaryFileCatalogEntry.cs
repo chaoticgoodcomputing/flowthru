@@ -48,14 +48,14 @@ namespace Flowthru.Data.Implementations;
 ///         "visualization_png",
 ///         $"{BasePath}/reports/chart.png",
 ///         BinaryFileType.Png));
-/// 
+///
 /// // In catalog - PDF report
 /// public ICatalogEntry&lt;byte[]&gt; MonthlyReport =>
 ///     GetOrCreateEntry(() => new BinaryFileCatalogEntry(
 ///         "monthly_report",
 ///         $"{BasePath}/reports/monthly.pdf",
 ///         BinaryFileType.Pdf));
-/// 
+///
 /// // In catalog - unknown binary type
 /// public ICatalogEntry&lt;byte[]&gt; CustomBinary =>
 ///     GetOrCreateEntry(() => new BinaryFileCatalogEntry(
@@ -63,9 +63,11 @@ namespace Flowthru.Data.Implementations;
 ///         $"{BasePath}/data/model.bin"));
 /// </code>
 /// </example>
-public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
+public class BinaryFileCatalogEntry
+  : CatalogEntryBase<byte[]>,
     IShallowInspectable<byte[]>,
-    IDeepInspectable<byte[]> {
+    IDeepInspectable<byte[]>
+{
   private readonly string _filePath;
   private readonly BinaryFileType? _expectedFileType;
 
@@ -75,8 +77,7 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the file (absolute or relative to working directory)</param>
   public BinaryFileCatalogEntry(string key, string filePath)
-      : this(key, filePath, expectedFileType: null) {
-  }
+    : this(key, filePath, expectedFileType: null) { }
 
   /// <summary>
   /// Creates a new binary file catalog entry with expected file type validation.
@@ -90,7 +91,8 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   /// a file has the wrong extension or incorrect data was written.
   /// </remarks>
   public BinaryFileCatalogEntry(string key, string filePath, BinaryFileType? expectedFileType)
-      : base(key) {
+    : base(key)
+  {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
     _expectedFileType = expectedFileType;
   }
@@ -106,34 +108,46 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   public BinaryFileType? ExpectedFileType => _expectedFileType;
 
   /// <inheritdoc/>
-  public override IO<byte[]> Load() {
-    return IO.liftAsync(async () => {
-      if (!File.Exists(_filePath)) {
-        throw new FileNotFoundException(
-            $"File not found for catalog entry '{Key}'", _filePath);
+  public override IO<byte[]> Load()
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (!File.Exists(_filePath))
+      {
+        throw new FileNotFoundException($"File not found for catalog entry '{Key}'", _filePath);
       }
 
-      try {
+      try
+      {
         return await File.ReadAllBytesAsync(_filePath);
-      } catch (IOException ex) {
+      }
+      catch (IOException ex)
+      {
         throw new InvalidOperationException(
-            $"Failed to read binary file '{_filePath}' for catalog entry '{Key}'.",
-            ex);
+          $"Failed to read binary file '{_filePath}' for catalog entry '{Key}'.",
+          ex
+        );
       }
     });
   }
 
   /// <inheritdoc/>
-  public override IO<Unit> Save(byte[] data) {
-    return IO.liftAsync(async () => {
-      if (data == null) {
-        throw new ArgumentNullException(nameof(data),
-            $"Cannot save null data to catalog entry '{Key}'");
+  public override IO<Unit> Save(byte[] data)
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (data == null)
+      {
+        throw new ArgumentNullException(
+          nameof(data),
+          $"Cannot save null data to catalog entry '{Key}'"
+        );
       }
 
       // Ensure directory exists
       var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
+      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+      {
         Directory.CreateDirectory(directory);
       }
 
@@ -143,31 +157,42 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   }
 
   /// <inheritdoc/>
-  public override IO<bool> Exists() {
+  public override IO<bool> Exists()
+  {
     return IO.liftAsync(async () => File.Exists(_filePath));
   }
 
   /// <inheritdoc/>
-  public override IO<ValidationResult> InspectShallow(int sampleSize = 100) {
-    return IO.liftAsync(async () => {
-      if (!File.Exists(_filePath)) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}")
-        });
+  public override IO<ValidationResult> InspectShallow(int sampleSize = 100)
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (!File.Exists(_filePath))
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(Key, ValidationErrorType.NotFound, $"File not found: {_filePath}"),
+          }
+        );
       }
 
-      try {
+      try
+      {
         // Read first 16 bytes for signature detection
         const int signatureSize = 16;
         byte[] signature;
 
-        await using (var stream = File.OpenRead(_filePath)) {
+        await using (var stream = File.OpenRead(_filePath))
+        {
           var readSize = (int)Math.Min(stream.Length, signatureSize);
           signature = new byte[readSize];
           var bytesRead = 0;
-          while (bytesRead < readSize) {
+          while (bytesRead < readSize)
+          {
             var read = await stream.ReadAsync(signature.AsMemory(bytesRead, readSize - bytesRead));
-            if (read == 0) {
+            if (read == 0)
+            {
               break;
             }
             bytesRead += read;
@@ -178,46 +203,94 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
         var detectedType = DetectFileType(signature);
 
         // If expected type is specified, validate it matches
-        if (_expectedFileType.HasValue && detectedType != _expectedFileType.Value) {
-          return new ValidationResult(new[] {
-            new ValidationError(Key, ValidationErrorType.TypeMismatch,
-              $"File type mismatch: Expected {_expectedFileType.Value} but detected {detectedType}",
-              "File may be corrupted or have incorrect extension")
-          });
+        if (_expectedFileType.HasValue && detectedType != _expectedFileType.Value)
+        {
+          return new ValidationResult(
+            new[]
+            {
+              new ValidationError(
+                Key,
+                ValidationErrorType.TypeMismatch,
+                $"File type mismatch: Expected {_expectedFileType.Value} but detected {detectedType}",
+                "File may be corrupted or have incorrect extension"
+              ),
+            }
+          );
         }
 
         var fileSize = new FileInfo(_filePath).Length;
         return new ValidationResult(); // Success - no errors
-      } catch (Exception ex) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.InspectionFailure, "Failed to inspect file", ex.Message)
-        });
+      }
+      catch (Exception ex)
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(
+              Key,
+              ValidationErrorType.InspectionFailure,
+              "Failed to inspect file",
+              ex.Message
+            ),
+          }
+        );
       }
     });
   }
 
   /// <inheritdoc/>
-  public override IO<ValidationResult> InspectDeep() {
-    return IO.liftAsync(async () => {
-      try {
+  public override IO<ValidationResult> InspectDeep()
+  {
+    return IO.liftAsync(async () =>
+    {
+      try
+      {
         // Read entire file to validate no I/O errors
         var content = await File.ReadAllBytesAsync(_filePath);
 
-        if (content == null) {
-          return new ValidationResult(new[] {
-            new ValidationError(Key, ValidationErrorType.InspectionFailure, $"File read resulted in null: {_filePath}")
-          });
+        if (content == null)
+        {
+          return new ValidationResult(
+            new[]
+            {
+              new ValidationError(
+                Key,
+                ValidationErrorType.InspectionFailure,
+                $"File read resulted in null: {_filePath}"
+              ),
+            }
+          );
         }
 
         return new ValidationResult(); // Success - no errors
-      } catch (IOException ex) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.InspectionFailure, "I/O error reading file", ex.Message)
-        });
-      } catch (Exception ex) {
-        return new ValidationResult(new[] {
-          new ValidationError(Key, ValidationErrorType.InspectionFailure, "Failed to read entire file", ex.Message)
-        });
+      }
+      catch (IOException ex)
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(
+              Key,
+              ValidationErrorType.InspectionFailure,
+              "I/O error reading file",
+              ex.Message
+            ),
+          }
+        );
+      }
+      catch (Exception ex)
+      {
+        return new ValidationResult(
+          new[]
+          {
+            new ValidationError(
+              Key,
+              ValidationErrorType.InspectionFailure,
+              "Failed to read entire file",
+              ex.Message
+            ),
+          }
+        );
       }
     });
   }
@@ -227,12 +300,15 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
   /// </summary>
   /// <param name="signature">First 16 bytes of the file</param>
   /// <returns>Detected file type, or Unknown if not recognized</returns>
-  private static BinaryFileType DetectFileType(byte[] signature) {
-    if (signature.Length < 4) {
+  private static BinaryFileType DetectFileType(byte[] signature)
+  {
+    if (signature.Length < 4)
+    {
       return BinaryFileType.Unknown;
     }
 
-    return signature switch {
+    return signature switch
+    {
       // PNG: 89 50 4E 47 0D 0A 1A 0A
       [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, ..] => BinaryFileType.Png,
       // JPEG: FF D8 FF
@@ -251,7 +327,7 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
       [0x52, 0x49, 0x46, 0x46, _, _, _, _, 0x57, 0x45, 0x42, 0x50, ..] => BinaryFileType.WebP,
       // MP4: various, but often 66 74 79 70 at bytes 4-7
       [_, _, _, _, 0x66, 0x74, 0x79, 0x70, ..] => BinaryFileType.Mp4,
-      _ => BinaryFileType.Unknown
+      _ => BinaryFileType.Unknown,
     };
   }
 }
@@ -259,7 +335,8 @@ public class BinaryFileCatalogEntry : CatalogEntryBase<byte[]>,
 /// <summary>
 /// Common binary file types that can be detected from file signatures.
 /// </summary>
-public enum BinaryFileType {
+public enum BinaryFileType
+{
   /// <summary>Unknown or unsupported file type</summary>
   Unknown,
 
@@ -288,5 +365,5 @@ public enum BinaryFileType {
   Gzip,
 
   /// <summary>MP4 video (66 74 79 70 at offset 4)</summary>
-  Mp4
+  Mp4,
 }

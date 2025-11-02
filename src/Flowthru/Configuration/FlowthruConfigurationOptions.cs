@@ -18,7 +18,8 @@ namespace Flowthru.Configuration;
 /// <c>appsettings.yml</c>, <c>appsettings.{Environment}.yml</c>, <c>appsettings.Local.yml</c>
 /// </para>
 /// </remarks>
-public class FlowthruConfigurationOptions {
+public class FlowthruConfigurationOptions
+{
   /// <summary>
   /// The base path where configuration files are located.
   /// </summary>
@@ -50,7 +51,7 @@ public class FlowthruConfigurationOptions {
   /// </summary>
   /// <remarks>
   /// Defaults to "FLOWTHRU_ENV". Set to null to disable environment variable resolution.
-  /// Standard .NET environment variables (DOTNET_ENVIRONMENT, ASPNETCORE_ENVIRONMENT) 
+  /// Standard .NET environment variables (DOTNET_ENVIRONMENT, ASPNETCORE_ENVIRONMENT)
   /// are always checked as fallbacks.
   /// </remarks>
   public string? EnvironmentVariable { get; set; } = "FLOWTHRU_ENV";
@@ -77,28 +78,34 @@ public class FlowthruConfigurationOptions {
   /// <summary>
   /// Gets the resolved environment name, checking all sources in priority order.
   /// </summary>
-  internal string GetResolvedEnvironment() {
+  internal string GetResolvedEnvironment()
+  {
     // 1. Explicitly set environment
-    if (!string.IsNullOrWhiteSpace(Environment)) {
+    if (!string.IsNullOrWhiteSpace(Environment))
+    {
       return Environment;
     }
 
     // 2. Custom environment variable
-    if (!string.IsNullOrWhiteSpace(EnvironmentVariable)) {
+    if (!string.IsNullOrWhiteSpace(EnvironmentVariable))
+    {
       var customEnv = System.Environment.GetEnvironmentVariable(EnvironmentVariable);
-      if (!string.IsNullOrWhiteSpace(customEnv)) {
+      if (!string.IsNullOrWhiteSpace(customEnv))
+      {
         return customEnv;
       }
     }
 
     // 3. Standard .NET environment variables
     var dotnetEnv = System.Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
-    if (!string.IsNullOrWhiteSpace(dotnetEnv)) {
+    if (!string.IsNullOrWhiteSpace(dotnetEnv))
+    {
       return dotnetEnv;
     }
 
     var aspnetEnv = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    if (!string.IsNullOrWhiteSpace(aspnetEnv)) {
+    if (!string.IsNullOrWhiteSpace(aspnetEnv))
+    {
       return aspnetEnv;
     }
 
@@ -111,7 +118,8 @@ public class FlowthruConfigurationOptions {
   /// </summary>
   /// <param name="path">The configuration directory path</param>
   /// <returns>This options instance for fluent chaining</returns>
-  public FlowthruConfigurationOptions WithConfigurationPath(string path) {
+  public FlowthruConfigurationOptions WithConfigurationPath(string path)
+  {
     ConfigurationPath = path ?? throw new ArgumentNullException(nameof(path));
     return this;
   }
@@ -121,7 +129,8 @@ public class FlowthruConfigurationOptions {
   /// </summary>
   /// <param name="environment">The environment name (e.g., "Development", "Production")</param>
   /// <returns>This options instance for fluent chaining</returns>
-  public FlowthruConfigurationOptions WithEnvironment(string environment) {
+  public FlowthruConfigurationOptions WithEnvironment(string environment)
+  {
     Environment = environment ?? throw new ArgumentNullException(nameof(environment));
     return this;
   }
@@ -131,7 +140,8 @@ public class FlowthruConfigurationOptions {
   /// </summary>
   /// <param name="variableName">The environment variable name</param>
   /// <returns>This options instance for fluent chaining</returns>
-  public FlowthruConfigurationOptions WithEnvironmentVariable(string? variableName) {
+  public FlowthruConfigurationOptions WithEnvironmentVariable(string? variableName)
+  {
     EnvironmentVariable = variableName;
     return this;
   }
@@ -141,7 +151,8 @@ public class FlowthruConfigurationOptions {
   /// </summary>
   /// <param name="fileName">The base filename (e.g., "parameters", "config")</param>
   /// <returns>This options instance for fluent chaining</returns>
-  public FlowthruConfigurationOptions WithConfigurationFileName(string fileName) {
+  public FlowthruConfigurationOptions WithConfigurationFileName(string fileName)
+  {
     ConfigurationFileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
     return this;
   }
@@ -151,7 +162,8 @@ public class FlowthruConfigurationOptions {
   /// </summary>
   /// <param name="enabled">Whether to enable YAML support</param>
   /// <returns>This options instance for fluent chaining</returns>
-  public FlowthruConfigurationOptions WithYamlSupport(bool enabled = true) {
+  public FlowthruConfigurationOptions WithYamlSupport(bool enabled = true)
+  {
     EnableYamlSupport = enabled;
     return this;
   }

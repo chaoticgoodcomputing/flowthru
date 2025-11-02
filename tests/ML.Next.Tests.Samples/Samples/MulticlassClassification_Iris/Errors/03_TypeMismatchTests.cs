@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 
 /// <summary>
 /// Tests verifying ML.Next catches column type mismatches at compile-time.
-/// 
+///
 /// Common scenario: Engineer tries to use float column where string is expected.
 /// ML.NET: Compiles fine, runtime error when types don't match.
 /// ML.Next: Compilation error - type mismatch in expression tree.
@@ -13,13 +13,16 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 [TestFixture]
 [Category("CompilationSafety")]
 [Category("TypeMismatch")]
-public class TypeMismatchTests {
+public class TypeMismatchTests
+{
   [Test]
-  public void FloatColumnAsStringInput_Should_Not_Compile() {
+  public void FloatColumnAsStringInput_Should_Not_Compile()
+  {
     // Scenario: Trying to use MapValueToKey on a float column (expects categorical)
     // Note: This test documents desired behavior - ML.Next currently allows this
     // but should ideally enforce type compatibility at compile-time
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -44,18 +47,24 @@ public class TypeMismatchTests {
 
     // Currently this compiles, but ideally it should not
     // This test documents the gap in type safety
-    if (result.Success) {
+    if (result.Success)
+    {
       Assert.Inconclusive(
-        "Type mismatch currently allowed - enhancement needed to enforce categorical types for MapValueToKey");
-    } else {
+        "Type mismatch currently allowed - enhancement needed to enforce categorical types for MapValueToKey"
+      );
+    }
+    else
+    {
       Assert.Pass("Type system correctly prevents using float column with MapValueToKey");
     }
   }
 
   [Test]
-  public void WrongGenericTypeParameter_Should_Not_Compile() {
+  public void WrongGenericTypeParameter_Should_Not_Compile()
+  {
     // Scenario: Using wrong type parameter in ColumnName<T>
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
 
@@ -73,20 +82,23 @@ public class TypeMismatchTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Assigning ColumnName<float> to ColumnName<string> should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Assigning ColumnName<float> to ColumnName<string> should not compile"
+    );
 
-    var errors = result.Diagnostics
-      .Where(d => d.Severity == DiagnosticSeverity.Error)
-      .ToList();
+    var errors = result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
     Assert.That(errors, Is.Not.Empty, "Should have compilation errors");
   }
 
   [Test]
-  public void ArrayTypeWhenScalarExpected_Should_Not_Compile() {
+  public void ArrayTypeWhenScalarExpected_Should_Not_Compile()
+  {
     // Scenario: Using array column where scalar is expected
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -110,10 +122,14 @@ public class TypeMismatchTests {
 
     // This may compile at C# level but fail at runtime
     // Ideally ML.Next should catch this at compile-time
-    if (result.Success) {
+    if (result.Success)
+    {
       Assert.Inconclusive(
-        "Array/scalar type mismatch currently allowed - enhancement needed for stricter type checking");
-    } else {
+        "Array/scalar type mismatch currently allowed - enhancement needed for stricter type checking"
+      );
+    }
+    else
+    {
       Assert.Pass("Type system correctly prevents using array column where scalar expected");
     }
   }

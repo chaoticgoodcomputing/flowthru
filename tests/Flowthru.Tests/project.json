@@ -38,6 +38,20 @@
         "command": "dotnet test --filter \"Category=Execution\"",
         "cwd": "tests/Flowthru.Tests"
       }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
     }
   },
   "tags": [ "type:test", "scope:flowthru" ]

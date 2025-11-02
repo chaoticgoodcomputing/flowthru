@@ -32,12 +32,14 @@ namespace Flowthru.Data.Implementations;
 /// </code>
 /// </para>
 /// </remarks>
-public class NullCatalogEntry<T> : CatalogEntryBase<T> {
+public class NullCatalogEntry<T> : CatalogEntryBase<T>
+{
   /// <summary>
   /// Initializes a new instance of NullCatalogEntry with the specified key.
   /// </summary>
   /// <param name="key">Unique identifier for this entry (e.g., "_nodata_input_1")</param>
-  public NullCatalogEntry(string key) : base(key) { }
+  public NullCatalogEntry(string key)
+    : base(key) { }
 
   /// <summary>
   /// Always returns false - null entries don't persist data.
@@ -48,18 +50,24 @@ public class NullCatalogEntry<T> : CatalogEntryBase<T> {
   /// Returns an empty result immediately without performing any I/O.
   /// </summary>
   /// <returns>Effect that returns default(T) immediately</returns>
-  public override IO<T> Load() {
+  public override IO<T> Load()
+  {
     // For NullCatalogEntry, return default value
-    if (typeof(T) == typeof(Nodes.NoData)) {
+    if (typeof(T) == typeof(Nodes.NoData))
+    {
       return IO.pure((T)(object)Nodes.NoData.Value);
     }
 
     // For collection types, return empty Seq
     var type = typeof(T);
-    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Seq<>)) {
+    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Seq<>))
+    {
       var elementType = type.GetGenericArguments()[0];
       var emptyMethod = typeof(Seq)
-        .GetMethod("empty", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)!
+        .GetMethod(
+          "empty",
+          System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static
+        )!
         .MakeGenericMethod(elementType);
       var emptySeq = emptyMethod.Invoke(null, null);
       return IO.pure((T)emptySeq!);
@@ -74,7 +82,8 @@ public class NullCatalogEntry<T> : CatalogEntryBase<T> {
   /// </summary>
   /// <param name="data">Data to discard</param>
   /// <returns>Effect that completes immediately</returns>
-  public override IO<Unit> Save(T data) {
+  public override IO<Unit> Save(T data)
+  {
     // NullCatalogEntry discards all data
     return IO.pure(unit);
   }

@@ -7,14 +7,17 @@ namespace Flowthru.Data.Validation;
 /// This exception is thrown by <see cref="ValidationResult.ThrowIfInvalid"/> to halt
 /// pipeline execution when external data validation fails.
 /// </remarks>
-public class ValidationException : Exception {
+public class ValidationException : Exception
+{
   /// <summary>
   /// Creates a new validation exception.
   /// </summary>
   /// <param name="validationResult">The validation result containing errors</param>
   public ValidationException(ValidationResult validationResult)
-    : base(BuildMessage(validationResult)) {
-    ValidationResult = validationResult ?? throw new ArgumentNullException(nameof(validationResult));
+    : base(BuildMessage(validationResult))
+  {
+    ValidationResult =
+      validationResult ?? throw new ArgumentNullException(nameof(validationResult));
   }
 
   /// <summary>
@@ -22,12 +25,15 @@ public class ValidationException : Exception {
   /// </summary>
   public ValidationResult ValidationResult { get; }
 
-  private static string BuildMessage(ValidationResult result) {
-    if (result == null) {
+  private static string BuildMessage(ValidationResult result)
+  {
+    if (result == null)
+    {
       throw new ArgumentNullException(nameof(result));
     }
 
-    if (result.IsValid) {
+    if (result.IsValid)
+    {
       return "Validation exception created with valid result (no errors)";
     }
 
@@ -35,11 +41,14 @@ public class ValidationException : Exception {
 
     // Group errors by catalog key for better readability
     var errorsByCatalog = result.Errors.GroupBy(e => e.CatalogKey);
-    foreach (var group in errorsByCatalog) {
+    foreach (var group in errorsByCatalog)
+    {
       message += $"\n\n{group.Key}:";
-      foreach (var error in group) {
+      foreach (var error in group)
+      {
         message += $"\n  • [{error.ErrorType}] {error.Message}";
-        if (!string.IsNullOrEmpty(error.Details)) {
+        if (!string.IsNullOrEmpty(error.Details))
+        {
           // Indent details for readability
           var indentedDetails = error.Details.Replace("\n", "\n    ");
           message += $"\n    {indentedDetails}";

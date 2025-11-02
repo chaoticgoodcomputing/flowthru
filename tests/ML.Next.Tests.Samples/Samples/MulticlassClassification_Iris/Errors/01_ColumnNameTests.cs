@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next catches column name typos in Iris multiclass classification at compile-time.
-/// 
+///
 /// Common scenario: Engineer copies classification code and misspells "SepalLength" as "SepelLength".
 /// ML.NET: Compiles fine, fails at runtime when pipeline executes.
 /// ML.Next: Compilation error - column doesn't exist in schema.
@@ -13,11 +13,14 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 [TestFixture]
 [Category("CompilationSafety")]
 [Category("ColumnNames")]
-public class ColumnNameTests {
+public class ColumnNameTests
+{
   [Test]
-  public void TypoInColumnName_Should_Not_Compile() {
+  public void TypoInColumnName_Should_Not_Compile()
+  {
     // Scenario: Engineer types "SepelLength" instead of "SepalLength"
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -43,29 +46,31 @@ public class ColumnNameTests {
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
     // Should fail to compile
-    Assert.That(result.Success, Is.False,
-      "Code with column name typo should not compile");
+    Assert.That(result.Success, Is.False, "Code with column name typo should not compile");
 
     // Verify we get the expected error
-    var errors = result.Diagnostics
-      .Where(d => d.Severity == DiagnosticSeverity.Error)
-      .ToList();
+    var errors = result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
     Assert.That(errors, Is.Not.Empty, "Should have compilation errors");
 
     // Should have "member not found" error (CS0117)
     var hasMemberNotFound = errors.Any(e =>
-      e.Id == "CS0117" ||
-      e.GetMessage().Contains("does not contain a definition"));
+      e.Id == "CS0117" || e.GetMessage().Contains("does not contain a definition")
+    );
 
-    Assert.That(hasMemberNotFound, Is.True,
-      $"Should have 'member not found' error. Got: {string.Join(", ", errors.Select(e => e.Id))}");
+    Assert.That(
+      hasMemberNotFound,
+      Is.True,
+      $"Should have 'member not found' error. Got: {string.Join(", ", errors.Select(e => e.Id))}"
+    );
   }
 
   [Test]
-  public void ColumnFromWrongSchema_Should_Not_Compile() {
+  public void ColumnFromWrongSchema_Should_Not_Compile()
+  {
     // Scenario: Engineer references a column that exists in a different schema
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -88,14 +93,19 @@ public class ColumnNameTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Referencing column from wrong schema should not compile");
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Referencing column from wrong schema should not compile"
+    );
   }
 
   [Test]
-  public void WrongColumnInMapValueToKey_Should_Not_Compile() {
+  public void WrongColumnInMapValueToKey_Should_Not_Compile()
+  {
     // Scenario: Engineer tries to map a non-existent column to key
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -117,7 +127,6 @@ public class ColumnNameTests {
 
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
-    Assert.That(result.Success, Is.False,
-      "Typo in MapValueToKey input column should not compile");
+    Assert.That(result.Success, Is.False, "Typo in MapValueToKey input column should not compile");
   }
 }

@@ -10,20 +10,24 @@ namespace Flowthru.Tests.Validation.GraphConstruction;
 [TestFixture]
 [Category("Validation")]
 [Category("GraphConstruction")]
-public class CircularDependencyTests {
+public class CircularDependencyTests
+{
   private SimpleThreeNodeCatalog _catalog = null!;
 
   [SetUp]
-  public void SetUp() {
+  public void SetUp()
+  {
     _catalog = new SimpleThreeNodeCatalog();
   }
 
   [Test]
-  public void Build_WhenSimpleCircle_ThrowsInvalidOperationException() {
+  public void Build_WhenSimpleCircle_ThrowsInvalidOperationException()
+  {
     // ===========
     // Arrange: Create a circular dependency A → B → C → A
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
       builder.AddNode<PassthroughNode>(_catalog.StepOne, _catalog.StepTwo, "NodeB");
       builder.AddNode<PassthroughNode>(_catalog.StepTwo, _catalog.Input, "NodeC"); // Circle!
@@ -33,16 +37,21 @@ public class CircularDependencyTests {
     // Act & Assert
     // ===========
     var ex = Assert.Throws<InvalidOperationException>(() => pipeline.Build());
-    Assert.That(ex!.Message, Does.Contain("circular").IgnoreCase.Or.Contain("cycle").IgnoreCase,
-        "Error message should indicate circular dependency");
+    Assert.That(
+      ex!.Message,
+      Does.Contain("circular").IgnoreCase.Or.Contain("cycle").IgnoreCase,
+      "Error message should indicate circular dependency"
+    );
   }
 
   [Test]
-  public void Build_WhenSelfLoop_ThrowsInvalidOperationException() {
+  public void Build_WhenSelfLoop_ThrowsInvalidOperationException()
+  {
     // ===========
     // Arrange: Node writes to its own input (A → A)
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.Input, "SelfLoop");
     });
 
@@ -50,16 +59,21 @@ public class CircularDependencyTests {
     // Act & Assert
     // ===========
     var ex = Assert.Throws<InvalidOperationException>(() => pipeline.Build());
-    Assert.That(ex!.Message, Does.Contain("circular").IgnoreCase.Or.Contain("cycle").IgnoreCase,
-        "Error message should indicate circular dependency or cycle");
+    Assert.That(
+      ex!.Message,
+      Does.Contain("circular").IgnoreCase.Or.Contain("cycle").IgnoreCase,
+      "Error message should indicate circular dependency or cycle"
+    );
   }
 
   [Test]
-  public void Build_WhenTwoNodeCircle_ThrowsInvalidOperationException() {
+  public void Build_WhenTwoNodeCircle_ThrowsInvalidOperationException()
+  {
     // ===========
     // Arrange: A → B → A
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
       builder.AddNode<PassthroughNode>(_catalog.StepOne, _catalog.Input, "NodeB"); // Circle back
     });
@@ -71,11 +85,13 @@ public class CircularDependencyTests {
   }
 
   [Test]
-  public void Build_WhenNoCycle_SucceedsWithoutError() {
+  public void Build_WhenNoCycle_SucceedsWithoutError()
+  {
     // ===========
     // Arrange: Linear pipeline A → B → C
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder => {
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
       builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
       builder.AddNode<PassthroughNode>(_catalog.StepOne, _catalog.StepTwo, "NodeB");
       builder.AddNode<PassthroughNode>(_catalog.StepTwo, _catalog.Output, "NodeC");

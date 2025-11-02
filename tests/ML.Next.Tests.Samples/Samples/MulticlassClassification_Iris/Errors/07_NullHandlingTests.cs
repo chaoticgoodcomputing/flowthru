@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 
 /// <summary>
 /// Tests verifying ML.Next handles null and missing values safely.
-/// 
+///
 /// Common scenario: Data contains nulls but pipeline doesn't handle them.
 /// ML.NET: Runtime error or silent NaN propagation.
 /// ML.Next: Schema tracks nullable columns, enforces null handling.
@@ -13,12 +13,15 @@ namespace ML.Next.Tests.Samples.Samples.MulticlassClassification_Iris.Errors;
 [TestFixture]
 [Category("CompilationSafety")]
 [Category("NullHandling")]
-public class NullHandlingTests {
+public class NullHandlingTests
+{
   [Test]
-  public void NullableColumnWithoutHandling_Should_Require_Explicit_Strategy() {
+  public void NullableColumnWithoutHandling_Should_Require_Explicit_Strategy()
+  {
     // Scenario: Column may contain nulls but no imputation specified
     // This documents desired behavior - track nullability in schema
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -45,18 +48,24 @@ public class NullHandlingTests {
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
     // Currently compiles - nullability tracking not fully implemented
-    if (result.Success) {
+    if (result.Success)
+    {
       Assert.Inconclusive(
-        "Nullable column tracking not fully implemented - requires schema-level nullability tracking");
-    } else {
+        "Nullable column tracking not fully implemented - requires schema-level nullability tracking"
+      );
+    }
+    else
+    {
       Assert.Pass("Type system correctly requires explicit null handling");
     }
   }
 
   [Test]
-  public void ImputationChangesNullability_In_Schema() {
+  public void ImputationChangesNullability_In_Schema()
+  {
     // Scenario: After imputation, column should no longer be nullable
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -86,14 +95,15 @@ public class NullHandlingTests {
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
     // This should compile - demonstrates proper nullable tracking
-    Assert.That(result.Success, Is.True,
-      "Nullable tracking in schemas should compile correctly");
+    Assert.That(result.Success, Is.True, "Nullable tracking in schemas should compile correctly");
   }
 
   [Test]
-  public void MissingValueIndicatorColumn_Should_Be_Tracked() {
+  public void MissingValueIndicatorColumn_Should_Be_Tracked()
+  {
     // Scenario: Creating indicator column for missing values
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Transform;
             using Microsoft.ML;
@@ -120,14 +130,19 @@ public class NullHandlingTests {
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
     // Should compile - demonstrates proper indicator column tracking
-    Assert.That(result.Success, Is.True,
-      "Missing value indicator columns should be trackable in schema");
+    Assert.That(
+      result.Success,
+      Is.True,
+      "Missing value indicator columns should be trackable in schema"
+    );
   }
 
   [Test]
-  public void NullInNonNullableColumn_Should_Be_Caught_At_Load() {
+  public void NullInNonNullableColumn_Should_Be_Caught_At_Load()
+  {
     // Scenario: Loading data with nulls into non-nullable schema
-    var code = @"
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Extract;
             using Microsoft.ML;
@@ -158,10 +173,14 @@ public class NullHandlingTests {
     var result = CompilationTestHelper.CompileWithMLExt(code);
 
     // Currently compiles - runtime validation would catch the null
-    if (result.Success) {
+    if (result.Success)
+    {
       Assert.Inconclusive(
-        "Compile-time null validation not implemented - requires type-level nullable analysis");
-    } else {
+        "Compile-time null validation not implemented - requires type-level nullable analysis"
+      );
+    }
+    else
+    {
       Assert.Pass("Type system caught nullable/non-nullable mismatch at compile-time");
     }
   }

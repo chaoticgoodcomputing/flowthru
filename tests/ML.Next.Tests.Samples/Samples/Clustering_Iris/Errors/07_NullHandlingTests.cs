@@ -5,7 +5,7 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 
 /// <summary>
 /// Tests verifying that ML.Next handles null and missing values safely.
-/// 
+///
 /// Common scenario: Using nullable types incorrectly or missing null checks.
 /// ML.NET: Runtime null reference exceptions.
 /// ML.Next: Type system tracks nullability through transformations.
@@ -15,11 +15,12 @@ namespace ML.Next.Tests.Samples.Samples.Clustering_Iris.Errors;
 [Category("NullHandling")]
 public class NullHandlingTests
 {
-    [Test]
-    public void Nullable_Column_Used_As_NonNullable()
-    {
-        // Scenario: Schema has nullable float but code assumes non-null
-        var code = @"
+  [Test]
+  public void Nullable_Column_Used_As_NonNullable()
+  {
+    // Scenario: Schema has nullable float but code assumes non-null
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using Microsoft.ML;
@@ -37,17 +38,21 @@ public class NullHandlingTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Assigning ColumnName<float?> to ColumnName<float> should not compile");
-    }
+    Assert.That(
+      result.Success,
+      Is.False,
+      "Assigning ColumnName<float?> to ColumnName<float> should not compile"
+    );
+  }
 
-    [Test]
-    public void Documentation_Of_Proper_Null_Handling()
-    {
-        // This test documents the CORRECT way to handle nullable columns
-        var code = @"
+  [Test]
+  public void Documentation_Of_Proper_Null_Handling()
+  {
+    // This test documents the CORRECT way to handle nullable columns
+    var code =
+      @"
             using ML.Next.Core.Schema;
             using ML.Next.Core.Columns;
             using ML.Next.Transform;
@@ -73,9 +78,8 @@ public class NullHandlingTests
             }
         ";
 
-        var result = CompilationTestHelper.CompileWithMLExt(code);
+    var result = CompilationTestHelper.CompileWithMLExt(code);
 
-        Assert.That(result.Success, Is.False,
-            "Proper null handling with transforms should compile");
-    }
+    Assert.That(result.Success, Is.False, "Proper null handling with transforms should compile");
+  }
 }

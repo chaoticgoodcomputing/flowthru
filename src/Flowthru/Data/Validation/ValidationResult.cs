@@ -10,13 +10,15 @@ namespace Flowthru.Data.Validation;
 /// multi-entry validation scenarios.
 /// </para>
 /// </remarks>
-public class ValidationResult {
+public class ValidationResult
+{
   private readonly List<ValidationError> _errors;
 
   /// <summary>
   /// Creates a successful validation result with no errors.
   /// </summary>
-  public ValidationResult() {
+  public ValidationResult()
+  {
     _errors = new List<ValidationError>();
   }
 
@@ -24,7 +26,8 @@ public class ValidationResult {
   /// Creates a validation result with the specified errors.
   /// </summary>
   /// <param name="errors">Collection of validation errors</param>
-  public ValidationResult(IEnumerable<ValidationError> errors) {
+  public ValidationResult(IEnumerable<ValidationError> errors)
+  {
     _errors = new List<ValidationError>(errors ?? throw new ArgumentNullException(nameof(errors)));
   }
 
@@ -52,8 +55,10 @@ public class ValidationResult {
   /// Adds a validation error to this result.
   /// </summary>
   /// <param name="error">The error to add</param>
-  internal void AddError(ValidationError error) {
-    if (error == null) {
+  internal void AddError(ValidationError error)
+  {
+    if (error == null)
+    {
       throw new ArgumentNullException(nameof(error));
     }
     _errors.Add(error);
@@ -63,8 +68,10 @@ public class ValidationResult {
   /// Merges another validation result into this one.
   /// </summary>
   /// <param name="other">The validation result to merge</param>
-  internal void Merge(ValidationResult other) {
-    if (other == null) {
+  internal void Merge(ValidationResult other)
+  {
+    if (other == null)
+    {
       throw new ArgumentNullException(nameof(other));
     }
     _errors.AddRange(other.Errors);
@@ -86,11 +93,12 @@ public class ValidationResult {
     string catalogKey,
     ValidationErrorType errorType,
     string message,
-    string? details = null) {
-    return new ValidationResult(new[]
-    {
-      new ValidationError(catalogKey, errorType, message, details)
-    });
+    string? details = null
+  )
+  {
+    return new ValidationResult(
+      new[] { new ValidationError(catalogKey, errorType, message, details) }
+    );
   }
 
   /// <summary>
@@ -98,7 +106,8 @@ public class ValidationResult {
   /// </summary>
   /// <param name="catalogKey">The catalog entry key where the error occurred</param>
   /// <param name="exception">The exception that occurred during inspection</param>
-  public static ValidationResult FromException(string catalogKey, Exception exception) {
+  public static ValidationResult FromException(string catalogKey, Exception exception)
+  {
     return Failure(
       catalogKey,
       ValidationErrorType.InspectionFailure,
@@ -110,21 +119,25 @@ public class ValidationResult {
   /// <summary>
   /// Returns a formatted string representation of all errors.
   /// </summary>
-  public override string ToString() {
-    if (IsValid) {
+  public override string ToString()
+  {
+    if (IsValid)
+    {
       return "Validation successful - no errors found";
     }
 
-    return $"Validation failed with {ErrorCount} error(s):\n" +
-           string.Join("\n", _errors.Select(e => $"  • {e}"));
+    return $"Validation failed with {ErrorCount} error(s):\n"
+      + string.Join("\n", _errors.Select(e => $"  • {e}"));
   }
 
   /// <summary>
   /// Throws a ValidationException if this result has errors.
   /// </summary>
   /// <exception cref="ValidationException">Thrown if validation failed</exception>
-  public void ThrowIfInvalid() {
-    if (HasErrors) {
+  public void ThrowIfInvalid()
+  {
+    if (HasErrors)
+    {
       throw new ValidationException(this);
     }
   }

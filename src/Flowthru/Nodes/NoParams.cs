@@ -17,10 +17,10 @@ namespace Flowthru.Nodes;
 /// <code>
 /// // Explicit NoParams (rarely needed)
 /// public class MyNode : NodeBase&lt;Input, Output, NoParams&gt; { }
-/// 
+///
 /// // Recommended: Use two-parameter base class
 /// public class MyNode : NodeBase&lt;Input, Output&gt; { }
-/// 
+///
 /// // With parameters
 /// public class ConfigurableNode : NodeBase&lt;Input, Output, MyParameters&gt;
 /// {
@@ -28,6 +28,7 @@ namespace Flowthru.Nodes;
 /// }
 /// </code>
 /// </remarks>
-public sealed class NoParams {
+public sealed class NoParams
+{
   // Empty marker class - no properties or methods needed
 }

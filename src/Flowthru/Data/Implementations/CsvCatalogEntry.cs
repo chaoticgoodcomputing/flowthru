@@ -42,7 +42,8 @@ namespace Flowthru.Data.Implementations;
 /// - Properties should be primitive types or strings
 /// </para>
 /// </remarks>
-public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
+public class CsvCatalogEntry<T> : CatalogEntryBase<T>
+{
   private readonly string _filePath;
   private readonly CsvConfiguration _configuration;
 
@@ -52,10 +53,11 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
   /// <param name="key">Unique identifier for this catalog entry</param>
   /// <param name="filePath">Path to the CSV file (absolute or relative to working directory)</param>
   public CsvCatalogEntry(string key, string filePath)
-      : this(key, filePath, new CsvConfiguration(CultureInfo.InvariantCulture, typeof(T)) {
-        HasHeaderRecord = true
-      }) {
-  }
+    : this(
+      key,
+      filePath,
+      new CsvConfiguration(CultureInfo.InvariantCulture, typeof(T)) { HasHeaderRecord = true }
+    ) { }
 
   /// <summary>
   /// Creates a new CSV catalog entry with custom configuration.
@@ -64,7 +66,8 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
   /// <param name="filePath">Path to the CSV file</param>
   /// <param name="configuration">CsvHelper configuration</param>
   public CsvCatalogEntry(string key, string filePath, CsvConfiguration configuration)
-      : base(key) {
+    : base(key)
+  {
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
     _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
   }
@@ -80,17 +83,20 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
   public CsvConfiguration Configuration => _configuration;
 
   /// <inheritdoc/>
-  public override IO<T> Load() {
-    return IO.liftAsync(async () => {
-      if (!File.Exists(_filePath)) {
-        throw new FileNotFoundException(
-            $"CSV file not found for catalog entry '{Key}'", _filePath);
+  public override IO<T> Load()
+  {
+    return IO.liftAsync(async () =>
+    {
+      if (!File.Exists(_filePath))
+      {
+        throw new FileNotFoundException($"CSV file not found for catalog entry '{Key}'", _filePath);
       }
 
       var type = typeof(T);
 
       // Determine if T is a collection type
-      if (IsCollectionType(type)) {
+      if (IsCollectionType(type))
+      {
         // T is IEnumerable<TRow> or Seq<TRow>
         var elementType = GetCollectionElementType(type);
 
@@ -100,40 +106,49 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
           FileAccess.Read,
           FileShare.Read,
           bufferSize: 4096,
-          useAsync: true);
+          useAsync: true
+        );
 
         using var reader = new StreamReader(stream);
         using var csv = new CsvReader(reader, _configuration);
 
         // Read all records
         var records = new List<object?>();
-        await foreach (var record in csv.GetRecordsAsync(elementType)) {
+        await foreach (var record in csv.GetRecordsAsync(elementType))
+        {
           records.Add(record);
         }
 
         // Convert to T (Seq<TRow> or IEnumerable<TRow>)
         return ConvertToCollectionType(records, type);
-      } else {
+      }
+      else
+      {
         // T is TRow (singleton) - read first record only
         using var reader = new StreamReader(_filePath);
         using var csv = new CsvReader(reader, _configuration);
 
-        await foreach (var record in csv.GetRecordsAsync<T>()) {
+        await foreach (var record in csv.GetRecordsAsync<T>())
+        {
           return record; // Return first record
         }
 
         throw new InvalidOperationException(
-          $"CSV file '{_filePath}' for catalog entry '{Key}' contains no data");
+          $"CSV file '{_filePath}' for catalog entry '{Key}' contains no data"
+        );
       }
     });
   }
 
   /// <inheritdoc/>
-  public override IO<Unit> Save(T data) {
-    return IO.liftAsync(async () => {
+  public override IO<Unit> Save(T data)
+  {
+    return IO.liftAsync(async () =>
+    {
       // Ensure directory exists
       var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
+      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+      {
         Directory.CreateDirectory(directory);
       }
 
@@ -142,15 +157,22 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
 
       var type = typeof(T);
 
-      if (IsCollectionType(type)) {
+      if (IsCollectionType(type))
+      {
         // T is IEnumerable<TRow> or Seq<TRow>
-        if (data is IEnumerable enumerable) {
+        if (data is IEnumerable enumerable)
+        {
           csv.WriteRecords(enumerable);
-        } else {
-          throw new InvalidOperationException(
-            $"Expected IEnumerable for catalog entry '{Key}', got {data?.GetType().Name ?? "null"}");
         }
-      } else {
+        else
+        {
+          throw new InvalidOperationException(
+            $"Expected IEnumerable for catalog entry '{Key}', got {data?.GetType().Name ?? "null"}"
+          );
+        }
+      }
+      else
+      {
         // T is TRow (singleton) - write single record
         csv.WriteRecords(new[] { data });
       }
@@ -160,20 +182,25 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
   }
 
   /// <inheritdoc/>
-  public override IO<bool> Exists() {
+  public override IO<bool> Exists()
+  {
     return IO.liftAsync(async () => File.Exists(_filePath));
   }
 
-  private static bool IsCollectionType(Type type) {
+  private static bool IsCollectionType(Type type)
+  {
     if (type == typeof(string))
       return false;
     return typeof(IEnumerable).IsAssignableFrom(type);
   }
 
-  private static Type GetCollectionElementType(Type collectionType) {
-    if (collectionType.IsGenericType) {
+  private static Type GetCollectionElementType(Type collectionType)
+  {
+    if (collectionType.IsGenericType)
+    {
       var genericArgs = collectionType.GetGenericArguments();
-      if (genericArgs.Length > 0) {
+      if (genericArgs.Length > 0)
+      {
         return genericArgs[0];
       }
     }
@@ -182,9 +209,11 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
     return typeof(object);
   }
 
-  private static T ConvertToCollectionType(List<object?> records, Type targetType) {
+  private static T ConvertToCollectionType(List<object?> records, Type targetType)
+  {
     // If T is Seq<TElement>
-    if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Seq<>)) {
+    if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Seq<>))
+    {
       var elementType = targetType.GetGenericArguments()[0];
       var typedList = typeof(Enumerable)
         .GetMethod(nameof(Enumerable.Cast))!
@@ -192,7 +221,8 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
         .Invoke(null, new object[] { records });
 
       // Use toSeq from Prelude
-      var toSeqMethod = typeof(Prelude).GetMethods()
+      var toSeqMethod = typeof(Prelude)
+        .GetMethods()
         .First(m => m.Name == "toSeq" && m.GetParameters().Length == 1)
         .MakeGenericMethod(elementType);
 
@@ -201,7 +231,8 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
     }
 
     // If T is IEnumerable<TElement> or other collection interface
-    if (targetType.IsInterface || targetType.IsAbstract) {
+    if (targetType.IsInterface || targetType.IsAbstract)
+    {
       // Return as IEnumerable
       var elementType = GetCollectionElementType(targetType);
       var typedEnumerable = typeof(Enumerable)
@@ -214,6 +245,7 @@ public class CsvCatalogEntry<T> : CatalogEntryBase<T> {
 
     // For concrete collection types, try to instantiate
     throw new NotSupportedException(
-      $"CSV catalog entry does not support collection type '{targetType.Name}'. Use Seq<T> or IEnumerable<T>.");
+      $"CSV catalog entry does not support collection type '{targetType.Name}'. Use Seq<T> or IEnumerable<T>."
+    );
   }
 }

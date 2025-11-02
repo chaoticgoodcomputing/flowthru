@@ -7,7 +7,8 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 /// Final model input data schema (result of joining companies, shuttles, and reviews).
 /// Output of CreateModelInputNode.
 /// </summary>
-public record ModelInputSchema : IFlatSerializable {
+public record ModelInputSchema : IFlatSerializable
+{
   // Shuttle columns (from shuttles table)
 
   /// <summary>

@@ -16,8 +16,9 @@ public static class TestHelpers
   public static string GetDataPath(string relativePath)
   {
     var assemblyLocation = typeof(TestHelpers).Assembly.Location;
-    var assemblyDirectory = Path.GetDirectoryName(assemblyLocation)
-        ?? throw new InvalidOperationException("Could not determine assembly directory");
+    var assemblyDirectory =
+      Path.GetDirectoryName(assemblyLocation)
+      ?? throw new InvalidOperationException("Could not determine assembly directory");
 
     return Path.Combine(assemblyDirectory, relativePath);
   }
@@ -34,9 +35,10 @@ public static class TestHelpers
     if (!File.Exists(fullPath))
     {
       throw new FileNotFoundException(
-          $"Data file not found. Expected at: {fullPath}. " +
-          $"Ensure the file is marked with <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> in the .csproj",
-          fullPath);
+        $"Data file not found. Expected at: {fullPath}. "
+          + $"Ensure the file is marked with <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> in the .csproj",
+        fullPath
+      );
     }
   }
 }
