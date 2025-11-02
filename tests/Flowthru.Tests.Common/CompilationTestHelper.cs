@@ -10,16 +10,14 @@ namespace Flowthru.Tests.Common;
 /// Used for testing that certain code patterns produce compile-time errors as expected,
 /// ensuring that Flowthru's type safety guarantees are maintained.
 /// </remarks>
-public static class CompilationTestHelper
-{
+public static class CompilationTestHelper {
   /// <summary>
   /// Compiles C# code and returns the compilation result with diagnostics.
   /// </summary>
   /// <param name="code">The C# code to compile</param>
   /// <param name="includeFlowthru">Whether to include Flowthru assembly references</param>
   /// <returns>Compilation result with success status and diagnostics</returns>
-  public static CompilationResult Compile(string code, bool includeFlowthru = false)
-  {
+  public static CompilationResult Compile(string code, bool includeFlowthru = false) {
     var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
     var references = new List<MetadataReference>
@@ -34,8 +32,7 @@ public static class CompilationTestHelper
     references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")));
     references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Collections.dll")));
 
-    if (includeFlowthru)
-    {
+    if (includeFlowthru) {
       // Add Flowthru assembly reference
       references.Add(MetadataReference.CreateFromFile(typeof(Data.DataCatalogBase).Assembly.Location));
 
@@ -55,8 +52,7 @@ public static class CompilationTestHelper
     var diagnostics = compilation.GetDiagnostics();
     var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
-    return new CompilationResult
-    {
+    return new CompilationResult {
       Success = !errors.Any(),
       Diagnostics = diagnostics.ToList()
     };
@@ -67,8 +63,7 @@ public static class CompilationTestHelper
   /// </summary>
   /// <param name="code">The C# code to compile</param>
   /// <returns>Compilation result with success status and diagnostics</returns>
-  public static CompilationResult CompileWithMLExt(string code)
-  {
+  public static CompilationResult CompileWithMLExt(string code) {
     var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
     var references = new List<MetadataReference>
@@ -84,9 +79,30 @@ public static class CompilationTestHelper
     references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Collections.dll")));
     references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Linq.dll")));
     references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Linq.Expressions.dll")));
+    references.Add(MetadataReference.CreateFromFile(Path.Combine(runtimePath, "netstandard.dll")));
 
-    // Add Microsoft.ML assembly reference
-    references.Add(MetadataReference.CreateFromFile(typeof(Microsoft.ML.IDataView).Assembly.Location));
+    // Add Microsoft.ML assembly references - need all the different packages
+    references.Add(MetadataReference.CreateFromFile(typeof(Microsoft.ML.IDataView).Assembly.Location));  // Microsoft.ML.DataView
+    references.Add(MetadataReference.CreateFromFile(typeof(Microsoft.ML.MLContext).Assembly.Location));  // Microsoft.ML.Core + Microsoft.ML.Data
+
+    // Add ML.NET trainer packages by finding them through the MLContext's clustering trainers
+    var mlContextType = typeof(Microsoft.ML.MLContext);
+    var mlContextAssembly = mlContextType.Assembly;
+
+    // Get all loaded assemblies that are ML.NET related
+    var mlNetAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => a.GetName().Name?.StartsWith("Microsoft.ML") == true)
+        .ToList();
+
+    foreach (var assembly in mlNetAssemblies) {
+      try {
+        if (!string.IsNullOrEmpty(assembly.Location)) {
+          references.Add(MetadataReference.CreateFromFile(assembly.Location));
+        }
+      } catch {
+        // Skip assemblies that can't be referenced
+      }
+    }
 
     // Add Flowthru.ML.Next assembly reference
     references.Add(MetadataReference.CreateFromFile(typeof(Flowthru.ML.Next.Core.Schema.DataView<>).Assembly.Location));
@@ -104,8 +120,7 @@ public static class CompilationTestHelper
     var diagnostics = compilation.GetDiagnostics();
     var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
-    return new CompilationResult
-    {
+    return new CompilationResult {
       Success = !errors.Any(),
       Diagnostics = diagnostics.ToList()
     };
@@ -115,8 +130,7 @@ public static class CompilationTestHelper
 /// <summary>
 /// Result of a compilation test.
 /// </summary>
-public class CompilationResult
-{
+public class CompilationResult {
   /// <summary>
   /// Whether the compilation succeeded without errors.
   /// </summary>

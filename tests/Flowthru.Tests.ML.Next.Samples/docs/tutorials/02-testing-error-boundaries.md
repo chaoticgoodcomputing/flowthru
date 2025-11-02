@@ -18,7 +18,9 @@ By the end of this tutorial, you will:
 
 ## Step 1: Understanding Error Categories
 
-ML.Next prevents errors by making them **unrepresentable** in the type system. Based on real-world issues junior data engineers encounter, we organize tests into these categories:
+ML.Next prevents errors by making them **unrepresentable** in the type system. Based on real-world issues junior data engineers encounter, we organize tests into these categories.
+
+**Critical Testing Philosophy**: All error boundary tests should assert `Is.False` - meaning the code **should not compile**. When a test fails (because `result.Success` is `True`), it documents a gap in ML.Next's current implementation - functionality we want but haven't built yet. These failures are valuable specifications for future work.
 
 ### Error Category Overview
 
@@ -171,9 +173,10 @@ public class ColumnNameTests
 
 **Key Testing Patterns:**
 - Use `CompilationTestHelper.CompileWithMLExt()` to attempt compilation
-- Assert `result.Success` is `False` for error cases
-- Check for specific error codes (like `CS0117` for member not found)
-- Include ML.NET baseline tests that document the original behavior
+- **Always** assert `result.Success` is `False` - code with errors should not compile
+- Check for specific error codes (like `CS0117` for member not found) to verify the right error is caught
+- When tests fail, they document ML.Next features that should exist but don't yet
+- Avoid using actual ML.NET trainers in test code snippets (they require additional assembly references) - focus on testing the type system with simple transformations
 
 ## Step 4: Category 02 - Schema Mismatches
 
@@ -588,33 +591,85 @@ Tests should output clear messages about what error was caught:
   Error CS1503: Argument type mismatch - cannot convert ISchemaB to ISchemaC
 ```
 
-## Step 9: Documenting Test Intent
+## Step 9: Documenting Test Intent and Understanding Test Failures
 
 Use NUnit categories to organize and document test purpose:
 
-### ML.Next Safety Tests (Primary Focus)
+### Error Prevention Test Pattern
 ```csharp
 [Test]
 [Category("CompilationSafety")]
 public void Schema_Mismatch_Should_Not_Compile()
 {
-    // Tests that ML.Next prevents this error at compile-time
-    // This test may fail if the feature isn't implemented yet
+    var code = @"
+        // Code demonstrating the error scenario
+    ";
+
+    var result = CompilationTestHelper.CompileWithMLExt(code);
+
+    // ALL error boundary tests expect compilation to fail
+    Assert.That(result.Success, Is.False,
+        "ML.Next should prevent schema mismatches at compile-time");
 }
 ```
 
-### ML.NET Baseline Tests (For Comparison)
+### Test Failure Interpretation
+
+**When an error boundary test PASSES** (code fails to compile as expected):
+- ✅ ML.Next successfully prevents this error category
+- ✅ Type system is working as designed
+- ✅ Users will get compile-time safety for this scenario
+
+**When an error boundary test FAILS** (code compiles when it shouldn't):
+- 📋 Documents a current limitation of ML.Next
+- 📋 Specifies desired behavior for future implementation
+- 📋 Helps prioritize development work
+- 📋 Still provides value as a specification and regression test
+
+**Example**: If `Training_Without_Feature_Column_Should_Be_Prevented` fails because the code compiles, it means ML.Next doesn't yet enforce that the Features column exists at compile-time. This is expected - the test documents what ML.Next *should* do, not necessarily what it currently does.
+
+## Step 10: Understanding CompilationTestHelper Requirements
+
+### Assembly References
+
+The `CompilationTestHelper.CompileWithMLExt()` method includes references to:
+- Core .NET runtime assemblies (System.Runtime, System.Collections, System.Linq, etc.)
+- netstandard.dll (required for nullable types and base types)
+- Microsoft.ML assemblies (dynamically loaded from currently loaded assemblies)
+- Flowthru.ML.Next assembly
+- LanguageExt assemblies (Fin, Error, etc.)
+
+### Writing Test Code Snippets
+
+**Best Practices:**
+1. Define schemas inline within the test code string (don't reference external test types)
+2. Keep code simple - focus on testing type system, not ML.NET functionality
+3. Avoid using ML.NET trainers that require specific packages (KMeans, etc.) unless necessary
+4. Use `ColumnTransforms` operations which are well-supported
+5. Escape quotes in strings with `""` (two double quotes)
+
+**Example Structure:**
 ```csharp
-[Test]
-[Category("MLNet_Baseline")]
-public void MLNet_Allows_This_Mistake()
-{
-    // Documents ML.NET's behavior for comparison
-    // Shows why ML.Next's compile-time checking is valuable
-}
+var code = @"
+    using Flowthru.ML.Next.Core.Schema;
+    using Flowthru.ML.Next.Core.Columns;
+    using Flowthru.ML.Next.Transform;
+    using Microsoft.ML;
+
+    public interface IRawSchema : ISchemaDefinition {
+        ColumnName<float> MyColumn { get; }
+    }
+
+    public class Test {
+        public void Execute() {
+            var mlContext = new MLContext();
+            // Test type system behavior here
+        }
+    }
+";
 ```
 
-## Step 10: Creating Error Test Checklists
+## Step 12: Creating Error Test Checklists
 
 For each new sample, use this checklist to ensure comprehensive error coverage:
 
@@ -645,6 +700,44 @@ For each new sample, use this checklist to ensure comprehensive error coverage:
   - [ ] Wrong output type
   - [ ] Schema drift between train/predict
 
+## Troubleshooting Common Issues
+
+### Test Code Won't Compile (CS0246, CS0012 errors)
+
+**Symptom**: `CompileWithMLExt` returns compilation errors about missing types or assemblies.
+
+**Common Causes**:
+1. Using ML.NET trainers that require specific packages (e.g., `KMeans` requires Microsoft.ML.KMeansTrainer)
+2. Missing assembly references in CompilationTestHelper
+3. Using types from test project that aren't available in compiled snippet
+
+**Solutions**:
+- Simplify test code to avoid specific trainer types
+- Define all required interfaces inline within the test code string
+- Focus on testing ML.Next type system, not ML.NET runtime behavior
+- If you need trainers, ensure CompilationTestHelper includes those assembly references
+
+### All Tests Are Failing
+
+**Check**: Are you asserting `Is.False` for all error boundary tests?
+
+All error boundary tests should expect `result.Success` to be `False`. If you have tests with `Is.True`, they're likely written incorrectly. The pattern should be:
+```csharp
+Assert.That(result.Success, Is.False, "ML.Next should prevent this error");
+```
+
+### Lambda Expressions Not Working
+
+**Symptom**: Code using `schema => schema.ColumnName` doesn't work as expected.
+
+**Current Limitation**: The `ColumnExpressionExtractor` may not correctly extract column names from lambda expressions in all scenarios.
+
+**Workaround**: Use explicit string names with `nameof()`:
+```csharp
+// Instead of: schema => schema.SepalLength
+// Use: nameof(IrisData.SepalLength)
+```
+
 ## What You've Learned
 
 You have successfully:
@@ -652,7 +745,8 @@ You have successfully:
 - ✅ Written compilation tests using `CompilationTestHelper`
 - ✅ Created specifications for ML.Next's complete safety guarantees
 - ✅ Used NUnit categories for discoverability
-- ✅ Documented ML.NET's weaknesses for comparison
+- ✅ Understood that test failures document desired features, not bugs
+- ✅ Learned how to interpret passing vs failing error boundary tests
 
 ## Next Steps
 

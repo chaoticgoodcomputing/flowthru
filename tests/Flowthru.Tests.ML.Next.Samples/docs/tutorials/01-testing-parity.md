@@ -460,6 +460,39 @@ Within(0.01)    // For metrics like MAE that have larger scales
 2. Check that data split uses **same test fraction**
 3. Verify **column order** is identical in both implementations
 
+### Shared MLContext Produces Different Results
+
+**Symptom:** Parity test fails with different metrics when using the same `MLContext` instance for both ML.NET and ML.Next pipelines
+
+**Cause:** ML.NET's `MLContext` maintains internal state that can affect subsequent operations. When you reuse the same context, the second pipeline may be influenced by state from the first pipeline execution.
+
+**Solution:**
+Create **separate, independent** `MLContext` instances for each pipeline:
+
+```csharp
+// ❌ INCORRECT - Shared context causes state pollution
+private MLContext _mlContext = new MLContext(seed: 1);
+
+public void TestMethod() {
+    var mlnetMetrics = RunMLNetPipeline(_mlContext);   // Modifies context state
+    var mlnextMetrics = RunMLNextPipeline(_mlContext);  // Affected by previous run
+    // Metrics won't match!
+}
+
+// ✅ CORRECT - Independent contexts
+private ClusteringMetrics RunMLNetPipeline() {
+    var mlContext = new MLContext(seed: 1);  // Fresh context
+    // ... use mlContext
+}
+
+private ClusteringMetrics RunMLNextPipeline() {
+    var mlContext = new MLContext(seed: 1);  // Independent context
+    // ... use mlContext
+}
+```
+
+**Key Insight:** Even with the same seed, reusing an `MLContext` can cause non-determinism because ML.NET may cache transformers, maintain random number generator state, or track other internal state that affects subsequent operations. For true parity testing, always use fresh contexts.
+
 ### Model Training Fails in ML.Next but Not ML.NET
 
 **Symptom:** ML.NET runs fine, ML.Next throws exception

@@ -26,19 +26,9 @@
     <ProjectReference Include="..\Flowthru.Tests.Common\Flowthru.Tests.Common.csproj" />
   </ItemGroup>
 
-  <!-- Clustering_Iris data files -->
+  <!-- Sample data files -->
   <ItemGroup>
-    <Content Include="Clustering_Iris\Data\iris-full.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <!-- MulticlassClassification_Iris data files -->
-  <ItemGroup>
-    <Content Include="MulticlassClassification_Iris\Data\iris-train.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MulticlassClassification_Iris\Data\iris-test.txt">
+    <Content Include="Samples\Clustering_Iris\Data\iris-full.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
