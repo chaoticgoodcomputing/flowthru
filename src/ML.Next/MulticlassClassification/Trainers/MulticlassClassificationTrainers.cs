@@ -63,16 +63,24 @@ public static class MulticlassClassificationTrainers
     };
 
     if (l2Regularization.HasValue)
+    {
       options.L2Regularization = l2Regularization.Value;
+    }
 
     if (l1Regularization.HasValue)
+    {
       options.L1Regularization = l1Regularization.Value;
+    }
 
     if (maximumNumberOfIterations.HasValue)
+    {
       options.MaximumNumberOfIterations = maximumNumberOfIterations.Value;
+    }
 
     if (numberOfThreads.HasValue)
+    {
       options.NumberOfThreads = numberOfThreads.Value;
+    }
 
     var trainer = context.MulticlassClassification.Trainers.SdcaMaximumEntropy(options);
 
@@ -119,13 +127,19 @@ public static class MulticlassClassificationTrainers
     };
 
     if (l2Regularization.HasValue)
+    {
       options.L2Regularization = l2Regularization.Value;
+    }
 
     if (l1Regularization.HasValue)
+    {
       options.L1Regularization = l1Regularization.Value;
+    }
 
     if (loss != null)
+    {
       options.Loss = loss;
+    }
 
     var trainer = context.MulticlassClassification.Trainers.SdcaNonCalibrated(options);
 
