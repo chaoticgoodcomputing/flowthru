@@ -1,0 +1,9 @@
+# Default metadata directory
+Metadata
+!Metadata/.gitkeep
+
+# Dataset directories
+Data/**/Datasets
+
+# Un-ignore all .gitkeep files anywhere
+!**/.gitkeep
