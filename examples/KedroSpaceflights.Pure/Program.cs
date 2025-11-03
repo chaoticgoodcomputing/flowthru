@@ -1,0 +1,42 @@
+using Flowthru.Application;
+using KedroSpaceflights.Pure.Data;
+using KedroSpaceflights.Pure.Pipelines.DataProcessing;
+using KedroSpaceflights.Pure.Pipelines.DataScience;
+using KedroSpaceflights.Pure.Pipelines.Reporting;
+
+namespace KedroSpaceflights.Pure;
+
+public class Program
+{
+  public static async Task<int> Main(string[] args)
+  {
+    var app = FlowthruApplication.Create(
+      args,
+      builder =>
+      {
+        builder.UseConfiguration();
+
+        builder
+          .RegisterPipeline<Catalog>(
+            label: "DataProcessing",
+            pipeline: DataProcessingPipeline.Create
+          )
+          .WithDescription("Preprocesses companies and shuttles data");
+
+        builder
+          .RegisterPipelineWithConfiguration<Catalog, DataSciencePipeline.Params>(
+            label: "DataScience",
+            pipeline: DataSciencePipeline.Create,
+            configurationSection: "Flowthru:Pipelines:DataScience"
+          )
+          .WithDescription("Trains linear regression model for price prediction");
+
+        builder
+          .RegisterPipeline<Catalog>(label: "Reporting", pipeline: ReportingPipeline.Create)
+          .WithDescription("Generates passenger capacity reports");
+      }
+    );
+
+    return await app.RunAsync();
+  }
+}

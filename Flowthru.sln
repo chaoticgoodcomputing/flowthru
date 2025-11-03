@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ML.Next.Tests.Samples", "te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowthru.Integrations.MLNet", "src\Flowthru.Integrations.MLNet\Flowthru.Integrations.MLNet.csproj", "{0CA45427-82F2-4F4D-A4CE-6BB74F358155}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KedroSpaceflights.Pure", "examples\KedroSpaceflights.Pure\KedroSpaceflights.Pure.csproj", "{FBBDC832-16B4-41C5-918B-B995B0982B3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +91,18 @@ Global
 		{0CA45427-82F2-4F4D-A4CE-6BB74F358155}.Release|x64.Build.0 = Release|Any CPU
 		{0CA45427-82F2-4F4D-A4CE-6BB74F358155}.Release|x86.ActiveCfg = Release|Any CPU
 		{0CA45427-82F2-4F4D-A4CE-6BB74F358155}.Release|x86.Build.0 = Release|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Debug|x64.Build.0 = Debug|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Debug|x86.Build.0 = Debug|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Release|x64.ActiveCfg = Release|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Release|x64.Build.0 = Release|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Release|x86.ActiveCfg = Release|Any CPU
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,5 +113,6 @@ Global
 		{DF2C5A5C-8E55-4CBC-B151-0BBCCC7DD2E7} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{5E0829B1-DBC3-4975-87FD-8DC6314AE803} = {B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}
 		{0CA45427-82F2-4F4D-A4CE-6BB74F358155} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{FBBDC832-16B4-41C5-918B-B995B0982B3D} = {B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}
 	EndGlobalSection
 EndGlobal
