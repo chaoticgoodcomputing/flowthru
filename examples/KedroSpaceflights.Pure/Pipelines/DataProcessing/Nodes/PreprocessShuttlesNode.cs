@@ -3,8 +3,18 @@ using KedroSpaceflights.Pure.Data._02_Intermediate.Schemas;
 
 namespace KedroSpaceflights.Pure.Pipelines.DataProcessing.Nodes;
 
+/// <summary>
+/// Preprocesses raw shuttle data by parsing numeric fields, boolean flags, and currency values.
+/// </summary>
 public static class PreprocessShuttlesNode
 {
+  /// <summary>
+  /// Creates a preprocessing function that transforms raw shuttle records into strongly-typed records.
+  /// </summary>
+  /// <returns>
+  /// A function that converts <see cref="ShuttleSchema"/> records to <see cref="PreprocessedShuttleSchema"/> records.
+  /// Records with invalid numeric fields or currency values are filtered out.
+  /// </returns>
   public static Func<
     IEnumerable<ShuttleSchema>,
     Task<IEnumerable<PreprocessedShuttleSchema>>
@@ -21,6 +31,13 @@ public static class PreprocessShuttlesNode
     };
   }
 
+  /// <summary>
+  /// Parses a raw shuttle record into a preprocessed record with strongly-typed fields.
+  /// </summary>
+  /// <param name="raw">The raw shuttle record to parse.</param>
+  /// <returns>
+  /// A <see cref="PreprocessedShuttleSchema"/> if all fields parse successfully; otherwise, <c>null</c>.
+  /// </returns>
   private static PreprocessedShuttleSchema? Parse(ShuttleSchema raw)
   {
     // Parse boolean fields
@@ -63,6 +80,15 @@ public static class PreprocessShuttlesNode
     };
   }
 
+  /// <summary>
+  /// Parses a currency string (e.g., "$1,234.56") to a decimal value (e.g., 1234.56).
+  /// </summary>
+  /// <param name="value">The currency string to parse. Expected format: optional "$", digits with optional commas, optional decimal point.</param>
+  /// <param name="result">
+  /// When this method returns, contains the decimal value if parsing succeeded,
+  /// or zero if parsing failed.
+  /// </param>
+  /// <returns><c>true</c> if parsing succeeded; otherwise, <c>false</c>.</returns>
   private static bool TryParseMoney(string value, out decimal result)
   {
     result = 0;

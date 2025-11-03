@@ -4,8 +4,18 @@ using KedroSpaceflights.Pure.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Pure.Pipelines.DataProcessing.Nodes;
 
+/// <summary>
+/// Joins preprocessed shuttle and company data with review scores to create a unified model input table.
+/// </summary>
 public static class CreateModelInputTableNode
 {
+  /// <summary>
+  /// Creates a join function that combines shuttle, company, and review data into a single table for modeling.
+  /// </summary>
+  /// <returns>
+  /// A function that performs inner joins to produce <see cref="ModelInputTableSchema"/> records.
+  /// Records are filtered to include only reviews with valid numeric scores.
+  /// </returns>
   public static Func<
     (
       IEnumerable<PreprocessedShuttleSchema>,

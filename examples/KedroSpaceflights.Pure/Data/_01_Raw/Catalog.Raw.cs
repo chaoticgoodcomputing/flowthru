@@ -5,7 +5,9 @@ namespace KedroSpaceflights.Pure.Data;
 
 public partial class Catalog
 {
-  // Raw data entries
+  /// <summary>
+  /// Raw company data imported from external sources.
+  /// </summary>
   public ICatalogEntry<IEnumerable<CompanySchema>> Companies =>
     GetOrCreateEntry(
       () =>
@@ -15,6 +17,9 @@ public partial class Catalog
         )
     );
 
+  /// <summary>
+  /// Raw review data imported from external sources.
+  /// </summary>
   public ICatalogEntry<IEnumerable<ReviewSchema>> Reviews =>
     GetOrCreateEntry(
       () =>
@@ -24,6 +29,9 @@ public partial class Catalog
         )
     );
 
+  /// <summary>
+  /// Raw shuttle data imported from external sources.
+  /// </summary>
   public ICatalogEntry<IEnumerable<ShuttleSchema>> Shuttles =>
     GetOrCreateEntry(
       () =>

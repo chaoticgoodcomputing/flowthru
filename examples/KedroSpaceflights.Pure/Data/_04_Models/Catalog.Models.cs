@@ -5,7 +5,9 @@ namespace KedroSpaceflights.Pure.Data;
 
 public partial class Catalog
 {
-  // Model entry
+  /// <summary>
+  /// Trained linear regression model with coefficients and feature names.
+  /// </summary>
   public ICatalogEntry<LinearRegressionModel> Regressor =>
     GetOrCreateEntry(
       () =>
@@ -15,6 +17,9 @@ public partial class Catalog
         )
     );
 
+  /// <summary>
+  /// Evaluation metrics for the trained regression model.
+  /// </summary>
   public ICatalogEntry<ModelMetrics> ModelMetrics =>
     GetOrCreateEntry(
       () =>

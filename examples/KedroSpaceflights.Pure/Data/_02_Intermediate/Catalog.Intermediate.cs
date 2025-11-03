@@ -5,7 +5,9 @@ namespace KedroSpaceflights.Pure.Data;
 
 public partial class Catalog
 {
-  // Intermediate data entries
+  /// <summary>
+  /// Preprocessed company data with validated and strongly-typed fields.
+  /// </summary>
   public ICatalogEntry<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
     GetOrCreateEntry(
       () =>
@@ -15,6 +17,9 @@ public partial class Catalog
         )
     );
 
+  /// <summary>
+  /// Preprocessed shuttle data with validated and strongly-typed fields.
+  /// </summary>
   public ICatalogEntry<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
     GetOrCreateEntry(
       () =>

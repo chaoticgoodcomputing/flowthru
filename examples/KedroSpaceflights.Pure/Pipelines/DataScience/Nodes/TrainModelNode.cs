@@ -4,8 +4,23 @@ using MathNet.Numerics.LinearRegression;
 
 namespace KedroSpaceflights.Pure.Pipelines.DataScience.Nodes;
 
+/// <summary>
+/// Trains a linear regression model to predict prices based on shuttle and company features.
+/// </summary>
 public static class TrainModelNode
 {
+  /// <summary>
+  /// Creates a model training function that fits a linear regression model.
+  /// Uses QR decomposition for numerical stability.
+  /// </summary>
+  /// <returns>
+  /// A function that trains a <see cref="LinearRegressionModel"/> from training data.
+  /// </returns>
+  /// <remarks>
+  /// Uses <see href="https://numerics.mathdotnet.com/">Math.NET Numerics</see> for regression computation.
+  /// Excludes moon_clearance_complete feature due to zero variance in training data.
+  /// </remarks>
+  /// <exception cref="InvalidOperationException">Thrown when no training data is available.</exception>
   public static Func<IEnumerable<TrainingData>, Task<LinearRegressionModel>> Create()
   {
     return async (input) =>

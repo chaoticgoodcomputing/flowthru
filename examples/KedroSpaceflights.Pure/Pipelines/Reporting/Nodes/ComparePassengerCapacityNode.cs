@@ -3,8 +3,18 @@ using KedroSpaceflights.Pure.Data._05_Reporting.Schemas;
 
 namespace KedroSpaceflights.Pure.Pipelines.Reporting.Nodes;
 
+/// <summary>
+/// Aggregates shuttle passenger capacity data by shuttle type.
+/// </summary>
 public static class ComparePassengerCapacityNode
 {
+  /// <summary>
+  /// Creates a function that computes average passenger capacity grouped by shuttle type.
+  /// </summary>
+  /// <returns>
+  /// A function that produces <see cref="ShuttleCapacityReport"/> records showing
+  /// average capacity for each shuttle type.
+  /// </returns>
   public static Func<
     IEnumerable<PreprocessedShuttleSchema>,
     Task<IEnumerable<ShuttleCapacityReport>>

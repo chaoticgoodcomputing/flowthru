@@ -5,6 +5,9 @@ namespace KedroSpaceflights.Pure.Data;
 
 public partial class Catalog
 {
+  /// <summary>
+  /// Passenger capacity analysis report grouped by shuttle type.
+  /// </summary>
   public ICatalogEntry<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
     GetOrCreateEntry(
       () =>

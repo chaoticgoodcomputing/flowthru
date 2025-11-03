@@ -6,8 +6,17 @@ using KedroSpaceflights.Pure.Pipelines.Reporting;
 
 namespace KedroSpaceflights.Pure;
 
+/// <summary>
+/// Main application entry point for the Spaceflights price prediction pipeline.
+/// </summary>
 public class Program
 {
+  /// <summary>
+  /// Application entry point. Configures and runs the Flowthru application with three pipelines:
+  /// DataProcessing, DataScience, and Reporting.
+  /// </summary>
+  /// <param name="args">Command-line arguments.</param>
+  /// <returns>Exit code (0 for success).</returns>
   public static async Task<int> Main(string[] args)
   {
     var app = FlowthruApplication.Create(

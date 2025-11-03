@@ -2,15 +2,40 @@ using KedroSpaceflights.Pure.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Pure.Pipelines.DataScience.Nodes;
 
+/// <summary>
+/// Splits model input data into training and test sets for model evaluation.
+/// </summary>
 public static class SplitDataNode
 {
+  /// <summary>
+  /// Configuration options for data splitting.
+  /// </summary>
   public record ModelOptions
   {
+    /// <summary>
+    /// The proportion of data to use for testing. Default is 0.2 (20%).
+    /// </summary>
     public double TestSize { get; init; } = 0.2;
+
+    /// <summary>
+    /// Random seed for reproducible shuffling. Default is 3.
+    /// </summary>
     public int RandomState { get; init; } = 3;
+
+    /// <summary>
+    /// Feature names to include in the model (currently unused).
+    /// </summary>
     public string[] Features { get; init; } = Array.Empty<string>();
   }
 
+  /// <summary>
+  /// Creates a data splitting function that partitions input data into training and test sets.
+  /// </summary>
+  /// <param name="options">Configuration options controlling the split behavior.</param>
+  /// <returns>
+  /// A function that randomly shuffles input data and splits it into training and test sets
+  /// based on the configured test size.
+  /// </returns>
   public static Func<
     IEnumerable<ModelInputTableSchema>,
     Task<(IEnumerable<TrainingData>, IEnumerable<TestData>)>

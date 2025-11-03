@@ -3,8 +3,18 @@ using KedroSpaceflights.Pure.Data._04_Models.Schemas;
 
 namespace KedroSpaceflights.Pure.Pipelines.DataScience.Nodes;
 
+/// <summary>
+/// Evaluates a trained linear regression model using test data and computes performance metrics.
+/// </summary>
 public static class EvaluateModelNode
 {
+  /// <summary>
+  /// Creates a model evaluation function that computes R², MAE, and maximum error metrics.
+  /// </summary>
+  /// <returns>
+  /// A function that evaluates a <see cref="LinearRegressionModel"/> against test data
+  /// and produces <see cref="ModelMetrics"/>.
+  /// </returns>
   public static Func<(LinearRegressionModel, IEnumerable<TestData>), Task<ModelMetrics>> Create()
   {
     return async (input) =>
@@ -34,11 +44,6 @@ public static class EvaluateModelNode
       var mae = CalculateMae(actuals, predictions);
       var maxError = CalculateMaxError(actuals, predictions);
 
-      Console.WriteLine($"Model Evaluation Results:");
-      Console.WriteLine($"  R² Score: {r2:F3}");
-      Console.WriteLine($"  Mean Absolute Error: {mae:F2}");
-      Console.WriteLine($"  Max Error: {maxError:F2}");
-
       return await Task.FromResult(
         new ModelMetrics
         {
@@ -50,6 +55,15 @@ public static class EvaluateModelNode
     };
   }
 
+  /// <summary>
+  /// Predicts a price using the linear regression model and feature vector.
+  /// </summary>
+  /// <param name="model">The trained regression model.</param>
+  /// <param name="features">The feature vector for prediction.</param>
+  /// <returns>The predicted price value.</returns>
+  /// <remarks>
+  /// Excludes moon_clearance_complete to match training feature set.
+  /// </remarks>
   private static double Predict(LinearRegressionModel model, FeatureVector features)
   {
     double prediction = model.Intercept;
@@ -74,6 +88,12 @@ public static class EvaluateModelNode
     return prediction;
   }
 
+  /// <summary>
+  /// Calculates the R² (coefficient of determination) score.
+  /// </summary>
+  /// <param name="actuals">Actual target values.</param>
+  /// <param name="predictions">Predicted values.</param>
+  /// <returns>R² score where 1.0 indicates perfect prediction and 0.0 indicates prediction no better than the mean.</returns>
   private static double CalculateR2(List<double> actuals, List<double> predictions)
   {
     var mean = actuals.Average();
@@ -82,11 +102,23 @@ public static class EvaluateModelNode
     return 1 - (ssResidual / ssTotal);
   }
 
+  /// <summary>
+  /// Calculates the Mean Absolute Error (MAE).
+  /// </summary>
+  /// <param name="actuals">Actual target values.</param>
+  /// <param name="predictions">Predicted values.</param>
+  /// <returns>The average absolute difference between actual and predicted values.</returns>
   private static double CalculateMae(List<double> actuals, List<double> predictions)
   {
     return actuals.Zip(predictions, (a, p) => Math.Abs(a - p)).Average();
   }
 
+  /// <summary>
+  /// Calculates the maximum absolute error across all predictions.
+  /// </summary>
+  /// <param name="actuals">Actual target values.</param>
+  /// <param name="predictions">Predicted values.</param>
+  /// <returns>The largest absolute difference between any actual and predicted value.</returns>
   private static double CalculateMaxError(List<double> actuals, List<double> predictions)
   {
     return actuals.Zip(predictions, (a, p) => Math.Abs(a - p)).Max();
