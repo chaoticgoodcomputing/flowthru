@@ -38,4 +38,11 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Source Generator for PipelineBuilder overloads -->
+    <ProjectReference Include="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+  </ItemGroup>
+
 </Project>

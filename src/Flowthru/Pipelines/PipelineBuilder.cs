@@ -54,8 +54,18 @@ namespace Flowthru.Pipelines;
 /// await pipeline.ExecuteAsync();
 /// </code>
 /// </remarks>
-public class PipelineBuilder
+public partial class PipelineBuilder
 {
+  /// <summary>
+  /// Maximum number of inputs supported by generated AddNode overloads.
+  /// </summary>
+  internal const int MaxInputs = 8;
+
+  /// <summary>
+  /// Maximum number of outputs supported by generated AddNode overloads.
+  /// </summary>
+  internal const int MaxOutputs = 8;
+
   private readonly Pipeline _pipeline = new();
 
   /// <summary>
@@ -101,205 +111,6 @@ public class PipelineBuilder
     return this;
   }
 
-  /// <summary>
-  /// Adds a node with two inputs and single output.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn1, TIn2, TOut>(
-    string label,
-    Func<(TIn1, TIn2), Task<TOut>> transform,
-    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input,
-    ICatalogEntry<TOut> output,
-    string description = ""
-  )
-  {
-    var (input1, input2) = input;
-
-    var pipelineNode = new PipelineNode(
-      label: label,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input1, input2 },
-      outputs: new List<ICatalogEntry> { output }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a node with three inputs and single output.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut>(
-    string label,
-    Func<(TIn1, TIn2, TIn3), Task<TOut>> transform,
-    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
-    ICatalogEntry<TOut> output,
-    string description = ""
-  )
-  {
-    var (input1, input2, input3) = input;
-
-    var pipelineNode = new PipelineNode(
-      label: label,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input1, input2, input3 },
-      outputs: new List<ICatalogEntry> { output }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a node with four inputs and single output.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut>(
-    string label,
-    Func<(TIn1, TIn2, TIn3, TIn4), Task<TOut>> transform,
-    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input,
-    ICatalogEntry<TOut> output,
-    string description = ""
-  )
-  {
-    var (input1, input2, input3, input4) = input;
-
-    var pipelineNode = new PipelineNode(
-      label: label,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input1, input2, input3, input4 },
-      outputs: new List<ICatalogEntry> { output }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a node with single input and two outputs.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn, TOut1, TOut2>(
-    string label,
-    Func<TIn, Task<(TOut1, TOut2)>> transform,
-    ICatalogEntry<TIn> input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output,
-    string description = ""
-  )
-  {
-    var (output1, output2) = output;
-
-    var pipelineNode = new PipelineNode(
-      label: label,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input },
-      outputs: new List<ICatalogEntry> { output1, output2 }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a node with single input and three outputs.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn, TOut1, TOut2, TOut3>(
-    string name,
-    Func<TIn, Task<(TOut1, TOut2, TOut3)>> transform,
-    ICatalogEntry<TIn> input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output,
-    string description = ""
-  )
-  {
-    var (output1, output2, output3) = output;
-
-    var pipelineNode = new PipelineNode(
-      label: name,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input },
-      outputs: new List<ICatalogEntry> { output1, output2, output3 }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a node with single input and four outputs.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn, TOut1, TOut2, TOut3, TOut4>(
-    string label,
-    Func<TIn, Task<(TOut1, TOut2, TOut3, TOut4)>> transform,
-    ICatalogEntry<TIn> input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output,
-    string description = ""
-  )
-  {
-    var (output1, output2, output3, output4) = output;
-
-    var pipelineNode = new PipelineNode(
-      label: label,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input },
-      outputs: new List<ICatalogEntry> { output1, output2, output3, output4 }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a node with two inputs and two outputs.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2>(
-    string label,
-    Func<(TIn1, TIn2), Task<(TOut1, TOut2)>> transform,
-    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output,
-    string description = ""
-  )
-  {
-    var (input1, input2) = input;
-    var (output1, output2) = output;
-
-    var pipelineNode = new PipelineNode(
-      label: label,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input1, input2 },
-      outputs: new List<ICatalogEntry> { output1, output2 }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a node with three inputs and two outputs.
-  /// </summary>
-  public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(
-    string label,
-    Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2)>> transform,
-    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output,
-    string description = ""
-  )
-  {
-    var (input1, input2, input3) = input;
-    var (output1, output2) = output;
-
-    var pipelineNode = new PipelineNode(
-      label: label,
-      description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input1, input2, input3 },
-      outputs: new List<ICatalogEntry> { output1, output2 }
-    );
-
-    _pipeline.AddNode(pipelineNode);
-    return this;
-  }
+  // Additional overloads (2-8 inputs, 1-8 outputs) are auto-generated via source generator.
+  // See: Flowthru.SourceGenerators/PipelineBuilderGenerator.cs
 }
