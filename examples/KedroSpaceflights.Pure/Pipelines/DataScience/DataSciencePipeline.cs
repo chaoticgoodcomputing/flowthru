@@ -30,23 +30,26 @@ public static class DataSciencePipeline
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       pipeline.AddNode(
-        name: "SplitData",
+        label: "SplitData",
+        description: "Splits model input data into training and test sets.",
         transform: Nodes.SplitDataNode.Create(parameters.ModelOptions),
         input: catalog.ModelInputTable,
-        output: (catalog.XTrain, catalog.XTest)
+        output: (catalog.TrainSplit, catalog.TestSplit)
       );
 
       pipeline.AddNode(
-        name: "TrainModel",
+        label: "TrainModel",
+        description: "Trains a regression model to predict shuttle prices.",
         transform: Nodes.TrainModelNode.Create(),
-        input: catalog.XTrain,
+        input: catalog.TrainSplit,
         output: catalog.Regressor
       );
 
       pipeline.AddNode(
-        name: "EvaluateModel",
+        label: "EvaluateModel",
+        description: "Evaluates the trained model on the test set and computes metrics.",
         transform: Nodes.EvaluateModelNode.Create(),
-        input: (catalog.Regressor, catalog.XTest),
+        input: (catalog.Regressor, catalog.TestSplit),
         output: catalog.ModelMetrics
       );
     });

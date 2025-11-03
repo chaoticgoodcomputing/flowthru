@@ -33,7 +33,12 @@ internal class PipelineNode
   /// Unique identifier for this node within the pipeline.
   /// Typically the node type name or user-provided name.
   /// </summary>
-  public string Name { get; }
+  public string Label { get; }
+
+  /// <summary>
+  /// String description of the node's purpose.
+  /// </summary>
+  public string Description { get; }
 
   /// <summary>
   /// The transformation function that performs the node's work.
@@ -82,18 +87,20 @@ internal class PipelineNode
   /// <summary>
   /// Creates a new pipeline node with a transformation function.
   /// </summary>
-  /// <param name="name">Unique identifier for this node</param>
+  /// <param name="label">Unique identifier for this node</param>
   /// <param name="node">The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)</param>
   /// <param name="inputs">Catalog entries this node reads</param>
   /// <param name="outputs">Catalog entries this node writes</param>
   public PipelineNode(
-    string name,
+    string label,
+    string? description,
     Delegate node,
     IReadOnlyList<ICatalogEntry> inputs,
     IReadOnlyList<ICatalogEntry> outputs
   )
   {
-    Name = name;
+    Label = label;
+    Description = description ?? string.Empty;
     TransformFunction = node;
     Inputs = inputs;
     Outputs = outputs;
@@ -103,5 +110,5 @@ internal class PipelineNode
   /// Returns a string representation for debugging.
   /// </summary>
   public override string ToString() =>
-    $"PipelineNode({Name}, Layer={Layer}, Inputs={Inputs.Count}, Outputs={Outputs.Count}, Dependencies={Dependencies.Count})";
+    $"PipelineNode({Label}, Layer={Layer}, Inputs={Inputs.Count}, Outputs={Outputs.Count}, Dependencies={Dependencies.Count})";
 }

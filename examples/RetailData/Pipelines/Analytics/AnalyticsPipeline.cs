@@ -15,7 +15,7 @@ public static class AnalyticsPipeline
     {
       // Calculate correlations between countries' DTU metrics
       pipeline.AddNode(
-        name: "CalculateCountryCorrelations",
+        label: "CalculateCountryCorrelations",
         transform: CalculateCorrelationsNode.Create(),
         input: catalog.DailyDtuByCountry,
         output: catalog.CountryCorrelations
@@ -23,7 +23,7 @@ public static class AnalyticsPipeline
 
       // Calculate correlations between regions' DTU metrics
       pipeline.AddNode(
-        name: "CalculateRegionalCorrelations",
+        label: "CalculateRegionalCorrelations",
         transform: CalculateRegionalCorrelationsNode.Create(),
         input: catalog.DailyDtuByRegion,
         output: catalog.RegionCorrelations

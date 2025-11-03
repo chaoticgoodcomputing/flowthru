@@ -76,20 +76,22 @@ public class PipelineBuilder
   /// </summary>
   /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
   /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
-  /// <param name="name">Unique identifier for this node</param>
+  /// <param name="label">Unique identifier for this node</param>
   /// <param name="transform">Transformation function from input to output</param>
   /// <param name="input">Catalog entry providing input data</param>
   /// <param name="output">Catalog entry to store output data</param>
   /// <returns>This builder for method chaining</returns>
   public PipelineBuilder AddNode<TInput, TOutput>(
-    string name,
+    string label,
     Func<TInput, Task<TOutput>> transform,
     ICatalogEntry<TInput> input,
-    ICatalogEntry<TOutput> output
+    ICatalogEntry<TOutput> output,
+    string description = ""
   )
   {
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: label,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output }
@@ -103,16 +105,18 @@ public class PipelineBuilder
   /// Adds a node with two inputs and single output.
   /// </summary>
   public PipelineBuilder AddNode<TIn1, TIn2, TOut>(
-    string name,
+    string label,
     Func<(TIn1, TIn2), Task<TOut>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input,
-    ICatalogEntry<TOut> output
+    ICatalogEntry<TOut> output,
+    string description = ""
   )
   {
     var (input1, input2) = input;
 
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: label,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input1, input2 },
       outputs: new List<ICatalogEntry> { output }
@@ -126,16 +130,18 @@ public class PipelineBuilder
   /// Adds a node with three inputs and single output.
   /// </summary>
   public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut>(
-    string name,
+    string label,
     Func<(TIn1, TIn2, TIn3), Task<TOut>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
-    ICatalogEntry<TOut> output
+    ICatalogEntry<TOut> output,
+    string description = ""
   )
   {
     var (input1, input2, input3) = input;
 
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: label,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input1, input2, input3 },
       outputs: new List<ICatalogEntry> { output }
@@ -149,16 +155,18 @@ public class PipelineBuilder
   /// Adds a node with four inputs and single output.
   /// </summary>
   public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut>(
-    string name,
+    string label,
     Func<(TIn1, TIn2, TIn3, TIn4), Task<TOut>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input,
-    ICatalogEntry<TOut> output
+    ICatalogEntry<TOut> output,
+    string description = ""
   )
   {
     var (input1, input2, input3, input4) = input;
 
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: label,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input1, input2, input3, input4 },
       outputs: new List<ICatalogEntry> { output }
@@ -172,16 +180,18 @@ public class PipelineBuilder
   /// Adds a node with single input and two outputs.
   /// </summary>
   public PipelineBuilder AddNode<TIn, TOut1, TOut2>(
-    string name,
+    string label,
     Func<TIn, Task<(TOut1, TOut2)>> transform,
     ICatalogEntry<TIn> input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output,
+    string description = ""
   )
   {
     var (output1, output2) = output;
 
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: label,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output1, output2 }
@@ -198,13 +208,15 @@ public class PipelineBuilder
     string name,
     Func<TIn, Task<(TOut1, TOut2, TOut3)>> transform,
     ICatalogEntry<TIn> input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output,
+    string description = ""
   )
   {
     var (output1, output2, output3) = output;
 
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: name,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output1, output2, output3 }
@@ -218,16 +230,18 @@ public class PipelineBuilder
   /// Adds a node with single input and four outputs.
   /// </summary>
   public PipelineBuilder AddNode<TIn, TOut1, TOut2, TOut3, TOut4>(
-    string name,
+    string label,
     Func<TIn, Task<(TOut1, TOut2, TOut3, TOut4)>> transform,
     ICatalogEntry<TIn> input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output,
+    string description = ""
   )
   {
     var (output1, output2, output3, output4) = output;
 
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: label,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input },
       outputs: new List<ICatalogEntry> { output1, output2, output3, output4 }
@@ -241,17 +255,19 @@ public class PipelineBuilder
   /// Adds a node with three inputs and two outputs.
   /// </summary>
   public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(
-    string name,
+    string label,
     Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2)>> transform,
     (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input,
-    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output,
+    string description = ""
   )
   {
     var (input1, input2, input3) = input;
     var (output1, output2) = output;
 
     var pipelineNode = new PipelineNode(
-      name: name,
+      label: label,
+      description: description,
       node: transform,
       inputs: new List<ICatalogEntry> { input1, input2, input3 },
       outputs: new List<ICatalogEntry> { output1, output2 }

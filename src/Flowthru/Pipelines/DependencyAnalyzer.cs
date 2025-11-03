@@ -65,7 +65,7 @@ internal static class DependencyAnalyzer
         {
           throw new InvalidOperationException(
             $"Catalog entry '{output.Label}' is produced by multiple nodes: "
-              + $"'{existingProducer.Name}' and '{node.Name}'. "
+              + $"'{existingProducer.Label}' and '{node.Label}'. "
               + $"Each catalog entry must have at most one producer."
           );
         }
@@ -142,7 +142,7 @@ internal static class DependencyAnalyzer
       // If no nodes were assigned this iteration, we have a cycle
       if (nodesInCurrentLayer.Count == 0)
       {
-        var unassignedNodes = nodes.Where(n => !assigned.Contains(n)).Select(n => n.Name);
+        var unassignedNodes = nodes.Where(n => !assigned.Contains(n)).Select(n => n.Label);
         throw new InvalidOperationException(
           $"Circular dependency detected in pipeline. "
             + $"Unassigned nodes: {string.Join(", ", unassignedNodes)}"

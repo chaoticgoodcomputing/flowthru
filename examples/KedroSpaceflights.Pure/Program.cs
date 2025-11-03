@@ -25,6 +25,7 @@ public class Program
       {
         builder.UseConfiguration();
 
+        // Register data processing pipeline
         builder
           .RegisterPipeline<Catalog>(
             label: "DataProcessing",
@@ -32,6 +33,7 @@ public class Program
           )
           .WithDescription("Preprocesses companies and shuttles data");
 
+        // Register data science pipeline with configuration parameters
         builder
           .RegisterPipelineWithConfiguration<Catalog, DataSciencePipeline.Params>(
             label: "DataScience",
@@ -40,6 +42,7 @@ public class Program
           )
           .WithDescription("Trains linear regression model for price prediction");
 
+        // Register reporting pipeline
         builder
           .RegisterPipeline<Catalog>(label: "Reporting", pipeline: ReportingPipeline.Create)
           .WithDescription("Generates passenger capacity reports");

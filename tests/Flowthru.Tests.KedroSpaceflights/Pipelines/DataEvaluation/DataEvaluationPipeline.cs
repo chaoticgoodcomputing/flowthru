@@ -47,7 +47,7 @@ public static class DataEvaluationPipeline
     {
       // Node 1: Evaluate OLS model (multi-input → multi-output)
       pipeline.AddNode(
-        name: "EvaluateOLSModel",
+        label: "EvaluateOLSModel",
         transform: EvaluateModelNode.Create(),
         input: (catalog.Regressor, catalog.XTest, catalog.YTest),
         output: (catalog.ModelMetrics, catalog.ModelPredictions)
@@ -55,7 +55,7 @@ public static class DataEvaluationPipeline
 
       // Node 2: Cross-validation for R² distribution analysis and comparison to Kedro
       pipeline.AddNode(
-        name: "PerformCrossValidatedOLSRegressionTest",
+        label: "PerformCrossValidatedOLSRegressionTest",
         transform: CrossValidateModelNode.Create(parameters.CrossValidationParams),
         input: catalog.ModelInputTable,
         output: catalog.CrossValidationResults

@@ -33,7 +33,7 @@ public static class DataProcessingPipeline
     {
       // Node 1: Preprocess companies (simple: single input → single output)
       pipeline.AddNode(
-        name: "PreprocessCompanies",
+        label: "PreprocessCompanies",
         transform: PreprocessCompaniesNode.Create(),
         input: catalog.Companies,
         output: catalog.CleanedCompanies
@@ -41,7 +41,7 @@ public static class DataProcessingPipeline
 
       // Node 2: Preprocess shuttles (simple: single input → single output)
       pipeline.AddNode(
-        name: "PreprocessShuttles",
+        label: "PreprocessShuttles",
         transform: PreprocessShuttlesNode.Create(),
         input: catalog.Shuttles,
         output: catalog.CleanedShuttles
@@ -51,7 +51,7 @@ public static class DataProcessingPipeline
       // Note: Minor refactor compared to Kedro - we preprocess reviews separately
       // rather than handling raw reviews in create_model_input_table
       pipeline.AddNode(
-        name: "PreprocessReviews",
+        label: "PreprocessReviews",
         transform: PreprocessReviewsNode.Create(),
         input: catalog.Reviews,
         output: catalog.CleanedReviews
@@ -59,7 +59,7 @@ public static class DataProcessingPipeline
 
       // Node 4: Create model input table (multi-input: 3 inputs → single output)
       pipeline.AddNode(
-        name: "CreateModelInputTable",
+        label: "CreateModelInputTable",
         transform: CreateModelInputTableNode.Create(),
         input: (catalog.CleanedShuttles, catalog.CleanedCompanies, catalog.CleanedReviews),
         output: catalog.ModelInputTable

@@ -19,7 +19,7 @@ public static class ReportingPipeline
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       pipeline.AddNode(
-        name: "ComparePassengerCapacity",
+        label: "ComparePassengerCapacity",
         transform: ComparePassengerCapacityNode.Create(),
         input: catalog.PreprocessedShuttles,
         output: catalog.ShuttleCapacityReport

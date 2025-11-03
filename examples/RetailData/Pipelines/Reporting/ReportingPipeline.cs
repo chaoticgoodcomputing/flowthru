@@ -18,7 +18,7 @@ public static class ReportingPipeline
 
       // Transform country DTU data to unified schema
       pipeline.AddNode(
-        name: "TransformCountryDtu",
+        label: "TransformCountryDtu",
         transform: TransformCountryDtuNode.Create(),
         input: catalog.DailyDtuByCountry,
         output: catalog.DtuTimeSeriesCountry
@@ -26,7 +26,7 @@ public static class ReportingPipeline
 
       // Generate chart from transformed data
       pipeline.AddNode(
-        name: "GenerateCountryDtuChart",
+        label: "GenerateCountryDtuChart",
         transform: GenerateDtuChartNode.Create(),
         input: catalog.DtuTimeSeriesCountry,
         output: catalog.DtuChartCountry
@@ -34,7 +34,7 @@ public static class ReportingPipeline
 
       // Export chart to JSON (parallel)
       pipeline.AddNode(
-        name: "ExportCountryDtuJson",
+        label: "ExportCountryDtuJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.DtuChartCountry,
         output: catalog.DtuChartCountryJson
@@ -42,7 +42,7 @@ public static class ReportingPipeline
 
       // Export chart to PNG (parallel)
       pipeline.AddNode(
-        name: "ExportCountryDtuPng",
+        label: "ExportCountryDtuPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.DtuChartCountry,
         output: catalog.DtuChartCountryPng
@@ -52,7 +52,7 @@ public static class ReportingPipeline
 
       // Transform region DTU data to unified schema
       pipeline.AddNode(
-        name: "TransformRegionDtu",
+        label: "TransformRegionDtu",
         transform: TransformRegionDtuNode.Create(),
         input: catalog.DailyDtuByRegion,
         output: catalog.DtuTimeSeriesRegion
@@ -60,7 +60,7 @@ public static class ReportingPipeline
 
       // Generate chart from transformed data
       pipeline.AddNode(
-        name: "GenerateRegionDtuChart",
+        label: "GenerateRegionDtuChart",
         transform: GenerateDtuChartNode.Create(),
         input: catalog.DtuTimeSeriesRegion,
         output: catalog.DtuChartRegion
@@ -68,7 +68,7 @@ public static class ReportingPipeline
 
       // Export chart to JSON (parallel)
       pipeline.AddNode(
-        name: "ExportRegionDtuJson",
+        label: "ExportRegionDtuJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.DtuChartRegion,
         output: catalog.DtuChartRegionJson
@@ -76,7 +76,7 @@ public static class ReportingPipeline
 
       // Export chart to PNG (parallel)
       pipeline.AddNode(
-        name: "ExportRegionDtuPng",
+        label: "ExportRegionDtuPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.DtuChartRegion,
         output: catalog.DtuChartRegionPng
@@ -86,7 +86,7 @@ public static class ReportingPipeline
 
       // Transform country correlation data to unified schema
       pipeline.AddNode(
-        name: "TransformCountryCorrelation",
+        label: "TransformCountryCorrelation",
         transform: TransformCountryCorrelationNode.Create(),
         input: catalog.CountryCorrelations,
         output: catalog.CorrelationHeatmapCountry
@@ -94,7 +94,7 @@ public static class ReportingPipeline
 
       // Generate heatmap from transformed data
       pipeline.AddNode(
-        name: "GenerateCountryCorrelationChart",
+        label: "GenerateCountryCorrelationChart",
         transform: GenerateCorrelationHeatmapNode.Create(),
         input: catalog.CorrelationHeatmapCountry,
         output: catalog.CorrelationChartCountry
@@ -102,7 +102,7 @@ public static class ReportingPipeline
 
       // Export chart to JSON (parallel)
       pipeline.AddNode(
-        name: "ExportCountryCorrelationJson",
+        label: "ExportCountryCorrelationJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.CorrelationChartCountry,
         output: catalog.CorrelationChartCountryJson
@@ -110,7 +110,7 @@ public static class ReportingPipeline
 
       // Export chart to PNG (parallel)
       pipeline.AddNode(
-        name: "ExportCountryCorrelationPng",
+        label: "ExportCountryCorrelationPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.CorrelationChartCountry,
         output: catalog.CorrelationChartCountryPng
@@ -120,7 +120,7 @@ public static class ReportingPipeline
 
       // Transform region correlation data to unified schema
       pipeline.AddNode(
-        name: "TransformRegionCorrelation",
+        label: "TransformRegionCorrelation",
         transform: TransformRegionCorrelationNode.Create(),
         input: catalog.RegionCorrelations,
         output: catalog.CorrelationHeatmapRegion
@@ -128,7 +128,7 @@ public static class ReportingPipeline
 
       // Generate heatmap from transformed data
       pipeline.AddNode(
-        name: "GenerateRegionCorrelationChart",
+        label: "GenerateRegionCorrelationChart",
         transform: GenerateCorrelationHeatmapNode.Create(),
         input: catalog.CorrelationHeatmapRegion,
         output: catalog.CorrelationChartRegion
@@ -136,7 +136,7 @@ public static class ReportingPipeline
 
       // Export chart to JSON (parallel)
       pipeline.AddNode(
-        name: "ExportRegionCorrelationJson",
+        label: "ExportRegionCorrelationJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.CorrelationChartRegion,
         output: catalog.CorrelationChartRegionJson
@@ -144,7 +144,7 @@ public static class ReportingPipeline
 
       // Export chart to PNG (parallel)
       pipeline.AddNode(
-        name: "ExportRegionCorrelationPng",
+        label: "ExportRegionCorrelationPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.CorrelationChartRegion,
         output: catalog.CorrelationChartRegionPng

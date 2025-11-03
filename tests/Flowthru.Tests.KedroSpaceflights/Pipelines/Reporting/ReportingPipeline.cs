@@ -50,7 +50,7 @@ public static class ReportingPipeline
 
       // Step 1: Generate chart from processed shuttle data
       pipeline.AddNode(
-        name: "GeneratePassengerCapacityChart",
+        label: "GeneratePassengerCapacityChart",
         transform: ComparePassengerCapacityNode.Create(),
         input: catalog.CleanedShuttles,
         output: catalog.ShuttlePassengerCapacityChart
@@ -58,7 +58,7 @@ public static class ReportingPipeline
 
       // Step 2: Export chart to JSON for interactive visualization
       pipeline.AddNode(
-        name: "ExportPassengerCapacityJson",
+        label: "ExportPassengerCapacityJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.ShuttlePassengerCapacityChart,
         output: catalog.ShuttlePassengerCapacityPlot
@@ -66,7 +66,7 @@ public static class ReportingPipeline
 
       // Step 3: Export chart to base64-encoded PNG for static reports
       pipeline.AddNode(
-        name: "ExportPassengerCapacityPng",
+        label: "ExportPassengerCapacityPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.ShuttlePassengerCapacityChart,
         output: catalog.ShuttlePassengerCapacityPlotPng
@@ -76,7 +76,7 @@ public static class ReportingPipeline
 
       // Step 1: Generate confusion matrix heatmap from company data
       pipeline.AddNode(
-        name: "GenerateConfusionMatrixChart",
+        label: "GenerateConfusionMatrixChart",
         transform: CreateConfusionMatrixNode.Create(),
         input: catalog.CleanedCompanies,
         output: catalog.ConfusionMatrixChart
@@ -84,7 +84,7 @@ public static class ReportingPipeline
 
       // Step 2: Export chart to JSON for interactive visualization
       pipeline.AddNode(
-        name: "ExportConfusionMatrixJson",
+        label: "ExportConfusionMatrixJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.ConfusionMatrixChart,
         output: catalog.ConfusionMatrixPlot
@@ -92,7 +92,7 @@ public static class ReportingPipeline
 
       // Step 3: Export chart to base64-encoded PNG for static reports
       pipeline.AddNode(
-        name: "ExportConfusionMatrixPng",
+        label: "ExportConfusionMatrixPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.ConfusionMatrixChart,
         output: catalog.ConfusionMatrixPlotPng
@@ -102,7 +102,7 @@ public static class ReportingPipeline
 
       // Step 1: Generate comprehensive cross-validation chart
       pipeline.AddNode(
-        name: "GenerateCrossValidationChart",
+        label: "GenerateCrossValidationChart",
         transform: VisualizeCrossValidationNode.Create(),
         input: catalog.CrossValidationResults,
         output: catalog.CrossValidationChart
@@ -110,7 +110,7 @@ public static class ReportingPipeline
 
       // Step 2: Export chart to JSON for interactive visualization
       pipeline.AddNode(
-        name: "ExportCrossValidationJson",
+        label: "ExportCrossValidationJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.CrossValidationChart,
         output: catalog.CrossValidationPlot
@@ -118,7 +118,7 @@ public static class ReportingPipeline
 
       // Step 3: Export chart to base64-encoded PNG for static reports
       pipeline.AddNode(
-        name: "ExportCrossValidationPng",
+        label: "ExportCrossValidationPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.CrossValidationChart,
         output: catalog.CrossValidationPlotPng
@@ -126,7 +126,7 @@ public static class ReportingPipeline
 
       // Node 6: Generate human-readable Markdown report from cross-validation results
       pipeline.AddNode(
-        name: "GenerateCrossValidationReport",
+        label: "GenerateCrossValidationReport",
         transform: GenerateCrossValidationReportNode.Create(),
         input: catalog.CrossValidationResults,
         output: catalog.CrossValidationReport
@@ -136,7 +136,7 @@ public static class ReportingPipeline
 
       // Step 1: Generate scatter plot from model metrics and predictions
       pipeline.AddNode(
-        name: "GeneratePredictionScatterChart",
+        label: "GeneratePredictionScatterChart",
         transform: GeneratePredictionScatterNode.Create(),
         input: (catalog.ModelMetrics, catalog.ModelPredictions),
         output: catalog.PredictionScatterChart
@@ -144,7 +144,7 @@ public static class ReportingPipeline
 
       // Step 2: Export chart to JSON for interactive visualization
       pipeline.AddNode(
-        name: "ExportPredictionScatterJson",
+        label: "ExportPredictionScatterJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.PredictionScatterChart,
         output: catalog.PredictionScatterPlot
@@ -152,7 +152,7 @@ public static class ReportingPipeline
 
       // Step 3: Export chart to PNG for static reports
       pipeline.AddNode(
-        name: "ExportPredictionScatterPng",
+        label: "ExportPredictionScatterPng",
         transform: PlotlyImageExportNode.Create(),
         input: catalog.PredictionScatterChart,
         output: catalog.PredictionScatterPlotPng

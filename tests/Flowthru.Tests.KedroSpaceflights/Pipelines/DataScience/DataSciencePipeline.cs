@@ -50,7 +50,7 @@ public static class DataSciencePipeline
     {
       // Node 1: Split data into train/test sets (single input → multi-output)
       pipeline.AddNode(
-        name: "CreateTestTrainSplitDatasets",
+        label: "CreateTestTrainSplitDatasets",
         transform: CreateTestTrainSplitNode.Create(parameters: parameters.ModelParams),
         input: catalog.ModelInputTable,
         output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
@@ -58,7 +58,7 @@ public static class DataSciencePipeline
 
       // Node 2: Train OLS regression model (multi-input → single output)
       pipeline.AddNode(
-        name: "TrainOLSModel",
+        label: "TrainOLSModel",
         transform: TrainModelNode.Create(),
         input: (catalog.XTrain, catalog.YTrain),
         output: catalog.Regressor

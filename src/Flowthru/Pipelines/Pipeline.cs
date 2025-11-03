@@ -142,7 +142,8 @@ public class Pipeline
       {
         // Create a new node with prefixed name
         var prefixedNode = new PipelineNode(
-          name: $"{pipelineName}.{node.Name}",
+          label: $"{pipelineName}.{node.Label}",
+          description: node.Description,
           node: node.TransformFunction,
           inputs: node.Inputs,
           outputs: node.Outputs
@@ -192,7 +193,7 @@ public class Pipeline
         "Layer {LayerIndex}: {NodeCount} nodes ({NodeNames})",
         i,
         layerNodes.Count,
-        string.Join(", ", layerNodes.Select(n => n.Name))
+        string.Join(", ", layerNodes.Select(n => n.Label))
       );
     }
   }
@@ -537,7 +538,7 @@ public class Pipeline
         foreach (var pipelineNode in layer)
         {
           var nodeResult = await ExecuteNodeWithTrackingAsync(pipelineNode);
-          nodeResults[pipelineNode.Name] = nodeResult;
+          nodeResults[pipelineNode.Label] = nodeResult;
 
           // If node failed, stop execution
           if (!nodeResult.Success)
@@ -642,7 +643,7 @@ public class Pipeline
 
       Logger?.LogInformation(
         "Executing node: {NodeName} (inputs: {InputCount} observations from {EntryCount} entries)",
-        pipelineNode.Name,
+        pipelineNode.Label,
         totalInputCount,
         pipelineNode.Inputs.Count
       );
@@ -674,7 +675,7 @@ public class Pipeline
         if (parameters.Length != 1)
         {
           throw new InvalidOperationException(
-            $"Transform function for node {pipelineNode.Name} should have exactly 1 parameter (tuple), but has {parameters.Length}"
+            $"Transform function for node {pipelineNode.Label} should have exactly 1 parameter (tuple), but has {parameters.Length}"
           );
         }
 
@@ -692,7 +693,7 @@ public class Pipeline
         catch (Exception ex)
         {
           throw new InvalidOperationException(
-            $"Failed to create {inputs.Length}-tuple for node {pipelineNode.Name}. "
+            $"Failed to create {inputs.Length}-tuple for node {pipelineNode.Label}. "
               + $"Expected tuple type: {tupleType.FullName}, Input types: [{string.Join(", ", inputs.Select(v => v?.GetType().Name ?? "null"))}]",
             ex
           );
@@ -706,7 +707,7 @@ public class Pipeline
       if (resultTask == null)
       {
         throw new InvalidOperationException(
-          $"Transform function for node {pipelineNode.Name} returned null"
+          $"Transform function for node {pipelineNode.Label} returned null"
         );
       }
 
@@ -732,7 +733,7 @@ public class Pipeline
           if (!tupleType.IsGenericType || !tupleType.FullName!.StartsWith("System.ValueTuple"))
           {
             throw new InvalidOperationException(
-              $"Multi-output node '{pipelineNode.Name}' must return tuple, got: {tupleType.Name}"
+              $"Multi-output node '{pipelineNode.Label}' must return tuple, got: {tupleType.Name}"
             );
           }
 
@@ -741,7 +742,7 @@ public class Pipeline
           if (tupleFields.Length != pipelineNode.Outputs.Count)
           {
             throw new InvalidOperationException(
-              $"Multi-output node '{pipelineNode.Name}': Tuple arity ({tupleFields.Length}) doesn't match output count ({pipelineNode.Outputs.Count})"
+              $"Multi-output node '{pipelineNode.Label}': Tuple arity ({tupleFields.Length}) doesn't match output count ({pipelineNode.Outputs.Count})"
             );
           }
 
@@ -768,14 +769,14 @@ public class Pipeline
 
       Logger?.LogInformation(
         "Node {NodeName} completed: {InputCount} observations in → {OutputCount} observations out ({ElapsedMs}ms)",
-        pipelineNode.Name,
+        pipelineNode.Label,
         totalInputCount,
         totalOutputCount,
         stopwatch.ElapsedMilliseconds
       );
 
       return NodeResult.CreateSuccess(
-        pipelineNode.Name,
+        pipelineNode.Label,
         stopwatch.Elapsed,
         totalInputCount,
         totalOutputCount
@@ -784,8 +785,13 @@ public class Pipeline
     catch (Exception ex)
     {
       stopwatch.Stop();
-      Logger?.LogError(ex, "Node {NodeName} failed: {ErrorMessage}", pipelineNode.Name, ex.Message);
-      return NodeResult.CreateFailure(pipelineNode.Name, stopwatch.Elapsed, ex);
+      Logger?.LogError(
+        ex,
+        "Node {NodeName} failed: {ErrorMessage}",
+        pipelineNode.Label,
+        ex.Message
+      );
+      return NodeResult.CreateFailure(pipelineNode.Label, stopwatch.Elapsed, ex);
     }
   }
 
@@ -796,7 +802,7 @@ public class Pipeline
   /// <param name="pipelineNode">The node to execute</param>
   private async Task ExecuteNodeAsync(PipelineNode pipelineNode)
   {
-    Logger?.LogInformation("Executing node: {NodeName}", pipelineNode.Name);
+    Logger?.LogInformation("Executing node: {NodeName}", pipelineNode.Label);
 
     try
     {
@@ -823,7 +829,7 @@ public class Pipeline
         inputParameter =
           Activator.CreateInstance(tupleType, inputs)
           ?? throw new InvalidOperationException(
-            $"Failed to create tuple for node {pipelineNode.Name}"
+            $"Failed to create tuple for node {pipelineNode.Label}"
           );
       }
 
@@ -834,7 +840,7 @@ public class Pipeline
       if (resultTask == null)
       {
         throw new InvalidOperationException(
-          $"Transform function for {pipelineNode.Name} returned null"
+          $"Transform function for {pipelineNode.Label} returned null"
         );
       }
 
@@ -861,7 +867,12 @@ public class Pipeline
     }
     catch (Exception ex)
     {
-      Logger?.LogError(ex, "Node {NodeName} failed: {ErrorMessage}", pipelineNode.Name, ex.Message);
+      Logger?.LogError(
+        ex,
+        "Node {NodeName} failed: {ErrorMessage}",
+        pipelineNode.Label,
+        ex.Message
+      );
       throw;
     }
   }

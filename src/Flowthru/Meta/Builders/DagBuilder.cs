@@ -138,7 +138,7 @@ internal static class DagBuilder
     foreach (var pipelineNode in pipeline.Nodes)
     {
       // Use node name directly (no longer extracting from instance type)
-      var nodeTypeName = pipelineNode.Name;
+      var nodeTypeName = pipelineNode.Label;
 
       // Get input catalog keys (expanding CatalogMaps, filtering _nodata)
       var inputKeys = pipelineNode
@@ -156,13 +156,13 @@ internal static class DagBuilder
 
       // Extract original pipeline name from node name if merged
       // Merged nodes have format: "PipelineName.NodeName"
-      var originalPipelineName = ExtractOriginalPipelineName(pipelineNode.Name, pipeline.Name);
+      var originalPipelineName = ExtractOriginalPipelineName(pipelineNode.Label, pipeline.Name);
 
       nodes.Add(
         new NodeMetadata
         {
-          Id = pipelineNode.Name,
-          Label = FormatLabel(pipelineNode.Name),
+          Id = pipelineNode.Label,
+          Label = FormatLabel(pipelineNode.Label),
           NodeType = nodeTypeName,
           Layer = pipelineNode.Layer,
           PipelineName = originalPipelineName,

@@ -20,21 +20,27 @@ public static class DataProcessingPipeline
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       pipeline.AddNode(
-        name: "PreprocessCompanies",
+        label: "PreprocessCompanies",
+        description: "Cleans and preprocesses raw company data.",
         transform: PreprocessCompaniesNode.Create(),
         input: catalog.Companies,
         output: catalog.PreprocessedCompanies
       );
 
       pipeline.AddNode(
-        name: "PreprocessShuttles",
+        label: "PreprocessShuttles",
+        description: "Cleans and preprocesses raw shuttle data.",
         transform: PreprocessShuttlesNode.Create(),
         input: catalog.Shuttles,
         output: catalog.PreprocessedShuttles
       );
 
       pipeline.AddNode(
-        name: "CreateModelInputTable",
+        label: "CreateModelInputTable",
+        description: """
+          Joins preprocessed shuttle and company data with review scores to create a
+          unified model input table.
+        """,
         transform: CreateModelInputTableNode.Create(),
         input: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),
         output: catalog.ModelInputTable

@@ -15,7 +15,7 @@ public static class DataProcessingPipeline
     {
       // Step 1: Clean raw data (parse types, trim strings, truncate dates)
       pipeline.AddNode(
-        name: "CleanData",
+        label: "CleanData",
         transform: CleanDataNode.Create(),
         input: catalog.RawRetailData,
         output: catalog.CleanedRetailData
@@ -23,7 +23,7 @@ public static class DataProcessingPipeline
 
       // Step 2: Separate core transactions from stock descriptions
       pipeline.AddNode(
-        name: "SeparateDescriptions",
+        label: "SeparateDescriptions",
         transform: SeparateDescriptionsNode.Create(),
         input: catalog.CleanedRetailData,
         output: (catalog.CoreTransactions, catalog.StockDescriptions)
@@ -31,7 +31,7 @@ public static class DataProcessingPipeline
 
       // Step 3: Aggregate by date and country to calculate DTU metrics
       pipeline.AddNode(
-        name: "AggregateDtu",
+        label: "AggregateDtu",
         transform: AggregateDtuNode.Create(),
         input: catalog.CoreTransactions,
         output: catalog.DailyDtuByCountry
@@ -40,7 +40,7 @@ public static class DataProcessingPipeline
       // Step 4: Aggregate transactions by region to calculate DTU metrics
       // (uses raw transactions to ensure distinct user counts are accurate)
       pipeline.AddNode(
-        name: "AggregateByRegion",
+        label: "AggregateByRegion",
         transform: AggregateByRegionNode.Create(),
         input: (catalog.CoreTransactions, catalog.CountryRegionMapping),
         output: catalog.DailyDtuByRegion
@@ -48,7 +48,7 @@ public static class DataProcessingPipeline
 
       // Step 5: Generate metadata about the dataset
       pipeline.AddNode(
-        name: "GenerateMetadata",
+        label: "GenerateMetadata",
         transform: GenerateMetadataNode.Create(),
         input: catalog.DailyDtuByCountry,
         output: catalog.DatasetMetadata
