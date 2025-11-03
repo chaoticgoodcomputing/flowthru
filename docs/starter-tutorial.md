@@ -24,16 +24,18 @@ cd MyPipeline
 MyPipeline/
 ├── Program.cs
 ├── Data/
-│   ├── MyCatalog.cs
+│   ├── Catalog.cs
 │   ├── _01_Raw/
+│   │   ├── Catalog.Raw.cs
 │   │   ├── Datasets/
 │   │   │   └── input.csv
-│   │   ├── Schemas/
+│   │   └── Schemas/
 │   │       └── InputSchema.cs
 │   ├── _02_Cleaned/
+│   │   ├── Catalog.Cleaned.cs
 │   │   ├── Datasets/
 │   │   │   └── <pipeline-generated data>
-│   │   ├── Schemas/
+│   │   └── Schemas/
 │   │       └── CleanedSchema.cs
 ├── Pipelines/
 │   ├── DataProcessing/
@@ -102,8 +104,7 @@ builder
 
 **Run your pipeline:**
 ```bash
-dotnet run -- --pipeline DataProcessing
-dotnet run -- --help  # See available pipelines
+dotnet run -- DataProcessing
 ```
 
 ### 1.3 Pipeline Space (Creating a New Pipeline)
@@ -182,37 +183,59 @@ public static class DataSciencePipeline
 
 #### Creating the Data Catalog
 
-**Create `Data/MyCatalog.cs`:**
+**Create `Data/Catalog.cs`:**
 ```csharp
 using Flowthru.Data;
 
 namespace MyPipeline.Data;
 
-public class MyCatalog : DataCatalogBase
+public partial class Catalog : DataCatalogBase
 {
   private readonly string _basePath;
 
-  public MyCatalog(string basePath)
+  public Catalog(string basePath)
   {
     _basePath = basePath;
     InitializeCatalogProperties();  // Required!
   }
+}
+```
 
+**Create `Data/_01_Raw/Catalog.Raw.cs`:**
+```csharp
+using Flowthru.Data;
+using MyPipeline.Data._01_Raw.Schemas;
+
+namespace MyPipeline.Data;
+
+public partial class Catalog
+{
   // CSV file entry
   public ICatalogEntry<IEnumerable<InputSchema>> RawData =>
     GetOrCreateEntry(() =>
       CatalogEntries.Enumerable.Csv<InputSchema>(
         label: "RawData",
-        filePath: $"{_basePath}/01_Raw/Datasets/input.csv"
+        filePath: $"{_basePath}/_01_Raw/Datasets/input.csv"
       )
     );
+}
+```
 
+**Create `Data/_02_Cleaned/Catalog.Cleaned.cs`:**
+```csharp
+using Flowthru.Data;
+using MyPipeline.Data._02_Cleaned.Schemas;
+
+namespace MyPipeline.Data;
+
+public partial class Catalog
+{
   // Parquet file entry
-  public ICatalogEntry<IEnumerable<OutputSchema>> ProcessedData =>
+  public ICatalogEntry<IEnumerable<CleanedSchema>> ProcessedData =>
     GetOrCreateEntry(() =>
-      CatalogEntries.Enumerable.Parquet<OutputSchema>(
+      CatalogEntries.Enumerable.Parquet<CleanedSchema>(
         label: "ProcessedData",
-        filePath: $"{_basePath}/02_Processed/Datasets/output.parquet"
+        filePath: $"{_basePath}/_02_Cleaned/Datasets/output.parquet"
       )
     );
 
@@ -221,17 +244,27 @@ public class MyCatalog : DataCatalogBase
     GetOrCreateEntry(() =>
       CatalogEntries.Enumerable.Memory<FeatureRow>(label: "Features")
     );
+}
+```
 
+**For models and reporting (optional):**
+```csharp
+// Data/_03_Models/Catalog.Models.cs
+public partial class Catalog
+{
   // Single object (not a collection)
   public ICatalogEntry<ModelMetrics> ModelMetrics =>
     GetOrCreateEntry(() =>
       CatalogEntries.Single.Json<ModelMetrics>(
         label: "ModelMetrics",
-        filePath: $"{_basePath}/03_Reports/Datasets/model_metrics.json"
+        filePath: $"{_basePath}/_03_Models/Datasets/model_metrics.json"
       )
     );
 }
 ```
+
+**Why use partial classes?**
+Partial classes allow you to split your catalog across multiple files organized by data layer. This keeps catalog entries co-located with their schemas and makes large projects more maintainable.
 
 **Available entry types:**
 ```csharp
@@ -249,11 +282,11 @@ CatalogEntries.Single.Memory<T>(label)
 
 #### Creating Data Schemas
 
-**Create `Data/Schemas/Raw/InputSchema.cs`:**
+**Create `Data/_01_Raw/Schemas/InputSchema.cs`:**
 ```csharp
 using Flowthru.Abstractions;
 
-namespace MyPipeline.Data.Schemas.Raw;
+namespace MyPipeline.Data._01_Raw.Schemas;
 
 public record InputSchema
   : IFlatSchema,
@@ -274,13 +307,13 @@ public record InputSchema
 }
 ```
 
-**Create `Data/Schemas/Processed/OutputSchema.cs`:**
+**Create `Data/_02_Cleaned/Schemas/CleanedSchema.cs`:**
 ```csharp
 using Flowthru.Abstractions;
 
-namespace MyPipeline.Data.Schemas.Processed;
+namespace MyPipeline.Data._02_Cleaned.Schemas;
 
-public record OutputSchema
+public record CleanedSchema
   : IFlatSchema,
     IBinarySerializable,
     IStructuredSerializable
@@ -312,27 +345,27 @@ public record OutputSchema
 
 **Create `Pipelines/DataProcessing/Nodes/ProcessNode.cs`:**
 ```csharp
-using MyPipeline.Data.Schemas.Raw;
-using MyPipeline.Data.Schemas.Processed;
+using MyPipeline.Data._01_Raw.Schemas;
+using MyPipeline.Data._02_Cleaned.Schemas;
 
 namespace MyPipeline.Pipelines.DataProcessing.Nodes;
 
 public static class ProcessNode
 {
-  public static Func<IEnumerable<InputSchema>, Task<IEnumerable<OutputSchema>>> Create()
+  public static Func<IEnumerable<InputSchema>, Task<IEnumerable<CleanedSchema>>> Create()
   {
     return async (input) =>
     {
       var processed = input
         .Select(raw => Parse(raw))
         .Where(item => item != null)
-        .Cast<OutputSchema>();
+        .Cast<CleanedSchema>();
 
       return await Task.FromResult(processed);
     };
   }
 
-  private static OutputSchema? Parse(InputSchema raw)
+  private static CleanedSchema? Parse(InputSchema raw)
   {
     // Parse string fields to proper types
     if (!decimal.TryParse(raw.Value, out var value))
@@ -341,7 +374,7 @@ public static class ProcessNode
     if (!int.TryParse(raw.Count, out var count))
       return null;
 
-    return new OutputSchema
+    return new CleanedSchema
     {
       Id = raw.Id,
       Name = raw.Name,
@@ -451,9 +484,9 @@ public static class TrainModelNode
 {
   "Flowthru": {
     "Catalog": {
-      "Type": "MyPipeline.Data.MyCatalog",
+      "Type": "MyPipeline.Data.Catalog",
       "ConstructorArgs": {
-        "basePath": "Data/Datasets"
+        "basePath": "Data"
       }
     },
     "Pipelines": {
@@ -488,6 +521,7 @@ public static class TrainModelNode
 **Configuration sections:**
 - `Catalog.Type` - Fully qualified class name of your catalog
 - `Catalog.ConstructorArgs` - Arguments passed to catalog constructor (property names must match parameter names)
+  - `basePath` - Root directory for data files (typically `"Data"`)
 - `Pipelines.{PipelineName}` - Parameters for pipelines registered with `RegisterPipelineWithConfiguration`
 - `Metadata` - Automatic documentation generation settings
 - `Logging` - Standard .NET logging configuration
@@ -546,21 +580,23 @@ MyPipeline/
 ├── Program.cs
 ├── appsettings.json
 ├── Data/
-│   ├── MyCatalog.cs
-│   ├── Schemas/
-│   │   └── DataSchema.cs
-│   └── Datasets/
-│       ├── input.csv
-│       └── output.parquet
+│   ├── Catalog.cs
+│   └── _01_Raw/
+│       ├── Catalog.Raw.cs
+│       ├── Schemas/
+│       │   └── DataSchema.cs
+│       └── Datasets/
+│           ├── input.csv
+│           └── output.parquet
 └── Pipelines/
     └── ProcessingPipeline.cs
 ```
 
-**`Data/Schemas/DataSchema.cs`:**
+**`Data/_01_Raw/Schemas/DataSchema.cs`:**
 ```csharp
 using Flowthru.Abstractions;
 
-namespace MyPipeline.Data.Schemas;
+namespace MyPipeline.Data._01_Raw.Schemas;
 
 public record DataSchema : IFlatSchema, ITextSerializable, IBinarySerializable
 {
@@ -572,29 +608,40 @@ public record DataSchema : IFlatSchema, ITextSerializable, IBinarySerializable
 }
 ```
 
-**`Data/MyCatalog.cs`:**
+**`Data/Catalog.cs`:**
 ```csharp
 using Flowthru.Data;
 
 namespace MyPipeline.Data;
 
-public class MyCatalog : DataCatalogBase
+public partial class Catalog : DataCatalogBase
 {
   private readonly string _basePath;
 
-  public MyCatalog(string basePath)
+  public Catalog(string basePath)
   {
     _basePath = basePath;
     InitializeCatalogProperties();
   }
+}
+```
 
+**`Data/_01_Raw/Catalog.Raw.cs`:**
+```csharp
+using Flowthru.Data;
+using MyPipeline.Data._01_Raw.Schemas;
+
+namespace MyPipeline.Data;
+
+public partial class Catalog
+{
   public ICatalogEntry<IEnumerable<DataSchema>> Input =>
     GetOrCreateEntry(() => CatalogEntries.Enumerable.Csv<DataSchema>(
-      label: "Input", filePath: $"{_basePath}/input.csv"));
+      label: "Input", filePath: $"{_basePath}/_01_Raw/Datasets/input.csv"));
 
   public ICatalogEntry<IEnumerable<DataSchema>> Output =>
     GetOrCreateEntry(() => CatalogEntries.Enumerable.Parquet<DataSchema>(
-      label: "Output", filePath: $"{_basePath}/output.parquet"));
+      label: "Output", filePath: $"{_basePath}/_01_Raw/Datasets/output.parquet"));
 }
 ```
 
@@ -631,7 +678,7 @@ using MyPipeline.Pipelines;
 var app = FlowthruApplication.Create(args, builder =>
 {
   builder.UseConfiguration();
-  builder.RegisterPipeline<MyCatalog>("Processing", ProcessingPipeline.Create);
+  builder.RegisterPipeline<Catalog>("Processing", ProcessingPipeline.Create);
 });
 
 return await app.RunAsync();
@@ -639,7 +686,7 @@ return await app.RunAsync();
 
 **Run it:**
 ```bash
-dotnet run -- --pipeline Processing
+dotnet run -- Processing
 ```
 
 ---
