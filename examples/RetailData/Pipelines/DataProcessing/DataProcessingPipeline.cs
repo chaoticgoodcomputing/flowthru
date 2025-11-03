@@ -37,11 +37,12 @@ public static class DataProcessingPipeline
         output: catalog.DailyDtuByCountry
       );
 
-      // Step 4: Aggregate country data by region
+      // Step 4: Aggregate transactions by region to calculate DTU metrics
+      // (uses raw transactions to ensure distinct user counts are accurate)
       pipeline.AddNode(
         name: "AggregateByRegion",
         transform: AggregateByRegionNode.Create(),
-        input: (catalog.DailyDtuByCountry, catalog.CountryRegionMapping),
+        input: (catalog.CoreTransactions, catalog.CountryRegionMapping),
         output: catalog.DailyDtuByRegion
       );
 

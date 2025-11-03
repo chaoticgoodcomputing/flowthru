@@ -1,21 +1,24 @@
+using RetailData.Data._02_Intermediate.Schemas;
 using RetailData.Data._03_Primary.Schemas;
 using RetailData.Data._99_Configuration.Schemas;
 
 namespace RetailData.Pipelines.DataProcessing.Nodes;
 
 /// <summary>
-/// Aggregates country-level DTU data by region using country-region mapping
+/// Aggregates transactions by date and region to calculate DTU metrics.
+/// Works directly from raw transactions to ensure correct distinct user counts
+/// (users who purchase in multiple countries are not double-counted).
 /// </summary>
 public static class AggregateByRegionNode
 {
   public static Func<
-    (IEnumerable<DailyDtuSchema>, CountryRegionMapping),
+    (IEnumerable<CoreTransactionSchema>, CountryRegionMapping),
     Task<IEnumerable<DailyDtuByRegionSchema>>
   > Create()
   {
     return async (input) =>
     {
-      var (dtuData, mapping) = input;
+      var (transactions, mapping) = input;
 
       // Create country -> region lookup from the region-centric mapping
       var countryToRegion = new Dictionary<string, string>();
@@ -27,17 +30,17 @@ public static class AggregateByRegionNode
         }
       }
 
-      // Aggregate by date and region
-      var regionalData = dtuData
-        .Where(d => countryToRegion.ContainsKey(d.Country))
-        .GroupBy(d => new { d.Date, Region = countryToRegion[d.Country] })
+      // Aggregate by date and region with distinct counts
+      var regionalData = transactions
+        .Where(t => countryToRegion.ContainsKey(t.Country))
+        .GroupBy(t => new { t.InvoiceDate, Region = countryToRegion[t.Country] })
         .Select(g => new DailyDtuByRegionSchema
         {
-          Date = g.Key.Date,
+          Date = g.Key.InvoiceDate,
           Region = g.Key.Region,
-          Dollars = g.Sum(d => d.Dollars),
-          Transactions = g.Sum(d => d.Transactions),
-          Users = g.Sum(d => d.Users),
+          Dollars = g.Sum(t => t.TotalAmount),
+          Transactions = g.Select(t => t.InvoiceNo).Distinct().Count(),
+          Users = g.Select(t => t.CustomerID).Distinct().Count(),
         })
         .OrderBy(d => d.Date)
         .ThenBy(d => d.Region);
