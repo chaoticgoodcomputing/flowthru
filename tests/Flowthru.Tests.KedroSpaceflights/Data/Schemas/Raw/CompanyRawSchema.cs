@@ -1,4 +1,3 @@
-using CsvHelper.Configuration.Attributes;
 using Flowthru.Abstractions;
 
 namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
@@ -16,30 +15,30 @@ public record CompanyRawSchema
   /// <summary>
   /// Company identifier
   /// </summary>
-  [Name("id")]
+  [SerializedLabel("id")]
   public string Id { get; init; } = null!;
 
   /// <summary>
   /// Company rating as percentage string (e.g., "100%", "38%", or empty)
   /// </summary>
-  [Name("company_rating")]
+  [SerializedLabel("company_rating")]
   public string? CompanyRating { get; init; }
 
   /// <summary>
   /// Company location/country
   /// </summary>
-  [Name("company_location")]
+  [SerializedLabel("company_location")]
   public string? CompanyLocation { get; init; }
 
   /// <summary>
   /// Total fleet count as string
   /// </summary>
-  [Name("total_fleet_count")]
+  [SerializedLabel("total_fleet_count")]
   public string? TotalFleetCount { get; init; }
 
   /// <summary>
   /// IATA approval status as "t" (true) or "f" (false)
   /// </summary>
-  [Name("iata_approved")]
+  [SerializedLabel("iata_approved")]
   public string IataApproved { get; init; } = null!;
 }

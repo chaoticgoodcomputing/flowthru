@@ -54,6 +54,8 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
 
   /// <summary>
   /// Creates a new singleton JSON storage adapter with default options.
+  /// Uses JsonFormatSerializer's default options to ensure consistent behavior,
+  /// including SerializedLabel attribute support.
   /// </summary>
   /// <param name="filePath">Path to JSON file</param>
   public SingletonJsonStorageAdapter(string filePath)
@@ -62,8 +64,9 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
       new JsonSerializerOptions
       {
         WriteIndented = true, // Pretty-print by default for readability
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = null, // No automatic naming transformation (use [SerializedLabel] instead)
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new Format.SerializedLabelJsonConverterFactory() },
       }
     ) { }
 

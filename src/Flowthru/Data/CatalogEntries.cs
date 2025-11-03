@@ -21,20 +21,48 @@ namespace Flowthru.Data;
 /// <para>
 /// <strong>Type Safety:</strong> Generic constraints enforce schema compatibility at compile-time.
 /// </para>
+/// <para>
+/// <strong>Field Name Mapping with SerializedLabel:</strong>
+/// </para>
+/// <para>
+/// Use the <see cref="SerializedLabelAttribute"/> to map C# property names to external field names
+/// when they differ. This works uniformly across CSV, Excel, JSON, and most formats.
+/// </para>
 /// </remarks>
 /// <example>
 /// <code>
-/// // CSV file with IEnumerable container
-/// var companies = CatalogEntries.Csv&lt;CompanySchema&gt;("companies", "data/companies.csv");
+/// // Tier 1: No annotations - property names match external field names
+/// public record SimpleSchema(
+///     int Id,           // Looks for "Id" in CSV/Excel/JSON
+///     string Name       // Looks for "Name" in CSV/Excel/JSON
+/// ) : IFlatSchema, ITextSerializable;
 ///
-/// // JSON file with IEnumerable container
-/// var model = CatalogEntries.Json&lt;LinearRegressionModel&gt;("model", "models/regression.json");
+/// var simple = CatalogEntries.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
 ///
-/// // Parquet file with IEnumerable container
-/// var features = CatalogEntries.Parquet&lt;FeatureRow&gt;("features", "data/features.parquet");
+/// // Tier 2: Explicit annotations - handle naming mismatches
+/// public record ShuttleSchema(
+///     [SerializedLabel("id")]
+///     string Id,
 ///
-/// // In-memory transient storage
-/// var temp = CatalogEntries.Memory&lt;ProcessedData&gt;("temp");
+///     [SerializedLabel("shuttle_location")]        // snake_case in file
+///     string ShuttleLocation,
+///
+///     [SerializedLabel("d_check_complete")]        // snake_case in file
+///     bool DCheckComplete,
+///
+///     [SerializedLabel("Company ID")]              // space-separated in file
+///     int CompanyId
+/// ) : IFlatSchema, ITextSerializable;
+///
+/// var shuttles = CatalogEntries.Enumerable.Excel&lt;ShuttleSchema&gt;(
+///     "shuttles",
+///     "data/shuttles.xlsx",
+///     "Sheet1"
+/// );
+///
+/// // Same schema works across all formats
+/// var csv = CatalogEntries.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
+/// var json = CatalogEntries.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");
 /// </code>
 /// </example>
 public static partial class CatalogEntries

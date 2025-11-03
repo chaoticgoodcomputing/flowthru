@@ -1,5 +1,7 @@
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Flowthru.Abstractions;
 
 namespace Flowthru.Data.Storage.Format;
@@ -89,12 +91,19 @@ public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
   /// <summary>
   /// Creates a new JSON format serializer with default configuration.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <strong>Property Naming:</strong> No default naming policy is applied.
+  /// Use <see cref="SerializedLabelAttribute"/> to specify property names explicitly.
+  /// If no SerializedLabel is present, the C# property name is used as-is.
+  /// </para>
+  /// </remarks>
   public JsonFormatSerializer()
     : this(
       new JsonSerializerOptions
       {
         WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = null, // No automatic naming transformation
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
       }
     ) { }
@@ -107,6 +116,9 @@ public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
   public JsonFormatSerializer(JsonSerializerOptions options)
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
+
+    // Add SerializedLabel-aware converter
+    _options.Converters.Add(new SerializedLabelJsonConverterFactory());
   }
 
   /// <summary>
@@ -159,5 +171,173 @@ public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
 
     // Serialize as JSON array
     await JsonSerializer.SerializeAsync(stream, rowList, _options);
+  }
+
+  /// <inheritdoc/>
+  public PropertyMappingConfiguration GetPropertyMappingConfiguration()
+  {
+    return PropertyMappingConfiguration.FromSerializedLabel<TRow>();
+  }
+}
+
+/// <summary>
+/// JSON converter factory that creates converters respecting SerializedLabel attributes.
+/// </summary>
+internal sealed class SerializedLabelJsonConverterFactory : JsonConverterFactory
+{
+  public override bool CanConvert(Type typeToConvert)
+  {
+    // Don't convert arrays, collections, or value types
+    if (typeToConvert.IsArray || typeToConvert.IsValueType)
+    {
+      return false;
+    }
+
+    // Don't convert collection types (IEnumerable, List, etc.)
+    if (typeToConvert.IsGenericType)
+    {
+      var genericTypeDef = typeToConvert.GetGenericTypeDefinition();
+      if (
+        genericTypeDef == typeof(List<>)
+        || genericTypeDef == typeof(IEnumerable<>)
+        || genericTypeDef == typeof(ICollection<>)
+        || genericTypeDef == typeof(IList<>)
+      )
+      {
+        return false;
+      }
+    }
+
+    // Don't convert string (even though it's IEnumerable<char>)
+    if (typeToConvert == typeof(string))
+    {
+      return false;
+    }
+
+    // Only convert class types (records, POCOs, etc.)
+    return typeToConvert.IsClass;
+  }
+
+  public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+  {
+    var converterType = typeof(SerializedLabelJsonConverter<>).MakeGenericType(typeToConvert);
+    return (JsonConverter?)Activator.CreateInstance(converterType);
+  }
+}
+
+/// <summary>
+/// JSON converter that respects SerializedLabel attributes for property mapping.
+/// </summary>
+/// <typeparam name="T">The type to convert</typeparam>
+internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
+{
+  private readonly Dictionary<string, PropertyInfo> _propertyMap;
+
+  public SerializedLabelJsonConverter()
+  {
+    _propertyMap = PropertyMappingHelper.BuildPropertyMap<T>();
+  }
+
+  public override T? Read(
+    ref Utf8JsonReader reader,
+    Type typeToConvert,
+    JsonSerializerOptions options
+  )
+  {
+    if (reader.TokenType != JsonTokenType.StartObject)
+    {
+      throw new JsonException("Expected StartObject token");
+    }
+
+    var instance = Activator.CreateInstance<T>();
+
+    while (reader.Read())
+    {
+      if (reader.TokenType == JsonTokenType.EndObject)
+      {
+        return instance;
+      }
+
+      if (reader.TokenType != JsonTokenType.PropertyName)
+      {
+        throw new JsonException("Expected PropertyName token");
+      }
+
+      var propertyName = reader.GetString();
+      reader.Read();
+
+      if (propertyName != null && _propertyMap.TryGetValue(propertyName, out var property))
+      {
+        var value = JsonSerializer.Deserialize(ref reader, property.PropertyType, options);
+        property.SetValue(instance, value);
+      }
+      else
+      {
+        // Skip unknown properties
+        reader.Skip();
+      }
+    }
+
+    throw new JsonException("Unexpected end of JSON");
+  }
+
+  public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+  {
+    writer.WriteStartObject();
+
+    // Create options without this specific converter instance to avoid infinite recursion
+    // but keep the factory so it can be applied to nested objects
+    var optionsWithoutThisConverter = new JsonSerializerOptions(options);
+    optionsWithoutThisConverter.Converters.Clear();
+    foreach (var converter in options.Converters)
+    {
+      // Remove SerializedLabelJsonConverter<T> for THIS specific type only
+      // Keep SerializedLabelJsonConverterFactory so it works for nested types
+      if (converter.GetType() != typeof(SerializedLabelJsonConverter<T>))
+      {
+        optionsWithoutThisConverter.Converters.Add(converter);
+      }
+    }
+
+    foreach (var (fieldName, property) in _propertyMap)
+    {
+      object? propertyValue;
+      try
+      {
+        propertyValue = property.GetValue(value);
+      }
+      catch
+      {
+        // Skip properties that can't be read
+        continue;
+      }
+
+      if (
+        propertyValue != null
+        || options.DefaultIgnoreCondition
+          != System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+      )
+      {
+        writer.WritePropertyName(fieldName);
+
+        // Serialize the property value using the appropriate overload
+        if (propertyValue == null)
+        {
+          writer.WriteNullValue();
+        }
+        else
+        {
+          // Use the property type to ensure correct converter selection for nested objects
+          JsonSerializer.Serialize(
+            writer,
+            propertyValue,
+            property.PropertyType,
+            optionsWithoutThisConverter
+          );
+        }
+      }
+    }
+
+    writer.WriteEndObject();
   }
 }

@@ -51,7 +51,9 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
       {
         // Read header row
         if (!reader.Read())
+        {
           yield break;
+        }
 
         var headers = new string[reader.FieldCount];
         for (int i = 0; i < reader.FieldCount; i++)
@@ -59,22 +61,14 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
           headers[i] = reader.GetValue(i)?.ToString() ?? string.Empty;
         }
 
-        // Get all properties once outside the loop
-        var properties = typeof(TRow).GetProperties().ToList();
+        // Build property map using SerializedLabel attributes
+        var propertyMap = PropertyMappingHelper.BuildPropertyMap<TRow>();
 
-        // Build column name mapping (supports both exact match and snake_case → PascalCase)
-        var columnMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        // Build column index mapping (Excel column header → column index)
+        var columnIndexMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         for (int i = 0; i < headers.Length; i++)
         {
-          var header = headers[i];
-          columnMap[header] = i;
-
-          // Also map snake_case to PascalCase (e.g., "company_id" → "CompanyId")
-          var pascalCase = ConvertSnakeCaseToPascalCase(header);
-          if (!columnMap.ContainsKey(pascalCase))
-          {
-            columnMap[pascalCase] = i;
-          }
+          columnIndexMap[headers[i]] = i;
         }
 
         // Read data rows
@@ -83,11 +77,11 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
           // Create new instance (works with both classes and records)
           var row = new TRow();
 
-          // Set properties from Excel columns
-          foreach (var property in properties)
+          // Set properties from Excel columns using the property map
+          foreach (var (fieldName, property) in propertyMap)
           {
-            // Try to find column by property name (case-insensitive, with snake_case support)
-            if (columnMap.TryGetValue(property.Name, out var columnIndex))
+            // Try to find column by field name (from SerializedLabel or property name)
+            if (columnIndexMap.TryGetValue(fieldName, out var columnIndex))
             {
               var value = reader.GetValue(columnIndex);
               if (value != null && value != DBNull.Value)
@@ -127,20 +121,9 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
     );
   }
 
-  /// <summary>
-  /// Converts snake_case column names to PascalCase property names.
-  /// Example: "company_id" → "CompanyId", "review_scores_rating" → "ReviewScoresRating"
-  /// </summary>
-  private static string ConvertSnakeCaseToPascalCase(string snakeCase)
+  /// <inheritdoc/>
+  public PropertyMappingConfiguration GetPropertyMappingConfiguration()
   {
-    if (string.IsNullOrWhiteSpace(snakeCase))
-    {
-      return snakeCase;
-    }
-
-    var parts = snakeCase.Split('_', StringSplitOptions.RemoveEmptyEntries);
-    return string.Concat(
-      parts.Select(part => char.ToUpperInvariant(part[0]) + part.Substring(1).ToLowerInvariant())
-    );
+    return PropertyMappingConfiguration.FromSerializedLabel<TRow>();
   }
 }

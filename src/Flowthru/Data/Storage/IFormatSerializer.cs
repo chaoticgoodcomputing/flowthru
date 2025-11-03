@@ -128,4 +128,62 @@ public interface IFormatSerializer<TRow>
   /// </para>
   /// </remarks>
   Task SerializeRows(Stream stream, IAsyncEnumerable<TRow> rows);
+
+  /// <summary>
+  /// Configures how this serializer handles property-to-field name mapping for the schema.
+  /// </summary>
+  /// <returns>Property mapping configuration describing the mapping strategy</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Contractual Obligation:</strong> Every format serializer MUST implement this method
+  /// to explicitly declare how it handles property name mapping.
+  /// </para>
+  /// <para>
+  /// <strong>Implementation Strategies:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>
+  /// <strong>SerializedLabel Support:</strong> Use <see cref="Format.PropertyMappingHelper"/>
+  /// to respect [SerializedLabel] attributes. Return <see cref="PropertyMappingConfiguration.FromSerializedLabel{T}()"/>.
+  /// </item>
+  /// <item>
+  /// <strong>Native Attribute Mapping:</strong> Use format-specific attributes (e.g., ML.NET's [LoadColumn]).
+  /// Return <see cref="PropertyMappingConfiguration.FromNativeAttributes(string)"/> with the attribute type name.
+  /// </item>
+  /// <item>
+  /// <strong>Library-Controlled:</strong> When the underlying library handles mapping internally
+  /// (e.g., Parquet.NET with no programmatic API). Return <see cref="PropertyMappingConfiguration.LibraryControlled()"/>.
+  /// </item>
+  /// <item>
+  /// <strong>Adapter Pattern:</strong> Bridge between SerializedLabel and native attributes.
+  /// Return <see cref="PropertyMappingConfiguration.FromAdapter{TAdapter}()"/>.
+  /// </item>
+  /// </list>
+  /// <para>
+  /// <strong>Design Intent:</strong> This contract makes property mapping an explicit, discoverable
+  /// capability rather than an implicit behavior, enabling:
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Runtime introspection of mapping capabilities</item>
+  /// <item>Better error messages when schemas don't match storage</item>
+  /// <item>Documentation generation for serializer capabilities</item>
+  /// <item>Testing framework validation of mapping correctness</item>
+  /// </list>
+  /// </remarks>
+  /// <example>
+  /// <code>
+  /// // CSV serializer using SerializedLabel
+  /// public PropertyMappingConfiguration GetPropertyMappingConfiguration()
+  ///     => PropertyMappingConfiguration.FromSerializedLabel&lt;TRow&gt;();
+  ///
+  /// // ML.NET serializer using native attributes
+  /// public PropertyMappingConfiguration GetPropertyMappingConfiguration()
+  ///     => PropertyMappingConfiguration.FromNativeAttributes("LoadColumnAttribute");
+  ///
+  /// // Parquet with library-controlled mapping
+  /// public PropertyMappingConfiguration GetPropertyMappingConfiguration()
+  ///     => PropertyMappingConfiguration.LibraryControlled();
+  /// </code>
+  /// </example>
+  PropertyMappingConfiguration GetPropertyMappingConfiguration();
 }

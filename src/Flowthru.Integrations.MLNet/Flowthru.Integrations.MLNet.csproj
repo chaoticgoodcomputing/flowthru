@@ -13,7 +13,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru.Integrations.ML</RootNamespace>
+    <RootNamespace>Flowthru.Integrations.MLNet</RootNamespace>
     <Version>0.1.0</Version>
     <Authors>Flowthru Contributors</Authors>
     <Description>ML.NET integration for Flowthru - provides IDataView container adapters for machine learning pipelines</Description>

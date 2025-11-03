@@ -1,6 +1,8 @@
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Flowthru.Abstractions;
 using Parquet;
+using Parquet.Schema;
 using Parquet.Serialization;
 
 namespace Flowthru.Data.Storage.Format;
@@ -20,6 +22,14 @@ namespace Flowthru.Data.Storage.Format;
 /// <item><see cref="IFlatSchema"/> - Flat structure (optimal for Parquet)</item>
 /// <item><see cref="IBinarySerializable"/> - Can be serialized to binary format</item>
 /// </list>
+/// <para>
+/// <strong>SerializedLabel Support:</strong>
+/// </para>
+/// <para>
+/// This serializer respects <see cref="SerializedLabelAttribute"/> for field name mapping.
+/// The Parquet.NET library's native column mapping is configured programmatically based on
+/// the SerializedLabel attributes, ensuring consistent behavior with other Flowthru serializers.
+/// </para>
 /// <para>
 /// Parquet is optimized for flat, columnar data and provides:
 /// - Excellent compression ratios
@@ -77,6 +87,19 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   /// <summary>
   /// Creates a new Parquet format serializer.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <strong>Note on SerializedLabel:</strong> Parquet.NET's serialization API currently
+  /// does not expose programmatic field name mapping. For Parquet files, property names
+  /// must match the column names in the file. Consider using CSV or JSON formats if
+  /// field name mapping via SerializedLabel is required, or ensure property names match
+  /// Parquet column names exactly.
+  /// </para>
+  /// <para>
+  /// This is a known limitation that may be addressed in future versions as Parquet.NET
+  /// evolves or if we implement custom serialization logic.
+  /// </para>
+  /// </remarks>
   public ParquetFormatSerializer() { }
 
   /// <inheritdoc/>
@@ -119,5 +142,15 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
 
     // Serialize to Parquet format
     await ParquetSerializer.SerializeAsync(rowList, stream);
+  }
+
+  /// <inheritdoc/>
+  public PropertyMappingConfiguration GetPropertyMappingConfiguration()
+  {
+    return PropertyMappingConfiguration.LibraryControlled(
+      "Parquet.NET does not expose programmatic field name mapping API. "
+        + "Property names must match Parquet column names exactly. "
+        + "[SerializedLabel] attributes are not supported."
+    );
   }
 }

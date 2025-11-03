@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -120,6 +121,9 @@ public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
     using var reader = new StreamReader(stream, leaveOpen: true);
     using var csv = new CsvReader(reader, _configuration);
 
+    // Register SerializedLabel-aware class map
+    csv.Context.RegisterClassMap<SerializedLabelClassMap<TRow>>();
+
     // Stream records one at a time
     await foreach (var record in csv.GetRecordsAsync<TRow>())
     {
@@ -144,6 +148,9 @@ public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
     await using var writer = new StreamWriter(stream, leaveOpen: true);
     await using var csv = new CsvWriter(writer, _configuration);
 
+    // Register SerializedLabel-aware class map
+    csv.Context.RegisterClassMap<SerializedLabelClassMap<TRow>>();
+
     // Write header (if configured)
     if (_configuration.HasHeaderRecord)
     {
@@ -159,5 +166,30 @@ public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
     }
 
     await csv.FlushAsync();
+  }
+
+  /// <inheritdoc/>
+  public PropertyMappingConfiguration GetPropertyMappingConfiguration()
+  {
+    return PropertyMappingConfiguration.FromSerializedLabel<TRow>();
+  }
+}
+
+/// <summary>
+/// CsvHelper class map that uses SerializedLabel attributes for field name mapping.
+/// </summary>
+/// <typeparam name="T">The row type to map</typeparam>
+internal sealed class SerializedLabelClassMap<T> : ClassMap<T>
+{
+  public SerializedLabelClassMap()
+  {
+    // Map each property to its external field name (from SerializedLabel or property name)
+    var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+    foreach (var property in properties)
+    {
+      var fieldName = PropertyMappingHelper.GetFieldName(property);
+      Map(typeof(T), property).Name(fieldName);
+    }
   }
 }

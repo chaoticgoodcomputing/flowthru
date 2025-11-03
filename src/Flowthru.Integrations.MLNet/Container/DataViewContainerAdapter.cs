@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using Flowthru.Data.Storage;
 using Microsoft.ML;
 
-namespace Flowthru.Integrations.ML.Container;
+namespace Flowthru.Integrations.MLNet.Container;
 
 /// <summary>
 /// Container adapter for ML.NET IDataView - columnar data representation.

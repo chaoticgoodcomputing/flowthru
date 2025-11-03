@@ -1,4 +1,4 @@
-# Flowthru.Integrations.ML
+# Flowthru.Integrations.MLNet
 
 ML.NET integration for Flowthru - provides IDataView container adapters for machine learning pipelines.
 
@@ -21,7 +21,7 @@ Container adapter that converts between `IAsyncEnumerable<T>` rows and ML.NET's 
 **Usage:**
 
 ```csharp
-using Flowthru.Integrations.ML.Container;
+using Flowthru.Integrations.MLNet.Container;
 using Microsoft.ML;
 
 public record FeatureRow(
@@ -63,7 +63,7 @@ Flowthru (core)
     ↑
     │ depends on
     │
-Flowthru.Integrations.ML (optional)
+Flowthru.Integrations.MLNet (optional)
     ↑
     │ depends on
     │
