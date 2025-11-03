@@ -1,0 +1,555 @@
+using Flowthru.Data;
+using Flowthru.Data.Validation;
+using KedroSpaceflights.Custom.Data.Schemas.Models;
+using KedroSpaceflights.Custom.Data.Schemas.Processed;
+using KedroSpaceflights.Custom.Data.Schemas.Raw;
+using KedroSpaceflights.Custom.Data.Schemas.Reference;
+using KedroSpaceflights.Custom.Pipelines.DataScience.Nodes;
+using Plotly.NET;
+
+namespace KedroSpaceflights.Custom.Data;
+
+/// <summary>
+/// Strongly-typed catalog for the Spaceflights project.
+///
+/// <para><strong>Compile-Time Type Safety:</strong></para>
+/// <para>
+/// Each catalog entry is a strongly-typed property (ICatalogEntry&lt;T&gt;), ensuring:
+/// - Pipelines cannot reference non-existent entries (compile error)
+/// - Nodes cannot receive wrong input types (compile error)
+/// - IntelliSense shows all available entries with their types
+/// - Refactoring tools work seamlessly (rename, find references)
+/// </para>
+///
+/// <para><strong>Data Layering Convention (Kedro):</strong></para>
+/// <list type="bullet">
+/// <item>01_Raw: Raw input data from external sources</item>
+/// <item>02_Intermediate: Preprocessed/cleaned data</item>
+/// <item>03_TrainingData: Primary model inputs</item>
+/// <item>04_Models: Trained ML models</item>
+/// <item>06_Reports: Reports and metrics</item>
+/// </list>
+///
+/// <para><strong>Zero-Ceremony Construction with Reflection-Based Caching:</strong></para>
+/// <para>
+/// Inherits from DataCatalogBase which provides automatic instance caching via reflection.
+/// Catalog entries are defined ONCE via expression-bodied properties, with GetOrCreateEntry
+/// ensuring object identity for DAG dependency resolution.
+/// </para>
+/// <para>
+/// Usage: <c>var catalog = new SpaceflightsCatalog("Data/Datasets");</c>
+/// </para>
+/// </summary>
+public class SpaceflightsCatalog : DataCatalogBase
+{
+  private readonly string _basePath;
+
+  /// <summary>
+  /// Initializes a new instance of SpaceflightsCatalog with the specified base path.
+  /// </summary>
+  /// <param name="basePath">Base path for dataset files</param>
+  public SpaceflightsCatalog(string basePath)
+  {
+    _basePath = basePath;
+
+    // Eagerly initialize all catalog entries to populate cache
+    // This ensures object identity for DAG dependency resolution
+    InitializeCatalogProperties();
+  }
+
+  // ===========================================================
+  // MARK: RAW DATA
+  // ===========================================================
+
+  /// <summary>
+  /// Raw company data from CSV file.
+  /// Contains company ratings and information.
+  /// </summary>
+  /// <remarks>
+  /// This is a critical Layer 0 input from an external source, configured for deep inspection
+  /// to ensure data quality before pipeline execution.
+  /// </remarks>
+  public ICatalogEntry<IEnumerable<CompanyRawSchema>> Companies =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<CompanyRawSchema>(
+          label: "RawCompanies",
+          filePath: $"{_basePath}/01_Raw/companies.csv"
+        )
+    );
+
+  /// <summary>
+  /// Raw review data from CSV file.
+  /// Contains customer reviews with scores.
+  /// </summary>
+  /// <remarks>
+  /// This is a critical Layer 0 input from an external source, configured for deep inspection
+  /// to ensure data quality before pipeline execution.
+  /// </remarks>
+  public ICatalogEntry<IEnumerable<ReviewRawSchema>> Reviews =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<ReviewRawSchema>(
+          label: "RawReviews",
+          filePath: $"{_basePath}/01_Raw/reviews.csv"
+        )
+    );
+
+  /// <summary>
+  /// Raw shuttle data from Excel file (read-only).
+  /// Contains shuttle specifications and pricing.
+  /// </summary>
+  /// <remarks>
+  /// This dataset is read-only because Excel files cannot be written to by the ExcelDataReader library.
+  /// It can only be used as a pipeline input, not as an output.
+  /// This is a critical Layer 0 input from an external source, configured for deep inspection
+  /// to ensure data quality before pipeline execution.
+  /// </remarks>
+  public ICatalogEntry<IEnumerable<ShuttleRawSchema>> Shuttles =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Excel<ShuttleRawSchema>(
+          label: "RawShuttles",
+          filePath: $"{_basePath}/01_Raw/shuttles.xlsx",
+          sheetName: "Sheet1"
+        )
+    );
+
+  // ===========================================================
+  // MARK: CLEANED DATA
+  // ===========================================================
+
+  /// <summary>
+  /// Preprocessed company data in Parquet format.
+  /// Cleaned and validated company records.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompanies =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<CompanySchema>(
+          label: "CleanedCompanies",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_companies.parquet"
+        )
+    );
+
+  /// <summary>
+  /// Preprocessed shuttle data in Parquet format.
+  /// Cleaned and validated shuttle records.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttles =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<ShuttleSchema>(
+          label: "CleanedShuttles",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_shuttles.parquet"
+        )
+    );
+
+  /// <summary>
+  /// Preprocessed review data in Parquet format.
+  /// Cleaned and validated review records with parsed numeric scores.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ReviewSchema>> CleanedReviews =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<ReviewSchema>(
+          label: "CleanedReviews",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_reviews.parquet"
+        )
+    );
+
+  /// <summary>
+  /// Preprocessed companies exported as CSV (for debugging).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompaniesCsv =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<CompanySchema>(
+          label: "CleanedCompaniesCsv",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_companies.csv"
+        )
+    );
+
+  /// <summary>
+  /// Preprocessed shuttles exported as CSV (for debugging).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttlesCsv =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<ShuttleSchema>(
+          label: "CleanedShuttlesCsv",
+          filePath: $"{_basePath}/02_Cleaned/cleaned_shuttles.csv"
+        )
+    );
+
+  // ===========================================================
+  // MARK: TRAINING DATA
+  // ===========================================================
+
+  /// <summary>
+  /// Model input table in Parquet format.
+  /// Joined dataset ready for ML training.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<ModelInputSchema>(
+          label: "ModelInputTable",
+          filePath: $"{_basePath}/03_TrainingData/model_input_table.parquet"
+        )
+    );
+
+  /// <summary>
+  /// Model input table exported as minified JSON (compact, production-ready format).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableJsonMinified =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Json<ModelInputSchema>(
+          label: "ModelInputTableJsonMinified",
+          filePath: $"{_basePath}/03_TrainingData/model_input_table.min.json"
+        )
+    );
+
+  /// <summary>
+  /// Model input table exported as CSV (for debugging).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<ModelInputSchema>(
+          label: "ModelInputTableCsv",
+          filePath: $"{_basePath}/03_TrainingData/model_input_table.csv"
+        )
+    );
+
+  // ===========================================================
+  // MARK: REFERENCE DATA
+  // ===========================================================
+
+  /// <summary>
+  /// Reference model input table from Kedro pipeline (for validation).
+  /// Used to compare Flowthru implementation against original Kedro output.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<KedroModelInputSchema>(
+          label: "KedroModelInputTable",
+          filePath: $"{_basePath}/99_Reference/kedro_model_input_table.csv"
+        )
+    );
+
+  // ===========================================================
+  // MARK: TEST-TRAIN SPLIT
+  // ===========================================================
+
+  /// <summary>
+  /// Training features (X_train).
+  /// Feature vectors for model training.
+  /// Stored in memory as it's only used within the DataScience pipeline.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTrain =>
+    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<FeatureRow>(label: "XTrain"));
+
+  /// <summary>
+  /// Testing features (X_test).
+  /// Feature vectors for model evaluation.
+  /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<FeatureRow>> XTest =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<FeatureRow>(
+          label: "XTest",
+          filePath: $"{_basePath}/03_TrainingData/x_test.parquet"
+        )
+    );
+
+  /// <summary>
+  /// Training targets (y_train).
+  /// Target prices for model training.
+  /// Stored in memory as it's only used within the DataScience pipeline.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<TargetValue>> YTrain =>
+    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TargetValue>(label: "YTrain"));
+
+  /// <summary>
+  /// Testing targets (y_test).
+  /// Target prices for model evaluation.
+  /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<TargetValue>> YTest =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<TargetValue>(
+          label: "YTest",
+          filePath: $"{_basePath}/03_TrainingData/y_test.parquet"
+        )
+    );
+
+  // ===========================================================
+  // MARK: MODELS
+  // ===========================================================
+
+  /// <summary>
+  /// Trained ordinary least squares linear regression model.
+  /// Contains intercept and coefficients for price prediction.
+  /// Stored as JSON to enable cross-pipeline usage (DataEvaluation depends on this).
+  /// </summary>
+  public ICatalogEntry<LinearRegressionModel> Regressor =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Json<LinearRegressionModel>(
+          label: "Regressor",
+          filePath: $"{_basePath}/04_Models/regressor.json"
+        )
+    );
+
+  // ===========================================================
+  // MARK: MODEL OUTPUTS
+  // ===========================================================
+
+  /// <summary>
+  /// Model evaluation metrics.
+  /// Contains R², MAE, RMSE, etc.
+  /// Stored as a singleton object (pipeline produces single metrics object).
+  /// </summary>
+  public ICatalogEntry<ModelMetrics> ModelMetrics =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Json<ModelMetrics>(
+          label: "ModelMetrics",
+          filePath: $"{_basePath}/05_ModelOutput/model_metrics.json"
+        )
+    );
+
+  public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<ModelPredictions>(
+          label: "ModelPredictions",
+          filePath: $"{_basePath}/05_ModelOutput/model_predictions.csv"
+        )
+    );
+
+  // ===========================================================
+  // MARK: REPORTING
+  // ===========================================================
+
+
+  /// <summary>
+  /// Cross-validation results with R² distribution analysis.
+  /// Contains metrics for each fold, mean, std dev, and comparison to Kedro.
+  /// Stored as JSON to preserve nested List&lt;FoldMetric&gt; structure.
+  /// </summary>
+  public ICatalogEntry<CrossValidationResults> CrossValidationResults =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Json<CrossValidationResults>(
+          label: "CrossValidationResults",
+          filePath: $"{_basePath}/06_Reports/cross_validation_results.json"
+        )
+    );
+
+  /// <summary>
+  /// Cross-validation summary report in Markdown format.
+  /// Human-readable report summarizing model performance and validation results.
+  /// </summary>
+  public ICatalogEntry<string> CrossValidationReport =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "CrossValidationReport",
+          filePath: $"{_basePath}/06_Reports/cross_validation_report.md"
+        )
+    );
+
+  /// <summary>
+  /// Shuttle passenger capacity bar chart (in-memory GenericChart).
+  /// Intermediate chart object stored in memory for downstream export to multiple formats.
+  /// </summary>
+  public ICatalogEntry<GenericChart> ShuttlePassengerCapacityChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
+    );
+
+  /// <summary>
+  /// Shuttle passenger capacity visualization (Plotly JSON).
+  /// Bar chart showing average passenger capacity grouped by shuttle type.
+  /// Stored as Plotly JSON specification, compatible with plotly.js rendering.
+  /// </summary>
+  /// <remarks>
+  /// Output format matches Kedro's plotly.JSONDataset. The JSON contains a complete Plotly
+  /// figure specification with data traces and layout configuration. Can be rendered in browsers
+  /// using plotly.js or converted to static images using Plotly.NET.ImageExport.
+  /// </remarks>
+  public ICatalogEntry<string> ShuttlePassengerCapacityPlot =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "ShuttlePassengerCapacityPlot",
+          filePath: $"{_basePath}/06_Reports/shuttle_passenger_capacity_plot.json"
+        )
+    );
+
+  /// <summary>
+  /// Confusion matrix heatmap (in-memory GenericChart).
+  /// Intermediate chart object stored in memory for downstream export to multiple formats.
+  /// </summary>
+  public ICatalogEntry<GenericChart> ConfusionMatrixChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "ConfusionMatrixChart")
+    );
+
+  /// <summary>
+  /// Confusion matrix heatmap visualization (Plotly JSON).
+  /// Shows model prediction accuracy with actual vs predicted classification matrix.
+  /// Stored as Plotly JSON specification for interactive visualization.
+  /// </summary>
+  /// <remarks>
+  /// Matches Kedro's matplotlib.MatplotlibWriter output but using Plotly for interactivity.
+  /// The heatmap displays a 2x2 confusion matrix with color-coded cells showing classification
+  /// performance. JSON format allows browser-based rendering and potential conversion to PNG.
+  /// </remarks>
+  public ICatalogEntry<string> ConfusionMatrixPlot =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "ConfusionMatrixPlot",
+          filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.json"
+        )
+    );
+
+  /// <summary>
+  /// Shuttle passenger capacity bar chart (PNG image).
+  /// Static image representation of the passenger capacity visualization.
+  /// Stored as binary PNG file.
+  /// </summary>
+  /// <remarks>
+  /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
+  /// </remarks>
+  public ICatalogEntry<byte[]> ShuttlePassengerCapacityPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "ShuttlePassengerCapacityPlotPng",
+          filePath: $"{_basePath}/06_Reports/shuttle_passenger_capacity_plot.png"
+        )
+    );
+
+  /// <summary>
+  /// Confusion matrix heatmap (PNG image).
+  /// Static image representation of the confusion matrix visualization.
+  /// Stored as binary PNG file.
+  /// </summary>
+  /// <remarks>
+  /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
+  /// </remarks>
+  public ICatalogEntry<byte[]> ConfusionMatrixPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "ConfusionMatrixPlotPng",
+          filePath: $"{_basePath}/06_Reports/confusion_matrix_plot.png"
+        )
+    );
+
+  /// <summary>
+  /// Cross-validation visualization chart (in-memory GenericChart).
+  /// Intermediate chart object showing R² distribution analysis with scatter plot,
+  /// normal curve, mean line, and Kedro reference line.
+  /// </summary>
+  public ICatalogEntry<GenericChart> CrossValidationChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "CrossValidationChart")
+    );
+
+  /// <summary>
+  /// Cross-validation visualization (Plotly JSON).
+  /// Multi-layer chart showing R² distribution from cross-validation with:
+  /// - Scatter plot of fold R² scores
+  /// - Normal distribution curve fit
+  /// - Mean R² vertical line
+  /// - Kedro reference R² vertical line
+  /// </summary>
+  /// <remarks>
+  /// Stored as Plotly JSON specification for interactive visualization.
+  /// </remarks>
+  public ICatalogEntry<string> CrossValidationPlot =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "CrossValidationPlot",
+          filePath: $"{_basePath}/06_Reports/cross_validation_plot.json"
+        )
+    );
+
+  /// <summary>
+  /// Cross-validation visualization (PNG image).
+  /// Static image representation of the cross-validation analysis chart.
+  /// Stored as binary PNG file.
+  /// </summary>
+  /// <remarks>
+  /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
+  /// </remarks>
+  public ICatalogEntry<byte[]> CrossValidationPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "CrossValidationPlotPng",
+          filePath: $"{_basePath}/06_Reports/cross_validation_plot.png"
+        )
+    );
+
+  /// <summary>
+  /// Prediction scatter plot chart (in-memory GenericChart).
+  /// Intermediate chart object showing actual vs predicted values with color-coded dots
+  /// (yellow for over-estimates, red for under-estimates) and a 1:1 identity reference line.
+  /// </summary>
+  public ICatalogEntry<GenericChart> PredictionScatterChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "PredictionScatterChart")
+    );
+
+  /// <summary>
+  /// Prediction scatter plot visualization (Plotly JSON).
+  /// Scatter plot showing actual vs predicted prices with:
+  /// - Yellow dots for over-estimates (predicted > actual)
+  /// - Red dots for under-estimates (predicted <= actual)
+  /// - Dotted gray line for perfect prediction (1:1 identity)
+  /// - R² score in title
+  /// </summary>
+  /// <remarks>
+  /// Stored as Plotly JSON specification for interactive visualization.
+  /// </remarks>
+  public ICatalogEntry<string> PredictionScatterPlot =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "PredictionScatterPlot",
+          filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.json"
+        )
+    );
+
+  /// <summary>
+  /// Prediction scatter plot visualization (PNG image).
+  /// Static image representation of the prediction accuracy visualization.
+  /// Stored as binary PNG file at 600x600 resolution.
+  /// </summary>
+  /// <remarks>
+  /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
+  /// The PNG file can be opened directly in image viewers or embedded in reports.
+  /// </remarks>
+  public ICatalogEntry<byte[]> PredictionScatterPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "PredictionScatterPlotPng",
+          filePath: $"{_basePath}/06_Reports/prediction_scatter_plot.png"
+        )
+    );
+}

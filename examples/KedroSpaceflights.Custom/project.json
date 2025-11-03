@@ -1,0 +1,48 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test/flights",
+  "sourceRoot": "tests/KedroSpaceflights.Custom",
+  "targets": {
+    "run": {
+      "//": "Run the Spaceflights tests. Defaults to full setup, but the name of a pipeline can be passed in as an argument to run a specific pipeline.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "dotnet run"
+        ],
+        "cwd": "tests/KedroSpaceflights.Custom",
+        "parallel": false
+      }
+    },
+    "purge": {
+      "//": "Purges all auto-generated data files from the project",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "find Data/Datasets/02_Cleaned -mindepth 1 -type f ! -name '.gitkeep' -delete",
+          "find Data/Datasets/03_TrainingData -mindepth 1 -type f ! -name '.gitkeep' -delete",
+          "find Data/Datasets/04_Models -mindepth 1 -type f ! -name '.gitkeep' -delete",
+          "find Data/Datasets/05_ModelOutput -mindepth 1 -type f ! -name '.gitkeep' -delete",
+          "find Data/Datasets/06_Reports -mindepth 1 -type f ! -name '.gitkeep' -delete",
+          "find Data/Metadata -mindepth 1 -type f ! -name '.gitkeep' -delete"
+        ],
+        "cwd": "tests/KedroSpaceflights.Custom",
+        "parallel": false
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}
