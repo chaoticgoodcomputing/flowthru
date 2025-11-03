@@ -1,0 +1,15 @@
+# Test Results and Coverage Artifacts
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# ReportGenerator HTML Reports
+coverage/
+html/
+
+# Coverlet output formats
+coverage.cobertura.xml
+coverage.json
+coverage.info
+coverage.opencover.xml

@@ -1,0 +1,42 @@
+{
+  "name": "flowthru",
+  "$schema": "./node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": ".",
+  "targets": {
+    "test:all": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet test Flowthru.sln --logger \"console;verbosity=normal\""
+      }
+    },
+    "coverage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "echo 'Cleaning previous coverage data...'",
+          "find tests -name TestResults -type d -exec rm -rf {} + 2>/dev/null || true",
+          "rm -rf CoverageReport",
+          "echo 'Running all tests with coverage collection...'",
+          "echo 'Note: Each test project generates coverage in tests/<project>/TestResults/'",
+          "dotnet test Flowthru.sln --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\" || echo 'Some tests failed but coverage was still collected'"
+        ],
+        "parallel": false
+      }
+    },
+    "coverage:html": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["coverage"],
+      "options": {
+        "command": "bash -c 'echo \"Consolidating coverage from all test projects...\"; COVERAGE_FILES=$(find tests -name \"coverage.cobertura.xml\" -type f | wc -l | tr -d \" \"); echo \"Found $COVERAGE_FILES coverage file(s)\"; reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" && echo \"✓ Consolidated coverage report: CoverageReport/index.html\"'"
+      }
+    },
+    "coverage:open": {
+      "executor": "nx:run-commands",
+      "dependsOn": [ "coverage:html" ],
+      "options": {
+        "command": "open CoverageReport/index.html"
+      }
+    }
+  }
+}
