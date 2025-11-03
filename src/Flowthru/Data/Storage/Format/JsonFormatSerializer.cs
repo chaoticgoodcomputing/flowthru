@@ -193,7 +193,7 @@ internal sealed class SerializedLabelJsonConverterFactory : JsonConverterFactory
       return false;
     }
 
-    // Don't convert collection types (IEnumerable, List, etc.)
+    // Don't convert collection types (IEnumerable, List, Dictionary, etc.)
     if (typeToConvert.IsGenericType)
     {
       var genericTypeDef = typeToConvert.GetGenericTypeDefinition();
@@ -202,6 +202,8 @@ internal sealed class SerializedLabelJsonConverterFactory : JsonConverterFactory
         || genericTypeDef == typeof(IEnumerable<>)
         || genericTypeDef == typeof(ICollection<>)
         || genericTypeDef == typeof(IList<>)
+        || genericTypeDef == typeof(Dictionary<,>)
+        || genericTypeDef == typeof(IDictionary<,>)
       )
       {
         return false;
