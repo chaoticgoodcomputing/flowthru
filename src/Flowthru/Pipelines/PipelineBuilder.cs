@@ -252,6 +252,32 @@ public class PipelineBuilder
   }
 
   /// <summary>
+  /// Adds a node with two inputs and two outputs.
+  /// </summary>
+  public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2>(
+    string label,
+    Func<(TIn1, TIn2), Task<(TOut1, TOut2)>> transform,
+    (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input,
+    (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output,
+    string description = ""
+  )
+  {
+    var (input1, input2) = input;
+    var (output1, output2) = output;
+
+    var pipelineNode = new PipelineNode(
+      label: label,
+      description: description,
+      node: transform,
+      inputs: new List<ICatalogEntry> { input1, input2 },
+      outputs: new List<ICatalogEntry> { output1, output2 }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
   /// Adds a node with three inputs and two outputs.
   /// </summary>
   public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(

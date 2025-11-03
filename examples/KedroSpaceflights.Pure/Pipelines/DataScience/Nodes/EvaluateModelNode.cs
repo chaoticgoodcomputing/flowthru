@@ -9,13 +9,17 @@ namespace KedroSpaceflights.Pure.Pipelines.DataScience.Nodes;
 public static class EvaluateModelNode
 {
   /// <summary>
-  /// Creates a model evaluation function that computes R², MAE, and maximum error metrics.
+  /// Creates a model evaluation function that computes R², MAE, and maximum error metrics,
+  /// and also outputs the actual vs predicted values for visualization.
   /// </summary>
   /// <returns>
   /// A function that evaluates a <see cref="LinearRegressionModel"/> against test data
-  /// and produces <see cref="ModelMetrics"/>.
+  /// and produces both <see cref="ModelMetrics"/> and <see cref="ModelPredictions"/>.
   /// </returns>
-  public static Func<(LinearRegressionModel, IEnumerable<TestData>), Task<ModelMetrics>> Create()
+  public static Func<
+    (LinearRegressionModel, IEnumerable<TestData>),
+    Task<(ModelMetrics, IEnumerable<ModelPredictions>)>
+  > Create()
   {
     return async (input) =>
     {
@@ -26,12 +30,15 @@ public static class EvaluateModelNode
       {
         Console.WriteLine("No test data available for evaluation");
         return await Task.FromResult(
-          new ModelMetrics
-          {
-            R2Score = 0,
-            MeanAbsoluteError = 0,
-            MaxError = 0,
-          }
+          (
+            new ModelMetrics
+            {
+              R2Score = 0,
+              MeanAbsoluteError = 0,
+              MaxError = 0,
+            },
+            Enumerable.Empty<ModelPredictions>()
+          )
         );
       }
 
@@ -44,13 +51,24 @@ public static class EvaluateModelNode
       var mae = CalculateMae(actuals, predictions);
       var maxError = CalculateMaxError(actuals, predictions);
 
+      // Create prediction pairs for visualization
+      var predictionPairs = actuals
+        .Zip(
+          predictions,
+          (actual, predicted) => new ModelPredictions { Actual = actual, Predicted = predicted }
+        )
+        .ToList();
+
       return await Task.FromResult(
-        new ModelMetrics
-        {
-          R2Score = (decimal)r2,
-          MeanAbsoluteError = (decimal)mae,
-          MaxError = (decimal)maxError,
-        }
+        (
+          new ModelMetrics
+          {
+            R2Score = (decimal)r2,
+            MeanAbsoluteError = (decimal)mae,
+            MaxError = (decimal)maxError,
+          },
+          (IEnumerable<ModelPredictions>)predictionPairs
+        )
       );
     };
   }

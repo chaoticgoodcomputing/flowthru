@@ -28,4 +28,17 @@ public partial class Catalog
           filePath: $"{_basePath}/_04_Models/Datasets/model_metrics.json"
         )
     );
+
+  /// <summary>
+  /// Model predictions containing actual and predicted values from the test set.
+  /// Used for generating confusion matrices and prediction accuracy visualizations.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Json<ModelPredictions>(
+          label: "ModelPredictions",
+          filePath: $"{_basePath}/_04_Models/Datasets/model_predictions.json"
+        )
+    );
 }

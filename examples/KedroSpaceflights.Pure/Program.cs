@@ -42,10 +42,14 @@ public class Program
           )
           .WithDescription("Trains linear regression model for price prediction");
 
-        // Register reporting pipeline
+        // Register reporting pipeline with configuration parameters
         builder
-          .RegisterPipeline<Catalog>(label: "Reporting", pipeline: ReportingPipeline.Create)
-          .WithDescription("Generates passenger capacity reports");
+          .RegisterPipelineWithConfiguration<Catalog, ReportingPipeline.Params>(
+            label: "Reporting",
+            pipeline: ReportingPipeline.Create,
+            configurationSection: "Flowthru:Pipelines:Reporting"
+          )
+          .WithDescription("Generates passenger capacity reports and visualizations");
       }
     );
 

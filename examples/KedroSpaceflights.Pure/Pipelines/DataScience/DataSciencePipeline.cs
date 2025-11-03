@@ -47,10 +47,10 @@ public static class DataSciencePipeline
 
       pipeline.AddNode(
         label: "EvaluateModel",
-        description: "Evaluates the trained model on the test set and computes metrics.",
+        description: "Evaluates the trained model on the test set and computes metrics and predictions.",
         transform: Nodes.EvaluateModelNode.Create(),
         input: (catalog.Regressor, catalog.TestSplit),
-        output: catalog.ModelMetrics
+        output: (catalog.ModelMetrics, catalog.ModelPredictions)
       );
     });
   }
