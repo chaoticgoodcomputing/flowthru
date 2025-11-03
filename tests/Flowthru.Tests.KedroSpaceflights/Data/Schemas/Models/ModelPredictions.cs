@@ -5,7 +5,11 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 /// <summary>
 /// Results from cross-validation analysis
 /// </summary>
-public record ModelPredictions : IFlatSerializable
+public record ModelPredictions
+  : IFlatSchema,
+    ITextSerializable,
+    IBinarySerializable,
+    IStructuredSerializable
 {
   /// <summary>
   /// Actual value from test set

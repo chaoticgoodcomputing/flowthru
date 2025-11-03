@@ -52,16 +52,16 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   /// <summary>
   /// Creates a new catalog entry with the specified key and storage adapter.
   /// </summary>
-  /// <param name="key">Unique identifier for this catalog entry</param>
+  /// <param name="label">Unique identifier for this catalog entry</param>
   /// <param name="storage">Storage adapter that handles I/O operations</param>
-  public CatalogEntry(string key, IStorageAdapter<T> storage)
+  public CatalogEntry(string label, IStorageAdapter<T> storage)
   {
-    Key = key ?? throw new ArgumentNullException(nameof(key));
+    this.Label = label ?? throw new ArgumentNullException(nameof(label));
     _storage = storage ?? throw new ArgumentNullException(nameof(storage));
   }
 
   /// <inheritdoc/>
-  public string Key { get; }
+  public string Label { get; }
 
   /// <inheritdoc/>
   public Type DataType => typeof(T);
@@ -94,7 +94,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
     return IO.fail<Unit>(
       new Exception(
         $"Type mismatch: Cannot save data of type '{data?.GetType().Name ?? "null"}' "
-          + $"to catalog entry '{Key}' expecting type '{typeof(T).Name}'"
+          + $"to catalog entry '{Label}' expecting type '{typeof(T).Name}'"
       )
     );
   }

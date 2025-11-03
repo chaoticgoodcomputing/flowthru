@@ -1,3 +1,4 @@
+using Flowthru.Abstractions;
 using Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -52,10 +53,11 @@ public static class TrainModelNode
 }
 
 #region Node Artifacts (Colocated)
+/// <summary>
 /// Trained ordinary least squares linear regression model.
 /// Contains intercept and feature coefficients.
 /// </summary>
-public record LinearRegressionModel
+public record LinearRegressionModel : INestedSchema, IStructuredSerializable
 {
   /// <summary>
   /// Model intercept (bias term)

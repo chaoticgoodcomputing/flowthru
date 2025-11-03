@@ -12,7 +12,11 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 /// QR decomposition. Sklearn handles this via pseudo-inverse, but Math.NET requires
 /// explicit feature selection.
 /// </remarks>
-public class FeatureRow : IFlatSerializable
+public class FeatureRow
+  : IFlatSchema,
+    ITextSerializable,
+    IBinarySerializable,
+    IStructuredSerializable
 {
   public float Engines { get; set; }
   public float PassengerCapacity { get; set; }

@@ -72,7 +72,7 @@ public class ValidationOptions
       throw new ArgumentNullException(nameof(catalogEntry));
     }
 
-    _catalogEntryInspectionLevels[catalogEntry.Key] = level;
+    _catalogEntryInspectionLevels[catalogEntry.Label] = level;
     return this;
   }
 
@@ -121,7 +121,7 @@ public class ValidationOptions
     }
 
     // 1. Check for explicit pipeline-level configuration (highest priority)
-    var configuredLevel = GetInspectionLevel(catalogEntry.Key);
+    var configuredLevel = GetInspectionLevel(catalogEntry.Label);
     if (configuredLevel.HasValue)
     {
       return configuredLevel.Value;

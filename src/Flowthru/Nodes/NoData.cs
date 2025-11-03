@@ -66,38 +66,44 @@ public sealed class NoData
   public static readonly NoData Value = new();
 
   /// <summary>
-  /// Creates a unique NullCatalogEntry for use as a node input (no-input nodes).
+  /// Creates a unique null catalog entry for use as a node input (no-input nodes).
   /// Each call generates a new instance with a unique key to avoid DAG conflicts.
   /// </summary>
   /// <remarks>
   /// Alias for readability in pipeline declarations where nodes don't consume external inputs.
   /// </remarks>
-  public static Data.Implementations.NullCatalogEntry<NoData> Input =>
-    new($"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}");
+  public static Data.ICatalogEntry<NoData> Input =>
+    Data.CatalogEntries.Null<NoData>(
+      $"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}"
+    );
 
   /// <summary>
-  /// Creates a unique NullCatalogEntry for use as a node output (side-effect-only nodes).
+  /// Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
   /// Each call generates a new instance with a unique key to avoid DAG conflicts.
   /// </summary>
   /// <remarks>
   /// Alias for readability in pipeline declarations where nodes produce no meaningful output.
   /// </remarks>
-  public static Data.Implementations.NullCatalogEntry<NoData> Output =>
-    new($"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}");
+  public static Data.ICatalogEntry<NoData> Output =>
+    Data.CatalogEntries.Null<NoData>(
+      $"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}"
+    );
 
   /// <summary>
-  /// Creates a unique NullCatalogEntry for use as a node output (side-effect-only nodes).
+  /// Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
   /// Semantic alias for Output - use whichever reads better in context.
   /// </summary>
-  public static Data.Implementations.NullCatalogEntry<NoData> Discard =>
-    new($"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}");
+  public static Data.ICatalogEntry<NoData> Discard =>
+    Data.CatalogEntries.Null<NoData>(
+      $"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}"
+    );
 
   /// <summary>
-  /// Creates a unique NullCatalogEntry for use as a node input (no-input nodes).
+  /// Creates a unique null catalog entry for use as a node input (no-input nodes).
   /// Semantic alias for Input - use whichever reads better in context.
   /// </summary>
-  public static Data.Implementations.NullCatalogEntry<NoData> None =>
-    new($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
+  public static Data.ICatalogEntry<NoData> None =>
+    Data.CatalogEntries.Null<NoData>($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Returns the standard NoData result for side-effect-only nodes.

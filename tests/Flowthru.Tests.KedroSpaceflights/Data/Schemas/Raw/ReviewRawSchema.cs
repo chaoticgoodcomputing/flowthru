@@ -7,7 +7,11 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Raw;
 /// Raw review data as read from CSV file.
 /// Matches structure of Datasets/01_Raw/reviews.csv
 /// </summary>
-public record ReviewRawSchema : IFlatSerializable
+public record ReviewRawSchema
+  : IFlatSchema,
+    ITextSerializable,
+    IBinarySerializable,
+    IStructuredSerializable
 {
   /// <summary>
   /// Shuttle identifier (foreign key to shuttles)

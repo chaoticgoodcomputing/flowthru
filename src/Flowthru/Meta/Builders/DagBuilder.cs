@@ -94,7 +94,7 @@ internal static class DagBuilder
   )
   {
     // Skip _nodata entries (placeholder entries that don't represent actual data)
-    if (entry.Key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+    if (entry.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
     {
       return;
     }
@@ -114,9 +114,9 @@ internal static class DagBuilder
         foreach (var mappedEntry in mappedEntries)
         {
           // Skip _nodata entries in mapped entries too
-          if (!mappedEntry.Key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+          if (!mappedEntry.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
           {
-            catalogEntries.TryAdd(mappedEntry.Key, mappedEntry);
+            catalogEntries.TryAdd(mappedEntry.Label, mappedEntry);
           }
         }
       }
@@ -124,7 +124,7 @@ internal static class DagBuilder
     else
     {
       // Simple catalog entry
-      catalogEntries.TryAdd(entry.Key, entry);
+      catalogEntries.TryAdd(entry.Label, entry);
     }
   }
 
@@ -143,14 +143,14 @@ internal static class DagBuilder
       // Get input catalog keys (expanding CatalogMaps, filtering _nodata)
       var inputKeys = pipelineNode
         .Inputs.SelectMany(ExpandCatalogEntry)
-        .Select(e => e.Key)
+        .Select(e => e.Label)
         .Where(key => !key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
         .ToList();
 
       // Get output catalog keys (expanding CatalogMaps, filtering _nodata)
       var outputKeys = pipelineNode
         .Outputs.SelectMany(ExpandCatalogEntry)
-        .Select(e => e.Key)
+        .Select(e => e.Label)
         .Where(key => !key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
         .ToList();
 

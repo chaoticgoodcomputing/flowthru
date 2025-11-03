@@ -317,7 +317,7 @@ public class Pipeline
     // With the tuple-based approach, inputs are always direct ICatalogEntry references
     var externalInputs = layer0Nodes
       .SelectMany(node => node.Inputs)
-      .DistinctBy(entry => entry.Key)
+      .DistinctBy(entry => entry.Label)
       .ToList();
 
     Logger?.LogInformation(
@@ -332,13 +332,16 @@ public class Pipeline
 
       if (inspectionLevel == Data.Validation.InspectionLevel.None)
       {
-        Logger?.LogDebug("Skipping inspection for '{CatalogKey}' (level: None)", catalogEntry.Key);
+        Logger?.LogDebug(
+          "Skipping inspection for '{CatalogKey}' (level: None)",
+          catalogEntry.Label
+        );
         continue;
       }
 
       Logger?.LogInformation(
         "Inspecting '{CatalogKey}' with {InspectionLevel} inspection",
-        catalogEntry.Key,
+        catalogEntry.Label,
         inspectionLevel
       );
 
@@ -364,7 +367,7 @@ public class Pipeline
           {
             // Entry doesn't support shallow inspection but was configured for it
             inspectionResult = Data.Validation.ValidationResult.Failure(
-              catalogEntry.Key,
+              catalogEntry.Label,
               Data.Validation.ValidationErrorType.InspectionFailure,
               "Entry does not implement IShallowInspectable<T>"
             );
@@ -388,7 +391,7 @@ public class Pipeline
           {
             // Entry doesn't support deep inspection but was configured for it
             inspectionResult = Data.Validation.ValidationResult.Failure(
-              catalogEntry.Key,
+              catalogEntry.Label,
               Data.Validation.ValidationErrorType.InspectionFailure,
               "Entry does not implement IDeepInspectable<T>"
             );
@@ -401,7 +404,7 @@ public class Pipeline
         {
           Logger?.LogWarning(
             "Validation failed for '{CatalogKey}': {ErrorCount} error(s)",
-            catalogEntry.Key,
+            catalogEntry.Label,
             inspectionResult.Errors.Count
           );
         }
@@ -409,17 +412,17 @@ public class Pipeline
         {
           Logger?.LogInformation(
             "'{CatalogKey}' passed {InspectionLevel} inspection",
-            catalogEntry.Key,
+            catalogEntry.Label,
             inspectionLevel
           );
         }
       }
       catch (Exception ex)
       {
-        Logger?.LogError(ex, "Exception during inspection of '{CatalogKey}'", catalogEntry.Key);
+        Logger?.LogError(ex, "Exception during inspection of '{CatalogKey}'", catalogEntry.Label);
         result.AddError(
           new Data.Validation.ValidationError(
-            catalogEntry.Key,
+            catalogEntry.Label,
             Data.Validation.ValidationErrorType.InspectionFailure,
             $"Inspection threw exception: {ex.Message}",
             ex.ToString()

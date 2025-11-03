@@ -15,9 +15,9 @@ namespace Flowthru.Data;
 public interface ICatalogEntry
 {
   /// <summary>
-  /// Unique key identifying this catalog entry within the data catalog.
+  /// Unique label identifying this catalog entry within the data catalog.
   /// </summary>
-  string Key { get; }
+  string Label { get; }
 
   /// <summary>
   /// The runtime type of data stored in this catalog entry.

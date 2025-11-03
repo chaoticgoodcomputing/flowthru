@@ -64,7 +64,7 @@ internal static class DependencyAnalyzer
         if (producerMap.TryGetValue(output, out var existingProducer))
         {
           throw new InvalidOperationException(
-            $"Catalog entry '{output.Key}' is produced by multiple nodes: "
+            $"Catalog entry '{output.Label}' is produced by multiple nodes: "
               + $"'{existingProducer.Name}' and '{node.Name}'. "
               + $"Each catalog entry must have at most one producer."
           );

@@ -1,0 +1,123 @@
+using System.Runtime.CompilerServices;
+using Flowthru.Abstractions;
+using Parquet;
+using Parquet.Serialization;
+
+namespace Flowthru.Data.Storage.Format;
+
+/// <summary>
+/// Format serializer for Parquet (columnar storage) files.
+/// </summary>
+/// <typeparam name="TRow">The row schema type</typeparam>
+/// <remarks>
+/// <para>
+/// <strong>Type Constraints:</strong>
+/// </para>
+/// <para>
+/// TRow must implement both:
+/// </para>
+/// <list type="bullet">
+/// <item><see cref="IFlatSchema"/> - Flat structure (optimal for Parquet)</item>
+/// <item><see cref="IBinarySerializable"/> - Can be serialized to binary format</item>
+/// </list>
+/// <para>
+/// Parquet is optimized for flat, columnar data and provides:
+/// - Excellent compression ratios
+/// - Fast columnar reads
+/// - Type preservation (no string conversion)
+/// - Predicate pushdown capabilities
+/// </para>
+/// <para>
+/// <strong>When to Use Parquet:</strong>
+/// </para>
+/// <list type="bullet">
+/// <item>Large datasets (&gt;10MB)</item>
+/// <item>Analytical workloads</item>
+/// <item>Data lake storage</item>
+/// <item>ML feature stores</item>
+/// </list>
+/// <para>
+/// <strong>Streaming Behavior:</strong>
+/// </para>
+/// <para>
+/// Parquet serialization has different characteristics:
+/// </para>
+/// <list type="bullet">
+/// <item><strong>Deserialization:</strong> Streams rows lazily</item>
+/// <item><strong>Serialization:</strong> Buffers rows for optimal columnar encoding</item>
+/// </list>
+/// </remarks>
+/// <example>
+/// <code>
+/// public record FeatureRow(
+///     DateTime Timestamp,
+///     double Feature1,
+///     double Feature2,
+///     int Label
+/// ) : IFlatSchema, IBinarySerializable;
+///
+/// var serializer = new ParquetFormatSerializer&lt;FeatureRow&gt;();
+///
+/// // Serialize to Parquet
+/// var features = GenerateFeatures();
+/// using var writeStream = File.Create("features.parquet");
+/// await serializer.SerializeRows(writeStream, features);
+///
+/// // Deserialize from Parquet
+/// using var readStream = File.OpenRead("features.parquet");
+/// await foreach (var row in serializer.DeserializeRows(readStream))
+/// {
+///     Console.WriteLine($"Feature1: {row.Feature1}, Label: {row.Label}");
+/// }
+/// </code>
+/// </example>
+public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
+  where TRow : IFlatSchema, IBinarySerializable, new()
+{
+  /// <summary>
+  /// Creates a new Parquet format serializer.
+  /// </summary>
+  public ParquetFormatSerializer() { }
+
+  /// <inheritdoc/>
+  public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
+  {
+    if (stream == null)
+    {
+      throw new ArgumentNullException(nameof(stream));
+    }
+
+    // Deserialize using Parquet.NET
+    var rows = await ParquetSerializer.DeserializeAsync<TRow>(stream);
+
+    // Yield each row
+    foreach (var row in rows)
+    {
+      yield return row;
+    }
+  }
+
+  /// <inheritdoc/>
+  public async Task SerializeRows(Stream stream, IAsyncEnumerable<TRow> rows)
+  {
+    if (stream == null)
+    {
+      throw new ArgumentNullException(nameof(stream));
+    }
+
+    if (rows == null)
+    {
+      throw new ArgumentNullException(nameof(rows));
+    }
+
+    // Collect all rows (Parquet needs full dataset for optimal columnar encoding)
+    var rowList = new List<TRow>();
+    await foreach (var row in rows)
+    {
+      rowList.Add(row);
+    }
+
+    // Serialize to Parquet format
+    await ParquetSerializer.SerializeAsync(rowList, stream);
+  }
+}

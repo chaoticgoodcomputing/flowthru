@@ -7,7 +7,11 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Processed;
 /// Processed shuttle data with type conversions applied.
 /// Output of PreprocessShuttlesNode.
 /// </summary>
-public record ShuttleSchema : IFlatSerializable
+public record ShuttleSchema
+  : IFlatSchema,
+    ITextSerializable,
+    IBinarySerializable,
+    IStructuredSerializable
 {
   /// <summary>
   /// Shuttle identifier

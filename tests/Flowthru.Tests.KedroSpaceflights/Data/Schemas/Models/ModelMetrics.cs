@@ -6,7 +6,11 @@ namespace Flowthru.Tests.KedroSpaceflights.Data.Schemas.Models;
 /// Model evaluation metrics.
 /// Output of EvaluateModelNode.
 /// </summary>
-public record ModelMetrics : IFlatSerializable
+public record ModelMetrics
+  : IFlatSchema,
+    ITextSerializable,
+    IBinarySerializable,
+    IStructuredSerializable
 {
   /// <summary>
   /// R² Score (coefficient of determination)
