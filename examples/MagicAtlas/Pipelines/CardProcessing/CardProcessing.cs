@@ -62,6 +62,14 @@ public static class CardProcessing
         input: (catalog.FilteredCardCoreData, catalog.ProcessedCardSymbols),
         output: catalog.RefinedOracleText
       );
+
+      pipeline.AddNode(
+        label: "EmbeddingModelOracleInput",
+        description: "Flatten refined oracle text into individual entries for embedding model input",
+        transform: EmbeddingModelOracleInputNode.Create(),
+        input: catalog.RefinedOracleText,
+        output: catalog.EmbeddingModelOracleInput
+      );
     });
   }
 }

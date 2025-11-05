@@ -68,4 +68,17 @@ public partial class Catalog
           filePath: $"{_basePath}/_03_Structured/Datasets/refined-oracle-text.json"
         )
     );
+
+  /// <summary>
+  /// Flattened oracle text entries for embedding model input.
+  /// Each card produces multiple entries (full text + individual abilities).
+  /// </summary>
+  public ICatalogEntry<IEnumerable<EmbeddingModelOracleInput>> EmbeddingModelOracleInput =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<EmbeddingModelOracleInput>(
+          label: "EmbeddingModelOracleInput",
+          filePath: $"{_basePath}/_03_Structured/Datasets/embedding-model-oracle-input.csv"
+        )
+    );
 }
