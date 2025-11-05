@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailData", "examples\Reta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowthru.Tests.Examples", "tests\Flowthru.Tests.Examples\Flowthru.Tests.Examples.csproj", "{55F3CA2B-BBFC-40CF-B37F-76C5FEB75329}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicAtlas", "examples\MagicAtlas\MagicAtlas.csproj", "{4D533262-4624-46CF-A382-75D35F192B06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,18 @@ Global
 		{55F3CA2B-BBFC-40CF-B37F-76C5FEB75329}.Release|x64.Build.0 = Release|Any CPU
 		{55F3CA2B-BBFC-40CF-B37F-76C5FEB75329}.Release|x86.ActiveCfg = Release|Any CPU
 		{55F3CA2B-BBFC-40CF-B37F-76C5FEB75329}.Release|x86.Build.0 = Release|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Release|x64.Build.0 = Release|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D533262-4624-46CF-A382-75D35F192B06}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,5 +158,6 @@ Global
 		{FBBDC832-16B4-41C5-918B-B995B0982B3D} = {B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}
 		{F6AA06AA-CD6F-41F1-BBD9-56FBB4F1CE92} = {3663939E-416B-408C-887C-38723F04ADCE}
 		{55F3CA2B-BBFC-40CF-B37F-76C5FEB75329} = {B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}
+		{4D533262-4624-46CF-A382-75D35F192B06} = {3663939E-416B-408C-887C-38723F04ADCE}
 	EndGlobalSection
 EndGlobal

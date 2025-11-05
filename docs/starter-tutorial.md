@@ -125,7 +125,8 @@ public static class DataProcessingPipeline
     {
       // Single input → single output
       pipeline.AddNode(
-        name: "ProcessData",
+        label: "ProcessData",
+        description: "Processes the data into strongly-typed schema"
         transform: ProcessNode.Create(),
         input: catalog.RawData,
         output: catalog.ProcessedData
@@ -138,7 +139,10 @@ public static class DataProcessingPipeline
 **For multi-input nodes:**
 ```csharp
 pipeline.AddNode(
-  name: "JoinData",
+  label: "JoinData",
+  description: """
+    Joints the processed data tables into the dataset used for model training
+  """
   transform: JoinNode.Create(),
   input: (catalog.Companies, catalog.Shuttles, catalog.Reviews),
   output: catalog.JoinedData
@@ -148,7 +152,10 @@ pipeline.AddNode(
 **For multi-output nodes:**
 ```csharp
 pipeline.AddNode(
-  name: "SplitData",
+  label: "SplitData",
+  description: """
+    Performs a test-train split on the model training dataset
+  """
   transform: SplitNode.Create(),
   input: catalog.InputData,
   output: (catalog.TrainData, catalog.TestData)
@@ -169,7 +176,7 @@ public static class DataSciencePipeline
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       pipeline.AddNode(
-        name: "TrainModel",
+        label: "TrainModel",
         transform: TrainModelNode.Create(parameters.ModelParams),
         input: catalog.TrainingData,
         output: catalog.Model
@@ -659,7 +666,7 @@ public static class ProcessingPipeline
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       pipeline.AddNode(
-        name: "PassThrough",
+        label: "PassThrough",
         transform: async (IEnumerable<DataSchema> input) => await Task.FromResult(input),
         input: catalog.Input,
         output: catalog.Output
