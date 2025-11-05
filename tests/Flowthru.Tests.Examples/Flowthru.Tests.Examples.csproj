@@ -24,11 +24,9 @@
     <!-- Reference to Flowthru framework for coverage -->
     <ProjectReference Include="..\..\src\Flowthru\Flowthru.csproj" />
     
-    <!-- Reference to all example projects for coverage collection -->
-    <!-- When adding a new example, add a ProjectReference here -->
-    <ProjectReference Include="..\..\examples\KedroSpaceflights.Custom\KedroSpaceflights.Custom.csproj" />
-    <ProjectReference Include="..\..\examples\KedroSpaceflights.Pure\KedroSpaceflights.Pure.csproj" />
-    <ProjectReference Include="..\..\examples\RetailData\RetailData.csproj" />
+    <!-- Dynamically reference all example projects for coverage collection -->
+    <!-- New examples in examples/ directory will be automatically discovered -->
+    <ProjectReference Include="..\..\examples\**\*.csproj" />
   </ItemGroup>
 
 </Project>

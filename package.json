@@ -4,10 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky",
-    "format:all": "dotnet csharpier .",
-    "format:check": "dotnet csharpier . --check"
+    "prepare": "husky"
   },
   "keywords": [ ],
   "author": "",
@@ -22,9 +19,5 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "nx": "21.6.4"
-  },
-  "nx": { },
-  "lint-staged": {
-    "*.cs": "dotnet csharpier"
   }
 }

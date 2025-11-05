@@ -10,29 +10,60 @@
       "options": {
         "commands": [
           "dotnet test Flowthru.sln --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\"",
-          "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" && echo \"✓ Consolidated coverage report: CoverageReport/index.html\"'"
         ],
         "parallel": false
+      },
+      "configurations": {
+        "report": {
+          "options": {
+            "commands": [
+              "nx run test",
+              "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" && echo \"✓ Consolidated coverage report: CoverageReport/index.html\"'",
+              "open CoverageReport/index.html"
+            ]
+          }
+        }
       }
     },
-    "purge:coverage": {
+    "purge": {
       "//": "Purges previous coverage reports",
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "echo 'Cleaning previous coverage data...'",
-          "find tests -name TestResults -type d -exec rm -rf {} + 2>/dev/null || true",
-          "rm -rf CoverageReport"
-        ],
-        "cwd": "project.json",
+        "commands": [ ],
+        "cwd": "",
         "parallel": false
+      },
+      "configurations": {
+        "coverage": {
+          "//": "Purges previous coverage reports",
+          "options": {
+            "commands": [
+              "echo 'Purging previous coverage data...'",
+              "find tests -name TestResults -type d -exec rm -rf {} + 2>/dev/null || true",
+              "rm -rf CoverageReport"
+            ]
+          }
+        }
       }
     },
-    "open:coverage": {
+    "format": {
+      "//": "Applies all formatting for the project",
       "executor": "nx:run-commands",
-      "dependsOn": [ "test" ],
       "options": {
-        "command": "open CoverageReport/index.html"
+        "commands": [ ],
+        "cwd": "project.json",
+        "parallel": false
+      },
+      "configurations": {
+        "csharp": {
+          "options": {
+            "commands": [
+              "dotnet csharpier ."
+            ],
+            "cwd": "project.json",
+            "parallel": false
+          }
+        }
       }
     }
   }
