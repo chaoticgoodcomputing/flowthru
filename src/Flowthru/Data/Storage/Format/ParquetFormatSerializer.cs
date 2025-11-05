@@ -96,7 +96,18 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   /// Parquet column names exactly.
   /// </para>
   /// <para>
-  /// This is a known limitation that may be addressed in future versions as Parquet.NET
+  /// <strong>Note on SerializedEnum:</strong> Parquet.NET's serialization does not provide
+  /// hooks for custom enum conversion. Enums are serialized using their underlying integer
+  /// values or .NET's default ToString() behavior. To use SerializedEnum attributes with
+  /// Parquet files, consider:
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Pre-converting enum columns to strings before serialization</item>
+  /// <item>Using CSV or JSON formats which support SerializedEnum</item>
+  /// <item>Post-processing Parquet data after deserialization</item>
+  /// </list>
+  /// <para>
+  /// These are known limitations that may be addressed in future versions as Parquet.NET
   /// evolves or if we implement custom serialization logic.
   /// </para>
   /// </remarks>

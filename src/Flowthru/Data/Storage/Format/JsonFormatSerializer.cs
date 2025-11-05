@@ -117,6 +117,9 @@ public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
   {
     _options = options ?? throw new ArgumentNullException(nameof(options));
 
+    // Add SerializedEnum-aware converter (must be first for enum types)
+    _options.Converters.Add(new SerializedEnumJsonConverterFactory());
+
     // Add SerializedLabel-aware converter
     _options.Converters.Add(new SerializedLabelJsonConverterFactory());
   }
@@ -341,5 +344,89 @@ internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
     }
 
     writer.WriteEndObject();
+  }
+}
+
+/// <summary>
+/// JSON converter factory that creates converters for enum types respecting SerializedEnum attributes.
+/// </summary>
+internal sealed class SerializedEnumJsonConverterFactory : JsonConverterFactory
+{
+  public override bool CanConvert(Type typeToConvert)
+  {
+    return typeToConvert.IsEnum;
+  }
+
+  public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+  {
+    var converterType = typeof(SerializedEnumJsonConverter<>).MakeGenericType(typeToConvert);
+    return (JsonConverter?)Activator.CreateInstance(converterType);
+  }
+}
+
+/// <summary>
+/// JSON converter that respects SerializedEnum attributes for enum value mapping.
+/// </summary>
+/// <typeparam name="TEnum">The enum type to convert.</typeparam>
+internal sealed class SerializedEnumJsonConverter<TEnum> : JsonConverter<TEnum>
+  where TEnum : struct, Enum
+{
+  private readonly Serialization.EnumMetadataCache<TEnum> _metadata;
+
+  public SerializedEnumJsonConverter()
+  {
+    _metadata = Serialization.EnumMetadataRegistry.GetOrCreate<TEnum>();
+  }
+
+  public override TEnum Read(
+    ref Utf8JsonReader reader,
+    Type typeToConvert,
+    JsonSerializerOptions options
+  )
+  {
+    if (reader.TokenType != JsonTokenType.String)
+    {
+      throw new JsonException(
+        $"Expected string value for enum type '{typeof(TEnum).Name}', "
+          + $"but got {reader.TokenType}. Enum values must be serialized as strings "
+          + $"when using [SerializedEnum] attributes."
+      );
+    }
+
+    string? value = reader.GetString();
+    if (value == null)
+    {
+      throw new JsonException(
+        $"Null string value encountered for enum type '{typeof(TEnum).Name}'."
+      );
+    }
+
+    try
+    {
+      return _metadata.Parse(value);
+    }
+    catch (InvalidOperationException ex)
+    {
+      throw new JsonException(
+        $"Failed to deserialize enum value '{value}' for type '{typeof(TEnum).Name}'. {ex.Message}",
+        ex
+      );
+    }
+  }
+
+  public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
+  {
+    try
+    {
+      string serializedValue = _metadata.ToString(value);
+      writer.WriteStringValue(serializedValue);
+    }
+    catch (InvalidOperationException ex)
+    {
+      throw new JsonException(
+        $"Failed to serialize enum value '{value}' of type '{typeof(TEnum).Name}'. {ex.Message}",
+        ex
+      );
+    }
   }
 }

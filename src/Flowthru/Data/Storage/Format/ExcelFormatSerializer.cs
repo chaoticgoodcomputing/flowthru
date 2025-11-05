@@ -91,7 +91,23 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
                   // Handle nullable properties
                   var targetType =
                     Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-                  var convertedValue = Convert.ChangeType(value, targetType);
+
+                  object convertedValue;
+
+                  // Special handling for enum types with [SerializedEnum] attributes
+                  if (targetType.IsEnum)
+                  {
+                    string stringValue = value.ToString()!;
+                    convertedValue = Serialization.EnumSerializationHelper.ParseEnumFromString(
+                      targetType,
+                      stringValue
+                    );
+                  }
+                  else
+                  {
+                    convertedValue = Convert.ChangeType(value, targetType);
+                  }
+
                   // SetValue works on init properties via reflection
                   property.SetValue(row, convertedValue);
                 }

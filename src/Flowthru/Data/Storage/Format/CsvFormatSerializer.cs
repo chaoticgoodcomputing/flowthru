@@ -176,7 +176,8 @@ public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
 }
 
 /// <summary>
-/// CsvHelper class map that uses SerializedLabel attributes for field name mapping.
+/// CsvHelper class map that uses SerializedLabel attributes for field name mapping
+/// and SerializedEnum attributes for enum value conversion.
 /// </summary>
 /// <typeparam name="T">The row type to map</typeparam>
 internal sealed class SerializedLabelClassMap<T> : ClassMap<T>
@@ -189,7 +190,88 @@ internal sealed class SerializedLabelClassMap<T> : ClassMap<T>
     foreach (var property in properties)
     {
       var fieldName = PropertyMappingHelper.GetFieldName(property);
-      Map(typeof(T), property).Name(fieldName);
+      var memberMap = Map(typeof(T), property).Name(fieldName);
+
+      // Add enum converter if property type is an enum
+      if (property.PropertyType.IsEnum)
+      {
+        var converterType = typeof(SerializedEnumCsvConverter<>).MakeGenericType(
+          property.PropertyType
+        );
+        var converter = Activator.CreateInstance(converterType);
+        memberMap.TypeConverter((CsvHelper.TypeConversion.ITypeConverter)converter!);
+      }
+    }
+  }
+}
+
+/// <summary>
+/// CsvHelper type converter that respects SerializedEnum attributes for enum value conversion.
+/// </summary>
+/// <typeparam name="TEnum">The enum type to convert</typeparam>
+internal sealed class SerializedEnumCsvConverter<TEnum>
+  : CsvHelper.TypeConversion.DefaultTypeConverter
+  where TEnum : struct, Enum
+{
+  private readonly Serialization.EnumMetadataCache<TEnum> _metadata;
+
+  public SerializedEnumCsvConverter()
+  {
+    _metadata = Serialization.EnumMetadataRegistry.GetOrCreate<TEnum>();
+  }
+
+  public override object? ConvertFromString(
+    string? text,
+    CsvHelper.IReaderRow row,
+    CsvHelper.Configuration.MemberMapData memberMapData
+  )
+  {
+    if (string.IsNullOrWhiteSpace(text))
+    {
+      // Return default value for empty/null strings
+      return default(TEnum);
+    }
+
+    try
+    {
+      return _metadata.Parse(text);
+    }
+    catch (InvalidOperationException ex)
+    {
+      throw new CsvHelper.TypeConversion.TypeConverterException(
+        this,
+        memberMapData,
+        text,
+        row.Context,
+        $"Failed to convert '{text}' to enum type '{typeof(TEnum).Name}'. {ex.Message}"
+      );
+    }
+  }
+
+  public override string? ConvertToString(
+    object? value,
+    CsvHelper.IWriterRow row,
+    CsvHelper.Configuration.MemberMapData memberMapData
+  )
+  {
+    if (value == null)
+    {
+      return string.Empty;
+    }
+
+    try
+    {
+      return _metadata.ToString((TEnum)value);
+    }
+    catch (InvalidOperationException ex)
+    {
+      throw new CsvHelper.TypeConversion.TypeConverterException(
+        this,
+        memberMapData,
+        value,
+        row.Context,
+        $"Failed to convert enum value '{value}' of type '{typeof(TEnum).Name}' to string. {ex.Message}"
+      );
     }
   }
 }
