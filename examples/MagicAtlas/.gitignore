@@ -1,4 +1,5 @@
 bin/
 obj/
 Data/**/Datasets/
+Data/**/Models/
 Metadata/

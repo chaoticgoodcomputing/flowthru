@@ -78,6 +78,11 @@ public static class FilterAndSplitCardsNode
     /// Exclude promo cards. Default is false.
     /// </summary>
     public bool ExcludePromo { get; init; }
+
+    /// <summary>
+    /// Exclude unreleased cards. Default is false.
+    /// </summary>
+    public bool ExcludeUnreleased { get; init; }
   }
 
   /// <summary>
@@ -101,8 +106,19 @@ public static class FilterAndSplitCardsNode
       if (!string.IsNullOrWhiteSpace(options.Format))
       {
         filteredCards = filteredCards.Where(card =>
-          IsLegalInFormat(card.Legalities, options.Format)
-        );
+        {
+          // Check if card is unreleased (release date in the future)
+          bool isUnreleased = card.ReleasedAt > DateTime.Now;
+
+          // If card is unreleased and we're not excluding unreleased cards, include it
+          if (isUnreleased && !options.ExcludeUnreleased)
+          {
+            return true;
+          }
+
+          // Otherwise, check format legality
+          return IsLegalInFormat(card.Legalities, options.Format);
+        });
       }
 
       // Apply color filter (contains any of the specified colors)
