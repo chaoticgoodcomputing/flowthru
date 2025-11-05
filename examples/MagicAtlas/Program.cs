@@ -26,7 +26,7 @@ public class Program
             pipeline: CardProcessing.Create,
             configurationSection: "Flowthru:Pipelines:CardProcessing"
           )
-          .WithDescription("Processes Scryfall card data into strongly-typed schemas with enums");
+          .WithDescription("Processes Scryfall card data and preps for analysis");
       }
     );
 
