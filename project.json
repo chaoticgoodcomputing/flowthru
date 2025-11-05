@@ -1,5 +1,5 @@
 {
-  "name": "repo",
+  "name": "ft",
   "$schema": "./node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": ".",
@@ -17,8 +17,9 @@
         "report": {
           "options": {
             "commands": [
-              "nx run test",
-              "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" && echo \"✓ Consolidated coverage report: CoverageReport/index.html\"'",
+              "nx run purge:coverage",
+              "nx run test || true",
+              "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" && echo \"✓ Consolidated coverage report: CoverageReport/index.html\"' ",
               "open CoverageReport/index.html"
             ]
           }
@@ -26,7 +27,7 @@
       }
     },
     "purge": {
-      "//": "Purges previous coverage reports",
+      "//": "Purges non-essential files and folders",
       "executor": "nx:run-commands",
       "options": {
         "commands": [ ],
