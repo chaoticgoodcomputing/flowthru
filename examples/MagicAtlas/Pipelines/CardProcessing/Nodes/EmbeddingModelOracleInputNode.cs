@@ -5,7 +5,7 @@ namespace MagicAtlas.Pipelines.CardProcessing.Nodes;
 
 /// <summary>
 /// Flattens refined oracle text into individual entries for embedding model input.
-/// Each card produces multiple entries: one for full text and one per ability.
+/// Each card produces multiple entries: one per ability (excluding full/raw text).
 /// </summary>
 public static class EmbeddingModelOracleInputNode
 {
@@ -26,16 +26,6 @@ public static class EmbeddingModelOracleInputNode
 
       foreach (var card in refinedTexts)
       {
-        // Add full oracle text entry
-        flattened.Add(
-          new EmbeddingModelOracleInput
-          {
-            CardId = card.Id,
-            TextType = OracleTextType.Full,
-            Text = card.RawText,
-          }
-        );
-
         // Add keyword abilities
         foreach (var ability in card.KeywordAbilities)
         {
@@ -44,6 +34,19 @@ public static class EmbeddingModelOracleInputNode
             {
               CardId = card.Id,
               TextType = OracleTextType.KeywordAbility,
+              Text = ability.RawText,
+            }
+          );
+        }
+
+        // Add named triggered abilities
+        foreach (var ability in card.NamedTriggeredAbilities)
+        {
+          flattened.Add(
+            new EmbeddingModelOracleInput
+            {
+              CardId = card.Id,
+              TextType = OracleTextType.NamedTriggeredAbility,
               Text = ability.RawText,
             }
           );

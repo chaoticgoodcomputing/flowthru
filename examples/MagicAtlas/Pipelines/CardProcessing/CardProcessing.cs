@@ -57,9 +57,9 @@ public static class CardProcessing
 
       pipeline.AddNode(
         label: "RefineOracleText",
-        description: "Refine oracle text by expanding symbols and categorizing abilities",
+        description: "Refine oracle text by removing parentheticals and categorizing abilities",
         transform: RefineOracleTextNode.Create(),
-        input: (catalog.FilteredCardCoreData, catalog.ProcessedCardSymbols),
+        input: catalog.FilteredCardCoreData,
         output: catalog.RefinedOracleText
       );
 

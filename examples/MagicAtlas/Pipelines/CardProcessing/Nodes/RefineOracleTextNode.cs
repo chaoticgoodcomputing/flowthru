@@ -4,31 +4,31 @@ using MagicAtlas.Data._02_Processed.Schemas;
 namespace MagicAtlas.Pipelines.CardProcessing.Nodes;
 
 /// <summary>
-/// Processes card oracle text by refining symbols and categorizing abilities.
+/// Processes card oracle text by removing parentheticals and categorizing abilities.
 /// </summary>
 public static class RefineOracleTextNode
 {
-  private static readonly Regex _cardSymbolPattern = new(@"\{[^}]+\}", RegexOptions.Compiled);
+  private static readonly Regex _parentheticalPattern = new(@"\s*\([^)]*\)", RegexOptions.Compiled);
+  private static readonly Regex _keywordPattern =
+    new(
+      @"^\w+(?:\s+(?:\d+|\{[^}]+\}))?(?:,\s+\w+(?:\s+(?:\d+|\{[^}]+\}))?)*$",
+      RegexOptions.Compiled
+    );
 
   /// <summary>
   /// Creates an oracle text refinement function that processes card text and abilities.
   /// </summary>
   /// <returns>
-  /// A function that takes card core data and symbol dictionary, and produces refined oracle text
-  /// with expanded symbols and categorized abilities.
+  /// A function that takes card core data and produces refined oracle text
+  /// with parentheticals removed and categorized abilities.
   /// </returns>
-  public static Func<
-    (IEnumerable<CardCoreData>, CardSymbolDictionary),
-    Task<IEnumerable<RefinedOracleText>>
-  > Create()
+  public static Func<IEnumerable<CardCoreData>, Task<IEnumerable<RefinedOracleText>>> Create()
   {
-    return async (input) =>
+    return async (cards) =>
     {
-      var (cards, symbolDict) = input;
-
       var refined = cards
         .Where(card => !string.IsNullOrWhiteSpace(card.OracleText))
-        .Select(card => RefineCard(card, symbolDict.Symbols))
+        .Select(card => RefineCard(card))
         .ToList();
 
       return await Task.FromResult(refined);
@@ -38,16 +38,14 @@ public static class RefineOracleTextNode
   /// <summary>
   /// Refines a single card's oracle text.
   /// </summary>
-  private static RefinedOracleText RefineCard(
-    CardCoreData card,
-    Dictionary<string, CardSymbol> symbols
-  )
+  private static RefinedOracleText RefineCard(CardCoreData card)
   {
     var rawText = card.OracleText ?? "";
-    var refinedText = RefineSymbols(rawText, symbols);
-    var lines = rawText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+    var refinedText = RemoveParentheticals(rawText);
+    var lines = refinedText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
     var keywordAbilities = new List<KeywordAbility>();
+    var namedTriggeredAbilities = new List<NamedTriggeredAbility>();
     var triggeredAbilities = new List<TriggeredAbility>();
     var activatedAbilities = new List<ActivatedAbility>();
     var passiveAbilities = new List<PassiveAbility>();
@@ -60,10 +58,15 @@ public static class RefineOracleTextNode
         continue;
       }
 
-      // Check for keyword ability (contains em dash —)
+      // Check for single-word keyword ability (e.g., "Flying", "Vigilance, trample")
       if (IsKeywordAbility(trimmedLine))
       {
-        keywordAbilities.Add(ParseKeywordAbility(trimmedLine));
+        keywordAbilities.Add(new KeywordAbility { RawText = trimmedLine });
+      }
+      // Check for named triggered ability (contains em dash —)
+      else if (IsNamedTriggeredAbility(trimmedLine))
+      {
+        namedTriggeredAbilities.Add(ParseNamedTriggeredAbility(trimmedLine));
       }
       // Check for triggered ability (starts with "When", "Whenever", or "At")
       else if (IsTriggeredAbility(trimmedLine))
@@ -89,6 +92,7 @@ public static class RefineOracleTextNode
       RawText = rawText,
       RefinedText = refinedText,
       KeywordAbilities = keywordAbilities,
+      NamedTriggeredAbilities = namedTriggeredAbilities,
       TriggeredAbilities = triggeredAbilities,
       ActivatedAbilities = activatedAbilities,
       PassiveAbilities = passiveAbilities,
@@ -96,10 +100,29 @@ public static class RefineOracleTextNode
   }
 
   /// <summary>
+  /// Removes parenthetical text from a string.
+  /// </summary>
+  private static string RemoveParentheticals(string text)
+  {
+    return _parentheticalPattern.Replace(text, "").Trim();
+  }
+
+  /// <summary>
   /// Checks if a line represents a keyword ability.
-  /// A keyword ability contains " - " (space-hyphen-space) after normalization.
+  /// A keyword ability matches single words separated by ", " with optional numbers.
+  /// Examples: "Flying", "Vigilance, trample", "Firebending 1", "Flying, vigilance, deathtouch"
   /// </summary>
   private static bool IsKeywordAbility(string line)
+  {
+    return _keywordPattern.IsMatch(line);
+  }
+
+  /// <summary>
+  /// Checks if a line represents a named triggered ability.
+  /// A named triggered ability contains " - " (space-hyphen-space).
+  /// Note: Em-dashes are normalized to hyphens by TextNormalizer.
+  /// </summary>
+  private static bool IsNamedTriggeredAbility(string line)
   {
     var dashIndex = line.IndexOf(" - ");
     if (dashIndex == -1)
@@ -109,25 +132,6 @@ public static class RefineOracleTextNode
 
     // Ensure there's content before and after the dash
     return dashIndex > 0 && dashIndex + 3 < line.Length;
-  }
-
-  /// <summary>
-  /// Replaces symbol placeholders (e.g., {T}, {2}) with their English descriptions.
-  /// </summary>
-  private static string RefineSymbols(string text, Dictionary<string, CardSymbol> symbols)
-  {
-    return _cardSymbolPattern.Replace(
-      text,
-      match =>
-      {
-        var symbol = match.Value;
-        if (symbols.TryGetValue(symbol, out var symbolData))
-        {
-          return symbolData.English;
-        }
-        return symbol; // Keep original if not found
-      }
-    );
   }
 
   /// <summary>
@@ -159,12 +163,12 @@ public static class RefineOracleTextNode
   }
 
   /// <summary>
-  /// Parses a keyword ability line (format: "Keyword - Effect").
+  /// Parses a named triggered ability line (format: "Keyword — Effect").
   /// </summary>
-  private static KeywordAbility ParseKeywordAbility(string line)
+  private static NamedTriggeredAbility ParseNamedTriggeredAbility(string line)
   {
-    var parts = line.Split(" - ", 2, StringSplitOptions.TrimEntries);
-    return new KeywordAbility
+    var parts = line.Split(" — ", 2, StringSplitOptions.TrimEntries);
+    return new NamedTriggeredAbility
     {
       RawText = line,
       Keyword = parts.Length > 0 ? parts[0] : "",

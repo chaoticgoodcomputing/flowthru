@@ -41,12 +41,19 @@ public record RefinedOracleText : IStructuredSerializable
   public string RefinedText { get; init; } = "";
 
   /// <summary>
-  /// List of keyword abilities found in the oracle text.
+  /// List of single-word keyword abilities found in the oracle text.
+  ///
+  /// For example: "Flying", "Vigilance, trample, haste", "Firebending 1"
+  /// </summary>
+  public List<KeywordAbility> KeywordAbilities { get; init; } = new();
+
+  /// <summary>
+  /// List of named triggered abilities found in the oracle text.
   ///
   /// For example, "Landfall — Whenever a land you control enters, you may exile target nonland
   /// permanent other than this creature."
   /// </summary>
-  public List<KeywordAbility> KeywordAbilities { get; init; } = new();
+  public List<NamedTriggeredAbility> NamedTriggeredAbilities { get; init; } = new();
 
   /// <summary>
   /// List of activated abilities found in the oracle text.
@@ -66,7 +73,7 @@ public record RefinedOracleText : IStructuredSerializable
   /// List of passive abilities found in the oracle text. These are any abilities that are not
   /// keyword, activated, or triggered abilities.
   ///
-  /// Technically, includes spell abilities, static abilities, and keywords such as "flying" or "trample".
+  /// Technically, includes spell abilities and static abilities.
   /// </summary>
   public List<PassiveAbility> PassiveAbilities { get; init; } = new();
 }
@@ -100,9 +107,17 @@ public class TriggeredAbility
 }
 
 /// <summary>
-/// A keyword ability found in a card's oracle text.
+/// A single-word keyword ability found in a card's oracle text.
 /// </summary>
 public class KeywordAbility
+{
+  public string RawText { get; init; } = "";
+}
+
+/// <summary>
+/// A named triggered ability found in a card's oracle text.
+/// </summary>
+public class NamedTriggeredAbility
 {
   public string RawText { get; init; } = "";
   public string Keyword { get; init; } = "";

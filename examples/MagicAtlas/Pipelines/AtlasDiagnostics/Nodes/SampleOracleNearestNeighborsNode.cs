@@ -29,6 +29,27 @@ public static class SampleOracleNearestNeighborsNode
     /// Random sampling configuration. Used only if TargetCardNames is null or empty.
     /// </summary>
     public RandomSamplingOptions? RandomSampling { get; init; } = null;
+
+    /// <summary>
+    /// Oracle text types to include in similarity calculations.
+    /// If null or empty, all ability types are included (excluding Full).
+    /// </summary>
+    /// <remarks>
+    /// Example: To compare only triggered and activated abilities, set to
+    /// [OracleTextType.TriggeredAbility, OracleTextType.ActivatedAbility].
+    /// </remarks>
+    public OracleTextType[]? IncludedTextTypes { get; init; } = null;
+
+    /// <summary>
+    /// Oracle text types to exclude from similarity calculations.
+    /// Applied after IncludedTextTypes filter. Useful for excluding specific types
+    /// like keyword abilities while keeping all others.
+    /// </summary>
+    /// <remarks>
+    /// Example: To exclude keyword abilities, set to [OracleTextType.KeywordAbility].
+    /// This is applied after IncludedTextTypes, so excluded types take precedence.
+    /// </remarks>
+    public OracleTextType[]? ExcludedTextTypes { get; init; } = null;
   }
 
   /// <summary>
@@ -71,8 +92,8 @@ public static class SampleOracleNearestNeighborsNode
       var coreDataDict = coreData.ToDictionary(c => c.Id, c => c);
       var metadataDict = metadata.ToDictionary(m => m.Id, m => m);
 
-      // Filter embeddings to exclude full text (only keep ability embeddings)
-      var abilityEmbeddings = embeddings.Where(e => e.TextType != OracleTextType.Full).ToList();
+      // Filter embeddings to exclude full text and apply configured text type filters
+      var abilityEmbeddings = FilterEmbeddingsByTextType(embeddings, options).ToList();
 
       // Group embeddings by card ID for efficient lookup
       var embeddingsByCard = abilityEmbeddings
@@ -175,6 +196,36 @@ public static class SampleOracleNearestNeighborsNode
 
       return await Task.FromResult(results);
     };
+  }
+
+  /// <summary>
+  /// Filters embeddings based on configured text type inclusion and exclusion rules.
+  /// </summary>
+  /// <param name="embeddings">All embeddings to filter.</param>
+  /// <param name="options">Configuration specifying which text types to include/exclude.</param>
+  /// <returns>Filtered embeddings matching the configured text type criteria.</returns>
+  private static IEnumerable<OracleTextEmbedding> FilterEmbeddingsByTextType(
+    IEnumerable<OracleTextEmbedding> embeddings,
+    Options options
+  )
+  {
+    var filtered = embeddings.Where(e => e.TextType != OracleTextType.Full);
+
+    // Apply inclusion filter if specified
+    if (options.IncludedTextTypes != null && options.IncludedTextTypes.Length > 0)
+    {
+      var includedSet = new HashSet<OracleTextType>(options.IncludedTextTypes);
+      filtered = filtered.Where(e => includedSet.Contains(e.TextType));
+    }
+
+    // Apply exclusion filter (takes precedence over inclusion)
+    if (options.ExcludedTextTypes != null && options.ExcludedTextTypes.Length > 0)
+    {
+      var excludedSet = new HashSet<OracleTextType>(options.ExcludedTextTypes);
+      filtered = filtered.Where(e => !excludedSet.Contains(e.TextType));
+    }
+
+    return filtered;
   }
 
   /// <summary>

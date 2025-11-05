@@ -14,10 +14,16 @@ public enum OracleTextType
   Full,
 
   /// <summary>
-  /// A keyword ability with its effect.
+  /// A single-word or comma-separated keyword ability (e.g., "Flying", "Vigilance, trample").
   /// </summary>
   [SerializedEnum("kw")]
   KeywordAbility,
+
+  /// <summary>
+  /// A named triggered ability with keyword and effect (e.g., "Landfall — ...").
+  /// </summary>
+  [SerializedEnum("named_trig")]
+  NamedTriggeredAbility,
 
   /// <summary>
   /// An activated ability with costs and effect.
