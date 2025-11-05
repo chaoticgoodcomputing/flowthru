@@ -219,6 +219,12 @@ internal sealed class SerializedLabelJsonConverterFactory : JsonConverterFactory
       return false;
     }
 
+    // Don't convert System.Object (too generic, let default deserializer handle it)
+    if (typeToConvert == typeof(object))
+    {
+      return false;
+    }
+
     // Only convert class types (records, POCOs, etc.)
     return typeToConvert.IsClass;
   }
@@ -251,10 +257,26 @@ internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
   {
     if (reader.TokenType != JsonTokenType.StartObject)
     {
-      throw new JsonException("Expected StartObject token");
+      throw new JsonException(
+        $"Expected StartObject token but got {reader.TokenType} when deserializing type {typeToConvert.FullName}"
+      );
     }
 
     var instance = Activator.CreateInstance<T>();
+
+    // Create options without this specific converter instance to avoid infinite recursion
+    // but keep the factory so it can be applied to nested IStructuredSerializable objects
+    var optionsWithoutThisConverter = new JsonSerializerOptions(options);
+    optionsWithoutThisConverter.Converters.Clear();
+    foreach (var converter in options.Converters)
+    {
+      // Remove SerializedLabelJsonConverter<T> for THIS specific type only
+      // Keep SerializedLabelJsonConverterFactory so it works for nested types
+      if (converter.GetType() != typeof(SerializedLabelJsonConverter<T>))
+      {
+        optionsWithoutThisConverter.Converters.Add(converter);
+      }
+    }
 
     while (reader.Read())
     {
@@ -273,13 +295,18 @@ internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
 
       if (propertyName != null && _propertyMap.TryGetValue(propertyName, out var property))
       {
-        var value = JsonSerializer.Deserialize(ref reader, property.PropertyType, options);
+        var value = JsonSerializer.Deserialize(
+          ref reader,
+          property.PropertyType,
+          optionsWithoutThisConverter
+        );
         property.SetValue(instance, value);
       }
       else
       {
-        // Skip unknown properties
-        reader.Skip();
+        // Skip unknown properties by consuming them with JsonSerializer
+        // This works correctly with streaming/partial JSON unlike reader.Skip()
+        _ = JsonSerializer.Deserialize<object>(ref reader, optionsWithoutThisConverter);
       }
     }
 

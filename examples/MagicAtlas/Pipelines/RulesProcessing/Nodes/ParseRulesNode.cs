@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using MagicAtlas.Data._03_Structured.Schemas;
 using MagicAtlas.Helpers;
 
-namespace MagicAtlas.Pipelines.Nodes;
+namespace MagicAtlas.Pipelines.RulesProcessing.Nodes;
 
 /// <summary>
 /// Parses rules text into hierarchical structure.

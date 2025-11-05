@@ -1,4 +1,4 @@
-namespace MagicAtlas.Pipelines.Nodes;
+namespace MagicAtlas.Pipelines.RulesProcessing.Nodes;
 
 /// <summary>
 /// Splits raw MTG rules text into five major sections.

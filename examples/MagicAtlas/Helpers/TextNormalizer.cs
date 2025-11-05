@@ -16,7 +16,11 @@ public static class TextNormalizer
       .Replace('\u2019', '\'') // Right single quote (apostrophe)
       .Replace('\u201C', '"') // Left double quote
       .Replace('\u201D', '"') // Right double quote
+      .Replace('\u0022', '"') // Quotation mark
       .Replace('\u2013', '-') // En dash
-      .Replace('\u2014', '-'); // Em dash
+      .Replace('\u2014', '-') // Em dash
+      .Replace('\u2022', '*') // Bullet point
+      .Replace('\u002B', '+') // Plus sign
+      .Replace('\u0027', '\''); // Apostrophe
   }
 }

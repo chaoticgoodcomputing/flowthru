@@ -1,7 +1,7 @@
 using MagicAtlas.Data._03_Structured.Schemas;
 using MagicAtlas.Helpers;
 
-namespace MagicAtlas.Pipelines.Nodes;
+namespace MagicAtlas.Pipelines.RulesProcessing.Nodes;
 
 /// <summary>
 /// Parses glossary text into term-definition pairs.

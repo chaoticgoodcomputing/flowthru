@@ -1,10 +1,10 @@
 using Flowthru.Pipelines;
 using MagicAtlas.Data;
-using MagicAtlas.Pipelines.Nodes;
+using MagicAtlas.Pipelines.RulesProcessing.Nodes;
 
-namespace MagicAtlas.Pipelines;
+namespace MagicAtlas.Pipelines.RulesProcessing;
 
-public static class MtgRulesPipeline
+public static class RulesProcessing
 {
   public static Pipeline Create(Catalog catalog)
   {
@@ -12,7 +12,7 @@ public static class MtgRulesPipeline
     {
       // Node 1: Split raw text into 5 sections
       pipeline.AddNode(
-        label: "SplitSections",
+        label: "SplitRulesIntoMajorSections",
         transform: SplitSectionsNode.Create(),
         input: catalog.RawRules,
         output: (
@@ -26,7 +26,7 @@ public static class MtgRulesPipeline
 
       // Node 2: Parse rules into hierarchical structure
       pipeline.AddNode(
-        label: "ParseRules",
+        label: "ParseRulesIntoHierarchy",
         transform: ParseRulesNode.Create(),
         input: catalog.RulesText,
         output: catalog.ParsedRules
@@ -34,7 +34,7 @@ public static class MtgRulesPipeline
 
       // Node 3: Parse glossary into term-definition pairs
       pipeline.AddNode(
-        label: "ParseGlossary",
+        label: "ParseGlossaryIntoDictionary",
         transform: ParseGlossaryNode.Create(),
         input: catalog.GlossaryText,
         output: catalog.ParsedGlossary
