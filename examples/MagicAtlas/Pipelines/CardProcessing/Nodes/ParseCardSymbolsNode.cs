@@ -1,5 +1,6 @@
 using MagicAtlas.Data._01_Raw.Schemas;
-using MagicAtlas.Data._02_Processed.Schemas;
+using MagicAtlas.Data._02_Intermediate.Schemas;
+using MagicAtlas.Data._03_Primary.Schemas;
 using MagicAtlas.Helpers;
 
 namespace MagicAtlas.Pipelines.CardProcessing.Nodes;

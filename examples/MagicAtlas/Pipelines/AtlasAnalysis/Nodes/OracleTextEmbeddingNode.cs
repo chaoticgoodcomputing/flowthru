@@ -1,5 +1,5 @@
-using MagicAtlas.Data._03_Intermediate.Schemas;
-using MagicAtlas.Data._04_Embeddings.Schemas;
+using MagicAtlas.Data._04_Feature.Schemas;
+using MagicAtlas.Data._07_ModelOutput.Schemas;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 

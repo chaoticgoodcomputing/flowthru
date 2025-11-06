@@ -1,6 +1,7 @@
-using MagicAtlas.Data._02_Processed.Schemas;
-using MagicAtlas.Data._04_Embeddings.Schemas;
-using MagicAtlas.Data._05_Diagnostics.Schemas;
+using MagicAtlas.Data._02_Intermediate.Schemas;
+using MagicAtlas.Data._03_Primary.Schemas;
+using MagicAtlas.Data._07_ModelOutput.Schemas;
+using MagicAtlas.Data._08_Reporting.Schemas;
 using MagicAtlas.Data.Enums.Card;
 
 namespace MagicAtlas.Pipelines.AtlasDiagnostics.Nodes;

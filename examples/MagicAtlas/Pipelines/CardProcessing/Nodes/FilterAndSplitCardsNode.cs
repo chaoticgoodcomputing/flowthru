@@ -1,4 +1,5 @@
-using MagicAtlas.Data._02_Processed.Schemas;
+using MagicAtlas.Data._02_Intermediate.Schemas;
+using MagicAtlas.Data._03_Primary.Schemas;
 using MagicAtlas.Data.Enums.Card;
 using MagicAtlas.Helpers;
 

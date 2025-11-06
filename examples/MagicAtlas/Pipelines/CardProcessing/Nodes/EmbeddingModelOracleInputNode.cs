@@ -1,4 +1,7 @@
-using MagicAtlas.Data._02_Processed.Schemas;
+using MagicAtlas.Data._02_Intermediate.Schemas;
+using MagicAtlas.Data._03_Primary.Schemas;
+using MagicAtlas.Data._04_Feature.Schemas;
+using MagicAtlas.Data._05_ModelInput.Schemas;
 using MagicAtlas.Data.Enums.Card;
 
 namespace MagicAtlas.Pipelines.CardProcessing.Nodes;

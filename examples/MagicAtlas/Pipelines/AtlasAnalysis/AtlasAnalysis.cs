@@ -40,7 +40,7 @@ namespace MagicAtlas.Pipelines.AtlasAnalysis;
 /// </para>
 /// <para>
 /// Requires all-MiniLM-L6-v2 ONNX model at:
-/// Data/_04_Embeddings/Models/all-MiniLM-L6-v2_base.onnx
+/// Data/_06_Models/PreTrained/all-MiniLM-L6-v2/model.onnx
 /// </para>
 /// <para>
 /// See: docs/guides/using-onnx-models-from-huggingface.md

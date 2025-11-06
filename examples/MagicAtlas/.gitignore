@@ -1,5 +1,5 @@
 bin/
 obj/
-Data/**/Datasets/
-Data/**/Models/
+Datasets
+!.gitkeep
 Metadata/

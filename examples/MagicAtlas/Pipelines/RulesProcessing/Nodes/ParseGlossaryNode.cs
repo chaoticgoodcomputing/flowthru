@@ -1,4 +1,4 @@
-using MagicAtlas.Data._03_Structured.Schemas;
+using MagicAtlas.Data._03_Primary.Schemas;
 using MagicAtlas.Helpers;
 
 namespace MagicAtlas.Pipelines.RulesProcessing.Nodes;
