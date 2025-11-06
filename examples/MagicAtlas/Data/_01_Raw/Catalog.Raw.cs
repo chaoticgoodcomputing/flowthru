@@ -22,6 +22,8 @@ public partial class Catalog
 
   /// <summary>
   /// Raw Scryfall oracle card symbols JSON.
+  ///
+  /// Retrieved from Scryfall's bulk data export at https://scryfall.com/docs/api/card-symbols
   /// </summary>
   public ICatalogEntry<RawScryfallCardSymbolList> RawCardSymbols =>
     GetOrCreateEntry(
@@ -34,9 +36,8 @@ public partial class Catalog
 
   /// <summary>
   /// Raw Scryfall oracle cards JSON.
-  /// Contains all Magic: The Gathering cards in the Oracle database.
-  /// This file is very large (50+ MB) and contains 35,000+ cards.
-  /// The file is a JSON array of card objects.
+  ///
+  /// Retrieved from Scryfall's bulk data export at https://scryfall.com/docs/api/bulk-data
   /// </summary>
   public ICatalogEntry<IEnumerable<RawScryfallCard>> RawCards =>
     GetOrCreateEntry(
