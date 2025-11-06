@@ -1,4 +1,3 @@
-using Flowthru.Nodes;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 
 namespace Flowthru.Tests.Fixtures.TestNodes;
@@ -6,91 +5,113 @@ namespace Flowthru.Tests.Fixtures.TestNodes;
 /// <summary>
 /// Simple passthrough node that copies input to output unchanged.
 /// </summary>
-public class PassthroughNode : NodeBase<IEnumerable<TestData>, IEnumerable<TestData>, NoParams>
+public static class PassthroughNode
 {
-  protected override Task<IEnumerable<TestData>> Transform(IEnumerable<TestData> input)
+  public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create()
   {
-    return Task.FromResult(input);
+    return async (input) => await Task.FromResult(input);
   }
 }
 
 /// <summary>
 /// Node that always throws an exception during execution.
 /// </summary>
-public class FailingNode : NodeBase<IEnumerable<TestData>, IEnumerable<TestData>, NoParams>
+public static class FailingNode
 {
-  public string ErrorMessage { get; set; } = "Test node failure";
-
-  protected override Task<IEnumerable<TestData>> Transform(IEnumerable<TestData> input)
+  public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create(
+    string errorMessage = "Test node failure"
+  )
   {
-    throw new InvalidOperationException(ErrorMessage);
+    return async (input) =>
+    {
+      await Task.CompletedTask;
+      throw new InvalidOperationException(errorMessage);
+    };
   }
 }
 
 /// <summary>
 /// Node that introduces a delay during execution.
 /// </summary>
-public class DelayedNode : NodeBase<IEnumerable<TestData>, IEnumerable<TestData>, NoParams>
+public static class DelayedNode
 {
-  public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(100);
-
-  protected override async Task<IEnumerable<TestData>> Transform(IEnumerable<TestData> input)
+  public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create(
+    TimeSpan? delay = null
+  )
   {
-    await Task.Delay(Delay);
-    return input;
+    var actualDelay = delay ?? TimeSpan.FromMilliseconds(100);
+    return async (input) =>
+    {
+      await Task.Delay(actualDelay);
+      return input;
+    };
   }
 }
 
 /// <summary>
 /// Node that transforms data by incrementing the Id field.
 /// </summary>
-public class IncrementNode : NodeBase<IEnumerable<TestData>, IEnumerable<TestData>, NoParams>
+public static class IncrementNode
 {
-  protected override Task<IEnumerable<TestData>> Transform(IEnumerable<TestData> input)
+  public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create()
   {
-    return Task.FromResult(input.Select(item => item with { Id = item.Id + 1 }));
+    return async (input) =>
+    {
+      var result = input.Select(item => item with { Id = item.Id + 1 });
+      return await Task.FromResult(result);
+    };
   }
 }
 
 /// <summary>
 /// Node that transforms data by doubling the Value field.
 /// </summary>
-public class DoubleValueNode : NodeBase<IEnumerable<TestData>, IEnumerable<TestData>, NoParams>
+public static class DoubleValueNode
 {
-  protected override Task<IEnumerable<TestData>> Transform(IEnumerable<TestData> input)
+  public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create()
   {
-    return Task.FromResult(input.Select(item => item with { Value = item.Value * 2 }));
+    return async (input) =>
+    {
+      var result = input.Select(item => item with { Value = item.Value * 2 });
+      return await Task.FromResult(result);
+    };
   }
 }
 
 /// <summary>
 /// Node that merges two datasets into one.
 /// </summary>
-public class MergeNode
-  : NodeBase<(IEnumerable<TestData>, IEnumerable<TestData>), IEnumerable<TestData>, NoParams>
+public static class MergeNode
 {
-  protected override Task<IEnumerable<TestData>> Transform(
-    (IEnumerable<TestData>, IEnumerable<TestData>) input
-  )
+  public static Func<
+    (IEnumerable<TestData>, IEnumerable<TestData>),
+    Task<IEnumerable<TestData>>
+  > Create()
   {
-    return Task.FromResult(input.Item1.Concat(input.Item2));
+    return async (input) =>
+    {
+      var (first, second) = input;
+      return await Task.FromResult(first.Concat(second));
+    };
   }
 }
 
 /// <summary>
 /// Node that splits a dataset into two halves.
 /// </summary>
-public class SplitNode
-  : NodeBase<IEnumerable<TestData>, (IEnumerable<TestData>, IEnumerable<TestData>), NoParams>
+public static class SplitNode
 {
-  protected override Task<(IEnumerable<TestData>, IEnumerable<TestData>)> Transform(
-    IEnumerable<TestData> input
-  )
+  public static Func<
+    IEnumerable<TestData>,
+    Task<(IEnumerable<TestData>, IEnumerable<TestData>)>
+  > Create()
   {
-    var list = input.ToList();
-    var midpoint = list.Count / 2;
-    return Task.FromResult(
-      (list.Take(midpoint).AsEnumerable(), list.Skip(midpoint).AsEnumerable())
-    );
+    return async (input) =>
+    {
+      var list = input.ToList();
+      var midpoint = list.Count / 2;
+      var result = (list.Take(midpoint).AsEnumerable(), list.Skip(midpoint).AsEnumerable());
+      return await Task.FromResult(result);
+    };
   }
 }

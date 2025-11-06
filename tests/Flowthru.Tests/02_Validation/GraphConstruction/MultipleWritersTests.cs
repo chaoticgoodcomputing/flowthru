@@ -28,8 +28,18 @@ public class MultipleWritersTests
     // ===========
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
-      builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeB"); // Conflict!
+      builder.AddNode(
+        label: "NodeA",
+        transform: PassthroughNode.Create(),
+        input: _catalog.Input,
+        output: _catalog.StepOne
+      );
+      builder.AddNode(
+        label: "NodeB",
+        transform: PassthroughNode.Create(),
+        input: _catalog.Input,
+        output: _catalog.StepOne
+      ); // Conflict!
     });
 
     // ===========
@@ -51,9 +61,24 @@ public class MultipleWritersTests
     // ===========
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.Output, "NodeA");
-      builder.AddNode<PassthroughNode>(_catalog.StepOne, _catalog.Output, "NodeB");
-      builder.AddNode<PassthroughNode>(_catalog.StepTwo, _catalog.Output, "NodeC");
+      builder.AddNode(
+        label: "NodeA",
+        transform: PassthroughNode.Create(),
+        input: _catalog.Input,
+        output: _catalog.Output
+      );
+      builder.AddNode(
+        label: "NodeB",
+        transform: PassthroughNode.Create(),
+        input: _catalog.StepOne,
+        output: _catalog.Output
+      );
+      builder.AddNode(
+        label: "NodeC",
+        transform: PassthroughNode.Create(),
+        input: _catalog.StepTwo,
+        output: _catalog.Output
+      );
     });
 
     // ===========
@@ -70,9 +95,24 @@ public class MultipleWritersTests
     // ===========
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
-      builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepTwo, "NodeB");
-      builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.Output, "NodeC");
+      builder.AddNode(
+        label: "NodeA",
+        transform: PassthroughNode.Create(),
+        input: _catalog.Input,
+        output: _catalog.StepOne
+      );
+      builder.AddNode(
+        label: "NodeB",
+        transform: PassthroughNode.Create(),
+        input: _catalog.Input,
+        output: _catalog.StepTwo
+      );
+      builder.AddNode(
+        label: "NodeC",
+        transform: PassthroughNode.Create(),
+        input: _catalog.Input,
+        output: _catalog.Output
+      );
     });
 
     // ===========
@@ -90,9 +130,24 @@ public class MultipleWritersTests
     // ===========
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<PassthroughNode>(_catalog.Input, _catalog.StepOne, "NodeA");
-      builder.AddNode<PassthroughNode>(_catalog.StepOne, _catalog.StepTwo, "NodeB");
-      builder.AddNode<PassthroughNode>(_catalog.StepTwo, _catalog.Output, "NodeC");
+      builder.AddNode(
+        label: "NodeA",
+        transform: PassthroughNode.Create(),
+        input: _catalog.Input,
+        output: _catalog.StepOne
+      );
+      builder.AddNode(
+        label: "NodeB",
+        transform: PassthroughNode.Create(),
+        input: _catalog.StepOne,
+        output: _catalog.StepTwo
+      );
+      builder.AddNode(
+        label: "NodeC",
+        transform: PassthroughNode.Create(),
+        input: _catalog.StepTwo,
+        output: _catalog.Output
+      );
     });
 
     // ===========

@@ -33,7 +33,12 @@ public class SingleInputOutputTests
 
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<PassthroughNode>(catalog.Input, catalog.Output);
+      builder.AddNode(
+        label: "Passthrough",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
     });
 
     pipeline.Build();
@@ -46,15 +51,12 @@ public class SingleInputOutputTests
     // ===========
     // Assert
     // ===========
-    var resultFin = await catalog.Output.Load().RunAsync();
-    var result = resultFin.Match(
-      Succ: data => data.ToList(),
-      Fail: error => throw new Exception($"Load failed: {error}")
-    );
-    Assert.That(result, Has.Count.EqualTo(1));
-    Assert.That(result[0].Id, Is.EqualTo(1));
-    Assert.That(result[0].Name, Is.EqualTo("Test"));
-    Assert.That(result[0].Value, Is.EqualTo(42.0));
+    var result = await catalog.Output.Load().RunAsync();
+    var resultList = result.ToList();
+    Assert.That(resultList, Has.Count.EqualTo(1));
+    Assert.That(resultList[0].Id, Is.EqualTo(1));
+    Assert.That(resultList[0].Name, Is.EqualTo("Test"));
+    Assert.That(resultList[0].Value, Is.EqualTo(42.0));
   }
 
   [Test]
@@ -77,7 +79,12 @@ public class SingleInputOutputTests
 
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<IncrementNode>(catalog.Input, catalog.Output);
+      builder.AddNode(
+        label: "Increment",
+        transform: IncrementNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
     });
 
     pipeline.Build();
@@ -90,15 +97,12 @@ public class SingleInputOutputTests
     // ===========
     // Assert
     // ===========
-    var resultFin = await catalog.Output.Load().RunAsync();
-    var result = resultFin.Match(
-      Succ: data => data.ToList(),
-      Fail: error => throw new Exception($"Load failed: {error}")
-    );
-    Assert.That(result, Has.Count.EqualTo(1));
-    Assert.That(result[0].Id, Is.EqualTo(6));
-    Assert.That(result[0].Name, Is.EqualTo("Test"));
-    Assert.That(result[0].Value, Is.EqualTo(10.0));
+    var result = await catalog.Output.Load().RunAsync();
+    var resultList = result.ToList();
+    Assert.That(resultList, Has.Count.EqualTo(1));
+    Assert.That(resultList[0].Id, Is.EqualTo(6));
+    Assert.That(resultList[0].Name, Is.EqualTo("Test"));
+    Assert.That(resultList[0].Value, Is.EqualTo(10.0));
   }
 
   [Test]
@@ -121,7 +125,12 @@ public class SingleInputOutputTests
 
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<DoubleValueNode>(catalog.Input, catalog.Output);
+      builder.AddNode(
+        label: "DoubleValue",
+        transform: DoubleValueNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
     });
 
     pipeline.Build();
@@ -134,12 +143,9 @@ public class SingleInputOutputTests
     // ===========
     // Assert
     // ===========
-    var resultFin = await catalog.Output.Load().RunAsync();
-    var result = resultFin.Match(
-      Succ: data => data.ToList(),
-      Fail: error => throw new Exception($"Load failed: {error}")
-    );
-    Assert.That(result[0].Value, Is.EqualTo(42.0));
+    var result = await catalog.Output.Load().RunAsync();
+    var resultList = result.ToList();
+    Assert.That(resultList[0].Value, Is.EqualTo(42.0));
   }
 
   [Test]
@@ -162,7 +168,12 @@ public class SingleInputOutputTests
 
     var pipeline = PipelineBuilder.CreatePipeline(builder =>
     {
-      builder.AddNode<FailingNode>(catalog.Input, catalog.Output);
+      builder.AddNode(
+        label: "Failing",
+        transform: FailingNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
     });
 
     pipeline.Build();

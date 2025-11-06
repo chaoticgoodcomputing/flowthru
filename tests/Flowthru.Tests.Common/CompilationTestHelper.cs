@@ -17,8 +17,13 @@ public static class CompilationTestHelper
   /// </summary>
   /// <param name="code">The C# code to compile</param>
   /// <param name="includeFlowthru">Whether to include Flowthru assembly references</param>
+  /// <param name="additionalAssemblies">Additional assemblies to reference (e.g., test fixture assemblies)</param>
   /// <returns>Compilation result with success status and diagnostics</returns>
-  public static CompilationResult Compile(string code, bool includeFlowthru = false)
+  public static CompilationResult Compile(
+    string code,
+    bool includeFlowthru = false,
+    params Type[] additionalAssemblies
+  )
   {
     var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
@@ -45,13 +50,18 @@ public static class CompilationTestHelper
         MetadataReference.CreateFromFile(typeof(Data.DataCatalogBase).Assembly.Location)
       );
 
-      // Add test assembly reference for test fixtures (TestCatalogs, TestNodes, etc.)
-      references.Add(
-        MetadataReference.CreateFromFile(typeof(CompilationTestHelper).Assembly.Location)
-      );
-
       // Add LanguageExt for Flowthru dependencies
       references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.IO<>).Assembly.Location));
+    }
+
+    // Add any additional assemblies (e.g., test fixtures)
+    foreach (var type in additionalAssemblies)
+    {
+      var assemblyLocation = type.Assembly.Location;
+      if (!string.IsNullOrEmpty(assemblyLocation))
+      {
+        references.Add(MetadataReference.CreateFromFile(assemblyLocation));
+      }
     }
 
     var compilation = CSharpCompilation.Create(

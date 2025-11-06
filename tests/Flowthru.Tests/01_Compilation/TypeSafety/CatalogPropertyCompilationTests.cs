@@ -1,4 +1,5 @@
 using Flowthru.Tests.Common;
+using Flowthru.Tests.Fixtures.TestCatalogs;
 using Microsoft.CodeAnalysis;
 
 namespace Flowthru.Tests.Compilation.TypeSafety;
@@ -35,7 +36,11 @@ public class CatalogPropertyCompilationTests
     // ===========
     // Act
     // ===========
-    var compilation = CompilationTestHelper.Compile(code, includeFlowthru: true);
+    var compilation = CompilationTestHelper.Compile(
+      code,
+      includeFlowthru: true,
+      typeof(SimpleThreeNodeCatalog)
+    );
 
     // ===========
     // Assert
@@ -76,7 +81,11 @@ public class CatalogPropertyCompilationTests
     // ===========
     // Act
     // ===========
-    var compilation = CompilationTestHelper.Compile(code, includeFlowthru: true);
+    var compilation = CompilationTestHelper.Compile(
+      code,
+      includeFlowthru: true,
+      typeof(SimpleThreeNodeCatalog)
+    );
 
     // ===========
     // Assert
@@ -117,7 +126,11 @@ public class CatalogPropertyCompilationTests
     // ===========
     // Act
     // ===========
-    var compilation = CompilationTestHelper.Compile(code, includeFlowthru: true);
+    var compilation = CompilationTestHelper.Compile(
+      code,
+      includeFlowthru: true,
+      typeof(SimpleThreeNodeCatalog)
+    );
 
     // ===========
     // Assert
