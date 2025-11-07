@@ -4,7 +4,7 @@ using MagicAtlas.Data._07_ModelOutput.Schemas;
 using MagicAtlas.Data._08_Reporting.Schemas;
 using MagicAtlas.Data.Enums.Card;
 
-namespace MagicAtlas.Pipelines.AtlasDiagnostics.Nodes;
+namespace MagicAtlas.Pipelines.EmbeddingAnalytics.Nodes;
 
 /// <summary>
 /// Samples oracle cards and finds their nearest neighbors in embedding space.

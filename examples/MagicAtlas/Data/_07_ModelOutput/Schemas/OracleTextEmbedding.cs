@@ -25,8 +25,16 @@ namespace MagicAtlas.Data._07_ModelOutput.Schemas;
 /// <item>Recommendation systems for deck building</item>
 /// </list>
 /// </remarks>
-public record OracleTextEmbedding : IFlatSchema, IBinarySerializable
+public record OracleTextEmbedding : IFlatSchema, IBinarySerializable, IStructuredSerializable
 {
+  /// <summary>
+  /// Unique identifier for this specific text entry.
+  /// Matches the ID from the original oracle input.
+  /// IMPORTANT: Must be propagated from TokenizedBertInput.TextEntryId for proper joining.
+  /// </summary>
+  [SerializedLabel("text_entry_id")]
+  public Guid TextEntryId { get; init; }
+
   /// <summary>
   /// Scryfall card ID.
   /// </summary>
@@ -40,14 +48,16 @@ public record OracleTextEmbedding : IFlatSchema, IBinarySerializable
   public OracleTextType TextType { get; init; }
 
   /// <summary>
-  /// Sentence embedding vector (384 dimensions).
+  /// Text content that was embedded (full oracle text or individual ability).
   /// </summary>
-  /// <remarks>
-  /// <para>
+  [SerializedLabel("text")]
+  public string Text { get; init; } = string.Empty;
+
+  /// <summary>
+  /// Sentence embedding vector (384 dimensions).
   /// Vector represents semantic meaning of the oracle text in high-dimensional space.
   /// Similar mechanics produce vectors with high cosine similarity.
-  /// </para>
-  /// </remarks>
+  /// </summary>
   [SerializedLabel("embedding")]
   public float[] Embedding { get; init; } = Array.Empty<float>();
 

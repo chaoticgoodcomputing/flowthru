@@ -35,6 +35,7 @@ public static class EmbeddingModelOracleInputNode
           flattened.Add(
             new EmbeddingModelOracleInput
             {
+              TextEntryId = Guid.NewGuid(),
               CardId = card.Id,
               TextType = OracleTextType.KeywordAbility,
               Text = ability.RawText,
@@ -48,6 +49,7 @@ public static class EmbeddingModelOracleInputNode
           flattened.Add(
             new EmbeddingModelOracleInput
             {
+              TextEntryId = Guid.NewGuid(),
               CardId = card.Id,
               TextType = OracleTextType.NamedTriggeredAbility,
               Text = ability.RawText,
@@ -61,6 +63,7 @@ public static class EmbeddingModelOracleInputNode
           flattened.Add(
             new EmbeddingModelOracleInput
             {
+              TextEntryId = Guid.NewGuid(),
               CardId = card.Id,
               TextType = OracleTextType.TriggeredAbility,
               Text = ability.RawText,
@@ -74,6 +77,7 @@ public static class EmbeddingModelOracleInputNode
           flattened.Add(
             new EmbeddingModelOracleInput
             {
+              TextEntryId = Guid.NewGuid(),
               CardId = card.Id,
               TextType = OracleTextType.ActivatedAbility,
               Text = ability.RawText,
@@ -87,6 +91,7 @@ public static class EmbeddingModelOracleInputNode
           flattened.Add(
             new EmbeddingModelOracleInput
             {
+              TextEntryId = Guid.NewGuid(),
               CardId = card.Id,
               TextType = OracleTextType.PassiveAbility,
               Text = ability.Effect,

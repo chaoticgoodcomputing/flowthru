@@ -32,6 +32,14 @@ namespace MagicAtlas.Data._04_Feature.Schemas;
 public record TokenizedBertInput : IFlatSchema, IBinarySerializable
 {
   /// <summary>
+  /// Unique identifier for this specific text entry.
+  /// Flows through the pipeline to enable proper joining of embeddings with original text.
+  /// IMPORTANT: Must be set from the source EmbeddingModelOracleInput.TextEntryId.
+  /// </summary>
+  [SerializedLabel("text_entry_id")]
+  public Guid TextEntryId { get; init; }
+
+  /// <summary>
   /// Scryfall card ID.
   /// </summary>
   [SerializedLabel("card_id")]
@@ -45,31 +53,22 @@ public record TokenizedBertInput : IFlatSchema, IBinarySerializable
 
   /// <summary>
   /// Token vocabulary indices (input_ids tensor).
+  /// Shape: [sequence_length]. Vocabulary size: 30,522 (BERT-base-uncased).
   /// </summary>
-  /// <remarks>
-  /// Shape: [sequence_length]
-  /// Vocabulary size: 30,522 (BERT-base-uncased)
-  /// </remarks>
   [SerializedLabel("input_ids")]
   public long[] InputIds { get; init; } = Array.Empty<long>();
 
   /// <summary>
   /// Attention mask indicating valid tokens (1) vs padding (0).
+  /// Shape: [sequence_length]. Values: 1 for real tokens, 0 for padding.
   /// </summary>
-  /// <remarks>
-  /// Shape: [sequence_length]
-  /// Values: 1 for real tokens, 0 for padding
-  /// </remarks>
   [SerializedLabel("attention_mask")]
   public long[] AttentionMask { get; init; } = Array.Empty<long>();
 
   /// <summary>
   /// Token type IDs for segment distinction.
+  /// Shape: [sequence_length]. Values: Typically all 0s for single-sentence inputs.
   /// </summary>
-  /// <remarks>
-  /// Shape: [sequence_length]
-  /// Values: Typically all 0s for single-sentence inputs
-  /// </remarks>
   [SerializedLabel("token_type_ids")]
   public long[] TokenTypeIds { get; init; } = Array.Empty<long>();
 }

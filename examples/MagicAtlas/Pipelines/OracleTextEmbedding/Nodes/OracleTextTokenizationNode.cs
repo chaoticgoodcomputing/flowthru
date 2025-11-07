@@ -4,7 +4,7 @@ using MagicAtlas.Data._04_Feature.Schemas;
 using MagicAtlas.Data._05_ModelInput.Schemas;
 using Microsoft.ML.Tokenizers;
 
-namespace MagicAtlas.Pipelines.AtlasAnalysis.Nodes;
+namespace MagicAtlas.Pipelines.OracleTextEmebdding.Nodes;
 
 /// <summary>
 /// Tokenizes oracle text entries using Microsoft.ML.Tokenizers BERT tokenizer.
@@ -76,6 +76,7 @@ public static class OracleTextTokenizationNode
         tokenized.Add(
           new TokenizedBertInput
           {
+            TextEntryId = entry.TextEntryId,
             CardId = entry.CardId,
             TextType = entry.TextType,
             InputIds = ids.Select(id => (long)id).ToArray(),

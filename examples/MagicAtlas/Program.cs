@@ -1,9 +1,9 @@
 using Flowthru.Application;
 using MagicAtlas.Data;
 using MagicAtlas.Pipelines;
-using MagicAtlas.Pipelines.AtlasAnalysis;
-using MagicAtlas.Pipelines.AtlasDiagnostics;
 using MagicAtlas.Pipelines.CardProcessing;
+using MagicAtlas.Pipelines.EmbeddingAnalytics;
+using MagicAtlas.Pipelines.OracleTextEmebdding;
 using MagicAtlas.Pipelines.RulesProcessing;
 
 namespace MagicAtlas;
@@ -31,14 +31,17 @@ public class Program
           .WithDescription("Processes Scryfall card data and preps for analysis");
 
         builder
-          .RegisterPipeline<Catalog>(label: "AtlasAnalysis", pipeline: AtlasAnalysis.Create)
+          .RegisterPipeline<Catalog>(
+            label: "OracleTextEmebdding",
+            pipeline: OracleTextEmebdding.Create
+          )
           .WithDescription("Generates BERT embeddings for oracle text analysis");
 
         builder
-          .RegisterPipelineWithConfiguration<Catalog, AtlasDiagnosticsPipeline.Params>(
-            label: "AtlasDiagnostics",
-            pipeline: AtlasDiagnosticsPipeline.Create,
-            configurationSection: "Flowthru:Pipelines:AtlasDiagnostics"
+          .RegisterPipelineWithConfiguration<Catalog, EmbeddingAnalytics.Params>(
+            label: "EmbeddingAnalytics",
+            pipeline: EmbeddingAnalytics.Create,
+            configurationSection: "Flowthru:Pipelines:EmbeddingAnalytics"
           )
           .WithDescription("Analyzes card embeddings through nearest neighbor search");
       }

@@ -1,8 +1,8 @@
 using Flowthru.Pipelines;
 using MagicAtlas.Data;
-using MagicAtlas.Pipelines.AtlasAnalysis.Nodes;
+using MagicAtlas.Pipelines.OracleTextEmebdding.Nodes;
 
-namespace MagicAtlas.Pipelines.AtlasAnalysis;
+namespace MagicAtlas.Pipelines.OracleTextEmebdding;
 
 /// <summary>
 /// Atlas Analysis pipeline: Generates semantic embeddings for card oracle text.
@@ -55,7 +55,7 @@ namespace MagicAtlas.Pipelines.AtlasAnalysis;
 /// <item>Output: 384-dimensional sentence embeddings</item>
 /// </list>
 /// </remarks>
-public static class AtlasAnalysis
+public static class OracleTextEmebdding
 {
   /// <summary>
   /// Creates the Atlas Analysis pipeline.
@@ -94,7 +94,11 @@ public static class AtlasAnalysis
         Output: 384-dimensional sentence embedding vectors
         """,
         transform: OracleTextEmbeddingNode.Create(),
-        input: (catalog.MiniLmOnnxModel, catalog.TokenizedOracleText),
+        input: (
+          catalog.MiniLmOnnxModel,
+          catalog.TokenizedOracleText,
+          catalog.EmbeddingModelOracleInput
+        ),
         output: catalog.OracleTextEmbeddings
       );
     });

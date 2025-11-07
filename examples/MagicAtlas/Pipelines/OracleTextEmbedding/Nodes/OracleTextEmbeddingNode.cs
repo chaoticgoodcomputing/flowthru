@@ -1,9 +1,10 @@
 using MagicAtlas.Data._04_Feature.Schemas;
+using MagicAtlas.Data._05_ModelInput.Schemas;
 using MagicAtlas.Data._07_ModelOutput.Schemas;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 
-namespace MagicAtlas.Pipelines.AtlasAnalysis.Nodes;
+namespace MagicAtlas.Pipelines.OracleTextEmebdding.Nodes;
 
 /// <summary>
 /// Generates sentence embeddings using ONNX Runtime and mean pooling.
@@ -37,13 +38,17 @@ public static class OracleTextEmbeddingNode
   /// </summary>
   /// <returns>Node function that transforms tokenized input into embeddings</returns>
   public static Func<
-    (byte[] modelBytes, IEnumerable<TokenizedBertInput> inputs),
+    (
+      byte[] modelBytes,
+      IEnumerable<TokenizedBertInput> inputs,
+      IEnumerable<EmbeddingModelOracleInput> originalEmbeddingText
+    ),
     Task<IEnumerable<OracleTextEmbedding>>
   > Create()
   {
     return async (input) =>
     {
-      var (modelBytes, tokenizedInputs) = input;
+      var (modelBytes, tokenizedInputs, originalEmbeddingText) = input;
 
       // Write model bytes to temporary file for InferenceSession
       var tempModelPath = Path.GetTempFileName();
@@ -121,8 +126,10 @@ public static class OracleTextEmbeddingNode
 
     return new OracleTextEmbedding
     {
+      TextEntryId = input.TextEntryId,
       CardId = input.CardId,
       TextType = input.TextType,
+      Text = string.Empty, // Will be filled by join with original text
       Embedding = sentenceEmbedding,
       EmbeddingDimension = EmbeddingDimension,
     };
