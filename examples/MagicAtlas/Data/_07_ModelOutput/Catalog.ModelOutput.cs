@@ -33,4 +33,18 @@ public partial class Catalog
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/oracle_pca_embeddings.parquet"
         )
     );
+
+  /// <summary>
+  /// UMAP-reduced embeddings generated from oracle text embeddings.
+  /// Manifold-learning-based dimensionality reduction that preserves both
+  /// local and global structure for superior visualization.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<OracleUmapEmbedding>> OracleUmapEmbeddings =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<OracleUmapEmbedding>(
+          label: "OracleUmapEmbeddings",
+          filePath: $"{_basePath}/_07_ModelOutput/Datasets/oracle_umap_embeddings.parquet"
+        )
+    );
 }

@@ -114,4 +114,25 @@ public partial class Catalog
           filePath: $"{_basePath}/_08_Reporting/Datasets/pca_scatter_plot.png"
         )
     );
+
+  /// <summary>
+  /// In-memory chart showing UMAP scatter plot of oracle text embeddings.
+  /// First two UMAP components colored by text type, preserving manifold structure.
+  /// </summary>
+  public ICatalogEntry<GenericChart> UmapScatterPlotChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "UmapScatterPlotChart")
+    );
+
+  /// <summary>
+  /// PNG export of UMAP scatter plot chart.
+  /// </summary>
+  public ICatalogEntry<byte[]> UmapScatterPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "UmapScatterPlotPng",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/umap_scatter_plot.png"
+        )
+    );
 }
