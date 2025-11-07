@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 
-namespace MagicAtlas.Pipelines.EmbeddingAnalytics.Nodes;
+namespace MagicAtlas.Helpers.Nodes;
 
 /// <summary>
 /// Exports a Plotly GenericChart to PNG binary data.

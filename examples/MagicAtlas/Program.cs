@@ -3,6 +3,7 @@ using MagicAtlas.Data;
 using MagicAtlas.Pipelines;
 using MagicAtlas.Pipelines.CardProcessing;
 using MagicAtlas.Pipelines.EmbeddingAnalytics;
+using MagicAtlas.Pipelines.EmbeddingReductions;
 using MagicAtlas.Pipelines.OracleTextEmebdding;
 using MagicAtlas.Pipelines.RulesProcessing;
 
@@ -44,6 +45,14 @@ public class Program
             configurationSection: "Flowthru:Pipelines:EmbeddingAnalytics"
           )
           .WithDescription("Analyzes card embeddings through nearest neighbor search");
+
+        builder
+          .RegisterPipelineWithConfiguration<Catalog, EmbeddingReductions.Params>(
+            label: "EmbeddingReductions",
+            pipeline: EmbeddingReductions.Create,
+            configurationSection: "Flowthru:Pipelines:EmbeddingReductions"
+          )
+          .WithDescription("Performs PCA dimensionality reduction on oracle text embeddings");
       }
     );
 

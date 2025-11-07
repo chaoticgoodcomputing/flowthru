@@ -20,4 +20,17 @@ public partial class Catalog
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/oracle_text_embeddings.parquet"
         )
     );
+
+  /// <summary>
+  /// PCA-reduced embeddings generated from oracle text embeddings.
+  /// Lower-dimensional representation for visualization and analysis.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<OraclePcaEmbedding>> OraclePcaEmbeddings =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<OraclePcaEmbedding>(
+          label: "OraclePcaEmbeddings",
+          filePath: $"{_basePath}/_07_ModelOutput/Datasets/oracle_pca_embeddings.parquet"
+        )
+    );
 }

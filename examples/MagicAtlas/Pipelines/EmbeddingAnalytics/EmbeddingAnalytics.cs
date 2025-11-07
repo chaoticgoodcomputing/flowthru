@@ -1,5 +1,6 @@
 using Flowthru.Pipelines;
 using MagicAtlas.Data;
+using MagicAtlas.Helpers.Nodes;
 using MagicAtlas.Pipelines.EmbeddingAnalytics.Nodes;
 
 namespace MagicAtlas.Pipelines.EmbeddingAnalytics;

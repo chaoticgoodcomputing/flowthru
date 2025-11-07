@@ -93,4 +93,25 @@ public partial class Catalog
           filePath: $"{_basePath}/_08_Reporting/Datasets/enriched_cluster_metadata.json"
         )
     );
+
+  /// <summary>
+  /// In-memory chart showing PCA scatter plot of oracle text embeddings.
+  /// First two principal components colored by text type.
+  /// </summary>
+  public ICatalogEntry<GenericChart> PcaScatterPlotChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "PcaScatterPlotChart")
+    );
+
+  /// <summary>
+  /// PNG export of PCA scatter plot chart.
+  /// </summary>
+  public ICatalogEntry<byte[]> PcaScatterPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "PcaScatterPlotPng",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/pca_scatter_plot.png"
+        )
+    );
 }
