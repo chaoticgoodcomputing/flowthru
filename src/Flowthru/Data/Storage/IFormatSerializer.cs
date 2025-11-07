@@ -29,13 +29,26 @@ namespace Flowthru.Data.Storage;
 /// <strong>Type Constraints:</strong>
 /// </para>
 /// <para>
-/// Format serializers enforce schema compatibility through generic constraints:
+/// The <c>notnull</c> constraint ensures all format serializers support modern C# patterns:
+/// </para>
+/// <list type="bullet">
+/// <item><strong>Traditional schemas:</strong> Classes/records with parameterless constructors</item>
+/// <item><strong>Required members:</strong> C# 11+ schemas with <c>required</c> properties</item>
+/// <item><strong>Positional records:</strong> Records with primary constructors</item>
+/// </list>
+/// <para>
+/// This constraint explicitly prohibits the <c>new()</c> constraint, which is incompatible
+/// with required members and positional records. Format serializers must use
+/// <see cref="SchemaActivator"/> or equivalent techniques to instantiate schemas.
+/// </para>
+/// <para>
+/// Format serializers may add additional constraints for format-specific requirements:
 /// </para>
 /// <code>
 /// public class CsvFormatSerializer&lt;T&gt; : IFormatSerializer&lt;T&gt;
-///     where T : IFlatSchema, ITextSerializable
+///     where T : notnull, IFlatSchema, ITextSerializable
 /// {
-///     // Compile-time enforcement of flat + text serializable
+///     // Compile-time enforcement: notnull + flat + text serializable
 /// }
 /// </code>
 /// <para>
@@ -65,6 +78,7 @@ namespace Flowthru.Data.Storage;
 /// </code>
 /// </example>
 public interface IFormatSerializer<TRow>
+  where TRow : notnull
 {
   /// <summary>
   /// Deserializes a stream of bytes into a stream of rows.

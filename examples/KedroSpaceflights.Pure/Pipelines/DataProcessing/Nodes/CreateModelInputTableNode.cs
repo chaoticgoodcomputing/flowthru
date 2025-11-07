@@ -40,37 +40,41 @@ public static class CreateModelInputTableNode
         .ToList();
 
       // Join reviews to shuttles
-      var ratedShuttles = parsedReviews.Join(
-        shuttles,
-        r => r.ShuttleId,
-        s => s.Id,
-        (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
-      );
+      var ratedShuttles = parsedReviews
+        .Join(
+          shuttles,
+          r => r.ShuttleId,
+          s => s.Id,
+          (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
+        )
+        .ToList();
 
       // Join with companies
-      var modelInputTable = ratedShuttles.Join(
-        companies,
-        rs => rs.Shuttle.CompanyId,
-        c => c.Id,
-        (rs, c) =>
-          new ModelInputTableSchema
-          {
-            ShuttleId = rs.Shuttle.Id,
-            ShuttleType = rs.Shuttle.ShuttleType,
-            CompanyId = rs.Shuttle.CompanyId,
-            Engines = rs.Shuttle.Engines,
-            PassengerCapacity = rs.Shuttle.PassengerCapacity,
-            Crew = rs.Shuttle.Crew,
-            DCheckComplete = rs.Shuttle.DCheckComplete,
-            MoonClearanceComplete = rs.Shuttle.MoonClearanceComplete,
-            Price = rs.Shuttle.Price,
-            IataApproved = c.IataApproved,
-            CompanyRating = c.CompanyRating,
-            ReviewScoresRating = rs.ReviewScore,
-          }
-      );
+      var modelInputTable = ratedShuttles
+        .Join(
+          companies,
+          rs => rs.Shuttle.CompanyId,
+          c => c.Id,
+          (rs, c) =>
+            new ModelInputTableSchema
+            {
+              ShuttleId = rs.Shuttle.Id,
+              ShuttleType = rs.Shuttle.ShuttleType,
+              CompanyId = rs.Shuttle.CompanyId,
+              Engines = rs.Shuttle.Engines,
+              PassengerCapacity = rs.Shuttle.PassengerCapacity,
+              Crew = rs.Shuttle.Crew,
+              DCheckComplete = rs.Shuttle.DCheckComplete,
+              MoonClearanceComplete = rs.Shuttle.MoonClearanceComplete,
+              Price = rs.Shuttle.Price,
+              IataApproved = c.IataApproved,
+              CompanyRating = c.CompanyRating,
+              ReviewScoresRating = rs.ReviewScore,
+            }
+        )
+        .ToList(); // Materialize query to ensure LINQ execution completes
 
-      return await Task.FromResult(modelInputTable);
+      return await Task.FromResult<IEnumerable<ModelInputTableSchema>>(modelInputTable);
     };
   }
 }

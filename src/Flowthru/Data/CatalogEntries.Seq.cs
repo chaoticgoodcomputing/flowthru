@@ -55,9 +55,17 @@ public static partial class CatalogEntries
     /// <item>Functional operations (Map, Filter, Fold)</item>
     /// <item>Safe re-enumeration (no multiple DB/file hits)</item>
     /// </list>
+    /// <para>
+    /// <strong>Schema Support:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Traditional schemas with parameterless constructors</item>
+    /// <item>Modern schemas with required properties (C# 11+)</item>
+    /// <item>Positional records with primary constructors</item>
+    /// </list>
     /// </remarks>
     public static ICatalogEntry<LanguageExt.Seq<TRow>> Csv<TRow>(string label, string filePath)
-      where TRow : IFlatSchema, ITextSerializable, new()
+      where TRow : notnull, IFlatSchema, ITextSerializable
     {
       var medium = new FileStorageMedium(filePath);
       var format = new CsvFormatSerializer<TRow>();
@@ -78,8 +86,18 @@ public static partial class CatalogEntries
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="filePath">Path to JSON file</param>
     /// <returns>Catalog entry with file + JSON + Seq composition</returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Schema Support:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Traditional schemas with parameterless constructors</item>
+    /// <item>Modern schemas with required properties (C# 11+)</item>
+    /// <item>Positional records with primary constructors</item>
+    /// </list>
+    /// </remarks>
     public static ICatalogEntry<LanguageExt.Seq<TRow>> Json<TRow>(string label, string filePath)
-      where TRow : IStructuredSerializable, new()
+      where TRow : notnull, IStructuredSerializable
     {
       var medium = new FileStorageMedium(filePath);
       var format = new JsonFormatSerializer<TRow>();
@@ -100,8 +118,18 @@ public static partial class CatalogEntries
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="filePath">Path to Parquet file</param>
     /// <returns>Catalog entry with file + Parquet + Seq composition</returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Schema Support:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Traditional schemas with parameterless constructors</item>
+    /// <item>Modern schemas with required properties (C# 11+)</item>
+    /// <item>Positional records with primary constructors</item>
+    /// </list>
+    /// </remarks>
     public static ICatalogEntry<LanguageExt.Seq<TRow>> Parquet<TRow>(string label, string filePath)
-      where TRow : IFlatSchema, IBinarySerializable, new()
+      where TRow : notnull, IFlatSchema, IBinarySerializable
     {
       var medium = new FileStorageMedium(filePath);
       var format = new ParquetFormatSerializer<TRow>();

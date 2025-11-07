@@ -82,7 +82,7 @@ namespace Flowthru.Data.Storage.Format;
 /// </code>
 /// </example>
 public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
-  where TRow : IFlatSchema, IBinarySerializable, new()
+  where TRow : notnull, IFlatSchema, IBinarySerializable
 {
   /// <summary>
   /// Creates a new Parquet format serializer.
@@ -121,13 +121,82 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
       throw new ArgumentNullException(nameof(stream));
     }
 
-    // Deserialize using Parquet.NET
-    var rows = await ParquetSerializer.DeserializeAsync<TRow>(stream);
+    // Use low-level ParquetReader API to support types without parameterless constructors
+    using var reader = await ParquetReader.CreateAsync(stream);
 
-    // Yield each row
-    foreach (var row in rows)
+    // Get type properties for mapping
+    var properties = typeof(TRow)
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+      .Where(p => p.CanWrite)
+      .ToList();
+
+    // Build property-to-field mapping using SerializedLabel attributes
+    var propertyMap = properties.ToDictionary(p => PropertyMappingHelper.GetFieldName(p), p => p);
+
+    // Read all row groups
+    for (int groupIndex = 0; groupIndex < reader.RowGroupCount; groupIndex++)
     {
-      yield return row;
+      using var groupReader = reader.OpenRowGroupReader(groupIndex);
+
+      // Read column data for all fields
+      var columnData = new Dictionary<string, Array>();
+      foreach (var fieldName in propertyMap.Keys)
+      {
+        try
+        {
+          // Find the field in the Parquet schema
+          var field = reader.Schema.GetDataFields().FirstOrDefault(f => f.Name == fieldName);
+          if (field != null)
+          {
+            var column = await groupReader.ReadColumnAsync(field);
+            columnData[fieldName] = column.Data;
+          }
+        }
+        catch
+        {
+          // Field not found in file - will remain uninitialized
+          // Validation phase should catch missing required fields
+        }
+      }
+
+      // Construct instances row by row
+      var rowCount = groupReader.RowCount;
+      for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+      {
+        // Create instance using SchemaActivator (supports required members)
+        var instance = SchemaActivator.CreateInstance<TRow>();
+
+        // Populate properties from column data
+        foreach (var (fieldName, property) in propertyMap)
+        {
+          if (columnData.TryGetValue(fieldName, out var colData) && rowIndex < colData.Length)
+          {
+            var value = colData.GetValue(rowIndex);
+
+            // Handle property type conversions if needed
+            if (value != null && property.PropertyType != value.GetType())
+            {
+              // For nullable types, extract the underlying type
+              var targetType =
+                Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+              try
+              {
+                value = Convert.ChangeType(value, targetType);
+              }
+              catch
+              {
+                // Type conversion failed - leave as null/default
+                continue;
+              }
+            }
+
+            property.SetValue(instance, value);
+          }
+        }
+
+        yield return instance;
+      }
     }
   }
 
@@ -151,8 +220,71 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
       rowList.Add(row);
     }
 
-    // Serialize to Parquet format
-    await ParquetSerializer.SerializeAsync(rowList, stream);
+    if (rowList.Count == 0)
+    {
+      // Write empty Parquet file with schema only
+      var emptySchema = BuildParquetSchema();
+      using var emptyWriter = await ParquetWriter.CreateAsync(emptySchema, stream);
+      return;
+    }
+
+    // Build property map using SerializedLabel attributes
+    var properties = typeof(TRow)
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+      .Where(p => p.CanRead)
+      .ToList();
+
+    var propertyMap = properties.ToDictionary(p => PropertyMappingHelper.GetFieldName(p), p => p);
+
+    // Build Parquet schema from property map
+    var schema = BuildParquetSchema(propertyMap);
+
+    // Write data using low-level API
+    using var writer = await ParquetWriter.CreateAsync(schema, stream);
+    using var groupWriter = writer.CreateRowGroup();
+
+    // Write each column
+    foreach (var (fieldName, property) in propertyMap)
+    {
+      var field = schema.GetDataFields().First(f => f.Name == fieldName);
+
+      // Create properly typed array using reflection
+      var elementType = property.PropertyType;
+      var columnData = Array.CreateInstance(elementType, rowList.Count);
+      for (int i = 0; i < rowList.Count; i++)
+      {
+        columnData.SetValue(property.GetValue(rowList[i]), i);
+      }
+
+      await groupWriter.WriteColumnAsync(new Parquet.Data.DataColumn(field, columnData));
+    }
+  }
+
+  /// <summary>
+  /// Builds a Parquet schema from property mappings.
+  /// </summary>
+  private ParquetSchema BuildParquetSchema(Dictionary<string, PropertyInfo>? propertyMap = null)
+  {
+    if (propertyMap == null)
+    {
+      // Build default property map
+      var properties = typeof(TRow)
+        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+        .Where(p => p.CanRead)
+        .ToList();
+
+      propertyMap = properties.ToDictionary(p => PropertyMappingHelper.GetFieldName(p), p => p);
+    }
+
+    var fields = new List<DataField>();
+    foreach (var (fieldName, property) in propertyMap)
+    {
+      // Use property type directly - DataField constructor handles nullable/array detection
+      var field = new DataField(fieldName, property.PropertyType);
+      fields.Add(field);
+    }
+
+    return new ParquetSchema(fields);
   }
 
   /// <inheritdoc/>

@@ -68,6 +68,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   : IStorageAdapter<TContainer>,
     ISeedable,
     IReadOnly
+  where TRow : notnull
 {
   private readonly IStorageMedium _medium;
   private readonly IFormatSerializer<TRow> _format;

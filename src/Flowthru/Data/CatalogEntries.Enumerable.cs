@@ -50,7 +50,14 @@ public static partial class CatalogEntries
     /// <list type="bullet">
     /// <item>TRow must implement IFlatSchema (no nested objects)</item>
     /// <item>TRow must implement ITextSerializable</item>
-    /// <item>TRow must have parameterless constructor</item>
+    /// </list>
+    /// <para>
+    /// <strong>Supports:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Traditional schemas with parameterless constructors</item>
+    /// <item>Modern schemas with required properties (C# 11+)</item>
+    /// <item>Positional records with primary constructors</item>
     /// </list>
     /// <para>
     /// <strong>Capabilities:</strong>
@@ -61,7 +68,7 @@ public static partial class CatalogEntries
     /// </list>
     /// </remarks>
     public static ICatalogEntry<IEnumerable<TRow>> Csv<TRow>(string label, string filePath)
-      where TRow : IFlatSchema, ITextSerializable, new()
+      where TRow : notnull, IFlatSchema, ITextSerializable
     {
       var medium = new FileStorageMedium(filePath);
       var format = new CsvFormatSerializer<TRow>();
@@ -84,15 +91,22 @@ public static partial class CatalogEntries
     /// </para>
     /// <list type="bullet">
     /// <item>TRow must implement IStructuredSerializable</item>
-    /// <item>TRow must have parameterless constructor</item>
     /// <item>TRow supports both flat and nested schemas</item>
+    /// </list>
+    /// <para>
+    /// <strong>Supports:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Traditional schemas with parameterless constructors</item>
+    /// <item>Modern schemas with required properties (C# 11+)</item>
+    /// <item>Positional records with primary constructors</item>
     /// </list>
     /// <para>
     /// <strong>Serialization:</strong> JSON array format for collections
     /// </para>
     /// </remarks>
     public static ICatalogEntry<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
-      where TRow : IStructuredSerializable, new()
+      where TRow : notnull, IStructuredSerializable
     {
       var medium = new FileStorageMedium(filePath);
       var format = new JsonFormatSerializer<TRow>();
@@ -116,14 +130,21 @@ public static partial class CatalogEntries
     /// <list type="bullet">
     /// <item>TRow must implement IFlatSchema (Parquet is columnar)</item>
     /// <item>TRow must implement IBinarySerializable</item>
-    /// <item>TRow must have parameterless constructor</item>
+    /// </list>
+    /// <para>
+    /// <strong>Supports:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Traditional schemas with parameterless constructors</item>
+    /// <item>Modern schemas with required properties (C# 11+)</item>
+    /// <item>Positional records with primary constructors</item>
     /// </list>
     /// <para>
     /// <strong>Performance:</strong> Optimized for large datasets with columnar storage
     /// </para>
     /// </remarks>
     public static ICatalogEntry<IEnumerable<TRow>> Parquet<TRow>(string label, string filePath)
-      where TRow : IFlatSchema, IBinarySerializable, new()
+      where TRow : notnull, IFlatSchema, IBinarySerializable
     {
       var medium = new FileStorageMedium(filePath);
       var format = new ParquetFormatSerializer<TRow>();
@@ -148,7 +169,14 @@ public static partial class CatalogEntries
     /// <list type="bullet">
     /// <item>TRow must implement IFlatSchema (Excel is tabular)</item>
     /// <item>TRow must implement ITextSerializable</item>
-    /// <item>TRow must have parameterless constructor</item>
+    /// </list>
+    /// <para>
+    /// <strong>Supports:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Traditional schemas with parameterless constructors</item>
+    /// <item>Modern schemas with required properties (C# 11+)</item>
+    /// <item>Positional records with primary constructors</item>
     /// </list>
     /// <para>
     /// <strong>Limitations:</strong> Read-only support via ExcelDataReader.
@@ -167,7 +195,7 @@ public static partial class CatalogEntries
       string filePath,
       string sheetName
     )
-      where TRow : IFlatSchema, ITextSerializable, new()
+      where TRow : notnull, IFlatSchema, ITextSerializable
     {
       var medium = new FileStorageMedium(filePath);
       var format = new ExcelFormatSerializer<TRow>(sheetName);

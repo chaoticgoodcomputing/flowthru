@@ -84,7 +84,7 @@ namespace Flowthru.Data.Storage.Format;
 /// </code>
 /// </example>
 public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
-  where TRow : IStructuredSerializable
+  where TRow : notnull, IStructuredSerializable
 {
   private readonly JsonSerializerOptions _options;
 
@@ -241,6 +241,7 @@ internal sealed class SerializedLabelJsonConverterFactory : JsonConverterFactory
 /// </summary>
 /// <typeparam name="T">The type to convert</typeparam>
 internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
+  where T : notnull
 {
   private readonly Dictionary<string, PropertyInfo> _propertyMap;
 
@@ -262,7 +263,7 @@ internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
       );
     }
 
-    var instance = Activator.CreateInstance<T>();
+    var instance = SchemaActivator.CreateInstance<T>();
 
     // Create options without this specific converter instance to avoid infinite recursion
     // but keep the factory so it can be applied to nested IStructuredSerializable objects

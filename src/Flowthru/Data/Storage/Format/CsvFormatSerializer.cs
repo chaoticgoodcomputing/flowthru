@@ -82,7 +82,7 @@ namespace Flowthru.Data.Storage.Format;
 /// </code>
 /// </example>
 public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
-  where TRow : IFlatSchema, ITextSerializable
+  where TRow : notnull, IFlatSchema, ITextSerializable
 {
   private readonly CsvConfiguration _configuration;
 

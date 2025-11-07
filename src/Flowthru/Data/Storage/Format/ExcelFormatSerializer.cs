@@ -19,7 +19,7 @@ namespace Flowthru.Data.Storage.Format;
 /// </para>
 /// </remarks>
 public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
-  where TRow : IFlatSchema, ITextSerializable, new()
+  where TRow : notnull, IFlatSchema, ITextSerializable
 {
   private readonly string _sheetName;
 
@@ -74,8 +74,8 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
         // Read data rows
         while (reader.Read())
         {
-          // Create new instance (works with both classes and records)
-          var row = new TRow();
+          // Create new instance using SchemaActivator (supports required members)
+          var row = SchemaActivator.CreateInstance<TRow>();
 
           // Set properties from Excel columns using the property map
           foreach (var (fieldName, property) in propertyMap)
