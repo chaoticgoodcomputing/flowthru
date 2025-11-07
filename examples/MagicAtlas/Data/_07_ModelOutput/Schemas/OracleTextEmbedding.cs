@@ -30,28 +30,27 @@ public record OracleTextEmbedding : IFlatSchema, IBinarySerializable, IStructure
   /// <summary>
   /// Unique identifier for this specific text entry.
   /// Matches the ID from the original oracle input.
-  /// IMPORTANT: Must be propagated from TokenizedBertInput.TextEntryId for proper joining.
   /// </summary>
   [SerializedLabel("text_entry_id")]
-  public Guid TextEntryId { get; init; }
+  public required Guid TextEntryId { get; init; }
 
   /// <summary>
   /// Scryfall card ID.
   /// </summary>
   [SerializedLabel("card_id")]
-  public Guid CardId { get; init; }
+  public required Guid CardId { get; init; }
 
   /// <summary>
   /// Type of oracle text entry (full text, keyword ability, etc.).
   /// </summary>
   [SerializedLabel("text_type")]
-  public OracleTextType TextType { get; init; }
+  public required OracleTextType TextType { get; init; }
 
   /// <summary>
   /// Text content that was embedded (full oracle text or individual ability).
   /// </summary>
   [SerializedLabel("text")]
-  public string Text { get; init; } = string.Empty;
+  public required string Text { get; init; }
 
   /// <summary>
   /// Sentence embedding vector (384 dimensions).
@@ -59,12 +58,12 @@ public record OracleTextEmbedding : IFlatSchema, IBinarySerializable, IStructure
   /// Similar mechanics produce vectors with high cosine similarity.
   /// </summary>
   [SerializedLabel("embedding")]
-  public float[] Embedding { get; init; } = Array.Empty<float>();
+  public required float[] Embedding { get; init; }
 
   /// <summary>
   /// Dimensionality of the embedding vector.
   /// Should always be 384 for all-MiniLM-L6-v2 model.
   /// </summary>
   [SerializedLabel("embedding_dim")]
-  public int EmbeddingDimension { get; init; }
+  public required int EmbeddingDimension { get; init; }
 }

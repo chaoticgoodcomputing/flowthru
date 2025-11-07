@@ -36,8 +36,10 @@ public static class SampleOracleTextEmbeddingsNode
   /// <returns>
   /// A function that samples embeddings from the input dataset.
   /// </returns>
-  public static Func<IEnumerable<OracleTextEmbedding>, Task<IEnumerable<OracleTextEmbedding>>>
-    Create(Options? options = null)
+  public static Func<
+    IEnumerable<OracleTextEmbedding>,
+    Task<IEnumerable<OracleTextEmbedding>>
+  > Create(Options? options = null)
   {
     var config = options ?? new Options();
 
@@ -52,10 +54,7 @@ public static class SampleOracleTextEmbeddingsNode
       var sampleSize = Math.Min(config.SampleCount, embeddings.Count);
 
       // Fisher-Yates shuffle for uniform random sampling
-      var sampled = embeddings
-        .OrderBy(_ => random.Next())
-        .Take(sampleSize)
-        .ToList();
+      var sampled = embeddings.OrderBy(_ => random.Next()).Take(sampleSize).ToList();
 
       return await Task.FromResult(sampled.AsEnumerable());
     };

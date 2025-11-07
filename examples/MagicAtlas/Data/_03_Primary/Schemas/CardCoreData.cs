@@ -17,7 +17,7 @@ public record CardCoreData : IStructuredSerializable
   /// <summary>
   /// A unique ID for this card in Scryfall's database.
   /// </summary>
-  public Guid Id { get; init; }
+  public required Guid Id { get; init; }
 
   // =====================
   // MARK: CONTENT
@@ -29,17 +29,17 @@ public record CardCoreData : IStructuredSerializable
   /// <remarks>
   /// If this card has multiple faces, this field will contain both names separated by ␣//␣.
   /// </remarks>
-  public string Name { get; init; } = "";
+  public required string Name { get; init; }
 
   /// <summary>
   /// The date this card was first released.
   /// </summary>
-  public DateTime ReleasedAt { get; init; }
+  public required DateTime ReleasedAt { get; init; }
 
   /// <summary>
   /// A code for this card's layout (e.g., normal, split, flip, transform, modal_dfc, etc).
   /// </summary>
-  public Layout Layout { get; init; }
+  public required Layout Layout { get; init; }
 
   // =====================
   // MARK: PROPERTIES
@@ -60,7 +60,7 @@ public record CardCoreData : IStructuredSerializable
   /// <remarks>
   /// Note that some funny cards have fractional mana costs.
   /// </remarks>
-  public decimal Cmc { get; init; }
+  public required decimal Cmc { get; init; }
 
   /// <summary>
   /// The main card types parsed from the type line (e.g., "Legendary", "Creature", "Instant").
@@ -166,7 +166,7 @@ public record CardCoreData : IStructuredSerializable
   /// <remarks>
   /// One of common, uncommon, rare, special, mythic, or bonus.
   /// </remarks>
-  public Rarity Rarity { get; init; }
+  public required Rarity Rarity { get; init; }
 
   // =====================
   // MARK: LEGALITY/FORMATS
@@ -178,7 +178,7 @@ public record CardCoreData : IStructuredSerializable
   /// <remarks>
   /// Possible legalities are legal, not_legal, restricted, and banned.
   /// </remarks>
-  public Legalities Legalities { get; init; } = new();
+  public required Legalities Legalities { get; init; }
 
   /// <summary>
   /// A list of games that this card print is available in.
@@ -236,12 +236,12 @@ public record CardCoreData : IStructuredSerializable
   /// <remarks>
   /// One of black, white, borderless, silver, or gold.
   /// </remarks>
-  public BorderColor BorderColor { get; init; }
+  public required BorderColor BorderColor { get; init; }
 
   /// <summary>
   /// This card's frame layout.
   /// </summary>
-  public Frame Frame { get; init; }
+  public required Frame Frame { get; init; }
 
   /// <summary>
   /// This card's frame effects, if any.
@@ -268,7 +268,7 @@ public record CardCoreData : IStructuredSerializable
   /// <summary>
   /// This card's set code.
   /// </summary>
-  public string Set { get; init; } = "";
+  public required string Set { get; init; }
 
   // =====================
   // MARK: PRINT

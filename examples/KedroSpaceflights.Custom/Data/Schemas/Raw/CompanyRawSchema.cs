@@ -16,7 +16,7 @@ public record CompanyRawSchema
   /// Company identifier
   /// </summary>
   [SerializedLabel("id")]
-  public string Id { get; init; } = null!;
+  public required string Id { get; init; }
 
   /// <summary>
   /// Company rating as percentage string (e.g., "100%", "38%", or empty)
@@ -40,5 +40,5 @@ public record CompanyRawSchema
   /// IATA approval status as "t" (true) or "f" (false)
   /// </summary>
   [SerializedLabel("iata_approved")]
-  public string IataApproved { get; init; } = null!;
+  public required string IataApproved { get; init; }
 }

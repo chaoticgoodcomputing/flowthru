@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Flowthru.Abstractions;
 
 namespace KedroSpaceflights.Custom.Data.Schemas.Processed;
@@ -16,30 +15,29 @@ public record CompanySchema
   /// <summary>
   /// Company identifier
   /// </summary>
-  [Required]
-  public string Id { get; init; } = null!;
+  public required string Id { get; init; }
 
   /// <summary>
   /// Company rating as decimal (0.0 to 1.0)
   /// </summary>
   [SerializedLabel("company_rating")]
-  public decimal CompanyRating { get; init; }
+  public required decimal CompanyRating { get; init; }
 
   /// <summary>
   /// Company location/country
   /// </summary>
   [SerializedLabel("company_location")]
-  public string CompanyLocation { get; init; } = null!;
+  public required string CompanyLocation { get; init; }
 
   /// <summary>
   /// Total fleet count
   /// </summary>
   [SerializedLabel("total_fleet_count")]
-  public decimal TotalFleetCount { get; init; }
+  public required decimal TotalFleetCount { get; init; }
 
   /// <summary>
   /// IATA approval status
   /// </summary>
   [SerializedLabel("iata_approved")]
-  public bool IataApproved { get; init; }
+  public required bool IataApproved { get; init; }
 }

@@ -16,7 +16,7 @@ public record RefinedOracleText : IStructuredSerializable
   /// <summary>
   /// A unique ID for this card in Scryfall's database.
   /// </summary>
-  public Guid Id { get; init; }
+  public required Guid Id { get; init; }
 
   // =====================
   // MARK: CONTENT
@@ -28,17 +28,17 @@ public record RefinedOracleText : IStructuredSerializable
   /// <remarks>
   /// If this card has multiple faces, this field will contain both names separated by ␣//␣.
   /// </remarks>
-  public string Name { get; init; } = "";
+  public required string Name { get; init; }
 
   /// <summary>
   /// Full oracle text for the card.
   /// </summary>
-  public string RawText { get; init; } = "";
+  public required string RawText { get; init; }
 
   /// <summary>
   /// Full oracle text for the card.
   /// </summary>
-  public string RefinedText { get; init; } = "";
+  public required string RefinedText { get; init; }
 
   /// <summary>
   /// List of single-word keyword abilities found in the oracle text.
@@ -83,7 +83,7 @@ public record RefinedOracleText : IStructuredSerializable
 /// </summary>
 public class PassiveAbility
 {
-  public string Effect { get; init; } = "";
+  public required string Effect { get; init; }
 }
 
 /// <summary>
@@ -91,9 +91,9 @@ public class PassiveAbility
 /// </summary>
 public class ActivatedAbility
 {
-  public string RawText { get; init; } = "";
+  public required string RawText { get; init; }
   public List<string> Costs { get; init; } = new();
-  public string Effect { get; init; } = "";
+  public required string Effect { get; init; }
 }
 
 /// <summary>
@@ -101,9 +101,9 @@ public class ActivatedAbility
 /// </summary>
 public class TriggeredAbility
 {
-  public string RawText { get; init; } = "";
-  public string Trigger { get; init; } = "";
-  public string Effect { get; init; } = "";
+  public required string RawText { get; init; }
+  public required string Trigger { get; init; }
+  public required string Effect { get; init; }
 }
 
 /// <summary>
@@ -111,7 +111,7 @@ public class TriggeredAbility
 /// </summary>
 public class KeywordAbility
 {
-  public string RawText { get; init; } = "";
+  public required string RawText { get; init; }
 }
 
 /// <summary>
@@ -119,7 +119,7 @@ public class KeywordAbility
 /// </summary>
 public class NamedTriggeredAbility
 {
-  public string RawText { get; init; } = "";
-  public string Keyword { get; init; } = "";
-  public string Effect { get; init; } = "";
+  public required string RawText { get; init; }
+  public required string Keyword { get; init; }
+  public required string Effect { get; init; }
 }

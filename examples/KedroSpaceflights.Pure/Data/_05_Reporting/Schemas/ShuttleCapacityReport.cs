@@ -5,17 +5,21 @@ namespace KedroSpaceflights.Pure.Data._05_Reporting.Schemas;
 /// <summary>
 /// Represents a passenger capacity summary report grouped by shuttle type.
 /// </summary>
+/// <remarks>
+/// Uses required members to enforce that all critical report fields must be set
+/// during construction, ensuring complete reporting outputs.
+/// </remarks>
 public record ShuttleCapacityReport : IFlatSchema, IStructuredSerializable
 {
   /// <summary>
   /// Type or model of the shuttle.
   /// </summary>
   [SerializedLabel("shuttle_type")]
-  public string ShuttleType { get; init; } = null!;
+  public required string ShuttleType { get; init; }
 
   /// <summary>
   /// Average passenger capacity for this shuttle type.
   /// </summary>
   [SerializedLabel("avg_passenger_capacity")]
-  public decimal AvgPassengerCapacity { get; init; }
+  public required decimal AvgPassengerCapacity { get; init; }
 }

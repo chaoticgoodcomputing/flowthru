@@ -32,7 +32,7 @@ public class Program
 
         builder
           .RegisterPipeline<Catalog>(
-            label: "OracleTextEmebdding",
+            label: "OracleTextEmbedding",
             pipeline: OracleTextEmebdding.Create
           )
           .WithDescription("Generates BERT embeddings for oracle text analysis");

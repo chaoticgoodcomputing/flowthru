@@ -16,7 +16,7 @@ public record ReviewRawSchema
   /// Shuttle identifier (foreign key to shuttles)
   /// </summary>
   [SerializedLabel("shuttle_id")]
-  public string ShuttleId { get; init; } = null!;
+  public required string ShuttleId { get; init; }
 
   /// <summary>
   /// Overall review score rating

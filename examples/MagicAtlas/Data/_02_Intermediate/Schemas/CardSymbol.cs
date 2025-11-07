@@ -8,9 +8,9 @@ namespace MagicAtlas.Data._02_Intermediate.Schemas;
 /// </summary>
 public record CardSymbol : IStructuredSerializable
 {
-  public string Symbol { get; init; } = "";
+  public required string Symbol { get; init; }
   public string? LooseVariant { get; init; }
-  public string English { get; init; } = "";
+  public required string English { get; init; }
   public string? SvgUri { get; init; }
   public bool Transposable { get; init; }
   public bool RepresentsMana { get; init; }
@@ -18,7 +18,7 @@ public record CardSymbol : IStructuredSerializable
   public decimal? ManaValue { get; init; }
   public bool Hybrid { get; init; }
   public bool Phyrexian { get; init; }
-  public decimal Cmc { get; init; } // Defaults to 0 in processing
+  public required decimal Cmc { get; init; }
   public bool Funny { get; init; }
   public List<ManaColor>? Colors { get; init; }
   public List<string>? GathererAlternates { get; init; }

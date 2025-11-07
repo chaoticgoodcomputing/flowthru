@@ -67,7 +67,14 @@ public static class OracleTextEmbeddingNode
           embeddings.Add(embedding);
         }
 
-        return embeddings;
+        var embeddingsWithText = embeddings.Join(
+          originalEmbeddingText,
+          e => e.TextEntryId,
+          o => o.TextEntryId,
+          (e, o) => e with { Text = o.Text }
+        );
+
+        return embeddingsWithText;
       }
       finally
       {

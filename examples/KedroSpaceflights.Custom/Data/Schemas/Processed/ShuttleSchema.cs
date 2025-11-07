@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Flowthru.Abstractions;
 
 namespace KedroSpaceflights.Custom.Data.Schemas.Processed;
@@ -16,67 +15,65 @@ public record ShuttleSchema
   /// <summary>
   /// Shuttle identifier
   /// </summary>
-  [Required]
-  public string Id { get; init; } = null!;
+  public required string Id { get; init; }
 
   /// <summary>
   /// Company identifier (foreign key to companies)
   /// </summary>
-  [Required]
-  public string CompanyId { get; init; } = null!;
+  public required string CompanyId { get; init; }
 
   /// <summary>
   /// Shuttle location/origin
   /// </summary>
-  public string ShuttleLocation { get; init; } = null!;
+  public required string ShuttleLocation { get; init; }
 
   /// <summary>
   /// Shuttle type/model
   /// </summary>
-  public string ShuttleType { get; init; } = null!;
+  public required string ShuttleType { get; init; }
 
   /// <summary>
   /// Engine type (e.g., Plasma, Quantum)
   /// </summary>
-  public string EngineType { get; init; } = null!;
+  public required string EngineType { get; init; }
 
   /// <summary>
   /// Engine vendor/manufacturer
   /// </summary>
-  public string EngineVendor { get; init; } = null!;
+  public required string EngineVendor { get; init; }
 
   /// <summary>
   /// Number of engines
   /// </summary>
-  public int Engines { get; init; }
+  public required int Engines { get; init; }
 
   /// <summary>
   /// Passenger capacity
   /// </summary>
-  public int PassengerCapacity { get; init; }
+  public required int PassengerCapacity { get; init; }
 
   /// <summary>
   /// Crew size
   /// </summary>
-  public int Crew { get; init; }
+  public required int Crew { get; init; }
 
   /// <summary>
   /// Cancellation policy (e.g., moderate, strict, flexible)
   /// </summary>
-  public string CancellationPolicy { get; init; } = null!;
+  public required string CancellationPolicy { get; init; }
 
   /// <summary>
   /// Price in dollars
   /// </summary>
-  public decimal Price { get; init; }
+  public required decimal Price { get; init; }
 
   /// <summary>
   /// D-check completion status
   /// </summary>
-  public bool DCheckComplete { get; init; }
+  public required bool DCheckComplete { get; init; }
 
   /// <summary>
   /// Moon clearance completion status
   /// </summary>
-  public bool MoonClearanceComplete { get; init; }
+  public required bool MoonClearanceComplete { get; init; }
 }

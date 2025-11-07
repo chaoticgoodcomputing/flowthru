@@ -26,7 +26,7 @@ public record NearestNeighborAnalysis : IStructuredSerializable
   /// <summary>
   /// Name of the target card being analyzed.
   /// </summary>
-  public string TargetCardName { get; init; } = "";
+  public required string TargetCardName { get; init; }
 
   /// <summary>
   /// Mana cost of the target card, if any.
@@ -41,12 +41,12 @@ public record NearestNeighborAnalysis : IStructuredSerializable
   /// <summary>
   /// Scryfall URI for the target card.
   /// </summary>
-  public string TargetScryfallUri { get; init; } = "";
+  public required string TargetScryfallUri { get; init; }
 
   /// <summary>
   /// Price of the target card in USD.
   /// </summary>
-  public decimal TargetPrice { get; init; } = 0.0m;
+  public required decimal TargetPrice { get; init; }
 
   /// <summary>
   /// List of nearest neighbor cards in embedding space, ordered by similarity descending.
@@ -71,12 +71,12 @@ public record NeighborMatch
   /// If a neighbor card has multiple embedding types, this represents the maximum
   /// similarity across all types.
   /// </remarks>
-  public double Similarity { get; init; }
+  public required double Similarity { get; init; }
 
   /// <summary>
   /// Name of the neighboring card.
   /// </summary>
-  public string NeighborCardName { get; init; } = "";
+  public required string NeighborCardName { get; init; }
 
   /// <summary>
   /// Mana cost of the neighboring card, if any.
@@ -91,10 +91,10 @@ public record NeighborMatch
   /// <summary>
   /// Scryfall URI for the neighboring card.
   /// </summary>
-  public string NeighborScryfallUri { get; init; } = "";
+  public required string NeighborScryfallUri { get; init; }
 
   /// <summary>
   /// Price of the neighboring card in USD.
   /// </summary>
-  public decimal NeighborPrice { get; init; } = 0.0m;
+  public required decimal NeighborPrice { get; init; }
 }

@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Flowthru.Abstractions;
 
 namespace KedroSpaceflights.Custom.Data.Schemas.Processed;
@@ -38,12 +37,12 @@ public record ModelInputSchema
   /// <summary>
   /// Number of engines
   /// </summary>
-  public int Engines { get; init; }
+  public required int Engines { get; init; }
 
   /// <summary>
   /// Passenger capacity
   /// </summary>
-  public int PassengerCapacity { get; init; }
+  public required int PassengerCapacity { get; init; }
 
   /// <summary>
   /// Cancellation policy
@@ -53,41 +52,39 @@ public record ModelInputSchema
   /// <summary>
   /// Crew size
   /// </summary>
-  public int Crew { get; init; }
+  public required int Crew { get; init; }
 
   /// <summary>
   /// D-check completion status
   /// </summary>
-  public bool DCheckComplete { get; init; }
+  public required bool DCheckComplete { get; init; }
 
   /// <summary>
   /// Moon clearance completion status
   /// </summary>
-  public bool MoonClearanceComplete { get; init; }
+  public required bool MoonClearanceComplete { get; init; }
 
   /// <summary>
   /// Shuttle price (target variable for ML)
   /// </summary>
-  public decimal Price { get; init; }
+  public required decimal Price { get; init; }
 
   /// <summary>
   /// Company identifier (from shuttle.company_id)
   /// </summary>
-  [Required]
-  public string CompanyId { get; init; } = null!;
+  public required string CompanyId { get; init; }
 
   /// <summary>
   /// Shuttle identifier (from review.shuttle_id)
   /// </summary>
-  [Required]
-  public string ShuttleId { get; init; } = null!;
+  public required string ShuttleId { get; init; }
 
   // Review columns (from reviews table)
 
   /// <summary>
   /// Overall review score rating
   /// </summary>
-  public decimal ReviewScoresRating { get; init; }
+  public required decimal ReviewScoresRating { get; init; }
 
   /// <summary>
   /// Review comfort score
@@ -139,7 +136,7 @@ public record ModelInputSchema
   /// <summary>
   /// Company rating (0.0 to 1.0)
   /// </summary>
-  public decimal CompanyRating { get; init; }
+  public required decimal CompanyRating { get; init; }
 
   /// <summary>
   /// Company location/country
@@ -154,5 +151,5 @@ public record ModelInputSchema
   /// <summary>
   /// IATA approval status
   /// </summary>
-  public bool IataApproved { get; init; }
+  public required bool IataApproved { get; init; }
 }

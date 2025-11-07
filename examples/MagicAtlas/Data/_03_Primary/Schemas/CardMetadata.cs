@@ -17,7 +17,7 @@ public record CardMetadata : IStructuredSerializable
   /// <summary>
   /// A unique ID for this card in Scryfall's database.
   /// </summary>
-  public Guid Id { get; init; }
+  public required Guid Id { get; init; }
 
   /// <summary>
   /// A unique ID for this card's oracle identity. This value is consistent across reprinted card editions,
@@ -80,32 +80,32 @@ public record CardMetadata : IStructuredSerializable
   /// <remarks>
   /// If this card has multiple faces, this field will contain both names separated by ␣//␣.
   /// </remarks>
-  public string Name { get; init; } = "";
+  public required string Name { get; init; }
 
   /// <summary>
   /// A language code for this printing.
   /// </summary>
-  public string Lang { get; init; } = "";
+  public required string Lang { get; init; }
 
   /// <summary>
   /// The date this card was first released.
   /// </summary>
-  public DateTime ReleasedAt { get; init; }
+  public required DateTime ReleasedAt { get; init; }
 
   /// <summary>
   /// A link to this card object on Scryfall's API.
   /// </summary>
-  public string Uri { get; init; } = "";
+  public required string Uri { get; init; }
 
   /// <summary>
   /// A link to this card's permapage on Scryfall's website.
   /// </summary>
-  public string ScryfallUri { get; init; } = "";
+  public required string ScryfallUri { get; init; }
 
   /// <summary>
   /// A code for this card's layout (e.g., normal, split, flip, transform, modal_dfc, etc).
   /// </summary>
-  public Layout Layout { get; init; }
+  public required Layout Layout { get; init; }
 
   /// <summary>
   /// True if this card's imagery is high resolution.
@@ -160,12 +160,12 @@ public record CardMetadata : IStructuredSerializable
   /// <remarks>
   /// One of black, white, borderless, silver, or gold.
   /// </remarks>
-  public BorderColor BorderColor { get; init; }
+  public required BorderColor BorderColor { get; init; }
 
   /// <summary>
   /// This card's frame layout.
   /// </summary>
-  public Frame Frame { get; init; }
+  public required Frame Frame { get; init; }
 
   /// <summary>
   /// This card's frame effects, if any.
@@ -216,47 +216,47 @@ public record CardMetadata : IStructuredSerializable
   /// <summary>
   /// This card's Set object UUID.
   /// </summary>
-  public Guid SetId { get; init; }
+  public required Guid SetId { get; init; }
 
   /// <summary>
   /// This card's set code.
   /// </summary>
-  public string Set { get; init; } = "";
+  public required string Set { get; init; }
 
   /// <summary>
   /// This card's full set name.
   /// </summary>
-  public string SetName { get; init; } = "";
+  public required string SetName { get; init; }
 
   /// <summary>
   /// The type of set this printing is in.
   /// </summary>
-  public SetType SetType { get; init; }
+  public required SetType SetType { get; init; }
 
   /// <summary>
   /// A link to this card's set object on Scryfall's API.
   /// </summary>
-  public string SetUri { get; init; } = "";
+  public required string SetUri { get; init; }
 
   /// <summary>
   /// A link to where you can begin paginating this card's set on the Scryfall API.
   /// </summary>
-  public string SetSearchUri { get; init; } = "";
+  public required string SetSearchUri { get; init; }
 
   /// <summary>
   /// A link to this card's set on Scryfall's website.
   /// </summary>
-  public string ScryfallSetUri { get; init; } = "";
+  public required string ScryfallSetUri { get; init; }
 
   /// <summary>
   /// A link to this card's rulings list on Scryfall's API.
   /// </summary>
-  public string RulingsUri { get; init; } = "";
+  public required string RulingsUri { get; init; }
 
   /// <summary>
   /// A link to where you can begin paginating all re/prints for this card on Scryfall's API.
   /// </summary>
-  public string PrintsSearchUri { get; init; } = "";
+  public required string PrintsSearchUri { get; init; }
 
   // =====================
   // MARK: PRINT
@@ -268,7 +268,7 @@ public record CardMetadata : IStructuredSerializable
   /// <remarks>
   /// Note that collector numbers can contain non-numeric characters, such as letters or ★.
   /// </remarks>
-  public string CollectorNumber { get; init; } = "";
+  public required string CollectorNumber { get; init; }
 
   /// <summary>
   /// True if this card was only released in a video game.

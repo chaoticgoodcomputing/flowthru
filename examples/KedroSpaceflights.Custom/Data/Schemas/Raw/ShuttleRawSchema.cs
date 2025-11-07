@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Flowthru.Abstractions;
 
 namespace KedroSpaceflights.Custom.Data.Schemas.Raw;
@@ -16,16 +15,14 @@ public record ShuttleRawSchema
   /// <summary>
   /// Shuttle identifier
   /// </summary>
-  [Required]
   [SerializedLabel("id")]
-  public string Id { get; init; } = null!;
+  public required string Id { get; init; }
 
   /// <summary>
   /// Company identifier (foreign key to companies)
   /// </summary>
-  [Required]
   [SerializedLabel("company_id")]
-  public string CompanyId { get; init; } = null!;
+  public required string CompanyId { get; init; }
 
   /// <summary>
   /// Shuttle location/origin
@@ -78,21 +75,18 @@ public record ShuttleRawSchema
   /// <summary>
   /// Price as currency string (e.g., "$1,234,567")
   /// </summary>
-  [Required]
   [SerializedLabel("price")]
-  public string Price { get; init; } = null!;
+  public required string Price { get; init; }
 
   /// <summary>
   /// D-check completion status as "t" or "f"
   /// </summary>
-  [Required]
   [SerializedLabel("d_check_complete")]
-  public string DCheckComplete { get; init; } = null!;
+  public required string DCheckComplete { get; init; }
 
   /// <summary>
   /// Moon clearance completion status as "t" or "f"
   /// </summary>
-  [Required]
   [SerializedLabel("moon_clearance_complete")]
-  public string MoonClearanceComplete { get; init; } = null!;
+  public required string MoonClearanceComplete { get; init; }
 }

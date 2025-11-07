@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Flowthru.Abstractions;
 
 namespace KedroSpaceflights.Custom.Data.Schemas.Processed;
@@ -16,51 +15,50 @@ public record ReviewSchema
   /// <summary>
   /// Shuttle identifier (foreign key to shuttles)
   /// </summary>
-  [Required]
-  public string ShuttleId { get; init; } = null!;
+  public required string ShuttleId { get; init; }
 
   /// <summary>
   /// Overall review score rating
   /// </summary>
-  public decimal ReviewScoresRating { get; init; }
+  public required decimal ReviewScoresRating { get; init; }
 
   /// <summary>
   /// Comfort score
   /// </summary>
-  public decimal ReviewScoresComfort { get; init; }
+  public required decimal ReviewScoresComfort { get; init; }
 
   /// <summary>
   /// Amenities score
   /// </summary>
-  public decimal ReviewScoresAmenities { get; init; }
+  public required decimal ReviewScoresAmenities { get; init; }
 
   /// <summary>
   /// Trip score
   /// </summary>
-  public decimal ReviewScoresTrip { get; init; }
+  public required decimal ReviewScoresTrip { get; init; }
 
   /// <summary>
   /// Crew score
   /// </summary>
-  public decimal ReviewScoresCrew { get; init; }
+  public required decimal ReviewScoresCrew { get; init; }
 
   /// <summary>
   /// Location score
   /// </summary>
-  public decimal ReviewScoresLocation { get; init; }
+  public required decimal ReviewScoresLocation { get; init; }
 
   /// <summary>
   /// Price score
   /// </summary>
-  public decimal ReviewScoresPrice { get; init; }
+  public required decimal ReviewScoresPrice { get; init; }
 
   /// <summary>
   /// Number of reviews
   /// </summary>
-  public int NumberOfReviews { get; init; }
+  public required int NumberOfReviews { get; init; }
 
   /// <summary>
   /// Reviews per month
   /// </summary>
-  public decimal ReviewsPerMonth { get; init; }
+  public required decimal ReviewsPerMonth { get; init; }
 }

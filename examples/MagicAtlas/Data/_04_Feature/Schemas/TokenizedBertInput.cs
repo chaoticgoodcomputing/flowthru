@@ -34,41 +34,40 @@ public record TokenizedBertInput : IFlatSchema, IBinarySerializable
   /// <summary>
   /// Unique identifier for this specific text entry.
   /// Flows through the pipeline to enable proper joining of embeddings with original text.
-  /// IMPORTANT: Must be set from the source EmbeddingModelOracleInput.TextEntryId.
   /// </summary>
   [SerializedLabel("text_entry_id")]
-  public Guid TextEntryId { get; init; }
+  public required Guid TextEntryId { get; init; }
 
   /// <summary>
   /// Scryfall card ID.
   /// </summary>
   [SerializedLabel("card_id")]
-  public Guid CardId { get; init; }
+  public required Guid CardId { get; init; }
 
   /// <summary>
   /// Type of oracle text entry (full text, keyword ability, etc.).
   /// </summary>
   [SerializedLabel("text_type")]
-  public OracleTextType TextType { get; init; }
+  public required OracleTextType TextType { get; init; }
 
   /// <summary>
   /// Token vocabulary indices (input_ids tensor).
   /// Shape: [sequence_length]. Vocabulary size: 30,522 (BERT-base-uncased).
   /// </summary>
   [SerializedLabel("input_ids")]
-  public long[] InputIds { get; init; } = Array.Empty<long>();
+  public required long[] InputIds { get; init; }
 
   /// <summary>
   /// Attention mask indicating valid tokens (1) vs padding (0).
   /// Shape: [sequence_length]. Values: 1 for real tokens, 0 for padding.
   /// </summary>
   [SerializedLabel("attention_mask")]
-  public long[] AttentionMask { get; init; } = Array.Empty<long>();
+  public required long[] AttentionMask { get; init; }
 
   /// <summary>
   /// Token type IDs for segment distinction.
   /// Shape: [sequence_length]. Values: Typically all 0s for single-sentence inputs.
   /// </summary>
   [SerializedLabel("token_type_ids")]
-  public long[] TokenTypeIds { get; init; } = Array.Empty<long>();
+  public required long[] TokenTypeIds { get; init; }
 }
