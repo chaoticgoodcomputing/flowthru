@@ -35,7 +35,7 @@ public static class GenerateEmbeddingDistributionChartNode
   /// <summary>
   /// Configuration options for the distribution chart.
   /// </summary>
-  public record Options
+  public record Params
   {
     /// <summary>
     /// Number of bins to use for histogram generation.
@@ -53,11 +53,11 @@ public static class GenerateEmbeddingDistributionChartNode
   /// A function that generates an embedding distribution chart from oracle text embeddings.
   /// </returns>
   public static Func<IEnumerable<OracleTextEmbedding>, Task<GenericChart>> Create(
-    Options? options = null,
+    Params? options = null,
     ILogger? logger = null
   )
   {
-    var config = options ?? new Options();
+    var config = options ?? new Params();
 
     return async (input) =>
     {

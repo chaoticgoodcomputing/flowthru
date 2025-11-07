@@ -54,4 +54,43 @@ public partial class Catalog
           filePath: $"{_basePath}/_08_Reporting/Datasets/embedding_distribution_plot.png"
         )
     );
+
+  /// <summary>
+  /// K-means cluster assignments for oracle text embeddings.
+  /// Maps each embedding to its assigned cluster ID and distance.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<OracleTextClusterAssignment>> OracleTextClusterAssignments =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<OracleTextClusterAssignment>(
+          label: "OracleTextClusterAssignments",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/oracle_text_cluster_assignments.csv"
+        )
+    );
+
+  /// <summary>
+  /// Statistical metadata for K-means clustering results.
+  /// Contains per-cluster statistics including mean distance and standard deviation.
+  /// </summary>
+  public ICatalogEntry<KMeansClusterMetadata> KMeansClusterMetadata =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Json<KMeansClusterMetadata>(
+          label: "KMeansClusterMetadata",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/kmeans_cluster_metadata.json"
+        )
+    );
+
+  /// <summary>
+  /// K-means cluster metadata enriched with per-cluster lists of the N closest observations
+  /// joined to card data for interpretability.
+  /// </summary>
+  public ICatalogEntry<EnrichedClusterMetadata> EnrichedClusterMetadata =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Json<EnrichedClusterMetadata>(
+          label: "EnrichedClusterMetadata",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/enriched_cluster_metadata.json"
+        )
+    );
 }

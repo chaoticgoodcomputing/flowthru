@@ -41,7 +41,9 @@ public static class SplitSectionsNode
   {
     var index = text.IndexOf(delimiter, StringComparison.Ordinal);
     if (index == -1)
+    {
       return (text.Trim(), "");
+    }
 
     return (text[..index].Trim(), text[index..]);
   }

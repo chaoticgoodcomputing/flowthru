@@ -14,7 +14,7 @@ public static class SampleOracleNearestNeighborsNode
   /// <summary>
   /// Configuration options for nearest neighbor sampling and analysis.
   /// </summary>
-  public record Options
+  public record Params
   {
     /// <summary>
     /// Number of nearest neighbors to find for each target card.
@@ -83,7 +83,7 @@ public static class SampleOracleNearestNeighborsNode
       IEnumerable<OracleTextEmbedding> embeddings
     ),
     Task<IEnumerable<NearestNeighborAnalysis>>
-  > Create(Options options)
+  > Create(Params options)
   {
     return async (input) =>
     {
@@ -207,7 +207,7 @@ public static class SampleOracleNearestNeighborsNode
   /// <returns>Filtered embeddings matching the configured text type criteria.</returns>
   private static IEnumerable<OracleTextEmbedding> FilterEmbeddingsByTextType(
     IEnumerable<OracleTextEmbedding> embeddings,
-    Options options
+    Params options
   )
   {
     var filtered = embeddings.Where(e => e.TextType != OracleTextType.Full);
@@ -234,7 +234,7 @@ public static class SampleOracleNearestNeighborsNode
   /// </summary>
   private static IEnumerable<CardCoreData> SelectTargetCards(
     IEnumerable<CardCoreData> coreData,
-    Options options
+    Params options
   )
   {
     var coreDataList = coreData.ToList();

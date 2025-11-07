@@ -16,7 +16,7 @@ public static class SampleOracleTextEmbeddingsNode
   /// <summary>
   /// Configuration options for embedding sampling.
   /// </summary>
-  public record Options
+  public record Params
   {
     /// <summary>
     /// Number of embeddings to randomly sample from the dataset.
@@ -39,9 +39,9 @@ public static class SampleOracleTextEmbeddingsNode
   public static Func<
     IEnumerable<OracleTextEmbedding>,
     Task<IEnumerable<OracleTextEmbedding>>
-  > Create(Options? options = null)
+  > Create(Params? options = null)
   {
-    var config = options ?? new Options();
+    var config = options ?? new Params();
 
     return async (input) =>
     {

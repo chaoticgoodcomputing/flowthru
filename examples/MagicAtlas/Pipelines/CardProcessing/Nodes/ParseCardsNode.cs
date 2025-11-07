@@ -145,7 +145,9 @@ public static class ParseCardsNode
   private static ImageUris? ParseImageUris(Dictionary<string, string>? raw)
   {
     if (raw == null)
+    {
       return null;
+    }
 
     return new ImageUris
     {
@@ -161,7 +163,9 @@ public static class ParseCardsNode
   private static List<RelatedCard>? ParseRelatedCards(List<Dictionary<string, string>>? raw)
   {
     if (raw == null || raw.Count == 0)
+    {
       return null;
+    }
 
     return raw.Select(r => new RelatedCard
       {
@@ -177,7 +181,9 @@ public static class ParseCardsNode
   private static List<CardFace>? ParseCardFaces(List<Dictionary<string, object>>? raw)
   {
     if (raw == null || raw.Count == 0)
+    {
       return null;
+    }
 
     return raw.Select(r => new CardFace
       {
@@ -264,7 +270,9 @@ public static class ParseCardsNode
   private static Prices ParsePrices(Dictionary<string, string?>? raw)
   {
     if (raw == null)
+    {
       return new Prices();
+    }
 
     return new Prices
     {
@@ -281,7 +289,9 @@ public static class ParseCardsNode
   private static decimal? ParsePrice(string? value)
   {
     if (string.IsNullOrEmpty(value))
+    {
       return null;
+    }
 
     return decimal.TryParse(value, out var result) ? result : null;
   }
@@ -289,7 +299,9 @@ public static class ParseCardsNode
   private static Preview? ParsePreview(Dictionary<string, string>? raw)
   {
     if (raw == null || raw.Count == 0)
+    {
       return null;
+    }
 
     return new Preview
     {
@@ -309,7 +321,9 @@ public static class ParseCardsNode
     var subtypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     if (string.IsNullOrWhiteSpace(typeLine))
+    {
       return (types, subtypes);
+    }
 
     // Split by em dash (—), en dash (–), or hyphen (-) to separate types from subtypes
     var parts = typeLine.Split(new[] { '—', '–', '-' }, 2);

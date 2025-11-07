@@ -27,7 +27,9 @@ public static class EnumExtensions
   public static List<ManaColor>? ParseManaColors(List<string>? values)
   {
     if (values == null || values.Count == 0)
+    {
       return null;
+    }
 
     return values.Select(ParseManaColor).Where(c => c.HasValue).Select(c => c!.Value).ToList();
   }
@@ -128,7 +130,9 @@ public static class EnumExtensions
   public static ImageStatus? ParseImageStatus(string? value)
   {
     if (string.IsNullOrEmpty(value))
+    {
       return null;
+    }
 
     return value.ToLowerInvariant() switch
     {
@@ -209,7 +213,9 @@ public static class EnumExtensions
   public static List<Finish> ParseFinishes(List<string>? values)
   {
     if (values == null || values.Count == 0)
+    {
       return new List<Finish>();
+    }
 
     return values.Select(ParseFinish).ToList();
   }
@@ -232,7 +238,9 @@ public static class EnumExtensions
   public static List<Platform> ParsePlatforms(List<string>? values)
   {
     if (values == null || values.Count == 0)
+    {
       return new List<Platform>();
+    }
 
     return values.Select(ParsePlatform).ToList();
   }

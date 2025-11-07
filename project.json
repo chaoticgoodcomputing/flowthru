@@ -61,7 +61,7 @@
             "commands": [
               "dotnet csharpier ."
             ],
-            "cwd": "project.json",
+            "cwd": ".",
             "parallel": false
           }
         }

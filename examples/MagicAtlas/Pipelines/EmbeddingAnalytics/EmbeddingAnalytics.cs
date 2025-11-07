@@ -17,18 +17,28 @@ public static class EmbeddingAnalytics
     /// <summary>
     /// Configuration options for the nearest neighbor sampling node.
     /// </summary>
-    public SampleOracleNearestNeighborsNode.Options NearestNeighborOptions { get; init; } = new();
+    public SampleOracleNearestNeighborsNode.Params NearestNeighborOptions { get; init; } = new();
 
     /// <summary>
     /// Configuration options for the embedding sampling node.
     /// </summary>
-    public SampleOracleTextEmbeddingsNode.Options EmbeddingSamplingOptions { get; init; } = new();
+    public SampleOracleTextEmbeddingsNode.Params EmbeddingSamplingParams { get; init; } = new();
 
     /// <summary>
     /// Configuration options for the embedding distribution chart.
     /// </summary>
-    public GenerateEmbeddingDistributionChartNode.Options DistributionChartOptions { get; init; } =
+    public GenerateEmbeddingDistributionChartNode.Params DistributionChartParams { get; init; } =
       new();
+
+    /// <summary>
+    /// Configuration options for K-means clustering.
+    /// </summary>
+    public KMeansClusteringNode.Params ClusteringParams { get; init; } = new();
+
+    /// <summary>
+    /// Configuration options for enriching cluster metadata (top-N closest per cluster).
+    /// </summary>
+    public EnrichClusterMetadataNode.Params EnrichmentParams { get; init; } = new();
   }
 
   /// <summary>
@@ -63,7 +73,7 @@ public static class EmbeddingAnalytics
         description: """
           Randomly samples N oracle text embeddings for distribution analysis and visualization.
         """,
-        transform: SampleOracleTextEmbeddingsNode.Create(parameters.EmbeddingSamplingOptions),
+        transform: SampleOracleTextEmbeddingsNode.Create(parameters.EmbeddingSamplingParams),
         input: catalog.OracleTextEmbeddings,
         output: catalog.SampledOracleTextEmbeddings
       );
@@ -75,7 +85,7 @@ public static class EmbeddingAnalytics
           embedding dimensions, with normalized Y-axis showing percentage of observations.
         """,
         transform: GenerateEmbeddingDistributionChartNode.Create(
-          parameters.DistributionChartOptions
+          parameters.DistributionChartParams
         ),
         input: catalog.OracleTextEmbeddings,
         output: catalog.EmbeddingDistributionChart
@@ -89,6 +99,33 @@ public static class EmbeddingAnalytics
         transform: PlotlyImageExportNode.Create(),
         input: catalog.EmbeddingDistributionChart,
         output: catalog.EmbeddingDistributionPlotPng
+      );
+
+      pipeline.AddNode(
+        label: "ClusterOracleTextEmbeddings",
+        description: """
+          Performs K-means clustering on oracle text embeddings to identify groups of
+          mechanically similar cards. Outputs cluster assignments and per-cluster statistics.
+        """,
+        transform: KMeansClusteringNode.Create(parameters.ClusteringParams),
+        input: catalog.OracleTextEmbeddings,
+        output: (catalog.OracleTextClusterAssignments, catalog.KMeansClusterMetadata)
+      );
+
+      pipeline.AddNode(
+        label: "EnrichClusterMetadata",
+        description: """
+          Enriches cluster metadata with card information to provide interpretable context
+          about what each cluster represents through its most representative card.
+        """,
+        transform: EnrichClusterMetadataNode.Create(parameters.EnrichmentParams),
+        input: (
+          catalog.KMeansClusterMetadata,
+          catalog.OracleTextClusterAssignments,
+          catalog.FilteredCardCoreData,
+          catalog.FilteredCardMetadata
+        ),
+        output: catalog.EnrichedClusterMetadata
       );
     });
   }

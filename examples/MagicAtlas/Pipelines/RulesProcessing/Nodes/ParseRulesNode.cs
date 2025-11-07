@@ -97,7 +97,9 @@ public static partial class ParseRulesNode
     {
       var trimmed = line.Trim();
       if (string.IsNullOrEmpty(trimmed))
+      {
         continue;
+      }
 
       // Match main rule (e.g., "100.1. Text..." or "100.1a. Text...")
       var ruleMatch = RuleRegex().Match(trimmed);
