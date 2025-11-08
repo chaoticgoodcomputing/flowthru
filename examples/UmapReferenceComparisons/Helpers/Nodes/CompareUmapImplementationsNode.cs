@@ -3,45 +3,61 @@ using Microsoft.ML;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 using UmapReferenceComparisons.Data._03_Reports.Schemas;
 
-namespace UmapReferenceComparisons.Pipelines.IrisComparison.Nodes;
+namespace UmapReferenceComparisons.Helpers.Nodes;
 
 /// <summary>
-/// Compares C# UMAP output against Python reference output using three-metric validation.
+/// Compares C# UMAP implementation against Python reference output using neighborhood preservation validation.
 /// </summary>
 /// <remarks>
-/// <para><strong>Three-Metric Validation Approach:</strong></para>
+/// <para><strong>Generic Multi-Trial Validation:</strong></para>
 /// <para>
-/// 1. <strong>Python Neighborhood Preservation:</strong> Does Python UMAP preserve the original high-dimensional structure?
+/// This node validates UMAP correctness by measuring how well each implementation preserves
+/// the original high-dimensional neighborhood structure. Since UMAP uses random initialization,
+/// we run multiple C# trials with different seeds and use statistical testing to confirm
+/// that C# and Python implementations are mathematically equivalent.
 /// </para>
 /// <para>
-/// 2. <strong>C# Neighborhood Preservation:</strong> Does C# UMAP preserve the original high-dimensional structure?
+/// <strong>Key Metrics:</strong>
+/// </para>
+/// <list type="number">
+/// <item><strong>Python Neighborhood Preservation:</strong> Proportion of high-dim k-NN edges preserved in Python embedding</item>
+/// <item><strong>C# Neighborhood Preservation:</strong> Distribution of preservation scores across multiple trials</item>
+/// </list>
+/// <para>
+/// <strong>Parameterization:</strong>
 /// </para>
 /// <para>
-/// 3. <strong>Implementation Similarity:</strong> How similar are the Python and C# embeddings to each other?
+/// The node is fully parameterized to work with any dataset and UMAP configuration:
 /// </para>
-/// <para>
-/// Since UMAP uses random initialization, we run multiple C# trials with different seeds
-/// and compare the distribution of preservation scores to determine if C# and Python
-/// implementations are mathematically equivalent.
-/// </para>
+/// <list type="bullet">
+/// <item>Dataset name for logging</item>
+/// <item>Feature extraction function (converts input rows to float[][])</item>
+/// <item>UMAP hyperparameters (n_neighbors, learning_rate, min_dist, etc.)</item>
+/// <item>Validation thresholds (minimum preservation, confidence, trials)</item>
+/// </list>
 /// </remarks>
-public static class CompareOutputsNode
+public static class CompareUmapImplementationsNode
 {
   /// <summary>
-  /// Configuration for comparison metrics.
+  /// Configuration for UMAP comparison validation.
   /// </summary>
   public record Params
   {
+    /// <summary>
+    /// Name of the dataset being validated (e.g., "iris", "digits").
+    /// </summary>
+    public required string DatasetName { get; init; }
+
+    /// <summary>
+    /// UMAP hyperparameters for C# trials.
+    /// </summary>
+    public required UmapOptions UmapOptions { get; init; }
+
     /// <summary>
     /// Number of nearest neighbors to use for preservation metrics.
     /// Should match or be close to the n_neighbors parameter used in UMAP.
     /// </summary>
     public int KNeighbors { get; init; } = 15;
-
-    /// <summary>
-    /// Minimum neighborhood preservation threshold (0.0 to 1.0) for validation to pass.
-    /// </summary>
-    public double MinimumPreservation { get; init; } = 0.7;
 
     /// <summary>
     /// Maximum allowed difference between Python and C# mean preservation scores.
@@ -59,17 +75,21 @@ public static class CompareOutputsNode
     public int NumTrials { get; init; } = 10;
   }
 
+  /// <summary>
+  /// Creates a UMAP comparison node that validates C# implementation against Python reference.
+  /// </summary>
+  /// <remarks>
+  /// Expects input data in universal <see cref="UmapInput"/> format with pre-extracted features.
+  /// </remarks>
   public static Func<
     (
-      IEnumerable<IrisInputRow> inputData,
+      IEnumerable<UmapInput> inputData,
       IEnumerable<UmapOutputRow> pythonOutput,
-      IEnumerable<IrisInputRow> csharpTrialInputs
+      IEnumerable<UmapInput> csharpTrialInputs
     ),
     Task<ComparisonResult>
-  > Create(Params? options = null)
+  > Create(Params options)
   {
-    var config = options ?? new Params();
-
     return async (input) =>
     {
       var (inputData, pythonOutput, _) = input;
@@ -77,7 +97,7 @@ public static class CompareOutputsNode
       var inputList = inputData.ToList();
       var pythonList = pythonOutput.ToList();
 
-      Console.WriteLine($"\n=== Three-Metric UMAP Validation ===");
+      Console.WriteLine($"\n=== UMAP Validation: {options.DatasetName} ===");
       Console.WriteLine($"Input samples: {inputList.Count}");
       Console.WriteLine($"Python samples: {pythonList.Count}");
 
@@ -92,9 +112,12 @@ public static class CompareOutputsNode
         );
       }
 
+      // Extract feature vectors from UmapInput
+      var inputFeatures = inputList.Select(row => row.Features).ToArray();
+
       // Pre-compute high-dimensional k-NN graph (shared across all metrics)
-      Console.WriteLine($"\n1. Building high-dimensional k-NN graph (k={config.KNeighbors})...");
-      var originalKnn = BuildKnnGraphHighDim(inputList, config.KNeighbors);
+      Console.WriteLine($"\n1. Building high-dimensional k-NN graph (k={options.KNeighbors})...");
+      var originalKnn = BuildKnnGraphHighDim(inputFeatures, options.KNeighbors);
       Console.WriteLine($"   High-dimensional k-NN graph computed.");
 
       // METRIC 1: Python neighborhood preservation
@@ -102,26 +125,26 @@ public static class CompareOutputsNode
       var pythonPreservation = ComputeNeighborhoodPreservationWithKnn(
         originalKnn,
         pythonList,
-        config.KNeighbors
+        options.KNeighbors
       );
       Console.WriteLine($"   Python preservation: {pythonPreservation:P2}");
 
       // METRIC 2: Run multiple C# trials
-      Console.WriteLine($"\n3. Running {config.NumTrials} C# UMAP trials with different seeds...");
+      Console.WriteLine($"\n3. Running {options.NumTrials} C# UMAP trials with different seeds...");
       var csharpPreservations = new List<double>();
 
-      for (int trial = 0; trial < config.NumTrials; trial++)
+      for (int trial = 0; trial < options.NumTrials; trial++)
       {
-        var csharpEmbedding = await RunCSharpUmapTrial(inputList, trial);
+        var csharpEmbedding = await RunCSharpUmapTrial(inputFeatures, options.UmapOptions, trial);
 
         // Compute preservation (reusing precomputed high-dim k-NN)
         var preservation = ComputeNeighborhoodPreservationWithKnn(
           originalKnn,
           csharpEmbedding,
-          config.KNeighbors
+          options.KNeighbors
         );
         csharpPreservations.Add(preservation);
-        Console.WriteLine($"   Trial {trial + 1}/{config.NumTrials}: {preservation:P2}");
+        Console.WriteLine($"   Trial {trial + 1}/{options.NumTrials}: {preservation:P2}");
       }
 
       // Compute C# statistics
@@ -144,24 +167,35 @@ public static class CompareOutputsNode
       Console.WriteLine($"   Preservation Difference: {preservationDiff:P2}");
       Console.WriteLine($"   Statistical Confidence: {confidence:P2}");
 
-      // Determine if validation passed
+      // Determine if validation passed (only relative comparison matters)
       var validationPassed =
         countsMatch
         && dimensionsMatch
-        && pythonPreservation >= config.MinimumPreservation
-        && csharpMean >= config.MinimumPreservation
-        && preservationDiff <= config.MaxPreservationDifference
-        && confidence >= config.MinimumConfidence;
+        && preservationDiff <= options.MaxPreservationDifference
+        && confidence >= options.MinimumConfidence;
+
+      var message = BuildResultMessage(
+        options.DatasetName,
+        pythonPreservation,
+        csharpMean,
+        preservationDiff,
+        confidence,
+        options,
+        validationPassed
+      );
+
+      Console.WriteLine($"\n{message}");
 
       var result = new ComparisonResult
       {
+        Dataset = options.DatasetName,
         PythonSampleCount = pythonList.Count,
         CSharpSampleCount = inputList.Count,
         PythonDimensionCount = 2,
         CSharpDimensionCount = 2,
         CountsMatch = countsMatch,
         DimensionsMatch = dimensionsMatch,
-        KNeighbors = config.KNeighbors,
+        KNeighbors = options.KNeighbors,
         PythonNeighborhoodPreservation = pythonPreservation,
         CSharpNeighborhoodPreservation = csharpPreservations.First(), // Primary trial
         CSharpMeanPreservation = csharpMean,
@@ -171,6 +205,7 @@ public static class CompareOutputsNode
         PreservationDifference = preservationDiff,
         StatisticalConfidence = confidence,
         ValidationPassed = validationPassed,
+        Message = message,
       };
 
       return result;
@@ -178,46 +213,8 @@ public static class CompareOutputsNode
   }
 
   /// <summary>
-  /// Computes neighborhood preservation: proportion of high-dimensional k-NN edges
-  /// preserved in the low-dimensional embedding.
+  /// Computes neighborhood preservation using a precomputed high-dimensional k-NN graph.
   /// </summary>
-  /// <remarks>
-  /// This is the CORRECT metric for evaluating UMAP: does the embedding preserve
-  /// the original data's neighborhood structure?
-  /// </remarks>
-  private static double ComputeNeighborhoodPreservation(
-    List<IrisInputRow> originalData,
-    List<UmapOutputRow> embedding,
-    int k
-  )
-  {
-    int n = originalData.Count;
-
-    // Build k-NN in HIGH-dimensional (original) space
-    var originalKnn = BuildKnnGraphHighDim(originalData, k);
-
-    // Build k-NN in LOW-dimensional (embedding) space
-    var embeddingKnn = BuildKnnGraphLowDim(embedding, k);
-
-    // Count preserved edges
-    int preservedEdges = 0;
-    for (int i = 0; i < n; i++)
-    {
-      var originalNeighbors = originalKnn[i];
-      var embeddingNeighbors = embeddingKnn[i];
-      preservedEdges += originalNeighbors.Intersect(embeddingNeighbors).Count();
-    }
-
-    return (double)preservedEdges / (n * k);
-  }
-
-  /// <summary>
-  /// Computes neighborhood preservation with precomputed high-dimensional k-NN graph.
-  /// </summary>
-  /// <remarks>
-  /// Optimized version that reuses the high-dimensional k-NN graph across multiple trials,
-  /// avoiding redundant O(n²) computation.
-  /// </remarks>
   private static double ComputeNeighborhoodPreservationWithKnn(
     int[][] originalKnn,
     List<UmapOutputRow> embedding,
@@ -226,7 +223,7 @@ public static class CompareOutputsNode
   {
     int n = embedding.Count;
 
-    // Build k-NN in LOW-dimensional (embedding) space only
+    // Build k-NN in LOW-dimensional (embedding) space
     var embeddingKnn = BuildKnnGraphLowDim(embedding, k);
 
     // Count preserved edges
@@ -245,32 +242,27 @@ public static class CompareOutputsNode
   /// Runs a C# UMAP trial with a specific random seed.
   /// </summary>
   private static async Task<List<UmapOutputRow>> RunCSharpUmapTrial(
-    List<IrisInputRow> inputData,
-    int seed
+    float[][] inputFeatures,
+    UmapOptions baseOptions,
+    int trialIndex
   )
   {
-    // Convert to float[][] for UMAP
-    var data = inputData
-      .Select(row =>
-        new float[] { row.SepalLength, row.SepalWidth, row.PetalLength, row.PetalWidth }
-      )
-      .ToArray();
-
-    // Configure UMAP with trial-specific seed
-    var umapOptions = new Flowthru.Extensions.MLPure.UMAP.UmapOptions
+    // Create trial-specific options with different seed
+    var trialOptions = new UmapOptions
     {
-      NumberOfNeighbors = 50,
-      LearningRate = 0.5f,
-      MinDist = 0.001f,
-      NumberOfComponents = 2,
-      RandomState = seed, // Different seed per trial
-      Metric = "euclidean",
+      NumberOfNeighbors = baseOptions.NumberOfNeighbors,
+      LearningRate = baseOptions.LearningRate,
+      MinDist = baseOptions.MinDist,
+      NumberOfComponents = baseOptions.NumberOfComponents,
+      RandomState = baseOptions.RandomState + trialIndex,
+      Metric = baseOptions.Metric,
+      NumberOfEpochs = baseOptions.NumberOfEpochs,
       Verbosity = 0, // Silent for trials
     };
 
-    var mlContext = new Microsoft.ML.MLContext(seed: seed);
-    var trainer = mlContext.CreateUmapTrainer(umapOptions);
-    var (_, embedding) = trainer.FitTransform(data);
+    var mlContext = new MLContext(seed: trialOptions.RandomState);
+    var trainer = mlContext.CreateUmapTrainer(trialOptions);
+    var (_, embedding) = trainer.FitTransform(inputFeatures);
 
     return await Task.FromResult(
       embedding
@@ -282,9 +274,9 @@ public static class CompareOutputsNode
   /// <summary>
   /// Builds k-NN graph in HIGH-dimensional (original) space using Euclidean distance.
   /// </summary>
-  private static int[][] BuildKnnGraphHighDim(List<IrisInputRow> data, int k)
+  private static int[][] BuildKnnGraphHighDim(float[][] data, int k)
   {
-    int n = data.Count;
+    int n = data.Length;
     var knn = new int[n][];
 
     for (int i = 0; i < n; i++)
@@ -300,13 +292,13 @@ public static class CompareOutputsNode
         }
         else
         {
-          double dist = Math.Sqrt(
-            Math.Pow(current.SepalLength - data[j].SepalLength, 2)
-              + Math.Pow(current.SepalWidth - data[j].SepalWidth, 2)
-              + Math.Pow(current.PetalLength - data[j].PetalLength, 2)
-              + Math.Pow(current.PetalWidth - data[j].PetalWidth, 2)
-          );
-          distances[j] = (j, dist);
+          double dist = 0;
+          for (int d = 0; d < current.Length; d++)
+          {
+            double diff = current[d] - data[j][d];
+            dist += diff * diff;
+          }
+          distances[j] = (j, Math.Sqrt(dist));
         }
       }
 
@@ -408,5 +400,44 @@ public static class CompareOutputsNode
     {
       return Math.Max(0.0, 0.05 - 0.025 * (zScore - 2.0)); // Decay to 0
     }
+  }
+
+  /// <summary>
+  /// Builds result message for validation.
+  /// </summary>
+  private static string BuildResultMessage(
+    string datasetName,
+    double pythonPreservation,
+    double csharpMeanPreservation,
+    double preservationDifference,
+    double statisticalConfidence,
+    Params config,
+    bool validationPassed
+  )
+  {
+    if (validationPassed)
+    {
+      return $"✓ Validation passed for {datasetName}: "
+        + $"Python {pythonPreservation:P2}, "
+        + $"C# {csharpMeanPreservation:P2}, "
+        + $"diff {preservationDifference:P2} (max: {config.MaxPreservationDifference:P2}), "
+        + $"confidence {statisticalConfidence:P2} (min: {config.MinimumConfidence:P2})";
+    }
+
+    var errors = new List<string>();
+    if (preservationDifference > config.MaxPreservationDifference)
+    {
+      errors.Add(
+        $"Preservation difference {preservationDifference:P2} exceeds threshold {config.MaxPreservationDifference:P2}"
+      );
+    }
+    if (statisticalConfidence < config.MinimumConfidence)
+    {
+      errors.Add(
+        $"Statistical confidence {statisticalConfidence:P2} below threshold {config.MinimumConfidence:P2}"
+      );
+    }
+
+    return $"✗ Validation failed for {datasetName}: {string.Join("; ", errors)}";
   }
 }

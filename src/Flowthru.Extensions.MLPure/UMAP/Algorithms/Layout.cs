@@ -40,7 +40,7 @@ public static class Layout
     }
 
     int nEdges = edges.Count;
-    
+
     // Compute epochs_per_sample (Python: make_epochs_per_sample function, lines ~914-930)
     var epochsPerSample = MakeEpochsPerSample(edges.Select(e => e.weight).ToArray(), nEpochs);
     var epochOfNextSample = epochsPerSample.ToArray(); // Track when each edge should be sampled
@@ -144,7 +144,7 @@ public static class Layout
   {
     var result = new float[weights.Length];
     float maxWeight = weights.Max();
-    
+
     for (int i = 0; i < weights.Length; i++)
     {
       float nSamples = nEpochs * (weights[i] / maxWeight);
@@ -157,7 +157,7 @@ public static class Layout
         result[i] = -1.0f;
       }
     }
-    
+
     return result;
   }
 }

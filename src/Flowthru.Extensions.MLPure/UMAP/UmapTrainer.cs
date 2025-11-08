@@ -71,9 +71,9 @@ public sealed class UmapTrainer
     {
       Console.WriteLine($"Computing {_options.NumberOfNeighbors}-nearest neighbors...");
     }
-    
+
     _options.ProgressReporter?.Report(("K-NN", 0.0f, "Computing nearest neighbors"));
-    
+
     var metric = Distances.GetMetric(_options.Metric);
     var (knnIndices, knnDistances) = NearestNeighbors.ComputeKnn(
       data,
@@ -89,7 +89,7 @@ public sealed class UmapTrainer
     {
       Console.WriteLine("Computing fuzzy simplicial set...");
     }
-    
+
     _options.ProgressReporter?.Report(("Fuzzy Set", 0.0f, "Computing membership strengths"));
 
     var (sigmas, rhos) = FuzzySimplicialSet.SmoothKnnDist(
@@ -110,7 +110,8 @@ public sealed class UmapTrainer
 
     // Step 3: Find a/b parameters for curve fitting
     // Python: find_ab_params call (line ~2730)
-    float a, b;
+    float a,
+      b;
     if (_options.A.HasValue && _options.B.HasValue)
     {
       a = _options.A.Value;

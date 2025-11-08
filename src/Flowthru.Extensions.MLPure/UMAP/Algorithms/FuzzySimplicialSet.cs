@@ -26,7 +26,7 @@ public static class FuzzySimplicialSet
   {
     int nSamples = knnDistances.Length;
     float target = MathF.Log2(k);
-    
+
     var rhos = new float[nSamples];
     var sigmas = new float[nSamples];
 
@@ -46,7 +46,7 @@ public static class FuzzySimplicialSet
     for (int i = 0; i < nSamples; i++)
     {
       var distances = knnDistances[i];
-      
+
       // Compute rho (distance to nearest connected neighbor)
       // Python: lines ~192-210
       var nonZeroDists = distances.Where(d => d > 0.0f).ToArray();
@@ -54,7 +54,7 @@ public static class FuzzySimplicialSet
       {
         int index = (int)MathF.Floor(localConnectivity);
         float interpolation = localConnectivity - index;
-        
+
         if (index > 0)
         {
           rhos[i] = nonZeroDists[index - 1];
@@ -195,7 +195,7 @@ public static class FuzzySimplicialSet
 
     // Create sparse matrix from COO format
     var result = SparseMatrix.Create(nSamples, nSamples, 0.0f);
-    
+
     for (int i = 0; i < rows.Count; i++)
     {
       result[rows[i], cols[i]] = vals[i];
@@ -204,10 +204,15 @@ public static class FuzzySimplicialSet
     // Apply fuzzy set operations (Python: lines ~589-600)
     // fuzzy union: result + transpose - (result .* transpose)
     // fuzzy intersection: result .* transpose
-    var transpose = result.Transpose() as SparseMatrix ?? throw new InvalidOperationException("Transpose failed");
-    var prodMatrix = result.PointwiseMultiply(transpose) as SparseMatrix ?? throw new InvalidOperationException("PointwiseMultiply failed");
-    
-    var unionPart = (result + transpose - prodMatrix) as SparseMatrix ?? throw new InvalidOperationException("Union failed");
+    var transpose =
+      result.Transpose() as SparseMatrix ?? throw new InvalidOperationException("Transpose failed");
+    var prodMatrix =
+      result.PointwiseMultiply(transpose) as SparseMatrix
+      ?? throw new InvalidOperationException("PointwiseMultiply failed");
+
+    var unionPart =
+      (result + transpose - prodMatrix) as SparseMatrix
+      ?? throw new InvalidOperationException("Union failed");
     result = (SparseMatrix)(setOpMixRatio * unionPart + (1.0f - setOpMixRatio) * prodMatrix);
 
     // Clear near-zero values manually
@@ -236,7 +241,7 @@ public static class FuzzySimplicialSet
     // Full implementation would use curve fitting
     float a = 1.929f;
     float b = 0.7915f;
-    
+
     return (a, b);
   }
 }

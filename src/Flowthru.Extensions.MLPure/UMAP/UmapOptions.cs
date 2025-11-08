@@ -39,7 +39,11 @@ public sealed class UmapOptions
   /// <summary>
   /// Optional progress reporter for programmatic progress tracking.
   /// </summary>
-  public IProgress<(string Stage, float Progress, string? Details)>? ProgressReporter { get; init; } = null;
+  public IProgress<(
+    string Stage,
+    float Progress,
+    string? Details
+  )>? ProgressReporter { get; init; } = null;
 
   // Note: Pure implementation always uses exact k-NN (no approximation)
   // This matches the Python reference behavior without pynndescent optimizations
@@ -50,44 +54,65 @@ public sealed class UmapOptions
   public void Validate()
   {
     if (NumberOfNeighbors < 2)
-      throw new ArgumentException("NumberOfNeighbors must be at least 2", nameof(NumberOfNeighbors));
-    
+      throw new ArgumentException(
+        "NumberOfNeighbors must be at least 2",
+        nameof(NumberOfNeighbors)
+      );
+
     if (NumberOfComponents < 1)
-      throw new ArgumentException("NumberOfComponents must be at least 1", nameof(NumberOfComponents));
-    
+      throw new ArgumentException(
+        "NumberOfComponents must be at least 1",
+        nameof(NumberOfComponents)
+      );
+
     if (MinDist < 0 || MinDist > Spread)
       throw new ArgumentException("MinDist must be between 0 and Spread", nameof(MinDist));
-    
+
     if (Spread <= 0)
       throw new ArgumentException("Spread must be positive", nameof(Spread));
-    
+
     if (NumberOfEpochs.HasValue && NumberOfEpochs.Value < 0)
       throw new ArgumentException("NumberOfEpochs must be non-negative", nameof(NumberOfEpochs));
-    
+
     if (LearningRate <= 0)
       throw new ArgumentException("LearningRate must be positive", nameof(LearningRate));
-    
+
     if (LocalConnectivity < 0)
-      throw new ArgumentException("LocalConnectivity must be non-negative", nameof(LocalConnectivity));
-    
+      throw new ArgumentException(
+        "LocalConnectivity must be non-negative",
+        nameof(LocalConnectivity)
+      );
+
     if (RepulsionStrength < 0)
-      throw new ArgumentException("RepulsionStrength must be non-negative", nameof(RepulsionStrength));
-    
+      throw new ArgumentException(
+        "RepulsionStrength must be non-negative",
+        nameof(RepulsionStrength)
+      );
+
     if (NegativeSampleRate < 0)
-      throw new ArgumentException("NegativeSampleRate must be non-negative", nameof(NegativeSampleRate));
-    
+      throw new ArgumentException(
+        "NegativeSampleRate must be non-negative",
+        nameof(NegativeSampleRate)
+      );
+
     if (SetOpMixRatio < 0 || SetOpMixRatio > 1)
       throw new ArgumentException("SetOpMixRatio must be between 0 and 1", nameof(SetOpMixRatio));
-    
+
     if (Verbosity < 0 || Verbosity > 2)
       throw new ArgumentException("Verbosity must be 0, 1, or 2", nameof(Verbosity));
 
     var supportedMetrics = new[] { "euclidean", "cosine", "correlation", "manhattan" };
     if (!supportedMetrics.Contains(Metric.ToLowerInvariant()))
-      throw new ArgumentException($"Metric must be one of: {string.Join(", ", supportedMetrics)}", nameof(Metric));
-    
+      throw new ArgumentException(
+        $"Metric must be one of: {string.Join(", ", supportedMetrics)}",
+        nameof(Metric)
+      );
+
     var supportedInits = new[] { "spectral", "random", "pca" };
     if (!supportedInits.Contains(Init.ToLowerInvariant()))
-      throw new ArgumentException($"Init must be one of: {string.Join(", ", supportedInits)}", nameof(Init));
+      throw new ArgumentException(
+        $"Init must be one of: {string.Join(", ", supportedInits)}",
+        nameof(Init)
+      );
   }
 }

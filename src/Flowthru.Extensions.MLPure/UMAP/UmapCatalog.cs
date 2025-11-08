@@ -50,7 +50,7 @@ public static class UmapCatalog
       NumberOfNeighbors = nNeighbors,
       NumberOfComponents = nComponents,
       MinDist = minDist,
-      Metric = metric
+      Metric = metric,
     };
 
     var env = new MLContext(seed: context.GetHashCode());

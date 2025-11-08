@@ -41,6 +41,20 @@ public partial class Catalog
         )
     );
 
+  public ICatalogEntry<GenericChart> DigitsVisualization =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "DigitsVisualization")
+    );
+
+  public ICatalogEntry<byte[]> DigitsVisualizationPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "DigitsVisualizationPng",
+          filePath: $"{_basePath}/_03_Reports/Datasets/digits_comparison.png"
+        )
+    );
+
   public ICatalogEntry<ComparisonResult> MnistComparison =>
     GetOrCreateEntry(
       () =>

@@ -13,13 +13,13 @@ This is a **reference implementation** used to:
 
 ## Differences from Flowthru.Extensions.ML
 
-| Aspect | MLPure (this project) | ML (optimized) |
-|--------|----------------------|----------------|
-| **Goal** | Algorithmic correctness | Performance |
-| **Source** | Direct Python port | Optimized C# |
-| **Speed** | Slower | Faster |
-| **Memory** | Higher usage | Optimized |
-| **Use Case** | Testing/validation | Production |
+| Aspect       | MLPure (this project)   | ML (optimized) |
+| ------------ | ----------------------- | -------------- |
+| **Goal**     | Algorithmic correctness | Performance    |
+| **Source**   | Direct Python port      | Optimized C#   |
+| **Speed**    | Slower                  | Faster         |
+| **Memory**   | Higher usage            | Optimized      |
+| **Use Case** | Testing/validation      | Production     |
 
 ## Attribution
 

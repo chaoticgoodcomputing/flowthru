@@ -41,19 +41,19 @@ public static class Distances
     float dotProduct = 0.0f;
     float normX = 0.0f;
     float normY = 0.0f;
-    
+
     for (int i = 0; i < x.Length; i++)
     {
       dotProduct += x[i] * y[i];
       normX += x[i] * x[i];
       normY += y[i] * y[i];
     }
-    
+
     if (normX == 0.0f || normY == 0.0f)
     {
       return 1.0f;
     }
-    
+
     float cosineSimilarity = dotProduct / (MathF.Sqrt(normX) * MathF.Sqrt(normY));
     return 1.0f - cosineSimilarity;
   }
@@ -64,7 +64,8 @@ public static class Distances
   public static float Correlation(ReadOnlySpan<float> x, ReadOnlySpan<float> y)
   {
     // Compute means
-    float meanX = 0.0f, meanY = 0.0f;
+    float meanX = 0.0f,
+      meanY = 0.0f;
     for (int i = 0; i < x.Length; i++)
     {
       meanX += x[i];
@@ -72,12 +73,12 @@ public static class Distances
     }
     meanX /= x.Length;
     meanY /= y.Length;
-    
+
     // Compute correlation
     float numerator = 0.0f;
     float denomX = 0.0f;
     float denomY = 0.0f;
-    
+
     for (int i = 0; i < x.Length; i++)
     {
       float dx = x[i] - meanX;
@@ -86,12 +87,12 @@ public static class Distances
       denomX += dx * dx;
       denomY += dy * dy;
     }
-    
+
     if (denomX == 0.0f || denomY == 0.0f)
     {
       return 1.0f;
     }
-    
+
     float correlation = numerator / (MathF.Sqrt(denomX) * MathF.Sqrt(denomY));
     return 1.0f - correlation;
   }
@@ -107,7 +108,7 @@ public static class Distances
       "manhattan" => Manhattan,
       "cosine" => Cosine,
       "correlation" => Correlation,
-      _ => throw new ArgumentException($"Unknown metric: {metric}", nameof(metric))
+      _ => throw new ArgumentException($"Unknown metric: {metric}", nameof(metric)),
     };
   }
 }

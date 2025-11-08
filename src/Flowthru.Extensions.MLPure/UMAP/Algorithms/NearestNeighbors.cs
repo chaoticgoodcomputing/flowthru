@@ -35,7 +35,7 @@ public static class NearestNeighbors
     {
       // Compute distances to all other points
       var distList = new List<(int index, float distance)>(nSamples);
-      
+
       for (int j = 0; j < nSamples; j++)
       {
         float dist = metric(dataRows[i], dataRows[j]);
@@ -44,10 +44,10 @@ public static class NearestNeighbors
 
       // Sort by distance and take top k
       distList.Sort((a, b) => a.distance.CompareTo(b.distance));
-      
+
       indices[i] = new int[nNeighbors];
       distances[i] = new float[nNeighbors];
-      
+
       for (int k = 0; k < nNeighbors; k++)
       {
         indices[i][k] = distList[k].index;

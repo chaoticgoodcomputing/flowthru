@@ -60,26 +60,64 @@ public record ComparisonResult : IFlatSchema, IBinarySerializable, IStructuredSe
   public int KNeighbors { get; init; }
 
   /// <summary>
-  /// Skeletal similarity score (0.0 to 1.0) measuring proportion of preserved k-NN edges.
+  /// Python UMAP neighborhood preservation: how well Python UMAP preserves original data structure.
   /// </summary>
   /// <remarks>
-  /// Computed as: (number of preserved k-NN edges) / (total k-NN edges).
-  /// Higher values indicate better preservation of neighborhood structure.
+  /// Measures proportion of high-dimensional k-NN edges preserved in Python embedding.
+  /// Score closer to 1.0 indicates Python UMAP is working correctly.
   /// </remarks>
-  [SerializedLabel("skeletal_similarity")]
-  public double SkeletalSimilarity { get; init; }
+  [SerializedLabel("python_neighborhood_preservation")]
+  public double PythonNeighborhoodPreservation { get; init; }
 
   /// <summary>
-  /// Total number of k-NN edges compared (N samples × K neighbors).
+  /// C# UMAP neighborhood preservation: how well C# UMAP preserves original data structure.
   /// </summary>
-  [SerializedLabel("total_edges")]
-  public int TotalEdges { get; init; }
+  /// <remarks>
+  /// Measures proportion of high-dimensional k-NN edges preserved in C# embedding.
+  /// Score closer to 1.0 indicates C# UMAP is working correctly.
+  /// </remarks>
+  [SerializedLabel("csharp_neighborhood_preservation")]
+  public double CSharpNeighborhoodPreservation { get; init; }
 
   /// <summary>
-  /// Number of k-NN edges preserved between Python and C# outputs.
+  /// Mean C# neighborhood preservation across all trials.
   /// </summary>
-  [SerializedLabel("preserved_edges")]
-  public int PreservedEdges { get; init; }
+  [SerializedLabel("csharp_mean_preservation")]
+  public double CSharpMeanPreservation { get; init; }
+
+  /// <summary>
+  /// Standard deviation of C# neighborhood preservation across trials.
+  /// </summary>
+  [SerializedLabel("csharp_stddev_preservation")]
+  public double CSharpStdDevPreservation { get; init; }
+
+  /// <summary>
+  /// Minimum C# neighborhood preservation across trials.
+  /// </summary>
+  [SerializedLabel("csharp_min_preservation")]
+  public double CSharpMinPreservation { get; init; }
+
+  /// <summary>
+  /// Maximum C# neighborhood preservation across trials.
+  /// </summary>
+  [SerializedLabel("csharp_max_preservation")]
+  public double CSharpMaxPreservation { get; init; }
+
+  /// <summary>
+  /// Absolute difference between Python and C# mean preservation scores.
+  /// </summary>
+  [SerializedLabel("preservation_difference")]
+  public double PreservationDifference { get; init; }
+
+  /// <summary>
+  /// Statistical confidence that Python and C# produce similar preservation scores.
+  /// </summary>
+  /// <remarks>
+  /// Higher values indicate greater confidence that both implementations
+  /// are mathematically equivalent despite random initialization differences.
+  /// </remarks>
+  [SerializedLabel("statistical_confidence")]
+  public double StatisticalConfidence { get; init; }
 
   /// <summary>
   /// Whether the comparison passed (counts, dimensions match, and skeletal similarity above threshold).

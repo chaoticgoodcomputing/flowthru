@@ -1,3 +1,4 @@
+using Flowthru.Extensions.MLPure.UMAP;
 using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
@@ -23,33 +24,67 @@ public static class IrisComparisonPipeline
 {
   public static Pipeline Create(Catalog catalog)
   {
+    var umapOptions = new UmapOptions
+    {
+      NumberOfNeighbors = 50,
+      LearningRate = 0.5f,
+      MinDist = 0.001f,
+      NumberOfComponents = 2,
+      RandomState = 42,
+      Metric = "euclidean",
+      NumberOfEpochs = null,
+      Verbosity = 2,
+    };
+
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
+      pipeline.AddNode(
+        label: "ConvertIrisToUmapInput",
+        description: """
+          Converts Iris-specific schema to universal UmapInput format.
+          Extracts the 4 Iris features (sepal/petal length/width) into a float array.
+        """,
+        transform: ConvertIrisToUmapInputNode.Create(),
+        input: catalog.IrisInput,
+        output: catalog.IrisUmapInput
+      );
+
       pipeline.AddNode(
         label: "TransformIrisWithCSharpUmap",
         description: """
           Applies C# UMAP to Iris input features using the same parameters
           as the Python reference implementation.
         """,
-        transform: TransformIrisNode.Create(),
-        input: catalog.IrisInput,
+        transform: TransformWithUmapNode.Create(
+          new TransformWithUmapNode.Params { DatasetName = "Iris", UmapOptions = umapOptions }
+        ),
+        input: catalog.IrisUmapInput,
         output: catalog.IrisCSharpOutput
       );
 
       pipeline.AddNode(
         label: "CompareIrisOutputs",
         description: """
-          Compares C# UMAP output against Python reference output.
+          Compares C# UMAP output against Python reference output using neighborhood preservation validation.
           
-          Skeletal similarity measures what proportion of k-nearest neighbor
-          relationships are preserved between the two embeddings. Higher scores
-          indicate better preservation of local structure.
+          Metrics:
+          1. Python neighborhood preservation: High-dim → Python embedding
+          2. C# neighborhood preservation: High-dim → C# embedding (mean over multiple trials)
+          
+          Multi-trial approach accounts for random initialization variance.
         """,
-        transform: CompareOutputsNode.Create(
-          "iris",
-          new CompareOutputsNode.Params { KNeighbors = 15, MinimumSimilarity = 0.7 }
+        transform: CompareUmapImplementationsNode.Create(
+          new CompareUmapImplementationsNode.Params
+          {
+            DatasetName = "iris",
+            UmapOptions = umapOptions,
+            KNeighbors = 15,
+            MaxPreservationDifference = 0.1,
+            MinimumConfidence = 0.68,
+            NumTrials = 10,
+          }
         ),
-        input: (catalog.IrisInput, catalog.IrisPythonOutput, catalog.IrisCSharpOutput),
+        input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisUmapInput),
         output: catalog.IrisComparison
       );
 
@@ -64,8 +99,21 @@ public static class IrisComparisonPipeline
           - Similar separation between species
           - Similar relative positioning of clusters
         """,
-        transform: VisualizeComparisonNode.Create("Iris"),
-        input: (catalog.IrisInput, catalog.IrisPythonOutput, catalog.IrisCSharpOutput),
+        transform: VisualizeUmapComparisonNode.Create(
+          new VisualizeUmapComparisonNode.Params
+          {
+            DatasetName = "Iris",
+            LabelFormatter = label =>
+              label switch
+              {
+                "0" => "Setosa",
+                "1" => "Versicolor",
+                "2" => "Virginica",
+                _ => $"Class {label}",
+              },
+          }
+        ),
+        input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisCSharpOutput),
         output: catalog.IrisVisualization
       );
 

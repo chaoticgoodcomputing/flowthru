@@ -1,5 +1,6 @@
 using Flowthru.Application;
 using UmapReferenceComparisons.Data;
+using UmapReferenceComparisons.Pipelines.DigitsComparison;
 using UmapReferenceComparisons.Pipelines.IrisComparison;
 
 namespace UmapReferenceComparisons;
@@ -25,14 +26,23 @@ public class Program
         // Register comparison pipelines
         builder
           .RegisterPipeline<Catalog>(
-            label: "IrisComparison",
+            label: "IrisComparisonPipeline",
             pipeline: IrisComparisonPipeline.Create
           )
           .WithDescription(
             "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
           );
 
-        // TODO: Add DigitsComparison and MnistComparison pipelines
+        builder
+          .RegisterPipeline<Catalog>(
+            label: "DigitsComparisonPipeline",
+            pipeline: DigitsComparisonPipeline.Create
+          )
+          .WithDescription(
+            "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
+          );
+
+        // TODO: Add MnistComparison and FashionMnistComparison pipelines
       }
     );
 
