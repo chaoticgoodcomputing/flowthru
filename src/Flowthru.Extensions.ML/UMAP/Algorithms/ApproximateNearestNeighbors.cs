@@ -217,12 +217,7 @@ public static class ApproximateNearestNeighbors
   /// <summary>
   /// Recursively builds a random projection tree.
   /// </summary>
-  private static RpTreeNode BuildTree(
-    float[][] data,
-    int[] indices,
-    int leafSize,
-    Random random
-  )
+  private static RpTreeNode BuildTree(float[][] data, int[] indices, int leafSize, Random random)
   {
     // Leaf node condition
     if (indices.Length <= leafSize)

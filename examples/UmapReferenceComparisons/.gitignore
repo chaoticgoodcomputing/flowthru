@@ -1,0 +1,34 @@
+# Build outputs
+bin/
+obj/
+dist/
+
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# Ignore all generated dataset files by default
+Data/**/*.parquet
+Data/**/*.json
+Data/**/*.csv
+Data/**/*.xlsx
+
+# But keep the reference input and output data (raw layer)
+!Data/_01_Raw/Datasets/Inputs/**/*.parquet
+!Data/_01_Raw/Datasets/Reference/**/*.parquet
+
+# Keep directory structure
+!Data/**/.gitkeep
+
+# Keep schemas (these are source code)
+!Data/**/*.cs
+
+# Metadata (auto-generated)
+Metadata/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo

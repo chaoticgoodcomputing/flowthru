@@ -56,7 +56,7 @@ public static class UmapReductionNode
     /// </para>
     /// <para>Common values: 5-50 depending on dataset size and structure.</para>
     /// </remarks>
-    public int NumberOfNeighbors { get; init; } = 5;
+    public int NumberOfNeighbors { get; init; } = 100;
 
     /// <summary>
     /// Target dimensionality of the embedding space.
@@ -83,7 +83,7 @@ public static class UmapReductionNode
     /// evenly distributed embeddings.
     /// </para>
     /// </remarks>
-    public float MinDist { get; init; } = 0.01f;
+    public float MinDist { get; init; } = 0.25f;
 
     /// <summary>
     /// Distance metric for measuring similarity in high-dimensional space.
