@@ -355,51 +355,79 @@ public static class CompareUmapImplementationsNode
   }
 
   /// <summary>
-  /// Computes statistical confidence that Python score falls within C# score distribution.
+  /// Computes a signed confidence that C# is not worse than the Python score.
+  /// Positive values (0..1] indicate C# mean is likely >= Python (larger = more confident).
+  /// Negative values [-1..0) indicate C# mean is likely < Python (more negative = more confident it's worse).
+  /// Uses a one-sided normal approximation on the difference of means with standard error = sd / sqrt(n).
   /// </summary>
-  /// <remarks>
-  /// Returns a confidence metric where:
-  /// - 1.0 = Python score equals C# mean
-  /// - 0.68 = Python within 1 standard deviation
-  /// - 0.05 = Python at 2 standard deviations
-  /// - Lower values indicate Python is an outlier
-  /// </remarks>
   private static double ComputeStatisticalConfidence(
     double pythonScore,
     List<double> csharpScores,
     double csharpStdDev
   )
   {
-    if (csharpScores.Count == 0)
+    int n = csharpScores?.Count ?? 0;
+    if (n == 0)
     {
-      return 0;
+      return 0.0;
     }
 
-    double csharpMean = csharpScores.Average();
+    double csharpMean = csharpScores!.Average();
 
-    // If no variance, check exact match
-    if (csharpStdDev < 1e-10)
+    // If no variance, return a signed hard decision.
+    if (csharpStdDev < 1e-12 || n == 1)
     {
-      return Math.Abs(pythonScore - csharpMean) < 1e-10 ? 1.0 : 0.0;
+      return csharpMean >= pythonScore ? 1.0 : -1.0;
     }
 
-    // Compute z-score
-    double zScore = Math.Abs(pythonScore - csharpMean) / csharpStdDev;
+    // Standard error of the mean
+    double se = csharpStdDev / Math.Sqrt(n);
 
-    // Convert to confidence (approximate normal distribution CDF)
-    // 1 - 2 * P(Z > |z|) where P is standard normal tail probability
-    if (zScore <= 1.0)
-    {
-      return 1.0 - 0.32 * zScore; // Linear approximation for z <= 1
-    }
-    else if (zScore <= 2.0)
-    {
-      return 0.68 - 0.315 * (zScore - 1.0); // ~31.5% drop from 0.68 to 0.05
-    }
-    else
-    {
-      return Math.Max(0.0, 0.05 - 0.025 * (zScore - 2.0)); // Decay to 0
-    }
+    // z for difference (positive means C# mean > Python)
+    double z = (csharpMean - pythonScore) / se;
+
+    // Convert z to one-sided probability that true mean > pythonScore:
+    // phi(z) = NormalCDF(z)
+    double phi = NormalCdf(z);
+
+    // Map phi (0..1) to signed range [-1..1], where 0 means undecided, positive favors C#, negative disfavors.
+    double signedConfidence = (phi - 0.5) * 2.0;
+
+    // Clamp for numerical safety
+    if (signedConfidence > 1.0)
+      signedConfidence = 1.0;
+    if (signedConfidence < -1.0)
+      signedConfidence = -1.0;
+
+    return signedConfidence;
+  }
+
+  // Standard normal CDF via erf approximation (Abramowitz & Stegun)
+  private static double NormalCdf(double x)
+  {
+    // CDF = 0.5 * (1 + erf(x / sqrt(2)))
+    return 0.5 * (1.0 + Erf(x / Math.Sqrt(2.0)));
+  }
+
+  // Approximation of the error function erf(x)
+  private static double Erf(double x)
+  {
+    // Abramowitz and Stegun formula 7.1.26
+    // Absolute error < 1.5e-7
+    double sign = x < 0 ? -1.0 : 1.0;
+    x = Math.Abs(x);
+
+    double a1 = 0.254829592;
+    double a2 = -0.284496736;
+    double a3 = 1.421413741;
+    double a4 = -1.453152027;
+    double a5 = 1.061405429;
+    double p = 0.3275911;
+
+    double t = 1.0 / (1.0 + p * x);
+    double y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.Exp(-x * x);
+
+    return sign * y;
   }
 
   /// <summary>

@@ -81,7 +81,7 @@ public static class IrisComparisonPipeline
             KNeighbors = 15,
             MaxPreservationDifference = 0.1,
             MinimumConfidence = 0.68,
-            NumTrials = 10,
+            NumTrials = 25,
           }
         ),
         input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisUmapInput),

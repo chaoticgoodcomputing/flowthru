@@ -81,4 +81,17 @@ public partial class Catalog
           filePath: $"{_basePath}/_03_Reports/Datasets/mnist_transform_comparison.json"
         )
     );
+  public ICatalogEntry<GenericChart> FashionMnistVisualization =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "FashionMnistVisualization")
+    );
+
+  public ICatalogEntry<byte[]> FashionMnistVisualizationPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "FashionMnistVisualizationPng",
+          filePath: $"{_basePath}/_03_Reports/Datasets/fashion_mnist_comparison.png"
+        )
+    );
 }
