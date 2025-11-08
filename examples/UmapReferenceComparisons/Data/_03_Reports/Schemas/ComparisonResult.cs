@@ -7,7 +7,7 @@ namespace UmapReferenceComparisons.Data._03_Reports.Schemas;
 /// </summary>
 /// <remarks>
 /// Contains metrics comparing C# UMAP output against Python reference output.
-/// Initial implementation validates only count and schema compatibility.
+/// Validates structural similarity through k-NN graph comparison.
 /// </remarks>
 public record ComparisonResult : IFlatSchema, IBinarySerializable, IStructuredSerializable
 {
@@ -54,7 +54,35 @@ public record ComparisonResult : IFlatSchema, IBinarySerializable, IStructuredSe
   public bool DimensionsMatch { get; init; }
 
   /// <summary>
-  /// Whether the comparison passed (counts and dimensions match).
+  /// Number of k-nearest neighbors used for skeletal similarity comparison.
+  /// </summary>
+  [SerializedLabel("k_neighbors")]
+  public int KNeighbors { get; init; }
+
+  /// <summary>
+  /// Skeletal similarity score (0.0 to 1.0) measuring proportion of preserved k-NN edges.
+  /// </summary>
+  /// <remarks>
+  /// Computed as: (number of preserved k-NN edges) / (total k-NN edges).
+  /// Higher values indicate better preservation of neighborhood structure.
+  /// </remarks>
+  [SerializedLabel("skeletal_similarity")]
+  public double SkeletalSimilarity { get; init; }
+
+  /// <summary>
+  /// Total number of k-NN edges compared (N samples × K neighbors).
+  /// </summary>
+  [SerializedLabel("total_edges")]
+  public int TotalEdges { get; init; }
+
+  /// <summary>
+  /// Number of k-NN edges preserved between Python and C# outputs.
+  /// </summary>
+  [SerializedLabel("preserved_edges")]
+  public int PreservedEdges { get; init; }
+
+  /// <summary>
+  /// Whether the comparison passed (counts, dimensions match, and skeletal similarity above threshold).
   /// </summary>
   [SerializedLabel("validation_passed")]
   public bool ValidationPassed { get; init; }

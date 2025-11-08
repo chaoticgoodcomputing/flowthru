@@ -9,7 +9,11 @@ namespace UmapReferenceComparisons.Data._01_Raw.Schemas;
 /// All UMAP reference outputs use 2D embeddings with component_0 and component_1,
 /// plus the original class label for validation and visualization.
 /// </remarks>
-public record UmapOutputRow : IFlatSchema, IBinarySerializable, IStructuredSerializable
+public record UmapOutputRow
+  : IFlatSchema,
+    IBinarySerializable,
+    IStructuredSerializable,
+    ITextSerializable
 {
   /// <summary>
   /// Unique observation identifier (GUID) matching the input data.

@@ -1,7 +1,6 @@
 using Flowthru.Extensions.ML.UMAP;
 using Microsoft.ML;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
-using UmapReferenceComparisons.Data._02_ModelOutputs.Schemas;
 
 namespace UmapReferenceComparisons.Pipelines.IrisComparison.Nodes;
 
@@ -18,7 +17,7 @@ namespace UmapReferenceComparisons.Pipelines.IrisComparison.Nodes;
 /// </remarks>
 public static class TransformIrisNode
 {
-  public static Func<IEnumerable<IrisInputRow>, Task<IEnumerable<UmapEmbedding2D>>> Create()
+  public static Func<IEnumerable<IrisInputRow>, Task<IEnumerable<UmapOutputRow>>> Create()
   {
     return async (input) =>
     {
@@ -59,7 +58,7 @@ public static class TransformIrisNode
       );
 
       // Convert to UmapEmbedding2D schema
-      var result = embedding.Select(emb => new UmapEmbedding2D
+      var result = embedding.Select(emb => new UmapOutputRow
       {
         Component0 = emb[0],
         Component1 = emb[1],

@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using Flowthru.Abstractions;
+using Parquet;
+using Parquet.Schema;
 using Parquet.Serialization;
 
 namespace Flowthru.Data.Storage.Format;
@@ -23,23 +25,34 @@ namespace Flowthru.Data.Storage.Format;
 /// Deserialize: Parquet → DTO (parameterless ctor) → TRow (required members)
 /// </code>
 /// <para>
+/// <strong>Features:</strong>
+/// </para>
+/// <list type="bullet">
+/// <item>SerializedLabel - Respects [SerializedLabel] attributes for property name mapping</item>
+/// <item>Null Safety - Enforces non-nullable contracts during deserialization</item>
+/// <item>Value Type Nullability - DTOs use nullable value types to match Parquet schema conventions</item>
+/// </list>
+/// <para>
 /// <strong>Current Limitations:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>SerializedLabel not yet supported - uses property names</item>
 /// <item>SerializedEnum not yet supported - uses underlying values</item>
 /// </list>
 /// </remarks>
 public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   where TRow : notnull, IFlatSchema, IBinarySerializable
 {
-  private static readonly ConcurrentDictionary<Type, object> _adapterCache = new();
-
   public ParquetFormatSerializer() { }
 
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
-    var adapter = GetOrCreateAdapter();
+    // Read Parquet schema first to create schema-aware adapter
+    using var reader = await ParquetReader.CreateAsync(stream, leaveStreamOpen: true);
+    var adapter = new ParquetAdapter<TRow>(reader.Schema);
+
+    // Reset stream for actual deserialization
+    stream.Position = 0;
+
     var dtos = await adapter.DeserializeFromParquet(stream);
 
     foreach (var dto in dtos)
@@ -50,20 +63,15 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
 
   public async Task SerializeRows(Stream stream, IAsyncEnumerable<TRow> rows)
   {
-    var adapter = GetOrCreateAdapter();
+    // For serialization, create adapter based on TRow schema (no file to read)
+    var adapter = new ParquetAdapter<TRow>(parquetSchema: null);
     await adapter.SerializeToParquetAsync(stream, rows);
-  }
-
-  private static ParquetAdapter<TRow> GetOrCreateAdapter()
-  {
-    return (ParquetAdapter<TRow>)
-      _adapterCache.GetOrAdd(typeof(TRow), _ => new ParquetAdapter<TRow>());
   }
 
   public PropertyMappingConfiguration GetPropertyMappingConfiguration()
   {
     return PropertyMappingConfiguration.LibraryControlled(
-      "Parquet.NET uses property names. SerializedLabel not yet supported."
+      "Parquet.NET serialization respects [SerializedLabel] attributes for property name mapping."
     );
   }
 }
@@ -79,10 +87,25 @@ internal sealed class ParquetAdapter<TRow>
   private readonly Func<object, TRow> _fromDto;
   private readonly MethodInfo _serializeMethod;
   private readonly MethodInfo _deserializeMethod;
+  private readonly Dictionary<string, string> _propertyNameMap; // Maps TRow property name -> DTO property name (serialized label)
+  private readonly Dictionary<string, Type>? _parquetColumnTypes; // Maps column name -> actual Parquet type (for deserialization)
 
-  public ParquetAdapter()
+  /// <summary>
+  /// Creates an adapter for Parquet serialization/deserialization.
+  /// </summary>
+  /// <param name="parquetSchema">Actual Parquet schema from file (for deserialization), or null (for serialization)</param>
+  public ParquetAdapter(ParquetSchema? parquetSchema)
   {
-    // Create DTO type dynamically
+    // Build property name mapping first (needed by CreateDtoType)
+    _propertyNameMap = BuildPropertyNameMap();
+
+    // Extract actual Parquet column types if schema provided
+    if (parquetSchema != null)
+    {
+      _parquetColumnTypes = ExtractParquetColumnTypes(parquetSchema);
+    }
+
+    // Create DTO type dynamically based on Parquet schema (if available) or TRow schema
     _dtoType = CreateDtoType();
 
     // Compile conversion functions
@@ -142,19 +165,82 @@ internal sealed class ParquetAdapter<TRow>
   }
 
   /// <summary>
-  /// Creates a DTO type for Parquet serialization.
-  /// Returns TRow directly if it already has a parameterless constructor,
-  /// otherwise generates a runtime DTO type with identical properties.
+  /// Extracts column types from the Parquet schema.
+  /// Maps column names to their CLR types for DTO generation.
   /// </summary>
-  private static Type CreateDtoType()
+  private static Dictionary<string, Type> ExtractParquetColumnTypes(ParquetSchema schema)
   {
-    // Fast path: if TRow already has parameterless constructor, use it directly
-    if (HasParameterlessConstructor(typeof(TRow)))
+    var columnTypes = new Dictionary<string, Type>();
+
+    foreach (var field in schema.GetDataFields())
+    {
+      var clrType = MapParquetTypeToClr(field);
+      if (clrType != null)
+      {
+        columnTypes[field.Name] = clrType;
+      }
+    }
+
+    return columnTypes;
+  }
+
+  /// <summary>
+  /// Maps Parquet DataField to CLR type.
+  /// Handles nullability and type conversions.
+  /// </summary>
+  private static Type? MapParquetTypeToClr(DataField field)
+  {
+    // Get the base CLR type from Parquet field
+    Type baseType = field.ClrType;
+
+    // Handle nullability - Parquet fields are often nullable
+    // If field is nullable and type is value type, make it nullable
+    if (field.IsNullable && baseType.IsValueType && Nullable.GetUnderlyingType(baseType) == null)
+    {
+      baseType = typeof(Nullable<>).MakeGenericType(baseType);
+    }
+
+    return baseType;
+  }
+
+  /// <summary>
+  /// Builds a mapping from TRow property names to DTO property names (serialized labels).
+  /// Respects [SerializedLabel] attributes for external data compatibility.
+  /// </summary>
+  private static Dictionary<string, string> BuildPropertyNameMap()
+  {
+    var properties = typeof(TRow).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+    var map = new Dictionary<string, string>();
+
+    foreach (var property in properties)
+    {
+      if (!property.CanRead)
+      {
+        continue;
+      }
+
+      // Get serialized name (respects [SerializedLabel] attribute)
+      var serializedName = PropertyMappingHelper.GetFieldName(property);
+      map[property.Name] = serializedName;
+    }
+
+    return map;
+  }
+
+  /// <summary>
+  /// Creates a DTO type for Parquet serialization.
+  /// Returns TRow directly if it already has a parameterless constructor AND no SerializedLabel attributes,
+  /// otherwise generates a runtime DTO type with serialized property names.
+  /// </summary>
+  private Type CreateDtoType()
+  {
+    // Fast path: if TRow already has parameterless constructor AND no custom serialization labels
+    if (HasParameterlessConstructor(typeof(TRow)) && !HasSerializedLabelAttributes())
     {
       return typeof(TRow);
     }
 
-    // Slow path: generate runtime DTO type that mirrors TRow's structure
+    // Slow path: generate runtime DTO type that mirrors TRow's structure with serialized names
     return GenerateRuntimeDtoType();
   }
 
@@ -164,6 +250,15 @@ internal sealed class ParquetAdapter<TRow>
   private static bool HasParameterlessConstructor(Type type)
   {
     return type.GetConstructors().Any(c => c.IsPublic && c.GetParameters().Length == 0);
+  }
+
+  /// <summary>
+  /// Checks if TRow has any [SerializedLabel] attributes on its properties.
+  /// </summary>
+  private bool HasSerializedLabelAttributes()
+  {
+    // Check if any property has a different serialized name than its property name
+    return _propertyNameMap.Any(kvp => kvp.Key != kvp.Value);
   }
 
   /// <summary>
@@ -177,7 +272,7 @@ internal sealed class ParquetAdapter<TRow>
   /// </para>
   /// <list type="bullet">
   /// <item>A public parameterless constructor (required by Parquet.NET)</item>
-  /// <item>All public properties from TRow with same names and types</item>
+  /// <item>All public properties from TRow with serialized names (respects [SerializedLabel])</item>
   /// <item>Auto-implemented property pattern (backing field + getter/setter)</item>
   /// </list>
   /// <para>
@@ -185,7 +280,7 @@ internal sealed class ParquetAdapter<TRow>
   /// Each property gets a compiler-style backing field name: &lt;PropertyName&gt;k__BackingField
   /// </para>
   /// </remarks>
-  private static Type GenerateRuntimeDtoType()
+  private Type GenerateRuntimeDtoType()
   {
     // Create a dynamic assembly and module to host the DTO type
     var typeBuilder = CreateDynamicTypeBuilder();
@@ -261,8 +356,10 @@ internal sealed class ParquetAdapter<TRow>
   /// <summary>
   /// Copies all readable public properties from TRow to the DTO type.
   /// Each property gets a backing field and auto-implemented getter/setter.
+  /// Uses [SerializedLabel] attributes for property names if present.
+  /// Makes value types nullable to match Parquet schema conventions.
   /// </summary>
-  private static void CopyPropertiesFromSourceType(TypeBuilder typeBuilder)
+  private void CopyPropertiesFromSourceType(TypeBuilder typeBuilder)
   {
     var properties = typeof(TRow).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -273,7 +370,34 @@ internal sealed class ParquetAdapter<TRow>
         continue;
       }
 
-      EmitAutoProperty(typeBuilder, property.Name, property.PropertyType);
+      // Use serialized label from mapping (respects [SerializedLabel] attribute)
+      var dtoPropertyName = _propertyNameMap[property.Name];
+
+      // Determine DTO property type based on context:
+      // 1. If we have actual Parquet schema (deserialization), use its type
+      // 2. Otherwise (serialization), use TRow type with nullable wrappers
+      Type dtoPropertyType;
+
+      if (
+        _parquetColumnTypes != null
+        && _parquetColumnTypes.TryGetValue(dtoPropertyName, out var parquetType)
+      )
+      {
+        // Use actual Parquet column type from file schema
+        dtoPropertyType = parquetType;
+      }
+      else
+      {
+        // Fallback for serialization: make value types nullable
+        // Parquet typically stores primitives as nullable fields
+        dtoPropertyType = property.PropertyType;
+        if (dtoPropertyType.IsValueType && Nullable.GetUnderlyingType(dtoPropertyType) == null)
+        {
+          dtoPropertyType = typeof(Nullable<>).MakeGenericType(dtoPropertyType);
+        }
+      }
+
+      EmitAutoProperty(typeBuilder, dtoPropertyName, dtoPropertyType);
     }
   }
 
@@ -421,15 +545,20 @@ internal sealed class ParquetAdapter<TRow>
         continue;
       }
 
-      var dstProperty = _dtoType.GetProperty(srcProperty.Name);
+      // Use serialized property name from mapping
+      var dtoPropertyName = _propertyNameMap[srcProperty.Name];
+      var dstProperty = _dtoType.GetProperty(dtoPropertyName);
       if (dstProperty != null && dstProperty.CanWrite)
       {
-        expressions.Add(
-          Expression.Assign(
-            Expression.Property(dtoVar, dstProperty),
-            Expression.Property(rowParam, srcProperty)
-          )
-        );
+        Expression propertyValue = Expression.Property(rowParam, srcProperty);
+
+        // Handle type conversion if DTO property is nullable but TRow property isn't
+        if (srcProperty.PropertyType != dstProperty.PropertyType)
+        {
+          propertyValue = Expression.Convert(propertyValue, dstProperty.PropertyType);
+        }
+
+        expressions.Add(Expression.Assign(Expression.Property(dtoVar, dstProperty), propertyValue));
       }
     }
 
@@ -446,47 +575,80 @@ internal sealed class ParquetAdapter<TRow>
       return dto => (TRow)dto;
     }
 
-    var dtoParam = Expression.Parameter(typeof(object), "dto");
-    var typedDto = Expression.Variable(_dtoType, "typedDto");
-    var rowVar = Expression.Variable(typeof(TRow), "row");
-
-    var expressions = new List<Expression>
+    // Use reflection-based approach instead of expression trees
+    // This allows us to use PropertyInfo.SetValue which handles init accessors
+    // and perform null checking for contract enforcement
+    return dto =>
     {
-      Expression.Assign(typedDto, Expression.Convert(dtoParam, _dtoType)),
-      Expression.Assign(
-        rowVar,
-        Expression.Call(
-          typeof(SchemaActivator)
-            .GetMethod(nameof(SchemaActivator.CreateInstance))!
-            .MakeGenericMethod(typeof(TRow))
-        )
-      ),
+      var instance = SchemaActivator.CreateInstance<TRow>();
+      var properties = typeof(TRow).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+      foreach (var dstProperty in properties)
+      {
+        if (!dstProperty.CanWrite)
+        {
+          continue;
+        }
+
+        // Use property name mapping (respects [SerializedLabel])
+        var dtoPropertyName = _propertyNameMap[dstProperty.Name];
+        var srcProperty = _dtoType.GetProperty(dtoPropertyName);
+
+        if (srcProperty != null && srcProperty.CanRead)
+        {
+          var value = srcProperty.GetValue(dto);
+
+          // Null checking for contract enforcement:
+          // If Parquet has null but TRow expects non-nullable, throw clear error
+          if (value == null)
+          {
+            var isNullable =
+              Nullable.GetUnderlyingType(dstProperty.PropertyType) != null
+              || !dstProperty.PropertyType.IsValueType;
+
+            if (!isNullable)
+            {
+              throw new InvalidDataException(
+                $"Parquet deserialization failed: Field '{dtoPropertyName}' contains null value, "
+                  + $"but schema property '{dstProperty.Name}' is non-nullable ({dstProperty.PropertyType.Name}). "
+                  + $"Either make the schema property nullable ({dstProperty.PropertyType.Name}?) or ensure "
+                  + $"the Parquet file contains no null values for this field."
+              );
+            }
+          }
+          else
+          {
+            // Handle type conversions between DTO and TRow
+            // DTO type may differ from TRow type due to Parquet schema
+            var underlyingType = Nullable.GetUnderlyingType(srcProperty.PropertyType);
+            var targetType = dstProperty.PropertyType;
+            var sourceType = underlyingType ?? srcProperty.PropertyType;
+
+            // Convert if types don't match
+            if (sourceType != targetType)
+            {
+              try
+              {
+                value = Convert.ChangeType(value, targetType);
+              }
+              catch (InvalidCastException ex)
+              {
+                throw new InvalidDataException(
+                  $"Parquet deserialization failed: Cannot convert field '{dtoPropertyName}' "
+                    + $"from {sourceType.Name} to {targetType.Name}. "
+                    + $"The Parquet file has type {sourceType.Name} but schema expects {targetType.Name}.",
+                  ex
+                );
+              }
+            }
+          }
+
+          // PropertyInfo.SetValue handles init accessors correctly
+          dstProperty.SetValue(instance, value);
+        }
+      }
+
+      return instance;
     };
-
-    var properties = typeof(TRow).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-    foreach (var dstProperty in properties)
-    {
-      if (!dstProperty.CanWrite)
-      {
-        continue;
-      }
-
-      var srcProperty = _dtoType.GetProperty(dstProperty.Name);
-      if (srcProperty != null && srcProperty.CanRead)
-      {
-        expressions.Add(
-          Expression.Call(
-            rowVar,
-            dstProperty.SetMethod!,
-            Expression.Property(typedDto, srcProperty)
-          )
-        );
-      }
-    }
-
-    expressions.Add(rowVar);
-
-    var block = Expression.Block(new[] { typedDto, rowVar }, expressions);
-    return Expression.Lambda<Func<object, TRow>>(block, dtoParam).Compile();
   }
 }

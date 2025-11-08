@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicAtlas", "examples\Magi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flowthru.Extensions.ML", "src\Flowthru.Extensions.ML\Flowthru.Extensions.ML.csproj", "{D356A076-6876-462B-AD48-76F252A55685}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UmapReferenceComparisons", "examples\UmapReferenceComparisons\UmapReferenceComparisons.csproj", "{222CF904-4DDE-432A-9BDC-A00896619D90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +161,18 @@ Global
 		{D356A076-6876-462B-AD48-76F252A55685}.Release|x64.Build.0 = Release|Any CPU
 		{D356A076-6876-462B-AD48-76F252A55685}.Release|x86.ActiveCfg = Release|Any CPU
 		{D356A076-6876-462B-AD48-76F252A55685}.Release|x86.Build.0 = Release|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Debug|x64.Build.0 = Debug|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Debug|x86.Build.0 = Debug|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Release|x64.ActiveCfg = Release|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Release|x64.Build.0 = Release|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Release|x86.ActiveCfg = Release|Any CPU
+		{222CF904-4DDE-432A-9BDC-A00896619D90}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -174,5 +188,6 @@ Global
 		{55F3CA2B-BBFC-40CF-B37F-76C5FEB75329} = {B36A84DF-456D-A817-6EDD-3EC3E7F6E11F}
 		{4D533262-4624-46CF-A382-75D35F192B06} = {3663939E-416B-408C-887C-38723F04ADCE}
 		{D356A076-6876-462B-AD48-76F252A55685} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{222CF904-4DDE-432A-9BDC-A00896619D90} = {3663939E-416B-408C-887C-38723F04ADCE}
 	EndGlobalSection
 EndGlobal

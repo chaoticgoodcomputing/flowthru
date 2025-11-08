@@ -9,7 +9,11 @@ namespace UmapReferenceComparisons.Data._01_Raw.Schemas;
 /// The Iris dataset contains 4 features for 150 flower samples across 3 species.
 /// Features: sepal length, sepal width, petal length, petal width (all in cm).
 /// </remarks>
-public record IrisInputRow : IFlatSchema, IBinarySerializable, IStructuredSerializable
+public record IrisInputRow
+  : IFlatSchema,
+    IBinarySerializable,
+    IStructuredSerializable,
+    ITextSerializable
 {
   /// <summary>
   /// Unique observation identifier (GUID).

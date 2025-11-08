@@ -1,4 +1,6 @@
 using Flowthru.Data;
+using Plotly.NET;
+using UmapReferenceComparisons.Data._01_Raw.Schemas;
 using UmapReferenceComparisons.Data._03_Reports.Schemas;
 
 namespace UmapReferenceComparisons.Data;
@@ -15,6 +17,18 @@ public partial class Catalog
         CatalogEntries.Single.Json<ComparisonResult>(
           label: "IrisComparison",
           filePath: $"{_basePath}/_03_Reports/Datasets/iris_comparison.json"
+        )
+    );
+
+  public ICatalogEntry<GenericChart> IrisVisualization =>
+    GetOrCreateEntry(() => CatalogEntries.Single.Memory<GenericChart>(label: "IrisVisualization"));
+
+  public ICatalogEntry<byte[]> IrisVisualizationPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "IrisVisualizationPng",
+          filePath: $"{_basePath}/_03_Reports/Datasets/iris_comparison.png"
         )
     );
 
