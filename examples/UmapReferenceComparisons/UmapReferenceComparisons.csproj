@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/Flowthru/Flowthru.csproj" />
-    <ProjectReference Include="../../src/Flowthru.Extensions.ML/Flowthru.Extensions.ML.csproj" />
+    <ProjectReference Include="../../src/Flowthru.Extensions.MLPure/Flowthru.Extensions.MLPure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru.Extensions.MLPure</RootNamespace>
+    <Version>0.1.0</Version>
+    <Authors>Flowthru Contributors</Authors>
+    <Description>Pure, unoptimized UMAP implementation for Flowthru - direct port from Python reference implementation by Leland McInnes</Description>
+    <PackageTags>flowthru;machine-learning;umap;dimensionality-reduction;pure</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ML.NET Core packages -->
+    <PackageReference Include="Microsoft.ML" Version="3.0.1" />
+    <PackageReference Include="Microsoft.ML.DataView" Version="3.0.1" />
+    
+    <!-- MathNet for advanced numerical operations (matrix ops, linear algebra) -->
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    
+    <!-- System packages -->
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Flowthru/Flowthru.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="UMAP/UMAP_LICENSE.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

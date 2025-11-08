@@ -1,4 +1,4 @@
-using Flowthru.Extensions.ML.UMAP;
+using Flowthru.Extensions.MLPure.UMAP;
 using Microsoft.ML;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
