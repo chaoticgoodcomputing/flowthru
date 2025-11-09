@@ -7,8 +7,8 @@
     <RootNamespace>Flowthru.Extensions.ML</RootNamespace>
     <Version>0.1.0</Version>
     <Authors>Flowthru Contributors</Authors>
-    <Description>Machine Learning extensions for Flowthru, including UMAP dimensionality reduction based on the original Python implementation by Leland McInnes</Description>
-    <PackageTags>flowthru;machine-learning;umap;dimensionality-reduction;ml.net</PackageTags>
+    <Description>Pure, unoptimized UMAP implementation for Flowthru - direct port from Python reference implementation by Leland McInnes</Description>
+    <PackageTags>flowthru;machine-learning;umap;dimensionality-reduction;pure</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

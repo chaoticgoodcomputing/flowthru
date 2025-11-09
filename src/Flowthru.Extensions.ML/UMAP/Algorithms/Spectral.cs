@@ -1,7 +1,7 @@
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
-namespace Flowthru.Extensions.MLPure.UMAP.Algorithms;
+namespace Flowthru.Extensions.ML.UMAP.Algorithms;
 
 /// <summary>
 /// Spectral initialization for UMAP - simplified pure implementation.

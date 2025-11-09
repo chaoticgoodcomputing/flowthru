@@ -2,30 +2,18 @@ using Flowthru.Extensions.ML.UMAP.Algorithms;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 using Microsoft.ML;
-using Microsoft.ML.Runtime;
 
 namespace Flowthru.Extensions.ML.UMAP;
 
 /// <summary>
-/// Transforms data using a trained UMAP model.
+/// Transforms data using a trained UMAP model - pure implementation.
+/// Simplified transform using weighted average of nearest neighbors.
 /// </summary>
-/// <remarks>
-/// Projects new data points into the learned low-dimensional embedding space.
-/// Based on the UMAP Python implementation by Leland McInnes.
-/// <para>
-/// Citation: McInnes, L, Healy, J, "UMAP: Uniform Manifold Approximation and Projection
-/// for Dimension Reduction", ArXiv e-prints 1802.03426, 2018
-/// https://arxiv.org/abs/1802.03426
-/// </para>
-/// </remarks>
 public sealed class UmapTransformer
 {
   private readonly UmapModelParameters _model;
   private readonly MLContext _environment;
 
-  /// <summary>
-  /// Creates a new UMAP transformer from trained model parameters.
-  /// </summary>
   public UmapTransformer(MLContext environment, UmapModelParameters model)
   {
     _environment = environment ?? throw new ArgumentNullException(nameof(environment));
@@ -33,10 +21,9 @@ public sealed class UmapTransformer
   }
 
   /// <summary>
-  /// Transforms new data points into the learned embedding space.
+  /// Transform new data into embedding space.
+  /// Pure implementation uses weighted average of nearest neighbor embeddings.
   /// </summary>
-  /// <param name="data">New data to transform.</param>
-  /// <returns>Transformed low-dimensional embedding.</returns>
   public float[][] Transform(float[][] data)
   {
     if (data == null || data.Length == 0)
@@ -49,9 +36,6 @@ public sealed class UmapTransformer
     return transformed.ToRowArrays();
   }
 
-  /// <summary>
-  /// Transforms new data points into the learned embedding space.
-  /// </summary>
   public Matrix<float> Transform(Matrix<float> data)
   {
     if (data == null)
@@ -75,69 +59,49 @@ public sealed class UmapTransformer
       );
     }
 
-    // For each new point, find its nearest neighbors in the training data
-    var metric = DistanceMetrics.GetMetric(_model.Options.Metric);
+    var metric = Distances.GetMetric(_model.Options.Metric);
     var transformed = DenseMatrix.Create(nNewSamples, _model.EmbeddingDimension, 0f);
 
     for (int i = 0; i < nNewSamples; i++)
     {
-      var point = newData.Row(i).AsArray();
+      var point = newData.Row(i).ToArray();
 
       // Find k nearest neighbors in training data
-      var neighbors = new (int Index, float Distance)[_model.Options.NumberOfNeighbors];
-
+      var distances = new List<(int index, float distance)>();
       for (int j = 0; j < _model.TrainingData.RowCount; j++)
       {
-        var trainPoint = _model.TrainingData.Row(j).AsArray();
+        var trainPoint = _model.TrainingData.Row(j).ToArray();
         float distance = metric(point, trainPoint);
-
-        // Insert into sorted neighbors list
-        if (j < _model.Options.NumberOfNeighbors)
-        {
-          neighbors[j] = (j, distance);
-          if (j == _model.Options.NumberOfNeighbors - 1)
-          {
-            Array.Sort(neighbors, (a, b) => a.Distance.CompareTo(b.Distance));
-          }
-        }
-        else if (distance < neighbors[^1].Distance)
-        {
-          neighbors[^1] = (j, distance);
-          Array.Sort(neighbors, (a, b) => a.Distance.CompareTo(b.Distance));
-        }
+        distances.Add((j, distance));
       }
 
-      // Compute weighted average of neighbor embeddings
-      float totalWeight = 0f;
-      var embeddingSum = new float[_model.EmbeddingDimension];
+      distances.Sort((a, b) => a.distance.CompareTo(b.distance));
+      int k = Math.Min(_model.Options.NumberOfNeighbors, distances.Count);
 
-      foreach (var (neighborIdx, distance) in neighbors)
+      // Compute weighted average using inverse distance weights
+      float totalWeight = 0.0f;
+      var embedding = new float[_model.EmbeddingDimension];
+
+      for (int j = 0; j < k; j++)
       {
-        // Use exponential decay as weight (similar to membership strength)
-        float weight = MathF.Exp(-distance);
+        int neighborIdx = distances[j].index;
+        float dist = distances[j].distance;
+        float weight = dist > 0 ? 1.0f / (dist + 1e-6f) : 1e6f;
+
         totalWeight += weight;
-
         for (int d = 0; d < _model.EmbeddingDimension; d++)
         {
-          embeddingSum[d] += weight * _model.Embedding[neighborIdx, d];
+          embedding[d] += weight * _model.Embedding[neighborIdx, d];
         }
       }
 
-      // Normalize by total weight
-      if (totalWeight > 0)
+      // Normalize
+      for (int d = 0; d < _model.EmbeddingDimension; d++)
       {
-        for (int d = 0; d < _model.EmbeddingDimension; d++)
-        {
-          transformed[i, d] = embeddingSum[d] / totalWeight;
-        }
+        transformed[i, d] = embedding[d] / totalWeight;
       }
     }
 
     return transformed;
   }
-
-  /// <summary>
-  /// Gets the trained model parameters.
-  /// </summary>
-  public UmapModelParameters Model => _model;
 }

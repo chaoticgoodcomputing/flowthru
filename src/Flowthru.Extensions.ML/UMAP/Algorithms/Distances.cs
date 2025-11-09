@@ -1,4 +1,4 @@
-namespace Flowthru.Extensions.MLPure.UMAP.Algorithms;
+namespace Flowthru.Extensions.ML.UMAP.Algorithms;
 
 /// <summary>
 /// Distance metrics for UMAP - pure Python port.

@@ -1,6 +1,4 @@
 using MathNet.Numerics.LinearAlgebra;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 
 namespace Flowthru.Extensions.ML.UMAP;
 
@@ -8,13 +6,8 @@ namespace Flowthru.Extensions.ML.UMAP;
 /// Model parameters for a trained UMAP model.
 /// </summary>
 /// <remarks>
-/// Contains the trained embedding and parameters needed for transforming new data.
-/// Based on the UMAP Python implementation by Leland McInnes.
-/// <para>
-/// Citation: McInnes, L, Healy, J, "UMAP: Uniform Manifold Approximation and Projection
-/// for Dimension Reduction", ArXiv e-prints 1802.03426, 2018
-/// https://arxiv.org/abs/1802.03426
-/// </para>
+/// Pure implementation - contains the trained embedding and parameters.
+/// Based on the Python UMAP implementation by Leland McInnes.
 /// </remarks>
 public sealed class UmapModelParameters
 {
@@ -54,8 +47,15 @@ public sealed class UmapModelParameters
   public UmapOptions Options { get; }
 
   /// <summary>
-  /// Creates a new UMAP model parameters instance.
+  /// Sigmas from fuzzy simplicial set construction.
   /// </summary>
+  public float[] Sigmas { get; }
+
+  /// <summary>
+  /// Rhos from fuzzy simplicial set construction.
+  /// </summary>
+  public float[] Rhos { get; }
+
   public UmapModelParameters(
     Matrix<float> embedding,
     Matrix<float> trainingData,
@@ -63,7 +63,9 @@ public sealed class UmapModelParameters
     float[][] knnDistances,
     float a,
     float b,
-    UmapOptions options
+    UmapOptions options,
+    float[] sigmas,
+    float[] rhos
   )
   {
     Embedding = embedding ?? throw new ArgumentNullException(nameof(embedding));
@@ -73,20 +75,11 @@ public sealed class UmapModelParameters
     A = a;
     B = b;
     Options = options ?? throw new ArgumentNullException(nameof(options));
+    Sigmas = sigmas ?? throw new ArgumentNullException(nameof(sigmas));
+    Rhos = rhos ?? throw new ArgumentNullException(nameof(rhos));
   }
 
-  /// <summary>
-  /// Gets the dimensionality of the low-dimensional embedding space.
-  /// </summary>
   public int EmbeddingDimension => Embedding.ColumnCount;
-
-  /// <summary>
-  /// Gets the dimensionality of the original high-dimensional input space.
-  /// </summary>
   public int InputDimension => TrainingData.ColumnCount;
-
-  /// <summary>
-  /// Gets the number of training samples.
-  /// </summary>
   public int NumberOfSamples => Embedding.RowCount;
 }

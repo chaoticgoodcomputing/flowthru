@@ -1,4 +1,4 @@
-using Flowthru.Extensions.MLPure.UMAP;
+using Flowthru.Extensions.ML.UMAP;
 using Microsoft.ML;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 using UmapReferenceComparisons.Data._03_Reports.Schemas;
@@ -257,7 +257,7 @@ public static class CompareOutputsNode
       .ToArray();
 
     // Configure UMAP with trial-specific seed
-    var umapOptions = new Flowthru.Extensions.MLPure.UMAP.UmapOptions
+    var umapOptions = new Flowthru.Extensions.ML.UMAP.UmapOptions
     {
       NumberOfNeighbors = 50,
       LearningRate = 0.5f,
