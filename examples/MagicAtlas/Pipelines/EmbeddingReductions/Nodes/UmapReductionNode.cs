@@ -226,10 +226,10 @@ public static class UmapReductionNode
         RandomState = opts.Seed,
         Verbosity = opts.Verbosity,
         // Approximate nearest neighbors configuration
-        UseApproximateNearestNeighbors = opts.UseApproximateNearestNeighbors,
-        AnnNumTrees = opts.AnnNumTrees,
-        AnnLeafSize = opts.AnnLeafSize,
-        AnnSearchK = opts.AnnSearchK,
+        // UseApproximateNearestNeighbors = opts.UseApproximateNearestNeighbors,
+        // AnnNumTrees = opts.AnnNumTrees,
+        // AnnLeafSize = opts.AnnLeafSize,
+        // AnnSearchK = opts.AnnSearchK,
         // Use defaults for other parameters
         Spread = 1.0f,
         LearningRate = 1.0f,
