@@ -44,6 +44,12 @@ internal sealed class KnnHeap
   public byte[][] Flags { get; }
 
   /// <summary>
+  /// Hash sets for fast O(1) duplicate checking during neighbor insertion.
+  /// Maintains the set of neighbor indices currently in each point's heap.
+  /// </summary>
+  private readonly HashSet<int>[] _neighborSets;
+
+  /// <summary>
   /// Initializes a new k-NN heap for tracking nearest neighbors.
   /// </summary>
   /// <param name="nSamples">Number of data points.</param>
@@ -53,12 +59,14 @@ internal sealed class KnnHeap
     Indices = new int[nSamples][];
     Distances = new float[nSamples][];
     Flags = new byte[nSamples][];
+    _neighborSets = new HashSet<int>[nSamples];
 
     for (int i = 0; i < nSamples; i++)
     {
       Indices[i] = new int[k];
       Distances[i] = new float[k];
       Flags[i] = new byte[k];
+      _neighborSets[i] = new HashSet<int>(k + 10); // Extra capacity for efficiency
 
       // Initialize with invalid values
       Array.Fill(Indices[i], -1);
@@ -86,21 +94,24 @@ internal sealed class KnnHeap
   /// </remarks>
   public bool TryPush(int sample, int neighbor, float distance, byte flag)
   {
-    // Early exit if distance is worse than current k-th neighbor
-    if (distance >= Distances[sample][0])
+    // Fast O(1) duplicate check using hash set
+    if (!_neighborSets[sample].Add(neighbor))
     {
       return false;
     }
 
-    int k = Indices[sample].Length;
-
-    // Check for duplicates - reject if neighbor already in heap
-    for (int i = 0; i < k; i++)
+    // Early exit if distance is worse than current k-th neighbor
+    if (distance >= Distances[sample][0])
     {
-      if (Indices[sample][i] == neighbor)
-      {
-        return false;
-      }
+      _neighborSets[sample].Remove(neighbor);
+      return false;
+    }
+
+    // Track what we're evicting from the heap
+    int evicted = Indices[sample][0];
+    if (evicted >= 0)
+    {
+      _neighborSets[sample].Remove(evicted);
     }
 
     // Insert at root (position 0) and sift down

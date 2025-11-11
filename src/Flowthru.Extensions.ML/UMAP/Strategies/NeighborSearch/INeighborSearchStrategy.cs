@@ -1,5 +1,4 @@
 using Flowthru.Extensions.ML.UMAP.Core.Markers;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch;
 
@@ -30,8 +29,9 @@ public interface INeighborSearchStrategy<TMetric>
   /// Computes k-nearest neighbors for all points in the dataset.
   /// </summary>
   /// <param name="data">
-  /// Input data matrix where each row represents a data point and each column a feature.
-  /// Shape: (n_samples, n_features)
+  /// Input data as jagged array where each row represents a data point (n_samples × n_features).
+  /// data[i] is a float array of length n_features containing the feature values for sample i.
+  /// All rows must have the same length.
   /// </param>
   /// <param name="nNeighbors">
   /// Number of nearest neighbors to find for each point.
@@ -65,7 +65,7 @@ public interface INeighborSearchStrategy<TMetric>
   /// </list>
   /// </remarks>
   NeighborSearchResult Search(
-    Matrix<float> data,
+    float[][] data,
     int nNeighbors,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
     Random random

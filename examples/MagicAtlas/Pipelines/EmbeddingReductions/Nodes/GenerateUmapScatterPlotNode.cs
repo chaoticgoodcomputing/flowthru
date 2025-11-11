@@ -119,7 +119,7 @@ public static class GenerateUmapScatterPlotNode
         .WithTitle(
           $"UMAP Scatter Plot: Oracle Text Embeddings ({filtered.Count} observations, {componentDim} components)"
         )
-        .WithSize(1200, 800);
+        .WithSize(4096, 2048);
 
       logger?.LogInformation("UMAP scatter plot generated successfully");
 

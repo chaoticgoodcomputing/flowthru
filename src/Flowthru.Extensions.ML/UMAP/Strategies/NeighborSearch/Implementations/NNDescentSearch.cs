@@ -1,5 +1,4 @@
 using Flowthru.Extensions.ML.UMAP.Core.Markers;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 
@@ -105,13 +104,14 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
 
   /// <inheritdoc />
   public NeighborSearchResult Search(
-    Matrix<float> data,
+    float[][] data,
     int nNeighbors,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
     Random random
   )
   {
-    int nSamples = data.RowCount;
+    int nSamples = data.Length;
+    int nFeatures = data[0].Length;
 
     if (nNeighbors > nSamples)
     {
@@ -135,7 +135,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
 
     if (Verbose)
     {
-      Console.WriteLine($"NN-Descent: n={nSamples}, k={nNeighbors}, d={data.ColumnCount}");
+      Console.WriteLine($"NN-Descent: n={nSamples}, k={nNeighbors}, d={nFeatures}");
       Console.WriteLine(
         $"  Trees: {numTrees}, Max iterations: {maxIters}, Max candidates: {maxCand}"
       );
@@ -144,23 +144,31 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
 
     // Phase 1: Build RP-tree forest for initialization
     if (Verbose)
+    {
       Console.WriteLine("Building RP-tree forest...");
+    }
     var forest = BuildRpForest(data, numTrees, LeafSize, random);
 
     // Phase 2: Initialize heap with tree neighbors + random neighbors
     if (Verbose)
+    {
       Console.WriteLine("Initializing k-NN heap...");
+    }
     var heap = new KnnHeap(nSamples, nNeighbors);
     InitializeHeap(heap, nNeighbors, forest, data, metric, random);
 
     // Phase 3: NN-descent iterations with convergence detection
     if (Verbose)
+    {
       Console.WriteLine("Running NN-descent iterations...");
+    }
     NNDescentLoop(heap, data, nNeighbors, maxIters, maxCand, DeltaThreshold, metric, random);
 
     // Phase 4: Convert heap to sorted arrays
     if (Verbose)
+    {
       Console.WriteLine("Finalizing results...");
+    }
     var (indices, distances) = heap.DeheapSort();
 
     // Build search index for transform operations (future use)
@@ -168,7 +176,9 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     object? searchIndex = null;
 
     if (Verbose)
+    {
       Console.WriteLine("NN-Descent complete.");
+    }
 
     return new NeighborSearchResult(indices, distances, searchIndex);
   }
@@ -176,7 +186,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   /// <summary>
   /// Builds a forest of random projection trees for initialization.
   /// </summary>
-  private RpTree[] BuildRpForest(Matrix<float> data, int numTrees, int leafSize, Random random)
+  private RpTree[] BuildRpForest(float[][] data, int numTrees, int leafSize, Random random)
   {
     return RpTreeBuilder.BuildForest(data, numTrees, leafSize, random);
   }
@@ -188,7 +198,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     KnnHeap heap,
     int nNeighbors,
     RpTree[] forest,
-    Matrix<float> data,
+    float[][] data,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
     Random random
   )
@@ -207,7 +217,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   private void InitializeFromRpTrees(
     KnnHeap heap,
     RpTree[] forest,
-    Matrix<float> data,
+    float[][] data,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric
   )
   {
@@ -237,10 +247,8 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
             continue;
           }
 
-          // Compute distance
-          var pData = data.Row(p).ToArray();
-          var qData = data.Row(q).ToArray();
-          float d = metric(pData, qData);
+          // Compute distance using spans (zero allocation)
+          float d = metric(data[p].AsSpan(), data[q].AsSpan());
 
           // Try to add to both heaps
           heap.TryPush(p, q, d, flag: 1);
@@ -256,12 +264,12 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   private void InitializeRandom(
     KnnHeap heap,
     int nNeighbors,
-    Matrix<float> data,
+    float[][] data,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
     Random random
   )
   {
-    int nSamples = data.RowCount;
+    int nSamples = data.Length;
 
     for (int i = 0; i < nSamples; i++)
     {
@@ -291,10 +299,8 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
           continue;
         }
 
-        // Compute distance
-        var iData = data.Row(i).ToArray();
-        var candidateData = data.Row(candidate).ToArray();
-        float d = metric(iData, candidateData);
+        // Compute distance using spans (zero allocation)
+        float d = metric(data[i].AsSpan(), data[candidate].AsSpan());
 
         // Try to add (TryPush will reject duplicates)
         if (heap.TryPush(i, candidate, d, flag: 1))
@@ -310,7 +316,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   /// </summary>
   private void NNDescentLoop(
     KnnHeap heap,
-    Matrix<float> data,
+    float[][] data,
     int nNeighbors,
     int maxIterations,
     int maxCandidates,
@@ -319,7 +325,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     Random random
   )
   {
-    int nSamples = data.RowCount;
+    int nSamples = data.Length;
     int convergenceThreshold = (int)(deltaThreshold * nNeighbors * nSamples);
 
     for (int iter = 0; iter < maxIterations; iter++)
@@ -364,13 +370,14 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     int nSamples = heap.Indices.Length;
     int k = heap.Indices[0].Length;
 
+    // Pre-allocate with capacity to reduce reallocations
     var newCandidates = new List<int>[nSamples];
     var oldCandidates = new List<int>[nSamples];
 
     for (int i = 0; i < nSamples; i++)
     {
-      newCandidates[i] = new List<int>();
-      oldCandidates[i] = new List<int>();
+      newCandidates[i] = new List<int>(maxCandidates);
+      oldCandidates[i] = new List<int>(maxCandidates);
     }
 
     // For each point and its neighbors, add to candidate lists
@@ -434,12 +441,12 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     KnnHeap heap,
     int[][] newCandidates,
     int[][] oldCandidates,
-    Matrix<float> data,
+    float[][] data,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric
   )
   {
     int totalUpdates = 0;
-    int nSamples = data.RowCount;
+    int nSamples = data.Length;
 
     for (int i = 0; i < nSamples; i++)
     {
@@ -497,7 +504,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   /// </summary>
   private int TryUpdate(
     KnnHeap heap,
-    Matrix<float> data,
+    float[][] data,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
     int p,
     int q
@@ -507,10 +514,8 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     float thresholdP = heap.Distances[p][0]; // max distance in p's heap
     float thresholdQ = heap.Distances[q][0]; // max distance in q's heap
 
-    // Compute distance
-    var pData = data.Row(p).ToArray();
-    var qData = data.Row(q).ToArray();
-    float d = metric(pData, qData);
+    // Compute distance using spans (zero allocation)
+    float d = metric(data[p].AsSpan(), data[q].AsSpan());
 
     int updates = 0;
 

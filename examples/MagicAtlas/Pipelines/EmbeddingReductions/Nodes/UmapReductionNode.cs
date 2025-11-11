@@ -219,9 +219,9 @@ public static class UmapReductionNode
       // Configure UMAP options
       var umapParameters = new UmapParameters
       {
-        NumberOfNeighbors = 50,
+        NumberOfNeighbors = 150,
         LearningRate = 1.0f,
-        MinDist = 0.1f,
+        MinDist = 0.5f,
         NumberOfComponents = 2,
         RandomSeed = 42,
         NumberOfEpochs = null,

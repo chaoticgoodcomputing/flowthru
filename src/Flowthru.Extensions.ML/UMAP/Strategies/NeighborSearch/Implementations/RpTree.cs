@@ -1,4 +1,4 @@
-using MathNet.Numerics.LinearAlgebra;
+using System.Buffers;
 
 namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 
@@ -74,12 +74,12 @@ internal static class RpTreeBuilder
   /// <summary>
   /// Builds a forest of random projection trees.
   /// </summary>
-  /// <param name="data">Input data matrix [n_samples, n_features].</param>
+  /// <param name="data">Input data as jagged array [n_samples][n_features].</param>
   /// <param name="numTrees">Number of trees to build.</param>
   /// <param name="leafSize">Maximum points per leaf before stopping recursion.</param>
   /// <param name="random">Random number generator.</param>
   /// <returns>Array of RP-trees.</returns>
-  public static RpTree[] BuildForest(Matrix<float> data, int numTrees, int leafSize, Random random)
+  public static RpTree[] BuildForest(float[][] data, int numTrees, int leafSize, Random random)
   {
     var forest = new RpTree[numTrees];
 
@@ -94,10 +94,10 @@ internal static class RpTreeBuilder
   /// <summary>
   /// Builds a single random projection tree using angular splits.
   /// </summary>
-  private static RpTree BuildTree(Matrix<float> data, int leafSize, Random random)
+  private static RpTree BuildTree(float[][] data, int leafSize, Random random)
   {
-    int nSamples = data.RowCount;
-    int nFeatures = data.ColumnCount;
+    int nSamples = data.Length;
+    int nFeatures = data[0].Length;
 
     // Initialize with all point indices
     int[] allIndices = Enumerable.Range(0, nSamples).ToArray();
@@ -123,7 +123,7 @@ internal static class RpTreeBuilder
   /// </summary>
   /// <returns>Node index (positive for internal nodes, negative for leaves).</returns>
   private static int BuildNode(
-    Matrix<float> data,
+    float[][] data,
     int[] indices,
     int leafSize,
     Random random,
@@ -157,12 +157,13 @@ internal static class RpTreeBuilder
       rightIndices = indices[mid..];
 
       // Use a random hyperplane
-      hyperplane = new float[data.ColumnCount];
+      int nFeatures = data[0].Length;
+      hyperplane = new float[nFeatures];
       for (int i = 0; i < hyperplane.Length; i++)
       {
         hyperplane[i] = (float)(random.NextDouble() * 2 - 1);
       }
-      Normalize(hyperplane);
+      VectorizedDistances.NormalizeInPlace(hyperplane.AsSpan());
       offset = 0.0f;
     }
 
@@ -210,9 +211,9 @@ internal static class RpTreeBuilder
     int[] Right,
     float[] Hyperplane,
     float Offset
-  ) AngularRandomProjectionSplit(Matrix<float> data, int[] indices, Random random)
+  ) AngularRandomProjectionSplit(float[][] data, int[] indices, Random random)
   {
-    int nFeatures = data.ColumnCount;
+    int nFeatures = data[0].Length;
 
     // Select two random points
     int leftIdx = random.Next(indices.Length);
@@ -225,40 +226,72 @@ internal static class RpTreeBuilder
     int leftPoint = indices[leftIdx];
     int rightPoint = indices[rightIdx];
 
-    var leftData = data.Row(leftPoint).ToArray();
-    var rightData = data.Row(rightPoint).ToArray();
+    var leftData = data[leftPoint];
+    var rightData = data[rightPoint];
 
-    // Normalize the points (for angular split)
-    float leftNorm = Norm(leftData);
-    float rightNorm = Norm(rightData);
-
-    if (leftNorm < 1e-8f)
-      leftNorm = 1.0f;
-    if (rightNorm < 1e-8f)
-      rightNorm = 1.0f;
-
-    // Hyperplane is the difference between normalized points
-    var hyperplane = new float[nFeatures];
-    for (int d = 0; d < nFeatures; d++)
+    // Normalize the points (for angular split) - rent temporary buffers
+    float[]? normalizedLeft = null;
+    float[]? normalizedRight = null;
+    try
     {
-      hyperplane[d] = (leftData[d] / leftNorm) - (rightData[d] / rightNorm);
-    }
+      normalizedLeft = ArrayPool<float>.Shared.Rent(nFeatures);
+      normalizedRight = ArrayPool<float>.Shared.Rent(nFeatures);
 
-    // Normalize hyperplane
-    Normalize(hyperplane);
-
-    // Split points based on which side of hyperplane
-    var leftList = new List<int>();
-    var rightList = new List<int>();
-
-    foreach (int idx in indices)
-    {
-      float margin = DotProduct(data.Row(idx).ToArray(), hyperplane);
-
-      if (Math.Abs(margin) < 1e-8f)
+      // Copy and normalize left
+      Array.Copy(leftData, normalizedLeft, nFeatures);
+      float leftNorm = VectorizedDistances.Norm(normalizedLeft.AsSpan(0, nFeatures));
+      if (leftNorm < 1e-8f)
       {
-        // On the hyperplane - randomly assign
-        if (random.Next(2) == 0)
+        leftNorm = 1.0f;
+      }
+      for (int i = 0; i < nFeatures; i++)
+      {
+        normalizedLeft[i] /= leftNorm;
+      }
+
+      // Copy and normalize right
+      Array.Copy(rightData, normalizedRight, nFeatures);
+      float rightNorm = VectorizedDistances.Norm(normalizedRight.AsSpan(0, nFeatures));
+      if (rightNorm < 1e-8f)
+      {
+        rightNorm = 1.0f;
+      }
+      for (int i = 0; i < nFeatures; i++)
+      {
+        normalizedRight[i] /= rightNorm;
+      }
+
+      // Hyperplane is the difference between normalized points
+      var hyperplane = new float[nFeatures];
+      for (int d = 0; d < nFeatures; d++)
+      {
+        hyperplane[d] = normalizedLeft[d] - normalizedRight[d];
+      }
+
+      // Normalize hyperplane
+      VectorizedDistances.NormalizeInPlace(hyperplane.AsSpan());
+
+      // Split points based on which side of hyperplane
+      var leftList = new List<int>();
+      var rightList = new List<int>();
+
+      foreach (int idx in indices)
+      {
+        float margin = VectorizedDistances.DotProduct(data[idx].AsSpan(), hyperplane.AsSpan());
+
+        if (Math.Abs(margin) < 1e-8f)
+        {
+          // On the hyperplane - randomly assign
+          if (random.Next(2) == 0)
+          {
+            leftList.Add(idx);
+          }
+          else
+          {
+            rightList.Add(idx);
+          }
+        }
+        else if (margin > 0)
         {
           leftList.Add(idx);
         }
@@ -267,57 +300,19 @@ internal static class RpTreeBuilder
           rightList.Add(idx);
         }
       }
-      else if (margin > 0)
+
+      return (leftList.ToArray(), rightList.ToArray(), hyperplane, 0.0f);
+    }
+    finally
+    {
+      if (normalizedLeft != null)
       {
-        leftList.Add(idx);
+        ArrayPool<float>.Shared.Return(normalizedLeft);
       }
-      else
+      if (normalizedRight != null)
       {
-        rightList.Add(idx);
+        ArrayPool<float>.Shared.Return(normalizedRight);
       }
     }
-
-    return (leftList.ToArray(), rightList.ToArray(), hyperplane, 0.0f);
-  }
-
-  /// <summary>
-  /// Computes the L2 norm of a vector.
-  /// </summary>
-  private static float Norm(float[] vector)
-  {
-    float sum = 0.0f;
-    for (int i = 0; i < vector.Length; i++)
-    {
-      sum += vector[i] * vector[i];
-    }
-    return MathF.Sqrt(sum);
-  }
-
-  /// <summary>
-  /// Normalizes a vector to unit length in-place.
-  /// </summary>
-  private static void Normalize(float[] vector)
-  {
-    float norm = Norm(vector);
-    if (norm < 1e-8f)
-      norm = 1.0f;
-
-    for (int i = 0; i < vector.Length; i++)
-    {
-      vector[i] /= norm;
-    }
-  }
-
-  /// <summary>
-  /// Computes dot product between two vectors.
-  /// </summary>
-  private static float DotProduct(float[] a, float[] b)
-  {
-    float sum = 0.0f;
-    for (int i = 0; i < a.Length; i++)
-    {
-      sum += a[i] * b[i];
-    }
-    return sum;
   }
 }

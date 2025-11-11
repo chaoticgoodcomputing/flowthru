@@ -1,6 +1,5 @@
 using Flowthru.Extensions.ML.UMAP.Core.Markers;
 using Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 
@@ -40,13 +39,13 @@ public sealed class BruteForceSearch<TMetric> : INeighborSearchStrategy<TMetric>
 {
   /// <inheritdoc />
   public NeighborSearchResult Search(
-    Matrix<float> data,
+    float[][] data,
     int nNeighbors,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
     Random random
   )
   {
-    int nSamples = data.RowCount;
+    int nSamples = data.Length;
 
     if (nNeighbors > nSamples)
     {
@@ -59,13 +58,7 @@ public sealed class BruteForceSearch<TMetric> : INeighborSearchStrategy<TMetric>
     var indices = new int[nSamples][];
     var distances = new float[nSamples][];
 
-    // Convert to row arrays for faster access
-    var dataRows = new float[nSamples][];
-    for (int i = 0; i < nSamples; i++)
-    {
-      dataRows[i] = data.Row(i).ToArray();
-    }
-
+    // Data is already in row format (jagged array), no conversion needed
     // Compute k-NN for each point using brute-force
     for (int i = 0; i < nSamples; i++)
     {
@@ -74,7 +67,7 @@ public sealed class BruteForceSearch<TMetric> : INeighborSearchStrategy<TMetric>
 
       for (int j = 0; j < nSamples; j++)
       {
-        float dist = metric(dataRows[i], dataRows[j]);
+        float dist = metric(data[i].AsSpan(), data[j].AsSpan());
         distList.Add((j, dist));
       }
 

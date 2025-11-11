@@ -142,17 +142,26 @@ internal sealed class UmapPipelineExecutor<TMetric>
       ? new Random(_parameters.RandomSeed.Value)
       : new Random();
 
+    // Convert Matrix<float> to float[][] for neighbor search
+    int nSamples = data.RowCount;
+    int nFeatures = data.ColumnCount;
+    var dataArray = new float[nSamples][];
+    for (int i = 0; i < nSamples; i++)
+    {
+      dataArray[i] = data.Row(i).ToArray();
+    }
+
     // Phase 1: Nearest Neighbor Search
     ReportProgress("Neighbor Search", 0.0f, "Finding k-nearest neighbors");
 
     var neighborResult = _neighborSearch.Search(
-      data,
+      dataArray,
       _parameters.NumberOfNeighbors,
       metric,
       random
     );
 
-    ReportProgress("Neighbor Search", 1.0f, $"Found neighbors for {data.RowCount} points");
+    ReportProgress("Neighbor Search", 1.0f, $"Found neighbors for {nSamples} points");
 
     // Phase 2: Local Metric Computation
     ReportProgress("Local Metric", 0.0f, "Computing local metric parameters");
