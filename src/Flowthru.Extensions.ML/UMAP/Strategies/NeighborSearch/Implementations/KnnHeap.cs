@@ -50,6 +50,12 @@ internal sealed class KnnHeap
   private readonly HashSet<int>[] _neighborSets;
 
   /// <summary>
+  /// Per-sample locks for thread-safe parallel updates.
+  /// Each sample has its own lock to allow fine-grained parallelism.
+  /// </summary>
+  private readonly object[] _sampleLocks;
+
+  /// <summary>
   /// Initializes a new k-NN heap for tracking nearest neighbors.
   /// </summary>
   /// <param name="nSamples">Number of data points.</param>
@@ -60,6 +66,7 @@ internal sealed class KnnHeap
     Distances = new float[nSamples][];
     Flags = new byte[nSamples][];
     _neighborSets = new HashSet<int>[nSamples];
+    _sampleLocks = new object[nSamples];
 
     for (int i = 0; i < nSamples; i++)
     {
@@ -67,6 +74,7 @@ internal sealed class KnnHeap
       Distances[i] = new float[k];
       Flags[i] = new byte[k];
       _neighborSets[i] = new HashSet<int>(k + 10); // Extra capacity for efficiency
+      _sampleLocks[i] = new object();
 
       // Initialize with invalid values
       Array.Fill(Indices[i], -1);
@@ -78,6 +86,7 @@ internal sealed class KnnHeap
   /// <summary>
   /// Attempts to push a new neighbor into the heap if it improves the current k-NN.
   /// Returns true if the neighbor was added, false otherwise.
+  /// Thread-safe: Multiple threads can safely call this for different sample indices.
   /// </summary>
   /// <param name="sample">Index of the sample point.</param>
   /// <param name="neighbor">Index of the potential neighbor.</param>
@@ -94,34 +103,38 @@ internal sealed class KnnHeap
   /// </remarks>
   public bool TryPush(int sample, int neighbor, float distance, byte flag)
   {
-    // Fast O(1) duplicate check using hash set
-    if (!_neighborSets[sample].Add(neighbor))
+    // Lock per sample for thread-safe parallel updates
+    lock (_sampleLocks[sample])
     {
-      return false;
+      // Fast O(1) duplicate check using hash set
+      if (!_neighborSets[sample].Add(neighbor))
+      {
+        return false;
+      }
+
+      // Early exit if distance is worse than current k-th neighbor
+      if (distance >= Distances[sample][0])
+      {
+        _neighborSets[sample].Remove(neighbor);
+        return false;
+      }
+
+      // Track what we're evicting from the heap
+      int evicted = Indices[sample][0];
+      if (evicted >= 0)
+      {
+        _neighborSets[sample].Remove(evicted);
+      }
+
+      // Insert at root (position 0) and sift down
+      Indices[sample][0] = neighbor;
+      Distances[sample][0] = distance;
+      Flags[sample][0] = flag;
+
+      SiftDown(sample, 0);
+
+      return true;
     }
-
-    // Early exit if distance is worse than current k-th neighbor
-    if (distance >= Distances[sample][0])
-    {
-      _neighborSets[sample].Remove(neighbor);
-      return false;
-    }
-
-    // Track what we're evicting from the heap
-    int evicted = Indices[sample][0];
-    if (evicted >= 0)
-    {
-      _neighborSets[sample].Remove(evicted);
-    }
-
-    // Insert at root (position 0) and sift down
-    Indices[sample][0] = neighbor;
-    Distances[sample][0] = distance;
-    Flags[sample][0] = flag;
-
-    SiftDown(sample, 0);
-
-    return true;
   }
 
   /// <summary>

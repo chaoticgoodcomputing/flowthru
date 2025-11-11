@@ -72,21 +72,39 @@ internal sealed class RpTree
 internal static class RpTreeBuilder
 {
   /// <summary>
-  /// Builds a forest of random projection trees.
+  /// Builds a forest of random projection trees in parallel.
   /// </summary>
   /// <param name="data">Input data as jagged array [n_samples][n_features].</param>
   /// <param name="numTrees">Number of trees to build.</param>
   /// <param name="leafSize">Maximum points per leaf before stopping recursion.</param>
-  /// <param name="random">Random number generator.</param>
+  /// <param name="random">Random number generator for seeding tree-specific RNGs.</param>
   /// <returns>Array of RP-trees.</returns>
+  /// <remarks>
+  /// Trees are built in parallel for significant speedup on multi-core systems.
+  /// Each tree gets its own Random instance seeded from the main RNG to ensure
+  /// reproducibility while avoiding contention.
+  /// </remarks>
   public static RpTree[] BuildForest(float[][] data, int numTrees, int leafSize, Random random)
   {
     var forest = new RpTree[numTrees];
 
+    // Create independent Random instances for each tree to avoid contention
+    var treeSeeds = new int[numTrees];
     for (int t = 0; t < numTrees; t++)
     {
-      forest[t] = BuildTree(data, leafSize, random);
+      treeSeeds[t] = random.Next();
     }
+
+    // Build trees in parallel - this is embarrassingly parallel
+    Parallel.For(
+      0,
+      numTrees,
+      t =>
+      {
+        var treeRandom = new Random(treeSeeds[t]);
+        forest[t] = BuildTree(data, leafSize, treeRandom);
+      }
+    );
 
     return forest;
   }

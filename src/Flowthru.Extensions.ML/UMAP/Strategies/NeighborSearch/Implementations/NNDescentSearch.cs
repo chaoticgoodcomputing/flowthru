@@ -214,6 +214,10 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   /// Initializes heap with neighbors from RP-tree leaves.
   /// Points that appear together in tree leaves are likely neighbors.
   /// </summary>
+  /// <remarks>
+  /// Parallelized across leaves for improved performance. Each leaf is processed
+  /// independently, with thread-safe heap updates.
+  /// </remarks>
   private void InitializeFromRpTrees(
     KnnHeap heap,
     RpTree[] forest,
@@ -228,34 +232,38 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
       allLeaves.AddRange(tree.GetLeafArray());
     }
 
-    // For each leaf, compare all pairs of points
-    foreach (var leaf in allLeaves)
-    {
-      for (int i = 0; i < leaf.Length; i++)
+    // Process leaves in parallel - each leaf is independent
+    Parallel.ForEach(
+      allLeaves,
+      leaf =>
       {
-        int p = leaf[i];
-        if (p < 0)
+        // For each leaf, compare all pairs of points
+        for (int i = 0; i < leaf.Length; i++)
         {
-          continue;
-        }
-
-        for (int j = i + 1; j < leaf.Length; j++)
-        {
-          int q = leaf[j];
-          if (q < 0)
+          int p = leaf[i];
+          if (p < 0)
           {
             continue;
           }
 
-          // Compute distance using spans (zero allocation)
-          float d = metric(data[p].AsSpan(), data[q].AsSpan());
+          for (int j = i + 1; j < leaf.Length; j++)
+          {
+            int q = leaf[j];
+            if (q < 0)
+            {
+              continue;
+            }
 
-          // Try to add to both heaps
-          heap.TryPush(p, q, d, flag: 1);
-          heap.TryPush(q, p, d, flag: 1);
+            // Compute distance using spans (zero allocation)
+            float d = metric(data[p].AsSpan(), data[q].AsSpan());
+
+            // Try to add to both heaps (thread-safe via per-sample locks)
+            heap.TryPush(p, q, d, flag: 1);
+            heap.TryPush(q, p, d, flag: 1);
+          }
         }
       }
-    }
+    );
   }
 
   /// <summary>
@@ -436,6 +444,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
 
   /// <summary>
   /// Performs local join: compares all candidate pairs and updates heaps with improvements.
+  /// Parallelized across samples for significant speedup on multi-core systems.
   /// </summary>
   private int LocalJoin(
     KnnHeap heap,
@@ -445,56 +454,67 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric
   )
   {
-    int totalUpdates = 0;
     int nSamples = data.Length;
+    int totalUpdates = 0;
 
-    for (int i = 0; i < nSamples; i++)
-    {
-      int[] newCand = newCandidates[i];
-      int[] oldCand = oldCandidates[i];
+    // Use Parallel.For with thread-safe accumulation of updates
+    var localUpdates = new int[Environment.ProcessorCount];
 
-      // Compare all (new, new) pairs
-      for (int j = 0; j < newCand.Length; j++)
+    Parallel.For(
+      0,
+      nSamples,
+      () => 0, // Thread-local accumulator
+      (i, loopState, localUpdate) =>
       {
-        int p = newCand[j];
-        if (p < 0)
-        {
-          break;
-        }
+        int[] newCand = newCandidates[i];
+        int[] oldCand = oldCandidates[i];
 
-        for (int k = j + 1; k < newCand.Length; k++)
+        // Compare all (new, new) pairs
+        for (int j = 0; j < newCand.Length; j++)
         {
-          int q = newCand[k];
-          if (q < 0)
+          int p = newCand[j];
+          if (p < 0)
           {
             break;
           }
 
-          totalUpdates += TryUpdate(heap, data, metric, p, q);
-        }
-      }
+          for (int k = j + 1; k < newCand.Length; k++)
+          {
+            int q = newCand[k];
+            if (q < 0)
+            {
+              break;
+            }
 
-      // Compare all (new, old) pairs
-      for (int j = 0; j < newCand.Length; j++)
-      {
-        int p = newCand[j];
-        if (p < 0)
-        {
-          break;
+            localUpdate += TryUpdate(heap, data, metric, p, q);
+          }
         }
 
-        for (int k = 0; k < oldCand.Length; k++)
+        // Compare all (new, old) pairs
+        for (int j = 0; j < newCand.Length; j++)
         {
-          int q = oldCand[k];
-          if (q < 0)
+          int p = newCand[j];
+          if (p < 0)
           {
             break;
           }
 
-          totalUpdates += TryUpdate(heap, data, metric, p, q);
+          for (int k = 0; k < oldCand.Length; k++)
+          {
+            int q = oldCand[k];
+            if (q < 0)
+            {
+              break;
+            }
+
+            localUpdate += TryUpdate(heap, data, metric, p, q);
+          }
         }
-      }
-    }
+
+        return localUpdate;
+      },
+      localUpdate => Interlocked.Add(ref totalUpdates, localUpdate)
+    );
 
     return totalUpdates;
   }
