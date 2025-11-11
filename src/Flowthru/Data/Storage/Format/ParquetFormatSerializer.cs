@@ -31,12 +31,13 @@ namespace Flowthru.Data.Storage.Format;
 /// <item>SerializedLabel - Respects [SerializedLabel] attributes for property name mapping</item>
 /// <item>Null Safety - Enforces non-nullable contracts during deserialization</item>
 /// <item>Value Type Nullability - DTOs use nullable value types to match Parquet schema conventions</item>
+/// <item>Enum Support - Automatically converts between Parquet's integer storage and enum types</item>
 /// </list>
 /// <para>
 /// <strong>Current Limitations:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>SerializedEnum not yet supported - uses underlying values</item>
+/// <item>SerializedEnum attributes are not used - enums stored/retrieved by underlying integer value</item>
 /// </list>
 /// </remarks>
 public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
@@ -629,7 +630,17 @@ internal sealed class ParquetAdapter<TRow>
             {
               try
               {
-                value = Convert.ChangeType(value, targetType);
+                // Special handling for enum types
+                if (targetType.IsEnum)
+                {
+                  // Parquet stores enums as their underlying integer type
+                  // Use Enum.ToObject to convert from integer to enum
+                  value = Enum.ToObject(targetType, value);
+                }
+                else
+                {
+                  value = Convert.ChangeType(value, targetType);
+                }
               }
               catch (InvalidCastException ex)
               {
