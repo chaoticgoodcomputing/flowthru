@@ -42,14 +42,14 @@ public class Program
             "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
           );
 
-        // builder
-        //   .RegisterPipeline<Catalog>(
-        //     label: "FashionComparisonPipeline",
-        //     pipeline: Pipelines.FashionComparison.FashionComparisonPipeline.Create
-        //   )
-        //   .WithDescription(
-        //     "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
-        //   );
+        builder
+          .RegisterPipeline<Catalog>(
+            label: "FashionComparisonPipeline",
+            pipeline: Pipelines.FashionComparison.FashionComparisonPipeline.Create
+          )
+          .WithDescription(
+            "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
+          );
       }
     );
 

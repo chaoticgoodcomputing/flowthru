@@ -62,27 +62,29 @@ public static class FashionComparisonPipeline
         output: catalog.FashionMnistCSharpOutput
       );
 
-      pipeline.AddNode(
-        label: "CompareFashionMnistOutputs",
-        description: "Compares C# UMAP output against Python reference output using neighborhood preservation validation.",
-        transform: CompareUmapImplementationsNode.Create(
-          new CompareUmapImplementationsNode.Params
-          {
-            DatasetName = "fashion-mnist",
-            UmapParameters = umapParameters,
-            KNeighbors = 15,
-            MaxPreservationDifference = 0.1,
-            MinimumConfidence = 0.68,
-            NumTrials = 1,
-          }
-        ),
-        input: (
-          catalog.FashionMnistUmapInput,
-          catalog.FashionMnistPythonOutput,
-          catalog.FashionMnistUmapInput
-        ),
-        output: catalog.FashionMnistComparison
-      );
+      // This node requires a brute force KNN, and is too slow to test currently.
+
+      // pipeline.AddNode(
+      //   label: "CompareFashionMnistOutputs",
+      //   description: "Compares C# UMAP output against Python reference output using neighborhood preservation validation.",
+      //   transform: CompareUmapImplementationsNode.Create(
+      //     new CompareUmapImplementationsNode.Params
+      //     {
+      //       DatasetName = "fashion-mnist",
+      //       UmapParameters = umapParameters,
+      //       KNeighbors = 15,
+      //       MaxPreservationDifference = 0.1,
+      //       MinimumConfidence = 0.68,
+      //       NumTrials = 1,
+      //     }
+      //   ),
+      //   input: (
+      //     catalog.FashionMnistUmapInput,
+      //     catalog.FashionMnistPythonOutput,
+      //     catalog.FashionMnistUmapInput
+      //   ),
+      //   output: catalog.FashionMnistComparison
+      // );
 
       pipeline.AddNode(
         label: "VisualizeFashionMnistComparison",

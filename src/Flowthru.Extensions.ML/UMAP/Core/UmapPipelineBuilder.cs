@@ -77,6 +77,50 @@ public sealed class UmapPipelineBuilder<TMetric>
     return this;
   }
 
+  /// <summary>
+  /// Fits UMAP and transforms data in one step.
+  /// Auto-selects strategies based on data characteristics if not explicitly set.
+  /// </summary>
+  /// <param name="data">Input data as jagged array (n_samples, n_features)</param>
+  /// <param name="metric">
+  /// Distance metric function matching TMetric type.
+  /// If null, uses Euclidean distance for IEuclideanMetric.
+  /// </param>
+  /// <returns>Low-dimensional embedding (n_samples, n_components)</returns>
+  public float[][] FitTransform(
+    float[][] data,
+    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float>? metric = null
+  )
+  {
+    // Convert to Matrix for internal processing
+    var matrix = MathNet.Numerics.LinearAlgebra.Single.DenseMatrix.OfRowArrays(data);
+    var resultMatrix = FitTransform(matrix, metric);
+
+    // Convert back to jagged array
+    var result = new float[resultMatrix.RowCount][];
+    for (int i = 0; i < resultMatrix.RowCount; i++)
+    {
+      result[i] = resultMatrix.Row(i).ToArray();
+    }
+
+    return result;
+  }
+
+  /// <summary>
+  /// Fits UMAP and transforms data in one step.
+  /// Auto-selects strategies based on data characteristics if not explicitly set.
+  /// </summary>
+  /// <param name="data">Input data matrix (n_samples, n_features)</param>
+  /// <param name="metric">
+  /// Distance metric function matching TMetric type.
+  /// If null, uses Euclidean distance for IEuclideanMetric.
+  /// </param>
+  /// <returns>Low-dimensional embedding (n_samples, n_components)</returns>
+  /// <remarks>
+  /// TODO: Consider deprecating this overload. Matrix&lt;float&gt; adds virtual call overhead
+  /// and intermediate allocations compared to float[][]. Only kept for compatibility with
+  /// SpectralInit which uses Math.Net for eigenvalue decomposition.
+  /// </remarks>
   public Matrix<float> FitTransform(
     Matrix<float> data,
     Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float>? metric = null

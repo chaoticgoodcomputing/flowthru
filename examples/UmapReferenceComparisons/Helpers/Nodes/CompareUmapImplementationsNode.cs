@@ -269,8 +269,7 @@ public static class CompareUmapImplementationsNode
     };
 
     // Use simplified high-level API - handles all conversions internally
-    // var embeddingMatrix = Umap.FitTransform(inputFeatures, trialOptions, initStrategy);
-    var test = UmapPipeline.Create(trialOptions).FitTransform(inputFeatures);
+    var embeddingMatrix = UmapPipeline.Create(trialOptions).FitTransform(inputFeatures);
 
     // Convert matrix result to output schema
     var result = Enumerable

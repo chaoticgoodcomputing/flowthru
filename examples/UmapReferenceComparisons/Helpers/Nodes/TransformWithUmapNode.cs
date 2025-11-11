@@ -42,11 +42,7 @@ public static class TransformWithUmapNode
       var featureArray = inputList.Select(row => row.Features).ToArray();
 
       // Use simplified high-level API with specified initialization strategy
-      var embeddingMatrix = Umap.FitTransform(
-        featureArray,
-        options.UmapParameters,
-        options.InitStrategy
-      );
+      var embeddingMatrix = UmapPipeline.Create(options.UmapParameters).FitTransform(featureArray);
 
       // Convert matrix result to output schema
       var result = Enumerable

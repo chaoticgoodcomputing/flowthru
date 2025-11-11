@@ -1,4 +1,5 @@
 using Flowthru.Extensions.ML.UMAP;
+using Flowthru.Extensions.ML.UMAP.Core;
 using MagicAtlas.Data._07_ModelOutput.Schemas;
 using Microsoft.ML;
 
@@ -216,34 +217,19 @@ public static class UmapReductionNode
       var data = embeddingsList.Select(e => e.Embedding).ToArray();
 
       // Configure UMAP options
-      var umapOptions = new UmapOptions
+      var umapParameters = new UmapParameters
       {
-        NumberOfNeighbors = opts.NumberOfNeighbors,
-        NumberOfComponents = opts.NumberOfComponents,
-        MinDist = opts.MinDist,
-        Metric = opts.Metric,
-        NumberOfEpochs = opts.NumberOfEpochs,
-        RandomState = opts.Seed,
-        Verbosity = opts.Verbosity,
-        // Approximate nearest neighbors configuration
-        // UseApproximateNearestNeighbors = opts.UseApproximateNearestNeighbors,
-        // AnnNumTrees = opts.AnnNumTrees,
-        // AnnLeafSize = opts.AnnLeafSize,
-        // AnnSearchK = opts.AnnSearchK,
-        // Use defaults for other parameters
-        Spread = 1.0f,
+        NumberOfNeighbors = 50,
         LearningRate = 1.0f,
-        LocalConnectivity = 1.0f,
-        RepulsionStrength = 1.0f,
-        NegativeSampleRate = 5,
-        SetOpMixRatio = 1.0f,
+        MinDist = 0.1f,
+        NumberOfComponents = 2,
+        RandomSeed = 42,
+        NumberOfEpochs = null,
+        Verbosity = 2,
       };
 
-      // Create UMAP trainer
-      var trainer = mlContext.CreateUmapTrainer(umapOptions);
-
-      // Fit UMAP model and transform
-      var (model, embedding) = trainer.FitTransform(data);
+      // Use simplified high-level API with specified initialization strategy
+      var embeddingMatrix = UmapPipeline.Create(umapParameters).FitTransform(data);
 
       // Generate UMAP embeddings
       var umapEmbeddings = embeddingsList
@@ -255,7 +241,7 @@ public static class UmapReductionNode
               CardId = e.CardId,
               TextType = e.TextType,
               Text = e.Text,
-              Components = embedding[i],
+              Components = embeddingMatrix[i],
               ComponentDimension = opts.NumberOfComponents,
             }
         )
