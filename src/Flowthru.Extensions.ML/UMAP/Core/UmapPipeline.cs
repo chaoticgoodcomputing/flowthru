@@ -1,36 +1,92 @@
 using Flowthru.Extensions.ML.UMAP.Core.Markers;
 using Flowthru.Extensions.ML.UMAP.Strategies.GraphRefinement;
+using Flowthru.Extensions.ML.UMAP.Strategies.GraphRefinement.Implementations;
 using Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit;
+using Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit.Implementations;
 using Flowthru.Extensions.ML.UMAP.Strategies.LayoutOptimization;
+using Flowthru.Extensions.ML.UMAP.Strategies.LayoutOptimization.Implementations;
 using Flowthru.Extensions.ML.UMAP.Strategies.LocalMetric;
+using Flowthru.Extensions.ML.UMAP.Strategies.LocalMetric.Implementations;
 using Flowthru.Extensions.ML.UMAP.Strategies.MembershipStrength;
+using Flowthru.Extensions.ML.UMAP.Strategies.MembershipStrength.Implementations;
 using Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch;
+using Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 using Flowthru.Extensions.ML.UMAP.Strategies.SamplingSchedule;
+using Flowthru.Extensions.ML.UMAP.Strategies.SamplingSchedule.Implementations;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace Flowthru.Extensions.ML.UMAP.Core;
 
 /// <summary>
-/// Orchestrates the UMAP algorithm by coordinating configured strategies.
+/// Fluent builder for UMAP pipelines with automatic strategy selection.
 /// </summary>
-/// <typeparam name="TMetric">Input metric marker indicating the distance metric used.</typeparam>
 /// <remarks>
 /// <para>
-/// The pipeline executes the UMAP algorithm in phases:
+/// This provides a low skill floor (simple defaults) with a high skill ceiling (full customization).
+/// Strategies are resolved lazily at FitTransform() time based on data characteristics.
 /// </para>
-/// <list type="number">
-///   <item><description><b>Neighbor Search</b>: Find k-nearest neighbors in high-dimensional space</description></item>
-///   <item><description><b>Local Metric</b>: Compute bandwidth parameters to normalize local densities</description></item>
-///   <item><description><b>Membership Strength</b>: Build fuzzy simplicial set representation</description></item>
-///   <item><description><b>Initialization</b>: Create initial low-dimensional embedding (future phase)</description></item>
-///   <item><description><b>Optimization</b>: Refine embedding through SGD (future phase)</description></item>
-/// </list>
 /// <para>
-/// This class is immutable and thread-safe after construction.
+/// <b>Usage patterns:</b>
 /// </para>
+/// <code>
+/// // Beginner: Full auto-configuration
+/// var result = UmapPipeline.Create().FitTransform(data);
+///
+/// // Intermediate: Custom metric
+/// var result = UmapPipeline.Create&lt;ICosineMetric&gt;()
+///   .FitTransform(data, cosineDistance);
+///
+/// // Advanced: Custom strategies for testing/benchmarking
+/// var result = UmapPipeline.Create()
+///   .WithNeighborSearch(new NNDescentSearch&lt;IEuclideanMetric&gt; { MaxIterations = 50 })
+///   .FitTransform(data);
+/// </code>
 /// </remarks>
-public sealed class UmapPipeline<TMetric>
+public static class UmapPipeline
+{
+  /// <summary>
+  /// Creates a new UMAP pipeline with default Euclidean metric.
+  /// Strategies will be auto-selected based on data shape at FitTransform() time.
+  /// </summary>
+  /// <param name="parameters">
+  /// UMAP hyperparameters (n_neighbors, min_dist, etc.).
+  /// If null, uses defaults appropriate for the data.
+  /// </param>
+  public static UmapPipelineBuilder<IEuclideanMetric> Create(UmapParameters? parameters = null)
+  {
+    return new UmapPipelineBuilder<IEuclideanMetric>(parameters ?? new UmapParameters());
+  }
+
+  /// <summary>
+  /// Creates a new UMAP pipeline with a specific metric type.
+  /// Useful when you need non-Euclidean metrics (cosine, Manhattan, etc.).
+  /// </summary>
+  public static UmapPipelineBuilder<TMetric> Create<TMetric>(UmapParameters? parameters = null)
+    where TMetric : IMetricMarker
+  {
+    return new UmapPipelineBuilder<TMetric>(parameters ?? new UmapParameters());
+  }
+
+  /// <summary>
+  /// Euclidean distance metric (L2 norm).
+  /// </summary>
+  public static float EuclideanDistance(ReadOnlySpan<float> x, ReadOnlySpan<float> y)
+  {
+    float sum = 0f;
+    for (int i = 0; i < x.Length; i++)
+    {
+      float diff = x[i] - y[i];
+      sum += diff * diff;
+    }
+    return MathF.Sqrt(sum);
+  }
+}
+
+/// <summary>
+/// Internal executor that runs the UMAP algorithm with resolved strategies.
+/// </summary>
+internal sealed class UmapPipelineExecutor<TMetric>
   where TMetric : IMetricMarker
 {
   private readonly UmapParameters _parameters;
@@ -42,7 +98,7 @@ public sealed class UmapPipeline<TMetric>
   private readonly ISamplingScheduleStrategy? _samplingSchedule;
   private readonly ILayoutOptimizationStrategy? _layoutOptimization;
 
-  internal UmapPipeline(
+  internal UmapPipelineExecutor(
     UmapParameters parameters,
     INeighborSearchStrategy<TMetric> neighborSearch,
     ILocalMetricStrategy localMetric,
@@ -308,18 +364,6 @@ public sealed class UmapPipeline<TMetric>
     }
 
     return edges.ToArray();
-  }
-
-  /// <summary>
-  /// Creates a new builder for constructing a UMAP pipeline.
-  /// </summary>
-  /// <param name="parameters">Optional UMAP parameters. If null, uses defaults.</param>
-  /// <returns>A builder in the unconfigured state.</returns>
-  public static UmapPipelineBuilder<IUnconfigured, TMetric> CreateBuilder(
-    UmapParameters? parameters = null
-  )
-  {
-    return new UmapPipelineBuilder<IUnconfigured, TMetric>(parameters);
   }
 }
 

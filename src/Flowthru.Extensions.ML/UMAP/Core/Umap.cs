@@ -153,9 +153,9 @@ public static class Umap
         ? (ILayoutInitStrategy<IEuclideanMetric>)new RandomInit<IEuclideanMetric>()
         : new SpectralInit<IEuclideanMetric>();
 
-    // Build pipeline with selected initialization strategy
-    var pipeline = UmapPipeline<IEuclideanMetric>
-      .CreateBuilder(parameters)
+    // Build and execute pipeline with selected initialization strategy
+    var result = UmapPipeline
+      .Create(parameters)
       .WithNeighborSearch(new BruteForceSearch<IEuclideanMetric>())
       .WithLocalMetric(new BinarySearchSmoothing())
       .WithMembershipStrength(new ExponentialKernel())
@@ -163,19 +163,16 @@ public static class Umap
       .WithLayoutInit(layoutInit)
       .WithSamplingSchedule(new ProportionalSampling())
       .WithLayoutOptimization(new EuclideanSGD())
-      .Build();
-
-    // Execute complete UMAP algorithm
-    var result = pipeline.FitTransform(data, EuclideanDistance);
+      .FitTransform(data, UmapPipeline.EuclideanDistance);
 
     if (parameters.Verbosity >= 1)
     {
       Console.WriteLine(
-        $"UMAP complete (init={initStrategy}): {result.GraphResult.Graph.NonZerosCount} edges, final embedding shape: ({result.Embedding.RowCount}, {result.Embedding.ColumnCount})"
+        $"UMAP complete (init={initStrategy}): final embedding shape: ({result.RowCount}, {result.ColumnCount})"
       );
     }
 
-    return result.Embedding;
+    return result;
   }
 
   /// <summary>

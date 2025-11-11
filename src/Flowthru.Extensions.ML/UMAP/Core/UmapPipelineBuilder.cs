@@ -1,5 +1,5 @@
-using Flowthru.Extensions.ML.UMAP.Core;
 using Flowthru.Extensions.ML.UMAP.Core.Markers;
+using Flowthru.Extensions.ML.UMAP.Core.Utils;
 using Flowthru.Extensions.ML.UMAP.Strategies.GraphRefinement;
 using Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit;
 using Flowthru.Extensions.ML.UMAP.Strategies.LayoutOptimization;
@@ -8,35 +8,10 @@ using Flowthru.Extensions.ML.UMAP.Strategies.MembershipStrength;
 using Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch;
 using Flowthru.Extensions.ML.UMAP.Strategies.SamplingSchedule;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace Flowthru.Extensions.ML.UMAP.Core;
 
-/// <summary>
-/// Type-safe builder for constructing UMAP pipelines with compile-time validation.
-/// Uses the type-state pattern to enforce configuration order and strategy compatibility.
-/// </summary>
-/// <typeparam name="TState">Current builder state (unconfigured, partially configured, or complete).</typeparam>
-/// <typeparam name="TMetric">Input metric marker constraining strategy selection.</typeparam>
-/// <remarks>
-/// <para>
-/// The builder enforces a fluent API where strategies must be configured in a specific order,
-/// and only compatible strategies can be combined. Invalid combinations are rejected at
-/// compile-time rather than runtime.
-/// </para>
-/// <para>
-/// <b>Example usage:</b>
-/// </para>
-/// <code>
-/// var pipeline = new UmapPipelineBuilder&lt;IUnconfigured, ISmallData, IEuclideanMetric&gt;()
-///     .WithNeighborSearch(new BruteForceSearch&lt;IEuclideanMetric&gt;())
-///     .WithLocalMetric(new BinarySearchSmoothing())
-///     .WithMembershipStrength(new ExponentialKernel())
-///     .Build();
-/// </code>
-/// </remarks>
-public sealed class UmapPipelineBuilder<TState, TMetric>
-  where TState : notnull
+public sealed class UmapPipelineBuilder<TMetric>
   where TMetric : IMetricMarker
 {
   private readonly UmapParameters _parameters;
@@ -48,254 +23,105 @@ public sealed class UmapPipelineBuilder<TState, TMetric>
   private ISamplingScheduleStrategy? _samplingSchedule;
   private ILayoutOptimizationStrategy? _layoutOptimization;
 
-  internal UmapPipelineBuilder(UmapParameters? parameters = null)
+  internal UmapPipelineBuilder(UmapParameters parameters)
   {
-    _parameters = parameters ?? new UmapParameters();
+    _parameters = parameters;
     _parameters.Validate();
   }
 
-  /// <summary>
-  /// Configures the neighbor search strategy.
-  /// Available in the unconfigured state.
-  /// </summary>
-  /// <typeparam name="TSearch">The concrete neighbor search strategy type.</typeparam>
-  /// <param name="strategy">The neighbor search strategy instance.</param>
-  /// <returns>Builder in the neighbor-search-configured state.</returns>
-  public UmapPipelineBuilder<INeighborSearchConfigured, TMetric> WithNeighborSearch<TSearch>(
-    TSearch strategy
-  )
-    where TSearch : INeighborSearchStrategy<TMetric>
+  public UmapPipelineBuilder<TNewMetric> WithMetric<TNewMetric>()
+    where TNewMetric : IMetricMarker
   {
-    if (this is not UmapPipelineBuilder<IUnconfigured, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "WithNeighborSearch can only be called on unconfigured builder"
-      );
-    }
-
-    var next = new UmapPipelineBuilder<INeighborSearchConfigured, TMetric>(_parameters);
-    next._neighborSearch = strategy;
-    return next;
+    return new UmapPipelineBuilder<TNewMetric>(_parameters);
   }
 
-  /// <summary>
-  /// Configures the local metric strategy.
-  /// Available after neighbor search is configured.
-  /// </summary>
-  /// <param name="strategy">The local metric strategy instance.</param>
-  /// <returns>Builder in the local-metric-configured state.</returns>
-  public UmapPipelineBuilder<ILocalMetricConfigured, TMetric> WithLocalMetric(
-    ILocalMetricStrategy strategy
-  )
+  public UmapPipelineBuilder<TMetric> WithNeighborSearch(INeighborSearchStrategy<TMetric> strategy)
   {
-    if (this is not UmapPipelineBuilder<INeighborSearchConfigured, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "WithLocalMetric can only be called after WithNeighborSearch"
-      );
-    }
-
-    var next = new UmapPipelineBuilder<ILocalMetricConfigured, TMetric>(_parameters);
-    next._neighborSearch = _neighborSearch;
-    next._localMetric = strategy;
-    return next;
+    _neighborSearch = strategy;
+    return this;
   }
 
-  /// <summary>
-  /// Configures the membership strength strategy.
-  /// Available after local metric is configured.
-  /// </summary>
-  /// <param name="strategy">The membership strength strategy instance.</param>
-  /// <returns>Builder in the complete state.</returns>
-  public UmapPipelineBuilder<IComplete, TMetric> WithMembershipStrength(
-    IMembershipStrengthStrategy strategy
-  )
+  public UmapPipelineBuilder<TMetric> WithLocalMetric(ILocalMetricStrategy strategy)
   {
-    if (this is not UmapPipelineBuilder<ILocalMetricConfigured, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "WithMembershipStrength can only be called after WithLocalMetric"
-      );
-    }
-
-    var next = new UmapPipelineBuilder<IComplete, TMetric>(_parameters);
-    next._neighborSearch = _neighborSearch;
-    next._localMetric = _localMetric;
-    next._membershipStrength = strategy;
-    next._graphRefinement = _graphRefinement;
-    next._layoutInit = _layoutInit;
-    return next;
+    _localMetric = strategy;
+    return this;
   }
 
-  /// <summary>
-  /// Configures an optional graph refinement strategy.
-  /// Can be called after membership strength is configured.
-  /// </summary>
-  public UmapPipelineBuilder<IComplete, TMetric> WithGraphRefinement(
-    IGraphRefinementStrategy strategy
-  )
+  public UmapPipelineBuilder<TMetric> WithMembershipStrength(IMembershipStrengthStrategy strategy)
   {
-    if (this is not UmapPipelineBuilder<IComplete, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "WithGraphRefinement can only be called after WithMembershipStrength"
-      );
-    }
-
-    var next = new UmapPipelineBuilder<IComplete, TMetric>(_parameters);
-    next._neighborSearch = _neighborSearch;
-    next._localMetric = _localMetric;
-    next._membershipStrength = _membershipStrength;
-    next._graphRefinement = strategy;
-    next._layoutInit = _layoutInit;
-    return next;
+    _membershipStrength = strategy;
+    return this;
   }
 
-  /// <summary>
-  /// Configures an optional layout initialization strategy.
-  /// Can be called after membership strength is configured.
-  /// </summary>
-  public UmapPipelineBuilder<IComplete, TMetric> WithLayoutInit(
-    ILayoutInitStrategy<TMetric> strategy
-  )
+  public UmapPipelineBuilder<TMetric> WithGraphRefinement(IGraphRefinementStrategy strategy)
   {
-    if (this is not UmapPipelineBuilder<IComplete, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "WithLayoutInit can only be called after WithMembershipStrength"
-      );
-    }
-
-    var next = new UmapPipelineBuilder<IComplete, TMetric>(_parameters);
-    next._neighborSearch = _neighborSearch;
-    next._localMetric = _localMetric;
-    next._membershipStrength = _membershipStrength;
-    next._graphRefinement = _graphRefinement;
-    next._layoutInit = strategy;
-    next._samplingSchedule = _samplingSchedule;
-    next._layoutOptimization = _layoutOptimization;
-    return next;
+    _graphRefinement = strategy;
+    return this;
   }
 
-  /// <summary>
-  /// Configures an optional sampling schedule strategy.
-  /// Can be called after membership strength is configured.
-  /// </summary>
-  public UmapPipelineBuilder<IComplete, TMetric> WithSamplingSchedule(
-    ISamplingScheduleStrategy strategy
-  )
+  public UmapPipelineBuilder<TMetric> WithLayoutInit(ILayoutInitStrategy<TMetric> strategy)
   {
-    if (this is not UmapPipelineBuilder<IComplete, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "WithSamplingSchedule can only be called after WithMembershipStrength"
-      );
-    }
-
-    var next = new UmapPipelineBuilder<IComplete, TMetric>(_parameters);
-    next._neighborSearch = _neighborSearch;
-    next._localMetric = _localMetric;
-    next._membershipStrength = _membershipStrength;
-    next._graphRefinement = _graphRefinement;
-    next._layoutInit = _layoutInit;
-    next._samplingSchedule = strategy;
-    next._layoutOptimization = _layoutOptimization;
-    return next;
+    _layoutInit = strategy;
+    return this;
   }
 
-  /// <summary>
-  /// Configures an optional layout optimization strategy.
-  /// Can be called after membership strength is configured.
-  /// </summary>
-  public UmapPipelineBuilder<IComplete, TMetric> WithLayoutOptimization(
-    ILayoutOptimizationStrategy strategy
-  )
+  public UmapPipelineBuilder<TMetric> WithSamplingSchedule(ISamplingScheduleStrategy strategy)
   {
-    if (this is not UmapPipelineBuilder<IComplete, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "WithLayoutOptimization can only be called after WithMembershipStrength"
-      );
-    }
-
-    var next = new UmapPipelineBuilder<IComplete, TMetric>(_parameters);
-    next._neighborSearch = _neighborSearch;
-    next._localMetric = _localMetric;
-    next._membershipStrength = _membershipStrength;
-    next._graphRefinement = _graphRefinement;
-    next._layoutInit = _layoutInit;
-    next._samplingSchedule = _samplingSchedule;
-    next._layoutOptimization = strategy;
-    return next;
+    _samplingSchedule = strategy;
+    return this;
   }
 
-  /// <summary>
-  /// Builds the configured UMAP pipeline.
-  /// Only available when all required strategies are configured.
-  /// </summary>
-  /// <returns>A configured UMAP pipeline ready to process data.</returns>
-  /// <exception cref="InvalidOperationException">Thrown if strategies are not properly configured (should not happen with proper type-state usage).</exception>
-  public UmapPipeline<TMetric> Build()
+  public UmapPipelineBuilder<TMetric> WithLayoutOptimization(ILayoutOptimizationStrategy strategy)
   {
-    if (this is not UmapPipelineBuilder<IComplete, TMetric>)
-    {
-      throw new InvalidOperationException(
-        "Build can only be called when all strategies are configured"
-      );
-    }
+    _layoutOptimization = strategy;
+    return this;
+  }
 
-    if (_neighborSearch == null)
+  public Matrix<float> FitTransform(
+    Matrix<float> data,
+    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float>? metric = null
+  )
+  {
+    var shape = new DataShape
     {
-      throw new InvalidOperationException("Neighbor search strategy is not configured");
-    }
-    if (_localMetric == null)
-    {
-      throw new InvalidOperationException("Local metric strategy is not configured");
-    }
-    if (_membershipStrength == null)
-    {
-      throw new InvalidOperationException("Membership strength strategy is not configured");
-    }
+      Samples = data.RowCount,
+      Features = data.ColumnCount,
+      IsSparse = false,
+      EstimatedMemoryBytes = data.RowCount * data.ColumnCount * sizeof(float),
+    };
 
-    return new UmapPipeline<TMetric>(
+    var effectiveMetric = metric ?? GetDefaultMetric();
+
+    var executor = new UmapPipelineExecutor<TMetric>(
       _parameters,
-      _neighborSearch,
-      _localMetric,
-      _membershipStrength,
-      _graphRefinement,
-      _layoutInit,
-      _samplingSchedule,
-      _layoutOptimization
+      neighborSearch: _neighborSearch
+        ?? StrategyResolver.ResolveNeighborSearch<TMetric>(shape, _parameters.Verbosity),
+      localMetric: _localMetric ?? StrategyResolver.ResolveLocalMetric(_parameters.Verbosity),
+      membershipStrength: _membershipStrength
+        ?? StrategyResolver.ResolveMembershipStrength(_parameters.Verbosity),
+      graphRefinement: _graphRefinement
+        ?? StrategyResolver.ResolveGraphRefinement(_parameters.Verbosity),
+      layoutInit: _layoutInit ?? StrategyResolver.ResolveLayoutInit<TMetric>(_parameters.Verbosity),
+      samplingSchedule: _samplingSchedule
+        ?? StrategyResolver.ResolveSamplingSchedule(_parameters.Verbosity),
+      layoutOptimization: _layoutOptimization
+        ?? StrategyResolver.ResolveLayoutOptimization<TMetric>(_parameters.Verbosity)
+    );
+
+    var result = executor.FitTransform(data, effectiveMetric);
+    return result.Embedding;
+  }
+
+  private static Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> GetDefaultMetric()
+  {
+    if (typeof(TMetric) == typeof(IEuclideanMetric))
+    {
+      return Metrics.Euclidean;
+    }
+
+    throw new NotSupportedException(
+      $"No default metric available for {typeof(TMetric).Name}. "
+        + "Please provide metric explicitly via FitTransform(data, metric)"
     );
   }
 }
-
-/// <summary>
-/// Builder state: No strategies configured yet.
-/// </summary>
-public interface IUnconfigured { }
-
-/// <summary>
-/// Builder state: Neighbor search strategy configured.
-/// </summary>
-public interface INeighborSearchConfigured { }
-
-/// <summary>
-/// Builder state: Local metric strategy configured.
-/// </summary>
-public interface ILocalMetricConfigured : INeighborSearchConfigured { }
-
-/// <summary>
-/// Builder state: Optional graph refinement configured.
-/// </summary>
-public interface IGraphRefinementConfigured : ILocalMetricConfigured { }
-
-/// <summary>
-/// Builder state: Optional layout initialization configured.
-/// </summary>
-public interface ILayoutInitConfigured : IGraphRefinementConfigured { }
-
-/// <summary>
-/// Builder state: All required strategies configured, ready to build.
-/// </summary>
-public interface IComplete : ILocalMetricConfigured { }
