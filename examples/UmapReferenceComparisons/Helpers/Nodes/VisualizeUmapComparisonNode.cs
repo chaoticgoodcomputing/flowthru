@@ -130,7 +130,7 @@ public static class VisualizeUmapComparisonNode
       var trace = CSharpChart
         .Point<float, float, string>(x: xValues, y: yValues)
         .WithTraceInfo(Name: displayName, ShowLegend: true)
-        .WithMarkerStyle(Color: Color.fromKeyword(colorMap[label]), Size: 8, Opacity: 0.7);
+        .WithMarkerStyle(Color: Color.fromKeyword(colorMap[label]), Size: 6, Opacity: 0.2);
 
       traces.Add(trace);
     }

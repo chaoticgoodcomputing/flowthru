@@ -1,25 +1,28 @@
 # Flowthru.Extensions.ML
 
-**Pure, unoptimized UMAP implementation** - Direct port from the Python reference implementation.
+**Type-safe, composable UMAP implementation with compile-time validation**
 
-This project contains a line-by-line translation of the original Python UMAP implementation by Leland McInnes, without any optimizations or algorithmic changes. It serves as a baseline reference to verify correctness before applying optimizations.
+This project implements UMAP (Uniform Manifold Approximation and Projection) using a modern strategy pattern architecture that emphasizes:
 
-## Purpose
+1. **Interface/Implementation/Composition** - Strategies are independently optimizable and testable
+2. **Smart Defaults** - Automatic pipeline configuration based on data characteristics
+3. **Compile-Time Safety** - Invalid strategy combinations are prevented at compile time
 
-This is a **reference implementation** used to:
-- Verify the correctness of optimized UMAP implementations
-- Establish baseline performance and accuracy metrics  
-- Debug algorithmic differences between C# and Python versions
+## Architecture
 
-## Differences from Flowthru.Extensions.ML
+UMAP is decomposed into **9 individually-optimizable phases**, each with its own strategy interface:
 
-| Aspect       | ML (this project)   | ML (optimized) |
-| ------------ | ----------------------- | -------------- |
-| **Goal**     | Algorithmic correctness | Performance    |
-| **Source**   | Direct Python port      | Optimized C#   |
-| **Speed**    | Slower                  | Faster         |
-| **Memory**   | Higher usage            | Optimized      |
-| **Use Case** | Testing/validation      | Production     |
+- **Phase 1**: Neighbor Search - Find k-nearest neighbors
+- **Phase 2**: Local Metric - Compute bandwidth parameters
+- **Phase 3**: Membership Strength - Build fuzzy simplicial set
+- **Phase 4**: Graph Refinement - Post-process graph (TODO)
+- **Phase 5**: Layout Initialization - Initialize embedding (TODO)
+- **Phase 6**: Sampling Schedule - Determine sampling frequencies (TODO)
+- **Phase 7**: Layout Optimization - Refine via SGD (TODO)
+- **Phase 8**: Transform - Out-of-sample extension (TODO)
+- **Phase 9**: Inverse Transform - Map back to high-dimensional space (TODO)
+
+See [UMAP/STRATEGY_ARCHITECTURE.md](UMAP/STRATEGY_ARCHITECTURE.md) for detailed documentation.
 
 ## Attribution
 
@@ -39,35 +42,104 @@ This implementation is a direct port of the original UMAP Python implementation 
 }
 ```
 
-## Usage
-
-The API is identical to `Flowthru.Extensions.ML`:
+## Quick Start
 
 ```csharp
-using Microsoft.ML;
-using Flowthru.Extensions.ML.UMAP;
+using Flowthru.Extensions.ML.UMAP.Core;
+using Flowthru.Extensions.ML.UMAP.Core.Markers;
+using Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
+using Flowthru.Extensions.ML.UMAP.Strategies.LocalMetric.Implementations;
+using Flowthru.Extensions.ML.UMAP.Strategies.MembershipStrength.Implementations;
+using MathNet.Numerics.LinearAlgebra.Single;
+using MathNet.Numerics.Distributions;
 
-var mlContext = new MLContext();
-var trainer = mlContext.CreateUmapTrainer();
-var model = trainer.Fit(data);
-var embedding = model.Embedding;
+// Define distance metric
+static float EuclideanDistance(ReadOnlySpan<float> x, ReadOnlySpan<float> y)
+{
+    float sum = 0f;
+    for (int i = 0; i < x.Length; i++)
+    {
+        float diff = x[i] - y[i];
+        sum += diff * diff;
+    }
+    return MathF.Sqrt(sum);
+}
+
+// Build type-safe pipeline
+var pipeline = UmapPipeline<ISmallData, IEuclideanMetric>
+    .CreateBuilder()
+    .WithNeighborSearch(new BruteForceSearch<IEuclideanMetric>())
+    .WithLocalMetric(new BinarySearchSmoothing())
+    .WithMembershipStrength(new ExponentialKernel())
+    .Build();
+
+// Create sample data and compute graph
+var data = DenseMatrix.CreateRandom(1000, 50, new Normal());
+var result = pipeline.ComputeGraph(data, EuclideanDistance);
+
+Console.WriteLine($"Graph: {result.Graph.NonZerosCount} edges");
 ```
 
-## Implementation Notes
+## Key Features
 
-### Porting Strategy
+### Compile-Time Safety
 
-1. **No Optimizations**: Algorithms are ported as-is from Python
-2. **Preserve Structure**: Function names, variable names, and logic flow match Python source
-3. **Comments Reference Source**: Line numbers from Python files are referenced
-4. **Readability over Speed**: Code prioritizes clarity and correctness
+Invalid strategy combinations are prevented at compile time:
 
-### Known Limitations
+```csharp
+// ✅ COMPILES: BruteForce is valid for small data
+var valid = UmapPipeline<ISmallData, IEuclideanMetric>
+    .CreateBuilder()
+    .WithNeighborSearch(new BruteForceSearch<IEuclideanMetric>())
+    // ...
+    .Build();
 
-- Slower than optimized implementation
-- Higher memory usage
-- No SIMD optimizations
-- No parallel processing optimizations
-- Uses simpler data structures
+// ❌ COMPILE ERROR: BruteForce only works with ISmallData
+var invalid = UmapPipeline<ILargeData, IEuclideanMetric>
+    .CreateBuilder()
+    .WithNeighborSearch(new BruteForceSearch<IEuclideanMetric>()) // Won't compile!
+    .Build();
+```
 
-These limitations are **intentional** to maintain algorithmic purity.
+### Independent Strategy Optimization
+
+Each strategy can be optimized, tested, and benchmarked independently:
+
+```csharp
+// Benchmark different neighbor search strategies
+var bruteForce = new BruteForceSearch<IEuclideanMetric>();
+var kdTree = new KdTreeSearch<ISmallData, IEuclideanMetric>(); // TODO
+
+// Test in isolation
+var result1 = bruteForce.Search(data, 15, EuclideanDistance, random);
+var result2 = kdTree.Search(data, 15, EuclideanDistance, random);
+```
+
+### Extensibility
+
+Implement custom strategies by implementing the appropriate interface:
+
+```csharp
+public class MyCustomSearch<TMetric> : INeighborSearchStrategy<ILargeData, TMetric>
+    where TMetric : IMetricMarker
+{
+    public NeighborSearchResult Search(/* ... */)
+    {
+        // Your custom algorithm
+    }
+}
+```
+
+## Current Status
+
+**Phase 1 Complete** (v0.1.0):
+- ✅ Core infrastructure with phantom types
+- ✅ Type-safe builder with compile-time validation
+- ✅ Neighbor Search strategy + BruteForce implementation
+- ✅ Local Metric strategy + Binary Search implementation
+- ✅ Membership Strength strategy + Exponential Kernel implementation
+
+**In Progress**:
+- 🚧 Remaining 6 strategy phases
+- 🚧 Smart factory with data shape analysis
+- 🚧 Additional strategy implementations (KD-tree, approximate search, etc.)

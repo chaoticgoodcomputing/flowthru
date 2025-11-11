@@ -1,4 +1,5 @@
 using Flowthru.Extensions.ML.UMAP;
+using Flowthru.Extensions.ML.UMAP.Core;
 using Microsoft.ML;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 using UmapReferenceComparisons.Data._03_Reports.Schemas;
@@ -51,7 +52,7 @@ public static class CompareUmapImplementationsNode
     /// <summary>
     /// UMAP hyperparameters for C# trials.
     /// </summary>
-    public required UmapOptions UmapOptions { get; init; }
+    public required UmapParameters UmapParameters { get; init; }
 
     /// <summary>
     /// Number of nearest neighbors to use for preservation metrics.
@@ -73,6 +74,8 @@ public static class CompareUmapImplementationsNode
     /// Number of C# UMAP trials to run with different random seeds.
     /// </summary>
     public int NumTrials { get; init; } = 10;
+
+    public string InitStrategy { get; init; } = "random";
   }
 
   /// <summary>
@@ -135,7 +138,12 @@ public static class CompareUmapImplementationsNode
 
       for (int trial = 0; trial < options.NumTrials; trial++)
       {
-        var csharpEmbedding = await RunCSharpUmapTrial(inputFeatures, options.UmapOptions, trial);
+        var csharpEmbedding = await RunCSharpUmapTrial(
+          inputFeatures,
+          options.UmapParameters,
+          options.InitStrategy,
+          trial
+        );
 
         // Compute preservation (reusing precomputed high-dim k-NN)
         var preservation = ComputeNeighborhoodPreservationWithKnn(
@@ -217,11 +225,11 @@ public static class CompareUmapImplementationsNode
   /// </summary>
   private static double ComputeNeighborhoodPreservationWithKnn(
     int[][] originalKnn,
-    List<UmapOutputRow> embedding,
+    IEnumerable<UmapOutputRow> embedding,
     int k
   )
   {
-    int n = embedding.Count;
+    int n = embedding.Count();
 
     // Build k-NN in LOW-dimensional (embedding) space
     var embeddingKnn = BuildKnnGraphLowDim(embedding, k);
@@ -241,34 +249,38 @@ public static class CompareUmapImplementationsNode
   /// <summary>
   /// Runs a C# UMAP trial with a specific random seed.
   /// </summary>
-  private static async Task<List<UmapOutputRow>> RunCSharpUmapTrial(
+  private static async Task<IEnumerable<UmapOutputRow>> RunCSharpUmapTrial(
     float[][] inputFeatures,
-    UmapOptions baseOptions,
+    UmapParameters baseOptions,
+    string initStrategy,
     int trialIndex
   )
   {
     // Create trial-specific options with different seed
-    var trialOptions = new UmapOptions
+    var trialOptions = new UmapParameters
     {
       NumberOfNeighbors = baseOptions.NumberOfNeighbors,
       LearningRate = baseOptions.LearningRate,
       MinDist = baseOptions.MinDist,
       NumberOfComponents = baseOptions.NumberOfComponents,
-      RandomState = baseOptions.RandomState + trialIndex,
-      Metric = baseOptions.Metric,
+      RandomSeed = baseOptions.RandomSeed + trialIndex,
       NumberOfEpochs = baseOptions.NumberOfEpochs,
       Verbosity = 0, // Silent for trials
     };
 
-    var mlContext = new MLContext(seed: trialOptions.RandomState);
-    var trainer = mlContext.CreateUmapTrainer(trialOptions);
-    var (_, embedding) = trainer.FitTransform(inputFeatures);
+    // Use simplified high-level API - handles all conversions internally
+    var embeddingMatrix = Umap.FitTransform(inputFeatures, trialOptions, initStrategy);
 
-    return await Task.FromResult(
-      embedding
-        .Select(emb => new UmapOutputRow { Component0 = emb[0], Component1 = emb[1] })
-        .ToList()
-    );
+    // Convert matrix result to output schema
+    var result = Enumerable
+      .Range(0, embeddingMatrix.Length)
+      .Select(i => new UmapOutputRow
+      {
+        Component0 = embeddingMatrix[i][0],
+        Component1 = embeddingMatrix[i][1],
+      });
+
+    return await Task.FromResult(result);
   }
 
   /// <summary>
@@ -311,14 +323,14 @@ public static class CompareUmapImplementationsNode
   /// <summary>
   /// Builds k-NN graph in LOW-dimensional (embedding) space using Euclidean distance.
   /// </summary>
-  private static int[][] BuildKnnGraphLowDim(List<UmapOutputRow> embeddings, int k)
+  private static int[][] BuildKnnGraphLowDim(IEnumerable<UmapOutputRow> embeddings, int k)
   {
-    int n = embeddings.Count;
+    int n = embeddings.Count();
     var knn = new int[n][];
 
     for (int i = 0; i < n; i++)
     {
-      var current = embeddings[i];
+      var current = embeddings.ElementAt(i);
       var distances = new (int index, double distance)[n];
 
       for (int j = 0; j < n; j++)
@@ -327,8 +339,8 @@ public static class CompareUmapImplementationsNode
           (i == j)
             ? double.MaxValue
             : Math.Sqrt(
-              Math.Pow(current.Component0 - embeddings[j].Component0, 2)
-                + Math.Pow(current.Component1 - embeddings[j].Component1, 2)
+              Math.Pow(current.Component0 - embeddings.ElementAt(j).Component0, 2)
+                + Math.Pow(current.Component1 - embeddings.ElementAt(j).Component1, 2)
             );
         distances[j] = (j, dist);
       }

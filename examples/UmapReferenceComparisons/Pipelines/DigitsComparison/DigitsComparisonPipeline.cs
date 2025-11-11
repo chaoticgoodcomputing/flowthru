@@ -1,4 +1,5 @@
 using Flowthru.Extensions.ML.UMAP;
+using Flowthru.Extensions.ML.UMAP.Core;
 using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Helpers.Nodes;
@@ -27,15 +28,14 @@ public static class DigitsComparisonPipeline
 {
   public static Pipeline Create(Catalog catalog)
   {
-    var umapOptions = new UmapOptions
+    var umapParameters = new UmapParameters
     {
       // Python default parameters from load_digits() example
       NumberOfNeighbors = 15, // n_neighbors (default)
       LearningRate = 1.0f, // learning_rate (default)
       MinDist = 0.1f, // min_dist (default)
       NumberOfComponents = 2,
-      RandomState = 42,
-      Metric = "euclidean",
+      RandomSeed = 42,
       NumberOfEpochs = null, // Use default calculation
       Verbosity = 2,
     };
@@ -60,7 +60,11 @@ public static class DigitsComparisonPipeline
           as the Python reference implementation.
         """,
         transform: TransformWithUmapNode.Create(
-          new TransformWithUmapNode.Params { DatasetName = "Digits", UmapOptions = umapOptions }
+          new TransformWithUmapNode.Params
+          {
+            DatasetName = "Digits",
+            UmapParameters = umapParameters,
+          }
         ),
         input: catalog.DigitsUmapInput,
         output: catalog.DigitsCSharpOutput
@@ -84,11 +88,11 @@ public static class DigitsComparisonPipeline
           new CompareUmapImplementationsNode.Params
           {
             DatasetName = "digits",
-            UmapOptions = umapOptions,
+            UmapParameters = umapParameters,
             KNeighbors = 15,
             MaxPreservationDifference = 0.1,
             MinimumConfidence = 0.68,
-            NumTrials = 10,
+            NumTrials = 3,
           }
         ),
         input: (catalog.DigitsUmapInput, catalog.DigitsPythonOutput, catalog.DigitsUmapInput),

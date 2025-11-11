@@ -1,11 +1,10 @@
-using Flowthru.Extensions.ML.UMAP;
-using Microsoft.ML;
+using Flowthru.Extensions.ML.UMAP.Core;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
 namespace UmapReferenceComparisons.Helpers.Nodes;
 
 /// <summary>
-/// Applies C# UMAP transformation to universal UmapInput data.
+/// Applies C# UMAP transformation to universal UmapInput data using the new strategy architecture.
 /// </summary>
 public static class TransformWithUmapNode
 {
@@ -19,7 +18,13 @@ public static class TransformWithUmapNode
     /// <summary>
     /// UMAP hyperparameters.
     /// </summary>
-    public required UmapOptions UmapOptions { get; init; }
+    public required UmapParameters UmapParameters { get; init; }
+
+    /// <summary>
+    /// Layout initialization strategy. Valid values: "spectral" (default), "random"
+    /// Matches Python UMAP's init parameter.
+    /// </summary>
+    public string InitStrategy { get; init; } = "spectral";
   }
 
   public static Func<IEnumerable<UmapInput>, Task<IEnumerable<UmapOutputRow>>> Create(
@@ -30,29 +35,27 @@ public static class TransformWithUmapNode
     {
       var inputList = input.ToList();
       Console.WriteLine(
-        $"Transforming {inputList.Count} {options.DatasetName} samples with C# UMAP..."
+        $"Transforming {inputList.Count} {options.DatasetName} samples with C# UMAP (new strategy architecture)..."
       );
 
       // Extract feature vectors from UmapInput
-      var data = inputList.Select(row => row.Features).ToArray();
+      var featureArray = inputList.Select(row => row.Features).ToArray();
 
-      // Create UMAP trainer
-      var mlContext = new MLContext(seed: options.UmapOptions.RandomState ?? 42);
-      var trainer = mlContext.CreateUmapTrainer(options.UmapOptions);
-
-      // Fit UMAP model and transform
-      Console.WriteLine("Fitting UMAP model...");
-      var (model, embedding) = trainer.FitTransform(data);
-      Console.WriteLine(
-        $"UMAP transformation complete. Output shape: ({embedding.Length}, {embedding[0].Length})"
+      // Use simplified high-level API with specified initialization strategy
+      var embeddingMatrix = Umap.FitTransform(
+        featureArray,
+        options.UmapParameters,
+        options.InitStrategy
       );
 
-      // Convert to UmapOutputRow schema
-      var result = embedding.Select(emb => new UmapOutputRow
-      {
-        Component0 = emb[0],
-        Component1 = emb[1],
-      });
+      // Convert matrix result to output schema
+      var result = Enumerable
+        .Range(0, embeddingMatrix.Length)
+        .Select(i => new UmapOutputRow
+        {
+          Component0 = embeddingMatrix[i][0],
+          Component1 = embeddingMatrix[i][1],
+        });
 
       return await Task.FromResult(result);
     };

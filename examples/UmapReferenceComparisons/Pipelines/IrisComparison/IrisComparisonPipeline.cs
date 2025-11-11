@@ -1,4 +1,5 @@
 using Flowthru.Extensions.ML.UMAP;
+using Flowthru.Extensions.ML.UMAP.Core;
 using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
@@ -24,14 +25,13 @@ public static class IrisComparisonPipeline
 {
   public static Pipeline Create(Catalog catalog)
   {
-    var umapOptions = new UmapOptions
+    var umapParameters = new UmapParameters
     {
       NumberOfNeighbors = 50,
       LearningRate = 0.5f,
       MinDist = 0.001f,
       NumberOfComponents = 2,
-      RandomState = 42,
-      Metric = "euclidean",
+      RandomSeed = 42,
       NumberOfEpochs = null,
       Verbosity = 2,
     };
@@ -54,9 +54,20 @@ public static class IrisComparisonPipeline
         description: """
           Applies C# UMAP to Iris input features using the same parameters
           as the Python reference implementation.
+          
+          Python reference (iris.py) uses:
+          - n_neighbors=50
+          - learning_rate=0.5
+          - init="random"  (← explicit random initialization)
+          - min_dist=0.001
         """,
         transform: TransformWithUmapNode.Create(
-          new TransformWithUmapNode.Params { DatasetName = "Iris", UmapOptions = umapOptions }
+          new TransformWithUmapNode.Params
+          {
+            DatasetName = "Iris",
+            UmapParameters = umapParameters,
+            InitStrategy = "random", // Match Python's init="random"
+          }
         ),
         input: catalog.IrisUmapInput,
         output: catalog.IrisCSharpOutput
@@ -77,11 +88,12 @@ public static class IrisComparisonPipeline
           new CompareUmapImplementationsNode.Params
           {
             DatasetName = "iris",
-            UmapOptions = umapOptions,
+            UmapParameters = umapParameters,
             KNeighbors = 15,
             MaxPreservationDifference = 0.1,
             MinimumConfidence = 0.68,
-            NumTrials = 25,
+            NumTrials = 50,
+            InitStrategy = "random", // Match Python's init="random"
           }
         ),
         input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisUmapInput),

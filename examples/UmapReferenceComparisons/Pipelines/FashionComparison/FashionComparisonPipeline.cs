@@ -1,4 +1,5 @@
 using Flowthru.Extensions.ML.UMAP;
+using Flowthru.Extensions.ML.UMAP.Core;
 using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Helpers.Nodes;
@@ -26,14 +27,13 @@ public static class FashionComparisonPipeline
 {
   public static Pipeline Create(Catalog catalog)
   {
-    var umapOptions = new UmapOptions
+    var umapParameters = new UmapParameters
     {
       NumberOfNeighbors = 15,
       LearningRate = 1.0f,
       MinDist = 0.1f,
       NumberOfComponents = 2,
-      RandomState = 42,
-      Metric = "euclidean",
+      RandomSeed = 42,
       NumberOfEpochs = null,
       Verbosity = 2,
     };
@@ -55,7 +55,7 @@ public static class FashionComparisonPipeline
           new TransformWithUmapNode.Params
           {
             DatasetName = "Fashion-MNIST",
-            UmapOptions = umapOptions,
+            UmapParameters = umapParameters,
           }
         ),
         input: catalog.FashionMnistUmapInput,
@@ -69,7 +69,7 @@ public static class FashionComparisonPipeline
           new CompareUmapImplementationsNode.Params
           {
             DatasetName = "fashion-mnist",
-            UmapOptions = umapOptions,
+            UmapParameters = umapParameters,
             KNeighbors = 15,
             MaxPreservationDifference = 0.1,
             MinimumConfidence = 0.68,
