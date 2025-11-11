@@ -4,6 +4,7 @@ using MagicAtlas.Pipelines;
 using MagicAtlas.Pipelines.CardProcessing;
 using MagicAtlas.Pipelines.EmbeddingAnalytics;
 using MagicAtlas.Pipelines.EmbeddingReductions;
+using MagicAtlas.Pipelines.EmbeddingViz;
 using MagicAtlas.Pipelines.OracleTextEmebdding;
 using MagicAtlas.Pipelines.RulesProcessing;
 
@@ -53,6 +54,14 @@ public class Program
             configurationSection: "Flowthru:Pipelines:EmbeddingReductions"
           )
           .WithDescription("Performs PCA dimensionality reduction on oracle text embeddings");
+
+        builder
+          .RegisterPipelineWithConfiguration<Catalog, EmbeddingViz.Params>(
+            label: "EmbeddingViz",
+            pipeline: EmbeddingViz.Create,
+            configurationSection: "Flowthru:Pipelines:EmbeddingViz"
+          )
+          .WithDescription("Creates enhanced UMAP visualizations with card metadata (color, CMC)");
       }
     );
 

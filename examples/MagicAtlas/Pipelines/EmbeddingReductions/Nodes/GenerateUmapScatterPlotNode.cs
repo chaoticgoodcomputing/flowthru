@@ -119,7 +119,7 @@ public static class GenerateUmapScatterPlotNode
         .WithTitle(
           $"UMAP Scatter Plot: Oracle Text Embeddings ({filtered.Count} observations, {componentDim} components)"
         )
-        .WithSize(4096, 2048);
+        .WithSize(1920, 1080);
 
       logger?.LogInformation("UMAP scatter plot generated successfully");
 
@@ -149,8 +149,8 @@ public static class GenerateUmapScatterPlotNode
       .WithTraceInfo(Name: GetTextTypeName(textType), ShowLegend: true)
       .WithMarkerStyle(
         Color: Plotly.NET.Color.fromKeyword(GetColorForTextType(textType)),
-        Size: 2,
-        Opacity: 0.1
+        Size: 3,
+        Opacity: 0.7
       );
   }
 

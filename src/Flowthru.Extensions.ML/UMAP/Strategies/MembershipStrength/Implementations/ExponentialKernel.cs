@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Flowthru.Extensions.ML.UMAP.Strategies.MembershipStrength;
 using MathNet.Numerics.LinearAlgebra.Single;
 
@@ -56,46 +57,58 @@ public sealed class ExponentialKernel : IMembershipStrengthStrategy
   {
     int nSamples = knnIndices.Length;
 
-    // Build sparse matrix in COO format (coordinate list)
-    var entries = new List<(int row, int col, float value)>();
+    // Build sparse matrix in COO format (coordinate list) using parallel batching
+    var entriesBag = new ConcurrentBag<List<(int row, int col, float value)>>();
 
-    // Compute directed membership strengths
-    for (int i = 0; i < nSamples; i++)
-    {
-      for (int j = 0; j < knnIndices[i].Length; j++)
+    // Compute directed membership strengths in parallel
+    Parallel.For(
+      0,
+      nSamples,
+      () => new List<(int row, int col, float value)>(),
+      (i, loopState, localList) =>
       {
-        int neighbor = knnIndices[i][j];
-        if (neighbor == -1)
-          continue; // Disconnected vertex
-
-        float distance = knnDistances[i][j];
-        float val;
-
-        // Skip self-loops (each point to itself)
-        if (neighbor == i)
+        for (int j = 0; j < knnIndices[i].Length; j++)
         {
-          val = 0.0f;
-        }
-        // Apply exponential kernel
-        else if (distance - rhos[i] <= 0.0f || sigmas[i] == 0.0f)
-        {
-          val = 1.0f; // Within local connectivity radius
-        }
-        else
-        {
-          val = MathF.Exp(-((distance - rhos[i]) / sigmas[i]));
-        }
+          int neighbor = knnIndices[i][j];
+          if (neighbor == -1)
+          {
+            continue; // Disconnected vertex
+          }
 
-        entries.Add((i, neighbor, val));
-      }
-    }
+          float distance = knnDistances[i][j];
+          float val;
+
+          // Skip self-loops (each point to itself)
+          if (neighbor == i)
+          {
+            val = 0.0f;
+          }
+          // Apply exponential kernel
+          else if (distance - rhos[i] <= 0.0f || sigmas[i] == 0.0f)
+          {
+            val = 1.0f; // Within local connectivity radius
+          }
+          else
+          {
+            val = MathF.Exp(-((distance - rhos[i]) / sigmas[i]));
+          }
+
+          // Only add non-zero entries
+          if (val > 1e-10f)
+          {
+            localList.Add((i, neighbor, val));
+          }
+        }
+        return localList;
+      },
+      localList => entriesBag.Add(localList)
+    );
+
+    // Flatten all thread-local lists into a single collection
+    var entries = entriesBag.SelectMany(list => list);
 
     // Create sparse matrix from COO format
-    var graph = SparseMatrix.OfIndexed(
-      nSamples,
-      nSamples,
-      entries.Select(e => (e.row, e.col, e.value))
-    );
+    var graph = SparseMatrix.OfIndexed(nSamples, nSamples, entries);
 
     // Apply fuzzy set operations to symmetrize
     // Python reference: lines ~460-470 in fuzzy_simplicial_set()
@@ -111,19 +124,7 @@ public sealed class ExponentialKernel : IMembershipStrengthStrategy
       .Multiply(setOpMixRatio)
       .Add(prodMatrix.Multiply(1.0f - 2.0f * setOpMixRatio));
 
-    // Cast result to SparseMatrix and eliminate numerical zeros
-    var result = SparseMatrix.OfMatrix(combined);
-    for (int i = 0; i < result.RowCount; i++)
-    {
-      for (int j = 0; j < result.ColumnCount; j++)
-      {
-        if (MathF.Abs(result[i, j]) < 1e-10f)
-        {
-          result[i, j] = 0.0f;
-        }
-      }
-    }
-
-    return result;
+    // Return as sparse matrix - Math.NET's sparse operations already handle zeros efficiently
+    return SparseMatrix.OfMatrix(combined);
   }
 }

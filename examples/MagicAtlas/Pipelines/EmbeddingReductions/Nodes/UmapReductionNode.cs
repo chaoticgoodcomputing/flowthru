@@ -136,60 +136,6 @@ public static class UmapReductionNode
     /// <para>Default is 2 for pipeline visibility.</para>
     /// </remarks>
     public int Verbosity { get; init; } = 2;
-
-    /// <summary>
-    /// Whether to use approximate nearest neighbors for k-NN computation.
-    /// </summary>
-    /// <remarks>
-    /// <para>Default: null (auto-detect based on dataset size and dimensionality)</para>
-    /// <para>
-    /// When null, ANN is automatically enabled for datasets with >10,000 samples
-    /// AND >50 dimensions. Manually set to true/false to override auto-detection.
-    /// </para>
-    /// <para>
-    /// ANN provides 10-100x speedup for large high-dimensional datasets with minimal
-    /// accuracy loss (~98-99% recall). Only applicable to Euclidean metric.
-    /// </para>
-    /// </remarks>
-    public bool? UseApproximateNearestNeighbors { get; init; } = null;
-
-    /// <summary>
-    /// Number of random projection trees in ANN forest.
-    /// </summary>
-    /// <remarks>
-    /// <para>Default: 10</para>
-    /// <para>Range: 5-50</para>
-    /// <para>
-    /// More trees increase accuracy and query time. Each tree adds roughly O(log n)
-    /// to query complexity. 10 trees provides good balance for most datasets.
-    /// </para>
-    /// </remarks>
-    public int AnnNumTrees { get; init; } = 10;
-
-    /// <summary>
-    /// Maximum number of points per leaf in ANN trees.
-    /// </summary>
-    /// <remarks>
-    /// <para>Default: 10</para>
-    /// <para>Range: 5-50</para>
-    /// <para>
-    /// Smaller values create deeper trees with faster queries but longer build time.
-    /// Larger values create shallower trees with more brute-force at leaves.
-    /// </para>
-    /// </remarks>
-    public int AnnLeafSize { get; init; } = 10;
-
-    /// <summary>
-    /// Number of candidate nodes to search in ANN forest.
-    /// </summary>
-    /// <remarks>
-    /// <para>Default: null (auto-set to k * numTrees)</para>
-    /// <para>
-    /// Controls accuracy/speed tradeoff. More candidates = better accuracy but slower.
-    /// Default formula (k * numTrees) provides ~98% recall.
-    /// </para>
-    /// </remarks>
-    public int? AnnSearchK { get; init; } = null;
   }
 
   /// <summary>
@@ -219,12 +165,12 @@ public static class UmapReductionNode
       // Configure UMAP options
       var umapParameters = new UmapParameters
       {
-        NumberOfNeighbors = 150,
+        NumberOfNeighbors = 10,
         LearningRate = 1.0f,
-        MinDist = 0.5f,
+        MinDist = 0.05f,
         NumberOfComponents = 2,
-        RandomSeed = 42,
-        NumberOfEpochs = null,
+        RandomSeed = 43,
+        NumberOfEpochs = 100,
         Verbosity = 2,
       };
 

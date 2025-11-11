@@ -42,8 +42,8 @@ public static class PlotlyImageExportNode
       var base64DataUri =
         await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
           input,
-          Width: 1200,
-          Height: 800
+          Width: 7680,
+          Height: 4320
         );
 
       // Strip the data URI prefix "data:image/png;base64," to get pure base64

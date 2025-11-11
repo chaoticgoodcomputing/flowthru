@@ -135,4 +135,60 @@ public partial class Catalog
           filePath: $"{_basePath}/_08_Reporting/Datasets/umap_scatter_plot.png"
         )
     );
+
+  /// <summary>
+  /// In-memory chart showing enhanced UMAP scatter plot with card metadata.
+  /// Points sized by CMC and colored by card color identity.
+  /// </summary>
+  public ICatalogEntry<GenericChart> EnhancedUmapScatterPlotChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "EnhancedUmapScatterPlotChart")
+    );
+
+  /// <summary>
+  /// PNG export of enhanced UMAP scatter plot chart (sized by CMC).
+  /// </summary>
+  public ICatalogEntry<byte[]> EnhancedUmapScatterPlotPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "EnhancedUmapScatterPlotPng",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/enhanced_umap_scatter_plot.png"
+        )
+    );
+
+  /// <summary>
+  /// In-memory chart showing enhanced UMAP scatter plot with card metadata.
+  /// Points sized by price and colored by card color identity.
+  /// </summary>
+  public ICatalogEntry<GenericChart> EnhancedUmapScatterPlotByPriceChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "EnhancedUmapScatterPlotByPriceChart")
+    );
+
+  /// <summary>
+  /// PNG export of enhanced UMAP scatter plot chart (sized by price).
+  /// </summary>
+  public ICatalogEntry<byte[]> EnhancedUmapScatterPlotByPricePng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "EnhancedUmapScatterPlotByPricePng",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/enhanced_umap_scatter_plot_by_price.png"
+        )
+    );
+
+  /// <summary>
+  /// UMAP embeddings enhanced with card metadata for rich visualizations.
+  /// </summary>
+  public ICatalogEntry<
+    IEnumerable<EnhancedUmapFlattenedEmbedding>
+  > EnhancedUmapFlattenedEmbeddings =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Csv<EnhancedUmapFlattenedEmbedding>(
+          label: "EnhancedUmapFlattenedEmbeddings",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/enhanced_umap_flattened_embeddings.csv"
+        )
+    );
 }

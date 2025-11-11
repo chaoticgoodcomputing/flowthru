@@ -47,4 +47,17 @@ public partial class Catalog
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/oracle_umap_embeddings.parquet"
         )
     );
+
+  /// <summary>
+  /// UMAP embeddings enhanced with card metadata for rich visualizations.
+  /// Includes card name, color identity, and mana value joined to embedding coordinates.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<EnhancedUmapEmbedding>> EnhancedUmapEmbeddings =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<EnhancedUmapEmbedding>(
+          label: "EnhancedUmapEmbeddings",
+          filePath: $"{_basePath}/_07_ModelOutput/Datasets/enhanced_umap_embeddings.parquet"
+        )
+    );
 }
