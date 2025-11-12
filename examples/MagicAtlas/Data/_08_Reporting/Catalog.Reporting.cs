@@ -19,7 +19,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Enumerable.Json<NearestNeighborAnalysis>(
           label: "NearestNeighborAnalysis",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/nearest_neighbor_analysis.json"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/nearest_neighbor_analysis.json"
         )
     );
 
@@ -31,7 +31,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Enumerable.Json<OracleTextEmbedding>(
           label: "SampledOracleTextEmbeddings",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/sampled_oracle_embeddings.json"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/sampled_oracle_embeddings.json"
         )
     );
 
@@ -51,7 +51,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Binary(
           label: "EmbeddingDistributionPlotPng",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/embedding_distribution_plot.png"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/embedding_distribution_plot.png"
         )
     );
 
@@ -64,7 +64,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Enumerable.Csv<OracleTextClusterAssignment>(
           label: "OracleTextClusterAssignments",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/oracle_text_cluster_assignments.csv"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/oracle_text_cluster_assignments.csv"
         )
     );
 
@@ -77,7 +77,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Json<KMeansClusterMetadata>(
           label: "KMeansClusterMetadata",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/kmeans_cluster_metadata.json"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/kmeans_cluster_metadata.json"
         )
     );
 
@@ -90,7 +90,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Json<EnrichedClusterMetadata>(
           label: "EnrichedClusterMetadata",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/enriched_cluster_metadata.json"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/enriched_cluster_metadata.json"
         )
     );
 
@@ -111,7 +111,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Binary(
           label: "PcaScatterPlotPng",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/pca_scatter_plot.png"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/PCA/pca_scatter_plot.png"
         )
     );
 
@@ -132,7 +132,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Binary(
           label: "UmapScatterPlotPng",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/umap_scatter_plot.png"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/umap_scatter_plot.png"
         )
     );
 
@@ -153,7 +153,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Binary(
           label: "EnhancedUmapScatterPlotPng",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/enhanced_umap_scatter_plot.png"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/enhanced_umap_scatter_plot.png"
         )
     );
 
@@ -174,7 +174,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Binary(
           label: "EnhancedUmapScatterPlotByPricePng",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/enhanced_umap_scatter_plot_by_price.png"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/enhanced_umap_scatter_plot_by_price.png"
         )
     );
 
@@ -188,7 +188,19 @@ public partial class Catalog
       () =>
         CatalogEntries.Enumerable.Csv<EnhancedUmapFlattenedEmbedding>(
           label: "EnhancedUmapFlattenedEmbeddings",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/enhanced_umap_flattened_embeddings.csv"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/enhanced_umap_flattened_embeddings.csv"
+        )
+    );
+
+  /// <summary>
+  /// Oracle text frequency analysis results.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<OracleTextDuplicateCount>> OracleTextFrequencyAnalysis =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Json<OracleTextDuplicateCount>(
+          label: "OracleTextFrequencyAnalysis",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/oracle_text_frequency_analysis.json"
         )
     );
 }

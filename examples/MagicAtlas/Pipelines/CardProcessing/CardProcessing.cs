@@ -66,7 +66,7 @@ public static class CardProcessing
       pipeline.AddNode(
         label: "EmbeddingModelOracleInput",
         description: "Flatten refined oracle text into individual entries for embedding model input",
-        transform: EmbeddingModelOracleInputNode.Create(),
+        transform: CreateEmbeddingModelOracleInputNode.Create(),
         input: catalog.RefinedOracleText,
         output: catalog.EmbeddingModelOracleInput
       );

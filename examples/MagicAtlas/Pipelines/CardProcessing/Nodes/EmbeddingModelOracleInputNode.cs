@@ -10,7 +10,7 @@ namespace MagicAtlas.Pipelines.CardProcessing.Nodes;
 /// Flattens refined oracle text into individual entries for embedding model input.
 /// Each card produces multiple entries: one per ability (excluding full/raw text).
 /// </summary>
-public static class EmbeddingModelOracleInputNode
+public static class CreateEmbeddingModelOracleInputNode
 {
   /// <summary>
   /// Creates a function that flattens refined oracle text into embedding model inputs.

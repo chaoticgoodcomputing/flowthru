@@ -93,7 +93,7 @@ public static class OracleTextEmebdding
         Input: Tokenized BERT tensors + ONNX model bytes
         Output: 384-dimensional sentence embedding vectors
         """,
-        transform: OracleTextEmbeddingNode.Create(),
+        transform: ApplyEmbeddingModelToOracleTextNode.Create(),
         input: (
           catalog.MiniLmOnnxModel,
           catalog.TokenizedOracleText,

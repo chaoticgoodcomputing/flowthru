@@ -29,7 +29,7 @@ namespace MagicAtlas.Pipelines.OracleTextEmebdding.Nodes;
 /// <strong>Output:</strong> 384-dimensional vector per oracle text entry
 /// </para>
 /// </remarks>
-public static class OracleTextEmbeddingNode
+public static class ApplyEmbeddingModelToOracleTextNode
 {
   private const int EmbeddingDimension = 384;
 

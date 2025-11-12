@@ -5,6 +5,7 @@ using MagicAtlas.Pipelines.CardProcessing;
 using MagicAtlas.Pipelines.EmbeddingAnalytics;
 using MagicAtlas.Pipelines.EmbeddingReductions;
 using MagicAtlas.Pipelines.EmbeddingViz;
+using MagicAtlas.Pipelines.OracleExploration;
 using MagicAtlas.Pipelines.OracleTextEmebdding;
 using MagicAtlas.Pipelines.RulesProcessing;
 
@@ -61,6 +62,10 @@ public class Program
             pipeline: EmbeddingViz.Create,
             configurationSection: "Flowthru:Pipelines:EmbeddingViz"
           )
+          .WithDescription("Creates enhanced UMAP visualizations with card metadata (color, CMC)");
+
+        builder
+          .RegisterPipeline<Catalog>(label: "OracleExploration", pipeline: OracleExploration.Create)
           .WithDescription("Creates enhanced UMAP visualizations with card metadata (color, CMC)");
       }
     );
