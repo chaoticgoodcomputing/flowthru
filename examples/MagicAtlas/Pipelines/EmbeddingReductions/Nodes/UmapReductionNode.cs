@@ -136,6 +136,24 @@ public static class UmapReductionNode
     /// <para>Default is 2 for pipeline visibility.</para>
     /// </remarks>
     public int Verbosity { get; init; } = 2;
+
+    /// <summary>
+    /// Standard deviation of Gaussian noise added to embeddings before UMAP.
+    /// </summary>
+    /// <remarks>
+    /// <para>Default: 1e-5 (0.00001)</para>
+    /// <para>Range: 0.0-0.01</para>
+    /// <para>
+    /// Small amounts of noise help differentiate identical or near-identical embeddings,
+    /// which can cause issues with K-NN search. The noise is applied element-wise to
+    /// each dimension of the embedding vectors.
+    /// </para>
+    /// <para>
+    /// Set to 0.0 to disable noise injection. Typical values range from 1e-6 to 1e-4
+    /// depending on the embedding scale and degree of duplication.
+    /// </para>
+    /// </remarks>
+    public float NoiseScale { get; init; } = 1e-5f;
   }
 
   /// <summary>
@@ -162,12 +180,18 @@ public static class UmapReductionNode
       // Extract embedding vectors as float[][]
       var data = embeddingsList.Select(e => e.Embedding).ToArray();
 
+      // Apply noise to break ties in identical/near-identical embeddings
+      if (opts.NoiseScale > 0)
+      {
+        ApplyGaussianNoise(data, opts.NoiseScale, opts.Seed ?? 42);
+      }
+
       // Configure UMAP options
       var umapParameters = new UmapParameters
       {
         NumberOfNeighbors = 10,
         LearningRate = 1.0f,
-        MinDist = 0.05f,
+        MinDist = 0.1f,
         NumberOfComponents = 2,
         RandomSeed = 43,
         NumberOfEpochs = 100,
@@ -195,5 +219,33 @@ public static class UmapReductionNode
 
       return await Task.FromResult(umapEmbeddings.AsEnumerable());
     };
+  }
+
+  /// <summary>
+  /// Applies Gaussian noise to an embedding matrix in-place.
+  /// </summary>
+  /// <param name="embeddings">The embedding matrix to modify (float[][])</param>
+  /// <param name="noiseScale">Standard deviation of the Gaussian noise</param>
+  /// <param name="seed">Random seed for reproducibility</param>
+  /// <remarks>
+  /// Adds element-wise Gaussian noise N(0, noiseScale²) to each dimension.
+  /// This helps differentiate identical embeddings for K-NN algorithms.
+  /// </remarks>
+  private static void ApplyGaussianNoise(float[][] embeddings, float noiseScale, int seed)
+  {
+    var random = new Random(seed);
+
+    for (int i = 0; i < embeddings.Length; i++)
+    {
+      var embedding = embeddings[i];
+      for (int j = 0; j < embedding.Length; j++)
+      {
+        // Box-Muller transform for Gaussian noise
+        double u1 = 1.0 - random.NextDouble(); // Uniform(0,1] - avoid log(0)
+        double u2 = 1.0 - random.NextDouble();
+        double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+        embedding[j] += (float)(randStdNormal * noiseScale);
+      }
+    }
   }
 }
