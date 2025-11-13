@@ -143,4 +143,17 @@ public sealed record OptimizationParameters
 /// Final cross-entropy loss (if computed).
 /// Null if loss tracking is disabled.
 /// </param>
-public sealed record LayoutOptimizationResult(Matrix<float> OptimizedEmbedding, float? FinalLoss);
+public sealed record LayoutOptimizationResult(Matrix<float> OptimizedEmbedding, float? FinalLoss)
+{
+  /// <summary>
+  /// Actual number of epochs completed before termination.
+  /// May be less than requested epochs if early stopping was triggered.
+  /// </summary>
+  public int? ActualEpochs { get; init; }
+
+  /// <summary>
+  /// Number of epochs saved by early stopping.
+  /// Zero if optimization ran to completion or early stopping was disabled.
+  /// </summary>
+  public int? EarlyStoppingSaved { get; init; }
+}

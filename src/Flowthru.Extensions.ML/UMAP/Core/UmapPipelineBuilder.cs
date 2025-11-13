@@ -153,7 +153,7 @@ public sealed class UmapPipelineBuilder
       samplingSchedule: _samplingSchedule
         ?? StrategyResolver.ResolveSamplingSchedule(_parameters.Verbosity),
       layoutOptimization: _layoutOptimization
-        ?? StrategyResolver.ResolveLayoutOptimization(_parameters.Verbosity)
+        ?? StrategyResolver.ResolveLayoutOptimization(shape, _parameters.Verbosity)
     );
 
     return executor.FitTransform(data);
