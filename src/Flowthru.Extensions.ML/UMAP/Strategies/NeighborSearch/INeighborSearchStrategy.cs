@@ -6,7 +6,6 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch;
 /// Strategy interface for computing k-nearest neighbors in high-dimensional space.
 /// This is the first phase of the UMAP algorithm.
 /// </summary>
-/// <typeparam name="TMetric">Phantom type indicating the distance metric this strategy uses.</typeparam>
 /// <remarks>
 /// <para>
 /// The neighbor search phase computes the k-nearest neighbors for each point in the dataset.
@@ -22,8 +21,7 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch;
 /// Python UMAP reference: <c>nearest_neighbors()</c> function in <c>umap_.py</c> (lines ~260-300)
 /// </para>
 /// </remarks>
-public interface INeighborSearchStrategy<TMetric>
-  where TMetric : IMetricMarker
+public interface INeighborSearchStrategy
 {
   /// <summary>
   /// Computes k-nearest neighbors for all points in the dataset.
@@ -38,8 +36,7 @@ public interface INeighborSearchStrategy<TMetric>
   /// Must be at least 2 and at most n_samples - 1.
   /// </param>
   /// <param name="metric">
-  /// Distance metric function that computes the distance between two points.
-  /// Should be compatible with the TMetric phantom type.
+  /// Distance metric for computing pairwise distances between points.
   /// </param>
   /// <param name="random">
   /// Random number generator for any randomized algorithms (e.g., approximate search).
@@ -67,7 +64,7 @@ public interface INeighborSearchStrategy<TMetric>
   NeighborSearchResult Search(
     float[][] data,
     int nNeighbors,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
+    IMetric metric,
     Random random
   );
 }

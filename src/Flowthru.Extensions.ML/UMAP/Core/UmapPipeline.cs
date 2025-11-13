@@ -30,86 +30,65 @@ namespace Flowthru.Extensions.ML.UMAP.Core;
 /// <b>Usage patterns:</b>
 /// </para>
 /// <code>
-/// // Beginner: Full auto-configuration
+/// // Beginner: Full auto-configuration (Euclidean metric)
 /// var result = UmapPipeline.Create().FitTransform(data);
 ///
 /// // Intermediate: Custom metric
-/// var result = UmapPipeline.Create&lt;ICosineMetric&gt;()
-///   .FitTransform(data, cosineDistance);
+/// var result = UmapPipeline.Create()
+///   .WithInputMetric(CosineMetric.Instance)
+///   .FitTransform(data);
 ///
 /// // Advanced: Custom strategies for testing/benchmarking
 /// var result = UmapPipeline.Create()
-///   .WithNeighborSearch(new NNDescentSearch&lt;IEuclideanMetric&gt; { MaxIterations = 50 })
+///   .WithNeighborSearch(new NNDescentSearch { MaxIterations = 50 })
 ///   .FitTransform(data);
 /// </code>
 /// </remarks>
 public static class UmapPipeline
 {
   /// <summary>
-  /// Creates a new UMAP pipeline with default Euclidean metric.
-  /// Strategies will be auto-selected based on data shape at FitTransform() time.
+  /// Creates a new UMAP pipeline with default settings.
+  /// Euclidean metric is used by default, and strategies will be auto-selected based on data shape.
   /// </summary>
   /// <param name="parameters">
   /// UMAP hyperparameters (n_neighbors, min_dist, etc.).
   /// If null, uses defaults appropriate for the data.
   /// </param>
-  public static UmapPipelineBuilder<IEuclideanMetric> Create(UmapParameters? parameters = null)
+  public static UmapPipelineBuilder Create(UmapParameters? parameters = null)
   {
-    return new UmapPipelineBuilder<IEuclideanMetric>(parameters ?? new UmapParameters());
-  }
-
-  /// <summary>
-  /// Creates a new UMAP pipeline with a specific metric type.
-  /// Useful when you need non-Euclidean metrics (cosine, Manhattan, etc.).
-  /// </summary>
-  public static UmapPipelineBuilder<TMetric> Create<TMetric>(UmapParameters? parameters = null)
-    where TMetric : IMetricMarker
-  {
-    return new UmapPipelineBuilder<TMetric>(parameters ?? new UmapParameters());
-  }
-
-  /// <summary>
-  /// Euclidean distance metric (L2 norm).
-  /// </summary>
-  public static float EuclideanDistance(ReadOnlySpan<float> x, ReadOnlySpan<float> y)
-  {
-    float sum = 0f;
-    for (int i = 0; i < x.Length; i++)
-    {
-      float diff = x[i] - y[i];
-      sum += diff * diff;
-    }
-    return MathF.Sqrt(sum);
+    return new UmapPipelineBuilder(parameters ?? new UmapParameters());
   }
 }
 
 /// <summary>
 /// Internal executor that runs the UMAP algorithm with resolved strategies.
 /// </summary>
-internal sealed class UmapPipelineExecutor<TMetric>
-  where TMetric : IMetricMarker
+internal sealed class UmapPipelineExecutor
 {
   private readonly UmapParameters _parameters;
-  private readonly INeighborSearchStrategy<TMetric> _neighborSearch;
+  private readonly IMetric _inputMetric;
+  private readonly INeighborSearchStrategy _neighborSearch;
   private readonly ILocalMetricStrategy _localMetric;
   private readonly IMembershipStrengthStrategy _membershipStrength;
   private readonly IGraphRefinementStrategy? _graphRefinement;
-  private readonly ILayoutInitStrategy<TMetric>? _layoutInit;
+  private readonly ILayoutInitStrategy? _layoutInit;
   private readonly ISamplingScheduleStrategy? _samplingSchedule;
   private readonly ILayoutOptimizationStrategy? _layoutOptimization;
 
   internal UmapPipelineExecutor(
     UmapParameters parameters,
-    INeighborSearchStrategy<TMetric> neighborSearch,
+    IMetric inputMetric,
+    INeighborSearchStrategy neighborSearch,
     ILocalMetricStrategy localMetric,
     IMembershipStrengthStrategy membershipStrength,
     IGraphRefinementStrategy? graphRefinement = null,
-    ILayoutInitStrategy<TMetric>? layoutInit = null,
+    ILayoutInitStrategy? layoutInit = null,
     ISamplingScheduleStrategy? samplingSchedule = null,
     ILayoutOptimizationStrategy? layoutOptimization = null
   )
   {
     _parameters = parameters;
+    _inputMetric = inputMetric;
     _neighborSearch = neighborSearch;
     _localMetric = localMetric;
     _membershipStrength = membershipStrength;
@@ -127,16 +106,10 @@ internal sealed class UmapPipelineExecutor<TMetric>
   /// Input data matrix where rows are samples and columns are features.
   /// Shape: (n_samples, n_features)
   /// </param>
-  /// <param name="metric">
-  /// Distance metric function for computing pairwise distances.
-  /// </param>
   /// <returns>
   /// A result containing the fuzzy simplicial set graph and intermediate data structures.
   /// </returns>
-  public UmapGraphResult ComputeGraph(
-    Matrix<float> data,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric
-  )
+  public UmapGraphResult ComputeGraph(Matrix<float> data)
   {
     var random = _parameters.RandomSeed.HasValue
       ? new Random(_parameters.RandomSeed.Value)
@@ -157,7 +130,7 @@ internal sealed class UmapPipelineExecutor<TMetric>
     var neighborResult = _neighborSearch.Search(
       dataArray,
       _parameters.NumberOfNeighbors,
-      metric,
+      _inputMetric,
       random
     );
 
@@ -235,8 +208,8 @@ internal sealed class UmapPipelineExecutor<TMetric>
       return _layoutInit.InitializeLayout(data, graph, nComponents, random);
     }
 
-    // Default fallback: random initialization using the pipeline's output metric type
-    var fallback = new Strategies.LayoutInit.Implementations.RandomInit<TMetric>();
+    // Default fallback: random initialization
+    var fallback = new Strategies.LayoutInit.Implementations.RandomInit();
     return fallback.InitializeLayout(data, graph, nComponents, random);
   }
 
@@ -262,16 +235,12 @@ internal sealed class UmapPipelineExecutor<TMetric>
   /// layout initialization, and optimization.
   /// </summary>
   /// <param name="data">Input data matrix where rows are samples and columns are features.</param>
-  /// <param name="metric">Distance metric function for computing pairwise distances.</param>
   /// <returns>A result containing the final embedding and intermediate artifacts.</returns>
   /// <exception cref="InvalidOperationException">Thrown if required strategies are not configured.</exception>
-  public UmapFitResult FitTransform(
-    Matrix<float> data,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric
-  )
+  public UmapFitResult FitTransform(Matrix<float> data)
   {
     // Phase 1-4: Compute and refine graph
-    var graphResult = ComputeGraph(data, metric);
+    var graphResult = ComputeGraph(data);
 
     // Phase 5: Initialize layout
     if (_layoutInit == null)

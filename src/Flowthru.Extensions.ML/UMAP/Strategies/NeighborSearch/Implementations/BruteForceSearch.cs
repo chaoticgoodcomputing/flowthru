@@ -7,7 +7,6 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 /// Brute-force exact k-nearest neighbor search.
 /// Computes all pairwise distances - O(n²) time complexity.
 /// </summary>
-/// <typeparam name="TMetric">Distance metric marker type.</typeparam>
 /// <remarks>
 /// <para>
 /// This implementation computes the exact k-nearest neighbors by calculating all pairwise
@@ -34,14 +33,13 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 /// is computed via <c>pairwise_distances()</c> (Python UMAP lines ~2950-3000).
 /// </para>
 /// </remarks>
-public sealed class BruteForceSearch<TMetric> : INeighborSearchStrategy<TMetric>
-  where TMetric : IMetricMarker
+public sealed class BruteForceSearch : INeighborSearchStrategy
 {
   /// <inheritdoc />
   public NeighborSearchResult Search(
     float[][] data,
     int nNeighbors,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
+    IMetric metric,
     Random random
   )
   {
@@ -67,7 +65,7 @@ public sealed class BruteForceSearch<TMetric> : INeighborSearchStrategy<TMetric>
 
       for (int j = 0; j < nSamples; j++)
       {
-        float dist = metric(data[i].AsSpan(), data[j].AsSpan());
+        float dist = metric.Distance(data[i].AsSpan(), data[j].AsSpan());
         distList.Add((j, dist));
       }
 

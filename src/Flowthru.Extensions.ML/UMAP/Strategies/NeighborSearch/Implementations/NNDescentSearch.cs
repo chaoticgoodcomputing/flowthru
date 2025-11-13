@@ -6,7 +6,6 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 /// NN-Descent approximate k-nearest neighbor search.
 /// Achieves ~99% accuracy with O(n^1.14) time complexity for large datasets.
 /// </summary>
-/// <typeparam name="TMetric">Phantom type indicating the distance metric this strategy uses.</typeparam>
 /// <remarks>
 /// <para>
 /// NN-Descent is an iterative algorithm that efficiently constructs approximate k-nearest neighbor
@@ -41,8 +40,7 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 /// in <c>utils.py</c> and <c>rp_trees.py</c> from the PyNNDescent library.
 /// </para>
 /// </remarks>
-public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
-  where TMetric : IMetricMarker
+public sealed class NNDescentSearch : INeighborSearchStrategy
 {
   /// <summary>
   /// Number of random projection trees to build for initialization.
@@ -106,7 +104,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   public NeighborSearchResult Search(
     float[][] data,
     int nNeighbors,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
+    IMetric metric,
     Random random
   )
   {
@@ -199,7 +197,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     int nNeighbors,
     RpTree[] forest,
     float[][] data,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
+    IMetric metric,
     Random random
   )
   {
@@ -222,7 +220,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     KnnHeap heap,
     RpTree[] forest,
     float[][] data,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric
+    IMetric metric
   )
   {
     // Extract all leaves from all trees
@@ -255,7 +253,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
             }
 
             // Compute distance using spans (zero allocation)
-            float d = metric(data[p].AsSpan(), data[q].AsSpan());
+            float d = metric.Distance(data[p].AsSpan(), data[q].AsSpan());
 
             // Try to add to both heaps (thread-safe via per-sample locks)
             heap.TryPush(p, q, d, flag: 1);
@@ -273,7 +271,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     KnnHeap heap,
     int nNeighbors,
     float[][] data,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
+    IMetric metric,
     Random random
   )
   {
@@ -308,7 +306,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
         }
 
         // Compute distance using spans (zero allocation)
-        float d = metric(data[i].AsSpan(), data[candidate].AsSpan());
+        float d = metric.Distance(data[i].AsSpan(), data[candidate].AsSpan());
 
         // Try to add (TryPush will reject duplicates)
         if (heap.TryPush(i, candidate, d, flag: 1))
@@ -329,7 +327,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     int maxIterations,
     int maxCandidates,
     float deltaThreshold,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
+    IMetric metric,
     Random random
   )
   {
@@ -451,7 +449,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     int[][] newCandidates,
     int[][] oldCandidates,
     float[][] data,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric
+    IMetric metric
   )
   {
     int nSamples = data.Length;
@@ -525,7 +523,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
   private int TryUpdate(
     KnnHeap heap,
     float[][] data,
-    Func<ReadOnlySpan<float>, ReadOnlySpan<float>, float> metric,
+    IMetric metric,
     int p,
     int q
   )
@@ -535,7 +533,7 @@ public sealed class NNDescentSearch<TMetric> : INeighborSearchStrategy<TMetric>
     float thresholdQ = heap.Distances[q][0]; // max distance in q's heap
 
     // Compute distance using spans (zero allocation)
-    float d = metric(data[p].AsSpan(), data[q].AsSpan());
+    float d = metric.Distance(data[p].AsSpan(), data[q].AsSpan());
 
     int updates = 0;
 

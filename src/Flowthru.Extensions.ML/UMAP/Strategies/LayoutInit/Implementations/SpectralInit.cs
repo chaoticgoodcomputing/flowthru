@@ -11,9 +11,7 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit.Implementations;
 /// Spectral initialization via eigendecomposition of the graph Laplacian.
 /// Produces a high-quality initialization for connected graphs on small-to-medium datasets.
 /// </summary>
-/// <typeparam name="TMetric">Input metric phantom.</typeparam>
-public sealed class SpectralInit<TMetric> : ILayoutInitStrategy<TMetric>
-  where TMetric : IMetricMarker
+public sealed class SpectralInit : ILayoutInitStrategy
 {
   private const float NoiseScaleFactor = 0.0001f;
   private const float MaxCoord = 10.0f;

@@ -7,7 +7,6 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit.Implementations;
 /// <summary>
 /// Random uniform initialization for fast prototyping and debugging.
 /// </summary>
-/// <typeparam name="TMetric">Input metric marker (unused but required for interface compatibility).</typeparam>
 /// <remarks>
 /// <para>
 /// This strategy initializes embedding coordinates uniformly at random in the range [-10, 10].
@@ -33,8 +32,7 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit.Implementations;
 /// Python UMAP reference: Lines 1078-1081 in <c>simplicial_set_embedding()</c>
 /// </para>
 /// </remarks>
-public sealed class RandomInit<TMetric> : ILayoutInitStrategy<TMetric>
-  where TMetric : IMetricMarker
+public sealed class RandomInit : ILayoutInitStrategy
 {
   private const float MinCoord = -10.0f;
   private const float MaxCoord = 10.0f;

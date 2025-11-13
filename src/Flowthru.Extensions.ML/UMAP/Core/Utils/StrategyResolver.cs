@@ -17,52 +17,37 @@ using Flowthru.Extensions.ML.UMAP.Strategies.SamplingSchedule.Implementations;
 namespace Flowthru.Extensions.ML.UMAP.Core.Utils;
 
 /// <summary>
-/// Resolves strategy instances based on data characteristics and metric types.
+/// Resolves strategy instances based on data characteristics.
 /// Implements the auto-selection logic for UMAP pipeline strategies.
 /// </summary>
 internal static class StrategyResolver
 {
   /// <summary>
-  /// Auto-selects neighbor search strategy based on data size and metric type.
+  /// Auto-selects neighbor search strategy based on data size.
   /// </summary>
   /// <param name="shape">Data characteristics for selection</param>
   /// <param name="verbosity">Verbosity level for logging</param>
-  /// <typeparam name="TMetric">Metric marker type</typeparam>
   /// <returns>Appropriate neighbor search strategy</returns>
-  public static INeighborSearchStrategy<TMetric> ResolveNeighborSearch<TMetric>(
+  public static INeighborSearchStrategy ResolveNeighborSearch(
     DataShape shape,
     int verbosity
   )
-    where TMetric : IMetricMarker
   {
-    // Only Euclidean metric has NN-Descent implemented currently
-    if (typeof(TMetric) == typeof(IEuclideanMetric))
-    {
-      var strategy =
-        shape.Samples < 4096
-          ? (INeighborSearchStrategy<IEuclideanMetric>)new BruteForceSearch<IEuclideanMetric>()
-          : new NNDescentSearch<IEuclideanMetric> { Verbose = verbosity >= 2 };
+    // Use NN-Descent for larger datasets, brute force for smaller
+    var strategy =
+      shape.Samples < 4096
+        ? (INeighborSearchStrategy)new BruteForceSearch()
+        : new NNDescentSearch { Verbose = verbosity >= 2 };
 
-      if (verbosity >= 1)
-      {
-        var strategyName = shape.Samples < 4096 ? "BruteForceSearch" : "NNDescentSearch";
-        Console.WriteLine(
-          $"[UMAP] Auto-selected {strategyName} for {shape.Samples} samples (threshold: 4096)"
-        );
-      }
-
-      return (INeighborSearchStrategy<TMetric>)strategy;
-    }
-
-    // Fallback to brute force for other metrics
     if (verbosity >= 1)
     {
+      var strategyName = shape.Samples < 4096 ? "BruteForceSearch" : "NNDescentSearch";
       Console.WriteLine(
-        $"[UMAP] Using BruteForceSearch for {typeof(TMetric).Name} (only exact k-NN available)"
+        $"[UMAP] Auto-selected {strategyName} for {shape.Samples} samples (threshold: 4096)"
       );
     }
 
-    return new BruteForceSearch<TMetric>();
+    return strategy;
   }
 
   /// <summary>
@@ -108,34 +93,19 @@ internal static class StrategyResolver
   }
 
   /// <summary>
-  /// Auto-selects layout initialization strategy based on metric type.
+  /// Auto-selects layout initialization strategy.
+  /// Defaults to spectral initialization.
   /// </summary>
   /// <param name="verbosity">Verbosity level for logging</param>
-  /// <typeparam name="TMetric">Metric marker type</typeparam>
   /// <returns>Appropriate layout initialization strategy</returns>
-  public static ILayoutInitStrategy<TMetric> ResolveLayoutInit<TMetric>(int verbosity)
-    where TMetric : IMetricMarker
+  public static ILayoutInitStrategy ResolveLayoutInit(int verbosity)
   {
-    // Default to spectral for Euclidean metrics
-    if (typeof(TMetric) == typeof(IEuclideanMetric))
-    {
-      if (verbosity >= 1)
-      {
-        Console.WriteLine("[UMAP] Using SpectralInit for layout initialization");
-      }
-
-      return (ILayoutInitStrategy<TMetric>)(object)new SpectralInit<IEuclideanMetric>();
-    }
-
-    // Fallback to random for non-Euclidean metrics (spectral requires Euclidean)
     if (verbosity >= 1)
     {
-      Console.WriteLine(
-        $"[UMAP] Using RandomInit for {typeof(TMetric).Name} (spectral requires Euclidean)"
-      );
+      Console.WriteLine("[UMAP] Using SpectralInit for layout initialization");
     }
 
-    return new RandomInit<TMetric>();
+    return new SpectralInit();
   }
 
   /// <summary>
@@ -153,28 +123,18 @@ internal static class StrategyResolver
   }
 
   /// <summary>
-  /// Auto-selects layout optimization strategy based on metric type.
+  /// Auto-selects layout optimization strategy.
+  /// Currently always returns EuclideanSGD.
   /// </summary>
   /// <param name="verbosity">Verbosity level for logging</param>
-  /// <typeparam name="TMetric">Metric marker type</typeparam>
   /// <returns>Appropriate layout optimization strategy</returns>
-  /// <exception cref="NotSupportedException">If metric type doesn't have an implementation</exception>
-  public static ILayoutOptimizationStrategy ResolveLayoutOptimization<TMetric>(int verbosity)
-    where TMetric : IMetricMarker
+  public static ILayoutOptimizationStrategy ResolveLayoutOptimization(int verbosity)
   {
-    if (typeof(TMetric) == typeof(IEuclideanMetric))
+    if (verbosity >= 1)
     {
-      if (verbosity >= 1)
-      {
-        Console.WriteLine("[UMAP] Using EuclideanSGD for layout optimization");
-      }
-
-      return new EuclideanSGD();
+      Console.WriteLine("[UMAP] Using EuclideanSGD for layout optimization");
     }
 
-    throw new NotSupportedException(
-      $"Auto-resolution of layout optimization for {typeof(TMetric).Name} not yet implemented. "
-        + "Please specify strategy explicitly via .WithLayoutOptimization()"
-    );
+    return new EuclideanSGD();
   }
 }

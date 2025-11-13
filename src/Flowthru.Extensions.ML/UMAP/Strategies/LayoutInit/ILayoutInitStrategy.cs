@@ -1,4 +1,3 @@
-using Flowthru.Extensions.ML.UMAP.Core.Markers;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
@@ -8,7 +7,6 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit;
 /// Strategy interface for initializing the low-dimensional embedding before optimization.
 /// This is the fifth phase of the UMAP algorithm.
 /// </summary>
-/// <typeparam name="TMetric">Phantom type indicating the distance metric used in high-dimensional space.</typeparam>
 /// <remarks>
 /// <para>
 /// The layout initialization phase creates an initial low-dimensional embedding that serves
@@ -37,8 +35,7 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.LayoutInit;
 /// Python UMAP reference: Lines 1078-1148 in <c>simplicial_set_embedding()</c> function
 /// </para>
 /// </remarks>
-public interface ILayoutInitStrategy<TMetric>
-  where TMetric : IMetricMarker
+public interface ILayoutInitStrategy
 {
   /// <summary>
   /// Initializes the low-dimensional embedding layout.
