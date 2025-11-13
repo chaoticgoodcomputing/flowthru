@@ -28,10 +28,7 @@ internal static class StrategyResolver
   /// <param name="shape">Data characteristics for selection</param>
   /// <param name="verbosity">Verbosity level for logging</param>
   /// <returns>Appropriate neighbor search strategy</returns>
-  public static INeighborSearchStrategy ResolveNeighborSearch(
-    DataShape shape,
-    int verbosity
-  )
+  public static INeighborSearchStrategy ResolveNeighborSearch(DataShape shape, int verbosity)
   {
     // Use NN-Descent for larger datasets, brute force for smaller
     var strategy =

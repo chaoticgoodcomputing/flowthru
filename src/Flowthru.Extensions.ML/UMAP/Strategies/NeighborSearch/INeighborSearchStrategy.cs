@@ -61,12 +61,7 @@ public interface INeighborSearchStrategy
   ///   <item><description>Thread-safe if marked as such in implementation</description></item>
   /// </list>
   /// </remarks>
-  NeighborSearchResult Search(
-    float[][] data,
-    int nNeighbors,
-    IMetric metric,
-    Random random
-  );
+  NeighborSearchResult Search(float[][] data, int nNeighbors, IMetric metric, Random random);
 }
 
 /// <summary>

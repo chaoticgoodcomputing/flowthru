@@ -8,7 +8,7 @@ namespace Flowthru.Extensions.ML.UMAP.Core.Utils;
 /// <remarks>
 /// Euclidean distance is the straight-line distance in n-dimensional space:
 /// d(x, y) = sqrt(sum((x[i] - y[i])^2))
-/// 
+///
 /// This is the most common metric and has specialized optimizations in layout optimization.
 /// </remarks>
 public sealed class EuclideanMetric : IOutputMetric
@@ -74,7 +74,7 @@ public sealed class EuclideanMetric : IOutputMetric
 /// <remarks>
 /// Manhattan distance is the sum of absolute differences:
 /// d(x, y) = sum(|x[i] - y[i]|)
-/// 
+///
 /// Also known as taxicab or city block distance.
 /// </remarks>
 public sealed class ManhattanMetric : IMetric
@@ -111,7 +111,7 @@ public sealed class ManhattanMetric : IMetric
 /// <remarks>
 /// Cosine distance measures the angle between vectors:
 /// d(x, y) = 1 - (x·y) / (||x|| ||y||)
-/// 
+///
 /// Range: [0, 2] where 0 = identical direction, 1 = orthogonal, 2 = opposite direction.
 /// Ignores magnitude, only considers direction.
 /// </remarks>

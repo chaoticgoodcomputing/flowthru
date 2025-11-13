@@ -36,12 +36,7 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.NeighborSearch.Implementations;
 public sealed class BruteForceSearch : INeighborSearchStrategy
 {
   /// <inheritdoc />
-  public NeighborSearchResult Search(
-    float[][] data,
-    int nNeighbors,
-    IMetric metric,
-    Random random
-  )
+  public NeighborSearchResult Search(float[][] data, int nNeighbors, IMetric metric, Random random)
   {
     int nSamples = data.Length;
 

@@ -101,12 +101,7 @@ public sealed class NNDescentSearch : INeighborSearchStrategy
   public bool Verbose { get; init; } = false;
 
   /// <inheritdoc />
-  public NeighborSearchResult Search(
-    float[][] data,
-    int nNeighbors,
-    IMetric metric,
-    Random random
-  )
+  public NeighborSearchResult Search(float[][] data, int nNeighbors, IMetric metric, Random random)
   {
     int nSamples = data.Length;
     int nFeatures = data[0].Length;
@@ -216,12 +211,7 @@ public sealed class NNDescentSearch : INeighborSearchStrategy
   /// Parallelized across leaves for improved performance. Each leaf is processed
   /// independently, with thread-safe heap updates.
   /// </remarks>
-  private void InitializeFromRpTrees(
-    KnnHeap heap,
-    RpTree[] forest,
-    float[][] data,
-    IMetric metric
-  )
+  private void InitializeFromRpTrees(KnnHeap heap, RpTree[] forest, float[][] data, IMetric metric)
   {
     // Extract all leaves from all trees
     var allLeaves = new List<int[]>();
@@ -520,13 +510,7 @@ public sealed class NNDescentSearch : INeighborSearchStrategy
   /// <summary>
   /// Attempts to update heaps for points p and q if their distance improves current k-NN.
   /// </summary>
-  private int TryUpdate(
-    KnnHeap heap,
-    float[][] data,
-    IMetric metric,
-    int p,
-    int q
-  )
+  private int TryUpdate(KnnHeap heap, float[][] data, IMetric metric, int p, int q)
   {
     // Early exit: check if distance might improve either heap
     float thresholdP = heap.Distances[p][0]; // max distance in p's heap
