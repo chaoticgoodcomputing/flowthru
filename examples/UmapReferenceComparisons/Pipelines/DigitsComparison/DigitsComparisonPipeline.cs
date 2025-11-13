@@ -58,6 +58,8 @@ public static class DigitsComparisonPipeline
         description: """
           Applies C# UMAP to Digits input features using the same parameters
           as the Python reference implementation.
+          
+          Outputs both the embedding and runtime performance metrics.
         """,
         transform: TransformWithUmapNode.Create(
           new TransformWithUmapNode.Params
@@ -67,7 +69,7 @@ public static class DigitsComparisonPipeline
           }
         ),
         input: catalog.DigitsUmapInput,
-        output: catalog.DigitsCSharpOutput
+        output: (catalog.DigitsCSharpOutput, catalog.DigitsRuntimeReport)
       );
 
       pipeline.AddNode(

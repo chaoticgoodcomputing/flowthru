@@ -135,10 +135,11 @@ public static class CompareUmapImplementationsNode
       // METRIC 2: Run multiple C# trials
       Console.WriteLine($"\n3. Running {options.NumTrials} C# UMAP trials with different seeds...");
       var csharpPreservations = new List<double>();
+      var csharpRuntimeReports = new List<UmapRuntimeReport>();
 
       for (int trial = 0; trial < options.NumTrials; trial++)
       {
-        var csharpEmbedding = await RunCSharpUmapTrial(
+        var trialResult = await RunCSharpUmapTrial(
           inputFeatures,
           options.UmapParameters,
           options.InitStrategy,
@@ -148,10 +149,11 @@ public static class CompareUmapImplementationsNode
         // Compute preservation (reusing precomputed high-dim k-NN)
         var preservation = ComputeNeighborhoodPreservationWithKnn(
           originalKnn,
-          csharpEmbedding,
+          trialResult.Item1,
           options.KNeighbors
         );
         csharpPreservations.Add(preservation);
+        csharpRuntimeReports.Add(trialResult.Item2);
         Console.WriteLine($"   Trial {trial + 1}/{options.NumTrials}: {preservation:P2}");
       }
 
@@ -161,6 +163,10 @@ public static class CompareUmapImplementationsNode
       var csharpMin = csharpPreservations.Min();
       var csharpMax = csharpPreservations.Max();
       var preservationDiff = Math.Abs(pythonPreservation - csharpMean);
+
+      // Average runtime metrics across all trials
+      var avgTimings = AverageTimings(csharpRuntimeReports);
+      var avgTotalTime = (int)csharpRuntimeReports.Average(r => r.TotalTimeMs);
 
       // Compute statistical confidence
       var confidence = ComputeStatisticalConfidence(
@@ -212,6 +218,8 @@ public static class CompareUmapImplementationsNode
         CSharpMaxPreservation = csharpMax,
         PreservationDifference = preservationDiff,
         StatisticalConfidence = confidence,
+        CSharpAvgTimings = avgTimings,
+        CSharpAvgTotalTimeMs = avgTotalTime,
         ValidationPassed = validationPassed,
         Message = message,
       };
@@ -249,7 +257,10 @@ public static class CompareUmapImplementationsNode
   /// <summary>
   /// Runs a C# UMAP trial with a specific random seed.
   /// </summary>
-  private static async Task<IEnumerable<UmapOutputRow>> RunCSharpUmapTrial(
+  private static async Task<(
+    IEnumerable<UmapOutputRow> Embedding,
+    UmapRuntimeReport RuntimeReport
+  )> RunCSharpUmapTrial(
     float[][] inputFeatures,
     UmapParameters baseOptions,
     string initStrategy,
@@ -268,19 +279,51 @@ public static class CompareUmapImplementationsNode
       Verbosity = 0, // Silent for trials
     };
 
-    // Use simplified high-level API - handles all conversions internally
-    var embeddingMatrix = UmapPipeline.Create(trialOptions).FitTransform(inputFeatures);
+    // Use high-level API that returns full result including runtime report
+    var matrix = MathNet.Numerics.LinearAlgebra.Single.DenseMatrix.OfRowArrays(inputFeatures);
+    var fitResult = UmapPipeline.Create(trialOptions).FitTransformWithReport(matrix);
 
     // Convert matrix result to output schema
-    var result = Enumerable
-      .Range(0, embeddingMatrix.Length)
+    var embedding = Enumerable
+      .Range(0, fitResult.Embedding.RowCount)
       .Select(i => new UmapOutputRow
       {
-        Component0 = embeddingMatrix[i][0],
-        Component1 = embeddingMatrix[i][1],
+        Component0 = fitResult.Embedding[i, 0],
+        Component1 = fitResult.Embedding[i, 1],
       });
 
-    return await Task.FromResult(result);
+    return await Task.FromResult((embedding, fitResult.RuntimeReport));
+  }
+
+  /// <summary>
+  /// Averages timing metrics across multiple runtime reports.
+  /// </summary>
+  private static Dictionary<string, int> AverageTimings(List<UmapRuntimeReport> reports)
+  {
+    if (reports.Count == 0)
+    {
+      return new Dictionary<string, int>();
+    }
+
+    // Collect all unique stage names
+    var allStages = reports.SelectMany(r => r.Timings.Keys).Distinct().ToList();
+
+    // Compute average for each stage
+    var avgTimings = new Dictionary<string, int>();
+    foreach (var stage in allStages)
+    {
+      var stageTimings = reports
+        .Where(r => r.Timings.ContainsKey(stage))
+        .Select(r => r.Timings[stage])
+        .ToList();
+
+      if (stageTimings.Count > 0)
+      {
+        avgTimings[stage] = (int)stageTimings.Average();
+      }
+    }
+
+    return avgTimings;
   }
 
   /// <summary>

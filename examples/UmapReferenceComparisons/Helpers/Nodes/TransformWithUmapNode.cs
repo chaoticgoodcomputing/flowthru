@@ -27,7 +27,7 @@ public static class TransformWithUmapNode
     public string InitStrategy { get; init; } = "spectral";
   }
 
-  public static Func<IEnumerable<UmapInput>, Task<IEnumerable<UmapOutputRow>>> Create(
+  public static Func<IEnumerable<UmapInput>, Task<(IEnumerable<UmapOutputRow>, string)>> Create(
     Params options
   )
   {
@@ -41,19 +41,55 @@ public static class TransformWithUmapNode
       // Extract feature vectors from UmapInput
       var featureArray = inputList.Select(row => row.Features).ToArray();
 
-      // Use simplified high-level API with specified initialization strategy
-      var embeddingMatrix = UmapPipeline.Create(options.UmapParameters).FitTransform(featureArray);
+      // Use new FitTransformWithReport API to get both embedding and timing metrics
+      var fitResult = UmapPipeline
+        .Create(options.UmapParameters)
+        .FitTransformWithReport(
+          MathNet.Numerics.LinearAlgebra.Single.DenseMatrix.OfRowArrays(featureArray)
+        );
 
-      // Convert matrix result to output schema
-      var result = Enumerable
-        .Range(0, embeddingMatrix.Length)
+      // Convert embedding matrix to output schema
+      var embedding = Enumerable
+        .Range(0, fitResult.Embedding.RowCount)
         .Select(i => new UmapOutputRow
         {
-          Component0 = embeddingMatrix[i][0],
-          Component1 = embeddingMatrix[i][1],
+          Component0 = fitResult.Embedding[i, 0],
+          Component1 = fitResult.Embedding[i, 1],
         });
 
-      return await Task.FromResult(result);
+      // Format runtime report as human-readable text
+      var runtimeReport = FormatRuntimeReport(
+        options.DatasetName,
+        fitResult.RuntimeReport,
+        inputList.Count
+      );
+
+      return await Task.FromResult((embedding, runtimeReport));
     };
+  }
+
+  private static string FormatRuntimeReport(
+    string datasetName,
+    UmapRuntimeReport report,
+    int sampleCount
+  )
+  {
+    var sb = new System.Text.StringBuilder();
+    sb.AppendLine($"UMAP Runtime Report: {datasetName}");
+    sb.AppendLine($"Samples: {sampleCount}");
+    sb.AppendLine();
+    sb.AppendLine("Phase Timings:");
+
+    foreach (var (stage, milliseconds) in report.Timings.OrderBy(kv => kv.Key))
+    {
+      sb.AppendLine($"  {stage, -25} {milliseconds, 6} ms");
+    }
+
+    sb.AppendLine();
+    sb.AppendLine(
+      $"Total Time: {report.TotalTimeMs} ms ({report.TotalTimeMs / 1000.0:F2} seconds)"
+    );
+
+    return sb.ToString();
   }
 }

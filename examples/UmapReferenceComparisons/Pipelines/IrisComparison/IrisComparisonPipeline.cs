@@ -60,6 +60,8 @@ public static class IrisComparisonPipeline
           - learning_rate=0.5
           - init="random"  (← explicit random initialization)
           - min_dist=0.001
+          
+          Outputs both the embedding and runtime performance metrics.
         """,
         transform: TransformWithUmapNode.Create(
           new TransformWithUmapNode.Params
@@ -70,7 +72,7 @@ public static class IrisComparisonPipeline
           }
         ),
         input: catalog.IrisUmapInput,
-        output: catalog.IrisCSharpOutput
+        output: (catalog.IrisCSharpOutput, catalog.IrisRuntimeReport)
       );
 
       pipeline.AddNode(

@@ -20,6 +20,15 @@ public partial class Catalog
         )
     );
 
+  public ICatalogEntry<string> IrisRuntimeReport =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "IrisRuntimeReport",
+          filePath: $"{_basePath}/_03_Reports/Datasets/iris_runtime_report.txt"
+        )
+    );
+
   public ICatalogEntry<GenericChart> IrisVisualization =>
     GetOrCreateEntry(() => CatalogEntries.Single.Memory<GenericChart>(label: "IrisVisualization"));
 
@@ -38,6 +47,15 @@ public partial class Catalog
         CatalogEntries.Single.Json<ComparisonResult>(
           label: "DigitsComparison",
           filePath: $"{_basePath}/_03_Reports/Datasets/digits_comparison.json"
+        )
+    );
+
+  public ICatalogEntry<string> DigitsRuntimeReport =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "DigitsRuntimeReport",
+          filePath: $"{_basePath}/_03_Reports/Datasets/digits_runtime_report.txt"
         )
     );
 
@@ -73,6 +91,15 @@ public partial class Catalog
         )
     );
 
+  public ICatalogEntry<string> FashionMnistRuntimeReport =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Text(
+          label: "FashionMnistRuntimeReport",
+          filePath: $"{_basePath}/_03_Reports/Datasets/fashion_mnist_runtime_report.txt"
+        )
+    );
+
   public ICatalogEntry<ComparisonResult> MnistTransformComparison =>
     GetOrCreateEntry(
       () =>
@@ -81,6 +108,7 @@ public partial class Catalog
           filePath: $"{_basePath}/_03_Reports/Datasets/mnist_transform_comparison.json"
         )
     );
+
   public ICatalogEntry<GenericChart> FashionMnistVisualization =>
     GetOrCreateEntry(
       () => CatalogEntries.Single.Memory<GenericChart>(label: "FashionMnistVisualization")

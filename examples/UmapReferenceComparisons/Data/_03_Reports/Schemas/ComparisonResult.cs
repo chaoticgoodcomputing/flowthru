@@ -120,6 +120,19 @@ public record ComparisonResult : IFlatSchema, IBinarySerializable, IStructuredSe
   public double StatisticalConfidence { get; init; }
 
   /// <summary>
+  /// Average runtime metrics across all C# UMAP trials.
+  /// Dictionary mapping stage name to average milliseconds.
+  /// </summary>
+  [SerializedLabel("csharp_avg_timings")]
+  public Dictionary<string, int> CSharpAvgTimings { get; init; } = new();
+
+  /// <summary>
+  /// Average total runtime across all C# UMAP trials, in milliseconds.
+  /// </summary>
+  [SerializedLabel("csharp_avg_total_time_ms")]
+  public int CSharpAvgTotalTimeMs { get; init; }
+
+  /// <summary>
   /// Whether the comparison passed (counts, dimensions match, and skeletal similarity above threshold).
   /// </summary>
   [SerializedLabel("validation_passed")]

@@ -94,13 +94,13 @@ public sealed class UmapPipelineBuilder
   {
     // Convert to Matrix for internal processing
     var matrix = MathNet.Numerics.LinearAlgebra.Single.DenseMatrix.OfRowArrays(data);
-    var resultMatrix = FitTransform(matrix);
+    var fitResult = FitTransformWithReport(matrix);
 
     // Convert back to jagged array
-    var result = new float[resultMatrix.RowCount][];
-    for (int i = 0; i < resultMatrix.RowCount; i++)
+    var result = new float[fitResult.Embedding.RowCount][];
+    for (int i = 0; i < fitResult.Embedding.RowCount; i++)
     {
-      result[i] = resultMatrix.Row(i).ToArray();
+      result[i] = fitResult.Embedding.Row(i).ToArray();
     }
 
     return result;
@@ -118,6 +118,18 @@ public sealed class UmapPipelineBuilder
   /// SpectralInit which uses Math.Net for eigenvalue decomposition.
   /// </remarks>
   public Matrix<float> FitTransform(Matrix<float> data)
+  {
+    var result = FitTransformWithReport(data);
+    return result.Embedding;
+  }
+
+  /// <summary>
+  /// Fits UMAP and transforms data in one step, returning full result including runtime report.
+  /// Auto-selects strategies based on data characteristics if not explicitly set.
+  /// </summary>
+  /// <param name="data">Input data matrix (n_samples, n_features)</param>
+  /// <returns>Complete UMAP result including embedding and runtime metrics</returns>
+  public UmapFitResult FitTransformWithReport(Matrix<float> data)
   {
     var shape = new DataShape
     {
@@ -144,7 +156,6 @@ public sealed class UmapPipelineBuilder
         ?? StrategyResolver.ResolveLayoutOptimization(_parameters.Verbosity)
     );
 
-    var result = executor.FitTransform(data);
-    return result.Embedding;
+    return executor.FitTransform(data);
   }
 }

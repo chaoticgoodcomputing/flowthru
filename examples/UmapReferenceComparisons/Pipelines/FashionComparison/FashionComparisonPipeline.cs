@@ -50,7 +50,7 @@ public static class FashionComparisonPipeline
 
       pipeline.AddNode(
         label: "TransformFashionMnistWithCSharpUmap",
-        description: "Applies C# UMAP to Fashion-MNIST input features using Python reference parameters.",
+        description: "Applies C# UMAP to Fashion-MNIST input features using Python reference parameters. Outputs both the embedding and runtime performance metrics.",
         transform: TransformWithUmapNode.Create(
           new TransformWithUmapNode.Params
           {
@@ -59,7 +59,7 @@ public static class FashionComparisonPipeline
           }
         ),
         input: catalog.FashionMnistUmapInput,
-        output: catalog.FashionMnistCSharpOutput
+        output: (catalog.FashionMnistCSharpOutput, catalog.FashionMnistRuntimeReport)
       );
 
       // This node requires a brute force KNN, and is too slow to test currently.

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Flowthru.Extensions.ML.UMAP.Core.Markers;
 using Flowthru.Extensions.ML.UMAP.Strategies.GraphRefinement;
 using Flowthru.Extensions.ML.UMAP.Strategies.GraphRefinement.Implementations;
@@ -74,6 +75,7 @@ internal sealed class UmapPipelineExecutor
   private readonly ILayoutInitStrategy? _layoutInit;
   private readonly ISamplingScheduleStrategy? _samplingSchedule;
   private readonly ILayoutOptimizationStrategy? _layoutOptimization;
+  private readonly Dictionary<string, int> _timings = new();
 
   internal UmapPipelineExecutor(
     UmapParameters parameters,
@@ -126,6 +128,7 @@ internal sealed class UmapPipelineExecutor
 
     // Phase 1: Nearest Neighbor Search
     ReportProgress("Neighbor Search", 0.0f, "Finding k-nearest neighbors");
+    var sw = Stopwatch.StartNew();
 
     var neighborResult = _neighborSearch.Search(
       dataArray,
@@ -134,10 +137,13 @@ internal sealed class UmapPipelineExecutor
       random
     );
 
+    sw.Stop();
+    _timings["NeighborSearch"] = (int)sw.ElapsedMilliseconds;
     ReportProgress("Neighbor Search", 1.0f, $"Found neighbors for {nSamples} points");
 
     // Phase 2: Local Metric Computation
     ReportProgress("Local Metric", 0.0f, "Computing local metric parameters");
+    sw.Restart();
 
     var localMetricResult = _localMetric.ComputeLocalMetrics(
       neighborResult.Distances,
@@ -145,10 +151,13 @@ internal sealed class UmapPipelineExecutor
       _parameters.LocalConnectivity
     );
 
+    sw.Stop();
+    _timings["LocalMetric"] = (int)sw.ElapsedMilliseconds;
     ReportProgress("Local Metric", 1.0f, "Local metrics computed");
 
     // Phase 3: Membership Strength Computation
     ReportProgress("Graph Construction", 0.0f, "Building fuzzy simplicial set");
+    sw.Restart();
 
     var graph = _membershipStrength.ComputeMembershipStrengths(
       neighborResult.Indices,
@@ -158,6 +167,8 @@ internal sealed class UmapPipelineExecutor
       _parameters.SetOpMixRatio
     );
 
+    sw.Stop();
+    _timings["GraphConstruction"] = (int)sw.ElapsedMilliseconds;
     ReportProgress(
       "Graph Construction",
       1.0f,
@@ -168,12 +179,15 @@ internal sealed class UmapPipelineExecutor
     if (_graphRefinement != null)
     {
       ReportProgress("Graph Refinement", 0.0f, "Refining graph (pruning weak edges)");
+      sw.Restart();
 
       var nEpochs = _parameters.NumberOfEpochs ?? (graph.RowCount <= 10000 ? 500 : 200);
 
       var refinementResult = _graphRefinement.RefineGraph(graph, nEpochs);
       graph = refinementResult.RefinedGraph;
 
+      sw.Stop();
+      _timings["GraphRefinement"] = (int)sw.ElapsedMilliseconds;
       ReportProgress(
         "Graph Refinement",
         1.0f,
@@ -239,6 +253,8 @@ internal sealed class UmapPipelineExecutor
   /// <exception cref="InvalidOperationException">Thrown if required strategies are not configured.</exception>
   public UmapFitResult FitTransform(Matrix<float> data)
   {
+    var totalSw = Stopwatch.StartNew();
+
     // Phase 1-4: Compute and refine graph
     var graphResult = ComputeGraph(data);
 
@@ -249,7 +265,10 @@ internal sealed class UmapPipelineExecutor
         "Layout initialization strategy is required for FitTransform. Call WithLayoutInit() on the builder."
       );
     }
+    var sw = Stopwatch.StartNew();
     var layoutResult = InitializeLayout(data, graphResult.Graph);
+    sw.Stop();
+    _timings["LayoutInit"] = (int)sw.ElapsedMilliseconds;
 
     // Determine number of epochs using Python UMAP heuristic if not specified
     var nEpochs = _parameters.NumberOfEpochs ?? (data.RowCount <= 10000 ? 500 : 200);
@@ -270,7 +289,10 @@ internal sealed class UmapPipelineExecutor
     var edges = ConvertGraphToEdges(graphResult.Graph);
     var edgeWeights = edges.Select(e => e.Weight).ToArray();
 
+    sw.Restart();
     var scheduleResult = _samplingSchedule.ComputeSchedule(edgeWeights, nEpochs);
+    sw.Stop();
+    _timings["SamplingSchedule"] = (int)sw.ElapsedMilliseconds;
 
     // Phase 7: Optimize layout
     if (_layoutOptimization == null)
@@ -307,6 +329,7 @@ internal sealed class UmapPipelineExecutor
       ? new Random(_parameters.RandomSeed.Value)
       : new Random();
 
+    sw.Restart();
     var optimizationResult = _layoutOptimization.Optimize(
       initialEmbedding: layoutResult.Embedding,
       graphEdges: edges,
@@ -315,13 +338,24 @@ internal sealed class UmapPipelineExecutor
       parameters: optimizationParams,
       random: random
     );
+    sw.Stop();
+    _timings["LayoutOptimization"] = (int)sw.ElapsedMilliseconds;
+
+    totalSw.Stop();
+
+    var runtimeReport = new UmapRuntimeReport
+    {
+      Timings = new Dictionary<string, int>(_timings),
+      TotalTimeMs = (int)totalSw.ElapsedMilliseconds,
+    };
 
     return new UmapFitResult(
       Embedding: optimizationResult.OptimizedEmbedding,
       GraphResult: graphResult,
       LayoutInitResult: layoutResult,
       SamplingScheduleResult: scheduleResult,
-      OptimizationResult: optimizationResult
+      OptimizationResult: optimizationResult,
+      RuntimeReport: runtimeReport
     );
   }
 
@@ -372,10 +406,12 @@ public sealed record UmapGraphResult(
 /// <param name="LayoutInitResult">Intermediate result from layout initialization (Phase 5).</param>
 /// <param name="SamplingScheduleResult">Intermediate result from sampling schedule computation (Phase 6).</param>
 /// <param name="OptimizationResult">Result from layout optimization (Phase 7).</param>
+/// <param name="RuntimeReport">Performance timing metrics for each UMAP phase.</param>
 public sealed record UmapFitResult(
   Matrix<float> Embedding,
   UmapGraphResult GraphResult,
   LayoutInitResult LayoutInitResult,
   SamplingScheduleResult SamplingScheduleResult,
-  LayoutOptimizationResult OptimizationResult
+  LayoutOptimizationResult OptimizationResult,
+  UmapRuntimeReport RuntimeReport
 );
