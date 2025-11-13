@@ -1,0 +1,13 @@
+UMAP Runtime Report: Fashion-MNIST
+Samples: 70000
+
+Phase Timings:
+  GraphConstruction          26597 ms
+  GraphRefinement              195 ms
+  LayoutInit                   748 ms
+  LayoutOptimization         62425 ms
+  LocalMetric                  243 ms
+  NeighborSearch             31186 ms
+  SamplingSchedule               3 ms
+
+Total Time: 121749 ms (121.75 seconds)

@@ -77,9 +77,12 @@ internal static class StrategyResolver
 
   /// <summary>
   /// Auto-selects graph refinement strategy.
-  /// Currently always returns AdaptiveThresholding (Python UMAP default).
+  /// Uses CSR-optimized AdaptiveThresholding (Python UMAP default).
   /// </summary>
-  public static IGraphRefinementStrategy ResolveGraphRefinement(int verbosity)
+  /// <param name="shape">Data characteristics (unused, kept for API compatibility)</param>
+  /// <param name="verbosity">Verbosity level for logging</param>
+  /// <returns>Graph refinement strategy</returns>
+  public static IGraphRefinementStrategy ResolveGraphRefinement(DataShape shape, int verbosity)
   {
     if (verbosity >= 2)
     {

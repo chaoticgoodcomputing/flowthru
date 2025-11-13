@@ -1,4 +1,5 @@
 using MathNet.Numerics.LinearAlgebra.Single;
+using MathNet.Numerics.LinearAlgebra.Storage;
 
 namespace Flowthru.Extensions.ML.UMAP.Strategies.GraphRefinement.Implementations;
 
@@ -18,10 +19,14 @@ namespace Flowthru.Extensions.ML.UMAP.Strategies.GraphRefinement.Implementations
 /// than once have negligible impact on the final embedding.
 /// </para>
 /// <para>
+/// <b>Implementation:</b> Uses direct CSR (Compressed Sparse Row) storage manipulation for
+/// O(nnz) performance. Single-pass filter through non-zero entries only, avoiding O(n²) iteration.
+/// </para>
+/// <para>
 /// <b>Time complexity:</b> O(nnz) where nnz is the number of non-zero entries in the graph
 /// </para>
 /// <para>
-/// <b>Space complexity:</b> O(1) - operates in-place on the input matrix
+/// <b>Space complexity:</b> O(nnz) - creates new storage arrays during filtering
 /// </para>
 /// <para>
 /// Python UMAP reference: Lines 1063-1076 in <c>simplicial_set_embedding()</c>
@@ -33,7 +38,7 @@ public sealed class AdaptiveThresholding : IGraphRefinementStrategy
   private const int MinEpochsForDynamicThreshold = 10;
 
   /// <summary>
-  /// Refines the graph by removing edges below an adaptive threshold.
+  /// Refines the graph by removing edges below an adaptive threshold using CSR direct access.
   /// </summary>
   /// <param name="graph">Fuzzy simplicial set to refine (modified in-place).</param>
   /// <param name="nEpochs">Number of optimization epochs planned.</param>
@@ -42,9 +47,30 @@ public sealed class AdaptiveThresholding : IGraphRefinementStrategy
   {
     ValidateInputs(graph, nEpochs);
 
-    var maxWeight = ComputeMaxWeight(graph);
+    // Extract CSR storage
+    var storage = graph.Storage as SparseCompressedRowMatrixStorage<float>;
+    if (storage == null)
+    {
+      throw new InvalidOperationException(
+        "Graph must use CSR (SparseCompressedRowMatrixStorage) format. "
+          + $"Found: {graph.Storage.GetType().Name}"
+      );
+    }
+
+    // Compute threshold
+    var maxWeight = ComputeMaxWeight(storage);
     var threshold = ComputeThreshold(maxWeight, nEpochs);
-    var edgesRemoved = ApplyThreshold(graph, threshold);
+
+    // Filter edges in single pass through CSR arrays
+    var (newStorage, edgesRemoved) = FilterCsrStorage(storage, threshold);
+
+    // Replace the graph's storage with filtered version
+    // Create new matrix from storage and copy back to maintain in-place semantics
+    var refinedGraph = new SparseMatrix(newStorage);
+
+    // Copy filtered data back into original matrix
+    graph.Clear();
+    graph.SetSubMatrix(0, 0, refinedGraph);
 
     return new GraphRefinementResult(
       RefinedGraph: graph,
@@ -76,17 +102,21 @@ public sealed class AdaptiveThresholding : IGraphRefinementStrategy
   }
 
   /// <summary>
-  /// Computes the maximum edge weight in the graph.
+  /// Computes the maximum edge weight by scanning CSR values array.
   /// </summary>
-  private static float ComputeMaxWeight(SparseMatrix graph)
+  /// <remarks>
+  /// O(nnz) scan through values array - much faster than O(n²) matrix iteration.
+  /// </remarks>
+  private static float ComputeMaxWeight(SparseCompressedRowMatrixStorage<float> storage)
   {
-    var maxWeight = 0.0f;
+    var values = storage.Values;
+    float maxWeight = 0.0f;
 
-    foreach (var (_, _, value) in graph.EnumerateIndexed())
+    for (int i = 0; i < storage.ValueCount; i++)
     {
-      if (value > maxWeight)
+      if (values[i] > maxWeight)
       {
-        maxWeight = value;
+        maxWeight = values[i];
       }
     }
 
@@ -109,62 +139,89 @@ public sealed class AdaptiveThresholding : IGraphRefinementStrategy
   }
 
   /// <summary>
-  /// Applies the threshold to the graph, zeroing out edges below it.
-  /// Returns the number of edges removed.
+  /// Filters CSR storage arrays by threshold in a single pass.
   /// </summary>
-  private static int ApplyThreshold(SparseMatrix graph, float threshold)
+  /// <remarks>
+  /// <para>
+  /// This is the core optimization: instead of iterating over all n² positions,
+  /// we iterate only over the nnz non-zero entries and copy those above threshold.
+  /// </para>
+  /// <para>
+  /// <b>Algorithm:</b>
+  /// </para>
+  /// <code>
+  /// For each row:
+  ///   Read entries from old storage [rowStart..rowEnd)
+  ///   Copy entries >= threshold to new arrays
+  ///   Update new RowPointers[row] with write position
+  /// </code>
+  /// </remarks>
+  private static (
+    SparseCompressedRowMatrixStorage<float> newStorage,
+    int edgesRemoved
+  ) FilterCsrStorage(SparseCompressedRowMatrixStorage<float> storage, float threshold)
   {
-    var edgesRemoved = 0;
+    int nRows = storage.RowCount;
+    int nCols = storage.ColumnCount;
 
-    // Zero out entries below threshold
-    for (var i = 0; i < graph.RowCount; i++)
+    // Pre-allocate with current capacity (will shrink)
+    var newValues = new List<float>(storage.ValueCount);
+    var newColumnIndices = new List<int>(storage.ValueCount);
+    var newRowPointers = new int[nRows + 1];
+
+    int edgesRemoved = 0;
+    int writePos = 0;
+
+    // Single pass through all rows
+    for (int row = 0; row < nRows; row++)
     {
-      for (var j = 0; j < graph.ColumnCount; j++)
+      newRowPointers[row] = writePos;
+
+      int rowStart = storage.RowPointers[row];
+      int rowEnd = storage.RowPointers[row + 1];
+
+      // Process all entries in this row
+      for (int idx = rowStart; idx < rowEnd; idx++)
       {
-        var value = graph[i, j];
-        if (value > 0 && value < threshold)
+        float value = storage.Values[idx];
+
+        if (value >= threshold)
         {
-          graph[i, j] = 0;
+          // Keep this edge
+          newValues.Add(value);
+          newColumnIndices.Add(storage.ColumnIndices[idx]);
+          writePos++;
+        }
+        else
+        {
+          // Remove this edge
           edgesRemoved++;
         }
       }
     }
 
-    // Remove zeros from sparse storage to reclaim memory
-    // This is critical for maintaining performance in subsequent operations
-    if (edgesRemoved > 0)
+    // Final row pointer marks end of data
+    newRowPointers[nRows] = writePos;
+
+    // Create new CSR storage with filtered data using indexed format
+    // Build indexed enumerable from the filtered CSR arrays
+    var indexedEntries = new List<(int row, int col, float value)>(writePos);
+    for (int row = 0; row < nRows; row++)
     {
-      EliminateZeros(graph);
-    }
-
-    return edgesRemoved;
-  }
-
-  /// <summary>
-  /// Removes zero entries from the sparse matrix storage.
-  /// </summary>
-  /// <remarks>
-  /// MathNet's SparseMatrix doesn't have a built-in EliminateZeros method,
-  /// so we rebuild the matrix with only non-zero entries.
-  /// </remarks>
-  private static void EliminateZeros(SparseMatrix graph)
-  {
-    var builder = SparseMatrix.Build;
-    var nonZeroEntries = new List<(int row, int col, float value)>();
-
-    foreach (var (i, j, value) in graph.EnumerateIndexed())
-    {
-      if (value != 0)
+      int start = newRowPointers[row];
+      int end = newRowPointers[row + 1];
+      for (int idx = start; idx < end; idx++)
       {
-        nonZeroEntries.Add((i, j, value));
+        indexedEntries.Add((row, newColumnIndices[idx], newValues[idx]));
       }
     }
 
-    // Clear and rebuild
-    graph.Clear();
-    foreach (var (i, j, value) in nonZeroEntries)
-    {
-      graph[i, j] = value;
-    }
+    var newStorage = SparseCompressedRowMatrixStorage<float>.OfIndexedEnumerable(
+      nRows,
+      nCols,
+      indexedEntries
+    );
+
+    return (newStorage, edgesRemoved);
   }
 }

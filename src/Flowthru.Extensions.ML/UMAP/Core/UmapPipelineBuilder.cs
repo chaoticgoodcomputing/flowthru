@@ -148,7 +148,7 @@ public sealed class UmapPipelineBuilder
       membershipStrength: _membershipStrength
         ?? StrategyResolver.ResolveMembershipStrength(_parameters.Verbosity),
       graphRefinement: _graphRefinement
-        ?? StrategyResolver.ResolveGraphRefinement(_parameters.Verbosity),
+        ?? StrategyResolver.ResolveGraphRefinement(shape, _parameters.Verbosity),
       layoutInit: _layoutInit ?? StrategyResolver.ResolveLayoutInit(_parameters.Verbosity),
       samplingSchedule: _samplingSchedule
         ?? StrategyResolver.ResolveSamplingSchedule(_parameters.Verbosity),
