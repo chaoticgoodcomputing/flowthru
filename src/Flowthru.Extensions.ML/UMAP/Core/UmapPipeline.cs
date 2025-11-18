@@ -183,7 +183,18 @@ internal sealed class UmapPipelineExecutor
 
       var nEpochs = _parameters.NumberOfEpochs ?? (graph.RowCount <= 10000 ? 500 : 200);
 
+      if (_parameters.Verbosity >= 2)
+      {
+        Console.WriteLine($"[Graph Refinement] About to call RefineGraph (nEpochs={nEpochs})");
+      }
+
       var refinementResult = _graphRefinement.RefineGraph(graph, nEpochs);
+
+      if (_parameters.Verbosity >= 2)
+      {
+        Console.WriteLine($"[Graph Refinement] RefineGraph returned, processing result");
+      }
+
       graph = refinementResult.RefinedGraph;
 
       sw.Stop();
@@ -193,6 +204,11 @@ internal sealed class UmapPipelineExecutor
         1.0f,
         $"Refined graph; removed {refinementResult.EdgesRemoved} edges (threshold {refinementResult.MinEdgeWeight})"
       );
+    }
+
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine($"[ComputeGraph] Returning graph result (edges={graph.NonZerosCount})");
     }
 
     return new UmapGraphResult(
@@ -255,8 +271,27 @@ internal sealed class UmapPipelineExecutor
   {
     var totalSw = Stopwatch.StartNew();
 
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine(
+        $"[FitTransform] Starting (samples={data.RowCount}, features={data.ColumnCount})"
+      );
+    }
+
     // Phase 1-4: Compute and refine graph
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine($"[FitTransform] Calling ComputeGraph...");
+    }
+
     var graphResult = ComputeGraph(data);
+
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine(
+        $"[FitTransform] ComputeGraph returned (graph edges={graphResult.Graph.NonZerosCount})"
+      );
+    }
 
     // Phase 5: Initialize layout
     if (_layoutInit == null)
@@ -265,8 +300,19 @@ internal sealed class UmapPipelineExecutor
         "Layout initialization strategy is required for FitTransform. Call WithLayoutInit() on the builder."
       );
     }
+
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine($"[FitTransform] Starting layout initialization...");
+    }
+
     var sw = Stopwatch.StartNew();
     var layoutResult = InitializeLayout(data, graphResult.Graph);
+
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine($"[FitTransform] Layout initialization completed");
+    }
     sw.Stop();
     _timings["LayoutInit"] = (int)sw.ElapsedMilliseconds;
 

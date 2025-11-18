@@ -203,4 +203,52 @@ public partial class Catalog
           filePath: $"{_basePath}/_08_Reporting/Datasets/Exploratory/oracle_text_frequency_analysis.json"
         )
     );
+
+  /// <summary>
+  /// Filtered and randomly sampled oracle text embeddings for UMAP exploration.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<OracleTextEmbedding>> FilteredSampledOracleTextEmbeddings =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Json<OracleTextEmbedding>(
+          label: "FilteredSampledOracleTextEmbeddings",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/filtered_sampled_oracle_embeddings.json"
+        )
+    );
+
+  /// <summary>
+  /// UMAP hyperparameter grid search results.
+  /// Contains multiple UMAP embeddings generated with different hyperparameter combinations
+  /// for sensitivity analysis and optimal parameter selection.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<UmapHyperparameterScanResult>> UmapHyperparameterScanResults =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Parquet<UmapHyperparameterScanResult>(
+          label: "UmapHyperparameterScanResults",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/umap_hyperparameter_scan_results.parquet"
+        )
+    );
+
+  /// <summary>
+  /// In-memory chart showing UMAP hyperparameter grid exploration.
+  /// Multiple subplots arranged in a grid, each showing UMAP embeddings with different
+  /// hyperparameter combinations (NumberOfNeighbors, MinDist).
+  /// </summary>
+  public ICatalogEntry<GenericChart> UmapGridVisualizationChart =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Single.Memory<GenericChart>(label: "UmapGridVisualizationChart")
+    );
+
+  /// <summary>
+  /// PNG export of UMAP hyperparameter grid visualization.
+  /// </summary>
+  public ICatalogEntry<byte[]> UmapGridVisualizationPng =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Binary(
+          label: "UmapGridVisualizationPng",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/umap_grid_visualization.png"
+        )
+    );
 }

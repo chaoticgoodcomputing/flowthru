@@ -153,7 +153,7 @@ public static class UmapReductionNode
     /// depending on the embedding scale and degree of duplication.
     /// </para>
     /// </remarks>
-    public float NoiseScale { get; init; } = 1e-5f;
+    public float NoiseScale { get; init; } = 1e-3f;
   }
 
   /// <summary>
@@ -189,12 +189,12 @@ public static class UmapReductionNode
       // Configure UMAP options
       var umapParameters = new UmapParameters
       {
-        NumberOfNeighbors = 10,
+        NumberOfNeighbors = 50,
         LearningRate = 1.0f,
-        MinDist = 0.1f,
+        MinDist = 0.75f,
         NumberOfComponents = 2,
         RandomSeed = 43,
-        NumberOfEpochs = 100,
+        NumberOfEpochs = 500,
         Verbosity = 2,
       };
 

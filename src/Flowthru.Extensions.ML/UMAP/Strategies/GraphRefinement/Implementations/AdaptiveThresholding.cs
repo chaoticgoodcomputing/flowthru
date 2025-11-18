@@ -45,11 +45,16 @@ public sealed class AdaptiveThresholding : IGraphRefinementStrategy
   /// <returns>Refinement result with statistics.</returns>
   public GraphRefinementResult RefineGraph(SparseMatrix graph, int nEpochs)
   {
+    Console.WriteLine(
+      $"[AdaptiveThresholding] RefineGraph called (rows={graph.RowCount}, nnz={graph.NonZerosCount}, epochs={nEpochs})"
+    );
+
     ValidateInputs(graph, nEpochs);
 
+    Console.WriteLine($"[AdaptiveThresholding] Validation passed, extracting CSR storage");
+
     // Extract CSR storage
-    var storage = graph.Storage as SparseCompressedRowMatrixStorage<float>;
-    if (storage == null)
+    if (graph.Storage is not SparseCompressedRowMatrixStorage<float> storage)
     {
       throw new InvalidOperationException(
         "Graph must use CSR (SparseCompressedRowMatrixStorage) format. "
@@ -57,20 +62,36 @@ public sealed class AdaptiveThresholding : IGraphRefinementStrategy
       );
     }
 
+    Console.WriteLine($"[AdaptiveThresholding] Computing threshold...");
+
     // Compute threshold
     var maxWeight = ComputeMaxWeight(storage);
     var threshold = ComputeThreshold(maxWeight, nEpochs);
 
+    Console.WriteLine(
+      $"[AdaptiveThresholding] Threshold computed: {threshold:F6} (maxWeight={maxWeight:F4}, epochs={nEpochs})"
+    );
+
+    Console.WriteLine($"[AdaptiveThresholding] Filtering CSR storage...");
+
     // Filter edges in single pass through CSR arrays
     var (newStorage, edgesRemoved) = FilterCsrStorage(storage, threshold);
+
+    Console.WriteLine(
+      $"[AdaptiveThresholding] Filtered {edgesRemoved} edges, creating refined graph..."
+    );
 
     // Replace the graph's storage with filtered version
     // Create new matrix from storage and copy back to maintain in-place semantics
     var refinedGraph = new SparseMatrix(newStorage);
 
+    Console.WriteLine($"[AdaptiveThresholding] Copying refined graph back to original matrix...");
+
     // Copy filtered data back into original matrix
     graph.Clear();
     graph.SetSubMatrix(0, 0, refinedGraph);
+
+    Console.WriteLine($"[AdaptiveThresholding] RefineGraph completed successfully");
 
     return new GraphRefinementResult(
       RefinedGraph: graph,

@@ -8,6 +8,7 @@ using MagicAtlas.Pipelines.EmbeddingViz;
 using MagicAtlas.Pipelines.OracleExploration;
 using MagicAtlas.Pipelines.OracleTextEmebdding;
 using MagicAtlas.Pipelines.RulesProcessing;
+using MagicAtlas.Pipelines.UmapExploration;
 
 namespace MagicAtlas;
 
@@ -67,6 +68,16 @@ public class Program
         builder
           .RegisterPipeline<Catalog>(label: "OracleExploration", pipeline: OracleExploration.Create)
           .WithDescription("Creates enhanced UMAP visualizations with card metadata (color, CMC)");
+
+        builder
+          .RegisterPipelineWithConfiguration<Catalog, UmapExploration.Params>(
+            label: "UmapExploration",
+            pipeline: UmapExploration.Create,
+            configurationSection: "Flowthru:Pipelines:UmapExploration"
+          )
+          .WithDescription(
+            "Explores UMAP hyperparameter sensitivity through grid search visualization"
+          );
       }
     );
 

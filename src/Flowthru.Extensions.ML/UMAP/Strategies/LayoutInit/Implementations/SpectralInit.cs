@@ -23,16 +23,32 @@ public sealed class SpectralInit : ILayoutInitStrategy
     Random random
   )
   {
+    Console.WriteLine(
+      $"[SpectralInit] Starting layout initialization (n={graph.RowCount}, nComponents={nComponents})"
+    );
+
     ValidateInputs(graph, nComponents);
+
+    Console.WriteLine($"[SpectralInit] Validation passed, computing spectral embedding...");
 
     try
     {
       var embedding = ComputeSpectralEmbedding(graph, nComponents);
+
+      Console.WriteLine($"[SpectralInit] Spectral embedding computed, normalizing...");
+
       embedding = NormalizeAndNoisify(embedding, random);
+
+      Console.WriteLine($"[SpectralInit] Layout initialization completed successfully");
+
       return new LayoutInitResult(embedding, "spectral");
     }
-    catch (Exception)
+    catch (Exception ex)
     {
+      Console.WriteLine(
+        $"[SpectralInit] Exception during spectral embedding: {ex.Message}, falling back to random"
+      );
+
       // Fallback to random initialization for robustness
       var fallback = RandomFallback(graph.RowCount, nComponents, random);
       return new LayoutInitResult(fallback, "spectral-fallback-random");
@@ -69,6 +85,10 @@ public sealed class SpectralInit : ILayoutInitStrategy
     int nComponents
   )
   {
+    Console.WriteLine(
+      $"[SpectralInit.ComputeSpectralEmbedding] Building dense adjacency matrix (n={graph.RowCount})..."
+    );
+
     // Build double-precision adjacency matrix for robust eigendecomposition
     int n = graph.RowCount;
     var adjD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.Create(n, n, 0.0);
@@ -81,6 +101,8 @@ public sealed class SpectralInit : ILayoutInitStrategy
       adjD[i, j] = v;
     }
 
+    Console.WriteLine($"[SpectralInit.ComputeSpectralEmbedding] Building degree matrix...");
+
     // Degree matrix (double)
     var degreeD = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.CreateDiagonal(
       n,
@@ -91,11 +113,21 @@ public sealed class SpectralInit : ILayoutInitStrategy
       }
     );
 
+    Console.WriteLine($"[SpectralInit.ComputeSpectralEmbedding] Computing Laplacian...");
+
     // Unnormalized Laplacian L = D - A
     var lap = degreeD - adjD;
 
+    Console.WriteLine(
+      $"[SpectralInit.ComputeSpectralEmbedding] Computing eigendecomposition (this may take a while for n={n})..."
+    );
+
     // Use MathNet's Evd on symmetric matrix (double)
     var evd = lap.Evd();
+
+    Console.WriteLine(
+      $"[SpectralInit.ComputeSpectralEmbedding] Eigendecomposition complete, sorting eigenpairs..."
+    );
 
     // Collect eigenpairs and sort by eigenvalue ascending
     var eigenPairs =
