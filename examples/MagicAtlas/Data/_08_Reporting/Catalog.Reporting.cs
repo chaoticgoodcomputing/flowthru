@@ -251,4 +251,43 @@ public partial class Catalog
           filePath: $"{_basePath}/_08_Reporting/Datasets/UMAP/umap_grid_visualization.png"
         )
     );
+
+  /// <summary>
+  /// CardOutputDto with AST analysis results and diagnostics.
+  /// Persisted as JSON for review and debugging.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<MagicAstCardAnalysis>> MagicAstAnalysisResults =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Json<MagicAstCardAnalysis>(
+          label: "MagicAstAnalysisResults",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/MagicAST/analysis_results.json"
+        )
+    );
+
+  /// <summary>
+  /// Report of the most common parsing errors across all cards.
+  /// Aggregates error diagnostics by code and message, with examples.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<DiagnosticReport>> MagicAstErrorReport =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Json<DiagnosticReport>(
+          label: "MagicAstErrorReport",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/MagicAST/error_report.json"
+        )
+    );
+
+  /// <summary>
+  /// Report of the most common parsing warnings across all cards.
+  /// Aggregates warning diagnostics by code and message, with examples.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<DiagnosticReport>> MagicAstWarningReport =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Enumerable.Json<DiagnosticReport>(
+          label: "MagicAstWarningReport",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/MagicAST/warning_report.json"
+        )
+    );
 }

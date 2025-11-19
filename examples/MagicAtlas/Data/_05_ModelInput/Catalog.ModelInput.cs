@@ -1,4 +1,5 @@
 using Flowthru.Data;
+using MagicAST.DTOs;
 using MagicAtlas.Data._05_ModelInput.Schemas;
 
 namespace MagicAtlas.Data;
@@ -20,5 +21,14 @@ public partial class Catalog
           label: "EmbeddingModelOracleInput",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/embedding-model-oracle-input.csv"
         )
+    );
+
+  /// <summary>
+  /// CardInputDto for MagicAST parsing - mapped from CardCoreData.
+  /// In-memory only, not persisted to disk.
+  /// </summary>
+  public ICatalogEntry<IEnumerable<CardInputDto>> MagicAstCardInputs =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Enumerable.Memory<CardInputDto>(label: "MagicAstCardInputs")
     );
 }

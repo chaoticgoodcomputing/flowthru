@@ -5,6 +5,7 @@ using MagicAtlas.Pipelines.CardProcessing;
 using MagicAtlas.Pipelines.EmbeddingAnalytics;
 using MagicAtlas.Pipelines.EmbeddingReductions;
 using MagicAtlas.Pipelines.EmbeddingViz;
+using MagicAtlas.Pipelines.MagicAstTesting;
 using MagicAtlas.Pipelines.OracleExploration;
 using MagicAtlas.Pipelines.OracleTextEmebdding;
 using MagicAtlas.Pipelines.RulesProcessing;
@@ -77,6 +78,16 @@ public class Program
           )
           .WithDescription(
             "Explores UMAP hyperparameter sensitivity through grid search visualization"
+          );
+
+        builder
+          .RegisterPipelineWithConfiguration<Catalog, MagicAstTesting.Params>(
+            label: "MagicAST",
+            pipeline: MagicAstTesting.Create,
+            configurationSection: "Flowthru:Pipelines:MagicAstTesting"
+          )
+          .WithDescription(
+            "Tests MagicAST parsing by sampling cards and generating AST analysis with diagnostics"
           );
       }
     );
