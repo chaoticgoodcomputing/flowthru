@@ -61,7 +61,9 @@ public sealed class Diagnostic
   public string GetMessage()
   {
     if (_messageArgs.Length == 0)
+    {
       return Descriptor.MessageFormat;
+    }
 
     return string.Format(Descriptor.MessageFormat, _messageArgs);
   }

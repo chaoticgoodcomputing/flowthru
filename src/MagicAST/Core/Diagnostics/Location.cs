@@ -62,7 +62,9 @@ public sealed class Location
   public string GetSourceText()
   {
     if (SourceText == null || Kind == LocationKind.None)
+    {
       return string.Empty;
+    }
 
     return SourceText.GetSubText(SourceSpan);
   }
@@ -128,7 +130,9 @@ public sealed class Location
   public override string ToString()
   {
     if (Kind == LocationKind.None)
+    {
       return "None";
+    }
 
     var path = SourcePath ?? "<unknown>";
     // Display as 1-based for user friendliness

@@ -24,9 +24,14 @@ public readonly struct TextSpan : IEquatable<TextSpan>
   public TextSpan(int start, int length)
   {
     if (start < 0)
+    {
       throw new ArgumentOutOfRangeException(nameof(start));
+    }
+
     if (length < 0)
+    {
       throw new ArgumentOutOfRangeException(nameof(length));
+    }
 
     Start = start;
     Length = length;
@@ -64,9 +69,14 @@ public readonly struct LinePosition : IEquatable<LinePosition>, IComparable<Line
   public LinePosition(int line, int character)
   {
     if (line < 0)
+    {
       throw new ArgumentOutOfRangeException(nameof(line));
+    }
+
     if (character < 0)
+    {
       throw new ArgumentOutOfRangeException(nameof(character));
+    }
 
     Line = line;
     Character = character;
@@ -82,7 +92,9 @@ public readonly struct LinePosition : IEquatable<LinePosition>, IComparable<Line
   {
     var lineComparison = Line.CompareTo(other.Line);
     if (lineComparison != 0)
+    {
       return lineComparison;
+    }
 
     return Character.CompareTo(other.Character);
   }
@@ -122,7 +134,9 @@ public readonly struct LinePositionSpan : IEquatable<LinePositionSpan>
   public LinePositionSpan(LinePosition start, LinePosition end)
   {
     if (end < start)
+    {
       throw new ArgumentException("End position must be >= start position");
+    }
 
     Start = start;
     End = end;

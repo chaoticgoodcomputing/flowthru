@@ -17,7 +17,9 @@ public sealed class DiagnosticBag
   public void Add(Diagnostic diagnostic)
   {
     if (diagnostic == null)
+    {
       throw new ArgumentNullException(nameof(diagnostic));
+    }
 
     _diagnostics.Add(diagnostic);
   }
@@ -28,10 +30,14 @@ public sealed class DiagnosticBag
   public void AddRange(IEnumerable<Diagnostic> diagnostics)
   {
     if (diagnostics == null)
+    {
       throw new ArgumentNullException(nameof(diagnostics));
+    }
 
     foreach (var d in diagnostics)
+    {
       _diagnostics.Add(d);
+    }
   }
 
   /// <summary>
