@@ -1,5 +1,5 @@
-using MagicAST.Core.AST;
 using MagicAST.Core.AST.Nodes;
+using MagicAST.Core.Diagnostics;
 
 namespace MagicAST.DTOs;
 

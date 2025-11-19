@@ -76,13 +76,14 @@ public class JsonSerializationVisitor : ASTVisitor<JsonNode?>
         var diagObj = new JsonObject
         {
           ["severity"] = diagnostic.Severity.ToString(),
-          ["code"] = diagnostic.Code,
-          ["message"] = diagnostic.Message,
+          ["code"] = diagnostic.Id,
+          ["message"] = diagnostic.GetMessage(),
         };
 
-        if (diagnostic.SourceText != null)
+        var sourceText = diagnostic.Location?.GetSourceText();
+        if (!string.IsNullOrEmpty(sourceText))
         {
-          diagObj["sourceText"] = diagnostic.SourceText;
+          diagObj["sourceText"] = sourceText;
         }
 
         diagnostics.Add(diagObj);

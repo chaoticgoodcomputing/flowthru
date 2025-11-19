@@ -27,7 +27,7 @@ public static class CardNodeExtensions
     {
       Name = cardNode.Name,
       Ast = astNodeDto,
-      Diagnostics = cardNode.Diagnostics.Select(DiagnosticDto.FromParseDiagnostic).ToList(),
+      Diagnostics = cardNode.Diagnostics.Select(DiagnosticDto.FromDiagnostic).ToList(),
     };
   }
 }

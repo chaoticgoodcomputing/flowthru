@@ -2,6 +2,7 @@ using MagicAST.Core.AST;
 using MagicAST.Core.AST.Nodes;
 using MagicAST.Core.AST.Nodes.Abilities;
 using MagicAST.Core.CardTypes;
+using MagicAST.Core.Diagnostics;
 using MagicAST.Core.ManaSystem;
 using MagicAST.DTOs;
 
@@ -29,7 +30,8 @@ public static class CardParser
   /// </remarks>
   public static CardNode Parse(CardInputDto input)
   {
-    var diagnostics = new List<ParseDiagnostic>();
+    var diagnostics = new DiagnosticBag();
+    var sourceText = SourceText.From(input.OracleText ?? string.Empty);
 
     // Parse mana cost
     ManaCost? manaCost = null;
@@ -41,13 +43,14 @@ public static class CardParser
       }
       catch (Exception ex)
       {
-        diagnostics.Add(
-          ParseDiagnostic.Error(
-            "AST001",
-            $"Failed to parse mana cost: {ex.Message}",
-            input.ManaCost
-          )
+        var manaCostSource = SourceText.From(input.ManaCost);
+        var location = Location.Create(
+          manaCostSource,
+          new TextSpan(0, input.ManaCost.Length),
+          input.Name
         );
+
+        diagnostics.Report(Descriptors.InvalidManaCost, location, ex.Message);
       }
     }
 
@@ -59,9 +62,15 @@ public static class CardParser
     }
     catch (Exception ex)
     {
-      diagnostics.Add(
-        ParseDiagnostic.Error("AST002", $"Failed to parse type line: {ex.Message}", input.TypeLine)
+      var typeLineSource = SourceText.From(input.TypeLine);
+      var location = Location.Create(
+        typeLineSource,
+        new TextSpan(0, input.TypeLine.Length),
+        input.Name
       );
+
+      diagnostics.Report(Descriptors.InvalidTypeLine, location, ex.Message);
+
       // Provide a minimal fallback type line
       typeLine = new TypeLine { CardTypes = new List<CardType>() };
     }
@@ -77,13 +86,11 @@ public static class CardParser
       }
       catch (Exception ex)
       {
-        diagnostics.Add(
-          ParseDiagnostic.Warning(
-            "AST003",
-            $"Failed to parse power/toughness: {ex.Message}",
-            $"{input.Power}/{input.Toughness}"
-          )
-        );
+        var ptString = $"{input.Power}/{input.Toughness}";
+        var ptSource = SourceText.From(ptString);
+        var location = Location.Create(ptSource, new TextSpan(0, ptString.Length), input.Name);
+
+        diagnostics.Report(Descriptors.InvalidPowerToughness, location, ex.Message);
       }
     }
 
@@ -91,13 +98,13 @@ public static class CardParser
     // For now, we stub this with a diagnostic if oracle text exists
     if (!string.IsNullOrEmpty(input.OracleText))
     {
-      diagnostics.Add(
-        ParseDiagnostic.Error(
-          "AST999",
-          "Oracle text parsing not yet implemented - abilities list will be empty",
-          input.OracleText
-        )
+      var location = Location.Create(
+        sourceText,
+        new TextSpan(0, input.OracleText.Length),
+        input.Name
       );
+
+      diagnostics.Report(Descriptors.OracleTextNotImplemented, location);
     }
 
     // Construct the CardNode
@@ -108,7 +115,7 @@ public static class CardParser
       TypeLine = typeLine,
       PowerToughness = powerToughness,
       Abilities = new List<AbilityNode>(), // Empty for now
-      Diagnostics = diagnostics,
+      Diagnostics = diagnostics.ToImmutableArray().ToList(),
     };
   }
 }

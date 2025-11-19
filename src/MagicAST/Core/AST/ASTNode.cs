@@ -1,4 +1,5 @@
 using MagicAST.Core.AST.Visitors;
+using MagicAST.Core.Diagnostics;
 
 namespace MagicAST.Core.AST;
 
@@ -15,9 +16,9 @@ public abstract class ASTNode
   public string? SourceText { get; set; }
 
   /// <summary>
-  /// Location in source file (line and column numbers).
+  /// Location in source file.
   /// </summary>
-  public SourceLocation? Location { get; set; }
+  public Location? Location { get; set; }
 
   /// <summary>
   /// Extensibility point for custom metadata.

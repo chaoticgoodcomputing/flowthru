@@ -3,6 +3,7 @@ using MagicAST.Core.AST;
 using MagicAST.Core.AST.Nodes;
 using MagicAST.Core.AST.Visitors;
 using MagicAST.Core.CardTypes;
+using MagicAST.Core.Diagnostics;
 using MagicAST.Core.ManaSystem;
 using MagicAST.DTOs;
 using MagicAtlas.Data._08_Reporting.Schemas;

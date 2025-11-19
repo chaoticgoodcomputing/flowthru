@@ -1,4 +1,4 @@
-using MagicAST.Core.AST;
+using MagicAST.Core.Diagnostics;
 
 namespace MagicAST.DTOs;
 
@@ -55,16 +55,16 @@ public record DiagnosticDto
   public string? SourceText { get; init; }
 
   /// <summary>
-  /// Creates a DiagnosticDto from a ParseDiagnostic.
+  /// Creates a DiagnosticDto from a Diagnostic.
   /// </summary>
-  public static DiagnosticDto FromParseDiagnostic(ParseDiagnostic diagnostic)
+  public static DiagnosticDto FromDiagnostic(Diagnostic diagnostic)
   {
     return new DiagnosticDto
     {
       Severity = diagnostic.Severity.ToString(),
-      Code = diagnostic.Code,
-      Message = diagnostic.Message,
-      SourceText = diagnostic.SourceText,
+      Code = diagnostic.Id,
+      Message = diagnostic.GetMessage(),
+      SourceText = diagnostic.Location?.GetSourceText() ?? string.Empty,
     };
   }
 }

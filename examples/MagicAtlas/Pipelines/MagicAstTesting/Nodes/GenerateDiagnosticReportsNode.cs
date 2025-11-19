@@ -1,5 +1,6 @@
 using MagicAST.Core;
 using MagicAST.Core.AST;
+using MagicAST.Core.Diagnostics;
 using MagicAST.DTOs;
 using MagicAtlas.Data._08_Reporting.Schemas;
 
@@ -51,14 +52,15 @@ public static class GenerateDiagnosticReportsNode
 
         foreach (var diagnostic in cardNode.Diagnostics)
         {
-          var key = (diagnostic.Code, diagnostic.Message, diagnostic.Severity);
+          var key = (diagnostic.Id, diagnostic.GetMessage(), diagnostic.Severity);
 
           if (!diagnosticsByCodeAndMessage.ContainsKey(key))
           {
             diagnosticsByCodeAndMessage[key] = new List<(string, string?)>();
           }
 
-          diagnosticsByCodeAndMessage[key].Add((cardInput.Name, diagnostic.SourceText));
+          diagnosticsByCodeAndMessage[key]
+            .Add((cardInput.Name, diagnostic.Location?.GetSourceText()));
         }
       }
 
