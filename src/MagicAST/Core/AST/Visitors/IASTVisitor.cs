@@ -71,6 +71,16 @@ public interface IASTVisitor<T>
   T VisitDrawEffect(DrawEffect node);
 
   /// <summary>
+  /// Visit a GainLifeEffect.
+  /// </summary>
+  T VisitGainLifeEffect(GainLifeEffect node);
+
+  /// <summary>
+  /// Visit a LoseLifeEffect.
+  /// </summary>
+  T VisitLoseLifeEffect(LoseLifeEffect node);
+
+  /// <summary>
   /// Visit a StaticValue.
   /// </summary>
   T VisitStaticValue(StaticValue node);

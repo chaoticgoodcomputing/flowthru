@@ -50,6 +50,10 @@ public abstract class ASTVisitor<T> : IASTVisitor<T>
 
   public virtual T VisitDrawEffect(DrawEffect node) => DefaultVisit(node);
 
+  public virtual T VisitGainLifeEffect(GainLifeEffect node) => DefaultVisit(node);
+
+  public virtual T VisitLoseLifeEffect(LoseLifeEffect node) => DefaultVisit(node);
+
   public virtual T VisitStaticValue(StaticValue node) => DefaultVisit(node);
 
   public virtual T VisitVariableValue(VariableValue node) => DefaultVisit(node);

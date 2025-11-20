@@ -31,6 +31,18 @@ public record DiagnosticReport : ITextSerializable, IStructuredSerializable, INe
   /// Limited to a reasonable number for review.
   /// </summary>
   public required List<DiagnosticExample> Examples { get; init; }
+
+  /// <summary>
+  /// Total number of cards analyzed.
+  /// </summary>
+  public required int TotalCards { get; init; }
+
+  /// <summary>
+  /// Percentage of cards successfully parsed without this diagnostic (0-100).
+  /// For error reports: percentage without errors.
+  /// For warning reports: percentage without warnings.
+  /// </summary>
+  public required double PercentageSuccessful { get; init; }
 }
 
 /// <summary>

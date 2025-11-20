@@ -30,4 +30,23 @@ public static class CardNodeExtensions
       Diagnostics = cardNode.Diagnostics.Select(DiagnosticDto.FromDiagnostic).ToList(),
     };
   }
+
+  /// <summary>
+  /// Converts a CardNode to a CardOutputDto for pipeline output.
+  /// </summary>
+  /// <param name="cardNode">The CardNode to convert.</param>
+  /// <returns>A CardOutputDto with AST and diagnostics.</returns>
+  public static CardOutputDto ToCardOutputDto(this CardNode cardNode)
+  {
+    var hasErrors = cardNode.Diagnostics.Any(d =>
+      d.Severity == Core.Diagnostics.DiagnosticSeverity.Error
+    );
+
+    return new CardOutputDto
+    {
+      AST = cardNode.AsDto(),
+      Diagnostics = cardNode.Diagnostics.Select(DiagnosticDto.FromDiagnostic).ToList(),
+      ParseSucceeded = !hasErrors,
+    };
+  }
 }

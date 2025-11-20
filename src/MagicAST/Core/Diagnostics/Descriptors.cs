@@ -116,7 +116,7 @@ public static class Descriptors
       title: "Unknown ability pattern",
       messageFormat: "Could not parse ability: {0}",
       category: "Parsing",
-      defaultSeverity: DiagnosticSeverity.Warning
+      defaultSeverity: DiagnosticSeverity.Error
     );
 
   public static readonly DiagnosticDescriptor UnsupportedKeyword =
@@ -125,7 +125,7 @@ public static class Descriptors
       title: "Unsupported keyword",
       messageFormat: "Keyword '{0}' is not yet supported",
       category: "Parsing",
-      defaultSeverity: DiagnosticSeverity.Warning
+      defaultSeverity: DiagnosticSeverity.Error
     );
 
   public static readonly DiagnosticDescriptor ComplexAbilityApproximated =

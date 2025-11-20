@@ -228,6 +228,34 @@ public class DtoSerializationVisitor : ASTVisitor<AstNodeDto>
     };
   }
 
+  public override AstNodeDto VisitGainLifeEffect(GainLifeEffect node)
+  {
+    var properties = new Dictionary<string, object?> { ["target"] = node.Target.ToString() };
+
+    var children = new List<AstNodeDto> { node.Amount.Accept(this) };
+
+    return new AstNodeDto
+    {
+      NodeType = "GainLife",
+      Properties = properties,
+      Children = children,
+    };
+  }
+
+  public override AstNodeDto VisitLoseLifeEffect(LoseLifeEffect node)
+  {
+    var properties = new Dictionary<string, object?> { ["target"] = node.Target.ToString() };
+
+    var children = new List<AstNodeDto> { node.Amount.Accept(this) };
+
+    return new AstNodeDto
+    {
+      NodeType = "LoseLife",
+      Properties = properties,
+      Children = children,
+    };
+  }
+
   // Expression nodes
   public override AstNodeDto VisitStaticValue(StaticValue node)
   {

@@ -4,6 +4,7 @@ using MagicAST.Core.AST.Nodes.Abilities;
 using MagicAST.Core.CardTypes;
 using MagicAST.Core.Diagnostics;
 using MagicAST.Core.ManaSystem;
+using MagicAST.Core.Parsing;
 using MagicAST.DTOs;
 
 namespace MagicAST.Core;
@@ -94,17 +95,18 @@ public static class CardParser
       }
     }
 
-    // TODO: Parse oracle text into abilities
-    // For now, we stub this with a diagnostic if oracle text exists
+    // Parse oracle text into abilities (Phase 0: keywords only)
+    List<AbilityNode> abilities = new();
     if (!string.IsNullOrEmpty(input.OracleText))
     {
-      var location = Location.Create(
-        sourceText,
-        new TextSpan(0, input.OracleText.Length),
-        input.Name
-      );
+      var parseResult = Parsing.OracleTextParser.Parse(input.OracleText, input.Name);
+      abilities = parseResult.Abilities;
 
-      diagnostics.Report(Descriptors.OracleTextNotImplemented, location);
+      // Add parsing diagnostics
+      foreach (var diagnostic in parseResult.Diagnostics)
+      {
+        diagnostics.Add(diagnostic);
+      }
     }
 
     // Construct the CardNode
@@ -114,7 +116,7 @@ public static class CardParser
       ManaCost = manaCost,
       TypeLine = typeLine,
       PowerToughness = powerToughness,
-      Abilities = new List<AbilityNode>(), // Empty for now
+      Abilities = abilities,
       Diagnostics = diagnostics.ToImmutableArray().ToList(),
     };
   }

@@ -70,4 +70,24 @@ public enum EventType
   /// At the end of a phase/step.
   /// </summary>
   PhaseEnd,
+
+  /// <summary>
+  /// When a spell is cast.
+  /// </summary>
+  SpellCast,
+
+  /// <summary>
+  /// When a permanent becomes tapped.
+  /// </summary>
+  BecomesTapped,
+
+  /// <summary>
+  /// When a permanent becomes untapped.
+  /// </summary>
+  BecomesUntapped,
+
+  /// <summary>
+  /// When damage is dealt.
+  /// </summary>
+  DamageDealt,
 }

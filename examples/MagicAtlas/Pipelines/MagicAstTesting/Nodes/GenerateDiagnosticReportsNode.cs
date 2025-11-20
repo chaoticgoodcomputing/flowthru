@@ -39,6 +39,9 @@ public static class GenerateDiagnosticReportsNode
 
     return async (inputs) =>
     {
+      var inputList = inputs.ToList();
+      var totalCards = inputList.Count;
+
       // Parse all cards and collect diagnostics
       var diagnosticsByCodeAndMessage =
         new Dictionary<
@@ -46,7 +49,7 @@ public static class GenerateDiagnosticReportsNode
           List<(string CardName, string? SourceText)>
         >();
 
-      foreach (var cardInput in inputs)
+      foreach (var cardInput in inputList)
       {
         var cardNode = CardParser.Parse(cardInput);
 
@@ -74,6 +77,9 @@ public static class GenerateDiagnosticReportsNode
           Code = kvp.Key.Code,
           Message = kvp.Key.Message,
           Count = kvp.Value.Count,
+          TotalCards = totalCards,
+          PercentageSuccessful =
+            totalCards > 0 ? ((totalCards - kvp.Value.Count) * 100.0 / totalCards) : 100.0,
           Examples = kvp
             .Value.Take(config.MaxExamplesPerDiagnostic)
             .Select(example => new DiagnosticExample
@@ -95,6 +101,9 @@ public static class GenerateDiagnosticReportsNode
           Code = kvp.Key.Code,
           Message = kvp.Key.Message,
           Count = kvp.Value.Count,
+          TotalCards = totalCards,
+          PercentageSuccessful =
+            totalCards > 0 ? ((totalCards - kvp.Value.Count) * 100.0 / totalCards) : 100.0,
           Examples = kvp
             .Value.Take(config.MaxExamplesPerDiagnostic)
             .Select(example => new DiagnosticExample
