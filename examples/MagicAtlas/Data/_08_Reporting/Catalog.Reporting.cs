@@ -266,26 +266,26 @@ public partial class Catalog
     );
 
   /// <summary>
-  /// Report of the most common parsing errors across all cards.
-  /// Aggregates error diagnostics by code and message, with examples.
+  /// Comprehensive parsing report for errors across all cards.
+  /// Includes card-level and ability-level statistics with categorized error patterns.
   /// </summary>
-  public ICatalogEntry<IEnumerable<DiagnosticReport>> MagicAstErrorReport =>
+  public ICatalogEntry<MagicAstParsingReport> MagicAstErrorReport =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.Json<DiagnosticReport>(
+        CatalogEntries.Single.Json<MagicAstParsingReport>(
           label: "MagicAstErrorReport",
           filePath: $"{_basePath}/_08_Reporting/Datasets/MagicAST/error_report.json"
         )
     );
 
   /// <summary>
-  /// Report of the most common parsing warnings across all cards.
-  /// Aggregates warning diagnostics by code and message, with examples.
+  /// Comprehensive parsing report for warnings across all cards.
+  /// Includes card-level and ability-level statistics with categorized warning patterns.
   /// </summary>
-  public ICatalogEntry<IEnumerable<DiagnosticReport>> MagicAstWarningReport =>
+  public ICatalogEntry<MagicAstParsingReport> MagicAstWarningReport =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.Json<DiagnosticReport>(
+        CatalogEntries.Single.Json<MagicAstParsingReport>(
           label: "MagicAstWarningReport",
           filePath: $"{_basePath}/_08_Reporting/Datasets/MagicAST/warning_report.json"
         )

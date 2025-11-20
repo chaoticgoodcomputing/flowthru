@@ -1,5 +1,7 @@
 using MagicAST.Core;
 using MagicAST.Core.AST;
+using MagicAST.Core.AST.Nodes;
+using MagicAST.Core.AST.Nodes.Abilities;
 using MagicAST.Core.Diagnostics;
 using MagicAST.DTOs;
 using MagicAtlas.Data._08_Reporting.Schemas;
@@ -17,14 +19,14 @@ public static class GenerateDiagnosticReportsNode
   public record Params
   {
     /// <summary>
-    /// Maximum number of examples to include per diagnostic. Default: 5.
+    /// Maximum number of examples to include per diagnostic. Default: 3.
     /// </summary>
     public int MaxExamplesPerDiagnostic { get; init; } = 3;
 
     /// <summary>
-    /// Maximum number of top diagnostics to include in each report. Default: 20.
+    /// Maximum number of top diagnostics to include per ability type in reports. Default: 3.
     /// </summary>
-    public int TopDiagnosticsCount { get; init; } = 10;
+    public int TopDiagnosticsPerAbilityType { get; init; } = 3;
   }
 
   /// <summary>
@@ -32,7 +34,7 @@ public static class GenerateDiagnosticReportsNode
   /// </summary>
   public static Func<
     IEnumerable<CardInputDto>,
-    Task<(IEnumerable<DiagnosticReport> Errors, IEnumerable<DiagnosticReport> Warnings)>
+    Task<(MagicAstParsingReport Errors, MagicAstParsingReport Warnings)>
   > Create(Params? parameters = null)
   {
     var config = parameters ?? new Params();
@@ -42,82 +44,293 @@ public static class GenerateDiagnosticReportsNode
       var inputList = inputs.ToList();
       var totalCards = inputList.Count;
 
-      // Parse all cards and collect diagnostics
-      var diagnosticsByCodeAndMessage =
-        new Dictionary<
-          (string Code, string Message, DiagnosticSeverity Severity),
-          List<(string CardName, string? SourceText)>
-        >();
+      // Parse all cards and collect full card data
+      var parsedCards = new List<(CardInputDto Input, CardNode Node)>();
 
       foreach (var cardInput in inputList)
       {
         var cardNode = CardParser.Parse(cardInput);
-
-        foreach (var diagnostic in cardNode.Diagnostics)
-        {
-          var key = (diagnostic.Id, diagnostic.GetMessage(), diagnostic.Severity);
-
-          if (!diagnosticsByCodeAndMessage.ContainsKey(key))
-          {
-            diagnosticsByCodeAndMessage[key] = new List<(string, string?)>();
-          }
-
-          diagnosticsByCodeAndMessage[key]
-            .Add((cardInput.Name, diagnostic.Location?.GetSourceText()));
-        }
+        parsedCards.Add((cardInput, cardNode));
       }
 
-      // Generate error report
-      var errorReports = diagnosticsByCodeAndMessage
-        .Where(kvp => kvp.Key.Severity == DiagnosticSeverity.Error)
-        .OrderByDescending(kvp => kvp.Value.Count)
-        .Take(config.TopDiagnosticsCount)
-        .Select(kvp => new DiagnosticReport
-        {
-          Code = kvp.Key.Code,
-          Message = kvp.Key.Message,
-          Count = kvp.Value.Count,
-          TotalCards = totalCards,
-          PercentageSuccessful =
-            totalCards > 0 ? ((totalCards - kvp.Value.Count) * 100.0 / totalCards) : 100.0,
-          Examples = kvp
-            .Value.Take(config.MaxExamplesPerDiagnostic)
-            .Select(example => new DiagnosticExample
-            {
-              CardName = example.CardName,
-              SourceText = example.SourceText,
-            })
-            .ToList(),
-        })
-        .ToList();
-
-      // Generate warning report
-      var warningReports = diagnosticsByCodeAndMessage
-        .Where(kvp => kvp.Key.Severity == DiagnosticSeverity.Warning)
-        .OrderByDescending(kvp => kvp.Value.Count)
-        .Take(config.TopDiagnosticsCount)
-        .Select(kvp => new DiagnosticReport
-        {
-          Code = kvp.Key.Code,
-          Message = kvp.Key.Message,
-          Count = kvp.Value.Count,
-          TotalCards = totalCards,
-          PercentageSuccessful =
-            totalCards > 0 ? ((totalCards - kvp.Value.Count) * 100.0 / totalCards) : 100.0,
-          Examples = kvp
-            .Value.Take(config.MaxExamplesPerDiagnostic)
-            .Select(example => new DiagnosticExample
-            {
-              CardName = example.CardName,
-              SourceText = example.SourceText,
-            })
-            .ToList(),
-        })
-        .ToList();
-
-      return await Task.FromResult<(IEnumerable<DiagnosticReport>, IEnumerable<DiagnosticReport>)>(
-        (errorReports, warningReports)
+      // Calculate card-level statistics
+      var fullyParsedCards = parsedCards.Count(c =>
+        c.Node.Diagnostics.All(d => d.Severity != DiagnosticSeverity.Error)
       );
+      var cardsWithErrors = parsedCards.Count(c =>
+        c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
+      );
+      var partiallyParsedCards = parsedCards.Count(c =>
+        c.Node.Abilities.Count > 0
+        && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
+      );
+      var unparsedCards = parsedCards.Count(c =>
+        c.Node.Abilities.Count == 0
+        && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
+      );
+
+      // Collect ability-level statistics by type
+      var keywordAbilities = parsedCards
+        .SelectMany(c => c.Node.Abilities.OfType<KeywordAbilityNode>())
+        .ToList();
+      var activatedAbilities = parsedCards
+        .SelectMany(c => c.Node.Abilities.OfType<ActivatedAbilityNode>())
+        .ToList();
+      var triggeredAbilities = parsedCards
+        .SelectMany(c => c.Node.Abilities.OfType<TriggeredAbilityNode>())
+        .ToList();
+
+      var totalAbilities =
+        keywordAbilities.Count + activatedAbilities.Count + triggeredAbilities.Count;
+
+      // Collect diagnostics by severity and ability type
+      var errorDiagnostics = parsedCards
+        .SelectMany(c =>
+          c.Node.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)
+            .Select(d => (Card: c.Input.Name, Diagnostic: d))
+        )
+        .ToList();
+
+      var warningDiagnostics = parsedCards
+        .SelectMany(c =>
+          c.Node.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning)
+            .Select(d => (Card: c.Input.Name, Diagnostic: d))
+        )
+        .ToList();
+
+      // Categorize errors by ability type
+      var errorsByType = CategorizeErrorsByAbilityType(errorDiagnostics, config);
+      var warningsByType = CategorizeErrorsByAbilityType(warningDiagnostics, config);
+
+      // Count failed abilities per category from diagnostics
+      var failedKeywordCount = errorsByType.KeywordAbilities.Sum(e => e.Count);
+      var failedActivatedCount = errorsByType.ActivatedAbilities.Sum(e => e.Count);
+      var failedTriggeredCount = errorsByType.TriggeredAbilities.Sum(e => e.Count);
+      var failedStaticCount = errorsByType.StaticAbilities.Sum(e => e.Count);
+
+      var totalFailedAbilities =
+        failedKeywordCount + failedActivatedCount + failedTriggeredCount + failedStaticCount;
+
+      var errorReport = new MagicAstParsingReport
+      {
+        CardStatistics = new CardLevelStatistics
+        {
+          TotalCards = totalCards,
+          FullyParsedCards = fullyParsedCards,
+          PartiallyParsedCards = partiallyParsedCards,
+          UnparsedCards = unparsedCards,
+        },
+        AbilityStatistics = new AbilityLevelStatistics
+        {
+          TotalAbilities = totalAbilities + totalFailedAbilities,
+          ParsedAbilities = totalAbilities,
+          FailedAbilities = totalFailedAbilities,
+          ByCategory = new AbilityCategoryBreakdown
+          {
+            KeywordAbilities = new AbilityCategoryStatistics
+            {
+              Total = keywordAbilities.Count + failedKeywordCount,
+              Parsed = keywordAbilities.Count,
+              Failed = failedKeywordCount,
+            },
+            ActivatedAbilities = new AbilityCategoryStatistics
+            {
+              Total = activatedAbilities.Count + failedActivatedCount,
+              Parsed = activatedAbilities.Count,
+              Failed = failedActivatedCount,
+            },
+            TriggeredAbilities = new AbilityCategoryStatistics
+            {
+              Total = triggeredAbilities.Count + failedTriggeredCount,
+              Parsed = triggeredAbilities.Count,
+              Failed = failedTriggeredCount,
+            },
+            StaticAbilities = new AbilityCategoryStatistics
+            {
+              Total = failedStaticCount, // No parsed static abilities yet
+              Parsed = 0,
+              Failed = failedStaticCount,
+            },
+          },
+        },
+        ErrorsByAbilityType = errorsByType,
+      };
+
+      var warningReport = new MagicAstParsingReport
+      {
+        CardStatistics = new CardLevelStatistics
+        {
+          TotalCards = totalCards,
+          FullyParsedCards = parsedCards.Count(c =>
+            c.Node.Diagnostics.All(d => d.Severity != DiagnosticSeverity.Warning)
+          ),
+          PartiallyParsedCards = parsedCards.Count(c =>
+            c.Node.Abilities.Count > 0
+            && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Warning)
+          ),
+          UnparsedCards = parsedCards.Count(c =>
+            c.Node.Abilities.Count == 0
+            && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Warning)
+          ),
+        },
+        AbilityStatistics = new AbilityLevelStatistics
+        {
+          TotalAbilities = totalAbilities,
+          ParsedAbilities = totalAbilities,
+          FailedAbilities = 0,
+          ByCategory = new AbilityCategoryBreakdown
+          {
+            KeywordAbilities = new AbilityCategoryStatistics
+            {
+              Total = keywordAbilities.Count,
+              Parsed = keywordAbilities.Count,
+              Failed = 0,
+            },
+            ActivatedAbilities = new AbilityCategoryStatistics
+            {
+              Total = activatedAbilities.Count,
+              Parsed = activatedAbilities.Count,
+              Failed = 0,
+            },
+            TriggeredAbilities = new AbilityCategoryStatistics
+            {
+              Total = triggeredAbilities.Count,
+              Parsed = triggeredAbilities.Count,
+              Failed = 0,
+            },
+            StaticAbilities = new AbilityCategoryStatistics
+            {
+              Total = 0,
+              Parsed = 0,
+              Failed = 0,
+            },
+          },
+        },
+        ErrorsByAbilityType = warningsByType,
+      };
+
+      return await Task.FromResult((errorReport, warningReport));
     };
+  }
+
+  /// <summary>
+  /// Categorizes diagnostics by ability type based on heuristics from the error message.
+  /// </summary>
+  private static AbilityTypeErrors CategorizeErrorsByAbilityType(
+    List<(string Card, Diagnostic Diagnostic)> diagnostics,
+    Params config
+  )
+  {
+    var keywordErrors =
+      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+    var activatedErrors =
+      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+    var triggeredErrors =
+      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+    var staticErrors =
+      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+
+    foreach (var (card, diagnostic) in diagnostics)
+    {
+      var sourceText = diagnostic.Location?.GetSourceText() ?? "";
+      var key = (diagnostic.Id, diagnostic.GetMessage());
+      var example = (card, sourceText);
+
+      // Categorize based on source text patterns
+      if (IsTriggeredAbility(sourceText))
+      {
+        if (!triggeredErrors.ContainsKey(key))
+        {
+          triggeredErrors[key] = new List<(string, string)>();
+        }
+        triggeredErrors[key].Add(example);
+      }
+      else if (IsActivatedAbility(sourceText))
+      {
+        if (!activatedErrors.ContainsKey(key))
+        {
+          activatedErrors[key] = new List<(string, string)>();
+        }
+        activatedErrors[key].Add(example);
+      }
+      else if (IsStaticAbility(sourceText))
+      {
+        if (!staticErrors.ContainsKey(key))
+        {
+          staticErrors[key] = new List<(string, string)>();
+        }
+        staticErrors[key].Add(example);
+      }
+      else
+      {
+        // Default to keyword if unclear
+        if (!keywordErrors.ContainsKey(key))
+        {
+          keywordErrors[key] = new List<(string, string)>();
+        }
+        keywordErrors[key].Add(example);
+      }
+    }
+
+    return new AbilityTypeErrors
+    {
+      KeywordAbilities = BuildErrorPatterns(keywordErrors, config, diagnostics.Count),
+      ActivatedAbilities = BuildErrorPatterns(activatedErrors, config, diagnostics.Count),
+      TriggeredAbilities = BuildErrorPatterns(triggeredErrors, config, diagnostics.Count),
+      StaticAbilities = BuildErrorPatterns(staticErrors, config, diagnostics.Count),
+    };
+  }
+
+  private static List<AbilityErrorPattern> BuildErrorPatterns(
+    Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>> errors,
+    Params config,
+    int totalDiagnostics
+  )
+  {
+    return errors
+      .OrderByDescending(kvp => kvp.Value.Count)
+      .Take(config.TopDiagnosticsPerAbilityType)
+      .Select(kvp => new AbilityErrorPattern
+      {
+        Code = kvp.Key.Code,
+        Message = kvp.Key.Message,
+        Count = kvp.Value.Count,
+        PercentageOfCategory =
+          totalDiagnostics > 0 ? (kvp.Value.Count * 100.0 / totalDiagnostics) : 0.0,
+        Examples = kvp
+          .Value.Take(config.MaxExamplesPerDiagnostic)
+          .Select(e => new AbilityErrorExample
+          {
+            CardName = e.CardName,
+            AbilityText = e.AbilityText,
+          })
+          .ToList(),
+      })
+      .ToList();
+  }
+
+  private static bool IsTriggeredAbility(string text)
+  {
+    return text.StartsWith("When ", StringComparison.OrdinalIgnoreCase)
+      || text.StartsWith("Whenever ", StringComparison.OrdinalIgnoreCase)
+      || text.StartsWith("At ", StringComparison.OrdinalIgnoreCase);
+  }
+
+  private static bool IsActivatedAbility(string text)
+  {
+    // Contains colon but not a triggered ability
+    return text.Contains(':') && !IsTriggeredAbility(text) && !text.StartsWith("(");
+  }
+
+  private static bool IsStaticAbility(string text)
+  {
+    // Heuristics for static abilities
+    return text.Contains("Enchant ")
+      || text.Contains(" enters tapped")
+      || text.Contains(" can't ")
+      || text.Contains(" doesn't ")
+      || text.Contains(" get ")
+      || text.Contains("As long as")
+      || text.Contains(" has ");
   }
 }

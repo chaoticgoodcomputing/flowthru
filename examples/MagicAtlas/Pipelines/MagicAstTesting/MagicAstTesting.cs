@@ -26,14 +26,14 @@ public static class MagicAstTesting
     public int? RandomSeed { get; init; }
 
     /// <summary>
-    /// Maximum number of examples to include per diagnostic in reports. Default: 5.
+    /// Maximum number of examples to include per diagnostic in reports. Default: 3.
     /// </summary>
-    public int MaxExamplesPerDiagnostic { get; init; } = 5;
+    public int MaxExamplesPerDiagnostic { get; init; } = 3;
 
     /// <summary>
-    /// Maximum number of top diagnostics to include in each report. Default: 20.
+    /// Maximum number of top diagnostics to include per ability type. Default: 3.
     /// </summary>
-    public int TopDiagnosticsCount { get; init; } = 20;
+    public int TopDiagnosticsPerAbilityType { get; init; } = 3;
   }
 
   /// <summary>
@@ -75,7 +75,7 @@ public static class MagicAstTesting
           new GenerateDiagnosticReportsNode.Params
           {
             MaxExamplesPerDiagnostic = parameters.MaxExamplesPerDiagnostic,
-            TopDiagnosticsCount = parameters.TopDiagnosticsCount,
+            TopDiagnosticsPerAbilityType = parameters.TopDiagnosticsPerAbilityType,
           }
         ),
         input: catalog.MagicAstCardInputs,
