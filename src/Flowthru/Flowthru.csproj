@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru</RootNamespace>
@@ -32,7 +32,6 @@
     <PackageReference Include="Parquet.Net" Version="5.2.0" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     
     <!-- Data Annotations for validation -->
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
