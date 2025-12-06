@@ -53,23 +53,36 @@ public class MalformedParsedCardTests
   /// Test 2: Parser produces expected unparsed output.
   /// Parsing the input DTO (with malformed oracle text) should produce an AST
   /// containing UnparsedAbility/UnparsedEffect nodes that serialize to the expected output.
-  /// SNAPSHOT TEST: Uses Verify to track parser progress over time.
-  /// Mismatches indicate parser improvements needed, not necessarily bugs.
+  /// RATCHET ASSERTION: Compared against baseline to detect regressions only.
   /// </summary>
   [TestCaseSource(
     typeof(MalformedParsedTestCaseLoader),
     nameof(MalformedParsedTestCaseLoader.GetTestCaseData)
   )]
-  public Task Parser_ProducesExpectedUnparsedOutput(CardTestCase testCase)
+  public void Parser_ProducesExpectedUnparsedOutput(CardTestCase testCase)
   {
     // Arrange
     var input = testCase.GetInput();
     var parser = new CardParser();
+    var expectedNode = testCase.OutputNode;
 
     // Act
     var result = parser.Parse(input);
+    var actualJson = JsonSerializer.Serialize(result.Output, _testOptions);
+    var actualNode = JsonNode.Parse(actualJson);
+    var passed = JsonComparer.AreEqual(actualNode, expectedNode);
 
-    // Assert via Verify snapshot
-    return Verify(result.Output).UseParameters(testCase.Name);
+    // Record result in ratchet tracker
+    var testName = $"MalformedParsedCards/{testCase.Name}";
+    RatchetTestTracker.Instance.RecordResult(testName, passed);
+
+    // Assert - parser output must match expected output
+    Assert.That(
+      passed,
+      Is.True,
+      $"Parser output did not match expected output for {testCase.Name}.\n"
+        + $"Expected:\n{JsonComparer.FormatForDisplay(expectedNode)}\n\n"
+        + $"Actual:\n{JsonComparer.FormatForDisplay(actualNode)}"
+    );
   }
 }
