@@ -2,6 +2,7 @@ namespace MagicAST.Tests.Tests;
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using MagicAST.Parsing;
 using MagicAST.Tests.Infrastructure;
 
 /// <summary>
@@ -21,6 +22,7 @@ public class HandParsedCardTests
   /// Test 1: Round-trip serialization.
   /// Deserializing the output and re-serializing it should produce semantically identical JSON.
   /// This validates that our type definitions correctly model the expected output format.
+  /// HARD ASSERTION: Failure means the output format is unrepresentable by our types.
   /// </summary>
   [TestCaseSource(
     typeof(HandParsedTestCaseLoader),
@@ -49,33 +51,23 @@ public class HandParsedCardTests
   /// <summary>
   /// Test 2: Parser produces expected output.
   /// Parsing the input DTO should produce an AST that serializes to the expected output.
-  /// This validates the parser implementation.
+  /// SNAPSHOT TEST: Uses Verify to track parser progress over time.
+  /// Mismatches indicate parser improvements needed, not necessarily bugs.
   /// </summary>
   [TestCaseSource(
     typeof(HandParsedTestCaseLoader),
     nameof(HandParsedTestCaseLoader.GetTestCaseData)
   )]
-  [Ignore("Parser not yet implemented")]
-  public void Parser_ProducesExpectedOutput(CardTestCase testCase)
+  public Task Parser_ProducesExpectedOutput(CardTestCase testCase)
   {
     // Arrange
     var input = testCase.GetInput();
-    var expectedNode = testCase.OutputNode;
+    var parser = new CardParser();
 
     // Act
-    // TODO: Replace with actual parser call once implemented
-    // var result = MagicASTParser.Parse(input);
-    // var actualJson = JsonSerializer.Serialize(result.Output, _testOptions);
-    var actualJson = "{}"; // Placeholder
-    var actualNode = JsonNode.Parse(actualJson);
+    var result = parser.Parse(input);
 
-    // Assert - compare JSON structures
-    Assert.That(
-      JsonComparer.AreEqual(actualNode, expectedNode),
-      Is.True,
-      $"Parser output mismatch for {testCase.Name}.\n"
-        + $"Expected:\n{JsonComparer.FormatForDisplay(expectedNode)}\n\n"
-        + $"Actual:\n{JsonComparer.FormatForDisplay(actualNode)}"
-    );
+    // Assert via Verify snapshot
+    return Verify(result.Output).UseParameters(testCase.Name);
   }
 }

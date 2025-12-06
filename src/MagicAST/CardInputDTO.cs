@@ -71,6 +71,15 @@ public sealed record CardInputDTO
   public IReadOnlyList<string>? Colors { get; init; }
 
   /// <summary>
+  /// The card's color identity (for Commander format).
+  /// Includes all colors in mana cost and rules text.
+  /// Example: ["G"] or ["W", "U", "B"]
+  /// </summary>
+  [JsonPropertyName("colorIdentity")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public IReadOnlyList<string>? ColorIdentity { get; init; }
+
+  /// <summary>
   /// Keywords explicitly identified on the card by the data source.
   /// These may be used to assist parsing or validate results.
   /// Example: ["Forestwalk", "Flying"]

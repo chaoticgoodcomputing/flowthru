@@ -1,0 +1,123 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 5,
+      Raw: {3}{U}{U},
+      Symbols: [
+        {
+          GenericAmount: 3,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        },
+        {
+          Colors: [
+            Blue
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        },
+        {
+          Colors: [
+            Blue
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        U
+      ]
+    },
+    {
+      ColorIdentity: [
+        U
+      ]
+    }
+  ],
+  Name: Enthralling Hold,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 16,
+              Length: 16
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: UnparsedStatic,
+            RawText: Enchant creature,
+            Severity: Error
+          }
+        ],
+        RawText: Enchant creature,
+        SourceSpan: {
+          End: 16,
+          Length: 16
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 93,
+              Length: 76,
+              Start: 17
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: You can't choose an untapped creature as this spell's target as you cast it.,
+            Severity: Error
+          }
+        ],
+        RawText: You can't choose an untapped creature as this spell's target as you cast it.,
+        SourceSpan: {
+          End: 93,
+          Length: 76,
+          Start: 17
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 125,
+              Length: 31,
+              Start: 94
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: You control enchanted creature.,
+            Severity: Error
+          }
+        ],
+        RawText: You control enchanted creature.,
+        SourceSpan: {
+          End: 125,
+          Length: 31,
+          Start: 94
+        }
+      }
+    ],
+    RawText:
+Enchant creature
+You can't choose an untapped creature as this spell's target as you cast it.
+You control enchanted creature.
+  },
+  TypeLine: {
+    Raw: Enchantment — Aura,
+    Subtypes: [
+      Aura
+    ],
+    Types: [
+      Enchantment
+    ]
+  }
+}

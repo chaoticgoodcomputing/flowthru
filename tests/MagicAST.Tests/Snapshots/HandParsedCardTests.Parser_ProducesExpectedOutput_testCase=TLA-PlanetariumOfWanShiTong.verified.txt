@@ -1,0 +1,76 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 6,
+      Raw: {6},
+      Symbols: [
+        {
+          GenericAmount: 6,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        }
+      ]
+    }
+  ],
+  Name: Planetarium of Wan Shi Tong,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 17,
+              Length: 17
+            },
+            Message: Activated ability parser not yet implemented,
+            Pattern: UnparsedActivated,
+            RawText: {1}, {T}: Scry 2.,
+            Severity: Error
+          }
+        ],
+        RawText: {1}, {T}: Scry 2.,
+        SourceSpan: {
+          End: 17,
+          Length: 17
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 213,
+              Length: 195,
+              Start: 18
+            },
+            Message: Triggered ability parser not yet implemented,
+            Pattern: UnparsedTriggered,
+            RawText: Whenever you scry or surveil, look at the top card of your library. You may cast that card without paying its mana cost. Do this only once each turn. (Look at the card after you scry or surveil.),
+            Severity: Error
+          }
+        ],
+        RawText: Whenever you scry or surveil, look at the top card of your library. You may cast that card without paying its mana cost. Do this only once each turn. (Look at the card after you scry or surveil.),
+        SourceSpan: {
+          End: 213,
+          Length: 195,
+          Start: 18
+        }
+      }
+    ],
+    RawText:
+{1}, {T}: Scry 2.
+Whenever you scry or surveil, look at the top card of your library. You may cast that card without paying its mana cost. Do this only once each turn. (Look at the card after you scry or surveil.)
+  },
+  TypeLine: {
+    Raw: Legendary Artifact,
+    Supertypes: [
+      Legendary
+    ],
+    Types: [
+      Artifact
+    ]
+  }
+}

@@ -1,0 +1,127 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 4,
+      Raw: {3}{W},
+      Symbols: [
+        {
+          GenericAmount: 3,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        },
+        {
+          Colors: [
+            White
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        W
+      ]
+    },
+    {
+      ColorIdentity: [
+        W
+      ]
+    },
+    {
+      Power: {
+        Raw: 3,
+        Value: 3
+      },
+      Toughness: {
+        Raw: 4,
+        Value: 4
+      }
+    }
+  ],
+  Name: Basri's Lieutenant,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 39,
+              Length: 39
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: Vigilance, protection from multicolored,
+            Severity: Error
+          }
+        ],
+        RawText: Vigilance, protection from multicolored,
+        SourceSpan: {
+          End: 39,
+          Length: 39
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 118,
+              Length: 78,
+              Start: 40
+            },
+            Message: Failed to parse Unparsed ability,
+            Pattern: UnparsedUnparsed,
+            RawText: When this creature enters, put a +1/+1 counter on target creature you control.,
+            Severity: Error
+          }
+        ],
+        RawText: When this creature enters, put a +1/+1 counter on target creature you control.,
+        SourceSpan: {
+          End: 118,
+          Length: 78,
+          Start: 40
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 269,
+              Length: 150,
+              Start: 119
+            },
+            Message: Failed to parse Unparsed ability,
+            Pattern: UnparsedUnparsed,
+            RawText: Whenever this creature or another creature you control dies, if it had a +1/+1 counter on it, create a 2/2 white Knight creature token with vigilance.,
+            Severity: Error
+          }
+        ],
+        RawText: Whenever this creature or another creature you control dies, if it had a +1/+1 counter on it, create a 2/2 white Knight creature token with vigilance.,
+        SourceSpan: {
+          End: 269,
+          Length: 150,
+          Start: 119
+        }
+      }
+    ],
+    RawText:
+Vigilance, protection from multicolored
+When this creature enters, put a +1/+1 counter on target creature you control.
+Whenever this creature or another creature you control dies, if it had a +1/+1 counter on it, create a 2/2 white Knight creature token with vigilance.
+  },
+  TypeLine: {
+    Raw: Creature — Human Knight,
+    Subtypes: [
+      Human,
+      Knight
+    ],
+    Types: [
+      Creature
+    ]
+  }
+}

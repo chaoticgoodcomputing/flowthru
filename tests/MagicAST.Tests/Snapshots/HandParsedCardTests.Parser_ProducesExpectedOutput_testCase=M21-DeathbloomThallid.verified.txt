@@ -1,0 +1,79 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 3,
+      Raw: {2}{B},
+      Symbols: [
+        {
+          GenericAmount: 2,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        },
+        {
+          Colors: [
+            Black
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        B
+      ]
+    },
+    {
+      ColorIdentity: [
+        B
+      ]
+    },
+    {
+      Power: {
+        Raw: 3,
+        Value: 3
+      },
+      Toughness: {
+        Raw: 2,
+        Value: 2
+      }
+    }
+  ],
+  Name: Deathbloom Thallid,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 69,
+              Length: 69
+            },
+            Message: Failed to parse Unparsed ability,
+            Pattern: UnparsedUnparsed,
+            RawText: When this creature dies, create a 1/1 green Saproling creature token.,
+            Severity: Error
+          }
+        ],
+        RawText: When this creature dies, create a 1/1 green Saproling creature token.,
+        SourceSpan: {
+          End: 69,
+          Length: 69
+        }
+      }
+    ],
+    RawText: When this creature dies, create a 1/1 green Saproling creature token.
+  },
+  TypeLine: {
+    Raw: Creature — Fungus,
+    Subtypes: [
+      Fungus
+    ],
+    Types: [
+      Creature
+    ]
+  }
+}

@@ -1,0 +1,111 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 4,
+      Raw: {2}{W}{W},
+      Symbols: [
+        {
+          GenericAmount: 2,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        },
+        {
+          Colors: [
+            White
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        },
+        {
+          Colors: [
+            White
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        W
+      ]
+    },
+    {
+      ColorIdentity: [
+        W
+      ]
+    },
+    {
+      Power: {
+        Raw: 3,
+        Value: 3
+      },
+      Toughness: {
+        Raw: 3,
+        Value: 3
+      }
+    }
+  ],
+  Name: Partially Parsed Paladin,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 6,
+              Length: 6
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: UnparsedStatic,
+            RawText: Flying,
+            Severity: Error
+          }
+        ],
+        RawText: Flying,
+        SourceSpan: {
+          End: 6,
+          Length: 6
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 54,
+              Length: 47,
+              Start: 7
+            },
+            Message: Failed to parse Unparsed ability,
+            Pattern: UnparsedUnparsed,
+            RawText: @#$%^&*() QQQQQ ZZZZZ 12345 nonsense gibberish.,
+            Severity: Error
+          }
+        ],
+        RawText: @#$%^&*() QQQQQ ZZZZZ 12345 nonsense gibberish.,
+        SourceSpan: {
+          End: 54,
+          Length: 47,
+          Start: 7
+        }
+      }
+    ],
+    RawText:
+Flying
+@#$%^&*() QQQQQ ZZZZZ 12345 nonsense gibberish.
+  },
+  TypeLine: {
+    Raw: Creature — Human Knight,
+    Subtypes: [
+      Human,
+      Knight
+    ],
+    Types: [
+      Creature
+    ]
+  }
+}

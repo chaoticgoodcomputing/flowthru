@@ -1,0 +1,79 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 2,
+      Raw: {1}{G},
+      Symbols: [
+        {
+          GenericAmount: 1,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        },
+        {
+          Colors: [
+            Green
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        G
+      ]
+    },
+    {
+      ColorIdentity: [
+        G
+      ]
+    },
+    {
+      Power: {
+        Raw: 1,
+        Value: 1
+      },
+      Toughness: {
+        Raw: 1,
+        Value: 1
+      }
+    }
+  ],
+  Name: Quirion Dryad,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 98,
+              Length: 98
+            },
+            Message: Failed to parse Unparsed ability,
+            Pattern: UnparsedUnparsed,
+            RawText: Whenever you cast a spell that's white, blue, black, or red, put a +1/+1 counter on this creature.,
+            Severity: Error
+          }
+        ],
+        RawText: Whenever you cast a spell that's white, blue, black, or red, put a +1/+1 counter on this creature.,
+        SourceSpan: {
+          End: 98,
+          Length: 98
+        }
+      }
+    ],
+    RawText: Whenever you cast a spell that's white, blue, black, or red, put a +1/+1 counter on this creature.
+  },
+  TypeLine: {
+    Raw: Creature — Dryad,
+    Subtypes: [
+      Dryad
+    ],
+    Types: [
+      Creature
+    ]
+  }
+}

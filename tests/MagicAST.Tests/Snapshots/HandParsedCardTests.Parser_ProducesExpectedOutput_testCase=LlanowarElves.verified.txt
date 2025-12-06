@@ -1,0 +1,74 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 1,
+      Raw: {G},
+      Symbols: [
+        {
+          Colors: [
+            Green
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        G
+      ]
+    },
+    {
+      ColorIdentity: [
+        G
+      ]
+    },
+    {
+      Power: {
+        Raw: 1,
+        Value: 1
+      },
+      Toughness: {
+        Raw: 1,
+        Value: 1
+      }
+    }
+  ],
+  Name: Llanowar Elves,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 13,
+              Length: 13
+            },
+            Message: Activated ability parser not yet implemented,
+            Pattern: UnparsedActivated,
+            RawText: {T}: Add {G}.,
+            Severity: Error
+          }
+        ],
+        RawText: {T}: Add {G}.,
+        SourceSpan: {
+          End: 13,
+          Length: 13
+        }
+      }
+    ],
+    RawText: {T}: Add {G}.
+  },
+  TypeLine: {
+    Raw: Creature — Elf Druid,
+    Subtypes: [
+      Elf,
+      Druid
+    ],
+    Types: [
+      Creature
+    ]
+  }
+}

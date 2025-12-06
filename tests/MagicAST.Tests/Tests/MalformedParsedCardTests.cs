@@ -2,6 +2,7 @@ namespace MagicAST.Tests.Tests;
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using MagicAST.Parsing;
 using MagicAST.Tests.Infrastructure;
 
 /// <summary>
@@ -22,6 +23,7 @@ public class MalformedParsedCardTests
   /// Test 1: Round-trip serialization for malformed cards.
   /// Deserializing the output and re-serializing it should produce semantically identical JSON.
   /// This validates that UnparsedAbility, UnparsedEffect, and related types correctly round-trip.
+  /// HARD ASSERTION: Failure means the output format is unrepresentable by our types.
   /// </summary>
   [TestCaseSource(
     typeof(MalformedParsedTestCaseLoader),
@@ -51,33 +53,23 @@ public class MalformedParsedCardTests
   /// Test 2: Parser produces expected unparsed output.
   /// Parsing the input DTO (with malformed oracle text) should produce an AST
   /// containing UnparsedAbility/UnparsedEffect nodes that serialize to the expected output.
-  /// This validates the parser's error handling and unparsed node generation.
+  /// SNAPSHOT TEST: Uses Verify to track parser progress over time.
+  /// Mismatches indicate parser improvements needed, not necessarily bugs.
   /// </summary>
   [TestCaseSource(
     typeof(MalformedParsedTestCaseLoader),
     nameof(MalformedParsedTestCaseLoader.GetTestCaseData)
   )]
-  [Ignore("Parser not yet implemented")]
-  public void Parser_ProducesExpectedUnparsedOutput(CardTestCase testCase)
+  public Task Parser_ProducesExpectedUnparsedOutput(CardTestCase testCase)
   {
     // Arrange
     var input = testCase.GetInput();
-    var expectedNode = testCase.OutputNode;
+    var parser = new CardParser();
 
     // Act
-    // TODO: Replace with actual parser call once implemented
-    // var result = MagicASTParser.Parse(input);
-    // var actualJson = JsonSerializer.Serialize(result.Output, _testOptions);
-    var actualJson = "{}"; // Placeholder
-    var actualNode = JsonNode.Parse(actualJson);
+    var result = parser.Parse(input);
 
-    // Assert - compare JSON structures
-    Assert.That(
-      JsonComparer.AreEqual(actualNode, expectedNode),
-      Is.True,
-      $"Parser output mismatch for {testCase.Name}.\n"
-        + $"Expected:\n{JsonComparer.FormatForDisplay(expectedNode)}\n\n"
-        + $"Actual:\n{JsonComparer.FormatForDisplay(actualNode)}"
-    );
+    // Assert via Verify snapshot
+    return Verify(result.Output).UseParameters(testCase.Name);
   }
 }

@@ -1,0 +1,159 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: true,
+      ManaValue: 2,
+      Raw: {X}{U}{U},
+      Symbols: [
+        {
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Variable
+        },
+        {
+          Colors: [
+            Blue
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        },
+        {
+          Colors: [
+            Blue
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        U
+      ]
+    },
+    {
+      ColorIdentity: [
+        U
+      ]
+    },
+    {
+      Power: {
+        Raw: 1,
+        Value: 1
+      },
+      Toughness: {
+        Raw: 1,
+        Value: 1
+      }
+    }
+  ],
+  Name: Wan Shi Tong, Librarian,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 5,
+              Length: 5
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: UnparsedStatic,
+            RawText: Flash,
+            Severity: Error
+          }
+        ],
+        RawText: Flash,
+        SourceSpan: {
+          End: 5,
+          Length: 5
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 23,
+              Length: 17,
+              Start: 6
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: UnparsedStatic,
+            RawText: Flying, vigilance,
+            Severity: Error
+          }
+        ],
+        RawText: Flying, vigilance,
+        SourceSpan: {
+          End: 23,
+          Length: 17,
+          Start: 6
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 116,
+              Length: 92,
+              Start: 24
+            },
+            Message: Failed to parse Unparsed ability,
+            Pattern: UnparsedUnparsed,
+            RawText: When Wan Shi Tong enters, put X +1/+1 counters on him. Then draw half X cards, rounded down.,
+            Severity: Error
+          }
+        ],
+        RawText: When Wan Shi Tong enters, put X +1/+1 counters on him. Then draw half X cards, rounded down.,
+        SourceSpan: {
+          End: 116,
+          Length: 92,
+          Start: 24
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 214,
+              Length: 97,
+              Start: 117
+            },
+            Message: Failed to parse Unparsed ability,
+            Pattern: UnparsedUnparsed,
+            RawText: Whenever an opponent searches their library, put a +1/+1 counter on Wan Shi Tong and draw a card.,
+            Severity: Error
+          }
+        ],
+        RawText: Whenever an opponent searches their library, put a +1/+1 counter on Wan Shi Tong and draw a card.,
+        SourceSpan: {
+          End: 214,
+          Length: 97,
+          Start: 117
+        }
+      }
+    ],
+    RawText:
+Flash
+Flying, vigilance
+When Wan Shi Tong enters, put X +1/+1 counters on him. Then draw half X cards, rounded down.
+Whenever an opponent searches their library, put a +1/+1 counter on Wan Shi Tong and draw a card.
+  },
+  TypeLine: {
+    Raw: Legendary Creature — Bird Spirit,
+    Subtypes: [
+      Bird,
+      Spirit
+    ],
+    Supertypes: [
+      Legendary
+    ],
+    Types: [
+      Creature
+    ]
+  }
+}

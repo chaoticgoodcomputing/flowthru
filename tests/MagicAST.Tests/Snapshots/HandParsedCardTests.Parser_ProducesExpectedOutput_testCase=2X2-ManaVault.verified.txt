@@ -1,0 +1,119 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 1,
+      Raw: {1},
+      Symbols: [
+        {
+          GenericAmount: 1,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        }
+      ]
+    }
+  ],
+  Name: Mana Vault,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 51,
+              Length: 51
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: This artifact doesn't untap during your untap step.,
+            Severity: Error
+          }
+        ],
+        RawText: This artifact doesn't untap during your untap step.,
+        SourceSpan: {
+          End: 51,
+          Length: 51
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 133,
+              Length: 81,
+              Start: 52
+            },
+            Message: Triggered ability parser not yet implemented,
+            Pattern: ConditionalEffect,
+            RawText: At the beginning of your upkeep, you may pay {4}. If you do, untap this artifact.,
+            Severity: Error
+          }
+        ],
+        RawText: At the beginning of your upkeep, you may pay {4}. If you do, untap this artifact.,
+        SourceSpan: {
+          End: 133,
+          Length: 81,
+          Start: 52
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 223,
+              Length: 89,
+              Start: 134
+            },
+            Message: Triggered ability parser not yet implemented,
+            Pattern: UnparsedTriggered,
+            RawText: At the beginning of your draw step, if this artifact is tapped, it deals 1 damage to you.,
+            Severity: Error
+          }
+        ],
+        RawText: At the beginning of your draw step, if this artifact is tapped, it deals 1 damage to you.,
+        SourceSpan: {
+          End: 223,
+          Length: 89,
+          Start: 134
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 243,
+              Length: 19,
+              Start: 224
+            },
+            Message: Activated ability parser not yet implemented,
+            Pattern: UnparsedActivated,
+            RawText: {T}: Add {C}{C}{C}.,
+            Severity: Error
+          }
+        ],
+        RawText: {T}: Add {C}{C}{C}.,
+        SourceSpan: {
+          End: 243,
+          Length: 19,
+          Start: 224
+        }
+      }
+    ],
+    RawText:
+This artifact doesn't untap during your untap step.
+At the beginning of your upkeep, you may pay {4}. If you do, untap this artifact.
+At the beginning of your draw step, if this artifact is tapped, it deals 1 damage to you.
+{T}: Add {C}{C}{C}.
+  },
+  TypeLine: {
+    Raw: Artifact,
+    Types: [
+      Artifact
+    ]
+  }
+}

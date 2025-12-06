@@ -1,0 +1,133 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 2,
+      Raw: {W}{U},
+      Symbols: [
+        {
+          Colors: [
+            White
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        },
+        {
+          Colors: [
+            Blue
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        U,
+        W
+      ]
+    },
+    {
+      ColorIdentity: [
+        W,
+        U
+      ]
+    },
+    {
+      Power: {
+        Raw: 2,
+        Value: 2
+      },
+      Toughness: {
+        Raw: 1,
+        Value: 1
+      }
+    }
+  ],
+  Name: Niambi, Esteemed Speaker,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 5,
+              Length: 5
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: UnparsedStatic,
+            RawText: Flash,
+            Severity: Error
+          }
+        ],
+        RawText: Flash,
+        SourceSpan: {
+          End: 5,
+          Length: 5
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 159,
+              Length: 153,
+              Start: 6
+            },
+            Message: Triggered ability parser not yet implemented,
+            Pattern: ConditionalEffect,
+            RawText: When Niambi enters, you may return another target creature you control to its owner's hand. If you do, you gain life equal to that creature's mana value.,
+            Severity: Error
+          }
+        ],
+        RawText: When Niambi enters, you may return another target creature you control to its owner's hand. If you do, you gain life equal to that creature's mana value.,
+        SourceSpan: {
+          End: 159,
+          Length: 153,
+          Start: 6
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 217,
+              Length: 57,
+              Start: 160
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: {1}{W}{U}, {T}, Discard a legendary card: Draw two cards.,
+            Severity: Error
+          }
+        ],
+        RawText: {1}{W}{U}, {T}, Discard a legendary card: Draw two cards.,
+        SourceSpan: {
+          End: 217,
+          Length: 57,
+          Start: 160
+        }
+      }
+    ],
+    RawText:
+Flash
+When Niambi enters, you may return another target creature you control to its owner's hand. If you do, you gain life equal to that creature's mana value.
+{1}{W}{U}, {T}, Discard a legendary card: Draw two cards.
+  },
+  TypeLine: {
+    Raw: Legendary Creature — Human Cleric,
+    Subtypes: [
+      Human,
+      Cleric
+    ],
+    Supertypes: [
+      Legendary
+    ],
+    Types: [
+      Creature
+    ]
+  }
+}

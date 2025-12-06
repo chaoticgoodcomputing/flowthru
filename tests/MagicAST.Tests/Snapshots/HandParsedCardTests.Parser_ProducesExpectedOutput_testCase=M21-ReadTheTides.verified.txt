@@ -1,0 +1,113 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 6,
+      Raw: {5}{U},
+      Symbols: [
+        {
+          GenericAmount: 5,
+          IsPhyrexian: false,
+          IsSnow: false,
+          Kind: Generic
+        },
+        {
+          Colors: [
+            Blue
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        U
+      ]
+    },
+    {
+      ColorIdentity: [
+        U
+      ]
+    }
+  ],
+  Name: Read the Tides,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 12,
+              Length: 12
+            },
+            Message: Modal ability parser not yet implemented,
+            Pattern: UnparsedModal,
+            RawText: Choose one —,
+            Severity: Error
+          }
+        ],
+        RawText: Choose one —,
+        SourceSpan: {
+          End: 12,
+          Length: 12
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 32,
+              Length: 19,
+              Start: 13
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: • Draw three cards.,
+            Severity: Error
+          }
+        ],
+        RawText: • Draw three cards.,
+        SourceSpan: {
+          End: 32,
+          Length: 19,
+          Start: 13
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 92,
+              Length: 59,
+              Start: 33
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: • Return up to two target creatures to their owners' hands.,
+            Severity: Error
+          }
+        ],
+        RawText: • Return up to two target creatures to their owners' hands.,
+        SourceSpan: {
+          End: 92,
+          Length: 59,
+          Start: 33
+        }
+      }
+    ],
+    RawText:
+Choose one —
+• Draw three cards.
+• Return up to two target creatures to their owners' hands.
+  },
+  TypeLine: {
+    Raw: Sorcery,
+    Types: [
+      Sorcery
+    ]
+  }
+}

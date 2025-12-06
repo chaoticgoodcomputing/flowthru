@@ -1,0 +1,84 @@
+﻿{
+  Attributes: [
+    {
+      IsVariable: false,
+      ManaValue: 1,
+      Raw: {U},
+      Symbols: [
+        {
+          Colors: [
+            Blue
+          ],
+          IsPhyrexian: false,
+          IsSnow: false
+        }
+      ]
+    },
+    {
+      Colors: [
+        U
+      ]
+    },
+    {
+      ColorIdentity: [
+        U
+      ]
+    }
+  ],
+  Name: Mystic Remora,
+  Oracle: {
+    Abilities: [
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 171,
+              Length: 171
+            },
+            Message: Static ability parser not yet implemented,
+            Pattern: AmbiguousStructure,
+            RawText: Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.),
+            Severity: Error
+          }
+        ],
+        RawText: Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.),
+        SourceSpan: {
+          End: 171,
+          Length: 171
+        }
+      },
+      {
+        AbilityKind: Unparsed,
+        Diagnostics: [
+          {
+            Location: {
+              End: 268,
+              Length: 96,
+              Start: 172
+            },
+            Message: Triggered ability parser not yet implemented,
+            Pattern: UnparsedTriggered,
+            RawText: Whenever an opponent casts a noncreature spell, you may draw a card unless that player pays {4}.,
+            Severity: Error
+          }
+        ],
+        RawText: Whenever an opponent casts a noncreature spell, you may draw a card unless that player pays {4}.,
+        SourceSpan: {
+          End: 268,
+          Length: 96,
+          Start: 172
+        }
+      }
+    ],
+    RawText:
+Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)
+Whenever an opponent casts a noncreature spell, you may draw a card unless that player pays {4}.
+  },
+  TypeLine: {
+    Raw: Enchantment,
+    Types: [
+      Enchantment
+    ]
+  }
+}
