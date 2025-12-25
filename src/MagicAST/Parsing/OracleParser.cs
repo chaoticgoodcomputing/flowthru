@@ -15,6 +15,9 @@ public sealed class OracleParser
 {
   private readonly ClauseSplitter _splitter = new();
   private readonly AbilityClassifier _classifier = new();
+  private readonly TriggeredAbilityParser _triggeredParser = new();
+  private readonly ActivatedAbilityParser _activatedParser = new();
+  private readonly StaticAbilityParser _staticParser = new();
   private readonly FallbackParser _fallbackParser = new();
 
   /// <summary>
@@ -56,17 +59,21 @@ public sealed class OracleParser
 
     foreach (var clause in clauses)
     {
-      var (ability, clauseDiagnostics) = ParseClause(clause);
-      abilities.Add(ability);
+      var (clauseAbilities, clauseDiagnostics) = ParseClause(clause);
+      abilities.AddRange(clauseAbilities);
       diagnostics.AddRange(clauseDiagnostics);
 
-      if (ability is UnparsedAbility)
+      // Count parsed vs failed abilities
+      foreach (var ability in clauseAbilities)
       {
-        failedCount++;
-      }
-      else
-      {
-        parsedCount++;
+        if (ability is UnparsedAbility)
+        {
+          failedCount++;
+        }
+        else
+        {
+          parsedCount++;
+        }
       }
     }
 
@@ -91,104 +98,137 @@ public sealed class OracleParser
   }
 
   /// <summary>
-  /// Parses a single clause into an ability.
+  /// Parses a single clause into one or more abilities.
+  /// Some clauses (like comma-separated keywords) expand into multiple abilities.
   /// </summary>
-  private (Ability Ability, IReadOnlyList<Diagnostic> Diagnostics) ParseClause(OracleClause clause)
+  private (IReadOnlyList<Ability> Abilities, IReadOnlyList<Diagnostic> Diagnostics) ParseClause(
+    OracleClause clause
+  )
   {
     // Classify the clause
     var classification = _classifier.Classify(clause);
 
     // Route to appropriate parser based on classification
-    // For now, all routes go to fallback since we haven't implemented specific parsers
-    var ability = classification.Kind switch
+    var abilities = classification.Kind switch
     {
-      AbilityKind.Triggered => TryParseTriggeredAbility(clause, classification),
-      AbilityKind.Activated => TryParseActivatedAbility(clause, classification),
-      AbilityKind.Static => TryParseStaticAbility(clause, classification),
-      AbilityKind.Modal => TryParseModalAbility(clause, classification),
-      AbilityKind.Spell => TryParseSpellAbility(clause, classification),
-      _ => _fallbackParser.Parse(clause, classification),
+      AbilityKind.Triggered => ParseTriggeredAbilityClause(clause, classification),
+      AbilityKind.Activated => ParseActivatedAbilityClause(clause, classification),
+      AbilityKind.Static => ParseStaticAbilityClause(clause, classification),
+      AbilityKind.Modal => ParseModalAbilityClause(clause, classification),
+      AbilityKind.Spell => ParseSpellAbilityClause(clause, classification),
+      _ => new[] { _fallbackParser.Parse(clause, classification) },
     };
 
-    // Collect diagnostics from UnparsedAbility if present
-    var diagnostics = ability is UnparsedAbility unparsed ? unparsed.Diagnostics : [];
+    // Collect diagnostics from UnparsedAbility nodes
+    var diagnostics = abilities
+      .OfType<UnparsedAbility>()
+      .SelectMany(unparsed => unparsed.Diagnostics)
+      .ToList();
 
-    return (ability, diagnostics);
+    return (abilities, diagnostics);
   }
 
   /// <summary>
-  /// Attempts to parse a triggered ability.
-  /// Currently delegates to fallback parser.
+  /// Parses a triggered ability clause.
+  /// Returns a single-element array with the ability.
   /// </summary>
-  private Ability TryParseTriggeredAbility(OracleClause clause, ClauseClassification classification)
+  private IReadOnlyList<Ability> ParseTriggeredAbilityClause(
+    OracleClause clause,
+    ClauseClassification classification
+  )
   {
-    // TODO: Implement TriggeredAbilityParser
-    // For now, use fallback with informative message
-    return _fallbackParser.Parse(
-      clause,
-      classification,
-      "Triggered ability parser not yet implemented"
-    );
+    // Try the TriggeredAbilityParser first
+    var parsed = _triggeredParser.TryParse(clause, classification);
+    if (parsed != null)
+    {
+      return new[] { parsed };
+    }
+
+    // Fall back to unparsed if parsing failed
+    return new[]
+    {
+      _fallbackParser.Parse(clause, classification, "Triggered ability parser not yet implemented"),
+    };
   }
 
   /// <summary>
-  /// Attempts to parse an activated ability.
-  /// Currently delegates to fallback parser.
+  /// Parses an activated ability clause.
+  /// Returns a single-element array with the ability.
   /// </summary>
-  private Ability TryParseActivatedAbility(OracleClause clause, ClauseClassification classification)
+  private IReadOnlyList<Ability> ParseActivatedAbilityClause(
+    OracleClause clause,
+    ClauseClassification classification
+  )
   {
-    // TODO: Implement ActivatedAbilityParser
-    // For now, use fallback with informative message
-    return _fallbackParser.Parse(
-      clause,
-      classification,
-      "Activated ability parser not yet implemented"
-    );
+    // Try the ActivatedAbilityParser first
+    var parsed = _activatedParser.TryParse(clause, classification);
+    if (parsed != null)
+    {
+      return new[] { parsed };
+    }
+
+    // Fall back to unparsed if parsing failed
+    return new[]
+    {
+      _fallbackParser.Parse(clause, classification, "Activated ability parser not yet implemented"),
+    };
   }
 
   /// <summary>
-  /// Attempts to parse a static ability.
-  /// Currently delegates to fallback parser.
+  /// Parses a static ability clause.
+  /// May return multiple abilities if the clause contains comma-separated keywords.
   /// </summary>
-  private Ability TryParseStaticAbility(OracleClause clause, ClauseClassification classification)
+  private IReadOnlyList<Ability> ParseStaticAbilityClause(
+    OracleClause clause,
+    ClauseClassification classification
+  )
   {
-    // TODO: Implement StaticAbilityParser
-    // For now, use fallback with informative message
-    return _fallbackParser.Parse(
-      clause,
-      classification,
-      "Static ability parser not yet implemented"
-    );
+    // Try the StaticAbilityParser first
+    var parsed = _staticParser.TryParse(clause, classification);
+    if (parsed != null && parsed.Count > 0)
+    {
+      return parsed;
+    }
+
+    // Fall back to unparsed if parsing failed
+    return new[]
+    {
+      _fallbackParser.Parse(clause, classification, "Static ability parser not yet implemented"),
+    };
   }
 
   /// <summary>
-  /// Attempts to parse a modal ability.
-  /// Currently delegates to fallback parser.
+  /// Parses a modal ability clause.
+  /// Returns a single-element array with the ability.
   /// </summary>
-  private Ability TryParseModalAbility(OracleClause clause, ClauseClassification classification)
+  private IReadOnlyList<Ability> ParseModalAbilityClause(
+    OracleClause clause,
+    ClauseClassification classification
+  )
   {
     // TODO: Implement ModalAbilityParser
     // For now, use fallback with informative message
-    return _fallbackParser.Parse(
-      clause,
-      classification,
-      "Modal ability parser not yet implemented"
-    );
+    return new[]
+    {
+      _fallbackParser.Parse(clause, classification, "Modal ability parser not yet implemented"),
+    };
   }
 
   /// <summary>
-  /// Attempts to parse a spell ability.
-  /// Currently delegates to fallback parser.
+  /// Parses a spell ability clause.
+  /// Returns a single-element array with the ability.
   /// </summary>
-  private Ability TryParseSpellAbility(OracleClause clause, ClauseClassification classification)
+  private IReadOnlyList<Ability> ParseSpellAbilityClause(
+    OracleClause clause,
+    ClauseClassification classification
+  )
   {
     // TODO: Implement SpellAbilityParser
     // For now, use fallback with informative message
-    return _fallbackParser.Parse(
-      clause,
-      classification,
-      "Spell ability parser not yet implemented"
-    );
+    return new[]
+    {
+      _fallbackParser.Parse(clause, classification, "Spell ability parser not yet implemented"),
+    };
   }
 
   /// <summary>

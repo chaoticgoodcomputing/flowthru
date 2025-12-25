@@ -22,11 +22,16 @@ public sealed class RatchetTestTracker
 
   private RatchetTestTracker()
   {
-    // Determine baseline path - in project root
+    // Determine baseline path - in test project source directory
+    // This ensures the baseline is committed to source control, not in dist/
     var testAssemblyPath = typeof(RatchetTestTracker).Assembly.Location;
-    var projectRoot = Path.GetDirectoryName(testAssemblyPath)!;
-    // Navigate up from bin/Debug/net10.0 to project root
-    projectRoot = Path.GetFullPath(Path.Combine(projectRoot, "..", "..", ".."));
+    var assemblyDir = Path.GetDirectoryName(testAssemblyPath)!;
+    
+    // Find the test project directory by looking for the .csproj file
+    // Navigate up from assembly location until we find tests/MagicAST.Tests/
+    var projectRoot = FindProjectRoot(assemblyDir);
+    
+    // Store baseline in the test project directory (source tree)
     _baselinePath = Path.Combine(projectRoot, BaselineFileName);
 
     // Check if --update-baseline flag was passed via environment variable
@@ -43,6 +48,40 @@ public sealed class RatchetTestTracker
         PrintSummaryAndSetExitCode();
       }
     };
+  }
+
+  /// <summary>
+  /// Find the test project root directory by looking for the .csproj file.
+  /// </summary>
+  private static string FindProjectRoot(string startPath)
+  {
+    var dir = new DirectoryInfo(startPath);
+    while (dir != null)
+    {
+      // Look for MagicAST.Tests.csproj
+      if (dir.GetFiles("MagicAST.Tests.csproj").Length > 0)
+      {
+        return dir.FullName;
+      }
+
+      dir = dir.Parent;
+    }
+
+    // Fallback: if we can't find the project file, use the repo root
+    // This happens when running from dist/
+    var repoRoot = startPath;
+    while (Directory.Exists(repoRoot) && !Directory.Exists(Path.Combine(repoRoot, ".git")))
+    {
+      var parent = Path.GetDirectoryName(repoRoot);
+      if (parent == null || parent == repoRoot)
+      {
+        break;
+      }
+
+      repoRoot = parent;
+    }
+
+    return Path.Combine(repoRoot, "tests", "MagicAST.Tests");
   }
 
   /// <summary>

@@ -1,9 +1,8 @@
-using MagicAST.Core;
-using MagicAST.Core.AST;
-using MagicAST.Core.AST.Nodes;
-using MagicAST.Core.AST.Nodes.Abilities;
-using MagicAST.Core.Diagnostics;
-using MagicAST.DTOs;
+using MagicAST;
+using MagicAST.AST;
+using MagicAST.AST.Abilities;
+using MagicAST.Diagnostics;
+using MagicAST.Parsing;
 using MagicAtlas.Data._08_Reporting.Schemas;
 
 namespace MagicAtlas.Pipelines.MagicAstTesting.Nodes;
@@ -33,7 +32,7 @@ public static class GenerateDiagnosticReportsNode
   /// Creates a transform function that parses all cards and generates error/warning reports.
   /// </summary>
   public static Func<
-    IEnumerable<CardInputDto>,
+    IEnumerable<CardInputDTO>,
     Task<(MagicAstParsingReport Errors, MagicAstParsingReport Warnings)>
   > Create(Params? parameters = null)
   {
@@ -44,56 +43,65 @@ public static class GenerateDiagnosticReportsNode
       var inputList = inputs.ToList();
       var totalCards = inputList.Count;
 
+      // Create parser instance
+      var parser = new CardParser();
+
       // Parse all cards and collect full card data
-      var parsedCards = new List<(CardInputDto Input, CardNode Node)>();
+      var parsedCards = new List<(CardInputDTO Input, CardParseResult Result)>();
 
       foreach (var cardInput in inputList)
       {
-        var cardNode = CardParser.Parse(cardInput);
-        parsedCards.Add((cardInput, cardNode));
+        var parseResult = parser.Parse(cardInput);
+        parsedCards.Add((cardInput, parseResult));
       }
 
       // Calculate card-level statistics
       var fullyParsedCards = parsedCards.Count(c =>
-        c.Node.Diagnostics.All(d => d.Severity != DiagnosticSeverity.Error)
+        c.Result.Diagnostics.All(d => d.Severity != DiagnosticSeverity.Error)
       );
       var cardsWithErrors = parsedCards.Count(c =>
-        c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
+        c.Result.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
       );
       var partiallyParsedCards = parsedCards.Count(c =>
-        c.Node.Abilities.Count > 0
-        && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
+        c.Result.Output.Oracle.Abilities.Count > 0
+        && c.Result.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
       );
       var unparsedCards = parsedCards.Count(c =>
-        c.Node.Abilities.Count == 0
-        && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
+        c.Result.Output.Oracle.Abilities.Count == 0
+        && c.Result.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)
       );
 
       // Collect ability-level statistics by type
-      var keywordAbilities = parsedCards
-        .SelectMany(c => c.Node.Abilities.OfType<KeywordAbilityNode>())
-        .ToList();
       var activatedAbilities = parsedCards
-        .SelectMany(c => c.Node.Abilities.OfType<ActivatedAbilityNode>())
+        .SelectMany(c => c.Result.Output.Oracle.Abilities.OfType<ActivatedAbility>())
         .ToList();
       var triggeredAbilities = parsedCards
-        .SelectMany(c => c.Node.Abilities.OfType<TriggeredAbilityNode>())
+        .SelectMany(c => c.Result.Output.Oracle.Abilities.OfType<TriggeredAbility>())
+        .ToList();
+      var staticAbilities = parsedCards
+        .SelectMany(c => c.Result.Output.Oracle.Abilities.OfType<StaticAbility>())
+        .ToList();
+      var spellAbilities = parsedCards
+        .SelectMany(c => c.Result.Output.Oracle.Abilities.OfType<SpellAbility>())
         .ToList();
 
       var totalAbilities =
-        keywordAbilities.Count + activatedAbilities.Count + triggeredAbilities.Count;
+        activatedAbilities.Count
+        + triggeredAbilities.Count
+        + staticAbilities.Count
+        + spellAbilities.Count;
 
       // Collect diagnostics by severity and ability type
       var errorDiagnostics = parsedCards
         .SelectMany(c =>
-          c.Node.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)
+          c.Result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)
             .Select(d => (Card: c.Input.Name, Diagnostic: d))
         )
         .ToList();
 
       var warningDiagnostics = parsedCards
         .SelectMany(c =>
-          c.Node.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning)
+          c.Result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning)
             .Select(d => (Card: c.Input.Name, Diagnostic: d))
         )
         .ToList();
@@ -103,13 +111,13 @@ public static class GenerateDiagnosticReportsNode
       var warningsByType = CategorizeErrorsByAbilityType(warningDiagnostics, config);
 
       // Count failed abilities per category from diagnostics
-      var failedKeywordCount = errorsByType.KeywordAbilities.Sum(e => e.Count);
+      var failedSpellCount = errorsByType.SpellAbilities.Sum(e => e.Count);
       var failedActivatedCount = errorsByType.ActivatedAbilities.Sum(e => e.Count);
       var failedTriggeredCount = errorsByType.TriggeredAbilities.Sum(e => e.Count);
       var failedStaticCount = errorsByType.StaticAbilities.Sum(e => e.Count);
 
       var totalFailedAbilities =
-        failedKeywordCount + failedActivatedCount + failedTriggeredCount + failedStaticCount;
+        failedSpellCount + failedActivatedCount + failedTriggeredCount + failedStaticCount;
 
       var errorReport = new MagicAstParsingReport
       {
@@ -129,9 +137,9 @@ public static class GenerateDiagnosticReportsNode
           {
             KeywordAbilities = new AbilityCategoryStatistics
             {
-              Total = keywordAbilities.Count + failedKeywordCount,
-              Parsed = keywordAbilities.Count,
-              Failed = failedKeywordCount,
+              Total = spellAbilities.Count + failedSpellCount,
+              Parsed = spellAbilities.Count,
+              Failed = failedSpellCount,
             },
             ActivatedAbilities = new AbilityCategoryStatistics
             {
@@ -147,8 +155,8 @@ public static class GenerateDiagnosticReportsNode
             },
             StaticAbilities = new AbilityCategoryStatistics
             {
-              Total = failedStaticCount, // No parsed static abilities yet
-              Parsed = 0,
+              Total = staticAbilities.Count + failedStaticCount,
+              Parsed = staticAbilities.Count,
               Failed = failedStaticCount,
             },
           },
@@ -162,15 +170,15 @@ public static class GenerateDiagnosticReportsNode
         {
           TotalCards = totalCards,
           FullyParsedCards = parsedCards.Count(c =>
-            c.Node.Diagnostics.All(d => d.Severity != DiagnosticSeverity.Warning)
+            c.Result.Diagnostics.All(d => d.Severity != DiagnosticSeverity.Warning)
           ),
           PartiallyParsedCards = parsedCards.Count(c =>
-            c.Node.Abilities.Count > 0
-            && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Warning)
+            c.Result.Output.Oracle.Abilities.Count > 0
+            && c.Result.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Warning)
           ),
           UnparsedCards = parsedCards.Count(c =>
-            c.Node.Abilities.Count == 0
-            && c.Node.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Warning)
+            c.Result.Output.Oracle.Abilities.Count == 0
+            && c.Result.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Warning)
           ),
         },
         AbilityStatistics = new AbilityLevelStatistics
@@ -182,8 +190,8 @@ public static class GenerateDiagnosticReportsNode
           {
             KeywordAbilities = new AbilityCategoryStatistics
             {
-              Total = keywordAbilities.Count,
-              Parsed = keywordAbilities.Count,
+              Total = spellAbilities.Count,
+              Parsed = spellAbilities.Count,
               Failed = 0,
             },
             ActivatedAbilities = new AbilityCategoryStatistics
@@ -200,8 +208,8 @@ public static class GenerateDiagnosticReportsNode
             },
             StaticAbilities = new AbilityCategoryStatistics
             {
-              Total = 0,
-              Parsed = 0,
+              Total = staticAbilities.Count,
+              Parsed = staticAbilities.Count,
               Failed = 0,
             },
           },
@@ -221,19 +229,19 @@ public static class GenerateDiagnosticReportsNode
     Params config
   )
   {
-    var keywordErrors =
-      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+    var spellErrors =
+      new Dictionary<(string? Code, string Message), List<(string CardName, string AbilityText)>>();
     var activatedErrors =
-      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+      new Dictionary<(string? Code, string Message), List<(string CardName, string AbilityText)>>();
     var triggeredErrors =
-      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+      new Dictionary<(string? Code, string Message), List<(string CardName, string AbilityText)>>();
     var staticErrors =
-      new Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>>();
+      new Dictionary<(string? Code, string Message), List<(string CardName, string AbilityText)>>();
 
     foreach (var (card, diagnostic) in diagnostics)
     {
-      var sourceText = diagnostic.Location?.GetSourceText() ?? "";
-      var key = (diagnostic.Id, diagnostic.GetMessage());
+      var sourceText = diagnostic.RawText ?? "";
+      var key = (diagnostic.Pattern, diagnostic.Message);
       var example = (card, sourceText);
 
       // Categorize based on source text patterns
@@ -263,18 +271,18 @@ public static class GenerateDiagnosticReportsNode
       }
       else
       {
-        // Default to keyword if unclear
-        if (!keywordErrors.ContainsKey(key))
+        // Default to spell if unclear
+        if (!spellErrors.ContainsKey(key))
         {
-          keywordErrors[key] = new List<(string, string)>();
+          spellErrors[key] = new List<(string, string)>();
         }
-        keywordErrors[key].Add(example);
+        spellErrors[key].Add(example);
       }
     }
 
     return new AbilityTypeErrors
     {
-      KeywordAbilities = BuildErrorPatterns(keywordErrors, config, diagnostics.Count),
+      SpellAbilities = BuildErrorPatterns(spellErrors, config, diagnostics.Count),
       ActivatedAbilities = BuildErrorPatterns(activatedErrors, config, diagnostics.Count),
       TriggeredAbilities = BuildErrorPatterns(triggeredErrors, config, diagnostics.Count),
       StaticAbilities = BuildErrorPatterns(staticErrors, config, diagnostics.Count),
@@ -282,7 +290,7 @@ public static class GenerateDiagnosticReportsNode
   }
 
   private static List<AbilityErrorPattern> BuildErrorPatterns(
-    Dictionary<(string Code, string Message), List<(string CardName, string AbilityText)>> errors,
+    Dictionary<(string? Code, string Message), List<(string CardName, string AbilityText)>> errors,
     Params config,
     int totalDiagnostics
   )
@@ -292,7 +300,7 @@ public static class GenerateDiagnosticReportsNode
       .Take(config.TopDiagnosticsPerAbilityType)
       .Select(kvp => new AbilityErrorPattern
       {
-        Code = kvp.Key.Code,
+        Code = kvp.Key.Code ?? "Unknown",
         Message = kvp.Key.Message,
         Count = kvp.Value.Count,
         PercentageOfCategory =

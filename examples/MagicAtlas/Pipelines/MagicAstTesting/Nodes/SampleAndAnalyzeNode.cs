@@ -1,11 +1,6 @@
-using MagicAST.Core;
-using MagicAST.Core.AST;
-using MagicAST.Core.AST.Nodes;
-using MagicAST.Core.AST.Visitors;
-using MagicAST.Core.CardTypes;
-using MagicAST.Core.Diagnostics;
-using MagicAST.Core.ManaSystem;
-using MagicAST.DTOs;
+using MagicAST;
+using MagicAST.Diagnostics;
+using MagicAST.Parsing;
 using MagicAtlas.Data._08_Reporting.Schemas;
 
 namespace MagicAtlas.Pipelines.MagicAstTesting.Nodes;
@@ -34,7 +29,7 @@ public static class SampleAndAnalyzeNode
   /// <summary>
   /// Creates a transform function that samples cards and performs AST analysis.
   /// </summary>
-  public static Func<IEnumerable<CardInputDto>, Task<IEnumerable<MagicAstCardAnalysis>>> Create(
+  public static Func<IEnumerable<CardInputDTO>, Task<IEnumerable<MagicAstCardAnalysis>>> Create(
     Params? parameters = null
   )
   {
@@ -52,24 +47,24 @@ public static class SampleAndAnalyzeNode
       var sampleSize = Math.Min(config.SampleSize, inputList.Count);
       var sampledCards = inputList.OrderBy(_ => random.Next()).Take(sampleSize).ToList();
 
+      // Create parser instance
+      var parser = new CardParser();
+
       // Parse each sampled card and create analysis output
       var outputs = sampledCards.Select(cardInput =>
       {
         // Parse the card using MagicAST library
-        var cardNode = CardParser.Parse(cardInput);
-
-        // Convert to DTO for serialization
-        var astDto = cardNode.AsDto();
+        var parseResult = parser.Parse(cardInput);
 
         // Determine if parsing succeeded (no errors)
-        var hasErrors = cardNode.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error);
+        var hasErrors = parseResult.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error);
 
         // Create the analysis output
         return new MagicAstCardAnalysis
         {
           Name = cardInput.Name,
-          Ast = astDto,
-          Diagnostics = astDto.Diagnostics,
+          Ast = parseResult.Output,
+          Diagnostics = parseResult.Diagnostics.ToList(),
           ParseSucceeded = !hasErrors,
         };
       });

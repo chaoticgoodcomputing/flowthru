@@ -17,6 +17,12 @@ public class AssemblySetupFixture
   public void RunAfterAllTests()
   {
     TestContext.Progress.WriteLine("=== AFTER ALL TESTS - STARTING SUMMARY ===");
+
+    // Print failure hotspots for parser migration work
+    var failureSummary = MagicAST.Tests.Infrastructure.FailureTracker.GetSummaryReport();
+    TestContext.Progress.WriteLine(failureSummary);
+
+    // Print ratchet test summary
     MagicAST.Tests.Infrastructure.RatchetTestTracker.Instance.PrintSummaryAndSetExitCode();
     TestContext.Progress.WriteLine("=== AFTER ALL TESTS - SUMMARY COMPLETE ===");
   }

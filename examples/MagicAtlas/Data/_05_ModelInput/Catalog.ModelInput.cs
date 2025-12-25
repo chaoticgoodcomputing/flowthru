@@ -1,5 +1,6 @@
+using Flowthru.Abstractions;
 using Flowthru.Data;
-using MagicAST.DTOs;
+using MagicAST;
 using MagicAtlas.Data._05_ModelInput.Schemas;
 
 namespace MagicAtlas.Data;
@@ -24,11 +25,11 @@ public partial class Catalog
     );
 
   /// <summary>
-  /// CardInputDto for MagicAST parsing - mapped from CardCoreData.
+  /// CardInputDTO for MagicAST parsing - mapped from CardCoreData.
   /// In-memory only, not persisted to disk.
   /// </summary>
-  public ICatalogEntry<IEnumerable<CardInputDto>> MagicAstCardInputs =>
+  public ICatalogEntry<IEnumerable<CardInputDTO>> MagicAstCardInputs =>
     GetOrCreateEntry(
-      () => CatalogEntries.Enumerable.Memory<CardInputDto>(label: "MagicAstCardInputs")
+      () => CatalogEntries.Enumerable.Memory<CardInputDTO>(label: "MagicAstCardInputs")
     );
 }

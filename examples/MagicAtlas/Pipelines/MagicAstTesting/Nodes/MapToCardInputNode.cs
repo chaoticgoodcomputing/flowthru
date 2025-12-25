@@ -1,18 +1,18 @@
-using MagicAST.DTOs;
+using MagicAST;
 using MagicAtlas.Data._03_Primary.Schemas;
 
 namespace MagicAtlas.Pipelines.MagicAstTesting.Nodes;
 
 /// <summary>
-/// Pipeline node that maps CardCoreData to CardInputDto for MagicAST processing.
+/// Pipeline node that maps CardCoreData to CardInputDTO for MagicAST processing.
 /// Extracts only the fields relevant for AST generation.
 /// </summary>
 public static class MapToCardInputNode
 {
   /// <summary>
-  /// Creates a transform function that maps CardCoreData to CardInputDto.
+  /// Creates a transform function that maps CardCoreData to CardInputDTO.
   /// </summary>
-  public static Func<IEnumerable<CardCoreData>, Task<IEnumerable<CardInputDto>>> Create()
+  public static Func<IEnumerable<CardCoreData>, Task<IEnumerable<CardInputDTO>>> Create()
   {
     return async (coreDataItems) =>
     {
@@ -22,11 +22,11 @@ public static class MapToCardInputNode
   }
 
   /// <summary>
-  /// Maps a single CardCoreData to CardInputDto.
+  /// Maps a single CardCoreData to CardInputDTO.
   /// </summary>
-  private static CardInputDto MapToCardInput(CardCoreData coreData)
+  private static CardInputDTO MapToCardInput(CardCoreData coreData)
   {
-    return new CardInputDto
+    return new CardInputDTO
     {
       Name = coreData.Name,
       ManaCost = coreData.ManaCost,

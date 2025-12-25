@@ -303,20 +303,27 @@ public sealed class AbilityClassifier
     }
 
     // Check for mana/tap symbols before colon
+    var hasCostToken = false;
     for (var i = 0; i < tokens.Count; i++)
     {
       var token = tokens[i];
 
       if (token.Kind == OracleToken.Colon)
       {
-        // Found colon - check if preceded by cost-like tokens
+        // Found colon - check if there were any cost-like tokens before it
+        // or if this is an activation keyword pattern
         if (i > 0)
         {
-          var prevKind = tokens[i - 1].Kind;
-          return IsCostToken(prevKind) || IsActivationKeyword(tokens, i);
+          return hasCostToken || IsActivationKeyword(tokens, i);
         }
 
         return false;
+      }
+
+      // Track if we've seen any cost tokens
+      if (IsCostToken(token.Kind))
+      {
+        hasCostToken = true;
       }
 
       // If we hit a trigger timing word, this isn't an activated ability

@@ -74,13 +74,46 @@ public class HandParsedCardTests
     var testName = $"HandParsedCards/{testCase.Name}";
     RatchetTestTracker.Instance.RecordResult(testName, passed);
 
-    // Assert - parser output must match expected output
+    // Track failure patterns for hotspot analysis
+    if (!passed)
+    {
+      var pattern = ExtractFailurePattern(result.Output);
+      FailureTracker.RecordFailure(testCase.Name, pattern);
+    }
+
+    // Assert - parser output must match expected output (minimal error message)
     Assert.That(
       passed,
       Is.True,
-      $"Parser output did not match expected output for {testCase.Name}.\n"
-        + $"Expected:\n{JsonComparer.FormatForDisplay(expectedNode)}\n\n"
-        + $"Actual:\n{JsonComparer.FormatForDisplay(actualNode)}"
+      $"Parser mismatch: {testCase.Name} (see failure summary for patterns)"
     );
+  }
+
+  /// <summary>
+  /// Extracts the primary failure pattern from a parsed card for categorization.
+  /// </summary>
+  private static string ExtractFailurePattern(CardOutputAST card)
+  {
+    // Check for unparsed abilities and extract their diagnostic patterns
+    var unparsedAbilities = card
+      .Oracle?.Abilities?.OfType<MagicAST.AST.Abilities.UnparsedAbility>()
+      .ToList();
+
+    if (unparsedAbilities?.Any() == true)
+    {
+      // Get the most common pattern from diagnostics
+      var patterns = unparsedAbilities
+        .SelectMany(a => a.Diagnostics ?? [])
+        .Select(d => d.Pattern ?? "Unknown")
+        .GroupBy(p => p)
+        .OrderByDescending(g => g.Count())
+        .Select(g => g.Key)
+        .FirstOrDefault();
+
+      return patterns ?? "UnparsedAbility";
+    }
+
+    // Check for field-level mismatches (e.g., extra isOptional fields)
+    return "FieldMismatch";
   }
 }

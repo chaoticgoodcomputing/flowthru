@@ -76,13 +76,13 @@ public class MalformedParsedCardTests
     var testName = $"MalformedParsedCards/{testCase.Name}";
     RatchetTestTracker.Instance.RecordResult(testName, passed);
 
-    // Assert - parser output must match expected output
-    Assert.That(
-      passed,
-      Is.True,
-      $"Parser output did not match expected output for {testCase.Name}.\n"
-        + $"Expected:\n{JsonComparer.FormatForDisplay(expectedNode)}\n\n"
-        + $"Actual:\n{JsonComparer.FormatForDisplay(actualNode)}"
-    );
+    // Track failure patterns
+    if (!passed)
+    {
+      FailureTracker.RecordFailure(testCase.Name, "MalformedCard");
+    }
+
+    // Assert - parser output must match expected output (minimal message)
+    Assert.That(passed, Is.True, $"Malformed card mismatch: {testCase.Name}");
   }
 }

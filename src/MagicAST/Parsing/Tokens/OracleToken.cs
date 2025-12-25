@@ -111,6 +111,10 @@ public enum OracleToken
   [Token(Example = ".")]
   Period,
 
+  /// <summary>Slash (for P/T notation like 1/1).</summary>
+  [Token(Example = "/")]
+  Slash,
+
   /// <summary>Em dash (for ability words, modal choices).</summary>
   [Token(Example = "—")]
   EmDash,

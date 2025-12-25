@@ -37,4 +37,13 @@ public abstract record Ability
   [JsonPropertyName("keywordSource")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
   public string? KeywordSource { get; init; }
+
+  /// <summary>
+  /// Optional parenthetical reminder text associated with this ability.
+  /// Rule 207.2: Reminder text has no rules meaning but aids comprehension.
+  /// Preserved for round-tripping, display, and educational purposes.
+  /// </summary>
+  [JsonPropertyName("reminder")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public Parenthetical? Reminder { get; init; }
 }

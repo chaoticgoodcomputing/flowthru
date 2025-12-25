@@ -40,8 +40,10 @@
                 "toughness": "1",
                 "colors": [ "G" ],
                 "types": [ "creature" ],
-                "subtypes": [ "Saproling" ]
-              }
+                "subtypes": [ "Saproling" ],
+                "isCopy": false
+              },
+              "isOptional": false
             }
           ]
         }

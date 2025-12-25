@@ -156,9 +156,9 @@ public record AbilityCategoryStatistics
 public record AbilityTypeErrors
 {
   /// <summary>
-  /// Errors specific to keyword abilities.
+  /// Errors specific to spell abilities.
   /// </summary>
-  public required List<AbilityErrorPattern> KeywordAbilities { get; init; }
+  public required List<AbilityErrorPattern> SpellAbilities { get; init; }
 
   /// <summary>
   /// Errors specific to activated abilities.

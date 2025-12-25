@@ -1,6 +1,6 @@
 using Flowthru.Abstractions;
-using MagicAST.Core.AST;
-using MagicAST.DTOs;
+using MagicAST;
+using MagicAST.Diagnostics;
 
 namespace MagicAtlas.Data._08_Reporting.Schemas;
 
@@ -23,12 +23,12 @@ public record MagicAstCardAnalysis : ITextSerializable, IStructuredSerializable,
   /// The parsed AST as a structured, serializable DTO.
   /// Null if parsing completely failed.
   /// </summary>
-  public CardAstDto? Ast { get; init; }
+  public CardOutputAST? Ast { get; init; }
 
   /// <summary>
   /// Parse diagnostics (errors, warnings, info messages).
   /// </summary>
-  public List<DiagnosticDto> Diagnostics { get; init; } = new();
+  public List<Diagnostic> Diagnostics { get; init; } = new();
 
   /// <summary>
   /// Whether parsing succeeded (AST is non-null and no errors).

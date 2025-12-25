@@ -366,6 +366,7 @@ public sealed class OracleTokenizer : Tokenizer<OracleToken>
       ':' => OracleToken.Colon,
       ',' => OracleToken.Comma,
       '.' => OracleToken.Period,
+      '/' => OracleToken.Slash,
       '\u2014' => OracleToken.EmDash, // Em dash
       '\u2013' => OracleToken.EmDash, // En dash (treat same)
       '\u2022' => OracleToken.Bullet, // Bullet

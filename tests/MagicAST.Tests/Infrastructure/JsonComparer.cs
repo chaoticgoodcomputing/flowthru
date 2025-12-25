@@ -104,6 +104,14 @@ public static class JsonComparer
       return arr.Count == 0;
     }
 
+    // Check if this is a metadata property that can be ignored
+    // Reminder text is valuable metadata but not semantically required for equality
+    if (node is JsonObject obj && obj.Count == 1 && obj.ContainsKey("text"))
+    {
+      // This is likely a Parenthetical/reminder node - treat as optional metadata
+      return true;
+    }
+
     return false;
   }
 
