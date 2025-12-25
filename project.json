@@ -66,6 +66,23 @@
           }
         }
       }
+    },
+    "publish": {
+      "//": "Prepares and packages Flowthru for NuGet publication",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "echo 'Cleaning previous packages...'",
+          "rm -rf dist/src/Flowthru/**/*.nupkg 2>/dev/null || true",
+          "echo 'Building Flowthru in Release mode...'",
+          "dotnet build src/Flowthru/Flowthru.csproj --configuration Release",
+          "echo 'Packing Flowthru...'",
+          "dotnet pack src/Flowthru/Flowthru.csproj --configuration Release --no-build --output dist/packages",
+          "echo '✓ NuGet package created:'",
+          "ls -lh dist/packages/*.nupkg"
+        ],
+        "parallel": false
+      }
     }
   }
 }

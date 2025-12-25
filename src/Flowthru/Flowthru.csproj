@@ -6,8 +6,19 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru</RootNamespace>
     <Version>0.1.0</Version>
-    <Authors>Flowthru Contributors</Authors>
-    <Description>A type-safe data engineering framework for .NET inspired by Kedro's declarative pipelines</Description>
+    <Authors>Spencer Elkington</Authors>
+    <Description>A type-safe data engineering framework for .NET</Description>
+    
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
+    <PackageTags>data-engineering;pipeline;kedro</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,6 +53,12 @@
     <ProjectReference Include="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include README and LICENSE in package -->
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>
