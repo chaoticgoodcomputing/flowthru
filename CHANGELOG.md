@@ -8,9 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-12-25
 
 ### Added
-- Initial NuGet publication
-- Core Flowthru framework with type-safe data engineering capabilities
-- Support for CSV, Parquet, Excel, and JSON formats
-- Property-based catalog system
-- Pipeline builder with compile-time safety
-- Basic documentation and examples
+
+- Initial changelog start
+- NuGet publish
