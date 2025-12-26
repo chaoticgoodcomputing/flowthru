@@ -33,6 +33,11 @@ jobs:
         with:
           version: 10.6.3
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          install-dependencies: true
+
       - name: Install dependencies
         run: pnpm install
 
@@ -42,11 +47,13 @@ jobs:
       - name: Run CI pipeline
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
+          CI: "true"
         run: npx nx run ft:ci
 
       - name: Generate coverage badges
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
+          CI: "true"
         run: npx nx run ft:coverage:badges
 
       - name: Archive coverage report

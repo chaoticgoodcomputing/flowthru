@@ -33,6 +33,17 @@ public static class PlotlyImageExportNode
 {
   public static Func<GenericChart, Task<byte[]>> Create(ILogger? logger = null)
   {
+    // Configure PuppeteerSharp for CI environment (no sandbox)
+    if (Environment.GetEnvironmentVariable("CI") == "true")
+    {
+      var currentArgs = Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args ?? Array.Empty<string>();
+      if (!currentArgs.Contains("--no-sandbox"))
+      {
+        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args =
+          currentArgs.Concat(new[] { "--no-sandbox" }).ToArray();
+      }
+    }
+
     return async (input) =>
     {
       logger?.LogInformation("Converting chart to PNG binary data");
