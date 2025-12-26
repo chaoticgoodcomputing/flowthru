@@ -1,3 +1,7 @@
 Data/Datasets/**/*
+!Data/Datasets/01_Raw
+!Data/Datasets/01_Raw/*
+!Data/_01_Raw/Datasets
+!Data/_01_Raw/Datasets/*
 Data/Metadata/**/*
 !.gitkeep
