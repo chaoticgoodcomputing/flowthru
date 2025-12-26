@@ -93,4 +93,7 @@ public class ExampleIntegrationTests
       }
       TestContext.WriteLine("--- End Exception Details ---");
     }
-}
+
+    // Assert success
+    Assert.That(result.ExitCode, Is.EqualTo(0), $"Example {example.Name} failed with exit code {result.ExitCode}");
+  }
