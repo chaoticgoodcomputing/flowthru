@@ -275,3 +275,4 @@ scratch/
 
 # Version bumping temporary files
 .version
+coverage-badges/
