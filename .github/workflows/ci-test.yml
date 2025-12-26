@@ -1,16 +1,12 @@
 name: CI - Test and Coverage
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-  workflow_call:
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    if: "github.event_name == 'workflow_call' || (!contains(github.event.head_commit.message, 'chore:') && !contains(github.event.head_commit.message, 'chore('))"
 
     steps:
       - name: Checkout code
