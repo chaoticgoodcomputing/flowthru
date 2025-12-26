@@ -36,11 +36,14 @@ public static class PlotlyImageExportNode
     // Configure PuppeteerSharp for CI environment (no sandbox)
     if (Environment.GetEnvironmentVariable("CI") == "true")
     {
-      var currentArgs = Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args ?? Array.Empty<string>();
+      var currentArgs =
+        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args
+        ?? Array.Empty<string>();
       if (!currentArgs.Contains("--no-sandbox"))
       {
-        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args =
-          currentArgs.Concat(new[] { "--no-sandbox" }).ToArray();
+        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args = currentArgs
+          .Concat(new[] { "--no-sandbox" })
+          .ToArray();
       }
     }
 

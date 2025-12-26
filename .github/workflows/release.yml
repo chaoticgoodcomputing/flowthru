@@ -8,6 +8,10 @@ on:
       - "docs/**"
       - ".github/instructions/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-and-release:
     runs-on: ubuntu-latest
@@ -55,13 +59,13 @@ jobs:
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
-        run: npx nx run ft:ci
+        run: pnpm nx run ft:ci
 
       - name: Generate coverage badges
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
-        run: npx nx run ft:coverage:badges
+        run: pnpm nx run ft:coverage:badges
 
       # ===== RELEASE PHASE (only runs if tests pass) =====
       - name: Configure Git
@@ -73,7 +77,7 @@ jobs:
         id: version
         run: |
           # Run commit-and-tag-version via NX
-          nx run ft:release
+          pnpm nx run ft:release
 
           # Extract new version from package.json
           NEW_VERSION=$(node -p "require('./package.json').version")
@@ -103,7 +107,7 @@ jobs:
 
       - name: Build and pack NuGet package
         if: steps.version_check.outputs.changed == 'true'
-        run: nx run ft:publish
+        run: pnpm nx run ft:publish
 
       - name: Prepare coverage badges for release
         if: steps.version_check.outputs.changed == 'true'
