@@ -1,13 +1,18 @@
 {
   "name": "flowthru",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A type-safe data engineering framework for .NET",
   "main": "index.js",
   "scripts": {
     "prepare": "husky",
     "release": "commit-and-tag-version"
   },
-  "keywords": [ "data-engineering", "pipeline", "kedro", "dotnet" ],
+  "keywords": [
+    "data-engineering",
+    "pipeline",
+    "kedro",
+    "dotnet"
+  ],
   "author": "Spencer Elkington",
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.6.3",
