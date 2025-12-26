@@ -61,7 +61,7 @@ public class ExampleIntegrationTests
   /// Executes each example project and verifies it completes successfully.
   /// This is the main integration test that provides code coverage through example execution.
   /// </summary>
-    [TestCaseSource(nameof(GetAllExamples))]
+  [TestCaseSource(nameof(GetAllExamples))]
   public async Task Example_ExecutesSuccessfully(ExampleProject example)
   {
     // Arrange
@@ -95,5 +95,10 @@ public class ExampleIntegrationTests
     }
 
     // Assert success
-    Assert.That(result.ExitCode, Is.EqualTo(0), $"Example {example.Name} failed with exit code {result.ExitCode}");
+    Assert.That(
+      result.ExitCode,
+      Is.EqualTo(0),
+      $"Example {example.Name} failed with exit code {result.ExitCode}"
+    );
   }
+}
