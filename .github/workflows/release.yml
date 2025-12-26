@@ -19,7 +19,7 @@ jobs:
     permissions:
       contents: write # Required to push commits and tags
       packages: write # Required for NuGet publish (if using GitHub Packages)
-    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'chore(release)')"
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'chore(release)') && !contains(github.event.head_commit.message, 'chore:') && !contains(github.event.head_commit.message, 'chore(')"
 
     steps:
       - name: Checkout code
