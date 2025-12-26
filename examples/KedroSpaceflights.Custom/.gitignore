@@ -1,6 +1,8 @@
 Data/Datasets/**/*
 !Data/Datasets/01_Raw
 !Data/Datasets/01_Raw/*
+!Data/Datasets/99_Reference
+!Data/Datasets/99_Reference/*
 !Data/_01_Raw/Datasets
 !Data/_01_Raw/Datasets/*
 Data/Metadata/**/*
