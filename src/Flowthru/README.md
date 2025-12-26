@@ -1,6 +1,6 @@
 # Flowthru
 
-[![CI Tests](https://github.com/chaoticgoodcomputing/flowthru/actions/workflows/ci-test.yml/badge.svg)](https://github.com/chaoticgoodcomputing/flowthru/actions/workflows/ci-test.yml)
+[![CI and Release](https://github.com/chaoticgoodcomputing/flowthru/actions/workflows/release.yml/badge.svg)](https://github.com/chaoticgoodcomputing/flowthru/actions/workflows/release.yml)
 [![Coverage](https://github.com/chaoticgoodcomputing/flowthru/releases/latest/download/coverage-badge.svg)](https://github.com/chaoticgoodcomputing/flowthru/releases/latest)
 [![NuGet](https://img.shields.io/nuget/v/Flowthru.svg)](https://www.nuget.org/packages/Flowthru/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
