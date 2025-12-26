@@ -4,8 +4,73 @@
   "projectType": "library",
   "sourceRoot": ".",
   "targets": {
-    "test": {
+    "restore": {
+      "//": "Restores .NET dependencies for the solution",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "dotnet restore Flowthru.sln"
+        ],
+        "parallel": false
+      }
+    },
+    "build:release": {
+      "//": "Builds the solution in Release configuration",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "restore" ],
+      "options": {
+        "commands": [
+          "dotnet build Flowthru.sln --configuration Release --no-restore"
+        ],
+        "parallel": false
+      }
+    },
+    "test:coverage": {
       "//": "Runs tests with coverage collection",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "build:release" ],
+      "options": {
+        "commands": [
+          "dotnet test Flowthru.sln --configuration Release --no-build --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
+        ],
+        "parallel": false
+      }
+    },
+    "coverage:report": {
+      "//": "Generates HTML coverage report from test results",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "test:coverage" ],
+      "options": {
+        "commands": [
+          "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" \"-verbosity:Info\""
+        ],
+        "parallel": false
+      }
+    },
+    "coverage:badges": {
+      "//": "Generates coverage badges for release artifacts",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "test:coverage" ],
+      "options": {
+        "commands": [
+          "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:coverage-badges\" \"-reporttypes:Badges\" \"-verbosity:Warning\""
+        ],
+        "parallel": false
+      }
+    },
+    "ci": {
+      "//": "Orchestrates full CI pipeline: restore, build, test, and coverage report",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "coverage:report" ],
+      "options": {
+        "commands": [
+          "echo '✓ CI pipeline complete'"
+        ],
+        "parallel": false
+      }
+    },
+    "test": {
+      "//": "Runs tests with coverage collection (legacy target for compatibility)",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
@@ -80,6 +145,16 @@
           "dotnet pack src/Flowthru/Flowthru.csproj --configuration Release --no-build --output dist/packages",
           "echo '✓ NuGet package created:'",
           "ls -lh dist/packages/*.nupkg"
+        ],
+        "parallel": false
+      }
+    },
+    "release": {
+      "//": "Calculates next semantic version and generates changelog based on conventional commits",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "commit-and-tag-version --skip.commit --skip.tag"
         ],
         "parallel": false
       }

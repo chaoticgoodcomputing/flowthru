@@ -1,5 +1,10 @@
 # Flowthru
 
+[![CI Tests](https://github.com/chaoticgoodcomputing/flowthru/actions/workflows/ci-test.yml/badge.svg)](https://github.com/chaoticgoodcomputing/flowthru/actions/workflows/ci-test.yml)
+[![Coverage](https://github.com/chaoticgoodcomputing/flowthru/releases/latest/download/coverage-badge.svg)](https://github.com/chaoticgoodcomputing/flowthru/releases/latest)
+[![NuGet](https://img.shields.io/nuget/v/Flowthru.svg)](https://www.nuget.org/packages/Flowthru/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 A type-safe data engineering framework for .NET inspired by Kedro's declarative pipelines.
 
 **Version:** 0.3.0 (Alpha - Simplified AddNode API)  
