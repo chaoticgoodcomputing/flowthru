@@ -23,6 +23,14 @@
       "updater": "scripts/csproj-updater.js"
     },
     {
+      "filename": "src/Flowthru.Extensions.ML/Flowthru.Extensions.ML.csproj",
+      "updater": "scripts/csproj-updater.js"
+    },
+    {
+      "filename": "src/Flowthru.Integrations.MLNet/Flowthru.Integrations.MLNet.csproj",
+      "updater": "scripts/csproj-updater.js"
+    },
+    {
       "filename": "src/Flowthru/README.md",
       "updater": "scripts/readme-updater.js"
     }
