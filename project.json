@@ -133,17 +133,24 @@
       }
     },
     "publish": {
-      "//": "Prepares and packages Flowthru for NuGet publication",
+      "//": "Prepares and packages all Flowthru NuGet packages for publication",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
           "echo 'Cleaning previous packages...'",
-          "rm -rf dist/src/Flowthru/**/*.nupkg 2>/dev/null || true",
-          "echo 'Building Flowthru in Release mode...'",
+          "rm -rf dist/packages 2>/dev/null || true",
+          "mkdir -p dist/packages",
+          "echo 'Building all projects in Release mode...'",
           "dotnet build src/Flowthru/Flowthru.csproj --configuration Release",
-          "echo 'Packing Flowthru...'",
+          "dotnet build src/Flowthru.Integrations.MLNet/Flowthru.Integrations.MLNet.csproj --configuration Release",
+          "dotnet build src/Flowthru.Extensions.ML/Flowthru.Extensions.ML.csproj --configuration Release",
+          "echo 'Packing Flowthru core...'",
           "dotnet pack src/Flowthru/Flowthru.csproj --configuration Release --no-build --output dist/packages",
-          "echo '✓ NuGet package created:'",
+          "echo 'Packing Flowthru.Integrations.MLNet...'",
+          "dotnet pack src/Flowthru.Integrations.MLNet/Flowthru.Integrations.MLNet.csproj --configuration Release --no-build --output dist/packages",
+          "echo 'Packing Flowthru.Extensions.ML...'",
+          "dotnet pack src/Flowthru.Extensions.ML/Flowthru.Extensions.ML.csproj --configuration Release --no-build --output dist/packages",
+          "echo '✓ NuGet packages created:'",
           "ls -lh dist/packages/*.nupkg"
         ],
         "parallel": false

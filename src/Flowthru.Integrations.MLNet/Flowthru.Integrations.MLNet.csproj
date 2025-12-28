@@ -11,6 +11,12 @@
     <PackageReference Include="Microsoft.ML.OnnxTransformer" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Include README and LICENSE in package -->
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -19,6 +25,17 @@
     <Version>0.1.0</Version>
     <Authors>Flowthru Contributors</Authors>
     <Description>ML.NET integration for Flowthru - provides IDataView container adapters for machine learning pipelines</Description>
+    
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Integrations.MLNet</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
+    <PackageTags>flowthru;ml.net;machine-learning;data-engineering</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
