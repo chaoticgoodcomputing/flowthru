@@ -13,10 +13,7 @@ Data/**/*.parquet
 Data/**/*.json
 Data/**/*.csv
 Data/**/*.xlsx
-
-# But keep the reference input and output data (raw layer)
-!Data/_01_Raw/Datasets/Inputs/**/*.parquet
-!Data/_01_Raw/Datasets/Reference/**/*.parquet
+Data/**/*.png
 
 # Keep directory structure
 !Data/**/.gitkeep

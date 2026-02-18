@@ -4,9 +4,13 @@ Metadata
 
 # Dataset directories - ignore generated outputs
 Data/**/Datasets
-# But allow raw input data
+# But allow raw input data (except large files)
 !Data/_01_Raw/Datasets
-!Data/_01_Raw/Datasets/*
+!Data/_01_Raw/Datasets/*.cs
+# Ignore large data files
+Data/_01_Raw/Datasets/*.csv
+Data/_01_Raw/Datasets/*.parquet
+Data/_01_Raw/Datasets/*.xlsx
 
 # Un-ignore all .gitkeep files anywhere
 !**/.gitkeep
