@@ -7,7 +7,7 @@
 
 A type-safe data engineering framework for .NET inspired by Kedro's declarative pipelines.
 
-**Version:** 0.1.6 (Alpha - Simplified AddNode API)  
+**Version:** 0.1.7 (Alpha - Simplified AddNode API)  
 **Status:** Active Development
 
 ---

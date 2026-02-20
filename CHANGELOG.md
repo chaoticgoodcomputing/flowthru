@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.7](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.6...v0.1.7) (2026-02-20)
+
+
+### Bug Fixes
+
+* nx-dotnet/dotnet setup order fix on action ([a3bc222](https://github.com/chaoticgoodcomputing/flowthru/commit/a3bc222e8b62bd991aae463a37c83ca96266f5b5))
+* purge retaildata from test, sln records ([db63b23](https://github.com/chaoticgoodcomputing/flowthru/commit/db63b23c2538e9823b87f282a82b009baa5f9969))
+* purge retaildata test ([9ba0376](https://github.com/chaoticgoodcomputing/flowthru/commit/9ba037690978ee38c4696ac52291de09b3b44500))
+* remove languageext v5 upstream dep ([21b7554](https://github.com/chaoticgoodcomputing/flowthru/commit/21b7554ed36099760c09f066f1a24976d583c3f0))
+* remove large data files that cause clone death ([9c8018f](https://github.com/chaoticgoodcomputing/flowthru/commit/9c8018f90a6807ed89a4e3cc78bcf2ec012894bc))
+* remove unit test for discovery count ([b451f6d](https://github.com/chaoticgoodcomputing/flowthru/commit/b451f6d233e3b4cce53f53f3b4fc73ed04d609a5))
+
 ## [0.1.6](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.5...v0.1.6) (2026-01-09)
 
 
