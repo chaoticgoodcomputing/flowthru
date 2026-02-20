@@ -16,7 +16,6 @@ public static class ExampleDiscovery
   [
     typeof(KedroSpaceflights.Custom.Program),
     typeof(KedroSpaceflights.Pure.Program),
-    typeof(RetailData.Program),
   ];
 
   /// <summary>
