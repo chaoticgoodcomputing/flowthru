@@ -1,7 +1,6 @@
 using Flowthru.Data.Storage;
 using Flowthru.Data.Validation;
-using LanguageExt;
-using static LanguageExt.Prelude;
+using Flowthru.Effects;
 
 namespace Flowthru.Data;
 
@@ -70,19 +69,19 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   public InspectionLevel? PreferredInspectionLevel => _preferredInspectionLevel;
 
   /// <inheritdoc/>
-  public IO<T> Load() => _storage.Load();
+  public FlowIO<T> Load() => _storage.Load();
 
   /// <inheritdoc/>
-  public IO<Unit> Save(T data) => _storage.Save(data);
+  public FlowIO<FlowUnit> Save(T data) => _storage.Save(data);
 
   /// <inheritdoc/>
-  public IO<bool> Exists() => _storage.Exists();
+  public FlowIO<bool> Exists() => _storage.Exists();
 
   /// <inheritdoc/>
-  public IO<object> LoadUntyped() => Load().Map(data => (object)data!);
+  public FlowIO<object> LoadUntyped() => Load().Map(data => (object)data!);
 
   /// <inheritdoc/>
-  public IO<Unit> SaveUntyped(object data)
+  public FlowIO<FlowUnit> SaveUntyped(object data)
   {
     // Try direct cast
     if (data is T typedData)
@@ -91,7 +90,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
     }
 
     // Type mismatch - fail with descriptive error
-    return IO.fail<Unit>(
+    return FlowIO.Fail<FlowUnit>(
       new Exception(
         $"Type mismatch: Cannot save data of type '{data?.GetType().Name ?? "null"}' "
           + $"to catalog entry '{Label}' expecting type '{typeof(T).Name}'"
@@ -100,7 +99,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   }
 
   /// <inheritdoc/>
-  public IO<int> GetCountAsync()
+  public FlowIO<int> GetCountAsync()
   {
     // For collection types, try to get actual count
     // For singletons, return 1 if exists
@@ -109,7 +108,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
     if (IsCollectionType(type))
     {
       return from exists in Exists()
-        from count in exists ? LoadAndCount() : IO.pure(0)
+        from count in exists ? LoadAndCount() : FlowIO.Pure(0)
         select count;
     }
     else
@@ -118,7 +117,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
     }
   }
 
-  private IO<int> LoadAndCount()
+  private FlowIO<int> LoadAndCount()
   {
     return Load()
       .Map(data =>

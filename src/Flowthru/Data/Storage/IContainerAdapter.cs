@@ -23,14 +23,13 @@ namespace Flowthru.Data.Storage;
 /// <para>
 /// This adapter bridges between:
 /// - <strong>Streaming rows</strong> (<see cref="IAsyncEnumerable{T}"/>) - format layer
-/// - <strong>In-memory container</strong> (IEnumerable, IDataView, Seq) - application layer
+/// - <strong>In-memory container</strong> (IEnumerable, IDataView) - application layer
 /// </para>
 /// <para>
 /// <strong>Container Type Examples:</strong>
 /// </para>
 /// <list type="bullet">
 /// <item><strong>IEnumerable&lt;TRow&gt;</strong> - Standard .NET collections</item>
-/// <item><strong>Seq&lt;TRow&gt;</strong> - LanguageExt immutable lazy sequence</item>
 /// <item><strong>IDataView</strong> - ML.NET's columnar data representation</item>
 /// <item><strong>DataFrame</strong> - Pandas-style dataframe (future)</item>
 /// <item><strong>IObservable&lt;TRow&gt;</strong> - Reactive streams (future)</item>
@@ -57,11 +56,6 @@ namespace Flowthru.Data.Storage;
 /// var dataViewAdapter = new DataViewContainerAdapter&lt;CompanySchema&gt;(mlContext);
 /// var dataView = await dataViewAdapter.FromRows(rowStream);
 /// // Type: IDataView (ML.NET)
-///
-/// // Seq container adapter
-/// var seqAdapter = new SeqContainerAdapter&lt;CompanySchema&gt;();
-/// var seq = await seqAdapter.FromRows(rowStream);
-/// // Type: Seq&lt;CompanySchema&gt; (LanguageExt)
 /// </code>
 /// </example>
 public interface IContainerAdapter<TContainer, TRow>

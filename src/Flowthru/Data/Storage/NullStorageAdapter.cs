@@ -1,5 +1,5 @@
 using Flowthru.Data.Capabilities;
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
 
@@ -26,23 +26,23 @@ public sealed class NullStorageAdapter<T> : IStorageAdapter<T>, IReadOnly
   public bool IsReadOnly => true;
 
   /// <inheritdoc/>
-  public IO<T> Load() =>
-    IO.liftAsync<T>(async () =>
+  public FlowIO<T> Load() =>
+    FlowIO.LiftAsync<T>(async () =>
     {
       throw new NotSupportedException("NullStorageAdapter does not support Load operations");
     });
 
   /// <inheritdoc/>
-  public IO<Unit> Save(T data) =>
-    IO.liftAsync(async () =>
+  public FlowIO<FlowUnit> Save(T data) =>
+    FlowIO.LiftAsync(async () =>
     {
       // No-op: side-effect-only nodes don't save data
-      return Unit.Default;
+      return FlowUnit.Default;
     });
 
   /// <inheritdoc/>
-  public IO<bool> Exists() =>
-    IO.liftAsync(async () =>
+  public FlowIO<bool> Exists() =>
+    FlowIO.LiftAsync(async () =>
     {
       return false; // Null entries never exist as seedable data
     });

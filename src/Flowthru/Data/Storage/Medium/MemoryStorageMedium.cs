@@ -1,6 +1,5 @@
 using Flowthru.Data.Capabilities;
-using LanguageExt;
-using static LanguageExt.Prelude;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage.Medium;
 
@@ -82,9 +81,9 @@ public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
   }
 
   /// <inheritdoc/>
-  public IO<Stream> ReadStream()
+  public FlowIO<Stream> ReadStream()
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       lock (_lock)
       {
@@ -106,9 +105,9 @@ public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
   }
 
   /// <inheritdoc/>
-  public IO<Unit> WriteStream(Stream stream)
+  public FlowIO<FlowUnit> WriteStream(Stream stream)
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       if (stream == null)
       {
@@ -124,14 +123,14 @@ public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
         _buffer = memoryStream.ToArray();
       }
 
-      return unit;
+      return FlowUnit.Default;
     });
   }
 
   /// <inheritdoc/>
-  public IO<bool> Exists()
+  public FlowIO<bool> Exists()
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       lock (_lock)
       {

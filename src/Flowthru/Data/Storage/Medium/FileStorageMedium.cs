@@ -1,6 +1,5 @@
 using Flowthru.Data.Capabilities;
-using LanguageExt;
-using static LanguageExt.Prelude;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage.Medium;
 
@@ -73,9 +72,9 @@ public sealed class FileStorageMedium : IStorageMedium, ISeedable
   public string FilePath => _filePath;
 
   /// <inheritdoc/>
-  public IO<Stream> ReadStream()
+  public FlowIO<Stream> ReadStream()
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       if (!File.Exists(_filePath))
       {
@@ -97,9 +96,9 @@ public sealed class FileStorageMedium : IStorageMedium, ISeedable
   }
 
   /// <inheritdoc/>
-  public IO<Unit> WriteStream(Stream stream)
+  public FlowIO<FlowUnit> WriteStream(Stream stream)
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       if (stream == null)
       {
@@ -137,7 +136,7 @@ public sealed class FileStorageMedium : IStorageMedium, ISeedable
         // Atomic rename: replace old file with new one
         File.Move(tempPath, _filePath, overwrite: true);
 
-        return unit;
+        return FlowUnit.Default;
       }
       catch
       {
@@ -159,9 +158,9 @@ public sealed class FileStorageMedium : IStorageMedium, ISeedable
   }
 
   /// <inheritdoc/>
-  public IO<bool> Exists()
+  public FlowIO<bool> Exists()
   {
-    return IO.liftAsync(async () => File.Exists(_filePath));
+    return FlowIO.LiftAsync(async () => File.Exists(_filePath));
   }
 
   /// <inheritdoc/>

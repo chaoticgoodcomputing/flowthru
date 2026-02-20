@@ -1,4 +1,4 @@
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
 
@@ -68,9 +68,9 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
   }
 
   /// <inheritdoc />
-  public IO<T> Load()
+  public FlowIO<T> Load()
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       lock (_lock)
       {
@@ -86,23 +86,23 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
   }
 
   /// <inheritdoc />
-  public IO<Unit> Save(T data)
+  public FlowIO<FlowUnit> Save(T data)
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       lock (_lock)
       {
         _data = data;
         _hasData = true;
-        return Unit.Default;
+        return FlowUnit.Default;
       }
     });
   }
 
   /// <inheritdoc />
-  public IO<bool> Exists()
+  public FlowIO<bool> Exists()
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       lock (_lock)
       {

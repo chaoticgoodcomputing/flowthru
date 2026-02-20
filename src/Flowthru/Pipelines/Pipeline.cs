@@ -2,9 +2,8 @@ using System.Diagnostics;
 using Flowthru.Data;
 using Flowthru.Meta.Builders;
 using Flowthru.Meta.Models;
-using LanguageExt;
+using Flowthru.Effects;
 using Microsoft.Extensions.Logging;
-using static LanguageExt.Prelude;
 
 namespace Flowthru.Pipelines;
 
@@ -459,10 +458,14 @@ public class Pipeline
     var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
     var result = method!.Invoke(catalogEntry, new object[] { 10 })!;
 
-    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
-    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> io)
+    // Handle both FlowIO<ValidationResult> (unwrap to ValueTask) and Task<ValidationResult> return types
+    if (result is FlowIO<Data.Validation.ValidationResult> io)
     {
       return await io.Run();
+    }
+    else if (result is ValueTask<Data.Validation.ValidationResult> valueTask)
+    {
+      return await valueTask;
     }
     else if (result is Task<Data.Validation.ValidationResult> task)
     {
@@ -487,10 +490,14 @@ public class Pipeline
     var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
     var result = method!.Invoke(catalogEntry, System.Array.Empty<object>())!;
 
-    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
-    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> io)
+    // Handle both FlowIO<ValidationResult> (unwrap to ValueTask) and Task<ValidationResult> return types
+    if (result is FlowIO<Data.Validation.ValidationResult> io)
     {
       return await io.Run();
+    }
+    else if (result is ValueTask<Data.Validation.ValidationResult> valueTask)
+    {
+      return await valueTask;
     }
     else if (result is Task<Data.Validation.ValidationResult> task)
     {

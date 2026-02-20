@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LanguageExtV4Coexistence</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference Flowthru (no LanguageExt dependency) -->
+    <ProjectReference Include="../../src/Flowthru/Flowthru.csproj" />
+    
+    <!-- Reference LanguageExt v4 -->
+    <PackageReference Include="LanguageExt.Core" Version="4.4.9" />
+  </ItemGroup>
+
+</Project>

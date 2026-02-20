@@ -70,7 +70,7 @@ public abstract class DataCatalogBase
   /// <typeparam name="T">
   /// The data type stored in this catalog entry.
   /// For singletons: Use T directly (e.g., LinearRegressionModel)
-  /// For collections: Use Seq&lt;T&gt; or IEnumerable&lt;T&gt; (e.g., Seq&lt;FeatureRow&gt;)
+  /// For collections: Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;FeatureRow&gt;)
   /// </typeparam>
   /// <param name="factory">Factory function to create the entry on first access</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
@@ -85,11 +85,11 @@ public abstract class DataCatalogBase
   /// <code>
   /// // Singleton object
   /// public ICatalogEntry&lt;LinearRegressionModel&gt; Model =>
-  ///     GetOrCreateEntry(() => new MemoryCatalogEntry&lt;LinearRegressionModel&gt;("model"));
+  ///     GetOrCreateEntry(() =&gt; CatalogEntries.Single.Memory&lt;LinearRegressionModel&gt;("model"));
   ///
   /// // Collection
-  /// public ICatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt; Features =>
-  ///     GetOrCreateEntry(() => new CsvCatalogEntry&lt;Seq&lt;FeatureRow&gt;&gt;("features", "data.csv"));
+  /// public ICatalogEntry&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
+  ///     GetOrCreateEntry(() =&gt; CatalogEntries.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));
   /// </code>
   /// </para>
   /// </remarks>

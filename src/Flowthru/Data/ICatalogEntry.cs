@@ -21,7 +21,7 @@ public interface ICatalogEntry
   /// <summary>
   /// The runtime type of data stored in this catalog entry.
   /// For singletons: Returns typeof(T).
-  /// For collections: Returns typeof(Seq&lt;T&gt;) or typeof(IEnumerable&lt;T&gt;).
+  /// For collections: Returns typeof(IEnumerable&lt;T&gt;).
   /// </summary>
   Type DataType { get; }
 
@@ -65,7 +65,7 @@ public interface ICatalogEntry
 /// The data type stored in this catalog entry.
 /// Cardinality is determined by T itself:
 /// - For singletons: Use T directly (e.g., LinearRegressionModel, ModelMetrics)
-/// - For collections: Use Seq&lt;T&gt; or IEnumerable&lt;T&gt; (e.g., Seq&lt;FeatureRow&gt;)
+/// - For collections: Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;FeatureRow&gt;)
 /// </typeparam>
 /// <remarks>
 /// <para>

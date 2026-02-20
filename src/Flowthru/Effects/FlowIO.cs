@@ -393,18 +393,6 @@ public static class FlowIO
     });
 
   /// <summary>
-  /// Lifts a <see cref="ValueTask{A}"/>-returning function into an effect.
-  /// </summary>
-  /// <typeparam name="A">The return type.</typeparam>
-  /// <param name="f">The function returning a <see cref="ValueTask{A}"/>.</param>
-  /// <returns>An effect that executes <paramref name="f"/>.</returns>
-  public static FlowIO<A> LiftAsync<A>(Func<ValueTask<A>> f) =>
-    new(async _ =>
-    {
-      return await f().ConfigureAwait(false);
-    });
-
-  /// <summary>
   /// Lifts a cancellation-aware <see cref="ValueTask{A}"/>-returning function into an effect.
   /// </summary>
   /// <typeparam name="A">The return type.</typeparam>

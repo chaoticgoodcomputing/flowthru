@@ -1,5 +1,5 @@
 using Flowthru.Data.Capabilities;
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
 
@@ -31,8 +31,8 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>, ISeedable
   public bool CanBeSeed => File.Exists(_filePath);
 
   /// <inheritdoc/>
-  public IO<string> Load() =>
-    IO.liftAsync(async () =>
+  public FlowIO<string> Load() =>
+    FlowIO.LiftAsync(async () =>
     {
       if (!File.Exists(_filePath))
       {
@@ -43,8 +43,8 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>, ISeedable
     });
 
   /// <inheritdoc/>
-  public IO<Unit> Save(string data) =>
-    IO.liftAsync(async () =>
+  public FlowIO<FlowUnit> Save(string data) =>
+    FlowIO.LiftAsync(async () =>
     {
       var directory = Path.GetDirectoryName(_filePath);
       if (!string.IsNullOrEmpty(directory))
@@ -53,12 +53,12 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>, ISeedable
       }
 
       await File.WriteAllTextAsync(_filePath, data);
-      return Unit.Default;
+      return FlowUnit.Default;
     });
 
   /// <inheritdoc/>
-  public IO<bool> Exists() =>
-    IO.liftAsync(async () =>
+  public FlowIO<bool> Exists() =>
+    FlowIO.LiftAsync(async () =>
     {
       return File.Exists(_filePath);
     });

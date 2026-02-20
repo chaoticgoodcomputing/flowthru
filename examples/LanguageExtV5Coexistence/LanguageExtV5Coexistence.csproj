@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LanguageExtV5Coexistence</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference Flowthru (no LanguageExt dependency) -->
+    <ProjectReference Include="../../src/Flowthru/Flowthru.csproj" />
+    
+    <!-- Reference LanguageExt v5 -->
+    <PackageReference Include="LanguageExt.Core" Version="5.0.0-beta-54" />
+  </ItemGroup>
+
+</Project>

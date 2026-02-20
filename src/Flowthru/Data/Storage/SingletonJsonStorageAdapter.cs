@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Flowthru.Abstractions;
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
 
@@ -82,9 +82,9 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
   }
 
   /// <inheritdoc />
-  public IO<T> Load()
+  public FlowIO<T> Load()
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       if (!File.Exists(_filePath))
       {
@@ -99,9 +99,9 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
   }
 
   /// <inheritdoc />
-  public IO<Unit> Save(T data)
+  public FlowIO<FlowUnit> Save(T data)
   {
-    return IO.liftAsync(async () =>
+    return FlowIO.LiftAsync(async () =>
     {
       if (data == null)
       {
@@ -129,14 +129,14 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
       }
       File.Move(tempPath, _filePath);
 
-      return Unit.Default;
+      return FlowUnit.Default;
     });
   }
 
   /// <inheritdoc />
-  public IO<bool> Exists()
+  public FlowIO<bool> Exists()
   {
-    return IO.liftAsync(async () => File.Exists(_filePath));
+    return FlowIO.LiftAsync(async () => File.Exists(_filePath));
   }
 
   /// <summary>

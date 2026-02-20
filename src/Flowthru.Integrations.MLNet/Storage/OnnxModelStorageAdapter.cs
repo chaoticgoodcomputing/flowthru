@@ -1,8 +1,7 @@
 using Flowthru.Data.Capabilities;
 using Flowthru.Data.Storage;
 using Flowthru.Data.Validation;
-using LanguageExt;
-using static LanguageExt.Prelude;
+using Flowthru.Effects;
 
 namespace Flowthru.Integrations.MLNet.Storage;
 
@@ -56,8 +55,8 @@ public sealed class OnnxModelStorageAdapter
   public bool CanBeSeed => File.Exists(_filePath);
 
   /// <inheritdoc/>
-  public IO<byte[]> Load() =>
-    IO.liftAsync(async () =>
+  public FlowIO<byte[]> Load() =>
+    FlowIO.LiftAsync(async () =>
     {
       if (!File.Exists(_filePath))
       {
@@ -72,8 +71,8 @@ public sealed class OnnxModelStorageAdapter
     });
 
   /// <inheritdoc/>
-  public IO<Unit> Save(byte[] data) =>
-    IO.liftAsync<Unit>(async () =>
+  public FlowIO<FlowUnit> Save(byte[] data) =>
+    FlowIO.LiftAsync<FlowUnit>(async () =>
     {
       throw new InvalidOperationException(
         "ONNX models are read-only and should not be written by pipelines. "
@@ -82,11 +81,11 @@ public sealed class OnnxModelStorageAdapter
     });
 
   /// <inheritdoc/>
-  public IO<bool> Exists() => IO.liftAsync(async () => File.Exists(_filePath));
+  public FlowIO<bool> Exists() => FlowIO.LiftAsync(async () => File.Exists(_filePath));
 
   /// <inheritdoc/>
-  public IO<ValidationResult> InspectShallow(int sampleSize) =>
-    IO.liftAsync(async () =>
+  public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
+    FlowIO.LiftAsync(async () =>
     {
       // Check file existence
       if (!File.Exists(_filePath))

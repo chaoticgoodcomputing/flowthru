@@ -17,7 +17,7 @@ namespace Flowthru.Effects;
 /// FlowIO&lt;FlowUnit&gt; WriteLog(string message) =>
 ///     FlowIO.LiftAsync(async ct => {
 ///         await File.WriteAllTextAsync("log.txt", message, ct);
-///         return FlowUnit.Default;
+///         return FlowFlowUnit.Default;
 ///     });
 /// </code>
 /// </remarks>

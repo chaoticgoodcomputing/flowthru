@@ -1,7 +1,6 @@
 using Flowthru.Data.Capabilities;
 using Flowthru.Data.Validation;
-using LanguageExt;
-using static LanguageExt.Prelude;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
 
@@ -56,11 +55,11 @@ namespace Flowthru.Data.Storage;
 ///     container: new DataViewContainerAdapter&lt;Company&gt;(mlContext)
 /// );
 ///
-/// // JSON in memory with Seq container
-/// var jsonSeq = new ComposedStorageAdapter&lt;Seq&lt;Order&gt;, Order&gt;(
+/// // JSON in memory with IEnumerable container
+/// var jsonEnumerable = new ComposedStorageAdapter&lt;IEnumerable&lt;Order&gt;, Order&gt;(
 ///     medium: new MemoryStorageMedium(),
 ///     format: new JsonFormatSerializer&lt;Order&gt;(),
-///     container: new SeqContainerAdapter&lt;Order&gt;()
+///     container: new EnumerableContainerAdapter&lt;Order&gt;()
 /// );
 /// </code>
 /// </example>
@@ -92,11 +91,11 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   }
 
   /// <inheritdoc/>
-  public IO<TContainer> Load()
+  public FlowIO<TContainer> Load()
   {
     // Compose IO operations functionally using LINQ comprehension syntax
     return from stream in _medium.ReadStream()
-      from container in IO.liftAsync(async () =>
+      from container in FlowIO.LiftAsync(async () =>
       {
         try
         {
@@ -117,12 +116,12 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   }
 
   /// <inheritdoc/>
-  public IO<Unit> Save(TContainer data)
+  public FlowIO<FlowUnit> Save(TContainer data)
   {
     // Check if read-only before attempting write
     if (IsReadOnly)
     {
-      return IO.fail<Unit>(
+      return FlowIO.Fail<FlowUnit>(
         new InvalidOperationException(
           "Cannot write to read-only storage adapter. "
             + "Check IReadOnly.IsReadOnly before attempting Save()."
@@ -131,7 +130,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
     }
 
     // Compose IO operations functionally
-    return from memStream in IO.liftAsync(async () =>
+    return from memStream in FlowIO.LiftAsync(async () =>
       {
         var stream = new MemoryStream();
 
@@ -149,7 +148,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   }
 
   /// <inheritdoc/>
-  public IO<bool> Exists()
+  public FlowIO<bool> Exists()
   {
     return _medium.Exists();
   }
