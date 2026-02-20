@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.9](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.7...v0.1.9) (2026-02-20)
+
+
+### Bug Fixes
+
+* example projects now use source generator for schema typing ([963d11e](https://github.com/chaoticgoodcomputing/flowthru/commit/963d11e3763a42c50843ee177200e814d3d153a2))
+* nuget publish ([eacbbc9](https://github.com/chaoticgoodcomputing/flowthru/commit/eacbbc966a76500613b1eb3ba4905581aec0653a))
+
 ## [0.1.8](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.7...v0.1.8) (2026-02-20)
 
 
