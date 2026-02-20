@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Flowthru/Flowthru.csproj" />
-    <ProjectReference Include="../../src/Flowthru.Extensions.ML/Flowthru.Extensions.ML.csproj" />
+    <PackageReference Include="Flowthru" Version="*" />
+    <PackageReference Include="Flowthru.Extensions.ML" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

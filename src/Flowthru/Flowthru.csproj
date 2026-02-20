@@ -51,13 +51,31 @@
     <!-- Source Generator for PipelineBuilder overloads -->
     <ProjectReference Include="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
+                      OutputItemType="Analyzer"
+                      PrivateAssets="none" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Include README and LICENSE in package -->
     <None Include="README.md" Pack="true" PackagePath="/" />
     <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+    <!-- Include build props to auto-import source generators -->
+    <None Include="build/Flowthru.props" Pack="true" PackagePath="build/" />
   </ItemGroup>
+
+  <!-- Package source generators in standard analyzer location -->
+  <ItemGroup>
+    <None Include="$(RepoRoot)dist/src/Flowthru.SourceGenerators/netstandard2.0/Flowthru.SourceGenerators.dll" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" />
+  </ItemGroup>
+
+  <!-- Ensure source generators are built before packing -->
+  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec">
+    <MSBuild Projects="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj" 
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+  </Target>
 
 </Project>

@@ -6,11 +6,8 @@ namespace KedroSpaceflights.Pure.Data._04_Models.Schemas;
 /// Model prediction results containing actual and predicted values.
 /// Used for generating confusion matrices and prediction accuracy visualizations.
 /// </summary>
-public record ModelPredictions
-  : IFlatSchema,
-    ITextSerializable,
-    IBinarySerializable,
-    IStructuredSerializable
+[FlowthruSchema]
+public partial record ModelPredictions
 {
   /// <summary>
   /// Actual value from test set.

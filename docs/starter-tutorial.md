@@ -13,9 +13,22 @@ cd MyPipeline
 ```
 
 **Add Flowthru reference:**
+
+*For NuGet package (production):*
+```xml
+<ItemGroup>
+  <PackageReference Include="Flowthru" Version="1.0.0" />
+</ItemGroup>
+```
+
+*For local development with ProjectReference:*
 ```xml
 <ItemGroup>
   <ProjectReference Include="../path/to/Flowthru/Flowthru.csproj" />
+  <!-- Required for local development. When using NuGet, this is automatic. -->
+  <ProjectReference Include="../path/to/Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
+                    ReferenceOutputAssembly="false"
+                    OutputItemType="Analyzer" />
 </ItemGroup>
 ```
 
@@ -295,22 +308,20 @@ using Flowthru.Abstractions;
 
 namespace MyPipeline.Data._01_Raw.Schemas;
 
-public record InputSchema
-  : IFlatSchema,
-    ITextSerializable,
-    IBinarySerializable
+[FlowthruSchema]
+public partial record InputSchema
 {
   [SerializedLabel("id")]
-  public string Id { get; init; } = null!;
+  public required string Id { get; init; }
 
   [SerializedLabel("name")]
-  public string Name { get; init; } = null!;
+  public required string Name { get; init; }
 
   [SerializedLabel("value")]
   public string? Value { get; init; }  // Nullable - may be missing
 
   [SerializedLabel("count")]
-  public string Count { get; init; } = null!;
+  public required string Count { get; init; }
 }
 ```
 
@@ -320,16 +331,14 @@ using Flowthru.Abstractions;
 
 namespace MyPipeline.Data._02_Cleaned.Schemas;
 
-public record CleanedSchema
-  : IFlatSchema,
-    IBinarySerializable,
-    IStructuredSerializable
+[FlowthruSchema]
+public partial record CleanedSchema
 {
   [SerializedLabel("id")]
-  public string Id { get; init; } = null!;
+  public required string Id { get; init; }
 
   [SerializedLabel("name")]
-  public string Name { get; init; } = null!;
+  public required string Name { get; init; }
 
   [SerializedLabel("value")]
   public decimal Value { get; init; }  // Parsed to decimal
@@ -339,11 +348,13 @@ public record CleanedSchema
 }
 ```
 
-**Schema interface requirements:**
-- `IFlatSchema` - Required for all schemas (marks it as a flat/tabular structure)
-- `ITextSerializable` - For CSV, JSON text formats
-- `IBinarySerializable` - For Parquet, binary formats
-- `IStructuredSerializable` - For JSON, Excel structured formats
+**Schema requirements:**
+- Add `[FlowthruSchema]` attribute to enable automatic interface generation
+- Mark the type as `partial` to allow source generator to add marker interfaces
+- Use `required` modifier for non-nullable properties
+- The source generator automatically determines:
+  - `IFlatSchema` vs `INestedSchema` based on property types (primitives vs collections/objects)
+  - `ITextSerializable`, `IBinarySerializable`, `IStructuredSerializable` based on schema structure
 ```
 
 ### 1.5 Node Space (Creating New Functional Nodes, Declaring Inputs & Outputs)

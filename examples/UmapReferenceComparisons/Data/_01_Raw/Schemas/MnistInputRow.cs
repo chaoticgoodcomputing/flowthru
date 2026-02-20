@@ -11,7 +11,8 @@ namespace UmapReferenceComparisons.Data._01_Raw.Schemas;
 /// The MNIST dataset contains 70,000 samples of 28x28 pixel grayscale images
 /// of handwritten digits (0-9). Each pixel value ranges from 0-255.
 /// </remarks>
-public record MnistInputRow : IFlatSchema, IBinarySerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record MnistInputRow
 {
   /// <summary>
   /// Unique observation identifier (GUID).

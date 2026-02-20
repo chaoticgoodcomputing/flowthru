@@ -16,8 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Flowthru/Flowthru.csproj" />
-    <ProjectReference Include="../../src/ML.Next/ML.Next.csproj" />
+    <PackageReference Include="Flowthru" Version="*" />
+    <!-- Needs direct reference to SourceGenerators for testing source generators -->
+    <ProjectReference Include="../../src/Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="true" />
   </ItemGroup>
 
   <ItemGroup>

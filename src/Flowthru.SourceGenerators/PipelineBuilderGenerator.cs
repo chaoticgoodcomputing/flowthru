@@ -17,12 +17,22 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
 
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
-    context.RegisterPostInitializationOutput(ctx => GenerateAddNodeOverloads(ctx));
+    // Only run this generator for the Flowthru assembly itself, not consuming projects
+    var assemblyName = context.CompilationProvider.Select((c, _) => c.AssemblyName);
+
+    context.RegisterSourceOutput(
+      assemblyName,
+      (ctx, name) =>
+      {
+        if (name != "Flowthru")
+          return;
+
+        GenerateAddNodeOverloads(ctx);
+      }
+    );
   }
 
-  private static void GenerateAddNodeOverloads(
-    IncrementalGeneratorPostInitializationContext context
-  )
+  private static void GenerateAddNodeOverloads(SourceProductionContext context)
   {
     var sb = new StringBuilder();
 

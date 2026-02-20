@@ -10,7 +10,8 @@ namespace KedroSpaceflights.Pure.Data._02_Intermediate.Schemas;
 /// Uses required members to enforce that all critical fields must be set
 /// during construction, preventing accidental omission in pipeline nodes.
 /// </remarks>
-public record PreprocessedCompanySchema : IFlatSchema, IBinarySerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record PreprocessedCompanySchema
 {
   /// <summary>
   /// Unique identifier for the company.

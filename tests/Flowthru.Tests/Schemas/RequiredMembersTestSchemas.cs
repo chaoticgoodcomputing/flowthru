@@ -10,7 +10,8 @@ namespace Flowthru.Tests.Schemas;
 /// fields must be set when constructing instances. The compiler prevents
 /// nodes from forgetting to set these fields.
 /// </remarks>
-public record RequiredMembersSchema : IFlatSchema, IBinarySerializable, ITextSerializable
+[FlowthruSchema]
+public partial record RequiredMembersSchema
 {
   /// <summary>
   /// Unique identifier for this record - must be set during construction.
@@ -64,7 +65,8 @@ public record PositionalRecordSchema(
 /// This schema combines required members (identity fields) with optional members
 /// (metadata fields), allowing flexible data while enforcing critical invariants.
 /// </remarks>
-public record MixedRequirementsSchema : IFlatSchema, IBinarySerializable, ITextSerializable
+[FlowthruSchema]
+public partial record MixedRequirementsSchema
 {
   // Required - critical identity fields
   [SerializedLabel("record_id")]
@@ -91,7 +93,8 @@ public record MixedRequirementsSchema : IFlatSchema, IBinarySerializable, ITextS
 /// This schema uses the traditional approach with parameterless constructor
 /// and all optional properties. Still fully supported.
 /// </remarks>
-public record TraditionalSchema : IFlatSchema, IBinarySerializable, ITextSerializable
+[FlowthruSchema]
+public partial record TraditionalSchema
 {
   [SerializedLabel("id")]
   public Guid Id { get; init; }

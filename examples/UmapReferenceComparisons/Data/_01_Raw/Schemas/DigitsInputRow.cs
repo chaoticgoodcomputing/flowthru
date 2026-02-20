@@ -9,7 +9,8 @@ namespace UmapReferenceComparisons.Data._01_Raw.Schemas;
 /// The Digits dataset contains 1,797 samples of 8x8 pixel grayscale images
 /// of handwritten digits (0-9). Each pixel value ranges from 0-16.
 /// </remarks>
-public record DigitsInputRow : IFlatSchema, IBinarySerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record DigitsInputRow
 {
   /// <summary>
   /// Unique observation identifier (GUID).

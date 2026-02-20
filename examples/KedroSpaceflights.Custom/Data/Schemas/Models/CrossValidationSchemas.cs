@@ -7,7 +7,8 @@ namespace KedroSpaceflights.Custom.Data.Schemas.Models;
 ///
 /// Acts as a SerializedLabel test for JSON serialization.
 /// </summary>
-public record CrossValidationResults : INestedSchema, IStructuredSerializable
+[FlowthruSchema]
+public partial record CrossValidationResults
 {
   /// <summary>
   /// Metrics for each fold
@@ -61,7 +62,8 @@ public record CrossValidationResults : INestedSchema, IStructuredSerializable
 /// <summary>
 /// Metrics for a single cross-validation fold
 /// </summary>
-public record FoldMetric : IFlatSchema, ITextSerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record FoldMetric
 {
   /// <summary>
   /// Fold number (1-indexed)

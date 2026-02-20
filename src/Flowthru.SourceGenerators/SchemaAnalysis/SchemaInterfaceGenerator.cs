@@ -1,0 +1,242 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+
+namespace Flowthru.SourceGenerators.SchemaAnalysis;
+
+/// <summary>
+/// Incremental source generator that analyzes types annotated with [FlowthruSchema]
+/// and emits the appropriate marker interface implementations (IFlatSchema/INestedSchema,
+/// ITextSerializable, IBinarySerializable, IStructuredSerializable) based on the type's
+/// actual property structure.
+/// </summary>
+[Generator]
+public class SchemaInterfaceGenerator : IIncrementalGenerator
+{
+  private const string AttributeFullName = "Flowthru.Abstractions.FlowthruSchemaAttribute";
+  private const string AttributeShortName = "FlowthruSchema";
+
+  public void Initialize(IncrementalGeneratorInitializationContext context)
+  {
+    // Find all type declarations with [FlowthruSchema].
+    var candidates = context
+      .SyntaxProvider.ForAttributeWithMetadataName(
+        AttributeFullName,
+        predicate: static (node, _) => node is TypeDeclarationSyntax,
+        transform: static (ctx, _) => ExtractSchemaInfo(ctx)
+      )
+      .Where(static info => info != null)
+      .Select(static (info, _) => info);
+
+    // Emit generated source for each candidate.
+    context.RegisterSourceOutput(candidates, static (ctx, info) => EmitSchemaInterfaces(ctx, info));
+  }
+
+  /// <summary>
+  /// Extracts the information needed for code generation from a syntax/semantic context.
+  /// Returns null if the type is unsuitable (e.g., not partial — a diagnostic is reported separately).
+  /// </summary>
+  private static SchemaGenerationInfo ExtractSchemaInfo(GeneratorAttributeSyntaxContext ctx)
+  {
+#pragma warning disable CS8603
+    if (!(ctx.TargetSymbol is INamedTypeSymbol typeSymbol))
+      return null;
+#pragma warning restore CS8603
+
+    var typeDeclaration = (TypeDeclarationSyntax)ctx.TargetNode;
+
+    // Check for partial modifier
+    bool isPartial = typeDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword);
+
+    // Classify the schema
+    var classification = SchemaPropertyClassifier.Classify(typeSymbol);
+
+    // Detect manually-applied marker interfaces
+    var manualInterfaces = DetectManualInterfaces(typeSymbol);
+
+    // Build namespace and type hierarchy for emission
+    var namespaceName = typeSymbol.ContainingNamespace.IsGlobalNamespace
+      ? ""
+      : typeSymbol.ContainingNamespace.ToDisplayString();
+
+    var typeKind = typeDeclaration switch
+    {
+      RecordDeclarationSyntax r when r.ClassOrStructKeyword.IsKind(SyntaxKind.StructKeyword) =>
+        "record struct",
+      RecordDeclarationSyntax _ => "record",
+      StructDeclarationSyntax _ => "struct",
+      _ => "class",
+    };
+
+    return new SchemaGenerationInfo(
+      typeName: typeSymbol.Name,
+      @namespace: namespaceName,
+      typeKind: typeKind,
+      isPartial: isPartial,
+      isFlat: classification.IsFlat,
+      manualInterfaces: manualInterfaces,
+      location: typeDeclaration.Identifier.GetLocation()
+    );
+  }
+
+  /// <summary>
+  /// Checks if the type already manually implements any of the marker interfaces.
+  /// </summary>
+  private static ImmutableArray<string> DetectManualInterfaces(INamedTypeSymbol typeSymbol)
+  {
+    var markerNames = new[]
+    {
+      "Flowthru.Abstractions.IFlatSchema",
+      "Flowthru.Abstractions.INestedSchema",
+      "Flowthru.Abstractions.ITextSerializable",
+      "Flowthru.Abstractions.IBinarySerializable",
+      "Flowthru.Abstractions.IStructuredSerializable",
+    };
+
+    var builder = ImmutableArray.CreateBuilder<string>();
+
+    foreach (var iface in typeSymbol.Interfaces)
+    {
+      var fullName = iface.ToDisplayString();
+      if (markerNames.Contains(fullName))
+      {
+        builder.Add(fullName);
+      }
+    }
+
+    return builder.ToImmutable();
+  }
+
+  /// <summary>
+  /// Emits the partial class/record with interface implementations and any diagnostics.
+  /// </summary>
+  private static void EmitSchemaInterfaces(SourceProductionContext ctx, SchemaGenerationInfo info)
+  {
+    // Diagnostic: type must be partial
+    if (!info.IsPartial)
+    {
+      ctx.ReportDiagnostic(
+        Diagnostic.Create(
+          SchemaGeneratorDiagnostics.TypeMustBePartial,
+          info.Location,
+          info.TypeName
+        )
+      );
+      return;
+    }
+
+    // Diagnostic: conflicting manual interfaces
+    if (info.ManualInterfaces.Length > 0)
+    {
+      var expectedStructural = info.IsFlat ? "flat (IFlatSchema)" : "nested (INestedSchema)";
+      var conflicting = string.Join(", ", info.ManualInterfaces.Select(i => i.Split('.').Last()));
+      ctx.ReportDiagnostic(
+        Diagnostic.Create(
+          SchemaGeneratorDiagnostics.ConflictingManualInterface,
+          info.Location,
+          info.TypeName,
+          conflicting,
+          expectedStructural
+        )
+      );
+    }
+
+    // Build the interface list based on classification.
+    // Do NOT emit interfaces that the user already manually applied — that would cause
+    // CS8646 (interface already listed in the interface list).
+    var interfaces = new List<string>();
+
+    if (info.IsFlat)
+    {
+      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IFlatSchema"))
+        interfaces.Add("Flowthru.Abstractions.IFlatSchema");
+
+      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.ITextSerializable"))
+        interfaces.Add("Flowthru.Abstractions.ITextSerializable");
+
+      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IBinarySerializable"))
+        interfaces.Add("Flowthru.Abstractions.IBinarySerializable");
+
+      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IStructuredSerializable"))
+        interfaces.Add("Flowthru.Abstractions.IStructuredSerializable");
+    }
+    else
+    {
+      // Nested
+      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.INestedSchema"))
+        interfaces.Add("Flowthru.Abstractions.INestedSchema");
+
+      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IStructuredSerializable"))
+        interfaces.Add("Flowthru.Abstractions.IStructuredSerializable");
+    }
+
+    // If all interfaces were already manually applied, no source to emit (but warning was reported)
+    if (interfaces.Count == 0)
+      return;
+
+    var sb = new StringBuilder();
+    sb.AppendLine("// <auto-generated/>");
+    sb.AppendLine("#nullable enable");
+    sb.AppendLine();
+
+    if (!string.IsNullOrEmpty(info.Namespace))
+    {
+      sb.AppendLine($"namespace {info.Namespace};");
+      sb.AppendLine();
+    }
+
+    var interfaceList = string.Join(", ", interfaces.Select(QualifyInterface));
+    sb.AppendLine($"partial {info.TypeKind} {info.TypeName} : {interfaceList}");
+    sb.AppendLine("{");
+    sb.AppendLine("}");
+
+    ctx.AddSource(
+      $"{info.TypeName}.SchemaInterfaces.g.cs",
+      SourceText.From(sb.ToString(), Encoding.UTF8)
+    );
+  }
+
+  /// <summary>
+  /// Converts a fully-qualified interface name to a global-qualified reference
+  /// to avoid namespace conflicts.
+  /// </summary>
+  private static string QualifyInterface(string fullName) => $"global::{fullName}";
+}
+
+/// <summary>
+/// Immutable data extracted from a schema type for code generation.
+/// </summary>
+internal sealed class SchemaGenerationInfo
+{
+  public string TypeName { get; }
+  public string Namespace { get; }
+  public string TypeKind { get; }
+  public bool IsPartial { get; }
+  public bool IsFlat { get; }
+  public ImmutableArray<string> ManualInterfaces { get; }
+  public Location Location { get; }
+
+  public SchemaGenerationInfo(
+    string typeName,
+    string @namespace,
+    string typeKind,
+    bool isPartial,
+    bool isFlat,
+    ImmutableArray<string> manualInterfaces,
+    Location location
+  )
+  {
+    TypeName = typeName;
+    Namespace = @namespace;
+    TypeKind = typeKind;
+    IsPartial = isPartial;
+    IsFlat = isFlat;
+    ManualInterfaces = manualInterfaces;
+    Location = location;
+  }
+}

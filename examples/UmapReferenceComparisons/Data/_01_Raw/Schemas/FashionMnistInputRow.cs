@@ -11,7 +11,8 @@ namespace UmapReferenceComparisons.Data._01_Raw.Schemas;
 /// Classes: 0=T-shirt/top, 1=Trouser, 2=Pullover, 3=Dress, 4=Coat,
 /// 5=Sandal, 6=Shirt, 7=Sneaker, 8=Bag, 9=Ankle boot.
 /// </remarks>
-public record FashionMnistInputRow : IFlatSchema, IBinarySerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record FashionMnistInputRow
 {
   /// <summary>
   /// Unique observation identifier (GUID).

@@ -9,7 +9,8 @@ namespace KedroSpaceflights.Pure.Data._04_Models.Schemas;
 /// Uses required members to enforce that all critical metrics must be set
 /// during construction, ensuring complete model evaluation reporting.
 /// </remarks>
-public record ModelMetrics : IStructuredSerializable
+[FlowthruSchema]
+public partial record ModelMetrics
 {
   /// <summary>
   /// R² (coefficient of determination) score. 1.0 indicates perfect prediction, 0.0 indicates prediction no better than the mean.
