@@ -1,4 +1,4 @@
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
 
@@ -30,7 +30,7 @@ namespace Flowthru.Data.Storage;
 /// <strong>Effect Types:</strong>
 /// </para>
 /// <para>
-/// All operations return <see cref="IO{A}"/> effects to represent:
+/// All operations return <see cref="FlowIO{A}"/> effects to represent:
 /// - I/O operations that can fail
 /// - Async execution
 /// - Cancellation support
@@ -47,8 +47,8 @@ namespace Flowthru.Data.Storage;
 /// {
 ///     private readonly IStorageAdapter&lt;T&gt; _storage;
 ///
-///     public IO&lt;T&gt; Load() => _storage.Load();
-///     public IO&lt;Unit&gt; Save(T data) => _storage.Save(data);
+///     public FlowIO&lt;T&gt; Load() => _storage.Load();
+///     public FlowIO&lt;FlowUnit&gt; Save(T data) => _storage.Save(data);
 /// }
 /// </code>
 /// </remarks>
@@ -98,7 +98,7 @@ public interface IStorageAdapter<T>
   /// - Container errors (memory allocation, type conversion)
   /// </para>
   /// </remarks>
-  IO<T> Load();
+  FlowIO<T> Load();
 
   /// <summary>
   /// Saves data to storage.
@@ -115,7 +115,7 @@ public interface IStorageAdapter<T>
   /// <code>
   /// 1. container.ToRows()            → IAsyncEnumerable&lt;TRow&gt;
   /// 2. format.SerializeRows()        → Stream
-  /// 3. medium.WriteStream()          → Unit
+  /// 3. medium.WriteStream()          → FlowUnit
   /// </code>
   /// <para>
   /// <strong>Atomicity:</strong>
@@ -124,7 +124,7 @@ public interface IStorageAdapter<T>
   /// Implementations should strive for atomic saves to avoid partial writes on failure.
   /// </para>
   /// </remarks>
-  IO<Unit> Save(T data);
+  FlowIO<FlowUnit> Save(T data);
 
   /// <summary>
   /// Checks if data exists at this storage location.
@@ -136,5 +136,5 @@ public interface IStorageAdapter<T>
   /// Used to determine if a catalog entry is a seed (Layer 0 input).
   /// </para>
   /// </remarks>
-  IO<bool> Exists();
+  FlowIO<bool> Exists();
 }

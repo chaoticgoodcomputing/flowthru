@@ -1,4 +1,4 @@
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
 
@@ -70,7 +70,7 @@ public interface IStorageMedium
   /// <item>I/O error</item>
   /// </list>
   /// </remarks>
-  IO<Stream> ReadStream();
+  FlowIO<Stream> ReadStream();
 
   /// <summary>
   /// Writes raw bytes to storage from a stream.
@@ -99,7 +99,7 @@ public interface IStorageMedium
   /// <item>I/O error</item>
   /// </list>
   /// </remarks>
-  IO<Unit> WriteStream(Stream stream);
+  FlowIO<FlowUnit> WriteStream(Stream stream);
 
   /// <summary>
   /// Checks if data exists at this storage location.
@@ -111,5 +111,5 @@ public interface IStorageMedium
   /// or if it's produced by a node in the pipeline.
   /// </para>
   /// </remarks>
-  IO<bool> Exists();
+  FlowIO<bool> Exists();
 }

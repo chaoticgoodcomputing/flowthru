@@ -1,5 +1,5 @@
 using Flowthru.Data.Validation;
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Capabilities;
 
@@ -54,16 +54,13 @@ namespace Flowthru.Data.Capabilities;
 ///                                       IShallowInspectable,
 ///                                       IDeepInspectable
 /// {
-///     public IO&lt;ValidationResult&gt; InspectDeep()
+///     public FlowIO&lt;ValidationResult&gt; InspectDeep()
 ///     {
-///         return IO.liftAsync(async () =>
+///         return FlowIO.LiftAsync(async () =>
 ///         {
 ///             // Read ALL rows and validate schema
 ///             var allData = await Load().Run();
-///             return allData.Match(
-///                 Succ: data => ValidateAll(data),
-///                 Fail: err => ValidationResult.FromError(err)
-///             );
+///             return ValidateAll(allData);
 ///         });
 ///     }
 /// }
@@ -103,5 +100,5 @@ public interface IDeepInspectable
   /// Consider using <see cref="IShallowInspectable.InspectShallow"/> for development/debugging.
   /// </para>
   /// </remarks>
-  IO<ValidationResult> InspectDeep();
+  FlowIO<ValidationResult> InspectDeep();
 }

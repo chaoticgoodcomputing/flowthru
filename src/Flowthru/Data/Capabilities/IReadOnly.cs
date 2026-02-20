@@ -1,3 +1,5 @@
+using Flowthru.Effects;
+
 namespace Flowthru.Data.Capabilities;
 
 /// <summary>
@@ -58,9 +60,9 @@ namespace Flowthru.Data.Capabilities;
 /// {
 ///     public bool IsReadOnly => true;
 ///
-///     public IO&lt;Unit&gt; Save(IEnumerable&lt;T&gt; data)
+///     public FlowIO&lt;FlowUnit&gt; Save(IEnumerable&lt;T&gt; data)
 ///     {
-///         return IO.fail&lt;Unit&gt;(Error.New("Cannot write to Excel files"));
+///         return FlowIO.Fail&lt;FlowUnit&gt;(new NotSupportedException("Cannot write to Excel files"));
 ///     }
 /// }
 ///

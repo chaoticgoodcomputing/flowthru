@@ -1,5 +1,5 @@
 using Flowthru.Data.Validation;
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data;
 
@@ -41,7 +41,7 @@ public interface IShallowInspectable<T>
   /// Performs shallow inspection of this catalog entry.
   /// Returns an effect that can fail.
   /// </summary>
-  IO<ValidationResult> InspectShallow(int sampleSize = 100);
+  FlowIO<ValidationResult> InspectShallow(int sampleSize = 100);
 }
 
 /// <summary>
@@ -106,5 +106,5 @@ public interface IDeepInspectable<T>
   /// <item>Report multiple errors (don't fail on first error)</item>
   /// </list>
   /// </remarks>
-  IO<ValidationResult> InspectDeep();
+  FlowIO<ValidationResult> InspectDeep();
 }

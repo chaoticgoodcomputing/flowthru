@@ -1,5 +1,5 @@
 using Flowthru.Data.Validation;
-using LanguageExt;
+using Flowthru.Effects;
 
 namespace Flowthru.Data.Capabilities;
 
@@ -44,9 +44,9 @@ namespace Flowthru.Data.Capabilities;
 /// <code>
 /// public class CsvStorageAdapter&lt;T&gt; : IStorageAdapter&lt;IEnumerable&lt;T&gt;&gt;, IShallowInspectable
 /// {
-///     public IO&lt;ValidationResult&gt; InspectShallow(int sampleSize)
+///     public FlowIO&lt;ValidationResult&gt; InspectShallow(int sampleSize)
 ///     {
-///         return IO.liftAsync(async () =>
+///         return FlowIO.LiftAsync(async () =>
 ///         {
 ///             // Read first N rows and validate schema
 ///             var sample = await ReadFirstNRows(sampleSize);
@@ -83,5 +83,5 @@ public interface IShallowInspectable
   /// <item>Basic range checks</item>
   /// </list>
   /// </remarks>
-  IO<ValidationResult> InspectShallow(int sampleSize);
+  FlowIO<ValidationResult> InspectShallow(int sampleSize);
 }

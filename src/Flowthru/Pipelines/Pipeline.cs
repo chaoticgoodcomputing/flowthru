@@ -459,10 +459,10 @@ public class Pipeline
     var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
     var result = method!.Invoke(catalogEntry, new object[] { 10 })!;
 
-    // Handle both IO<ValidationResult> and Task<ValidationResult> return types
-    if (result is LanguageExt.IO<Data.Validation.ValidationResult> io)
+    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
+    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> io)
     {
-      return await io.RunAsync();
+      return await io.Run();
     }
     else if (result is Task<Data.Validation.ValidationResult> task)
     {
@@ -487,10 +487,10 @@ public class Pipeline
     var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
     var result = method!.Invoke(catalogEntry, System.Array.Empty<object>())!;
 
-    // Handle both IO<ValidationResult> and Task<ValidationResult> return types
-    if (result is LanguageExt.IO<Data.Validation.ValidationResult> io)
+    // Handle both Aff<ValidationResult> and Task<ValidationResult> return types
+    if (result is LanguageExt.Aff<Data.Validation.ValidationResult> io)
     {
-      return await io.RunAsync();
+      return await io.Run();
     }
     else if (result is Task<Data.Validation.ValidationResult> task)
     {
@@ -636,7 +636,7 @@ public class Pipeline
     {
       // Get input counts for diagnostics (before loading data)
       var inputCountAffs = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
-      var inputCountTasks = inputCountAffs.Select(aff => aff.RunAsync().AsTask());
+      var inputCountTasks = inputCountAffs.Select(aff => aff.Run().AsTask());
       var inputCountResults = await Task.WhenAll(inputCountTasks);
       var inputCounts = inputCountResults;
       var totalInputCount = inputCounts.Sum();
@@ -651,7 +651,7 @@ public class Pipeline
       // Load inputs from catalog entries
       // LoadUntyped() returns T directly (singleton or collection), no wrapping needed
       var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
-      var inputLoadTasks = inputAffs.Select(aff => aff.RunAsync().AsTask());
+      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
@@ -724,7 +724,7 @@ public class Pipeline
         {
           // Single output: save directly
           var catalogEntry = pipelineNode.Outputs[0];
-          await catalogEntry.SaveUntyped(output).RunAsync();
+          await catalogEntry.SaveUntyped(output).Run();
         }
         else
         {
@@ -753,7 +753,7 @@ public class Pipeline
             var field = tupleFields[i];
             var outputData = field.GetValue(output);
 
-            await catalogEntry.SaveUntyped(outputData!).RunAsync();
+            await catalogEntry.SaveUntyped(outputData!).Run();
           }
         }
       }
@@ -762,7 +762,7 @@ public class Pipeline
 
       // Get output counts for diagnostics (after saving data)
       var outputCountAffs = pipelineNode.Outputs.Select(entry => entry.GetCountAsync());
-      var outputCountTasks = outputCountAffs.Select(aff => aff.RunAsync().AsTask());
+      var outputCountTasks = outputCountAffs.Select(aff => aff.Run().AsTask());
       var outputCountResults = await Task.WhenAll(outputCountTasks);
       var outputCounts = outputCountResults;
       var totalOutputCount = outputCounts.Sum();
@@ -808,7 +808,7 @@ public class Pipeline
     {
       // Load inputs from catalog entries
       var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
-      var inputLoadTasks = inputAffs.Select(aff => aff.RunAsync().AsTask());
+      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
@@ -852,7 +852,7 @@ public class Pipeline
       {
         if (pipelineNode.Outputs.Count == 1)
         {
-          await pipelineNode.Outputs[0].SaveUntyped(output).RunAsync();
+          await pipelineNode.Outputs[0].SaveUntyped(output).Run();
         }
         else
         {
@@ -860,7 +860,7 @@ public class Pipeline
           for (int i = 0; i < pipelineNode.Outputs.Count; i++)
           {
             var outputData = tupleFields[i].GetValue(output);
-            await pipelineNode.Outputs[i].SaveUntyped(outputData!).RunAsync();
+            await pipelineNode.Outputs[i].SaveUntyped(outputData!).Run();
           }
         }
       }
