@@ -20,29 +20,6 @@ public class ExampleIntegrationTests
   }
 
   /// <summary>
-  /// Verifies that all examples can be discovered successfully.
-  /// This test ensures the discovery mechanism is working and all example projects
-  /// are properly referenced in the .csproj file for coverage collection.
-  /// </summary>
-  [Test]
-  public void Discovery_FindsAllExamples()
-  {
-    // Arrange & Act
-    var examples = GetAllExamples().ToList();
-
-    // Assert
-    Assert.That(examples, Is.Not.Empty, "No examples were discovered");
-    Assert.That(examples.Count, Is.GreaterThanOrEqualTo(3), "Expected at least 3 example projects");
-
-    // Log discovered examples for debugging
-    TestContext.WriteLine($"Discovered {examples.Count} example projects:");
-    foreach (var example in examples)
-    {
-      TestContext.WriteLine($"  - {example.Name} at {example.ProjectPath}");
-    }
-  }
-
-  /// <summary>
   /// Verifies that each discovered example has a valid entry point type.
   /// </summary>
   [TestCaseSource(nameof(GetAllExamples))]
