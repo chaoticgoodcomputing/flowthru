@@ -72,7 +72,7 @@
   </ItemGroup>
 
   <!-- Ensure source generators are built before packing -->
-  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec">
+  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
     <MSBuild Projects="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj" 
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
