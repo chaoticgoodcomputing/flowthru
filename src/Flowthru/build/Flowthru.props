@@ -1,0 +1,15 @@
+<!-- 
+  This file is automatically imported when Flowthru is consumed as a NuGet package.
+  It ensures that the Flowthru source generators are included as analyzers.
+-->
+<Project>
+  <PropertyGroup>
+    <!-- Path to source generator DLL in NuGet package -->
+    <_FlowthruSourceGeneratorPath>$(MSBuildThisFileDirectory)../analyzers/dotnet/cs/Flowthru.SourceGenerators.dll</_FlowthruSourceGeneratorPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(_FlowthruSourceGeneratorPath)')">
+    <!-- Include the Flowthru source generators as analyzers -->
+    <Analyzer Include="$(_FlowthruSourceGeneratorPath)" />
+  </ItemGroup>
+</Project>

@@ -9,7 +9,8 @@ namespace KedroSpaceflights.Pure.Data._05_Reporting.Schemas;
 /// Uses required members to enforce that all critical report fields must be set
 /// during construction, ensuring complete reporting outputs.
 /// </remarks>
-public record ShuttleCapacityReport : IFlatSchema, IStructuredSerializable
+[FlowthruSchema]
+public partial record ShuttleCapacityReport
 {
   /// <summary>
   /// Type or model of the shuttle.

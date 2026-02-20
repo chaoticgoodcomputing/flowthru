@@ -5,7 +5,8 @@ namespace KedroSpaceflights.Pure.Data._04_Models.Schemas;
 /// <summary>
 /// Represents a trained linear regression model with coefficients and feature mappings.
 /// </summary>
-public record LinearRegressionModel : IStructuredSerializable
+[FlowthruSchema]
+public partial record LinearRegressionModel
 {
   /// <summary>
   /// Regression coefficients for each feature (excluding intercept).

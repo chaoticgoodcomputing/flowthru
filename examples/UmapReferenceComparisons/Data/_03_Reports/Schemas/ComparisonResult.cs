@@ -9,7 +9,8 @@ namespace UmapReferenceComparisons.Data._03_Reports.Schemas;
 /// Contains metrics comparing C# UMAP output against Python reference output.
 /// Validates structural similarity through k-NN graph comparison.
 /// </remarks>
-public record ComparisonResult : IFlatSchema, IBinarySerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record ComparisonResult
 {
   /// <summary>
   /// Name of the dataset being compared (e.g., "iris", "digits", "mnist").

@@ -140,12 +140,11 @@ public static class CompilationTestHelper
       }
     }
 
-    // Add ML.Next assembly reference
-    references.Add(
-      MetadataReference.CreateFromFile(typeof(ML.Next.Core.Schema.DataView<>).Assembly.Location)
-    );
+    // Note: ML.Next references removed as that project doesn't exist in this repository
+    // Uncomment if/when ML.Next is added back:
+    // references.Add(MetadataReference.CreateFromFile(typeof(ML.Next.Core.Schema.DataView<>).Assembly.Location));
 
-    // Add LanguageExt for ML.Next dependencies (Fin, Validation, etc.)
+    // Add LanguageExt for various functional dependencies
     references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.Fin<>).Assembly.Location));
     references.Add(
       MetadataReference.CreateFromFile(typeof(LanguageExt.Common.Error).Assembly.Location)

@@ -10,7 +10,8 @@ namespace UmapReferenceComparisons.Data._01_Raw.Schemas;
 /// regardless of the original feature structure. Dataset-specific schemas should
 /// be converted to this format before UMAP transformation.
 /// </remarks>
-public record UmapInput : IFlatSchema, IBinarySerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record UmapInput
 {
   /// <summary>
   /// Unique observation identifier.

@@ -6,7 +6,8 @@ namespace KedroSpaceflights.Pure.Data._01_Raw.Schemas;
 /// Represents raw shuttle data as imported from structured files.
 /// All fields are stored as strings pending parsing.
 /// </summary>
-public record ShuttleSchema : IFlatSchema, ITextSerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record ShuttleSchema
 {
   /// <summary>
   /// Unique identifier for the shuttle.

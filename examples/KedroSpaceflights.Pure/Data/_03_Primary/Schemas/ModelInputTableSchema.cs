@@ -10,7 +10,8 @@ namespace KedroSpaceflights.Pure.Data._03_Primary.Schemas;
 /// Uses required members to enforce that all critical fields must be set
 /// during construction, preventing accidental omission in pipeline nodes.
 /// </remarks>
-public record ModelInputTableSchema : IFlatSchema, IBinarySerializable, IStructuredSerializable
+[FlowthruSchema]
+public partial record ModelInputTableSchema
 {
   /// <summary>
   /// Unique identifier for the shuttle.
