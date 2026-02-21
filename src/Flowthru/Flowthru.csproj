@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru</RootNamespace>
-    <Version>0.1.8</Version>
+    <Version>0.1.10</Version>
     <Authors>Spencer Elkington</Authors>
     <Description>A type-safe data engineering framework for .NET</Description>
     
@@ -76,7 +76,7 @@
   </ItemGroup>
 
   <!-- Ensure source generators are built before packing -->
-  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec">
+  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
     <MSBuild Projects="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj" 
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
