@@ -10,8 +10,7 @@ namespace Flowthru.Parameters;
 /// type safety at the point of registration.
 /// </para>
 /// <para>
-/// This class is used internally by FlowthruApplication and is not typically
-/// accessed directly by user code.
+/// This class is used internally and is not typically accessed directly by user code.
 /// </para>
 /// </remarks>
 internal class ParameterStore

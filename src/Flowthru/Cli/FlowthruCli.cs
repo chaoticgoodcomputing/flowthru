@@ -1,0 +1,200 @@
+using System.Reflection;
+using Flowthru.Pipelines;
+using Flowthru.Services;
+using Microsoft.Extensions.Logging;
+
+namespace Flowthru.Cli;
+
+/// <summary>
+/// Command-line interface wrapper for IFlowthruService.
+/// </summary>
+/// <remarks>
+/// <para>
+/// FlowthruCli provides a thin CLI layer over the core IFlowthruService.
+/// It handles:
+/// - Command-line argument parsing
+/// - Help/version display
+/// - Result formatting
+/// - Exit code generation
+/// </para>
+/// <para>
+/// The CLI delegates all business logic to IFlowthruService, making the
+/// service layer testable and reusable in non-CLI scenarios.
+/// </para>
+/// </remarks>
+public sealed class FlowthruCli
+{
+  private readonly IFlowthruService _service;
+  private readonly ILogger<FlowthruCli> _logger;
+  private readonly TextWriter _output;
+
+  /// <summary>
+  /// Initializes a new CLI instance.
+  /// </summary>
+  /// <param name="service">Flowthru service</param>
+  /// <param name="logger">Logger instance</param>
+  /// <param name="output">Output writer (defaults to Console.Out)</param>
+  public FlowthruCli(
+    IFlowthruService service,
+    ILogger<FlowthruCli> logger,
+    TextWriter? output = null
+  )
+  {
+    _service = service;
+    _logger = logger;
+    _output = output ?? Console.Out;
+  }
+
+  /// <summary>
+  /// Runs the CLI with the specified arguments.
+  /// </summary>
+  /// <param name="args">Command-line arguments</param>
+  /// <param name="cancellationToken">Cancellation token</param>
+  /// <returns>Exit code (0 for success, non-zero for errors)</returns>
+  public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
+  {
+    try
+    {
+      // Parse arguments
+      var parsed = ArgumentParser.Parse(args, _service.PipelineNames);
+
+      // Handle special commands
+      if (parsed.ShowHelp)
+      {
+        ShowHelp();
+        return 0;
+      }
+
+      if (parsed.ShowVersion)
+      {
+        ShowVersion();
+        return 0;
+      }
+
+      if (parsed.Error != null)
+      {
+        await _output.WriteLineAsync($"Error: {parsed.Error}");
+        await _output.WriteLineAsync();
+        ShowUsage();
+        return 1;
+      }
+
+      // Execute pipelines
+      PipelineResult result;
+
+      if (parsed.ExecuteAll)
+      {
+        _logger.LogInformation("No pipeline specified. Running all pipelines in dependency order.");
+        _logger.LogInformation(
+          "Available pipelines: {Pipelines}",
+          string.Join(", ", _service.PipelineNames)
+        );
+
+        result = await _service.ExecuteAllPipelinesAsync(parsed.Options, cancellationToken);
+      }
+      else if (parsed.Request != null)
+      {
+        _logger.LogInformation("Executing pipeline: {Pipeline}", parsed.Request.PipelineName);
+
+        result = await _service.ExecutePipelineAsync(parsed.Request, cancellationToken);
+      }
+      else
+      {
+        // Should not happen, but handle gracefully
+        ShowHelp();
+        return 0;
+      }
+
+      // Format and display results
+      FormatResult(result);
+
+      // Return exit code based on success
+      return result.Success ? 0 : 1;
+    }
+    catch (OperationCanceledException)
+    {
+      _logger.LogWarning("Operation cancelled by user");
+      return 130; // Standard exit code for SIGINT
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Unhandled exception during pipeline execution");
+      await _output.WriteLineAsync($"Fatal error: {ex.Message}");
+      return 1;
+    }
+  }
+
+  /// <summary>
+  /// Displays help message.
+  /// </summary>
+  private void ShowHelp()
+  {
+    _output.WriteLine("Flowthru - Type-safe data engineering pipelines for .NET");
+    _output.WriteLine();
+    ShowUsage();
+    _output.WriteLine();
+    _output.WriteLine("Options:");
+    _output.WriteLine("  --dry-run              Validate without executing nodes");
+    _output.WriteLine("  --no-metadata          Disable metadata export");
+    _output.WriteLine("  --metadata-output DIR  Specify metadata output directory");
+    _output.WriteLine("  -h, --help             Show this help message");
+    _output.WriteLine("  -v, --version          Show version information");
+    _output.WriteLine();
+    _output.WriteLine("Available Pipelines:");
+    foreach (var name in _service.PipelineNames.OrderBy(n => n))
+    {
+      var metadata = _service.GetPipelineMetadata(name);
+      _output.WriteLine($"  {name, -20} {metadata.Description ?? "(no description)"}");
+    }
+  }
+
+  /// <summary>
+  /// Displays usage message.
+  /// </summary>
+  private void ShowUsage()
+  {
+    _output.WriteLine("Usage: flowthru [pipeline] [options]");
+    _output.WriteLine("       flowthru --help");
+    _output.WriteLine("       flowthru --version");
+  }
+
+  /// <summary>
+  /// Displays version information.
+  /// </summary>
+  private void ShowVersion()
+  {
+    var assembly = Assembly.GetExecutingAssembly();
+    var version =
+      assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+      ?? assembly.GetName().Version?.ToString()
+      ?? "unknown";
+
+    _output.WriteLine($"Flowthru v{version}");
+  }
+
+  /// <summary>
+  /// Formats pipeline execution results.
+  /// </summary>
+  /// <param name="result">Pipeline execution result</param>
+  private void FormatResult(PipelineResult result)
+  {
+    _output.WriteLine();
+    _output.WriteLine("═══════════════════════════════════════════════════════════");
+    _output.WriteLine($"Pipeline: {result.PipelineName ?? "(merged)"}");
+    _output.WriteLine($"Status: {(result.Success ? "✓ SUCCESS" : "✗ FAILED")}");
+    _output.WriteLine($"Duration: {result.ExecutionTime:hh\\:mm\\:ss\\.fff}");
+    _output.WriteLine($"Nodes: {result.NodeResults.Count} executed");
+
+    if (!result.Success)
+    {
+      _output.WriteLine();
+      _output.WriteLine("Failed Nodes:");
+      foreach (var (label, nodeResult) in result.NodeResults.Where(n => !n.Value.Success))
+      {
+        _output.WriteLine($"  - {label}: {nodeResult.Exception?.Message ?? "Unknown error"}");
+      }
+    }
+
+    _output.WriteLine("═══════════════════════════════════════════════════════════");
+  }
+}

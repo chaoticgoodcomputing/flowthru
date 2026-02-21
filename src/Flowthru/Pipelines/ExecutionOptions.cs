@@ -1,6 +1,6 @@
 using Flowthru.Results;
 
-namespace Flowthru.Application;
+namespace Flowthru.Pipelines;
 
 /// <summary>
 /// Configuration options for pipeline execution.

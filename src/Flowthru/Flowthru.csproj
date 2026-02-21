@@ -22,6 +22,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Dependency Injection Abstractions (no concrete container) -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />

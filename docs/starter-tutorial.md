@@ -68,11 +68,12 @@ MyPipeline/
 </ItemGroup>
 ```
 
-### 1.2 Creating the FlowthruApplication Entry Point
+### 1.2 Creating the Flowthru CLI Entry Point
 
 **Create `Program.cs`:**
 ```csharp
-using Flowthru.Application;
+using Flowthru.Cli;
+using Microsoft.Extensions.Logging;
 using MyPipeline.Data;
 using MyPipeline.Pipelines.DataProcessing;
 
@@ -82,31 +83,36 @@ public class Program
 {
   public static async Task<int> Main(string[] args)
   {
-    var app = FlowthruApplication.Create(
-      args,
-      builder =>
+    var cli = FlowthruCliBuilder
+      .Create(flowthru =>
       {
         // Load configuration from appsettings.json
-        builder.UseConfiguration();
+        flowthru.UseConfiguration();
+        flowthru.UseCatalog<MyCatalog>();
 
         // Register your pipeline
-        builder
+        flowthru
           .RegisterPipeline<MyCatalog>(
             label: "DataProcessing",
             pipeline: DataProcessingPipeline.Create
           )
           .WithDescription("Processes raw data into cleaned output");
-      }
-    );
+      })
+      .ConfigureLogging(logging =>
+      {
+        logging.AddConsole();
+        logging.SetMinimumLevel(LogLevel.Information);
+      })
+      .Build();
 
-    return await app.RunAsync();
+    return await cli.RunAsync(args);
   }
 }
 ```
 
 **For pipelines with parameters:**
 ```csharp
-builder
+flowthru
   .RegisterPipelineWithConfiguration<MyCatalog, MyPipeline.Params>(
     label: "DataScience",
     pipeline: DataSciencePipeline.Create,
@@ -689,17 +695,22 @@ public static class ProcessingPipeline
 
 **`Program.cs`:**
 ```csharp
-using Flowthru.Application;
+using Flowthru.Cli;
+using Microsoft.Extensions.Logging;
 using MyPipeline.Data;
 using MyPipeline.Pipelines;
 
-var app = FlowthruApplication.Create(args, builder =>
-{
-  builder.UseConfiguration();
-  builder.RegisterPipeline<Catalog>("Processing", ProcessingPipeline.Create);
-});
+var cli = FlowthruCliBuilder
+  .Create(flowthru =>
+  {
+    flowthru.UseConfiguration();
+    flowthru.UseCatalog<Catalog>();
+    flowthru.RegisterPipeline<Catalog>("Processing", ProcessingPipeline.Create);
+  })
+  .ConfigureLogging(logging => logging.AddConsole())
+  .Build();
 
-return await app.RunAsync();
+return await cli.RunAsync(args);
 ```
 
 **Run it:**

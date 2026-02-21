@@ -7,7 +7,7 @@ namespace Flowthru.Results;
 /// Formats pipeline results as human-readable console output.
 /// </summary>
 /// <remarks>
-/// This is the default formatter used by FlowthruApplication.
+/// This is the default formatter used by the CLI.
 /// Produces colorful, detailed output suitable for interactive terminal sessions.
 /// </remarks>
 public class ConsoleResultFormatter : IPipelineResultFormatter

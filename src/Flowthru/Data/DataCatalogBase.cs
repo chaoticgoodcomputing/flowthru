@@ -59,7 +59,7 @@ public abstract class DataCatalogBase
   /// Optional service provider for dependency injection into catalog entries.
   /// </summary>
   /// <remarks>
-  /// Set by FlowthruApplication before pipeline execution to enable catalog
+  /// Set by the service layer before pipeline execution to enable catalog
   /// entries to resolve services (e.g., database connections, HTTP clients).
   /// </remarks>
   public IServiceProvider? Services { get; set; }

@@ -1,4 +1,6 @@
-using Flowthru.Application;
+using Flowthru.Cli;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Pipelines.DigitsComparison;
 using UmapReferenceComparisons.Pipelines.IrisComparison;
@@ -14,45 +16,62 @@ namespace UmapReferenceComparisons;
 /// </remarks>
 public class Program
 {
+  /// <summary>
+  /// Configures Flowthru services for dependency injection.
+  /// </summary>
+  /// <returns>Configured service provider</returns>
+  public static IServiceProvider ConfigureServices()
+  {
+    var services = new ServiceCollection();
+
+    services.AddFlowthru(flowthru =>
+    {
+      // Load configuration
+      flowthru.UseConfiguration();
+      flowthru.UseCatalog(_ => new Catalog("Data"));
+
+      // Register comparison pipelines
+      flowthru
+        .RegisterPipeline<Catalog>(
+          label: "IrisComparisonPipeline",
+          pipeline: IrisComparisonPipeline.Create
+        )
+        .WithDescription(
+          "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
+        );
+
+      flowthru
+        .RegisterPipeline<Catalog>(
+          label: "DigitsComparisonPipeline",
+          pipeline: DigitsComparisonPipeline.Create
+        )
+        .WithDescription(
+          "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
+        );
+
+      flowthru
+        .RegisterPipeline<Catalog>(
+          label: "FashionComparisonPipeline",
+          pipeline: Pipelines.FashionComparison.FashionComparisonPipeline.Create
+        )
+        .WithDescription(
+          "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
+        );
+    });
+
+    services.AddLogging(logging =>
+    {
+      logging.AddConsole();
+      logging.SetMinimumLevel(LogLevel.Information);
+    });
+
+    return services.BuildServiceProvider();
+  }
+
   public static async Task<int> Main(string[] args)
   {
-    var app = FlowthruApplication.Create(
-      args,
-      builder =>
-      {
-        // Load configuration
-        builder.UseConfiguration();
-
-        // Register comparison pipelines
-        builder
-          .RegisterPipeline<Catalog>(
-            label: "IrisComparisonPipeline",
-            pipeline: IrisComparisonPipeline.Create
-          )
-          .WithDescription(
-            "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
-          );
-
-        builder
-          .RegisterPipeline<Catalog>(
-            label: "DigitsComparisonPipeline",
-            pipeline: DigitsComparisonPipeline.Create
-          )
-          .WithDescription(
-            "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
-          );
-
-        builder
-          .RegisterPipeline<Catalog>(
-            label: "FashionComparisonPipeline",
-            pipeline: Pipelines.FashionComparison.FashionComparisonPipeline.Create
-          )
-          .WithDescription(
-            "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
-          );
-      }
-    );
-
-    return await app.RunAsync();
+    var services = ConfigureServices();
+    var cli = services.GetRequiredService<Flowthru.Cli.FlowthruCli>();
+    return await cli.RunAsync(args);
   }
 }

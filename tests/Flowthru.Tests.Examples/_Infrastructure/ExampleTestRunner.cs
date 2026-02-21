@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using System.Reflection;
+using Flowthru.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Tests.Examples.Infrastructure;
 
 /// <summary>
-/// Executes example projects programmatically by invoking their Main methods.
+/// Executes example projects programmatically by using their configured services.
 /// </summary>
 public sealed class ExampleTestRunner
 {
@@ -20,125 +22,83 @@ public sealed class ExampleTestRunner
   }
 
   /// <summary>
-  /// Runs the example project by invoking its Main method.
+  /// Runs the example project by executing all its pipelines via IFlowthruService.
   /// </summary>
-  /// <param name="args">Command-line arguments to pass to the example.</param>
   /// <returns>The result of running the example.</returns>
-  public async Task<ExampleTestResult> RunAsync(params string[] args)
+  public async Task<ExampleTestResult> RunAsync()
   {
     var stopwatch = Stopwatch.StartNew();
-    int exitCode = 0;
     Exception? exception = null;
-    string? capturedOutput = null;
+    bool success = false;
+    string? diagnosticMessage = null;
 
     // Save the current directory and switch to the example's project directory
     var originalDirectory = Directory.GetCurrentDirectory();
 
-    // Capture console output
-    var originalOut = Console.Out;
-    var originalError = Console.Error;
-    var outputCapture = new StringWriter();
-
     try
     {
-      // Redirect console output to capture it
-      Console.SetOut(outputCapture);
-      Console.SetError(outputCapture);
-
       // Change to the example's project directory so relative paths work
       Directory.SetCurrentDirectory(_example.ProjectPath);
 
-      // Find the Main method
-      var mainMethod = FindMainMethod(_example.EntryPointType);
-      if (mainMethod == null)
+      // Find and invoke ConfigureServices method
+      var configureServicesMethod = FindConfigureServicesMethod(_example.EntryPointType);
+      if (configureServicesMethod == null)
       {
         throw new InvalidOperationException(
-          $"Could not find Main method in {_example.EntryPointType.FullName}"
+          $"Could not find ConfigureServices() method in {_example.EntryPointType.FullName}. "
+            + "Example projects must expose a public static IServiceProvider ConfigureServices() method."
         );
       }
 
-      // Determine method signature and invoke accordingly
-      var parameters = mainMethod.GetParameters();
-      var returnType = mainMethod.ReturnType;
-
-      object? result;
-
-      if (parameters.Length == 0)
-      {
-        // Main() or Main() returning Task
-        result = mainMethod.Invoke(null, null);
-      }
-      else if (parameters.Length == 1 && parameters[0].ParameterType == typeof(string[]))
-      {
-        // Main(string[] args) or Main(string[] args) returning Task
-        result = mainMethod.Invoke(null, new object[] { args });
-      }
-      else
+      // Get the service provider
+      var services = (IServiceProvider?)configureServicesMethod.Invoke(null, null);
+      if (services == null)
       {
         throw new InvalidOperationException(
-          $"Unsupported Main method signature in {_example.EntryPointType.FullName}"
+          $"ConfigureServices() returned null in {_example.EntryPointType.FullName}"
         );
       }
 
-      // Handle async Main methods
-      if (result is Task<int> taskInt)
+      // Get the Flowthru service
+      var flowthruService = services.GetRequiredService<IFlowthruService>();
+
+      // Execute all pipelines
+      var result = await flowthruService.ExecuteAllPipelinesAsync();
+
+      success = result.Success;
+      exception = result.Exception;
+
+      if (!success && exception == null)
       {
-        exitCode = await taskInt;
-      }
-      else if (result is Task task)
-      {
-        await task;
-        exitCode = 0;
-      }
-      else if (result is int intResult)
-      {
-        exitCode = intResult;
-      }
-      else if (result == null)
-      {
-        exitCode = 0;
-      }
-      else
-      {
-        throw new InvalidOperationException(
-          $"Unexpected return type from Main: {result.GetType().FullName}"
-        );
+        diagnosticMessage = "Pipeline execution completed without exception but reported failure";
       }
     }
     catch (TargetInvocationException tie)
     {
       // Unwrap the inner exception
       exception = tie.InnerException ?? tie;
-      exitCode = 1;
+      success = false;
     }
     catch (Exception ex)
     {
       exception = ex;
-      exitCode = 1;
+      success = false;
     }
     finally
     {
       stopwatch.Stop();
 
-      // Capture the output before restoring console
-      capturedOutput = outputCapture.ToString();
-
-      // Restore console output
-      Console.SetOut(originalOut);
-      Console.SetError(originalError);
-      outputCapture.Dispose();
-
       // Restore the original working directory
       Directory.SetCurrentDirectory(originalDirectory);
     }
 
-    var (category, diagnosticMessage) = CategorizeFailure(exitCode, exception);
+    var category = CategorizeFailure(success, exception);
 
     return new ExampleTestResult
     {
       Example = _example,
-      CapturedOutput = capturedOutput,
-      ExitCode = exitCode,
+      CapturedOutput = null, // No longer capturing output - service layer doesn't write to console
+      ExitCode = success ? 0 : 1,
       Exception = exception,
       Duration = stopwatch.Elapsed,
       Category = category,
@@ -147,17 +107,14 @@ public sealed class ExampleTestRunner
   }
 
   /// <summary>
-  /// Categorizes the type of failure based on the exception and exit code.
+  /// Categorizes the type of failure based on the exception and success status.
   /// </summary>
-  private static (FailureCategory Category, string? DiagnosticMessage) CategorizeFailure(
-    int exitCode,
-    Exception? exception
-  )
+  private static FailureCategory CategorizeFailure(bool success, Exception? exception)
   {
     // Success case
-    if (exitCode == 0 && exception == null)
+    if (success && exception == null)
     {
-      return (FailureCategory.None, null);
+      return FailureCategory.None;
     }
 
     // Infrastructure failures - test framework issues
@@ -168,10 +125,7 @@ public sealed class ExampleTestRunner
       || exception is ArgumentException
     )
     {
-      return (
-        FailureCategory.Infrastructure,
-        $"Test infrastructure error: {exception.GetType().Name}"
-      );
+      return FailureCategory.Infrastructure;
     }
 
     // Application failures - expected runtime issues
@@ -181,8 +135,8 @@ public sealed class ExampleTestRunner
       "DirectoryNotFoundException",
       "Configuration section",
       "not found",
-      "InvalidCastException", // State pollution issue
-      "connection", // Database/network issues
+      "InvalidCastException",
+      "connection",
       "authentication",
       "authorization",
     };
@@ -194,35 +148,25 @@ public sealed class ExampleTestRunner
       )
     )
     {
-      return (
-        FailureCategory.Application,
-        $"Example needs setup: {exception?.GetType().Name ?? "Non-zero exit code"}"
-      );
+      return FailureCategory.Application;
     }
 
-    // Default to application failure for unknown cases
-    return (
-      FailureCategory.Application,
-      exception != null ? $"Runtime error: {exception.GetType().Name}" : "Non-zero exit code"
-    );
+    // Default to application failure
+    return FailureCategory.Application;
   }
 
   /// <summary>
-  /// Finds the Main method in the given type.
+  /// Finds the ConfigureServices method in the given type.
   /// </summary>
-  private static MethodInfo? FindMainMethod(Type type)
+  private static MethodInfo? FindConfigureServicesMethod(Type type)
   {
-    // Look for public static method named "Main"
+    // Look for public static method named "ConfigureServices" that returns IServiceProvider
     var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
 
     return methods.FirstOrDefault(m =>
-      m.Name == "Main"
-      && (
-        m.ReturnType == typeof(void)
-        || m.ReturnType == typeof(int)
-        || m.ReturnType == typeof(Task)
-        || m.ReturnType == typeof(Task<int>)
-      )
+      m.Name == "ConfigureServices"
+      && m.ReturnType == typeof(IServiceProvider)
+      && m.GetParameters().Length == 0
     );
   }
 }

@@ -37,6 +37,7 @@ public class ExampleIntegrationTests
   /// <summary>
   /// Executes each example project and verifies it completes successfully.
   /// This is the main integration test that provides code coverage through example execution.
+  /// Tests the service layer directly by invoking ConfigureServices and IFlowthruService.
   /// </summary>
   [TestCaseSource(nameof(GetAllExamples))]
   public async Task Example_ExecutesSuccessfully(ExampleProject example)
@@ -48,14 +49,6 @@ public class ExampleIntegrationTests
     // Act
     var result = await runner.RunAsync();
     TestContext.WriteLine($"Completed in {result.Duration.TotalSeconds:F2}s");
-
-    // Assert - Always show captured output for debugging
-    if (!string.IsNullOrEmpty(result.CapturedOutput))
-    {
-      TestContext.WriteLine("--- Captured Output ---");
-      TestContext.WriteLine(result.CapturedOutput);
-      TestContext.WriteLine("--- End Captured Output ---");
-    }
 
     // Show exception details if present
     if (result.Exception != null)
@@ -71,11 +64,17 @@ public class ExampleIntegrationTests
       TestContext.WriteLine("--- End Exception Details ---");
     }
 
+    // Show diagnostic message if present
+    if (!string.IsNullOrEmpty(result.DiagnosticMessage))
+    {
+      TestContext.WriteLine($"Diagnostic: {result.DiagnosticMessage}");
+    }
+
     // Assert success
     Assert.That(
-      result.ExitCode,
-      Is.EqualTo(0),
-      $"Example {example.Name} failed with exit code {result.ExitCode}"
+      result.Success,
+      Is.True,
+      $"Example {example.Name} failed. Category: {result.Category}, Exit Code: {result.ExitCode}"
     );
   }
 }

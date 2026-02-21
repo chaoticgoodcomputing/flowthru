@@ -53,7 +53,7 @@ public class Pipeline
   /// Optional service provider for dependency injection into nodes.
   /// </summary>
   /// <remarks>
-  /// Set by FlowthruApplication before pipeline execution to enable nodes
+  /// Set by the service layer before pipeline execution to enable nodes
   /// to resolve services (e.g., database connections, external APIs).
   /// </remarks>
   public IServiceProvider? ServiceProvider { get; set; }

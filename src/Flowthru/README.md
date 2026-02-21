@@ -21,31 +21,44 @@ dotnet add package Flowthru
 # Create your catalog
 public class MyCatalog : DataCatalogBase
 {
-    public CsvCatalogDataset<RawData> RawData { get; }
-    public ParquetCatalogDataset<ProcessedData> ProcessedData { get; }
+    public ICatalogEntry<IEnumerable<RawData>> RawData { get; }
+    public ICatalogEntry<IEnumerable<ProcessedData>> ProcessedData { get; }
     
-    public MyCatalog()
+    public MyCatalog(string basePath)
     {
-        RawData = CreateCsvDataset<RawData>("raw", "data/raw.csv");
-        ProcessedData = CreateParquetDataset<ProcessedData>("processed", "data/processed.parquet");
+        _basePath = basePath;
+        InitializeCatalogProperties();
     }
+    
+    private string _basePath;
+    
+    public ICatalogEntry<IEnumerable<RawData>> RawData =>
+        GetOrCreateEntry(() => CatalogEntries.Enumerable.Csv<RawData>(
+            label: "RawData", 
+            filePath: $"{_basePath}/raw.csv"));
 }
 
-// Run your application (inline registration)
+// Run your application
 public class Program
 {
-    public static Task<int> Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        return FlowthruApplication.Create(args, builder =>
-        {
-            builder.UseCatalog(new MyCatalog());
+        var cli = FlowthruCliBuilder
+            .Create(flowthru =>
+            {
+                flowthru.UseConfiguration();
+                flowthru.UseCatalog(_ => new MyCatalog("Data"));
+                
+                // Register pipelines with descriptions
+                flowthru
+                    .RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
+                    .WithDescription("Process raw data")
+                    .WithTags("etl");
+            })
+            .ConfigureLogging(logging => logging.AddConsole())
+            .Build();
             
-            // Register pipelines directly in the builder
-            builder
-                .RegisterPipeline<MyCatalog>("data_processing", DataProcessingPipeline.Create)
-                .WithDescription("Process raw data")
-                .WithTags("etl");
-        });
+        return await cli.RunAsync(args);
     }
 }
 ```
