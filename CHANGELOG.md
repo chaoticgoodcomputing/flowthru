@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.11](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.10...v0.1.11) (2026-02-21)
+
+
+### Features
+
+* service-based API surface changes ([8943c9d](https://github.com/chaoticgoodcomputing/flowthru/commit/8943c9d6a6fcf6960e868545561b15781211d121))
+
 ## [0.1.10](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.7...v0.1.10) (2026-02-20)
 
 
