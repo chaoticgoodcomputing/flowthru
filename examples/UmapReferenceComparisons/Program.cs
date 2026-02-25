@@ -1,4 +1,5 @@
 using Flowthru.Cli;
+using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UmapReferenceComparisons.Data;
@@ -71,7 +72,12 @@ public class Program
   public static async Task<int> Main(string[] args)
   {
     var services = ConfigureServices();
-    var cli = services.GetRequiredService<Flowthru.Cli.FlowthruCli>();
+
+    // Resolve core service and construct CLI wrapper
+    var service = services.GetRequiredService<IFlowthruService>();
+    var logger = services.GetRequiredService<ILogger<FlowthruCli>>();
+    var cli = new FlowthruCli(service, logger);
+
     return await cli.RunAsync(args);
   }
 }
