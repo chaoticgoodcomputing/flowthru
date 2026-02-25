@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using KedroSpaceflights.Custom.Data.Schemas.Models;
-using KedroSpaceflights.Custom.Data.Schemas.Processed;
+using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
+using KedroSpaceflights.Custom.Data._06_Reporting.Schemas;
 using Microsoft.Extensions.Logging;
 using Microsoft.ML;
 

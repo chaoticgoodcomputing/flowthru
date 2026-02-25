@@ -1,5 +1,4 @@
-using KedroSpaceflights.Custom.Data.Schemas.Models;
-using KedroSpaceflights.Custom.Data.Schemas.Processed;
+using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Custom.Pipelines.DataScience.Nodes;
 

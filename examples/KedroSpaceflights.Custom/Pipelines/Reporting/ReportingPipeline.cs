@@ -42,7 +42,7 @@ namespace KedroSpaceflights.Custom.Pipelines.Reporting;
 /// </remarks>
 public static class ReportingPipeline
 {
-  public static Pipeline Create(SpaceflightsCatalog catalog)
+  public static Pipeline Create(Catalog catalog)
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {

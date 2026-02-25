@@ -1,4 +1,6 @@
-using KedroSpaceflights.Custom.Data.Schemas.Models;
+using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
+using KedroSpaceflights.Custom.Data._04_Models.Schemas;
+using KedroSpaceflights.Custom.Data._05_ModelOutput.Schemas;
 using KedroSpaceflights.Custom.Pipelines.DataScience.Nodes;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;

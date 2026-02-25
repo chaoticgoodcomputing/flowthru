@@ -1,7 +1,9 @@
 using Flowthru.Nodes;
 using Flowthru.Pipelines;
 using KedroSpaceflights.Custom.Data;
-using KedroSpaceflights.Custom.Data.Schemas.Processed;
+using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
+using KedroSpaceflights.Custom.Data._04_Models.Schemas;
+using KedroSpaceflights.Custom.Data._05_ModelOutput.Schemas;
 using KedroSpaceflights.Custom.Pipelines.DataEvaluation.Nodes;
 
 namespace KedroSpaceflights.Custom.Pipelines.DataEvaluation;
@@ -41,7 +43,7 @@ public static class DataEvaluationPipeline
     public CrossValidateModelNode.Params CrossValidationParams { get; init; } = new();
   }
 
-  public static Pipeline Create(SpaceflightsCatalog catalog, Params parameters)
+  public static Pipeline Create(Catalog catalog, Params parameters)
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {

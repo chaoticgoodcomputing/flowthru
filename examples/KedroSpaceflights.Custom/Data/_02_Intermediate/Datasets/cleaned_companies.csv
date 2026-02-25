@@ -1,0 +1,3530 @@
+Id,company_rating,company_location,total_fleet_count,iata_approved
+3888,1,Isle of Man,1,False
+34618,0.38,Isle of Man,1,False
+16813,1,Kiribati,2,False
+2859,0.9,Bahrain,1,False
+30052,1,Turkmenistan,1,False
+43711,1,Rwanda,1,False
+28484,0.33,Sao Tome and Principe,1,True
+40075,0.93,Denmark,2,True
+19811,0.9,Nicaragua,21,True
+1337,0,Micronesia,1,False
+33906,0.8,Marshall Islands,1,False
+14122,1,Malta,1,True
+42226,1,Rwanda,2,True
+9830,1,Barbados,3,True
+23356,1,Netherlands,1,False
+16042,0,Rwanda,2,False
+37247,1,Tanzania,3,False
+37293,0.92,Russian Federation,15,False
+14918,1,Jersey,1,False
+38552,1,Montserrat,1,False
+41510,1,Gambia,1,False
+26524,1,Guinea,2,True
+16370,0.5,Isle of Man,1,True
+7588,1,Philippines,2,False
+18953,1,Chile,1,False
+7891,1,Barbados,1,False
+22175,0.5,Lebanon,1,True
+37686,0.9,Monaco,1,True
+40770,1,Tonga,2,False
+22090,1,Marshall Islands,1,True
+1241,1,Chile,1,False
+34678,0.89,Croatia,4,True
+32063,1,Niue,2,True
+19581,1,Russian Federation,1,False
+28985,1,Monaco,1,True
+17908,1,Mexico,2,False
+2732,1,Turkmenistan,4,False
+19139,1,Mauritania,1,False
+17652,0.5,Isle of Man,1,False
+31213,1,Denmark,1,True
+1577,1,Peru,8,True
+24954,0.6,Christmas Island,2,False
+24736,1,Isle of Man,1,True
+44885,1,Philippines,1,True
+31040,1,El Salvador,2,True
+19540,1,Guinea,1,True
+78,1,Gambia,1,True
+39998,1,Micronesia,4,True
+47617,1,Philippines,2,False
+7309,1,Togo,4,False
+33683,0.33,Somalia,2,False
+12799,0.8,Faroe Islands,2,False
+5729,1,Russian Federation,1,False
+21239,1,Denmark,1,False
+49953,1,Niger,1,False
+35774,0.9,Brazil,1,True
+48162,1,Marshall Islands,1,False
+29745,0.9,Andorra,1,False
+34381,0.83,Sao Tome and Principe,1,False
+38299,1,Gambia,1,False
+8551,1,Lebanon,1,False
+42646,0.33,Rwanda,4,False
+17669,1,Russian Federation,3,False
+10364,1,Slovakia (Slovak Republic),14,False
+27226,1,Congo,10,False
+55,1,Kiribati,2,False
+44796,1,Maldives,2,True
+7025,1,Jersey,1,False
+30130,1,Togo,1,False
+26794,1,Lithuania,1,False
+17051,1,Micronesia,1,False
+8012,1,Sao Tome and Principe,2,True
+15991,1,Congo,1,True
+42600,1,Malawi,1,True
+46787,1,Niue,1,True
+22806,1,Faroe Islands,1,False
+33223,1,Nauru,1,True
+20463,1,Lithuania,2,False
+28276,0.83,Papua New Guinea,2,False
+26519,1,Turks and Caicos Islands,2,True
+31598,0.67,Ukraine,1,False
+47159,0.88,Denmark,1,True
+33222,0.67,Croatia,1,False
+6984,1,Suriname,9,False
+8362,1,Malawi,2,True
+28030,0.9,Anguilla,1,False
+11904,1,Nauru,1,False
+30684,1,Niue,2,True
+44736,1,Guernsey,1,True
+21217,0.75,Nauru,1,False
+14136,1,Guinea,1,False
+44127,1,Rwanda,1,True
+30462,0,Lithuania,1,True
+35077,1,Cocos (Keeling) Islands,4,False
+28404,1,Croatia,1,True
+35386,1,Venezuela,1,False
+31437,0.9,Denmark,1,False
+49510,1,Croatia,1,True
+39923,1,Russian Federation,2,False
+41024,0.95,Uzbekistan,2,False
+18557,0.67,Monaco,2,False
+45171,1,Kiribati,1,True
+24060,1,Malta,1,True
+40276,1,Anguilla,1,True
+16649,1,Gibraltar,8,False
+8956,1,Kiribati,1,False
+7656,1,Russian Federation,1,False
+4486,1,Russian Federation,1,True
+10887,0.67,Russian Federation,1,False
+29614,1,San Marino,1,False
+38257,1,Svalbard & Jan Mayen Islands,1,False
+26957,1,Uzbekistan,1,False
+21860,1,France,2,True
+16292,0.83,Reunion,1,False
+39857,1,Cocos (Keeling) Islands,1,True
+33743,1,Denmark,2,False
+4957,1,Puerto Rico,1,False
+34238,1,Saint Barthelemy,5,True
+45429,1,Niue,1,False
+37243,1,Tunisia,1,False
+18338,0.88,Ecuador,1,True
+21186,1,Rwanda,2,True
+13427,1,Ecuador,1,False
+42080,1,France,1,False
+40805,0.9,Uzbekistan,2,False
+28255,0.75,Somalia,1,False
+27948,1,Niue,4,False
+32413,1,Faroe Islands,1,False
+5848,0.8,Canada,2,False
+44666,1,Uzbekistan,1,True
+43992,1,Uzbekistan,3,True
+31667,1,Croatia,1,False
+15866,1,Papua New Guinea,2,False
+28172,1,Isle of Man,1,False
+14050,1,Lithuania,1,True
+33950,1,Gambia,1,True
+38508,1,Rwanda,1,True
+13074,1,Turks and Caicos Islands,1,True
+1616,1,Zimbabwe,1,True
+42104,0.5,Djibouti,2,False
+19241,1,Afghanistan,1,True
+15985,0.67,Somalia,1,False
+39919,0.9,Guinea,3,True
+29070,1,Micronesia,1,False
+38004,0,Palestinian Territory,2,False
+29866,1,Isle of Man,2,False
+36766,1,Malta,1,False
+48698,0.9,Vietnam,3,False
+21008,1,Bouvet Island (Bouvetoya),1,False
+517,1,United Kingdom,1,False
+25431,1,Sao Tome and Principe,1,True
+20314,1,El Salvador,1,False
+47479,1,Russian Federation,1,True
+29382,1,Ghana,4,False
+4964,1,Malawi,1,True
+25308,1,Guinea,1,True
+15475,1,Chad,1,False
+15068,1,Sao Tome and Principe,1,False
+42762,1,United Kingdom,1,False
+14921,1,Micronesia,2,False
+11781,1,Guinea,2,True
+38634,1,Malta,1,True
+10079,1,Rwanda,1,False
+28224,1,Rwanda,1,False
+36681,1,Tunisia,1,True
+46996,1,Tonga,1,False
+41022,1,Cape Verde,3,True
+17447,1,El Salvador,4,True
+27442,0.9,Solomon Islands,1,False
+12701,1,Monaco,1,False
+16550,1,Isle of Man,1,False
+43252,1,Uzbekistan,1,True
+19861,0.67,Togo,1,False
+7058,1,Isle of Man,2,False
+36288,1,Marshall Islands,1,False
+36914,1,Nauru,1,True
+23857,1,Isle of Man,1,False
+16573,1,Cuba,2,False
+32801,0.63,Somalia,1,False
+47812,1,Maldives,1,False
+17138,1,Isle of Man,1,True
+11110,0.88,Kiribati,3,True
+3314,1,Slovakia (Slovak Republic),10,False
+17061,1,Niue,2,False
+21275,1,Marshall Islands,1,False
+4898,1,Kiribati,1,False
+18326,1,Monaco,1,False
+26159,1,Turkmenistan,1,True
+7620,1,Togo,4,False
+44146,0.36,Malawi,2,True
+45842,1,Maldives,1,True
+26079,1,Zimbabwe,1,False
+9570,1,Micronesia,1,False
+26292,1,Jersey,2,True
+27090,1,Tonga,2,True
+1200,1,Russian Federation,2,True
+42454,1,Finland,1,False
+32276,1,Kiribati,1,False
+27227,1,Isle of Man,2,True
+7237,1,Guinea,1,True
+13082,1,Kiribati,3,True
+9586,1,Guinea,2,True
+3490,1,Papua New Guinea,1,False
+29480,1,French Polynesia,6,False
+32658,0.85,Saint Helena,1,False
+38160,0.25,Nicaragua,1,False
+1327,1,Brazil,1,False
+27289,0.99,Reunion,12,True
+33783,0,Lebanon,1,False
+37283,1,Brazil,1,True
+38193,1,French Guiana,1,True
+21331,1,Holy See (Vatican City State),1,False
+40192,1,Croatia,2,True
+32691,1,Nicaragua,1,False
+10697,1,Uzbekistan,3,True
+35364,1,Sao Tome and Principe,1,False
+44354,1,Russian Federation,1,True
+1126,1,Estonia,1,True
+27811,1,Ukraine,4,True
+24646,1,Barbados,1,False
+45208,1,Svalbard & Jan Mayen Islands,1,False
+7246,1,Niue,6,False
+41675,1,Zimbabwe,1,False
+36832,0.83,Micronesia,1,False
+13474,0.8,Zimbabwe,7,True
+21341,0.8,Tonga,1,False
+4308,1,Togo,1,False
+18024,1,Monaco,1,False
+46453,1,Russian Federation,1,True
+41036,1,French Polynesia,2,False
+15803,1,Tonga,1,True
+3189,1,Marshall Islands,2,True
+47361,1,Barbados,10,False
+18791,1,Zimbabwe,8,True
+17427,1,Mexico,2,False
+16173,1,Rwanda,1,False
+37595,0.9,Lithuania,4,False
+2180,0,Australia,1,False
+41507,1,Sao Tome and Principe,1,True
+4854,1,Monaco,1,False
+21736,1,Vanuatu,4,False
+33190,0,Anguilla,1,True
+41873,1,Zimbabwe,2,False
+7500,1,Paraguay,8,True
+515,1,Mauritania,1,False
+16507,1,Nauru,1,False
+25415,1,Ghana,1,False
+5941,1,Gambia,2,False
+23344,1,Grenada,1,False
+19806,0.6,Papua New Guinea,1,False
+41296,1,Svalbard & Jan Mayen Islands,1,False
+40264,1,Russian Federation,1,False
+7244,1,Guatemala,2,True
+44834,0.97,Guernsey,4,False
+17086,1,Saint Pierre and Miquelon,2,True
+37066,1,Micronesia,1,True
+37117,1,Slovakia (Slovak Republic),2,True
+17819,1,Guinea,2,False
+23170,1,Sao Tome and Principe,2,True
+11126,1,Anguilla,3,True
+20283,1,Denmark,1,False
+38524,1,Libyan Arab Jamahiriya,1,True
+49825,1,Pakistan,7,True
+39637,1,Niue,1,False
+6993,1,Costa Rica,1,True
+29323,1,Guinea,3,False
+10636,1,Jersey,1,False
+12911,1,Maldives,1,False
+22231,1,Guinea,2,False
+33669,1,Malta,2,True
+19309,1,Maldives,3,True
+4868,1,Jersey,2,True
+44440,0.88,Somalia,2,False
+4780,1,Svalbard & Jan Mayen Islands,1,False
+22364,1,Denmark,2,False
+24546,0.5,Zimbabwe,2,False
+45111,1,Sao Tome and Principe,420,False
+38122,1,Tonga,1,False
+28667,1,Barbados,1,False
+34467,1,Indonesia,1,False
+17499,0.33,Somalia,1,True
+31352,1,Pakistan,1,False
+390,1,Niue,1,True
+39441,0.96,Cuba,4,False
+10149,1,Isle of Man,1,False
+8355,0.87,Togo,16,False
+20114,1,Croatia,1,True
+40479,1,France,1,False
+28743,1,Somalia,1,True
+31554,1,Marshall Islands,1,True
+31839,1,Mauritania,1,False
+4828,1,Philippines,1,True
+32524,1,Nicaragua,1,True
+28803,1,Cocos (Keeling) Islands,1,False
+27822,1,Russian Federation,2,False
+29454,1,Guinea,1,False
+27460,0.5,Denmark,2,False
+15200,1,Gibraltar,1,True
+15452,0.9,Niue,2,False
+29244,0.67,Micronesia,1,False
+21752,0.9,Turks and Caicos Islands,1,False
+5970,1,El Salvador,2,False
+31372,1,Russian Federation,1,True
+9715,1,Russian Federation,1,True
+2538,0.67,Monaco,1,False
+27158,1,Indonesia,1,False
+31055,0.64,Niue,2,False
+9270,1,Micronesia,1,False
+6004,0.9,Micronesia,4,False
+40951,1,Turkmenistan,1,False
+24440,1,Uruguay,1,False
+36019,1,Niue,1,False
+36196,0.9,Gibraltar,1,False
+30320,1,Togo,4,False
+48321,1,China,17,False
+25766,0.75,Chile,1,True
+41553,1,Tonga,2,False
+21045,1,French Guiana,2,False
+1330,1,United Kingdom,1,True
+8294,0,Zimbabwe,1,False
+32075,1,Indonesia,2,False
+46099,0.98,Uzbekistan,28,False
+22030,1,French Guiana,3,True
+16069,1,Micronesia,1,False
+49105,1,Malta,3,False
+14395,1,Sao Tome and Principe,1,True
+326,1,Gambia,1,True
+17316,1,Niue,1,True
+39793,1,Uzbekistan,1,True
+30927,1,Indonesia,1,False
+3620,1,Russian Federation,1,False
+27106,1,China,1,False
+36659,1,Anguilla,2,True
+14700,1,Montserrat,3,False
+7264,1,Philippines,9,False
+44895,1,France,3,True
+29678,1,Nicaragua,1,False
+8338,0.75,Korea,2,False
+24567,0.9,Costa Rica,2,False
+16737,1,Kiribati,1,True
+37549,1,Chile,1,True
+2203,1,Ecuador,1,False
+3927,1,Niue,1,True
+46254,1,Venezuela,4,False
+20664,1,Nauru,4,False
+37947,1,Jersey,1,False
+46973,1,Malta,2,True
+20150,1,Jersey,1,False
+21623,1,Maldives,1,False
+49998,1,Croatia,1,True
+7927,1,Chad,1,False
+44627,1,Cocos (Keeling) Islands,1,False
+25659,1,United Kingdom,1,True
+28568,1,Faroe Islands,3,False
+7988,1,Mauritania,1,False
+46806,1,Maldives,1,False
+17627,1,Guinea,2,False
+31281,1,Nauru,1,False
+47051,1,Zimbabwe,1,True
+22522,1,France,3,True
+37917,1,Nauru,1,False
+46953,1,Niger,1,False
+24252,0.8,Tonga,2,False
+11891,1,Russian Federation,1,True
+35762,0.86,Russian Federation,1,False
+48029,1,Malta,2,False
+27875,1,Guinea,1,False
+5943,1,Russian Federation,1,False
+48342,1,Russian Federation,1,False
+29551,1,Mauritania,2,False
+44802,0.67,Bouvet Island (Bouvetoya),1,False
+3650,1,Zimbabwe,1,True
+33791,1,Guinea,2,True
+42012,1,Monaco,3,True
+17380,0.5,Jersey,1,True
+3680,1,Indonesia,1,False
+7053,1,Marshall Islands,2,False
+1132,0.88,Tonga,1,False
+24103,1,United Kingdom,3,False
+19979,1,Tanzania,1,False
+13087,1,Gibraltar,1,True
+34931,1,Gibraltar,2,True
+40314,1,Gambia,1,False
+47734,1,Ecuador,1,True
+45289,0,Marshall Islands,1,False
+8880,0,Kiribati,1,False
+28633,0.6,Russian Federation,1,True
+45579,1,Togo,1,False
+44077,0.57,Djibouti,1,False
+28398,1,El Salvador,7,True
+38207,1,Turks and Caicos Islands,2,True
+5567,1,Bosnia and Herzegovina,2,True
+2106,1,Uzbekistan,1,False
+1820,1,El Salvador,2,False
+36119,0.62,Isle of Man,1,True
+9693,1,Vanuatu,8,False
+4069,1,Togo,1,False
+23404,0.91,Malta,1,False
+29475,0.5,Niue,1,True
+35444,1,Anguilla,1,False
+26035,1,Marshall Islands,1,False
+42567,1,Palestinian Territory,1,False
+28719,1,Russian Federation,4,True
+46884,1,Turks and Caicos Islands,2,False
+12907,1,Marshall Islands,1,False
+9759,1,Isle of Man,1,True
+40371,1,Sao Tome and Principe,1,False
+22335,1,Russian Federation,3,True
+10294,1,Puerto Rico,1,False
+42421,1,Costa Rica,5,True
+3160,0.9,Russian Federation,2,False
+40858,1,France,1,False
+46069,0.5,France,1,True
+1526,1,France,1,True
+17597,0.33,Wallis and Futuna,1,True
+25729,1,Cuba,2,False
+3241,0.9,Sao Tome and Principe,1,True
+43430,1,Kenya,1,False
+46340,1,Denmark,3,True
+8579,1,Lithuania,2,False
+15723,1,Gambia,1,False
+13163,0.25,Svalbard & Jan Mayen Islands,2,False
+30549,1,Mauritania,1,True
+23013,0.9,Isle of Man,1,False
+32398,1,Turkmenistan,1,False
+32399,1,Somalia,1,True
+15756,0.94,Afghanistan,2,True
+38484,1,Senegal,2,False
+26368,1,Brazil,2,False
+18123,1,Russian Federation,3,False
+22646,1,Anguilla,1,True
+44948,1,Chad,3,False
+47483,0.9,Jersey,1,True
+9025,0.88,Micronesia,1,True
+19831,1,Reunion,2,False
+46290,1,Micronesia,2,False
+3596,1,Marshall Islands,6,True
+1021,1,Jersey,1,False
+10533,1,Indonesia,1,True
+41986,1,Congo,1,True
+33860,1,Niger,1,False
+39358,1,Kiribati,2,False
+44916,1,Congo,2,False
+15236,1,Kenya,1,True
+12433,0.5,Lebanon,1,True
+1345,0.67,Philippines,1,False
+17757,1,Uganda,1,False
+31377,1,Isle of Man,1,False
+12960,1,Indonesia,9,False
+47200,0.67,Costa Rica,1,True
+25734,0.78,Bosnia and Herzegovina,1,False
+14120,1,Jersey,1,False
+41719,1,Cape Verde,4,False
+38836,1,Lebanon,3,False
+17801,0.8,Mauritania,2,True
+43361,1,Maldives,1,False
+27029,1,Isle of Man,1,True
+35176,1,Chile,3,True
+11997,1,Mauritania,2,True
+24146,1,Cocos (Keeling) Islands,1,False
+17587,0.8,Peru,1,True
+11275,1,Brazil,3,True
+20382,1,Svalbard & Jan Mayen Islands,4,True
+10061,1,Mauritania,1,True
+48863,0.5,Isle of Man,1,False
+25030,0.75,Micronesia,1,True
+725,0.33,Peru,2,False
+4716,1,Tonga,1,False
+20466,1,Anguilla,1,False
+25528,1,Svalbard & Jan Mayen Islands,1,False
+38729,1,Maldives,1,True
+46449,1,Tonga,1,False
+2476,1,Saint Helena,2,True
+12471,0.67,Gibraltar,1,True
+46688,0.91,Vanuatu,2,False
+23662,1,Vanuatu,3,False
+31210,1,Cape Verde,1,True
+27345,1,Guinea,1,False
+11880,1,El Salvador,1,False
+4851,0,Chad,1,False
+28367,1,Marshall Islands,1,False
+36726,0.94,Mexico,6,False
+13016,1,Russian Federation,2,True
+37280,1,Indonesia,4,True
+5489,1,Tonga,1,False
+15433,0.4,United Kingdom,1,False
+20935,1,Gambia,2,False
+50078,1,Chad,2,True
+35172,1,Barbados,1,True
+33051,1,Libyan Arab Jamahiriya,1,False
+18856,0.5,El Salvador,1,True
+26718,1,Tunisia,1,False
+25776,0.75,Micronesia,1,False
+1604,1,Tunisia,1,True
+48478,1,Marshall Islands,1,True
+21902,1,Vanuatu,3,False
+23325,1,Russian Federation,2,True
+6113,1,Guinea,2,True
+379,0.5,Guinea,1,False
+36716,1,Bosnia and Herzegovina,3,False
+24221,1,Guinea,1,True
+31288,1,Isle of Man,1,False
+27435,1,Rwanda,1,True
+23695,1,France,3,False
+14004,1,Kiribati,1,False
+35236,1,Chile,1,True
+28317,1,Somalia,1,False
+46195,0.89,Maldives,6,True
+13133,0.67,Denmark,1,True
+15356,0.8,Denmark,2,False
+21386,1,Isle of Man,1,True
+8341,1,Costa Rica,2,False
+13849,1,Niue,2,True
+9861,1,Guernsey,2,False
+47886,1,Turkmenistan,1,True
+17789,0.94,Reunion,6,False
+18607,1,Niue,1,False
+19776,1,Marshall Islands,2,True
+43310,1,Russian Federation,1,False
+47730,1,Saint Helena,1,False
+33725,0.8,Slovakia (Slovak Republic),1,False
+27970,1,Niue,2,True
+44116,1,Zimbabwe,1,True
+45546,1,Cape Verde,19,True
+23276,1,Brazil,4,False
+14228,1,Marshall Islands,2,False
+35018,1,Nicaragua,10,False
+1549,1,Malta,1,True
+40561,0.9,Bouvet Island (Bouvetoya),1,True
+6259,1,Indonesia,1,False
+37253,1,Saint Helena,1,True
+46105,1,Nicaragua,4,True
+45394,1,Marshall Islands,2,False
+85,1,Russian Federation,1,True
+21632,1,Wallis and Futuna,2,False
+23541,0.89,Rwanda,1,False
+15004,1,Uzbekistan,88,False
+37565,1,Slovenia,1,True
+33961,1,Indonesia,3,True
+40626,0.93,United Kingdom,5,True
+40934,1,Brazil,3,False
+20015,1,Maldives,1,True
+36081,1,Russian Federation,1,False
+12609,1,Micronesia,1,True
+33372,1,Guinea,22,True
+6755,1,Barbados,2,False
+3262,1,Philippines,1,False
+16260,1,United Kingdom,4,True
+38748,0.43,Chad,1,False
+13589,1,China,1,False
+7460,1,China,1,False
+41567,1,Chile,1,True
+45860,1,Niue,1,True
+31293,1,Uzbekistan,1,False
+19721,1,Tonga,3,True
+30892,1,Lebanon,1,False
+11552,0.5,France,1,True
+36302,1,Vanuatu,1,False
+13085,1,Guinea,1,True
+41354,1,Micronesia,4,True
+25344,0.9,Faroe Islands,8,False
+17868,1,Niue,2,False
+6270,1,Monaco,1,False
+45041,1,Niue,2,False
+36689,1,Turkmenistan,1,True
+35584,1,Lebanon,1,False
+921,1,Finland,1,False
+8189,1,Chile,2,True
+42054,1,Guinea,2,False
+6430,1,Niue,2,True
+38921,1,Montserrat,1,False
+2424,1,Indonesia,1,False
+14885,1,Tanzania,3,False
+10204,1,Nicaragua,5,True
+26052,0.9,Gambia,3,True
+16527,1,Palestinian Territory,2,False
+18378,1,Tonga,1,True
+29246,0.5,Malawi,1,True
+6471,1,Zimbabwe,1,True
+20847,1,Bouvet Island (Bouvetoya),2,True
+8699,1,Niue,1,True
+20020,1,Sao Tome and Principe,2,True
+21232,0.9,Kiribati,2,True
+33101,1,Nauru,2,False
+39248,0.97,Cuba,5,False
+32603,0.83,Nicaragua,4,True
+23751,1,Afghanistan,1,False
+49703,1,Nicaragua,9,False
+46035,1,United Kingdom,1,False
+29083,0,Chile,1,True
+5679,1,Maldives,1,False
+49251,1,Uzbekistan,1,False
+31314,1,Guinea,4,True
+41836,1,Tonga,1,False
+43156,1,Papua New Guinea,1,True
+28785,1,Lebanon,1,False
+15316,1,Russian Federation,1,True
+23248,1,Sao Tome and Principe,1,False
+1550,1,El Salvador,1,True
+12927,1,Russian Federation,1,True
+4139,0.67,Guernsey,1,False
+40059,0.83,Svalbard & Jan Mayen Islands,1,True
+26238,1,Turkmenistan,2,True
+19,1,Reunion,2,False
+43680,0.38,Ukraine,1,False
+36363,0.82,Marshall Islands,5,False
+32875,0,Kenya,1,True
+20229,1,Papua New Guinea,1,False
+29324,0.86,Russian Federation,2,False
+17703,1,Marshall Islands,1,False
+7940,1,Niue,1,True
+43668,1,Marshall Islands,6,True
+4274,1,Guernsey,2,True
+5296,1,Mauritania,4,False
+3552,0,Kiribati,1,False
+3932,1,Uzbekistan,2,False
+21696,0.67,Bouvet Island (Bouvetoya),2,True
+33514,1,Marshall Islands,2,True
+20310,1,Andorra,1,False
+41257,1,Monaco,1,False
+36899,0.75,Saint Helena,2,True
+5136,1,Cape Verde,1,True
+1403,1,Somalia,1,True
+44659,1,Pakistan,1,False
+23465,1,Tonga,1,False
+7251,1,Turks and Caicos Islands,3,True
+24285,1,Bouvet Island (Bouvetoya),1,False
+33793,1,Russian Federation,2,False
+9688,1,Slovakia (Slovak Republic),1,True
+27492,1,Nicaragua,2,True
+27041,0.5,Russian Federation,1,False
+3112,0.94,Indonesia,25,False
+490,1,Bosnia and Herzegovina,6,False
+48305,1,Guinea,2,True
+3916,1,Guernsey,1,True
+25744,0.9,Mauritania,1,False
+21155,1,Libyan Arab Jamahiriya,1,False
+20236,1,Isle of Man,1,True
+6959,0.95,Slovakia (Slovak Republic),20,True
+46851,1,Gibraltar,1,True
+39263,1,Rwanda,2,True
+11789,1,Niue,1,False
+42726,1,Niue,1,False
+33911,1,Kiribati,2,True
+17969,1,Russian Federation,1,False
+41762,1,Russian Federation,1,False
+17010,1,United Kingdom,2,True
+12591,1,Maldives,4,True
+45205,1,Denmark,1,False
+45905,1,Sao Tome and Principe,3,True
+28496,1,Nicaragua,38,False
+13088,1,Marshall Islands,1,False
+2232,1,Russian Federation,1,False
+3607,0.5,Faroe Islands,1,False
+27773,1,Togo,1,False
+41580,1,Turkmenistan,1,False
+14161,1,Montserrat,2,False
+14490,1,Denmark,1,True
+24073,1,Zimbabwe,2,False
+46530,0.9,Malawi,1,True
+6020,1,Isle of Man,1,True
+40483,0.5,Niue,1,False
+42819,1,Lebanon,2,False
+35295,1,Andorra,1,False
+2833,1,Cuba,1,True
+16137,1,Gibraltar,1,False
+38087,1,Niger,1,False
+18164,1,Marshall Islands,5,False
+36260,1,Papua New Guinea,1,False
+28469,1,Vanuatu,3,True
+28848,1,Uganda,9,False
+21083,1,Spain,3,True
+17632,0.71,Afghanistan,1,True
+3713,0,El Salvador,1,False
+11833,0.9,Afghanistan,2,False
+20337,0.45,Tonga,1,False
+28502,1,Niue,1,True
+24888,1,Estonia,1,True
+9154,1,Djibouti,2,False
+33440,0.88,Isle of Man,3,False
+33605,1,Zimbabwe,1,True
+45590,1,Turkmenistan,2,True
+37908,1,Niue,1,True
+16500,1,France,1,False
+13160,1,Cape Verde,5,True
+44990,1,Marshall Islands,1,False
+32836,1,Isle of Man,1,False
+13815,1,Malta,1,True
+25543,0.89,Zimbabwe,1,True
+35655,1,Niue,1,False
+42261,1,Niue,1,False
+15878,1,Reunion,1,False
+23795,1,Indonesia,1,False
+15020,1,Denmark,1,False
+49653,0.4,Marshall Islands,1,True
+17553,1,Maldives,2,True
+24126,1,Turkmenistan,1,True
+29422,0.5,Uzbekistan,1,False
+26089,1,Jersey,1,True
+15193,1,Tanzania,2,True
+16476,0.86,Micronesia,1,False
+3961,1,Fiji,8,False
+2080,0,Malta,1,True
+15282,1,Nicaragua,1,True
+34500,1,Chad,1,True
+44401,1,United Kingdom,1,True
+48106,1,Cocos (Keeling) Islands,1,False
+47471,1,Lithuania,1,False
+44547,1,Venezuela,1,False
+9797,1,Uzbekistan,1,False
+22191,1,Cape Verde,2,False
+9460,1,Kiribati,1,False
+20515,1,Niue,2,True
+25197,1,Nicaragua,4,False
+11612,1,Kiribati,1,False
+19807,1,United Kingdom,1,False
+16685,1,Reunion,2,False
+47383,0,Marshall Islands,1,False
+16295,0.96,Philippines,5,False
+36206,0.86,Russian Federation,10,False
+10883,1,Niger,8,True
+48786,0.9,Pakistan,1,False
+36772,1,Lebanon,1,False
+26611,1,Papua New Guinea,2,False
+28721,1,French Guiana,1,True
+25662,1,Bouvet Island (Bouvetoya),1,False
+1783,1,Tunisia,2,True
+7804,1,Russian Federation,3,False
+49341,1,Papua New Guinea,1,True
+17216,1,Ecuador,2,True
+31983,1,French Guiana,1,False
+15170,1,Guinea,1,False
+1159,1,Monaco,1,True
+43675,0.7,Micronesia,2,False
+2183,1,Isle of Man,3,False
+28780,1,Russian Federation,1,True
+12014,1,Pakistan,1,False
+41230,1,Togo,2,False
+45425,1,Mexico,1,True
+14579,1,Uzbekistan,1,True
+28047,1,Uzbekistan,4,False
+15344,1,Svalbard & Jan Mayen Islands,1,False
+37491,1,Lebanon,1,True
+42203,1,Afghanistan,1,True
+34620,1,Costa Rica,1,True
+36688,1,Lithuania,1,False
+46071,0.89,Niue,2,False
+15304,1,Korea,1,False
+43798,1,El Salvador,4,True
+5721,1,Togo,1,False
+12983,1,Micronesia,1,False
+48897,1,Russian Federation,1,True
+15226,1,French Polynesia,1,True
+27252,1,Russian Federation,1,False
+19847,1,Maldives,1,False
+3763,1,Mauritania,1,False
+4517,1,El Salvador,3,True
+26704,1,Malawi,2,True
+44391,1,Kiribati,2,False
+23088,1,El Salvador,1,True
+40317,1,Uzbekistan,2,True
+39699,1,Vanuatu,1,False
+48470,0.9,Pakistan,4,False
+47993,1,Malawi,1,True
+22229,1,Afghanistan,3,True
+8015,1,Denmark,1,True
+28078,1,Maldives,1,False
+1020,1,United Kingdom,7,True
+40150,1,Philippines,1,False
+283,1,United Kingdom,1,True
+35598,1,France,2,False
+15758,1,Togo,1,False
+6781,1,Tanzania,1,False
+4795,1,Malta,1,False
+45764,1,Guernsey,1,True
+26261,1,Turks and Caicos Islands,1,False
+13138,1,Faroe Islands,2,True
+46240,1,Nicaragua,1,True
+1054,1,Guinea,20,False
+13546,1,Rwanda,15,False
+2612,0.94,Cuba,1,False
+29688,1,French Guiana,1,True
+15427,1,Malta,3,False
+9999,1,Isle of Man,1,False
+18912,1,Gibraltar,1,False
+29898,1,Jersey,1,False
+21230,1,Lithuania,1,False
+49068,1,Gibraltar,1,True
+9354,1,Spain,12,False
+15904,1,Afghanistan,2,False
+34288,1,Gibraltar,1,False
+14010,1,Tonga,1,True
+10809,1,Bosnia and Herzegovina,4,False
+2403,0.5,Gibraltar,2,False
+39565,0.93,Rwanda,12,False
+15160,1,Peru,5,True
+10740,1,Indonesia,1,False
+34482,1,Montserrat,1,True
+40044,1,Marshall Islands,1,False
+17890,1,France,1,False
+651,1,Lebanon,4,True
+3065,1,Tunisia,1,True
+28294,1,Puerto Rico,1,False
+41177,1,Ecuador,6,True
+7078,1,Fiji,1,False
+44650,0.67,Jersey,1,False
+29136,0.86,Svalbard & Jan Mayen Islands,1,False
+33029,1,Isle of Man,3,False
+16106,1,French Guiana,1,True
+36526,1,Russian Federation,1,False
+6727,1,Kiribati,2,True
+32195,1,Chile,1,False
+7016,0,Papua New Guinea,1,False
+9345,1,Bosnia and Herzegovina,4,False
+29854,1,Russian Federation,1,True
+42394,1,Marshall Islands,2,False
+11486,1,El Salvador,2,False
+8623,1,Jersey,1,False
+29054,1,Montserrat,1,True
+31651,0.86,Lebanon,2,True
+19015,1,Sri Lanka,2,False
+47166,1,Chad,1,True
+34084,1,Gibraltar,1,False
+15332,1,Anguilla,9,False
+28343,1,Costa Rica,1,False
+49623,1,Faroe Islands,1,False
+43011,1,Wallis and Futuna,6,False
+9852,1,Maldives,11,False
+1564,1,Indonesia,12,False
+27732,1,Puerto Rico,3,True
+31896,0.86,Niue,1,True
+40364,1,Tonga,25,False
+13322,0.5,Anguilla,2,False
+39126,1,Guinea,9,False
+2568,0.5,Gibraltar,1,False
+48880,1,France,1,False
+25503,1,Gambia,1,True
+9749,1,Marshall Islands,1,True
+8842,1,Slovakia (Slovak Republic),3,False
+25948,1,Slovakia (Slovak Republic),1,True
+4182,0,France,1,False
+32346,1,United Kingdom,3,False
+31993,1,Holy See (Vatican City State),1,True
+38378,0.9,Guinea,1,False
+37043,1,Pakistan,11,False
+21559,0.75,Tokelau,3,True
+4366,1,Vanuatu,1,False
+2901,1,Turkmenistan,1,True
+34099,1,Micronesia,1,True
+30953,1,Uzbekistan,1,True
+32659,1,Cuba,1,True
+32360,1,Niue,1,True
+4190,1,United Kingdom,2,False
+41340,1,Tanzania,3,True
+28828,1,Isle of Man,198,True
+45701,1,Nauru,2,False
+45941,1,United Kingdom,1,True
+6473,0.9,Uzbekistan,4,True
+19759,0.86,Cocos (Keeling) Islands,1,False
+45028,1,Malta,1,True
+44193,0.8,Croatia,1,False
+8483,1,Peru,2,False
+42260,1,Tanzania,1,False
+29541,1,Palestinian Territory,1,False
+45610,1,Sao Tome and Principe,1,True
+2293,1,Zimbabwe,3,True
+34016,1,Maldives,1,True
+44708,1,Gibraltar,1,False
+18591,1,Brazil,1,False
+27407,0.5,Micronesia,1,False
+11567,1,Niger,31,True
+12390,0.86,Uzbekistan,3,False
+27774,0.78,Vietnam,15,False
+40707,1,Sao Tome and Principe,1,True
+39181,1,Niger,1,False
+16047,0.8,Uzbekistan,6,False
+28436,1,Anguilla,1,True
+33602,0.52,Russian Federation,2,True
+49048,1,Russian Federation,1,True
+9791,0.8,Rwanda,2,True
+4322,0.97,Tonga,32,False
+24578,1,Jersey,1,True
+5902,1,Nicaragua,1,False
+36261,0.9,Slovakia (Slovak Republic),2,False
+26652,0.97,Pakistan,6,False
+4928,0.5,Malta,1,False
+42596,1,Brazil,1,False
+579,0,Anguilla,1,False
+27972,0.94,Brazil,27,False
+7732,1,Guinea,1,True
+21487,1,Tanzania,1,False
+3237,1,Turkmenistan,2,True
+40768,1,Anguilla,1,True
+17511,0.88,Niue,1,False
+27162,1,Isle of Man,1,False
+45668,1,Malta,2,False
+2393,1,Pakistan,1,False
+49551,1,Maldives,1,False
+38021,1,Bahrain,2,False
+42471,1,Fiji,1,False
+24728,1,Turkmenistan,3,True
+21892,1,Micronesia,1,False
+22816,1,Croatia,1,False
+6191,1,Uzbekistan,2,True
+43138,1,Cocos (Keeling) Islands,1,True
+9867,1,Guernsey,1,True
+42548,1,Lithuania,2,True
+30954,1,Niue,1,False
+43796,1,Niue,1,False
+13756,1,Guinea,3,False
+37091,0.75,Anguilla,1,False
+28636,0.8,United Kingdom,2,True
+1539,1,Micronesia,3,False
+3942,1,Svalbard & Jan Mayen Islands,1,False
+47046,1,Lebanon,9,False
+8016,1,French Guiana,1,True
+25524,1,Barbados,1,True
+33235,0.7,France,2,True
+20891,1,Niue,2,True
+46148,1,Uganda,1,False
+37980,0.75,Kiribati,1,False
+27163,1,Korea,3,True
+4175,1,Gambia,2,True
+34018,1,French Guiana,1,False
+16492,0.67,Marshall Islands,1,False
+35527,1,Marshall Islands,13,False
+22285,1,Rwanda,1,False
+37012,1,Monaco,3,True
+47090,1,Croatia,3,False
+14402,1,Denmark,1,False
+48916,1,Libyan Arab Jamahiriya,1,False
+29116,1,El Salvador,19,True
+29778,1,Chile,1,False
+8398,1,Kenya,1,False
+25706,1,Isle of Man,1,False
+8728,1,Ecuador,1,False
+44853,1,Lebanon,2,False
+410,1,Bouvet Island (Bouvetoya),1,False
+31724,1,Bouvet Island (Bouvetoya),1,False
+26635,0,Tanzania,1,False
+3122,1,Peru,1,False
+34289,0.9,Sao Tome and Principe,1,True
+8729,0.89,Svalbard & Jan Mayen Islands,1,False
+3422,0.86,Niger,6,False
+34660,1,Reunion,1,False
+5570,1,Finland,1,True
+46832,1,Niue,2,True
+42470,1,Malawi,2,False
+49189,1,Turks and Caicos Islands,3,False
+30428,1,Turkmenistan,1,True
+46354,1,Papua New Guinea,1,False
+40869,1,Jersey,1,True
+2994,1,El Salvador,1,True
+6225,0.9,Barbados,7,False
+46949,1,Tunisia,4,False
+37524,1,Lebanon,1,False
+36219,1,Brazil,1,True
+35219,0.97,Tonga,4,False
+15266,1,Bouvet Island (Bouvetoya),1,False
+891,1,Chile,2,True
+27231,1,Isle of Man,1,True
+8758,1,Russian Federation,1,False
+46332,1,Isle of Man,1,False
+38696,1,Slovakia (Slovak Republic),1,False
+9458,1,Reunion,2,False
+45870,1,Puerto Rico,2,True
+5231,1,Nicaragua,1,False
+1003,1,Tonga,1,True
+18993,1,Reunion,2,True
+25148,0.5,Uzbekistan,1,True
+31637,1,Estonia,1,False
+12044,1,Switzerland,2,False
+46443,0.75,Sao Tome and Principe,1,True
+44459,0.89,Kenya,1,True
+8951,1,Faroe Islands,1,False
+37104,1,Bouvet Island (Bouvetoya),1,True
+6856,1,Denmark,1,False
+19409,1,Micronesia,1,False
+26755,1,Russian Federation,2,True
+47848,0.3,Uzbekistan,1,True
+35135,1,Niue,1,False
+23981,1,Nicaragua,1,False
+2036,1,Slovakia (Slovak Republic),3,False
+23332,1,Bosnia and Herzegovina,2,False
+43540,0.72,Bosnia and Herzegovina,25,False
+657,1,Marshall Islands,2,False
+27233,1,Zimbabwe,1,True
+20726,0,Niue,1,True
+3989,1,Marshall Islands,1,True
+22036,1,Mauritania,1,True
+33450,1,Jersey,1,True
+11844,0.75,Saint Helena,1,True
+30336,1,Vietnam,2,True
+26067,0.6,Reunion,1,False
+26521,1,Vanuatu,1,False
+22564,0.9,Portugal,1,False
+31310,1,Kiribati,1,True
+17087,0.5,Portugal,1,True
+44237,1,Andorra,1,True
+27428,1,Uzbekistan,2,False
+8032,0.7,United Kingdom,1,True
+20375,0.8,Mauritania,1,False
+9169,0.9,Guernsey,1,False
+36403,1,United Kingdom,1,True
+13577,0.9,Brazil,2,False
+14039,1,Sao Tome and Principe,1,False
+16386,1,Uzbekistan,1,True
+48107,1,Uganda,1,False
+31563,1,Niue,3,False
+23166,0.5,Faroe Islands,1,True
+6407,0,Niue,3,False
+49665,1,Libyan Arab Jamahiriya,1,False
+49113,0.83,Barbados,1,True
+21333,1,Faroe Islands,2,False
+49012,1,Micronesia,1,True
+44793,1,Guernsey,1,False
+6832,1,Monaco,1,False
+39625,1,Zimbabwe,1,True
+19570,0,Greenland,1,False
+26046,1,Namibia,2,False
+12784,1,Malta,1,False
+25251,1,El Salvador,2,False
+30360,0,Moldova,1,False
+1199,1,Spain,1,False
+43620,1,Denmark,1,False
+10741,1,Micronesia,2,False
+50035,1,Tonga,1,False
+30712,1,Faroe Islands,1,False
+3804,1,Faroe Islands,1,False
+22634,1,Gambia,3,False
+23374,0,Togo,2,True
+38494,1,Palestinian Territory,1,False
+49904,1,Senegal,1,False
+40954,0,Uganda,1,False
+29258,1,Barbados,1,False
+30949,1,Finland,1,False
+9204,0.11,Russian Federation,1,True
+13258,1,Micronesia,1,False
+44045,1,Sao Tome and Principe,2,False
+15394,1,Tunisia,2,True
+15693,1,Vietnam,6,False
+41341,1,Guinea,3,True
+45739,0.8,Maldives,6,True
+27967,0.67,Djibouti,1,True
+9310,0.7,Gambia,1,False
+12868,1,Tonga,1,False
+41028,1,Micronesia,1,False
+33748,0.3,Uzbekistan,3,True
+226,1,Maldives,2,False
+16808,1,Niue,1,False
+48879,1,Russian Federation,1,True
+998,0.6,Niue,1,True
+33332,1,Puerto Rico,1,True
+13556,1,Uzbekistan,1,False
+23482,1,Niue,1,False
+44973,1,Kiribati,1,False
+17501,1,Cape Verde,1,False
+30187,1,Marshall Islands,2,False
+19934,1,Svalbard & Jan Mayen Islands,2,True
+38831,0.65,Tanzania,8,True
+45783,1,Nauru,1,True
+4710,0.25,Guernsey,1,True
+6654,1,Tonga,3,False
+2262,1,Tonga,1,False
+4178,1,Niue,1,True
+12546,1,Lebanon,1,False
+36320,1,Niue,1,False
+25179,0,Zimbabwe,1,False
+29768,1,Uganda,1,False
+10554,0,Russian Federation,2,False
+1582,1,Russian Federation,1,False
+28408,1,Australia,1,False
+26604,1,Turkmenistan,1,False
+30172,1,Russian Federation,12,False
+18679,1,Andorra,1,False
+710,1,Kenya,1,True
+47514,1,Philippines,1,False
+33956,1,Lebanon,1,True
+8592,1,Uganda,1,False
+9633,1,Uruguay,1,False
+25159,1,Peru,1,True
+4945,0,Cape Verde,5,False
+2515,1,France,1,True
+43590,1,Costa Rica,9,False
+17115,1,Gambia,2,True
+26883,1,Guernsey,2,True
+25549,1,Guinea,1,False
+38520,1,Malta,1,True
+29552,1,Jersey,1,False
+24556,1,Zimbabwe,1,True
+15535,1,Niue,1,False
+24834,1,Maldives,1,True
+35193,1,Kiribati,1,False
+44982,0.5,Isle of Man,2,True
+7254,0.88,Tonga,1,True
+48041,1,Cocos (Keeling) Islands,1,True
+19614,1,Tonga,5,True
+36896,0.5,Turkmenistan,1,False
+40090,1,Portugal,1,False
+26495,0.75,Palestinian Territory,1,True
+6145,1,Russian Federation,2,True
+14459,0.4,Ukraine,1,False
+5874,1,Guinea,1,False
+46504,1,Barbados,1,False
+33106,1,Nicaragua,1,True
+48257,1,Kiribati,5,True
+12542,0.98,Mauritania,19,True
+41447,0,Andorra,3,False
+27036,1,Marshall Islands,1,True
+38163,1,Venezuela,3,False
+30435,0.99,Cape Verde,41,False
+25698,1,Monaco,1,False
+7413,1,Cape Verde,1,True
+35522,1,Kiribati,10,False
+27171,1,Reunion,1,True
+16113,1,Croatia,2,True
+48599,1,Malawi,3,False
+37207,0.8,Tonga,1,False
+34525,1,Estonia,1,False
+45592,1,Maldives,2,True
+2019,1,Malta,7,False
+15959,1,Russian Federation,2,True
+29416,1,Anguilla,1,False
+37662,1,Kenya,2,True
+29277,1,France,1,False
+8331,0.7,Uganda,2,False
+48348,1,United Kingdom,1,True
+7670,1,Isle of Man,1,True
+37632,1,Costa Rica,2,False
+17650,1,Tanzania,1,False
+28520,1,Slovakia (Slovak Republic),2,True
+41612,1,Montserrat,1,False
+19327,0.9,Mauritania,1,False
+4253,1,France,1,True
+15548,1,Faroe Islands,1,True
+28950,1,Mexico,2,True
+3571,1,Bouvet Island (Bouvetoya),3,True
+33699,1,Palestinian Territory,1,False
+2104,1,Russian Federation,1,True
+15689,0.96,Micronesia,1,False
+21482,1,Russian Federation,1,True
+39353,1,Lithuania,2,True
+46844,1,Sao Tome and Principe,1,False
+26904,1,Uganda,1,True
+6966,1,Afghanistan,1,True
+10173,0.83,Marshall Islands,2,True
+3443,1,Jersey,1,False
+44544,0,Gibraltar,2,False
+7635,1,Kenya,1,True
+30286,1,Montserrat,39,False
+31058,1,Afghanistan,1,True
+21323,1,Guinea,2,True
+48954,1,Montserrat,8,True
+11387,1,Uganda,2,False
+2046,1,Niue,1,False
+42971,1,Niue,1,False
+26434,1,Tonga,1,False
+34076,1,Niue,7,True
+36506,0.7,Marshall Islands,2,False
+33400,0.97,Zimbabwe,5,True
+32824,1,Indonesia,1,True
+3088,1,Jersey,1,False
+714,1,Zimbabwe,1,False
+14577,0.5,Niue,2,True
+34663,1,French Guiana,1,True
+12128,1,Djibouti,1,False
+40999,1,Chile,2,False
+10400,1,Paraguay,4,True
+15861,1,Chad,1,True
+6647,1,Senegal,2,True
+9849,1,Isle of Man,2,False
+14358,1,Maldives,9,False
+49492,1,Jersey,1,True
+22247,1,Slovakia (Slovak Republic),5,True
+3274,0.86,Barbados,24,False
+30224,1,Cuba,1,True
+43819,1,Grenada,2,True
+20495,1,Anguilla,1,False
+29578,1,Chile,2,False
+39149,1,Peru,1,False
+10585,1,Niue,1,True
+25674,0.7,Cocos (Keeling) Islands,1,False
+17303,1,Russian Federation,5,True
+45521,1,Isle of Man,1,False
+41233,1,Zimbabwe,1,True
+16624,1,Chile,1,True
+3566,0.9,Turkmenistan,1,True
+23972,1,Zimbabwe,2,True
+17339,0.67,Niue,1,False
+27671,1,Turkmenistan,1,False
+40390,1,Marshall Islands,2,True
+21938,0,Lithuania,1,False
+15023,1,Tanzania,1,True
+242,1,Denmark,1,False
+40620,1,Guinea,2,False
+1419,1,Maldives,1,True
+39508,1,Jersey,1,True
+45979,1,Guernsey,1,False
+16733,1,Vanuatu,1,False
+40557,1,Kenya,2,False
+48955,1,Somalia,1,False
+46675,1,Tonga,1,False
+16267,1,Montserrat,1,False
+5629,0.5,Sao Tome and Principe,1,False
+6700,1,Guinea,7,False
+3187,1,Tonga,2,True
+32738,1,Vanuatu,1,False
+15957,1,Nicaragua,1,False
+24978,1,Christmas Island,1,True
+26905,0.5,Puerto Rico,2,False
+9611,0.93,Chad,2,False
+38078,1,Uzbekistan,2,True
+34285,1,Russian Federation,1,True
+39109,0.77,Ukraine,24,True
+47991,1,Niue,1,False
+24963,1,China,1,False
+35654,1,Russian Federation,1,True
+17444,1,Malawi,1,False
+22347,1,Brazil,2,True
+12821,1,Tonga,1,True
+43942,1,Reunion,1,True
+10775,1,Guinea,2,True
+7033,1,Vietnam,1,True
+38492,1,Palestinian Territory,1,False
+48218,1,Lebanon,1,True
+12598,1,Montserrat,3,False
+42951,0.75,Marshall Islands,1,False
+1671,1,Holy See (Vatican City State),1,True
+5891,1,Faroe Islands,1,True
+30460,0.8,Netherlands,1,False
+42280,1,Micronesia,1,True
+2121,0.67,Kenya,2,False
+43097,0.93,Sao Tome and Principe,4,False
+43344,0.6,Maldives,5,False
+10157,0,Tonga,2,False
+39711,1,Estonia,1,False
+17178,0.25,Rwanda,1,True
+22876,0.9,Marshall Islands,2,True
+1236,1,Nauru,1,True
+18168,0.95,Ecuador,3,False
+14393,1,Indonesia,1,True
+41186,1,Lebanon,1,True
+41771,1,Turks and Caicos Islands,2,False
+44234,0.9,Philippines,1,True
+29703,1,Niue,1,False
+8003,1,Uganda,1,False
+48450,1,Cape Verde,2,True
+5378,1,Uzbekistan,1,False
+9809,1,Malta,1,False
+44963,0,Togo,1,True
+17445,1,Lebanon,1,False
+37823,1,Gambia,3,False
+43047,1,Guinea,2,True
+2883,1,Tanzania,2,False
+872,1,Tonga,1,False
+39009,0.82,Mauritania,1,False
+17120,1,Uzbekistan,2,True
+39156,1,Nicaragua,1,False
+21197,0.86,Kiribati,1,False
+17172,1,Niue,1,False
+46175,1,United Kingdom,1,True
+9584,1,Canada,1,False
+26485,1,Afghanistan,1,False
+3362,0.4,Rwanda,1,True
+35216,0.5,Marshall Islands,1,True
+2949,1,French Guiana,1,True
+47765,1,French Polynesia,1,False
+47317,0,Gambia,1,False
+15810,1,Niger,2,False
+13164,0.33,Mauritania,2,False
+13420,1,Uruguay,1,False
+42949,1,Papua New Guinea,2,False
+37251,1,Bahrain,1,True
+34127,1,Uzbekistan,1,False
+47847,0.96,Indonesia,3,False
+11322,1,Malta,1,False
+31514,0.75,Gibraltar,2,False
+5262,1,Croatia,1,True
+32651,1,Guinea,1,True
+28177,1,Kenya,1,False
+23058,1,Philippines,1,False
+47643,1,Holy See (Vatican City State),1,False
+48546,1,Gambia,1,True
+28274,1,Jersey,1,False
+36035,0.83,Bahrain,1,False
+38767,0.67,Holy See (Vatican City State),1,False
+34532,1,Monaco,1,False
+30080,0.88,Pakistan,1,False
+49234,1,Denmark,2,False
+8595,1,Lebanon,3,True
+38893,1,Tonga,1,False
+16074,1,Faroe Islands,1,True
+5047,1,Niger,1,False
+50071,1,Nicaragua,1,False
+33108,1,Costa Rica,3,False
+767,1,Uganda,2,False
+18500,1,Lithuania,1,False
+48649,1,Kiribati,2,False
+34951,1,Uzbekistan,1,False
+35472,1,Senegal,1,True
+3389,1,Estonia,13,False
+28123,1,Gambia,1,False
+48602,1,El Salvador,1,True
+43127,1,Maldives,1,False
+11549,1,Zimbabwe,1,True
+39651,1,Denmark,1,False
+22289,1,Guinea,1,True
+39907,1,Turkmenistan,1,False
+48443,1,Maldives,1,False
+29880,1,Tanzania,1,False
+3391,1,Iran,58,True
+19246,1,Monaco,1,True
+39013,0.86,Russian Federation,1,True
+26813,1,Russian Federation,1,True
+48710,0.8,Libyan Arab Jamahiriya,1,False
+24114,0.7,Lebanon,2,True
+40591,1,Reunion,1,True
+42606,1,Micronesia,1,False
+4360,1,Guinea,1,False
+41412,1,Saint Helena,2,False
+37594,1,Russian Federation,1,False
+37378,0.83,Brazil,1,False
+35213,0.83,Russian Federation,1,False
+39379,1,Guinea,1,False
+24033,1,Uganda,45,False
+36687,1,Cape Verde,1,True
+24700,0.33,Denmark,1,True
+6149,1,Zimbabwe,1,True
+1908,1,Sao Tome and Principe,2,True
+37584,1,Puerto Rico,1,False
+36524,1,Saint Helena,8,True
+42407,1,Maldives,2,True
+9011,1,Russian Federation,1,False
+37725,1,Zimbabwe,1,False
+35776,1,Isle of Man,1,True
+5357,0.95,Sao Tome and Principe,1,False
+16198,0,Sao Tome and Principe,1,True
+19271,1,Jersey,11,False
+24432,1,Andorra,2,True
+12173,1,Uganda,9,False
+30426,1,Kenya,1,False
+1705,1,Russian Federation,2,True
+41126,0.9,Saint Helena,1,False
+42350,1,Bahamas,2,True
+45097,1,Gambia,1,True
+2862,1,Vanuatu,1,False
+19843,1,Turkmenistan,3,True
+43176,0.86,Guinea,3,False
+28540,1,Vanuatu,12,False
+27070,1,Uzbekistan,2,False
+36867,1,Tanzania,1,False
+219,1,Congo,2,False
+44578,1,Niue,2,True
+12070,1,Vanuatu,1,False
+37499,1,French Guiana,4,True
+9061,1,Rwanda,2,True
+42502,1,Philippines,2,False
+37406,1,Greenland,2,False
+20867,1,Guinea,4,True
+10700,1,Gambia,1,True
+19239,1,Nicaragua,2,True
+32600,1,Lebanon,1,False
+26406,1,Kiribati,2,False
+47515,0,Kiribati,1,False
+28833,1,Venezuela,5,False
+45633,1,Ecuador,1,False
+24639,1,Kenya,2,True
+16240,1,Tanzania,2,True
+3278,0.9,Guinea,2,True
+31805,0.99,Mauritania,20,False
+22438,0.9,Guinea,2,True
+33716,1,Gibraltar,2,False
+38387,1,Sao Tome and Principe,1,True
+31830,1,Tonga,1,False
+5101,0.67,Nauru,1,False
+43889,1,Lebanon,2,False
+17771,0.9,Russian Federation,1,False
+49542,1,Turkmenistan,2,False
+26831,0.5,Fiji,1,False
+14439,1,Svalbard & Jan Mayen Islands,1,False
+49206,1,Sao Tome and Principe,1,False
+42823,1,China,1,False
+27130,1,Croatia,1,False
+22739,1,Gambia,3,True
+32161,1,Nicaragua,5,True
+11600,1,Gibraltar,1,True
+31749,1,Uganda,9,True
+4076,0.5,Uganda,1,True
+2743,0.97,China,23,False
+44347,0.88,Wallis and Futuna,2,False
+3104,0.43,Marshall Islands,1,False
+14034,1,Russian Federation,1,False
+6108,0.6,Peru,1,False
+17213,1,France,1,True
+46943,0.94,Peru,2,False
+22324,1,Venezuela,6,True
+15559,1,Barbados,1,True
+44722,1,Niue,2,False
+20089,1,Rwanda,1,True
+10006,1,Tanzania,1,True
+3476,1,Wallis and Futuna,1,False
+6974,1,Barbados,1,True
+36407,1,Uganda,2,True
+17198,1,Gambia,1,False
+40671,1,Bosnia and Herzegovina,2,True
+2112,1,Nicaragua,2,False
+77,0.5,Monaco,2,False
+40462,1,Rwanda,1,False
+29901,0.33,Lithuania,1,True
+11046,1,Libyan Arab Jamahiriya,1,True
+7649,1,Jersey,1,True
+30023,0.75,Rwanda,1,True
+32417,1,Fiji,1,True
+17515,1,Philippines,5,False
+4364,1,Uganda,1,False
+9638,0,Tonga,2,False
+8058,0.9,Niger,2,True
+2445,1,El Salvador,1,True
+23870,1,Brazil,1,False
+13236,1,Vanuatu,1,False
+42915,1,Vanuatu,1,False
+7102,1,Vanuatu,4,True
+12980,1,Uzbekistan,3,True
+23699,1,Lebanon,1,True
+28662,1,Brazil,2,False
+8978,0.88,Brazil,1,True
+48118,1,Guinea,1,True
+452,1,Ghana,3,False
+26633,1,Guinea,1,True
+8096,1,Vietnam,2,False
+16045,1,Anguilla,1,True
+19909,1,Andorra,1,False
+39986,1,Isle of Man,2,True
+20413,0.67,El Salvador,1,False
+44626,0.9,Niue,1,True
+31871,1,Uzbekistan,1,True
+22647,1,Uzbekistan,1,False
+15247,1,Tunisia,1,False
+45215,1,Niue,1,False
+29968,1,French Guiana,1,False
+2822,1,Gambia,1,True
+6576,1,Gibraltar,3,True
+26689,0.8,Svalbard & Jan Mayen Islands,1,False
+25914,1,France,2,True
+24409,1,Isle of Man,1,False
+44713,1,French Guiana,1,True
+32065,1,Niue,1,False
+36543,1,Pakistan,1,False
+17941,1,France,1,True
+48671,1,Guinea,3,True
+45221,1,Turkmenistan,1,True
+37615,1,Vanuatu,1,False
+39781,1,Brazil,1,True
+38184,0.4,Estonia,1,False
+13728,1,Pakistan,1,False
+1366,0.25,Fiji,4,False
+33336,0.75,Nicaragua,1,False
+19250,1,Papua New Guinea,1,False
+23437,1,Niger,1,False
+41337,1,Maldives,5,False
+46394,1,Estonia,1,False
+24288,1,Senegal,4,False
+17092,1,Estonia,2,False
+38304,1,United Kingdom,1,True
+11474,1,Andorra,1,True
+28621,1,Marshall Islands,1,False
+14663,1,Kenya,1,False
+10920,1,Kenya,2,True
+12177,1,France,6,True
+41991,1,Mexico,1,True
+49496,1,Gibraltar,1,False
+48701,1,Tonga,1,False
+26558,1,Micronesia,2,True
+10962,1,Sao Tome and Principe,3,True
+32816,0.88,Denmark,1,False
+45519,1,Puerto Rico,2,False
+43360,1,Denmark,2,False
+38479,1,Russian Federation,2,True
+7980,1,Tonga,1,False
+5975,1,Guinea,2,False
+47085,1,Sao Tome and Principe,1,False
+49765,1,Uzbekistan,1,True
+48652,1,Isle of Man,1,True
+49924,0.67,Vanuatu,2,False
+40526,0.9,Kenya,1,False
+28703,1,Uzbekistan,2,False
+49456,0,Venezuela,1,False
+4920,0.98,Estonia,8,False
+39972,1,Niue,1,False
+41546,1,Mauritania,21,False
+29813,1,Holy See (Vatican City State),1,False
+36917,1,Croatia,1,True
+8654,1,Christmas Island,3,False
+29203,1,Kenya,1,True
+591,1,Niue,2,False
+35743,1,Palestinian Territory,2,True
+27652,1,El Salvador,5,False
+39481,1,Uzbekistan,1,True
+38112,1,Malta,1,False
+28602,1,Mauritania,2,False
+25003,0.96,Latvia,9,True
+10082,1,Isle of Man,2,True
+37962,1,Gibraltar,1,True
+28671,1,Malawi,2,False
+23221,1,Chad,1,False
+24198,0.25,French Guiana,4,False
+20758,1,Uzbekistan,2,True
+16881,1,Vietnam,1,True
+665,1,Greenland,2,True
+8518,1,Peru,1,False
+17818,1,Montserrat,2,True
+39847,1,Venezuela,1,False
+30500,1,Zimbabwe,1,True
+31063,1,Gambia,1,False
+39632,1,Zimbabwe,1,True
+7395,1,Niue,1,False
+29261,1,Uruguay,1,True
+29931,1,Brazil,1,False
+25369,1,Chad,1,True
+45721,1,Jersey,1,True
+44783,1,Senegal,1,False
+13525,1,Nauru,1,False
+13931,1,Guinea,1,False
+7959,1,Peru,1,False
+11332,1,Croatia,2,True
+37665,1,Wallis and Futuna,4,True
+31340,1,El Salvador,1,True
+4907,1,Lebanon,2,True
+21529,1,Uzbekistan,2,True
+46664,1,Croatia,2,True
+39405,1,United Kingdom,1,False
+25602,0.13,Kenya,2,False
+40405,0,Tonga,1,False
+22091,1,Faroe Islands,9,False
+41478,1,Monaco,2,False
+11578,1,Brazil,1,False
+26868,1,Mauritania,1,True
+20238,1,Guinea,1,False
+6026,1,Rwanda,1,True
+10612,1,Brazil,3,False
+23184,1,Lebanon,1,True
+39708,1,Anguilla,1,True
+7707,1,Bouvet Island (Bouvetoya),1,True
+46767,1,El Salvador,3,True
+38701,0.4,Niger,27,False
+43494,0.98,Saint Helena,5,False
+41628,1,United Kingdom,1,True
+9846,1,Indonesia,3,True
+22097,1,United Kingdom,1,True
+47858,1,Sao Tome and Principe,1,False
+274,0.9,Togo,2,False
+3777,1,Kiribati,1,True
+22123,1,Holy See (Vatican City State),1,False
+32920,0.6,Reunion,5,False
+29960,1,Indonesia,1,True
+9923,1,Gambia,2,False
+39304,0.75,Togo,2,True
+1901,1,El Salvador,1,False
+31218,1,Saint Helena,1,False
+11830,1,Maldives,67,True
+15289,1,Monaco,1,False
+50089,1,Isle of Man,2,False
+4912,1,Pakistan,2,False
+35273,1,Chad,1,True
+46092,1,Rwanda,1,False
+13935,1,Ecuador,2,False
+18955,0.9,Denmark,3,False
+31855,1,Kenya,2,True
+15989,1,Palestinian Territory,1,True
+34596,1,Rwanda,1,False
+35948,1,Brazil,8,False
+912,1,Monaco,1,False
+36731,1,Nicaragua,7,False
+37646,1,Estonia,60,False
+9831,1,Micronesia,1,False
+49299,0.9,Equatorial Guinea,2,False
+10373,0.9,Bouvet Island (Bouvetoya),2,False
+7027,1,Gibraltar,1,False
+20639,1,Nicaragua,1,False
+11639,0,Russian Federation,2,False
+478,1,Holy See (Vatican City State),1,False
+12017,1,Guinea,1,False
+40737,0.89,Russian Federation,1,True
+330,1,United Kingdom,1,False
+16079,1,Sao Tome and Principe,1,False
+14330,1,Indonesia,1,True
+39033,0.5,Russian Federation,1,False
+23714,1,Montserrat,1,False
+18061,0.95,Marshall Islands,1,False
+4979,1,United Kingdom,1,False
+13240,1,Estonia,1,True
+33938,1,United Kingdom,2,False
+16237,1,Sao Tome and Principe,1,True
+9689,1,Guinea,2,False
+25913,0.89,Uzbekistan,1,False
+46668,1,Malta,2,True
+19008,1,Kiribati,1,False
+4237,0.33,Holy See (Vatican City State),1,False
+3994,1,Kenya,1,True
+34753,1,El Salvador,1,True
+25860,1,Brunei Darussalam,1,True
+35443,1,French Guiana,1,True
+8656,1,Venezuela,1,False
+24349,1,Guinea,2,True
+34559,1,Isle of Man,1,True
+12800,1,Malawi,2,False
+4913,1,Gambia,1,False
+22713,1,Uganda,1,False
+3355,0.78,Faroe Islands,2,True
+39952,1,Tonga,21,False
+25874,1,Malta,1,True
+32007,0.8,El Salvador,2,False
+49555,1,Saint Pierre and Miquelon,4,True
+14227,0.8,Svalbard & Jan Mayen Islands,1,True
+49043,1,Micronesia,4,True
+31381,1,Niue,2,False
+13747,1,Niue,1,True
+21249,0.8,Sao Tome and Principe,1,False
+34220,1,Estonia,1,True
+44593,0.83,Gambia,1,False
+44336,0.83,Monaco,1,True
+27597,1,Portugal,7,True
+5690,1,Isle of Man,2,True
+17347,1,Jersey,1,False
+20120,1,Wallis and Futuna,10,False
+35170,1,Vietnam,5,True
+43919,1,Ghana,1,False
+45079,0.75,Tonga,1,True
+33168,1,Senegal,1,True
+35356,1,Russian Federation,2,True
+18170,0.88,France,1,False
+11380,1,United Kingdom,1,True
+4011,1,French Guiana,3,False
+21358,1,Congo,1,False
+27392,0.9,Sao Tome and Principe,1,False
+22117,1,Tonga,1,False
+2037,0.8,Gambia,1,False
+36370,1,Puerto Rico,1,False
+43115,1,Maldives,1,True
+17054,1,Nicaragua,1,False
+12107,1,Fiji,2,True
+17637,1,Monaco,1,True
+43207,1,Venezuela,1,False
+4600,0.7,Marshall Islands,1,True
+12501,1,Sao Tome and Principe,2,False
+42435,1,Russian Federation,3,True
+16472,0.67,Sao Tome and Principe,1,True
+6154,0.86,Sao Tome and Principe,1,False
+29289,1,Kiribati,1,False
+21060,1,Tunisia,1,False
+43175,1,El Salvador,1,False
+13975,1,Mexico,2,False
+12765,1,Zimbabwe,1,True
+20796,1,Togo,2,False
+27572,0.67,Niue,1,False
+16344,1,Nicaragua,1,False
+19457,0.7,Monaco,1,True
+2242,0.9,Monaco,1,False
+41349,1,Jersey,1,False
+49076,0.97,Kenya,12,True
+20909,1,Gambia,1,False
+16615,1,Chad,1,False
+3940,1,Pakistan,2,False
+43415,1,Gambia,1,False
+20411,1,Pakistan,4,True
+43795,0.89,Vanuatu,1,False
+27105,0.5,Turkmenistan,1,False
+6276,1,Zimbabwe,5,False
+16312,1,Kiribati,11,False
+2907,1,Pitcairn Islands,2,True
+47565,1,Kiribati,1,True
+41089,1,Gambia,3,True
+21644,1,Australia,1,False
+43048,1,France,1,True
+3604,0.63,Tunisia,1,False
+37510,1,Zimbabwe,1,True
+11210,0.29,Estonia,1,False
+8985,1,Gibraltar,1,True
+25053,0.25,Uzbekistan,1,True
+27398,1,Niue,1,False
+14090,0.67,Costa Rica,1,False
+40678,1,Ecuador,3,True
+48918,1,Slovakia (Slovak Republic),1,True
+32679,1,Papua New Guinea,1,True
+5037,1,El Salvador,1,True
+35712,1,Marshall Islands,1,True
+27015,1,Kenya,2,True
+17694,1,Isle of Man,4,True
+3015,1,Nicaragua,3,False
+37237,1,Tunisia,1,False
+43134,1,Suriname,6,False
+11100,1,Nicaragua,1,False
+11946,0.89,Zimbabwe,2,False
+11847,0.71,Sao Tome and Principe,1,True
+35813,1,Kiribati,1,False
+34344,1,Denmark,1,False
+7696,0.97,Russian Federation,7,True
+4125,1,Guernsey,1,True
+33179,1,Rwanda,13,False
+27263,0.8,China,5,False
+41518,1,Montserrat,13,True
+22129,1,Moldova,1,False
+40112,1,Cape Verde,1,False
+39023,1,Niue,1,True
+19564,1,Turks and Caicos Islands,2,True
+45270,1,Jersey,1,True
+32410,1,United Kingdom,5,False
+47448,1,Gibraltar,1,True
+31124,1,France,3,False
+33873,1,Turks and Caicos Islands,8,True
+13153,1,Zimbabwe,1,False
+1360,0.86,Guernsey,1,False
+26449,1,Micronesia,1,False
+29138,0.88,Kiribati,2,False
+9711,0.89,Micronesia,2,True
+16627,1,France,1,False
+46124,1,Niue,1,False
+19491,1,Vietnam,1,True
+20110,1,Micronesia,1,False
+48980,1,Mauritania,2,False
+40039,1,Croatia,1,False
+47256,0.5,Marshall Islands,1,False
+38537,1,Russian Federation,1,False
+36641,1,Vietnam,5,False
+32031,1,Zimbabwe,1,True
+43834,0.99,Uganda,13,False
+42879,1,Gambia,1,False
+17060,1,Monaco,1,False
+6794,1,Bosnia and Herzegovina,2,True
+13821,1,United Kingdom,2,False
+23710,1,Gambia,5,False
+7248,1,Nicaragua,2,False
+25485,1,Kiribati,1,False
+16706,1,France,1,True
+4014,1,United Kingdom,1,False
+34646,1,Jersey,1,False
+27186,1,Zimbabwe,7,True
+255,0.5,Gibraltar,1,False
+48334,1,Guinea,12,False
+7287,1,Guinea,1,False
+45808,1,Uganda,1,False
+4685,0.43,Fiji,1,False
+3231,1,Christmas Island,1,False
+6999,1,Brazil,1,False
+17873,1,El Salvador,1,False
+28278,0.9,Chile,1,True
+15616,0.83,Tonga,1,False
+7571,0.33,Kiribati,2,False
+28021,0.83,Isle of Man,2,False
+41501,1,Montserrat,2,True
+33007,1,Croatia,1,True
+33163,1,Marshall Islands,1,False
+44762,1,Estonia,1,True
+22614,0.63,Zimbabwe,1,True
+30962,1,Jersey,2,True
+34627,1,Tanzania,1,False
+23668,1,Fiji,2,False
+41853,1,Denmark,1,False
+3167,1,Micronesia,3,False
+22082,1,Isle of Man,1,True
+8367,1,Nicaragua,1,False
+4816,0.9,Somalia,3,False
+13033,0.8,Moldova,3,True
+27367,1,Maldives,1,False
+27819,1,Kenya,1,False
+1063,1,Papua New Guinea,4,False
+31966,0.75,Nauru,1,False
+12272,0.5,Zimbabwe,1,True
+886,1,Faroe Islands,1,False
+30959,1,Zimbabwe,2,False
+3047,1,Brazil,1,False
+35468,1,Sao Tome and Principe,1,True
+23261,0.86,Jersey,2,False
+4856,1,Philippines,5,False
+10108,0.5,Denmark,1,False
+991,0.33,Jersey,1,True
+3176,1,Uzbekistan,1,True
+11469,1,Guinea,2,False
+40599,1,United Kingdom,1,True
+28884,1,Micronesia,2,True
+17788,0,Australia,2,True
+10865,0.88,Isle of Man,2,True
+44385,0.5,Vanuatu,1,False
+22518,1,Guinea,6,False
+36998,0.92,Lebanon,10,False
+35807,1,Sao Tome and Principe,2,False
+11125,1,Nicaragua,12,True
+45133,0.77,Chile,1,False
+5223,1,Chile,1,True
+38534,1,Maldives,1,False
+32046,0.5,Gibraltar,1,True
+39300,1,Kenya,2,False
+15761,1,Nicaragua,1,False
+37363,1,Isle of Man,1,False
+19667,1,Monaco,1,False
+8042,1,Micronesia,1,True
+45089,1,Jersey,1,False
+22178,0.65,Lebanon,1,True
+24345,1,Lebanon,1,True
+24258,1,Malta,1,False
+5770,1,Zimbabwe,1,True
+21005,1,Cocos (Keeling) Islands,1,False
+16686,1,Turkmenistan,1,False
+39027,0.8,Nicaragua,2,False
+50025,0.4,Bahrain,1,False
+46912,0,France,1,True
+42241,0,Zimbabwe,1,False
+24501,1,Andorra,2,True
+27430,1,Christmas Island,4,True
+35398,1,Isle of Man,1,False
+7824,1,Monaco,2,True
+6697,1,Pakistan,1,False
+23451,1,Niger,3,False
+43323,1,Greenland,1,False
+12802,1,Niger,3,True
+3223,1,Kenya,1,True
+46110,1,Afghanistan,4,False
+39867,1,Jersey,1,True
+29052,1,Kiribati,1,False
+10479,1,Palestinian Territory,3,True
+11582,1,Anguilla,2,True
+6894,0.8,Estonia,47,True
+36088,1,Niue,2,False
+32991,1,Mauritania,2,True
+29807,1,Brazil,2,True
+45512,1,Barbados,2,True
+38201,1,Russian Federation,1,False
+27019,1,Gambia,1,False
+11457,0.9,Denmark,1,True
+13441,1,Togo,2,False
+12006,1,Uruguay,5,False
+43148,1,Slovakia (Slovak Republic),1,False
+16948,1,Suriname,1,False
+29447,1,Faroe Islands,1,True
+5540,1,Rwanda,1,True
+45878,1,Costa Rica,1,False
+29198,1,Uzbekistan,1,False
+28957,0,Turkmenistan,2,False
+7982,1,Serbia,3,False
+11076,1,Malta,1,True
+42741,1,Tanzania,1,False
+31889,1,Zimbabwe,1,True
+14560,1,Barbados,2,False
+37760,1,Niue,1,True
+42860,1,Guinea,1,False
+14204,1,Jersey,1,False
+32781,1,Lebanon,2,False
+937,1,French Guiana,3,False
+48439,1,Guinea,2,False
+24338,1,El Salvador,2,False
+13304,1,Cocos (Keeling) Islands,2,False
+9196,1,Jersey,1,False
+1635,0,Barbados,1,False
+46541,1,Chad,1,False
+35480,1,Netherlands,1,False
+34811,1,Montserrat,1,False
+6224,1,Wallis and Futuna,2,True
+27603,1,Pakistan,1,True
+38339,1,Venezuela,2,False
+4225,1,Costa Rica,2,False
+11166,0.8,Marshall Islands,1,False
+37909,1,Russian Federation,2,True
+47488,0,Gambia,1,False
+13641,0.85,Mauritania,23,False
+8489,1,Zimbabwe,2,False
+45989,0.9,Isle of Man,1,False
+23497,0.8,Gambia,3,False
+36963,1,France,1,False
+30022,0.33,French Guiana,2,False
+22174,1,Russian Federation,1,False
+2337,1,Kiribati,1,False
+25123,1,Papua New Guinea,1,True
+32560,1,Jersey,1,False
+2633,1,Lebanon,1,True
+31618,1,Maldives,1,False
+14218,1,Uzbekistan,1,False
+35486,1,French Guiana,1,True
+46089,1,Sao Tome and Principe,3,True
+18077,1,Sao Tome and Principe,139,False
+719,1,Estonia,1,False
+43108,1,Vietnam,2,False
+30753,1,Anguilla,2,True
+34572,1,Saint Helena,1,False
+3071,1,Indonesia,1,False
+8909,1,Tunisia,1,True
+18258,0.9,Niue,2,False
+1239,1,Gambia,1,True
+11034,0.9,Chile,1,False
+27646,1,Isle of Man,1,False
+26895,0.5,Gambia,1,False
+19799,1,Guinea,2,False
+1401,1,Uganda,3,False
+30902,1,Senegal,1,False
+26083,1,Faroe Islands,2,True
+44590,1,Faroe Islands,1,False
+35122,1,Guinea,1,True
+45154,1,Lebanon,2,True
+24919,1,Estonia,4,False
+29410,0.89,Niger,1,False
+2852,1,Isle of Man,1,False
+19485,0.5,Russian Federation,1,True
+47261,1,Estonia,7,False
+32742,1,Nicaragua,3,True
+42183,1,Puerto Rico,1,True
+23390,1,French Guiana,1,False
+25677,1,Peru,2,False
+27047,1,France,1,False
+4306,0.83,China,3,False
+42317,1,Netherlands Antilles,1,True
+23009,1,Gambia,1,True
+8907,1,Costa Rica,1,False
+17396,1,Micronesia,1,False
+24781,1,Svalbard & Jan Mayen Islands,1,True
+11137,0.8,Niue,2,True
+33881,1,Djibouti,2,True
+44218,1,Kiribati,3,False
+29748,0.4,Djibouti,1,True
+24085,1,Gibraltar,1,True
+11498,0.9,Niue,1,False
+36327,1,Guinea,5,True
+10858,1,Maldives,1,True
+37307,0.75,Nicaragua,2,False
+23395,0,Tonga,1,False
+40037,1,Chile,1,True
+6736,1,El Salvador,1,False
+1076,1,Guernsey,1,False
+33934,1,Wallis and Futuna,1,False
+39799,0.5,Russian Federation,6,False
+7252,1,Nicaragua,1,False
+37778,0.92,Tonga,24,False
+21781,1,Isle of Man,1,True
+47541,1,Palestinian Territory,1,True
+35218,1,Turkmenistan,2,False
+21758,1,Guinea,1,False
+20412,1,Jersey,1,True
+1184,1,Bahrain,2,False
+336,1,Ecuador,7,False
+2128,1,United Kingdom,1,False
+4265,1,Palestinian Territory,2,True
+34558,1,Philippines,1,False
+30369,1,Libyan Arab Jamahiriya,1,True
+48886,1,Netherlands,4,True
+7557,1,Uganda,1,False
+28061,1,Denmark,5,False
+45211,1,Micronesia,2,True
+24112,1,Russian Federation,1,True
+6888,1,Sao Tome and Principe,1,True
+20807,1,Mauritania,2,True
+8397,1,Faroe Islands,1,True
+49035,0.98,Maldives,6,False
+29157,1,Canada,1,True
+33275,0.83,Netherlands,1,False
+37652,1,Kiribati,3,True
+30532,0.67,Russian Federation,1,False
+16515,1,Indonesia,1,False
+2160,1,Isle of Man,1,True
+22027,0.67,Togo,1,False
+33468,1,Monaco,2,True
+41346,0.97,Estonia,7,True
+28312,1,Lebanon,2,True
+42635,1,Nicaragua,1,False
+24945,1,Lebanon,1,True
+44769,0,Fiji,1,False
+6011,1,Cuba,1,False
+10689,1,Isle of Man,1,True
+46486,1,Nicaragua,1,False
+10540,1,Togo,1,False
+5837,0.6,Sao Tome and Principe,2,False
+29735,0.86,Isle of Man,2,False
+9275,1,Papua New Guinea,1,False
+41756,1,Chad,1,False
+1160,1,France,1,True
+4060,1,Russian Federation,1,False
+1638,1,Jersey,1,False
+10683,1,Tonga,1,False
+4565,1,Turkmenistan,1,False
+15156,0.8,El Salvador,1,False
+27507,1,Lebanon,2,False
+36803,1,Gibraltar,2,True
+22050,1,Peru,2,False
+14043,1,Chad,1,False
+1529,1,Denmark,1,False
+27071,1,El Salvador,1,False
+35354,1,Micronesia,1,False
+24603,1,Senegal,1,False
+12424,1,Pakistan,2,True
+10838,0.78,Ecuador,2,True
+16028,1,Niue,1,False
+10110,1,Costa Rica,1,True
+31533,1,Malawi,1,False
+39467,1,Nicaragua,4,True
+5254,1,Malawi,1,False
+49770,1,Zimbabwe,1,False
+47077,1,Bouvet Island (Bouvetoya),2,False
+40434,0.5,Kiribati,1,False
+29744,1,Micronesia,1,False
+47913,0,Monaco,1,False
+1964,1,Netherlands,1,False
+22418,1,Senegal,1,True
+15385,1,Cook Islands,3,False
+37548,1,Russian Federation,2,False
+15227,1,Reunion,1,False
+14747,1,Jersey,1,True
+1610,1,Niue,1,False
+38218,1,Malawi,1,True
+39640,1,Russian Federation,1,True
+30083,0,Barbados,1,True
+17734,1,Jersey,1,True
+22939,1,Cocos (Keeling) Islands,1,False
+11576,1,Maldives,1,False
+19758,1,Marshall Islands,1,False
+41741,1,Brazil,9,True
+12551,1,Niger,3,False
+34688,1,Gambia,2,True
+7354,1,Cape Verde,1,False
+13229,1,Sao Tome and Principe,1,True
+120,1,Cuba,2,False
+687,1,Kiribati,2,True
+9284,1,Nicaragua,4,False
+2525,0.5,Montserrat,2,False
+44141,0.9,Zimbabwe,1,False
+5516,1,Saint Helena,1,False
+47323,0.5,Turks and Caicos Islands,7,False
+43578,0.9,Kiribati,7,False
+4446,1,Uganda,58,False
+30283,1,Brazil,15,False
+327,1,Tonga,2,True
+27017,1,Senegal,2,True
+28101,0.67,Gibraltar,1,False
+9828,0,Puerto Rico,1,False
+43057,1,Niue,1,True
+2416,1,Guinea,5,False
+31936,1,Vanuatu,2,False
+33933,1,Papua New Guinea,3,False
+20443,1,Uganda,1,False
+24852,1,Wallis and Futuna,3,False
+7593,1,Senegal,2,False
+6967,1,Russian Federation,1,False
+18518,1,El Salvador,1,False
+23855,0.94,France,2,True
+43220,1,Korea,1,True
+33619,1,Sao Tome and Principe,1,False
+983,1,Marshall Islands,1,False
+33166,1,Cocos (Keeling) Islands,1,True
+27752,1,Zimbabwe,2,False
+24324,1,Niger,2,False
+27650,1,Slovenia,1,True
+21747,0.67,Gambia,1,True
+1883,0.9,Reunion,2,True
+38469,1,Cocos (Keeling) Islands,3,True
+35117,1,Venezuela,1,True
+23238,1,Reunion,2,True
+40746,1,Slovakia (Slovak Republic),2,False
+23431,1,Indonesia,1,True
+1608,1,Zimbabwe,2,False
+18385,1,Brazil,2,True
+25384,1,Slovakia (Slovak Republic),1,False
+33262,0.9,Niger,1,False
+46301,1,Gambia,1,False
+13365,1,Indonesia,7,True
+8225,0.95,Barbados,31,False
+38680,1,Tonga,1,False
+2673,0.93,Anguilla,2,False
+44346,0.8,Niue,1,True
+24197,1,Ghana,1,False
+49696,1,Maldives,2,True
+30471,1,Russian Federation,1,True
+18306,0.9,Jersey,5,False
+31446,1,Faroe Islands,9,False
+43266,0,Russian Federation,1,False
+49435,1,Marshall Islands,6,True
+32029,1,Saint Helena,2,True
+23734,0,Uganda,1,True
+1013,1,Venezuela,4,False
+4330,0.94,Ukraine,60,True
+6925,0.67,Uganda,1,True
+41140,0.9,Nicaragua,2,True
+17988,1,Jersey,1,False
+25034,1,Nicaragua,2,False
+8499,1,Mauritania,1,False
+11156,1,El Salvador,2,False
+6102,1,Uzbekistan,1,False
+16840,1,Mexico,1,True
+14327,1,Gambia,2,True
+15963,1,Svalbard & Jan Mayen Islands,1,False
+4576,1,French Guiana,1,True
+49014,1,Tonga,1,True
+25637,1,French Guiana,3,True
+5173,1,El Salvador,2,False
+29602,1,China,1,False
+42050,1,Turks and Caicos Islands,1,False
+18088,1,Marshall Islands,3,True
+33564,1,Maldives,1,True
+30118,1,Nicaragua,1,False
+22321,1,United Kingdom,16,False
+33523,1,Venezuela,2,False
+6592,1,Togo,1,False
+25105,1,Uzbekistan,2,True
+5263,0.92,Sao Tome and Principe,1,True
+47974,1,Lebanon,2,False
+5771,0.98,Vietnam,8,False
+12357,1,Gambia,4,False
+28283,0.9,Ecuador,1,True
+3144,0,Puerto Rico,1,False
+21605,0.83,Nicaragua,6,False
+13396,1,Uruguay,1,False
+34550,1,Maldives,1,True
+5701,1,Costa Rica,1,True
+22377,1,Russian Federation,1,True
+22376,1,Vanuatu,6,False
+15391,0.9,Niger,2,True
+37438,1,Andorra,4,True
+12210,1,United Kingdom,2,False
+12123,0.8,Puerto Rico,8,True
+8983,1,Anguilla,7,False
+16719,1,Denmark,1,False
+9968,1,Indonesia,1,False
+44145,1,Rwanda,4,True
+25939,1,Nauru,2,False
+19144,1,San Marino,1,False
+26361,1,Vanuatu,3,False
+35787,1,Pakistan,1,True
+31363,1,Faroe Islands,1,True
+1617,1,Russian Federation,2,False
+49359,1,Isle of Man,1,False
+26107,1,Niue,3,False
+15661,0.33,Russian Federation,4,False
+8770,1,El Salvador,3,False
+18315,1,Bosnia and Herzegovina,1,False
+35206,1,Marshall Islands,1,False
+19905,0.97,Monaco,8,False
+2878,0.93,Bosnia and Herzegovina,3,True
+8267,1,Vietnam,1,False
+46262,1,Kenya,1,True
+4732,0.8,Micronesia,2,True
+96,1,Mexico,2,True
+7484,1,Pakistan,1,True
+30394,1,Marshall Islands,1,False
+13057,1,Ukraine,1,False
+35933,0.75,Isle of Man,1,True
+20469,0.33,Guinea,1,True
+24448,1,Venezuela,1,False
+16709,1,Isle of Man,1,False
+1652,0.88,Greenland,2,False
+22731,1,Nicaragua,1,False
+15053,0.25,Uzbekistan,1,True
+1822,1,Anguilla,1,False
+25046,1,Maldives,14,False
+11973,1,Niue,7,True
+48455,0.89,Uzbekistan,20,True
+7339,1,Zimbabwe,1,False
+35841,1,Saint Helena,4,False
+2243,1,Tonga,1,False
+27981,1,Cape Verde,1,False
+42840,1,Niger,1,False
+36890,0.9,Uzbekistan,1,True
+13103,1,Costa Rica,1,False
+43428,0.73,Faroe Islands,9,True
+7051,0,Malta,1,False
+47117,1,Niue,1,True
+17483,0.9,Vanuatu,1,False
+43294,1,Isle of Man,1,False
+29926,0.67,Zimbabwe,7,True
+1726,0.93,Isle of Man,9,True
+29073,0.9,Canada,1,True
+42119,1,Djibouti,2,True
+12262,1,Niue,2,False
+6812,1,Uzbekistan,1,True
+44169,0.97,Portugal,39,False
+36298,0,Malta,1,True
+34922,1,Canada,1,False
+33557,0.9,Netherlands,2,True
+16648,1,France,1,True
+17259,1,Guinea,2,False
+48994,1,Rwanda,1,False
+34126,1,French Guiana,1,True
+29322,1,Gambia,1,False
+45898,1,Andorra,1,True
+18390,1,Malta,1,True
+41816,0.5,Micronesia,1,True
+11687,1,Tanzania,2,False
+27215,1,Reunion,1,True
+14766,1,Rwanda,2,True
+17612,1,Peru,2,True
+49130,1,Niue,1,True
+22625,1,Nicaragua,3,True
+5642,1,El Salvador,1,True
+21277,1,Isle of Man,1,True
+38401,1,Guinea,1,False
+19166,1,Brazil,2,True
+12089,1,Zimbabwe,1,True
+46162,1,Nicaragua,1,False
+48616,1,El Salvador,2,True
+20265,1,Malawi,3,False
+35977,1,Marshall Islands,1,False
+43935,1,Puerto Rico,1,False
+6655,1,Niue,1,False
+21836,1,Mauritania,3,False
+11349,0,Venezuela,1,False
+34723,1,Peru,12,False
+45997,0,United Kingdom,1,False
+37770,1,Anguilla,2,True
+46427,0.81,Sao Tome and Principe,4,True
+29208,1,Libyan Arab Jamahiriya,1,False
+48277,1,Rwanda,4,False
+12274,1,Lebanon,1,False
+37234,1,Gambia,1,False
+10446,1,Gibraltar,1,False
+5084,1,Congo,1,False
+5607,1,Jersey,2,True
+31828,1,Isle of Man,2,True
+20069,1,Monaco,3,False
+39915,1,Vanuatu,1,False
+41266,1,Papua New Guinea,1,False
+41971,1,Rwanda,1,True
+6603,1,Gibraltar,1,False
+7956,1,Malta,1,False
+36350,1,Niger,1,True
+3860,1,Uzbekistan,1,True
+34304,0.33,Micronesia,1,False
+14473,1,Anguilla,1,False
+3934,1,Rwanda,4,False
+47778,1,Cocos (Keeling) Islands,1,False
+47164,1,Ukraine,2,False
+46607,1,Brazil,4,False
+27960,0.69,Suriname,6,False
+44194,1,Indonesia,5,True
+43542,0.67,Russian Federation,2,False
+45758,1,Brazil,1,False
+46456,0,Monaco,1,False
+27021,1,Denmark,1,False
+39713,1,Denmark,4,False
+22308,1,Kiribati,1,False
+25296,1,Monaco,1,False
+25905,1,Denmark,1,False
+21038,1,Zimbabwe,1,False
+49362,1,Niue,1,False
+42361,1,Sao Tome and Principe,1,True
+2076,1,New Zealand,2,False
+49091,1,Guinea,1,True
+43930,1,Kenya,1,True
+45054,0.7,Zimbabwe,1,True
+22632,1,Togo,1,False
+48511,0.9,Christmas Island,1,True
+30031,1,Turks and Caicos Islands,2,True
+13089,1,Russian Federation,1,True
+46857,1,Marshall Islands,1,True
+25151,1,Marshall Islands,1,True
+23362,1,Monaco,1,True
+8574,1,Niue,2,False
+19749,1,Denmark,6,True
+40587,1,Niue,2,True
+11475,1,Papua New Guinea,4,False
+29369,1,Tonga,2,False
+42804,1,Chad,1,False
+28731,1,Faroe Islands,1,True
+32214,0,Indonesia,1,False
+26418,0.5,Niue,1,True
+10130,1,Maldives,1,False
+41381,1,Niue,1,False
+32611,1,Ecuador,1,False
+36215,1,Rwanda,1,False
+23612,1,Tonga,1,False
+25507,1,Malta,3,False
+44983,0.5,Lebanon,1,True
+32834,1,Faroe Islands,2,False
+27755,1,France,1,False
+4524,1,Vietnam,1,False
+8671,0,Costa Rica,1,False
+13831,1,Russian Federation,1,True
+30658,1,United Kingdom,2,False
+31913,1,China,1,True
+7255,1,Bouvet Island (Bouvetoya),8,True
+38808,1,Cape Verde,1,False
+26688,0.67,Jersey,1,True
+38769,1,Russian Federation,1,True
+24626,1,Cocos (Keeling) Islands,3,False
+37231,1,Russian Federation,1,False
+9185,0.89,Saint Helena,1,False
+46258,1,Philippines,1,True
+22600,0.83,Malta,2,False
+47066,1,Denmark,1,True
+11160,1,Gibraltar,1,False
+20041,1,Uzbekistan,2,True
+48683,1,Uzbekistan,2,True
+18566,0.9,Nicaragua,2,True
+11251,1,Libyan Arab Jamahiriya,2,False
+48769,1,Indonesia,4,True
+18016,1,Somalia,1,True
+7631,0.5,Croatia,1,False
+48500,1,Canada,1,True
+45170,1,Lebanon,1,True
+2263,1,Guinea,1,False
+19904,1,Kiribati,1,True
+7981,1,Sao Tome and Principe,4,True
+20354,1,Kiribati,1,False
+13762,0.77,Senegal,1,True
+43481,1,Russian Federation,4,True
+33664,1,French Guiana,1,False
+7581,1,Niue,1,False
+34219,0.2,Zimbabwe,3,False
+27725,1,Lithuania,1,False
+19351,1,Guinea,2,False
+26537,1,Turks and Caicos Islands,2,False
+2178,1,Jersey,2,True
+21838,1,Guinea,1,True
+43537,0.5,Costa Rica,1,True
+33335,1,Gibraltar,3,True
+16452,0.8,Afghanistan,1,True
+48200,0.57,French Guiana,1,True
+26914,0.5,Anguilla,1,False
+26373,1,Lithuania,1,False
+48869,1,Slovakia (Slovak Republic),22,False
+13167,1,Micronesia,1,False
+43301,1,Tunisia,1,False
+45321,1,Brazil,2,False
+21051,0,Denmark,1,True
+17656,1,Monaco,1,False
+43642,0.9,Denmark,6,False
+14382,0.89,Switzerland,1,False
+47539,1,Tunisia,1,False
+41754,1,Zimbabwe,1,True
+48381,0.9,Netherlands,1,False
+13510,1,Fiji,3,True
+47497,1,Micronesia,1,False
+28050,1,Malta,1,False
+15086,0.75,Kenya,2,False
+22961,1,Niger,1,False
+35999,1,Mauritania,3,True
+24568,1,Brazil,1,False
+12999,1,Micronesia,1,False
+47187,1,Gambia,1,True
+7710,1,French Guiana,1,True
+40799,1,Togo,2,False
+12994,0.8,Croatia,1,False
+20165,0.94,Ukraine,30,False
+7493,1,Monaco,1,True
+34425,1,Isle of Man,1,False
+39765,1,United Kingdom,2,True
+9307,1,Puerto Rico,1,False
+6174,1,Chad,1,True
+1502,1,Uzbekistan,1,False
+47186,1,Faroe Islands,2,False
+15943,1,Puerto Rico,2,False
+15832,0,Denmark,1,False
+42377,1,Marshall Islands,2,False
+40683,1,United Kingdom,2,True
+17210,1,Maldives,2,False
+44462,1,Russian Federation,1,False
+17533,0,Mauritania,1,False
+10370,1,Russian Federation,2,False
+3483,1,Micronesia,4,True
+41791,1,Tunisia,1,True
+39195,0.9,Brazil,2,True
+14334,0.9,Tunisia,1,True
+14072,0.7,Micronesia,1,False
+40750,0.9,Brazil,1,False
+36706,1,Mexico,1,False
+39676,0.86,Guinea,2,False
+5834,1,Marshall Islands,2,False
+16549,1,Costa Rica,1,False
+40366,0.97,Micronesia,14,True
+19120,1,Peru,1,True
+46685,1,Tonga,1,True
+8129,1,Rwanda,5,False
+44761,0.9,Niger,1,False
+17413,1,Isle of Man,2,True
+21642,1,Denmark,1,False
+34675,1,Svalbard & Jan Mayen Islands,1,True
+11913,1,Gambia,5,False
+33150,1,Malta,1,False
+25488,1,Gambia,1,True
+17754,1,Mauritania,1,False
+11827,0.9,Venezuela,2,True
+29240,0.67,Kenya,1,False
+16176,1,Christmas Island,1,False
+39724,0.86,Sao Tome and Principe,2,False
+22487,1,Kenya,1,False
+12035,1,Uzbekistan,1,True
+49414,1,Tanzania,1,False
+15340,1,Slovakia (Slovak Republic),1,False
+20897,0,Mauritania,1,True
+6228,0.75,Libyan Arab Jamahiriya,1,False
+37215,1,Indonesia,4,True
+47811,1,Vietnam,2,False
+49961,1,Russian Federation,3,True
+37554,1,Nauru,1,True
+33406,1,Reunion,4,False
+16921,1,Malta,1,False
+15707,1,Vietnam,4,False
+26112,0.5,Russian Federation,1,True
+10303,0.9,Turkmenistan,1,False
+16281,1,Kiribati,1,False
+4515,1,Gambia,2,False
+48000,1,Afghanistan,1,False
+15859,1,Zimbabwe,1,False
+42580,1,Costa Rica,3,False
+12164,1,Nicaragua,8,False
+19097,1,Russian Federation,2,False
+1499,1,Tonga,2,True
+43008,0.98,Costa Rica,5,False
+29707,0.67,Gambia,1,False
+7333,1,Russian Federation,1,False
+26627,0.71,Monaco,1,False
+14748,0.8,Nicaragua,1,False
+2115,1,Jersey,2,True
+24769,1,Isle of Man,1,True
+32499,1,Niue,1,False
+22316,1,Zimbabwe,1,True
+18368,1,Gambia,2,False
+10334,1,Micronesia,1,True
+14470,1,Nicaragua,1,False
+19790,0.5,Niue,1,False
+41755,1,Isle of Man,2,False
+6632,1,Micronesia,3,False
+13027,0.6,Saint Helena,1,False
+41418,1,Nicaragua,1,False
+18694,1,Chad,1,True
+14318,0.95,China,2,False
+24026,0.98,Cape Verde,69,True
+32362,1,Marshall Islands,4,True
+6907,1,Somalia,1,False
+16521,1,Cocos (Keeling) Islands,1,True
+9801,1,Niger,1,False
+26812,1,United Kingdom,1,True
+34906,1,Uzbekistan,1,True
+1877,1,Guinea,1,False
+29171,1,Mauritania,1,False
+15080,1,Venezuela,3,False
+31649,0.4,Mauritania,1,True
+12379,1,Estonia,1,False
+40164,1,Kenya,1,False
+47286,1,Micronesia,2,False
+34203,1,Uzbekistan,2,True
+43576,1,Guinea,2,True
+11646,1,Gambia,2,False
+48806,1,Togo,1,False
+22355,1,Malta,1,False
+11069,1,Micronesia,1,False
+4820,1,Lithuania,2,True
+46343,0.9,Niue,2,False
+48533,1,Somalia,1,True
+25769,1,Uzbekistan,1,False
+44046,1,Cuba,1,True
+44475,1,El Salvador,1,False
+40757,1,United Kingdom,1,True
+48896,1,Isle of Man,1,False
+22720,0.92,Nicaragua,1,False
+31748,1,Lithuania,1,True
+5823,1,Tanzania,1,True
+30526,1,Canada,3,True
+19943,0.63,Isle of Man,34,False
+32009,1,Maldives,1,True
+18042,1,Uganda,2,True
+31907,1,Tonga,1,True
+15697,0.8,Finland,1,True
+1304,1,Montserrat,2,False
+41949,1,Brazil,2,True
+31718,1,France,6,False
+29226,1,Russian Federation,1,False
+12397,1,Niue,1,False
+34335,1,Jersey,2,True
+3712,1,Zimbabwe,1,False
+16790,1,Vanuatu,1,False
+35032,0.9,Afghanistan,1,True
+36312,1,Bouvet Island (Bouvetoya),1,False
+15751,1,Tanzania,1,False
+47091,0.9,United Kingdom,3,False
+42132,1,Marshall Islands,1,False
+38182,1,Kiribati,4,False
+13212,1,Zimbabwe,12,True
+1920,0.67,Sao Tome and Principe,1,False
+21818,1,Malta,1,False
+21039,1,Vanuatu,1,False
+13771,1,Maldives,1,False
+9616,1,Gibraltar,1,False
+16341,0.9,France,1,True
+43865,0.33,Russian Federation,2,False
+39967,1,Switzerland,1,False
+47396,1,Maldives,1,True
+31938,1,Venezuela,1,False
+25799,1,Uzbekistan,5,True
+31771,1,Guinea,1,False
+5498,0.33,Brazil,1,False
+32253,1,Gambia,1,True
+1947,1,Micronesia,1,False
+46667,1,United Kingdom,1,False
+38762,1,Rwanda,1,False
+3089,1,Russian Federation,1,False
+9375,1,Peru,2,True
+11730,1,Isle of Man,1,True
+44835,1,United Kingdom,3,False
+16542,1,Croatia,2,True
+35271,0.8,Chad,1,True
+1261,1,Malawi,3,True
+45226,1,Venezuela,2,True
+46872,1,Nicaragua,9,False
+47069,1,France,1,False
+24912,1,Sao Tome and Principe,5,False
+43926,0.8,Zimbabwe,2,True
+5806,0.9,Niue,2,False
+28607,0.9,Isle of Man,1,True
+45795,0.75,Denmark,1,False
+39455,1,Vietnam,1,False
+10754,1,Russian Federation,1,False
+18872,1,Uzbekistan,2,True
+30788,1,Niue,1,True
+40972,1,Micronesia,1,False
+9370,0.9,Niue,2,True
+47958,0.8,Niue,1,False
+48366,1,Marshall Islands,1,False
+8703,0.9,Andorra,1,False
+41,1,Portugal,2,False
+18626,1,Nicaragua,1,True
+17977,0.67,Puerto Rico,1,False
+24052,1,Guinea,1,True
+47548,1,Malta,1,True
+26936,1,Togo,2,False
+8409,0.98,Maldives,9,False
+36270,1,Maldives,2,False
+9981,1,Anguilla,1,False
+13437,1,Jersey,1,False
+11907,1,Uzbekistan,1,False
+32747,0.6,Malawi,1,False
+28569,1,Marshall Islands,1,False
+34806,1,Vanuatu,1,False
+34248,1,Guinea,1,False
+9592,0.9,Jersey,1,False
+5153,1,France,1,False
+29717,1,Kiribati,3,False
+49771,1,Turks and Caicos Islands,4,False
+37702,1,Gibraltar,1,False
+48067,1,Indonesia,1,False
+23875,0.63,Chad,1,False
+45955,1,Senegal,1,False
+28515,1,Lebanon,1,True
+34724,1,Gibraltar,1,False
+20587,1,Brazil,1,False
+3148,0.9,Rwanda,1,True
+37227,1,Micronesia,1,True
+20518,1,Togo,4,True
+14887,1,Guinea,1,False
+12718,1,Indonesia,2,False
+40453,1,French Guiana,1,False
+41989,1,El Salvador,1,True
+47081,1,Finland,1,True
+13788,0.75,Uzbekistan,3,False
+11809,1,Russian Federation,1,False
+3375,0.5,Uzbekistan,2,True
+2823,1,Vietnam,1,True
+46523,0.9,Guinea,2,True
+45063,1,Isle of Man,1,False
+16614,1,Kiribati,1,False
+6048,1,Tonga,1,False
+44205,1,Sao Tome and Principe,2,False
+12690,1,Gambia,4,True
+41436,1,Russian Federation,1,False
+14665,1,Cocos (Keeling) Islands,1,False
+2222,0.67,Malawi,1,True
+3137,1,French Guiana,1,False
+31765,1,Estonia,1,False
+11744,1,Kenya,4,False
+33376,0,Brazil,1,False
+12264,1,Slovakia (Slovak Republic),1,True
+18262,1,Netherlands,1,False
+42025,1,France,1,False
+15038,1,Puerto Rico,1,False
+13039,0.8,Russian Federation,2,True
+21263,1,Isle of Man,1,True
+10602,1,Niger,1,True
+46654,1,Tunisia,1,True
+10734,1,Niue,2,True
+26285,0.94,Senegal,9,False
+33026,1,Estonia,2,False
+47894,1,Turks and Caicos Islands,3,False
+32286,1,Kenya,2,True
+41193,1,Rwanda,1,False
+18608,1,Jersey,4,True
+45793,1,Niue,5,True
+38847,0,Denmark,3,True
+21703,0.91,Palestinian Territory,1,True
+41757,1,Malta,5,False
+11149,1,Ecuador,1,True
+25722,0,Micronesia,1,True
+41982,0.6,Nicaragua,2,False
+19706,1,Turkmenistan,1,False
+43692,1,Isle of Man,1,True
+32257,1,Russian Federation,2,True
+16036,1,Faroe Islands,1,False
+22860,1,Turkmenistan,2,True
+37151,0.4,Zimbabwe,1,False
+24390,1,Lithuania,1,False
+48609,1,Uzbekistan,2,False
+19038,1,Lebanon,3,True
+538,1,Guinea,1,False
+48791,0.97,Uzbekistan,5,True
+43999,1,Niue,1,False
+1270,1,France,1,False
+3937,1,Russian Federation,1,True
+31134,1,Maldives,2,True
+45491,1,France,1,False
+13199,0,Denmark,1,False
+44625,1,Russian Federation,2,False
+20889,1,Isle of Man,2,False
+33823,0.78,France,17,True
+47042,1,Lebanon,2,True
+32273,1,Kenya,1,False
+49357,1,Micronesia,2,False
+24401,0,Niue,3,False
+18205,1,Cuba,21,False
+19880,1,Greenland,1,False
+34763,1,Russian Federation,4,False
+40417,1,Rwanda,1,False
+38501,0.94,Uzbekistan,2,False
+17101,1,Croatia,1,True
+5317,1,Russian Federation,1,False
+27056,1,Kenya,4,False
+40012,1,Mexico,1,False
+12020,1,Congo,4,True
+26648,1,Niue,2,True
+32097,1,Denmark,5,False
+42096,1,Senegal,1,False
+49300,1,Uzbekistan,1,False
+3816,1,United Kingdom,1,True
+44601,1,Costa Rica,1,True
+44612,1,Jersey,2,True
+41107,1,Marshall Islands,6,False
+12707,0.75,Malawi,2,True
+11483,1,Lebanon,1,False
+41537,1,Indonesia,2,False
+21240,0.94,Niger,130,False
+14479,1,United Kingdom,1,True
+28852,1,Gambia,1,True
+18248,1,Slovakia (Slovak Republic),2,False
+36535,1,Mauritania,1,False
+31686,1,Finland,1,True
+16000,1,Reunion,2,False
+32025,1,Costa Rica,1,False
+27489,1,Canada,2,True
+1294,1,Lebanon,1,False
+9772,1,Marshall Islands,3,True
+20418,0.67,Korea,1,True
+8707,0.73,Rwanda,21,True
+7746,1,Canada,2,True
+22971,1,Afghanistan,1,False
+37176,0.7,Isle of Man,1,False
+33623,1,Nicaragua,1,False
+41379,1,France,2,True
+838,1,Cocos (Keeling) Islands,1,False
+34057,1,Lebanon,1,False
+27745,1,Lithuania,1,True
+19231,1,Ukraine,2,True
+46950,0.88,Netherlands,2,True
+19298,0.89,Croatia,2,False
+26596,0.6,Jersey,2,True
+18629,1,Sao Tome and Principe,3,False
+18590,1,Pakistan,1,False
+14191,1,Slovakia (Slovak Republic),1,False
+48349,1,Isle of Man,2,False
+38458,1,Montserrat,6,True
+33990,0.9,Cocos (Keeling) Islands,1,False
+40996,1,Kenya,1,False
+46358,1,Saint Helena,1,True
+22686,1,French Polynesia,1,True
+11238,1,Tanzania,1,False
+45631,0.38,China,1,True
+46421,0.8,Croatia,2,True
+22934,1,Ecuador,1,True
+1548,1,Jersey,1,True
+34966,1,Vanuatu,1,False
+6411,0.7,Gambia,1,False
+44488,1,Bahrain,1,False
+14108,1,Gambia,1,False
+215,1,Niue,1,False
+38179,1,Netherlands,1,False
+11107,1,Tanzania,1,False
+4575,1,Pakistan,3,False
+6720,1,Micronesia,2,False
+15658,1,Afghanistan,1,True
+21501,1,Sao Tome and Principe,1,False
+5343,1,Faroe Islands,1,False
+38593,1,Tonga,1,False
+972,1,El Salvador,1,True
+28954,1,Rwanda,4,False
+48316,1,Peru,1,False
+29090,1,France,1,False
+9331,1,Suriname,2,False
+47181,0.93,Kiribati,5,True
+47912,1,Tonga,1,False
+21436,0,Denmark,1,False
+20785,0.63,Chad,2,True
+9640,1,Denmark,2,True
+14870,1,Jersey,1,True
+20908,1,Maldives,1,True
+11194,1,Russian Federation,1,True
+27536,1,Jersey,1,False
+32810,1,Russian Federation,2,True
+27306,1,Kiribati,2,False
+15567,1,Slovakia (Slovak Republic),4,False
+6753,1,French Guiana,1,False
+37597,0,Nicaragua,1,False
+36574,1,Russian Federation,4,False
+38979,1,Nicaragua,1,False
+19341,1,Guinea,1,False
+8018,1,Monaco,1,True
+42506,1,Denmark,1,True
+44442,1,Russian Federation,2,True
+38888,1,Malta,1,False
+30504,0.9,Afghanistan,2,False
+22387,1,Gibraltar,1,True
+31074,1,Malta,4,True
+37445,1,Jersey,2,False
+34259,1,Sao Tome and Principe,2,True
+3627,1,Malawi,1,True
+20838,1,Venezuela,2,True
+14810,1,Kiribati,1,False
+48741,1,Monaco,1,False
+13331,1,Fiji,1,False
+43086,1,Monaco,1,True
+36768,1,Guinea,2,False
+29123,1,Zimbabwe,16,True
+9829,0.7,Nauru,1,False
+24118,0.98,Ghana,21,True
+17815,0.8,Ghana,3,False
+36910,1,Zimbabwe,1,True
+24117,1,Uzbekistan,1,False
+5301,0.7,Gambia,1,False
+43131,1,Vanuatu,2,False
+13732,1,Maldives,1,False
+30126,1,Togo,5,True
+8804,1,Malta,1,False
+35593,1,Marshall Islands,3,False
+48575,0.67,Jersey,3,False
+7652,0.89,Venezuela,2,False
+14045,1,Tonga,2,True
+5917,1,Guinea,1,True
+24976,1,Russian Federation,1,True
+10195,1,Croatia,1,True
+41364,1,Guinea,1,True
+15406,0.8,Guinea,1,False
+37546,1,Rwanda,3,False
+4970,1,Somalia,1,False
+36595,1,Netherlands Antilles,2,False
+39110,1,Jersey,1,True
+36741,1,Papua New Guinea,1,False
+36537,1,Guinea,1,True
+13856,0.6,Afghanistan,2,False
+29802,0.91,Brazil,1,True
+16679,1,Kenya,2,False
+14809,1,Niger,1,False
+10747,1,Kiribati,2,True
+20662,0,Wallis and Futuna,9,True
+3743,1,Kiribati,1,True
+47861,1,Montserrat,1,False
+40769,1,Nicaragua,1,False
+48487,1,Tunisia,2,True
+11556,1,Gibraltar,2,False
+37358,0,Uzbekistan,1,False
+34135,1,Isle of Man,1,False
+14881,1,Brazil,2,True
+29452,1,El Salvador,1,True
+28299,1,Mexico,1,False
+45351,0.9,Liberia,3,False
+38486,1,Afghanistan,7,False
+12848,1,Denmark,2,False
+48819,0.95,Pakistan,6,False
+29146,1,Vanuatu,2,True
+24565,1,Anguilla,4,False
+48339,1,Slovakia (Slovak Republic),2,False
+49103,0.8,Rwanda,5,False
+29564,1,Turkmenistan,1,True
+49579,0.9,Marshall Islands,2,True
+29823,0.9,Togo,3,False
+4636,0.9,Peru,1,True
+35796,1,Uzbekistan,1,False
+32729,0.9,Indonesia,1,False
+37063,1,Barbados,1,False
+4847,1,Indonesia,3,True
+25265,1,Libyan Arab Jamahiriya,1,True
+6060,1,Christmas Island,1,False
+41604,1,Tonga,4,False
+19058,1,Mauritania,1,False
+6949,1,Turkmenistan,1,False
+44339,1,Mexico,1,False
+2414,1,Greenland,1,False
+2548,0.97,Marshall Islands,3,False
+17954,1,Niue,1,False
+9341,1,Russian Federation,1,False
+46637,0.78,Uganda,1,False
+28714,1,Monaco,1,True
+30702,1,Uzbekistan,1,True
+7327,1,Isle of Man,1,False
+40702,0.8,Niue,2,True
+49150,1,United Kingdom,2,True
+41165,1,Lebanon,1,False
+8223,1,El Salvador,2,True
+16279,1,Uzbekistan,1,True
+49030,1,Kenya,2,False
+38422,1,Afghanistan,1,False
+34022,0.5,Togo,1,False
+20482,1,Malta,1,True
+47045,1,Uganda,2,True
+5135,1,Niue,1,False
+29776,0.9,Russian Federation,2,False
+17866,1,Tanzania,2,True
+5181,1,Nicaragua,2,False
+25728,1,Bouvet Island (Bouvetoya),3,False
+35250,1,Togo,1,False
+12491,1,Pakistan,3,False
+5007,0.13,Jersey,1,True
+13402,1,Tanzania,1,False
+35500,1,Niue,1,False
+25288,0.5,Tanzania,1,False
+23179,0.9,Denmark,1,False
+4783,1,Estonia,2,False
+47658,1,Micronesia,3,False
+19469,1,Russian Federation,1,False
+4939,1,Estonia,1,False
+42894,0,Niue,1,False
+3524,1,Ghana,5,False
+1207,1,Nicaragua,7,False
+29163,1,Nicaragua,1,False
+2889,1,Uganda,1,True
+23503,1,Marshall Islands,1,False
+29727,1,Senegal,2,False
+29546,1,French Polynesia,1,False
+10682,1,Isle of Man,1,False
+8442,1,Tunisia,2,True
+2861,0.9,Niue,1,True
+4129,1,Niue,3,True
+38972,0.78,Tunisia,1,False
+31128,1,Montserrat,2,True
+9234,1,Sao Tome and Principe,1,False
+18269,0.86,Fiji,12,False
+3884,0.7,Tanzania,1,False
+31411,1,Denmark,1,False
+40181,1,Russian Federation,2,True
+6594,1,Cuba,2,True
+12862,1,United Kingdom,1,False
+35123,1,Chile,1,False
+25168,1,Chile,1,True
+26826,1,Brazil,1,False
+24858,1,Indonesia,2,True
+37169,1,Jersey,2,False
+41837,1,Brazil,2,True
+42534,1,Marshall Islands,2,True
+8410,0.75,Guinea,1,True
+41148,1,Cape Verde,1,False
+7840,1,Kenya,1,True
+16327,1,Russian Federation,1,True
+35229,0.88,Marshall Islands,1,False
+41378,1,Kiribati,1,False
+32686,0.78,Micronesia,2,True
+282,1,Sao Tome and Principe,2,True
+34039,1,Brazil,1,False
+42867,1,Indonesia,2,True
+29563,1,Jersey,2,False
+79,0,Turkmenistan,1,False
+18454,1,Nicaragua,5,True
+18979,1,Tonga,6,True
+22349,0,Monaco,1,False
+29762,0,Brazil,1,True
+9424,1,Peru,1,False
+38255,0.25,Hong Kong,4,True
+26464,1,Kiribati,1,True
+31042,1,Guinea,1,True
+14069,1,Mauritania,1,True
+25056,1,Gibraltar,1,True
+2854,1,Venezuela,1,False
+21298,1,Uzbekistan,2,False
+3442,1,Tonga,2,True
+42954,1,Finland,1,False
+1215,1,Sao Tome and Principe,1,False
+38404,0,Zimbabwe,1,False
+13674,0.9,Fiji,2,True
+25990,0.5,Venezuela,1,True
+32001,1,Svalbard & Jan Mayen Islands,2,True
+40841,1,Micronesia,1,False
+23234,1,Marshall Islands,1,False
+12508,0.7,Holy See (Vatican City State),3,True
+27293,0.75,Maldives,1,False
+20868,1,Montserrat,2,True
+38547,0,Angola,3,True
+5040,1,Kenya,1,False
+41178,0.5,Barbados,1,True
+10639,1,Mauritania,1,False
+21385,1,Cuba,10,False
+20420,0,Jersey,1,True
+42301,1,Turkmenistan,1,True
+4417,1,Niue,1,False
+7318,1,Niger,2,False
+24697,1,Congo,1,True
+46049,1,El Salvador,2,False
+7769,1,Niue,1,False
+33430,1,Monaco,2,False
+37483,1,Gibraltar,3,False
+26681,1,Niue,1,False
+17529,1,Turkmenistan,1,False
+8861,1,Tunisia,2,True
+21607,0.9,France,3,True
+34955,0.43,Russian Federation,1,True
+48554,1,Gibraltar,1,False
+17679,1,Togo,1,False
+43017,0,Gibraltar,2,True
+21077,1,Togo,1,True
+3503,1,Ukraine,2,True
+10357,1,Indonesia,1,True
+35854,1,Mexico,1,False
+40374,1,Ecuador,1,True
+31558,0.33,Niger,1,False
+44295,1,Djibouti,1,False
+35279,1,Guinea,1,False
+47143,1,Anguilla,1,True
+30806,0.7,Guernsey,1,False
+24970,1,Cape Verde,1,True
+21363,1,Guinea,2,True
+10035,1,Tonga,2,False
+7561,1,Venezuela,6,True
+46894,1,Malawi,2,True
+8716,0.8,Sao Tome and Principe,2,True
+36143,0.9,Turks and Caicos Islands,4,False
+35036,1,Anguilla,1,False
+14955,1,Micronesia,1,True
+7191,1,Uzbekistan,2,False
+6223,1,Marshall Islands,12,False
+7852,1,Faroe Islands,1,False
+40940,1,Malta,2,False
+38933,1,Montserrat,1,False
+19137,1,Russian Federation,1,True
+37574,1,Zimbabwe,2,True
+7570,1,Uzbekistan,3,False
+44405,1,France,1,True
+32948,1,Croatia,1,True
+42966,1,Zimbabwe,1,True
+36930,1,Sao Tome and Principe,1,True
+12117,1,Monaco,1,False
+13105,1,Anguilla,2,False
+22781,1,Croatia,1,False
+8862,1,Nicaragua,3,False
+12593,1,Reunion,2,False
+636,0.97,Vanuatu,3,False
+24738,1,Somalia,2,True
+10058,1,Nicaragua,1,False
+21228,0.9,Russian Federation,1,False
+4794,1,Marshall Islands,1,False
+11959,1,Gibraltar,2,True
+7868,1,Marshall Islands,1,False
+42285,1,Chile,1,True
+28445,1,Jersey,1,True
+42827,1,Nicaragua,3,True
+11296,1,Micronesia,1,False
+4068,1,Togo,1,False
+6010,1,Isle of Man,1,True
+46879,1,Netherlands,1,False
+29615,1,Zimbabwe,2,True
+48158,1,Canada,1,True
+49049,0.5,Nauru,1,False
+42097,1,Kenya,1,False
+28156,1,Lebanon,2,False
+28992,1,Jersey,1,True
+10158,1,Ukraine,6,True
+42563,0.9,Micronesia,3,True
+25177,1,Costa Rica,2,True
+27333,1,Netherlands,1,True
+30359,1,Bosnia and Herzegovina,1,False
+38356,1,Anguilla,2,False
+30985,1,Uzbekistan,5,False
+40656,1,Sao Tome and Principe,1,False
+8749,1,Niue,1,False
+6312,1,Kenya,1,False
+23682,0.57,Uganda,4,False
+31806,1,Micronesia,1,True
+44532,0,Micronesia,1,False
+43178,1,Marshall Islands,2,False
+3032,0.75,Andorra,1,False
+21464,1,Mauritania,1,False
+32089,1,Cuba,1,False
+30797,0.9,Tunisia,1,False
+35205,1,Uzbekistan,1,False
+34636,0.9,Isle of Man,1,True
+13894,1,Isle of Man,5,False
+12738,1,Ecuador,2,True
+23534,1,Maldives,2,False
+7184,0.77,Reunion,13,False
+44877,0.75,Tunisia,1,True
+47682,1,Niue,1,True
+3294,1,Uganda,3,False
+13277,1,Rwanda,2,True
+10143,1,Sao Tome and Principe,2,False
+16942,1,Uganda,2,False
+26780,1,Guinea,7,False
+25756,1,Nicaragua,2,False
+42466,1,Wallis and Futuna,1,True
+15600,0,Marshall Islands,1,False
+49832,1,Bouvet Island (Bouvetoya),1,False
+2535,1,France,2,True
+13030,1,Mauritania,1,True
+45291,1,Holy See (Vatican City State),1,True
+40320,1,Niue,2,False
+40480,1,Lebanon,1,True
+19526,1,Malta,2,False
+41288,1,Nicaragua,3,False
+729,1,Saint Helena,3,False
+28051,1,Marshall Islands,1,False
+5659,1,Tanzania,1,True
+19754,0,Indonesia,1,True
+23466,1,Anguilla,1,True
+29699,0.9,Zimbabwe,1,False
+48502,1,Nicaragua,11,True
+32556,0.9,Estonia,11,True
+7109,1,Malta,1,False
+8550,1,Jersey,1,True
+10207,1,Anguilla,1,True
+35640,1,Uganda,3,False
+34831,1,Denmark,2,False
+17921,1,Cuba,1,True
+4267,1,Senegal,22,True
+6801,1,Kiribati,2,False
+24918,1,Micronesia,1,False
+13101,1,Jersey,1,True
+18298,0,Uzbekistan,1,False
+23938,1,Guernsey,1,False
+2768,1,Christmas Island,2,True
+19842,0.85,Turkmenistan,53,False
+25352,1,Monaco,3,True
+47761,1,Niue,2,False
+21646,1,Togo,2,False
+24844,1,Uzbekistan,6,False
+42526,1,Niue,1,True
+2916,1,Nicaragua,1,True
+13301,1,Togo,2,False
+24133,1,Cuba,1,True
+13042,1,Costa Rica,5,False
+8029,1,Djibouti,1,False
+16742,0.83,Monaco,1,False
+9922,1,Papua New Guinea,1,False
+39014,0.33,Nicaragua,1,False
+562,1,Nicaragua,1,False
+35368,1,Kiribati,1,False
+45821,1,Nicaragua,1,True
+23194,1,Ecuador,1,True
+33032,0.83,Russian Federation,1,False
+49330,1,Indonesia,1,False
+45754,1,French Guiana,1,True
+38723,1,Bosnia and Herzegovina,1,False
+13553,0.93,Vietnam,5,False
+46335,1,Nicaragua,1,True
+31117,0.8,Croatia,3,True
+31836,1,Zimbabwe,1,False
+38618,1,Guernsey,1,True
+794,1,Indonesia,1,False
+28763,0.67,Rwanda,2,False
+1300,1,Micronesia,1,False
+43347,1,Bouvet Island (Bouvetoya),1,False
+39807,0.5,Ecuador,1,False
+5681,0.75,Denmark,1,False
+26015,0.86,Russian Federation,1,True
+22492,0.6,Kiribati,2,False
+42286,0.94,Vietnam,9,True
+4588,1,Malawi,1,True
+46764,1,Chile,3,True
+6566,1,French Guiana,1,True
+31104,1,France,2,False
+32531,1,Togo,4,False
+3193,1,Latvia,2,False
+35914,1,China,1,True
+10950,1,Greenland,1,False
+35104,1,Switzerland,2,False
+28965,0.9,Pakistan,2,False
+38267,0.9,United Kingdom,1,True
+21967,1,Cape Verde,1,False
+16596,1,Congo,3,False
+22791,1,Uzbekistan,1,True
+40549,1,Maldives,2,True
+8173,1,Barbados,2,True
+40927,1,Micronesia,3,False
+20943,1,Jersey,2,False
+13977,0.9,Isle of Man,1,False
+12683,1,Lithuania,1,True
+37184,1,Russian Federation,1,True
+2255,1,Guinea,1,True
+36319,0.75,France,2,True
+44970,0.91,Russian Federation,1,False
+22451,1,Guinea,1,False
+48475,1,Lebanon,1,False
+18219,1,Jersey,1,True
+27485,1,Uzbekistan,2,True
+34337,1,Croatia,2,False
+7923,1,Togo,2,True
+17972,1,Guinea,1,False
+28685,1,Guinea,1,True
+21909,1,Christmas Island,3,False
+43593,1,Guernsey,1,True
+34410,1,Maldives,1,False
+21573,1,Kiribati,1,False
+10961,1,Guinea,1,False
+10039,1,Vanuatu,6,True
+27316,1,Puerto Rico,5,False
+3854,1,Philippines,3,False
+33518,1,France,1,False
+4005,1,French Guiana,2,False
+46930,1,Turks and Caicos Islands,1,False
+14240,1,Chile,3,True
+23874,1,Denmark,1,False
+41856,1,Maldives,13,True
+41254,1,Niue,1,False
+49565,0.92,Uganda,14,False
+36375,1,Mauritania,1,False
+14602,1,Malawi,1,True
+14565,0.8,Isle of Man,1,False
+38497,1,Tunisia,1,False
+41592,1,Svalbard & Jan Mayen Islands,1,False
+35405,1,Tanzania,1,False
+10803,1,Nicaragua,1,False
+14009,1,Russian Federation,1,False
+26171,1,Uruguay,1,False
+35499,0.94,Andorra,4,False
+17270,1,Niue,1,True
+44477,0.9,Maldives,3,True
+29119,1,Nicaragua,2,False
+46138,0.78,Niger,1,False
+15164,1,Tanzania,2,True
+29512,1,Guinea,1,True
+36916,0,Uzbekistan,1,False
+28830,1,Lithuania,2,False
+7972,1,Uzbekistan,2,True
+21853,1,El Salvador,1,True
+6049,1,Isle of Man,1,False
+33283,1,Isle of Man,1,True
+22538,1,Gambia,1,True
+25590,1,Gambia,1,True
+37401,0.6,Russian Federation,1,False
+15728,1,Lithuania,1,True
+37999,1,Senegal,20,True
+30778,1,Guernsey,1,True
+41596,1,United Kingdom,1,True
+24010,1,Turkmenistan,2,True
+32186,1,United Kingdom,2,False
+28527,1,Russian Federation,1,True
+6992,1,Isle of Man,1,False
+8127,0.67,Turks and Caicos Islands,1,False
+13179,0.77,Marshall Islands,2,False
+18697,1,Rwanda,8,False
+16162,1,Svalbard & Jan Mayen Islands,2,True
+18886,0.95,Vietnam,3,True
+21679,1,China,2,True
+43302,1,Reunion,1,True
+7871,1,Jersey,1,False
+38842,1,Uzbekistan,1,False
+40286,0.5,Monaco,1,True
+4633,1,Benin,4,False
+2105,1,Tonga,1,False
+48241,0.33,Russian Federation,1,True
+21317,1,Maldives,2,False
+19415,1,France,2,False
+15540,1,Russian Federation,1,False
+20250,1,Brazil,2,True
+18705,1,Nicaragua,2,False
+46318,1,Rwanda,1,False
+32644,1,Niue,1,False
+8778,1,Somalia,1,True
+21927,1,Brazil,1,False
+33343,1,Vanuatu,1,True
+6784,1,Lebanon,1,True
+455,1,Uganda,5,False
+33446,1,Philippines,1,True
+19248,0.25,Maldives,3,False
+25315,1,Uganda,2,True
+30916,1,Tunisia,3,False
+64,1,Marshall Islands,1,False
+29084,1,Mexico,2,True
+343,1,Brazil,2,True
+13854,1,Portugal,1,False
+35367,1,Malta,1,True
+6518,1,Uzbekistan,1,False
+3480,1,United Kingdom,2,False
+10052,1,Niue,1,True
+2748,1,Nicaragua,2,False
+48742,1,Guinea,2,False
+44817,1,Chile,1,True
+10677,1,Venezuela,1,False
+34037,0,Togo,2,False
+39355,0.8,Zimbabwe,2,True
+4566,1,French Guiana,1,False
+1024,1,Nicaragua,2,False
+2479,1,Isle of Man,1,False
+18999,1,Chile,2,False
+29359,1,Denmark,1,False
+1212,1,Tonga,2,False
+5757,1,Portugal,2,False
+15695,1,Malawi,2,True
+34046,0.9,Guinea,1,False
+16905,1,Reunion,3,True
+24304,1,Micronesia,1,True
+23567,1,Guinea,2,True
+31859,1,Maldives,2,False
+3360,1,United Kingdom,1,False
+8549,1,Lebanon,1,True
+35852,1,Russian Federation,1,False
+5171,1,Anguilla,2,False
+27290,1,Brazil,3,False
+15860,1,Maldives,11,False
+16769,0.8,Isle of Man,2,False
+8309,1,Brunei Darussalam,1,True
+36495,0.5,Denmark,1,False
+26411,1,Niue,1,True
+41224,1,Mauritania,3,True
+34343,1,Marshall Islands,1,True
+16304,1,Guernsey,1,False
+4906,1,Senegal,2,True
+9264,0.88,Kenya,2,True
+36100,1,Rwanda,17,True
+47990,0.88,Venezuela,4,False
+17559,1,Uruguay,1,False
+37368,1,Niger,1,False
+44441,1,United Kingdom,1,True
+2895,1,France,1,False
+21548,0.43,Brazil,1,False
+49858,1,Estonia,1,False
+38873,1,Mauritania,4,False
+17467,1,Micronesia,1,False
+20251,1,Jersey,1,True
+14892,1,Turkmenistan,1,True
+33640,1,French Polynesia,1,False
+44338,1,Peru,2,True
+415,1,Zimbabwe,1,False
+16623,0.8,Denmark,1,False
+13981,1,Zimbabwe,1,False
+46339,1,Uzbekistan,1,True
+4234,1,Malawi,1,True
+1941,1,El Salvador,1,True
+49714,1,Montserrat,1,True
+29241,1,Lebanon,1,False
+48606,1,Russian Federation,1,True
+43350,1,Isle of Man,2,True
+12772,1,Niger,1,False
+29680,0.88,Faroe Islands,2,False
+42299,1,Marshall Islands,1,False
+38347,1,El Salvador,1,False
+46598,0,Zimbabwe,1,False
+23790,1,Isle of Man,1,True
+47914,0.8,Philippines,1,True
+19228,1,Svalbard & Jan Mayen Islands,8,False
+29609,1,Niue,1,True
+32519,0,France,1,True
+21682,1,United Kingdom,2,False
+10103,1,Zimbabwe,1,False
+6140,1,Marshall Islands,3,False
+44717,1,Monaco,2,True
+20574,1,Malawi,1,True
+6230,0,Marshall Islands,1,False
+9589,1,Faroe Islands,1,False
+6923,1,Anguilla,1,True
+31047,1,Turkmenistan,1,False
+1862,0.33,Micronesia,1,False
+10896,1,Bouvet Island (Bouvetoya),1,False
+21053,0.9,Senegal,1,False
+45066,1,Pakistan,1,False
+30284,1,Montserrat,1,False
+35493,1,French Guiana,1,True
+9873,1,Kenya,1,False
+31801,0.5,Tonga,2,False
+17847,1,Anguilla,1,False
+40977,1,Reunion,7,False
+48765,1,Kenya,1,True
+32578,0.74,Zimbabwe,2,True
+48529,1,Tonga,1,False
+15185,1,Uzbekistan,1,False
+17502,0.8,Netherlands,1,False
+20650,1,Uzbekistan,3,True
+2198,1,Marshall Islands,1,True
+1835,1,Ecuador,8,False
+46956,0.63,Jersey,2,True
+12133,1,Mexico,4,False
+41238,1,Kiribati,1,True
+19739,1,Holy See (Vatican City State),1,True
+13184,1,Vietnam,7,False
+48549,1,France,2,False
+18714,0.67,French Guiana,1,False
+5048,1,Niue,2,True
+6711,1,Spain,3,False
+23308,1,Tonga,2,True
+41867,1,Monaco,1,True
+18031,1,Reunion,4,False
+23773,1,El Salvador,1,True
+35544,1,Kenya,1,True
+22127,1,United Kingdom,1,False
+41207,1,Svalbard & Jan Mayen Islands,1,True
+18272,0.9,Vietnam,3,False
+34382,1,Micronesia,2,False
+14699,0.67,Turkmenistan,1,True
+37544,1,Malta,2,False
+20124,1,France,2,True
+15311,1,Holy See (Vatican City State),1,False
+22855,1,French Guiana,1,False
+24625,1,Micronesia,1,True
+11047,0.96,Senegal,3,True
+56,1,Kiribati,2,True
+39812,1,Nicaragua,6,True
+12403,0.92,Vietnam,3,True
+11525,0.9,Australia,1,True
+38098,1,Zimbabwe,7,True
+46656,0.5,France,2,False
+19777,1,French Guiana,1,False
+21247,1,Guernsey,1,False
+45191,1,Montserrat,3,True
+35685,1,Niue,1,False
+33494,1,Papua New Guinea,1,False
+38698,1,France,2,True
+26875,1,Tanzania,1,False
+20727,1,Russian Federation,4,True
+49133,1,Reunion,3,True
+1711,1,Jersey,1,False
+23615,1,Marshall Islands,1,True
+38277,1,Guinea,1,False
+18619,1,Slovakia (Slovak Republic),1,False
+26778,1,Kiribati,2,False
+19682,1,Faroe Islands,15,True
+9131,1,Gambia,5,False
+38301,0.9,Spain,2,False
+38406,0.96,Russian Federation,6,True
+26878,0.8,Monaco,2,True
+25001,1,Saint Helena,1,False
+40234,1,Isle of Man,1,False
+42811,1,Isle of Man,1,False
+19154,1,France,2,True
+2667,1,Niue,3,False
+23696,1,Kiribati,1,True
+27265,1,Togo,2,True
+48766,1,Uzbekistan,1,False
+2322,1,Denmark,2,False
+40752,1,Tunisia,5,True
+13114,1,Indonesia,1,False
+6496,0.83,Cuba,2,True
+47527,1,Tonga,1,False
+43640,1,Turks and Caicos Islands,1,False
+44669,0.33,France,1,False
+40961,1,Venezuela,1,False
+34096,1,Andorra,10,False
+48295,1,Jersey,1,True
+49504,1,Guinea,2,False
+7802,1,Anguilla,1,True
+23281,1,Isle of Man,1,True
+20327,1,Chad,1,True
+8583,0.9,Venezuela,1,False
+21441,1,Tanzania,1,True
+40831,1,Croatia,1,False
+29581,1,Nicaragua,1,False
+11749,1,Isle of Man,1,True
+16181,1,Tanzania,2,False
+30683,1,Marshall Islands,1,False
+22118,1,Chad,1,True
+3165,1,Gibraltar,1,False
+10635,1,Peru,1,True
+10265,1,Micronesia,3,False
+31719,1,Pakistan,1,True
+36931,1,Russian Federation,2,False
+30785,1,Jersey,1,True
+14035,0.94,Greenland,1,False
+49915,1,Tunisia,1,True
+22513,0.9,Jersey,4,True
+3532,1,Congo,1,False
+36733,1,Tanzania,1,True
+34653,1,Turkmenistan,1,True
+29932,1,France,2,True
+43100,1,Rwanda,1,False
+46644,1,Finland,1,False
+12823,1,Niue,2,False
+47938,1,Niue,4,False
+41153,1,Guinea,9,False
+18362,1,Uganda,5,False
+32530,1,Chad,1,True
+32324,1,Zimbabwe,1,False
+25824,1,Croatia,1,True
+10571,1,Niue,1,False
+20686,1,Guernsey,1,False
+18528,0.96,Anguilla,1,False
+28946,1,Vanuatu,1,True
+7970,0.9,Isle of Man,3,True
+44777,1,Russian Federation,1,True
+16107,1,Brazil,1,True
+2935,1,Isle of Man,3,True
+17472,1,Holy See (Vatican City State),2,True
+36816,1,Svalbard & Jan Mayen Islands,1,False
+12350,1,Niger,2,True
+21735,0.5,Isle of Man,1,True
+3649,1,Russian Federation,1,False
+34925,1,Maldives,1,False
+30757,0.9,Croatia,2,False
+23329,1,Niue,1,False
+47817,1,Saint Helena,2,False
+11403,0.8,Barbados,3,False
+37392,1,Micronesia,7,True
+39973,1,Micronesia,1,False
+12032,1,Mauritania,2,True
+15168,1,Venezuela,2,False
+42589,1,Turkmenistan,1,False
+22457,0.8,Venezuela,1,False
+1194,1,Anguilla,1,False
+4057,1,Rwanda,16,False
+35078,1,Venezuela,1,False
+25239,1,Cape Verde,1,False
+17174,1,Mauritania,1,True
+21161,1,Marshall Islands,1,False
+2553,1,Turks and Caicos Islands,3,False
+8866,0.9,Tonga,2,True
+23472,0.8,Gibraltar,1,False
+7967,1,Venezuela,1,False
+43947,1,Greenland,1,False
+49632,0.1,Reunion,1,False
+23943,1,Nicaragua,2,True
+19310,1,Indonesia,1,True
+47777,0,Isle of Man,1,True
+20714,1,Isle of Man,1,True
+45078,1,Barbados,1,False
+23372,1,Niger,5,True
+29424,1,Sao Tome and Principe,1,False
+40338,1,Niue,1,False
+14494,1,Rwanda,3,False
+17416,0.88,Turkmenistan,1,False
+13723,1,Gambia,4,True
+40559,0.95,Tonga,1,False
+28458,1,Turkmenistan,6,False
+11256,1,Kenya,1,False
+28531,1,Russian Federation,1,False
+18499,1,Saint Helena,5,False
+31956,1,Uruguay,1,False
+48530,1,Malta,1,True
+33394,1,Bosnia and Herzegovina,2,True
+44334,1,Lebanon,1,True
+25628,1,Estonia,1,False
+21438,1,China,3,False
+48848,1,Cocos (Keeling) Islands,1,False
+38668,1,Lithuania,1,True
+35754,0,Lebanon,1,True
+48113,1,Marshall Islands,1,False
+39129,0.67,Mauritania,3,True
+46058,1,Turkmenistan,3,True
+49119,1,Papua New Guinea,1,True
+36758,0.89,Russian Federation,2,False
+10788,0.25,Lebanon,2,False
+20835,1,Gibraltar,3,False
+50051,1,Netherlands,5,True
+17142,1,Anguilla,1,False
+37125,1,Rwanda,1,False
+33004,1,Russian Federation,2,True
+32980,1,Micronesia,1,False
+42878,1,Greenland,1,False
+14419,0.92,Cuba,2,True
+43476,1,Gibraltar,2,True
+30610,1,Kiribati,1,True
+293,1,Lebanon,1,False
+28668,1,Gibraltar,1,True
+32915,1,Zimbabwe,1,True
+37362,1,Niue,1,False
+16859,1,Slovakia (Slovak Republic),1,True
+17004,1,United Kingdom,1,False
+35513,1,United Kingdom,1,False
+18851,1,Russian Federation,1,True
+23143,0.65,Bouvet Island (Bouvetoya),14,False
+24353,1,Isle of Man,1,False
+513,0.8,Uganda,1,False
+12528,0,Fiji,1,False
+5227,1,Gambia,1,False
+21922,0.75,Sao Tome and Principe,1,True
+8103,1,Tonga,1,False
+42114,1,Sao Tome and Principe,3,True
+17341,0.7,Malawi,2,False
+12953,1,Guernsey,1,False
+7381,1,Micronesia,1,False
+5409,1,Russian Federation,1,False
+35786,1,Isle of Man,1,False
+29220,0.5,Costa Rica,1,True
+19678,0.9,Cocos (Keeling) Islands,1,True
+46082,1,Isle of Man,1,True
+9362,1,Turkmenistan,1,True
+1264,0.9,Denmark,1,False
+25005,1,Papua New Guinea,1,True
+4846,1,Isle of Man,1,False
+47869,1,Gambia,1,False
+13654,0,Chad,1,False
+24128,0.54,Suriname,9,True
+22675,1,Indonesia,1,False
+7197,1,Niue,1,True
+43081,1,Estonia,1,False
+5220,0.9,Papua New Guinea,1,False
+15454,1,Denmark,1,False
+17262,1,Slovakia (Slovak Republic),1,False
+6061,0,Tonga,2,True
+40910,1,France,2,False
+20485,1,China,1,False
+45475,1,Montserrat,2,False
+40296,1,Ukraine,1,False
+15987,0.67,Costa Rica,1,False
+485,0.8,French Guiana,2,False
+5569,1,Suriname,2,True
+2368,0.78,France,1,True
+19958,1,Congo,40,True
+28794,1,Denmark,1,False
+3230,1,Turkmenistan,2,True
+46881,1,Andorra,1,False
+5128,1,Tunisia,2,True
+41840,1,Niue,1,False
+10348,1,Tunisia,1,False
+16973,1,Lithuania,1,False
+3840,1,Estonia,1,True
+16257,1,Turkmenistan,1,True
+5166,1,Ecuador,16,True
+39378,1,Brazil,1,False
+43002,1,Gambia,1,False
+45991,1,Sao Tome and Principe,1,False
+33538,1,Isle of Man,1,False
+36002,1,Niue,1,False
+31244,0.57,Niger,4,True
+47033,1,Estonia,1,False
+40953,1,Cocos (Keeling) Islands,1,False
+8678,1,Saint Helena,2,True
+15955,0.88,Malta,4,True
+26274,1,Niue,1,False
+36066,0.96,Isle of Man,2,True
+7724,1,Uzbekistan,1,False
+21080,1,Mexico,1,False
+12281,1,Malta,1,False
+21949,1,Monaco,1,True
+34243,0.95,Uzbekistan,1,False
+12502,0.89,Denmark,1,False
+2235,1,Guinea,1,False
+2353,1,Senegal,2,True
+49772,1,Jersey,1,False

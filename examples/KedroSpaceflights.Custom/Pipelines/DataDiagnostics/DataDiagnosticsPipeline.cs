@@ -1,7 +1,8 @@
 using Flowthru.Nodes;
 using Flowthru.Pipelines;
 using KedroSpaceflights.Custom.Data;
-using KedroSpaceflights.Custom.Data.Schemas.Processed;
+using KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
+using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 using KedroSpaceflights.Custom.Pipelines.DataDiagnostics.Nodes;
 
 namespace KedroSpaceflights.Custom.Pipelines.DataDiagnostics;
@@ -30,7 +31,7 @@ namespace KedroSpaceflights.Custom.Pipelines.DataDiagnostics;
 /// </summary>
 public static class DataDiagnosticsPipeline
 {
-  public static Pipeline Create(SpaceflightsCatalog catalog)
+  public static Pipeline Create(Catalog catalog)
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {

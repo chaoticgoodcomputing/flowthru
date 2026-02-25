@@ -1,8 +1,6 @@
 using System.Reflection;
 using Flowthru.Nodes;
-using KedroSpaceflights.Custom.Data.Schemas.Models;
-using KedroSpaceflights.Custom.Data.Schemas.Processed;
-using KedroSpaceflights.Custom.Data.Schemas.Reference;
+using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Custom.Pipelines.DataDiagnostics.Nodes;
 
@@ -24,7 +22,7 @@ namespace KedroSpaceflights.Custom.Pipelines.DataDiagnostics.Nodes;
 public static class ValidateAgainstKedroNode
 {
   public static Func<
-    (IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<KedroModelInputSchema> KedroData),
+    (IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<ModelInputSchema> KedroData),
     Task<NoData>
   > Create()
   {
@@ -54,22 +52,14 @@ public static class ValidateAgainstKedroNode
 
   private static void CompareSchemas()
   {
-    var flowthruProps = typeof(ModelInputSchema).GetProperties(
-      BindingFlags.Public | BindingFlags.Instance
-    );
-    var kedroProps = typeof(KedroModelInputSchema).GetProperties(
-      BindingFlags.Public | BindingFlags.Instance
-    );
-
-    // Find common property names (case-insensitive)
-    var flowthruPropNames = flowthruProps.Select(p => p.Name.ToLowerInvariant()).ToHashSet();
-    var kedroPropNames = kedroProps.Select(p => p.Name.ToLowerInvariant()).ToHashSet();
-    var commonProps = flowthruPropNames.Intersect(kedroPropNames).Count();
+    // Both datasets use ModelInputSchema, so schemas are guaranteed to match.
+    // This validation step is trivial but kept for consistency with the validation workflow.
+    var props = typeof(ModelInputSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
   }
 
   private static void CompareDataValues(
     List<ModelInputSchema> flowthruData,
-    List<KedroModelInputSchema> kedroData
+    List<ModelInputSchema> kedroData
   )
   {
     var minCount = Math.Min(flowthruData.Count, kedroData.Count);

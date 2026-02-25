@@ -1,5 +1,5 @@
 using System.Text;
-using KedroSpaceflights.Custom.Data.Schemas.Models;
+using KedroSpaceflights.Custom.Data._06_Reporting.Schemas;
 
 namespace KedroSpaceflights.Custom.Pipelines.Reporting.Nodes;
 

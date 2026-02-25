@@ -1,4 +1,4 @@
-using KedroSpaceflights.Custom.Data.Schemas.Models;
+using KedroSpaceflights.Custom.Data._05_ModelOutput.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;

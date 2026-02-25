@@ -10,7 +10,7 @@ namespace KedroSpaceflights.Custom.Pipelines.DataProcessing;
 ///
 /// <para><strong>Compile-Time Type Safety:</strong></para>
 /// <para>
-/// This pipeline uses a strongly-typed catalog (SpaceflightsCatalog) to ensure:
+/// This pipeline uses a strongly-typed catalog (Catalog) to ensure:
 /// - All catalog references are validated at compile-time
 /// - Node input/output types must match catalog entry types
 /// - CatalogMap enforces property-to-catalog type consistency
@@ -27,7 +27,7 @@ namespace KedroSpaceflights.Custom.Pipelines.DataProcessing;
 /// </summary>
 public static class DataProcessingPipeline
 {
-  public static Pipeline Create(SpaceflightsCatalog catalog)
+  public static Pipeline Create(Catalog catalog)
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {

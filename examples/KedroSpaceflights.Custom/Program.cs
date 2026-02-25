@@ -32,17 +32,14 @@ public class Program
       // Enable configuration loading from appsettings.json files
       // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
       flowthru.UseConfiguration();
-      flowthru.UseCatalog(_ => new SpaceflightsCatalog("Data/Datasets"));
+      flowthru.UseCatalog(_ => new Catalog("Data"));
 
       flowthru
-        .RegisterPipeline<SpaceflightsCatalog>(
-          label: "DataProcessing",
-          pipeline: DataProcessingPipeline.Create
-        )
+        .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses raw data and creates model input table");
 
       flowthru
-        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataSciencePipeline.Params>(
+        .RegisterPipelineWithConfiguration<Catalog, DataSciencePipeline.Params>(
           label: "DataScience",
           pipeline: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
@@ -50,7 +47,7 @@ public class Program
         .WithDescription("Trains ML model");
 
       flowthru
-        .RegisterPipeline<SpaceflightsCatalog>(
+        .RegisterPipeline<Catalog>(
           label: "DataDiagnostics",
           pipeline: DataDiagnosticsPipeline.Create
         )
@@ -59,7 +56,7 @@ public class Program
         );
 
       flowthru
-        .RegisterPipelineWithConfiguration<SpaceflightsCatalog, DataEvaluationPipeline.Params>(
+        .RegisterPipelineWithConfiguration<Catalog, DataEvaluationPipeline.Params>(
           label: "DataEvaluation",
           pipeline: DataEvaluationPipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataEvaluation"
@@ -67,10 +64,7 @@ public class Program
         .WithDescription("Evaluates ML model performance and cross-validation");
 
       flowthru
-        .RegisterPipeline<SpaceflightsCatalog>(
-          label: "Reporting",
-          pipeline: ReportingPipeline.Create
-        )
+        .RegisterPipeline<Catalog>(label: "Reporting", pipeline: ReportingPipeline.Create)
         .WithDescription("Generates reports and visualizations");
     });
 

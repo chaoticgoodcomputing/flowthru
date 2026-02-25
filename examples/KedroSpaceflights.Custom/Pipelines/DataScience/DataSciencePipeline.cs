@@ -1,6 +1,6 @@
 using Flowthru.Pipelines;
 using KedroSpaceflights.Custom.Data;
-using KedroSpaceflights.Custom.Data.Schemas.Models;
+using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 using KedroSpaceflights.Custom.Pipelines.DataEvaluation.Nodes;
 using KedroSpaceflights.Custom.Pipelines.DataScience.Nodes;
 
@@ -11,7 +11,7 @@ namespace KedroSpaceflights.Custom.Pipelines.DataScience;
 ///
 /// <para><strong>Compile-Time Type Safety:</strong></para>
 /// <para>
-/// This pipeline uses a strongly-typed catalog (SpaceflightsCatalog) to ensure:
+/// This pipeline uses a strongly-typed catalog (Catalog) to ensure:
 /// - All catalog references are validated at compile-time
 /// - Node input/output types must match catalog entry types
 /// - CatalogMap enforces property-to-catalog type consistency
@@ -44,7 +44,7 @@ public static class DataSciencePipeline
     public CreateTestTrainSplitNode.TestTrainSplitParams ModelParams { get; init; } = new();
   }
 
-  public static Pipeline Create(SpaceflightsCatalog catalog, Params parameters)
+  public static Pipeline Create(Catalog catalog, Params parameters)
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
