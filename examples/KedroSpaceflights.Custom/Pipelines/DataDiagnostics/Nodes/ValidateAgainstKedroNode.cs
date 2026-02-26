@@ -1,5 +1,6 @@
 using System.Reflection;
 using Flowthru.Nodes;
+using KedroSpaceflights.Custom.Data._01_Raw.Schemas;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Custom.Pipelines.DataDiagnostics.Nodes;
@@ -22,7 +23,7 @@ namespace KedroSpaceflights.Custom.Pipelines.DataDiagnostics.Nodes;
 public static class ValidateAgainstKedroNode
 {
   public static Func<
-    (IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<ModelInputSchema> KedroData),
+    (IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<KedroModelInputSchema> KedroData),
     Task<NoData>
   > Create()
   {
@@ -59,7 +60,7 @@ public static class ValidateAgainstKedroNode
 
   private static void CompareDataValues(
     List<ModelInputSchema> flowthruData,
-    List<ModelInputSchema> kedroData
+    List<KedroModelInputSchema> kedroData
   )
   {
     var minCount = Math.Min(flowthruData.Count, kedroData.Count);

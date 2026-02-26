@@ -67,12 +67,12 @@ public partial class Catalog
   /// <remarks>
   /// This is external reference data from the original Kedro implementation,
   /// used for validation purposes in the DataDiagnostics pipeline.
-  /// Uses the same schema as our model input table (ModelInputSchema).
+  /// Uses KedroModelInputSchema to match the external Kedro CSV format.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> KedroModelInputTable =>
+  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.Csv<ModelInputSchema>(
+        CatalogEntries.Enumerable.Csv<KedroModelInputSchema>(
           label: "KedroModelInputTable",
           filePath: $"{_basePath}/_01_Raw/Datasets/kedro_model_input_table.csv"
         )

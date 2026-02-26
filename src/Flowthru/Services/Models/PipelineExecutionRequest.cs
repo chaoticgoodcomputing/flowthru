@@ -9,7 +9,7 @@ namespace Flowthru.Services.Models;
 /// Encapsulates all configuration needed to execute a pipeline programmatically,
 /// separate from CLI argument parsing.
 /// </remarks>
-public sealed record PipelineExecutionRequest
+public record PipelineExecutionRequest
 {
   /// <summary>
   /// Name of the pipeline to execute.

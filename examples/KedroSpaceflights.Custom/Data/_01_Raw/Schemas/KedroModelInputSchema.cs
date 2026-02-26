@@ -14,87 +14,87 @@ public partial record KedroModelInputSchema
   // Shuttle properties
 
   [SerializedLabel("shuttle_id")]
-  public string? ShuttleId { get; init; }
+  public required string ShuttleId { get; init; }
 
   [SerializedLabel("shuttle_location")]
-  public string? ShuttleLocation { get; init; }
+  public required string ShuttleLocation { get; init; }
 
   [SerializedLabel("shuttle_type")]
-  public string? ShuttleType { get; init; }
+  public required string ShuttleType { get; init; }
 
   [SerializedLabel("engine_type")]
-  public string? EngineType { get; init; }
+  public required string EngineType { get; init; }
 
   [SerializedLabel("engine_vendor")]
-  public string? EngineVendor { get; init; }
+  public required string EngineVendor { get; init; }
 
   [SerializedLabel("engines")]
-  public double? Engines { get; init; }
+  public required double Engines { get; init; }
 
   [SerializedLabel("passenger_capacity")]
-  public double? PassengerCapacity { get; init; }
+  public required double PassengerCapacity { get; init; }
 
   [SerializedLabel("cancellation_policy")]
-  public string? CancellationPolicy { get; init; }
+  public required string CancellationPolicy { get; init; }
 
   [SerializedLabel("crew")]
-  public double? Crew { get; init; }
+  public required double Crew { get; init; }
 
   [SerializedLabel("d_check_complete")]
-  public bool DCheckComplete { get; init; }
+  public required bool DCheckComplete { get; init; }
 
   [SerializedLabel("moon_clearance_complete")]
-  public bool MoonClearanceComplete { get; init; }
+  public required bool MoonClearanceComplete { get; init; }
 
   [SerializedLabel("price")]
-  public decimal Price { get; init; }
+  public required decimal Price { get; init; }
 
   // Company properties
 
   [SerializedLabel("company_id")]
-  public string? CompanyId { get; init; }
+  public required string CompanyId { get; init; }
 
   [SerializedLabel("id")]
-  public string? Id { get; init; }
+  public required string Id { get; init; }
 
   [SerializedLabel("company_rating")]
-  public double? CompanyRating { get; init; }
+  public required double CompanyRating { get; init; }
 
   [SerializedLabel("company_location")]
-  public string? CompanyLocation { get; init; }
+  public required string CompanyLocation { get; init; }
 
   [SerializedLabel("total_fleet_count")]
-  public double? TotalFleetCount { get; init; }
+  public required double TotalFleetCount { get; init; }
 
   [SerializedLabel("iata_approved")]
-  public bool IataApproved { get; init; }
+  public required bool IataApproved { get; init; }
 
   // Review properties
 
   [SerializedLabel("review_scores_rating")]
-  public decimal? ReviewScoresRating { get; init; }
+  public required decimal ReviewScoresRating { get; init; }
 
   [SerializedLabel("review_scores_comfort")]
-  public decimal? ReviewScoresComfort { get; init; }
+  public required decimal ReviewScoresComfort { get; init; }
 
   [SerializedLabel("review_scores_amenities")]
-  public decimal? ReviewScoresAmenities { get; init; }
+  public required decimal ReviewScoresAmenities { get; init; }
 
   [SerializedLabel("review_scores_trip")]
-  public decimal? ReviewScoresTrip { get; init; }
+  public required decimal ReviewScoresTrip { get; init; }
 
   [SerializedLabel("review_scores_crew")]
-  public decimal? ReviewScoresCrew { get; init; }
+  public required decimal ReviewScoresCrew { get; init; }
 
   [SerializedLabel("review_scores_location")]
-  public decimal? ReviewScoresLocation { get; init; }
+  public required decimal ReviewScoresLocation { get; init; }
 
   [SerializedLabel("review_scores_price")]
-  public decimal? ReviewScoresPrice { get; init; }
+  public required decimal ReviewScoresPrice { get; init; }
 
   [SerializedLabel("number_of_reviews")]
-  public double? NumberOfReviews { get; init; }
+  public required double NumberOfReviews { get; init; }
 
   [SerializedLabel("reviews_per_month")]
-  public decimal? ReviewsPerMonth { get; init; }
+  public required decimal ReviewsPerMonth { get; init; }
 }
