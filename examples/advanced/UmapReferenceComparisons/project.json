@@ -1,21 +1,21 @@
 {
   "name": "umap-reference-comparisons",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "examples/UmapReferenceComparisons",
+  "sourceRoot": "examples/advanced/UmapReferenceComparisons",
   "targets": {
     "build": {
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet build",
-        "cwd": "examples/UmapReferenceComparisons"
+        "cwd": "examples/advanced/UmapReferenceComparisons"
       }
     },
     "run-iris": {
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet run -- IrisComparison",
-        "cwd": "examples/UmapReferenceComparisons"
+        "cwd": "examples/advanced/UmapReferenceComparisons"
       },
       "dependsOn": ["build"]
     },
@@ -23,7 +23,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet run -- DigitsComparison",
-        "cwd": "examples/UmapReferenceComparisons"
+        "cwd": "examples/advanced/UmapReferenceComparisons"
       },
       "dependsOn": ["build"]
     },
@@ -31,7 +31,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet run -- MnistComparison",
-        "cwd": "examples/UmapReferenceComparisons"
+        "cwd": "examples/advanced/UmapReferenceComparisons"
       },
       "dependsOn": ["build"]
     },
@@ -43,7 +43,7 @@
           "dotnet run -- DigitsComparison",
           "dotnet run -- MnistComparison"
         ],
-        "cwd": "examples/UmapReferenceComparisons",
+        "cwd": "examples/advanced/UmapReferenceComparisons",
         "parallel": false
       },
       "dependsOn": ["build"]
@@ -52,7 +52,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "dotnet clean",
-        "cwd": "examples/UmapReferenceComparisons"
+        "cwd": "examples/advanced/UmapReferenceComparisons"
       }
     }
   },

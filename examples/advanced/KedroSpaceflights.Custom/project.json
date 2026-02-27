@@ -1,7 +1,7 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "test/flights",
-  "sourceRoot": "tests/KedroSpaceflights.Custom",
+  "sourceRoot": "examples/advanced/KedroSpaceflights.Custom",
   "targets": {
     "run": {
       "//": "Run the Spaceflights tests. Defaults to full setup, but the name of a pipeline can be passed in as an argument to run a specific pipeline.",
@@ -10,7 +10,7 @@
         "commands": [
           "dotnet run"
         ],
-        "cwd": "tests/KedroSpaceflights.Custom",
+        "cwd": "examples/advanced/KedroSpaceflights.Custom",
         "parallel": false
       }
     },
@@ -26,7 +26,7 @@
           "find Data/Datasets/06_Reports -mindepth 1 -type f ! -name '.gitkeep' -delete",
           "find Data/Metadata -mindepth 1 -type f ! -name '.gitkeep' -delete"
         ],
-        "cwd": "tests/KedroSpaceflights.Custom",
+        "cwd": "examples/advanced/KedroSpaceflights.Custom",
         "parallel": false
       }
     },

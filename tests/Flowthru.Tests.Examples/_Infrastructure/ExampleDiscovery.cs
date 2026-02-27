@@ -54,11 +54,12 @@ public static class ExampleDiscovery
 
   /// <summary>
   /// Finds the project directory for a given project name.
+  /// Searches recursively under the examples directory to support subdirectories.
   /// </summary>
   private static string? FindProjectDirectory(string projectName)
   {
-    var projectDir = Path.Combine(_examplesDirectory, projectName);
-    return Directory.Exists(projectDir) ? projectDir : null;
+    var directories = Directory.GetDirectories(_examplesDirectory, projectName, SearchOption.AllDirectories);
+    return directories.FirstOrDefault();
   }
 
   /// <summary>
