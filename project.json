@@ -1,5 +1,5 @@
 {
-  "name": "ft",
+  "name": "flowthru",
   "$schema": "./node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": ".",
@@ -74,7 +74,7 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "dotnet test Flowthru.sln --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\"",
+          "dotnet test Flowthru.sln --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
         ],
         "parallel": false
       },

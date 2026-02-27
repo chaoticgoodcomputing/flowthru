@@ -1,49 +1,81 @@
 # Contributing to Flowthru
 
-Flowthru is a type-safe data engineering framework for .NET. Its design philosophy can be summarized in one sentence: **errors should surface as close to compile-time as possible.**
+Flowthru is a type-safe, no-bullshit data engineering framework for .NET. Its design philosophy can be summarized in one sentence: **developing a data pipeline should be easy, and a broken pipeline should fail fast.**
 
-This document explains the fail-fast architecture, how it is enforced, and how contributors should reason about where new error classes belong.
+This document explains the theory behind that philosophy and how contributors should reason about new features and fixes.
+
+## Why Fail-Fast Matters
+
+If you've worked with runtime-only pipeline frameworks, these scenarios will be familiar:
+
+**The silent schema break.** An upstream team renames a column in a source table from `customer_id` to `cust_id`. Your pipeline launches, spends two hours processing raw data through three stages, then fails at a join node that expected the old name. In the worst case, the compute is wasted, and the error message points at a symptom (`KeyError: 'customer_id'`) rather than the cause (a contract violation between the producer and consumer).
+
+**The rogue edit.** Somebody on the team has made a typo in one of the later steps of the pipeline. It happens! However, a hours-long pipeline, that never would have finished, fails at the last step. Somebody must find, and fix, the typo before the pipeline can finish, delaying the output and wasting the lead-up computation necessary to reach that point in the node again.
+
+**The silent overwrite.** Two pipeline branches independently write to the same output table. There's no build-time or pre-flight check for duplicate producers — whichever branch finishes last wins, and the other branch's output is silently lost. This race condition makes the data unpredictable.
+
+Each of these failures shares a root cause: **your framework didn't fail fast enough.**
+
+## Maintaining Flowthru's Core Promise
+
+Flowthru's promises are simple:
+
+1. End-users can easily write data pipelines, and have a development experience focused on what *their* pipelines will do, not how Flowthru is handling the pipeline.
+2. If an error can occur in the pipeline they've created, it will occur as soon in the development process as possible.
+
+As developers of Flowthru, then, these are split into two primary concerns:
+
+1. The **API Surface:** how users experience, and work with, Flowthru; and
+2. The **Error Surface:** how — and, more importantly, **when** — errors in Flowthru pipelines can occur.
+
+Flowthru's architecture is designed to balance these requirements: a straightforward API surface free of unnecessary ceremony or boilerplate, and an error surface that pushes errors as early in the development process as C#, .NET, and Roslyn can offer.
+
+The end-user experience should feel almost identical to similar pipeline frameworks, but with **free** gains in stability and developer experience.
 
 ## The Three Error Phases
 
-Every possible failure in a Flowthru pipeline falls into one of three phases, ordered from most desirable to least:
+Every possible failure in a Flowthru pipeline falls into one of three phases:
+
+1. Build-time (beautiful, gold standard, chef's kiss)
+2. Pre-flight (tolerable, but aggravating)
+3. Runtime (evil! should be destroyed wherever possible)
 
 ### 1. Build / Compile-Time
 
-Errors caught by the C# compiler before a binary is ever produced. This is the ideal — a misconfigured pipeline should not compile.
+Compile-time errors always show when the pipeline is built — and, if the user is using a C# language server, as squigglies in the IDE during development. This is always the goal — that an error will be shown at the best time for a developer to fix it: **during development.**
 
-| Mechanism | What it catches |
-|---|---|
-| **Generic `AddNode<TInput, TOutput>`** | Node I/O types must match catalog entry types. Wiring `Func<IEnumerable<A>, Task<IEnumerable<B>>>` to an `ICatalogEntry<IEnumerable<C>>` is a compiler error. |
-| **Source-generated `AddNode` overloads (1×1 through 8×8)** | Multi-input/output tuple arity and element types are enforced structurally. Wrong count or wrong type → compiler error. |
-| **`[FlowthruSchema]` source generator** | Emits `IFlatSchema`/`INestedSchema` and serialization marker interfaces. Using a nested schema with a CSV serializer (which requires `ITextSerializable`) fails at compile-time. Diagnostics FT1001 (missing `partial`) and FT1002 (conflicting manual interfaces) are build errors/warnings. |
-| **`ComposedStorageAdapter<TContainer, TRow>` generic constraints** | The `TRow` parameter threads through medium, format, and container layers. Mismatched row types across layers are compiler errors. |
-| **Catalog entries as typed properties** | `catalog.Companies` is an `ICatalogEntry<IEnumerable<CompanySchema>>` property — not a string key lookup. Typos and missing entries are `CS1061` errors. |
-| **`required` modifier on schema properties** | Missing fields in record initialization are compiler errors. |
+Flowthru achieves this through a combination of mechanisms that share a common pattern: **pipeline structure is expressed in the type system, not in strings or configuration.**
 
-**Kedro contrast:** In Python's Kedro, nodes and catalog entries are connected by string names (`"companies"`). Type mismatches, misspelled dataset keys, and wrong output counts are all runtime errors. Every mechanism above replaces a Kedro runtime failure with a C# compile-time failure.
+- **Schemas are typed contracts.** Every node declares the schema(s) it consumes and produces via generic type parameters. Every Data Catalog entry uses one of these same schemas. If a node tries to input from, or output to, a data catalog entry with mismatched schemas, the pipeline won't build.
+- **Each node is a contract that cannot be broken.** A developer must define schemas up-front when they're writing their node. If they're supposed to write a node that inputs schema A, and outputs schema B, the compiler **requires** that the code they write follows through on this contract to go from A to B.
+- **Schemas can only be stored in data formats that can support them.** The `[FlowthruSchema]` source generator analyzes schema structure and emits marker interfaces that gate which serializers a schema can be used with. Attempting to save nested format to a CSV? That shouldn't even build.
+- **Wiring is done with types, not strings** Anytime you need to hook two things together — data to nodes, nodes to pipelines, pipelines to other pipelines — it should be done using types, **never** strings.
 
 ### 2. Pre-Flight Checks
 
-Errors caught at runtime, but **before any node executes**. These validate the environment — things the compiler cannot check (file existence, schema drift in external data, DAG structure from dynamic registration).
+While build-time errors are the gold standard, there are some cases where a problem simply cannot be caught that early. To cope with this, a **pre-flight phase** happens after the pipeline is invoked, but before **any** pipeline logic runs.
 
-| Mechanism | What it catches |
-|---|---|
-| **`Pipeline.Build()` → `DependencyAnalyzer`** | Single producer rule (two nodes writing the same entry → `InvalidOperationException`). Circular dependency detection via topological sort. |
-| **`Pipeline.ValidateExternalInputsAsync()`** | Inspects Layer 0 (external) inputs before execution. `IShallowInspectable`: sample N rows, validate file existence, headers, and schema. `IDeepInspectable`: full dataset scan. Configurable per-entry or per-pipeline via `ValidationOptions`. |
-| **Dry run mode** (`ExecutionOptions.DryRun`) | Runs all pre-flight checks (build + validation) without executing any node. Returns success/failure with zero side effects. |
+- **DAG validation.** Before execution, the pipeline's dependency graph is analyzed. Duplicate producers (two nodes writing to the same entry) as well as circular dependencies, are rejected.
+- **External input inspection.** External inputs (files, connections) are inspected before the first node runs. Missing files, mismatched headers, and schema drift in external data are all surfaced up front. Even if an external data file is only used at the end of the pipeline, it should be confirmed accessible before the pipeline starts.
+- **Dry-run mode.** All pre-flight checks can be executed with zero side effects, validating that the pipeline *would* succeed without actually running it.
 
 **Design invariant:** A pipeline that passes pre-flight checks should always complete successfully. If it doesn't, that's a bug in Flowthru — either a missing pre-flight check or a missing compile-time constraint.
 
 ### 3. Runtime
 
-Errors that occur during actual node execution. These should be limited to truly unpredictable failures — network drops, OOM, bugs in user-authored transform logic.
+Runtime errors include **anything** that could go wrong during actual node execution. These might include:
 
-| Mechanism | What it handles |
-|---|---|
-| **`FlowIO<T>` effect type** | All I/O is lazy and explicit. `Load()` returns `FlowIO<T>`, not `T` — side effects cannot be accidentally dropped. Cancellation is baked in. Typed error recovery via `Catch<TException>()`. |
-| **`CatalogEntry<T>.SaveUntyped()` guard** | Runtime type check at the type-erasure boundary (`ICatalogEntry` → `ICatalogEntry<T>`). Produces a descriptive `FlowIO.Fail` on mismatch. |
-| **Node-level error isolation** | Each node executes in a try/catch. On failure, execution halts and returns `PipelineResult.CreateFailure()` with the failing node's result and exception. |
+- network drops
+- out-of-memory conditions
+- general acts of God
+
+Flowthru handles these through an **effect type** called `FlowIO<T>`. If you're familiar with Spark's lazy evaluation model — where transformations build up a plan and only an *action* triggers execution — `FlowIO<T>` applies a similar principle to I/O operations. Loading and saving data returns a `FlowIO<T>` rather than performing the operation immediately. Side effects must be deliberately triggered, not accidentally dropped. This makes I/O boundaries explicit and ensures that errors at those boundaries are captured in structured results rather than thrown as unhandled exceptions.
+
+The key runtime guarantees:
+
+- **All I/O is lazy and explicit.** Side effects cannot be accidentally dropped or silently ignored.
+- **Errors are captured, never swallowed.** Node failures propagate to structured pipeline results. Silent `catch {}` blocks are a bug.
+- **Nodes are isolated.** A failing node halts execution and reports which node failed and why — partial silent failures are not possible.
 
 ## Decision Rules for Contributors
 
@@ -51,28 +83,16 @@ When adding a new feature or fixing a bug, use these rules to determine where va
 
 1. **Can the C# type system express this constraint?** → Add it as a generic constraint, source generator diagnostic, or interface requirement. The compiler is the first line of defense.
 
-2. **Is it an environmental concern (files, connections, external schemas)?** → Add it to the pre-flight validation layer. Implement `IShallowInspectable` or `IDeepInspectable` on the relevant storage adapter. It must run before any node executes.
+2. **Is it an environmental concern (files, connections, external schemas)?** → Add it to the pre-flight validation layer. It must run before any node executes.
 
-3. **Is it truly unpredictable (network failure, user logic bug)?** → Handle it in the runtime layer via `FlowIO` effects. Ensure the error is captured in `NodeResult`/`PipelineResult`, not swallowed.
+3. **Is it truly unpredictable (network failure, machine error, act of God)?** → Handle it in the runtime layer via `FlowIO` effects. Ensure the error is captured in structured results, not swallowed.
 
-4. **If you're unsure**, err toward earlier. A compile-time constraint that's slightly restrictive is better than a runtime error that's slightly permissive.
+The known error points of Flowthru — its **error surface** — should be documented and tested. Flowthru's promise to fail fast **is a feature**. When working on Flowthru, or any extension, it is important to ask yourself not just "Will this work?" but "**When** will it break?"
 
-### Anti-Patterns
+When adding features or extensions, read [the testing philosophy](/tests/README.md) to understand how best to test.
 
-- **String-based lookups for catalog entries.** Catalog entries are typed properties. If you find yourself resolving entries by name at runtime, redesign the API.
-- **Unchecked I/O outside `FlowIO`.** All load/save/exists operations must return `FlowIO<T>`. Raw `File.ReadAllText()` in a node or adapter is a bug.
-- **Validation during execution.** If a check can run before the first node, it belongs in pre-flight — not inside a node's transform function.
-- **Swallowing exceptions.** Node failures must propagate to `PipelineResult`. Silent `catch {}` blocks hide errors that should halt the pipeline.
+## What Flowthru *Won't* Be
 
-## Testing the Guarantees
+Flowthru, at its core, will *not* be a full piece of orchestration software. The core library will not be concerned with when or how users want to run their pipeline — just that it will be correctly configured, and as stable as possible, when they do.
 
-The test suite validates each error phase:
-
-- **Compilation tests** (`Category=Compilation`): Verify that source generators emit correct interfaces and diagnostics. Test that malformed schemas produce build errors.
-- **Pre-flight tests**: Verify that `Pipeline.Build()` rejects duplicate producers and cycles. Verify that `ValidateExternalInputsAsync()` catches missing files and schema mismatches.
-- **Integration tests**: Run full pipelines end-to-end against known-good data. A passing pre-flight must always lead to a successful run.
-
-When adding a new error-phase mechanism, add tests that verify:
-1. The error is caught in the correct phase (not later).
-2. The error message identifies the problem clearly (entry name, expected vs actual type, file path).
-3. The pipeline does not partially execute before surfacing the error (for pre-flight checks).
+This doesn't mean *ignoring* these concerns — it just means extending the API surface to allow end-users to run pipelines flexibly (such as the service-based and CLI access options), as well as ensuring the core engine uses extensible patterns for modification (such as additional formats and methods for data access, and the ability to DI services into nodes for additional utility).
