@@ -5,7 +5,7 @@ Recall from the [Contributor's Guide](/CONTRIBUTING.md) that Flowthru has two co
 > 1. End-users can easily write data pipelines, and have a development experience focused on what *their* pipelines will do, not how Flowthru is handling the pipeline.
 > 2. If an error can occur in the pipeline they've created, it will occur as soon in the development process as possible.
 
-In this, we must test both the API surface, *and* the error surface, of this library.
+The tests projects are meant to enforce how we fulfill these promises, and cover both the API surface *and* the error surface of Flowthru and its extensions.
 
 ## API Surface Tests (How and when should Flowthru work?)
 

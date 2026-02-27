@@ -2,7 +2,7 @@
 
 Flowthru is a type-safe, no-bullshit data engineering framework for .NET. Its design philosophy can be summarized in one sentence: **developing a data pipeline should be easy, and a broken pipeline should fail fast.**
 
-This document explains the theory behind that philosophy and how contributors should reason about new features and fixes.
+First of all — thank you for contributing! I appreciate you taking the time to help make Flowthru better. This document explains the theory behind that philosophy, and helps ensure new features and fixes are aligned with Flowthru's theories and end-user promises.
 
 ## Why Fail-Fast Matters
 
@@ -26,7 +26,7 @@ Flowthru's promises are simple:
 As developers of Flowthru, then, these are split into two primary concerns:
 
 1. The **API Surface:** how users experience, and work with, Flowthru; and
-2. The **Error Surface:** how — and, more importantly, **when** — errors in Flowthru pipelines can occur.
+2. The **Error Surface:** how — and **when** — errors in Flowthru pipelines can occur.
 
 Flowthru's architecture is designed to balance these requirements: a straightforward API surface free of unnecessary ceremony or boilerplate, and an error surface that pushes errors as early in the development process as C#, .NET, and Roslyn can offer.
 
