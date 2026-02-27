@@ -7,8 +7,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Flowthru" Version="*" />
+  <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
+  <ItemGroup Condition="Exists('../../../src/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="../../../src/Flowthru/Flowthru.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/Flowthru/Flowthru.csproj')">
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
   </ItemGroup>
 
   <ItemGroup>

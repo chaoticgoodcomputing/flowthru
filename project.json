@@ -141,6 +141,8 @@
           "echo 'Cleaning previous packages...'",
           "rm -rf dist/packages 2>/dev/null || true",
           "mkdir -p dist/packages",
+          "echo 'Injecting version into templates...'",
+          "./scripts/inject-template-version.sh",
           "echo 'Packing Flowthru core...'",
           "dotnet pack src/Flowthru/Flowthru.csproj --configuration Release --no-build --output dist/packages",
           "echo 'Packing Flowthru.Integrations.MLNet...'",

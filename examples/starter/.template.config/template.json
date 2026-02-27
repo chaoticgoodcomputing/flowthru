@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Chaotic Good Computing",
+  "classifications": [
+    "Data Engineering",
+    "Data Science",
+    "Pipeline",
+    "Kedro"
+  ],
+  "identity": "Flowthru.Starter",
+  "name": "Flowthru Starter",
+  "shortName": "Flowthru",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "KedroIris",
+  "preferNameDirectory": true,
+  "symbols": {
+    "starter": {
+      "type": "parameter",
+      "dataType": "choice",
+      "isRequired": true,
+      "description": "Choose a starter template",
+      "choices": [
+        {
+          "choice": "iris",
+          "description": "Simple multi-class classification (Iris dataset)"
+        },
+        {
+          "choice": "spaceflights",
+          "description": "Full data engineering pipeline (DataProcessing → DataScience → Reporting)"
+        }
+      ]
+    },
+    "FlowthruVersion": {
+      "type": "parameter",
+      "dataType": "string",
+      "defaultValue": "0.1.12",
+      "replaces": "FlowthruVersion",
+      "description": "Flowthru package version (auto-injected at pack time)"
+    },
+    "UseIris": {
+      "type": "computed",
+      "value": "(starter == \"iris\")"
+    },
+    "UseSpaceflights": {
+      "type": "computed",
+      "value": "(starter == \"spaceflights\")"
+    },
+    "SpacefightsName": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "identity",
+      "replaces": "KedroSpaceflights",
+      "fileRename": "KedroSpaceflights"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!UseIris)",
+          "exclude": [
+            "KedroIris/**/*"
+          ]
+        },
+        {
+          "condition": "(!UseSpaceflights)",
+          "exclude": [
+            "KedroSpaceflights/**/*"
+          ]
+        },
+        {
+          "exclude": [
+            ".template.config/**/*",
+            "**/bin/**",
+            "**/obj/**",
+            "**/.vs/**",
+            "**/.vscode/**",
+            "**/*.user"
+          ]
+        },
+        {
+          "condition": "(UseIris)",
+          "rename": {
+            "KedroIris/": "./"
+          }
+        },
+        {
+          "condition": "(UseSpaceflights)",
+          "rename": {
+            "KedroSpaceflights/": "./"
+          }
+        }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}
