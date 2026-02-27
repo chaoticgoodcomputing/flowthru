@@ -17,7 +17,7 @@
         "command": "dotnet run -- IrisComparison",
         "cwd": "examples/advanced/UmapReferenceComparisons"
       },
-      "dependsOn": ["build"]
+      "dependsOn": [ "build" ]
     },
     "run-digits": {
       "executor": "nx:run-commands",
@@ -25,7 +25,7 @@
         "command": "dotnet run -- DigitsComparison",
         "cwd": "examples/advanced/UmapReferenceComparisons"
       },
-      "dependsOn": ["build"]
+      "dependsOn": [ "build" ]
     },
     "run-mnist": {
       "executor": "nx:run-commands",
@@ -33,7 +33,7 @@
         "command": "dotnet run -- MnistComparison",
         "cwd": "examples/advanced/UmapReferenceComparisons"
       },
-      "dependsOn": ["build"]
+      "dependsOn": [ "build" ]
     },
     "run-all": {
       "executor": "nx:run-commands",
@@ -46,7 +46,7 @@
         "cwd": "examples/advanced/UmapReferenceComparisons",
         "parallel": false
       },
-      "dependsOn": ["build"]
+      "dependsOn": [ "build" ]
     },
     "clean": {
       "executor": "nx:run-commands",
@@ -56,5 +56,5 @@
       }
     }
   },
-  "tags": ["type:example", "scope:ml", "scope:umap"]
+  "tags": [ "type:example", "scope:ml", "scope:umap" ]
 }

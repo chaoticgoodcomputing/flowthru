@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.12](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.11...v0.1.12) (2026-02-26)
+
+
+### Bug Fixes
+
+* conform examples to thin CLI wrap ([8a1669d](https://github.com/chaoticgoodcomputing/flowthru/commit/8a1669de3ee8fab2b8606462b7a78a4f4948986a))
+* phantom readmes as temp for build ([64cddf0](https://github.com/chaoticgoodcomputing/flowthru/commit/64cddf0d7d233e0515089909e8b1a6d8de09bf71))
+* refactor kedro custom example to use proper data layout ([48d24a4](https://github.com/chaoticgoodcomputing/flowthru/commit/48d24a477dd263bff60410afef59598baaa8847a))
+* release ([b89b915](https://github.com/chaoticgoodcomputing/flowthru/commit/b89b915ca485f24a32dfbed0d8f6773867cb3292))
+* stale docs removed ([64efe3d](https://github.com/chaoticgoodcomputing/flowthru/commit/64efe3d6a1308d0a9d65b9918a6b87a942e2a076))
+* unsealed pipelineexecutionrequest ([cbc2331](https://github.com/chaoticgoodcomputing/flowthru/commit/cbc2331a7d0e2e9f4290ce9f76f4fb5ca252d956))
+
 ## [0.1.11](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.10...v0.1.11) (2026-02-21)
 
 

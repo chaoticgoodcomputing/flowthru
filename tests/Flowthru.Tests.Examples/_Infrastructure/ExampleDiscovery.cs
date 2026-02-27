@@ -58,7 +58,11 @@ public static class ExampleDiscovery
   /// </summary>
   private static string? FindProjectDirectory(string projectName)
   {
-    var directories = Directory.GetDirectories(_examplesDirectory, projectName, SearchOption.AllDirectories);
+    var directories = Directory.GetDirectories(
+      _examplesDirectory,
+      projectName,
+      SearchOption.AllDirectories
+    );
     return directories.FirstOrDefault();
   }
 
