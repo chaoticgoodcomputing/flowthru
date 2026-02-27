@@ -15,7 +15,7 @@ public static class ExampleDiscovery
   private static readonly Type[] _knownExampleTypes =
   [
     typeof(KedroSpaceflights.Custom.Program),
-    typeof(KedroSpaceflights.Pure.Program),
+    typeof(KedroSpaceflights.Program),
   ];
 
   /// <summary>

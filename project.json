@@ -9,7 +9,7 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "dotnet restore Flowthru.sln"
+          "dotnet restore Flowthru.slnx"
         ],
         "parallel": false
       }
@@ -20,7 +20,7 @@
       "dependsOn": [ "restore" ],
       "options": {
         "commands": [
-          "dotnet build Flowthru.sln --configuration Release --no-restore"
+          "dotnet build Flowthru.slnx --configuration Release --no-restore"
         ],
         "parallel": false
       }
@@ -31,7 +31,7 @@
       "dependsOn": [ "build:release" ],
       "options": {
         "commands": [
-          "dotnet test Flowthru.sln --configuration Release --no-build --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
+          "dotnet test Flowthru.slnx --configuration Release --no-build --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
         ],
         "parallel": false
       }
@@ -74,7 +74,7 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "dotnet test Flowthru.sln --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
+          "dotnet test Flowthru.slnx --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
         ],
         "parallel": false
       },
