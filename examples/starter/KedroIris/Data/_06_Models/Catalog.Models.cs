@@ -1,0 +1,23 @@
+using Flowthru.Data;
+using KedroIris.Data._06_Models.Schemas;
+
+namespace KedroIris.Data;
+
+/// <summary>
+/// Models data layer: Serialized trained models.
+/// </summary>
+public partial class Catalog
+{
+  /// <summary>
+  /// Trained multi-class logistic regression model.
+  /// Contains weight matrix for all three species classifiers.
+  /// </summary>
+  public ICatalogEntry<ModelWeightsSchema> IrisModel =>
+    GetOrCreateEntry(
+      () =>
+        CatalogEntries.Single.Json<ModelWeightsSchema>(
+          label: "IrisModel",
+          filePath: $"{_basePath}/_06_Models/Datasets/iris_model.json"
+        )
+    );
+}
