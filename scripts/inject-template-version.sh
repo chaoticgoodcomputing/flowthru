@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 # Script to inject current Flowthru version into template.json before packing
 
 set -e
