@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.13](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.12...v0.1.13) (2026-02-28)
+
+
+### Features
+
+* kedro iris starter ([ccfbaa8](https://github.com/chaoticgoodcomputing/flowthru/commit/ccfbaa89541ee13dcd4170b92e1538e31eccf032))
+* templating process ([022fc1f](https://github.com/chaoticgoodcomputing/flowthru/commit/022fc1f1567352171198e2283a358ceeefaa0c3c))
+* testing process for template pipeline creation ([c4714cc](https://github.com/chaoticgoodcomputing/flowthru/commit/c4714ccdafec78ee2091cb233addefea2e827edc))
+
+
+### Bug Fixes
+
+* fix NX target in Actions ([e84ea34](https://github.com/chaoticgoodcomputing/flowthru/commit/e84ea34980872f432a930db0fba34bf4d8afbd76))
+
+
+### Documentation
+
+* docs contributor guide ([ac6cc03](https://github.com/chaoticgoodcomputing/flowthru/commit/ac6cc035dc96da3180e6622375d68bb6ae7146b5))
+* docs start ([c7fa7c9](https://github.com/chaoticgoodcomputing/flowthru/commit/c7fa7c97db4d3e53f2f618369dec8c72a495f03f))
+
 ## [0.1.12](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.11...v0.1.12) (2026-02-26)
 
 
