@@ -59,13 +59,13 @@ jobs:
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
-        run: pnpm nx run ft:ci
+        run: pnpm nx run flowthru:ci
 
       - name: Generate coverage badges
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
-        run: pnpm nx run ft:coverage:badges
+        run: pnpm nx run flowthru:coverage:badges
 
       - name: Upload coverage badges
         uses: actions/upload-artifact@v4
@@ -127,7 +127,7 @@ jobs:
         id: version
         run: |
           # Run commit-and-tag-version via NX
-          pnpm nx run ft:release
+          pnpm nx run flowthru:release
 
           # Extract new version from package.json
           NEW_VERSION=$(node -p "require('./package.json').version")
@@ -157,7 +157,7 @@ jobs:
 
       - name: Build and pack NuGet package
         if: steps.version_check.outputs.changed == 'true'
-        run: pnpm nx run ft:publish
+        run: pnpm nx run flowthru:publish
 
       - name: Prepare coverage badges for release
         if: steps.version_check.outputs.changed == 'true'
