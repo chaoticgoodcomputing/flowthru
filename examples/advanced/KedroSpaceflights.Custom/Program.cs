@@ -21,19 +21,37 @@ namespace KedroSpaceflights.Custom;
 public class Program
 {
   /// <summary>
-  /// Configures Flowthru services for dependency injection.
+  /// Main entry point for the custom Spaceflights pipeline CLI application.
   /// </summary>
-  /// <returns>Configured service provider</returns>
-  public static IServiceProvider ConfigureServices()
+  /// <param name="args">Command-line arguments</param>
+  public static Task<int> Main(string[] args) =>
+    FlowthruCli.RunStandaloneAsync(
+      args,
+      services => ConfigureServices(services, Directory.GetCurrentDirectory())
+    );
+
+  /// <summary>
+  /// Configures services for the application. Used by test infrastructure.
+  /// </summary>
+  /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
+  public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var services = new ServiceCollection();
+    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+    return services.BuildServiceProvider();
+  }
 
+  /// <summary>
+  /// Shared service configuration logic.
+  /// </summary>
+  private static void ConfigureServices(IServiceCollection services, string basePath)
+  {
     services.AddFlowthru(flowthru =>
     {
       // Enable configuration loading from appsettings.json files
       // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
-      flowthru.UseConfiguration();
-      flowthru.UseCatalog(_ => new Catalog("Data"));
+      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
+      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
       flowthru
         .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
@@ -74,23 +92,5 @@ public class Program
       logging.AddConsole();
       logging.SetMinimumLevel(LogLevel.Information);
     });
-
-    return services.BuildServiceProvider();
-  }
-
-  /// <summary>
-  /// Main entry point for the application. Builds the service provider and runs the CLI.
-  /// </summary>
-  /// <param name="args">Command-line arguments.</param>
-  public static async Task<int> Main(string[] args)
-  {
-    var services = ConfigureServices();
-
-    // Resolve core service and construct CLI wrapper
-    var service = services.GetRequiredService<IFlowthruService>();
-    var logger = services.GetRequiredService<ILogger<FlowthruCli>>();
-    var cli = new FlowthruCli(service, logger);
-
-    return await cli.RunAsync(args);
   }
 }

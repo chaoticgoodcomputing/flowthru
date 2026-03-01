@@ -21,6 +21,12 @@ Data/**/*.png
 # Keep schemas (these are source code)
 !Data/**/*.cs
 
+# Keep small raw datasets (iris, digits) and their reference outputs
+!Data/_01_Raw/Datasets/Inputs/iris/input.parquet
+!Data/_01_Raw/Datasets/Inputs/digits/input.parquet
+!Data/_01_Raw/Datasets/Reference/iris/output.parquet
+!Data/_01_Raw/Datasets/Reference/digits/output.parquet
+
 # Metadata (auto-generated)
 Metadata/
 

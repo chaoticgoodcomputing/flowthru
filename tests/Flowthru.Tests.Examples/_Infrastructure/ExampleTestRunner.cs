@@ -6,167 +6,136 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Flowthru.Tests.Examples.Infrastructure;
 
 /// <summary>
-/// Executes example projects programmatically by using their configured services.
+/// Executes an example project by invoking its <c>ConfigureServices(basePath)</c> method,
+/// then running all pipelines via <see cref="IFlowthruService"/>.
 /// </summary>
+/// <remarks>
+/// <para>Design invariants:</para>
+/// <list type="bullet">
+///   <item><b>No <c>Directory.SetCurrentDirectory</c></b> — the project path is passed as
+///         <c>basePath</c> to <c>ConfigureServices</c>, making execution safe for parallel tests.</item>
+///   <item><b>Hard timeout via <c>Task.WhenAny</c></b> — prevents infinite hangs even when
+///         the pipeline does not honour <see cref="CancellationToken"/>.</item>
+///   <item><b>Cooperative cancellation</b> — a <see cref="CancellationToken"/> is passed to
+///         <c>ExecuteAllPipelinesAsync</c> so pipelines that do check it can exit early on timeout.</item>
+/// </list>
+/// </remarks>
 public sealed class ExampleTestRunner
 {
-  private readonly ExampleProject _example;
+  /// <summary>Default per-example timeout. Override via constructor parameter.</summary>
+  public static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
 
-  /// <summary>
-  /// Initializes a new instance of the <see cref="ExampleTestRunner"/> class.
-  /// </summary>
-  /// <param name="example">The example project to run.</param>
-  public ExampleTestRunner(ExampleProject example)
+  private readonly ExampleProject _example;
+  private readonly TimeSpan _timeout;
+
+  public ExampleTestRunner(ExampleProject example, TimeSpan? timeout = null)
   {
     _example = example ?? throw new ArgumentNullException(nameof(example));
+    _timeout = timeout ?? DefaultTimeout;
   }
 
   /// <summary>
-  /// Runs the example project by executing all its pipelines via IFlowthruService.
+  /// Runs all pipelines in the example. Throws on failure or timeout.
   /// </summary>
-  /// <returns>The result of running the example.</returns>
-  public async Task<ExampleTestResult> RunAsync()
+  public async Task RunAsync()
   {
     var stopwatch = Stopwatch.StartNew();
-    Exception? exception = null;
-    bool success = false;
-    string? diagnosticMessage = null;
 
-    // Save the current directory and switch to the example's project directory
-    var originalDirectory = Directory.GetCurrentDirectory();
-
+    IServiceProvider? services = null;
     try
     {
-      // Change to the example's project directory so relative paths work
-      Directory.SetCurrentDirectory(_example.ProjectPath);
-
-      // Find and invoke ConfigureServices method
-      var configureServicesMethod = FindConfigureServicesMethod(_example.EntryPointType);
-      if (configureServicesMethod == null)
-      {
-        throw new InvalidOperationException(
-          $"Could not find ConfigureServices() method in {_example.EntryPointType.FullName}. "
-            + "Example projects must expose a public static IServiceProvider ConfigureServices() method."
-        );
-      }
-
-      // Get the service provider
-      var services = (IServiceProvider?)configureServicesMethod.Invoke(null, null);
-      if (services == null)
-      {
-        throw new InvalidOperationException(
-          $"ConfigureServices() returned null in {_example.EntryPointType.FullName}"
-        );
-      }
-
-      // Get the Flowthru service
+      services = BuildServiceProvider();
       var flowthruService = services.GetRequiredService<IFlowthruService>();
 
-      // Execute all pipelines
-      var result = await flowthruService.ExecuteAllPipelinesAsync();
+      using var cts = new CancellationTokenSource();
+      var executionTask = flowthruService.ExecuteAllPipelinesAsync(cancellationToken: cts.Token);
+      var timeoutTask = Task.Delay(_timeout, CancellationToken.None);
 
-      success = result.Success;
-      exception = result.Exception;
+      var completedTask = await Task.WhenAny(executionTask, timeoutTask);
 
-      if (!success && exception == null)
+      if (completedTask == timeoutTask)
       {
-        diagnosticMessage = "Pipeline execution completed without exception but reported failure";
+        await cts.CancelAsync();
+        throw new TimeoutException(
+          $"Example '{_example.Name}' exceeded the {_timeout.TotalMinutes:F0}-minute timeout. "
+            + "This may indicate an infinite loop or a pipeline waiting on unavailable input."
+        );
+      }
+
+      var result = await executionTask;
+      stopwatch.Stop();
+
+      TestContext.Out.WriteLine($"  Completed in {stopwatch.Elapsed.TotalSeconds:F2}s");
+
+      if (!result.Success)
+      {
+        var message = $"Example '{_example.Name}' pipeline execution reported failure.";
+
+        if (result.Exception != null)
+        {
+          TestContext.Out.WriteLine(
+            $"  Exception: {result.Exception.GetType().Name}: {result.Exception.Message}"
+          );
+          throw new InvalidOperationException(message, result.Exception);
+        }
+
+        throw new InvalidOperationException(message);
       }
     }
     catch (TargetInvocationException tie)
     {
-      // Unwrap the inner exception
-      exception = tie.InnerException ?? tie;
-      success = false;
-    }
-    catch (Exception ex)
-    {
-      exception = ex;
-      success = false;
+      // Unwrap reflection wrappers so the test sees the real exception.
+      throw tie.InnerException ?? tie;
     }
     finally
     {
-      stopwatch.Stop();
-
-      // Restore the original working directory
-      Directory.SetCurrentDirectory(originalDirectory);
+      if (services is IAsyncDisposable asyncDisposable)
+        await asyncDisposable.DisposeAsync();
+      else if (services is IDisposable disposable)
+        disposable.Dispose();
     }
-
-    var category = CategorizeFailure(success, exception);
-
-    return new ExampleTestResult
-    {
-      Example = _example,
-      CapturedOutput = null, // No longer capturing output - service layer doesn't write to console
-      ExitCode = success ? 0 : 1,
-      Exception = exception,
-      Duration = stopwatch.Elapsed,
-      Category = category,
-      DiagnosticMessage = diagnosticMessage,
-    };
   }
 
   /// <summary>
-  /// Categorizes the type of failure based on the exception and success status.
+  /// Invokes the example's <c>ConfigureServices</c> method, passing the project path
+  /// as <c>basePath</c> when the method accepts a parameter.
   /// </summary>
-  private static FailureCategory CategorizeFailure(bool success, Exception? exception)
+  private IServiceProvider BuildServiceProvider()
   {
-    // Success case
-    if (success && exception == null)
-    {
-      return FailureCategory.None;
-    }
+    var method =
+      FindConfigureServicesMethod(_example.EntryPointType)
+      ?? throw new InvalidOperationException(
+        $"No public static ConfigureServices method found on {_example.EntryPointType.FullName}. "
+          + "Example projects must expose: public static IServiceProvider ConfigureServices(string? basePath = null)"
+      );
 
-    // Infrastructure failures - test framework issues
-    if (
-      exception is InvalidOperationException
-      || exception is TargetException
-      || exception is MethodAccessException
-      || exception is ArgumentException
-    )
-    {
-      return FailureCategory.Infrastructure;
-    }
+    var parameters = method.GetParameters();
 
-    // Application failures - expected runtime issues
-    var applicationFailureIndicators = new[]
+    object?[]? args = parameters.Length switch
     {
-      "FileNotFoundException",
-      "DirectoryNotFoundException",
-      "Configuration section",
-      "not found",
-      "InvalidCastException",
-      "connection",
-      "authentication",
-      "authorization",
+      0 => null,
+      1 when parameters[0].ParameterType == typeof(string) => [_example.ProjectPath],
+      _ => throw new InvalidOperationException(
+        $"ConfigureServices on {_example.EntryPointType.FullName} has an unexpected signature. "
+          + "Expected: IServiceProvider ConfigureServices() or IServiceProvider ConfigureServices(string? basePath)"
+      ),
     };
 
-    var exceptionMessage = exception?.ToString() ?? "";
-    if (
-      applicationFailureIndicators.Any(indicator =>
-        exceptionMessage.Contains(indicator, StringComparison.OrdinalIgnoreCase)
-      )
-    )
-    {
-      return FailureCategory.Application;
-    }
-
-    // Default to application failure
-    return FailureCategory.Application;
+    return method.Invoke(null, args) as IServiceProvider
+      ?? throw new InvalidOperationException(
+        $"ConfigureServices on {_example.EntryPointType.FullName} returned null."
+      );
   }
 
   /// <summary>
-  /// Finds the ConfigureServices method in the given type.
+  /// Finds the <c>ConfigureServices</c> method, preferring the overload that accepts
+  /// a <c>basePath</c> parameter (so we can inject the project directory).
   /// </summary>
   private static MethodInfo? FindConfigureServicesMethod(Type type)
   {
-    // Look for public static method named "ConfigureServices" that returns IServiceProvider
-    var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
-
-    return methods.FirstOrDefault(m =>
-      m.Name == "ConfigureServices"
-      && m.ReturnType == typeof(IServiceProvider)
-      && m.GetParameters().Length == 0
-    );
+    return type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+      .Where(m => m.Name == "ConfigureServices" && m.ReturnType == typeof(IServiceProvider))
+      .OrderByDescending(m => m.GetParameters().Length)
+      .FirstOrDefault();
   }
 }

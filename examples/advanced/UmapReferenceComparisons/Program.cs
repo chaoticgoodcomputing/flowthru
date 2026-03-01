@@ -18,18 +18,36 @@ namespace UmapReferenceComparisons;
 public class Program
 {
   /// <summary>
-  /// Configures Flowthru services for dependency injection.
+  /// Main entry point for the UMAP reference comparison CLI application.
   /// </summary>
-  /// <returns>Configured service provider</returns>
-  public static IServiceProvider ConfigureServices()
+  /// <param name="args">Command-line arguments</param>
+  public static Task<int> Main(string[] args) =>
+    FlowthruCli.RunStandaloneAsync(
+      args,
+      services => ConfigureServices(services, Directory.GetCurrentDirectory())
+    );
+
+  /// <summary>
+  /// Configures services for the application. Used by test infrastructure.
+  /// </summary>
+  /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
+  public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var services = new ServiceCollection();
+    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+    return services.BuildServiceProvider();
+  }
 
+  /// <summary>
+  /// Shared service configuration logic.
+  /// </summary>
+  private static void ConfigureServices(IServiceCollection services, string basePath)
+  {
     services.AddFlowthru(flowthru =>
     {
       // Load configuration
-      flowthru.UseConfiguration();
-      flowthru.UseCatalog(_ => new Catalog("Data"));
+      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
+      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
       // Register comparison pipelines
       flowthru
@@ -50,14 +68,16 @@ public class Program
           "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
         );
 
-      flowthru
-        .RegisterPipeline<Catalog>(
-          label: "FashionComparisonPipeline",
-          pipeline: Pipelines.FashionComparison.FashionComparisonPipeline.Create
-        )
-        .WithDescription(
-          "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
-        );
+      // Fashion-MNIST pipeline disabled to keep repo lean (70K samples = ~12MB)
+      // Uncomment when large dataset support is needed
+      // flowthru
+      //   .RegisterPipeline<Catalog>(
+      //     label: "FashionComparisonPipeline",
+      //     pipeline: Pipelines.FashionComparison.FashionComparisonPipeline.Create
+      //   )
+      //   .WithDescription(
+      //     "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
+      //   );
     });
 
     services.AddLogging(logging =>
@@ -65,19 +85,5 @@ public class Program
       logging.AddConsole();
       logging.SetMinimumLevel(LogLevel.Information);
     });
-
-    return services.BuildServiceProvider();
-  }
-
-  public static async Task<int> Main(string[] args)
-  {
-    var services = ConfigureServices();
-
-    // Resolve core service and construct CLI wrapper
-    var service = services.GetRequiredService<IFlowthruService>();
-    var logger = services.GetRequiredService<ILogger<FlowthruCli>>();
-    var cli = new FlowthruCli(service, logger);
-
-    return await cli.RunAsync(args);
   }
 }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Flowthru.Pipelines;
 using Flowthru.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Cli;
@@ -45,7 +46,58 @@ public sealed class FlowthruCli
     _output = output ?? Console.Out;
   }
 
+  /// <summa standalone Flowthru CLI application with automatic service provider lifecycle management.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is the recommended entry point for standalone console applications using Flowthru.
+  /// It manages the ServiceProvider lifecycle automatically, ensuring proper disposal of
+  /// logging providers and other resources so the process exits cleanly after pipeline completion.
+  /// </para>
+  /// <para>
+  /// For applications that integrate Flowthru into an existing DI container (e.g., ASP.NET Core),
+  /// use the standard constructor and let the host application manage the ServiceProvider lifecycle.
+  /// </para>
+  /// </remarks>
+  /// <param name="args">Command-line arguments</param>
+  /// <param name="configure">Configuration callback to register pipelines and services</param>
+  /// <param name="cancellationToken">Cancellation token</param>
+  /// <returns>Exit code (0 for success, non-zero for errors)</returns>
+  public static async Task<int> RunStandaloneAsync(
+    string[] args,
+    Action<IServiceCollection> configure,
+    CancellationToken cancellationToken = default
+  )
+  {
+    var services = new ServiceCollection();
+    configure(services);
+    var serviceProvider = services.BuildServiceProvider();
+
+    try
+    {
+      var service = serviceProvider.GetRequiredService<IFlowthruService>();
+      var logger = serviceProvider.GetRequiredService<ILogger<FlowthruCli>>();
+      var cli = new FlowthruCli(service, logger);
+
+      return await cli.RunAsync(args, cancellationToken);
+    }
+    finally
+    {
+      // Dispose ServiceProvider to release resources (logging providers, etc.)
+      // This ensures the process exits cleanly without hanging
+      if (serviceProvider is IAsyncDisposable asyncDisposable)
+      {
+        await asyncDisposable.DisposeAsync();
+      }
+      else if (serviceProvider is IDisposable disposable)
+      {
+        disposable.Dispose();
+      }
+    }
+  }
+
   /// <summary>
+  /// Runs ary>
   /// Runs the CLI with the specified arguments.
   /// </summary>
   /// <param name="args">Command-line arguments</param>

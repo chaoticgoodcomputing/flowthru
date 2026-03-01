@@ -1,279 +1,175 @@
 using System.Reflection;
+using Flowthru.Services;
 
 namespace Flowthru.Tests.Examples.Infrastructure;
 
 /// <summary>
-/// Discovers Flowthru example projects from the examples directory.
-/// Auto-discovers all examples from starter/ and advanced/ subdirectories.
+/// Discovers Flowthru example projects by cross-referencing project-referenced assemblies
+/// against the <c>examples/</c> directory structure.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Discovery strategy (no manual <see cref="Assembly.LoadFrom"/>):
+/// </para>
+/// <list type="number">
+///   <item>Enumerate project directories under <c>examples/starter/</c> and <c>examples/advanced/</c>.</item>
+///   <item>For each directory whose name matches a <c>.csproj</c>, attempt to load the assembly
+///         from the test output directory (where <c>&lt;ProjectReference&gt;</c> copies it at build time).</item>
+///   <item>Verify the assembly contains a type with a <c>ConfigureServices</c> method
+///         returning <see cref="IServiceProvider"/>.</item>
+/// </list>
+/// </remarks>
 public static class ExampleDiscovery
 {
-  private static readonly string _workspaceRoot = GetWorkspaceRoot();
-  private static readonly string _examplesDirectory = Path.Combine(_workspaceRoot, "examples");
-
-  // Static constructor to ensure example assemblies are loaded
-  static ExampleDiscovery()
-  {
-    LoadExampleAssemblies();
-  }
+  private static readonly string WorkspaceRoot = FindWorkspaceRoot();
+  private static readonly string ExamplesDirectory = Path.Combine(WorkspaceRoot, "examples");
 
   /// <summary>
-  /// Discovers all executable example projects in the examples directory.
-  /// Scans both examples/starter/ and examples/advanced/ subdirectories.
+  /// Discovers all runnable example projects.
   /// </summary>
-  /// <returns>A collection of discovered example projects.</returns>
   public static IEnumerable<ExampleProject> DiscoverExamples()
   {
-    if (!Directory.Exists(_examplesDirectory))
+    if (!Directory.Exists(ExamplesDirectory))
     {
-      throw new DirectoryNotFoundException($"Examples directory not found: {_examplesDirectory}");
+      throw new DirectoryNotFoundException(
+        $"Examples directory not found at {ExamplesDirectory}. "
+          + "Ensure the workspace root contains an 'examples/' directory."
+      );
     }
 
-    // Get all loaded assemblies that match example project patterns
-    var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-    var exampleAssemblies = loadedAssemblies
-      .Where(a => !a.IsDynamic && a.GetName().Name != null)
-      .Where(a => IsExampleAssembly(a))
-      .OrderBy(a => a.GetName().Name)
-      .ToList();
+    var testOutputDir = Path.GetDirectoryName(typeof(ExampleDiscovery).Assembly.Location)!;
 
-    foreach (var assembly in exampleAssemblies)
+    foreach (var (name, path) in GetExampleProjectDirectories())
     {
-      var projectName = assembly.GetName().Name!;
-      var projectDir = FindProjectDirectory(projectName);
-
-      if (projectDir == null)
+      var assembly = TryLoadAssembly(name, testOutputDir);
+      if (assembly == null)
       {
-        Console.WriteLine($"Warning: Could not find project directory for {projectName}");
+        TestContext.Progress.WriteLine(
+          $"[Discovery] Skipping {name}: assembly not found in {testOutputDir}"
+        );
         continue;
       }
 
-      var entryPointType = FindEntryPointType(assembly, projectName);
-      if (entryPointType == null)
+      var entryPoint = FindConfigureServicesType(assembly);
+      if (entryPoint == null)
       {
-        Console.WriteLine($"Warning: Could not find Program entry point for {projectName}");
-        continue;
-      }
-
-      // Check if the example has required data files (for examples that need external datasets)
-      if (!HasRequiredDataFiles(projectDir, projectName))
-      {
-        Console.WriteLine($"Skipping {projectName}: required data files not found");
+        TestContext.Progress.WriteLine(
+          $"[Discovery] Skipping {name}: no type with ConfigureServices(string?) found"
+        );
         continue;
       }
 
       yield return new ExampleProject
       {
-        Name = projectName,
-        ProjectPath = projectDir,
-        CsprojPath = Path.Combine(projectDir, $"{projectName}.csproj"),
-        EntryPointType = entryPointType,
+        Name = name,
+        ProjectPath = path,
+        EntryPointType = entryPoint,
       };
     }
   }
 
   /// <summary>
-  /// Determines if an assembly is an example project from starter/ or advanced/ directories.
+  /// Enumerates example project directories that contain a matching <c>.csproj</c> file.
+  /// Searches <c>examples/starter/</c> and <c>examples/advanced/</c>.
   /// </summary>
-  private static bool IsExampleAssembly(Assembly assembly)
+  private static IEnumerable<(string Name, string Path)> GetExampleProjectDirectories()
   {
-    var projectName = assembly.GetName().Name;
-    if (string.IsNullOrEmpty(projectName))
+    var categories = new[] { "starter", "advanced" };
+
+    foreach (var category in categories)
     {
-      return false;
+      var categoryDir = System.IO.Path.Combine(ExamplesDirectory, category);
+      if (!Directory.Exists(categoryDir))
+        continue;
+
+      foreach (var projectDir in Directory.GetDirectories(categoryDir))
+      {
+        var name = System.IO.Path.GetFileName(projectDir);
+        var csproj = System.IO.Path.Combine(projectDir, $"{name}.csproj");
+
+        if (File.Exists(csproj))
+          yield return (name, projectDir);
+      }
     }
-
-    // Check if a matching project directory exists in examples/starter/ or examples/advanced/
-    var starterPath = Path.Combine(_examplesDirectory, "starter", projectName);
-    var advancedPath = Path.Combine(_examplesDirectory, "advanced", projectName);
-
-    return Directory.Exists(starterPath) || Directory.Exists(advancedPath);
   }
 
   /// <summary>
-  /// Loads example assemblies from the output directory to ensure they are available for discovery.
+  /// Loads an assembly by name from the test output directory.
+  /// <c>&lt;ProjectReference&gt;</c> in the test csproj ensures example DLLs
+  /// are copied here at build time — no manual path-walking required.
   /// </summary>
-  private static void LoadExampleAssemblies()
+  private static Assembly? TryLoadAssembly(string assemblyName, string searchDirectory)
   {
+    // Check already-loaded assemblies first (avoids redundant IO)
+    var loaded = AppDomain
+      .CurrentDomain.GetAssemblies()
+      .FirstOrDefault(a => !a.IsDynamic && a.GetName().Name == assemblyName);
+
+    if (loaded != null)
+      return loaded;
+
+    var dllPath = System.IO.Path.Combine(searchDirectory, $"{assemblyName}.dll");
+    if (!File.Exists(dllPath))
+      return null;
+
     try
     {
-      // Find the test assembly output directory
-      var testAssemblyPath = typeof(ExampleDiscovery).Assembly.Location;
-      var testOutputDir = Path.GetDirectoryName(testAssemblyPath);
-
-      if (string.IsNullOrEmpty(testOutputDir))
-      {
-        return;
-      }
-
-      // Navigate to the repo dist directory where examples are built
-      // Path structure: dist/tests/Flowthru.Tests.Examples/net10.0/ -> dist/examples/
-      var distDir = Path.GetFullPath(Path.Combine(testOutputDir, "..", "..", ".."));
-      var examplesOutputDir = Path.Combine(distDir, "examples");
-
-      if (!Directory.Exists(examplesOutputDir))
-      {
-        return;
-      }
-
-      // Scan for example assemblies in starter/ and advanced/
-      var exampleDlls = Directory
-        .GetFiles(examplesOutputDir, "*.dll", SearchOption.AllDirectories)
-        .Where(f =>
-        {
-          var fileName = Path.GetFileNameWithoutExtension(f);
-          // Filter to main assemblies (not deps, resources, etc.)
-          return !fileName.Contains(".resources")
-            && !fileName.StartsWith("System.")
-            && !fileName.StartsWith("Microsoft.");
-        })
-        .ToList();
-
-      foreach (var dllPath in exampleDlls)
-      {
-        try
-        {
-          var assemblyName = AssemblyName.GetAssemblyName(dllPath);
-          // Check if already loaded
-          var existingAssembly = AppDomain
-            .CurrentDomain.GetAssemblies()
-            .FirstOrDefault(a => a.FullName == assemblyName.FullName);
-
-          if (existingAssembly == null)
-          {
-            Assembly.LoadFrom(dllPath);
-          }
-        }
-        catch
-        {
-          // Skip assemblies that fail to load
-        }
-      }
-    }
-    catch
-    {
-      // Best effort - if loading fails, discovery will work with whatever is already loaded
-    }
-  }
-
-  /// <summary>
-  /// Checks if an example project has its required data files.
-  /// Some examples (like UmapReferenceComparisons) require external datasets to be generated/downloaded.
-  /// </summary>
-  private static bool HasRequiredDataFiles(string projectDir, string projectName)
-  {
-    // UmapReferenceComparisons requires input datasets that must be generated via Python scripts
-    // Since it tries to run all pipelines, ALL datasets must be present
-    if (projectName.Equals("UmapReferenceComparisons", StringComparison.OrdinalIgnoreCase))
-    {
-      var inputDir = Path.Combine(projectDir, "Data", "_01_Raw", "Datasets", "Inputs");
-
-      // All expected datasets must exist since ExecuteAllPipelines will try to run them
-      var expectedDatasets = new[] { "iris", "digits", "mnist" };
-
-      foreach (var dataset in expectedDatasets)
-      {
-        var datasetPath = Path.Combine(inputDir, dataset, "input.parquet");
-        if (!File.Exists(datasetPath))
-        {
-          // Missing required dataset
-          return false;
-        }
-      }
-
-      // All required datasets exist
-      return true;
-    }
-
-    // All other examples have their data checked in or generate it
-    return true;
-  }
-
-  /// <summary>
-  /// Finds the project directory for a given project name.
-  /// Searches recursively under the examples directory to support subdirectories.
-  /// </summary>
-  private static string? FindProjectDirectory(string projectName)
-  {
-    var directories = Directory.GetDirectories(
-      _examplesDirectory,
-      projectName,
-      SearchOption.AllDirectories
-    );
-    return directories.FirstOrDefault();
-  }
-
-  /// <summary>
-  /// Checks if a project is an executable (has OutputType=Exe).
-  /// </summary>
-  private static bool IsExecutableProject(string csprojPath)
-  {
-    try
-    {
-      var content = File.ReadAllText(csprojPath);
-      // Simple heuristic: check for <OutputType>Exe</OutputType>
-      return content.Contains("<OutputType>Exe</OutputType>", StringComparison.OrdinalIgnoreCase);
-    }
-    catch
-    {
-      return false;
-    }
-  }
-
-  /// <summary>
-  /// Finds the entry point Type (Program class) for a given assembly.
-  /// </summary>
-  private static Type? FindEntryPointType(Assembly assembly, string projectName)
-  {
-    try
-    {
-      // Look for a type named "Program" - could be in the project namespace or compiler-generated
-      var allTypes = assembly.GetTypes();
-      var programTypes = allTypes.Where(t => t.Name == "Program").ToList();
-
-      if (programTypes.Count == 0)
-      {
-        Console.WriteLine($"  No Program types found in assembly {projectName}");
-        return null;
-      }
-
-      // Prefer a Program class in the project's namespace
-      var explicitProgram = programTypes.FirstOrDefault(t =>
-        t.Namespace?.StartsWith(projectName, StringComparison.OrdinalIgnoreCase) == true
-      );
-
-      if (explicitProgram != null)
-      {
-        return explicitProgram;
-      }
-
-      // Fall back to any Program class (e.g., compiler-generated from top-level statements)
-      return programTypes.FirstOrDefault();
+      return Assembly.LoadFrom(dllPath);
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"  Exception finding entry point for {projectName}: {ex.Message}");
+      TestContext.Progress.WriteLine($"[Discovery] Failed to load {dllPath}: {ex.Message}");
       return null;
     }
   }
 
   /// <summary>
-  /// Gets the workspace root directory by walking up from the current directory.
+  /// Finds a type with a public static <c>ConfigureServices</c> method
+  /// that returns <see cref="IServiceProvider"/>.
   /// </summary>
-  private static string GetWorkspaceRoot()
+  private static Type? FindConfigureServicesType(Assembly assembly)
   {
-    var currentDir = Directory.GetCurrentDirectory();
-    while (currentDir != null)
+    try
     {
-      // Look for nx.json as a marker for the workspace root
-      if (File.Exists(Path.Combine(currentDir, "nx.json")))
-      {
-        return currentDir;
-      }
+      return assembly
+        .GetTypes()
+        .FirstOrDefault(t =>
+          t.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Any(m => m.Name == "ConfigureServices" && m.ReturnType == typeof(IServiceProvider))
+        );
+    }
+    catch (ReflectionTypeLoadException ex)
+    {
+      // Some types may fail to load if optional dependencies are missing.
+      // Search the types that did load successfully.
+      return ex
+        .Types.Where(t => t != null)
+        .FirstOrDefault(t =>
+          t!
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Any(m => m.Name == "ConfigureServices" && m.ReturnType == typeof(IServiceProvider))
+        );
+    }
+  }
 
-      currentDir = Directory.GetParent(currentDir)?.FullName;
+  /// <summary>
+  /// Walks up the directory tree from the current directory to find the workspace root,
+  /// identified by the presence of <c>nx.json</c>.
+  /// </summary>
+  private static string FindWorkspaceRoot()
+  {
+    var dir = Directory.GetCurrentDirectory();
+
+    while (dir != null)
+    {
+      if (File.Exists(System.IO.Path.Combine(dir, "nx.json")))
+        return dir;
+
+      dir = Directory.GetParent(dir)?.FullName;
     }
 
-    throw new InvalidOperationException("Could not find workspace root (nx.json not found)");
+    throw new InvalidOperationException(
+      "Could not find workspace root. Ensure nx.json exists in an ancestor directory."
+    );
   }
 }

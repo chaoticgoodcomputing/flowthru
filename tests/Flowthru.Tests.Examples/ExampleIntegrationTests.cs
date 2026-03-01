@@ -4,77 +4,55 @@ namespace Flowthru.Tests.Examples;
 
 /// <summary>
 /// Integration tests that execute all example projects to verify they run successfully.
-/// These tests provide code coverage for the Flowthru framework through real-world usage.
+/// Provides code coverage for the Flowthru framework through real-world usage patterns.
 /// </summary>
+/// <remarks>
+/// <para>
+/// <see cref="ParallelizableAttribute"/> with <see cref="ParallelScope.Children"/> allows
+/// individual examples to run concurrently. This is safe because the runner never mutates
+/// global state (no <c>Directory.SetCurrentDirectory</c>) — each example receives its
+/// project path as a <c>basePath</c> argument.
+/// </para>
+/// </remarks>
 [TestFixture]
 [Category("Examples")]
 [Category("Integration")]
+[Parallelizable(ParallelScope.Children)]
 public class ExampleIntegrationTests
 {
+  private static IEnumerable<ExampleProject> DiscoveredExamples() =>
+    ExampleDiscovery.DiscoverExamples();
+
   /// <summary>
-  /// Discovers all example projects from the examples directory.
+  /// Smoke test: at least one example must be discoverable.
+  /// If this fails, the build likely didn't compile the example projects
+  /// or the <c>&lt;ProjectReference&gt;</c> glob in the test csproj is broken.
   /// </summary>
-  private static IEnumerable<ExampleProject> GetAllExamples()
+  [Test]
+  public void Discovery_FindsAtLeastOneExample()
   {
-    return ExampleDiscovery.DiscoverExamples();
+    var examples = ExampleDiscovery.DiscoverExamples().ToList();
+
+    TestContext.Out.WriteLine($"Discovered {examples.Count} example(s):");
+    foreach (var example in examples)
+    {
+      TestContext.Out.WriteLine($"  - {example.Name} ({example.ProjectPath})");
+    }
+
+    Assert.That(examples, Is.Not.Empty, "No example projects were discovered.");
   }
 
   /// <summary>
-  /// Verifies that each discovered example has a valid entry point type.
+  /// Executes each example project's full pipeline graph and asserts success.
+  /// Times out after <see cref="ExampleTestRunner.DefaultTimeout"/> to prevent
+  /// infinite hangs from blocking the test run.
   /// </summary>
-  [TestCaseSource(nameof(GetAllExamples))]
-  public void Example_HasValidEntryPoint(ExampleProject example)
-  {
-    // Assert
-    Assert.That(example.EntryPointType, Is.Not.Null, $"{example.Name} has no entry point type");
-    Assert.That(
-      example.EntryPointType.Name,
-      Is.EqualTo("Program"),
-      $"{example.Name} entry point type should be named 'Program'"
-    );
-  }
-
-  /// <summary>
-  /// Executes each example project and verifies it completes successfully.
-  /// This is the main integration test that provides code coverage through example execution.
-  /// Tests the service layer directly by invoking ConfigureServices and IFlowthruService.
-  /// </summary>
-  [TestCaseSource(nameof(GetAllExamples))]
+  [TestCaseSource(nameof(DiscoveredExamples))]
   public async Task Example_ExecutesSuccessfully(ExampleProject example)
   {
-    // Arrange
-    var runner = new ExampleTestRunner(example);
-    TestContext.WriteLine($"Running example: {example.Name}");
+    TestContext.Out.WriteLine($"Running example: {example.Name}");
+    TestContext.Out.WriteLine($"  Project path: {example.ProjectPath}");
 
-    // Act
-    var result = await runner.RunAsync();
-    TestContext.WriteLine($"Completed in {result.Duration.TotalSeconds:F2}s");
-
-    // Show exception details if present
-    if (result.Exception != null)
-    {
-      TestContext.WriteLine("--- Exception Details ---");
-      TestContext.WriteLine($"Type: {result.Exception.GetType().FullName}");
-      TestContext.WriteLine($"Message: {result.Exception.Message}");
-      TestContext.WriteLine($"StackTrace:\n{result.Exception.StackTrace}");
-      if (result.Exception.InnerException != null)
-      {
-        TestContext.WriteLine($"Inner Exception: {result.Exception.InnerException.Message}");
-      }
-      TestContext.WriteLine("--- End Exception Details ---");
-    }
-
-    // Show diagnostic message if present
-    if (!string.IsNullOrEmpty(result.DiagnosticMessage))
-    {
-      TestContext.WriteLine($"Diagnostic: {result.DiagnosticMessage}");
-    }
-
-    // Assert success
-    Assert.That(
-      result.Success,
-      Is.True,
-      $"Example {example.Name} failed. Category: {result.Category}, Exit Code: {result.ExitCode}"
-    );
+    await new ExampleTestRunner(example).RunAsync();
   }
 }
