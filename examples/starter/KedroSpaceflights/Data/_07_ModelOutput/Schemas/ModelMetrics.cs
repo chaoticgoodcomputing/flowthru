@@ -1,6 +1,6 @@
 using Flowthru.Abstractions;
 
-namespace KedroSpaceflights.Data._04_Models.Schemas;
+namespace KedroSpaceflights.Data._07_ModelOutput.Schemas;
 
 /// <summary>
 /// Represents evaluation metrics for a regression model.

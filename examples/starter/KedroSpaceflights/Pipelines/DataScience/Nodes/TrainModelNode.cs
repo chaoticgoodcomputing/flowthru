@@ -1,5 +1,5 @@
-using KedroSpaceflights.Data._03_Primary.Schemas;
-using KedroSpaceflights.Data._04_Models.Schemas;
+using KedroSpaceflights.Data._05_ModelInput.Schemas;
+using KedroSpaceflights.Data._06_Models.Schemas;
 using MathNet.Numerics.LinearRegression;
 
 namespace KedroSpaceflights.Pipelines.DataScience.Nodes;

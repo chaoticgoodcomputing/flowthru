@@ -1,9 +1,13 @@
 using Flowthru.Data;
-using KedroSpaceflights.Data._05_Reporting.Schemas;
+using KedroSpaceflights.Data._08_Reporting.Schemas;
 using Plotly.NET;
 
 namespace KedroSpaceflights.Data;
 
+/// <summary>
+/// Reporting data layer: Ad hoc descriptive cuts and visualizations.
+/// Contains analysis outputs, reports, and visualizations for stakeholders.
+/// </summary>
 public partial class Catalog
 {
   /// <summary>
@@ -14,7 +18,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Enumerable.Json<ShuttleCapacityReport>(
           label: "ShuttleCapacityReport",
-          filePath: $"{_basePath}/_05_Reporting/Datasets/shuttle_capacity_report.json"
+          filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json"
         )
     );
 
@@ -37,7 +41,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Binary(
           label: "ShuttlePassengerCapacityPlotPng",
-          filePath: $"{_basePath}/_05_Reporting/Images/shuttle_passenger_capacity_plot.png"
+          filePath: $"{_basePath}/_08_Reporting/Images/shuttle_passenger_capacity_plot.png"
         )
     );
 
@@ -60,7 +64,7 @@ public partial class Catalog
       () =>
         CatalogEntries.Single.Binary(
           label: "ConfusionMatrixPlotPng",
-          filePath: $"{_basePath}/_05_Reporting/Images/confusion_matrix_plot.png"
+          filePath: $"{_basePath}/_08_Reporting/Images/confusion_matrix_plot.png"
         )
     );
 }

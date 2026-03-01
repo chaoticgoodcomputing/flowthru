@@ -1,4 +1,4 @@
-namespace KedroSpaceflights.Data._03_Primary.Schemas;
+namespace KedroSpaceflights.Data._05_ModelInput.Schemas;
 
 /// <summary>
 /// Training data pair (features + label)

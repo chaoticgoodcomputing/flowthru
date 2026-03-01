@@ -1,6 +1,6 @@
 using Flowthru.Abstractions;
 
-namespace KedroSpaceflights.Data._05_Reporting.Schemas;
+namespace KedroSpaceflights.Data._08_Reporting.Schemas;
 
 /// <summary>
 /// Represents a passenger capacity summary report grouped by shuttle type.

@@ -1,5 +1,5 @@
 using KedroSpaceflights.Data._02_Intermediate.Schemas;
-using KedroSpaceflights.Data._05_Reporting.Schemas;
+using KedroSpaceflights.Data._08_Reporting.Schemas;
 
 namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
 

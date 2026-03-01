@@ -3,6 +3,10 @@ using KedroSpaceflights.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Data;
 
+/// <summary>
+/// Primary data layer: Domain model data.
+/// Contains datasets structured according to the problem being solved, not the source system structure.
+/// </summary>
 public partial class Catalog
 {
   /// <summary>
@@ -16,16 +20,4 @@ public partial class Catalog
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
         )
     );
-
-  /// <summary>
-  /// Training dataset split from the model input table. Transient (memory only).
-  /// </summary>
-  public ICatalogEntry<IEnumerable<TrainingData>> TrainSplit =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TrainingData>(label: "XTrain"));
-
-  /// <summary>
-  /// Test dataset split from the model input table. Transient (memory only).
-  /// </summary>
-  public ICatalogEntry<IEnumerable<TestData>> TestSplit =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "XTest"));
 }
