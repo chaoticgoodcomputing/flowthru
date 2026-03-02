@@ -10,7 +10,7 @@ In order to execute this pipeline, move into this directory and run:
 dotnet run
 ```
 
-This will run both the Data Engineering and Data Science pipelines in sequence, generating the final [model metrics output.](./Data/_08_Reporting/Datasets)
+This will run both the Data Engineering and Data Science pipelines in sequence, generating the final [model outputs and visualizations.](./Data/_08_Reporting/Datasets)
 
 Once you've confirmed your pipeline runs successfully, you can begin:
 
