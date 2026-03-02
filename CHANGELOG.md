@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.15](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.14...v0.1.15) (2026-03-02)
+
+
+### Bug Fixes
+
+* remove ghost data loading python file ([ee11797](https://github.com/chaoticgoodcomputing/flowthru/commit/ee117975765415184c362503458dddb36eb9d417))
+* service disposal on CLI ([989622e](https://github.com/chaoticgoodcomputing/flowthru/commit/989622ee123313aece2fbbc293adbea3035a0b4e))
+* small testing service disposal fixes ([3b31609](https://github.com/chaoticgoodcomputing/flowthru/commit/3b3160929417c20ce2b672e26d94312b2f422041))
+
 ## [0.1.14](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.12...v0.1.14) (2026-02-28)
 
 

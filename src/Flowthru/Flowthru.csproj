@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru</RootNamespace>
-    <Version>0.1.14</Version>
+    <Version>0.1.15</Version>
     <Authors>Spencer Elkington</Authors>
     <Description>A type-safe data engineering framework for .NET</Description>
     
