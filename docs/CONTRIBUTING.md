@@ -2,6 +2,11 @@
 
 First things first — thanks for being willing to contribute to the Flowthru docs! The overall promise of Flowthru is to make datapipelines straightforward to write, and reliable to run. The docs are a huge part of that.
 
+Before starting to plan docs updates, please take a look at the [core contributor guide](../CONTRIBUTING.md) to understand the philosophy for Flowthru to better line up new documentation with the two core promises of Flowthru:
+
+> 1. End-users can easily write data pipelines, and have a development experience focused on what *their* pipelines will do, not how Flowthru is handling the pipeline.
+> 2. If an error can occur in the pipeline they've created, it will occur as soon in the development process as possible.
+
 ## The Question-Driven Process
 
 The documentation for Flowthru follows the [Diátaxis philosophy](https://diataxis.fr/) for technical writing. When users or contributors have questions, the nature of the question helps us sort it into a category:

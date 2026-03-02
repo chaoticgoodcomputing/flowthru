@@ -1,0 +1,39 @@
+# Spaceflights Tutorial
+
+Welcome to the Flowthru Spaceflights tutorial. This hands-on guide walks you through building a complete data pipeline for space tourism price prediction. You'll learn Flowthru's core concepts — schemas, catalogs, nodes, and pipelines — by constructing a working application.
+
+## The Scenario
+
+This tutorial uses the same input data and scenario as the [Kedro Spaceflights Tutorial](https://docs.kedro.org/en/stable/tutorials/spaceflights_tutorial/):
+
+> *It is 2160, and the space tourism industry is booming. Globally, thousands of space shuttle companies take tourists to the Moon and back. You have been able to source data that lists the amenities offered in each space shuttle, customer reviews, and company information.*
+> 
+> **Project Goal**: Build a model that predicts the price for each trip to the Moon and the corresponding return flight.
+
+## What You'll Build
+
+By the end of this tutorial, you will have:
+
+- Installed the Flowthru project template
+- Defined a Data Catalog with all of the data and schemas you'll need to complete the goal
+- Built a data processing pipeline with multiple nodes
+- Created a data science pipeline for model training
+- Parameterized your pipeline using application and model settings
+
+## Tutorial Structure
+
+1. **[Set Up the Project](01-setup-project.md)** - Install the template and scaffold your Flowthru project
+2. **[Set Up Data](02-set-up-data.md)** - Define schemas and register datasets in the catalog
+3. **[Create a Pipeline](03-create-a-pipeline.md)** - Build nodes and construct your first pipeline
+4. **[Add Another Pipeline](04-add-another-pipeline.md)** - Create a data science pipeline for model training
+5. **[Configure Settings](05-settings.md)** - Manage pipeline parameters and application configuration
+
+## Prerequisites
+
+- **.NET SDK 8.0 or later** - [Download here](https://dotnet.microsoft.com/download)
+- **Basic C# knowledge** - Familiarity with classes and functions
+- **A code editor** - VS Code (with the [C# Dev Kit](https://learn.microsoft.com/en-us/visualstudio/subscriptions/vs-c-sharp-dev-kit) extension), Visual Studio, or Rider recommended
+
+## Let's Begin
+
+Ready to build your first Flowthru pipeline? Start with **[Set Up the Project](01-setup-project.md)**.

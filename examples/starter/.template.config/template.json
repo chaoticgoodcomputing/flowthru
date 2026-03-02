@@ -24,6 +24,10 @@
       "description": "Choose a starter template",
       "choices": [
         {
+          "choice": "minimal",
+          "description": "Minimal greeting pipeline (great for learning)"
+        },
+        {
           "choice": "iris",
           "description": "Simple multi-class classification (Iris dataset)"
         },
@@ -39,6 +43,10 @@
       "defaultValue": "0.1.12",
       "replaces": "FlowthruVersion",
       "description": "Flowthru package version (auto-injected at pack time)"
+    },
+    "UseMinimal": {
+      "type": "computed",
+      "value": "(starter == \"minimal\")"
     },
     "UseIris": {
       "type": "computed",
@@ -60,6 +68,12 @@
     {
       "modifiers": [
         {
+          "condition": "(!UseMinimal)",
+          "exclude": [
+            "Minimal/**/*"
+          ]
+        },
+        {
           "condition": "(!UseIris)",
           "exclude": [
             "KedroIris/**/*"
@@ -80,6 +94,12 @@
             "**/.vscode/**",
             "**/*.user"
           ]
+        },
+        {
+          "condition": "(UseMinimal)",
+          "rename": {
+            "Minimal/": "./"
+          }
         },
         {
           "condition": "(UseIris)",
