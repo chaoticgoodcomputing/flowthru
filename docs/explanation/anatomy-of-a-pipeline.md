@@ -181,10 +181,11 @@ public static class SplitAndEncodeNode
     IEnumerable<IrisFeatureSchema> // Output Schema
   > Create()
   {
-    return (data) =>
+    return (data) => // Input some data as IEnumerable<IrisRawSchema>
     {
-      // Transform a list of IrisRawSchema into a list of IrisFeatureSchema...
-      return transformedData;
+      // Transformations...
+
+      return transformedData; // Output some data as IEnumerable<IrisFeatureSchema>
     };
   }
 }
