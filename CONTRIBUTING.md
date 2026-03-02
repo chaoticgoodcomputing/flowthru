@@ -96,3 +96,37 @@ When adding features or extensions, read [the testing philosophy](/tests/README.
 Flowthru, at its core, will *not* be a full piece of orchestration software. The core library will not be concerned with when or how users want to run their pipeline — just that it will be correctly configured, and as stable as possible, when they do.
 
 This doesn't mean *ignoring* these concerns — it just means extending the API surface to allow end-users to run pipelines flexibly (such as the service-based and CLI access options), as well as ensuring the core engine uses extensible patterns for modification (such as additional formats and methods for data access, and the ability to DI services into nodes for additional utility).
+
+## Development Workflow
+
+### Building and Testing
+
+The project uses NX for task orchestration. Common commands:
+
+```bash
+nx run ft:build                   # Build the solution
+nx run ft:test                    # Run all tests with coverage
+nx run ft:format:csharp           # Format code with CSharpier
+```
+
+To run a subset of tests by category:
+
+```bash
+dotnet test --filter "Category=Compilation"
+```
+
+### Running Example Pipelines
+
+From an example project directory:
+
+```bash
+cd examples/starter/KedroIris
+dotnet run -- DataEngineering     # Run a specific pipeline
+dotnet run                        # Run all registered pipelines
+```
+
+### Code Style
+
+- Format C# code with CSharpier before committing
+- Follow existing patterns in the codebase for new features
+- Add XML documentation comments to public APIs

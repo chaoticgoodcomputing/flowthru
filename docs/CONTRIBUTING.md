@@ -39,6 +39,27 @@ Understanding this pattern means understanding your audience. Flowthru has two p
 
 Both audiences move through the same cycle: learning → working → studying → working. The question they're asking tells you where they are in that cycle.
 
+### Directory Structure
+
+Each documentation category has a top-level directory for end-user content and an `advanced/` subdirectory for contributor-focused content:
+
+```
+docs/
+├── tutorials/
+│   └── advanced/           # Contributor onboarding tutorials
+├── guides/
+│   └── advanced/           # Extension authoring guides
+├── explanation/
+│   ├── anatomy-of-a-pipeline.md   # End-user: how pipelines work
+│   └── advanced/
+│       └── storage-composition.md # Contributor: internal architecture
+└── reference/              # Generated from code — see below
+```
+
+**End-user content** lives at the category root. It answers questions from data engineers building pipelines.
+
+**Contributor content** lives in `advanced/`. It answers questions from developers extending or maintaining Flowthru itself — storage adapters, source generators, validation layers.
+
 ### Tutorials: Learning-Oriented
 
 **Questions answered:** "How do I get started?" / "How do I learn X?"
@@ -95,6 +116,13 @@ For contributors, explanation documentation should connect to concepts in the ma
 
 Reference provides neutral, complete, authoritative technical descriptions. It's a map of the system — users consult it while working to verify details. Reference should mirror the structure of what it describes.
 
+**Reference documentation is programmatically generated from code.** Manual reference contributions are not accepted — instead, improve XML documentation comments in the source code, and the reference docs will update automatically.
+
+This ensures:
+- Reference always matches the actual implementation
+- No drift between code and documentation
+- Contributors focus on tutorials, guides, and explanations where human authorship adds value
+
 Reference answers: *"What are all of the storage strategies available for Data Catalog entries?"*
 
 Not: *"How do I create a new data catalog entry?"* (that's a guide) or *"Why do data catalog entries need schema types?"* (that's explanation)
@@ -104,6 +132,7 @@ Not: *"How do I create a new data catalog entry?"* (that's a guide) or *"Why do 
 - Mirrors the architecture of the code
 - Neutral, austere tone — no storytelling
 - Pure description — no instruction or motivation
+- **Generated from source code** — not manually authored
 
 ## Applying the Process
 
