@@ -18,10 +18,10 @@ public static class TrainModelNode
   /// </returns>
   public static Func<
     (IEnumerable<FeatureVectorSchema> TrainX, IEnumerable<TargetLabelSchema> TrainY),
-    Task<ModelWeightsSchema>
+    ModelWeightsSchema
   > Create(int numIterations, double learningRate)
   {
-    return async (input) =>
+    return (input) =>
     {
       var (trainX, trainY) = input;
 
@@ -117,14 +117,12 @@ public static class TrainModelNode
         }
       }
 
-      return await Task.FromResult(
-        new ModelWeightsSchema
-        {
-          Weights = flatWeights,
-          NumFeatures = numFeatures,
-          NumClasses = numClasses,
-        }
-      );
+      return new ModelWeightsSchema
+      {
+        Weights = flatWeights,
+        NumFeatures = numFeatures,
+        NumClasses = numClasses,
+      };
     };
   }
 

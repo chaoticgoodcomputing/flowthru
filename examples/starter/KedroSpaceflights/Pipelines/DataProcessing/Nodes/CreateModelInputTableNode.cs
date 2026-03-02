@@ -22,10 +22,10 @@ public static class CreateModelInputTableNode
       IEnumerable<PreprocessedCompanySchema>,
       IEnumerable<ReviewSchema>
     ),
-    Task<IEnumerable<ModelInputTableSchema>>
+    IEnumerable<ModelInputTableSchema>
   > Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var (shuttles, companies, reviews) = input;
 
@@ -74,7 +74,7 @@ public static class CreateModelInputTableNode
         )
         .ToList(); // Materialize query to ensure LINQ execution completes
 
-      return await Task.FromResult<IEnumerable<ModelInputTableSchema>>(modelInputTable);
+      return modelInputTable;
     };
   }
 }

@@ -47,10 +47,17 @@ internal class PipelineNode
   /// <remarks>
   /// <para>
   /// At execution time, this delegate will be invoked via DynamicInvoke with the
-  /// appropriate input parameter(s). The function signature is:
-  /// - Single input: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
-  /// - Multi-input: Func&lt;(TIn1, TIn2, ...), Task&lt;TOutput&gt;&gt;
-  /// - Multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
+  /// appropriate input parameter(s). The function signature can be either synchronous
+  /// or asynchronous:
+  /// - Sync single: Func&lt;TInput, TOutput&gt;
+  /// - Async single: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
+  /// - Sync multi-input: Func&lt;(TIn1, TIn2, ...), TOutput&gt;
+  /// - Async multi-input: Func&lt;(TIn1, TIn2, ...), Task&lt;TOutput&gt;&gt;
+  /// - Sync multi-output: Func&lt;TInput, (TOut1, TOut2, ...)&gt;
+  /// - Async multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
+  /// </para>
+  /// <para>
+  /// The execution engine detects whether the result is a Task and awaits it if needed.
   /// </para>
   /// </remarks>
   public Delegate TransformFunction { get; }

@@ -63,7 +63,10 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
           continue;
         }
 
-        GenerateAddNodeOverload(sb, inputs, outputs);
+        // Generate both async and sync versions
+        GenerateAddNodeOverload(sb, inputs, outputs, isAsync: true);
+        sb.AppendLine();
+        GenerateAddNodeOverload(sb, inputs, outputs, isAsync: false);
         sb.AppendLine();
       }
     }
@@ -76,14 +79,19 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
     );
   }
 
-  private static void GenerateAddNodeOverload(StringBuilder sb, int inputCount, int outputCount)
+  private static void GenerateAddNodeOverload(
+    StringBuilder sb,
+    int inputCount,
+    int outputCount,
+    bool isAsync
+  )
   {
     // Generate XML documentation
-    GenerateXmlDoc(sb, inputCount, outputCount);
+    GenerateXmlDoc(sb, inputCount, outputCount, isAsync);
 
     // Generate type parameters and method signature
     var typeParams = GenerateTypeParameters(inputCount, outputCount);
-    var funcSignature = GenerateFuncSignature(inputCount, outputCount);
+    var funcSignature = GenerateFuncSignature(inputCount, outputCount, isAsync);
     var inputParam = GenerateInputParameter(inputCount);
     var outputParam = GenerateOutputParameter(outputCount);
 
@@ -127,14 +135,20 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
     );
   }
 
-  private static void GenerateXmlDoc(StringBuilder sb, int inputCount, int outputCount)
+  private static void GenerateXmlDoc(
+    StringBuilder sb,
+    int inputCount,
+    int outputCount,
+    bool isAsync
+  )
   {
+    var asyncDesc = isAsync ? " (asynchronous transformation)" : " (synchronous transformation)";
     sb.AppendLine(
       $"""
         /// <summary>
         /// Adds a node with {inputCount} input{(
         inputCount == 1 ? "" : "s"
-      )} and {outputCount} output{(outputCount == 1 ? "" : "s")}.
+      )} and {outputCount} output{(outputCount == 1 ? "" : "s")}{asyncDesc}.
         /// </summary>
       """
     );
@@ -150,10 +164,13 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
     }
 
     // Parameter documentation
+    var transformDesc = isAsync
+      ? "Asynchronous transformation function"
+      : "Synchronous transformation function";
     sb.AppendLine(
-      """
+      $"""
         /// <param name="label">Unique identifier for this node</param>
-        /// <param name="transform">Transformation function</param>
+        /// <param name="transform">{transformDesc}</param>
         /// <param name="input">Catalog entry or tuple of catalog entries providing input data</param>
         /// <param name="output">Catalog entry or tuple of catalog entries to store output data</param>
         /// <param name="description">Optional description of the node's purpose</param>
@@ -178,7 +195,7 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
     return string.Join(", ", parts);
   }
 
-  private static string GenerateFuncSignature(int inputCount, int outputCount)
+  private static string GenerateFuncSignature(int inputCount, int outputCount, bool isAsync)
   {
     var inputType =
       inputCount == 1
@@ -189,7 +206,8 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
         ? "TOut1"
         : $"({string.Join(", ", Enumerable.Range(1, outputCount).Select(i => $"TOut{i}"))})";
 
-    return $"Func<{inputType}, Task<{outputType}>>";
+    var returnType = isAsync ? $"Task<{outputType}>" : outputType;
+    return $"Func<{inputType}, {returnType}>";
   }
 
   private static string GenerateInputParameter(int inputCount)

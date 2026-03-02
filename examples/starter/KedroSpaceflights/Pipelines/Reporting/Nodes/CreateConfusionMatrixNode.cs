@@ -38,14 +38,14 @@ public static class CreateConfusionMatrixNode
     public int NumBins { get; init; } = 4;
   }
 
-  public static Func<IEnumerable<ModelPredictions>, Task<GenericChart>> Create(
+  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(
     Options? options = null,
     ILogger? logger = null
   )
   {
     var opts = options ?? new Options();
 
-    return async (input) =>
+    return input =>
     {
       var predictions = input.ToList();
 

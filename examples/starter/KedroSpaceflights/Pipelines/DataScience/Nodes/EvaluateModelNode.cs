@@ -19,10 +19,10 @@ public static class EvaluateModelNode
   /// </returns>
   public static Func<
     (LinearRegressionModel, IEnumerable<TestData>),
-    Task<(ModelMetrics, IEnumerable<ModelPredictions>)>
+    (ModelMetrics, IEnumerable<ModelPredictions>)
   > Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var (model, testData) = input;
       var data = testData.ToList();
@@ -30,16 +30,14 @@ public static class EvaluateModelNode
       if (data.Count == 0)
       {
         Console.WriteLine("No test data available for evaluation");
-        return await Task.FromResult(
-          (
-            new ModelMetrics
-            {
-              R2Score = 0,
-              MeanAbsoluteError = 0,
-              MaxError = 0,
-            },
-            Enumerable.Empty<ModelPredictions>()
-          )
+        return (
+          new ModelMetrics
+          {
+            R2Score = 0,
+            MeanAbsoluteError = 0,
+            MaxError = 0,
+          },
+          Enumerable.Empty<ModelPredictions>()
         );
       }
 
@@ -60,16 +58,14 @@ public static class EvaluateModelNode
         )
         .ToList();
 
-      return await Task.FromResult(
-        (
-          new ModelMetrics
-          {
-            R2Score = (decimal)r2,
-            MeanAbsoluteError = (decimal)mae,
-            MaxError = (decimal)maxError,
-          },
-          (IEnumerable<ModelPredictions>)predictionPairs
-        )
+      return (
+        new ModelMetrics
+        {
+          R2Score = (decimal)r2,
+          MeanAbsoluteError = (decimal)mae,
+          MaxError = (decimal)maxError,
+        },
+        (IEnumerable<ModelPredictions>)predictionPairs
       );
     };
   }

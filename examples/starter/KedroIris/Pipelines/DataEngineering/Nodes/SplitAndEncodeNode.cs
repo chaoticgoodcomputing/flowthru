@@ -20,16 +20,16 @@ public static class SplitAndEncodeNode
   /// </returns>
   public static Func<
     IEnumerable<IrisRawSchema>,
-    Task<(
+    (
       IEnumerable<IrisFeatureSchema> Features,
       IEnumerable<FeatureVectorSchema> TrainX,
       IEnumerable<TargetLabelSchema> TrainY,
       IEnumerable<FeatureVectorSchema> TestX,
       IEnumerable<TargetLabelSchema> TestY
-    )>
+    )
   > Create(double testDataRatio)
   {
-    return async (rawData) =>
+    return (rawData) =>
     {
       // One-hot encode species labels
       var encoded = rawData
@@ -86,7 +86,7 @@ public static class SplitAndEncodeNode
         Virginica = row.Virginica,
       });
 
-      return await Task.FromResult((encoded, trainX, trainY, testX, testY));
+      return (encoded, trainX, trainY, testX, testY);
     };
   }
 }

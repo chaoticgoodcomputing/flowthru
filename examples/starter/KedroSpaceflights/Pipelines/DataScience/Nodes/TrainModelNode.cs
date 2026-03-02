@@ -21,9 +21,9 @@ public static class TrainModelNode
   /// Excludes moon_clearance_complete feature due to zero variance in training data.
   /// </remarks>
   /// <exception cref="InvalidOperationException">Thrown when no training data is available.</exception>
-  public static Func<IEnumerable<TrainingData>, Task<LinearRegressionModel>> Create()
+  public static Func<IEnumerable<TrainingData>, LinearRegressionModel> Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var data = input.ToList();
 
@@ -72,7 +72,7 @@ public static class TrainModelNode
         },
       };
 
-      return await Task.FromResult(model);
+      return model;
     };
   }
 }

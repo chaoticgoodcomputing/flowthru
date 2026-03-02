@@ -709,19 +709,28 @@ public class Pipeline
 
       // Invoke transformation function directly via DynamicInvoke
       var transformFunc = pipelineNode.TransformFunction;
-      var resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter);
+      var result = transformFunc.DynamicInvoke(inputParameter);
 
-      if (resultTask == null)
+      if (result == null)
       {
         throw new InvalidOperationException(
           $"Transform function for node {pipelineNode.Label} returned null"
         );
       }
 
-      await resultTask.ConfigureAwait(false);
-
-      // Extract result from Task<TOutput>
-      var output = GetTaskResult(resultTask);
+      // Check if result is a Task (async function) or direct value (sync function)
+      object output;
+      if (result is Task resultTask)
+      {
+        // Async path: await the task and extract result
+        await resultTask.ConfigureAwait(false);
+        output = GetTaskResult(resultTask);
+      }
+      else
+      {
+        // Sync path: use result directly
+        output = result;
+      }
 
       // Save outputs to catalog entries
       // SaveUntyped() accepts T directly (singleton or collection), no unwrapping needed

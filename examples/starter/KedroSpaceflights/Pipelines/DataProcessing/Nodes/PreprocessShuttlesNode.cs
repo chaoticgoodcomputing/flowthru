@@ -15,19 +15,16 @@ public static class PreprocessShuttlesNode
   /// A function that converts <see cref="ShuttleSchema"/> records to <see cref="PreprocessedShuttleSchema"/> records.
   /// Records with invalid numeric fields or currency values are filtered out.
   /// </returns>
-  public static Func<
-    IEnumerable<ShuttleSchema>,
-    Task<IEnumerable<PreprocessedShuttleSchema>>
-  > Create()
+  public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var processed = input
         .Select(raw => Parse(raw))
         .Where(item => item != null)
         .Cast<PreprocessedShuttleSchema>();
 
-      return await Task.FromResult(processed);
+      return processed;
     };
   }
 

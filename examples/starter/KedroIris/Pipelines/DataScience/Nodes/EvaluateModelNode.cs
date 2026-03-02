@@ -17,10 +17,10 @@ public static class EvaluateModelNode
   /// </returns>
   public static Func<
     (IEnumerable<PredictionSchema> Predictions, IEnumerable<TargetLabelSchema> TestY),
-    Task<MetricsSchema>
+    MetricsSchema
   > Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var (predictions, testY) = input;
 
@@ -55,14 +55,12 @@ public static class EvaluateModelNode
       // Log accuracy to console
       Console.WriteLine($"Model accuracy on test set: {accuracy:P2} ({numCorrect}/{numTotal})");
 
-      return await Task.FromResult(
-        new MetricsSchema
-        {
-          Accuracy = accuracy,
-          NumCorrect = numCorrect,
-          NumTotal = numTotal,
-        }
-      );
+      return new MetricsSchema
+      {
+        Accuracy = accuracy,
+        NumCorrect = numCorrect,
+        NumTotal = numTotal,
+      };
     };
   }
 }

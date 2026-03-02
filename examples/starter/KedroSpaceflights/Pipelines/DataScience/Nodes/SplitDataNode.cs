@@ -39,10 +39,10 @@ public static class SplitDataNode
   /// </returns>
   public static Func<
     IEnumerable<ModelInputTableSchema>,
-    Task<(IEnumerable<TrainingData>, IEnumerable<TestData>)>
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
   > Create(ModelOptions options)
   {
-    return async (input) =>
+    return (input) =>
     {
       var data = input.ToList();
 
@@ -88,7 +88,7 @@ public static class SplitDataNode
           Label = row.Price,
         });
 
-      return await Task.FromResult((trainData, testData));
+      return (trainData, testData);
     };
   }
 }

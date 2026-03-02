@@ -178,12 +178,13 @@ public static class SplitAndEncodeNode
 {
   public static Func<
     IEnumerable<IrisRawSchema>, // Input Schema
-    Task<IEnumerable<IrisFeatureSchema>> Features, // Output Schema
+    IEnumerable<IrisFeatureSchema> // Output Schema
   > Create()
   {
-    return async (data) =>
+    return (data) =>
     {
       // Transform a list of IrisRawSchema into a list of IrisFeatureSchema...
+      return transformedData;
     };
   }
 }
@@ -191,7 +192,7 @@ public static class SplitAndEncodeNode
 
 Key points:
 
-- Nodes are a *contract*: that data for the node will **always** come in as the input schemas, and **always** come out as the second schema.
+- Nodes are a *contract*: that data for the node will **always** come in as the input schemas, and **always** come out as the output schemas.
 - Nodes can have any number of inputs, and any number of outputs — as long as they're defined in the input and output schemas, you're not limited to just one-in, one-out.
 
 

@@ -31,7 +31,7 @@ namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// </remarks>
 public static class PlotlyImageExportNode
 {
-  public static Func<GenericChart, Task<byte[]>> Create(ILogger? logger = null)
+  public static Func<GenericChart, byte[]> Create(ILogger? logger = null)
   {
     // Configure PuppeteerSharp for CI environment (no sandbox)
     if (Environment.GetEnvironmentVariable("CI") == "true")
@@ -47,18 +47,17 @@ public static class PlotlyImageExportNode
       }
     }
 
-    return async (input) =>
+    return input =>
     {
       logger?.LogInformation("Converting chart to PNG binary data");
 
       // Use Plotly.NET.ImageExport to convert the chart to a base64 PNG string
       // This uses a headless browser (Chromium via PuppeteerSharp) to render the chart
-      var base64DataUri =
-        await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
-          input,
-          Width: 600,
-          Height: 600
-        );
+      var base64DataUri = Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGString(
+        input,
+        Width: 600,
+        Height: 600
+      );
 
       // Strip the data URI prefix "data:image/png;base64," to get pure base64
       const string dataUriPrefix = "data:image/png;base64,";

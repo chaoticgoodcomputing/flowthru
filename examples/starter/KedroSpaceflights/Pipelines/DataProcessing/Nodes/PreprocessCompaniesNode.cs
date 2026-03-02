@@ -15,19 +15,16 @@ public static class PreprocessCompaniesNode
   /// A function that converts <see cref="CompanySchema"/> records to <see cref="PreprocessedCompanySchema"/> records.
   /// Records with invalid rating percentages are filtered out.
   /// </returns>
-  public static Func<
-    IEnumerable<CompanySchema>,
-    Task<IEnumerable<PreprocessedCompanySchema>>
-  > Create()
+  public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var processed = input
         .Select(raw => Parse(raw))
         .Where(item => item != null)
         .Cast<PreprocessedCompanySchema>();
 
-      return await Task.FromResult(processed);
+      return processed;
     };
   }
 

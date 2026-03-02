@@ -25,11 +25,11 @@ namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// </remarks>
 public static class GeneratePassengerCapacityChartNode
 {
-  public static Func<IEnumerable<PreprocessedShuttleSchema>, Task<GenericChart>> Create(
+  public static Func<IEnumerable<PreprocessedShuttleSchema>, GenericChart> Create(
     ILogger? logger = null
   )
   {
-    return async (input) =>
+    return (input) =>
     {
       var shuttles = input.ToList();
 

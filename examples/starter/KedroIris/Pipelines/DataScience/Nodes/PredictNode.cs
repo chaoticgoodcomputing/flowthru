@@ -17,10 +17,10 @@ public static class PredictNode
   /// </returns>
   public static Func<
     (ModelWeightsSchema Model, IEnumerable<FeatureVectorSchema> TestX),
-    Task<IEnumerable<PredictionSchema>>
+    IEnumerable<PredictionSchema>
   > Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var (model, testX) = input;
 
@@ -72,7 +72,7 @@ public static class PredictNode
         predictions.Add(new PredictionSchema { PredictedClass = predictedClass });
       }
 
-      return await Task.FromResult(predictions);
+      return predictions;
     };
   }
 

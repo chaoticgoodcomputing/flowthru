@@ -9,11 +9,16 @@ namespace Flowthru.Pipelines;
 /// <remarks>
 /// <para>
 /// <strong>Function-Based Design (v0.5.0):</strong>
-/// Nodes are pure transformation functions with compile-time type safety:
-/// - Simple: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
-/// - Multi-input: Func&lt;(TIn1, TIn2, ...), Task&lt;TOutput&gt;&gt;
-/// - Multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
-/// - Multi-input-output: Func&lt;(TIn1, TIn2), Task&lt;(TOut1, TOut2)&gt;&gt;
+/// Nodes are pure transformation functions with compile-time type safety.
+/// Both synchronous and asynchronous functions are supported:
+/// - Sync: Func&lt;TInput, TOutput&gt;
+/// - Async: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
+/// - Multi-input: Func&lt;(TIn1, TIn2, ...), TOutput&gt; or Task&lt;TOutput&gt;
+/// - Multi-output: Func&lt;TInput, (TOut1, TOut2, ...)&gt; or Task&lt;(TOut1, TOut2, ...)&gt;
+/// </para>
+/// <para>
+/// Use synchronous functions for pure data transformations. Use asynchronous functions
+/// only when your node performs I/O operations (external APIs, databases, etc.).
 /// </para>
 /// <para>
 /// The compiler infers all types from function signatures and validates catalog entry
@@ -25,7 +30,7 @@ namespace Flowthru.Pipelines;
 /// <code>
 /// var pipeline = PipelineBuilder.CreatePipeline(builder =>
 /// {
-///     // Simple node: single input → single output
+///     // Simple synchronous node
 ///     builder.AddNode(
 ///         name: "Preprocess",
 ///         transform: PreprocessNode.Create(),
@@ -47,6 +52,14 @@ namespace Flowthru.Pipelines;
 ///         transform: SplitDataNode.Create(),
 ///         input: catalog.Data,
 ///         output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
+///     );
+///
+///     // Asynchronous node (only when needed for I/O)
+///     builder.AddNode(
+///         name: "FetchExternalData",
+///         transform: ExternalDataNode.Create(),
+///         input: catalog.Config,
+///         output: catalog.ExternalData
 ///     );
 /// });
 ///
@@ -81,19 +94,50 @@ public partial class PipelineBuilder
   }
 
   /// <summary>
-  /// Adds a node with single input and single output.
+  /// Adds a node with single input and single output (asynchronous transformation).
   /// All types are inferred from the transformation function signature.
   /// </summary>
   /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
   /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
   /// <param name="label">Unique identifier for this node</param>
-  /// <param name="transform">Transformation function from input to output</param>
+  /// <param name="transform">Asynchronous transformation function from input to output</param>
   /// <param name="input">Catalog entry providing input data</param>
   /// <param name="output">Catalog entry to store output data</param>
   /// <returns>This builder for method chaining</returns>
   public PipelineBuilder AddNode<TInput, TOutput>(
     string label,
     Func<TInput, Task<TOutput>> transform,
+    ICatalogEntry<TInput> input,
+    ICatalogEntry<TOutput> output,
+    string description = ""
+  )
+  {
+    var pipelineNode = new PipelineNode(
+      label: label,
+      description: description,
+      node: transform,
+      inputs: new List<ICatalogEntry> { input },
+      outputs: new List<ICatalogEntry> { output }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
+  /// Adds a node with single input and single output (synchronous transformation).
+  /// All types are inferred from the transformation function signature.
+  /// </summary>
+  /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
+  /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
+  /// <param name="label">Unique identifier for this node</param>
+  /// <param name="transform">Synchronous transformation function from input to output</param>
+  /// <param name="input">Catalog entry providing input data</param>
+  /// <param name="output">Catalog entry to store output data</param>
+  /// <returns>This builder for method chaining</returns>
+  public PipelineBuilder AddNode<TInput, TOutput>(
+    string label,
+    Func<TInput, TOutput> transform,
     ICatalogEntry<TInput> input,
     ICatalogEntry<TOutput> output,
     string description = ""

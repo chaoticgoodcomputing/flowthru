@@ -17,10 +17,10 @@ public static class ComparePassengerCapacityNode
   /// </returns>
   public static Func<
     IEnumerable<PreprocessedShuttleSchema>,
-    Task<IEnumerable<ShuttleCapacityReport>>
+    IEnumerable<ShuttleCapacityReport>
   > Create()
   {
-    return async (input) =>
+    return (input) =>
     {
       var report = input
         .GroupBy(s => s.ShuttleType)
@@ -30,7 +30,7 @@ public static class ComparePassengerCapacityNode
           AvgPassengerCapacity = (decimal)g.Average(s => s.PassengerCapacity),
         });
 
-      return await Task.FromResult(report);
+      return report;
     };
   }
 }
