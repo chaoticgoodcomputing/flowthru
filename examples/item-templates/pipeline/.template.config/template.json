@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Chaotic Good Computing",
+  "classifications": [
+    "Data Engineering",
+    "Pipeline",
+    "Flowthru"
+  ],
+  "identity": "Flowthru.Item.Pipeline",
+  "name": "Flowthru Pipeline",
+  "shortName": "flowthru-pipeline",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "PipelineName",
+  "symbols": {
+    "ProjectName": {
+      "type": "parameter",
+      "dataType": "string",
+      "isRequired": false,
+      "description": "The root namespace of your project (e.g., 'Spaceflights'). If not provided, uses the .csproj file name.",
+      "defaultValue": "ProjectName",
+      "replaces": "ProjectName"
+    },
+    "FlowthruVersion": {
+      "type": "parameter",
+      "dataType": "string",
+      "defaultValue": "0.1.12",
+      "isRequired": false,
+      "description": "Flowthru package version (auto-injected at pack time)"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            ".template.config/**/*"
+          ]
+        }
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "PipelineName/PipelineNamePipeline.cs"
+    },
+    {
+      "path": "PipelineName/Nodes/PipelineNameDummyNode.cs"
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Manual steps required",
+      "manualInstructions": [
+        {
+          "text": "1. If ProjectName was not specified, replace 'ProjectName' with your actual project namespace in the generated files."
+        },
+        {
+          "text": "2. Register the pipeline in Program.cs: flowthru.RegisterPipeline<YourPipelineNamePipeline>();"
+        },
+        {
+          "text": "3. Replace the dummy node with actual transformation logic and update input/output catalog entries."
+        }
+      ],
+      "actionId": "AC1156F7-BB77-4DB8-B28F-24EEBCB5CC4E",
+      "continueOnError": true
+    }
+  ]
+}
