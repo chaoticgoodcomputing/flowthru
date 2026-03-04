@@ -34,7 +34,7 @@ public static partial class CatalogEntries
   /// <item>Large datasets where you'll enumerate only once</item>
   /// </list>
   /// </remarks>
-  public static class Enumerable
+  public static partial class Enumerable
   {
     /// <summary>
     /// Creates a CSV file catalog entry with IEnumerable container.

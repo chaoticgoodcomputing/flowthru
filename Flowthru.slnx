@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src\Flowthru\Flowthru.csproj" />
     <Project Path="src\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj" />
+    <Project Path="src\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
     <Project Path="src\Flowthru.Extensions.ML\Flowthru.Extensions.ML.csproj" />
     <Project Path="src\Flowthru.Integrations.MLNet\Flowthru.Integrations.MLNet.csproj" />
   </Folder>

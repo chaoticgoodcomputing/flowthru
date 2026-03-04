@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- **Flowthru.Extensions.EFCore** - New extension package for Entity Framework Core integration
+  - `EFCoreStorageAdapter<T>` - Specialized storage adapter for database access
+  - Hybrid DbContext lifecycle management (injected + factory patterns)
+  - Support for read-only database catalogs
+  - ISeedable support for database tables as Layer 0 inputs
+  - `CatalogEntries.Enumerable.EFCore<T>()` factory methods
+- Made `CatalogEntries.Enumerable` and `CatalogEntries.Single` partial classes to support extension packages
+
 ## [0.1.15](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.14...v0.1.15) (2026-03-02)
 
 

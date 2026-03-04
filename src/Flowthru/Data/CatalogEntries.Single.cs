@@ -23,7 +23,7 @@ public static partial class CatalogEntries
   /// <item>Side-effect-only nodes (null/void semantics)</item>
   /// </list>
   /// </remarks>
-  public static class Single
+  public static partial class Single
   {
     /// <summary>
     /// Creates a JSON file catalog entry for a single object (non-collection).

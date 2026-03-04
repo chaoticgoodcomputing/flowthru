@@ -1,0 +1,11 @@
+# Default metadata directory
+Metadata
+
+# Dataset directories - ignore generated outputs
+Data/**/Datasets
+# But allow raw input data
+!Data/_01_Raw/Datasets
+!Data/_01_Raw/Datasets/*
+
+# Un-ignore all .gitkeep files anywhere
+!**/.gitkeep

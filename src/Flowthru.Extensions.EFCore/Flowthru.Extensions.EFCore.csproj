@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru.Extensions.EFCore</RootNamespace>
+    <Version>0.1.0</Version>
+    <Authors>Spencer Elkington</Authors>
+    <Description>Entity Framework Core integration for Flowthru data catalogs</Description>
+    
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Extensions.EFCore</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
+    <PackageTags>data-engineering;pipeline;entity-framework;efcore;database</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core Flowthru library -->
+    <ProjectReference Include="../Flowthru/Flowthru.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Entity Framework Core -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
