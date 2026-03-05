@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.18](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.16...v0.1.18) (2026-03-05)
+
+
+### Features
+
+* improved DAG metadata output for full/active on run ([2400eba](https://github.com/chaoticgoodcomputing/flowthru/commit/2400eba5fd15657aa89c13162d614a8e926167e9))
+
+
+### Bug Fixes
+
+* cancellation token interface tweaks ([bb30bb2](https://github.com/chaoticgoodcomputing/flowthru/commit/bb30bb20b7257ecd0bfd542fec5f849aa2212f70))
+* cancellation token respect ([41502c0](https://github.com/chaoticgoodcomputing/flowthru/commit/41502c08641a20ff5ba3808d98fdd85b8ec87d8a))
+* nuget deploy ([15166b6](https://github.com/chaoticgoodcomputing/flowthru/commit/15166b6f737b8a6112c1c6e95c9acb3a224c08af))
+* nuget updates ([19fc21c](https://github.com/chaoticgoodcomputing/flowthru/commit/19fc21c8fac4e40249ea0c4d1a533a05bd13cbe4))
+
 ## [0.1.17](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.16...v0.1.17) (2026-03-05)
 
 
