@@ -39,13 +39,18 @@ internal static class DagBuilder
     {
       PipelineName = pipeline.Name ?? "UnnamedPipeline",
       GeneratedAt = DateTime.UtcNow,
+      AppliedSlice =
+        pipeline.AppliedSlice != null ? DagSliceMetadata.FromStrategy(pipeline.AppliedSlice) : null,
     };
 
-    // Step 1: Extract all catalog entries from all nodes (inputs + outputs)
-    var allCatalogEntries = ExtractCatalogEntries(pipeline);
+    // Use sliced nodes if available, otherwise use all nodes
+    var nodesToExport = pipeline.GetSlicedNodes() ?? pipeline.Nodes;
+
+    // Step 1: Extract all catalog entries from nodes to export
+    var allCatalogEntries = ExtractCatalogEntries(nodesToExport);
 
     // Step 2: Build node metadata with layer information
-    dag.Nodes.AddRange(BuildNodeMetadata(pipeline));
+    dag.Nodes.AddRange(BuildNodeMetadata(nodesToExport));
 
     // Step 3: Build catalog entry metadata with producer-consumer relationships
     dag.CatalogEntries.AddRange(BuildCatalogEntryMetadata(allCatalogEntries, dag.Nodes));
@@ -63,11 +68,11 @@ internal static class DagBuilder
   /// Handles both simple catalog entries and CatalogMap entries by expanding
   /// maps into their constituent catalog entries.
   /// </remarks>
-  private static Dictionary<string, ICatalogEntry> ExtractCatalogEntries(Pipeline pipeline)
+  private static Dictionary<string, ICatalogEntry> ExtractCatalogEntries(List<PipelineNode> nodes)
   {
     var catalogEntries = new Dictionary<string, ICatalogEntry>();
 
-    foreach (var node in pipeline.Nodes)
+    foreach (var node in nodes)
     {
       // Process inputs
       foreach (var input in node.Inputs)
@@ -131,11 +136,11 @@ internal static class DagBuilder
   /// <summary>
   /// Builds metadata for all nodes in the pipeline.
   /// </summary>
-  private static List<NodeMetadata> BuildNodeMetadata(Pipeline pipeline)
+  private static List<NodeMetadata> BuildNodeMetadata(List<PipelineNode> nodes)
   {
-    var nodes = new List<NodeMetadata>();
+    var nodeMetadataList = new List<NodeMetadata>();
 
-    foreach (var pipelineNode in pipeline.Nodes)
+    foreach (var pipelineNode in nodes)
     {
       // Use node name directly (no longer extracting from instance type)
       var nodeTypeName = pipelineNode.Label;
@@ -156,37 +161,36 @@ internal static class DagBuilder
 
       // Extract original pipeline name from node name if merged
       // Merged nodes have format: "PipelineName.NodeName"
-      var originalPipelineName = ExtractOriginalPipelineName(pipelineNode.Label, pipeline.Name);
+      var originalPipelineName = ExtractOriginalPipelineName(pipelineNode.Label);
 
-      nodes.Add(
+      nodeMetadataList.Add(
         new NodeMetadata
         {
           Id = pipelineNode.Label,
           Label = FormatLabel(pipelineNode.Label),
           NodeType = nodeTypeName,
           Layer = pipelineNode.Layer,
-          PipelineName = originalPipelineName,
+          PipelineName = originalPipelineName ?? "UnnamedPipeline",
           Inputs = inputKeys,
           Outputs = outputKeys,
         }
       );
     }
 
-    return nodes;
+    return nodeMetadataList;
   }
 
   /// <summary>
   /// Extracts the original pipeline name from a node name in a merged pipeline.
   /// </summary>
   /// <param name="nodeName">The node name (may be prefixed with pipeline name)</param>
-  /// <param name="pipelineName">The current pipeline name</param>
-  /// <returns>The original pipeline name if detected, otherwise the current pipeline name</returns>
+  /// <returns>The original pipeline name if detected, otherwise null</returns>
   /// <remarks>
   /// In merged pipelines, node names are prefixed with their original pipeline name
   /// (e.g., "DataProcessing.PreprocessCompanies"). This method extracts that prefix.
-  /// For non-merged pipelines, returns the current pipeline name as-is.
+  /// For non-merged pipelines, returns null.
   /// </remarks>
-  private static string ExtractOriginalPipelineName(string nodeName, string? pipelineName)
+  private static string? ExtractOriginalPipelineName(string nodeName)
   {
     // Check if node name contains a dot (indicating it's from a merged pipeline)
     var dotIndex = nodeName.IndexOf('.');
@@ -197,7 +201,7 @@ internal static class DagBuilder
     }
 
     // No prefix found - use the current pipeline name
-    return pipelineName ?? "UnnamedPipeline";
+    return "UnnamedPipeline";
   }
 
   /// <summary>

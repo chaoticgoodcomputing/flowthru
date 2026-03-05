@@ -31,6 +31,7 @@ public class JsonMetadataProvider : IMetadataProvider
   public bool Export(
     DagMetadata dag,
     string outputDirectory,
+    string filenameTemplate,
     TimestampConfiguration timestampConfig,
     ILogger? logger = null
   )
@@ -40,12 +41,9 @@ public class JsonMetadataProvider : IMetadataProvider
       // Ensure output directory exists
       Directory.CreateDirectory(outputDirectory);
 
-      // Generate filename with optional timestamp
+      // Generate filename from template
       var timestamp = timestampConfig.GenerateTimestamp();
-      var filename =
-        timestamp != null
-          ? $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.json"
-          : $"dag-{SanitizeFilename(dag.PipelineName)}.json";
+      var filename = FilenameTemplateParser.Render(dag, filenameTemplate, timestamp) + ".json";
       var filePath = Path.Combine(outputDirectory, filename);
 
       logger?.LogInformation("Exporting JSON metadata to {FilePath}", filePath);

@@ -20,11 +20,6 @@ public sealed record PipelineMetadata
   public string? Description { get; init; }
 
   /// <summary>
-  /// Tags associated with the pipeline.
-  /// </summary>
-  public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
-
-  /// <summary>
   /// Total number of nodes in the pipeline.
   /// </summary>
   public required int NodeCount { get; init; }

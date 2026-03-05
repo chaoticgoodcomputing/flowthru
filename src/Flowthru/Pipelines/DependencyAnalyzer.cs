@@ -46,22 +46,22 @@ internal static class DependencyAnalyzer
   }
 
   /// <summary>
-  /// Builds a map from catalog entries to the nodes that produce them.
+  /// Builds a map from catalog entry labels to the nodes that produce them.
   /// </summary>
   /// <param name="nodes">All nodes in the pipeline</param>
-  /// <returns>Dictionary mapping catalog entries to their producer nodes</returns>
+  /// <returns>Dictionary mapping catalog entry labels to their producer nodes</returns>
   /// <exception cref="InvalidOperationException">
   /// Thrown if multiple nodes write to the same catalog entry
   /// </exception>
-  private static Dictionary<ICatalogEntry, PipelineNode> BuildProducerMap(List<PipelineNode> nodes)
+  private static Dictionary<string, PipelineNode> BuildProducerMap(List<PipelineNode> nodes)
   {
-    var producerMap = new Dictionary<ICatalogEntry, PipelineNode>();
+    var producerMap = new Dictionary<string, PipelineNode>(StringComparer.OrdinalIgnoreCase);
 
     foreach (var node in nodes)
     {
       foreach (var output in node.Outputs)
       {
-        if (producerMap.TryGetValue(output, out var existingProducer))
+        if (producerMap.TryGetValue(output.Label, out var existingProducer))
         {
           throw new InvalidOperationException(
             $"Catalog entry '{output.Label}' is produced by multiple nodes: "
@@ -70,7 +70,7 @@ internal static class DependencyAnalyzer
           );
         }
 
-        producerMap[output] = node;
+        producerMap[output.Label] = node;
       }
     }
 
@@ -81,18 +81,18 @@ internal static class DependencyAnalyzer
   /// Resolves dependencies for each node by finding producers of its inputs.
   /// </summary>
   /// <param name="nodes">All nodes in the pipeline</param>
-  /// <param name="producerMap">Map of catalog entries to their producer nodes</param>
+  /// <param name="producerMap">Map of catalog entry labels to their producer nodes</param>
   private static void ResolveDependencies(
     List<PipelineNode> nodes,
-    Dictionary<ICatalogEntry, PipelineNode> producerMap
+    Dictionary<string, PipelineNode> producerMap
   )
   {
     foreach (var node in nodes)
     {
       foreach (var input in node.Inputs)
       {
-        // If this input is produced by another node, add it as a dependency
-        if (producerMap.TryGetValue(input, out var producer))
+        // If this input is produced by another node, add it as a dependency (label-based match)
+        if (producerMap.TryGetValue(input.Label, out var producer))
         {
           // Don't add self-dependencies (would be caught in cycle detection anyway)
           if (producer != node)
@@ -167,5 +167,264 @@ internal static class DependencyAnalyzer
   public static IEnumerable<List<PipelineNode>> GroupByLayer(List<PipelineNode> nodes)
   {
     return nodes.GroupBy(n => n.Layer).OrderBy(g => g.Key).Select(g => g.ToList());
+  }
+
+  /// <summary>
+  /// Slices a pipeline to include only nodes matching the specified strategy.
+  /// </summary>
+  /// <param name="allNodes">All nodes in the pipeline</param>
+  /// <param name="strategy">The slicing strategy to apply</param>
+  /// <returns>Filtered list of nodes forming a valid sub-DAG</returns>
+  /// <exception cref="InvalidOperationException">
+  /// Thrown if:
+  /// - FromData references catalog entries not consumed by any node
+  /// - ToData references catalog entries not produced by any node
+  /// - OnlyNodes references non-existent node names
+  /// - FromNodes/ToNodes references non-existent node names
+  /// </exception>
+  /// <remarks>
+  /// <para>
+  /// Multiple strategies compose via intersection. For example,
+  /// <c>FromNodes + ToNodes</c> produces nodes in the intersection of the downstream
+  /// tree of FromNodes and the upstream tree of ToNodes.
+  /// </para>
+  /// <para>
+  /// <strong>Runnability Guarantee:</strong> The returned node set always forms a valid
+  /// sub-DAG that can execute without missing dependencies.
+  /// </para>
+  /// </remarks>
+  public static List<PipelineNode> SliceNodes(
+    List<PipelineNode> allNodes,
+    PipelineSliceStrategy strategy
+  )
+  {
+    if (!strategy.IsSliced)
+    {
+      return allNodes;
+    }
+
+    // Dependencies are already resolved by Pipeline.Build() before slicing
+    // No need to call BuildProducerMap/ResolveDependencies here
+
+    var nodesByLabel = allNodes.ToDictionary(n => n.Label, StringComparer.OrdinalIgnoreCase);
+    var selectedNodes = new HashSet<PipelineNode>(allNodes);
+
+    // Step 1: Apply pipeline filter (if specified, for merged pipelines)
+    if (strategy.Pipelines is { Count: > 0 })
+    {
+      var pipelineFilter = new HashSet<PipelineNode>();
+
+      foreach (var pipelineName in strategy.Pipelines)
+      {
+        // Find nodes that belong to this pipeline (prefix match: "PipelineName.NodeName")
+        var pipelineNodes = allNodes.Where(n =>
+        {
+          var dotIndex = n.Label.IndexOf('.');
+          if (dotIndex <= 0)
+          {
+            return false; // Not a merged pipeline node
+          }
+
+          var nodePipelineName = n.Label.Substring(0, dotIndex);
+          return nodePipelineName.Equals(pipelineName, StringComparison.OrdinalIgnoreCase);
+        });
+
+        pipelineFilter.UnionWith(pipelineNodes);
+      }
+
+      if (pipelineFilter.Count == 0)
+      {
+        throw new InvalidOperationException(
+          $"Pipelines filter did not match any nodes. Specified: {string.Join(", ", strategy.Pipelines)}"
+        );
+      }
+
+      selectedNodes.IntersectWith(pipelineFilter);
+    }
+
+    // Step 2: Apply OnlyNodes filter (explicit allowlist + dependencies)
+    if (strategy.OnlyNodes is { Count: > 0 })
+    {
+      var explicitNodes = new HashSet<PipelineNode>();
+      foreach (var nodeName in strategy.OnlyNodes)
+      {
+        if (!nodesByLabel.TryGetValue(nodeName, out var node))
+        {
+          throw new InvalidOperationException(
+            $"OnlyNodes references non-existent node: '{nodeName}'"
+          );
+        }
+        explicitNodes.Add(node);
+      }
+
+      // Include all upstream dependencies to maintain runnability
+      var withDependencies = ExpandUpstream(explicitNodes);
+      selectedNodes.IntersectWith(withDependencies);
+    }
+
+    // Step 3: Apply FromData (find consumers, expand downstream)
+    var fromNodesExpanded = new HashSet<PipelineNode>();
+    if (strategy.FromData is { Count: > 0 })
+    {
+      // Find nodes that consume any of the specified catalog entries
+      foreach (var dataLabel in strategy.FromData)
+      {
+        var consumingNodes = allNodes.Where(n =>
+          n.Inputs.Any(entry => entry.Label.Equals(dataLabel, StringComparison.OrdinalIgnoreCase))
+        );
+
+        if (!consumingNodes.Any())
+        {
+          throw new InvalidOperationException(
+            $"FromData references catalog entry '{dataLabel}' which is not consumed by any node"
+          );
+        }
+
+        fromNodesExpanded.UnionWith(consumingNodes);
+      }
+    }
+
+    // Step 4: Apply FromNodes (include downstream dependents)
+    if (strategy.FromNodes is { Count: > 0 })
+    {
+      foreach (var nodeName in strategy.FromNodes)
+      {
+        if (!nodesByLabel.TryGetValue(nodeName, out var node))
+        {
+          throw new InvalidOperationException(
+            $"FromNodes references non-existent node: '{nodeName}'"
+          );
+        }
+        fromNodesExpanded.Add(node);
+      }
+    }
+
+    if (fromNodesExpanded.Count > 0)
+    {
+      var withDownstream = ExpandDownstream(fromNodesExpanded, allNodes);
+      selectedNodes.IntersectWith(withDownstream);
+    }
+
+    // Step 5: Apply ToData (find producers, expand upstream)
+    var toNodesExpanded = new HashSet<PipelineNode>();
+    if (strategy.ToData is { Count: > 0 })
+    {
+      // Find nodes that produce any of the specified catalog entries
+      foreach (var dataLabel in strategy.ToData)
+      {
+        var producingNode = allNodes.FirstOrDefault(n =>
+          n.Outputs.Any(entry => entry.Label.Equals(dataLabel, StringComparison.OrdinalIgnoreCase))
+        );
+
+        if (producingNode == null)
+        {
+          throw new InvalidOperationException(
+            $"ToData references catalog entry '{dataLabel}' which is not produced by any node"
+          );
+        }
+
+        toNodesExpanded.Add(producingNode);
+      }
+    }
+
+    // Step 6: Apply ToNodes (include upstream dependencies to reach these nodes)
+    if (strategy.ToNodes is { Count: > 0 })
+    {
+      foreach (var nodeName in strategy.ToNodes)
+      {
+        if (!nodesByLabel.TryGetValue(nodeName, out var node))
+        {
+          throw new InvalidOperationException(
+            $"ToNodes references non-existent node: '{nodeName}'"
+          );
+        }
+        toNodesExpanded.Add(node);
+      }
+    }
+
+    if (toNodesExpanded.Count > 0)
+    {
+      var withUpstream = ExpandUpstream(toNodesExpanded);
+      selectedNodes.IntersectWith(withUpstream);
+    }
+
+    return selectedNodes.ToList();
+  }
+
+  /// <summary>
+  /// Expands a set of nodes to include all upstream dependencies (transitive closure).
+  /// </summary>
+  private static HashSet<PipelineNode> ExpandUpstream(HashSet<PipelineNode> nodes)
+  {
+    var result = new HashSet<PipelineNode>();
+    var toVisit = new Queue<PipelineNode>(nodes);
+
+    while (toVisit.Count > 0)
+    {
+      var current = toVisit.Dequeue();
+      if (result.Add(current))
+      {
+        foreach (var dependency in current.Dependencies)
+        {
+          toVisit.Enqueue(dependency);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /// <summary>
+  /// Expands a set of nodes to include all downstream dependents (transitive closure).
+  /// </summary>
+  private static HashSet<PipelineNode> ExpandDownstream(
+    HashSet<PipelineNode> nodes,
+    List<PipelineNode> allNodes
+  )
+  {
+    var result = new HashSet<PipelineNode>(nodes);
+    var dependencyMap = BuildDependencyMap(allNodes);
+
+    var toVisit = new Queue<PipelineNode>(nodes);
+    while (toVisit.Count > 0)
+    {
+      var current = toVisit.Dequeue();
+      if (dependencyMap.TryGetValue(current, out var dependents))
+      {
+        foreach (var dependent in dependents)
+        {
+          if (result.Add(dependent))
+          {
+            toVisit.Enqueue(dependent);
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /// <summary>
+  /// Builds a reverse dependency map (node → nodes that depend on it).
+  /// </summary>
+  private static Dictionary<PipelineNode, List<PipelineNode>> BuildDependencyMap(
+    List<PipelineNode> allNodes
+  )
+  {
+    var map = new Dictionary<PipelineNode, List<PipelineNode>>();
+
+    foreach (var node in allNodes)
+    {
+      foreach (var dependency in node.Dependencies)
+      {
+        if (!map.ContainsKey(dependency))
+        {
+          map[dependency] = new List<PipelineNode>();
+        }
+        map[dependency].Add(node);
+      }
+    }
+
+    return map;
   }
 }

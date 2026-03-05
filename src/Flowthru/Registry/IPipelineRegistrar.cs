@@ -78,17 +78,6 @@ public interface IPipelineRegistrar<TCatalog>
   IPipelineRegistrar<TCatalog> WithDescription(string description);
 
   /// <summary>
-  /// Adds tags to the most recently registered pipeline.
-  /// </summary>
-  /// <param name="tags">Tags for categorizing the pipeline</param>
-  /// <returns>This registrar for method chaining</returns>
-  /// <remarks>
-  /// Use this overload when fluently chaining after Register().
-  /// Tags can be used for filtering and organizing pipelines (e.g., "etl", "ml", "reporting").
-  /// </remarks>
-  IPipelineRegistrar<TCatalog> WithTags(params string[] tags);
-
-  /// <summary>
   /// Configures validation options for the most recently registered pipeline.
   /// </summary>
   /// <param name="configure">Action to configure validation behavior</param>

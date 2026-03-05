@@ -2,6 +2,7 @@ using Flowthru.Configuration;
 using Flowthru.Data;
 using Flowthru.Data.Storage.Strategies;
 using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Registry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -236,22 +237,6 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Adds tags to the most recently registered pipeline.
-  /// </summary>
-  /// <param name="tags">Tags for categorizing the pipeline</param>
-  /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder WithTags(params string[] tags)
-  {
-    if (_inlineRegistrations.Count == 0)
-    {
-      throw new InvalidOperationException("WithTags() can only be used after RegisterPipeline().");
-    }
-
-    _inlineRegistrations.Add(registrar => registrar.WithTags(tags));
-    return this;
-  }
-
-  /// <summary>
   /// Enables configuration loading from JSON and YAML files.
   /// </summary>
   /// <param name="configure">Optional action to configure how configuration files are loaded</param>
@@ -431,10 +416,107 @@ public sealed class FlowthruServiceBuilder
     }
 
     var builder = new FlowthruMetadataBuilder();
+
+    // Apply configuration from appsettings.json if available
+    if (_configuration != null)
+    {
+      var metadataOptions = _configuration.GetSection("Flowthru:Metadata").Get<MetadataOptions>();
+
+      if (metadataOptions != null)
+      {
+        ApplyOptionsToBuilder(builder, metadataOptions);
+      }
+    }
+
+    // Apply programmatic configuration (overrides appsettings)
     configure(builder);
+
     _services.AddSingleton(builder);
 
     return this;
+  }
+
+  private static void ApplyOptionsToBuilder(
+    FlowthruMetadataBuilder builder,
+    MetadataOptions options
+  )
+  {
+    if (!string.IsNullOrWhiteSpace(options.OutputDirectory))
+    {
+      builder.WithOutputDirectory(options.OutputDirectory);
+    }
+
+    if (options.Timestamp != null)
+    {
+      if (options.Timestamp.IncludeTimestamp)
+      {
+        builder.WithTimestamp(options.Timestamp.Format);
+      }
+    }
+
+    if (!string.IsNullOrWhiteSpace(options.FilenameTemplate))
+    {
+      builder.WithFilenameTemplate(options.FilenameTemplate);
+    }
+
+    // Register providers from configuration
+    if (options.Providers != null && options.Providers.Count > 0)
+    {
+      foreach (var providerName in options.Providers)
+      {
+        var normalizedName = providerName.Trim().ToLowerInvariant();
+
+        switch (normalizedName)
+        {
+          case "json":
+            builder.AddJson(json =>
+            {
+              if (options.Json != null)
+              {
+                if (options.Json.UseCompactFormat)
+                {
+                  json.UseCompactFormat();
+                }
+                else
+                {
+                  json.UseIndentedFormat();
+                }
+              }
+            });
+            break;
+
+          case "mermaid":
+            builder.AddMermaid(mermaid =>
+            {
+              if (options.Mermaid != null)
+              {
+                var direction = options.Mermaid.Direction.ToLowerInvariant() switch
+                {
+                  "toptobottom" or "tb" => MermaidMetadataProvider
+                    .MermaidFlowchartDirection
+                    .TopToBottom,
+                  "bottomtotop" or "bt" => MermaidMetadataProvider
+                    .MermaidFlowchartDirection
+                    .BottomToTop,
+                  "lefttoright" or "lr" => MermaidMetadataProvider
+                    .MermaidFlowchartDirection
+                    .LeftToRight,
+                  "righttoleft" or "rl" => MermaidMetadataProvider
+                    .MermaidFlowchartDirection
+                    .RightToLeft,
+                  _ => MermaidMetadataProvider.MermaidFlowchartDirection.LeftToRight,
+                };
+                mermaid.WithDirection(direction);
+              }
+            });
+            break;
+
+          default:
+            // Ignore unknown providers silently (allows for future extensions)
+            break;
+        }
+      }
+    }
   }
 
   /// <summary>

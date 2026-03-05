@@ -22,12 +22,14 @@ public interface IMetadataProvider
   /// </summary>
   /// <param name="dag">The DAG metadata to export</param>
   /// <param name="outputDirectory">Directory to write output files to</param>
+  /// <param name="filenameTemplate">Template for generating output filenames</param>
   /// <param name="timestampConfig">Configuration for timestamp handling in filenames</param>
   /// <param name="logger">Optional logger for diagnostic messages</param>
   /// <returns>True if export succeeded, false otherwise</returns>
   bool Export(
     DagMetadata dag,
     string outputDirectory,
+    string filenameTemplate,
     TimestampConfiguration timestampConfig,
     ILogger? logger = null
   );

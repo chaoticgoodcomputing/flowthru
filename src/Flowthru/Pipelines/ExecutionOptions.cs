@@ -47,6 +47,15 @@ public class ExecutionOptions
   public IPipelineResultFormatter? ResultFormatter { get; set; }
 
   /// <summary>
+  /// Optional slicing strategy to apply when executing pipelines.
+  /// </summary>
+  /// <remarks>
+  /// When provided, only nodes matching the slice strategy will be executed.
+  /// Used when slicing flags are provided without a specific pipeline name.
+  /// </remarks>
+  public PipelineSliceStrategy? SliceStrategy { get; set; }
+
+  /// <summary>
   /// Gets the configured formatter or creates a default one.
   /// </summary>
   /// <returns>The result formatter to use</returns>

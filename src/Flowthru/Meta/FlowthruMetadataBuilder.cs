@@ -28,6 +28,7 @@ public class FlowthruMetadataBuilder
   private string _outputDirectory = "metadata";
   private bool _autoExport = true;
   private readonly TimestampConfiguration _timestampConfig = new();
+  private string _filenameTemplate = "dag-{PipelineName}-{Timestamp}-{SliceType}";
 
   /// <summary>
   /// Gets the list of registered metadata providers.
@@ -48,6 +49,11 @@ public class FlowthruMetadataBuilder
   /// Gets the timestamp configuration for metadata file naming.
   /// </summary>
   internal TimestampConfiguration TimestampConfig => _timestampConfig;
+
+  /// <summary>
+  /// Gets the filename template for metadata exports.
+  /// </summary>
+  internal string FilenameTemplate => _filenameTemplate;
 
   /// <summary>
   /// Sets the output directory for metadata files.
@@ -119,6 +125,21 @@ public class FlowthruMetadataBuilder
       _timestampConfig.Validate(); // Validate immediately
     }
 
+    return this;
+  }
+
+  /// <summary>
+  /// Sets a custom filename template for metadata exports.
+  /// </summary>
+  /// <param name="template">Template string with {Token} placeholders</param>
+  /// <returns>This builder for fluent chaining</returns>
+  /// <remarks>
+  /// Supported tokens: {PipelineName}, {Timestamp}, {SliceType}, {FromNodes}, {ToNodes}, {FromInputs}, {OnlyNodes}, {Tags}
+  /// Default: "dag-{PipelineName}-{Timestamp}-{SliceType}"
+  /// </remarks>
+  public FlowthruMetadataBuilder WithFilenameTemplate(string template)
+  {
+    _filenameTemplate = template ?? throw new ArgumentNullException(nameof(template));
     return this;
   }
 

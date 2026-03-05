@@ -45,4 +45,16 @@ public class DagMetadata
   /// </remarks>
   [JsonPropertyName("edges")]
   public List<EdgeMetadata> Edges { get; init; } = new();
+
+  /// <summary>
+  /// Slice criteria applied to generate this DAG, if any.
+  /// </summary>
+  /// <remarks>
+  /// Present when the DAG represents a sliced subset of the full pipeline.
+  /// Null when the DAG represents the complete, unsliced pipeline.
+  /// Used for reproducibility, debugging, and filename generation.
+  /// </remarks>
+  [JsonPropertyName("appliedSlice")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public DagSliceMetadata? AppliedSlice { get; init; }
 }

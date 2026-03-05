@@ -30,13 +30,17 @@ namespace Flowthru.Services;
 ///
 ///     public async Task ProcessData()
 ///     {
-///         var request = new PipelineExecutionRequest
+///         // Execute with optional slicing
+///         var options = new ExecutionOptions
 ///         {
-///             PipelineName = "data_processing",
-///             Options = new ExecutionOptions { DryRun = false }
+///             DryRun = false,
+///             SliceStrategy = new PipelineSliceStrategy
+///             {
+///                 Pipelines = new HashSet&lt;string&gt; { "data_processing" }
+///             }
 ///         };
 ///
-///         var result = await _flowthru.ExecutePipelineAsync(request);
+///         var result = await _flowthru.ExecutePipelineAsync(options);
 ///
 ///         if (result.Success)
 ///         {
@@ -60,39 +64,32 @@ public interface IFlowthruService
   DataCatalogBase Catalog { get; }
 
   /// <summary>
-  /// Executes a specific pipeline by name.
+  /// Executes all registered pipelines, optionally sliced by criteria.
   /// </summary>
-  /// <param name="request">Execution configuration</param>
+  /// <param name="options">Execution options with optional slice strategy</param>
+  /// <param name="exportMetadata">Whether to export DAG metadata</param>
+  /// <param name="metadataOutputDirectory">Override for metadata output directory</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>Execution result with timing, node results, and status</returns>
-  /// <exception cref="KeyNotFoundException">Thrown if pipeline name not found</exception>
   /// <remarks>
-  /// This method performs:
-  /// 1. Pipeline retrieval and validation
+  /// This method always merges all registered pipelines into a single DAG,
+  /// then applies optional slicing criteria from the execution options.
+  /// This enables cross-pipeline queries (e.g., --to-data across all pipelines).
+  /// To execute only specific pipelines, use SliceStrategy.Pipelines.
+  ///
+  /// The method performs:
+  /// 1. Pipeline merging into unified DAG
   /// 2. Service injection
-  /// 3. DAG building and analysis
+  /// 3. DAG building and slice application
   /// 4. Metadata export (if requested)
   /// 5. External input validation
   /// 6. Pipeline execution (unless dry run)
   /// 7. Result formatting
   /// </remarks>
   Task<PipelineResult> ExecutePipelineAsync(
-    PipelineExecutionRequest request,
-    CancellationToken cancellationToken = default
-  );
-
-  /// <summary>
-  /// Executes all registered pipelines in dependency order.
-  /// </summary>
-  /// <param name="options">Execution options</param>
-  /// <param name="cancellationToken">Cancellation token</param>
-  /// <returns>Execution result for merged pipeline</returns>
-  /// <remarks>
-  /// Merges all pipelines into a single DAG and executes them.
-  /// Useful for running entire data processing workflows.
-  /// </remarks>
-  Task<PipelineResult> ExecuteAllPipelinesAsync(
     ExecutionOptions? options = null,
+    bool exportMetadata = true,
+    string? metadataOutputDirectory = null,
     CancellationToken cancellationToken = default
   );
 

@@ -49,7 +49,7 @@ Build and run:
 
 ```bash
 dotnet build
-dotnet run -- pipeline run Greetings
+dotnet run
 ```
 
 View generated greetings in:

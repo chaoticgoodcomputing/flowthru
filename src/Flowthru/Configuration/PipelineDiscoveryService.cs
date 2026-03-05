@@ -144,7 +144,6 @@ internal class PipelineDiscoveryService
       ParameterType = parameterType,
       ParameterInstance = parameterInstance,
       Description = options.Description,
-      Tags = options.Tags.ToArray(),
       ValidationOptions = options.Validation,
     };
   }
@@ -161,7 +160,6 @@ internal class PipelineFactoryInfo
   public Type? ParameterType { get; init; }
   public object? ParameterInstance { get; init; }
   public string? Description { get; init; }
-  public string[] Tags { get; init; } = Array.Empty<string>();
   public PipelineValidationOptions? ValidationOptions { get; init; }
 
   /// <summary>

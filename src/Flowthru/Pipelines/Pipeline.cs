@@ -39,10 +39,25 @@ public class Pipeline
   internal List<PipelineNode> Nodes { get; } = new();
 
   /// <summary>
+  /// Subset of nodes to execute after slicing is applied.
+  /// Null if no slicing was applied (execute all nodes).
+  /// </summary>
+  private List<PipelineNode>? _slicedNodes;
+
+  /// <summary>
   /// Nodes grouped by execution layer.
   /// Populated after Build() is called.
   /// </summary>
   internal IReadOnlyList<List<PipelineNode>>? ExecutionLayers { get; private set; }
+
+  /// <summary>
+  /// The slice strategy applied during the most recent Build() call, if any.
+  /// </summary>
+  /// <remarks>
+  /// Cached to enable metadata export to include slice criteria.
+  /// Null if pipeline was built without slicing.
+  /// </remarks>
+  internal PipelineSliceStrategy? AppliedSlice { get; private set; }
 
   /// <summary>
   /// Optional logger for pipeline execution.
@@ -72,11 +87,6 @@ public class Pipeline
   public string? Description { get; internal set; }
 
   /// <summary>
-  /// Tags for categorizing and filtering pipelines.
-  /// </summary>
-  public IReadOnlyList<string> Tags { get; internal set; } = System.Array.Empty<string>();
-
-  /// <summary>
   /// Validation options for this pipeline.
   /// </summary>
   /// <remarks>
@@ -90,6 +100,14 @@ public class Pipeline
   /// Indicates whether the pipeline has been built (dependencies analyzed and layers assigned).
   /// </summary>
   public bool IsBuilt => ExecutionLayers != null;
+
+  /// <summary>
+  /// Gets the sliced subset of nodes (if slicing was applied), otherwise null.
+  /// </summary>
+  /// <remarks>
+  /// Used by metadata export to ensure only nodes that will execute are included in the DAG.
+  /// </remarks>
+  internal List<PipelineNode>? GetSlicedNodes() => _slicedNodes;
 
   /// <summary>
   /// Adds a node to the pipeline.
@@ -159,12 +177,21 @@ public class Pipeline
   /// Builds the pipeline by analyzing dependencies and assigning execution layers.
   /// Must be called before executing the pipeline.
   /// </summary>
+  /// <param name="sliceStrategy">Optional slicing strategy to filter nodes before execution</param>
   /// <exception cref="InvalidOperationException">
   /// Thrown if:
-  /// - Multiple nodes write to the same catalog entry
-  /// - A circular dependency is detected
+  /// - Multiple nodes write to the same catalog entry (single producer rule)
+  /// - Circular dependency is detected
+  /// - Slice strategy references non-existent nodes or catalog entries
   /// </exception>
-  public void Build()
+  /// <remarks>
+  /// <para>
+  /// <strong>Slicing:</strong> If a slicing strategy is provided, only nodes matching
+  /// the strategy will be included in the execution. The slice always forms a valid
+  /// sub-DAG with all required dependencies.
+  /// </para>
+  /// </remarks>
+  public void Build(PipelineSliceStrategy? sliceStrategy = null)
   {
     if (IsBuilt)
     {
@@ -173,11 +200,31 @@ public class Pipeline
 
     Logger?.LogInformation("Building pipeline with {NodeCount} nodes", Nodes.Count);
 
-    // Analyze dependencies and assign layers
+    // Cache the slice strategy for metadata export
+    AppliedSlice = sliceStrategy?.IsSliced == true ? sliceStrategy : null;
+
+    // Step 1: Analyze dependencies and assign layers on the FULL graph
     DependencyAnalyzer.AnalyzeAndAssignLayers(Nodes);
 
-    // Group nodes by layer
-    ExecutionLayers = DependencyAnalyzer.GroupByLayer(Nodes).ToList();
+    // Step 2: Apply slicing if requested
+    if (sliceStrategy?.IsSliced == true)
+    {
+      Logger?.LogInformation("Applying pipeline slice strategy");
+      _slicedNodes = DependencyAnalyzer.SliceNodes(Nodes, sliceStrategy);
+      Logger?.LogInformation(
+        "Slice reduced pipeline from {OriginalCount} to {SlicedCount} nodes",
+        Nodes.Count,
+        _slicedNodes.Count
+      );
+    }
+    else
+    {
+      _slicedNodes = null; // No slicing - execute all nodes
+    }
+
+    // Step 3: Group nodes by layer (use sliced subset if available)
+    var nodesToExecute = _slicedNodes ?? Nodes;
+    ExecutionLayers = DependencyAnalyzer.GroupByLayer(nodesToExecute).ToList();
 
     Logger?.LogInformation(
       "Pipeline built successfully. Execution will proceed in {LayerCount} layers",

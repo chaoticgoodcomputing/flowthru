@@ -61,32 +61,25 @@ internal sealed class FlowthruService : IFlowthruService
 
   /// <inheritdoc />
   public async Task<PipelineResult> ExecutePipelineAsync(
-    PipelineExecutionRequest request,
+    ExecutionOptions? options = null,
+    bool exportMetadata = true,
+    string? metadataOutputDirectory = null,
     CancellationToken cancellationToken = default
   )
   {
-    if (request == null)
-    {
-      throw new ArgumentNullException(nameof(request));
-    }
-
     var totalStopwatch = Stopwatch.StartNew();
 
-    // 1. Get pipeline
-    if (!_pipelines.TryGetValue(request.PipelineName, out var pipeline))
-    {
-      _logger.LogError(
-        "Pipeline '{Name}' not found. Available pipelines: {Available}",
-        request.PipelineName,
-        string.Join(", ", PipelineNames)
-      );
-      throw new KeyNotFoundException(
-        $"Pipeline '{request.PipelineName}' not found. "
-          + $"Available: {string.Join(", ", PipelineNames)}"
-      );
-    }
+    _logger.LogInformation("Merging all pipelines into unified DAG.");
+    _logger.LogInformation("Available pipelines: {Pipelines}", string.Join(", ", PipelineNames));
 
-    var options = request.Options ?? new ExecutionOptions();
+    // Merge all pipelines into a single DAG
+    var mergedPipeline = Pipeline.Merge(_pipelines);
+
+    // Inject services and logger
+    mergedPipeline.Logger = _logger;
+    mergedPipeline.ServiceProvider = _services;
+
+    options ??= new ExecutionOptions();
 
     // ════════════════════════════════════════
     // PRE-FLIGHT CHECKS
@@ -98,32 +91,23 @@ internal sealed class FlowthruService : IFlowthruService
 
     var preFlightStopwatch = Stopwatch.StartNew();
 
-    // 2. Pipeline is already built in constructor, but verify
-    _logger.LogInformation("→ Initializing pipeline: {Name}", request.PipelineName);
-    if (!pipeline.IsBuilt)
-    {
-      _logger.LogInformation("→ Building pipeline and analyzing dependencies...");
-      pipeline.Build();
-      _logger.LogInformation("  ✓ Pipeline built successfully");
-    }
-
+    // Build merged pipeline with optional slice strategy
+    _logger.LogInformation("→ Building pipeline and analyzing dependencies...");
+    mergedPipeline.Build(options.SliceStrategy);
     _logger.LogInformation(
       "  ✓ {NodeCount} nodes organized into {LayerCount} execution layers",
-      pipeline.Nodes.Count,
-      pipeline.ExecutionLayers!.Count
+      mergedPipeline.Nodes.Count,
+      mergedPipeline.ExecutionLayers!.Count
     );
 
-    // 3. Export DAG metadata if requested
-    if (request.ExportMetadata && _metadataBuilder != null && _metadataBuilder.AutoExport)
+    // Export DAG metadata if requested
+    if (exportMetadata && _metadataBuilder != null && _metadataBuilder.AutoExport)
     {
       try
       {
         _logger.LogInformation("→ Exporting DAG metadata...");
-        await ExportPipelineMetadataAsync(
-          pipeline,
-          request.PipelineName,
-          request.MetadataOutputDirectory
-        );
+        var dag = mergedPipeline.ExportDag();
+        ExportMetadata(dag, "Pipeline", metadataOutputDirectory);
         _logger.LogInformation("  ✓ Metadata exported successfully");
       }
       catch (Exception ex)
@@ -132,9 +116,9 @@ internal sealed class FlowthruService : IFlowthruService
       }
     }
 
-    // 4. Validate external inputs
+    // Validate external inputs
     _logger.LogInformation("→ Validating external data sources...");
-    var validationResult = await pipeline.ValidateExternalInputsAsync();
+    var validationResult = await mergedPipeline.ValidateExternalInputsAsync();
     if (!validationResult.IsValid)
     {
       _logger.LogError("  ✗ Validation failed");
@@ -142,7 +126,7 @@ internal sealed class FlowthruService : IFlowthruService
     }
 
     // Count validated inputs
-    var layer0Nodes = pipeline.ExecutionLayers![0];
+    var layer0Nodes = mergedPipeline.ExecutionLayers![0];
     var validatedInputCount = layer0Nodes.SelectMany(node => node.Inputs).Distinct().Count();
 
     _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
@@ -162,11 +146,10 @@ internal sealed class FlowthruService : IFlowthruService
       _logger.LogInformation("DRY RUN SUCCESSFUL");
       _logger.LogInformation("════════════════════════════════════════");
       _logger.LogInformation("");
-      _logger.LogInformation("Pipeline: {Name}", request.PipelineName);
       _logger.LogInformation(
         "Nodes: {Count} nodes across {Layers} layers",
-        pipeline.Nodes.Count,
-        pipeline.ExecutionLayers!.Count
+        mergedPipeline.Nodes.Count,
+        mergedPipeline.ExecutionLayers!.Count
       );
       _logger.LogInformation("External Inputs: {Count} validated", validatedInputCount);
       _logger.LogInformation("Total Time: {Ms}ms", totalStopwatch.ElapsedMilliseconds);
@@ -177,10 +160,10 @@ internal sealed class FlowthruService : IFlowthruService
       totalStopwatch.Stop();
       return PipelineResult.CreateDryRunSuccess(
         totalStopwatch.Elapsed,
-        pipeline.Nodes.Count,
-        pipeline.ExecutionLayers!.Count,
+        mergedPipeline.Nodes.Count,
+        mergedPipeline.ExecutionLayers!.Count,
         validatedInputCount,
-        request.PipelineName
+        "Pipeline"
       );
     }
 
@@ -192,67 +175,6 @@ internal sealed class FlowthruService : IFlowthruService
     _logger.LogInformation("════════════════════════════════════════");
     _logger.LogInformation("");
 
-    // 5. Execute pipeline
-    var result = await pipeline.RunAsync();
-
-    // 6. Format results using configured formatter
-    var formatter = options.GetFormatter();
-    formatter.Format(result, _logger);
-
-    totalStopwatch.Stop();
-    return result;
-  }
-
-  /// <inheritdoc />
-  public async Task<PipelineResult> ExecuteAllPipelinesAsync(
-    ExecutionOptions? options = null,
-    CancellationToken cancellationToken = default
-  )
-  {
-    _logger.LogInformation("No pipeline specified. Running all pipelines in dependency order.");
-    _logger.LogInformation("Available pipelines: {Pipelines}", string.Join(", ", PipelineNames));
-
-    // Merge all pipelines into a single DAG
-    var mergedPipeline = Pipeline.Merge(_pipelines);
-
-    // Inject services and logger
-    mergedPipeline.Logger = _logger;
-    mergedPipeline.ServiceProvider = _services;
-
-    // Build merged pipeline
-    mergedPipeline.Build();
-
-    options ??= new ExecutionOptions();
-
-    // Export merged DAG metadata if configured
-    if (_metadataBuilder != null && _metadataBuilder.AutoExport)
-    {
-      try
-      {
-        var dag = mergedPipeline.ExportDag();
-        ExportMetadata(dag, "AllPipelines");
-      }
-      catch (Exception ex)
-      {
-        _logger.LogWarning(ex, "Failed to export DAG metadata for merged pipeline");
-      }
-    }
-
-    // Check if dry run
-    if (options.DryRun)
-    {
-      var layer0Nodes = mergedPipeline.ExecutionLayers![0];
-      var validatedInputCount = layer0Nodes.SelectMany(node => node.Inputs).Distinct().Count();
-
-      return PipelineResult.CreateDryRunSuccess(
-        TimeSpan.Zero,
-        mergedPipeline.Nodes.Count,
-        mergedPipeline.ExecutionLayers!.Count,
-        validatedInputCount,
-        "AllPipelines"
-      );
-    }
-
     // Execute merged pipeline
     var result = await mergedPipeline.RunAsync();
 
@@ -260,6 +182,7 @@ internal sealed class FlowthruService : IFlowthruService
     var formatter = options.GetFormatter();
     formatter.Format(result, _logger);
 
+    totalStopwatch.Stop();
     return result;
   }
 
@@ -284,7 +207,6 @@ internal sealed class FlowthruService : IFlowthruService
     {
       Name = pipeline.Name ?? pipelineName,
       Description = pipeline.Description,
-      Tags = pipeline.Tags,
       NodeCount = pipeline.Nodes.Count,
       LayerCount = pipeline.ExecutionLayers?.Count ?? 0,
       ExternalInputs = externalInputs,
@@ -353,7 +275,13 @@ internal sealed class FlowthruService : IFlowthruService
           outputDir
         );
 
-        var success = provider.Export(dag, outputDir, _metadataBuilder.TimestampConfig, _logger);
+        var success = provider.Export(
+          dag,
+          outputDir,
+          _metadataBuilder.FilenameTemplate,
+          _metadataBuilder.TimestampConfig,
+          _logger
+        );
 
         if (success)
         {

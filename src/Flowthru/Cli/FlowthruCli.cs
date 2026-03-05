@@ -97,7 +97,6 @@ public sealed class FlowthruCli
   }
 
   /// <summary>
-  /// Runs ary>
   /// Runs the CLI with the specified arguments.
   /// </summary>
   /// <param name="args">Command-line arguments</param>
@@ -131,31 +130,13 @@ public sealed class FlowthruCli
         return 1;
       }
 
-      // Execute pipelines
-      PipelineResult result;
-
-      if (parsed.ExecuteAll)
-      {
-        _logger.LogInformation("No pipeline specified. Running all pipelines in dependency order.");
-        _logger.LogInformation(
-          "Available pipelines: {Pipelines}",
-          string.Join(", ", _service.PipelineNames)
-        );
-
-        result = await _service.ExecuteAllPipelinesAsync(parsed.Options, cancellationToken);
-      }
-      else if (parsed.Request != null)
-      {
-        _logger.LogInformation("Executing pipeline: {Pipeline}", parsed.Request.PipelineName);
-
-        result = await _service.ExecutePipelineAsync(parsed.Request, cancellationToken);
-      }
-      else
-      {
-        // Should not happen, but handle gracefully
-        ShowHelp();
-        return 0;
-      }
+      // Execute unified pipeline (with optional slicing)
+      var result = await _service.ExecutePipelineAsync(
+        parsed.Options,
+        parsed.ExportMetadata,
+        parsed.MetadataOutputDirectory,
+        cancellationToken
+      );
 
       // Format and display results
       FormatResult(result);
@@ -192,6 +173,26 @@ public sealed class FlowthruCli
     _output.WriteLine("  -h, --help             Show this help message");
     _output.WriteLine("  -v, --version          Show version information");
     _output.WriteLine();
+    _output.WriteLine("Pipeline Slicing:");
+    _output.WriteLine("  --pipelines NAMES      Filter to specific pipelines by name");
+    _output.WriteLine(
+      "  --from-nodes NODES     Start from nodes, include all downstream dependents"
+    );
+    _output.WriteLine("  --to-nodes NODES       End at nodes, include all upstream dependencies");
+    _output.WriteLine("  --from-data ENTRIES    Start from data consumers, include all downstream");
+    _output.WriteLine("  --to-data ENTRIES      End at data producers, include all upstream");
+    _output.WriteLine(
+      "  --only-nodes NODES     Execute only these nodes (auto-include dependencies)"
+    );
+    _output.WriteLine(
+      "  --tags TAGS            Filter to nodes with ALL specified tags (AND logic)"
+    );
+    _output.WriteLine();
+    _output.WriteLine("  Multiple slicing options compose via intersection.");
+    _output.WriteLine(
+      "  Use comma-separated values: --pipelines DataScience --tags feature,training"
+    );
+    _output.WriteLine();
     _output.WriteLine("Available Pipelines:");
     foreach (var name in _service.PipelineNames.OrderBy(n => n))
     {
@@ -205,7 +206,7 @@ public sealed class FlowthruCli
   /// </summary>
   private void ShowUsage()
   {
-    _output.WriteLine("Usage: flowthru [pipeline] [options]");
+    _output.WriteLine("Usage: flowthru [options]");
     _output.WriteLine("       flowthru --help");
     _output.WriteLine("       flowthru --version");
   }

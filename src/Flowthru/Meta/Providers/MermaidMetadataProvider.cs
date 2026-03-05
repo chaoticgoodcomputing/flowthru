@@ -50,6 +50,7 @@ public class MermaidMetadataProvider : IMetadataProvider
   public bool Export(
     DagMetadata dag,
     string outputDirectory,
+    string filenameTemplate,
     TimestampConfiguration timestampConfig,
     ILogger? logger = null
   )
@@ -59,12 +60,9 @@ public class MermaidMetadataProvider : IMetadataProvider
       // Ensure output directory exists
       Directory.CreateDirectory(outputDirectory);
 
-      // Generate filename with optional timestamp
+      // Generate filename from template
       var timestamp = timestampConfig.GenerateTimestamp();
-      var filename =
-        timestamp != null
-          ? $"dag-{SanitizeFilename(dag.PipelineName)}-{timestamp}.md"
-          : $"dag-{SanitizeFilename(dag.PipelineName)}.md";
+      var filename = FilenameTemplateParser.Render(dag, filenameTemplate, timestamp) + ".md";
       var filePath = Path.Combine(outputDirectory, filename);
 
       logger?.LogInformation("Exporting Mermaid diagram to {FilePath}", filePath);
@@ -115,30 +113,6 @@ public class MermaidMetadataProvider : IMetadataProvider
       );
       return false;
     }
-  }
-
-  /// <summary>
-  /// Sanitizes a pipeline name for use in a filename.
-  /// </summary>
-  private static string SanitizeFilename(string name)
-  {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return "UnnamedPipeline";
-    }
-
-    var invalidChars = Path.GetInvalidFileNameChars();
-    var sanitized = name;
-
-    foreach (var c in invalidChars)
-    {
-      sanitized = sanitized.Replace(c, '_');
-    }
-
-    // Also replace spaces with underscores for cleaner filenames
-    sanitized = sanitized.Replace(' ', '_');
-
-    return sanitized;
   }
 
   /// <summary>

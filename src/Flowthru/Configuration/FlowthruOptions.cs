@@ -58,6 +58,45 @@ public class MetadataOptions
   public List<string> Providers { get; set; } = new() { "Json", "Mermaid" };
 
   /// <summary>
+  /// Filename template for metadata exports.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Supports dynamic tokens that are replaced during export:
+  /// </para>
+  /// <list type="bullet">
+  /// <item><c>{PipelineName}</c> - Sanitized pipeline name</item>
+  /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled in Timestamp.IncludeTimestamp)</item>
+  /// <item><c>{SliceType}</c> - "FromNodes", "Tags", "Mixed", or empty if unsliced</item>
+  /// <item><c>{FromNodes}</c> - Comma-separated list of from-nodes</item>
+  /// <item><c>{ToNodes}</c> - Comma-separated list of to-nodes</item>
+  /// <item><c>{FromInputs}</c> - Comma-separated list of from-inputs</item>
+  /// <item><c>{OnlyNodes}</c> - Comma-separated list of only-nodes</item>
+  /// <item><c>{Tags}</c> - Comma-separated list of tags</item>
+  /// </list>
+  /// <para>
+  /// Empty tokens are automatically collapsed to prevent double-separators.
+  /// File extensions are added by individual providers (.json, .md, etc.).
+  /// </para>
+  /// <para>
+  /// <strong>Default:</strong> <c>"dag-{PipelineName}-{Timestamp}-{SliceType}"</c>
+  /// </para>
+  /// <para>
+  /// <strong>Examples:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Unsliced: <c>dag-DataProcessing-20260304-153045.json</c></item>
+  /// <item>Sliced: <c>dag-DataProcessing-20260304-153045-FromNodes.json</c></item>
+  /// </list>
+  /// </remarks>
+  public string FilenameTemplate { get; set; } = "dag-{PipelineName}-{Timestamp}-{SliceType}";
+
+  /// <summary>
+  /// Configuration for timestamp generation in metadata filenames.
+  /// </summary>
+  public TimestampConfiguration Timestamp { get; set; } = new();
+
+  /// <summary>
   /// Configuration specific to the JSON metadata provider.
   /// </summary>
   public JsonMetadataOptions? Json { get; set; }
@@ -158,11 +197,6 @@ public class PipelineOptions
   public string? Description { get; set; }
 
   /// <summary>
-  /// Tags for categorizing the pipeline.
-  /// </summary>
-  public List<string> Tags { get; set; } = new();
-
-  /// <summary>
   /// Pipeline-specific parameters (nested configuration section).
   /// The structure must match the pipeline's parameter type.
   /// </summary>
@@ -210,4 +244,25 @@ public class LoggingOptions
   /// Per-category log level overrides.
   /// </summary>
   public Dictionary<string, string> LogLevel { get; set; } = new();
+}
+
+/// <summary>
+/// Configuration for timestamp generation in metadata filenames.
+/// </summary>
+public class TimestampConfiguration
+{
+  /// <summary>
+  /// Whether to include a timestamp in the filename.
+  /// </summary>
+  public bool IncludeTimestamp { get; set; } = true;
+
+  /// <summary>
+  /// Timestamp format string (see .NET DateTime formatting).
+  /// </summary>
+  public string Format { get; set; } = "yyyyMMdd-HHmmss";
+
+  /// <summary>
+  /// Time zone for the timestamp (e.g., "UTC", "Local").
+  /// </summary>
+  public string TimeZone { get; set; } = "UTC";
 }

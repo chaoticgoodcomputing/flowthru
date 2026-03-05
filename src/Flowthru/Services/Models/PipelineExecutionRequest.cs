@@ -25,6 +25,14 @@ public record PipelineExecutionRequest
   public ExecutionOptions? Options { get; init; }
 
   /// <summary>
+  /// Optional slicing strategy to execute a subset of the pipeline.
+  /// </summary>
+  /// <remarks>
+  /// If null or IsSliced=false, the entire pipeline executes.
+  /// </remarks>
+  public PipelineSliceStrategy? SliceStrategy { get; init; }
+
+  /// <summary>
   /// Whether to export DAG metadata.
   /// </summary>
   /// <remarks>

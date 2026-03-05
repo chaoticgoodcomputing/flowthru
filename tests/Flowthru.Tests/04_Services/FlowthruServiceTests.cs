@@ -364,7 +364,6 @@ public class FlowthruServiceTests
     // Set metadata properties directly
     pipeline.Name = "test_pipeline";
     pipeline.Description = "Test pipeline description";
-    pipeline.Tags = new[] { "test", "metadata" };
 
     pipeline.Build();
     var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
@@ -377,9 +376,6 @@ public class FlowthruServiceTests
     // Assert
     Assert.That(metadata.Name, Is.EqualTo("test_pipeline"));
     Assert.That(metadata.Description, Is.EqualTo("Test pipeline description"));
-    Assert.That(metadata.Tags, Has.Count.EqualTo(2));
-    Assert.That(metadata.Tags, Does.Contain("test"));
-    Assert.That(metadata.Tags, Does.Contain("metadata"));
     Assert.That(metadata.NodeCount, Is.EqualTo(1));
     Assert.That(metadata.LayerCount, Is.EqualTo(1)); // Single layer: node with no dependencies
     Assert.That(metadata.IsBuilt, Is.True);

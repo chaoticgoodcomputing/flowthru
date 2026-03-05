@@ -19,7 +19,14 @@ internal static class ArgumentParser
     var options = new ExecutionOptions();
     var exportMetadata = true;
     string? metadataOutputDirectory = null;
-    string? pipelineName = null;
+
+    // Slicing options
+    HashSet<string>? pipelines = null;
+    HashSet<string>? fromNodes = null;
+    HashSet<string>? toNodes = null;
+    HashSet<string>? fromData = null;
+    HashSet<string>? toData = null;
+    HashSet<string>? onlyNodes = null;
 
     // Parse arguments
     for (int i = 0; i < args.Length; i++)
@@ -47,6 +54,89 @@ internal static class ArgumentParser
           }
           break;
 
+        case "--pipelines":
+        case "--pipeline":
+          if (i + 1 < args.Length)
+          {
+            pipelines ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            pipelines.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+          }
+          else
+          {
+            throw new ArgumentException(
+              "--pipelines requires a comma-separated list of pipeline names"
+            );
+          }
+          break;
+
+        case "--from-nodes":
+          if (i + 1 < args.Length)
+          {
+            fromNodes ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            fromNodes.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+          }
+          else
+          {
+            throw new ArgumentException(
+              "--from-nodes requires a comma-separated list of node names"
+            );
+          }
+          break;
+
+        case "--to-nodes":
+          if (i + 1 < args.Length)
+          {
+            toNodes ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            toNodes.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+          }
+          else
+          {
+            throw new ArgumentException("--to-nodes requires a comma-separated list of node names");
+          }
+          break;
+
+        case "--from-data":
+          if (i + 1 < args.Length)
+          {
+            fromData ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            fromData.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+          }
+          else
+          {
+            throw new ArgumentException(
+              "--from-data requires a comma-separated list of catalog entry names"
+            );
+          }
+          break;
+
+        case "--to-data":
+          if (i + 1 < args.Length)
+          {
+            toData ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            toData.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+          }
+          else
+          {
+            throw new ArgumentException(
+              "--to-data requires a comma-separated list of catalog entry names"
+            );
+          }
+          break;
+
+        case "--only-nodes":
+          if (i + 1 < args.Length)
+          {
+            onlyNodes ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            onlyNodes.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+          }
+          else
+          {
+            throw new ArgumentException(
+              "--only-nodes requires a comma-separated list of node names"
+            );
+          }
+          break;
+
         case "--help":
         case "-h":
           return new ParsedArguments { ShowHelp = true };
@@ -56,41 +146,44 @@ internal static class ArgumentParser
           return new ParsedArguments { ShowVersion = true };
 
         default:
-          // First non-flag argument is the pipeline name
-          if (!arg.StartsWith("--") && pipelineName == null)
-          {
-            pipelineName = arg;
-          }
-          break;
+          throw new ArgumentException($"Unknown argument: {arg}");
       }
     }
 
-    // If no pipeline specified, run all
-    if (pipelineName == null)
+    // Build slice strategy if any slicing flags were provided
+    PipelineSliceStrategy? sliceStrategy = null;
+    if (
+      pipelines != null
+      || fromNodes != null
+      || toNodes != null
+      || fromData != null
+      || toData != null
+      || onlyNodes != null
+    )
     {
-      return new ParsedArguments { ExecuteAll = true, Options = options };
-    }
-
-    // Validate pipeline name
-    if (!availablePipelines.Contains(pipelineName))
-    {
-      return new ParsedArguments
+      sliceStrategy = new PipelineSliceStrategy
       {
-        Error =
-          $"Pipeline '{pipelineName}' not found. Available: {string.Join(", ", availablePipelines)}",
+        Pipelines = pipelines,
+        FromNodes = fromNodes,
+        ToNodes = toNodes,
+        FromData = fromData,
+        ToData = toData,
+        OnlyNodes = onlyNodes,
       };
     }
 
-    // Create execution request
+    // Attach slice strategy to options when executing
+    if (sliceStrategy != null)
+    {
+      options.SliceStrategy = sliceStrategy;
+    }
+
     return new ParsedArguments
     {
-      Request = new PipelineExecutionRequest
-      {
-        PipelineName = pipelineName,
-        Options = options,
-        ExportMetadata = exportMetadata,
-        MetadataOutputDirectory = metadataOutputDirectory,
-      },
+      ExecuteAll = true,
+      Options = options,
+      ExportMetadata = exportMetadata,
+      MetadataOutputDirectory = metadataOutputDirectory,
     };
   }
 }
@@ -101,19 +194,24 @@ internal static class ArgumentParser
 internal sealed class ParsedArguments
 {
   /// <summary>
-  /// Pipeline execution request (if a specific pipeline was specified).
-  /// </summary>
-  public PipelineExecutionRequest? Request { get; init; }
-
-  /// <summary>
-  /// Whether to execute all pipelines.
+  /// Whether to execute all pipelines (now always true, with optional slicing).
   /// </summary>
   public bool ExecuteAll { get; init; }
 
   /// <summary>
-  /// Execution options (when executing all pipelines).
+  /// Execution options.
   /// </summary>
   public ExecutionOptions? Options { get; init; }
+
+  /// <summary>
+  /// Whether to export metadata.
+  /// </summary>
+  public bool ExportMetadata { get; init; } = true;
+
+  /// <summary>
+  /// Metadata output directory override.
+  /// </summary>
+  public string? MetadataOutputDirectory { get; init; }
 
   /// <summary>
   /// Whether to show help message.
