@@ -15,9 +15,9 @@ const path = require('path');
 const semver = require('semver');
 const xml2js = require('xml2js');
 
-const CSPROJ_PATH = path.join(__dirname, '../src/Flowthru/Flowthru.csproj');
+const CSPROJ_PATH = path.join(__dirname, '../src/core/Flowthru/Flowthru.csproj');
 const PACKAGE_JSON_PATH = path.join(__dirname, '../package.json');
-const README_PATH = path.join(__dirname, '../src/Flowthru/README.md');
+const README_PATH = path.join(__dirname, '../src/core/Flowthru/README.md');
 
 async function getCurrentVersion() {
   const csprojContent = fs.readFileSync(CSPROJ_PATH, 'utf8');

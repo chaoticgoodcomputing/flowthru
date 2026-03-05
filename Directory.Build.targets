@@ -18,23 +18,23 @@
   <ItemGroup Condition="($(MSBuildProjectDirRelativePath.StartsWith('examples')) OR $(MSBuildProjectDirRelativePath.StartsWith('tests'))) AND '$(MSBuildProjectName)' != 'Flowthru.Tests.Common'">
     <!-- Remove Flowthru PackageReferences -->
     <PackageReference Remove="Flowthru" />
-    <PackageReference Remove="Flowthru.Extensions.ML" />
+    <PackageReference Remove="Flowthru.Misc.ML" />
     
     <!-- Add Flowthru ProjectReferences -->
-    <ProjectReference Include="$(RepoRoot)src\Flowthru\Flowthru.csproj" />
-    <ProjectReference Include="$(RepoRoot)src\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
     
-    <!-- Add Extensions.ML ProjectReference only for UmapReferenceComparisons -->
-    <ProjectReference Include="$(RepoRoot)src\Flowthru.Extensions.ML\Flowthru.Extensions.ML.csproj" 
+    <!-- Add Misc.ML ProjectReference only for UmapReferenceComparisons -->
+    <ProjectReference Include="$(RepoRoot)src\misc\Flowthru.Misc.ML\Flowthru.Misc.ML.csproj" 
                       Condition="'$(MSBuildProjectName)' == 'UmapReferenceComparisons'" />
   </ItemGroup>
 
   <!-- Special case for Flowthru.Tests.Common: also convert PackageReference but keep existing SourceGenerators ProjectReference -->
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'Flowthru.Tests.Common'">
     <PackageReference Remove="Flowthru" />
-    <ProjectReference Include="$(RepoRoot)src\Flowthru\Flowthru.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,3 @@
-<!-- 
-  This file is imported early in the build order. 
-  Use it to set default property values that can be overridden in specific projects.
--->
 <Project>
   <PropertyGroup>
     <!-- Output path configuration -->
@@ -12,6 +8,9 @@
     <BaseIntermediateOutputPath>$(RepoRoot)dist/intermediates/$(ProjectRelativePath)/obj</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    
+    <!-- Consolidated NuGet package output -->
+    <PackageOutputPath>$(RepoRoot)dist/packages</PackageOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>

@@ -19,19 +19,19 @@
       "type": "json"
     },
     {
-      "filename": "src/Flowthru/Flowthru.csproj",
+      "filename": "src/core/Flowthru/Flowthru.csproj",
       "updater": "scripts/csproj-updater.js"
     },
     {
-      "filename": "src/Flowthru.Extensions.ML/Flowthru.Extensions.ML.csproj",
+      "filename": "src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj",
       "updater": "scripts/csproj-updater.js"
     },
     {
-      "filename": "src/Flowthru.Integrations.MLNet/Flowthru.Integrations.MLNet.csproj",
+      "filename": "src/extensions/Flowthru.Extensions.MLNet/Flowthru.Extensions.MLNet.csproj",
       "updater": "scripts/csproj-updater.js"
     },
     {
-      "filename": "src/Flowthru/README.md",
+      "filename": "src/core/Flowthru/README.md",
       "updater": "scripts/readme-updater.js"
     }
   ],

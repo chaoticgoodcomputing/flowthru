@@ -1,5 +1,5 @@
-using Flowthru.Extensions.ML.UMAP;
-using Flowthru.Extensions.ML.UMAP.Core;
+using Flowthru.Misc.ML.UMAP;
+using Flowthru.Misc.ML.UMAP.Core;
 using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;

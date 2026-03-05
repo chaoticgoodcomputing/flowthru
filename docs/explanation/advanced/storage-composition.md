@@ -67,9 +67,9 @@ The `[FlowthruSchema]` source generator analyzes your schema's properties and ad
 
 The composition implementation is in:
 
-- `src/Flowthru/Data/Storage/ComposedStorageAdapter.cs` — the compositor
-- `src/Flowthru/Data/Storage/Mediums/` — medium implementations
-- `src/Flowthru/Data/Storage/Formats/` — format serializers
-- `src/Flowthru/Data/Storage/Containers/` — container adapters
+- `src/core/Flowthru/Data/Storage/ComposedStorageAdapter.cs` — the compositor
+- `src/core/Flowthru/Data/Storage/Mediums/` — medium implementations
+- `src/core/Flowthru/Data/Storage/Formats/` — format serializers
+- `src/core/Flowthru/Data/Storage/Containers/` — container adapters
 
 The catalog entry factories (`CatalogEntries.Enumerable.Csv<T>(...)`) are convenience methods that construct composed adapters with common configurations.

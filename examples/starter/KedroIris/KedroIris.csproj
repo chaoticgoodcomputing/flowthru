@@ -8,10 +8,10 @@
   </PropertyGroup>
 
   <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('../../../src/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="../../../src/Flowthru/Flowthru.csproj" />
+  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../src/Flowthru/Flowthru.csproj')">
+  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
   </ItemGroup>
 

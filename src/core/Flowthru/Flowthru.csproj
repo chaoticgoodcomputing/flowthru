@@ -1,0 +1,97 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru</RootNamespace>
+    <Version>0.1.15</Version>
+    <Authors>Spencer Elkington</Authors>
+    <Description>A type-safe data engineering framework for .NET</Description>
+    
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru</PackageId>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
+    <PackageTags>data-engineering;pipeline;kedro</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Dependency Injection Abstractions (no concrete container) -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
+    
+    <!-- Logging Abstractions (Serilog compatible) -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.10" />
+    
+    <!-- Configuration Support -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.10" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.1.0" />
+    
+    <!-- Data Format Support -->
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
+    <PackageReference Include="Parquet.Net" Version="5.2.0" />
+    <PackageReference Include="ExcelDataReader" Version="3.6.0" />
+    <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
+    
+    <!-- Data Annotations for validation -->
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Source Generator for PipelineBuilder overloads -->
+    <ProjectReference Include="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      PrivateAssets="none" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include README and LICENSE in package -->
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <!-- Include build props to auto-import source generators -->
+    <None Include="build/Flowthru.props" Pack="true" PackagePath="build/" />
+  </ItemGroup>
+
+  <!-- Package source generators in standard analyzer location -->
+  <ItemGroup>
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.SourceGenerators/netstandard2.0/Flowthru.SourceGenerators.dll" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" />
+  </ItemGroup>
+
+  <!-- Ensure source generators are built before packing -->
+  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
+    <MSBuild Projects="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj" 
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+  </Target>
+
+  <!-- Include templates in package -->
+  <ItemGroup>
+    <Content Include="../../examples/starter/**/*" 
+             Exclude="../../examples/starter/**/bin/**;../../examples/starter/**/obj/**;../../examples/starter/**/.vs/**;../../examples/starter/**/.vscode/**;../../examples/starter/**/*.user"
+             Pack="true" 
+             PackagePath="content/" />
+    <Content Include="../../examples/item-templates/**/*" 
+             Exclude="../../examples/item-templates/**/bin/**;../../examples/item-templates/**/obj/**;../../examples/item-templates/**/.vs/**;../../examples/item-templates/**/.vscode/**;../../examples/item-templates/**/*.user"
+             Pack="true" 
+             PackagePath="content/" />
+  </ItemGroup>
+
+</Project>

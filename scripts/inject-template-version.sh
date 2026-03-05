@@ -4,10 +4,10 @@
 set -e
 
 # Extract version from Flowthru.csproj (macOS-compatible)
-VERSION=$(grep '<Version>' src/Flowthru/Flowthru.csproj | sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' | head -n 1)
+VERSION=$(grep '<Version>' src/core/Flowthru/Flowthru.csproj | sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' | head -n 1)
 
 if [ -z "$VERSION" ]; then
-  echo "Error: Could not extract version from src/Flowthru/Flowthru.csproj"
+  echo "Error: Could not extract version from src/core/Flowthru/Flowthru.csproj"
   exit 1
 fi
 

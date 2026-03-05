@@ -1,10 +1,16 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src\Flowthru\Flowthru.csproj" />
-    <Project Path="src\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj" />
-    <Project Path="src\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
-    <Project Path="src\Flowthru.Extensions.ML\Flowthru.Extensions.ML.csproj" />
-    <Project Path="src\Flowthru.Integrations.MLNet\Flowthru.Integrations.MLNet.csproj" />
+    <Folder Name="/core/">
+      <Project Path="src\core\Flowthru\Flowthru.csproj" />
+      <Project Path="src\core\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj" />
+    </Folder>
+    <Folder Name="/extensions/">
+      <Project Path="src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
+      <Project Path="src\extensions\Flowthru.Extensions.MLNet\Flowthru.Extensions.MLNet.csproj" />
+    </Folder>
+    <Folder Name="/misc/">
+      <Project Path="src\misc\Flowthru.Misc.ML\Flowthru.Misc.ML.csproj" />
+    </Folder>
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests\Flowthru.Tests\Flowthru.Tests.csproj" />

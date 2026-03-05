@@ -1,4 +1,4 @@
-using Flowthru.Extensions.ML.UMAP.Core;
+using Flowthru.Misc.ML.UMAP.Core;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
 namespace UmapReferenceComparisons.Helpers.Nodes;

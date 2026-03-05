@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Flowthru" Version="*" />
-    <PackageReference Include="Flowthru.Extensions.ML" Version="*" />
+    <PackageReference Include="Flowthru.Misc.ML" Version="*" />
   </ItemGroup>
 
   <ItemGroup>
