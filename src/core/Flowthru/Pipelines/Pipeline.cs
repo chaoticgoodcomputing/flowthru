@@ -295,6 +295,7 @@ public class Pipeline
   /// <summary>
   /// Validates all external inputs (Layer 0) before pipeline execution.
   /// </summary>
+  /// <param name="cancellationToken">Cancellation token for validation I/O operations</param>
   /// <returns>ValidationResult containing any errors found</returns>
   /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
   /// <remarks>
@@ -336,7 +337,9 @@ public class Pipeline
   /// await pipeline.RunAsync();
   /// </code>
   /// </remarks>
-  public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync()
+  public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync(
+    CancellationToken cancellationToken = default
+  )
   {
     if (!IsBuilt)
     {
@@ -408,7 +411,11 @@ public class Pipeline
 
           if (shallowInterface != null)
           {
-            inspectionResult = await InvokeShallowInspectionAsync(catalogEntry, shallowInterface);
+            inspectionResult = await InvokeShallowInspectionAsync(
+              catalogEntry,
+              shallowInterface,
+              cancellationToken
+            );
           }
           else
           {
@@ -432,7 +439,11 @@ public class Pipeline
 
           if (deepInterface != null)
           {
-            inspectionResult = await InvokeDeepInspectionAsync(catalogEntry, deepInterface);
+            inspectionResult = await InvokeDeepInspectionAsync(
+              catalogEntry,
+              deepInterface,
+              cancellationToken
+            );
           }
           else
           {
@@ -499,7 +510,8 @@ public class Pipeline
   /// </summary>
   private async Task<Data.Validation.ValidationResult> InvokeShallowInspectionAsync(
     ICatalogEntry catalogEntry,
-    Type shallowInterface
+    Type shallowInterface,
+    CancellationToken cancellationToken
   )
   {
     var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
@@ -508,7 +520,7 @@ public class Pipeline
     // Handle both FlowIO<ValidationResult> (unwrap to ValueTask) and Task<ValidationResult> return types
     if (result is FlowIO<Data.Validation.ValidationResult> io)
     {
-      return await io.Run();
+      return await io.Run(cancellationToken);
     }
     else if (result is ValueTask<Data.Validation.ValidationResult> valueTask)
     {
@@ -531,7 +543,8 @@ public class Pipeline
   /// </summary>
   private async Task<Data.Validation.ValidationResult> InvokeDeepInspectionAsync(
     ICatalogEntry catalogEntry,
-    Type deepInterface
+    Type deepInterface,
+    CancellationToken cancellationToken
   )
   {
     var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
@@ -540,7 +553,7 @@ public class Pipeline
     // Handle both FlowIO<ValidationResult> (unwrap to ValueTask) and Task<ValidationResult> return types
     if (result is FlowIO<Data.Validation.ValidationResult> io)
     {
-      return await io.Run();
+      return await io.Run(cancellationToken);
     }
     else if (result is ValueTask<Data.Validation.ValidationResult> valueTask)
     {
@@ -561,6 +574,7 @@ public class Pipeline
   /// <summary>
   /// /// Builds and executes the pipeline, returning comprehensive execution results.
   /// </summary>
+  /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
   /// <returns>PipelineResult containing execution status, timing, and node results</returns>
   /// <remarks>
   /// <para>
@@ -568,7 +582,7 @@ public class Pipeline
   /// calls Build() if the pipeline hasn't been built yet, then executes and tracks results.
   /// </para>
   /// </remarks>
-  public async Task<PipelineResult> RunAsync()
+  public async Task<PipelineResult> RunAsync(CancellationToken cancellationToken)
   {
     var stopwatch = Stopwatch.StartNew();
     var nodeResults = new Dictionary<string, NodeResult>();
@@ -591,7 +605,10 @@ public class Pipeline
 
         foreach (var pipelineNode in layer)
         {
-          var nodeResult = await ExecuteNodeWithTrackingAsync(pipelineNode);
+          // Check for cancellation before starting each node
+          cancellationToken.ThrowIfCancellationRequested();
+
+          var nodeResult = await ExecuteNodeWithTrackingAsync(pipelineNode, cancellationToken);
           nodeResults[pipelineNode.Label] = nodeResult;
 
           // If node failed, stop execution
@@ -627,6 +644,7 @@ public class Pipeline
   /// <summary>
   /// Executes the pipeline sequentially, layer by layer.
   /// </summary>
+  /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
   /// <returns>Task representing the pipeline execution</returns>
   /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
   /// <remarks>
@@ -645,7 +663,7 @@ public class Pipeline
   /// nodes within the same layer concurrently.
   /// </para>
   /// </remarks>
-  public async Task ExecuteAsync()
+  public async Task ExecuteAsync(CancellationToken cancellationToken)
   {
     if (!IsBuilt)
     {
@@ -664,7 +682,10 @@ public class Pipeline
 
         foreach (var pipelineNode in layer)
         {
-          await ExecuteNodeAsync(pipelineNode);
+          // Check for cancellation before starting each node
+          cancellationToken.ThrowIfCancellationRequested();
+
+          await ExecuteNodeAsync(pipelineNode, cancellationToken);
         }
       }
 
@@ -681,8 +702,12 @@ public class Pipeline
   /// Executes a single node with execution tracking and returns detailed results.
   /// </summary>
   /// <param name="pipelineNode">The node to execute</param>
+  /// <param name="cancellationToken">Cancellation token for I/O operations</param>
   /// <returns>NodeResult with execution details</returns>
-  private async Task<NodeResult> ExecuteNodeWithTrackingAsync(PipelineNode pipelineNode)
+  private async Task<NodeResult> ExecuteNodeWithTrackingAsync(
+    PipelineNode pipelineNode,
+    CancellationToken cancellationToken
+  )
   {
     var stopwatch = Stopwatch.StartNew();
 
@@ -690,7 +715,7 @@ public class Pipeline
     {
       // Get input counts for diagnostics (before loading data)
       var inputCountAffs = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
-      var inputCountTasks = inputCountAffs.Select(aff => aff.Run().AsTask());
+      var inputCountTasks = inputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputCountResults = await Task.WhenAll(inputCountTasks);
       var inputCounts = inputCountResults;
       var totalInputCount = inputCounts.Sum();
@@ -705,7 +730,7 @@ public class Pipeline
       // Load inputs from catalog entries
       // LoadUntyped() returns T directly (singleton or collection), no wrapping needed
       var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
-      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
+      var inputLoadTasks = inputAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
@@ -787,7 +812,7 @@ public class Pipeline
         {
           // Single output: save directly
           var catalogEntry = pipelineNode.Outputs[0];
-          await catalogEntry.SaveUntyped(output).Run();
+          await catalogEntry.SaveUntyped(output).Run(cancellationToken);
         }
         else
         {
@@ -816,7 +841,7 @@ public class Pipeline
             var field = tupleFields[i];
             var outputData = field.GetValue(output);
 
-            await catalogEntry.SaveUntyped(outputData!).Run();
+            await catalogEntry.SaveUntyped(outputData!).Run(cancellationToken);
           }
         }
       }
@@ -825,7 +850,7 @@ public class Pipeline
 
       // Get output counts for diagnostics (after saving data)
       var outputCountAffs = pipelineNode.Outputs.Select(entry => entry.GetCountAsync());
-      var outputCountTasks = outputCountAffs.Select(aff => aff.Run().AsTask());
+      var outputCountTasks = outputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var outputCountResults = await Task.WhenAll(outputCountTasks);
       var outputCounts = outputCountResults;
       var totalOutputCount = outputCounts.Sum();
@@ -863,7 +888,11 @@ public class Pipeline
   /// and saving its outputs.
   /// </summary>
   /// <param name="pipelineNode">The node to execute</param>
-  private async Task ExecuteNodeAsync(PipelineNode pipelineNode)
+  /// <param name="cancellationToken">Cancellation token for I/O operations</param>
+  private async Task ExecuteNodeAsync(
+    PipelineNode pipelineNode,
+    CancellationToken cancellationToken
+  )
   {
     Logger?.LogInformation("Executing node: {NodeName}", pipelineNode.Label);
 
@@ -871,7 +900,7 @@ public class Pipeline
     {
       // Load inputs from catalog entries
       var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
-      var inputLoadTasks = inputAffs.Select(aff => aff.Run().AsTask());
+      var inputLoadTasks = inputAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
@@ -915,7 +944,7 @@ public class Pipeline
       {
         if (pipelineNode.Outputs.Count == 1)
         {
-          await pipelineNode.Outputs[0].SaveUntyped(output).Run();
+          await pipelineNode.Outputs[0].SaveUntyped(output).Run(cancellationToken);
         }
         else
         {
@@ -923,7 +952,7 @@ public class Pipeline
           for (int i = 0; i < pipelineNode.Outputs.Count; i++)
           {
             var outputData = tupleFields[i].GetValue(output);
-            await pipelineNode.Outputs[i].SaveUntyped(outputData!).Run();
+            await pipelineNode.Outputs[i].SaveUntyped(outputData!).Run(cancellationToken);
           }
         }
       }

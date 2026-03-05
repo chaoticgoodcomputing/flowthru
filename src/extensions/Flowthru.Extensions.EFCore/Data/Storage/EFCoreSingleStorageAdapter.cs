@@ -100,27 +100,29 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, ISeedabl
 
   /// <inheritdoc/>
   public FlowIO<T> Load() =>
-    FlowIO.LiftAsync(async () =>
-    {
-      var context = GetContext();
-      try
+    FlowIO.LiftAsync(
+      async (ct) =>
       {
-        var dbSet = context.Set<T>();
-        var entity = await dbSet.SingleAsync();
-
-        // Detach to prevent tracking issues if context is reused
-        context.Entry(entity).State = EntityState.Detached;
-
-        return entity;
-      }
-      finally
-      {
-        if (_ownsContext && _contextFactory != null)
+        var context = GetContext();
+        try
         {
-          await context.DisposeAsync();
+          var dbSet = context.Set<T>();
+          var entity = await dbSet.SingleAsync(ct);
+
+          // Detach to prevent tracking issues if context is reused
+          context.Entry(entity).State = EntityState.Detached;
+
+          return entity;
+        }
+        finally
+        {
+          if (_ownsContext && _contextFactory != null)
+          {
+            await context.DisposeAsync();
+          }
         }
       }
-    });
+    );
 
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(T data)
@@ -132,55 +134,59 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, ISeedabl
       );
     }
 
-    return FlowIO.LiftAsync(async () =>
-    {
-      var context = GetContext();
-      try
+    return FlowIO.LiftAsync(
+      async (ct) =>
       {
-        var dbSet = context.Set<T>();
-
-        // Replace semantics: remove all existing rows
-        var existing = await dbSet.ToListAsync();
-        if (existing.Count > 0)
+        var context = GetContext();
+        try
         {
-          dbSet.RemoveRange(existing);
+          var dbSet = context.Set<T>();
+
+          // Replace semantics: remove all existing rows
+          var existing = await dbSet.ToListAsync(ct);
+          if (existing.Count > 0)
+          {
+            dbSet.RemoveRange(existing);
+          }
+
+          // Add new entity
+          await dbSet.AddAsync(data, ct);
+          await context.SaveChangesAsync(ct);
+
+          return FlowUnit.Default;
         }
-
-        // Add new entity
-        await dbSet.AddAsync(data);
-        await context.SaveChangesAsync();
-
-        return FlowUnit.Default;
-      }
-      finally
-      {
-        if (_ownsContext && _contextFactory != null)
+        finally
         {
-          await context.DisposeAsync();
+          if (_ownsContext && _contextFactory != null)
+          {
+            await context.DisposeAsync();
+          }
         }
       }
-    });
+    );
   }
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists() =>
-    FlowIO.LiftAsync(async () =>
-    {
-      var context = GetContext();
-      try
+    FlowIO.LiftAsync(
+      async (ct) =>
       {
-        var dbSet = context.Set<T>();
-        var count = await dbSet.CountAsync();
-        return count == 1;
-      }
-      finally
-      {
-        if (_ownsContext && _contextFactory != null)
+        var context = GetContext();
+        try
         {
-          await context.DisposeAsync();
+          var dbSet = context.Set<T>();
+          var count = await dbSet.CountAsync(ct);
+          return count == 1;
+        }
+        finally
+        {
+          if (_ownsContext && _contextFactory != null)
+          {
+            await context.DisposeAsync();
+          }
         }
       }
-    });
+    );
 
   /// <summary>
   /// Gets a DbContext from either the injected instance or factory.

@@ -56,23 +56,25 @@ public sealed class OnnxModelStorageAdapter
 
   /// <inheritdoc/>
   public FlowIO<byte[]> Load() =>
-    FlowIO.LiftAsync(async () =>
-    {
-      if (!File.Exists(_filePath))
+    FlowIO.LiftAsync(
+      async (ct) =>
       {
-        throw new FileNotFoundException(
-          $"ONNX model file not found: {_filePath}\n"
-            + $"Please provide a valid ONNX model file. See docs/guides/using-onnx-models-from-huggingface.md",
-          _filePath
-        );
-      }
+        if (!File.Exists(_filePath))
+        {
+          throw new FileNotFoundException(
+            $"ONNX model file not found: {_filePath}\n"
+              + $"Please provide a valid ONNX model file. See docs/guides/using-onnx-models-from-huggingface.md",
+            _filePath
+          );
+        }
 
-      return await File.ReadAllBytesAsync(_filePath);
-    });
+        return await File.ReadAllBytesAsync(_filePath, ct);
+      }
+    );
 
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(byte[] data) =>
-    FlowIO.LiftAsync<FlowUnit>(async () =>
+    FlowIO.Lift<FlowUnit>(() =>
     {
       throw new InvalidOperationException(
         "ONNX models are read-only and should not be written by pipelines. "
@@ -81,76 +83,78 @@ public sealed class OnnxModelStorageAdapter
     });
 
   /// <inheritdoc/>
-  public FlowIO<bool> Exists() => FlowIO.LiftAsync(async () => File.Exists(_filePath));
+  public FlowIO<bool> Exists() => FlowIO.Lift(() => File.Exists(_filePath));
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
-    FlowIO.LiftAsync(async () =>
-    {
-      // Check file existence
-      if (!File.Exists(_filePath))
+    FlowIO.LiftAsync(
+      async (ct) =>
       {
-        return ValidationResult.Failure(
-          catalogKey: "OnnxModel",
-          errorType: ValidationErrorType.NotFound,
-          message: $"ONNX model file not found: {_filePath}",
-          details: "Please provide a valid ONNX model file. See docs/guides/using-onnx-models-from-huggingface.md"
-        );
-      }
+        // Check file existence
+        if (!File.Exists(_filePath))
+        {
+          return ValidationResult.Failure(
+            catalogKey: "OnnxModel",
+            errorType: ValidationErrorType.NotFound,
+            message: $"ONNX model file not found: {_filePath}",
+            details: "Please provide a valid ONNX model file. See docs/guides/using-onnx-models-from-huggingface.md"
+          );
+        }
 
-      // Check file extension
-      var extension = Path.GetExtension(_filePath).ToLowerInvariant();
-      if (extension != ".onnx")
-      {
-        return ValidationResult.Failure(
-          catalogKey: "OnnxModel",
-          errorType: ValidationErrorType.InvalidFormat,
-          message: $"File does not have .onnx extension: {_filePath}",
-          details: $"Found extension: {extension}"
-        );
-      }
-
-      // Check file is readable and non-empty
-      try
-      {
-        var fileInfo = new FileInfo(_filePath);
-        if (fileInfo.Length == 0)
+        // Check file extension
+        var extension = Path.GetExtension(_filePath).ToLowerInvariant();
+        if (extension != ".onnx")
         {
           return ValidationResult.Failure(
             catalogKey: "OnnxModel",
             errorType: ValidationErrorType.InvalidFormat,
-            message: $"ONNX model file is empty: {_filePath}",
-            details: "File size is 0 bytes"
+            message: $"File does not have .onnx extension: {_filePath}",
+            details: $"Found extension: {extension}"
           );
         }
 
-        // Check we can read the file
-        using var stream = File.OpenRead(_filePath);
-        var buffer = new byte[8];
-        var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+        // Check file is readable and non-empty
+        try
+        {
+          var fileInfo = new FileInfo(_filePath);
+          if (fileInfo.Length == 0)
+          {
+            return ValidationResult.Failure(
+              catalogKey: "OnnxModel",
+              errorType: ValidationErrorType.InvalidFormat,
+              message: $"ONNX model file is empty: {_filePath}",
+              details: "File size is 0 bytes"
+            );
+          }
 
-        if (bytesRead == 0)
+          // Check we can read the file
+          using var stream = File.OpenRead(_filePath);
+          var buffer = new byte[8];
+          var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+
+          if (bytesRead == 0)
+          {
+            return ValidationResult.Failure(
+              catalogKey: "OnnxModel",
+              errorType: ValidationErrorType.InvalidFormat,
+              message: $"ONNX model file cannot be read: {_filePath}",
+              details: "Failed to read any bytes from file"
+            );
+          }
+
+          return ValidationResult.Success();
+        }
+        catch (Exception ex)
         {
           return ValidationResult.Failure(
             catalogKey: "OnnxModel",
-            errorType: ValidationErrorType.InvalidFormat,
-            message: $"ONNX model file cannot be read: {_filePath}",
-            details: "Failed to read any bytes from file"
+            errorType: ValidationErrorType.InspectionFailure,
+            message: $"Error accessing ONNX model file: {_filePath}",
+            details: ex.Message
           );
         }
-
-        return ValidationResult.Success();
       }
-      catch (Exception ex)
-      {
-        return ValidationResult.Failure(
-          catalogKey: "OnnxModel",
-          errorType: ValidationErrorType.InspectionFailure,
-          message: $"Error accessing ONNX model file: {_filePath}",
-          details: ex.Message
-        );
-      }
-    });
+    );
 
   /// <summary>
   /// Gets the file path to the ONNX model.

@@ -95,23 +95,25 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   {
     // Compose IO operations functionally using LINQ comprehension syntax
     return from stream in _medium.ReadStream()
-      from container in FlowIO.LiftAsync(async () =>
-      {
-        try
+      from container in FlowIO.LiftAsync(
+        async (CancellationToken ct) =>
         {
-          // 2. Format: Deserialize bytes to rows
-          var rows = _format.DeserializeRows(stream);
+          try
+          {
+            // 2. Format: Deserialize bytes to rows
+            var rows = _format.DeserializeRows(stream);
 
-          // 3. Container: Materialize rows into container
-          var result = await _container.FromRows(rows);
+            // 3. Container: Materialize rows into container
+            var result = await _container.FromRows(rows);
 
-          return result;
+            return result;
+          }
+          finally
+          {
+            stream.Dispose();
+          }
         }
-        finally
-        {
-          stream.Dispose();
-        }
-      })
+      )
       select container;
   }
 
@@ -130,19 +132,21 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
     }
 
     // Compose IO operations functionally
-    return from memStream in FlowIO.LiftAsync(async () =>
-      {
-        var stream = new MemoryStream();
+    return from memStream in FlowIO.LiftAsync(
+        async (CancellationToken ct) =>
+        {
+          var stream = new MemoryStream();
 
-        // 1. Container: Convert container to rows
-        var rows = _container.ToRows(data);
+          // 1. Container: Convert container to rows
+          var rows = _container.ToRows(data);
 
-        // 2. Format: Serialize rows to bytes
-        await _format.SerializeRows(stream, rows);
+          // 2. Format: Serialize rows to bytes
+          await _format.SerializeRows(stream, rows);
 
-        stream.Position = 0;
-        return stream;
-      })
+          stream.Position = 0;
+          return stream;
+        }
+      )
       from result in _medium.WriteStream(memStream)
       select result;
   }

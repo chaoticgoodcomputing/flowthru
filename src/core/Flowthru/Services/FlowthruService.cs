@@ -118,7 +118,7 @@ internal sealed class FlowthruService : IFlowthruService
 
     // Validate external inputs
     _logger.LogInformation("→ Validating external data sources...");
-    var validationResult = await mergedPipeline.ValidateExternalInputsAsync();
+    var validationResult = await mergedPipeline.ValidateExternalInputsAsync(cancellationToken);
     if (!validationResult.IsValid)
     {
       _logger.LogError("  ✗ Validation failed");
@@ -176,7 +176,7 @@ internal sealed class FlowthruService : IFlowthruService
     _logger.LogInformation("");
 
     // Execute merged pipeline
-    var result = await mergedPipeline.RunAsync();
+    var result = await mergedPipeline.RunAsync(cancellationToken);
 
     // Format results
     var formatter = options.GetFormatter();
@@ -227,7 +227,7 @@ internal sealed class FlowthruService : IFlowthruService
       );
     }
 
-    return await pipeline.ValidateExternalInputsAsync();
+    return await pipeline.ValidateExternalInputsAsync(cancellationToken);
   }
 
   private async Task ExportPipelineMetadataAsync(

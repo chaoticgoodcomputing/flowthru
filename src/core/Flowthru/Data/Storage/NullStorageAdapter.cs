@@ -27,23 +27,19 @@ public sealed class NullStorageAdapter<T> : IStorageAdapter<T>, IReadOnly
 
   /// <inheritdoc/>
   public FlowIO<T> Load() =>
-    FlowIO.LiftAsync<T>(async () =>
+    FlowIO.Lift<T>(() =>
     {
       throw new NotSupportedException("NullStorageAdapter does not support Load operations");
     });
 
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(T data) =>
-    FlowIO.LiftAsync(async () =>
+    FlowIO.Lift(() =>
     {
       // No-op: side-effect-only nodes don't save data
       return FlowUnit.Default;
     });
 
   /// <inheritdoc/>
-  public FlowIO<bool> Exists() =>
-    FlowIO.LiftAsync(async () =>
-    {
-      return false; // Null entries never exist as seedable data
-    });
+  public FlowIO<bool> Exists() => FlowIO.Lift(() => false); // Null entries never exist as seedable data
 }

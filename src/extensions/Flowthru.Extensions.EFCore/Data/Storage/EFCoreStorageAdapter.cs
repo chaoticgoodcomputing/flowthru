@@ -214,28 +214,30 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
   /// <inheritdoc/>
   public FlowIO<IEnumerable<T>> Load()
   {
-    return FlowIO.LiftAsync(async () =>
-    {
-      var context = GetContext();
-      try
+    return FlowIO.LiftAsync(
+      async (ct) =>
       {
-        var dbSet = context.Set<T>();
-
-        // Materialize the query into a list to detach from DbContext
-        // This ensures the data survives DbContext disposal
-        var data = await dbSet.ToListAsync();
-
-        return (IEnumerable<T>)data;
-      }
-      finally
-      {
-        // Only dispose if we created the context
-        if (_ownsContext && context != null)
+        var context = GetContext();
+        try
         {
-          await context.DisposeAsync();
+          var dbSet = context.Set<T>();
+
+          // Materialize the query into a list to detach from DbContext
+          // This ensures the data survives DbContext disposal
+          var data = await dbSet.ToListAsync(ct);
+
+          return (IEnumerable<T>)data;
+        }
+        finally
+        {
+          // Only dispose if we created the context
+          if (_ownsContext && context != null)
+          {
+            await context.DisposeAsync();
+          }
         }
       }
-    });
+    );
   }
 
   /// <inheritdoc/>
@@ -250,68 +252,72 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
       );
     }
 
-    return FlowIO.LiftAsync(async () =>
-    {
-      var context = GetContext();
-      try
+    return FlowIO.LiftAsync(
+      async (ct) =>
       {
-        var dbSet = context.Set<T>();
-
-        // Strategy: Replace all existing data with new data
-        // This matches the semantics of file-based storage (overwrite)
-        // For append/upsert semantics, use a specialized adapter or node logic
-
-        // Clear existing data
-        var existing = await dbSet.ToListAsync();
-        dbSet.RemoveRange(existing);
-
-        // Add new data
-        await dbSet.AddRangeAsync(data);
-
-        // Commit transaction
-        await context.SaveChangesAsync();
-
-        return FlowUnit.Default;
-      }
-      finally
-      {
-        if (_ownsContext && context != null)
+        var context = GetContext();
+        try
         {
-          await context.DisposeAsync();
+          var dbSet = context.Set<T>();
+
+          // Strategy: Replace all existing data with new data
+          // This matches the semantics of file-based storage (overwrite)
+          // For append/upsert semantics, use a specialized adapter or node logic
+
+          // Clear existing data
+          var existing = await dbSet.ToListAsync(ct);
+          dbSet.RemoveRange(existing);
+
+          // Add new data
+          await dbSet.AddRangeAsync(data, ct);
+
+          // Commit transaction
+          await context.SaveChangesAsync(ct);
+
+          return FlowUnit.Default;
+        }
+        finally
+        {
+          if (_ownsContext && context != null)
+          {
+            await context.DisposeAsync();
+          }
         }
       }
-    });
+    );
   }
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists()
   {
-    return FlowIO.LiftAsync(async () =>
-    {
-      var context = GetContext();
-      try
+    return FlowIO.LiftAsync(
+      async (ct) =>
       {
-        var dbSet = context.Set<T>();
-
-        // Check if table exists and has data
-        // Database existence = table exists in schema
-        // We use Any() to check both existence and non-empty
-        // For empty-table-as-seed scenarios, this may need refinement
-        return await dbSet.AnyAsync();
-      }
-      catch (Exception)
-      {
-        // Table doesn't exist or query failed
-        return false;
-      }
-      finally
-      {
-        if (_ownsContext && context != null)
+        var context = GetContext();
+        try
         {
-          await context.DisposeAsync();
+          var dbSet = context.Set<T>();
+
+          // Check if table exists and has data
+          // Database existence = table exists in schema
+          // We use Any() to check both existence and non-empty
+          // For empty-table-as-seed scenarios, this may need refinement
+          return await dbSet.AnyAsync(ct);
+        }
+        catch (Exception)
+        {
+          // Table doesn't exist or query failed
+          return false;
+        }
+        finally
+        {
+          if (_ownsContext && context != null)
+          {
+            await context.DisposeAsync();
+          }
         }
       }
-    });
+    );
   }
 
   private DbContext GetContext()

@@ -70,7 +70,7 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
   /// <inheritdoc />
   public FlowIO<T> Load()
   {
-    return FlowIO.LiftAsync(async () =>
+    return FlowIO.Lift(() =>
     {
       lock (_lock)
       {
@@ -88,7 +88,7 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
   /// <inheritdoc />
   public FlowIO<FlowUnit> Save(T data)
   {
-    return FlowIO.LiftAsync(async () =>
+    return FlowIO.Lift(() =>
     {
       lock (_lock)
       {
@@ -102,7 +102,7 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
   /// <inheritdoc />
   public FlowIO<bool> Exists()
   {
-    return FlowIO.LiftAsync(async () =>
+    return FlowIO.Lift(() =>
     {
       lock (_lock)
       {

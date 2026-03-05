@@ -32,34 +32,34 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>, ISeedable
 
   /// <inheritdoc/>
   public FlowIO<string> Load() =>
-    FlowIO.LiftAsync(async () =>
-    {
-      if (!File.Exists(_filePath))
+    FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
       {
-        throw new FileNotFoundException($"Text file not found: {_filePath}");
-      }
+        if (!File.Exists(_filePath))
+        {
+          throw new FileNotFoundException($"Text file not found: {_filePath}");
+        }
 
-      return await File.ReadAllTextAsync(_filePath);
-    });
+        return await File.ReadAllTextAsync(_filePath, ct);
+      }
+    );
 
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(string data) =>
-    FlowIO.LiftAsync(async () =>
-    {
-      var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory))
+    FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
       {
-        Directory.CreateDirectory(directory);
-      }
+        var directory = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrEmpty(directory))
+        {
+          Directory.CreateDirectory(directory);
+        }
 
-      await File.WriteAllTextAsync(_filePath, data);
-      return FlowUnit.Default;
-    });
+        await File.WriteAllTextAsync(_filePath, data, ct);
+        return FlowUnit.Default;
+      }
+    );
 
   /// <inheritdoc/>
-  public FlowIO<bool> Exists() =>
-    FlowIO.LiftAsync(async () =>
-    {
-      return File.Exists(_filePath);
-    });
+  public FlowIO<bool> Exists() => FlowIO.Lift(() => File.Exists(_filePath));
 }

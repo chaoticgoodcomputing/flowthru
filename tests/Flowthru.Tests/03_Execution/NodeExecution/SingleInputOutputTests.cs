@@ -46,7 +46,7 @@ public class SingleInputOutputTests
     // ===========
     // Act
     // ===========
-    await pipeline.RunAsync();
+    await pipeline.RunAsync(CancellationToken.None);
 
     // ===========
     // Assert
@@ -92,7 +92,7 @@ public class SingleInputOutputTests
     // ===========
     // Act
     // ===========
-    await pipeline.RunAsync();
+    await pipeline.RunAsync(CancellationToken.None);
 
     // ===========
     // Assert
@@ -138,7 +138,7 @@ public class SingleInputOutputTests
     // ===========
     // Act
     // ===========
-    await pipeline.RunAsync();
+    await pipeline.RunAsync(CancellationToken.None);
 
     // ===========
     // Assert
@@ -181,7 +181,7 @@ public class SingleInputOutputTests
     // ===========
     // Act
     // ===========
-    var result = await pipeline.RunAsync();
+    var result = await pipeline.RunAsync(CancellationToken.None);
 
     // ===========
     // Assert

@@ -84,59 +84,63 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
   /// <inheritdoc />
   public FlowIO<T> Load()
   {
-    return FlowIO.LiftAsync(async () =>
-    {
-      if (!File.Exists(_filePath))
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
       {
-        throw new FileNotFoundException($"JSON file not found at '{_filePath}'", _filePath);
-      }
+        if (!File.Exists(_filePath))
+        {
+          throw new FileNotFoundException($"JSON file not found at '{_filePath}'", _filePath);
+        }
 
-      await using var stream = File.OpenRead(_filePath);
-      var result = await JsonSerializer.DeserializeAsync<T>(stream, _options);
-      return result
-        ?? throw new InvalidOperationException($"Failed to deserialize JSON from '{_filePath}'");
-    });
+        await using var stream = File.OpenRead(_filePath);
+        var result = await JsonSerializer.DeserializeAsync<T>(stream, _options, ct);
+        return result
+          ?? throw new InvalidOperationException($"Failed to deserialize JSON from '{_filePath}'");
+      }
+    );
   }
 
   /// <inheritdoc />
   public FlowIO<FlowUnit> Save(T data)
   {
-    return FlowIO.LiftAsync(async () =>
-    {
-      if (data == null)
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
       {
-        throw new ArgumentNullException(nameof(data));
-      }
+        if (data == null)
+        {
+          throw new ArgumentNullException(nameof(data));
+        }
 
-      // Ensure directory exists
-      var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-      {
-        Directory.CreateDirectory(directory);
-      }
+        // Ensure directory exists
+        var directory = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+          Directory.CreateDirectory(directory);
+        }
 
-      // Write to temp file then rename for atomicity
-      var tempPath = _filePath + ".tmp";
-      await using (var stream = File.Create(tempPath))
-      {
-        await JsonSerializer.SerializeAsync(stream, data, _options);
-      }
+        // Write to temp file then rename for atomicity
+        var tempPath = _filePath + ".tmp";
+        await using (var stream = File.Create(tempPath))
+        {
+          await JsonSerializer.SerializeAsync(stream, data, _options, ct);
+        }
 
-      // Atomic rename
-      if (File.Exists(_filePath))
-      {
-        File.Delete(_filePath);
-      }
-      File.Move(tempPath, _filePath);
+        // Atomic rename
+        if (File.Exists(_filePath))
+        {
+          File.Delete(_filePath);
+        }
+        File.Move(tempPath, _filePath);
 
-      return FlowUnit.Default;
-    });
+        return FlowUnit.Default;
+      }
+    );
   }
 
   /// <inheritdoc />
   public FlowIO<bool> Exists()
   {
-    return FlowIO.LiftAsync(async () => File.Exists(_filePath));
+    return FlowIO.Lift(() => File.Exists(_filePath));
   }
 
   /// <summary>

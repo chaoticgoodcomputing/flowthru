@@ -74,93 +74,97 @@ public sealed class FileStorageMedium : IStorageMedium, ISeedable
   /// <inheritdoc/>
   public FlowIO<Stream> ReadStream()
   {
-    return FlowIO.LiftAsync(async () =>
-    {
-      if (!File.Exists(_filePath))
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
       {
-        throw new FileNotFoundException($"File not found at path: {_filePath}", _filePath);
+        if (!File.Exists(_filePath))
+        {
+          throw new FileNotFoundException($"File not found at path: {_filePath}", _filePath);
+        }
+
+        // Open file for reading with shared read access
+        var stream = new FileStream(
+          _filePath,
+          FileMode.Open,
+          FileAccess.Read,
+          FileShare.Read,
+          bufferSize: 4096,
+          useAsync: true
+        );
+
+        return (Stream)stream;
       }
-
-      // Open file for reading with shared read access
-      var stream = new FileStream(
-        _filePath,
-        FileMode.Open,
-        FileAccess.Read,
-        FileShare.Read,
-        bufferSize: 4096,
-        useAsync: true
-      );
-
-      return (Stream)stream;
-    });
+    );
   }
 
   /// <inheritdoc/>
   public FlowIO<FlowUnit> WriteStream(Stream stream)
   {
-    return FlowIO.LiftAsync(async () =>
-    {
-      if (stream == null)
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
       {
-        throw new ArgumentNullException(nameof(stream));
-      }
+        if (stream == null)
+        {
+          throw new ArgumentNullException(nameof(stream));
+        }
 
-      // Ensure parent directory exists
-      var directory = Path.GetDirectoryName(_filePath);
-      if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-      {
-        Directory.CreateDirectory(directory);
-      }
+        // Ensure parent directory exists
+        var directory = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+          Directory.CreateDirectory(directory);
+        }
 
-      // Write to temp file first for atomic operation
-      var tempPath = $"{_filePath}.tmp.{Guid.NewGuid():N}";
+        // Write to temp file first for atomic operation
+        var tempPath = $"{_filePath}.tmp.{Guid.NewGuid():N}";
 
-      try
-      {
-        // Write to temp file
-        using (
-          var fileStream = new FileStream(
-            tempPath,
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            bufferSize: 4096,
-            useAsync: true
+        try
+        {
+          // Write to temp file
+          using (
+            var fileStream = new FileStream(
+              tempPath,
+              FileMode.Create,
+              FileAccess.Write,
+              FileShare.None,
+              bufferSize: 4096,
+              useAsync: true
+            )
           )
-        )
-        {
-          await stream.CopyToAsync(fileStream);
-          await fileStream.FlushAsync();
-        }
-
-        // Atomic rename: replace old file with new one
-        File.Move(tempPath, _filePath, overwrite: true);
-
-        return FlowUnit.Default;
-      }
-      catch
-      {
-        // Clean up temp file on failure
-        if (File.Exists(tempPath))
-        {
-          try
           {
-            File.Delete(tempPath);
+            await stream.CopyToAsync(fileStream, ct);
+            await fileStream.FlushAsync(ct);
           }
-          catch
-          {
-            // Ignore cleanup errors
-          }
+
+          // Atomic rename: replace old file with new one
+          File.Move(tempPath, _filePath, overwrite: true);
+
+          return FlowUnit.Default;
         }
-        throw;
+        catch
+        {
+          // Clean up temp file on failure
+          if (File.Exists(tempPath))
+          {
+            try
+            {
+              File.Delete(tempPath);
+            }
+            catch
+            {
+              // Ignore cleanup errors
+            }
+          }
+          throw;
+        }
       }
-    });
+    );
   }
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists()
   {
-    return FlowIO.LiftAsync(async () => File.Exists(_filePath));
+    return FlowIO.Lift(() => File.Exists(_filePath));
   }
 
   /// <inheritdoc/>

@@ -2,12 +2,12 @@ UMAP Runtime Report: Iris
 Samples: 150
 
 Phase Timings:
-  GraphConstruction             45 ms
-  GraphRefinement                5 ms
-  LayoutInit                    46 ms
-  LayoutOptimization           242 ms
-  LocalMetric                   38 ms
-  NeighborSearch                 9 ms
-  SamplingSchedule               0 ms
+  GraphConstruction             33 ms
+  GraphRefinement               22 ms
+  LayoutInit                    52 ms
+  LayoutOptimization           280 ms
+  LocalMetric                    9 ms
+  NeighborSearch                10 ms
+  SamplingSchedule               5 ms
 
-Total Time: 488 ms (0.49 seconds)
+Total Time: 502 ms (0.50 seconds)

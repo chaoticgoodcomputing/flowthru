@@ -83,7 +83,7 @@ public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
   /// <inheritdoc/>
   public FlowIO<Stream> ReadStream()
   {
-    return FlowIO.LiftAsync(async () =>
+    return FlowIO.Lift(() =>
     {
       lock (_lock)
       {
@@ -107,30 +107,32 @@ public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
   /// <inheritdoc/>
   public FlowIO<FlowUnit> WriteStream(Stream stream)
   {
-    return FlowIO.LiftAsync(async () =>
-    {
-      if (stream == null)
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
       {
-        throw new ArgumentNullException(nameof(stream));
+        if (stream == null)
+        {
+          throw new ArgumentNullException(nameof(stream));
+        }
+
+        // Read stream into memory buffer
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream, ct);
+
+        lock (_lock)
+        {
+          _buffer = memoryStream.ToArray();
+        }
+
+        return FlowUnit.Default;
       }
-
-      // Read stream into memory buffer
-      using var memoryStream = new MemoryStream();
-      await stream.CopyToAsync(memoryStream);
-
-      lock (_lock)
-      {
-        _buffer = memoryStream.ToArray();
-      }
-
-      return FlowUnit.Default;
-    });
+    );
   }
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists()
   {
-    return FlowIO.LiftAsync(async () =>
+    return FlowIO.Lift(() =>
     {
       lock (_lock)
       {
