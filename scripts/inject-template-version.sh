@@ -3,11 +3,11 @@
 
 set -e
 
-# Extract version from Flowthru.csproj (macOS-compatible)
-VERSION=$(grep '<Version>' src/core/Flowthru/Flowthru.csproj | sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' | head -n 1)
+# Extract version from Directory.Build.props (macOS-compatible)
+VERSION=$(grep '<Version>' Directory.Build.props | sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' | head -n 1)
 
 if [ -z "$VERSION" ]; then
-  echo "Error: Could not extract version from src/core/Flowthru/Flowthru.csproj"
+  echo "Error: Could not extract version from Directory.Build.props"
   exit 1
 fi
 

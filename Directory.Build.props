@@ -15,4 +15,16 @@
   <PropertyGroup>
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
   </PropertyGroup>
+  
+  <!-- Centralized NuGet package configuration for all src/ projects -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src'))">
+    <Version>0.1.15</Version>
+    <Authors>Spencer Elkington</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+  </PropertyGroup>
 </Project>

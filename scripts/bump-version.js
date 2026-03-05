@@ -2,7 +2,7 @@
 
 /**
  * Calculates the next semantic version based on conventional commits
- * Updates version in package.json, Flowthru.csproj, and README.md
+ * Updates version in package.json, Directory.Build.props, and README.md
  * 
  * Uses:
  * - conventional-recommended-bump for analyzing commit history
@@ -15,18 +15,26 @@ const path = require('path');
 const semver = require('semver');
 const xml2js = require('xml2js');
 
-const CSPROJ_PATH = path.join(__dirname, '../src/core/Flowthru/Flowthru.csproj');
+const BUILD_PROPS_PATH = path.join(__dirname, '../Directory.Build.props');
 const PACKAGE_JSON_PATH = path.join(__dirname, '../package.json');
 const README_PATH = path.join(__dirname, '../src/core/Flowthru/README.md');
 
 async function getCurrentVersion() {
-  const csprojContent = fs.readFileSync(CSPROJ_PATH, 'utf8');
+  const buildPropsContent = fs.readFileSync(BUILD_PROPS_PATH, 'utf8');
   const parser = new xml2js.Parser();
-  const result = await parser.parseStringPromise(csprojContent);
+  const result = await parser.parseStringPromise(buildPropsContent);
 
-  const version = result.Project.PropertyGroup[0].Version[0];
-  if (!semver.valid(version)) {
-    throw new Error(`Invalid version in Flowthru.csproj: ${version}`);
+  // Find the PropertyGroup with Version
+  let version;
+  for (const pg of result.Project.PropertyGroup) {
+    if (pg.Version) {
+      version = pg.Version[0];
+      break;
+    }
+  }
+
+  if (!version || !semver.valid(version)) {
+    throw new Error(`Invalid or missing version in Directory.Build.props: ${version}`);
   }
   return version;
 }
@@ -48,17 +56,24 @@ function getRecommendedBump() {
   }
 }
 
-async function updateCsProj(newVersion) {
-  const content = fs.readFileSync(CSPROJ_PATH, 'utf8');
+async function updateBuildProps(newVersion) {
+  const content = fs.readFileSync(BUILD_PROPS_PATH, 'utf8');
   const parser = new xml2js.Parser();
   const builder = new xml2js.Builder();
 
   const result = await parser.parseStringPromise(content);
-  result.Project.PropertyGroup[0].Version[0] = newVersion;
+
+  // Find and update the PropertyGroup with Version
+  for (const pg of result.Project.PropertyGroup) {
+    if (pg.Version) {
+      pg.Version[0] = newVersion;
+      break;
+    }
+  }
 
   const xml = builder.buildObject(result);
-  fs.writeFileSync(CSPROJ_PATH, xml, 'utf8');
-  console.log(`✓ Updated Flowthru.csproj to ${newVersion}`);
+  fs.writeFileSync(BUILD_PROPS_PATH, xml, 'utf8');
+  console.log(`✓ Updated Directory.Build.props to ${newVersion}`);
 }
 
 function updatePackageJson(newVersion) {
@@ -90,22 +105,22 @@ async function main() {
   }
 
   const newVersion = semver.inc(currentVersion, bump);
-  if (!newVersion) {
+  if (!newVersBuildProps
     throw new Error(`Failed to calculate new version from ${currentVersion} with bump ${bump}`);
-  }
+}
 
-  console.log(`Recommended bump: ${bump}`);
-  console.log(`New version: ${newVersion}`);
+console.log(`Recommended bump: ${bump}`);
+console.log(`New version: ${newVersion}`);
 
-  await updateCsProj(newVersion);
-  updatePackageJson(newVersion);
-  updateReadme(newVersion);
+await updateCsProj(newVersion);
+updatePackageJson(newVersion);
+updateReadme(newVersion);
 
-  // Write version to file for GitHub Actions to read
-  fs.writeFileSync(path.join(__dirname, '../.version'), newVersion, 'utf8');
-  console.log(`✓ Wrote version to .version file`);
+// Write version to file for GitHub Actions to read
+fs.writeFileSync(path.join(__dirname, '../.version'), newVersion, 'utf8');
+console.log(`✓ Wrote version to .version file`);
 
-  console.log(`\n✨ Version bumped from ${currentVersion} to ${newVersion}`);
+console.log(`\n✨ Version bumped from ${currentVersion} to ${newVersion}`);
 }
 
 main().catch(error => {

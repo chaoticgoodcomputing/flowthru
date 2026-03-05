@@ -5,20 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru.Misc.ML</RootNamespace>
-    <Version>0.1.15</Version>
-    <Authors>Flowthru Contributors</Authors>
-    <Description>Pure, unoptimized UMAP implementation for Flowthru - direct port from Python reference implementation by Leland McInnes</Description>
+    <Description>ML Utility functions ported to C#</Description>
     <PackageTags>flowthru;machine-learning;umap;dimensionality-reduction;pure</PackageTags>
     
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Misc.ML</PackageId>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

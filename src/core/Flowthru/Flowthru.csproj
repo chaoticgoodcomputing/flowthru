@@ -5,20 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru</RootNamespace>
-    <Version>0.1.15</Version>
-    <Authors>Spencer Elkington</Authors>
     <Description>A type-safe data engineering framework for .NET</Description>
     
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru</PackageId>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
     <PackageTags>data-engineering;pipeline;kedro</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

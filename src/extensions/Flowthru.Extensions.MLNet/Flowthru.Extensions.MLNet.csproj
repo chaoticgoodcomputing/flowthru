@@ -22,20 +22,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru.Extensions.MLNet</RootNamespace>
-    <Version>0.1.15</Version>
-    <Authors>Flowthru Contributors</Authors>
     <Description>ML.NET integration for Flowthru - provides IDataView container adapters for machine learning pipelines</Description>
     
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Extensions.MLNet</PackageId>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/chaoticgoodcomputing/flowthru</PackageProjectUrl>
     <PackageTags>flowthru;ml.net;machine-learning;data-engineering</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
