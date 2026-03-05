@@ -633,6 +633,13 @@ public class Pipeline
 
       return PipelineResult.CreateSuccess(stopwatch.Elapsed, nodeResults, Name);
     }
+    catch (OperationCanceledException)
+    {
+      // Re-throw cancellation exceptions so they propagate to the caller
+      // Cancellation is not a failure but a requested abort
+      stopwatch.Stop();
+      throw;
+    }
     catch (Exception ex)
     {
       stopwatch.Stop();
@@ -696,6 +703,28 @@ public class Pipeline
       Logger?.LogError(ex, "Pipeline execution failed: {ErrorMessage}", ex.Message);
       throw;
     }
+  }
+
+  /// <summary>
+  /// Determines whether a node's transformation function accepts a CancellationToken parameter.
+  /// </summary>
+  /// <param name="transformFunc">The transformation function delegate</param>
+  /// <returns>True if the function accepts a CancellationToken as its last parameter</returns>
+  /// <remarks>
+  /// Supports optional cancellation awareness in node functions. Nodes can opt-in to cancellation
+  /// by accepting a CancellationToken as the last parameter:
+  /// <list type="bullet">
+  /// <item>Func&lt;TIn, CancellationToken, Task&lt;TOut&gt;&gt; - single input with cancellation</item>
+  /// <item>Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOut&gt;&gt; - multi-input with cancellation</item>
+  /// </list>
+  /// </remarks>
+  private static bool NodeAcceptsCancellationToken(Delegate transformFunc)
+  {
+    var invokeMethod = transformFunc.GetType().GetMethod("Invoke");
+    var parameters = invokeMethod!.GetParameters();
+
+    // Check if last parameter is CancellationToken
+    return parameters.Length >= 2 && parameters[^1].ParameterType == typeof(CancellationToken);
   }
 
   /// <summary>
@@ -780,8 +809,17 @@ public class Pipeline
       }
 
       // Invoke transformation function directly via DynamicInvoke
+      // Pass cancellation token if the node signature accepts it
       var transformFunc = pipelineNode.TransformFunction;
-      var result = transformFunc.DynamicInvoke(inputParameter);
+      object? result;
+      if (NodeAcceptsCancellationToken(transformFunc))
+      {
+        result = transformFunc.DynamicInvoke(inputParameter, cancellationToken);
+      }
+      else
+      {
+        result = transformFunc.DynamicInvoke(inputParameter);
+      }
 
       if (result == null)
       {
@@ -870,6 +908,16 @@ public class Pipeline
         totalOutputCount
       );
     }
+    catch (OperationCanceledException ex)
+    {
+      // Normalize all cancellation exceptions to OperationCanceledException for consistent API
+      // TaskCanceledException is a subclass, but we want uniform exception types for consumers
+      if (ex is TaskCanceledException)
+      {
+        throw new OperationCanceledException(ex.Message, ex.InnerException, ex.CancellationToken);
+      }
+      throw;
+    }
     catch (Exception ex)
     {
       stopwatch.Stop();
@@ -926,8 +974,17 @@ public class Pipeline
       }
 
       // Invoke transformation function
+      // Pass cancellation token if the node signature accepts it
       var transformFunc = pipelineNode.TransformFunction;
-      var resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter);
+      Task? resultTask;
+      if (NodeAcceptsCancellationToken(transformFunc))
+      {
+        resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter, cancellationToken);
+      }
+      else
+      {
+        resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter);
+      }
 
       if (resultTask == null)
       {

@@ -57,6 +57,17 @@ internal class PipelineNode
   /// - Async multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
   /// </para>
   /// <para>
+  /// <strong>Optional Cancellation Support:</strong> Nodes can opt-in to cancellation awareness
+  /// by accepting a CancellationToken as the last parameter:
+  /// - Func&lt;TInput, CancellationToken, Task&lt;TOutput&gt;&gt;
+  /// - Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOutput&gt;&gt;
+  /// </para>
+  /// <para>
+  /// When a node accepts a CancellationToken, the pipeline will pass the runtime token during
+  /// execution, allowing the node to cancel long-running operations cooperatively. Nodes that
+  /// do not accept a CancellationToken will only be cancelled between node executions.
+  /// </para>
+  /// <para>
   /// The execution engine detects whether the result is a Task and awaits it if needed.
   /// </para>
   /// </remarks>

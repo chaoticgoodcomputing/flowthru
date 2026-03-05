@@ -125,6 +125,37 @@ public partial class PipelineBuilder
   }
 
   /// <summary>
+  /// Adds a node with single input and single output (asynchronous transformation with cancellation support).
+  /// All types are inferred from the transformation function signature.
+  /// </summary>
+  /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
+  /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
+  /// <param name="label">Unique identifier for this node</param>
+  /// <param name="transform">Asynchronous transformation function from input to output with cancellation token</param>
+  /// <param name="input">Catalog entry providing input data</param>
+  /// <param name="output">Catalog entry to store output data</param>
+  /// <returns>This builder for method chaining</returns>
+  public PipelineBuilder AddNode<TInput, TOutput>(
+    string label,
+    Func<TInput, CancellationToken, Task<TOutput>> transform,
+    ICatalogEntry<TInput> input,
+    ICatalogEntry<TOutput> output,
+    string description = ""
+  )
+  {
+    var pipelineNode = new PipelineNode(
+      label: label,
+      description: description,
+      node: transform,
+      inputs: new List<ICatalogEntry> { input },
+      outputs: new List<ICatalogEntry> { output }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
+
+  /// <summary>
   /// Adds a node with single input and single output (synchronous transformation).
   /// All types are inferred from the transformation function signature.
   /// </summary>

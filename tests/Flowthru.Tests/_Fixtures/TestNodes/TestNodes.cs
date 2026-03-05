@@ -35,14 +35,14 @@ public static class FailingNode
 /// </summary>
 public static class DelayedNode
 {
-  public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create(
+  public static Func<IEnumerable<TestData>, CancellationToken, Task<IEnumerable<TestData>>> Create(
     TimeSpan? delay = null
   )
   {
     var actualDelay = delay ?? TimeSpan.FromMilliseconds(100);
-    return async (input) =>
+    return async (input, cancellationToken) =>
     {
-      await Task.Delay(actualDelay);
+      await Task.Delay(actualDelay, cancellationToken);
       return input;
     };
   }

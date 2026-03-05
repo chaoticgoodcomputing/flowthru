@@ -345,7 +345,7 @@ public class CancellationTests
 
     public FlowIO<T> Load()
     {
-      Func<CancellationToken, Task<T>> loader = async (CancellationToken ct) =>
+      Func<CancellationToken, ValueTask<T>> loader = async (CancellationToken ct) =>
       {
         // Simulate slow I/O
         await Task.Delay(TimeSpan.FromSeconds(10), ct);
@@ -380,7 +380,7 @@ public class CancellationTests
 
     public FlowIO<FlowUnit> Save(T data)
     {
-      Func<CancellationToken, Task<FlowUnit>> saver = async (CancellationToken ct) =>
+      Func<CancellationToken, ValueTask<FlowUnit>> saver = async (CancellationToken ct) =>
       {
         // Simulate slow I/O
         await Task.Delay(TimeSpan.FromSeconds(10), ct);
