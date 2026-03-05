@@ -45,6 +45,7 @@ jobs:
           version: 10.6.3
 
       - name: Setup Chrome
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           install-dependencies: true
@@ -59,6 +60,7 @@ jobs:
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: pnpm nx run flowthru:ci
 
       - name: Generate coverage badges

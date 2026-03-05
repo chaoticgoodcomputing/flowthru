@@ -210,10 +210,7 @@ public class FlowthruServiceTests
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var result = await service.ExecutePipelineAsync(
-      options: null,
-      exportMetadata: false
-    );
+    var result = await service.ExecutePipelineAsync(options: null, exportMetadata: false);
 
     // Assert
     Assert.That(result.Success, Is.True);

@@ -43,8 +43,15 @@ public static class PlotlyImageExportNode
 
       if (!string.IsNullOrEmpty(chromePath))
       {
+        logger?.LogInformation("Using pre-installed Chrome at: {ChromePath}", chromePath);
         Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.localBrowserExecutablePath =
           Microsoft.FSharp.Core.FSharpOption<string>.Some(chromePath);
+      }
+      else
+      {
+        logger?.LogWarning(
+          "CI environment detected but CHROME_PATH not set - PuppeteerSharp will download Chromium"
+        );
       }
 
       // Disable sandbox for CI environments
