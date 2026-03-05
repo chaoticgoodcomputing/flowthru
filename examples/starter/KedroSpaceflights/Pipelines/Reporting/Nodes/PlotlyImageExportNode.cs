@@ -33,9 +33,21 @@ public static class PlotlyImageExportNode
 {
   public static Func<GenericChart, byte[]> Create(ILogger? logger = null)
   {
-    // Configure PuppeteerSharp for CI environment (no sandbox)
+    // Configure PuppeteerSharp for CI environment
     if (Environment.GetEnvironmentVariable("CI") == "true")
     {
+      // Use pre-installed Chrome to avoid concurrent downloads
+      var chromePath =
+        Environment.GetEnvironmentVariable("CHROME_PATH")
+        ?? Environment.GetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH");
+
+      if (!string.IsNullOrEmpty(chromePath))
+      {
+        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.localBrowserExecutablePath =
+          Microsoft.FSharp.Core.FSharpOption<string>.Some(chromePath);
+      }
+
+      // Disable sandbox for CI environments
       var currentArgs =
         Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args
         ?? Array.Empty<string>();
