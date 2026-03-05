@@ -34,4 +34,7 @@ else
   rm -f "$TEMPLATE_JSON.tmp"
 fi
 
+# Clean up backup
+rm -f "$TEMPLATE_JSON.bak"
+
 echo "✓ Version $VERSION injected into template.json"
