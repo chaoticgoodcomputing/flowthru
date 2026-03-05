@@ -236,6 +236,8 @@ public class MermaidMetadataProviderBuilder
   private MermaidMetadataProvider.MermaidFlowchartDirection _direction = MermaidMetadataProvider
     .MermaidFlowchartDirection
     .TopToBottom;
+  private string _activeNodeColor = "#2E7D32";
+  private string _activeDataColor = "#2E7D32";
 
   /// <summary>
   /// Sets the flowchart direction.
@@ -250,8 +252,30 @@ public class MermaidMetadataProviderBuilder
     return this;
   }
 
+  /// <summary>
+  /// Sets the color for active (sliced) nodes.
+  /// </summary>
+  /// <param name="color">Hex color code (e.g., "#2E7D32")</param>
+  /// <returns>This builder for fluent chaining</returns>
+  public MermaidMetadataProviderBuilder WithActiveNodeColor(string color)
+  {
+    _activeNodeColor = color ?? throw new ArgumentNullException(nameof(color));
+    return this;
+  }
+
+  /// <summary>
+  /// Sets the color for active (sliced) catalog entries.
+  /// </summary>
+  /// <param name="color">Hex color code (e.g., "#2E7D32")</param>
+  /// <returns>This builder for fluent chaining</returns>
+  public MermaidMetadataProviderBuilder WithActiveDataColor(string color)
+  {
+    _activeDataColor = color ?? throw new ArgumentNullException(nameof(color));
+    return this;
+  }
+
   internal MermaidMetadataProvider Build()
   {
-    return new MermaidMetadataProvider(_direction);
+    return new MermaidMetadataProvider(_direction, _activeNodeColor, _activeDataColor);
   }
 }

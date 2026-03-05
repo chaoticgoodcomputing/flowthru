@@ -13,6 +13,8 @@ namespace Flowthru.Meta.Providers;
 public class MermaidMetadataProvider : IMetadataProvider
 {
   private readonly MermaidFlowchartDirection _direction;
+  private readonly string _activeNodeColor;
+  private readonly string _activeDataColor;
 
   /// <summary>
   /// Flow direction for Mermaid flowcharts.
@@ -36,11 +38,17 @@ public class MermaidMetadataProvider : IMetadataProvider
   /// Initializes a new Mermaid metadata provider.
   /// </summary>
   /// <param name="direction">Flow direction for the diagram</param>
+  /// <param name="activeNodeColor">Hex color for active (sliced) nodes</param>
+  /// <param name="activeDataColor">Hex color for active (sliced) catalog entries</param>
   public MermaidMetadataProvider(
-    MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom
+    MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom,
+    string activeNodeColor = "#2E7D32",
+    string activeDataColor = "#2E7D32"
   )
   {
     _direction = direction;
+    _activeNodeColor = activeNodeColor;
+    _activeDataColor = activeDataColor;
   }
 
   /// <inheritdoc />
@@ -67,8 +75,12 @@ public class MermaidMetadataProvider : IMetadataProvider
 
       logger?.LogInformation("Exporting Mermaid diagram to {FilePath}", filePath);
 
-      // Generate Mermaid diagram with configured direction
-      var mermaid = dag.ToMermaidDiagram(GetDirectionCode(_direction));
+      // Generate Mermaid diagram with configured direction and colors
+      var mermaid = dag.ToMermaidDiagram(
+        GetDirectionCode(_direction),
+        _activeNodeColor,
+        _activeDataColor
+      );
 
       // Atomic write: write to temp file first, then rename
       var tempPath = filePath + ".tmp";

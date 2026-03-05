@@ -134,6 +134,24 @@ public class MermaidMetadataOptions
   public string Direction { get; set; } = "LeftToRight";
 
   /// <summary>
+  /// Hex color code for active (sliced) nodes.
+  /// </summary>
+  /// <remarks>
+  /// Color applied to nodes that are in the execution slice.
+  /// Default: #2E7D32 (Material Design green-800).
+  /// </remarks>
+  public string ActiveNodeColor { get; set; } = "#2E7D32";
+
+  /// <summary>
+  /// Hex color code for active (sliced) catalog entries.
+  /// </summary>
+  /// <remarks>
+  /// Color applied to data catalog entries produced by sliced nodes.
+  /// Default: #2E7D32 (Material Design green-800).
+  /// </remarks>
+  public string ActiveDataColor { get; set; } = "#2E7D32";
+
+  /// <summary>
   /// Whether to include dataset details in nodes.
   /// </summary>
   public bool ShowDatasetDetails { get; set; } = true;

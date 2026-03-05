@@ -27,6 +27,8 @@ public static class MermaidMetadataExtensions
   /// </summary>
   /// <param name="dag">The DAG metadata to visualize</param>
   /// <param name="direction">Flow direction code (TB, LR, BT, RL). Defaults to TB (Top to Bottom).</param>
+  /// <param name="activeNodeColor">Hex color for active (sliced) nodes. Defaults to #2E7D32.</param>
+  /// <param name="activeDataColor">Hex color for active (sliced) catalog entries. Defaults to #2E7D32.</param>
   /// <returns>Complete Markdown document with Mermaid code fence</returns>
   /// <remarks>
   /// <para>
@@ -50,7 +52,12 @@ public static class MermaidMetadataExtensions
   /// ```
   /// </code>
   /// </remarks>
-  public static string ToMermaidDiagram(this DagMetadata dag, string direction = "TB")
+  public static string ToMermaidDiagram(
+    this DagMetadata dag,
+    string direction = "TB",
+    string activeNodeColor = "#2E7D32",
+    string activeDataColor = "#2E7D32"
+  )
   {
     var sb = new StringBuilder();
 
@@ -90,16 +97,37 @@ public static class MermaidMetadataExtensions
         .Where(e => pipelineNodes.Any(n => n.Id == e.Producer))
         .ToList();
 
-      // Define nodes (rectangles)
+      // Define nodes (rectangles) with styling for sliced nodes
       foreach (var node in pipelineNodes)
       {
-        sb.AppendLine($"        {SanitizeId(node.Id)}[\"{EscapeLabel(node.Label)}\"]");
+        var nodeId = SanitizeId(node.Id);
+        var nodeLabel = EscapeLabel(node.Label);
+
+        // Apply color fill to nodes in the execution slice
+        if (dag.SlicedNodeIds != null && dag.SlicedNodeIds.Contains(node.Id))
+        {
+          sb.AppendLine($"        {nodeId}[\"{nodeLabel}\"]");
+          sb.AppendLine($"        style {nodeId} fill:{activeNodeColor}");
+        }
+        else
+        {
+          sb.AppendLine($"        {nodeId}[\"{nodeLabel}\"]");
+        }
       }
 
       // Define catalog entries produced by this pipeline (cylindrical database shape)
       foreach (var entry in pipelineCatalogEntries)
       {
-        sb.AppendLine($"        {SanitizeId(entry.Key)}[(\"{EscapeLabel(entry.Label)}\")]");
+        var entryId = SanitizeId(entry.Key);
+        var entryLabel = EscapeLabel(entry.Label);
+
+        sb.AppendLine($"        {entryId}[(\"{entryLabel}\")]");
+
+        // Apply color fill to catalog entries in the execution slice
+        if (dag.SlicedCatalogEntryKeys != null && dag.SlicedCatalogEntryKeys.Contains(entry.Key))
+        {
+          sb.AppendLine($"        style {entryId} fill:{activeDataColor}");
+        }
       }
 
       sb.AppendLine();

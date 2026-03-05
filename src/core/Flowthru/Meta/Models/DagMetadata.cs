@@ -57,4 +57,30 @@ public class DagMetadata
   [JsonPropertyName("appliedSlice")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
   public DagSliceMetadata? AppliedSlice { get; init; }
+
+  /// <summary>
+  /// Node IDs that are in the active execution slice, if a slice was applied.
+  /// </summary>
+  /// <remarks>
+  /// When a slice is applied, this contains the IDs of nodes that will actually execute.
+  /// The Nodes collection contains the full DAG, while this set identifies the subset.
+  /// Null when no slice was applied (all nodes execute).
+  /// Enables visualization tools to highlight execution paths while showing full context.
+  /// </remarks>
+  [JsonPropertyName("slicedNodeIds")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public HashSet<string>? SlicedNodeIds { get; init; }
+
+  /// <summary>
+  /// Catalog entry keys that are produced by nodes in the active execution slice.
+  /// </summary>
+  /// <remarks>
+  /// When a slice is applied, this contains the keys of catalog entries (data) that
+  /// will be written during execution. Derived from the outputs of sliced nodes.
+  /// Null when no slice was applied (all data may be updated).
+  /// Enables visualization tools to highlight both nodes and the data they produce.
+  /// </remarks>
+  [JsonPropertyName("slicedCatalogEntryKeys")]
+  [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+  public HashSet<string>? SlicedCatalogEntryKeys { get; init; }
 }

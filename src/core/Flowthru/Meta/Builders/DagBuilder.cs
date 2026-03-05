@@ -35,22 +35,33 @@ internal static class DagBuilder
       );
     }
 
+    // Always build from the full DAG to provide complete context
+    var allNodes = pipeline.Nodes;
+    var slicedNodes = pipeline.GetSlicedNodes();
+
     var dag = new DagMetadata
     {
       PipelineName = pipeline.Name ?? "UnnamedPipeline",
       GeneratedAt = DateTime.UtcNow,
       AppliedSlice =
         pipeline.AppliedSlice != null ? DagSliceMetadata.FromStrategy(pipeline.AppliedSlice) : null,
+      SlicedNodeIds = slicedNodes != null ? slicedNodes.Select(n => n.Label).ToHashSet() : null,
+      SlicedCatalogEntryKeys =
+        slicedNodes != null
+          ? slicedNodes
+            .SelectMany(n => n.Outputs)
+            .SelectMany(ExpandCatalogEntry)
+            .Select(e => e.Label)
+            .Where(key => !key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+            .ToHashSet()
+          : null,
     };
 
-    // Use sliced nodes if available, otherwise use all nodes
-    var nodesToExport = pipeline.GetSlicedNodes() ?? pipeline.Nodes;
-
-    // Step 1: Extract all catalog entries from nodes to export
-    var allCatalogEntries = ExtractCatalogEntries(nodesToExport);
+    // Step 1: Extract all catalog entries from full DAG
+    var allCatalogEntries = ExtractCatalogEntries(allNodes);
 
     // Step 2: Build node metadata with layer information
-    dag.Nodes.AddRange(BuildNodeMetadata(nodesToExport));
+    dag.Nodes.AddRange(BuildNodeMetadata(allNodes));
 
     // Step 3: Build catalog entry metadata with producer-consumer relationships
     dag.CatalogEntries.AddRange(BuildCatalogEntryMetadata(allCatalogEntries, dag.Nodes));
@@ -167,7 +178,7 @@ internal static class DagBuilder
         new NodeMetadata
         {
           Id = pipelineNode.Label,
-          Label = FormatLabel(pipelineNode.Label),
+          Label = pipelineNode.Label,
           NodeType = nodeTypeName,
           Layer = pipelineNode.Layer,
           PipelineName = originalPipelineName ?? "UnnamedPipeline",
@@ -257,7 +268,7 @@ internal static class DagBuilder
         new CatalogEntryMetadata
         {
           Key = key,
-          Label = FormatLabel(key),
+          Label = key,
           DataType = dataTypeName,
           Schema = schema,
           Fields = fields,
@@ -398,25 +409,4 @@ internal static class DagBuilder
     return name;
   }
 
-  /// <summary>
-  /// Formats an identifier into a human-readable label.
-  /// </summary>
-  /// <remarks>
-  /// Examples:
-  /// - "PreprocessCompanies" → "Preprocess Companies"
-  /// - "XTrain" → "X Train"
-  /// - "ModelInputTable" → "Model Input Table"
-  /// </remarks>
-  private static string FormatLabel(string identifier)
-  {
-    if (string.IsNullOrEmpty(identifier))
-    {
-      return identifier;
-    }
-
-    // Insert spaces before capital letters (except the first character)
-    var formatted = System.Text.RegularExpressions.Regex.Replace(identifier, "(\\B[A-Z])", " $1");
-
-    return formatted;
-  }
 }

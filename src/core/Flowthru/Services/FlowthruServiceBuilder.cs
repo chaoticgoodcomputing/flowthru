@@ -507,6 +507,16 @@ public sealed class FlowthruServiceBuilder
                   _ => MermaidMetadataProvider.MermaidFlowchartDirection.LeftToRight,
                 };
                 mermaid.WithDirection(direction);
+
+                // Apply color configuration for active nodes and data
+                if (!string.IsNullOrEmpty(options.Mermaid.ActiveNodeColor))
+                {
+                  mermaid.WithActiveNodeColor(options.Mermaid.ActiveNodeColor);
+                }
+                if (!string.IsNullOrEmpty(options.Mermaid.ActiveDataColor))
+                {
+                  mermaid.WithActiveDataColor(options.Mermaid.ActiveDataColor);
+                }
               }
             });
             break;
