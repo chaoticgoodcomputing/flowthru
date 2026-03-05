@@ -179,25 +179,6 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithNonExistentPipeline_ThrowsKeyNotFoundException()
-  {
-    // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
-    var pipelines = new Dictionary<string, Pipeline>();
-
-    var service = CreateService(catalog, pipelines);
-
-    var request = new PipelineExecutionRequest { PipelineName = "NonExistent" };
-
-    // Act & Assert
-    var exception = Assert.ThrowsAsync<KeyNotFoundException>(
-      async () => await service.ExecutePipelineAsync(request)
-    );
-
-    Assert.That(exception.Message, Does.Contain("NonExistent"));
-  }
-
-  [Test]
   public async Task ExecutePipelineAsync_WithValidPipeline_ExecutesSuccessfully()
   {
     // Arrange
@@ -228,19 +209,15 @@ public class FlowthruServiceTests
 
     var service = CreateService(catalog, pipelines);
 
-    var request = new PipelineExecutionRequest
-    {
-      PipelineName = "test_pipeline",
-      ExportMetadata = false, // Disable metadata export for test
-    };
-
     // Act
-    var result = await service.ExecutePipelineAsync(request);
+    var result = await service.ExecutePipelineAsync(
+      options: null,
+      exportMetadata: false
+    );
 
     // Assert
     Assert.That(result.Success, Is.True);
     Assert.That(result.IsDryRun, Is.False);
-    Assert.That(result.PipelineName, Is.EqualTo("test_pipeline"));
     Assert.That(result.NodeResults, Has.Count.EqualTo(1));
   }
 
@@ -274,15 +251,11 @@ public class FlowthruServiceTests
 
     var service = CreateService(catalog, pipelines);
 
-    var request = new PipelineExecutionRequest
-    {
-      PipelineName = "test_pipeline",
-      Options = new ExecutionOptions { DryRun = true },
-      ExportMetadata = false,
-    };
-
     // Act
-    var result = await service.ExecutePipelineAsync(request);
+    var result = await service.ExecutePipelineAsync(
+      options: new ExecutionOptions { DryRun = true },
+      exportMetadata: false
+    );
 
     // Assert
     Assert.That(result.Success, Is.True);
@@ -295,7 +268,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecuteAllPipelinesAsync_MergesAndExecutesPipelines()
+  public async Task ExecutePipelineAsync_MergesAndExecutesPipelines()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
@@ -339,7 +312,7 @@ public class FlowthruServiceTests
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var result = await service.ExecuteAllPipelinesAsync();
+    var result = await service.ExecutePipelineAsync();
 
     // Assert
     Assert.That(result.Success, Is.True);
