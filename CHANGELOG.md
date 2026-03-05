@@ -4,18 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.16](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.15...v0.1.16) (2026-03-05)
 
-## [Unreleased]
 
-### Added
+### Features
 
-- **Flowthru.Extensions.EFCore** - New extension package for Entity Framework Core integration
-  - `EFCoreStorageAdapter<T>` - Specialized storage adapter for database access
-  - Hybrid DbContext lifecycle management (injected + factory patterns)
-  - Support for read-only database catalogs
-  - ISeedable support for database tables as Layer 0 inputs
-  - `CatalogEntries.Enumerable.EFCore<T>()` factory methods
-- Made `CatalogEntries.Enumerable` and `CatalogEntries.Single` partial classes to support extension packages
+* allow for sync node outputs ([d82e2a0](https://github.com/chaoticgoodcomputing/flowthru/commit/d82e2a0719a51e3cc211cd29fd86b63039c8e2e1))
+* dummy pipeline template ([01b214e](https://github.com/chaoticgoodcomputing/flowthru/commit/01b214ed6e5e19f82942551fbec6893806e552c4))
+* efcore extension ([cb0f856](https://github.com/chaoticgoodcomputing/flowthru/commit/cb0f856d83e71854197f5df49aa97f3c04a73c2c))
+* pipeline slicing ([f846c52](https://github.com/chaoticgoodcomputing/flowthru/commit/f846c52ddf571ab54965dae6c3f913dc2af719fa))
+
+
+### Bug Fixes
+
+* chromium pre-download ([b71f701](https://github.com/chaoticgoodcomputing/flowthru/commit/b71f7013bdf4434c192122c46ec5c85982ae01d7))
+* optimizations for Chromium usage during testing ([cb27453](https://github.com/chaoticgoodcomputing/flowthru/commit/cb274538cbfcce381fc0b101e4c2fd4ea7cd0c79))
+* resolve CI/CD double-tap test issue ([e50a297](https://github.com/chaoticgoodcomputing/flowthru/commit/e50a297645262e7cf1d385b906a52564ff9a07d8))
+* service changes on test fixtures ([e66bddd](https://github.com/chaoticgoodcomputing/flowthru/commit/e66bddde01799351e8099b1d26ad42a8c9cc65d6))
+* solution fixes ([8b405e3](https://github.com/chaoticgoodcomputing/flowthru/commit/8b405e37b0c6d6315144f07323b417bb267ff219))
+* tutorial docs ([082d4a8](https://github.com/chaoticgoodcomputing/flowthru/commit/082d4a8a36341e4fdf94b9775cae0f27b06bbfb1))
+
+
+### Documentation
+
+* anatomy of a pipeline ([d306e96](https://github.com/chaoticgoodcomputing/flowthru/commit/d306e966393fa9141cd3cc561dc7caaf631af0dd))
+* purge pipeline slop ([0644b1f](https://github.com/chaoticgoodcomputing/flowthru/commit/0644b1f0c20f6ec83f2f36cf6bf2b801a2621ccb))
+* small docs update ([1f8a225](https://github.com/chaoticgoodcomputing/flowthru/commit/1f8a22515c525dfa542701b3fd8d2aa6989ac95e))
 
 ## [0.1.15](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.14...v0.1.15) (2026-03-02)
 

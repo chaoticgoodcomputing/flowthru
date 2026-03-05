@@ -4,8 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru.Misc.ML</RootNamespace>
-    <Description>ML Utility functions ported to C#</Description>
+    <RootNamespace>Flowthru.Extensions.ML</RootNamespace>
+    <Description>Pure, unoptimized UMAP implementation for Flowthru - direct port from Python reference implementation by Leland McInnes</Description>
     <PackageTags>flowthru;machine-learning;umap;dimensionality-reduction;pure</PackageTags>
     
     <!-- NuGet Package Configuration -->
