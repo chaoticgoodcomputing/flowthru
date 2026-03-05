@@ -56,17 +56,11 @@ jobs:
       - name: Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: Run tests and generate coverage
+      - name: Run tests and generate coverage badges
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
           CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
-        run: pnpm nx run flowthru:ci
-
-      - name: Generate coverage badges
-        env:
-          REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
-          CI: "true"
         run: pnpm nx run flowthru:coverage:badges
 
       - name: Upload coverage badges
