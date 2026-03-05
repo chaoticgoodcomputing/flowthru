@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Flowthru.Extensions.ML</RootNamespace>
-    <Version>0.1.15</Version>
+    <Version>0.1.16</Version>
     <Authors>Flowthru Contributors</Authors>
     <Description>Pure, unoptimized UMAP implementation for Flowthru - direct port from Python reference implementation by Leland McInnes</Description>
     <PackageTags>flowthru;machine-learning;umap;dimensionality-reduction;pure</PackageTags>
