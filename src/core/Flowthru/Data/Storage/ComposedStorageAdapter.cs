@@ -209,4 +209,134 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   /// </para>
   /// </remarks>
   public bool IsReadOnly => _medium is IReadOnly readOnly && readOnly.IsReadOnly;
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        // Check if medium exists
+        bool exists;
+        try
+        {
+          exists = await Exists().Run(ct);
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Failed to check if data source exists for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
+        }
+
+        if (!exists)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Data source for '{typeof(TRow).Name}' does not exist",
+            details: "Medium exists check returned false"
+          );
+        }
+
+        // Attempt to read and deserialize a sample
+        try
+        {
+          var stream = await _medium.ReadStream().Run(ct);
+          await using var _ = stream;
+
+          // Deserialize sample rows
+          var rows = _format.DeserializeRows(stream);
+          var sample = new List<TRow>();
+          var count = 0;
+
+          await foreach (var row in rows.WithCancellation(ct))
+          {
+            sample.Add(row);
+            count++;
+            if (count >= sampleSize && sampleSize > 0)
+            {
+              break;
+            }
+          }
+
+          return Data.Validation.ValidationResult.Success();
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.DeserializationError,
+            message: $"Failed to deserialize sample data for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
+        }
+      }
+    );
+  }
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep()
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        // Check if medium exists
+        bool exists;
+        try
+        {
+          exists = await Exists().Run(ct);
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Failed to check if data source exists for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
+        }
+
+        if (!exists)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Data source for '{typeof(TRow).Name}' does not exist",
+            details: "Medium exists check returned false"
+          );
+        }
+
+        // Attempt to read and deserialize all data
+        try
+        {
+          var stream = await _medium.ReadStream().Run(ct);
+          await using var _ = stream;
+
+          // Deserialize all rows to validate entire dataset
+          var rows = _format.DeserializeRows(stream);
+          var count = 0;
+
+          await foreach (var row in rows.WithCancellation(ct))
+          {
+            count++;
+          }
+
+          return Data.Validation.ValidationResult.Success();
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.DeserializationError,
+            message: $"Failed to deserialize all data for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
+        }
+      }
+    );
+  }
 }

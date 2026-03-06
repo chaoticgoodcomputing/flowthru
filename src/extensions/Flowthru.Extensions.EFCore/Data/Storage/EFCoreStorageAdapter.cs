@@ -44,7 +44,7 @@ namespace Flowthru.Data.Storage;
 /// <list type="bullet">
 /// <item>ISeedable: true if table exists and contains data</item>
 /// <item>IReadOnly: configurable (default: false)</item>
-/// <item>IShallowInspectable: validates table existence and checks for empty data</item>
+/// <item>Inspection: validates table existence and checks for empty data</item>
 /// </list>
 /// <para>
 /// <strong>Empty Data Validation:</strong>
@@ -80,11 +80,7 @@ namespace Flowthru.Data.Storage;
 /// var adapter = new EFCoreStorageAdapter<Company>(dbContext, allowEmptyData: true);
 /// </code>
 /// </example>
-public sealed class EFCoreStorageAdapter<T>
-  : IStorageAdapter<IEnumerable<T>>,
-    ISeedable,
-    IReadOnly,
-    IShallowInspectable
+public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, ISeedable, IReadOnly
   where T : class
 {
   private readonly DbContext? _injectedContext;
@@ -399,6 +395,76 @@ public sealed class EFCoreStorageAdapter<T>
                 catalogKey: typeof(T).Name,
                 errorType: ValidationErrorType.DeserializationError,
                 message: $"Failed to read sample rows from table '{typeof(T).Name}'",
+                details: ex.Message
+              );
+            }
+          }
+
+          return ValidationResult.Success();
+        }
+        finally
+        {
+          if (_ownsContext && context != null)
+          {
+            await context.DisposeAsync();
+          }
+        }
+      }
+    );
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<ValidationResult> InspectDeep()
+  {
+    return FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        var context = GetContext();
+        try
+        {
+          var dbSet = context.Set<T>();
+
+          // Check if table exists by attempting a query
+          bool hasData;
+          try
+          {
+            hasData = await dbSet.AnyAsync(ct);
+          }
+          catch (Exception ex)
+          {
+            return ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: ValidationErrorType.NotFound,
+              message: $"Table '{typeof(T).Name}' does not exist or is not accessible",
+              details: ex.Message
+            );
+          }
+
+          // If table is empty and empty data is not allowed, fail validation
+          if (!hasData && !_allowEmptyData)
+          {
+            return ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: ValidationErrorType.EmptyDataset,
+              message: $"Table '{typeof(T).Name}' is empty and empty data is not allowed",
+              details: "Set allowEmptyData: true when creating the catalog entry if empty tables are valid for this use case."
+            );
+          }
+
+          // Deep inspection: read and validate ALL rows
+          if (hasData)
+          {
+            try
+            {
+              var all = await dbSet.ToListAsync(ct);
+              // Successfully read all rows - validation passed
+            }
+            catch (Exception ex)
+            {
+              return ValidationResult.Failure(
+                catalogKey: typeof(T).Name,
+                errorType: ValidationErrorType.DeserializationError,
+                message: $"Failed to read all rows from table '{typeof(T).Name}'",
                 details: ex.Message
               );
             }

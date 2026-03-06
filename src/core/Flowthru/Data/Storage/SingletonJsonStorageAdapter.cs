@@ -143,6 +143,59 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
     return FlowIO.Lift(() => File.Exists(_filePath));
   }
 
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        if (!File.Exists(_filePath))
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: Path.GetFileName(_filePath),
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"JSON file not found: {_filePath}",
+            details: "File does not exist or is not accessible"
+          );
+        }
+
+        try
+        {
+          // Attempt to deserialize to verify valid JSON and schema
+          await using var stream = File.OpenRead(_filePath);
+          await JsonSerializer.DeserializeAsync<T>(stream, _options, ct);
+          return Data.Validation.ValidationResult.Success();
+        }
+        catch (JsonException ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: Path.GetFileName(_filePath),
+            errorType: Data.Validation.ValidationErrorType.DeserializationError,
+            message: $"Invalid JSON in file: {_filePath}",
+            details: ex.Message
+          );
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: Path.GetFileName(_filePath),
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Failed to access JSON file: {_filePath}",
+            details: ex.Message
+          );
+        }
+      }
+    );
+  }
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep()
+  {
+    // For singleton objects, deep inspection is equivalent to shallow
+    // since we must deserialize the entire object anyway
+    return InspectShallow(sampleSize: 0);
+  }
+
   /// <summary>
   /// Gets the file path used by this adapter.
   /// </summary>

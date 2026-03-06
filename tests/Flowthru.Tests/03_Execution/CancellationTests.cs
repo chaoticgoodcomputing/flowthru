@@ -364,6 +364,12 @@ public class CancellationTests
     }
 
     public FlowIO<bool> Exists() => FlowIO.Lift(() => _data != null);
+
+    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize) =>
+      FlowIO.Pure(Data.Validation.ValidationResult.Success());
+
+    public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
+      FlowIO.Pure(Data.Validation.ValidationResult.Success());
   }
 
   /// <summary>
@@ -391,5 +397,11 @@ public class CancellationTests
     }
 
     public FlowIO<bool> Exists() => FlowIO.Lift(() => _data != null);
+
+    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize) =>
+      FlowIO.Pure(Data.Validation.ValidationResult.Success());
+
+    public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
+      FlowIO.Pure(Data.Validation.ValidationResult.Success());
   }
 }

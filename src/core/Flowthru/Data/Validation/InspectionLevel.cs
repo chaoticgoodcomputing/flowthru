@@ -10,7 +10,7 @@ namespace Flowthru.Data.Validation;
 /// </para>
 /// <para>
 /// <strong>Default Behavior:</strong>
-/// - External inputs (Layer 0): Shallow inspection if <see cref="IShallowInspectable{T}"/> is implemented, otherwise None
+/// - External inputs (Layer 0): Shallow inspection (all storage adapters support inspection)
 /// - Intermediate outputs (Layer 1+): Always None (not inspected, they're created by the pipeline)
 /// </para>
 /// <para>
@@ -70,7 +70,7 @@ public enum InspectionLevel
   /// Performance: Minimal overhead (~10-100ms for typical files)
   /// </para>
   /// <para>
-  /// <strong>This is the default for Layer 0 inputs that implement <see cref="IShallowInspectable{T}"/>.</strong>
+  /// <strong>This is the default for all Layer 0 inputs.</strong>
   /// </para>
   /// </remarks>
   Shallow = 1,

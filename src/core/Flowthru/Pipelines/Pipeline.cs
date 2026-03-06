@@ -328,8 +328,8 @@ public class Pipeline
   /// </para>
   /// <list type="bullet">
   /// <item>If explicitly configured via WithValidation() → use that level</item>
-  /// <item>If entry implements IShallowInspectable → Shallow</item>
-  /// <item>Otherwise → None (skip)</item>
+  /// <item>If entry has PreferredInspectionLevel set → use that level</item>
+  /// <item>Otherwise → Shallow (all storage adapters support inspection)</item>
   /// </list>
   /// <para>
   /// <strong>Important:</strong> Only external inputs are inspected. Intermediate pipeline
@@ -412,94 +412,16 @@ public class Pipeline
       {
         Data.Validation.ValidationResult inspectionResult;
 
+        // All catalog entries support inspection through their storage adapters
         if (inspectionLevel == Data.Validation.InspectionLevel.Shallow)
         {
-          // Try shallow inspection
-          var shallowInterface = catalogEntry
-            .GetType()
-            .GetInterfaces()
-            .FirstOrDefault(i =>
-              i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IShallowInspectable<>)
-            );
-
-          if (shallowInterface != null)
-          {
-            inspectionResult = await InvokeShallowInspectionAsync(
-              catalogEntry,
-              shallowInterface,
-              cancellationToken
-            );
-
-            // If the storage adapter doesn't support inspection, skip this entry
-            // (InspectionFailure errors from CatalogEntry wrapper indicate missing capability)
-            if (
-              !inspectionResult.IsValid
-              && inspectionResult.Errors.Any(e =>
-                e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure
-                && e.Message.Contains("does not implement")
-              )
-            )
-            {
-              Logger?.LogDebug(
-                "Skipping '{CatalogKey}' - storage adapter does not support shallow inspection",
-                catalogEntry.Label
-              );
-              continue;
-            }
-          }
-          else
-          {
-            // Entry wrapper doesn't implement IShallowInspectable, skip it
-            Logger?.LogDebug(
-              "Skipping '{CatalogKey}' - entry does not implement IShallowInspectable<T>",
-              catalogEntry.Label
-            );
-            continue;
-          }
+          inspectionResult = await catalogEntry
+            .InspectShallow(sampleSize: 100)
+            .Run(cancellationToken);
         }
         else // Deep
         {
-          // Try deep inspection
-          var deepInterface = catalogEntry
-            .GetType()
-            .GetInterfaces()
-            .FirstOrDefault(i =>
-              i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDeepInspectable<>)
-            );
-
-          if (deepInterface != null)
-          {
-            inspectionResult = await InvokeDeepInspectionAsync(
-              catalogEntry,
-              deepInterface,
-              cancellationToken
-            );
-
-            // If the storage adapter doesn't support inspection, skip this entry
-            if (
-              !inspectionResult.IsValid
-              && inspectionResult.Errors.Any(e =>
-                e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure
-                && e.Message.Contains("does not implement")
-              )
-            )
-            {
-              Logger?.LogDebug(
-                "Skipping '{CatalogKey}' - storage adapter does not support deep inspection",
-                catalogEntry.Label
-              );
-              continue;
-            }
-          }
-          else
-          {
-            // Entry wrapper doesn't implement IDeepInspectable, skip it
-            Logger?.LogDebug(
-              "Skipping '{CatalogKey}' - entry does not implement IDeepInspectable<T>",
-              catalogEntry.Label
-            );
-            continue;
-          }
+          inspectionResult = await catalogEntry.InspectDeep().Run(cancellationToken);
         }
 
         result.Merge(inspectionResult);
@@ -549,72 +471,6 @@ public class Pipeline
     }
 
     return result;
-  }
-
-  /// <summary>
-  /// Invokes shallow inspection on a catalog entry using reflection to handle generic types.
-  /// </summary>
-  private async Task<Data.Validation.ValidationResult> InvokeShallowInspectionAsync(
-    ICatalogEntry catalogEntry,
-    Type shallowInterface,
-    CancellationToken cancellationToken
-  )
-  {
-    var method = shallowInterface.GetMethod(nameof(IShallowInspectable<object>.InspectShallow));
-    var result = method!.Invoke(catalogEntry, new object[] { 10 })!;
-
-    // Handle both FlowIO<ValidationResult> (unwrap to ValueTask) and Task<ValidationResult> return types
-    if (result is FlowIO<Data.Validation.ValidationResult> io)
-    {
-      return await io.Run(cancellationToken);
-    }
-    else if (result is ValueTask<Data.Validation.ValidationResult> valueTask)
-    {
-      return await valueTask;
-    }
-    else if (result is Task<Data.Validation.ValidationResult> task)
-    {
-      return await task;
-    }
-    else
-    {
-      throw new InvalidOperationException(
-        $"InspectShallow returned unexpected type: {result.GetType().FullName}"
-      );
-    }
-  }
-
-  /// <summary>
-  /// Invokes deep inspection on a catalog entry using reflection to handle generic types.
-  /// </summary>
-  private async Task<Data.Validation.ValidationResult> InvokeDeepInspectionAsync(
-    ICatalogEntry catalogEntry,
-    Type deepInterface,
-    CancellationToken cancellationToken
-  )
-  {
-    var method = deepInterface.GetMethod(nameof(IDeepInspectable<object>.InspectDeep));
-    var result = method!.Invoke(catalogEntry, System.Array.Empty<object>())!;
-
-    // Handle both FlowIO<ValidationResult> (unwrap to ValueTask) and Task<ValidationResult> return types
-    if (result is FlowIO<Data.Validation.ValidationResult> io)
-    {
-      return await io.Run(cancellationToken);
-    }
-    else if (result is ValueTask<Data.Validation.ValidationResult> valueTask)
-    {
-      return await valueTask;
-    }
-    else if (result is Task<Data.Validation.ValidationResult> task)
-    {
-      return await task;
-    }
-    else
-    {
-      throw new InvalidOperationException(
-        $"InspectDeep returned unexpected type: {result.GetType().FullName}"
-      );
-    }
   }
 
   /// <summary>

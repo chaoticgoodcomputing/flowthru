@@ -137,4 +137,68 @@ public interface IStorageAdapter<T>
   /// </para>
   /// </remarks>
   FlowIO<bool> Exists();
+
+  /// <summary>
+  /// Performs shallow validation by checking data availability and sampling a subset of data.
+  /// </summary>
+  /// <param name="sampleSize">Number of rows/records to sample for validation</param>
+  /// <returns>Effect producing validation result</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Semantic Intent:</strong> Validate that data is available and accessible.
+  /// </para>
+  /// <para>
+  /// <strong>Typical Checks:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Data source exists (file, table, etc.)</item>
+  /// <item>Data source is accessible (permissions, connectivity)</item>
+  /// <item>Sample rows can be read and deserialized successfully</item>
+  /// <item>Schema matches expected structure</item>
+  /// </list>
+  /// <para>
+  /// <strong>Implementation Guidelines:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>File adapters: Check file exists, read and validate sample rows</item>
+  /// <item>Memory adapters: Check if data has been initialized</item>
+  /// <item>Database adapters: Check table exists, query sample rows</item>
+  /// <item>Null adapters: Always return success (no data required)</item>
+  /// </list>
+  /// <para>
+  /// <strong>Performance:</strong> Should be fast (~10-100ms) - suitable for pre-flight validation.
+  /// </para>
+  /// </remarks>
+  FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize);
+
+  /// <summary>
+  /// Performs deep validation by examining the entire dataset.
+  /// </summary>
+  /// <returns>Effect producing validation result</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Semantic Intent:</strong> Validate that all data is available, accessible, and valid.
+  /// </para>
+  /// <para>
+  /// <strong>Additional Checks Beyond Shallow:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Validate ALL rows can be deserialized (not just sample)</item>
+  /// <item>Check data quality constraints across entire dataset</item>
+  /// <item>Detect corruption or inconsistencies throughout data</item>
+  /// </list>
+  /// <para>
+  /// <strong>Implementation Guidelines:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>File adapters: Read and validate entire file</item>
+  /// <item>Memory adapters: Validate all stored data</item>
+  /// <item>Database adapters: Full table scan with validation</item>
+  /// <item>Null adapters: Always return success (no data required)</item>
+  /// </list>
+  /// <para>
+  /// <strong>Performance:</strong> Potentially expensive - only use when data integrity is critical.
+  /// </para>
+  /// </remarks>
+  FlowIO<Data.Validation.ValidationResult> InspectDeep();
 }

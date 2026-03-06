@@ -13,15 +13,14 @@ namespace Flowthru.Extensions.MLNet.Storage;
 /// <strong>Use Case:</strong> Pre-trained ONNX models for ML.NET inference
 /// </para>
 /// <para>
-/// <strong>Validation:</strong> Implements IShallowInspectable for early pipeline validation
+/// <strong>Validation:</strong> Implements inspection for early pipeline validation
 /// </para>
 /// <para>
 /// <strong>Capabilities:</strong>
 /// </para>
 /// <list type="bullet">
 /// <item>ISeedable: true (ONNX models are Layer 0 inputs)</item>
-/// <item>IShallowInspectable: true (validates file before pipeline execution)</item>
-/// <item>IReadOnly: true (models should not be written by pipelines)</item>
+/// <item>Inspection: validates file before pipeline execution</item>
 /// </list>
 /// </remarks>
 /// <example>
@@ -35,10 +34,7 @@ namespace Flowthru.Extensions.MLNet.Storage;
 /// }
 /// </code>
 /// </example>
-public sealed class OnnxModelStorageAdapter
-  : IStorageAdapter<byte[]>,
-    ISeedable,
-    IShallowInspectable
+public sealed class OnnxModelStorageAdapter : IStorageAdapter<byte[]>, ISeedable
 {
   private readonly string _filePath;
 
@@ -155,6 +151,13 @@ public sealed class OnnxModelStorageAdapter
         }
       }
     );
+
+  /// <inheritdoc/>
+  public FlowIO<ValidationResult> InspectDeep() =>
+    // For binary model files, deep inspection is equivalent to shallow
+    // We can't meaningfully validate internal model structure without
+    // loading it with ML.NET, which is beyond inspection scope
+    InspectShallow(sampleSize: 0);
 
   /// <summary>
   /// Gets the file path to the ONNX model.

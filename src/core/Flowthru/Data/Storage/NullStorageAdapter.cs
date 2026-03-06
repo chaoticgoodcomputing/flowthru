@@ -42,4 +42,12 @@ public sealed class NullStorageAdapter<T> : IStorageAdapter<T>, IReadOnly
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists() => FlowIO.Lift(() => false); // Null entries never exist as seedable data
+
+  /// <inheritdoc/>
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize) =>
+    FlowIO.Pure(Data.Validation.ValidationResult.Success()); // No data required, inherently available
+
+  /// <inheritdoc/>
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
+    FlowIO.Pure(Data.Validation.ValidationResult.Success()); // No data required, inherently available
 }

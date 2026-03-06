@@ -110,4 +110,34 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
       }
     });
   }
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.Lift(() =>
+    {
+      lock (_lock)
+      {
+        if (!_hasData)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(T).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Memory storage for '{typeof(T).Name}' has no data",
+            details: "Data must be saved before it can be loaded"
+          );
+        }
+
+        return Data.Validation.ValidationResult.Success();
+      }
+    });
+  }
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep()
+  {
+    // For memory storage, deep inspection is equivalent to shallow
+    // since all data is already in memory
+    return InspectShallow(sampleSize: 0);
+  }
 }

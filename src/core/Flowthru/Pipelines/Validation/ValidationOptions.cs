@@ -18,8 +18,7 @@ namespace Flowthru.Pipelines.Validation;
 /// </para>
 /// <list type="bullet">
 /// <item>Catalog entry has PreferredInspectionLevel set → use that level</item>
-/// <item>Layer 0 inputs that implement <see cref="IShallowInspectable{T}"/> → Shallow inspection</item>
-/// <item>Layer 0 inputs that don't implement inspection interfaces → None (skip)</item>
+/// <item>Layer 0 inputs → Shallow inspection (all storage adapters support inspection)</item>
 /// <item>All intermediate outputs (Layer 1+) → None (never inspected)</item>
 /// </list>
 /// <para>
@@ -98,7 +97,7 @@ public class ValidationOptions
   /// <list type="number">
   /// <item><strong>Pipeline-level override:</strong> If explicitly configured via WithValidation().Inspect() → use that level (highest priority)</item>
   /// <item><strong>Catalog-level preference:</strong> If entry.PreferredInspectionLevel is set → use that level (medium priority)</item>
-  /// <item><strong>Capability-based default:</strong> If entry implements <see cref="IShallowInspectable{T}"/> → Shallow, otherwise None (lowest priority)</item>
+  /// <item><strong>Default:</strong> Shallow inspection for all entries (all storage adapters implement inspection)</item>
   /// </list>
   /// <para>
   /// <strong>Design Rationale:</strong>
@@ -133,19 +132,8 @@ public class ValidationOptions
       return catalogEntry.PreferredInspectionLevel.Value;
     }
 
-    // 3. Use capability-based default (lowest priority)
-    var entryType = catalogEntry.GetType();
-    var implementsShallowInspectable = entryType
-      .GetInterfaces()
-      .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IShallowInspectable<>));
-
-    if (implementsShallowInspectable)
-    {
-      return InspectionLevel.Shallow;
-    }
-
-    // 4. Default to None if no inspection capability
-    return InspectionLevel.None;
+    // 3. Default to Shallow (all storage adapters support inspection)
+    return InspectionLevel.Shallow;
   }
 
   /// <summary>

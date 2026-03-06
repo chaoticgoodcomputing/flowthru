@@ -56,6 +56,19 @@ public interface ICatalogEntry
   /// For singletons, returns 1 if exists, 0 otherwise.
   /// </summary>
   FlowIO<int> GetCountAsync();
+
+  /// <summary>
+  /// Performs shallow validation of this catalog entry.
+  /// </summary>
+  /// <param name="sampleSize">Number of rows/records to sample for validation</param>
+  /// <returns>Effect producing validation result</returns>
+  FlowIO<ValidationResult> InspectShallow(int sampleSize = 100);
+
+  /// <summary>
+  /// Performs deep validation of this catalog entry.
+  /// </summary>
+  /// <returns>Effect producing validation result</returns>
+  FlowIO<ValidationResult> InspectDeep();
 }
 
 /// <summary>

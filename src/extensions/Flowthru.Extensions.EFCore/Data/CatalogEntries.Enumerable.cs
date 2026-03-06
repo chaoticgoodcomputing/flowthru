@@ -32,7 +32,7 @@ public static partial class EFCoreCatalogEntries
     /// <list type="bullet">
     /// <item>ISeedable: true if table exists and contains data</item>
     /// <item>IReadOnly: configurable via readOnly parameter</item>
-    /// <item>IShallowInspectable: validates table and checks for empty data</item>
+    /// <item>Inspection: validates table and checks for empty data</item>
     /// </list>
     /// <para>
     /// <strong>Empty Data Validation:</strong>

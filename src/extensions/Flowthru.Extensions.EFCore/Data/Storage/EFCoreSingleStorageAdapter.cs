@@ -188,6 +188,91 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, ISeedabl
       }
     );
 
+  /// <inheritdoc/>
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        var context = GetContext();
+        try
+        {
+          var dbSet = context.Set<T>();
+
+          // Check if table exists by attempting a query
+          int count;
+          try
+          {
+            count = await dbSet.CountAsync(ct);
+          }
+          catch (Exception ex)
+          {
+            return Data.Validation.ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: Data.Validation.ValidationErrorType.NotFound,
+              message: $"Table '{typeof(T).Name}' does not exist or is not accessible",
+              details: ex.Message
+            );
+          }
+
+          // Single entity storage requires exactly one row
+          if (count == 0)
+          {
+            return Data.Validation.ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: Data.Validation.ValidationErrorType.EmptyDataset,
+              message: $"Table '{typeof(T).Name}' is empty",
+              details: "Single entity storage requires exactly one row"
+            );
+          }
+
+          if (count > 1)
+          {
+            return Data.Validation.ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: Data.Validation.ValidationErrorType.DeserializationError,
+              message: $"Table '{typeof(T).Name}' contains {count} rows",
+              details: "Single entity storage requires exactly one row"
+            );
+          }
+
+          // Attempt to load the entity to validate it's readable
+          try
+          {
+            var entity = await dbSet.SingleAsync(ct);
+            context.Entry(entity).State = EntityState.Detached;
+          }
+          catch (Exception ex)
+          {
+            return Data.Validation.ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: Data.Validation.ValidationErrorType.DeserializationError,
+              message: $"Failed to load entity from table '{typeof(T).Name}'",
+              details: ex.Message
+            );
+          }
+
+          return Data.Validation.ValidationResult.Success();
+        }
+        finally
+        {
+          if (_ownsContext && _contextFactory != null)
+          {
+            await context.DisposeAsync();
+          }
+        }
+      }
+    );
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep()
+  {
+    // For single entity storage, deep inspection is equivalent to shallow
+    // since there's only one entity to validate
+    return InspectShallow(sampleSize: 0);
+  }
+
   /// <summary>
   /// Gets a DbContext from either the injected instance or factory.
   /// </summary>

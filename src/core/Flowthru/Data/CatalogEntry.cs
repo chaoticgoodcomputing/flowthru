@@ -47,12 +47,11 @@ namespace Flowthru.Data;
 /// <strong>Capability Forwarding:</strong>
 /// </para>
 /// <para>
-/// If the underlying storage adapter implements capability interfaces like
-/// <see cref="IShallowInspectable"/> or <see cref="IDeepInspectable"/>, this catalog
-/// entry will also implement them and forward calls to the adapter.
+/// The underlying storage adapter provides inspection methods, which this catalog
+/// entry automatically forwards. All storage adapters are required to implement inspection.
 /// </para>
 /// </remarks>
-public sealed class CatalogEntry<T> : ICatalogEntry<T>, IShallowInspectable<T>, IDeepInspectable<T>
+public sealed class CatalogEntry<T> : ICatalogEntry<T>
 {
   private readonly IStorageAdapter<T> _storage;
   private InspectionLevel? _preferredInspectionLevel;
@@ -174,45 +173,21 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>, IShallowInspectable<T>, 
 
   /// <inheritdoc/>
   /// <remarks>
-  /// Forwards the call to the underlying storage adapter if it implements <see cref="IShallowInspectable"/>.
+  /// Forwards the call directly to the underlying storage adapter.
+  /// All storage adapters must implement inspection.
   /// </remarks>
   public FlowIO<ValidationResult> InspectShallow(int sampleSize = 100)
   {
-    if (_storage is IShallowInspectable inspectable)
-    {
-      return inspectable.InspectShallow(sampleSize);
-    }
-
-    // Storage adapter doesn't support shallow inspection
-    return FlowIO.Pure(
-      ValidationResult.Failure(
-        catalogKey: Label,
-        errorType: ValidationErrorType.InspectionFailure,
-        message: $"Storage adapter for '{Label}' does not implement IShallowInspectable",
-        details: $"Adapter type: {_storage.GetType().Name}"
-      )
-    );
+    return _storage.InspectShallow(sampleSize);
   }
 
   /// <inheritdoc/>
   /// <remarks>
-  /// Forwards the call to the underlying storage adapter if it implements <see cref="IDeepInspectable"/>.
+  /// Forwards the call directly to the underlying storage adapter.
+  /// All storage adapters must implement inspection.
   /// </remarks>
   public FlowIO<ValidationResult> InspectDeep()
   {
-    if (_storage is IDeepInspectable inspectable)
-    {
-      return inspectable.InspectDeep();
-    }
-
-    // Storage adapter doesn't support deep inspection
-    return FlowIO.Pure(
-      ValidationResult.Failure(
-        catalogKey: Label,
-        errorType: ValidationErrorType.InspectionFailure,
-        message: $"Storage adapter for '{Label}' does not implement IDeepInspectable",
-        details: $"Adapter type: {_storage.GetType().Name}"
-      )
-    );
+    return _storage.InspectDeep();
   }
 }
