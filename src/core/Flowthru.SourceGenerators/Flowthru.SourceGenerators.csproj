@@ -9,6 +9,7 @@
     <NoWarn>RS2008;RS2007</NoWarn>
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
