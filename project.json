@@ -144,7 +144,7 @@
           "echo 'Injecting version into templates...'",
           "./scripts/inject-template-version.sh",
           "echo 'Discovering and packing all .csproj files in src/...'",
-          "find src -name '*.csproj' -print0 | xargs -0 -I {} sh -c 'echo \"Packing {}...\"; dotnet pack \"{}\" --configuration Release --no-restore --output dist/packages'",
+          "find src -name '*.csproj' -print0 | xargs -0 -I {} sh -c 'echo \"Packing {}...\"; dotnet pack \"{}\" --configuration Release --output dist/packages'",
           "echo '✓ NuGet packages created:'",
           "ls -lh dist/packages/*.nupkg"
         ],
