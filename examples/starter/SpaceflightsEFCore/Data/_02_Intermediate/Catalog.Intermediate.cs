@@ -13,11 +13,13 @@ public partial class Catalog
   public ICatalogEntry<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
     GetOrCreateEntry(
       () =>
-        ((CatalogEntry<IEnumerable<PreprocessedCompanySchema>>)
-          EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedCompanySchema>(
-            label: "PreprocessedCompanies",
-            context: _dbContext
-          )).WithInspectionLevel(InspectionLevel.Shallow)
+        (
+          (CatalogEntry<IEnumerable<PreprocessedCompanySchema>>)
+            EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedCompanySchema>(
+              label: "PreprocessedCompanies",
+              context: _dbContext
+            )
+        ).WithInspectionLevel(InspectionLevel.Shallow)
     );
 
   /// <summary>
@@ -26,10 +28,12 @@ public partial class Catalog
   public ICatalogEntry<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
     GetOrCreateEntry(
       () =>
-        ((CatalogEntry<IEnumerable<PreprocessedShuttleSchema>>)
-          EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedShuttleSchema>(
-            label: "PreprocessedShuttles",
-            context: _dbContext
-          )).WithInspectionLevel(InspectionLevel.Shallow)
+        (
+          (CatalogEntry<IEnumerable<PreprocessedShuttleSchema>>)
+            EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedShuttleSchema>(
+              label: "PreprocessedShuttles",
+              context: _dbContext
+            )
+        ).WithInspectionLevel(InspectionLevel.Shallow)
     );
 }

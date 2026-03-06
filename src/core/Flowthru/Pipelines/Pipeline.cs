@@ -429,13 +429,16 @@ public class Pipeline
               shallowInterface,
               cancellationToken
             );
-            
+
             // If the storage adapter doesn't support inspection, skip this entry
             // (InspectionFailure errors from CatalogEntry wrapper indicate missing capability)
-            if (!inspectionResult.IsValid && 
-                inspectionResult.Errors.Any(e => 
-                  e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure &&
-                  e.Message.Contains("does not implement")))
+            if (
+              !inspectionResult.IsValid
+              && inspectionResult.Errors.Any(e =>
+                e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure
+                && e.Message.Contains("does not implement")
+              )
+            )
             {
               Logger?.LogDebug(
                 "Skipping '{CatalogKey}' - storage adapter does not support shallow inspection",
@@ -471,12 +474,15 @@ public class Pipeline
               deepInterface,
               cancellationToken
             );
-            
+
             // If the storage adapter doesn't support inspection, skip this entry
-            if (!inspectionResult.IsValid && 
-                inspectionResult.Errors.Any(e => 
-                  e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure &&
-                  e.Message.Contains("does not implement")))
+            if (
+              !inspectionResult.IsValid
+              && inspectionResult.Errors.Any(e =>
+                e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure
+                && e.Message.Contains("does not implement")
+              )
+            )
             {
               Logger?.LogDebug(
                 "Skipping '{CatalogKey}' - storage adapter does not support deep inspection",

@@ -381,8 +381,7 @@ public sealed class EFCoreStorageAdapter<T>
               catalogKey: typeof(T).Name,
               errorType: ValidationErrorType.EmptyDataset,
               message: $"Table '{typeof(T).Name}' is empty and empty data is not allowed",
-              details:
-                "Set allowEmptyData: true when creating the catalog entry if empty tables are valid for this use case."
+              details: "Set allowEmptyData: true when creating the catalog entry if empty tables are valid for this use case."
             );
           }
 
