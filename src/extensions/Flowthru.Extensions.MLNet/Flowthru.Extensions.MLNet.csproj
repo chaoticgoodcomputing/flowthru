@@ -28,6 +28,7 @@
     <PackageId>Flowthru.Extensions.MLNet</PackageId>
     <PackageTags>flowthru;ml.net;machine-learning;data-engineering</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Version inherited from Directory.Build.props -->
   </PropertyGroup>
 
 </Project>

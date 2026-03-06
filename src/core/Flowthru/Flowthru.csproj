@@ -11,6 +11,7 @@
     <PackageId>Flowthru</PackageId>
     <PackageTags>data-engineering;pipeline;kedro</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Version inherited from Directory.Build.props -->
   </PropertyGroup>
 
   <ItemGroup>

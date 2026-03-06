@@ -19,15 +19,7 @@
       "type": "json"
     },
     {
-      "filename": "src/core/Flowthru/Flowthru.csproj",
-      "updater": "scripts/csproj-updater.js"
-    },
-    {
-      "filename": "src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj",
-      "updater": "scripts/csproj-updater.js"
-    },
-    {
-      "filename": "src/extensions/Flowthru.Extensions.MLNet/Flowthru.Extensions.MLNet.csproj",
+      "filename": "Directory.Build.props",
       "updater": "scripts/csproj-updater.js"
     },
     {

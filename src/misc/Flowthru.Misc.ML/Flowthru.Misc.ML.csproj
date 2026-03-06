@@ -11,6 +11,7 @@
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Misc.ML</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Version inherited from Directory.Build.props -->
   </PropertyGroup>
 
   <ItemGroup>

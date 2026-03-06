@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'chore(release)') && !contains(github.event.head_commit.message, 'chore:') && !contains(github.event.head_commit.message, 'chore(')"
 
@@ -33,6 +33,14 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
           DOTNET_NOLOGO: "true"
           DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -70,9 +78,16 @@ jobs:
           path: coverage-badges/
           retention-days: 1
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+          retention-days: 1
+
   release:
     runs-on: ubuntu-latest
-    needs: test
+    needs: build-and-test
     permissions:
       contents: write # Required to push commits and tags
       packages: write # Required for NuGet publish
@@ -103,6 +118,12 @@ jobs:
         with:
           name: coverage-badges
           path: coverage-badges/
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: dist/
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -151,7 +172,7 @@ jobs:
           git tag v${{ steps.version.outputs.version }}
           git push --follow-tags
 
-      - name: Build and pack NuGet package
+      - name: Pack NuGet packages
         if: steps.version_check.outputs.changed == 'true'
         run: pnpm nx run flowthru:publish
 
