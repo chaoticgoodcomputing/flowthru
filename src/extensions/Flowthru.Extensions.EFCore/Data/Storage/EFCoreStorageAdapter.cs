@@ -1,4 +1,5 @@
 using Flowthru.Data.Capabilities;
+using Flowthru.Data.Validation;
 using Flowthru.Effects;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,7 +44,17 @@ namespace Flowthru.Data.Storage;
 /// <list type="bullet">
 /// <item>ISeedable: true if table exists and contains data</item>
 /// <item>IReadOnly: configurable (default: false)</item>
+/// <item>IShallowInspectable: validates table existence and checks for empty data</item>
 /// </list>
+/// <para>
+/// <strong>Empty Data Validation:</strong>
+/// </para>
+/// <para>
+/// By default, empty tables are considered invalid during pre-flight validation.
+/// Set <c>allowEmptyData: true</c> when creating the catalog entry to allow empty tables.
+/// This is useful for scenarios where a table may legitimately be empty (e.g., audit logs,
+/// optional lookups, or incremental data pipelines).
+/// </para>
 /// <para>
 /// <strong>Pre-flight Validation:</strong>
 /// </para>
@@ -64,27 +75,37 @@ namespace Flowthru.Data.Storage;
 ///
 /// // Read-only mode
 /// var adapter = new EFCoreStorageAdapter&lt;Company&gt;(dbContext, readOnly: true);
+///
+/// // Allow empty tables during validation
+/// var adapter = new EFCoreStorageAdapter<Company>(dbContext, allowEmptyData: true);
 /// </code>
 /// </example>
-public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, ISeedable, IReadOnly
+public sealed class EFCoreStorageAdapter<T>
+  : IStorageAdapter<IEnumerable<T>>,
+    ISeedable,
+    IReadOnly,
+    IShallowInspectable
   where T : class
 {
   private readonly DbContext? _injectedContext;
   private readonly Func<DbContext>? _contextFactory;
   private readonly bool _ownsContext;
   private readonly bool _readOnly;
+  private readonly bool _allowEmptyData;
 
   /// <summary>
   /// Creates an adapter with an injected DbContext.
   /// </summary>
   /// <param name="context">DbContext instance (caller owns lifecycle)</param>
   /// <param name="readOnly">If true, Save operations will fail</param>
-  public EFCoreStorageAdapter(DbContext context, bool readOnly = false)
+  /// <param name="allowEmptyData">If true, empty tables are considered valid during validation</param>
+  public EFCoreStorageAdapter(DbContext context, bool readOnly = false, bool allowEmptyData = false)
   {
     _injectedContext = context ?? throw new ArgumentNullException(nameof(context));
     _contextFactory = null;
     _ownsContext = false;
     _readOnly = readOnly;
+    _allowEmptyData = allowEmptyData;
 
     // Validate entity configuration eagerly (pre-flight phase)
     ValidateEntityConfiguration(context);
@@ -95,12 +116,18 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
   /// </summary>
   /// <param name="contextFactory">Factory function to create DbContext instances</param>
   /// <param name="readOnly">If true, Save operations will fail</param>
-  public EFCoreStorageAdapter(Func<DbContext> contextFactory, bool readOnly = false)
+  /// <param name="allowEmptyData">If true, empty tables are considered valid during validation</param>
+  public EFCoreStorageAdapter(
+    Func<DbContext> contextFactory,
+    bool readOnly = false,
+    bool allowEmptyData = false
+  )
   {
     _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
     _injectedContext = null;
     _ownsContext = true;
     _readOnly = readOnly;
+    _allowEmptyData = allowEmptyData;
 
     // Validate entity configuration eagerly using factory-created context
     using var context = contextFactory();
@@ -308,6 +335,77 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
         {
           // Table doesn't exist or query failed
           return false;
+        }
+        finally
+        {
+          if (_ownsContext && context != null)
+          {
+            await context.DisposeAsync();
+          }
+        }
+      }
+    );
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        var context = GetContext();
+        try
+        {
+          var dbSet = context.Set<T>();
+
+          // Check if table exists by attempting a query
+          bool hasData;
+          try
+          {
+            hasData = await dbSet.AnyAsync(ct);
+          }
+          catch (Exception ex)
+          {
+            return ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: ValidationErrorType.NotFound,
+              message: $"Table '{typeof(T).Name}' does not exist or is not accessible",
+              details: ex.Message
+            );
+          }
+
+          // If table is empty and empty data is not allowed, fail validation
+          if (!hasData && !_allowEmptyData)
+          {
+            return ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: ValidationErrorType.EmptyDataset,
+              message: $"Table '{typeof(T).Name}' is empty and empty data is not allowed",
+              details:
+                "Set allowEmptyData: true when creating the catalog entry if empty tables are valid for this use case."
+            );
+          }
+
+          // Optionally sample first N rows to validate they're readable
+          if (hasData && sampleSize > 0)
+          {
+            try
+            {
+              var sample = await dbSet.Take(sampleSize).ToListAsync(ct);
+              // Successfully read sample - validation passed
+            }
+            catch (Exception ex)
+            {
+              return ValidationResult.Failure(
+                catalogKey: typeof(T).Name,
+                errorType: ValidationErrorType.DeserializationError,
+                message: $"Failed to read sample rows from table '{typeof(T).Name}'",
+                details: ex.Message
+              );
+            }
+          }
+
+          return ValidationResult.Success();
         }
         finally
         {

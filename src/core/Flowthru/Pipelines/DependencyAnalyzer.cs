@@ -21,6 +21,12 @@ namespace Flowthru.Pipelines;
 /// - Layer 0: Nodes with no dependencies (read only external data)
 /// - Layer N: Nodes whose dependencies are all in layers 0..N-1
 /// </para>
+/// <para>
+/// <strong>Pipeline Slicing:</strong>
+/// Dependency resolution (BuildDependencyGraph) must happen on the full node set before slicing,
+/// as the slicing logic needs to traverse dependencies. Layer assignment (AssignLayers) should
+/// happen after slicing to ensure Layer 0 correctly identifies external inputs in the sliced context.
+/// </para>
 /// </remarks>
 internal static class DependencyAnalyzer
 {
@@ -33,16 +39,34 @@ internal static class DependencyAnalyzer
   /// - Multiple nodes write to the same catalog entry (violates single producer rule)
   /// - A circular dependency is detected
   /// </exception>
+  /// <remarks>
+  /// This method combines BuildDependencyGraph and AssignLayers for convenience.
+  /// For sliced pipelines, call these methods separately to recalculate layers post-slice.
+  /// </remarks>
   public static void AnalyzeAndAssignLayers(List<PipelineNode> nodes)
+  {
+    BuildDependencyGraph(nodes);
+    AssignLayers(nodes);
+  }
+
+  /// <summary>
+  /// Builds the dependency graph by mapping producers and resolving dependencies.
+  /// </summary>
+  /// <param name="nodes">All nodes in the pipeline</param>
+  /// <exception cref="InvalidOperationException">
+  /// Thrown if multiple nodes write to the same catalog entry (violates single producer rule)
+  /// </exception>
+  /// <remarks>
+  /// This phase must occur before slicing, as the slicing logic traverses node dependencies
+  /// to determine which nodes to include. Layer assignment should happen separately after slicing.
+  /// </remarks>
+  public static void BuildDependencyGraph(List<PipelineNode> nodes)
   {
     // Step 1: Build producer map (catalog entry → node that produces it)
     var producerMap = BuildProducerMap(nodes);
 
     // Step 2: Resolve dependencies for each node
     ResolveDependencies(nodes, producerMap);
-
-    // Step 3: Perform topological sort and assign layers
-    AssignLayers(nodes);
   }
 
   /// <summary>
@@ -108,9 +132,13 @@ internal static class DependencyAnalyzer
   /// <summary>
   /// Assigns execution layers to nodes via topological sort.
   /// </summary>
-  /// <param name="nodes">All nodes in the pipeline</param>
+  /// <param name="nodes">Nodes to assign layers to (full pipeline or sliced subset)</param>
   /// <exception cref="InvalidOperationException">Thrown if a circular dependency is detected</exception>
-  private static void AssignLayers(List<PipelineNode> nodes)
+  /// <remarks>
+  /// This method should be called after slicing to ensure Layer 0 correctly identifies
+  /// nodes with no dependencies in the execution context.
+  /// </remarks>
+  public static void AssignLayers(List<PipelineNode> nodes)
   {
     // Track which nodes have been assigned layers
     var assigned = new HashSet<PipelineNode>();
@@ -348,7 +376,17 @@ internal static class DependencyAnalyzer
       selectedNodes.IntersectWith(withUpstream);
     }
 
-    return selectedNodes.ToList();
+    var slicedList = selectedNodes.ToList();
+
+    // Filter each node's dependencies to only include nodes in the sliced set
+    // Dependencies pointing outside the slice become external inputs in the sliced context
+    var slicedSet = new HashSet<PipelineNode>(slicedList);
+    foreach (var node in slicedList)
+    {
+      node.Dependencies.RemoveAll(dep => !slicedSet.Contains(dep));
+    }
+
+    return slicedList;
   }
 
   /// <summary>

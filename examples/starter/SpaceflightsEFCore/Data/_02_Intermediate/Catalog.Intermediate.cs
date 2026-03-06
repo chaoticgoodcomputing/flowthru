@@ -1,4 +1,5 @@
 using Flowthru.Data;
+using Flowthru.Data.Validation;
 using Flowthru.Extensions.EFCore.Data;
 using KedroSpaceflights.Data._02_Intermediate.Schemas;
 
@@ -12,10 +13,11 @@ public partial class Catalog
   public ICatalogEntry<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
     GetOrCreateEntry(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedCompanySchema>(
-          label: "PreprocessedCompanies",
-          context: _dbContext
-        )
+        ((CatalogEntry<IEnumerable<PreprocessedCompanySchema>>)
+          EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedCompanySchema>(
+            label: "PreprocessedCompanies",
+            context: _dbContext
+          )).WithInspectionLevel(InspectionLevel.Shallow)
     );
 
   /// <summary>
@@ -24,9 +26,10 @@ public partial class Catalog
   public ICatalogEntry<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
     GetOrCreateEntry(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedShuttleSchema>(
-          label: "PreprocessedShuttles",
-          context: _dbContext
-        )
+        ((CatalogEntry<IEnumerable<PreprocessedShuttleSchema>>)
+          EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedShuttleSchema>(
+            label: "PreprocessedShuttles",
+            context: _dbContext
+          )).WithInspectionLevel(InspectionLevel.Shallow)
     );
 }

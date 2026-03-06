@@ -16,6 +16,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="context">DbContext instance (caller owns lifecycle)</param>
     /// <param name="readOnly">If true, prevents Save operations</param>
+    /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
     /// <remarks>
     /// <para>
@@ -31,7 +32,13 @@ public static partial class EFCoreCatalogEntries
     /// <list type="bullet">
     /// <item>ISeedable: true if table exists and contains data</item>
     /// <item>IReadOnly: configurable via readOnly parameter</item>
+    /// <item>IShallowInspectable: validates table and checks for empty data</item>
     /// </list>
+    /// <para>
+    /// <strong>Empty Data Validation:</strong>
+    /// By default (allowEmptyData: false), empty tables fail pre-flight validation.
+    /// Set allowEmptyData: true for tables that may legitimately be empty.
+    /// </para>
     /// </remarks>
     /// <example>
     /// <code>
@@ -53,11 +60,12 @@ public static partial class EFCoreCatalogEntries
     public static ICatalogEntry<IEnumerable<T>> EFCore<T>(
       string label,
       DbContext context,
-      bool readOnly = false
+      bool readOnly = false,
+      bool allowEmptyData = false
     )
       where T : class
     {
-      var storage = new EFCoreStorageAdapter<T>(context, readOnly);
+      var storage = new EFCoreStorageAdapter<T>(context, readOnly, allowEmptyData);
       return new CatalogEntry<IEnumerable<T>>(label, storage);
     }
 
@@ -68,6 +76,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="contextFactory">Factory function to create DbContext instances per operation</param>
     /// <param name="readOnly">If true, prevents Save operations</param>
+    /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
     /// <remarks>
     /// <para>
@@ -96,11 +105,12 @@ public static partial class EFCoreCatalogEntries
     public static ICatalogEntry<IEnumerable<T>> EFCore<T>(
       string label,
       Func<DbContext> contextFactory,
-      bool readOnly = false
+      bool readOnly = false,
+      bool allowEmptyData = false
     )
       where T : class
     {
-      var storage = new EFCoreStorageAdapter<T>(contextFactory, readOnly);
+      var storage = new EFCoreStorageAdapter<T>(contextFactory, readOnly, allowEmptyData);
       return new CatalogEntry<IEnumerable<T>>(label, storage);
     }
   }

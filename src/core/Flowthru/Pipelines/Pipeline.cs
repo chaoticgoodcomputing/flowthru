@@ -203,8 +203,9 @@ public class Pipeline
     // Cache the slice strategy for metadata export
     AppliedSlice = sliceStrategy?.IsSliced == true ? sliceStrategy : null;
 
-    // Step 1: Analyze dependencies and assign layers on the FULL graph
-    DependencyAnalyzer.AnalyzeAndAssignLayers(Nodes);
+    // Step 1: Build dependency graph on the FULL node set
+    // This must happen before slicing, as slicing logic traverses dependencies
+    DependencyAnalyzer.BuildDependencyGraph(Nodes);
 
     // Step 2: Apply slicing if requested
     if (sliceStrategy?.IsSliced == true)
@@ -222,8 +223,12 @@ public class Pipeline
       _slicedNodes = null; // No slicing - execute all nodes
     }
 
-    // Step 3: Group nodes by layer (use sliced subset if available)
+    // Step 3: Assign execution layers to the final node set (sliced or full)
+    // This ensures Layer 0 correctly identifies external inputs in the execution context
     var nodesToExecute = _slicedNodes ?? Nodes;
+    DependencyAnalyzer.AssignLayers(nodesToExecute);
+
+    // Step 4: Group nodes by layer for execution
     ExecutionLayers = DependencyAnalyzer.GroupByLayer(nodesToExecute).ToList();
 
     Logger?.LogInformation(
@@ -293,16 +298,22 @@ public class Pipeline
   }
 
   /// <summary>
-  /// Validates all external inputs (Layer 0) before pipeline execution.
+  /// Validates all external inputs before pipeline execution.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token for validation I/O operations</param>
   /// <returns>ValidationResult containing any errors found</returns>
   /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method inspects catalog entries that serve as inputs to Layer 0 nodes.
-  /// These are pre-existing external data sources (files, databases, APIs) that
-  /// must exist and be valid before the pipeline can execute.
+  /// This method inspects catalog entries that are consumed by the pipeline but not
+  /// produced by any node in the execution set. These are pre-existing external data
+  /// sources (files, databases, APIs) that must exist and be valid before the pipeline
+  /// can execute.
+  /// </para>
+  /// <para>
+  /// <strong>Slicing Support:</strong> In sliced pipelines, catalog entries that were
+  /// produced by nodes outside the slice are correctly identified as external inputs
+  /// and validated. This prevents runtime failures from missing intermediate data.
   /// </para>
   /// <para>
   /// <strong>Inspection Levels:</strong>
@@ -321,8 +332,8 @@ public class Pipeline
   /// <item>Otherwise → None (skip)</item>
   /// </list>
   /// <para>
-  /// <strong>Important:</strong> Only Layer 0 inputs are inspected. Intermediate pipeline
-  /// outputs (Layer 1+) are never inspected, as they don't exist yet.
+  /// <strong>Important:</strong> Only external inputs are inspected. Intermediate pipeline
+  /// outputs produced within the execution set are never inspected, as they don't exist yet.
   /// </para>
   /// <para>
   /// <strong>Usage:</strong>
@@ -350,28 +361,30 @@ public class Pipeline
 
     var result = Data.Validation.ValidationResult.Success();
 
-    // No Layer 0? No external inputs to validate
+    // No nodes? No external inputs to validate
     if (ExecutionLayers!.Count == 0)
     {
       Logger?.LogInformation("No nodes in pipeline, nothing to validate");
       return result;
     }
 
-    var layer0Nodes = ExecutionLayers[0];
-    Logger?.LogInformation(
-      "Validating external inputs from {Layer0NodeCount} Layer 0 nodes",
-      layer0Nodes.Count
+    // Build a set of catalog entries produced by nodes in the execution set
+    var nodesToExecute = ExecutionLayers.SelectMany(layer => layer).ToList();
+    var producedEntries = new HashSet<string>(
+      nodesToExecute.SelectMany(node => node.Outputs.Select(entry => entry.Label)),
+      StringComparer.OrdinalIgnoreCase
     );
 
-    // Extract all unique input catalog entries from Layer 0 nodes
-    // With the tuple-based approach, inputs are always direct ICatalogEntry references
-    var externalInputs = layer0Nodes
+    // Find all catalog entries consumed by nodes that are NOT produced by any node
+    // These are external inputs in the execution context (including sliced pipelines)
+    var externalInputs = nodesToExecute
       .SelectMany(node => node.Inputs)
+      .Where(entry => !producedEntries.Contains(entry.Label))
       .DistinctBy(entry => entry.Label)
       .ToList();
 
     Logger?.LogInformation(
-      "Found {ExternalInputCount} unique external input(s) to validate",
+      "Validating {ExternalInputCount} external input(s) (entries consumed but not produced)",
       externalInputs.Count
     );
 
@@ -416,15 +429,29 @@ public class Pipeline
               shallowInterface,
               cancellationToken
             );
+            
+            // If the storage adapter doesn't support inspection, skip this entry
+            // (InspectionFailure errors from CatalogEntry wrapper indicate missing capability)
+            if (!inspectionResult.IsValid && 
+                inspectionResult.Errors.Any(e => 
+                  e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure &&
+                  e.Message.Contains("does not implement")))
+            {
+              Logger?.LogDebug(
+                "Skipping '{CatalogKey}' - storage adapter does not support shallow inspection",
+                catalogEntry.Label
+              );
+              continue;
+            }
           }
           else
           {
-            // Entry doesn't support shallow inspection but was configured for it
-            inspectionResult = Data.Validation.ValidationResult.Failure(
-              catalogEntry.Label,
-              Data.Validation.ValidationErrorType.InspectionFailure,
-              "Entry does not implement IShallowInspectable<T>"
+            // Entry wrapper doesn't implement IShallowInspectable, skip it
+            Logger?.LogDebug(
+              "Skipping '{CatalogKey}' - entry does not implement IShallowInspectable<T>",
+              catalogEntry.Label
             );
+            continue;
           }
         }
         else // Deep
@@ -444,15 +471,28 @@ public class Pipeline
               deepInterface,
               cancellationToken
             );
+            
+            // If the storage adapter doesn't support inspection, skip this entry
+            if (!inspectionResult.IsValid && 
+                inspectionResult.Errors.Any(e => 
+                  e.ErrorType == Data.Validation.ValidationErrorType.InspectionFailure &&
+                  e.Message.Contains("does not implement")))
+            {
+              Logger?.LogDebug(
+                "Skipping '{CatalogKey}' - storage adapter does not support deep inspection",
+                catalogEntry.Label
+              );
+              continue;
+            }
           }
           else
           {
-            // Entry doesn't support deep inspection but was configured for it
-            inspectionResult = Data.Validation.ValidationResult.Failure(
-              catalogEntry.Label,
-              Data.Validation.ValidationErrorType.InspectionFailure,
-              "Entry does not implement IDeepInspectable<T>"
+            // Entry wrapper doesn't implement IDeepInspectable, skip it
+            Logger?.LogDebug(
+              "Skipping '{CatalogKey}' - entry does not implement IDeepInspectable<T>",
+              catalogEntry.Label
             );
+            continue;
           }
         }
 

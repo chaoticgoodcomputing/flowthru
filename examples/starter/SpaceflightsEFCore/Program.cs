@@ -84,6 +84,9 @@ public class Program
           configurationSection: "Flowthru:Pipelines:Reporting"
         )
         .WithDescription("Generates passenger capacity reports and visualizations");
+
+      // Enable metadata export using configuration from appsettings.json
+      flowthru.ConfigureMetadata(_ => { });
     });
 
     services.AddLogging(logging =>
