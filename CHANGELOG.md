@@ -4,6 +4,61 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.20](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.7...v0.1.20) (2026-03-06)
+
+
+### Features
+
+* allow for sync node outputs ([fe1778c](https://github.com/chaoticgoodcomputing/flowthru/commit/fe1778c8c0a41f518613d8649a4f22f749bd1e87))
+* dummy pipeline template ([2afd606](https://github.com/chaoticgoodcomputing/flowthru/commit/2afd6067822fbab227ccca73feb74f19ee0b84ea))
+* efcore extension ([085f8d0](https://github.com/chaoticgoodcomputing/flowthru/commit/085f8d0819d8a64417d0ba12376b24f49cd1ab70))
+* improved DAG metadata output for full/active on run ([c3b98e9](https://github.com/chaoticgoodcomputing/flowthru/commit/c3b98e9dee6d5dc3bbe5c1c51890eaeb75a7bcee))
+* kedro iris starter ([8859c17](https://github.com/chaoticgoodcomputing/flowthru/commit/8859c17197036a19d545f1f8934aed710ff76cdb))
+* pipeline slicing ([a16fecc](https://github.com/chaoticgoodcomputing/flowthru/commit/a16fecc42dac9981dcfa30715ce5ee48aa4b4331))
+* service-based API surface changes ([925f38d](https://github.com/chaoticgoodcomputing/flowthru/commit/925f38d4211b636799df9c4c6c44f5650b40264e))
+* templating process ([acba958](https://github.com/chaoticgoodcomputing/flowthru/commit/acba958e439c5ded6e94169c8a92c04d834af38f))
+* testing process for template pipeline creation ([501ddae](https://github.com/chaoticgoodcomputing/flowthru/commit/501ddaedd20d92bd4ab10b7e6a56e6a3e8cb5406))
+
+
+### Bug Fixes
+
+* add dependsOn to publish target and remove explicit build command ([7b06b73](https://github.com/chaoticgoodcomputing/flowthru/commit/7b06b73ca22d0a64ef8f2b85806e30b7247f22e9))
+* cancellation token interface tweaks ([97252e7](https://github.com/chaoticgoodcomputing/flowthru/commit/97252e78d9a242c71551d98e521a82d41ff7605b))
+* cancellation token respect ([0d74aaf](https://github.com/chaoticgoodcomputing/flowthru/commit/0d74aaffcc5d21d16d837392cbbcb93036b2994f))
+* chromium pre-download ([0a2b74c](https://github.com/chaoticgoodcomputing/flowthru/commit/0a2b74c827de505ada405d0b34ceac9c872f72c9))
+* conform examples to thin CLI wrap ([96ec378](https://github.com/chaoticgoodcomputing/flowthru/commit/96ec378c1a902c539d5c80b6e28c449c5d0446fc))
+* correction to template versioning script ([e16a6e0](https://github.com/chaoticgoodcomputing/flowthru/commit/e16a6e0c0b99bf12f09bed7fff7632f368349ffe))
+* do not attempt to pack source generators ([0f58cb7](https://github.com/chaoticgoodcomputing/flowthru/commit/0f58cb75ce0221cfc863bfcb5279bd14599a890b))
+* example projects now use source generator for schema typing ([963d11e](https://github.com/chaoticgoodcomputing/flowthru/commit/963d11e3763a42c50843ee177200e814d3d153a2))
+* fix NX target in Actions ([e6ba1f1](https://github.com/chaoticgoodcomputing/flowthru/commit/e6ba1f1843041da4d914669d64a0b20451c2f274))
+* nuget deploy ([365f13e](https://github.com/chaoticgoodcomputing/flowthru/commit/365f13e141d76f218d386bbb9e4897e90b9757a3))
+* nuget publish ([940762d](https://github.com/chaoticgoodcomputing/flowthru/commit/940762d830714997755b57cd0677a870b00b6f26))
+* nuget updates ([1de6fe1](https://github.com/chaoticgoodcomputing/flowthru/commit/1de6fe169216a56d73aa30524a874a4174a7213e))
+* optimizations for Chromium usage during testing ([a843068](https://github.com/chaoticgoodcomputing/flowthru/commit/a843068fd1a2a304ca2dd6f3d010e38732d3cb62))
+* phantom readmes as temp for build ([9f93336](https://github.com/chaoticgoodcomputing/flowthru/commit/9f9333683e3ad957a18bd262874a7cabd644491c))
+* project.json change ([aa03cb4](https://github.com/chaoticgoodcomputing/flowthru/commit/aa03cb48470aacc9c55a444eb3f56e269860e161))
+* refactor kedro custom example to use proper data layout ([c84de20](https://github.com/chaoticgoodcomputing/flowthru/commit/c84de20a5c0aa45989235322145c48d042732c58))
+* release ([ea23e9d](https://github.com/chaoticgoodcomputing/flowthru/commit/ea23e9d0c75e70b2d66c4a809413862a5024b11f))
+* remove ghost data loading python file ([11e09a4](https://github.com/chaoticgoodcomputing/flowthru/commit/11e09a4a951aededf598634707e5e0d3be4c50eb))
+* resolve CI/CD double-tap test issue ([1ad8fde](https://github.com/chaoticgoodcomputing/flowthru/commit/1ad8fde44c38448ef1872e04fc2bf84e48bffc3d))
+* service changes on test fixtures ([98f6fab](https://github.com/chaoticgoodcomputing/flowthru/commit/98f6fabb03413cb46c80d149652a24e628b8f735))
+* service disposal on CLI ([bf30640](https://github.com/chaoticgoodcomputing/flowthru/commit/bf306409c375534099db744561d19aa851d1df8b))
+* skip EnsureSourceGeneratorBuilt target when NoBuild is true ([0974bbd](https://github.com/chaoticgoodcomputing/flowthru/commit/0974bbd1d72f122d7bfb3d1bf644758840b5cabc))
+* small testing service disposal fixes ([9fbb8b3](https://github.com/chaoticgoodcomputing/flowthru/commit/9fbb8b3e24b99959888e2cf0a00b4ccfd32e2f6e))
+* solution fixes ([46a14c5](https://github.com/chaoticgoodcomputing/flowthru/commit/46a14c5a0560b30fb004a6f33a3d2c4ee5b7caba))
+* stale docs removed ([1d553d4](https://github.com/chaoticgoodcomputing/flowthru/commit/1d553d494bc30de7ec388f86daa1034a0baa98d2))
+* tutorial docs ([d60866f](https://github.com/chaoticgoodcomputing/flowthru/commit/d60866fc23af0daf241c640fa96eec64597dd566))
+* unsealed pipelineexecutionrequest ([279d6de](https://github.com/chaoticgoodcomputing/flowthru/commit/279d6dece553d99cc03599a67a5dfd34bbe795cd))
+
+
+### Documentation
+
+* anatomy of a pipeline ([51eb185](https://github.com/chaoticgoodcomputing/flowthru/commit/51eb185d2401dc19c4ad4881335caf145aff68b8))
+* docs contributor guide ([62a7fec](https://github.com/chaoticgoodcomputing/flowthru/commit/62a7fec7b1e05d84131c6db58f90afa7c7072b13))
+* docs start ([eedff91](https://github.com/chaoticgoodcomputing/flowthru/commit/eedff9197ad4802f1eaccea513393ca944ac1be0))
+* purge pipeline slop ([2da7561](https://github.com/chaoticgoodcomputing/flowthru/commit/2da75618b97f7351ef561fe75b5a682a11586d4c))
+* small docs update ([abbcaf5](https://github.com/chaoticgoodcomputing/flowthru/commit/abbcaf5c69f36f8ba3565429a0a9ceb5708c1b6d))
+
 ## [0.1.19](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.16...v0.1.19) (2026-03-05)
 
 
