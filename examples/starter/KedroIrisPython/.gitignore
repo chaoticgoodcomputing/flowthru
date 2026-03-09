@@ -10,7 +10,6 @@ __pycache__/
 *.pyc
 *.pyo
 .Python
-uv.lock
 
 # Data outputs (keep structure, ignore datasets)
 Data/**/*
