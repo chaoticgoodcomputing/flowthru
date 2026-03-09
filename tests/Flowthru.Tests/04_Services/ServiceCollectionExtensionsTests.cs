@@ -1,4 +1,6 @@
 using Flowthru.Data;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Pipelines;
 using Flowthru.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
@@ -170,7 +172,9 @@ public class ServiceCollectionExtensionsTests
       flowthru.UsePipelines(c => new Dictionary<string, Pipeline>());
       flowthru.ConfigureMetadata(meta =>
       {
-        meta.WithOutputDirectory("test-metadata").AddJson();
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+          json.WithOutputDirectory("test-metadata")
+        );
       });
     });
 
@@ -179,7 +183,8 @@ public class ServiceCollectionExtensionsTests
 
     // Assert
     Assert.That(metadataBuilder, Is.Not.Null);
-    Assert.That(metadataBuilder.OutputDirectory, Is.EqualTo("test-metadata"));
+    Assert.That(metadataBuilder.Providers.Count, Is.EqualTo(1));
+    Assert.That(metadataBuilder.Providers[0].Name, Is.EqualTo("JSON"));
   }
 
   [Test]

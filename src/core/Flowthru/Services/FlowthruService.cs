@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Flowthru.Data;
 using Flowthru.Data.Validation;
 using Flowthru.Meta;
+using Flowthru.Meta.Models;
 using Flowthru.Pipelines;
 using Flowthru.Services.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -228,6 +229,41 @@ internal sealed class FlowthruService : IFlowthruService
   }
 
   /// <inheritdoc />
+  public DagMetadata GetDagMetadata(
+    string? pipelineName = null,
+    PipelineSliceStrategy? sliceStrategy = null
+  )
+  {
+    Dictionary<string, Pipeline> toMerge;
+
+    if (pipelineName is not null)
+    {
+      if (!_pipelines.TryGetValue(pipelineName, out var namedPipeline))
+      {
+        throw new KeyNotFoundException(
+          $"Pipeline '{pipelineName}' not found. "
+            + $"Available: {string.Join(", ", PipelineNames)}"
+        );
+      }
+
+      toMerge = new Dictionary<string, Pipeline> { [pipelineName] = namedPipeline };
+    }
+    else
+    {
+      toMerge = _pipelines;
+    }
+
+    // Always merge to produce a fresh pipeline instance — avoids mutating
+    // the registered pipelines' Build/Slice state as a side effect.
+    var pipeline = Pipeline.Merge(toMerge);
+    pipeline.Logger = _logger;
+    pipeline.ServiceProvider = _services;
+    pipeline.Build(sliceStrategy);
+
+    return pipeline.ExportDag();
+  }
+
+  /// <inheritdoc />
   public async Task<ValidationResult> ValidatePipelineAsync(
     string pipelineName,
     CancellationToken cancellationToken = default
@@ -269,41 +305,16 @@ internal sealed class FlowthruService : IFlowthruService
       return;
     }
 
-    var outputDir = outputDirectory ?? _metadataBuilder.OutputDirectory;
-
-    // Ensure output directory exists
-    if (!Directory.Exists(outputDir))
-    {
-      Directory.CreateDirectory(outputDir);
-    }
-
     // Execute each provider
     foreach (var provider in _metadataBuilder.Providers)
     {
       try
       {
-        _logger.LogInformation(
-          "Exporting DAG metadata using {Provider} to {Directory}",
-          provider.Name,
-          outputDir
-        );
+        _logger.LogInformation("Exporting DAG metadata using {Provider}", provider.Name);
 
-        var success = provider.Export(
-          dag,
-          outputDir,
-          _metadataBuilder.FilenameTemplate,
-          _metadataBuilder.TimestampConfig,
-          _logger
-        );
+        provider.Consume(dag);
 
-        if (success)
-        {
-          _logger.LogInformation("{Provider} export completed successfully", provider.Name);
-        }
-        else
-        {
-          _logger.LogWarning("{Provider} export failed", provider.Name);
-        }
+        _logger.LogInformation("{Provider} export completed successfully", provider.Name);
       }
       catch (Exception ex)
       {

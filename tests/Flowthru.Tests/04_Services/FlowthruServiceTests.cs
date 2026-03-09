@@ -1,7 +1,9 @@
 using Flowthru.Data;
+using Flowthru.Meta.Models;
 using Flowthru.Pipelines;
 using Flowthru.Services;
 using Flowthru.Services.Models;
+using Flowthru.Tests.Common;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestNodes;
 using Microsoft.Extensions.DependencyInjection;
@@ -454,5 +456,322 @@ public class FlowthruServiceTests
     );
 
     Assert.That(exception.Message, Does.Contain("NonExistent"));
+  }
+
+  [Test]
+  public void GetDagMetadata_WithNoPipelineName_ReturnsMergedDag()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var pipeline1 = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Node1",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.StepOne
+      );
+    });
+
+    var pipeline2 = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Node2",
+        transform: PassthroughNode.Create(),
+        input: catalog.StepOne,
+        output: catalog.Output
+      );
+    });
+
+    var pipelines = new Dictionary<string, Pipeline>
+    {
+      ["pipeline1"] = pipeline1,
+      ["pipeline2"] = pipeline2,
+    };
+
+    var service = CreateService(catalog, pipelines);
+
+    // Act
+    var dag = service.GetDagMetadata();
+
+    // Assert
+    Assert.That(dag, Is.Not.Null);
+    Assert.That(dag.Nodes, Has.Count.EqualTo(2));
+    Assert.That(dag.Edges, Is.Not.Empty);
+    Assert.That(dag.CatalogEntries, Is.Not.Empty);
+    Assert.That(dag.AppliedSlice, Is.Null);
+    Assert.That(dag.SlicedNodeIds, Is.Null);
+  }
+
+  [Test]
+  public void GetDagMetadata_WithPipelineName_ReturnsSinglePipelineDag()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var pipeline1 = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Node1",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.StepOne
+      );
+    });
+
+    var pipeline2 = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Node2",
+        transform: PassthroughNode.Create(),
+        input: catalog.StepOne,
+        output: catalog.Output
+      );
+    });
+
+    var pipelines = new Dictionary<string, Pipeline>
+    {
+      ["pipeline1"] = pipeline1,
+      ["pipeline2"] = pipeline2,
+    };
+
+    var service = CreateService(catalog, pipelines);
+
+    // Act
+    var dag = service.GetDagMetadata("pipeline1");
+
+    // Assert
+    Assert.That(dag, Is.Not.Null);
+    Assert.That(dag.Nodes, Has.Count.EqualTo(1));
+  }
+
+  [Test]
+  public void GetDagMetadata_WithSliceStrategy_IncludesSliceOverlay()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Node1",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.StepOne
+      );
+      builder.AddNode(
+        label: "Node2",
+        transform: PassthroughNode.Create(),
+        input: catalog.StepOne,
+        output: catalog.Output
+      );
+    });
+
+    var pipelines = new Dictionary<string, Pipeline> { ["test"] = pipeline };
+
+    var service = CreateService(catalog, pipelines);
+
+    // Act — slice to just Node1 (merged names are prefixed with pipeline name)
+    var dag = service.GetDagMetadata(
+      sliceStrategy: new PipelineSliceStrategy { ToNodes = new HashSet<string> { "test.Node1" } }
+    );
+
+    // Assert
+    Assert.That(dag, Is.Not.Null);
+    Assert.That(dag.SlicedNodeIds, Is.Not.Null);
+    Assert.That(dag.AppliedSlice, Is.Not.Null);
+  }
+
+  [Test]
+  public void GetDagMetadata_WithNonExistentPipeline_ThrowsKeyNotFoundException()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var pipelines = new Dictionary<string, Pipeline>();
+
+    var service = CreateService(catalog, pipelines);
+
+    // Act & Assert
+    var exception = Assert.Throws<KeyNotFoundException>(
+      () => service.GetDagMetadata("NonExistent")
+    );
+
+    Assert.That(exception.Message, Does.Contain("NonExistent"));
+  }
+
+  [Test]
+  public void GetDagMetadata_NodesHaveInputsAndOutputs()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Process",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
+    });
+
+    var pipelines = new Dictionary<string, Pipeline> { ["test"] = pipeline };
+
+    var service = CreateService(catalog, pipelines);
+
+    // Act
+    var dag = service.GetDagMetadata("test");
+
+    // Assert
+    var node = dag.Nodes.Single();
+    Assert.That(node.Inputs, Is.Not.Empty);
+    Assert.That(node.Outputs, Is.Not.Empty);
+    Assert.That(node.Layer, Is.GreaterThanOrEqualTo(0));
+  }
+
+  [Test]
+  public void GetDagMetadata_CatalogEntriesHaveProducerConsumerInfo()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Process",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
+    });
+
+    var pipelines = new Dictionary<string, Pipeline> { ["test"] = pipeline };
+
+    var service = CreateService(catalog, pipelines);
+
+    // Act
+    var dag = service.GetDagMetadata("test");
+
+    // Assert — the output catalog entry should have "Process" as its producer
+    var outputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Producer is not null);
+    Assert.That(outputEntry, Is.Not.Null);
+    Assert.That(outputEntry!.Producer, Is.Not.Null.And.Not.Empty);
+
+    // The input catalog entry should have "Process" as a consumer
+    var inputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Consumers.Count > 0);
+    Assert.That(inputEntry, Is.Not.Null);
+    Assert.That(inputEntry!.Consumers, Is.Not.Empty);
+  }
+
+  [Test]
+  public async Task ExecutePipelineAsync_WithMetadataProvider_CapturesMetadata()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var testData = new[]
+    {
+      new TestData
+      {
+        Id = 1,
+        Name = "Test",
+        Value = 42.0,
+      },
+    };
+    await catalog.Input.Save(testData).Run();
+
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Process",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
+    });
+
+    pipeline.Name = "test_pipeline";
+    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+
+    var capturingProvider = new CapturingMetadataProvider();
+
+    // Create service with metadata provider configured
+    var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+    services.AddLogging();
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.UseCatalog(catalog);
+      flowthru.UsePipelines(_ => pipelines);
+      flowthru.ConfigureMetadata(metadata =>
+      {
+        metadata.AddProvider(capturingProvider);
+      });
+    });
+
+    var serviceProvider = services.BuildServiceProvider();
+    var service = serviceProvider.GetRequiredService<IFlowthruService>();
+
+    // Act - run with exportMetadata: true
+    var result = await service.ExecutePipelineAsync(options: null, exportMetadata: true);
+
+    // Assert
+    Assert.That(result.Success, Is.True);
+    Assert.That(capturingProvider.CapturedDag, Is.Not.Null, "Provider should capture DAG metadata");
+    Assert.That(capturingProvider.CapturedDag.Nodes, Has.Count.EqualTo(1));
+    Assert.That(capturingProvider.CapturedDag.CatalogEntries, Is.Not.Empty);
+  }
+
+  [Test]
+  public async Task ExecutePipelineAsync_WithoutMetadataExport_DoesNotCallProvider()
+  {
+    // Arrange
+    var catalog = new SimpleThreeNodeCatalog();
+    var testData = new[]
+    {
+      new TestData
+      {
+        Id = 1,
+        Name = "Test",
+        Value = 42.0,
+      },
+    };
+    await catalog.Input.Save(testData).Run();
+
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Process",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
+    });
+
+    pipeline.Name = "test_pipeline";
+    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+
+    var capturingProvider = new CapturingMetadataProvider();
+
+    // Create service with metadata provider configured
+    var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+    services.AddLogging();
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.UseCatalog(catalog);
+      flowthru.UsePipelines(_ => pipelines);
+      flowthru.ConfigureMetadata(metadata =>
+      {
+        metadata.AddProvider(capturingProvider);
+      });
+    });
+
+    var serviceProvider = services.BuildServiceProvider();
+    var service = serviceProvider.GetRequiredService<IFlowthruService>();
+
+    // Act - run with exportMetadata: false (default)
+    var result = await service.ExecutePipelineAsync(options: null, exportMetadata: false);
+
+    // Assert
+    Assert.That(result.Success, Is.True);
+    Assert.That(
+      capturingProvider.CapturedDag,
+      Is.Null,
+      "Provider should not be called when exportMetadata=false"
+    );
   }
 }

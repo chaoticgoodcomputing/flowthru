@@ -11,42 +11,56 @@ namespace Flowthru.Meta.Providers;
 /// (nodes, catalog entries, edges, schema information) for consumption by Flowthru.Viz
 /// or other visualization tools.
 /// </remarks>
+[MetadataProviderBuilder(typeof(JsonMetadataProviderBuilder))]
 public class JsonMetadataProvider : IMetadataProvider
 {
   private readonly bool _useCompactFormat;
+  private readonly string _outputDirectory;
+  private readonly string _filenameTemplate;
+  private readonly TimestampConfiguration _timestampConfig;
+  private readonly ILogger? _logger;
 
   /// <summary>
   /// Initializes a new JSON metadata provider.
   /// </summary>
+  /// <param name="outputDirectory">Directory to write JSON files to</param>
+  /// <param name="filenameTemplate">Template for generating output filenames</param>
+  /// <param name="timestampConfig">Configuration for timestamp handling in filenames</param>
   /// <param name="useCompactFormat">Whether to use compact (minified) JSON format</param>
-  public JsonMetadataProvider(bool useCompactFormat = false)
+  /// <param name="logger">Optional logger for diagnostic messages</param>
+  public JsonMetadataProvider(
+    string outputDirectory,
+    string filenameTemplate,
+    TimestampConfiguration timestampConfig,
+    bool useCompactFormat = false,
+    ILogger? logger = null
+  )
   {
+    _outputDirectory = outputDirectory ?? throw new ArgumentNullException(nameof(outputDirectory));
+    _filenameTemplate =
+      filenameTemplate ?? throw new ArgumentNullException(nameof(filenameTemplate));
+    _timestampConfig = timestampConfig ?? throw new ArgumentNullException(nameof(timestampConfig));
     _useCompactFormat = useCompactFormat;
+    _logger = logger;
   }
 
   /// <inheritdoc />
   public string Name => "JSON";
 
   /// <inheritdoc />
-  public bool Export(
-    DagMetadata dag,
-    string outputDirectory,
-    string filenameTemplate,
-    TimestampConfiguration timestampConfig,
-    ILogger? logger = null
-  )
+  public void Consume(DagMetadata dag)
   {
     try
     {
       // Ensure output directory exists
-      Directory.CreateDirectory(outputDirectory);
+      Directory.CreateDirectory(_outputDirectory);
 
       // Generate filename from template
-      var timestamp = timestampConfig.GenerateTimestamp();
-      var filename = FilenameTemplateParser.Render(dag, filenameTemplate, timestamp) + ".json";
-      var filePath = Path.Combine(outputDirectory, filename);
+      var timestamp = _timestampConfig.GenerateTimestamp();
+      var filename = FilenameTemplateParser.Render(dag, _filenameTemplate, timestamp) + ".json";
+      var filePath = Path.Combine(_outputDirectory, filename);
 
-      logger?.LogInformation("Exporting JSON metadata to {FilePath}", filePath);
+      _logger?.LogInformation("Exporting JSON metadata to {FilePath}", filePath);
 
       // Serialize to JSON
       var json = _useCompactFormat ? dag.ToCompactJson() : dag.ToJson();
@@ -65,14 +79,12 @@ public class JsonMetadataProvider : IMetadataProvider
         }
         File.Move(tempPath, filePath);
 
-        logger?.LogInformation(
+        _logger?.LogInformation(
           "Successfully exported JSON metadata ({Nodes} nodes, {Entries} catalog entries, {Edges} edges)",
           dag.Nodes.Count,
           dag.CatalogEntries.Count,
           dag.Edges.Count
         );
-
-        return true;
       }
       finally
       {
@@ -92,36 +104,11 @@ public class JsonMetadataProvider : IMetadataProvider
     }
     catch (Exception ex)
     {
-      logger?.LogWarning(
+      _logger?.LogWarning(
         ex,
         "Failed to export JSON metadata to {OutputDirectory}",
-        outputDirectory
+        _outputDirectory
       );
-      return false;
     }
-  }
-
-  /// <summary>
-  /// Sanitizes a pipeline name for use in a filename.
-  /// </summary>
-  private static string SanitizeFilename(string name)
-  {
-    if (string.IsNullOrWhiteSpace(name))
-    {
-      return "UnnamedPipeline";
-    }
-
-    var invalidChars = Path.GetInvalidFileNameChars();
-    var sanitized = name;
-
-    foreach (var c in invalidChars)
-    {
-      sanitized = sanitized.Replace(c, '_');
-    }
-
-    // Also replace spaces with underscores for cleaner filenames
-    sanitized = sanitized.Replace(' ', '_');
-
-    return sanitized;
   }
 }

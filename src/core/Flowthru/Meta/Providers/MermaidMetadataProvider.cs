@@ -10,11 +10,16 @@ namespace Flowthru.Meta.Providers;
 /// This provider creates Markdown files containing Mermaid flowchart diagrams
 /// for immediate visualization in GitHub, VS Code, and other Mermaid-compatible viewers.
 /// </remarks>
+[MetadataProviderBuilder(typeof(MermaidMetadataProviderBuilder))]
 public class MermaidMetadataProvider : IMetadataProvider
 {
   private readonly MermaidFlowchartDirection _direction;
   private readonly string _activeNodeColor;
   private readonly string _activeDataColor;
+  private readonly string _outputDirectory;
+  private readonly string _filenameTemplate;
+  private readonly TimestampConfiguration _timestampConfig;
+  private readonly ILogger? _logger;
 
   /// <summary>
   /// Flow direction for Mermaid flowcharts.
@@ -37,43 +42,50 @@ public class MermaidMetadataProvider : IMetadataProvider
   /// <summary>
   /// Initializes a new Mermaid metadata provider.
   /// </summary>
+  /// <param name="outputDirectory">Directory to write Mermaid files to</param>
+  /// <param name="filenameTemplate">Template for generating output filenames</param>
+  /// <param name="timestampConfig">Configuration for timestamp handling in filenames</param>
   /// <param name="direction">Flow direction for the diagram</param>
   /// <param name="activeNodeColor">Hex color for active (sliced) nodes</param>
   /// <param name="activeDataColor">Hex color for active (sliced) catalog entries</param>
+  /// <param name="logger">Optional logger for diagnostic messages</param>
   public MermaidMetadataProvider(
+    string outputDirectory,
+    string filenameTemplate,
+    TimestampConfiguration timestampConfig,
     MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom,
     string activeNodeColor = "#2E7D32",
-    string activeDataColor = "#2E7D32"
+    string activeDataColor = "#2E7D32",
+    ILogger? logger = null
   )
   {
+    _outputDirectory = outputDirectory ?? throw new ArgumentNullException(nameof(outputDirectory));
+    _filenameTemplate =
+      filenameTemplate ?? throw new ArgumentNullException(nameof(filenameTemplate));
+    _timestampConfig = timestampConfig ?? throw new ArgumentNullException(nameof(timestampConfig));
     _direction = direction;
     _activeNodeColor = activeNodeColor;
     _activeDataColor = activeDataColor;
+    _logger = logger;
   }
 
   /// <inheritdoc />
   public string Name => "Mermaid";
 
   /// <inheritdoc />
-  public bool Export(
-    DagMetadata dag,
-    string outputDirectory,
-    string filenameTemplate,
-    TimestampConfiguration timestampConfig,
-    ILogger? logger = null
-  )
+  public void Consume(DagMetadata dag)
   {
     try
     {
       // Ensure output directory exists
-      Directory.CreateDirectory(outputDirectory);
+      Directory.CreateDirectory(_outputDirectory);
 
       // Generate filename from template
-      var timestamp = timestampConfig.GenerateTimestamp();
-      var filename = FilenameTemplateParser.Render(dag, filenameTemplate, timestamp) + ".md";
-      var filePath = Path.Combine(outputDirectory, filename);
+      var timestamp = _timestampConfig.GenerateTimestamp();
+      var filename = FilenameTemplateParser.Render(dag, _filenameTemplate, timestamp) + ".md";
+      var filePath = Path.Combine(_outputDirectory, filename);
 
-      logger?.LogInformation("Exporting Mermaid diagram to {FilePath}", filePath);
+      _logger?.LogInformation("Exporting Mermaid diagram to {FilePath}", filePath);
 
       // Generate Mermaid diagram with configured direction and colors
       var mermaid = dag.ToMermaidDiagram(
@@ -96,9 +108,7 @@ public class MermaidMetadataProvider : IMetadataProvider
         }
         File.Move(tempPath, filePath);
 
-        logger?.LogInformation("Successfully exported Mermaid diagram");
-
-        return true;
+        _logger?.LogInformation("Successfully exported Mermaid diagram");
       }
       finally
       {
@@ -118,12 +128,11 @@ public class MermaidMetadataProvider : IMetadataProvider
     }
     catch (Exception ex)
     {
-      logger?.LogWarning(
+      _logger?.LogWarning(
         ex,
         "Failed to export Mermaid diagram to {OutputDirectory}",
-        outputDirectory
+        _outputDirectory
       );
-      return false;
     }
   }
 

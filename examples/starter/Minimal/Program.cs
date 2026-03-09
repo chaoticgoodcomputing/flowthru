@@ -1,4 +1,6 @@
 using Flowthru.Cli;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -44,7 +46,13 @@ public class Program
       flowthru.UseCatalog(_ => new Catalog(basePath));
       flowthru.ConfigureMetadata(meta =>
       {
-        meta.WithOutputDirectory(Path.Combine(basePath, "Metadata")).AddJson().AddMermaid();
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory(metadataPath)
+          )
+          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+            mermaid.WithOutputDirectory(metadataPath)
+          );
       });
 
       // Register the greetings pipeline

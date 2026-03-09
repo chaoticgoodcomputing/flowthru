@@ -1,14 +1,43 @@
 using Flowthru.Meta.Models;
-using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Meta.Providers;
 
 /// <summary>
-/// Interface for metadata export providers.
+/// Interface for metadata consumers.
 /// </summary>
 /// <remarks>
-/// Metadata providers handle exporting DAG metadata to different formats
-/// (JSON, Mermaid, GraphML, etc.) with provider-specific configuration.
+/// <para>
+/// Metadata providers receive DAG metadata after pipeline builds and can
+/// process it in any way: write files, send to APIs, store in memory, etc.
+/// </para>
+/// <para>
+/// <strong>Built-in Providers:</strong>
+/// </para>
+/// <list type="bullet">
+/// <item><see cref="JsonMetadataProvider"/> - Exports JSON files</item>
+/// <item><see cref="MermaidMetadataProvider"/> - Exports Mermaid diagrams</item>
+/// </list>
+/// <para>
+/// <strong>Custom Provider Example:</strong>
+/// </para>
+/// <code>
+/// public class DashboardMetadataProvider : IMetadataProvider
+/// {
+///   private readonly IDashboardClient _client;
+///
+///   public DashboardMetadataProvider(IDashboardClient client)
+///   {
+///     _client = client;
+///   }
+///
+///   public string Name => "Dashboard";
+///
+///   public void Consume(DagMetadata dag)
+///   {
+///     _client.SendVisualization(dag);
+///   }
+/// }
+/// </code>
 /// </remarks>
 public interface IMetadataProvider
 {
@@ -18,19 +47,15 @@ public interface IMetadataProvider
   string Name { get; }
 
   /// <summary>
-  /// Exports DAG metadata using this provider.
+  /// Consumes DAG metadata.
   /// </summary>
-  /// <param name="dag">The DAG metadata to export</param>
-  /// <param name="outputDirectory">Directory to write output files to</param>
-  /// <param name="filenameTemplate">Template for generating output filenames</param>
-  /// <param name="timestampConfig">Configuration for timestamp handling in filenames</param>
-  /// <param name="logger">Optional logger for diagnostic messages</param>
-  /// <returns>True if export succeeded, false otherwise</returns>
-  bool Export(
-    DagMetadata dag,
-    string outputDirectory,
-    string filenameTemplate,
-    TimestampConfiguration timestampConfig,
-    ILogger? logger = null
-  );
+  /// <param name="dag">The DAG metadata to consume</param>
+  /// <remarks>
+  /// This method is called after pipeline builds. Providers can process
+  /// the metadata in any way: write files, send to APIs, store in memory, etc.
+  ///
+  /// Implementations should handle their own error recovery - exceptions thrown
+  /// from this method will be logged but will not fail the pipeline execution.
+  /// </remarks>
+  void Consume(DagMetadata dag);
 }

@@ -402,8 +402,8 @@ public sealed class FlowthruServiceBuilder
   /// flowthru.ConfigureMetadata(meta =>
   /// {
   ///     meta.WithOutputDirectory("metadata")
-  ///         .AddJson()
-  ///         .AddMermaid();
+  ///         .AddProvider&lt;JsonMetadataProvider, JsonMetadataProviderBuilder&gt;()
+  ///         .AddProvider&lt;MermaidMetadataProvider, MermaidMetadataProviderBuilder&gt;();
   /// });
   /// </code>
   /// </para>
@@ -424,7 +424,7 @@ public sealed class FlowthruServiceBuilder
 
       if (metadataOptions != null)
       {
-        ApplyOptionsToBuilder(builder, metadataOptions);
+        ApplyMetadataOptions(builder, metadataOptions);
       }
     }
 
@@ -436,29 +436,14 @@ public sealed class FlowthruServiceBuilder
     return this;
   }
 
-  private static void ApplyOptionsToBuilder(
-    FlowthruMetadataBuilder builder,
-    MetadataOptions options
-  )
+  /// <summary>
+  /// TODO: Remove this. I'm not sure if I am comfortable with the level of programmatic privilege that
+  /// JSON and Mermaid metadata are receiving, here. We either need to not support AppSettings-level
+  /// configuration, or find some way to make it extensible so that third-party metadata providers
+  /// can comfortably add their own AppSettings-level config options.
+  /// </summary>
+  private static void ApplyMetadataOptions(FlowthruMetadataBuilder builder, MetadataOptions options)
   {
-    if (!string.IsNullOrWhiteSpace(options.OutputDirectory))
-    {
-      builder.WithOutputDirectory(options.OutputDirectory);
-    }
-
-    if (options.Timestamp != null)
-    {
-      if (options.Timestamp.IncludeTimestamp)
-      {
-        builder.WithTimestamp(options.Timestamp.Format);
-      }
-    }
-
-    if (!string.IsNullOrWhiteSpace(options.FilenameTemplate))
-    {
-      builder.WithFilenameTemplate(options.FilenameTemplate);
-    }
-
     // Register providers from configuration
     if (options.Providers != null && options.Providers.Count > 0)
     {
@@ -469,8 +454,12 @@ public sealed class FlowthruServiceBuilder
         switch (normalizedName)
         {
           case "json":
-            builder.AddJson(json =>
+            builder.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
             {
+              // Apply file configuration shared across providers
+              ApplyFileConfiguration(json, options);
+
+              // Apply JSON-specific options
               if (options.Json != null)
               {
                 if (options.Json.UseCompactFormat)
@@ -486,8 +475,12 @@ public sealed class FlowthruServiceBuilder
             break;
 
           case "mermaid":
-            builder.AddMermaid(mermaid =>
+            builder.AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
             {
+              // Apply file configuration shared across providers
+              ApplyFileConfiguration(mermaid, options);
+
+              // Apply Mermaid-specific options
               if (options.Mermaid != null)
               {
                 var direction = options.Mermaid.Direction.ToLowerInvariant() switch
@@ -526,6 +519,31 @@ public sealed class FlowthruServiceBuilder
             break;
         }
       }
+    }
+  }
+
+  /// <summary>
+  /// Helper to apply file configuration from MetadataOptions to provider builders.
+  /// Works via duck typing — both JsonMetadataProviderBuilder and MermaidMetadataProviderBuilder
+  /// expose these methods, but there's no shared interface.
+  /// </summary>
+  private static void ApplyFileConfiguration<TBuilder>(TBuilder builder, MetadataOptions options)
+  {
+    dynamic dynamicBuilder = builder!;
+
+    if (!string.IsNullOrWhiteSpace(options.OutputDirectory))
+    {
+      dynamicBuilder.WithOutputDirectory(options.OutputDirectory);
+    }
+
+    if (!string.IsNullOrWhiteSpace(options.FilenameTemplate))
+    {
+      dynamicBuilder.WithFilenameTemplate(options.FilenameTemplate);
+    }
+
+    if (options.Timestamp != null && options.Timestamp.IncludeTimestamp)
+    {
+      dynamicBuilder.WithTimestamp(options.Timestamp.Format);
     }
   }
 

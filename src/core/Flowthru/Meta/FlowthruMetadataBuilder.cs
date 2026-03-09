@@ -8,27 +8,28 @@ namespace Flowthru.Meta;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Use this builder to register metadata providers (JSON, Mermaid, etc.) with custom configuration.
+/// Use this builder to register metadata providers with custom configuration.
 /// Providers are executed in registration order during metadata export.
 /// </para>
 /// <para>
 /// <strong>Example usage:</strong>
 /// </para>
 /// <code>
-/// builder.IncludeMetadata(meta => meta
-///     .WithTimestamp("yyyy-MM-dd_HH-mm-ss")  // Optional: custom timestamp format
-///     .AddJson(json => json.UseCompactFormat())
-///     .AddMermaid(mermaid => mermaid.WithDirection(MermaidFlowchartDirection.LeftToRight))
+/// builder.ConfigureMetadata(meta => meta
+///     .AddProvider&lt;JsonMetadataProvider, JsonMetadataProviderBuilder&gt;(json => json
+///         .WithOutputDirectory("metadata")
+///         .WithTimestamp("yyyy-MM-dd_HH-mm-ss")
+///         .UseCompactFormat())
+///     .AddProvider&lt;MermaidMetadataProvider, MermaidMetadataProviderBuilder&gt;(mermaid => mermaid
+///         .WithOutputDirectory("metadata")
+///         .WithDirection(MermaidMetadataProvider.MermaidFlowchartDirection.LeftToRight))
 /// );
 /// </code>
 /// </remarks>
 public class FlowthruMetadataBuilder
 {
   private readonly List<IMetadataProvider> _providers = new();
-  private string _outputDirectory = "metadata";
   private bool _autoExport = true;
-  private readonly TimestampConfiguration _timestampConfig = new();
-  private string _filenameTemplate = "dag-{PipelineName}-{Timestamp}-{SliceType}";
 
   /// <summary>
   /// Gets the list of registered metadata providers.
@@ -36,35 +37,9 @@ public class FlowthruMetadataBuilder
   internal IReadOnlyList<IMetadataProvider> Providers => _providers.AsReadOnly();
 
   /// <summary>
-  /// Gets the output directory for metadata files.
-  /// </summary>
-  internal string OutputDirectory => _outputDirectory;
-
-  /// <summary>
   /// Gets whether metadata should be auto-exported during pipeline execution.
   /// </summary>
   internal bool AutoExport => _autoExport;
-
-  /// <summary>
-  /// Gets the timestamp configuration for metadata file naming.
-  /// </summary>
-  internal TimestampConfiguration TimestampConfig => _timestampConfig;
-
-  /// <summary>
-  /// Gets the filename template for metadata exports.
-  /// </summary>
-  internal string FilenameTemplate => _filenameTemplate;
-
-  /// <summary>
-  /// Sets the output directory for metadata files.
-  /// </summary>
-  /// <param name="directory">Directory path (relative or absolute)</param>
-  /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder WithOutputDirectory(string directory)
-  {
-    _outputDirectory = directory ?? throw new ArgumentNullException(nameof(directory));
-    return this;
-  }
 
   /// <summary>
   /// Enables or disables automatic metadata export during pipeline execution.
@@ -78,101 +53,70 @@ public class FlowthruMetadataBuilder
   }
 
   /// <summary>
-  /// Enables timestamp inclusion in metadata filenames with optional custom format.
+  /// Adds a metadata provider with optional configuration.
   /// </summary>
-  /// <param name="format">Optional DateTime format string. If null, uses default "yyyyMMdd-HHmmss"</param>
+  /// <typeparam name="TProvider">The metadata provider type (must implement <see cref="IMetadataProvider"/> and have <see cref="MetadataProviderBuilderAttribute"/>)</typeparam>
+  /// <typeparam name="TBuilder">The builder type for the provider</typeparam>
+  /// <param name="configure">Optional configuration action for the provider's builder</param>
   /// <returns>This builder for fluent chaining</returns>
-  /// <exception cref="ArgumentException">Thrown if format string is invalid</exception>
-  /// <remarks>
-  /// <para>
-  /// This is the default behavior - timestamps are included unless explicitly disabled.
-  /// </para>
-  /// <para>
-  /// Examples of valid format strings:
-  /// </para>
-  /// <list type="bullet">
-  /// <item>"yyyyMMdd-HHmmss" → 20251024-143052 (default)</item>
-  /// <item>"yyyy-MM-dd_HH-mm-ss" → 2025-10-24_14-30-52</item>
-  /// <item>"yyyyMMddHHmmss" → 20251024143052</item>
-  /// <item>"yyyy-MM-dd" → 2025-10-24</item>
-  /// </list>
-  /// <para>
-  /// <strong>Usage:</strong>
-  /// </para>
-  /// <code>
-  /// // Use default format
-  /// .WithTimestamp()
-  ///
-  /// // Use custom format
-  /// .WithTimestamp("yyyy-MM-dd_HH-mm-ss")
-  /// </code>
-  /// </remarks>
-  public FlowthruMetadataBuilder WithTimestamp(string? format = null)
+  /// <exception cref="InvalidOperationException">Thrown when provider type lacks <see cref="MetadataProviderBuilderAttribute"/> or builder type mismatch</exception>
+  public FlowthruMetadataBuilder AddProvider<TProvider, TBuilder>(
+    Action<TBuilder>? configure = null
+  )
+    where TProvider : IMetadataProvider
+    where TBuilder : new()
   {
-    _timestampConfig.IncludeTimestamp = true;
+    // Get the MetadataProviderBuilder attribute from the provider type
+    var providerType = typeof(TProvider);
+    var attribute =
+      providerType
+        .GetCustomAttributes(typeof(MetadataProviderBuilderAttribute), false)
+        .FirstOrDefault() as MetadataProviderBuilderAttribute;
 
-    if (format != null)
+    if (attribute is null)
     {
-      if (string.IsNullOrWhiteSpace(format))
-      {
-        throw new ArgumentException(
-          "Timestamp format cannot be empty or whitespace",
-          nameof(format)
-        );
-      }
-
-      _timestampConfig.Format = format;
-      _timestampConfig.Validate(); // Validate immediately
+      throw new InvalidOperationException(
+        $"Provider type '{providerType.Name}' must be decorated with [MetadataProviderBuilder(typeof(...))] attribute."
+      );
     }
 
-    return this;
-  }
+    var expectedBuilderType = attribute.BuilderType;
+    var actualBuilderType = typeof(TBuilder);
 
-  /// <summary>
-  /// Sets a custom filename template for metadata exports.
-  /// </summary>
-  /// <param name="template">Template string with {Token} placeholders</param>
-  /// <returns>This builder for fluent chaining</returns>
-  /// <remarks>
-  /// Supported tokens: {PipelineName}, {Timestamp}, {SliceType}, {FromNodes}, {ToNodes}, {FromInputs}, {OnlyNodes}, {Tags}
-  /// Default: "dag-{PipelineName}-{Timestamp}-{SliceType}"
-  /// </remarks>
-  public FlowthruMetadataBuilder WithFilenameTemplate(string template)
-  {
-    _filenameTemplate = template ?? throw new ArgumentNullException(nameof(template));
-    return this;
-  }
+    if (expectedBuilderType != actualBuilderType)
+    {
+      throw new InvalidOperationException(
+        $"Builder type mismatch: Provider '{providerType.Name}' expects builder '{expectedBuilderType.Name}', but '{actualBuilderType.Name}' was provided."
+      );
+    }
 
-  /// <summary>
-  /// Adds a JSON metadata provider with optional configuration.
-  /// </summary>
-  /// <param name="configure">Optional configuration action for JSON provider</param>
-  /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder AddJson(Action<JsonMetadataProviderBuilder>? configure = null)
-  {
-    var builder = new JsonMetadataProviderBuilder();
+    // Instantiate the builder
+    var builder = new TBuilder();
+
+    // Apply configuration
     configure?.Invoke(builder);
-    _providers.Add(builder.Build());
+
+    // Call Build() method to get the provider instance
+    var buildMethod = actualBuilderType.GetMethod("Build");
+    if (buildMethod == null)
+    {
+      throw new InvalidOperationException(
+        $"Builder type '{actualBuilderType.Name}' must have a public 'Build()' method."
+      );
+    }
+
+    var provider =
+      buildMethod.Invoke(builder, null) as IMetadataProvider
+      ?? throw new InvalidOperationException(
+        $"Builder '{actualBuilderType.Name}'.Build() returned null or non-IMetadataProvider instance."
+      );
+
+    _providers.Add(provider);
     return this;
   }
 
   /// <summary>
-  /// Adds a Mermaid diagram provider with optional configuration.
-  /// </summary>
-  /// <param name="configure">Optional configuration action for Mermaid provider</param>
-  /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder AddMermaid(
-    Action<MermaidMetadataProviderBuilder>? configure = null
-  )
-  {
-    var builder = new MermaidMetadataProviderBuilder();
-    configure?.Invoke(builder);
-    _providers.Add(builder.Build());
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a custom metadata provider.
+  /// Adds a custom metadata provider instance directly.
   /// </summary>
   /// <param name="provider">The metadata provider to register</param>
   /// <returns>This builder for fluent chaining</returns>
@@ -180,102 +124,5 @@ public class FlowthruMetadataBuilder
   {
     _providers.Add(provider ?? throw new ArgumentNullException(nameof(provider)));
     return this;
-  }
-
-  /// <summary>
-  /// Creates a default configuration with JSON and Mermaid providers.
-  /// </summary>
-  /// <returns>New metadata builder with default providers</returns>
-  internal static FlowthruMetadataBuilder CreateDefault()
-  {
-    var builder = new FlowthruMetadataBuilder();
-    builder.AddJson();
-    builder.AddMermaid();
-    return builder;
-  }
-}
-
-/// <summary>
-/// Builder for configuring JSON metadata provider options.
-/// </summary>
-public class JsonMetadataProviderBuilder
-{
-  private bool _useCompactFormat = false;
-
-  /// <summary>
-  /// Enables compact JSON format (no indentation).
-  /// </summary>
-  /// <returns>This builder for fluent chaining</returns>
-  public JsonMetadataProviderBuilder UseCompactFormat()
-  {
-    _useCompactFormat = true;
-    return this;
-  }
-
-  /// <summary>
-  /// Enables indented JSON format (default).
-  /// </summary>
-  /// <returns>This builder for fluent chaining</returns>
-  public JsonMetadataProviderBuilder UseIndentedFormat()
-  {
-    _useCompactFormat = false;
-    return this;
-  }
-
-  internal JsonMetadataProvider Build()
-  {
-    return new JsonMetadataProvider(_useCompactFormat);
-  }
-}
-
-/// <summary>
-/// Builder for configuring Mermaid diagram provider options.
-/// </summary>
-public class MermaidMetadataProviderBuilder
-{
-  private MermaidMetadataProvider.MermaidFlowchartDirection _direction = MermaidMetadataProvider
-    .MermaidFlowchartDirection
-    .TopToBottom;
-  private string _activeNodeColor = "#2E7D32";
-  private string _activeDataColor = "#2E7D32";
-
-  /// <summary>
-  /// Sets the flowchart direction.
-  /// </summary>
-  /// <param name="direction">Direction for the flowchart (TB, LR, BT, RL)</param>
-  /// <returns>This builder for fluent chaining</returns>
-  public MermaidMetadataProviderBuilder WithDirection(
-    MermaidMetadataProvider.MermaidFlowchartDirection direction
-  )
-  {
-    _direction = direction;
-    return this;
-  }
-
-  /// <summary>
-  /// Sets the color for active (sliced) nodes.
-  /// </summary>
-  /// <param name="color">Hex color code (e.g., "#2E7D32")</param>
-  /// <returns>This builder for fluent chaining</returns>
-  public MermaidMetadataProviderBuilder WithActiveNodeColor(string color)
-  {
-    _activeNodeColor = color ?? throw new ArgumentNullException(nameof(color));
-    return this;
-  }
-
-  /// <summary>
-  /// Sets the color for active (sliced) catalog entries.
-  /// </summary>
-  /// <param name="color">Hex color code (e.g., "#2E7D32")</param>
-  /// <returns>This builder for fluent chaining</returns>
-  public MermaidMetadataProviderBuilder WithActiveDataColor(string color)
-  {
-    _activeDataColor = color ?? throw new ArgumentNullException(nameof(color));
-    return this;
-  }
-
-  internal MermaidMetadataProvider Build()
-  {
-    return new MermaidMetadataProvider(_direction, _activeNodeColor, _activeDataColor);
   }
 }

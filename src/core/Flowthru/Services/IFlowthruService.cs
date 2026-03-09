@@ -1,5 +1,6 @@
 using Flowthru.Data;
 using Flowthru.Data.Validation;
+using Flowthru.Meta.Models;
 using Flowthru.Pipelines;
 using Flowthru.Services.Models;
 
@@ -104,6 +105,50 @@ public interface IFlowthruService
   /// The pipeline must be built for accurate layer and input information.
   /// </remarks>
   PipelineMetadata GetPipelineMetadata(string pipelineName);
+
+  /// <summary>
+  /// Gets the full DAG metadata for pipeline introspection.
+  /// </summary>
+  /// <param name="pipelineName">
+  /// Optional pipeline name to inspect a single pipeline.
+  /// When null, all registered pipelines are merged into a unified DAG.
+  /// </param>
+  /// <param name="sliceStrategy">
+  /// Optional slice strategy to filter the DAG (e.g., from-node, to-data).
+  /// When provided, the returned metadata includes slice overlay information
+  /// (SlicedNodeIds and SlicedCatalogEntryKeys) identifying which nodes
+  /// and data are in the active execution subset.
+  /// </param>
+  /// <returns>
+  /// Full DAG metadata including nodes, catalog entries, edges, schemas,
+  /// and producer-consumer relationships.
+  /// </returns>
+  /// <exception cref="KeyNotFoundException">
+  /// Thrown if <paramref name="pipelineName"/> is specified but not found.
+  /// </exception>
+  /// <remarks>
+  /// This method does not execute the pipeline. It returns structural metadata
+  /// useful for visualization, impact analysis, data lineage, and debugging.
+  ///
+  /// Examples:
+  /// <code>
+  /// // Inspect all pipelines merged
+  /// var dag = flowthru.GetDagMetadata();
+  ///
+  /// // Inspect a single pipeline
+  /// var dag = flowthru.GetDagMetadata("DataProcessing");
+  ///
+  /// // Inspect downstream of a specific node
+  /// var dag = flowthru.GetDagMetadata(sliceStrategy: new PipelineSliceStrategy
+  /// {
+  ///     FromNodes = new HashSet&lt;string&gt; { "PreprocessCompanies" }
+  /// });
+  /// </code>
+  /// </remarks>
+  DagMetadata GetDagMetadata(
+    string? pipelineName = null,
+    PipelineSliceStrategy? sliceStrategy = null
+  );
 
   /// <summary>
   /// Validates all external inputs (Layer 0) for a pipeline.

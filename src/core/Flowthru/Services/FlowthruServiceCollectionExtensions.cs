@@ -31,7 +31,8 @@ public static class FlowthruServiceCollectionExtensions
   ///     });
   ///     flowthru.ConfigureMetadata(meta =>
   ///     {
-  ///         meta.WithOutputDirectory("metadata").AddMermaid();
+  ///         meta.WithOutputDirectory("metadata")
+  ///             .AddProvider&lt;MermaidMetadataProvider, MermaidMetadataProviderBuilder&gt;();
   ///     });
   /// });
   ///
