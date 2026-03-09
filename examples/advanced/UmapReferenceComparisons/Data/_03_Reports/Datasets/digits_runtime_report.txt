@@ -2,12 +2,12 @@ UMAP Runtime Report: Digits
 Samples: 1797
 
 Phase Timings:
-  GraphConstruction             45 ms
+  GraphConstruction             46 ms
   GraphRefinement                4 ms
-  LayoutInit                 13452 ms
-  LayoutOptimization          1620 ms
+  LayoutInit                 13603 ms
+  LayoutOptimization          1621 ms
   LocalMetric                    5 ms
-  NeighborSearch              1512 ms
+  NeighborSearch              1551 ms
   SamplingSchedule               0 ms
 
-Total Time: 16655 ms (16.66 seconds)
+Total Time: 16841 ms (16.84 seconds)

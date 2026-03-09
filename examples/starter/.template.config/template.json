@@ -32,15 +32,23 @@
           "description": "Simple multi-class classification (Iris dataset)"
         },
         {
+          "choice": "iris-python",
+          "description": "Iris classification with Python nodes (requires Python 3.10+)"
+        },
+        {
           "choice": "spaceflights",
           "description": "Full data engineering pipeline (DataProcessing → DataScience → Reporting)"
+        },
+        {
+          "choice": "spaceflights-python",
+          "description": "Spaceflights pipeline with Python nodes (requires Python 3.10+)"
         }
       ]
     },
     "FlowthruVersion": {
       "type": "parameter",
       "dataType": "string",
-      "defaultValue": "0.1.16",
+      "defaultValue": "0.1.22",
       "replaces": "FlowthruVersion",
       "description": "Flowthru package version (auto-injected at pack time)"
     },
@@ -52,9 +60,17 @@
       "type": "computed",
       "value": "(starter == \"iris\")"
     },
+    "UseIrisPython": {
+      "type": "computed",
+      "value": "(starter == \"iris-python\")"
+    },
     "UseSpaceflights": {
       "type": "computed",
       "value": "(starter == \"spaceflights\")"
+    },
+    "UseSpaceflightsPython": {
+      "type": "computed",
+      "value": "(starter == \"spaceflights-python\")"
     },
     "SpacefightsName": {
       "type": "derived",
@@ -80,9 +96,21 @@
           ]
         },
         {
+          "condition": "(!UseIrisPython)",
+          "exclude": [
+            "KedroIrisPython/**/*"
+          ]
+        },
+        {
           "condition": "(!UseSpaceflights)",
           "exclude": [
             "KedroSpaceflights/**/*"
+          ]
+        },
+        {
+          "condition": "(!UseSpaceflightsPython)",
+          "exclude": [
+            "KedroSpaceflightsPython/**/*"
           ]
         },
         {
@@ -92,7 +120,10 @@
             "**/obj/**",
             "**/.vs/**",
             "**/.vscode/**",
-            "**/*.user"
+            "**/*.user",
+            "**/.venv/**",
+            "**/__pycache__/**",
+            "SpaceflightsEFCore/**/*"
           ]
         },
         {
@@ -108,9 +139,21 @@
           }
         },
         {
+          "condition": "(UseIrisPython)",
+          "rename": {
+            "KedroIrisPython/": "./"
+          }
+        },
+        {
           "condition": "(UseSpaceflights)",
           "rename": {
             "KedroSpaceflights/": "./"
+          }
+        },
+        {
+          "condition": "(UseSpaceflightsPython)",
+          "rename": {
+            "KedroSpaceflightsPython/": "./"
           }
         }
       ]
