@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.24](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.23...v0.1.24) (2026-03-09)
+
+
+### Bug Fixes
+
+* Added more functionality to IFlowthruService ([#7](https://github.com/chaoticgoodcomputing/flowthru/issues/7)) ([690232b](https://github.com/chaoticgoodcomputing/flowthru/commit/690232b581af081a84d06104c7b86cf95b770bce))
+
 ## [0.1.23](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.22...v0.1.23) (2026-03-09)
 
 
