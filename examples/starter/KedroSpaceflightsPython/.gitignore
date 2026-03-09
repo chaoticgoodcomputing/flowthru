@@ -18,7 +18,8 @@ obj/
 Data/**/*
 !Data/**/*.cs
 # But allow raw input data
-!Data/_01_Raw/Datasets
-!Data/_01_Raw/Datasets/*
+!Data/_01_Raw/
+!Data/_01_Raw/Datasets/
+!Data/_01_Raw/Datasets/**
 
 Metadata

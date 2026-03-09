@@ -14,9 +14,10 @@ __pycache__/
 # Data outputs (keep structure, ignore datasets)
 Data/**/*
 !Data/**/*.cs
-# But allow raw input data
-!Data/_01_Raw/Datasets
-!Data/_01_Raw/Datasets/*
+# But allow raw input data  
+!Data/_01_Raw/
+!Data/_01_Raw/Datasets/
+!Data/_01_Raw/Datasets/**
 
 Metadata
 
