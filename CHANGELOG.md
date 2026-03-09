@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.23](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.22...v0.1.23) (2026-03-09)
+
+
+### Features
+
+* pythonic nodes ([#6](https://github.com/chaoticgoodcomputing/flowthru/issues/6)) ([b0289a4](https://github.com/chaoticgoodcomputing/flowthru/commit/b0289a43acce95678bd093af90f2b33f1d2d201c))
+
+
+### Bug Fixes
+
+* fix gitignore in example projects ([ffee26b](https://github.com/chaoticgoodcomputing/flowthru/commit/ffee26b91f321dd73736c14591058cd62505da69))
+* include uv locks ([84e69e7](https://github.com/chaoticgoodcomputing/flowthru/commit/84e69e7c227ae3844081ca7b0f55a713fb52ad62))
+* prep pythonic templates, tests for CI ([56254b5](https://github.com/chaoticgoodcomputing/flowthru/commit/56254b519af9b8fbff9cdb3508f5c0ff27c71654))
+
 ## [0.1.22](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.7...v0.1.22) (2026-03-06)
 
 
