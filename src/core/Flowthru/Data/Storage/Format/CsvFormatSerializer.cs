@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Flowthru.Abstractions;
+using Flowthru.Data.Capabilities;
 
 namespace Flowthru.Data.Storage.Format;
 
@@ -108,6 +109,9 @@ public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
   /// Gets the CSV configuration for this serializer.
   /// </summary>
   public CsvConfiguration Configuration => _configuration;
+
+  /// <inheritdoc/>
+  public StorageTraits Traits => new StorageTraits { CanStream = true };
 
   /// <inheritdoc/>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)

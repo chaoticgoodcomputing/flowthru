@@ -13,17 +13,17 @@ namespace Flowthru.Data.Storage;
 /// but don't produce data that downstream nodes need.
 /// </para>
 /// <para>
-/// <strong>Capabilities:</strong>
+/// <strong>Storage Traits:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>ISeedable: false (null entries cannot be Layer 0 inputs)</item>
-/// <item>IReadOnly: true (all operations are no-ops)</item>
+/// <item>CanWrite: false (Save is a no-op)</item>
+/// <item>CanRead: false (Load throws NotSupportedException)</item>
 /// </list>
 /// </remarks>
-public sealed class NullStorageAdapter<T> : IStorageAdapter<T>, IReadOnly
+public sealed class NullStorageAdapter<T> : IStorageAdapter<T>
 {
   /// <inheritdoc/>
-  public bool IsReadOnly => true;
+  public StorageTraits Traits => new StorageTraits { CanWrite = false, CanRead = false };
 
   /// <inheritdoc/>
   public FlowIO<T> Load() =>

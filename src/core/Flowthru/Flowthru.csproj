@@ -44,12 +44,11 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
+  <!-- Reference own source generator for self-generation -->
   <ItemGroup>
-    <!-- Source Generator for PipelineBuilder overloads -->
     <ProjectReference Include="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer"
-                      PrivateAssets="none" />
+                      OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
@@ -77,6 +76,9 @@
 
   <!-- Include templates in package -->
   <ItemGroup>
+    <!-- MSBuild targets file for auto-registering source generators -->
+    <None Include="build\Flowthru.targets" Pack="true" PackagePath="build\" />
+    
     <Content Include="../../examples/starter/**/*" 
              Exclude="../../examples/starter/**/bin/**;../../examples/starter/**/obj/**;../../examples/starter/**/.vs/**;../../examples/starter/**/.vscode/**;../../examples/starter/**/*.user"
              Pack="true" 

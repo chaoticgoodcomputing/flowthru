@@ -341,6 +341,8 @@ public class CancellationTests
   {
     private T? _data;
 
+    public Data.Capabilities.StorageTraits Traits => new Data.Capabilities.StorageTraits();
+
     public void SetData(T data) => _data = data;
 
     public FlowIO<T> Load()
@@ -378,6 +380,8 @@ public class CancellationTests
   private class SlowSaveStorageAdapter<T> : IStorageAdapter<T>
   {
     private T? _data;
+
+    public Data.Capabilities.StorageTraits Traits => new Data.Capabilities.StorageTraits();
 
     public FlowIO<T> Load()
     {

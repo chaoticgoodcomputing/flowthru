@@ -39,12 +39,13 @@ namespace Flowthru.Data.Storage;
 /// Adapter owns lifecycle, disposes after operation.</item>
 /// </list>
 /// <para>
-/// <strong>Capabilities:</strong>
+/// <strong>Storage Traits:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>ISeedable: true if table exists and contains data</item>
-/// <item>IReadOnly: configurable (default: false)</item>
-/// <item>Inspection: validates table existence and checks for empty data</item>
+/// <item>RequiresNetwork: true (database access requires network/connection)</item>
+/// <item>IsTransactional: true (supports rollback via EF Core transactions)</item>
+/// <item>CanStream: true (supports streaming queries via IAsyncEnumerable)</item>
+/// <item>CanWrite: true by default; constrain at catalog level for read-only entries</item>
 /// </list>
 /// <para>
 /// <strong>Empty Data Validation:</strong>
@@ -73,35 +74,44 @@ namespace Flowthru.Data.Storage;
 /// var adapter = new EFCoreStorageAdapter&lt;Company&gt;(() => new AppDbContext(options));
 /// var entry = new CatalogEntry&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter);
 ///
-/// // Read-only mode
-/// var adapter = new EFCoreStorageAdapter&lt;Company&gt;(dbContext, readOnly: true);
+/// // Read-only mode (apply constraint at catalog level)
+/// var entry = new CatalogEntry&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter)
+///   .Constrain(traits => traits with { CanWrite = false });
 ///
 /// // Allow empty tables during validation
 /// var adapter = new EFCoreStorageAdapter<Company>(dbContext, allowEmptyData: true);
 /// </code>
 /// </example>
-public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, ISeedable, IReadOnly
+public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   where T : class
 {
   private readonly DbContext? _injectedContext;
   private readonly Func<DbContext>? _contextFactory;
   private readonly bool _ownsContext;
-  private readonly bool _readOnly;
   private readonly bool _allowEmptyData;
 
   /// <summary>
   /// Creates an adapter with an injected DbContext.
   /// </summary>
   /// <param name="context">DbContext instance (caller owns lifecycle)</param>
-  /// <param name="readOnly">If true, Save operations will fail</param>
   /// <param name="allowEmptyData">If true, empty tables are considered valid during validation</param>
-  public EFCoreStorageAdapter(DbContext context, bool readOnly = false, bool allowEmptyData = false)
+  /// <remarks>
+  /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
+  /// on the catalog entry after construction.
+  /// </remarks>
+  public EFCoreStorageAdapter(DbContext context, bool allowEmptyData = false)
   {
     _injectedContext = context ?? throw new ArgumentNullException(nameof(context));
     _contextFactory = null;
     _ownsContext = false;
-    _readOnly = readOnly;
     _allowEmptyData = allowEmptyData;
+
+    Traits = new StorageTraits
+    {
+      RequiresNetwork = true,
+      IsTransactional = true,
+      CanStream = true,
+    };
 
     // Validate entity configuration eagerly (pre-flight phase)
     ValidateEntityConfiguration(context);
@@ -111,19 +121,24 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
   /// Creates an adapter with a DbContext factory.
   /// </summary>
   /// <param name="contextFactory">Factory function to create DbContext instances</param>
-  /// <param name="readOnly">If true, Save operations will fail</param>
   /// <param name="allowEmptyData">If true, empty tables are considered valid during validation</param>
-  public EFCoreStorageAdapter(
-    Func<DbContext> contextFactory,
-    bool readOnly = false,
-    bool allowEmptyData = false
-  )
+  /// <remarks>
+  /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
+  /// on the catalog entry after construction.
+  /// </remarks>
+  public EFCoreStorageAdapter(Func<DbContext> contextFactory, bool allowEmptyData = false)
   {
     _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
     _injectedContext = null;
     _ownsContext = true;
-    _readOnly = readOnly;
     _allowEmptyData = allowEmptyData;
+
+    Traits = new StorageTraits
+    {
+      RequiresNetwork = true,
+      IsTransactional = true,
+      CanStream = true,
+    };
 
     // Validate entity configuration eagerly using factory-created context
     using var context = contextFactory();
@@ -199,40 +214,7 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
   }
 
   /// <inheritdoc/>
-  public bool IsReadOnly => _readOnly;
-
-  /// <inheritdoc/>
-  public bool CanBeSeed
-  {
-    get
-    {
-      // A database can be a seed if the table exists
-      // Synchronous property - we check this during pipeline construction
-      try
-      {
-        var context = GetContext();
-        try
-        {
-          var dbSet = context.Set<T>();
-          // Check if table exists by attempting to query metadata
-          // This is a heuristic - may need refinement based on provider
-          var query = dbSet.AsQueryable();
-          return true;
-        }
-        finally
-        {
-          if (_ownsContext && context != null)
-          {
-            context.Dispose();
-          }
-        }
-      }
-      catch
-      {
-        return false;
-      }
-    }
-  }
+  public StorageTraits Traits { get; }
 
   /// <inheritdoc/>
   public FlowIO<IEnumerable<T>> Load()
@@ -266,11 +248,11 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(IEnumerable<T> data)
   {
-    if (_readOnly)
+    if (!Traits.CanWrite)
     {
       return FlowIO.Fail<FlowUnit>(
         new InvalidOperationException(
-          "Cannot write to read-only EFCore adapter. Check IReadOnly.IsReadOnly before attempting Save()."
+          "Cannot write to read-only EFCore adapter. Check StorageTraits.CanWrite before attempting Save()."
         )
       );
     }

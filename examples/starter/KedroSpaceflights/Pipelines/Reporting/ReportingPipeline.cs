@@ -66,13 +66,14 @@ public static class ReportingPipeline
         output: catalog.ShuttlePassengerCapacityChart
       );
 
-      // Step 2: Export chart to PNG for static reports
-      pipeline.AddNode(
-        label: "ExportPassengerCapacityPng",
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.ShuttlePassengerCapacityChart,
-        output: catalog.ShuttlePassengerCapacityPlotPng
-      );
+      // NOTE: Commented out due to performance issues with Plotly.NET
+      // // Step 2: Export chart to PNG for static reports
+      // pipeline.AddNode(
+      //   label: "ExportPassengerCapacityPng",
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.ShuttlePassengerCapacityChart,
+      //   output: catalog.ShuttlePassengerCapacityPlotPng
+      // );
 
       // ===== Confusion Matrix Visualization =====
 
@@ -84,13 +85,14 @@ public static class ReportingPipeline
         output: catalog.ConfusionMatrixChart
       );
 
-      // Step 2: Export chart to PNG for static reports
-      pipeline.AddNode(
-        label: "ExportConfusionMatrixPng",
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.ConfusionMatrixChart,
-        output: catalog.ConfusionMatrixPlotPng
-      );
+      // NOTE: Commented out due to performance issues with Plotly.NET
+      // // Step 2: Export chart to PNG for static reports
+      // pipeline.AddNode(
+      //   label: "ExportConfusionMatrixPng",
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.ConfusionMatrixChart,
+      //   output: catalog.ConfusionMatrixPlotPng
+      // );
     });
   }
 }

@@ -16,10 +16,10 @@ namespace Flowthru.Extensions.MLNet.Storage;
 /// <strong>Validation:</strong> Implements inspection for early pipeline validation
 /// </para>
 /// <para>
-/// <strong>Capabilities:</strong>
+/// <strong>Storage Traits:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>ISeedable: true (ONNX models are Layer 0 inputs)</item>
+/// <item>CanWrite: false (ONNX models are read-only seed data)</item>
 /// <item>Inspection: validates file before pipeline execution</item>
 /// </list>
 /// </remarks>
@@ -34,7 +34,7 @@ namespace Flowthru.Extensions.MLNet.Storage;
 /// }
 /// </code>
 /// </example>
-public sealed class OnnxModelStorageAdapter : IStorageAdapter<byte[]>, ISeedable
+public sealed class OnnxModelStorageAdapter : IStorageAdapter<byte[]>
 {
   private readonly string _filePath;
 
@@ -48,7 +48,13 @@ public sealed class OnnxModelStorageAdapter : IStorageAdapter<byte[]>, ISeedable
   }
 
   /// <inheritdoc/>
-  public bool CanBeSeed => File.Exists(_filePath);
+  public StorageTraits Traits =>
+    new StorageTraits
+    {
+      CanWrite =
+        false // ONNX models are read-only seed data
+      ,
+    };
 
   /// <inheritdoc/>
   public FlowIO<byte[]> Load() =>

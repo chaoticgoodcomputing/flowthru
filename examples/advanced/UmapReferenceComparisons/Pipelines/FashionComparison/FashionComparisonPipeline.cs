@@ -104,13 +104,14 @@ public static class FashionComparisonPipeline
         output: catalog.FashionMnistVisualization
       );
 
-      pipeline.AddNode(
-        label: "ExportFashionMnistVisualizationToPng",
-        description: "Exports the side-by-side comparison chart to a PNG file.",
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.FashionMnistVisualization,
-        output: catalog.FashionMnistVisualizationPng
-      );
+      // NOTE: Commented out due to performance issues with Plotly.NET
+      // pipeline.AddNode(
+      //   label: "ExportFashionMnistVisualizationToPng",
+      //   description: "Exports the side-by-side comparison chart to a PNG file.",
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.FashionMnistVisualization,
+      //   output: catalog.FashionMnistVisualizationPng
+      // );
     });
   }
 }

@@ -1,0 +1,36 @@
+using Flowthru.Extensions.Python.Execution;
+
+namespace Flowthru.Extensions.Python.Nodes;
+
+/// <summary>
+/// Thin wrapper that binds an <see cref="IPythonExecutor"/> to a specific module/function pair,
+/// exposing it as a typed <c>Func&lt;TInput, TOutput&gt;</c> for use with the pipeline builder.
+/// </summary>
+/// <remarks>
+/// All marshalling (scalar, tabular, bytes, multi-I/O tuples) is delegated to the executor.
+/// </remarks>
+public sealed class PythonNodeWrapper<TInput, TOutput>
+{
+  private readonly IPythonExecutor _executor;
+  private readonly string _moduleName;
+  private readonly string _functionName;
+
+  public PythonNodeWrapper(IPythonExecutor executor, string moduleName, string functionName)
+  {
+    _executor = executor ?? throw new ArgumentNullException(nameof(executor));
+    _moduleName = moduleName ?? throw new ArgumentNullException(nameof(moduleName));
+    _functionName = functionName ?? throw new ArgumentNullException(nameof(functionName));
+    _executor.ValidateNode(_moduleName, _functionName);
+  }
+
+  /// <summary>
+  /// Gets the transformation function that invokes the Python node.
+  /// </summary>
+  /// <returns>
+  /// A function that takes <typeparamref name="TInput"/> and returns <typeparamref name="TOutput"/>.
+  /// </returns>
+  public Func<TInput, TOutput> GetTransform() => Invoke;
+
+  private TOutput Invoke(TInput input) =>
+    _executor.Invoke<TInput, TOutput>(_moduleName, _functionName, input);
+}

@@ -12,10 +12,16 @@ public sealed class ExampleProject
 
   /// <summary>
   /// Absolute path to the example's source project directory.
-  /// Passed as <c>basePath</c> to <c>ConfigureServices</c> so that catalog entries
-  /// and configuration files resolve independently of the working directory.
+  /// Passed as <c>basePath</c> to <c>ConfigureServices</c> so that catalog entries,
+  /// Python source files, and configuration files resolve correctly.
   /// </summary>
   public required string ProjectPath { get; init; }
+
+  /// <summary>
+  /// Absolute path to the example's build output directory.
+  /// Contains <c>pyproject.toml</c>, <c>uv.lock</c>, and materialized <c>.venv/</c>.
+  /// </summary>
+  public required string OutputPath { get; init; }
 
   /// <summary>
   /// The <see cref="Type"/> that exposes the

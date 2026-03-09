@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Flowthru.Abstractions;
+using Flowthru.Data.Capabilities;
 
 namespace Flowthru.Data.Storage.Format;
 
@@ -128,6 +129,13 @@ public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
   /// Gets the JSON serialization options for this serializer.
   /// </summary>
   public JsonSerializerOptions Options => _options;
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// JSON format requires buffering all rows before serialization (array format),
+  /// so CanStream is false.
+  /// </remarks>
+  public StorageTraits Traits => new StorageTraits();
 
   /// <inheritdoc/>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)

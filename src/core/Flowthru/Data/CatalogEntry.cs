@@ -55,6 +55,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
 {
   private readonly IStorageAdapter<T> _storage;
   private InspectionLevel? _preferredInspectionLevel;
+  private StorageTraits? _effectiveTraits;
 
   /// <summary>
   /// Creates a new catalog entry with the specified key and storage adapter.
@@ -75,6 +76,20 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
 
   /// <inheritdoc/>
   public InspectionLevel? PreferredInspectionLevel => _preferredInspectionLevel;
+
+  /// <summary>
+  /// Gets the effective storage traits for this catalog entry.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This returns the adapter's traits merged with any user-specified constraints
+  /// applied via <see cref=\"Constrain\"/>.
+  /// </para>
+  /// <para>
+  /// Used by pipeline validation to enforce read-only constraints, network requirements, etc.
+  /// </para>
+  /// </remarks>
+  public StorageTraits Traits => _effectiveTraits ?? _storage.Traits;
 
   /// <inheritdoc/>
   public FlowIO<T> Load() => _storage.Load();
@@ -169,6 +184,105 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   {
     _preferredInspectionLevel = level;
     return this;
+  }
+
+  /// <summary>
+  /// Applies user-specified constraints to the storage traits.
+  /// </summary>
+  /// <param name="constraintFn">Function that modifies traits to apply constraints</param>
+  /// <returns>This catalog entry for method chaining</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>One-Way Ratchet:</strong> Constraints can only tighten, never loosen.
+  /// You cannot grant capabilities the adapter doesn't support.
+  /// </para>
+  /// <para>
+  /// <strong>Valid Constraints:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Making a writable adapter read-only: <c>t => t with { CanWrite = false }</c></item>
+  /// <item>Marking a local file as non-inspectable: <c>t => t with { CanInspect = false }</c></item>
+  /// </list>
+  /// <para>
+  /// <strong>Invalid Constraints (will throw):</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Making a read-only adapter writable: <c>t => t with { CanWrite = true }</c></item>
+  /// <item>Removing network requirement: <c>t => t with { RequiresNetwork = false }</c></item>
+  /// </list>
+  /// <para>
+  /// <strong>Example:</strong>
+  /// </para>
+  /// <code>
+  /// public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =>
+  ///     GetOrCreateEntry(() => CatalogEntries.Enumerable.Csv&lt;Company&gt;(
+  ///         "ref_data", $"{_basePath}/reference.csv")
+  ///         .Constrain(t => t with { CanWrite = false }));
+  /// </code>
+  /// </remarks>
+  /// <exception cref=\"InvalidOperationException\">
+  /// Thrown when attempting to loosen a constraint (grant a capability the adapter doesn't support)
+  /// </exception>
+  public CatalogEntry<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn)
+  {
+    if (constraintFn == null)
+      throw new ArgumentNullException(nameof(constraintFn));
+
+    var currentTraits = Traits;
+    var proposedTraits = constraintFn(currentTraits);
+
+    // Validate one-way ratchet: can only tighten, never loosen
+    ValidateConstraints(currentTraits, proposedTraits);
+
+    _effectiveTraits = proposedTraits;
+    return this;
+  }
+
+  /// <summary>
+  /// Validates that proposed traits only tighten constraints, never loosen them.
+  /// </summary>
+  private static void ValidateConstraints(StorageTraits current, StorageTraits proposed)
+  {
+    // Check each boolean trait - proposed can only be more restrictive
+    if (proposed.CanRead && !current.CanRead)
+      throw new InvalidOperationException(
+        "Cannot grant CanRead capability - the underlying adapter does not support reading."
+      );
+
+    if (proposed.CanWrite && !current.CanWrite)
+      throw new InvalidOperationException(
+        "Cannot grant CanWrite capability - the underlying adapter does not support writing."
+      );
+
+    if (proposed.CanInspect && !current.CanInspect)
+      throw new InvalidOperationException(
+        "Cannot grant CanInspect capability - the underlying adapter does not support inspection."
+      );
+
+    if (proposed.IsPersistent && !current.IsPersistent)
+      throw new InvalidOperationException(
+        "Cannot grant IsPersistent capability - the underlying adapter is not persistent."
+      );
+
+    if (!proposed.RequiresNetwork && current.RequiresNetwork)
+      throw new InvalidOperationException(
+        "Cannot remove RequiresNetwork constraint - the underlying adapter requires network access."
+      );
+
+    if (proposed.CanStream && !current.CanStream)
+      throw new InvalidOperationException(
+        "Cannot grant CanStream capability - the underlying adapter does not support streaming."
+      );
+
+    if (proposed.CanAppend && !current.CanAppend)
+      throw new InvalidOperationException(
+        "Cannot grant CanAppend capability - the underlying adapter does not support appending."
+      );
+
+    if (proposed.IsTransactional && !current.IsTransactional)
+      throw new InvalidOperationException(
+        "Cannot grant IsTransactional capability - the underlying adapter is not transactional."
+      );
   }
 
   /// <inheritdoc/>

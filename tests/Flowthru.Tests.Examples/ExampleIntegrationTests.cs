@@ -6,14 +6,6 @@ namespace Flowthru.Tests.Examples;
 /// Integration tests that execute all example projects to verify they run successfully.
 /// Provides code coverage for the Flowthru framework through real-world usage patterns.
 /// </summary>
-/// <remarks>
-/// <para>
-/// <see cref="ParallelizableAttribute"/> with <see cref="ParallelScope.Children"/> allows
-/// individual examples to run concurrently. This is safe because the runner never mutates
-/// global state (no <c>Directory.SetCurrentDirectory</c>) — each example receives its
-/// project path as a <c>basePath</c> argument.
-/// </para>
-/// </remarks>
 [TestFixture]
 [Category("Examples")]
 [Category("Integration")]
@@ -48,10 +40,12 @@ public class ExampleIntegrationTests
   /// infinite hangs from blocking the test run.
   /// </summary>
   [TestCaseSource(nameof(DiscoveredExamples))]
+  [Order(1)] // Force serial execution - Python examples cannot share PythonEngine instance
   public async Task Example_ExecutesSuccessfully(ExampleProject example)
   {
     TestContext.Out.WriteLine($"Running example: {example.Name}");
     TestContext.Out.WriteLine($"  Project path: {example.ProjectPath}");
+    TestContext.Out.WriteLine($"  Output path: {example.OutputPath}");
 
     await new ExampleTestRunner(example).RunAsync();
   }

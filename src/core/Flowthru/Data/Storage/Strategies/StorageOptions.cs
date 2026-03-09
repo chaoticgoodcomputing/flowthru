@@ -21,15 +21,6 @@ public sealed record StorageOptions
   public string? Path { get; init; }
 
   /// <summary>
-  /// Whether the entry is read-only.
-  /// </summary>
-  /// <remarks>
-  /// Read-only entries can be loaded but not saved.
-  /// Useful for external data sources that shouldn't be modified.
-  /// </remarks>
-  public bool IsReadOnly { get; init; }
-
-  /// <summary>
   /// Additional strategy-specific metadata.
   /// </summary>
   /// <remarks>
@@ -44,9 +35,4 @@ public sealed record StorageOptions
   /// Creates storage options with a path.
   /// </summary>
   public static StorageOptions WithPath(string path) => new() { Path = path };
-
-  /// <summary>
-  /// Creates read-only storage options.
-  /// </summary>
-  public static StorageOptions ReadOnly(string path) => new() { Path = path, IsReadOnly = true };
 }

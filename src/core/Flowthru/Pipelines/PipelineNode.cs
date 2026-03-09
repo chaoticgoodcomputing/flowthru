@@ -26,8 +26,13 @@ namespace Flowthru.Pipelines;
 /// functions instead of class instances. This enables compile-time type safety through
 /// generic type inference at the pipeline construction site.
 /// </para>
+/// <para>
+/// <strong>Visibility (Phase 4):</strong>
+/// Made public to enable validation hooks to inspect node properties.
+/// This is necessary for extensions (e.g., Python) to validate their own node types.
+/// </para>
 /// </remarks>
-internal class PipelineNode
+public class PipelineNode
 {
   /// <summary>
   /// Unique identifier for this node within the pipeline.

@@ -91,12 +91,8 @@ public static partial class CatalogEntries
     /// <strong>Implementation:</strong> Reads entire file as single string.
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
     /// </para>
-    /// <list type="bullet">
-    /// <item>ISeedable: true (can be Layer 0 input)</item>
-    /// <item>IReadOnly: false</item>
-    /// </list>
     /// </remarks>
     public static ICatalogEntry<string> Text(string label, string filePath)
     {
@@ -118,12 +114,8 @@ public static partial class CatalogEntries
     /// <strong>Implementation:</strong> Reads entire file as byte array.
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
     /// </para>
-    /// <list type="bullet">
-    /// <item>ISeedable: true (can be Layer 0 input)</item>
-    /// <item>IReadOnly: false</item>
-    /// </list>
     /// </remarks>
     public static ICatalogEntry<byte[]> Binary(string label, string filePath)
     {
@@ -145,11 +137,11 @@ public static partial class CatalogEntries
     /// <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Storage Traits:</strong>
     /// </para>
     /// <list type="bullet">
-    /// <item>ISeedable: false (null entries cannot be seeds)</item>
-    /// <item>IReadOnly: true (Load/Save are no-ops)</item>
+    /// <item>CanWrite: false (Save is a no-op)</item>
+    /// <item>CanRead: false (Load throws NotSupportedException)</item>
     /// </list>
     /// </remarks>
     public static ICatalogEntry<T> Null<T>(string label)

@@ -58,7 +58,7 @@ namespace Flowthru.Data.Storage;
 /// var modern = SchemaActivator.CreateInstance&lt;NewSchema&gt;();
 /// </code>
 /// </example>
-internal static class SchemaActivator
+public static class SchemaActivator
 {
   private static readonly ConcurrentDictionary<Type, InstantiationStrategy> _strategyCache = new();
   private static readonly ConcurrentDictionary<Type, Delegate> _factoryCache = new();

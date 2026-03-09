@@ -36,7 +36,18 @@ public class Pipeline
   /// <summary>
   /// All nodes in this pipeline, in the order they were added.
   /// </summary>
-  internal List<PipelineNode> Nodes { get; } = new();
+  /// <remarks>
+  /// Exposed as public to enable validation hooks (Phase 4) to inspect nodes.
+  /// The collection is read-only - nodes can only be added via PipelineBuilder.
+  /// </remarks>
+  public IReadOnlyList<PipelineNode> Nodes => _nodes.AsReadOnly();
+
+  /// <summary>
+  /// Internal accessor for the mutable node list. Used by pipeline internals.
+  /// </summary>
+  internal List<PipelineNode> NodesList => _nodes;
+
+  private readonly List<PipelineNode> _nodes = new();
 
   /// <summary>
   /// Subset of nodes to execute after slicing is applied.
@@ -97,6 +108,31 @@ public class Pipeline
     Validation.ValidationOptions.Default();
 
   /// <summary>
+  /// Validation hooks that run during pre-flight checks.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Extensions can register hooks to validate their own node types during pre-flight.
+  /// Hooks are invoked after DAG analysis but before external input inspection.
+  /// </para>
+  /// <para>
+  /// <strong>Hook execution order:</strong>
+  /// </para>
+  /// <list type="number">
+  /// <item>Pipeline.Build() - DAG construction and layer assignment</item>
+  /// <item>ValidationHooks.ValidateAsync() - Extension-specific validation</item>
+  /// <item>Pipeline.ValidateExternalInputsAsync() - External input inspection</item>
+  /// </list>
+  /// <para>
+  /// <strong>Example (Python extension):</strong>
+  /// </para>
+  /// <code>
+  /// pipeline.ValidationHooks.Add(new PythonNodeValidator(executor, runtime));
+  /// </code>
+  /// </remarks>
+  public List<Validation.IPipelineValidationHook> ValidationHooks { get; } = new();
+
+  /// <summary>
   /// Indicates whether the pipeline has been built (dependencies analyzed and layers assigned).
   /// </summary>
   public bool IsBuilt => ExecutionLayers != null;
@@ -124,7 +160,7 @@ public class Pipeline
       );
     }
 
-    Nodes.Add(node);
+    _nodes.Add(node);
   }
 
   /// <summary>
@@ -198,23 +234,23 @@ public class Pipeline
       Logger?.LogWarning("Pipeline.Build() called on already-built pipeline. Rebuilding...");
     }
 
-    Logger?.LogInformation("Building pipeline with {NodeCount} nodes", Nodes.Count);
+    Logger?.LogInformation("Building pipeline with {NodeCount} nodes", _nodes.Count);
 
     // Cache the slice strategy for metadata export
     AppliedSlice = sliceStrategy?.IsSliced == true ? sliceStrategy : null;
 
     // Step 1: Build dependency graph on the FULL node set
     // This must happen before slicing, as slicing logic traverses dependencies
-    DependencyAnalyzer.BuildDependencyGraph(Nodes);
+    DependencyAnalyzer.BuildDependencyGraph(_nodes);
 
     // Step 2: Apply slicing if requested
     if (sliceStrategy?.IsSliced == true)
     {
       Logger?.LogInformation("Applying pipeline slice strategy");
-      _slicedNodes = DependencyAnalyzer.SliceNodes(Nodes, sliceStrategy);
+      _slicedNodes = DependencyAnalyzer.SliceNodes(_nodes, sliceStrategy);
       Logger?.LogInformation(
         "Slice reduced pipeline from {OriginalCount} to {SlicedCount} nodes",
-        Nodes.Count,
+        _nodes.Count,
         _slicedNodes.Count
       );
     }
@@ -225,7 +261,7 @@ public class Pipeline
 
     // Step 3: Assign execution layers to the final node set (sliced or full)
     // This ensures Layer 0 correctly identifies external inputs in the execution context
-    var nodesToExecute = _slicedNodes ?? Nodes;
+    var nodesToExecute = _slicedNodes ?? _nodes;
     DependencyAnalyzer.AssignLayers(nodesToExecute);
 
     // Step 4: Group nodes by layer for execution
@@ -361,11 +397,54 @@ public class Pipeline
 
     var result = Data.Validation.ValidationResult.Success();
 
-    // No nodes? No external inputs to validate
+    // No nodes? No validation needed
     if (ExecutionLayers!.Count == 0)
     {
       Logger?.LogInformation("No nodes in pipeline, nothing to validate");
       return result;
+    }
+
+    // Phase 4: Invoke validation hooks (e.g., Python node validation)
+    if (ValidationHooks.Count > 0)
+    {
+      Logger?.LogInformation("Running {HookCount} validation hook(s)", ValidationHooks.Count);
+
+      foreach (var hook in ValidationHooks)
+      {
+        try
+        {
+          var hookResult = await hook.ValidateAsync(this, cancellationToken);
+          result.Merge(hookResult);
+
+          if (!hookResult.IsValid)
+          {
+            Logger?.LogWarning(
+              "Validation hook '{HookType}' found {ErrorCount} error(s)",
+              hook.GetType().Name,
+              hookResult.Errors.Count
+            );
+          }
+        }
+        catch (Exception ex)
+        {
+          Logger?.LogError(ex, "Validation hook '{HookType}' threw exception", hook.GetType().Name);
+          result.AddError(
+            new Data.Validation.ValidationError(
+              "ValidationHook",
+              Data.Validation.ValidationErrorType.InspectionFailure,
+              $"Validation hook {hook.GetType().Name} threw exception: {ex.Message}",
+              ex.ToString()
+            )
+          );
+        }
+      }
+
+      // If hooks found errors, return early (no point checking external inputs)
+      if (!result.IsValid)
+      {
+        Logger?.LogError("Validation hooks failed with {ErrorCount} error(s)", result.Errors.Count);
+        return result;
+      }
     }
 
     // Build a set of catalog entries produced by nodes in the execution set
@@ -722,6 +801,10 @@ public class Pipeline
       {
         result = transformFunc.DynamicInvoke(inputParameter);
       }
+      File.AppendAllText(
+        "/tmp/flowthru_diag.log",
+        $"[{DateTime.Now:HH:mm:ss.fff}] Pipeline: Transform invoked, result type={result?.GetType().Name ?? "null"}\n"
+      );
 
       if (result == null)
       {

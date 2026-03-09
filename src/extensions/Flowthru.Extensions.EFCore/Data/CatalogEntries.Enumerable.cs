@@ -15,7 +15,6 @@ public static partial class EFCoreCatalogEntries
     /// <typeparam name="T">Entity type (must be a class configured in DbContext)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="context">DbContext instance (caller owns lifecycle)</param>
-    /// <param name="readOnly">If true, prevents Save operations</param>
     /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
     /// <remarks>
@@ -27,13 +26,10 @@ public static partial class EFCoreCatalogEntries
     /// Use this overload when DbContext comes from DI container or is shared across operations.
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Read-Only Entries:</strong>
+    /// To create a read-only catalog entry, apply a constraint:
+    /// <c>.Constrain(traits => traits with { CanWrite = false })</c>
     /// </para>
-    /// <list type="bullet">
-    /// <item>ISeedable: true if table exists and contains data</item>
-    /// <item>IReadOnly: configurable via readOnly parameter</item>
-    /// <item>Inspection: validates table and checks for empty data</item>
-    /// </list>
     /// <para>
     /// <strong>Empty Data Validation:</strong>
     /// By default (allowEmptyData: false), empty tables fail pre-flight validation.
@@ -60,12 +56,11 @@ public static partial class EFCoreCatalogEntries
     public static ICatalogEntry<IEnumerable<T>> EFCore<T>(
       string label,
       DbContext context,
-      bool readOnly = false,
       bool allowEmptyData = false
     )
       where T : class
     {
-      var storage = new EFCoreStorageAdapter<T>(context, readOnly, allowEmptyData);
+      var storage = new EFCoreStorageAdapter<T>(context, allowEmptyData);
       return new CatalogEntry<IEnumerable<T>>(label, storage);
     }
 
@@ -75,7 +70,6 @@ public static partial class EFCoreCatalogEntries
     /// <typeparam name="T">Entity type (must be a class configured in DbContext)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="contextFactory">Factory function to create DbContext instances per operation</param>
-    /// <param name="readOnly">If true, prevents Save operations</param>
     /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
     /// <remarks>
@@ -85,6 +79,11 @@ public static partial class EFCoreCatalogEntries
     /// <para>
     /// <strong>DbContext Lifecycle:</strong> Adapter creates DbContext via factory and disposes it
     /// after each operation. Use this overload for scoped DbContext patterns.
+    /// </para>
+    /// <para>
+    /// <strong>Read-Only Entries:</strong>
+    /// To create a read-only catalog entry, apply a constraint:
+    /// <c>.Constrain(traits => traits with { CanWrite = false })</c>
     /// </para>
     /// </remarks>
     /// <example>
@@ -105,12 +104,11 @@ public static partial class EFCoreCatalogEntries
     public static ICatalogEntry<IEnumerable<T>> EFCore<T>(
       string label,
       Func<DbContext> contextFactory,
-      bool readOnly = false,
       bool allowEmptyData = false
     )
       where T : class
     {
-      var storage = new EFCoreStorageAdapter<T>(contextFactory, readOnly, allowEmptyData);
+      var storage = new EFCoreStorageAdapter<T>(contextFactory, allowEmptyData);
       return new CatalogEntry<IEnumerable<T>>(label, storage);
     }
   }

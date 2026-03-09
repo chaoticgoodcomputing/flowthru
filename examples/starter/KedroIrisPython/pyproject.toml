@@ -1,0 +1,9 @@
+[project]
+name = "kedro-iris-python"
+version = "0.1.0"
+description = "Flowthru example with Python nodes for Kedro Iris classification pipeline"
+requires-python = ">=3.10"
+dependencies = ["pandas>=2.0.0", "pyarrow>=18.0.0", "numpy>=1.24.0"]
+
+[tool.uv]
+dev-dependencies = []

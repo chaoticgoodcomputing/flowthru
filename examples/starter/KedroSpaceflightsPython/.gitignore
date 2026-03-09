@@ -1,0 +1,24 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Generated Python schemas
+_generated/
+
+# Build artifacts
+bin/
+obj/
+*.user
+*.suo
+
+# Dataset directories - ignore generated outputs
+Data/**/*
+!Data/**/*.cs
+# But allow raw input data
+!Data/_01_Raw/Datasets
+!Data/_01_Raw/Datasets/*
+
+Metadata

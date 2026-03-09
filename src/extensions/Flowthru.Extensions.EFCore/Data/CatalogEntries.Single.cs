@@ -15,7 +15,6 @@ public static partial class EFCoreCatalogEntries
     /// <typeparam name="T">Entity type (must be a class configured in DbContext)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="context">DbContext instance (caller owns lifecycle)</param>
-    /// <param name="readOnly">If true, prevents Save operations</param>
     /// <returns>Catalog entry for EFCore single entity storage</returns>
     /// <remarks>
     /// <para>
@@ -30,12 +29,10 @@ public static partial class EFCoreCatalogEntries
     /// Use this overload when DbContext comes from DI container or is shared across operations.
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Read-Only Entries:</strong>
+    /// To create a read-only catalog entry, apply a constraint:
+    /// <c>.Constrain(traits => traits with { CanWrite = false })</c>
     /// </para>
-    /// <list type="bullet">
-    /// <item>ISeedable: true if table exists and contains exactly one row</item>
-    /// <item>IReadOnly: configurable via readOnly parameter</item>
-    /// </list>
     /// </remarks>
     /// <example>
     /// <code>
@@ -51,10 +48,10 @@ public static partial class EFCoreCatalogEntries
     ///   .Build();
     /// </code>
     /// </example>
-    public static ICatalogEntry<T> EFCore<T>(string label, DbContext context, bool readOnly = false)
+    public static ICatalogEntry<T> EFCore<T>(string label, DbContext context)
       where T : class
     {
-      var adapter = new EFCoreSingleStorageAdapter<T>(context, ownsContext: false, readOnly);
+      var adapter = new EFCoreSingleStorageAdapter<T>(context, ownsContext: false);
       return new CatalogEntry<T>(label, adapter);
     }
 
@@ -64,7 +61,6 @@ public static partial class EFCoreCatalogEntries
     /// <typeparam name="T">Entity type (must be a class configured in DbContext)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="contextFactory">Factory that creates DbContext instances (adapter owns lifecycle)</param>
-    /// <param name="readOnly">If true, prevents Save operations</param>
     /// <returns>Catalog entry for EFCore single entity storage</returns>
     /// <remarks>
     /// <para>
@@ -75,12 +71,10 @@ public static partial class EFCoreCatalogEntries
     /// Use this overload when operations should be isolated or when DbContext is expensive to keep alive.
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Read-Only Entries:</strong>
+    /// To create a read-only catalog entry, apply a constraint:
+    /// <c>.Constrain(traits => traits with { CanWrite = false })</c>
     /// </para>
-    /// <list type="bullet">
-    /// <item>ISeedable: true if table exists and contains exactly one row</item>
-    /// <item>IReadOnly: configurable via readOnly parameter</item>
-    /// </list>
     /// </remarks>
     /// <example>
     /// <code>
@@ -94,14 +88,10 @@ public static partial class EFCoreCatalogEntries
     ///   );
     /// </code>
     /// </example>
-    public static ICatalogEntry<T> EFCore<T>(
-      string label,
-      Func<DbContext> contextFactory,
-      bool readOnly = false
-    )
+    public static ICatalogEntry<T> EFCore<T>(string label, Func<DbContext> contextFactory)
       where T : class
     {
-      var adapter = new EFCoreSingleStorageAdapter<T>(contextFactory, readOnly);
+      var adapter = new EFCoreSingleStorageAdapter<T>(contextFactory);
       return new CatalogEntry<T>(label, adapter);
     }
   }

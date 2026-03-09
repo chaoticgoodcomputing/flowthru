@@ -119,38 +119,6 @@ public abstract class DataCatalogBase
   }
 
   /// <summary>
-  /// Gets or creates a read-only catalog entry, caching it for subsequent accesses.
-  /// </summary>
-  /// <typeparam name="T">The data type (singleton or collection)</typeparam>
-  /// <param name="factory">Factory function to create the read-only entry</param>
-  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached read-only catalog entry instance</returns>
-  protected IReadableCatalogEntry<T> GetOrCreateReadOnlyEntry<T>(
-    Func<IReadableCatalogEntry<T>> factory,
-    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
-  )
-  {
-    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
-    return (IReadableCatalogEntry<T>)entry;
-  }
-
-  /// <summary>
-  /// Gets or creates a read-only catalog entry with service provider access.
-  /// </summary>
-  /// <typeparam name="T">The data type (singleton or collection)</typeparam>
-  /// <param name="factory">Factory function that receives service provider</param>
-  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached read-only catalog entry instance</returns>
-  protected IReadableCatalogEntry<T> GetOrCreateReadOnlyEntry<T>(
-    Func<IServiceProvider?, IReadableCatalogEntry<T>> factory,
-    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
-  )
-  {
-    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
-    return (IReadableCatalogEntry<T>)entry;
-  }
-
-  /// <summary>
   /// Initializes all catalog entry properties by invoking their getters once.
   /// </summary>
   /// <remarks>

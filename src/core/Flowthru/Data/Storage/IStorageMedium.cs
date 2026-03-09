@@ -1,3 +1,4 @@
+using Flowthru.Data.Capabilities;
 using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
@@ -51,6 +52,15 @@ namespace Flowthru.Data.Storage;
 /// </example>
 public interface IStorageMedium
 {
+  /// <summary>
+  /// Structural constraints and capabilities of this storage medium.
+  /// </summary>
+  /// <remarks>
+  /// Medium traits focus on WHERE data is stored and the access patterns it supports.
+  /// For composed adapters, these traits are merged with format and container traits.
+  /// </remarks>
+  StorageTraits Traits { get; }
+
   /// <summary>
   /// Reads raw bytes from storage as a stream.
   /// </summary>

@@ -17,7 +17,7 @@ namespace Flowthru.Data.Storage.Medium;
 /// <item>Automatic directory creation for parent paths</item>
 /// <item>Atomic writes via temp file + rename</item>
 /// <item>Support for both absolute and relative paths</item>
-/// <item>Implements ISeedable (checks if file exists)</item>
+/// <item>All storage traits use filesystem baseline defaults</item>
 /// </list>
 /// <para>
 /// <strong>Thread Safety:</strong>
@@ -46,7 +46,7 @@ namespace Flowthru.Data.Storage.Medium;
 /// var writeResult = await medium.WriteStream(writeStream).Run();
 /// </code>
 /// </example>
-public sealed class FileStorageMedium : IStorageMedium, ISeedable
+public sealed class FileStorageMedium : IStorageMedium
 {
   private readonly string _filePath;
 
@@ -70,6 +70,9 @@ public sealed class FileStorageMedium : IStorageMedium, ISeedable
   /// Gets the file path for this storage medium.
   /// </summary>
   public string FilePath => _filePath;
+
+  /// <inheritdoc/>
+  public StorageTraits Traits => new StorageTraits();
 
   /// <inheritdoc/>
   public FlowIO<Stream> ReadStream()
@@ -166,7 +169,4 @@ public sealed class FileStorageMedium : IStorageMedium, ISeedable
   {
     return FlowIO.Lift(() => File.Exists(_filePath));
   }
-
-  /// <inheritdoc/>
-  public bool CanBeSeed => File.Exists(_filePath);
 }

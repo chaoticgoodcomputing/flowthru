@@ -1,3 +1,5 @@
+using Flowthru.Data.Capabilities;
+
 namespace Flowthru.Data.Storage;
 
 /// <summary>
@@ -80,6 +82,22 @@ namespace Flowthru.Data.Storage;
 public interface IFormatSerializer<TRow>
   where TRow : notnull
 {
+  /// <summary>
+  /// Structural capabilities of this format serializer.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Format traits focus on HOW data is serialized and whether it supports streaming.
+  /// For composed adapters, these traits are merged with medium and container traits.
+  /// </para>
+  /// <para>
+  /// Most formats should declare <c>CanStream = true</c> if they can deserialize row-by-row
+  /// without buffering the entire stream (e.g., CSV, JSONL). Formats that require full
+  /// parsing before yielding rows (e.g., JSON arrays) should set <c>CanStream = false</c>.
+  /// </para>
+  /// </remarks>
+  StorageTraits Traits { get; }
+
   /// <summary>
   /// Deserializes a stream of bytes into a stream of rows.
   /// </summary>

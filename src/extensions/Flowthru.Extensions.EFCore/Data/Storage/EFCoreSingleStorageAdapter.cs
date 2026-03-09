@@ -21,30 +21,33 @@ namespace Flowthru.Data.Storage;
 /// <para>
 /// <strong>Exists Semantics:</strong> Returns true if table has exactly one row.
 /// </para>
-/// <para>
-/// <strong>CanBeSeed:</strong> Returns true if table exists and contains exactly one row (synchronous check).
-/// May return false negative if table check requires async database query.
-/// </para>
 /// </remarks>
-public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, ISeedable, IReadOnly
+public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   where T : class
 {
   private readonly DbContext? _context;
   private readonly Func<DbContext>? _contextFactory;
   private readonly bool _ownsContext;
-  private readonly bool _readOnly;
 
   /// <summary>
   /// Creates an adapter with an injected DbContext instance.
   /// </summary>
   /// <param name="context">DbContext to use for operations</param>
   /// <param name="ownsContext">If true, adapter disposes context after operations</param>
-  /// <param name="readOnly">If true, Save operations throw</param>
-  public EFCoreSingleStorageAdapter(DbContext context, bool ownsContext, bool readOnly)
+  /// <remarks>
+  /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
+  /// on the catalog entry after construction.
+  /// </remarks>
+  public EFCoreSingleStorageAdapter(DbContext context, bool ownsContext)
   {
     _context = context ?? throw new ArgumentNullException(nameof(context));
     _ownsContext = ownsContext;
-    _readOnly = readOnly;
+    Traits = new StorageTraits
+    {
+      RequiresNetwork = true,
+      IsTransactional = true,
+      CanStream = true,
+    };
 
     // Validate entity configuration eagerly (pre-flight phase)
     ValidateEntityConfiguration(context);
@@ -54,12 +57,20 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, ISeedabl
   /// Creates an adapter with a DbContext factory.
   /// </summary>
   /// <param name="contextFactory">Factory to create DbContext instances</param>
-  /// <param name="readOnly">If true, Save operations throw</param>
-  public EFCoreSingleStorageAdapter(Func<DbContext> contextFactory, bool readOnly)
+  /// <remarks>
+  /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
+  /// on the catalog entry after construction.
+  /// </remarks>
+  public EFCoreSingleStorageAdapter(Func<DbContext> contextFactory)
   {
     _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
     _ownsContext = true;
-    _readOnly = readOnly;
+    Traits = new StorageTraits
+    {
+      RequiresNetwork = true,
+      IsTransactional = true,
+      CanStream = true,
+    };
 
     // Validate entity configuration eagerly using factory-created context
     using var context = contextFactory();
@@ -67,36 +78,7 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, ISeedabl
   }
 
   /// <inheritdoc/>
-  public bool CanBeSeed
-  {
-    get
-    {
-      try
-      {
-        var context = GetContext();
-        try
-        {
-          var dbSet = context.Set<T>();
-          // Synchronous check - may not work for all providers
-          return dbSet.Local.Count == 1 || dbSet.Any();
-        }
-        finally
-        {
-          if (_ownsContext && _contextFactory != null)
-          {
-            context.Dispose();
-          }
-        }
-      }
-      catch
-      {
-        return false;
-      }
-    }
-  }
-
-  /// <inheritdoc/>
-  public bool IsReadOnly => _readOnly;
+  public StorageTraits Traits { get; }
 
   /// <inheritdoc/>
   public FlowIO<T> Load() =>
@@ -127,10 +109,12 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>, ISeedabl
   /// <inheritdoc/>
   public FlowIO<FlowUnit> Save(T data)
   {
-    if (_readOnly)
+    if (!Traits.CanWrite)
     {
       return FlowIO.Fail<FlowUnit>(
-        new InvalidOperationException("Cannot save to read-only EFCore catalog entry")
+        new InvalidOperationException(
+          "Cannot save to read-only EFCore adapter. Check StorageTraits.CanWrite before attempting Save()."
+        )
       );
     }
 

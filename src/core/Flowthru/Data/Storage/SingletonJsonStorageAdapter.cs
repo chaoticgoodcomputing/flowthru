@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Flowthru.Abstractions;
+using Flowthru.Data.Capabilities;
 using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
@@ -27,12 +28,8 @@ namespace Flowthru.Data.Storage;
 /// <strong>Serialization Format:</strong> JSON object (not wrapped in array)
 /// </para>
 /// <para>
-/// <strong>Capabilities:</strong>
+/// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
 /// </para>
-/// <list type="bullet">
-/// <item>ISeedable: true if file exists</item>
-/// <item>IReadOnly: false</item>
-/// </list>
 /// </remarks>
 /// <example>
 /// <code>
@@ -80,6 +77,9 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
     _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
     _options = options ?? throw new ArgumentNullException(nameof(options));
   }
+
+  /// <inheritdoc />
+  public StorageTraits Traits => new StorageTraits();
 
   /// <inheritdoc />
   public FlowIO<T> Load()

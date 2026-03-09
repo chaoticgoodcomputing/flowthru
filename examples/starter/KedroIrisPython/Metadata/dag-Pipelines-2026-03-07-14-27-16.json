@@ -1,0 +1,250 @@
+{
+  "pipelineName": "Pipelines",
+  "generatedAt": "2026-03-07T21:27:16.752667Z",
+  "nodes": [
+    {
+      "id": "DataEngineering.SplitData",
+      "label": "DataEngineering.SplitData",
+      "nodeType": "DataEngineering.SplitData",
+      "layer": 0,
+      "pipelineName": "DataEngineering",
+      "inputs": [
+        "IrisRaw"
+      ],
+      "outputs": [
+        "TrainX",
+        "TrainY",
+        "TestX",
+        "TestY"
+      ]
+    },
+    {
+      "id": "DataScience.TrainModel",
+      "label": "DataScience.TrainModel",
+      "nodeType": "DataScience.TrainModel",
+      "layer": 1,
+      "pipelineName": "DataScience",
+      "inputs": [
+        "TrainX",
+        "TrainY"
+      ],
+      "outputs": [
+        "ModelWeights"
+      ]
+    },
+    {
+      "id": "DataScience.Predict",
+      "label": "DataScience.Predict",
+      "nodeType": "DataScience.Predict",
+      "layer": 2,
+      "pipelineName": "DataScience",
+      "inputs": [
+        "ModelWeights",
+        "TestX"
+      ],
+      "outputs": [
+        "Predictions"
+      ]
+    },
+    {
+      "id": "DataScience.ReportAccuracy",
+      "label": "DataScience.ReportAccuracy",
+      "nodeType": "DataScience.ReportAccuracy",
+      "layer": 3,
+      "pipelineName": "DataScience",
+      "inputs": [
+        "Predictions",
+        "TestY"
+      ],
+      "outputs": [
+        "AccuracyReport"
+      ]
+    }
+  ],
+  "catalogEntries": [
+    {
+      "key": "IrisRaw",
+      "label": "IrisRaw",
+      "dataType": "IEnumerable",
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "consumers": [
+        "DataEngineering.SplitData"
+      ]
+    },
+    {
+      "key": "TrainX",
+      "label": "TrainX",
+      "dataType": "IEnumerable",
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "producer": "DataEngineering.SplitData",
+      "consumers": [
+        "DataScience.TrainModel"
+      ]
+    },
+    {
+      "key": "TrainY",
+      "label": "TrainY",
+      "dataType": "IEnumerable",
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "producer": "DataEngineering.SplitData",
+      "consumers": [
+        "DataScience.TrainModel"
+      ]
+    },
+    {
+      "key": "TestX",
+      "label": "TestX",
+      "dataType": "IEnumerable",
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "producer": "DataEngineering.SplitData",
+      "consumers": [
+        "DataScience.Predict"
+      ]
+    },
+    {
+      "key": "TestY",
+      "label": "TestY",
+      "dataType": "IEnumerable",
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "producer": "DataEngineering.SplitData",
+      "consumers": [
+        "DataScience.ReportAccuracy"
+      ]
+    },
+    {
+      "key": "ModelWeights",
+      "label": "ModelWeights",
+      "dataType": "Byte[]",
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "producer": "DataScience.TrainModel",
+      "consumers": [
+        "DataScience.Predict"
+      ]
+    },
+    {
+      "key": "Predictions",
+      "label": "Predictions",
+      "dataType": "IEnumerable",
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "producer": "DataScience.Predict",
+      "consumers": [
+        "DataScience.ReportAccuracy"
+      ]
+    },
+    {
+      "key": "AccuracyReport",
+      "label": "AccuracyReport",
+      "dataType": "AccuracyReportSchema",
+      "schema": {
+        "fields": [
+          {
+            "name": "Accuracy",
+            "type": "double",
+            "isNullable": false
+          },
+          {
+            "name": "CorrectPredictions",
+            "type": "int",
+            "isNullable": false
+          },
+          {
+            "name": "TotalSamples",
+            "type": "int",
+            "isNullable": false
+          }
+        ]
+      },
+      "fields": {
+        "catalogType": "CatalogEntry"
+      },
+      "producer": "DataScience.ReportAccuracy",
+      "consumers": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "IrisRaw",
+      "target": "DataEngineering.SplitData",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "DataEngineering.SplitData",
+      "target": "TrainX",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "DataEngineering.SplitData",
+      "target": "TrainY",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "DataEngineering.SplitData",
+      "target": "TestX",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "DataEngineering.SplitData",
+      "target": "TestY",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "TrainX",
+      "target": "DataScience.TrainModel",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "TrainY",
+      "target": "DataScience.TrainModel",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "DataScience.TrainModel",
+      "target": "ModelWeights",
+      "dataType": "Byte[]"
+    },
+    {
+      "source": "ModelWeights",
+      "target": "DataScience.Predict",
+      "dataType": "Byte[]"
+    },
+    {
+      "source": "TestX",
+      "target": "DataScience.Predict",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "DataScience.Predict",
+      "target": "Predictions",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "Predictions",
+      "target": "DataScience.ReportAccuracy",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "TestY",
+      "target": "DataScience.ReportAccuracy",
+      "dataType": "IEnumerable"
+    },
+    {
+      "source": "DataScience.ReportAccuracy",
+      "target": "AccuracyReport",
+      "dataType": "AccuracyReportSchema"
+    }
+  ]
+}

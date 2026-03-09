@@ -60,11 +60,11 @@ public static partial class CatalogEntries
     /// <item>Positional records with primary constructors</item>
     /// </list>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Storage Traits:</strong>
     /// </para>
     /// <list type="bullet">
-    /// <item>ISeedable: Can be Layer 0 input if file exists</item>
-    /// <item>IReadOnly: false (CSV files are read-write)</item>
+    /// <item>CanStream: true (CSV supports row-by-row streaming)</item>
+    /// <item>All other traits use filesystem baseline defaults</item>
     /// </list>
     /// </remarks>
     public static ICatalogEntry<IEnumerable<TRow>> Csv<TRow>(string label, string filePath)
@@ -183,11 +183,10 @@ public static partial class CatalogEntries
     /// Writing Excel files is not supported.
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Storage Traits:</strong>
     /// </para>
     /// <list type="bullet">
-    /// <item>ISeedable: true (can be Layer 0 input)</item>
-    /// <item>IReadOnly: true (writes will throw NotSupportedException)</item>
+    /// <item>CanWrite: false (Excel adapter is read-only via ExcelDataReader)</item>
     /// </list>
     /// </remarks>
     public static ICatalogEntry<IEnumerable<TRow>> Excel<TRow>(
@@ -216,15 +215,11 @@ public static partial class CatalogEntries
     /// <strong>Use Case:</strong> Intermediate pipeline data that doesn't need persistence
     /// </para>
     /// <para>
-    /// <strong>Capabilities:</strong>
+    /// <strong>Storage Traits:</strong>
     /// </para>
     /// <list type="bullet">
-    /// <item>ISeedable: false (memory entries cannot be Layer 0 inputs)</item>
-    /// <item>IReadOnly: false</item>
+    /// <item>IsPersistent: false (data lost when process ends)</item>
     /// </list>
-    /// <para>
-    /// <strong>Lifecycle:</strong> Data lost when process ends
-    /// </para>
     /// </remarks>
     public static ICatalogEntry<IEnumerable<TRow>> Memory<TRow>(string label)
     {

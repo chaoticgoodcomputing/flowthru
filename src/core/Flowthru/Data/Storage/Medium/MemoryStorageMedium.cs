@@ -23,8 +23,7 @@ namespace Flowthru.Data.Storage.Medium;
 /// <strong>Characteristics:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>Never a seed (CanBeSeed = false) - always produced by pipeline</item>
-/// <item>Data lost when process exits</item>
+/// <item>IsPersistent: false - data lost when process exits</item>
 /// <item>Very fast - no I/O overhead</item>
 /// <item>Memory-bound - not suitable for large datasets</item>
 /// </list>
@@ -57,7 +56,7 @@ namespace Flowthru.Data.Storage.Medium;
 /// );
 /// </code>
 /// </example>
-public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
+public sealed class MemoryStorageMedium : IStorageMedium
 {
   private readonly object _lock = new();
   private byte[]? _buffer;
@@ -79,6 +78,9 @@ public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
   {
     _buffer = initialData ?? throw new ArgumentNullException(nameof(initialData));
   }
+
+  /// <inheritdoc/>
+  public StorageTraits Traits => new StorageTraits { IsPersistent = false };
 
   /// <inheritdoc/>
   public FlowIO<Stream> ReadStream()
@@ -140,14 +142,6 @@ public sealed class MemoryStorageMedium : IStorageMedium, ISeedable
       }
     });
   }
-
-  /// <inheritdoc/>
-  /// <remarks>
-  /// Always returns false because memory storage is never a seed.
-  /// Memory storage represents transient data produced by the pipeline,
-  /// not external data that exists before pipeline execution.
-  /// </remarks>
-  public bool CanBeSeed => false;
 
   /// <summary>
   /// Gets the current buffer size in bytes, or null if no data is stored.

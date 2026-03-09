@@ -1,0 +1,32 @@
+# Build outputs
+bin/
+obj/
+*.dll
+*.pdb
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+uv.lock
+
+# Data outputs (keep structure, ignore datasets)
+Data/**/*
+!Data/**/*.cs
+# But allow raw input data
+!Data/_01_Raw/Datasets
+!Data/_01_Raw/Datasets/*
+
+Metadata
+
+!**/.gitkeep
+
+# IDE
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store

@@ -36,7 +36,7 @@ internal static class DagBuilder
     }
 
     // Always build from the full DAG to provide complete context
-    var allNodes = pipeline.Nodes;
+    var allNodes = pipeline.NodesList;
     var slicedNodes = pipeline.GetSlicedNodes();
 
     var dag = new DagMetadata
@@ -307,17 +307,19 @@ internal static class DagBuilder
       }
     }
 
-    // Check if read-only (implements IReadableCatalogEntry but not IWritableCatalogEntry)
-    var isReadable = entryType
-      .GetInterfaces()
-      .Any(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "IReadableCatalogEntry`1");
-    var isWritable = entryType
-      .GetInterfaces()
-      .Any(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "IWritableCatalogEntry`1");
-
-    if (isReadable && !isWritable)
+    // Check if read-only using StorageTraits
+    var adapter = entry.GetType().GetProperty("Adapter")?.GetValue(entry);
+    if (adapter != null)
     {
-      fields["isReadOnly"] = true;
+      var traitsProperty = adapter.GetType().GetProperty("Traits");
+      if (traitsProperty != null)
+      {
+        var traits = traitsProperty.GetValue(adapter);
+        if (traits is Data.Capabilities.StorageTraits storageTraits && !storageTraits.CanWrite)
+        {
+          fields["isReadOnly"] = true;
+        }
+      }
     }
 
     // Get inspection level if configured

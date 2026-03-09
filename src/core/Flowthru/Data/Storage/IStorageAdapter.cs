@@ -1,3 +1,4 @@
+using Flowthru.Data.Capabilities;
 using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
@@ -72,6 +73,21 @@ namespace Flowthru.Data.Storage;
 /// </example>
 public interface IStorageAdapter<T>
 {
+  /// <summary>
+  /// Structural constraints and capabilities of this storage implementation.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Adapter authors must declare what their storage can and cannot do.
+  /// These are intrinsic properties of the storage medium, not runtime state.
+  /// </para>
+  /// <para>
+  /// Pipeline validation uses these traits to fail fast when a pipeline attempts
+  /// invalid operations (e.g., writing to a read-only source).
+  /// </para>
+  /// </remarks>
+  StorageTraits Traits { get; }
+
   /// <summary>
   /// Loads data from storage.
   /// </summary>

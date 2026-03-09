@@ -1,3 +1,4 @@
+using Flowthru.Data.Capabilities;
 using Flowthru.Effects;
 
 namespace Flowthru.Data.Storage;
@@ -28,11 +29,11 @@ namespace Flowthru.Data.Storage;
 /// <strong>Lifetime:</strong> Data persists only for the lifetime of this instance
 /// </para>
 /// <para>
-/// <strong>Capabilities:</strong>
+/// <strong>Storage Traits:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>ISeedable: false (memory cannot be Layer 0 input)</item>
-/// <item>IReadOnly: false</item>
+/// <item>IsPersistent: false (data lost when process exits)</item>
+/// <item>All other traits use filesystem baseline defaults</item>
 /// </list>
 /// </remarks>
 /// <example>
@@ -66,6 +67,9 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
     _data = initialData;
     _hasData = true;
   }
+
+  /// <inheritdoc />
+  public StorageTraits Traits => new StorageTraits { IsPersistent = false };
 
   /// <inheritdoc />
   public FlowIO<T> Load()

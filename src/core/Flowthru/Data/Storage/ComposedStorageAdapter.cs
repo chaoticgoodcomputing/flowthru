@@ -63,10 +63,7 @@ namespace Flowthru.Data.Storage;
 /// );
 /// </code>
 /// </example>
-public sealed class ComposedStorageAdapter<TContainer, TRow>
-  : IStorageAdapter<TContainer>,
-    ISeedable,
-    IReadOnly
+public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<TContainer>
   where TRow : notnull
 {
   private readonly IStorageMedium _medium;
@@ -89,6 +86,37 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
     _format = format ?? throw new ArgumentNullException(nameof(format));
     _container = container ?? throw new ArgumentNullException(nameof(container));
   }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// Merges traits from all three composition layers:
+  /// </para>
+  /// <list type="bullet">
+  /// <item><strong>Medium:</strong> Provides constraints (CanWrite, RequiresNetwork, IsPersistent)</item>
+  /// <item><strong>Format:</strong> Provides streaming capability (CanStream)</item>
+  /// <item><strong>Container:</strong> Currently no traits (in-memory projection)</item>
+  /// </list>
+  /// <para>
+  /// Constraints use AND logic (most restrictive wins).
+  /// Capabilities use AND logic (all layers must support it).
+  /// </para>
+  /// </remarks>
+  public StorageTraits Traits =>
+    new StorageTraits
+    {
+      // Medium determines storage-level constraints
+      CanRead = _medium.Traits.CanRead,
+      CanWrite = _medium.Traits.CanWrite && _format.Traits.CanWrite,
+      CanInspect = _medium.Traits.CanInspect,
+      IsPersistent = _medium.Traits.IsPersistent,
+      RequiresNetwork = _medium.Traits.RequiresNetwork,
+      // Format determines streaming capability (medium must support it too)
+      CanStream = _medium.Traits.CanStream && _format.Traits.CanStream,
+      // Medium determines append/transactional capabilities
+      CanAppend = _medium.Traits.CanAppend,
+      IsTransactional = _medium.Traits.IsTransactional,
+    };
 
   /// <inheritdoc/>
   public FlowIO<TContainer> Load()
@@ -121,12 +149,12 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   public FlowIO<FlowUnit> Save(TContainer data)
   {
     // Check if read-only before attempting write
-    if (IsReadOnly)
+    if (!Traits.CanWrite)
     {
       return FlowIO.Fail<FlowUnit>(
         new InvalidOperationException(
           "Cannot write to read-only storage adapter. "
-            + "Check IReadOnly.IsReadOnly before attempting Save()."
+            + "Check StorageTraits.CanWrite before attempting Save()."
         )
       );
     }
@@ -156,59 +184,6 @@ public sealed class ComposedStorageAdapter<TContainer, TRow>
   {
     return _medium.Exists();
   }
-
-  /// <summary>
-  /// Gets whether this adapter can be a seed (Layer 0 input).
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Delegates to the medium's ISeedable implementation if available.
-  /// If the medium doesn't implement ISeedable, checks if data exists synchronously.
-  /// </para>
-  /// <para>
-  /// Note: This is a synchronous property, so we use RunSynchronously() which may block.
-  /// The pipeline executor should check this during construction, not during execution.
-  /// </para>
-  /// </remarks>
-  public bool CanBeSeed
-  {
-    get
-    {
-      // If medium implements ISeedable, use it directly
-      if (_medium is ISeedable seedable)
-      {
-        return seedable.CanBeSeed;
-      }
-
-      // Otherwise, try to check if data exists
-      try
-      {
-        var existsIO = Exists();
-        // TODO: Find proper synchronous evaluation method for IO
-        // For now, return false to avoid blocking
-        return false;
-      }
-      catch
-      {
-        return false;
-      }
-    }
-  }
-
-  /// <summary>
-  /// Gets whether this adapter is read-only.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Checks if the medium implements IReadOnly and returns its IsReadOnly value.
-  /// If the medium doesn't implement IReadOnly, assumes writable (false).
-  /// </para>
-  /// <para>
-  /// This allows mediums like FileStorageMedium to be writable while
-  /// specialized mediums like ReadOnlyFileStorageMedium can enforce read-only.
-  /// </para>
-  /// </remarks>
-  public bool IsReadOnly => _medium is IReadOnly readOnly && readOnly.IsReadOnly;
 
   /// <inheritdoc />
   public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)

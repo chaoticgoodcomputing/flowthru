@@ -81,11 +81,11 @@ public static partial class CatalogEntries
   /// <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.
   /// </para>
   /// <para>
-  /// <strong>Capabilities:</strong>
+  /// <strong>Storage Traits:</strong>
   /// </para>
   /// <list type="bullet">
-  /// <item>ISeedable: false (null entries cannot be seeds)</item>
-  /// <item>IReadOnly: true (Load/Save are no-ops)</item>
+  /// <item>CanWrite: false (Save is a no-op)</item>
+  /// <item>CanRead: false (Load throws NotSupportedException)</item>
   /// </list>
   /// </remarks>
   public static ICatalogEntry<T> Null<T>(string label)

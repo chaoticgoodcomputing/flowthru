@@ -111,29 +111,3 @@ public interface ICatalogEntry<T> : ICatalogEntry
   /// </summary>
   FlowIO<FlowUnit> Save(T data);
 }
-
-/// <summary>
-/// Read-only catalog entry interface.
-/// For catalog entries that can only be read from (e.g., Excel files, external APIs).
-/// </summary>
-/// <typeparam name="T">The data type stored in this catalog entry</typeparam>
-public interface IReadableCatalogEntry<T> : ICatalogEntry
-{
-  /// <summary>
-  /// Load data as an effect.
-  /// </summary>
-  FlowIO<T> Load();
-}
-
-/// <summary>
-/// Write-only catalog entry interface.
-/// For catalog entries that can only be written to.
-/// </summary>
-/// <typeparam name="T">The data type stored in this catalog entry</typeparam>
-public interface IWritableCatalogEntry<T> : ICatalogEntry
-{
-  /// <summary>
-  /// Save data as an effect.
-  /// </summary>
-  FlowIO<FlowUnit> Save(T data);
-}

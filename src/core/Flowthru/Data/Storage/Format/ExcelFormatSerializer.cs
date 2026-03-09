@@ -1,6 +1,7 @@
 using System.Text;
 using ExcelDataReader;
 using Flowthru.Abstractions;
+using Flowthru.Data.Capabilities;
 using Flowthru.Data.Storage;
 
 namespace Flowthru.Data.Storage.Format;
@@ -27,6 +28,12 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
   {
     _sheetName = sheetName;
   }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Excel format is read-only (ExcelDataReader does not support writing).
+  /// </remarks>
+  public StorageTraits Traits => new StorageTraits { CanWrite = false };
 
   /// <inheritdoc/>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)

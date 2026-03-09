@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru.Extensions.Python</RootNamespace>
+    <Description>Python node integration for Flowthru data pipelines</Description>
+    
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Extensions.Python</PackageId>
+    <PackageTags>data-engineering;pipeline;python;pythonnet</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core Flowthru library -->
+    <ProjectReference Include="../../core/Flowthru/Flowthru.csproj" />
+    
+    <!-- Source generator (isolated from runtime dependencies) -->
+    <ProjectReference Include="../Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Python.NET for embedded Python runtime (official package) -->
+    <PackageReference Include="pythonnet" Version="3.0.5" />
+    
+    <!-- Apache Arrow for tabular data interchange (Phase 3) -->
+    <PackageReference Include="Apache.Arrow" Version="18.0.0" />
+    
+    <!-- MSBuild task authoring (Phase 5) -->
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.50" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include README and LICENSE in package -->
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    
+    <!-- Include MSBuild targets file in package -->
+    <None Include="build\Flowthru.Extensions.Python.targets" Pack="true" PackagePath="build\" />
+    
+    <!-- Include Arrow bridge module for Python interop -->
+    <Content Include="build\_flowthru_arrow.py" 
+             CopyToOutputDirectory="PreserveNewest" 
+             Link="_flowthru_arrow.py"
+             Pack="true" 
+             PackagePath="build\" />
+
+    <!-- Include subprocess worker script for isolated per-service execution -->
+    <Content Include="build\flowthru_worker.py"
+             CopyToOutputDirectory="PreserveNewest"
+             Link="flowthru_worker.py"
+             Pack="true"
+             PackagePath="build\" />
+    
+    <!-- Include flowthru Python package (Phase 4: @node decorator) -->
+    <Content Include="build\flowthru\__init__.py" 
+             CopyToOutputDirectory="PreserveNewest" 
+             Link="flowthru\__init__.py"
+             Pack="true" 
+             PackagePath="build\flowthru\" />
+    <Content Include="build\flowthru\node.py" 
+             CopyToOutputDirectory="PreserveNewest" 
+             Link="flowthru\node.py"
+             Pack="true" 
+             PackagePath="build\flowthru\" />
+  </ItemGroup>
+
+</Project>

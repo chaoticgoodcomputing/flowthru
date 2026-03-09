@@ -39,7 +39,7 @@ public static class ExampleDiscovery
 
     var testOutputDir = Path.GetDirectoryName(typeof(ExampleDiscovery).Assembly.Location)!;
 
-    foreach (var (name, path) in GetExampleProjectDirectories())
+    foreach (var (name, category, sourcePath) in GetExampleProjectDirectories())
     {
       var assembly = TryLoadAssembly(name, testOutputDir);
       if (assembly == null)
@@ -59,10 +59,14 @@ public static class ExampleDiscovery
         continue;
       }
 
+      // Calculate output directory: dist/examples/{category}/{name}/net10.0/
+      var outputPath = Path.Combine(WorkspaceRoot, "dist", "examples", category, name, "net10.0");
+
       yield return new ExampleProject
       {
         Name = name,
-        ProjectPath = path,
+        ProjectPath = sourcePath,
+        OutputPath = outputPath,
         EntryPointType = entryPoint,
       };
     }
@@ -72,7 +76,11 @@ public static class ExampleDiscovery
   /// Enumerates example project directories that contain a matching <c>.csproj</c> file.
   /// Searches <c>examples/starter/</c> and <c>examples/advanced/</c>.
   /// </summary>
-  private static IEnumerable<(string Name, string Path)> GetExampleProjectDirectories()
+  private static IEnumerable<(
+    string Name,
+    string Category,
+    string SourcePath
+  )> GetExampleProjectDirectories()
   {
     var categories = new[] { "starter", "advanced" };
 
@@ -88,7 +96,7 @@ public static class ExampleDiscovery
         var csproj = System.IO.Path.Combine(projectDir, $"{name}.csproj");
 
         if (File.Exists(csproj))
-          yield return (name, projectDir);
+          yield return (name, category, projectDir);
       }
     }
   }

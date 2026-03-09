@@ -4,6 +4,7 @@ using Flowthru.Data.Validation;
 using Flowthru.Meta;
 using Flowthru.Pipelines;
 using Flowthru.Services.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Services;
@@ -44,11 +45,23 @@ internal sealed class FlowthruService : IFlowthruService
     // Inject services into catalog
     _catalog.Services = _services;
 
+    // Resolve validation hooks from DI (Phase 4: extensions can register hooks)
+    var validationHooks = _services
+      .GetServices<Pipelines.Validation.IPipelineValidationHook>()
+      .ToList();
+
     // Inject services into each pipeline and build
     foreach (var pipeline in _pipelines.Values)
     {
       pipeline.Logger = _logger;
       pipeline.ServiceProvider = _services;
+
+      // Register validation hooks (e.g., PythonNodeValidator from Python extension)
+      foreach (var hook in validationHooks)
+      {
+        pipeline.ValidationHooks.Add(hook);
+      }
+
       pipeline.Build();
     }
   }

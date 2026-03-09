@@ -22,6 +22,8 @@
     
     <!-- Add Flowthru ProjectReferences -->
     <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
+    
+    <!-- Add source generator references directly for local development -->
     <ProjectReference Include="$(RepoRoot)src\core\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />

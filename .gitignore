@@ -276,3 +276,11 @@ scratch/
 # Version bumping temporary files
 .version
 coverage-badges/
+
+# Python
+.venv/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+uv.lock

@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using Flowthru.Abstractions;
+using Flowthru.Data.Capabilities;
 using Parquet;
 using Parquet.Schema;
 using Parquet.Serialization;
@@ -44,6 +45,13 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   where TRow : notnull, IFlatSchema, IBinarySerializable
 {
   public ParquetFormatSerializer() { }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Parquet is a columnar format that supports row group streaming for efficient
+  /// processing of large datasets.
+  /// </remarks>
+  public StorageTraits Traits => new StorageTraits { CanStream = true };
 
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
@@ -621,11 +629,12 @@ internal sealed class ParquetAdapter<TRow>
           {
             // Handle type conversions between DTO and TRow
             // DTO type may differ from TRow type due to Parquet schema
-            var underlyingType = Nullable.GetUnderlyingType(srcProperty.PropertyType);
-            var targetType = dstProperty.PropertyType;
-            var sourceType = underlyingType ?? srcProperty.PropertyType;
+            var underlyingSource = Nullable.GetUnderlyingType(srcProperty.PropertyType);
+            var underlyingTarget = Nullable.GetUnderlyingType(dstProperty.PropertyType);
+            var sourceType = underlyingSource ?? srcProperty.PropertyType;
+            var targetType = underlyingTarget ?? dstProperty.PropertyType;
 
-            // Convert if types don't match
+            // Convert if types don't match (comparing underlying non-nullable types)
             if (sourceType != targetType)
             {
               try

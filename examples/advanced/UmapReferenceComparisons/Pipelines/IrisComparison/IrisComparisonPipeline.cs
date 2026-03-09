@@ -131,17 +131,18 @@ public static class IrisComparisonPipeline
         output: catalog.IrisVisualization
       );
 
-      pipeline.AddNode(
-        label: "ExportVisualizationToPng",
-        description: """
-          Exports the side-by-side comparison chart to a PNG file.
-          Uses Plotly.NET.ImageExport with PuppeteerSharp (headless Chromium)
-          to render the interactive chart as a static image.
-        """,
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.IrisVisualization,
-        output: catalog.IrisVisualizationPng
-      );
+      // NOTE: Commented out due to performance issues with Plotly.NET
+      // pipeline.AddNode(
+      //   label: "ExportVisualizationToPng",
+      //   description: """
+      //     Exports the side-by-side comparison chart to a PNG file.
+      //     Uses Plotly.NET.ImageExport with PuppeteerSharp (headless Chromium)
+      //     to render the interactive chart as a static image.
+      //   """,
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.IrisVisualization,
+      //   output: catalog.IrisVisualizationPng
+      // );
     });
   }
 }

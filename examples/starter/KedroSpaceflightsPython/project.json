@@ -1,0 +1,26 @@
+{
+  "name": "KedroSpaceflightsPython",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/starter/KedroSpaceflightsPython",
+  "tags": [ "example", "starter", "python" ],
+  "targets": {
+    "build": {
+      "//": "Build the example project",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [ "dotnet build {projectRoot}" ],
+        "parallel": false
+      }
+    },
+    "run": {
+      "//": "Run the example as a smoke test",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "build" ],
+      "options": {
+        "commands": [ "dotnet run --project {projectRoot} --no-build" ],
+        "parallel": false
+      }
+    }
+  }
+}

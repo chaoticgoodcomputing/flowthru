@@ -11,14 +11,10 @@ namespace Flowthru.Data.Storage;
 /// <strong>Use Cases:</strong> Markdown reports, configuration files, plain text logs
 /// </para>
 /// <para>
-/// <strong>Capabilities:</strong>
+/// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
 /// </para>
-/// <list type="bullet">
-/// <item>ISeedable: true (file can exist before pipeline runs)</item>
-/// <item>IReadOnly: false</item>
-/// </list>
 /// </remarks>
-public sealed class TextFileStorageAdapter : IStorageAdapter<string>, ISeedable
+public sealed class TextFileStorageAdapter : IStorageAdapter<string>
 {
   private readonly string _filePath;
 
@@ -28,7 +24,7 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>, ISeedable
   }
 
   /// <inheritdoc/>
-  public bool CanBeSeed => File.Exists(_filePath);
+  public StorageTraits Traits => new StorageTraits();
 
   /// <inheritdoc/>
   public FlowIO<string> Load() =>
