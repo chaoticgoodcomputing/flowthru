@@ -29,12 +29,10 @@ public class PythonNodeGenerator : IIncrementalGenerator
   {
     // Run for any project that references Flowthru.Extensions.Python
     // (unlike PipelineBuilderGenerator which only runs for the core Flowthru assembly)
-    context.RegisterPostInitializationOutput(ctx => GenerateAddPythonNodeOverloads(ctx));
+    context.RegisterPostInitializationOutput(ctx => GenerateAddPythonNode(ctx));
   }
 
-  private static void GenerateAddPythonNodeOverloads(
-    IncrementalGeneratorPostInitializationContext context
-  )
+  private static void GenerateAddPythonNode(IncrementalGeneratorPostInitializationContext context)
   {
     var sb = new StringBuilder();
 
@@ -69,7 +67,7 @@ public class PythonNodeGenerator : IIncrementalGenerator
         }
 
         // Generate sync version only (Phase 5)
-        GenerateAddPythonNodeOverload(sb, inputs, outputs);
+        GenerateAddPythonNode(sb, inputs, outputs);
         sb.AppendLine();
       }
     }
@@ -82,11 +80,7 @@ public class PythonNodeGenerator : IIncrementalGenerator
     );
   }
 
-  private static void GenerateAddPythonNodeOverload(
-    StringBuilder sb,
-    int inputCount,
-    int outputCount
-  )
+  private static void GenerateAddPythonNode(StringBuilder sb, int inputCount, int outputCount)
   {
     // Generate XML documentation
     GenerateXmlDoc(sb, inputCount, outputCount);

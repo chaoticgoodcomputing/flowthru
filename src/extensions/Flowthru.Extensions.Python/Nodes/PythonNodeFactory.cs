@@ -12,7 +12,7 @@ namespace Flowthru.Extensions.Python.Nodes;
 /// <remarks>
 /// <para>
 /// <strong>Phases 2-5 implementation:</strong>
-/// Hand-written 1×1 AddPythonNode for scalar and tabular input/output (Phase 2-4).
+/// Hand-written 1×1 AddPythonNode(Phase 2-4).
 /// Source-generated N×M overloads for multi-I/O support (Phase 5).
 /// </para>
 /// <para>

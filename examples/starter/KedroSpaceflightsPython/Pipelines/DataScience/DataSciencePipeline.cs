@@ -39,7 +39,7 @@ public static class DataSciencePipeline
       );
 
       // Train model (2×1 input node, returns sklearn model object)
-      pipeline.AddPythonNode<IEnumerable<XValues>, IEnumerable<YValues>, LinearRegressionModel>(
+      pipeline.AddPythonNode(
         label: "TrainModel",
         description: "Train linear regression model (Python 2×1 node)",
         module: "Pipelines.DataScience.Nodes.train_model",

@@ -20,7 +20,7 @@ public static class DataProcessingPipeline
   {
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
-      pipeline.AddPythonNode<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
+      pipeline.AddPythonNode(
         label: "PreprocessCompanies",
         description: "Clean and parse company data (Python)",
         module: "Pipelines.DataProcessing.Nodes.preprocess_companies",
@@ -30,7 +30,7 @@ public static class DataProcessingPipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
+      pipeline.AddPythonNode(
         label: "PreprocessShuttles",
         description: "Clean and parse shuttle data (Python)",
         module: "Pipelines.DataProcessing.Nodes.preprocess_shuttles",

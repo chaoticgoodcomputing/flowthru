@@ -11,8 +11,12 @@ namespace Flowthru.Extensions.Python.Tests.Compilation;
 /// Compilation tests verifying that Python node wiring is type-safe at compile-time.
 /// </summary>
 /// <remarks>
-/// These tests use Roslyn to compile code snippets and verify that type mismatches
-/// between AddPythonNode generic parameters and catalog entry types produce compiler errors.
+/// These tests verify that the catalog entry types passed to AddPythonNode are
+/// self-consistent and correctly inferred by the compiler.
+///
+/// Note: Schema contract violations between C# generic types and Python @node
+/// decorator declarations are caught at pre-flight, not compile-time — see
+/// <see cref="Flowthru.Extensions.Python.Tests.Validation.PythonNodeValidationTests"/>.
 /// </remarks>
 [TestFixture]
 [Category("Python")]
@@ -75,127 +79,7 @@ public class PythonNodeTypeSafetyTests
   }
 
   [Test]
-  public void AddPythonNode_WithMismatchedInputType_ProducesCompilerError()
-  {
-    // Arrange: Code where input catalog entry type doesn't match TInput
-    // AddPythonNode<ModelConfigSchema, ModelResultSchema> but input is ModelResultSchema
-    var code =
-      @"
-            using Flowthru.Data;
-            using Flowthru.Extensions.Python.Nodes;
-            using Flowthru.Extensions.Python.Execution;
-            using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Pipelines;
-            
-            public class TestProgram
-            {
-                public void TestMethod(
-                    IPythonExecutor executor)
-                {
-                    var wrongInput = CatalogEntries.Single.Memory<ModelResultSchema>();
-                    var result = CatalogEntries.Single.Memory<ModelResultSchema>();
-                    
-                    var pipeline = PipelineBuilder.CreatePipeline(builder =>
-                    {
-                        // Type mismatch: declaring TInput as ModelConfigSchema
-                        // but passing ICatalogEntry<ModelResultSchema>
-                        builder.AddPythonNode<ModelConfigSchema, ModelResultSchema>(
-                            label: ""Test"",
-                            module: ""test"",
-                            function: ""test"",
-                            input: wrongInput,  // ERROR: wrong type
-                            output: result,
-                            executor: executor
-                        );
-                    });
-                }
-            }
-        ";
-
-    // Act
-    var compilation = CompilationTestHelper.Compile(
-      code,
-      includeFlowthru: true,
-      typeof(ModelConfigSchema),
-      typeof(IPythonExecutor),
-      typeof(PythonException)
-    );
-
-    // Assert
-    Assert.That(
-      compilation.Success,
-      Is.False,
-      "Code with mismatched input type should not compile"
-    );
-
-    // Should produce CS1503 (cannot convert argument)
-    var errors = compilation.Diagnostics.Where(d =>
-      d.Severity == DiagnosticSeverity.Error && d.Id == "CS1503"
-    );
-    Assert.That(errors, Is.Not.Empty, "Should produce CS1503 error (argument type mismatch)");
-  }
-
-  [Test]
-  public void AddPythonNode_WithMismatchedOutputType_ProducesCompilerError()
-  {
-    // Arrange: Code where output catalog entry type doesn't match TOutput
-    var code =
-      @"
-            using Flowthru.Data;
-            using Flowthru.Extensions.Python.Nodes;
-            using Flowthru.Extensions.Python.Execution;
-            using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Pipelines;
-            
-            public class TestProgram
-            {
-                public void TestMethod(
-                    IPythonExecutor executor)
-                {
-                    var config = CatalogEntries.Single.Memory<ModelConfigSchema>();
-                    var wrongOutput = CatalogEntries.Single.Memory<ModelConfigSchema>();
-                    
-                    var pipeline = PipelineBuilder.CreatePipeline(builder =>
-                    {
-                        // Type mismatch: declaring TOutput as ModelResultSchema
-                        // but passing ICatalogEntry<ModelConfigSchema>
-                        builder.AddPythonNode<ModelConfigSchema, ModelResultSchema>(
-                            label: ""Test"",
-                            module: ""test"",
-                            function: ""test"",
-                            input: config,
-                            output: wrongOutput,  // ERROR: wrong type
-                            executor: executor
-                        );
-                    });
-                }
-            }
-        ";
-
-    // Act
-    var compilation = CompilationTestHelper.Compile(
-      code,
-      includeFlowthru: true,
-      typeof(ModelConfigSchema),
-      typeof(IPythonExecutor),
-      typeof(PythonException)
-    );
-
-    // Assert
-    Assert.That(
-      compilation.Success,
-      Is.False,
-      "Code with mismatched output type should not compile"
-    );
-
-    var errors = compilation.Diagnostics.Where(d =>
-      d.Severity == DiagnosticSeverity.Error && d.Id == "CS1503"
-    );
-    Assert.That(errors, Is.Not.Empty, "Should produce CS1503 error (argument type mismatch)");
-  }
-
-  [Test]
-  public void AddPythonNode_WithTypeInference_PreventsTypeMismatch()
+  public void AddPythonNode_WithInferredMatchingTypes_CompilesSuccessfully()
   {
     // Arrange: Code that relies on type inference (no explicit generic params)
     // Type mismatch should still be caught

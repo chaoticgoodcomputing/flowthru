@@ -21,7 +21,7 @@ public static class ReportingPipeline
     return PipelineBuilder.CreatePipeline(pipeline =>
     {
       // Compare passenger capacity using plotly.express
-      pipeline.AddPythonNode<IEnumerable<PreprocessedShuttleSchema>, string>(
+      pipeline.AddPythonNode(
         label: "ComparePassengerCapacityExpress",
         description: "Generate passenger capacity bar chart using plotly.express",
         module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
@@ -32,7 +32,7 @@ public static class ReportingPipeline
       );
 
       // Compare passenger capacity using plotly.graph_objects
-      pipeline.AddPythonNode<IEnumerable<PreprocessedShuttleSchema>, string>(
+      pipeline.AddPythonNode(
         label: "ComparePassengerCapacityGraphObj",
         description: "Generate passenger capacity bar chart using plotly.graph_objects",
         module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
@@ -43,7 +43,7 @@ public static class ReportingPipeline
       );
 
       // Create confusion matrix from model predictions
-      pipeline.AddPythonNode<IEnumerable<ModelPredictions>, byte[]>(
+      pipeline.AddPythonNode(
         label: "CreateConfusionMatrix",
         description: "Generate confusion matrix heatmap from model predictions (binned into categories)",
         module: "Pipelines.Reporting.Nodes.create_confusion_matrix",
