@@ -75,6 +75,8 @@ public static class ExampleDiscovery
   /// <summary>
   /// Enumerates example project directories that contain a matching <c>.csproj</c> file.
   /// Searches <c>examples/starter/</c> and <c>examples/advanced/</c>.
+  /// <c>examples/archived/</c> is intentionally excluded — archived projects are not built
+  /// or tested.
   /// </summary>
   private static IEnumerable<(
     string Name,

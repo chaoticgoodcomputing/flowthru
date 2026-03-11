@@ -201,7 +201,15 @@ def main() -> None:
     except ImportError:
         pass  # tabular nodes will raise at invocation time with a clear message
 
-    sys.stdout.write(json.dumps({"status": "ready"}) + "\n")
+    sys.stdout.write(
+        json.dumps({
+            "status": "ready",
+            "python_executable": sys.executable,
+            "python_prefix": sys.prefix,
+            "sys_path": sys.path,
+        })
+        + "\n"
+    )
     sys.stdout.flush()
 
     # Message loop

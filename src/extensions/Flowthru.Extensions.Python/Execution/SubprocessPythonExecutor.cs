@@ -187,7 +187,22 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
         $"Python worker did not become ready. Response: {readyLine}"
       );
 
-    _logger.LogDebug("Python worker ready (pid={Pid}).", _worker.Id);
+    var pyExePath = readyMsg?["python_executable"]?.GetValue<string>() ?? "(unknown)";
+    var pyPrefix = readyMsg?["python_prefix"]?.GetValue<string>() ?? "(unknown)";
+    var sysPathEntries =
+      readyMsg
+        ?["sys_path"]?.AsArray()
+        .Select(n => n?.GetValue<string>())
+        .Where(s => s != null)
+        .ToList() ?? [];
+
+    _logger.LogInformation(
+      "Python worker ready (pid={Pid}). executable={Exe} prefix={Prefix}",
+      _worker.Id,
+      pyExePath,
+      pyPrefix
+    );
+    _logger.LogDebug("Python worker sys.path: {SysPath}", string.Join(", ", sysPathEntries));
   }
 
   private JsonObject SendRequest(JsonObject request)

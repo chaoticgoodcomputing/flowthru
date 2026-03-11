@@ -64,13 +64,14 @@ public static class ReportingPipeline
         output: catalog.ShuttlePassengerCapacityPlot
       );
 
-      // Step 3: Export chart to base64-encoded PNG for static reports
-      pipeline.AddNode(
-        label: "ExportPassengerCapacityPng",
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.ShuttlePassengerCapacityChart,
-        output: catalog.ShuttlePassengerCapacityPlotPng
-      );
+      // Removed to cut down Chromium dependency for test runs.
+      // // Step 3: Export chart to base64-encoded PNG for static reports
+      // pipeline.AddNode(
+      //   label: "ExportPassengerCapacityPng",
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.ShuttlePassengerCapacityChart,
+      //   output: catalog.ShuttlePassengerCapacityPlotPng
+      // );
 
       // ===== Confusion Matrix Visualization =====
 
@@ -90,13 +91,14 @@ public static class ReportingPipeline
         output: catalog.ConfusionMatrixPlot
       );
 
-      // Step 3: Export chart to base64-encoded PNG for static reports
-      pipeline.AddNode(
-        label: "ExportConfusionMatrixPng",
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.ConfusionMatrixChart,
-        output: catalog.ConfusionMatrixPlotPng
-      );
+      // Removed to cut down Chromium dependency for test runs.
+      // // Step 3: Export chart to base64-encoded PNG for static reports
+      // pipeline.AddNode(
+      //   label: "ExportConfusionMatrixPng",
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.ConfusionMatrixChart,
+      //   output: catalog.ConfusionMatrixPlotPng
+      // );
 
       // ===== Cross-Validation Results Visualization =====
 
@@ -116,13 +118,14 @@ public static class ReportingPipeline
         output: catalog.CrossValidationPlot
       );
 
+      // Removed to cut down Chromium dependency for test runs.
       // Step 3: Export chart to base64-encoded PNG for static reports
-      pipeline.AddNode(
-        label: "ExportCrossValidationPng",
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.CrossValidationChart,
-        output: catalog.CrossValidationPlotPng
-      );
+      // pipeline.AddNode(
+      //   label: "ExportCrossValidationPng",
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.CrossValidationChart,
+      //   output: catalog.CrossValidationPlotPng
+      // );
 
       // Node 6: Generate human-readable Markdown report from cross-validation results
       pipeline.AddNode(
@@ -150,13 +153,14 @@ public static class ReportingPipeline
         output: catalog.PredictionScatterPlot
       );
 
-      // Step 3: Export chart to PNG for static reports
-      pipeline.AddNode(
-        label: "ExportPredictionScatterPng",
-        transform: PlotlyImageExportNode.Create(),
-        input: catalog.PredictionScatterChart,
-        output: catalog.PredictionScatterPlotPng
-      );
+      // Removed to cut down Chromium dependency for test runs.
+      // // Step 3: Export chart to PNG for static reports
+      // pipeline.AddNode(
+      //   label: "ExportPredictionScatterPng",
+      //   transform: PlotlyImageExportNode.Create(),
+      //   input: catalog.PredictionScatterChart,
+      //   output: catalog.PredictionScatterPlotPng
+      // );
     });
   }
 }

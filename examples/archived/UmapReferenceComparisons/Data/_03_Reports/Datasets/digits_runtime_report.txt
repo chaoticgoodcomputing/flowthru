@@ -4,10 +4,10 @@ Samples: 1797
 Phase Timings:
   GraphConstruction             46 ms
   GraphRefinement                4 ms
-  LayoutInit                 13587 ms
+  LayoutInit                 13573 ms
   LayoutOptimization          1625 ms
   LocalMetric                    5 ms
-  NeighborSearch              1606 ms
-  SamplingSchedule               0 ms
+  NeighborSearch              1563 ms
+  SamplingSchedule               1 ms
 
-Total Time: 16889 ms (16.89 seconds)
+Total Time: 16824 ms (16.82 seconds)
