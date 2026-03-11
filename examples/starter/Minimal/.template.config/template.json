@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Chaotic Good Computing",
+  "classifications": [
+    "Data Engineering",
+    "Data Science",
+    "Pipeline",
+    "Kedro"
+  ],
+  "identity": "Flowthru.Starter.Minimal",
+  "name": "Flowthru Starter: Minimal",
+  "shortName": "Flowthru.Minimal",
+  "description": "Minimal greeting pipeline (great for learning)",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "Minimal",
+  "preferNameDirectory": true,
+  "symbols": {
+    "FlowthruVersion": {
+      "type": "parameter",
+      "dataType": "string",
+      "defaultValue": "0.1.23",
+      "replaces": "FlowthruVersion",
+      "description": "Flowthru package version (auto-injected at pack time)"
+    }
+  },
+  "postActions": [
+    {
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Chaotic Good Computing",
+  "classifications": [
+    "Data Engineering",
+    "Data Science",
+    "Pipeline",
+    "Kedro",
+    "Python"
+  ],
+  "identity": "Flowthru.Starter.KedroSpaceflightsPython",
+  "name": "Flowthru Starter: Spaceflights (Python)",
+  "shortName": "Flowthru.SpaceflightsPython",
+  "description": "Spaceflights pipeline with Python nodes (requires Python 3.10+)",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "KedroSpaceflightsPython",
+  "preferNameDirectory": true,
+  "symbols": {
+    "FlowthruVersion": {
+      "type": "parameter",
+      "dataType": "string",
+      "defaultValue": "0.1.23",
+      "replaces": "FlowthruVersion",
+      "description": "Flowthru package version (auto-injected at pack time)"
+    }
+  },
+  "postActions": [
+    {
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ],
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            ".venv/**/*",
+            "**/__pycache__/**"
+          ]
+        }
+      ]
+    }
+  ]
+}

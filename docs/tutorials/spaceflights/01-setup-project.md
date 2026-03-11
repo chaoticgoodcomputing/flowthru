@@ -13,14 +13,14 @@ The Flowthru template provides the scaffolding for new pipeline projects. Instal
 dotnet new install Flowthru
 ```
 
-This makes the `flowthru` template available for all future projects. If you've already installed it, running this command again will update to the latest version.
+This makes the `Flowthru` templates available for all future projects. If you've already installed it, running this command again will update to the latest version.
 
 ## Create the Project
 
 Navigate to the folder where you want to store your project, then generate the Spaceflights project from the template:
 
 ```bash
-dotnet new flowthru --name Spaceflights --starter minimal
+dotnet new Flowthru.Minimal --name Spaceflights
 ```
 
 This creates a new directory `Spaceflights/` with the following structure:

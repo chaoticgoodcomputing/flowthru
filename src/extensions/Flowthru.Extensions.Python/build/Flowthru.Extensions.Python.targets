@@ -59,6 +59,30 @@
           Pack="true"
           PackagePath="build"
           Visible="false" />
+
+    <!-- Subprocess worker script (shipped with extension) -->
+    <None Include="$(MSBuildThisFileDirectory)flowthru_worker.py"
+          CopyToOutputDirectory="PreserveNewest"
+          PackageCopyToOutput="true"
+          Pack="true"
+          PackagePath="build"
+          Visible="false" />
+
+    <!-- flowthru Python package (__init__.py, node.py) -->
+    <None Include="$(MSBuildThisFileDirectory)flowthru\__init__.py"
+          CopyToOutputDirectory="PreserveNewest"
+          PackageCopyToOutput="true"
+          Pack="true"
+          PackagePath="build\flowthru"
+          Visible="false"
+          Link="flowthru\__init__.py" />
+    <None Include="$(MSBuildThisFileDirectory)flowthru\node.py"
+          CopyToOutputDirectory="PreserveNewest"
+          PackageCopyToOutput="true"
+          Pack="true"
+          PackagePath="build\flowthru"
+          Visible="false"
+          Link="flowthru\node.py" />
   </ItemGroup>
 
   <!--

@@ -20,6 +20,56 @@ public sealed class TemplateTestRunner
   }
 
   /// <summary>
+  /// Finds the workspace root by walking up until nx.json is found.
+  /// </summary>
+  private static string GetWorkspaceRoot()
+  {
+    var dir = Directory.GetCurrentDirectory();
+    while (dir != null)
+    {
+      if (File.Exists(Path.Combine(dir, "nx.json")))
+      {
+        return dir;
+      }
+
+      dir = Directory.GetParent(dir)?.FullName;
+    }
+
+    throw new InvalidOperationException("Could not find workspace root (nx.json not found)");
+  }
+
+  /// <summary>
+  /// Writes a NuGet.Config into the generated project directory that pins
+  /// Flowthru* packages to the local dist/packages feed, with nuget.org as
+  /// fallback for everything else.
+  /// </summary>
+  private static void WriteLocalNuGetConfig(string projectDir)
+  {
+    var workspaceRoot = GetWorkspaceRoot();
+    var localFeedPath = Path.Combine(workspaceRoot, "dist", "packages");
+
+    var nugetConfig = $"""
+      <?xml version="1.0" encoding="utf-8"?>
+      <configuration>
+        <packageSources>
+          <add key="local" value="{localFeedPath}" />
+          <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+        </packageSources>
+        <packageSourceMapping>
+          <packageSource key="local">
+            <package pattern="Flowthru*" />
+          </packageSource>
+          <packageSource key="nuget.org">
+            <package pattern="*" />
+          </packageSource>
+        </packageSourceMapping>
+      </configuration>
+      """;
+
+    File.WriteAllText(Path.Combine(projectDir, "NuGet.Config"), nugetConfig);
+  }
+
+  /// <summary>
   /// Generates the project from template, restores dependencies, and executes the pipeline.
   /// </summary>
   /// <returns>The result of the test run.</returns>
@@ -55,7 +105,7 @@ public sealed class TemplateTestRunner
       // Step 1: Generate project from template
       var generateResult = await RunProcessAsync(
         "dotnet",
-        $"new Flowthru --starter {_project.StarterName} --name {_project.ProjectName}",
+        $"new {_project.StarterName} --name {_project.ProjectName}",
         workingDirectory: parentDir
       );
 
@@ -75,6 +125,9 @@ public sealed class TemplateTestRunner
           diagnosticMessage
         );
       }
+
+      // Inject NuGet.Config so Flowthru* resolves from local dist/packages feed
+      WriteLocalNuGetConfig(_project.GeneratedPath);
 
       // Step 2: Restore dependencies
       var restoreResult = await RunProcessAsync(

@@ -135,7 +135,7 @@
     "publish": {
       "//": "Prepares and packages all Flowthru NuGet packages for publication",
       "executor": "nx:run-commands",
-      "dependsOn": [ "build:release" ],
+      "dependsOn": [ "build:release", "_inject_agents_md" ],
       "options": {
         "commands": [
           "echo 'Cleaning previous packages...'",
@@ -161,6 +161,21 @@
       "options": {
         "commands": [
           "commit-and-tag-version --skip.commit --skip.tag"
+        ],
+        "parallel": false
+      }
+    },
+    "_inject_agents_md": {
+      "//": "Copies the canonical AGENTS.md into each starter template before packing",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIris/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIrisPython/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflights/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsPython/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/Minimal/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/SpaceflightsEFCore/AGENTS.md"
         ],
         "parallel": false
       }

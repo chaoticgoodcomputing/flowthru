@@ -4,65 +4,68 @@ using System.Text.Json.Serialization;
 namespace Flowthru.Tests.Templates.Infrastructure;
 
 /// <summary>
-/// Discovers available Flowthru templates from the template.json configuration.
+/// Discovers available Flowthru templates by scanning per-starter .template.config/template.json files.
+/// Adding a new starter under examples/starter/ with its own .template.config/template.json
+/// automatically registers it here — no central registry required.
 /// </summary>
 public static class TemplateDiscovery
 {
   private static readonly string _workspaceRoot = GetWorkspaceRoot();
-  private static readonly string _templateConfigPath = Path.Combine(
-    _workspaceRoot,
-    "examples",
-    "starter",
-    ".template.config",
-    "template.json"
-  );
+  private static readonly string _starterRoot = Path.Combine(_workspaceRoot, "examples", "starter");
 
   /// <summary>
-  /// Discovers all available starter templates.
+  /// Discovers all available starter templates by scanning per-starter template.json files.
   /// </summary>
   public static IEnumerable<TemplateProject> DiscoverTemplates()
   {
-    if (!File.Exists(_templateConfigPath))
+    if (!Directory.Exists(_starterRoot))
     {
-      throw new FileNotFoundException($"Template config not found: {_templateConfigPath}");
+      throw new DirectoryNotFoundException($"Starter directory not found: {_starterRoot}");
     }
 
-    var configJson = File.ReadAllText(_templateConfigPath);
-    var config = JsonSerializer.Deserialize<TemplateConfig>(configJson);
-
-    if (config?.Symbols?.Starter?.Choices == null)
-    {
-      throw new InvalidOperationException("No starter choices found in template.json");
-    }
+    var templateConfigs = Directory
+      .GetFiles(_starterRoot, "template.json", SearchOption.AllDirectories)
+      .Where(p => p.Contains(Path.Combine(".template.config", "template.json")));
 
     var testOutputPath = Path.Combine(Path.GetTempPath(), "flowthru-template-tests");
+    var found = false;
 
-    foreach (var choice in config.Symbols.Starter.Choices)
+    foreach (var configPath in templateConfigs)
     {
-      var projectName = $"Test{ToPascalCase(choice.Choice)}{Guid.NewGuid():N}"[..20];
+      found = true;
+      var configJson = File.ReadAllText(configPath);
+      var config = JsonSerializer.Deserialize<TemplateConfig>(configJson);
+
+      var shortName = config?.ShortName;
+      if (string.IsNullOrWhiteSpace(shortName))
+      {
+        throw new InvalidOperationException(
+          $"template.json at '{configPath}' is missing a 'shortName'."
+        );
+      }
+
+      // Derive a short unique project name from the shortName (e.g. "Flowthru.Iris" → "IrisXXXX")
+      var slug = shortName.Contains('.')
+        ? shortName[(shortName.LastIndexOf('.') + 1)..]
+        : shortName;
+      var projectName = $"{slug}{Guid.NewGuid():N}"[..20];
 
       yield return new TemplateProject
       {
-        StarterName = choice.Choice,
+        StarterName = shortName,
         ProjectName = projectName,
         GeneratedPath = Path.Combine(testOutputPath, projectName),
-        PipelineName = null, // Run entire project without specifying pipeline
+        PipelineName = null,
       };
     }
-  }
 
-  /// <summary>
-  /// Converts a string to PascalCase for project naming.
-  /// </summary>
-  private static string ToPascalCase(string input)
-  {
-    if (string.IsNullOrEmpty(input))
+    if (!found)
     {
-      return input;
+      throw new InvalidOperationException(
+        $"No template.json files found under '{_starterRoot}'. "
+          + "Each starter must have a .template.config/template.json."
+      );
     }
-
-    var words = input.Split('-', '_', ' ');
-    return string.Concat(words.Select(w => char.ToUpper(w[0]) + w.Substring(1).ToLower()));
   }
 
   /// <summary>
@@ -88,29 +91,8 @@ public static class TemplateDiscovery
 
   private class TemplateConfig
   {
-    [JsonPropertyName("symbols")]
-    public SymbolsConfig? Symbols { get; set; }
-  }
-
-  private class SymbolsConfig
-  {
-    [JsonPropertyName("starter")]
-    public StarterSymbol? Starter { get; set; }
-  }
-
-  private class StarterSymbol
-  {
-    [JsonPropertyName("choices")]
-    public List<StarterChoice>? Choices { get; set; }
-  }
-
-  private class StarterChoice
-  {
-    [JsonPropertyName("choice")]
-    public string Choice { get; set; } = string.Empty;
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("shortName")]
+    public string? ShortName { get; set; }
   }
 
   #endregion

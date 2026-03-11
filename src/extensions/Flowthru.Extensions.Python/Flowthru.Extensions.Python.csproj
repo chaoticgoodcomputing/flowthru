@@ -68,4 +68,20 @@
              PackagePath="build\flowthru\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Bundle Flowthru.dll in the package build/ folder so MSBuild can resolve
+         it as a peer assembly when loading PythonSchemaExportTask at build time.
+         Without this, the task DLL fails to load in NuGet consumption scenarios
+         because the task assembly loader only probes the directory of the task DLL.
+         $(OutDir) already includes the TFM segment (e.g. net10.0/), so no double-nesting. -->
+    <None Include="$(OutDir)Flowthru.dll"
+          Pack="true"
+          PackagePath="build\"
+          Visible="false" />
+    <None Include="$(OutDir)Flowthru.dll"
+          Pack="true"
+          PackagePath="lib\net10.0\"
+          Visible="false" />
+  </ItemGroup>
+
 </Project>

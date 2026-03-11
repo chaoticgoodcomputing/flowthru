@@ -20,4 +20,41 @@
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
+  <!--
+    Ensures dist/packages/ always contains freshly-packed Flowthru NuGet packages
+    at the current repository version before the test project builds.
+
+    This makes `dotnet test` at the repo root self-contained: no manual `nx run
+    flowthru:publish` step is required.
+
+    Set SkipTemplatePack=true to bypass when iterating quickly and packages are
+    already known-good:
+      dotnet test /p:SkipTemplatePack=true
+  -->
+  <Target Name="PackFlowthruForTemplateTests"
+          BeforeTargets="Build"
+          Condition="'$(SkipTemplatePack)' != 'true'">
+
+    <!-- Stamp the current Directory.Build.props version into every template.json -->
+    <Exec Command="bash &quot;$(RepoRoot)scripts/inject-template-version.sh&quot;"
+          WorkingDirectory="$(RepoRoot)"
+          ConsoleToMSBuild="true" />
+
+    <!-- Pack all publishable src/ projects into dist/packages/ -->
+    <ItemGroup>
+      <_PackableProject Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
+      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
+      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.MLNet\Flowthru.Extensions.MLNet.csproj" />
+      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Python\Flowthru.Extensions.Python.csproj" />
+      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj" />
+      <_PackableProject Include="$(RepoRoot)src\misc\Flowthru.Misc.ML\Flowthru.Misc.ML.csproj" />
+    </ItemGroup>
+
+    <MSBuild Projects="@(_PackableProject)"
+             Targets="Pack"
+             Properties="Configuration=Release;PackageOutputPath=$(RepoRoot)dist\packages"
+             BuildInParallel="false" />
+
+  </Target>
+
 </Project>

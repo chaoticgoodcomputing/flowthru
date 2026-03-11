@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Script to inject current Flowthru version into template.json before packing
+# Script to inject current Flowthru version into all per-starter template.json files before packing
 
 set -e
 
@@ -11,30 +11,34 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-echo "Injecting version $VERSION into template.json..."
+echo "Injecting version $VERSION into starter template.json files..."
 
-# Path to template.json
-TEMPLATE_JSON="examples/starter/.template.config/template.json"
+# Glob all per-starter template.json files
+TEMPLATE_FILES=$(find examples/starter -name "template.json" -path "*/.template.config/template.json")
 
-if [ ! -f "$TEMPLATE_JSON" ]; then
-  echo "Error: Template file not found at $TEMPLATE_JSON"
+if [ -z "$TEMPLATE_FILES" ]; then
+  echo "Error: No template.json files found under examples/starter/"
   exit 1
 fi
 
-# Create backup
-cp "$TEMPLATE_JSON" "$TEMPLATE_JSON.bak"
+for TEMPLATE_JSON in $TEMPLATE_FILES; do
+  echo "  Patching $TEMPLATE_JSON"
 
-# Use jq to update the FlowthruVersion defaultValue
-if command -v jq &> /dev/null; then
-  jq --arg version "$VERSION" '.symbols.FlowthruVersion.defaultValue = $version' "$TEMPLATE_JSON" > "$TEMPLATE_JSON.tmp"
-  mv "$TEMPLATE_JSON.tmp" "$TEMPLATE_JSON"
-else
-  # Fallback to sed if jq is not available
-  sed -i.tmp "s/\"defaultValue\": \"[^\"]*\"/\"defaultValue\": \"$VERSION\"/g" "$TEMPLATE_JSON"
-  rm -f "$TEMPLATE_JSON.tmp"
-fi
+  # Create backup
+  cp "$TEMPLATE_JSON" "$TEMPLATE_JSON.bak"
 
-# Clean up backup
-rm -f "$TEMPLATE_JSON.bak"
+  # Use jq to update the FlowthruVersion defaultValue
+  if command -v jq &> /dev/null; then
+    jq --arg version "$VERSION" '.symbols.FlowthruVersion.defaultValue = $version' "$TEMPLATE_JSON" > "$TEMPLATE_JSON.tmp"
+    mv "$TEMPLATE_JSON.tmp" "$TEMPLATE_JSON"
+  else
+    # Fallback to sed if jq is not available
+    sed -i.tmp "s/\"defaultValue\": \"[^\"]*\"/\"defaultValue\": \"$VERSION\"/g" "$TEMPLATE_JSON"
+    rm -f "$TEMPLATE_JSON.tmp"
+  fi
 
-echo "✓ Version $VERSION injected into template.json"
+  # Clean up backup
+  rm -f "$TEMPLATE_JSON.bak"
+done
+
+echo "✓ Version $VERSION injected into $(echo "$TEMPLATE_FILES" | wc -l | tr -d ' ') template.json files"

@@ -10,9 +10,14 @@
     <RootNamespace>KedroIrisPython</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
+  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
     <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
     <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.Extensions.Python" Version="FlowthruVersion" />
   </ItemGroup>
 
   <!-- 
