@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.26](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.25...v0.1.26) (2026-03-11)
+
+
+### Bug Fixes
+
+* resolve empty template creation issue ([#11](https://github.com/chaoticgoodcomputing/flowthru/issues/11)) ([78f3bf8](https://github.com/chaoticgoodcomputing/flowthru/commit/78f3bf808b951ee0491792228389aa764e7dfd5f))
+
 ## [0.1.25](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.24...v0.1.25) (2026-03-11)
 
 
