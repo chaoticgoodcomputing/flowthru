@@ -1,6 +1,6 @@
 using Flowthru.Data;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Feature data layer: Engineered features for ML.

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 
-namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
+namespace SpaceflightsEFCore.Pipelines.Reporting.Nodes;
 
 /// <summary>
 /// Exports a Plotly GenericChart to PNG binary data.

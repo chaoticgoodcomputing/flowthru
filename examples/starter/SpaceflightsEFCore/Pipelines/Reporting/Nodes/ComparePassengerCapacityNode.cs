@@ -1,7 +1,7 @@
-using KedroSpaceflights.Data._02_Intermediate.Schemas;
-using KedroSpaceflights.Data._08_Reporting.Schemas;
+using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
+using SpaceflightsEFCore.Data._08_Reporting.Schemas;
 
-namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
+namespace SpaceflightsEFCore.Pipelines.Reporting.Nodes;
 
 /// <summary>
 /// Aggregates shuttle passenger capacity data by shuttle type.

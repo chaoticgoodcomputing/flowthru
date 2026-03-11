@@ -1,8 +1,8 @@
 using Flowthru.Data;
 using Flowthru.Extensions.EFCore.Data;
-using KedroSpaceflights.Data._05_ModelInput.Schemas;
+using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Model input data layer: Joined feature tables ("master tables").

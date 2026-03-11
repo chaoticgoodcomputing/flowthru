@@ -2,7 +2,7 @@ using Flowthru.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Data catalog for the Spaceflights pipeline, providing access to datasets across all data layers.

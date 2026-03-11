@@ -75,16 +75,21 @@
   </Target>
 
   <!-- Include templates in package -->
+  <!-- NoDefaultExcludes allows dotfiles (.gitignore, .gitkeep, etc.) to be packed -->
+  <PropertyGroup>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+
   <ItemGroup>
     <!-- MSBuild targets file for auto-registering source generators -->
     <None Include="build\Flowthru.targets" Pack="true" PackagePath="build\" />
     
-    <Content Include="../../examples/starter/*/*/**/*"
-             Exclude="../../examples/starter/**/bin/**;../../examples/starter/**/obj/**;../../examples/starter/**/.vs/**;../../examples/starter/**/.vscode/**;../../examples/starter/**/*.user;../../examples/starter/**/.venv/**;../../examples/starter/**/__pycache__/**"
+    <Content Include="../../../examples/starter/**/*"
+             Exclude="../../../examples/starter/**/bin/**;../../../examples/starter/**/obj/**;../../../examples/starter/**/.vs/**;../../../examples/starter/**/.vscode/**;../../../examples/starter/**/*.user;../../../examples/starter/**/.venv/**;../../../examples/starter/**/__pycache__/**"
              Pack="true"
              PackagePath="content/" />
-    <Content Include="../../examples/item-templates/**/*" 
-             Exclude="../../examples/item-templates/**/bin/**;../../examples/item-templates/**/obj/**;../../examples/item-templates/**/.vs/**;../../examples/item-templates/**/.vscode/**;../../examples/item-templates/**/*.user"
+    <Content Include="../../../examples/item-templates/**/*" 
+             Exclude="../../../examples/item-templates/**/bin/**;../../../examples/item-templates/**/obj/**;../../../examples/item-templates/**/.vs/**;../../../examples/item-templates/**/.vscode/**;../../../examples/item-templates/**/*.user"
              Pack="true" 
              PackagePath="content/" />
   </ItemGroup>

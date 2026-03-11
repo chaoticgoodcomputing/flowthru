@@ -1,10 +1,10 @@
-using KedroSpaceflights.Data._02_Intermediate.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
+using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
 using CSharpChart = Plotly.NET.CSharp.Chart;
 
-namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
+namespace SpaceflightsEFCore.Pipelines.Reporting.Nodes;
 
 /// <summary>
 /// Generates a bar chart visualization comparing average passenger capacity by shuttle type.

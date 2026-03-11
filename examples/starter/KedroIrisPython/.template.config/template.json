@@ -27,6 +27,11 @@
       "description": "Flowthru package version (auto-injected at pack time)"
     }
   },
+  "primaryOutputs": [
+    {
+      "path": "KedroIrisPython.csproj"
+    }
+  ],
   "postActions": [
     {
       "description": "Restore NuGet packages",

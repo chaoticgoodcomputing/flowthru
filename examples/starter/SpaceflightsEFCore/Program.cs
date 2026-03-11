@@ -1,14 +1,14 @@
 using Flowthru.Cli;
 using Flowthru.Services;
-using KedroSpaceflights.Data;
-using KedroSpaceflights.Pipelines.DataProcessing;
-using KedroSpaceflights.Pipelines.DataScience;
-using KedroSpaceflights.Pipelines.Reporting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SpaceflightsEFCore.Data;
+using SpaceflightsEFCore.Pipelines.DataProcessing;
+using SpaceflightsEFCore.Pipelines.DataScience;
+using SpaceflightsEFCore.Pipelines.Reporting;
 
-namespace KedroSpaceflights;
+namespace SpaceflightsEFCore;
 
 /// <summary>
 /// Main application entry point for the Spaceflights price prediction pipeline.

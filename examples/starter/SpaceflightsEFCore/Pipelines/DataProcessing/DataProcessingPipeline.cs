@@ -1,8 +1,8 @@
 using Flowthru.Pipelines;
-using KedroSpaceflights.Data;
-using KedroSpaceflights.Pipelines.DataProcessing.Nodes;
+using SpaceflightsEFCore.Data;
+using SpaceflightsEFCore.Pipelines.DataProcessing.Nodes;
 
-namespace KedroSpaceflights.Pipelines.DataProcessing;
+namespace SpaceflightsEFCore.Pipelines.DataProcessing;
 
 /// <summary>
 /// Creates the data processing pipeline that preprocesses raw company and shuttle data

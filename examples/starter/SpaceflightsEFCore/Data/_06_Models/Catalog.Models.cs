@@ -1,8 +1,8 @@
 using Flowthru.Data;
 using Flowthru.Extensions.EFCore.Data;
-using KedroSpaceflights.Data._06_Models.Schemas;
+using SpaceflightsEFCore.Data._06_Models.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Models data layer: Serialized trained models.

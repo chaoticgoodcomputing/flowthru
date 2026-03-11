@@ -1,7 +1,7 @@
-using KedroSpaceflights.Data._03_Primary.Schemas;
-using KedroSpaceflights.Data._05_ModelInput.Schemas;
+using SpaceflightsEFCore.Data._03_Primary.Schemas;
+using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
 
-namespace KedroSpaceflights.Pipelines.DataScience.Nodes;
+namespace SpaceflightsEFCore.Pipelines.DataScience.Nodes;
 
 /// <summary>
 /// Splits model input data into training and test sets for model evaluation.

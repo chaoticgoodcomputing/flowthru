@@ -1,7 +1,7 @@
 using Flowthru.Pipelines;
-using KedroSpaceflights.Data;
+using SpaceflightsEFCore.Data;
 
-namespace KedroSpaceflights.Pipelines.DataScience;
+namespace SpaceflightsEFCore.Pipelines.DataScience;
 
 /// <summary>
 /// Creates the data science pipeline that trains and evaluates a price prediction model.

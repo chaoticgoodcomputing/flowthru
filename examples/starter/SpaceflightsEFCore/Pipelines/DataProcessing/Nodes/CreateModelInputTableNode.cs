@@ -1,8 +1,8 @@
-using KedroSpaceflights.Data._01_Raw.Schemas;
-using KedroSpaceflights.Data._02_Intermediate.Schemas;
-using KedroSpaceflights.Data._03_Primary.Schemas;
+using SpaceflightsEFCore.Data._01_Raw.Schemas;
+using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
+using SpaceflightsEFCore.Data._03_Primary.Schemas;
 
-namespace KedroSpaceflights.Pipelines.DataProcessing.Nodes;
+namespace SpaceflightsEFCore.Pipelines.DataProcessing.Nodes;
 
 /// <summary>
 /// Joins preprocessed shuttle and company data with review scores to create a unified model input table.

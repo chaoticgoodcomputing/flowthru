@@ -1,12 +1,12 @@
 using System.Text.Json;
-using KedroSpaceflights.Data._02_Intermediate.Schemas;
-using KedroSpaceflights.Data._03_Primary.Schemas;
-using KedroSpaceflights.Data._05_ModelInput.Schemas;
-using KedroSpaceflights.Data._06_Models.Schemas;
-using KedroSpaceflights.Data._07_ModelOutput.Schemas;
 using Microsoft.EntityFrameworkCore;
+using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
+using SpaceflightsEFCore.Data._03_Primary.Schemas;
+using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
+using SpaceflightsEFCore.Data._06_Models.Schemas;
+using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Entity Framework Core DbContext for the Spaceflights pipeline.

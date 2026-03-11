@@ -1,6 +1,6 @@
 using Flowthru.Abstractions;
 
-namespace KedroSpaceflights.Data._02_Intermediate.Schemas;
+namespace SpaceflightsEFCore.Data._02_Intermediate.Schemas;
 
 /// <summary>
 /// Represents preprocessed shuttle data with strongly-typed fields.

@@ -1,8 +1,8 @@
-using KedroSpaceflights.Data._05_ModelInput.Schemas;
-using KedroSpaceflights.Data._06_Models.Schemas;
 using MathNet.Numerics.LinearRegression;
+using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
+using SpaceflightsEFCore.Data._06_Models.Schemas;
 
-namespace KedroSpaceflights.Pipelines.DataScience.Nodes;
+namespace SpaceflightsEFCore.Pipelines.DataScience.Nodes;
 
 /// <summary>
 /// Trains a linear regression model to predict prices based on shuttle and company features.

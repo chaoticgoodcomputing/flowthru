@@ -1,7 +1,7 @@
-using KedroSpaceflights.Data._01_Raw.Schemas;
-using KedroSpaceflights.Data._02_Intermediate.Schemas;
+using SpaceflightsEFCore.Data._01_Raw.Schemas;
+using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
 
-namespace KedroSpaceflights.Pipelines.DataProcessing.Nodes;
+namespace SpaceflightsEFCore.Pipelines.DataProcessing.Nodes;
 
 /// <summary>
 /// Preprocesses raw company data by parsing rating percentages and IATA approval flags.

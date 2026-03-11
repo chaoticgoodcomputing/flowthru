@@ -1,8 +1,8 @@
 using Flowthru.Pipelines;
-using KedroSpaceflights.Data;
-using KedroSpaceflights.Pipelines.Reporting.Nodes;
+using SpaceflightsEFCore.Data;
+using SpaceflightsEFCore.Pipelines.Reporting.Nodes;
 
-namespace KedroSpaceflights.Pipelines.Reporting;
+namespace SpaceflightsEFCore.Pipelines.Reporting;
 
 /// <summary>
 /// Reporting pipeline that generates visualizations from processed data.

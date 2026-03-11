@@ -1,10 +1,10 @@
-using KedroSpaceflights.Data._07_ModelOutput.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
+using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
 using CSharpChart = Plotly.NET.CSharp.Chart;
 
-namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
+namespace SpaceflightsEFCore.Pipelines.Reporting.Nodes;
 
 /// <summary>
 /// Creates a confusion matrix heatmap from actual model predictions.

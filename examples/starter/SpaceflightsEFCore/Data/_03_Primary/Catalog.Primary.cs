@@ -1,8 +1,8 @@
 using Flowthru.Data;
 using Flowthru.Extensions.EFCore.Data;
-using KedroSpaceflights.Data._03_Primary.Schemas;
+using SpaceflightsEFCore.Data._03_Primary.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Primary data layer: Domain model data.

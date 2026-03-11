@@ -1,6 +1,6 @@
 using Flowthru.Abstractions;
 
-namespace KedroSpaceflights.Data._06_Models.Schemas;
+namespace SpaceflightsEFCore.Data._06_Models.Schemas;
 
 /// <summary>
 /// Represents a trained linear regression model with coefficients and feature mappings.

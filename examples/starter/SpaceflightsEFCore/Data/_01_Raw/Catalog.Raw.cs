@@ -1,7 +1,7 @@
 using Flowthru.Data;
-using KedroSpaceflights.Data._01_Raw.Schemas;
+using SpaceflightsEFCore.Data._01_Raw.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 public partial class Catalog
 {

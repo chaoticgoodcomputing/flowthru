@@ -1,8 +1,8 @@
 using Flowthru.Data;
 using Flowthru.Extensions.EFCore.Data;
-using KedroSpaceflights.Data._07_ModelOutput.Schemas;
+using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Model output data layer: Model predictions and scores.

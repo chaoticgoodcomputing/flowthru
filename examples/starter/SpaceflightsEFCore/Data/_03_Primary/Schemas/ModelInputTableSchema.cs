@@ -1,6 +1,6 @@
 using Flowthru.Abstractions;
 
-namespace KedroSpaceflights.Data._03_Primary.Schemas;
+namespace SpaceflightsEFCore.Data._03_Primary.Schemas;
 
 /// <summary>
 /// Represents a unified model input table combining shuttle, company, and review data.

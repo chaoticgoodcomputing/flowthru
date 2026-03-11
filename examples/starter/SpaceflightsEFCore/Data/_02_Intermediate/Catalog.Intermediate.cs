@@ -1,9 +1,9 @@
 using Flowthru.Data;
 using Flowthru.Data.Validation;
 using Flowthru.Extensions.EFCore.Data;
-using KedroSpaceflights.Data._02_Intermediate.Schemas;
+using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 public partial class Catalog
 {

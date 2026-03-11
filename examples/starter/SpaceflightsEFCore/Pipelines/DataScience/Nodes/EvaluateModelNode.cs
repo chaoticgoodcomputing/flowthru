@@ -1,8 +1,8 @@
-using KedroSpaceflights.Data._05_ModelInput.Schemas;
-using KedroSpaceflights.Data._06_Models.Schemas;
-using KedroSpaceflights.Data._07_ModelOutput.Schemas;
+using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
+using SpaceflightsEFCore.Data._06_Models.Schemas;
+using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
 
-namespace KedroSpaceflights.Pipelines.DataScience.Nodes;
+namespace SpaceflightsEFCore.Pipelines.DataScience.Nodes;
 
 /// <summary>
 /// Evaluates a trained linear regression model using test data and computes performance metrics.

@@ -1,8 +1,8 @@
 using Flowthru.Data;
-using KedroSpaceflights.Data._08_Reporting.Schemas;
 using Plotly.NET;
+using SpaceflightsEFCore.Data._08_Reporting.Schemas;
 
-namespace KedroSpaceflights.Data;
+namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Reporting data layer: Ad hoc descriptive cuts and visualizations.

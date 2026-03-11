@@ -26,6 +26,11 @@
       "description": "Flowthru package version (auto-injected at pack time)"
     }
   },
+  "primaryOutputs": [
+    {
+      "path": "Minimal.csproj"
+    }
+  ],
   "postActions": [
     {
       "description": "Restore NuGet packages",

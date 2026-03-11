@@ -1,6 +1,6 @@
 using Flowthru.Abstractions;
 
-namespace KedroSpaceflights.Data._01_Raw.Schemas;
+namespace SpaceflightsEFCore.Data._01_Raw.Schemas;
 
 /// <summary>
 /// Represents raw shuttle data as imported from structured files.
