@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.25](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.24...v0.1.25) (2026-03-11)
+
+
+### Features
+
+* stronger onboarding processes ([#8](https://github.com/chaoticgoodcomputing/flowthru/issues/8)) ([8939c37](https://github.com/chaoticgoodcomputing/flowthru/commit/8939c37d81f411f567985a3ea06f7f00de858b8f))
+
+
+### Bug Fixes
+
+* resolve python venv resolution hiccup and add appropriate python worker logs ([#9](https://github.com/chaoticgoodcomputing/flowthru/issues/9)) ([32b1685](https://github.com/chaoticgoodcomputing/flowthru/commit/32b16858bc4137ead2948cebabd245ca0e64bd18))
+
 ## [0.1.24](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.23...v0.1.24) (2026-03-09)
 
 
