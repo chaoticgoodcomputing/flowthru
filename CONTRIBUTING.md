@@ -104,9 +104,9 @@ This doesn't mean *ignoring* these concerns — it just means extending the API
 The project uses NX for task orchestration. Common commands:
 
 ```bash
-nx run ft:build                   # Build the solution
-nx run ft:test                    # Run all tests with coverage
-nx run ft:format:csharp           # Format code with CSharpier
+nx run flowthru:build                   # Build the solution
+nx run flowthru:test                    # Run all tests with coverage
+nx run flowthru:format:csharp           # Format code with CSharpier
 ```
 
 To run a subset of tests by category:
@@ -121,8 +121,8 @@ From an example project directory:
 
 ```bash
 cd examples/starter/KedroIris
-dotnet run -- DataEngineering     # Run a specific pipeline
 dotnet run                        # Run all registered pipelines
+dotnet run --pipelines DataEngineering     # Run a specific pipeline
 ```
 
 ### Code Style

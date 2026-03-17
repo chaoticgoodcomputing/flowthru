@@ -44,7 +44,7 @@ public static partial class CatalogEntries
     /// format/container composition for direct object serialization.
     /// </para>
     /// </remarks>
-    public static ICatalogEntry<T> Json<T>(string label, string filePath)
+    public static CatalogEntry<T> Json<T>(string label, string filePath)
       where T : IStructuredSerializable
     {
       var storage = new SingletonJsonStorageAdapter<T>(filePath);
@@ -71,7 +71,7 @@ public static partial class CatalogEntries
     /// <item>Any singleton data that doesn't need persistence</item>
     /// </list>
     /// </remarks>
-    public static ICatalogEntry<T> Memory<T>(string label)
+    public static CatalogEntry<T> Memory<T>(string label)
     {
       var storage = new MemoryStorageAdapter<T>();
       return new CatalogEntry<T>(label, storage);
@@ -94,7 +94,7 @@ public static partial class CatalogEntries
     /// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
     /// </para>
     /// </remarks>
-    public static ICatalogEntry<string> Text(string label, string filePath)
+    public static CatalogEntry<string> Text(string label, string filePath)
     {
       var storage = new TextFileStorageAdapter(filePath);
       return new CatalogEntry<string>(label, storage);
@@ -117,7 +117,7 @@ public static partial class CatalogEntries
     /// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
     /// </para>
     /// </remarks>
-    public static ICatalogEntry<byte[]> Binary(string label, string filePath)
+    public static CatalogEntry<byte[]> Binary(string label, string filePath)
     {
       var storage = new BinaryFileStorageAdapter(filePath);
       return new CatalogEntry<byte[]>(label, storage);
@@ -144,7 +144,7 @@ public static partial class CatalogEntries
     /// <item>CanRead: false (Load throws NotSupportedException)</item>
     /// </list>
     /// </remarks>
-    public static ICatalogEntry<T> Null<T>(string label)
+    public static CatalogEntry<T> Null<T>(string label)
     {
       var storage = new NullStorageAdapter<T>();
       return new CatalogEntry<T>(label, storage);

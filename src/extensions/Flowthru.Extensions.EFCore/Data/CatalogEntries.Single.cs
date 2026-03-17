@@ -48,7 +48,7 @@ public static partial class EFCoreCatalogEntries
     ///   .Build();
     /// </code>
     /// </example>
-    public static ICatalogEntry<T> EFCore<T>(string label, DbContext context)
+    public static CatalogEntry<T> EFCore<T>(string label, DbContext context)
       where T : class
     {
       var adapter = new EFCoreSingleStorageAdapter<T>(context, ownsContext: false);
@@ -88,7 +88,7 @@ public static partial class EFCoreCatalogEntries
     ///   );
     /// </code>
     /// </example>
-    public static ICatalogEntry<T> EFCore<T>(string label, Func<DbContext> contextFactory)
+    public static CatalogEntry<T> EFCore<T>(string label, Func<DbContext> contextFactory)
       where T : class
     {
       var adapter = new EFCoreSingleStorageAdapter<T>(contextFactory);

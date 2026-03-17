@@ -88,7 +88,7 @@ public static partial class CatalogEntries
   /// <item>CanRead: false (Load throws NotSupportedException)</item>
   /// </list>
   /// </remarks>
-  public static ICatalogEntry<T> Null<T>(string label)
+  public static CatalogEntry<T> Null<T>(string label)
   {
     var storage = new NullStorageAdapter<T>();
     return new CatalogEntry<T>(label, storage);

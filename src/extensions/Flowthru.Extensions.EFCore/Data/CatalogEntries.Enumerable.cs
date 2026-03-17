@@ -53,7 +53,7 @@ public static partial class EFCoreCatalogEntries
     ///   .Build();
     /// </code>
     /// </example>
-    public static ICatalogEntry<IEnumerable<T>> EFCore<T>(
+    public static CatalogEntry<IEnumerable<T>> EFCore<T>(
       string label,
       DbContext context,
       bool allowEmptyData = false
@@ -101,7 +101,7 @@ public static partial class EFCoreCatalogEntries
     /// }
     /// </code>
     /// </example>
-    public static ICatalogEntry<IEnumerable<T>> EFCore<T>(
+    public static CatalogEntry<IEnumerable<T>> EFCore<T>(
       string label,
       Func<DbContext> contextFactory,
       bool allowEmptyData = false

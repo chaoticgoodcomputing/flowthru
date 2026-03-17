@@ -67,7 +67,7 @@ public static partial class CatalogEntries
     /// <item>All other traits use filesystem baseline defaults</item>
     /// </list>
     /// </remarks>
-    public static ICatalogEntry<IEnumerable<TRow>> Csv<TRow>(string label, string filePath)
+    public static CatalogEntry<IEnumerable<TRow>> Csv<TRow>(string label, string filePath)
       where TRow : notnull, IFlatSchema, ITextSerializable
     {
       var medium = new FileStorageMedium(filePath);
@@ -105,7 +105,7 @@ public static partial class CatalogEntries
     /// <strong>Serialization:</strong> JSON array format for collections
     /// </para>
     /// </remarks>
-    public static ICatalogEntry<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
+    public static CatalogEntry<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
       where TRow : notnull, IStructuredSerializable
     {
       var medium = new FileStorageMedium(filePath);
@@ -143,7 +143,7 @@ public static partial class CatalogEntries
     /// <strong>Performance:</strong> Optimized for large datasets with columnar storage
     /// </para>
     /// </remarks>
-    public static ICatalogEntry<IEnumerable<TRow>> Parquet<TRow>(string label, string filePath)
+    public static CatalogEntry<IEnumerable<TRow>> Parquet<TRow>(string label, string filePath)
       where TRow : notnull, IFlatSchema, IBinarySerializable
     {
       var medium = new FileStorageMedium(filePath);
@@ -189,7 +189,7 @@ public static partial class CatalogEntries
     /// <item>CanWrite: false (Excel adapter is read-only via ExcelDataReader)</item>
     /// </list>
     /// </remarks>
-    public static ICatalogEntry<IEnumerable<TRow>> Excel<TRow>(
+    public static CatalogEntry<IEnumerable<TRow>> Excel<TRow>(
       string label,
       string filePath,
       string sheetName
@@ -221,7 +221,7 @@ public static partial class CatalogEntries
     /// <item>IsPersistent: false (data lost when process ends)</item>
     /// </list>
     /// </remarks>
-    public static ICatalogEntry<IEnumerable<TRow>> Memory<TRow>(string label)
+    public static CatalogEntry<IEnumerable<TRow>> Memory<TRow>(string label)
     {
       var storage = new MemoryStorageAdapter<IEnumerable<TRow>>();
       return new CatalogEntry<IEnumerable<TRow>>(label, storage);
