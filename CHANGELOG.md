@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.28](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.27...v0.1.28) (2026-03-18)
+
+
+### Features
+
+* additional dual efcore-python testing pipeline ([20286c8](https://github.com/chaoticgoodcomputing/flowthru/commit/20286c8b44fb359e1ca6ac9f1199da07ec58d1a7))
+
+
+### Bug Fixes
+
+* **SpaceflightsPythonEFCore:** track schema/catalog files excluded by .gitignore ([c72e4bc](https://github.com/chaoticgoodcomputing/flowthru/commit/c72e4bcc4a16ce991297b2b8ddbed0d3309bf921))
+
 ## [0.1.27](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.26...v0.1.27) (2026-03-18)
 
 
