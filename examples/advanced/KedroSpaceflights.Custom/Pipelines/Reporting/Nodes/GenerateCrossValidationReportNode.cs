@@ -32,8 +32,6 @@ public static class GenerateCrossValidationReportNode
       // Header
       report.AppendLine("# Cross-Validation Report");
       report.AppendLine();
-      report.AppendLine($"**Generated:** {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-      report.AppendLine();
 
       // Summary Statistics
       report.AppendLine("## Summary Statistics");
