@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.27](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.26...v0.1.27) (2026-03-18)
+
+
+### Features
+
+* completed efcore plugin refactor ([769952d](https://github.com/chaoticgoodcomputing/flowthru/commit/769952d8f7f448b7e7f007680e1821a91224e745))
+
+
+### Bug Fixes
+
+* factory return types on catalog entries ([e064ecb](https://github.com/chaoticgoodcomputing/flowthru/commit/e064ecb72b90bbb6fd95034dd4a46490c7664574))
+* remove timestamp from kedro custom to avoid false stats updates ([e8c4bbf](https://github.com/chaoticgoodcomputing/flowthru/commit/e8c4bbffedd910d97d9f3ff1b0c58a10df24fad2))
+* resolve nuget pack error during template testing. ([96caf69](https://github.com/chaoticgoodcomputing/flowthru/commit/96caf69c7a056b462373f19840086aa0046f3f3e))
+
 ## [0.1.26](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.25...v0.1.26) (2026-03-11)
 
 
