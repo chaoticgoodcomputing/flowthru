@@ -16,7 +16,10 @@ public partial class Catalog
   public ICatalogEntry<ModelMetrics> ModelMetrics =>
     GetOrCreateEntry(
       () =>
-        EFCoreCatalogEntries.Single.EFCore<ModelMetrics>(label: "ModelMetrics", context: _dbContext)
+        EFCoreCatalogEntries.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
+          label: "ModelMetrics",
+          contextFactory: _contextFactory
+        )
     );
 
   /// <summary>
@@ -25,9 +28,9 @@ public partial class Catalog
   public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions =>
     GetOrCreateEntry(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<ModelPredictions>(
+        EFCoreCatalogEntries.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
           label: "ModelPredictions",
-          context: _dbContext
+          contextFactory: _contextFactory
         )
     );
 }

@@ -17,9 +17,12 @@ public partial class Catalog
   public ICatalogEntry<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
     GetOrCreateEntry(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<ModelInputTableSchema>(
+        EFCoreCatalogEntries.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
           label: "ModelInputTable",
-          context: _dbContext
+          contextFactory: _contextFactory,
+          // Demonstrates query customization: order by shuttle ID for deterministic output.
+          // Remove or replace with an .Include() or .Where() as needed.
+          queryCustomizer: q => q.OrderBy(r => r.ShuttleId)
         )
     );
 }

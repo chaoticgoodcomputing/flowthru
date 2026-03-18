@@ -48,10 +48,22 @@ public static partial class EFCoreCatalogEntries
     ///   .Build();
     /// </code>
     /// </example>
-    public static CatalogEntry<T> EFCore<T>(string label, DbContext context)
+    public static CatalogEntry<T> EFCore<T>(
+      string label,
+      DbContext context,
+      bool allowEmptyData = false,
+      Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+      Func<DbContext, T, CancellationToken, Task>? saveFunc = null
+    )
       where T : class
     {
-      var adapter = new EFCoreSingleStorageAdapter<T>(context, ownsContext: false);
+      var adapter = new EFCoreSingleStorageAdapter<T>(
+        context,
+        ownsContext: false,
+        allowEmptyData,
+        queryCustomizer,
+        saveFunc
+      );
       return new CatalogEntry<T>(label, adapter);
     }
 
@@ -88,10 +100,91 @@ public static partial class EFCoreCatalogEntries
     ///   );
     /// </code>
     /// </example>
-    public static CatalogEntry<T> EFCore<T>(string label, Func<DbContext> contextFactory)
+    public static CatalogEntry<T> EFCore<T>(
+      string label,
+      Func<DbContext> contextFactory,
+      bool allowEmptyData = false,
+      Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+      Func<DbContext, T, CancellationToken, Task>? saveFunc = null
+    )
       where T : class
     {
-      var adapter = new EFCoreSingleStorageAdapter<T>(contextFactory);
+      var adapter = new EFCoreSingleStorageAdapter<T>(
+        contextFactory,
+        allowEmptyData,
+        queryCustomizer,
+        saveFunc
+      );
+      return new CatalogEntry<T>(label, adapter);
+    }
+
+    /// <summary>
+    /// Creates a single-entity EFCore catalog entry with a typed DbContext factory.
+    /// The concrete <typeparamref name="TContext"/> flows through to the save delegate,
+    /// eliminating any downcast inside the delegate body.
+    /// </summary>
+    /// <typeparam name="T">Entity type</typeparam>
+    /// <typeparam name="TContext">Concrete DbContext type</typeparam>
+    /// <param name="label">Unique catalog label for DAG resolution</param>
+    /// <param name="contextFactory">Typed factory; called per Load/Save operation</param>
+    /// <param name="allowEmptyData">If true, an empty table passes validation (default: false)</param>
+    /// <param name="queryCustomizer">Optional query transformation applied before SingleAsync</param>
+    /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
+    /// Defaults to clear-and-insert when null.</param>
+    /// <returns>Catalog entry for EFCore single entity storage</returns>
+    public static CatalogEntry<T> EFCore<T, TContext>(
+      string label,
+      Func<TContext> contextFactory,
+      bool allowEmptyData = false,
+      Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+      Func<TContext, T, CancellationToken, Task>? saveFunc = null
+    )
+      where T : class
+      where TContext : DbContext
+    {
+      Func<DbContext> baseFactory = () => contextFactory();
+      Func<DbContext, T, CancellationToken, Task>? baseSaveFunc =
+        saveFunc != null ? (db, data, ct) => saveFunc((TContext)db, data, ct) : null;
+      var adapter = new EFCoreSingleStorageAdapter<T>(
+        baseFactory,
+        allowEmptyData,
+        queryCustomizer,
+        baseSaveFunc
+      );
+      return new CatalogEntry<T>(label, adapter);
+    }
+
+    /// <summary>
+    /// Creates a single-entity EFCore catalog entry using <see cref="IDbContextFactory{TContext}"/>.
+    /// </summary>
+    /// <typeparam name="T">Entity type</typeparam>
+    /// <typeparam name="TContext">Concrete DbContext type</typeparam>
+    /// <param name="label">Unique catalog label for DAG resolution</param>
+    /// <param name="contextFactory">EFCore context factory; a fresh context is created per Load/Save operation</param>
+    /// <param name="allowEmptyData">If true, an empty table passes validation (default: false)</param>
+    /// <param name="queryCustomizer">Optional query transformation applied before SingleAsync</param>
+    /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
+    /// Defaults to clear-and-insert when null.</param>
+    /// <returns>Catalog entry for EFCore single entity storage</returns>
+    public static CatalogEntry<T> EFCore<T, TContext>(
+      string label,
+      IDbContextFactory<TContext> contextFactory,
+      bool allowEmptyData = false,
+      Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+      Func<TContext, T, CancellationToken, Task>? saveFunc = null
+    )
+      where T : class
+      where TContext : DbContext
+    {
+      Func<DbContext> baseFactory = () => contextFactory.CreateDbContext();
+      Func<DbContext, T, CancellationToken, Task>? baseSaveFunc =
+        saveFunc != null ? (db, data, ct) => saveFunc((TContext)db, data, ct) : null;
+      var adapter = new EFCoreSingleStorageAdapter<T>(
+        baseFactory,
+        allowEmptyData,
+        queryCustomizer,
+        baseSaveFunc
+      );
       return new CatalogEntry<T>(label, adapter);
     }
   }

@@ -12,105 +12,165 @@ dotnet add package Flowthru.Extensions.EFCore
 
 ```csharp
 using Flowthru.Data;
+using Flowthru.Extensions.EFCore.Data;
 using Microsoft.EntityFrameworkCore;
 
-// Define your entity (FlowthruSchema works as EF entity)
-[FlowthruSchema]
-public record Company(int Id, string Name, string Industry);
-
-// Configure DbContext
+// 1. Configure DbContext — declare a key for each entity in OnModelCreating.
+//    FlowthruSchema records work as EF entities without modification.
 public class AppDbContext : DbContext
 {
-    public DbSet<Company> Companies { get; set; }
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlServer("Server=localhost;Database=MyApp;...");
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Company>().HasKey(e => e.Id);
+    }
 }
 
-// Create catalog entry
-public static partial class DataCatalog
+// 2. Register IDbContextFactory in DI — this is the idiomatic pattern for
+//    concurrent pipeline execution. Do not use AddDbContext.
+services.AddDbContextFactory<AppDbContext>(opts =>
+    opts.UseSqlite("Data Source=pipeline.db"));
+
+// 3. Accept the factory in your catalog and create entries with the typed overload.
+public partial class Catalog : DataCatalogBase
 {
-    public static ICatalogEntry<IEnumerable<Company>> Companies(DbContext db) =>
-        CatalogEntries.Enumerable.EFCore<Company>("companies", db);
-}
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-// Use in pipeline
-var pipeline = new PipelineBuilder("MyPipeline")
-    .AddNode("load", catalog => new LoadNode(
-        outputs: catalog.Companies(db)
-    ))
-    .Build();
+    public Catalog(IDbContextFactory<AppDbContext> contextFactory)
+    {
+        _contextFactory = contextFactory;
+        using var ctx = contextFactory.CreateDbContext();
+        ctx.Database.EnsureCreated();
+        InitializeCatalogProperties();
+    }
+
+    public ICatalogEntry<IEnumerable<Company>> Companies =>
+        GetOrCreateEntry(() =>
+            EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+                label: "Companies",
+                contextFactory: _contextFactory
+            )
+        );
+}
 ```
 
 ## Features
 
 ### ✅ Works with FlowthruSchemas
 
-FlowthruSchemas work unchanged as EF entities. No additional attributes required:
+FlowthruSchemas work unchanged as EF entities. EF requires a primary key; declare it in `OnModelCreating` or via `HasKey()` — record types do not trigger EF's key convention automatically:
 
 ```csharp
 [FlowthruSchema]
-public record Product(
+public partial record Product(
     int Id,
     string Name,
-    decimal Price,
-    DateTime CreatedAt
+    decimal Price
 );
 
-// Automatically implements IFlatSchema, IStructuredSerializable
-// Works with both EFCore and file-based catalogs (CSV, JSON, etc.)
+// In OnModelCreating:
+modelBuilder.Entity<Product>().HasKey(e => e.Id);
 ```
 
-### ✅ Hybrid DbContext Management
+### ✅ Typed Context Overloads
 
-**Injected DbContext** (caller owns lifecycle):
+Use `EFCore<T, TContext>` to preserve the concrete context type all the way to save delegates. No casting inside callbacks:
 
 ```csharp
-// From DI container
-var entry = CatalogEntries.Enumerable.EFCore<Company>("companies", dbContext);
+// IDbContextFactory<TContext> overload — recommended for concurrent pipelines
+EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+    label: "Companies",
+    contextFactory: dbContextFactory   // IDbContextFactory<AppDbContext>
+)
 
-// Adapter does NOT dispose DbContext
-// Useful for shared DbContext across multiple catalog entries
+// Func<TContext> overload — useful when constructing contexts manually
+EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+    label: "Companies",
+    contextFactory: () => new AppDbContext(options)
+)
 ```
 
-**Factory-based DbContext** (adapter owns lifecycle):
+### ✅ Query Customization
+
+The `queryCustomizer` parameter shapes the query before execution. Use it for navigation property includes, filtering, or ordering:
 
 ```csharp
-// Fresh DbContext per operation
-var entry = CatalogEntries.Enumerable.EFCore<Company>(
-    "companies",
-    () => new AppDbContext(options)
-);
+EFCoreCatalogEntries.Enumerable.EFCore<Person, AppDbContext>(
+    label: "Persons",
+    contextFactory: _contextFactory,
+    queryCustomizer: q => q.Include(p => p.Address).AsNoTracking()
+)
 
-// Adapter creates and disposes DbContext after each Load/Save
-// Useful for scoped DbContext patterns
+EFCoreCatalogEntries.Enumerable.EFCore<Shuttle, AppDbContext>(
+    label: "Shuttles",
+    contextFactory: _contextFactory,
+    queryCustomizer: q => q.OrderBy(s => s.Id)
+)
 ```
 
-### ✅ Read-Only Mode
+### ✅ Pluggable Save Delegates
+
+Override the default `RemoveRange + AddRange` write strategy via `saveFunc`. The typed context is passed directly — no cast needed:
 
 ```csharp
-// Prevent writes to production database
-var readOnly = CatalogEntries.Enumerable.EFCore<Company>(
-    "companies",
-    dbContext,
-    readOnly: true
-);
-
-// Save operations will fail with InvalidOperationException
+EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+    label: "Companies",
+    contextFactory: _contextFactory,
+    saveFunc: async (ctx, data, ct) =>
+    {
+        // ctx is AppDbContext — no cast
+        await ctx.Database.ExecuteSqlRawAsync("TRUNCATE TABLE companies", ct);
+        await ctx.Set<Company>().AddRangeAsync(data, ct);
+        await ctx.SaveChangesAsync(ct);
+    }
+)
 ```
 
-### ✅ Seedable Support
-
-Database catalog entries can be seeds (Layer 0 inputs) if table exists:
+To reference the default save in a composition scenario:
 
 ```csharp
-// Pipeline automatically detects existing tables as seeds
-var pipeline = new PipelineBuilder("ETL")
-    .AddNode("extract", catalog => new ExtractNode(
-        inputs: catalog.SourceData(sourceDb),  // Seed from source database
-        outputs: catalog.RawData()
-    ))
-    .Build();
+saveFunc: async (ctx, data, ct) =>
+{
+    // wrap the default
+    await EFCoreStorageAdapter<Company>.DefaultSave(ctx, data, ct);
+}
+```
+
+### ✅ Single-Entity Storage
+
+For tables that store exactly one row (trained models, configuration records, aggregated metrics):
+
+```csharp
+EFCoreCatalogEntries.Single.EFCore<ModelMetrics, AppDbContext>(
+    label: "ModelMetrics",
+    contextFactory: _contextFactory
+)
+```
+
+The adapter validates "exactly one row" during pre-flight. Use `allowEmptyData: true` for tables that may be empty on first run.
+
+### ✅ Read-Only Entries
+
+Use `.Constrain()` to prevent writes. The pipeline fails at build time — not at runtime — if a node attempts to write to a constrained entry:
+
+```csharp
+EFCoreCatalogEntries.Enumerable.EFCore<SourceRecord, SourceDbContext>(
+    label: "SourceData",
+    contextFactory: _sourceFactory)
+.Constrain(traits => traits with { CanWrite = false })
+```
+
+### ✅ Optional Tables
+
+By default, an empty table fails pre-flight validation. Set `allowEmptyData: true` for tables that are legitimately empty on first run:
+
+```csharp
+EFCoreCatalogEntries.Enumerable.EFCore<AuditEvent, AppDbContext>(
+    label: "AuditEvents",
+    contextFactory: _contextFactory,
+    allowEmptyData: true
+)
 ```
 
 ## Architecture

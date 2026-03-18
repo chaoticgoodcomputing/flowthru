@@ -12,7 +12,7 @@ namespace SpaceflightsEFCore;
 
 /// <summary>
 /// Main application entry point for the Spaceflights price prediction pipeline.
-/// Demonstrates EFCore integration using in-memory database for intermediate pipeline state.
+/// Demonstrates EFCore integration using a SQLite database for intermediate pipeline state.
 /// </summary>
 public class Program
 {
@@ -42,16 +42,13 @@ public class Program
   /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
-    // Use a fixed database name so all catalog entries share the same in-memory database
-    var databaseName = "SpaceflightsDb";
+    var dbPath = Path.Combine(basePath, "Data", "spaceflights.db");
 
-    // Register EFCore DbContext with in-memory database
-    services.AddDbContext<SpaceflightsDbContext>(
-      (serviceProvider, options) =>
-      {
-        options.UseInMemoryDatabase(databaseName);
-      },
-      ServiceLifetime.Scoped
+    // Register EFCore DbContextFactory with SQLite.
+    // IDbContextFactory produces a fresh DbContext per Load/Save operation, which is the
+    // idiomatic pattern for concurrent pipeline execution.
+    services.AddDbContextFactory<SpaceflightsDbContext>(options =>
+      options.UseSqlite($"Data Source={dbPath}")
     );
 
     services.AddFlowthru(flowthru =>
@@ -59,7 +56,7 @@ public class Program
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
       flowthru.UseCatalog(sp => new Catalog(
         basePath: Path.Combine(basePath, "Data"),
-        dbContext: sp.GetRequiredService<SpaceflightsDbContext>()
+        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
       ));
 
       // Register data processing pipeline

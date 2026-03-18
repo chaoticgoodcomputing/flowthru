@@ -28,6 +28,9 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   private readonly DbContext? _context;
   private readonly Func<DbContext>? _contextFactory;
   private readonly bool _ownsContext;
+  private readonly bool _allowEmptyData;
+  private readonly Func<IQueryable<T>, IQueryable<T>>? _queryCustomizer;
+  private readonly Func<DbContext, T, CancellationToken, Task>? _saveFunc;
 
   /// <summary>
   /// Creates an adapter with an injected DbContext instance.
@@ -38,10 +41,19 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.
   /// </remarks>
-  public EFCoreSingleStorageAdapter(DbContext context, bool ownsContext)
+  public EFCoreSingleStorageAdapter(
+    DbContext context,
+    bool ownsContext,
+    bool allowEmptyData = false,
+    Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+    Func<DbContext, T, CancellationToken, Task>? saveFunc = null
+  )
   {
     _context = context ?? throw new ArgumentNullException(nameof(context));
     _ownsContext = ownsContext;
+    _allowEmptyData = allowEmptyData;
+    _queryCustomizer = queryCustomizer;
+    _saveFunc = saveFunc;
     Traits = new StorageTraits
     {
       RequiresNetwork = true,
@@ -61,10 +73,18 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.
   /// </remarks>
-  public EFCoreSingleStorageAdapter(Func<DbContext> contextFactory)
+  public EFCoreSingleStorageAdapter(
+    Func<DbContext> contextFactory,
+    bool allowEmptyData = false,
+    Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+    Func<DbContext, T, CancellationToken, Task>? saveFunc = null
+  )
   {
     _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
     _ownsContext = true;
+    _allowEmptyData = allowEmptyData;
+    _queryCustomizer = queryCustomizer;
+    _saveFunc = saveFunc;
     Traits = new StorageTraits
     {
       RequiresNetwork = true,
@@ -89,7 +109,8 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
         try
         {
           var dbSet = context.Set<T>();
-          var entity = await dbSet.SingleAsync(ct);
+          var query = _queryCustomizer != null ? _queryCustomizer(dbSet) : dbSet.AsQueryable();
+          var entity = await query.SingleAsync(ct);
 
           // Detach to prevent tracking issues if context is reused
           context.Entry(entity).State = EntityState.Detached;
@@ -124,18 +145,8 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
         var context = GetContext();
         try
         {
-          var dbSet = context.Set<T>();
-
-          // Replace semantics: remove all existing rows
-          var existing = await dbSet.ToListAsync(ct);
-          if (existing.Count > 0)
-          {
-            dbSet.RemoveRange(existing);
-          }
-
-          // Add new entity
-          await dbSet.AddAsync(data, ct);
-          await context.SaveChangesAsync(ct);
+          // Delegate to custom save func, or fall back to default replace-all semantics
+          await (_saveFunc ?? DefaultSave)(context, data, ct);
 
           return FlowUnit.Default;
         }
@@ -199,8 +210,8 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
             );
           }
 
-          // Single entity storage requires exactly one row
-          if (count == 0)
+          // Single entity storage requires exactly one row (unless allowEmptyData)
+          if (count == 0 && !_allowEmptyData)
           {
             return Data.Validation.ValidationResult.Failure(
               catalogKey: typeof(T).Name,
@@ -218,6 +229,12 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
               message: $"Table '{typeof(T).Name}' contains {count} rows",
               details: "Single entity storage requires exactly one row"
             );
+          }
+
+          // Empty table with allowEmptyData — nothing to load, inspection passes
+          if (count == 0)
+          {
+            return Data.Validation.ValidationResult.Success();
           }
 
           // Attempt to load the entity to validate it's readable
@@ -260,6 +277,20 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   /// <summary>
   /// Gets a DbContext from either the injected instance or factory.
   /// </summary>
+  /// <summary>
+  /// Default save strategy: replaces the single row with the new entity.
+  /// Reference this explicitly when composing with a custom save delegate.
+  /// </summary>
+  public static async Task DefaultSave(DbContext context, T data, CancellationToken ct)
+  {
+    var dbSet = context.Set<T>();
+    var existing = await dbSet.ToListAsync(ct);
+    if (existing.Count > 0)
+      dbSet.RemoveRange(existing);
+    await dbSet.AddAsync(data, ct);
+    await context.SaveChangesAsync(ct);
+  }
+
   private DbContext GetContext()
   {
     if (_context != null)

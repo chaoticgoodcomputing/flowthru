@@ -89,6 +89,8 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   private readonly Func<DbContext>? _contextFactory;
   private readonly bool _ownsContext;
   private readonly bool _allowEmptyData;
+  private readonly Func<IQueryable<T>, IQueryable<T>>? _queryCustomizer;
+  private readonly Func<DbContext, IEnumerable<T>, CancellationToken, Task>? _saveFunc;
 
   /// <summary>
   /// Creates an adapter with an injected DbContext.
@@ -99,12 +101,19 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.
   /// </remarks>
-  public EFCoreStorageAdapter(DbContext context, bool allowEmptyData = false)
+  public EFCoreStorageAdapter(
+    DbContext context,
+    bool allowEmptyData = false,
+    Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+    Func<DbContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null
+  )
   {
     _injectedContext = context ?? throw new ArgumentNullException(nameof(context));
     _contextFactory = null;
     _ownsContext = false;
     _allowEmptyData = allowEmptyData;
+    _queryCustomizer = queryCustomizer;
+    _saveFunc = saveFunc;
 
     Traits = new StorageTraits
     {
@@ -126,12 +135,19 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.
   /// </remarks>
-  public EFCoreStorageAdapter(Func<DbContext> contextFactory, bool allowEmptyData = false)
+  public EFCoreStorageAdapter(
+    Func<DbContext> contextFactory,
+    bool allowEmptyData = false,
+    Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null,
+    Func<DbContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null
+  )
   {
     _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
     _injectedContext = null;
     _ownsContext = true;
     _allowEmptyData = allowEmptyData;
+    _queryCustomizer = queryCustomizer;
+    _saveFunc = saveFunc;
 
     Traits = new StorageTraits
     {
@@ -227,9 +243,12 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
         {
           var dbSet = context.Set<T>();
 
+          // Apply query customizer (e.g. Include, Where, OrderBy) before materializing
+          var query = _queryCustomizer != null ? _queryCustomizer(dbSet) : dbSet.AsQueryable();
+
           // Materialize the query into a list to detach from DbContext
           // This ensures the data survives DbContext disposal
-          var data = await dbSet.ToListAsync(ct);
+          var data = await query.ToListAsync(ct);
 
           return (IEnumerable<T>)data;
         }
@@ -263,21 +282,8 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
         var context = GetContext();
         try
         {
-          var dbSet = context.Set<T>();
-
-          // Strategy: Replace all existing data with new data
-          // This matches the semantics of file-based storage (overwrite)
-          // For append/upsert semantics, use a specialized adapter or node logic
-
-          // Clear existing data
-          var existing = await dbSet.ToListAsync(ct);
-          dbSet.RemoveRange(existing);
-
-          // Add new data
-          await dbSet.AddRangeAsync(data, ct);
-
-          // Commit transaction
-          await context.SaveChangesAsync(ct);
+          // Delegate to custom save func, or fall back to default replace-all semantics
+          await (_saveFunc ?? DefaultSave)(context, data, ct);
 
           return FlowUnit.Default;
         }
@@ -463,6 +469,20 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
         }
       }
     );
+  }
+
+  /// <summary>
+  /// Default save strategy: replaces all rows with the new data.
+  /// Reference this explicitly when composing with a custom save delegate
+  /// (e.g., "use default load but custom save").
+  /// </summary>
+  public static async Task DefaultSave(DbContext context, IEnumerable<T> data, CancellationToken ct)
+  {
+    var dbSet = context.Set<T>();
+    var existing = await dbSet.ToListAsync(ct);
+    dbSet.RemoveRange(existing);
+    await dbSet.AddRangeAsync(data, ct);
+    await context.SaveChangesAsync(ct);
   }
 
   private DbContext GetContext()

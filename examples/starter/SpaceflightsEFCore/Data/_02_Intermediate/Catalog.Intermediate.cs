@@ -14,9 +14,9 @@ public partial class Catalog
     GetOrCreateEntry(
       () =>
         EFCoreCatalogEntries
-          .Enumerable.EFCore<PreprocessedCompanySchema>(
+          .Enumerable.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
             label: "PreprocessedCompanies",
-            context: _dbContext
+            contextFactory: _contextFactory
           )
           .WithInspectionLevel(InspectionLevel.Shallow)
     );
@@ -28,9 +28,9 @@ public partial class Catalog
     GetOrCreateEntry(
       () =>
         EFCoreCatalogEntries
-          .Enumerable.EFCore<PreprocessedShuttleSchema>(
+          .Enumerable.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(
             label: "PreprocessedShuttles",
-            context: _dbContext
+            contextFactory: _contextFactory
           )
           .WithInspectionLevel(InspectionLevel.Shallow)
     );

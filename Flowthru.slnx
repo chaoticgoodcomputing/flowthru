@@ -14,6 +14,7 @@
     <Project Path="tests\Flowthru.Tests.Examples\Flowthru.Tests.Examples.csproj" />
     <Project Path="tests\Flowthru.Tests.Templates\Flowthru.Tests.Templates.csproj" />
     <Project Path="tests\Flowthru.Extensions.Python.Tests\Flowthru.Extensions.Python.Tests.csproj" />
+    <Project Path="tests\Flowthru.Extensions.EFCore.Tests\Flowthru.Extensions.EFCore.Tests.csproj" />
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples\starter\SpaceflightsEFCore\SpaceflightsEFCore.csproj" />

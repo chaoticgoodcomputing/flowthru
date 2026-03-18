@@ -1,6 +1,11 @@
 # Default metadata directory
 Metadata
 
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
 # Dataset directories - ignore generated outputs
 Data/**/Datasets
 # But allow raw input data

@@ -10,15 +10,15 @@ namespace SpaceflightsEFCore.Data;
 
 /// <summary>
 /// Entity Framework Core DbContext for the Spaceflights pipeline.
-/// Provides access to all intermediate, primary, and model data as in-memory database tables.
+/// Provides access to all intermediate, primary, and model data as SQLite database tables.
 /// </summary>
 /// <remarks>
-/// This DbContext is configured to use an in-memory database, making it ideal for:
-/// - Starter examples without external database dependencies
-/// - Fast pipeline execution with automatic cleanup
-/// - Demonstrating EFCore patterns without infrastructure setup
+/// This DbContext is configured to use a SQLite file database, which provides:
+/// - FK enforcement and realistic relational semantics not available with InMemory
+/// - A persistent file that can be inspected between runs
+/// - Concurrency-safe access when used via <see cref="Microsoft.EntityFrameworkCore.IDbContextFactory{TContext}"/>
 ///
-/// Each pipeline execution gets a fresh in-memory database instance.
+/// The database file is created at <c>Data/spaceflights.db</c> on first run via EnsureCreated().
 /// </remarks>
 public class SpaceflightsDbContext : DbContext
 {

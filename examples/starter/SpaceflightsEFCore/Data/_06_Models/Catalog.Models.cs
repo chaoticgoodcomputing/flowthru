@@ -16,9 +16,9 @@ public partial class Catalog
   public ICatalogEntry<LinearRegressionModel> Regressor =>
     GetOrCreateEntry(
       () =>
-        EFCoreCatalogEntries.Single.EFCore<LinearRegressionModel>(
+        EFCoreCatalogEntries.Single.EFCore<LinearRegressionModel, SpaceflightsDbContext>(
           label: "Regressor",
-          context: _dbContext
+          contextFactory: _contextFactory
         )
     );
 }

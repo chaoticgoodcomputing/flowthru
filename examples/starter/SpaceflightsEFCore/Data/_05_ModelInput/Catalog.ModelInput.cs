@@ -16,7 +16,10 @@ public partial class Catalog
   public ICatalogEntry<IEnumerable<TrainingData>> TrainSplit =>
     GetOrCreateEntry(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<TrainingData>(label: "XTrain", context: _dbContext)
+        EFCoreCatalogEntries.Enumerable.EFCore<TrainingData, SpaceflightsDbContext>(
+          label: "XTrain",
+          contextFactory: _contextFactory
+        )
     );
 
   /// <summary>
@@ -24,6 +27,10 @@ public partial class Catalog
   /// </summary>
   public ICatalogEntry<IEnumerable<TestData>> TestSplit =>
     GetOrCreateEntry(
-      () => EFCoreCatalogEntries.Enumerable.EFCore<TestData>(label: "XTest", context: _dbContext)
+      () =>
+        EFCoreCatalogEntries.Enumerable.EFCore<TestData, SpaceflightsDbContext>(
+          label: "XTest",
+          contextFactory: _contextFactory
+        )
     );
 }
