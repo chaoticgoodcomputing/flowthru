@@ -14,12 +14,19 @@ obj/
 *.user
 *.suo
 
-# Dataset directories - ignore generated outputs
-Data/**/*
-!Data/**/*.cs
-# But allow raw input data
-!Data/_01_Raw/
-!Data/_01_Raw/Datasets/
-!Data/_01_Raw/Datasets/**
+# Dataset directories - ignore generated outputs, but keep raw input data
+Data/**/Datasets
+!Data/_01_Raw/Datasets
+!Data/_01_Raw/Datasets/*
+
+# Ignore generated pipeline output files
+*.db
+*.db-shm
+*.db-wal
+Data/**/*.png
+Data/**/*.json
+
+# Un-ignore all .gitkeep files anywhere
+!**/.gitkeep
 
 Metadata
