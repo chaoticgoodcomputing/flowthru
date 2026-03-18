@@ -48,9 +48,19 @@ public sealed class TemplateTestRunner
     var workspaceRoot = GetWorkspaceRoot();
     var localFeedPath = Path.Combine(workspaceRoot, "dist", "packages");
 
+    // Place an isolated packages cache beside all generated projects so NuGet
+    // never hits the global cache. Without this, a version already in
+    // ~/.nuget/packages/ (e.g. from a prior NuGet.org publish) satisfies the
+    // restore from cache before source mapping can redirect it to the local
+    // dist/packages feed, causing the test to build against the stale package.
+    var localPackagesFolder = Path.Combine(Path.GetDirectoryName(projectDir)!, ".nuget-packages");
+
     var nugetConfig = $"""
       <?xml version="1.0" encoding="utf-8"?>
       <configuration>
+        <config>
+          <add key="globalPackagesFolder" value="{localPackagesFolder}" />
+        </config>
         <packageSources>
           <add key="local" value="{localFeedPath}" />
           <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
