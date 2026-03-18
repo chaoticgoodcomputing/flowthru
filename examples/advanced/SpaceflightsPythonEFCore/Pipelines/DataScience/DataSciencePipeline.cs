@@ -1,0 +1,81 @@
+using Flowthru.Extensions.Python.Execution;
+using Flowthru.Extensions.Python.Nodes;
+using Flowthru.Pipelines;
+using SpaceflightsPythonEFCore.Data;
+using SpaceflightsPythonEFCore.Data._03_Primary.Schemas;
+using SpaceflightsPythonEFCore.Data._05_ModelInput.Schemas;
+using SpaceflightsPythonEFCore.Data._06_Models.Schemas;
+using SpaceflightsPythonEFCore.Data._07_ModelOutput.Schemas;
+
+namespace SpaceflightsPythonEFCore.Pipelines.DataScience;
+
+/// <summary>
+/// Data science pipeline using Python nodes for splitting, training, evaluating, and predicting.
+///
+/// EFCore → Python handoff: split_data reads ModelInputTable from SQLite.
+/// Python → EFCore handoff: generate_predictions writes ModelPredictions to SQLite.
+/// </summary>
+public static class DataSciencePipeline
+{
+  public static Pipeline Create(Catalog catalog, IPythonExecutor executor)
+  {
+    return PipelineBuilder.CreatePipeline(pipeline =>
+    {
+      pipeline.AddPythonNode<
+        IEnumerable<ModelInputTableSchema>,
+        IEnumerable<XValues>,
+        IEnumerable<XValues>,
+        IEnumerable<YValues>,
+        IEnumerable<YValues>
+      >(
+        label: "SplitData",
+        description: "Split EFCore model input table into train/test sets (Python). EFCore → Python handoff.",
+        module: "Pipelines.DataScience.Nodes.split_data",
+        function: "split_data",
+        input: catalog.ModelInputTable,
+        output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest),
+        executor: executor
+      );
+
+      pipeline.AddPythonNode(
+        label: "TrainModel",
+        description: "Train linear regression model on train split (Python).",
+        module: "Pipelines.DataScience.Nodes.train_model",
+        function: "train_model",
+        input: (catalog.XTrain, catalog.YTrain),
+        output: catalog.Regressor,
+        executor: executor
+      );
+
+      pipeline.AddPythonNode<
+        LinearRegressionModel,
+        IEnumerable<XValues>,
+        IEnumerable<YValues>,
+        ModelMetrics
+      >(
+        label: "EvaluateModel",
+        description: "Compute model performance metrics on test split (Python).",
+        module: "Pipelines.DataScience.Nodes.evaluate_model",
+        function: "evaluate_model",
+        input: (catalog.Regressor, catalog.XTest, catalog.YTest),
+        output: catalog.ModelMetrics,
+        executor: executor
+      );
+
+      pipeline.AddPythonNode<
+        LinearRegressionModel,
+        IEnumerable<XValues>,
+        IEnumerable<YValues>,
+        IEnumerable<ModelPredictions>
+      >(
+        label: "GeneratePredictions",
+        description: "Generate predictions from trained model (Python). Python → EFCore handoff.",
+        module: "Pipelines.DataScience.Nodes.generate_predictions",
+        function: "generate_predictions",
+        input: (catalog.Regressor, catalog.XTest, catalog.YTest),
+        output: catalog.ModelPredictions,
+        executor: executor
+      );
+    });
+  }
+}

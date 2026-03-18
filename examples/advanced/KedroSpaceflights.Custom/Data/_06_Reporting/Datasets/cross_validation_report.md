@@ -1,7 +1,5 @@
 # Cross-Validation Report
 
-**Generated:** 2026-03-11 13:58:37
-
 ## Summary Statistics
 
 - **Number of Folds:** 20

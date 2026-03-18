@@ -1,0 +1,52 @@
+using Flowthru.Extensions.Python.Execution;
+using Flowthru.Extensions.Python.Nodes;
+using Flowthru.Pipelines;
+using SpaceflightsPythonEFCore.Data;
+using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
+using SpaceflightsPythonEFCore.Data._07_ModelOutput.Schemas;
+
+namespace SpaceflightsPythonEFCore.Pipelines.Reporting;
+
+/// <summary>
+/// Reporting pipeline using Python nodes for all visualizations.
+/// Both inputs (PreprocessedShuttles and ModelPredictions) are read from EFCore,
+/// demonstrating EFCore → Python handoffs in two separate nodes.
+/// </summary>
+public static class ReportingPipeline
+{
+  public static Pipeline Create(Catalog catalog, IPythonExecutor executor)
+  {
+    return PipelineBuilder.CreatePipeline(pipeline =>
+    {
+      pipeline.AddPythonNode(
+        label: "ComparePassengerCapacityExpress",
+        description: "Shuttle capacity bar chart via plotly.express (Python). Reads PreprocessedShuttles from EFCore.",
+        module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
+        function: "compare_passenger_capacity_exp",
+        input: catalog.PreprocessedShuttles,
+        output: catalog.CapacityPlotExpress,
+        executor: executor
+      );
+
+      pipeline.AddPythonNode(
+        label: "ComparePassengerCapacityGraphObj",
+        description: "Shuttle capacity bar chart via plotly.graph_objects (Python). Reads PreprocessedShuttles from EFCore.",
+        module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
+        function: "compare_passenger_capacity_go",
+        input: catalog.PreprocessedShuttles,
+        output: catalog.CapacityPlotGraphObj,
+        executor: executor
+      );
+
+      pipeline.AddPythonNode(
+        label: "CreateConfusionMatrix",
+        description: "Confusion matrix heatmap from model predictions (Python). Reads ModelPredictions from EFCore.",
+        module: "Pipelines.Reporting.Nodes.create_confusion_matrix",
+        function: "create_confusion_matrix",
+        input: catalog.ModelPredictions,
+        output: catalog.ConfusionMatrix,
+        executor: executor
+      );
+    });
+  }
+}
