@@ -129,16 +129,16 @@ public class SchemaInterfaceGeneratorTests
   }
 
   [Test]
-  public void FlatSchema_WithIFlatScalarNewType_IsClassifiedAsFlat()
+  public void FlatSchema_WithIScalarNewType_IsClassifiedAsFlat()
   {
     // A user-defined NewType wrapping a string should be treated as a scalar column,
-    // not a nested object — the IFlatScalar interface is the opt-in declaration.
+    // not a nested object — the IScalar interface is the opt-in declaration.
     var source = """
       using Flowthru.Abstractions;
 
       namespace TestProject;
 
-      public readonly record struct CustomerId(string Value) : IFlatScalar;
+      public readonly record struct CustomerId(string Value) : IScalar;
 
       [FlowthruSchema]
       public partial record OrderSchema
@@ -157,16 +157,16 @@ public class SchemaInterfaceGeneratorTests
     Assert.That(
       generated,
       Does.Contain("IFlatSchema"),
-      "NewType with IFlatScalar should yield flat schema"
+      "NewType with IScalar should yield flat schema"
     );
     Assert.That(generated, Does.Contain("ITextSerializable"));
     Assert.That(generated, Does.Not.Contain("INestedSchema"));
   }
 
   [Test]
-  public void NestedSchema_WithUserStructLackingIFlatScalar_IsClassifiedAsNested()
+  public void NestedSchema_WithUserStructLackingIScalar_IsClassifiedAsNested()
   {
-    // An identical struct without IFlatScalar has no declaration of scalar intent.
+    // An identical struct without IScalar has no declaration of scalar intent.
     // The generator must treat it conservatively as a nested object.
     var source = """
       using Flowthru.Abstractions;

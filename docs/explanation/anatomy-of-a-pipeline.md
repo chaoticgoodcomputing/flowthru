@@ -56,7 +56,7 @@ Key points:
 
 - **`[FlowthruSchema]`** protects against attempts to store a schema in an incompatible format.
   - The generator inspects every property type and classifies the schema as flat (CSV-compatible) or nested (JSON/Parquet only). Primitives, enums, `Guid`, `DateTime`, and similar single-value types are flat. Collections and nested objects make a schema nested.
-  - For user-defined types such as NewTypes or strong-typed identifiers, implement `IFlatScalar` to declare that the type serializes to a single value. See [Customizing Schema Property Types](../guides/customizing-schema-property-types.md) for the full classification rules and examples.
+  - For user-defined types such as NewTypes or strong-typed identifiers, implement `IScalar` to declare that the type serializes to a single value. See [Customizing Schema Property Types](../guides/customizing-schema-property-types.md) for the full classification rules and examples.
 - **`required`** enforces that data in that column will never be null.
 - **`[SerializedLabel("...")]`** maps C# property names to external field names (e.g., CSV headers). Omit it when names match.
 

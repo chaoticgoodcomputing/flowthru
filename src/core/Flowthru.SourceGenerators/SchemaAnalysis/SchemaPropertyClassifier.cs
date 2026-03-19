@@ -23,8 +23,8 @@ internal static class SchemaPropertyClassifier
   /// <item><c>byte[]</c> — structural exception: an array, but semantically an opaque blob
   ///   (e.g. a binary image column), not a traversable collection.</item>
   /// <item>Known BCL scalar structs (<c>Guid</c>, <c>TimeSpan</c>, etc.) — cannot self-declare
-  ///   <see cref="IFlatScalar"/> because they are defined outside this library.</item>
-  /// <item><see cref="IFlatScalar"/> implementors — user-defined NewTypes and value-object
+  ///   <see cref="IScalar"/> because they are defined outside this library.</item>
+  /// <item><see cref="IScalar"/> implementors — user-defined NewTypes and value-object
   ///   wrappers that explicitly opt in to scalar treatment.</item>
   /// </list>
   /// If a type does not match any tier it is treated as a nested object.
@@ -81,7 +81,7 @@ internal static class SchemaPropertyClassifier
     }
 
     // Tier 4: Known BCL scalar structs
-    // These cannot self-declare IFlatScalar because they are defined outside this library.
+    // These cannot self-declare IScalar because they are defined outside this library.
     // This list is intentionally bounded — it covers BCL types only, not user-defined types.
     var fullName = type.ToDisplayString();
     switch (fullName)
@@ -97,10 +97,10 @@ internal static class SchemaPropertyClassifier
         return true;
     }
 
-    // Tier 5: IFlatScalar implementors
+    // Tier 5: IScalar implementors
     // User-defined NewTypes and value-object wrappers that explicitly declare they serialize
     // to a single value. This is the extension point for domain primitives.
-    const string FlatScalarInterface = "Flowthru.Abstractions.IFlatScalar";
+    const string FlatScalarInterface = "Flowthru.Abstractions.IScalar";
     if (
       type is INamedTypeSymbol namedType
       && namedType.AllInterfaces.Any(i => i.ToDisplayString() == FlatScalarInterface)

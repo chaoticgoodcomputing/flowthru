@@ -33,8 +33,8 @@ namespace Flowthru.Abstractions;
 /// <strong>Typical Use Cases:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>NewType / value-object wrappers: <c>record CustomerId(string Value) : IFlatScalar</c></item>
-/// <item>Strong-typed identifiers backed by a primitive: <c>record OrderRef(Guid Id) : IFlatScalar</c></item>
+/// <item>NewType / value-object wrappers: <c>record CustomerId(string Value) : IScalar</c></item>
+/// <item>Strong-typed identifiers backed by a primitive: <c>record OrderRef(Guid Id) : IScalar</c></item>
 /// <item>Domain primitives that round-trip through a single string or numeric field</item>
 /// </list>
 /// <para>
@@ -51,14 +51,14 @@ namespace Flowthru.Abstractions;
 /// </para>
 /// <para>
 /// <see cref="IFlatSchema"/> marks a <em>row type</em> — a schema whose properties are all
-/// scalars. <see cref="IFlatScalar"/> marks a <em>property type</em> — a single value that can
+/// scalars. <see cref="IScalar"/> marks a <em>property type</em> — a single value that can
 /// appear as a column in a flat row. Nesting a flat row inside another row is still nesting.
 /// </para>
 /// </remarks>
 /// <example>
 /// <code>
-/// // ✅ Single-value wrapper — safe to implement IFlatScalar
-/// public readonly record struct CustomerId(string Value) : IFlatScalar;
+/// // ✅ Single-value wrapper — safe to implement IScalar
+/// public readonly record struct CustomerId(string Value) : IScalar;
 ///
 /// // ✅ Schema using the NewType is classified as flat
 /// [FlowthruSchema]
@@ -68,8 +68,8 @@ namespace Flowthru.Abstractions;
 ///     public required string Name { get; init; }
 /// }
 ///
-/// // ❌ Multi-property struct — NOT a scalar, do not implement IFlatScalar
-/// public readonly record struct Address(string Street, string City) /* : IFlatScalar — wrong */;
+/// // ❌ Multi-property struct — NOT a scalar, do not implement IScalar
+/// public readonly record struct Address(string Street, string City) /* : IScalar — wrong */;
 /// </code>
 /// </example>
-public interface IFlatScalar { }
+public interface IScalar { }

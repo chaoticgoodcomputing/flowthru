@@ -1,6 +1,6 @@
 # Customizing Schema Property Types
 
-Use `IFlatScalar` to allow custom types — NewTypes, value objects, strong-typed identifiers — to appear as columns in flat schemas without being misclassified as nested objects.
+Use `IScalar` to allow custom types — NewTypes, value objects, strong-typed identifiers — to appear as columns in flat schemas without being misclassified as nested objects.
 
 ## How `[FlowthruSchema]` Classifies Properties
 
@@ -36,24 +36,24 @@ Structurally an array, but treated as an opaque binary blob — for example, a c
 
 `Guid`, `TimeSpan`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, `Half`, `Int128`, `UInt128`
 
-These are value types defined in the .NET BCL that cannot opt in via `IFlatScalar` (they're not your types to modify), so the generator recognizes them by name.
+These are value types defined in the .NET BCL that cannot opt in via `IScalar` (they're not your types to modify), so the generator recognizes them by name.
 
-**5. User-defined types implementing `IFlatScalar`**
+**5. User-defined types implementing `IScalar`**
 
 Any type you write that explicitly declares it serializes to a single value. See below.
 
 If a property type doesn't match any of these five categories, it is treated as a nested object, and the schema becomes `INestedSchema`.
 
-## Using `IFlatScalar` for Custom Types
+## Using `IScalar` for Custom Types
 
-If you have a NewType or value-object wrapper that backs a single primitive value, implement `IFlatScalar` to declare its scalar intent:
+If you have a NewType or value-object wrapper that backs a single primitive value, implement `IScalar` to declare its scalar intent:
 
 ```csharp
 // A strong-typed identifier backed by a single string value
-public readonly record struct CustomerId(string Value) : IFlatScalar;
+public readonly record struct CustomerId(string Value) : IScalar;
 
 // A domain primitive backed by a single decimal
-public readonly record struct Price(decimal Amount) : IFlatScalar;
+public readonly record struct Price(decimal Amount) : IScalar;
 ```
 
 Schemas using these types are now classified as flat:
@@ -62,27 +62,27 @@ Schemas using these types are now classified as flat:
 [FlowthruSchema]
 public partial record OrderSchema
 {
-    public required CustomerId Id { get; init; }    // flat — implements IFlatScalar
+    public required CustomerId Id { get; init; }    // flat — implements IScalar
     public required string Name { get; init; }      // flat — string primitive
-    public required Price UnitPrice { get; init; }  // flat — implements IFlatScalar
+    public required Price UnitPrice { get; init; }  // flat — implements IScalar
 }
 ```
 
 `OrderSchema` gets `IFlatSchema`, `ITextSerializable`, and all the flat-format markers. It can be stored in CSV.
 
-## When NOT to Use `IFlatScalar`
+## When NOT to Use `IScalar`
 
-`IFlatScalar` is a declaration of intent. Implementing it on a type that doesn't actually serialize to a single value will cause silent data loss or serialization failures in flat formats — the generator trusts the declaration without inspecting your serializer.
+`IScalar` is a declaration of intent. Implementing it on a type that doesn't actually serialize to a single value will cause silent data loss or serialization failures in flat formats — the generator trusts the declaration without inspecting your serializer.
 
 ```csharp
 // ❌ Multi-property struct — NOT a scalar
-public readonly record struct Address(string Street, string City) : IFlatScalar; // wrong
+public readonly record struct Address(string Street, string City) : IScalar; // wrong
 
 // ❌ Collection wrapper — NOT a scalar
-public record TagList(List<string> Values) : IFlatScalar; // wrong
+public record TagList(List<string> Values) : IScalar; // wrong
 ```
 
-Implement `IFlatScalar` only when your type round-trips through a single string, numeric, or boolean column. If it requires more than one column, it's not a scalar — the schema should be nested, or the type should be flattened at the node level before writing.
+Implement `IScalar` only when your type round-trips through a single string, numeric, or boolean column. If it requires more than one column, it's not a scalar — the schema should be nested, or the type should be flattened at the node level before writing.
 
 ## Nesting Two Flat Schemas
 
@@ -111,17 +111,17 @@ If you need `PersonSchema` to be flat for CSV storage, the node that produces it
 
 ## Quick Reference
 
-| Property type                                 | Flat? | Reason                                             |
-| --------------------------------------------- | ----- | -------------------------------------------------- |
-| `int`, `string`, `bool`, `double`, etc.       | ✅     | CLR primitives                                     |
-| `byte`                                        | ✅     | CLR primitive                                      |
-| `byte[]`                                      | ✅     | Opaque binary blob                                 |
-| `string`                                      | ✅     | CLR primitive (not treated as `IEnumerable<char>`) |
-| Any `enum`                                    | ✅     | Single-value by definition                         |
-| `Guid`, `TimeSpan`, `DateTimeOffset`, etc.    | ✅     | Known BCL scalar structs                           |
-| `record struct CustomerId(...) : IFlatScalar` | ✅     | Declared scalar via `IFlatScalar`                  |
-| `record struct Address(string, string)`       | ❌     | Multi-property struct, no `IFlatScalar`            |
-| `List<T>`, `T[]`, `IEnumerable<T>`            | ❌     | Collection                                         |
-| `Dictionary<K, V>`                            | ❌     | Collection                                         |
-| Any class or record without `IFlatScalar`     | ❌     | Assumed nested object                              |
-| Another `[FlowthruSchema]` type               | ❌     | Nested row, not a scalar value                     |
+| Property type                              | Flat? | Reason                                             |
+| ------------------------------------------ | ----- | -------------------------------------------------- |
+| `int`, `string`, `bool`, `double`, etc.    | ✅     | CLR primitives                                     |
+| `byte`                                     | ✅     | CLR primitive                                      |
+| `byte[]`                                   | ✅     | Opaque binary blob                                 |
+| `string`                                   | ✅     | CLR primitive (not treated as `IEnumerable<char>`) |
+| Any `enum`                                 | ✅     | Single-value by definition                         |
+| `Guid`, `TimeSpan`, `DateTimeOffset`, etc. | ✅     | Known BCL scalar structs                           |
+| `record struct CustomerId(...) : IScalar`  | ✅     | Declared scalar via `IScalar`                      |
+| `record struct Address(string, string)`    | ❌     | Multi-property struct, no `IScalar`                |
+| `List<T>`, `T[]`, `IEnumerable<T>`         | ❌     | Collection                                         |
+| `Dictionary<K, V>`                         | ❌     | Collection                                         |
+| Any class or record without `IScalar`      | ❌     | Assumed nested object                              |
+| Another `[FlowthruSchema]` type            | ❌     | Nested row, not a scalar value                     |
