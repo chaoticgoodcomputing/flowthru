@@ -1,11 +1,19 @@
-# Default metadata directory
-Metadata
+# Generated metadata
+Metadata/
 
-# Dataset directories - ignore generated outputs
-Data/**/Datasets
-# But allow raw input data
-!Data/_01_Raw/Datasets
+# Ignore all generated data artifacts
+Data/**
+
+# Un-ignore layer directories and their Schemas subdirectories so git can traverse them
+!Data/*/
+!Data/*/Schemas/
+!Data/_01_Raw/Datasets/
+
+# Allow raw input dataset files
 !Data/_01_Raw/Datasets/*
+
+# Allow all schema and catalog .cs files
+!Data/**/*.cs
 
 # Un-ignore all .gitkeep files anywhere
 !**/.gitkeep

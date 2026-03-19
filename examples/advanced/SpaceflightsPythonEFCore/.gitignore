@@ -1,32 +1,32 @@
-# Python virtual environment
+# Generated metadata
+Metadata/
+
+# Python virtual environment and caches
 .venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Generated Python schemas
 _generated/
 
-# Build artifacts
-bin/
-obj/
-*.user
-*.suo
-
-# Dataset directories - ignore generated outputs, but keep raw input data
-Data/**/Datasets
-!Data/_01_Raw/Datasets
-!Data/_01_Raw/Datasets/*
-
-# Ignore generated pipeline output files
+# SQLite database files (EFCore pipelines)
 *.db
 *.db-shm
 *.db-wal
-Data/**/*.png
-Data/**/*.json
+
+# Ignore all generated data artifacts
+Data/**
+
+# Un-ignore layer directories and their Schemas subdirectories so git can traverse them
+!Data/*/
+!Data/*/Schemas/
+!Data/_01_Raw/Datasets/
+
+# Allow raw input dataset files
+!Data/_01_Raw/Datasets/*
+
+# Allow all schema and catalog .cs files
+!Data/**/*.cs
 
 # Un-ignore all .gitkeep files anywhere
 !**/.gitkeep
-
-Metadata

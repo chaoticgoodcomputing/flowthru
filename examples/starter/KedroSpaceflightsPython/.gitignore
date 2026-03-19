@@ -1,25 +1,27 @@
-# Python virtual environment
+# Generated metadata
+Metadata/
+
+# Python virtual environment and caches
 .venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Generated Python schemas
 _generated/
 
-# Build artifacts
-bin/
-obj/
-*.user
-*.suo
+# Ignore all generated data artifacts
+Data/**
 
-# Dataset directories - ignore generated outputs
-Data/**/*
-!Data/**/*.cs
-# But allow raw input data
-!Data/_01_Raw/
+# Un-ignore layer directories and their Schemas subdirectories so git can traverse them
+!Data/*/
+!Data/*/Schemas/
 !Data/_01_Raw/Datasets/
-!Data/_01_Raw/Datasets/**
 
-Metadata
+# Allow raw input dataset files
+!Data/_01_Raw/Datasets/*
+
+# Allow all schema and catalog .cs files
+!Data/**/*.cs
+
+# Un-ignore all .gitkeep files anywhere
+!**/.gitkeep
