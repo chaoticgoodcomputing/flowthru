@@ -128,6 +128,75 @@ public class SchemaInterfaceGeneratorTests
     Assert.That(generated, Does.Contain("IFlatSchema"));
   }
 
+  [Test]
+  public void FlatSchema_WithIFlatScalarNewType_IsClassifiedAsFlat()
+  {
+    // A user-defined NewType wrapping a string should be treated as a scalar column,
+    // not a nested object — the IFlatScalar interface is the opt-in declaration.
+    var source = """
+      using Flowthru.Abstractions;
+
+      namespace TestProject;
+
+      public readonly record struct CustomerId(string Value) : IFlatScalar;
+
+      [FlowthruSchema]
+      public partial record OrderSchema
+      {
+          public required CustomerId Id { get; init; }
+          public required string Name { get; init; }
+      }
+      """;
+
+    var result = GeneratorTestHelper.RunSchemaGenerator(source);
+
+    Assert.That(result.Success, Is.True, FormatDiagnostics(result));
+
+    var generated = result.GetGeneratedSource("OrderSchema.SchemaInterfaces.g.cs");
+    Assert.That(generated, Is.Not.Null);
+    Assert.That(
+      generated,
+      Does.Contain("IFlatSchema"),
+      "NewType with IFlatScalar should yield flat schema"
+    );
+    Assert.That(generated, Does.Contain("ITextSerializable"));
+    Assert.That(generated, Does.Not.Contain("INestedSchema"));
+  }
+
+  [Test]
+  public void NestedSchema_WithUserStructLackingIFlatScalar_IsClassifiedAsNested()
+  {
+    // An identical struct without IFlatScalar has no declaration of scalar intent.
+    // The generator must treat it conservatively as a nested object.
+    var source = """
+      using Flowthru.Abstractions;
+
+      namespace TestProject;
+
+      public readonly record struct CustomerId(string Value);
+
+      [FlowthruSchema]
+      public partial record OrderSchema
+      {
+          public required CustomerId Id { get; init; }
+          public required string Name { get; init; }
+      }
+      """;
+
+    var result = GeneratorTestHelper.RunSchemaGenerator(source);
+
+    Assert.That(result.Success, Is.True, FormatDiagnostics(result));
+
+    var generated = result.GetGeneratedSource("OrderSchema.SchemaInterfaces.g.cs");
+    Assert.That(generated, Is.Not.Null);
+    Assert.That(
+      generated,
+      Does.Contain("INestedSchema"),
+      "Unannotated struct should yield nested schema"
+    );
+    Assert.That(generated, Does.Not.Contain("IFlatSchema"));
+  }
+
   // ─────────────────────────────────────────────────────────────
   // Nested schema classification
   // ─────────────────────────────────────────────────────────────

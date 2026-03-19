@@ -11,12 +11,28 @@ namespace Flowthru.SourceGenerators.SchemaAnalysis;
 internal static class SchemaPropertyClassifier
 {
   /// <summary>
-  /// Determines whether a property type is "flat" — i.e., a primitive, enum,
-  /// nullable primitive, string, or single-value value type (Guid, DateTime, etc.).
+  /// Determines whether a property type is a flat scalar — i.e., it serializes to a single
+  /// JSON value (<c>"key": value</c>), not an object (<c>"key": {...}</c>) or array
+  /// (<c>"key": [...]</c>).
   /// </summary>
+  /// <remarks>
+  /// Classification proceeds through five explicit tiers, each with a distinct rationale:
+  /// <list type="number">
+  /// <item>CLR SpecialType primitives — compiler-known scalars, no name matching needed.</item>
+  /// <item>Enums — always single-value regardless of underlying type.</item>
+  /// <item><c>byte[]</c> — structural exception: an array, but semantically an opaque blob
+  ///   (e.g. a binary image column), not a traversable collection.</item>
+  /// <item>Known BCL scalar structs (<c>Guid</c>, <c>TimeSpan</c>, etc.) — cannot self-declare
+  ///   <see cref="IFlatScalar"/> because they are defined outside this library.</item>
+  /// <item><see cref="IFlatScalar"/> implementors — user-defined NewTypes and value-object
+  ///   wrappers that explicitly opt in to scalar treatment.</item>
+  /// </list>
+  /// If a type does not match any tier it is treated as a nested object.
+  /// </remarks>
   public static bool IsFlatPropertyType(ITypeSymbol type)
   {
-    // Unwrap nullable
+    // Unwrap nullable — the nullability wrapper does not change the scalar/nested nature
+    // of the underlying type.
     if (
       type is INamedTypeSymbol
       {
@@ -27,7 +43,8 @@ internal static class SchemaPropertyClassifier
       type = nullable.TypeArguments[0];
     }
 
-    // Primitives and string
+    // Tier 1: CLR SpecialType primitives
+    // These are compiler-known and do not require name matching.
     switch (type.SpecialType)
     {
       case SpecialType.System_Boolean:
@@ -48,13 +65,24 @@ internal static class SchemaPropertyClassifier
         return true;
     }
 
-    // Enums
+    // Tier 2: Enums
+    // Always single-value regardless of underlying type.
     if (type.TypeKind == TypeKind.Enum)
     {
       return true;
     }
 
-    // Well-known single-value types
+    // Tier 3: byte[]
+    // Structurally an array, but semantically an opaque binary blob (e.g. an image column).
+    // Treated as a single value, not a traversable collection.
+    if (type is IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Byte })
+    {
+      return true;
+    }
+
+    // Tier 4: Known BCL scalar structs
+    // These cannot self-declare IFlatScalar because they are defined outside this library.
+    // This list is intentionally bounded — it covers BCL types only, not user-defined types.
     var fullName = type.ToDisplayString();
     switch (fullName)
     {
@@ -67,6 +95,18 @@ internal static class SchemaPropertyClassifier
       case "System.Int128":
       case "System.UInt128":
         return true;
+    }
+
+    // Tier 5: IFlatScalar implementors
+    // User-defined NewTypes and value-object wrappers that explicitly declare they serialize
+    // to a single value. This is the extension point for domain primitives.
+    const string FlatScalarInterface = "Flowthru.Abstractions.IFlatScalar";
+    if (
+      type is INamedTypeSymbol namedType
+      && namedType.AllInterfaces.Any(i => i.ToDisplayString() == FlatScalarInterface)
+    )
+    {
+      return true;
     }
 
     return false;
@@ -95,20 +135,11 @@ internal static class SchemaPropertyClassifier
       return false;
     }
 
-    // Arrays
+    // Arrays — byte[] was already handled as a flat blob by IsFlatPropertyType (Tier 3),
+    // so any array reaching here is a traversable collection and is therefore nested.
     if (type is IArrayTypeSymbol)
     {
       return true;
-    }
-
-    // byte[] is treated as flat (binary blob), but we already catch that via IsFlatPropertyType
-    // for named types. For arrays specifically, byte[] should be flat.
-    if (
-      type is IArrayTypeSymbol arrayType
-      && arrayType.ElementType.SpecialType == SpecialType.System_Byte
-    )
-    {
-      return false;
     }
 
     // Everything else that isn't flat is nested: collections, dictionaries,
