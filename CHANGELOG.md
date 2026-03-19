@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.29](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.28...v0.1.29) (2026-03-19)
+
+
+### Bug Fixes
+
+* cleanup for unignored files & metadata configuration ([f5b480f](https://github.com/chaoticgoodcomputing/flowthru/commit/f5b480fe8bc7602a3c438ebb7d14474f68c8cf9c))
+* clear all previous data files ([fb3aaf4](https://github.com/chaoticgoodcomputing/flowthru/commit/fb3aaf4cf2ed271cafa2cdf9bdbbf446186b7289))
+* ignore files ([a849f9c](https://github.com/chaoticgoodcomputing/flowthru/commit/a849f9c6efe9b29d3ac95a17b4b348fcc724bf2a))
+* remove kept metadata files ([fb0748f](https://github.com/chaoticgoodcomputing/flowthru/commit/fb0748ff301dad623205af005844430a06bae21f))
+
 ## [0.1.28](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.27...v0.1.28) (2026-03-18)
 
 
