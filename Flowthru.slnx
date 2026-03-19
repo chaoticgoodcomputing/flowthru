@@ -21,6 +21,7 @@
     <Project Path="examples\starter\KedroSpaceflights\KedroSpaceflights.csproj" />
     <Project Path="examples\starter\KedroSpaceflightsPython\KedroSpaceflightsPython.csproj" />
     <Project Path="examples\starter\KedroIris\KedroIris.csproj" />
+    <Project Path="examples\starter\KedroIrisPython\KedroIrisPython.csproj" />
     <Project Path="examples\starter\Minimal\Minimal.csproj" />
     <Project Path="examples\archived\UmapReferenceComparisons\UmapReferenceComparisons.csproj" />
     <Project Path="examples\advanced\KedroSpaceflights.Custom\KedroSpaceflights.Custom.csproj" />

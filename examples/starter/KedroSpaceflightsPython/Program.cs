@@ -2,6 +2,8 @@ using System.Reflection;
 using Flowthru.Cli;
 using Flowthru.Extensions.Python;
 using Flowthru.Extensions.Python.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroSpaceflightsPython.Data;
 using KedroSpaceflightsPython.Pipelines.DataProcessing;
@@ -69,6 +71,18 @@ public class Program
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
       flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
+      // Output pipeline metadata
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory(metadataPath)
+          )
+          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+            mermaid.WithOutputDirectory(metadataPath)
+          );
+      });
+
       // Configure Python runtime
       flowthru.UsePython(python =>
       {
@@ -118,9 +132,6 @@ public class Program
         .WithDescription(
           "Generates visualization outputs including passenger capacity plots and confusion matrix"
         );
-
-      // Enable metadata export using configuration from appsettings.json
-      flowthru.ConfigureMetadata(_ => { });
     });
   }
 }

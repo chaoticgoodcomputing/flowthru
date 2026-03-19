@@ -2,6 +2,8 @@ using System.Reflection;
 using Flowthru.Cli;
 using Flowthru.Extensions.Python;
 using Flowthru.Extensions.Python.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -73,6 +75,17 @@ public class Program
         contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
       ));
 
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory(metadataPath)
+          )
+          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+            mermaid.WithOutputDirectory(metadataPath)
+          );
+      });
+
       // Configure Python runtime; module search paths include the project root so
       // "Pipelines.DataScience.Nodes.*" and "Pipelines.Reporting.Nodes.*" resolve correctly.
       flowthru.UsePython(python =>
@@ -88,10 +101,7 @@ public class Program
         tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
 
       flowthru
-        .RegisterPipeline<Catalog>(
-          label: "DataProcessing",
-          pipeline: DataProcessingPipeline.Create
-        )
+        .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses companies and shuttles (C#), stores in EFCore");
 
       flowthru
@@ -108,9 +118,9 @@ public class Program
           pipeline: ReportingPipeline.Create,
           parameters: executor
         )
-        .WithDescription("Generates visualizations (Python); reads PreprocessedShuttles and ModelPredictions from EFCore");
-
-      flowthru.ConfigureMetadata(_ => { });
+        .WithDescription(
+          "Generates visualizations (Python); reads PreprocessedShuttles and ModelPredictions from EFCore"
+        );
     });
   }
 }

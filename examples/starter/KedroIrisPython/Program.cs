@@ -2,6 +2,8 @@ using System.Reflection;
 using Flowthru.Cli;
 using Flowthru.Extensions.Python;
 using Flowthru.Extensions.Python.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroIrisPython.Data;
 using KedroIrisPython.Pipelines.DataEngineering;
@@ -68,6 +70,17 @@ public class Program
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
       flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory(metadataPath)
+          )
+          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+            mermaid.WithOutputDirectory(metadataPath)
+          );
+      });
+
       // Configure Python runtime
       flowthru.UsePython(python =>
       {
@@ -106,9 +119,6 @@ public class Program
         .WithDescription(
           "Trains multi-class logistic regression model and evaluates predictions using Python"
         );
-
-      // Enable metadata export using configuration from appsettings.json
-      flowthru.ConfigureMetadata(_ => { });
     });
   }
 }

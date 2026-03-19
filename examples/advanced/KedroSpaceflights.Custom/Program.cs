@@ -1,4 +1,6 @@
 using Flowthru.Cli;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroSpaceflights.Custom.Data;
 using KedroSpaceflights.Custom.Pipelines.DataDiagnostics;
@@ -52,6 +54,16 @@ public class Program
       // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
       flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory(metadataPath)
+          )
+          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+            mermaid.WithOutputDirectory(metadataPath)
+          );
+      });
 
       flowthru
         .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)

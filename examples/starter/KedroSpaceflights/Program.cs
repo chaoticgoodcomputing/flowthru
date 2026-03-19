@@ -1,4 +1,6 @@
 using Flowthru.Cli;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroSpaceflights.Data;
 using KedroSpaceflights.Pipelines.DataProcessing;
@@ -45,6 +47,18 @@ public class Program
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
       flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
+      // Output pipeline metadata
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory(metadataPath)
+          )
+          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+            mermaid.WithOutputDirectory(metadataPath)
+          );
+      });
+
       // Register data processing pipeline
       flowthru
         .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
@@ -67,9 +81,6 @@ public class Program
           configurationSection: "Flowthru:Pipelines:Reporting"
         )
         .WithDescription("Generates passenger capacity reports and visualizations");
-
-      // Enable metadata export using configuration from appsettings.json
-      flowthru.ConfigureMetadata(_ => { });
     });
 
     services.AddLogging(logging =>

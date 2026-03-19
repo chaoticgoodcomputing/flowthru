@@ -45,6 +45,8 @@ public class Program
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
       flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+
+      // Output pipeline metadata
       flowthru.ConfigureMetadata(meta =>
       {
         var metadataPath = Path.Combine(basePath, "Metadata");
