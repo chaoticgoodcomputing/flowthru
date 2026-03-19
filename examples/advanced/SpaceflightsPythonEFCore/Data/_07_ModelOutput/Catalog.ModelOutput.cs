@@ -49,18 +49,11 @@ public partial class Catalog
 
     foreach (var chunk in data.Chunk(500))
     {
-      var valueClauses = string.Join(
-        ", ",
-        chunk.Select((_, i) => $"(@a{i}, @p{i})")
-      );
+      var valueClauses = string.Join(", ", chunk.Select((_, i) => $"(@a{i}, @p{i})"));
       var parameters = chunk
         .SelectMany(
           (row, i) =>
-            new SqliteParameter[]
-            {
-              new($"@a{i}", row.Actual),
-              new($"@p{i}", row.Predicted),
-            }
+            new SqliteParameter[] { new($"@a{i}", row.Actual), new($"@p{i}", row.Predicted) }
         )
         .ToArray<object>();
 
