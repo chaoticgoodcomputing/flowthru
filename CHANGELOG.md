@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.31](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.30...v0.1.31) (2026-03-30)
+
+
+### Bug Fixes
+
+* break up flowthru libraries into less monolithic pieces, with an all-in barrel export package ([f681074](https://github.com/chaoticgoodcomputing/flowthru/commit/f681074fc51d233ed534e3b325b2e02872dc2319))
+
 ## [0.1.30](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.29...v0.1.30) (2026-03-19)
 
 
