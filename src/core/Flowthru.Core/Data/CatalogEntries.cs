@@ -1,9 +1,4 @@
-using Flowthru.Abstractions;
 using Flowthru.Data.Storage;
-using Flowthru.Data.Storage.Container;
-using Flowthru.Data.Storage.Format;
-using Flowthru.Data.Storage.Medium;
-using Flowthru.Effects;
 
 namespace Flowthru.Data;
 
@@ -67,6 +62,11 @@ namespace Flowthru.Data;
 /// </example>
 public static partial class CatalogEntries
 {
+  /// <summary>
+  /// Factory methods for <see cref="IEnumerable{T}"/> catalog entries.
+  /// </summary>
+  public static EnumerableCatalogEntries Enumerable { get; } = new EnumerableCatalogEntries();
+
   /// <summary>
   /// Creates a null catalog entry for side-effect-only nodes.
   /// </summary>

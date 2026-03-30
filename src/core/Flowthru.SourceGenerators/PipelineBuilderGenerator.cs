@@ -24,7 +24,7 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
       assemblyName,
       (ctx, name) =>
       {
-        if (name != "Flowthru")
+        if (name != "Flowthru.Core")
           return;
 
         GenerateAddNodeOverloads(ctx);

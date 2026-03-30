@@ -1,0 +1,23 @@
+<Project>
+  <!-- 
+    Auto-imported MSBuild targets for Flowthru.
+    Registers source generators for consuming projects.
+  -->
+  
+  <!-- 
+    Auto-register Flowthru source generators for any consuming project.
+    This ensures generators work in both development (ProjectReference) and 
+    distribution (NuGet package) scenarios.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Core' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj')" />
+    
+    <!-- For NuGet package consumption -->
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.SourceGenerators.dll" 
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.SourceGenerators.dll')" />
+  </ItemGroup>
+
+</Project>

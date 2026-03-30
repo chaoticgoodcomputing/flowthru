@@ -1,97 +1,47 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru</RootNamespace>
-    <Description>A type-safe data engineering framework for .NET</Description>
-    
+    <Description>A type-safe data engineering framework for .NET. Includes CSV, Parquet, and Excel format support.</Description>
+
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru</PackageId>
     <PackageTags>data-engineering;pipeline;kedro</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- Version inherited from Directory.Build.props -->
-  </PropertyGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="Flowthru.Tests" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Dependency Injection Abstractions (no concrete container) -->
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
-    
-    <!-- Logging Abstractions (Serilog compatible) -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.10" />
-    
-    <!-- Configuration Support -->
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.10" />
-    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.1.0" />
-    
-    <!-- Data Format Support -->
-    <PackageReference Include="CsvHelper" Version="30.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
-    <PackageReference Include="Parquet.Net" Version="5.2.0" />
-    <PackageReference Include="ExcelDataReader" Version="3.6.0" />
-    <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
-    
-    <!-- Data Annotations for validation -->
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-  </ItemGroup>
-
-  <!-- Reference own source generator for self-generation -->
-  <ItemGroup>
-    <ProjectReference Include="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Include README and LICENSE in package -->
-    <None Include="README.md" Pack="true" PackagePath="/" />
-    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
-    <!-- Include build props to auto-import source generators -->
-    <None Include="build/Flowthru.props" Pack="true" PackagePath="build/" />
-  </ItemGroup>
-
-  <!-- Package source generators in standard analyzer location -->
-  <ItemGroup>
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.SourceGenerators/netstandard2.0/Flowthru.SourceGenerators.dll" 
-          Pack="true" 
-          PackagePath="analyzers/dotnet/cs" 
-          Visible="false" />
-  </ItemGroup>
-
-  <!-- Ensure source generators are built before packing -->
-  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
-    <MSBuild Projects="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj" 
-             Targets="Build"
-             Properties="Configuration=$(Configuration)" />
-  </Target>
-
-  <!-- Include templates in package -->
-  <!-- NoDefaultExcludes allows dotfiles (.gitignore, .gitkeep, etc.) to be packed -->
-  <PropertyGroup>
+    <!-- Suppress empty-assembly warnings for meta-package pattern -->
+    <NoWarn>$(NoWarn);NU5127;NU5128</NoWarn>
+    <!-- NoDefaultExcludes allows dotfiles in packed content -->
     <NoDefaultExcludes>true</NoDefaultExcludes>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- MSBuild targets file for auto-registering source generators -->
-    <None Include="build\Flowthru.targets" Pack="true" PackagePath="build\" />
-    
+    <!-- Meta-package: pulls in core and all built-in format extensions -->
+    <ProjectReference Include="../Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="../../extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+    <ProjectReference Include="../../extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
+    <ProjectReference Include="../../extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include README and LICENSE in package -->
+    <None Include="../Flowthru.Core/README.md" Pack="true" PackagePath="/" />
+    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <!-- build/ targets for from-source dev experience -->
+    <None Include="build/Flowthru.targets" Pack="true" PackagePath="build\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="../../../examples/starter/**/*"
              Exclude="../../../examples/starter/**/bin/**;../../../examples/starter/**/obj/**;../../../examples/starter/**/.vs/**;../../../examples/starter/**/.vscode/**;../../../examples/starter/**/*.user;../../../examples/starter/**/.venv/**;../../../examples/starter/**/__pycache__/**"
              Pack="true"
              PackagePath="content/" />
-    <Content Include="../../../examples/item-templates/**/*" 
+    <Content Include="../../../examples/item-templates/**/*"
              Exclude="../../../examples/item-templates/**/bin/**;../../../examples/item-templates/**/obj/**;../../../examples/item-templates/**/.vs/**;../../../examples/item-templates/**/.vscode/**;../../../examples/item-templates/**/*.user"
-             Pack="true" 
+             Pack="true"
              PackagePath="content/" />
   </ItemGroup>
+
 
 </Project>
