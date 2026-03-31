@@ -81,3 +81,50 @@ public record TestData
   public string Name { get; init; } = string.Empty;
   public double Value { get; init; }
 }
+
+/// <summary>
+/// Upstream catalog for multi-catalog pipeline tests.
+/// Owns the raw input entry and an output entry that a downstream catalog bridges.
+/// </summary>
+public class UpstreamCatalog : DataCatalogBase
+{
+  public UpstreamCatalog()
+  {
+    InitializeCatalogProperties();
+  }
+
+  public ICatalogEntry<IEnumerable<TestData>> UpstreamInput =>
+    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "upstream_input"));
+
+  public ICatalogEntry<IEnumerable<TestData>> UpstreamOutput =>
+    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "upstream_output"));
+}
+
+/// <summary>
+/// Downstream catalog for multi-catalog pipeline tests.
+/// Owns its own output; bridges to UpstreamCatalog.UpstreamOutput are wired via the pipeline.
+/// </summary>
+public class DownstreamCatalog : DataCatalogBase
+{
+  public DownstreamCatalog()
+  {
+    InitializeCatalogProperties();
+  }
+
+  public ICatalogEntry<IEnumerable<TestData>> DownstreamOutput =>
+    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "downstream_output"));
+}
+
+/// <summary>
+/// Third catalog for 3-arity pipeline tests.
+/// </summary>
+public class ThirdCatalog : DataCatalogBase
+{
+  public ThirdCatalog()
+  {
+    InitializeCatalogProperties();
+  }
+
+  public ICatalogEntry<IEnumerable<TestData>> FinalOutput =>
+    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "final_output"));
+}

@@ -20,7 +20,7 @@ namespace Flowthru.Services;
 /// </remarks>
 internal sealed class FlowthruService : IFlowthruService
 {
-  private readonly DataCatalogBase _catalog;
+  private readonly IReadOnlyList<DataCatalogBase> _catalogs;
   private readonly Dictionary<string, Pipeline> _pipelines;
   private readonly IServiceProvider _services;
   private readonly ILogger<FlowthruService> _logger;
@@ -30,21 +30,24 @@ internal sealed class FlowthruService : IFlowthruService
   /// Initializes a new instance of FlowthruService.
   /// </summary>
   public FlowthruService(
-    DataCatalogBase catalog,
+    IReadOnlyList<DataCatalogBase> catalogs,
     Dictionary<string, Pipeline> pipelines,
     IServiceProvider services,
     ILogger<FlowthruService> logger,
     FlowthruMetadataBuilder? metadataBuilder = null
   )
   {
-    _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+    _catalogs = catalogs ?? throw new ArgumentNullException(nameof(catalogs));
     _pipelines = pipelines ?? throw new ArgumentNullException(nameof(pipelines));
     _services = services ?? throw new ArgumentNullException(nameof(services));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     _metadataBuilder = metadataBuilder;
 
-    // Inject services into catalog
-    _catalog.Services = _services;
+    // Inject services into all registered catalogs
+    foreach (var catalog in _catalogs)
+    {
+      catalog.Services = _services;
+    }
 
     // Resolve validation hooks from DI (Phase 4: extensions can register hooks)
     var validationHooks = _services
@@ -71,7 +74,7 @@ internal sealed class FlowthruService : IFlowthruService
   public IReadOnlyCollection<string> PipelineNames => _pipelines.Keys;
 
   /// <inheritdoc />
-  public DataCatalogBase Catalog => _catalog;
+  public IReadOnlyList<DataCatalogBase> Catalogs => _catalogs;
 
   /// <inheritdoc />
   public async Task<PipelineResult> ExecutePipelineAsync(

@@ -3,7 +3,6 @@ using Flowthru.Data;
 using Flowthru.Data.Storage.Strategies;
 using Flowthru.Meta;
 using Flowthru.Meta.Providers;
-using Flowthru.Registry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetEscapades.Configuration.Yaml;
@@ -24,23 +23,42 @@ namespace Flowthru.Services;
 /// services.AddFlowthru(flowthru =>
 /// {
 ///     flowthru.UseCatalog&lt;MyCatalog&gt;();
-///     flowthru.UsePipelines(catalog => new Dictionary&lt;string, Pipeline&gt;
-///     {
-///         ["my_pipeline"] = MyPipeline.Create(catalog)
-///     });
+///     flowthru.RegisterPipeline&lt;MyCatalog&gt;("my_pipeline", MyPipeline.Create);
 /// });
 /// </code>
 /// </para>
 /// </remarks>
-public sealed class FlowthruServiceBuilder
+public sealed partial class FlowthruServiceBuilder
 {
   private readonly IServiceCollection _services;
-  private readonly List<Action<PipelineRegistrar<DataCatalogBase>>> _inlineRegistrations = new();
+  private readonly List<Type> _registeredCatalogTypes = new();
+  private readonly List<PipelineRegistrationEntry> _registrations = new();
+  private PipelineRegistrationEntry? _lastRegistration;
   private IConfiguration? _configuration;
 
   internal FlowthruServiceBuilder(IServiceCollection services)
   {
     _services = services ?? throw new ArgumentNullException(nameof(services));
+  }
+
+  /// <summary>
+  /// Internal entry type that carries a pipeline factory and its associated metadata.
+  /// Replaces the PipelineRegistrar indirection for cleaner multi-catalog support.
+  /// </summary>
+  internal sealed class PipelineRegistrationEntry
+  {
+    public string Label { get; }
+    public Func<IServiceProvider, Pipelines.Pipeline> Factory { get; }
+    public string Description { get; set; } = "";
+
+    internal PipelineRegistrationEntry(
+      string label,
+      Func<IServiceProvider, Pipelines.Pipeline> factory
+    )
+    {
+      Label = label;
+      Factory = factory;
+    }
   }
 
   /// <summary>
@@ -55,7 +73,8 @@ public sealed class FlowthruServiceBuilder
   public FlowthruServiceBuilder UseCatalog<TCatalog>()
     where TCatalog : DataCatalogBase
   {
-    _services.AddSingleton<DataCatalogBase, TCatalog>();
+    _services.AddSingleton<TCatalog>();
+    _registeredCatalogTypes.Add(typeof(TCatalog));
     return this;
   }
 
@@ -74,56 +93,47 @@ public sealed class FlowthruServiceBuilder
       throw new ArgumentNullException(nameof(catalog));
     }
 
-    _services.AddSingleton(catalog);
+    _services.AddSingleton(catalog.GetType(), catalog);
+    _registeredCatalogTypes.Add(catalog.GetType());
     return this;
   }
 
   /// <summary>
   /// Registers a catalog factory that receives the service provider.
   /// </summary>
+  /// <typeparam name="TCatalog">The concrete catalog type</typeparam>
   /// <param name="catalogFactory">Factory function to create the catalog</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
-  /// Use this when the catalog needs to resolve services during construction.
+  /// Use this when the catalog needs to resolve services during construction,
+  /// or when construction requires parameters unavailable at the call site.
   /// </remarks>
-  public FlowthruServiceBuilder UseCatalog(Func<IServiceProvider, DataCatalogBase> catalogFactory)
+  public FlowthruServiceBuilder UseCatalog<TCatalog>(
+    Func<IServiceProvider, TCatalog> catalogFactory
+  )
+    where TCatalog : DataCatalogBase
   {
     if (catalogFactory == null)
     {
       throw new ArgumentNullException(nameof(catalogFactory));
     }
 
-    _services.AddSingleton(catalogFactory);
+    _services.AddSingleton<TCatalog>(catalogFactory);
+    _registeredCatalogTypes.Add(typeof(TCatalog));
     return this;
   }
 
   /// <summary>
-  /// Registers pipelines using a factory that receives the catalog.
+  /// Escape-hatch for registering pipelines via a full-access service provider factory.
   /// </summary>
-  /// <param name="pipelineFactory">Factory function to create pipeline dictionary</param>
+  /// <param name="pipelineFactory">Factory function that receives the service provider and returns the pipeline dictionary</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
-  /// <para>
-  /// The factory receives the resolved catalog and returns a dictionary of
-  /// pipeline name to pipeline instance.
-  /// </para>
-  /// <para>
-  /// <strong>Example:</strong>
-  /// <code>
-  /// flowthru.UsePipelines(catalog =>
-  /// {
-  ///     var myCatalog = (MyCatalog)catalog;
-  ///     return new Dictionary&lt;string, Pipeline&gt;
-  ///     {
-  ///         ["data_processing"] = DataProcessingPipeline.Create(myCatalog),
-  ///         ["model_training"] = ModelTrainingPipeline.Create(myCatalog)
-  ///     };
-  /// });
-  /// </code>
-  /// </para>
+  /// Prefer <see cref="RegisterPipeline{TCatalog}"/> for standard pipeline registration.
+  /// Use this only when you need full service provider access during pipeline construction.
   /// </remarks>
   public FlowthruServiceBuilder UsePipelines(
-    Func<DataCatalogBase, Dictionary<string, Pipelines.Pipeline>> pipelineFactory
+    Func<IServiceProvider, Dictionary<string, Pipelines.Pipeline>> pipelineFactory
   )
   {
     if (pipelineFactory == null)
@@ -131,11 +141,7 @@ public sealed class FlowthruServiceBuilder
       throw new ArgumentNullException(nameof(pipelineFactory));
     }
 
-    _services.AddSingleton(sp =>
-    {
-      var catalog = sp.GetRequiredService<DataCatalogBase>();
-      return pipelineFactory(catalog);
-    });
+    _services.AddSingleton(pipelineFactory);
 
     return this;
   }
@@ -157,9 +163,12 @@ public sealed class FlowthruServiceBuilder
   )
     where TCatalog : DataCatalogBase
   {
-    _inlineRegistrations.Add(registrar =>
-      registrar.Register(label, catalog => pipeline((TCatalog)catalog))
+    var entry = new PipelineRegistrationEntry(
+      label,
+      sp => pipeline(sp.GetRequiredService<TCatalog>())
     );
+    _registrations.Add(entry);
+    _lastRegistration = entry;
     return this;
   }
 
@@ -179,9 +188,12 @@ public sealed class FlowthruServiceBuilder
   )
     where TCatalog : DataCatalogBase
   {
-    _inlineRegistrations.Add(registrar =>
-      registrar.Register(label, (catalog, p) => pipeline((TCatalog)catalog, (TParams)p), parameters)
+    var entry = new PipelineRegistrationEntry(
+      label,
+      sp => pipeline(sp.GetRequiredService<TCatalog>(), parameters)
     );
+    _registrations.Add(entry);
+    _lastRegistration = entry;
     return this;
   }
 
@@ -212,9 +224,12 @@ public sealed class FlowthruServiceBuilder
 
     var parameters = _configuration.GetValidated<TParams>(configurationSection);
 
-    _inlineRegistrations.Add(registrar =>
-      registrar.Register(label, (catalog, p) => pipeline((TCatalog)catalog, (TParams)p), parameters)
+    var entry = new PipelineRegistrationEntry(
+      label,
+      sp => pipeline(sp.GetRequiredService<TCatalog>(), parameters)
     );
+    _registrations.Add(entry);
+    _lastRegistration = entry;
     return this;
   }
 
@@ -225,14 +240,14 @@ public sealed class FlowthruServiceBuilder
   /// <returns>This builder for method chaining</returns>
   public FlowthruServiceBuilder WithDescription(string description)
   {
-    if (_inlineRegistrations.Count == 0)
+    if (_lastRegistration == null)
     {
       throw new InvalidOperationException(
         "WithDescription() can only be used after RegisterPipeline()."
       );
     }
 
-    _inlineRegistrations.Add(registrar => registrar.WithDescription(description));
+    _lastRegistration.Description = description;
     return this;
   }
 
@@ -548,28 +563,35 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Internal method to register pipeline dictionary from inline registrations.
-  /// Called by FlowthruServiceCollectionExtensions.AddFlowthru.
+  /// Internal method called by AddFlowthru to register the catalog collection and
+  /// pipeline dictionary into the DI container. Must be called after all UseCatalog
+  /// and RegisterPipeline calls have been made.
   /// </summary>
   internal void RegisterPipelineDictionary()
   {
-    if (_inlineRegistrations.Count == 0)
+    // Always register the catalog collection so FlowthruService can inject all catalogs.
+    var catalogTypes = _registeredCatalogTypes.ToList();
+    _services.AddSingleton<IReadOnlyList<DataCatalogBase>>(sp =>
+      catalogTypes.Select(t => (DataCatalogBase)sp.GetRequiredService(t)).ToList().AsReadOnly()
+    );
+
+    if (_registrations.Count == 0)
     {
-      return; // No inline registrations, assume UsePipelines was called instead
+      return; // No inline registrations; assume UsePipelines was called instead.
     }
 
-    _services.AddSingleton(sp =>
+    var snapshot = _registrations.ToList();
+    _services.AddSingleton<Dictionary<string, Pipelines.Pipeline>>(sp =>
     {
-      var catalog = sp.GetRequiredService<DataCatalogBase>();
-      var registrar = new PipelineRegistrar<DataCatalogBase>(catalog);
-
-      // Replay all registration actions
-      foreach (var registration in _inlineRegistrations)
+      var result = new Dictionary<string, Pipelines.Pipeline>();
+      foreach (var reg in snapshot)
       {
-        registration(registrar);
+        var pipeline = reg.Factory(sp);
+        pipeline.Name = reg.Label;
+        pipeline.Description = reg.Description;
+        result[reg.Label] = pipeline;
       }
-
-      return registrar.Build();
+      return result;
     });
   }
 }

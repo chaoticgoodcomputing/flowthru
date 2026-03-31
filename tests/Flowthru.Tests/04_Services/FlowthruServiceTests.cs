@@ -44,7 +44,7 @@ public class FlowthruServiceTests
   }
 
   private IFlowthruService CreateService(
-    DataCatalogBase catalog,
+    SimpleThreeNodeCatalog catalog,
     Dictionary<string, Pipeline> pipelines
   )
   {
@@ -54,7 +54,7 @@ public class FlowthruServiceTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(_ => pipelines);
+      flowthru.UsePipelines(sp => pipelines);
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -65,23 +65,17 @@ public class FlowthruServiceTests
   public void Constructor_WithNullCatalog_ThrowsArgumentNullException()
   {
     // Arrange
-    var pipelines = new Dictionary<string, Pipeline>();
+    DataCatalogBase nullCatalog = null!;
 
-    // Act & Assert
-    // Service creation happens through DI, so this test validates DI registration
+    // Act & Assert — UseCatalog(null) must throw immediately, not silently register null
     var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-    services.AddLogging();
 
-    Assert.Throws<InvalidOperationException>(() =>
+    Assert.Throws<ArgumentNullException>(() =>
     {
       services.AddFlowthru(flowthru =>
       {
-        // Don't register catalog
-        flowthru.UsePipelines(_ => pipelines);
+        flowthru.UseCatalog(nullCatalog);
       });
-
-      var serviceProvider = services.BuildServiceProvider();
-      serviceProvider.GetRequiredService<IFlowthruService>();
     });
   }
 
@@ -174,11 +168,11 @@ public class FlowthruServiceTests
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var result = service.Catalog;
+    var result = service.Catalogs;
 
     // Assert
-    Assert.That(result, Is.Not.Null);
-    Assert.That(result, Is.InstanceOf<SimpleThreeNodeCatalog>());
+    Assert.That(result, Is.Not.Empty);
+    Assert.That(result.First(), Is.InstanceOf<SimpleThreeNodeCatalog>());
   }
 
   [Test]

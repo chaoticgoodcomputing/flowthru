@@ -60,9 +60,9 @@ public interface IFlowthruService
   IReadOnlyCollection<string> PipelineNames { get; }
 
   /// <summary>
-  /// Gets the catalog instance.
+  /// Gets all registered catalog instances.
   /// </summary>
-  DataCatalogBase Catalog { get; }
+  IReadOnlyList<DataCatalogBase> Catalogs { get; }
 
   /// <summary>
   /// Executes all registered pipelines, optionally sliced by criteria.

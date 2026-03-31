@@ -1,0 +1,10 @@
+# Generated pipeline outputs — not checked in
+Data/_02_Intermediate/Datasets/
+Data/_03_Primary/Datasets/
+Data/_05_ModelInput/
+Data/_06_Models/Datasets/
+Data/_07_ModelOutput/
+Data/_08_Reporting/
+
+# Flowthru pipeline metadata
+Metadata/

@@ -30,5 +30,9 @@
     <Project Path="examples\archived\UmapReferenceComparisons\UmapReferenceComparisons.csproj" />
     <Project Path="examples\advanced\KedroSpaceflights.Custom\KedroSpaceflights.Custom.csproj" />
     <Project Path="examples\advanced\SpaceflightsPythonEFCore\SpaceflightsPythonEFCore.csproj" />
+    <Project Path="examples\advanced\SpaceflightsDistributed\SpaceflightsDistributed.DataProcessing\SpaceflightsDistributed.DataProcessing.csproj" />
+    <Project Path="examples\advanced\SpaceflightsDistributed\SpaceflightsDistributed.DataScience\SpaceflightsDistributed.DataScience.csproj" />
+    <Project Path="examples\advanced\SpaceflightsDistributed\SpaceflightsDistributed.Reporting\SpaceflightsDistributed.Reporting.csproj" />
+    <Project Path="examples\advanced\SpaceflightsDistributed\SpaceflightsDistributed\SpaceflightsDistributed.csproj" />
   </Folder>
 </Solution>

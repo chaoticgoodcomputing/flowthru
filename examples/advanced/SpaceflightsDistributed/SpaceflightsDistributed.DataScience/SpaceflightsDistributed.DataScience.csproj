@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
+  <ItemGroup Condition="Exists('../../../../../src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="../../../../../src/core/Flowthru/Flowthru.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../../../src/core/Flowthru/Flowthru.csproj')">
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SpaceflightsDistributed.DataProcessing/SpaceflightsDistributed.DataProcessing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

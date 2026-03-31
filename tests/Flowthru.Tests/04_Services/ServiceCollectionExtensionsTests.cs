@@ -28,7 +28,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseCatalog(new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(catalog => new Dictionary<string, Pipeline>());
+      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -49,13 +49,13 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(c => new Dictionary<string, Pipeline>());
+      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
 
-    // Assert
-    var resolvedCatalog = serviceProvider.GetService<DataCatalogBase>();
+    // Assert — catalogs are registered by concrete type, not DataCatalogBase
+    var resolvedCatalog = serviceProvider.GetService<SimpleThreeNodeCatalog>();
     Assert.That(resolvedCatalog, Is.Not.Null);
     Assert.That(resolvedCatalog, Is.SameAs(catalog));
   }
@@ -65,19 +65,18 @@ public class ServiceCollectionExtensionsTests
   {
     // Arrange
     var services = new ServiceCollection();
-    services.AddSingleton<SimpleThreeNodeCatalog>();
 
     // Act
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseCatalog<SimpleThreeNodeCatalog>();
-      flowthru.UsePipelines(c => new Dictionary<string, Pipeline>());
+      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
 
-    // Assert
-    var catalog = serviceProvider.GetService<DataCatalogBase>();
+    // Assert — concrete type is resolvable directly
+    var catalog = serviceProvider.GetService<SimpleThreeNodeCatalog>();
     Assert.That(catalog, Is.Not.Null);
     Assert.That(catalog, Is.InstanceOf<SimpleThreeNodeCatalog>());
   }
@@ -91,14 +90,14 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(sp => new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(c => new Dictionary<string, Pipeline>());
+      flowthru.UseCatalog<SimpleThreeNodeCatalog>(sp => new SimpleThreeNodeCatalog());
+      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
 
-    // Assert
-    var catalog = serviceProvider.GetService<DataCatalogBase>();
+    // Assert — concrete type is resolvable directly
+    var catalog = serviceProvider.GetService<SimpleThreeNodeCatalog>();
     Assert.That(catalog, Is.Not.Null);
     Assert.That(catalog, Is.InstanceOf<SimpleThreeNodeCatalog>());
   }
@@ -113,22 +112,21 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(catalog =>
-      {
-        var typedCatalog = (SimpleThreeNodeCatalog)catalog;
-        var pipeline = PipelineBuilder.CreatePipeline(builder =>
-        {
-          builder.AddNode(
-            label: "Node",
-            transform: PassthroughNode.Create(),
-            input: typedCatalog.Input,
-            output: typedCatalog.Output
-          );
-        });
-
-        return new Dictionary<string, Pipeline> { ["test"] = pipeline };
-      });
+      var catalog = new SimpleThreeNodeCatalog();
+      flowthru.UseCatalog(catalog);
+      flowthru.RegisterPipeline<SimpleThreeNodeCatalog>(
+        "test",
+        cat =>
+          PipelineBuilder.CreatePipeline(builder =>
+          {
+            builder.AddNode(
+              label: "Node",
+              transform: PassthroughNode.Create(),
+              input: cat.Input,
+              output: cat.Output
+            );
+          })
+      );
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -169,7 +167,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseCatalog(new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(c => new Dictionary<string, Pipeline>());
+      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
       flowthru.ConfigureMetadata(meta =>
       {
         meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
@@ -197,7 +195,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseCatalog(new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(c => new Dictionary<string, Pipeline>());
+      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
