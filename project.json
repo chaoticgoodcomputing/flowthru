@@ -143,12 +143,7 @@
           "echo 'Injecting version into templates...'",
           "./scripts/inject-template-version.sh",
           "echo 'Packing NuGet packages...'",
-          "dotnet pack src/core/Flowthru/Flowthru.csproj --configuration Release --no-build",
-          "dotnet pack src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj --configuration Release --no-build",
-          "dotnet pack src/extensions/Flowthru.Extensions.MLNet/Flowthru.Extensions.MLNet.csproj --configuration Release --no-build",
-          "dotnet pack src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj --configuration Release --no-build",
-          "dotnet pack src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj --configuration Release --no-build",
-          "dotnet pack src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj --configuration Release --no-build",
+          "find src -name '*.csproj' | xargs -I{} dotnet pack {} --configuration Release --no-build",
           "echo '✓ NuGet packages created:'",
           "ls -lh dist/packages/*.nupkg"
         ],

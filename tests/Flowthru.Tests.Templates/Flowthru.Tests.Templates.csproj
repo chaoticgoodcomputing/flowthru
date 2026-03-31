@@ -40,14 +40,22 @@
           WorkingDirectory="$(RepoRoot)"
           ConsoleToMSBuild="true" />
 
-    <!-- Pack all publishable src/ projects into dist/packages/ -->
+    <!--
+      Clear stale nupkgs so only the current version exists in the local feed.
+      Without this, a previously-packed older version satisfies transitive
+      dependency resolution before the freshly-built packages are considered.
+    -->
+    <RemoveDir Directories="$(RepoRoot)dist\packages" />
+    <MakeDir  Directories="$(RepoRoot)dist\packages" />
+
+    <!--
+      Pack every src/ project. Non-packable projects (IsPackable=false) are
+      no-ops, so the glob is safe to expand without a central list. This
+      automatically captures all transitive Flowthru* dependencies (Core, Csv,
+      Parquet, Excel, etc.) whenever the dependency tree changes.
+    -->
     <ItemGroup>
-      <_PackableProject Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
-      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
-      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.MLNet\Flowthru.Extensions.MLNet.csproj" />
-      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Python\Flowthru.Extensions.Python.csproj" />
-      <_PackableProject Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj" />
-      <_PackableProject Include="$(RepoRoot)src\misc\Flowthru.Misc.ML\Flowthru.Misc.ML.csproj" />
+      <_PackableProject Include="$(RepoRoot)src\**\*.csproj" />
     </ItemGroup>
 
     <MSBuild Projects="@(_PackableProject)"
