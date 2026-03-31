@@ -11,14 +11,17 @@ namespace Flowthru.Pipelines;
 public class ExecutionOptions
 {
   /// <summary>
-  /// Whether to perform a dry run (pre-flight checks only, no execution).
+  /// Whether to perform a dry run, and at what validation depth.
   /// </summary>
   /// <remarks>
-  /// When true, the application performs all pre-flight operations (pipeline build,
-  /// DAG analysis, metadata generation, Layer 0 validation) but stops before executing
-  /// the pipeline. Useful for validating pipeline structure and configuration.
+  /// Assign <c>true</c> to perform all pre-flight operations (structure validation,
+  /// validation hooks, and external data source inspection) without executing nodes.
+  /// Assign a <see cref="ValidationDepth"/> value to control how deeply the pre-flight
+  /// checks run — for example, <see cref="ValidationDepth.StructureOnly"/> validates
+  /// the pipeline graph and runs extension hooks without probing any data sources.
+  /// Assign <c>false</c> (default) to run normally without a dry-run stop.
   /// </remarks>
-  public bool DryRun { get; set; } = false;
+  public DryRunOption DryRun { get; set; } = false;
 
   /// <summary>
   /// Whether to stop execution on the first node failure.

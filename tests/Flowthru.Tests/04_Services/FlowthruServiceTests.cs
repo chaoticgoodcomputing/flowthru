@@ -1,4 +1,5 @@
 using Flowthru.Data;
+using Flowthru.Data.Validation;
 using Flowthru.Meta.Models;
 using Flowthru.Pipelines;
 using Flowthru.Services;
@@ -264,6 +265,66 @@ public class FlowthruServiceTests
     // Verify output was not written
     var outputExists = await catalog.Output.Exists().Run();
     Assert.That(outputExists, Is.False);
+  }
+
+  [Test]
+  public async Task ExecutePipelineAsync_WithStructureOnlyDryRun_SucceedsWithoutData()
+  {
+    // Arrange — no data seeded; StructureOnly must not probe any data source
+    var catalog = new SimpleThreeNodeCatalog();
+
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Process",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
+    });
+
+    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var service = CreateService(catalog, pipelines);
+
+    // Act
+    var result = await service.ExecutePipelineAsync(
+      options: new ExecutionOptions { DryRun = ValidationDepth.StructureOnly },
+      exportMetadata: false
+    );
+
+    // Assert
+    Assert.That(result.Success, Is.True);
+    Assert.That(result.IsDryRun, Is.True);
+    Assert.That(result.NodeResults, Is.Empty);
+  }
+
+  [Test]
+  public async Task ExecutePipelineAsync_WithFullDryRun_FailsWithoutData()
+  {
+    // Arrange — no data seeded; Full depth must surface the missing external input
+    var catalog = new SimpleThreeNodeCatalog();
+
+    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    {
+      builder.AddNode(
+        label: "Process",
+        transform: PassthroughNode.Create(),
+        input: catalog.Input,
+        output: catalog.Output
+      );
+    });
+
+    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var service = CreateService(catalog, pipelines);
+
+    // Act & Assert — Full validation probes external inputs and must fail when absent
+    Assert.ThrowsAsync<ValidationException>(
+      async () =>
+        await service.ExecutePipelineAsync(
+          options: new ExecutionOptions { DryRun = true },
+          exportMetadata: false
+        )
+    );
   }
 
   [Test]

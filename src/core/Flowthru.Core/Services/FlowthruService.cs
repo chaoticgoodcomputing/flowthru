@@ -114,7 +114,31 @@ internal sealed class FlowthruService : IFlowthruService
       mergedPipeline.ExecutionLayers!.Count
     );
 
-    // Export DAG metadata if requested
+    // Validate external inputs — skipped for StructureOnly dry runs (no data source access)
+    var validatedInputCount = 0;
+    var skipDataValidation =
+      options.DryRun.Enabled && options.DryRun.Depth == ValidationDepth.StructureOnly;
+
+    if (skipDataValidation)
+    {
+      _logger.LogInformation("→ Skipping data source validation (StructureOnly dry run)");
+    }
+    else
+    {
+      _logger.LogInformation("→ Validating external data sources...");
+      var validationResult = await mergedPipeline.ValidateExternalInputsAsync(cancellationToken);
+      if (!validationResult.IsValid)
+      {
+        _logger.LogError("  ✗ Validation failed");
+        validationResult.ThrowIfInvalid();
+      }
+
+      var layer0Nodes = mergedPipeline.ExecutionLayers![0];
+      validatedInputCount = layer0Nodes.SelectMany(node => node.Inputs).Distinct().Count();
+      _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
+    }
+
+    // Export DAG metadata if requested — runs after all pre-flight checks, before any execution
     if (exportMetadata && _metadataBuilder != null && _metadataBuilder.AutoExport)
     {
       try
@@ -130,21 +154,6 @@ internal sealed class FlowthruService : IFlowthruService
       }
     }
 
-    // Validate external inputs
-    _logger.LogInformation("→ Validating external data sources...");
-    var validationResult = await mergedPipeline.ValidateExternalInputsAsync(cancellationToken);
-    if (!validationResult.IsValid)
-    {
-      _logger.LogError("  ✗ Validation failed");
-      validationResult.ThrowIfInvalid();
-    }
-
-    // Count validated inputs
-    var layer0Nodes = mergedPipeline.ExecutionLayers![0];
-    var validatedInputCount = layer0Nodes.SelectMany(node => node.Inputs).Distinct().Count();
-
-    _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
-
     preFlightStopwatch.Stop();
     _logger.LogInformation("");
     _logger.LogInformation(
@@ -154,7 +163,7 @@ internal sealed class FlowthruService : IFlowthruService
     _logger.LogInformation("");
 
     // Check if dry run
-    if (options.DryRun)
+    if (options.DryRun.Enabled)
     {
       _logger.LogInformation("════════════════════════════════════════");
       _logger.LogInformation("DRY RUN SUCCESSFUL");
