@@ -46,7 +46,8 @@ public sealed class FlowthruCli
     _output = output ?? Console.Out;
   }
 
-  /// <summa standalone Flowthru CLI application with automatic service provider lifecycle management.
+  /// <summary>
+  /// Creates and runs a standalone Flowthru CLI application with automatic service provider lifecycle management.
   /// </summary>
   /// <remarks>
   /// <para>

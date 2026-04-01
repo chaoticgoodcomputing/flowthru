@@ -16,6 +16,11 @@
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
   </PropertyGroup>
   
+  <!-- Generate XML documentation for src/ projects (consumed by DocFX) -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src'))">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
   <!-- Centralized NuGet package configuration for all src/ projects -->
   <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src'))">
     <Version>0.1.32</Version>

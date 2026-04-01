@@ -91,6 +91,35 @@
         }
       }
     },
+    "docs:metadata": {
+      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "restore" ],
+      "options": {
+        "commands": [
+          "./scripts/docfx-metadata.sh --projects src"
+        ],
+        "parallel": false
+      },
+      "configurations": {
+        "examples": {
+          "//": "Generate metadata for examples/ projects only",
+          "options": {
+            "commands": [
+              "./scripts/docfx-metadata.sh --projects examples"
+            ]
+          }
+        },
+        "all": {
+          "//": "Generate metadata for both src/ and examples/",
+          "options": {
+            "commands": [
+              "./scripts/docfx-metadata.sh --projects all"
+            ]
+          }
+        }
+      }
+    },
     "purge": {
       "//": "Purges non-essential files and folders",
       "executor": "nx:run-commands",
