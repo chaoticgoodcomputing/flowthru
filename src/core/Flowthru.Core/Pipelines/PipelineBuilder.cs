@@ -188,4 +188,57 @@ public partial class PipelineBuilder
 
   // Additional overloads (2-8 inputs, 1-8 outputs) are auto-generated via source generator.
   // See: Flowthru.SourceGenerators/PipelineBuilderGenerator.cs
+
+  /// <summary>
+  /// Adds a homogeneous fan-in node: N catalog entries of the same element type collapse
+  /// into a single node whose transform receives all N loaded collections as a typed list.
+  /// </summary>
+  /// <typeparam name="TIn">Element type of each input catalog entry</typeparam>
+  /// <typeparam name="TOut">Output type produced by the transform</typeparam>
+  /// <param name="label">Unique identifier for this node</param>
+  /// <param name="inputs">Variable-length list of same-typed input entries</param>
+  /// <param name="output">Catalog entry to store the merged result</param>
+  /// <param name="node">Transform function receiving all N loaded values as a typed read-only list</param>
+  /// <param name="description">Optional human-readable description</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// Use this when the number of inputs is not known at compile time — for example,
+  /// aggregating per-partition catalogs constructed in a loop. The function receives
+  /// <c>IReadOnlyList&lt;TIn&gt;</c> where each element corresponds to one input entry
+  /// in declaration order. An empty inputs list is allowed but produces an empty list argument.
+  /// </remarks>
+  public PipelineBuilder AddNode<TIn, TOut>(
+    string label,
+    IReadOnlyList<ICatalogEntry<TIn>> inputs,
+    ICatalogEntry<TOut> output,
+    Func<IReadOnlyList<TIn>, TOut> node,
+    string description = ""
+  )
+  {
+    if (inputs == null)
+      throw new ArgumentNullException(nameof(inputs));
+    if (output == null)
+      throw new ArgumentNullException(nameof(output));
+    if (node == null)
+      throw new ArgumentNullException(nameof(node));
+
+    var capturedNode = node;
+    // Wrap into Func<object[], TOut>. The executor uses the parameter type as a signal:
+    // when it is object[], it passes the loaded inputs array directly rather than building
+    // a ValueTuple. inputParameter is declared as object in the executor so DynamicInvoke
+    // receives new object[]{ inputParameter } — no array-spreading occurs.
+    Func<object[], TOut> wrappedNode = rawInputs =>
+      capturedNode(rawInputs.Cast<TIn>().ToList().AsReadOnly());
+
+    var pipelineNode = new PipelineNode(
+      label: label,
+      description: description,
+      node: wrappedNode,
+      inputs: inputs.Cast<ICatalogEntry>().ToList(),
+      outputs: new List<ICatalogEntry> { output }
+    );
+
+    _pipeline.AddNode(pipelineNode);
+    return this;
+  }
 }

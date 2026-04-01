@@ -746,17 +746,23 @@ public class Pipeline
 
       // Prepare input parameter for function invocation
       // For single-input nodes: pass data directly (T)
-      // For multi-input nodes: construct tuple (T1, T2, ...)
+      // For multi-input nodes: construct tuple (T1, T2, ...) or pass as object[] for fan-in
       object inputParameter;
       if (pipelineNode.Inputs.Count == 1)
       {
-        // Single input: pass data directly
-        inputParameter = inputs[0];
+        // Single input: pass data directly, unless this is a fan-in wrapper (Func<object[], TOut>)
+        // in which case the node still expects an object[] even with a single entry.
+        var singleFuncType = pipelineNode.TransformFunction.GetType();
+        var singleParams = singleFuncType.GetMethod("Invoke")!.GetParameters();
+        if (singleParams.Length == 1 && singleParams[0].ParameterType == typeof(object[]))
+          inputParameter = (object)inputs; // fan-in wrapper with single shard
+        else
+          inputParameter = inputs[0];
       }
       else
       {
-        // Multi-input: construct tuple from loaded values
-        // Use the function's actual parameter type to ensure correct tuple signature
+        // Multi-input: construct tuple from loaded values, or pass as object[] for fan-in nodes.
+        // Use the function's actual parameter type to ensure correct tuple signature.
         var funcType = pipelineNode.TransformFunction.GetType();
         var invokeMethod = funcType.GetMethod("Invoke");
         var parameters = invokeMethod!.GetParameters();
@@ -768,24 +774,36 @@ public class Pipeline
           );
         }
 
-        var tupleType = parameters[0].ParameterType;
+        var paramType = parameters[0].ParameterType;
 
-        // Create tuple instance from input values
-        try
+        if (paramType == typeof(object[]))
         {
-          inputParameter =
-            Activator.CreateInstance(tupleType, inputs)
-            ?? throw new InvalidOperationException(
-              $"Activator returned null for tuple type {tupleType.Name}"
-            );
+          // Fan-in node: the PipelineBuilder wraps Func<IReadOnlyList<TIn>, TOut> into
+          // Func<object[], TOut>. Pass the loaded array as a single boxed object so
+          // DynamicInvoke receives new object[]{ inputs } — no array-spreading occurs.
+          inputParameter = (object)inputs;
         }
-        catch (Exception ex)
+        else
         {
-          throw new InvalidOperationException(
-            $"Failed to create {inputs.Length}-tuple for node {pipelineNode.Label}. "
-              + $"Expected tuple type: {tupleType.FullName}, Input types: [{string.Join(", ", inputs.Select(v => v?.GetType().Name ?? "null"))}]",
-            ex
-          );
+          // Standard multi-input: construct ValueTuple from loaded values
+          var tupleType = paramType;
+
+          try
+          {
+            inputParameter =
+              Activator.CreateInstance(tupleType, inputs)
+              ?? throw new InvalidOperationException(
+                $"Activator returned null for tuple type {tupleType.Name}"
+              );
+          }
+          catch (Exception ex)
+          {
+            throw new InvalidOperationException(
+              $"Failed to create {inputs.Length}-tuple for node {pipelineNode.Label}. "
+                + $"Expected tuple type: {tupleType.FullName}, Input types: [{string.Join(", ", inputs.Select(v => v?.GetType().Name ?? "null"))}]",
+              ex
+            );
+          }
         }
       }
 
@@ -941,7 +959,13 @@ public class Pipeline
       object inputParameter;
       if (pipelineNode.Inputs.Count == 1)
       {
-        inputParameter = inputs[0];
+        // Single input, unless this is a fan-in wrapper (Func<object[], TOut>)
+        var singleFuncType = pipelineNode.TransformFunction.GetType();
+        var singleParams = singleFuncType.GetMethod("Invoke")!.GetParameters();
+        if (singleParams.Length == 1 && singleParams[0].ParameterType == typeof(object[]))
+          inputParameter = (object)inputs;
+        else
+          inputParameter = inputs[0];
       }
       else
       {
@@ -949,13 +973,22 @@ public class Pipeline
         var funcType = pipelineNode.TransformFunction.GetType();
         var invokeMethod = funcType.GetMethod("Invoke");
         var parameters = invokeMethod!.GetParameters();
-        var tupleType = parameters[0].ParameterType;
+        var paramType = parameters[0].ParameterType;
 
-        inputParameter =
-          Activator.CreateInstance(tupleType, inputs)
-          ?? throw new InvalidOperationException(
-            $"Failed to create tuple for node {pipelineNode.Label}"
-          );
+        if (paramType == typeof(object[]))
+        {
+          // Fan-in node: pass the loaded array as a single boxed object.
+          inputParameter = (object)inputs;
+        }
+        else
+        {
+          var tupleType = paramType;
+          inputParameter =
+            Activator.CreateInstance(tupleType, inputs)
+            ?? throw new InvalidOperationException(
+              $"Failed to create tuple for node {pipelineNode.Label}"
+            );
+        }
       }
 
       // Invoke transformation function

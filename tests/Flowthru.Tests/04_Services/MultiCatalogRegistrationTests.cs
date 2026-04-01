@@ -356,4 +356,105 @@ public class MultiCatalogRegistrationTests
       "The shared entry must be the same object instance for the DAG to resolve the dependency edge."
     );
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // UseCatalogs — dynamic/iterative catalog registration
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public void UseCatalogs_InstanceOverload_AllCatalogsVisibleToService()
+  {
+    // Arrange — simulate the fan-out pattern: N catalogs built in a loop,
+    // registered via UseCatalogs rather than individual UseCatalog calls.
+    var shards = new[] { new ShardCatalog("X"), new ShardCatalog("Y"), new ShardCatalog("Z") };
+
+    var services = new ServiceCollection();
+    services.AddLogging();
+
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.UseCatalogs(shards);
+
+      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      {
+        // Minimal pipeline so AddFlowthru has something to inject
+        ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
+      });
+    });
+
+    var sp = services.BuildServiceProvider();
+    var service = sp.GetRequiredService<IFlowthruService>();
+
+    // Assert — all three dynamically-registered catalogs appear in IFlowthruService.Catalogs
+    Assert.That(service.Catalogs, Has.Count.EqualTo(3));
+    Assert.That(
+      service.Catalogs.OfType<ShardCatalog>().Count(),
+      Is.EqualTo(3),
+      "All three ShardCatalog instances should be present"
+    );
+  }
+
+  [Test]
+  public void UseCatalogs_MixedWithUseCatalog_AllCatalogsVisibleToService()
+  {
+    // Arrange — one static catalog registered via UseCatalog, N via UseCatalogs.
+    var staticCatalog = new UpstreamCatalog();
+    var shards = new[] { new ShardCatalog("P"), new ShardCatalog("Q") };
+
+    var services = new ServiceCollection();
+    services.AddLogging();
+
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.UseCatalog(staticCatalog);
+      flowthru.UseCatalogs(shards);
+
+      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      {
+        ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
+      });
+    });
+
+    var sp = services.BuildServiceProvider();
+    var service = sp.GetRequiredService<IFlowthruService>();
+
+    // Assert — static + dynamic catalogs both present
+    Assert.That(service.Catalogs, Has.Count.EqualTo(3));
+    Assert.That(
+      service.Catalogs.OfType<UpstreamCatalog>().Count(),
+      Is.EqualTo(1),
+      "Static UseCatalog entry should be present"
+    );
+    Assert.That(
+      service.Catalogs.OfType<ShardCatalog>().Count(),
+      Is.EqualTo(2),
+      "Dynamic UseCatalogs entries should be present"
+    );
+  }
+
+  [Test]
+  public void UseCatalogs_FactoryOverload_AllCatalogsVisibleToService()
+  {
+    // Arrange — catalogs produced by a factory that receives the service provider.
+    var services = new ServiceCollection();
+    services.AddLogging();
+
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.UseCatalogs(_ =>
+        new DataCatalogBase[] { new ShardCatalog("factory_1"), new ShardCatalog("factory_2") }
+      );
+
+      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      {
+        ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
+      });
+    });
+
+    var sp = services.BuildServiceProvider();
+    var service = sp.GetRequiredService<IFlowthruService>();
+
+    Assert.That(service.Catalogs, Has.Count.EqualTo(2));
+    Assert.That(service.Catalogs.OfType<ShardCatalog>().Count(), Is.EqualTo(2));
+  }
 }

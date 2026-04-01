@@ -32,6 +32,9 @@ public sealed class FlowthruServiceBuilder
 {
   private readonly IServiceCollection _services;
   private readonly List<Type> _registeredCatalogTypes = new();
+  private readonly List<
+    Func<IServiceProvider, IEnumerable<DataCatalogBase>>
+  > _dynamicCatalogFactories = new();
   private readonly List<PipelineRegistrationEntry> _registrations = new();
   private PipelineRegistrationEntry? _lastRegistration;
   private IConfiguration? _configuration;
@@ -120,6 +123,45 @@ public sealed class FlowthruServiceBuilder
 
     _services.AddSingleton<TCatalog>(catalogFactory);
     _registeredCatalogTypes.Add(typeof(TCatalog));
+    return this;
+  }
+
+  /// <summary>
+  /// Registers a collection of pre-built catalog instances produced by iterative or dynamic
+  /// construction — the fan-out pattern where N identical-shaped catalogs differ only by
+  /// their construction parameters (e.g., one catalog per US state).
+  /// </summary>
+  /// <param name="catalogs">The catalog instances to register</param>
+  /// <returns>This builder for method chaining</returns>
+  /// <remarks>
+  /// All registered catalogs will receive DI service injection and appear in
+  /// <see cref="IFlowthruService.Catalogs"/>. Use with <see cref="UsePipelines"/> to
+  /// wire per-catalog pipelines in a loop.
+  /// </remarks>
+  public FlowthruServiceBuilder UseCatalogs(IEnumerable<DataCatalogBase> catalogs)
+  {
+    if (catalogs == null)
+      throw new ArgumentNullException(nameof(catalogs));
+
+    var snapshot = catalogs.ToList();
+    _dynamicCatalogFactories.Add(_ => snapshot);
+    return this;
+  }
+
+  /// <summary>
+  /// Registers catalogs produced by a factory that receives the service provider —
+  /// useful when catalog construction itself requires DI resolution.
+  /// </summary>
+  /// <param name="catalogsFactory">Factory that returns the catalog collection</param>
+  /// <returns>This builder for method chaining</returns>
+  public FlowthruServiceBuilder UseCatalogs(
+    Func<IServiceProvider, IEnumerable<DataCatalogBase>> catalogsFactory
+  )
+  {
+    if (catalogsFactory == null)
+      throw new ArgumentNullException(nameof(catalogsFactory));
+
+    _dynamicCatalogFactories.Add(catalogsFactory);
     return this;
   }
 
@@ -567,10 +609,16 @@ public sealed class FlowthruServiceBuilder
   internal void RegisterPipelineDictionary()
   {
     // Always register the catalog collection so FlowthruService can inject all catalogs.
+    // Merges both type-registered catalogs (UseCatalog) and dynamically constructed
+    // catalog collections (UseCatalogs).
     var catalogTypes = _registeredCatalogTypes.ToList();
+    var dynamicFactories = _dynamicCatalogFactories.ToList();
     _services.AddSingleton<IReadOnlyList<DataCatalogBase>>(sp =>
-      catalogTypes.Select(t => (DataCatalogBase)sp.GetRequiredService(t)).ToList().AsReadOnly()
-    );
+    {
+      var typedCatalogs = catalogTypes.Select(t => (DataCatalogBase)sp.GetRequiredService(t));
+      var dynamicCatalogs = dynamicFactories.SelectMany(f => f(sp));
+      return typedCatalogs.Concat(dynamicCatalogs).ToList().AsReadOnly();
+    });
 
     if (_registrations.Count == 0)
     {

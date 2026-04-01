@@ -53,16 +53,13 @@ public class Program
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
 
       // ─── Catalog Registration ──────────────────────────────────────────────
-      // Each library owns its own catalog. Registered by concrete type so each
-      // pipeline factory receives the correct strongly-typed instance.
+      // Each library owns its own catalog.
 
       flowthru.UseCatalog(_ => new DataProcessingCatalog(dataPath));
       flowthru.UseCatalog(_ => new DataScienceCatalog(dataPath));
       flowthru.UseCatalog(_ => new ReportingCatalog(dataPath));
 
       // ─── Pipeline Registration ─────────────────────────────────────────────
-      // Each pipeline's Create method signature IS the cross-catalog contract.
-      // The framework resolves catalogs and config automatically from DI.
 
       flowthru
         .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)

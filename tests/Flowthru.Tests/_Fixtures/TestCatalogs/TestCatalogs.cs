@@ -128,3 +128,37 @@ public class ThirdCatalog : DataCatalogBase
   public ICatalogEntry<IEnumerable<TestData>> FinalOutput =>
     GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "final_output"));
 }
+
+/// <summary>
+/// Per-shard catalog for fan-in and UseCatalogs tests.
+/// Each instance is keyed by a unique shard label, giving every entry a distinct identity.
+/// </summary>
+public class ShardCatalog : DataCatalogBase
+{
+  private readonly string _shardKey;
+
+  public ShardCatalog(string shardKey)
+  {
+    _shardKey = shardKey;
+    InitializeCatalogProperties();
+  }
+
+  public ICatalogEntry<IEnumerable<TestData>> ShardData =>
+    GetOrCreateEntry(
+      () => CatalogEntries.Enumerable.Memory<TestData>(label: $"shard_data_{_shardKey}")
+    );
+}
+
+/// <summary>
+/// Master catalog that aggregates data from multiple ShardCatalogs.
+/// </summary>
+public class MasterCatalog : DataCatalogBase
+{
+  public MasterCatalog()
+  {
+    InitializeCatalogProperties();
+  }
+
+  public ICatalogEntry<IEnumerable<TestData>> AllData =>
+    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "all_data"));
+}
