@@ -56,6 +56,26 @@ public abstract class DataCatalogBase
   private readonly ConcurrentDictionary<string, ICatalogEntry> _propertyCache = new();
 
   /// <summary>
+  /// The display label used to identify this catalog instance in pipeline metadata.
+  /// Defaults to the concrete class name when not specified.
+  /// </summary>
+  /// <remarks>
+  /// Pass an explicit label when constructing multiple instances of the same catalog type
+  /// in a single pipeline (e.g., per-partition or per-shard catalogs) so their entries
+  /// receive distinct qualified identifiers in the DAG: <c>CatalogLabel.EntryLabel</c>.
+  /// </remarks>
+  public string CatalogLabel { get; }
+
+  /// <param name="catalogLabel">
+  /// Optional display label for this catalog instance. When omitted, defaults to the
+  /// concrete class name via <c>GetType().Name</c>.
+  /// </param>
+  protected DataCatalogBase(string? catalogLabel = null)
+  {
+    CatalogLabel = catalogLabel ?? GetType().Name;
+  }
+
+  /// <summary>
   /// Optional service provider for dependency injection into catalog entries.
   /// </summary>
   /// <remarks>
@@ -99,6 +119,8 @@ public abstract class DataCatalogBase
   )
   {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
+    if (entry is CatalogEntry<T> concrete)
+      concrete.SetOwningCatalog(CatalogLabel);
     return (ICatalogEntry<T>)entry;
   }
 
@@ -115,6 +137,8 @@ public abstract class DataCatalogBase
   )
   {
     var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
+    if (entry is CatalogEntry<T> concrete)
+      concrete.SetOwningCatalog(CatalogLabel);
     return (ICatalogEntry<T>)entry;
   }
 

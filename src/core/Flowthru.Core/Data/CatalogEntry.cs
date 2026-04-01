@@ -56,6 +56,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   private readonly IStorageAdapter<T> _storage;
   private InspectionLevel? _preferredInspectionLevel;
   private StorageTraits? _effectiveTraits;
+  private string? _owningCatalogLabel;
 
   /// <summary>
   /// Creates a new catalog entry with the specified key and storage adapter.
@@ -76,6 +77,12 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
 
   /// <inheritdoc/>
   public InspectionLevel? PreferredInspectionLevel => _preferredInspectionLevel;
+
+  /// <inheritdoc/>
+  public string? OwningCatalogLabel => _owningCatalogLabel;
+
+  /// <summary>Sets the owning catalog label. First-write-wins; subsequent calls are no-ops.</summary>
+  internal void SetOwningCatalog(string label) => _owningCatalogLabel ??= label;
 
   /// <summary>
   /// Gets the effective storage traits for this catalog entry.

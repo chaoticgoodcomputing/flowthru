@@ -31,6 +31,18 @@ public interface ICatalogEntry
   InspectionLevel? PreferredInspectionLevel { get; }
 
   /// <summary>
+  /// The label of the <see cref="Flowthru.Data.DataCatalogBase"/>-derived class that created
+  /// this entry. Set automatically by <c>GetOrCreateEntry</c>; null for entries created outside
+  /// a catalog or by custom <see cref="ICatalogEntry"/> implementations.
+  /// </summary>
+  /// <remarks>
+  /// Used by the metadata layer to produce fully-qualified entry identifiers in the form
+  /// <c>CatalogLabel.EntryLabel</c>. First-write-wins: cross-catalog shared entries retain
+  /// the label of the catalog that originally created them.
+  /// </remarks>
+  string? OwningCatalogLabel => null;
+
+  /// <summary>
   /// Loads data from the catalog entry as an untyped object.
   /// Returns an effect that can fail.
   /// The returned type matches the DataType property.

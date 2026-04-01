@@ -49,4 +49,31 @@ public static class CsvCatalogEntryExtensions
 
     return new CatalogEntry<IEnumerable<TRow>>(label, storage);
   }
+
+  /// <summary>
+  /// Creates a catalog entry that reads all CSV files in a directory and
+  /// concatenates them into a single <see cref="IEnumerable{TRow}"/>.
+  /// </summary>
+  /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="CatalogEntries.Enumerable"/>)</param>
+  /// <param name="label">Unique catalog label for DAG resolution</param>
+  /// <param name="directoryPath">Path to the directory containing the CSV files</param>
+  /// <returns>Read-only catalog entry that concatenates every <c>*.csv</c> in the directory</returns>
+  /// <remarks>
+  /// Files are read in lexicographic order. All files must share the same schema.
+  /// This entry is <strong>read-only</strong> — attempting to save will fail with
+  /// <see cref="NotSupportedException"/>.
+  /// </remarks>
+  public static CatalogEntry<IEnumerable<TRow>> CsvDirectory<TRow>(
+    this EnumerableCatalogEntries _,
+    string label,
+    string directoryPath
+  )
+    where TRow : notnull, IFlatSchema, ITextSerializable
+  {
+    return new CatalogEntry<IEnumerable<TRow>>(
+      label,
+      new DirectoryCsvStorageAdapter<TRow>(directoryPath)
+    );
+  }
 }

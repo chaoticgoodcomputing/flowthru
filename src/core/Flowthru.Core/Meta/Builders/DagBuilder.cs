@@ -51,8 +51,8 @@ internal static class DagBuilder
           ? slicedNodes
             .SelectMany(n => n.Outputs)
             .SelectMany(ExpandCatalogEntry)
-            .Select(e => e.Label)
-            .Where(key => !key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+            .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+            .Select(e => GetQualifiedLabel(e))
             .ToHashSet()
           : null,
     };
@@ -132,7 +132,7 @@ internal static class DagBuilder
           // Skip _nodata entries in mapped entries too
           if (!mappedEntry.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
           {
-            catalogEntries.TryAdd(mappedEntry.Label, mappedEntry);
+            catalogEntries.TryAdd(GetQualifiedLabel(mappedEntry), mappedEntry);
           }
         }
       }
@@ -140,7 +140,7 @@ internal static class DagBuilder
     else
     {
       // Simple catalog entry
-      catalogEntries.TryAdd(entry.Label, entry);
+      catalogEntries.TryAdd(GetQualifiedLabel(entry), entry);
     }
   }
 
@@ -159,15 +159,15 @@ internal static class DagBuilder
       // Get input catalog keys (expanding CatalogMaps, filtering _nodata)
       var inputKeys = pipelineNode
         .Inputs.SelectMany(ExpandCatalogEntry)
-        .Select(e => e.Label)
-        .Where(key => !key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+        .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+        .Select(e => GetQualifiedLabel(e))
         .ToList();
 
       // Get output catalog keys (expanding CatalogMaps, filtering _nodata)
       var outputKeys = pipelineNode
         .Outputs.SelectMany(ExpandCatalogEntry)
-        .Select(e => e.Label)
-        .Where(key => !key.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+        .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+        .Select(e => GetQualifiedLabel(e))
         .ToList();
 
       // Extract original pipeline name from node name if merged
@@ -410,4 +410,13 @@ internal static class DagBuilder
 
     return name;
   }
+
+  /// <summary>
+  /// Returns the fully-qualified metadata label for a catalog entry.
+  /// When the entry was created via <c>DataCatalogBase.GetOrCreateEntry</c> the catalog's
+  /// <c>CatalogLabel</c> is prepended: <c>"CatalogName.EntryLabel"</c>.
+  /// Falls back to <c>entry.Label</c> for entries created outside a catalog.
+  /// </summary>
+  private static string GetQualifiedLabel(ICatalogEntry entry) =>
+    entry.OwningCatalogLabel is { } catalog ? $"{catalog}.{entry.Label}" : entry.Label;
 }
