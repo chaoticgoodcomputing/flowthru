@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.33](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.32...v0.1.33) (2026-04-01)
+
+
+### Features
+
+* extended metadata for catalog sources on data ([d42419d](https://github.com/chaoticgoodcomputing/flowthru/commit/d42419d9d301a19ce53819a88531296fd8fe9e3b))
+* multi-arity at pipeline level ([692b5a4](https://github.com/chaoticgoodcomputing/flowthru/commit/692b5a4150af484856202bc997ec3f3c1fd770bb))
+* multipipeline retail example ([feba0b5](https://github.com/chaoticgoodcomputing/flowthru/commit/feba0b59403fbe7731ca55c3a85abb1f100831b2))
+
+
+### Bug Fixes
+
+* example auto-discovery for nested/distributed directories ([ec696a4](https://github.com/chaoticgoodcomputing/flowthru/commit/ec696a4bc1dccf1f6c803f11222dea2ce80ffb72))
+* pythonic pipelines rerun uv sync on all builds/runs. ([61a8839](https://github.com/chaoticgoodcomputing/flowthru/commit/61a88391867e686d35d236937ce1a643b53ba1ea))
+* resolve CI issue with UV cache ([007fe80](https://github.com/chaoticgoodcomputing/flowthru/commit/007fe80630d535e58d6391d33546af332ea30d05))
+
+
+### Documentation
+
+* add xdoc ([080baea](https://github.com/chaoticgoodcomputing/flowthru/commit/080baeaba45b8057212fb25767c62d2ae62119d0))
+* xdocs adjustments ([1563684](https://github.com/chaoticgoodcomputing/flowthru/commit/15636847013932cd7f5178b79f313e77ce399cf8))
+
 ## 0.1.32 (2026-04-01)
 
 
