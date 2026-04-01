@@ -24,8 +24,8 @@ public static class FlowthruServiceCollectionExtensions
   /// // In Program.cs or Startup.cs
   /// services.AddFlowthru(flowthru =>
   /// {
-  ///     flowthru.UseCatalog&lt;MyCatalog&gt;();
-  ///     flowthru.UsePipelines(catalog => new Dictionary&lt;string, Pipeline&gt;
+  ///     flowthru.RegisterCatalog&lt;MyCatalog&gt;();
+  ///     flowthru.RegisterPipelines(catalog => new Dictionary&lt;string, Pipeline&gt;
   ///     {
   ///         ["my_pipeline"] = MyPipeline.Create((MyCatalog)catalog)
   ///     });

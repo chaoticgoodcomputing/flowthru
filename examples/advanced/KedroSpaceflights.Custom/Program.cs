@@ -53,7 +53,7 @@ public class Program
       // Enable configuration loading from appsettings.json files
       // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
       flowthru.ConfigureMetadata(meta =>
       {
         var metadataPath = Path.Combine(basePath, "Metadata");

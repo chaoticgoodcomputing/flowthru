@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddFlowthru(flowthru =>
 {
     flowthru
-        .UseCatalog<WarehouseCatalog>()
+        .RegisterCatalog<WarehouseCatalog>()
         .RegisterPipeline<WarehouseCatalog>("Ingest", c => IngestPipeline.Create(c))
         .RegisterPipeline<WarehouseCatalog>("Transform", c => TransformPipeline.Create(c))
         .UseStorageStrategy<DatabaseStorageStrategy>();
@@ -42,7 +42,7 @@ var myParams = builder.Configuration
 builder.Services.AddFlowthru(flowthru =>
 {
     flowthru
-        .UseCatalog<WarehouseCatalog>()
+        .RegisterCatalog<WarehouseCatalog>()
         .RegisterPipeline<WarehouseCatalog, TransformParams>(
             "Transform",
             (catalog, p) => TransformPipeline.Create(catalog, p),
@@ -57,7 +57,7 @@ builder.Services.AddFlowthru(flowthru =>
 {
     flowthru
         .UseConfiguration(opts => opts.BasePath = "/app/pipeline-config")
-        .UseCatalog<WarehouseCatalog>()
+        .RegisterCatalog<WarehouseCatalog>()
         .RegisterPipelineWithConfiguration<WarehouseCatalog, TransformParams>(
             "Transform",
             (catalog, p) => TransformPipeline.Create(catalog, p),

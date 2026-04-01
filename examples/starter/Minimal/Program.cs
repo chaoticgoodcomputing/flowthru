@@ -43,7 +43,7 @@ public class Program
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(_ => new Catalog(basePath));
+      flowthru.RegisterCatalog(_ => new Catalog(basePath));
       flowthru.ConfigureMetadata(meta =>
       {
         var metadataPath = Path.Combine(basePath, "Metadata");

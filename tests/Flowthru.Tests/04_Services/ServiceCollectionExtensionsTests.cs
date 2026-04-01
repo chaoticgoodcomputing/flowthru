@@ -27,8 +27,8 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
+      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -48,8 +48,8 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterCatalog(catalog);
+      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -69,8 +69,8 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<SimpleThreeNodeCatalog>();
-      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterCatalog<SimpleThreeNodeCatalog>();
+      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -90,8 +90,8 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<SimpleThreeNodeCatalog>(sp => new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterCatalog<SimpleThreeNodeCatalog>(sp => new SimpleThreeNodeCatalog());
+      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -113,7 +113,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       var catalog = new SimpleThreeNodeCatalog();
-      flowthru.UseCatalog(catalog);
+      flowthru.RegisterCatalog(catalog);
       flowthru.RegisterPipeline(
         "test",
         (SimpleThreeNodeCatalog cat) =>
@@ -166,8 +166,8 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
+      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
       flowthru.ConfigureMetadata(meta =>
       {
         meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
@@ -194,8 +194,8 @@ public class ServiceCollectionExtensionsTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(new SimpleThreeNodeCatalog());
-      flowthru.UsePipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
+      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -209,7 +209,7 @@ public class ServiceCollectionExtensionsTests
   }
 
   [Test]
-  public void AddFlowthru_RegisterPipelineAndUsePipelines_MergesAll()
+  public void AddFlowthru_RegisterPipelineAndRegisterPipelines_MergesAll()
   {
     // Arrange — one inline registration and one factory-based registration
     var services = new ServiceCollection();
@@ -219,7 +219,7 @@ public class ServiceCollectionExtensionsTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
+      flowthru.RegisterCatalog(catalog);
 
       flowthru.RegisterPipeline(
         "inline",
@@ -235,7 +235,7 @@ public class ServiceCollectionExtensionsTests
           })
       );
 
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipeline>
       {
         ["dynamic"] = PipelineBuilder.CreatePipeline(builder =>
         {

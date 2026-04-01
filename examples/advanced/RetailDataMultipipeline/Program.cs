@@ -57,11 +57,11 @@ public class Program
 
       // Core catalog: raw inputs → intermediate → reporting
       var coreCatalog = new CoreCatalog(dataPath);
-      flowthru.UseCatalog(coreCatalog);
+      flowthru.RegisterCatalog(coreCatalog);
 
       // Shard catalogs: one per country, labelled {Country}ShardCatalog
       var shardCatalogs = countries.Select(c => new CountryShardCatalog(c, dataPath)).ToList();
-      flowthru.UseCatalogs(shardCatalogs);
+      flowthru.RegisterCatalogs(shardCatalogs);
 
       // Static pipelines resolved via DI
       flowthru.RegisterPipeline(
@@ -72,7 +72,7 @@ public class Program
       flowthru.RegisterPipeline("Graphing", GraphingPipeline.Create);
 
       // Dynamic per-country analysis pipelines + fan-in consolidation
-      flowthru.UsePipelines(_ =>
+      flowthru.RegisterPipelines(_ =>
       {
         var pipelines = new Dictionary<string, Flowthru.Pipelines.Pipeline>();
         foreach (var shard in shardCatalogs)

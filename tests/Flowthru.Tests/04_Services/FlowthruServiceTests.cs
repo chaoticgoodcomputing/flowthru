@@ -53,8 +53,8 @@ public class FlowthruServiceTests
     services.AddLogging();
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(sp => pipelines);
+      flowthru.RegisterCatalog(catalog);
+      flowthru.RegisterPipelines(sp => pipelines);
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -67,14 +67,14 @@ public class FlowthruServiceTests
     // Arrange
     DataCatalogBase nullCatalog = null!;
 
-    // Act & Assert — UseCatalog(null) must throw immediately, not silently register null
+    // Act & Assert — RegisterCatalog(null) must throw immediately, not silently register null
     var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
 
     Assert.Throws<ArgumentNullException>(() =>
     {
       services.AddFlowthru(flowthru =>
       {
-        flowthru.UseCatalog(nullCatalog);
+        flowthru.RegisterCatalog(nullCatalog);
       });
     });
   }
@@ -93,7 +93,7 @@ public class FlowthruServiceTests
     {
       services.AddFlowthru(flowthru =>
       {
-        flowthru.UseCatalog(catalog);
+        flowthru.RegisterCatalog(catalog);
         // Don't register pipelines
       });
 
@@ -750,8 +750,8 @@ public class FlowthruServiceTests
     services.AddLogging();
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(_ => pipelines);
+      flowthru.RegisterCatalog(catalog);
+      flowthru.RegisterPipelines(_ => pipelines);
       flowthru.ConfigureMetadata(metadata =>
       {
         metadata.AddProvider(capturingProvider);
@@ -807,8 +807,8 @@ public class FlowthruServiceTests
     services.AddLogging();
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(_ => pipelines);
+      flowthru.RegisterCatalog(catalog);
+      flowthru.RegisterPipelines(_ => pipelines);
       flowthru.ConfigureMetadata(metadata =>
       {
         metadata.AddProvider(capturingProvider);

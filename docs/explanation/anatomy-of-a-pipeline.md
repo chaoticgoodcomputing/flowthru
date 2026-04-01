@@ -241,7 +241,7 @@ private static void ConfigureServices(IServiceCollection services, string basePa
 {
     services.AddFlowthru(flowthru =>
     {
-        flowthru.UseCatalog(_ => new Catalog(basePath: "Data")));
+        flowthru.RegisterCatalog(_ => new Catalog(basePath: "Data")));
 
         flowthru.RegisterPipeline<Catalog>(
             label: "DataEngineering",

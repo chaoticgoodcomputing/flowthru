@@ -130,7 +130,7 @@ public class ThirdCatalog : DataCatalogBase
 }
 
 /// <summary>
-/// Per-shard catalog for fan-in and UseCatalogs tests.
+/// Per-shard catalog for fan-in and RegisterCatalogs tests.
 /// Each instance is keyed by a unique shard label, giving every entry a distinct identity.
 /// </summary>
 public class ShardCatalog : DataCatalogBase

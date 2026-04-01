@@ -24,8 +24,8 @@ public class ServiceBuilderIntegrationTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(new TestCatalog());
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipelines.Pipeline>());
+      flowthru.RegisterCatalog(new TestCatalog());
+      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipelines.Pipeline>());
       flowthru.UsePython();
     });
 
@@ -47,8 +47,8 @@ public class ServiceBuilderIntegrationTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(new TestCatalog());
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipelines.Pipeline>());
+      flowthru.RegisterCatalog(new TestCatalog());
+      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipelines.Pipeline>());
       flowthru.UsePython(python =>
       {
         python.ModuleSearchPaths.Add("/custom/path");

@@ -26,7 +26,7 @@ services.AddLogging(logging =>
 services.AddFlowthru(flowthru =>
 {
     flowthru
-        .UseCatalog<MyCatalog>()
+        .RegisterCatalog<MyCatalog>()
         .RegisterPipeline<MyCatalog>("Ingest", catalog => IngestPipeline.Create(catalog))
         .RegisterPipeline<MyCatalog>("Transform", catalog => TransformPipeline.Create(catalog));
 
@@ -87,7 +87,7 @@ services.AddFlowthru(flowthru =>
 {
     // No UseConfiguration() call — the IConfiguration above is already registered
     flowthru
-        .UseCatalog<MyCatalog>()
+        .RegisterCatalog<MyCatalog>()
         .RegisterPipeline<MyCatalog>("Ingest", catalog => IngestPipeline.Create(catalog));
 });
 ```

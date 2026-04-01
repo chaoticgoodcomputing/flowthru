@@ -85,8 +85,8 @@ using Flowthru.Meta.Providers;
 
 services.AddFlowthru(flowthru =>
 {
-    flowthru.UseCatalog(_ => new MyCatalog());
-    flowthru.UsePipelines(_ => myPipelines);
+    flowthru.RegisterCatalog(_ => new MyCatalog());
+    flowthru.RegisterPipelines(_ => myPipelines);
     
     flowthru.ConfigureMetadata(meta =>
     {

@@ -105,8 +105,8 @@ public class StorageStrategyIntegrationTests
     services.AddFlowthru(builder =>
     {
       builder.UseStorageStrategy<MemoryStorageEntryFactory>();
-      builder.UseCatalog<TestCatalog>();
-      builder.UsePipelines(_ => []);
+      builder.RegisterCatalog<TestCatalog>();
+      builder.RegisterPipelines(_ => []);
     });
 
     var provider = services.BuildServiceProvider();
@@ -135,8 +135,8 @@ public class StorageStrategyIntegrationTests
     services.AddFlowthru(builder =>
     {
       builder.UseStorageStrategy<CsvStorageEntryFactory>();
-      builder.UseCatalog<TestCatalog>();
-      builder.UsePipelines(_ => []);
+      builder.RegisterCatalog<TestCatalog>();
+      builder.RegisterPipelines(_ => []);
     });
 
     var provider = services.BuildServiceProvider();

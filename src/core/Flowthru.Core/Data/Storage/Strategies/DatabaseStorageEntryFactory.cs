@@ -29,7 +29,7 @@ namespace Flowthru.Data.Storage.Strategies;
 /// <code>
 /// services.AddFlowthru(flowthru =>
 /// {
-///     flowthru.UseCatalog&lt;MyCatalog&gt;();
+///     flowthru.RegisterCatalog&lt;MyCatalog&gt;();
 ///
 ///     if (env.IsProduction())
 ///     {

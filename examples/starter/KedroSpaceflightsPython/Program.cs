@@ -69,7 +69,7 @@ public class Program
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
       // Output pipeline metadata
       flowthru.ConfigureMetadata(meta =>

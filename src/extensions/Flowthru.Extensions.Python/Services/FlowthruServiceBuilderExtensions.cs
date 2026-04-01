@@ -31,7 +31,7 @@ public static class FlowthruServiceBuilderExtensions
   /// services.AddFlowthru(flowthru =>
   /// {
   ///     flowthru
-  ///         .UseCatalog&lt;MyCatalog&gt;()
+  ///         .RegisterCatalog&lt;MyCatalog&gt;()
   ///         .UsePython();  // Auto-detects .venv/, project root, etc.
   /// });
   /// </code>
@@ -64,7 +64,7 @@ public static class FlowthruServiceBuilderExtensions
   /// services.AddFlowthru(flowthru =>
   /// {
   ///     flowthru
-  ///         .UseCatalog&lt;MyCatalog&gt;()
+  ///         .RegisterCatalog&lt;MyCatalog&gt;()
   ///         .UsePython(python =>
   ///         {
   ///             python.PythonDll = "/usr/lib/x86_64-linux-gnu/libpython3.12.so";
@@ -80,7 +80,7 @@ public static class FlowthruServiceBuilderExtensions
   /// services.AddFlowthru(flowthru =>
   /// {
   ///     flowthru
-  ///         .UseCatalog&lt;MyCatalog&gt;()
+  ///         .RegisterCatalog&lt;MyCatalog&gt;()
   ///         .UsePython(python =>
   ///         {
   ///             // Reads PYTHONNET_PYDLL, FLOWTHRU_PYTHON_VENV, FLOWTHRU_PYTHON_PATH

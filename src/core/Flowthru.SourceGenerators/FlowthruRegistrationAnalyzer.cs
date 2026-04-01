@@ -7,13 +7,13 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Flowthru.SourceGenerators;
 
 /// <summary>
-/// Roslyn analyzer that cross-references UseCatalog and RegisterPipeline calls
+/// Roslyn analyzer that cross-references RegisterCatalog and RegisterPipeline calls
 /// within an AddFlowthru configuration block.
 ///
 /// Emits compile-time diagnostics when:
 ///   FT1001 — A pipeline delegate parameter extends DataCatalogBase but no
-///            matching UseCatalog registration was found.
-///   FT1002 — A UseCatalog registration is never referenced by any pipeline.
+///            matching RegisterCatalog registration was found.
+///   FT1002 — A RegisterCatalog registration is never referenced by any pipeline.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
@@ -27,18 +27,18 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     new(
       MissingCatalogId,
       "Missing catalog registration",
-      "Pipeline '{0}' requires catalog '{1}' but no matching UseCatalog registration was found",
+      "Pipeline '{0}' requires catalog '{1}' but no matching RegisterCatalog registration was found",
       "Flowthru.Registration",
       DiagnosticSeverity.Error,
       isEnabledByDefault: true,
-      description: "Every DataCatalogBase-derived parameter in a RegisterPipeline delegate must have a corresponding UseCatalog registration."
+      description: "Every DataCatalogBase-derived parameter in a RegisterPipeline delegate must have a corresponding RegisterCatalog registration."
     );
 
   private static readonly DiagnosticDescriptor UnusedCatalogRule =
     new(
       UnusedCatalogId,
       "Unused catalog registration",
-      "Catalog '{0}' is registered via UseCatalog but is not referenced by any pipeline",
+      "Catalog '{0}' is registered via RegisterCatalog but is not referenced by any pipeline",
       "Flowthru.Registration",
       DiagnosticSeverity.Warning,
       isEnabledByDefault: true,
@@ -85,7 +85,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   private static void AnalyzeOperationBlock(OperationBlockAnalysisContext context)
   {
     // We look for invocations of AddFlowthru that pass a lambda configuring the builder.
-    // Within that lambda, we collect UseCatalog and RegisterPipeline calls.
+    // Within that lambda, we collect RegisterCatalog and RegisterPipeline calls.
 
     var dataCatalogBaseType = context.Compilation.GetTypeByMetadataName(
       "Flowthru.Data.DataCatalogBase"
@@ -126,7 +126,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     INamedTypeSymbol dataCatalogBaseType
   )
   {
-    // Collect registered catalog types from UseCatalog calls
+    // Collect registered catalog types from RegisterCatalog calls
     var registeredCatalogs = new System.Collections.Generic.Dictionary<
       string,
       IInvocationOperation
@@ -150,10 +150,10 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
 
       var methodName = call.TargetMethod.Name;
 
-      // ── UseCatalog ──
-      if (methodName == "UseCatalog")
+      // ── RegisterCatalog ──
+      if (methodName == "RegisterCatalog")
       {
-        var catalogType = ResolveCatalogTypeFromUseCatalog(call, dataCatalogBaseType);
+        var catalogType = ResolveCatalogTypeFromRegisterCatalog(call, dataCatalogBaseType);
         if (catalogType != null)
         {
           var key = catalogType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -268,17 +268,17 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   }
 
   /// <summary>
-  /// Extracts the catalog type from a UseCatalog call.
-  /// Handles: UseCatalog&lt;T&gt;(), UseCatalog(instance), UseCatalog&lt;T&gt;(factory).
+  /// Extracts the catalog type from a RegisterCatalog call.
+  /// Handles: RegisterCatalog&lt;T&gt;(), RegisterCatalog(instance), RegisterCatalog&lt;T&gt;(factory).
   /// </summary>
-  private static ITypeSymbol? ResolveCatalogTypeFromUseCatalog(
+  private static ITypeSymbol? ResolveCatalogTypeFromRegisterCatalog(
     IInvocationOperation call,
     INamedTypeSymbol dataCatalogBaseType
   )
   {
     var method = call.TargetMethod;
 
-    // Generic: UseCatalog<TCatalog>() or UseCatalog<TCatalog>(factory)
+    // Generic: RegisterCatalog<TCatalog>() or RegisterCatalog<TCatalog>(factory)
     if (method.TypeArguments.Length == 1)
     {
       var typeArg = method.TypeArguments[0];
@@ -286,7 +286,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
         return typeArg;
     }
 
-    // Non-generic: UseCatalog(catalogInstance) — infer from argument type.
+    // Non-generic: RegisterCatalog(catalogInstance) — infer from argument type.
     // Strip through implicit conversions: passing UpstreamCatalog to a DataCatalogBase
     // parameter wraps the expression in IConversionOperation; the concrete type lives
     // on the innermost operand, not on the outer conversion.
@@ -300,7 +300,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
         return argType;
     }
 
-    // Infer from lambda return type: UseCatalog(_ => new MyCatalog(...))
+    // Infer from lambda return type: RegisterCatalog(_ => new MyCatalog(...))
     if (method.TypeArguments.Length == 1)
       return method.TypeArguments[0];
 
@@ -313,7 +313,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   /// <para>
   /// Parameters are classified the same way the runtime resolver does:
   /// <list type="bullet">
-  /// <item>Extends <c>DataCatalogBase</c> → required catalog (FT2001 if missing UseCatalog)</item>
+  /// <item>Extends <c>DataCatalogBase</c> → required catalog (FT2001 if missing RegisterCatalog)</item>
   /// <item>Interface → DI-resolved service (no warning — extension territory)</item>
   /// <item>Concrete class, not covered by configurationSection → ambiguous (FT2003)</item>
   /// </list>
@@ -394,7 +394,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       {
         if (InheritsFrom(param.Type, dataCatalogBaseType))
         {
-          // Catalog — must be registered via UseCatalog.
+          // Catalog — must be registered via RegisterCatalog.
           requiredCatalogs.Add(param.Type);
         }
         else if (param.Type.TypeKind == TypeKind.Interface)

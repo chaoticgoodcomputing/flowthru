@@ -21,7 +21,7 @@ public class MultiCatalogRegistrationTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void UseCatalog_MultipleCatalogs_AllResolvableByConcreteType()
+  public void RegisterCatalog_MultipleCatalogs_AllResolvableByConcreteType()
   {
     // Arrange
     var services = new ServiceCollection();
@@ -30,8 +30,8 @@ public class MultiCatalogRegistrationTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
       flowthru.RegisterPipeline(
         "Upstream",
         (UpstreamCatalog up) =>
@@ -60,8 +60,8 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
       flowthru.RegisterPipeline(
         "Upstream",
         (UpstreamCatalog up) =>
@@ -95,8 +95,8 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
 
       // Single-catalog upstream pipeline
       flowthru.RegisterPipeline(
@@ -150,8 +150,8 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(upstream);
-      flowthru.UseCatalog(downstream);
+      flowthru.RegisterCatalog(upstream);
+      flowthru.RegisterCatalog(downstream);
 
       flowthru.RegisterPipeline(
         "Upstream",
@@ -214,9 +214,9 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(upstream);
-      flowthru.UseCatalog(downstream);
-      flowthru.UseCatalog(third);
+      flowthru.RegisterCatalog(upstream);
+      flowthru.RegisterCatalog(downstream);
+      flowthru.RegisterCatalog(third);
 
       flowthru.RegisterPipeline(
         "Upstream",
@@ -272,8 +272,8 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
 
       flowthru
         .RegisterPipeline(
@@ -316,8 +316,8 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(upstream);
-      flowthru.UseCatalog(downstream);
+      flowthru.RegisterCatalog(upstream);
+      flowthru.RegisterCatalog(downstream);
 
       flowthru.RegisterPipeline(
         "Upstream",
@@ -358,14 +358,14 @@ public class MultiCatalogRegistrationTests
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // UseCatalogs — dynamic/iterative catalog registration
+  // RegisterCatalogs — dynamic/iterative catalog registration
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void UseCatalogs_InstanceOverload_AllCatalogsVisibleToService()
+  public void RegisterCatalogs_InstanceOverload_AllCatalogsVisibleToService()
   {
     // Arrange — simulate the fan-out pattern: N catalogs built in a loop,
-    // registered via UseCatalogs rather than individual UseCatalog calls.
+    // registered via RegisterCatalogs rather than individual RegisterCatalog calls.
     var shards = new[] { new ShardCatalog("X"), new ShardCatalog("Y"), new ShardCatalog("Z") };
 
     var services = new ServiceCollection();
@@ -373,9 +373,9 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalogs(shards);
+      flowthru.RegisterCatalogs(shards);
 
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipeline>
       {
         // Minimal pipeline so AddFlowthru has something to inject
         ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
@@ -395,9 +395,9 @@ public class MultiCatalogRegistrationTests
   }
 
   [Test]
-  public void UseCatalogs_MixedWithUseCatalog_AllCatalogsVisibleToService()
+  public void RegisterCatalogs_MixedWithRegisterCatalog_AllCatalogsVisibleToService()
   {
-    // Arrange — one static catalog registered via UseCatalog, N via UseCatalogs.
+    // Arrange — one static catalog registered via RegisterCatalog, N via RegisterCatalogs.
     var staticCatalog = new UpstreamCatalog();
     var shards = new[] { new ShardCatalog("P"), new ShardCatalog("Q") };
 
@@ -406,10 +406,10 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(staticCatalog);
-      flowthru.UseCatalogs(shards);
+      flowthru.RegisterCatalog(staticCatalog);
+      flowthru.RegisterCatalogs(shards);
 
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipeline>
       {
         ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
       });
@@ -423,17 +423,17 @@ public class MultiCatalogRegistrationTests
     Assert.That(
       service.Catalogs.OfType<UpstreamCatalog>().Count(),
       Is.EqualTo(1),
-      "Static UseCatalog entry should be present"
+      "Static RegisterCatalog entry should be present"
     );
     Assert.That(
       service.Catalogs.OfType<ShardCatalog>().Count(),
       Is.EqualTo(2),
-      "Dynamic UseCatalogs entries should be present"
+      "Dynamic RegisterCatalogs entries should be present"
     );
   }
 
   [Test]
-  public void UseCatalogs_FactoryOverload_AllCatalogsVisibleToService()
+  public void RegisterCatalogs_FactoryOverload_AllCatalogsVisibleToService()
   {
     // Arrange — catalogs produced by a factory that receives the service provider.
     var services = new ServiceCollection();
@@ -441,11 +441,11 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalogs(_ =>
+      flowthru.RegisterCatalogs(_ =>
         new DataCatalogBase[] { new ShardCatalog("factory_1"), new ShardCatalog("factory_2") }
       );
 
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipeline>
       {
         ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
       });

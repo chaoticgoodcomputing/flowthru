@@ -87,7 +87,7 @@ Wire the factory from your DI container:
 
 ```csharp
 // Program.cs
-flowthru.UseCatalog(sp => new Catalog(
+flowthru.RegisterCatalog(sp => new Catalog(
     basePath: Path.Combine(basePath, "Data"),
     contextFactory: sp.GetRequiredService<IDbContextFactory<AppDbContext>>()
 ));

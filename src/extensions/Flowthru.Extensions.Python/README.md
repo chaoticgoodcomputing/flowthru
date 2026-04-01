@@ -19,13 +19,13 @@ dotnet add package Flowthru.Extensions.Python
 services.AddFlowthru(flowthru =>
 {
     flowthru
-        .UseCatalog<MyCatalog>()
+        .RegisterCatalog<MyCatalog>()
         .UsePython(python =>
         {
             python.VenvPath = ".venv";
             python.ModuleSearchPaths.Add("Pipelines");
         })
-        .UsePipelines(catalog => new Dictionary<string, Pipeline>
+        .RegisterPipelines(catalog => new Dictionary<string, Pipeline>
         {
             ["my_pipeline"] = MyPipeline.Create(catalog)
         });

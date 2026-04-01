@@ -47,7 +47,7 @@ public class Program
     {
       // Load configuration
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
       // Register comparison pipelines
       flowthru

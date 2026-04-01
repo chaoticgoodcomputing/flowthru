@@ -6,7 +6,7 @@ namespace RetailDataMultipipeline.Pipelines.Analysis;
 
 /// <summary>
 /// Computes weekly DTU metrics for a single country shard.
-/// Instantiated once per <see cref="CountryShardCatalog"/> via <c>UsePipelines</c> in Program.cs.
+/// Instantiated once per <see cref="CountryShardCatalog"/> via <c>RegisterPipelines</c> in Program.cs.
 /// </summary>
 public static class AnalysisPipeline
 {

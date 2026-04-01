@@ -55,9 +55,9 @@ public class Program
       // ─── Catalog Registration ──────────────────────────────────────────────
       // Each library owns its own catalog.
 
-      flowthru.UseCatalog(_ => new DataProcessingCatalog(dataPath));
-      flowthru.UseCatalog(_ => new DataScienceCatalog(dataPath));
-      flowthru.UseCatalog(_ => new ReportingCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
 
       // ─── Pipeline Registration ─────────────────────────────────────────────
 

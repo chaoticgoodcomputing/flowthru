@@ -1,0 +1,19 @@
+{
+  "name": "docs",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "./docs",
+  "targets": {
+    "build:reference": {
+      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "flowthru:restore" ],
+      "options": {
+        "commands": [
+          "./scripts/docfx-metadata.sh --projects src"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

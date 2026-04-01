@@ -54,7 +54,7 @@ public class Program
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(sp => new Catalog(
+      flowthru.RegisterCatalog(sp => new Catalog(
         basePath: Path.Combine(basePath, "Data"),
         contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
       ));
