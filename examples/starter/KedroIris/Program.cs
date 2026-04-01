@@ -60,7 +60,7 @@ public class Program
 
       // Register data engineering pipeline with configuration parameters
       flowthru
-        .RegisterPipelineWithConfiguration<Catalog, DataEngineeringPipeline.Params>(
+        .RegisterPipeline(
           label: "DataEngineering",
           pipeline: DataEngineeringPipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataEngineering"
@@ -69,7 +69,7 @@ public class Program
 
       // Register data science pipeline with configuration parameters
       flowthru
-        .RegisterPipelineWithConfiguration<Catalog, DataSciencePipeline.Params>(
+        .RegisterPipeline(
           label: "DataScience",
           pipeline: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"

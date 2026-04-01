@@ -22,13 +22,13 @@ namespace Flowthru.Services;
 /// <code>
 /// services.AddFlowthru(flowthru =>
 /// {
-///     flowthru.UseCatalog&lt;MyCatalog&gt;();
-///     flowthru.RegisterPipeline&lt;MyCatalog&gt;("my_pipeline", MyPipeline.Create);
+///     flowthru.UseCatalog(_ => new MyCatalog(dataPath));
+///     flowthru.RegisterPipeline("my_pipeline", MyPipeline.Create);
 /// });
 /// </code>
 /// </para>
 /// </remarks>
-public sealed partial class FlowthruServiceBuilder
+public sealed class FlowthruServiceBuilder
 {
   private readonly IServiceCollection _services;
   private readonly List<Type> _registeredCatalogTypes = new();
@@ -129,7 +129,7 @@ public sealed partial class FlowthruServiceBuilder
   /// <param name="pipelineFactory">Factory function that receives the service provider and returns the pipeline dictionary</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
-  /// Prefer <see cref="RegisterPipeline{TCatalog}"/> for standard pipeline registration.
+  /// Prefer <see cref="RegisterPipeline(string, Delegate, string?)"/> for standard pipeline registration.
   /// Use this only when you need full service provider access during pipeline construction.
   /// </remarks>
   public FlowthruServiceBuilder UsePipelines(
@@ -147,86 +147,83 @@ public sealed partial class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Registers a pipeline (inline registration with fluent chaining).
+  /// Registers a pipeline by inspecting the delegate's parameter types at runtime.
+  /// Parameters that extend <see cref="DataCatalogBase"/> are resolved from DI as catalogs.
+  /// All other parameters are resolved from DI as services.
   /// </summary>
-  /// <typeparam name="TCatalog">The catalog type</typeparam>
   /// <param name="label">Unique pipeline name</param>
-  /// <param name="pipeline">Factory function that creates the pipeline from catalog</param>
+  /// <param name="pipeline">A method group or delegate whose parameters are catalogs, services, or config objects</param>
+  /// <param name="configurationSection">
+  /// Optional configuration section path. When provided, the last non-catalog, non-service parameter
+  /// is bound from configuration instead of DI.
+  /// </param>
   /// <returns>This builder for method chaining</returns>
-  /// <remarks>
-  /// Use this for inline pipeline registration. Fluent chaining with
-  /// WithDescription() is supported.
-  /// </remarks>
-  public FlowthruServiceBuilder RegisterPipeline<TCatalog>(
+  public FlowthruServiceBuilder RegisterPipeline(
     string label,
-    Func<TCatalog, Pipelines.Pipeline> pipeline
+    Delegate pipeline,
+    string? configurationSection = null
   )
-    where TCatalog : DataCatalogBase
   {
-    var entry = new PipelineRegistrationEntry(
-      label,
-      sp => pipeline(sp.GetRequiredService<TCatalog>())
-    );
-    _registrations.Add(entry);
-    _lastRegistration = entry;
-    return this;
-  }
+    if (string.IsNullOrWhiteSpace(label))
+      throw new ArgumentException("Pipeline label cannot be null or empty.", nameof(label));
+    if (pipeline == null)
+      throw new ArgumentNullException(nameof(pipeline));
 
-  /// <summary>
-  /// Registers a pipeline with parameters (inline registration).
-  /// </summary>
-  /// <typeparam name="TCatalog">The catalog type</typeparam>
-  /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
-  /// <param name="label">Unique pipeline name</param>
-  /// <param name="pipeline">Factory function that creates the pipeline from catalog and parameters</param>
-  /// <param name="parameters">Parameter instance to pass to the pipeline</param>
-  /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder RegisterPipeline<TCatalog, TParams>(
-    string label,
-    Func<TCatalog, TParams, Pipelines.Pipeline> pipeline,
-    TParams parameters
-  )
-    where TCatalog : DataCatalogBase
-  {
-    var entry = new PipelineRegistrationEntry(
-      label,
-      sp => pipeline(sp.GetRequiredService<TCatalog>(), parameters)
-    );
-    _registrations.Add(entry);
-    _lastRegistration = entry;
-    return this;
-  }
+    var method = pipeline.Method;
+    var parameters = method.GetParameters();
 
-  /// <summary>
-  /// Registers a pipeline with parameters loaded from configuration.
-  /// </summary>
-  /// <typeparam name="TCatalog">The catalog type</typeparam>
-  /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
-  /// <param name="label">Unique pipeline name</param>
-  /// <param name="pipeline">Factory function that creates the pipeline from catalog and parameters</param>
-  /// <param name="configurationSection">Configuration section path</param>
-  /// <returns>This builder for method chaining</returns>
-  /// <exception cref="InvalidOperationException">Thrown if UseConfiguration() hasn't been called first</exception>
-  public FlowthruServiceBuilder RegisterPipelineWithConfiguration<TCatalog, TParams>(
-    string label,
-    Func<TCatalog, TParams, Pipelines.Pipeline> pipeline,
-    string configurationSection
-  )
-    where TCatalog : DataCatalogBase
-    where TParams : class, new()
-  {
-    if (_configuration == null)
+    // Validate return type
+    if (method.ReturnType != typeof(Pipelines.Pipeline))
     {
-      throw new InvalidOperationException(
-        "Configuration has not been set up. Call UseConfiguration() before RegisterPipelineWithConfiguration()."
+      throw new ArgumentException(
+        $"Pipeline delegate must return Pipeline, but '{method.Name}' returns {method.ReturnType.Name}.",
+        nameof(pipeline)
       );
     }
 
-    var parameters = _configuration.GetValidated<TParams>(configurationSection);
+    // Build the resolver: for each parameter, determine how to resolve it at pipeline-build time
+    var resolvers = new Func<IServiceProvider, object?>[parameters.Length];
+    for (int i = 0; i < parameters.Length; i++)
+    {
+      var paramType = parameters[i].ParameterType;
 
+      if (
+        configurationSection != null
+        && !typeof(DataCatalogBase).IsAssignableFrom(paramType)
+        && !paramType.IsInterface
+      )
+      {
+        // This is the configuration parameter — bind from config
+        if (_configuration == null)
+        {
+          throw new InvalidOperationException(
+            $"Pipeline '{label}' specifies a configuration section but UseConfiguration() has not been called."
+          );
+        }
+
+        var boundParams = _configuration.GetValidated(configurationSection, paramType);
+        resolvers[i] = _ => boundParams;
+        // Only bind the first non-catalog, non-interface parameter from config
+        configurationSection = null;
+      }
+      else
+      {
+        // Resolve from DI (catalogs, services like IPythonExecutor, etc.)
+        var capturedType = paramType;
+        resolvers[i] = sp => sp.GetRequiredService(capturedType);
+      }
+    }
+
+    var capturedDelegate = pipeline;
     var entry = new PipelineRegistrationEntry(
       label,
-      sp => pipeline(sp.GetRequiredService<TCatalog>(), parameters)
+      sp =>
+      {
+        var args = new object?[resolvers.Length];
+        for (int i = 0; i < resolvers.Length; i++)
+          args[i] = resolvers[i](sp);
+        return (Pipelines.Pipeline)capturedDelegate.DynamicInvoke(args)!;
+      }
     );
     _registrations.Add(entry);
     _lastRegistration = entry;

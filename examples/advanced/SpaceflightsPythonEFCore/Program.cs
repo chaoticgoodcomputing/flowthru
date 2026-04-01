@@ -101,23 +101,15 @@ public class Program
         tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
 
       flowthru
-        .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
+        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses companies and shuttles (C#), stores in EFCore");
 
       flowthru
-        .RegisterPipeline<Catalog, Flowthru.Extensions.Python.Execution.IPythonExecutor>(
-          label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
-          parameters: executor
-        )
+        .RegisterPipeline(label: "DataScience", pipeline: DataSciencePipeline.Create)
         .WithDescription("Trains and evaluates regression model (Python); reads/writes EFCore");
 
       flowthru
-        .RegisterPipeline<Catalog, Flowthru.Extensions.Python.Execution.IPythonExecutor>(
-          label: "Reporting",
-          pipeline: ReportingPipeline.Create,
-          parameters: executor
-        )
+        .RegisterPipeline(label: "Reporting", pipeline: ReportingPipeline.Create)
         .WithDescription(
           "Generates visualizations (Python); reads PreprocessedShuttles and ModelPredictions from EFCore"
         );

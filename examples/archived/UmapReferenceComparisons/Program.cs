@@ -51,16 +51,13 @@ public class Program
 
       // Register comparison pipelines
       flowthru
-        .RegisterPipeline<Catalog>(
-          label: "IrisComparisonPipeline",
-          pipeline: IrisComparisonPipeline.Create
-        )
+        .RegisterPipeline(label: "IrisComparisonPipeline", pipeline: IrisComparisonPipeline.Create)
         .WithDescription(
           "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
         );
 
       flowthru
-        .RegisterPipeline<Catalog>(
+        .RegisterPipeline(
           label: "DigitsComparisonPipeline",
           pipeline: DigitsComparisonPipeline.Create
         )
@@ -71,7 +68,7 @@ public class Program
       // Fashion-MNIST pipeline disabled to keep repo lean (70K samples = ~12MB)
       // Uncomment when large dataset support is needed
       // flowthru
-      //   .RegisterPipeline<Catalog>(
+      //   .RegisterPipeline(
       //     label: "FashionComparisonPipeline",
       //     pipeline: Pipelines.FashionComparison.FashionComparisonPipeline.Create
       //   )

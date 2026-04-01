@@ -114,9 +114,9 @@ public class ServiceCollectionExtensionsTests
     {
       var catalog = new SimpleThreeNodeCatalog();
       flowthru.UseCatalog(catalog);
-      flowthru.RegisterPipeline<SimpleThreeNodeCatalog>(
+      flowthru.RegisterPipeline(
         "test",
-        cat =>
+        (SimpleThreeNodeCatalog cat) =>
           PipelineBuilder.CreatePipeline(builder =>
           {
             builder.AddNode(

@@ -66,11 +66,11 @@ public class Program
       });
 
       flowthru
-        .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
+        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses raw data and creates model input table");
 
       flowthru
-        .RegisterPipelineWithConfiguration<Catalog, DataSciencePipeline.Params>(
+        .RegisterPipeline(
           label: "DataScience",
           pipeline: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
@@ -78,16 +78,13 @@ public class Program
         .WithDescription("Trains ML model");
 
       flowthru
-        .RegisterPipeline<Catalog>(
-          label: "DataDiagnostics",
-          pipeline: DataDiagnosticsPipeline.Create
-        )
+        .RegisterPipeline(label: "DataDiagnostics", pipeline: DataDiagnosticsPipeline.Create)
         .WithDescription(
           "Validates pipeline outputs against Kedro reference and exports diagnostic data"
         );
 
       flowthru
-        .RegisterPipelineWithConfiguration<Catalog, DataEvaluationPipeline.Params>(
+        .RegisterPipeline(
           label: "DataEvaluation",
           pipeline: DataEvaluationPipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataEvaluation"
@@ -95,7 +92,7 @@ public class Program
         .WithDescription("Evaluates ML model performance and cross-validation");
 
       flowthru
-        .RegisterPipeline<Catalog>(label: "Reporting", pipeline: ReportingPipeline.Create)
+        .RegisterPipeline(label: "Reporting", pipeline: ReportingPipeline.Create)
         .WithDescription("Generates reports and visualizations");
     });
 

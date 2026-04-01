@@ -61,12 +61,12 @@ public class Program
 
       // Register data processing pipeline
       flowthru
-        .RegisterPipeline<Catalog>(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
+        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses companies and shuttles data");
 
       // Register data science pipeline with configuration parameters
       flowthru
-        .RegisterPipelineWithConfiguration<Catalog, DataSciencePipeline.Params>(
+        .RegisterPipeline(
           label: "DataScience",
           pipeline: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
@@ -75,7 +75,7 @@ public class Program
 
       // Register reporting pipeline with configuration parameters
       flowthru
-        .RegisterPipelineWithConfiguration<Catalog, ReportingPipeline.Params>(
+        .RegisterPipeline(
           label: "Reporting",
           pipeline: ReportingPipeline.Create,
           configurationSection: "Flowthru:Pipelines:Reporting"

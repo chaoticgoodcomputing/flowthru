@@ -32,9 +32,9 @@ public class MultiCatalogRegistrationTests
     {
       flowthru.UseCatalog<UpstreamCatalog>();
       flowthru.UseCatalog<DownstreamCatalog>();
-      flowthru.RegisterPipeline<UpstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Upstream",
-        up =>
+        (UpstreamCatalog up) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
@@ -62,9 +62,9 @@ public class MultiCatalogRegistrationTests
     {
       flowthru.UseCatalog<UpstreamCatalog>();
       flowthru.UseCatalog<DownstreamCatalog>();
-      flowthru.RegisterPipeline<UpstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Upstream",
-        up =>
+        (UpstreamCatalog up) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
@@ -99,18 +99,18 @@ public class MultiCatalogRegistrationTests
       flowthru.UseCatalog<DownstreamCatalog>();
 
       // Single-catalog upstream pipeline
-      flowthru.RegisterPipeline<UpstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Upstream",
-        up =>
+        (UpstreamCatalog up) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
       // 2-catalog bridge pipeline: reads from upstream, writes to downstream
-      flowthru.RegisterPipeline<UpstreamCatalog, DownstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Bridge",
-        (up, down) =>
+        (UpstreamCatalog up, DownstreamCatalog down) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
@@ -153,17 +153,17 @@ public class MultiCatalogRegistrationTests
       flowthru.UseCatalog(upstream);
       flowthru.UseCatalog(downstream);
 
-      flowthru.RegisterPipeline<UpstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Upstream",
-        up =>
+        (UpstreamCatalog up) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
-      flowthru.RegisterPipeline<UpstreamCatalog, DownstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Bridge",
-        (up, down) =>
+        (UpstreamCatalog up, DownstreamCatalog down) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
@@ -218,26 +218,26 @@ public class MultiCatalogRegistrationTests
       flowthru.UseCatalog(downstream);
       flowthru.UseCatalog(third);
 
-      flowthru.RegisterPipeline<UpstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Upstream",
-        up =>
+        (UpstreamCatalog up) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
-      flowthru.RegisterPipeline<UpstreamCatalog, DownstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Bridge",
-        (up, down) =>
+        (UpstreamCatalog up, DownstreamCatalog down) =>
           PipelineBuilder.CreatePipeline(b =>
             b.AddNode("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
       );
 
       // 3-catalog pipeline reads from both upstream and downstream, writes to third
-      flowthru.RegisterPipeline<UpstreamCatalog, DownstreamCatalog, ThirdCatalog>(
+      flowthru.RegisterPipeline(
         "Merge",
-        (up, down, t) =>
+        (UpstreamCatalog up, DownstreamCatalog down, ThirdCatalog t) =>
           PipelineBuilder.CreatePipeline(b =>
             // Use downstream output (which depends on upstream) as the final step input
             b.AddNode("Merge", PassthroughNode.Create(), down.DownstreamOutput, t.FinalOutput)
@@ -276,9 +276,9 @@ public class MultiCatalogRegistrationTests
       flowthru.UseCatalog<DownstreamCatalog>();
 
       flowthru
-        .RegisterPipeline<UpstreamCatalog, DownstreamCatalog>(
+        .RegisterPipeline(
           "Bridge",
-          (up, down) =>
+          (UpstreamCatalog up, DownstreamCatalog down) =>
             PipelineBuilder.CreatePipeline(b =>
               b.AddNode("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
             )
@@ -319,9 +319,9 @@ public class MultiCatalogRegistrationTests
       flowthru.UseCatalog(upstream);
       flowthru.UseCatalog(downstream);
 
-      flowthru.RegisterPipeline<UpstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Upstream",
-        up =>
+        (UpstreamCatalog up) =>
         {
           upstreamPipeline = PipelineBuilder.CreatePipeline(b =>
             b.AddNode("P", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
@@ -330,9 +330,9 @@ public class MultiCatalogRegistrationTests
         }
       );
 
-      flowthru.RegisterPipeline<UpstreamCatalog, DownstreamCatalog>(
+      flowthru.RegisterPipeline(
         "Bridge",
-        (up, down) =>
+        (UpstreamCatalog up, DownstreamCatalog down) =>
         {
           bridgePipeline = PipelineBuilder.CreatePipeline(b =>
             b.AddNode("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)

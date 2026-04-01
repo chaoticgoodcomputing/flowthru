@@ -106,29 +106,17 @@ public class Program
 
       // Register pipelines with resolved executor
       flowthru
-        .RegisterPipeline<Catalog, Flowthru.Extensions.Python.Execution.IPythonExecutor>(
-          label: "DataProcessing",
-          pipeline: DataProcessingPipeline.Create,
-          parameters: executor
-        )
+        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses companies, shuttles, and reviews data using Python");
 
       flowthru
-        .RegisterPipeline<Catalog, Flowthru.Extensions.Python.Execution.IPythonExecutor>(
-          label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
-          parameters: executor
-        )
+        .RegisterPipeline(label: "DataScience", pipeline: DataSciencePipeline.Create)
         .WithDescription(
           "Trains linear regression model for price prediction using Python/scikit-learn"
         );
 
       flowthru
-        .RegisterPipeline<Catalog, Flowthru.Extensions.Python.Execution.IPythonExecutor>(
-          label: "Reporting",
-          pipeline: ReportingPipeline.Create,
-          parameters: executor
-        )
+        .RegisterPipeline(label: "Reporting", pipeline: ReportingPipeline.Create)
         .WithDescription(
           "Generates visualization outputs including passenger capacity plots and confusion matrix"
         );

@@ -35,7 +35,7 @@ public class Program
     );
 
   /// <summary>
-  /// Configures services for the application. Used by test infrastructure.
+  /// Configures services for the application.
   /// </summary>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
@@ -56,9 +56,35 @@ public class Program
       // Each library owns its own catalog. Registered by concrete type so each
       // pipeline factory receives the correct strongly-typed instance.
 
-      flowthru.UseCatalog<DataProcessingCatalog>(_ => new DataProcessingCatalog(dataPath));
-      flowthru.UseCatalog<DataScienceCatalog>(_ => new DataScienceCatalog(dataPath));
-      flowthru.UseCatalog<ReportingCatalog>(_ => new ReportingCatalog(dataPath));
+      flowthru.UseCatalog(_ => new DataProcessingCatalog(dataPath));
+      flowthru.UseCatalog(_ => new DataScienceCatalog(dataPath));
+      flowthru.UseCatalog(_ => new ReportingCatalog(dataPath));
+
+      // ─── Pipeline Registration ─────────────────────────────────────────────
+      // Each pipeline's Create method signature IS the cross-catalog contract.
+      // The framework resolves catalogs and config automatically from DI.
+
+      flowthru
+        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
+        .WithDescription("Preprocesses companies and shuttles data into a model input table");
+
+      flowthru
+        .RegisterPipeline(
+          label: "DataScience",
+          pipeline: DataSciencePipeline.Create,
+          configurationSection: "Flowthru:Pipelines:DataScience"
+        )
+        .WithDescription("Trains linear regression model for shuttle price prediction");
+
+      flowthru
+        .RegisterPipeline(
+          label: "Reporting",
+          pipeline: ReportingPipeline.Create,
+          configurationSection: "Flowthru:Pipelines:Reporting"
+        )
+        .WithDescription(
+          "Generates passenger capacity reports and confusion matrix visualizations"
+        );
 
       // ─── Metadata Providers ───────────────────────────────────────────────
 
@@ -72,46 +98,6 @@ public class Program
             mermaid.WithOutputDirectory(metadataPath)
           );
       });
-
-      // ─── Pipeline Registration ─────────────────────────────────────────────
-      // Single-catalog pipeline: reads from and writes to DataProcessingCatalog only.
-      flowthru
-        .RegisterPipeline<DataProcessingCatalog>(
-          label: "DataProcessing",
-          pipeline: DataProcessingPipeline.Create
-        )
-        .WithDescription("Preprocesses companies and shuttles data into a model input table");
-
-      // 2-catalog pipeline: reads model input from DataProcessing, writes model artifacts to DataScience.
-      // The two-catalog signature makes the cross-domain dependency an explicit compile-time contract.
-      flowthru
-        .RegisterPipelineWithConfiguration<
-          DataProcessingCatalog,
-          DataScienceCatalog,
-          DataSciencePipeline.Params
-        >(
-          label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataScience"
-        )
-        .WithDescription("Trains linear regression model for shuttle price prediction");
-
-      // 3-catalog pipeline: reads preprocessed shuttles (DataProcessing) and model predictions
-      // (DataScience), writes all reports and charts to ReportingCatalog.
-      flowthru
-        .RegisterPipelineWithConfiguration<
-          DataProcessingCatalog,
-          DataScienceCatalog,
-          ReportingCatalog,
-          ReportingPipeline.Params
-        >(
-          label: "Reporting",
-          pipeline: ReportingPipeline.Create,
-          configurationSection: "Flowthru:Pipelines:Reporting"
-        )
-        .WithDescription(
-          "Generates passenger capacity reports and confusion matrix visualizations"
-        );
     });
 
     services.AddLogging(logging =>
