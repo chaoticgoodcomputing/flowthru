@@ -1,0 +1,108 @@
+using Flowthru.Cli;
+using Flowthru.Extensions.Python;
+using Flowthru.Extensions.Python.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
+using Flowthru.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using RetailDataMultipipeline.Data;
+using RetailDataMultipipeline.Pipelines.Analysis;
+using RetailDataMultipipeline.Pipelines.Consolidation;
+using RetailDataMultipipeline.Pipelines.DataIngestion;
+using RetailDataMultipipeline.Pipelines.Graphing;
+using RetailDataMultipipeline.Pipelines.Reporting;
+
+namespace RetailDataMultipipeline;
+
+public class Program
+{
+  public static Task<int> Main(string[] args) =>
+    FlowthruCli.RunStandaloneAsync(
+      args,
+      services => ConfigureServices(services, Directory.GetCurrentDirectory())
+    );
+
+  public static IServiceProvider ConfigureServices(string? basePath = null)
+  {
+    var services = new ServiceCollection();
+    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+    return services.BuildServiceProvider();
+  }
+
+  private static void ConfigureServices(IServiceCollection services, string basePath)
+  {
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
+
+      // Configure Python runtime — makes Pipelines/ importable and exposes the @node decorator
+      flowthru.UsePython(python =>
+      {
+        python.ModuleSearchPaths.Add(basePath);
+        python.ModuleSearchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
+      });
+
+      var dataPath = Path.Combine(basePath, "Data");
+      var config = new ConfigurationBuilder()
+        .SetBasePath(basePath)
+        .AddJsonFile("appsettings.json")
+        .Build();
+      var countries =
+        config.GetSection("Analysis:Countries").Get<string[]>()
+        ?? throw new InvalidOperationException(
+          "Analysis:Countries not configured in appsettings.json"
+        );
+
+      // Core catalog: raw inputs → intermediate → reporting
+      var coreCatalog = new CoreCatalog(dataPath);
+      flowthru.UseCatalog(coreCatalog);
+
+      // Shard catalogs: one per country, labelled {Country}ShardCatalog
+      var shardCatalogs = countries.Select(c => new CountryShardCatalog(c, dataPath)).ToList();
+      flowthru.UseCatalogs(shardCatalogs);
+
+      // Static pipelines resolved via DI
+      flowthru.RegisterPipeline(
+        "DataIngestion",
+        (CoreCatalog cat) => DataIngestionPipeline.Create(cat)
+      );
+      flowthru.RegisterPipeline("Reporting", (CoreCatalog cat) => ReportingPipeline.Create(cat));
+      flowthru.RegisterPipeline("Graphing", GraphingPipeline.Create);
+
+      // Dynamic per-country analysis pipelines + fan-in consolidation
+      flowthru.UsePipelines(_ =>
+      {
+        var pipelines = new Dictionary<string, Flowthru.Pipelines.Pipeline>();
+        foreach (var shard in shardCatalogs)
+        {
+          pipelines[$"Analysis_{shard.Country.Replace(' ', '_')}"] = AnalysisPipeline.Create(
+            coreCatalog,
+            shard
+          );
+        }
+        pipelines["Consolidation"] = ConsolidationPipeline.Create(coreCatalog, shardCatalogs);
+        return pipelines;
+      });
+
+      // Output pipeline metadata
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory(metadataPath)
+          )
+          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+            mermaid.WithOutputDirectory(metadataPath)
+          );
+      });
+    });
+
+    services.AddLogging(logging =>
+    {
+      logging.AddConsole();
+      logging.SetMinimumLevel(LogLevel.Information);
+    });
+  }
+}

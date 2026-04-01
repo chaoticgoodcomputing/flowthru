@@ -1,0 +1,8 @@
+[
+  { "Country": "United Kingdom", "Currency": "GBP" },
+  { "Country": "Germany", "Currency": "EUR" },
+  { "Country": "France", "Currency": "EUR" },
+  { "Country": "EIRE", "Currency": "EUR" },
+  { "Country": "Spain", "Currency": "EUR" },
+  { "Country": "Netherlands", "Currency": "EUR" }
+]

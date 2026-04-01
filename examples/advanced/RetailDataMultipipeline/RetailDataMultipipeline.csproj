@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>RetailDataMultipipeline</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Explicit extension references — no barrel Flowthru meta-package -->
+  <ItemGroup Condition="Exists('../../../src/core/Flowthru.Core/Flowthru.Core.csproj')">
+    <ProjectReference Include="../../../src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
+    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/core/Flowthru.Core/Flowthru.Core.csproj')">
+    <PackageReference Include="Flowthru.Core" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.Extensions.Csv" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.Extensions.Parquet" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.Extensions.Python" Version="FlowthruVersion" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- Python environment files: uv sync materialises .venv/ at runtime -->
+    <Content Include="pyproject.toml" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="uv.lock" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

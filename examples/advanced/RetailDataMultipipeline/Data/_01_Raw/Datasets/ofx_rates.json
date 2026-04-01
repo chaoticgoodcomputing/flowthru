@@ -1,0 +1,4 @@
+[
+  { "Currency": "GBP", "ofxRate": 1.000000, "inverseOfxRate": 1.000000, "convertedAmount": 1000.0 },
+  { "Currency": "EUR", "ofxRate": 0.870400, "inverseOfxRate": 1.148897, "convertedAmount": 870.4 }
+]

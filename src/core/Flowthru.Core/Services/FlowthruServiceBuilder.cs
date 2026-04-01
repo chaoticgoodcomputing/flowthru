@@ -36,6 +36,7 @@ public sealed class FlowthruServiceBuilder
     Func<IServiceProvider, IEnumerable<DataCatalogBase>>
   > _dynamicCatalogFactories = new();
   private readonly List<PipelineRegistrationEntry> _registrations = new();
+  private Func<IServiceProvider, Dictionary<string, Pipelines.Pipeline>>? _pipelineFactory;
   private PipelineRegistrationEntry? _lastRegistration;
   private IConfiguration? _configuration;
 
@@ -183,7 +184,7 @@ public sealed class FlowthruServiceBuilder
       throw new ArgumentNullException(nameof(pipelineFactory));
     }
 
-    _services.AddSingleton(pipelineFactory);
+    _pipelineFactory = pipelineFactory;
 
     return this;
   }
@@ -620,15 +621,30 @@ public sealed class FlowthruServiceBuilder
       return typedCatalogs.Concat(dynamicCatalogs).ToList().AsReadOnly();
     });
 
-    if (_registrations.Count == 0)
+    var snapshot = _registrations.ToList();
+    var factory = _pipelineFactory;
+
+    if (snapshot.Count == 0 && factory == null)
     {
-      return; // No inline registrations; assume UsePipelines was called instead.
+      throw new InvalidOperationException(
+        "No pipelines were registered. Call RegisterPipeline() or UsePipelines() before building the service."
+      );
     }
 
-    var snapshot = _registrations.ToList();
     _services.AddSingleton<Dictionary<string, Pipelines.Pipeline>>(sp =>
     {
       var result = new Dictionary<string, Pipelines.Pipeline>();
+
+      // Source 1: UsePipelines factory (registered first so inline registrations can override)
+      if (factory != null)
+      {
+        foreach (var (key, pipeline) in factory(sp))
+        {
+          result[key] = pipeline;
+        }
+      }
+
+      // Source 2: RegisterPipeline calls (wins on key collision)
       foreach (var reg in snapshot)
       {
         var pipeline = reg.Factory(sp);
@@ -636,6 +652,7 @@ public sealed class FlowthruServiceBuilder
         pipeline.Description = reg.Description;
         result[reg.Label] = pipeline;
       }
+
       return result;
     });
   }

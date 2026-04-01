@@ -207,4 +207,54 @@ public class ServiceCollectionExtensionsTests
     // Assert
     Assert.That(service1, Is.SameAs(service2));
   }
+
+  [Test]
+  public void AddFlowthru_RegisterPipelineAndUsePipelines_MergesAll()
+  {
+    // Arrange — one inline registration and one factory-based registration
+    var services = new ServiceCollection();
+    services.AddLogging();
+
+    var catalog = new SimpleThreeNodeCatalog();
+
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.UseCatalog(catalog);
+
+      flowthru.RegisterPipeline(
+        "inline",
+        (SimpleThreeNodeCatalog cat) =>
+          PipelineBuilder.CreatePipeline(builder =>
+          {
+            builder.AddNode(
+              label: "Node",
+              transform: PassthroughNode.Create(),
+              input: cat.Input,
+              output: cat.Output
+            );
+          })
+      );
+
+      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      {
+        ["dynamic"] = PipelineBuilder.CreatePipeline(builder =>
+        {
+          builder.AddNode(
+            label: "Node",
+            transform: PassthroughNode.Create(),
+            input: catalog.Input,
+            output: catalog.Output
+          );
+        }),
+      });
+    });
+
+    var serviceProvider = services.BuildServiceProvider();
+    var service = serviceProvider.GetRequiredService<IFlowthruService>();
+
+    // Assert — both pipelines are present
+    Assert.That(service.PipelineNames, Has.Count.EqualTo(2));
+    Assert.That(service.PipelineNames, Does.Contain("inline"));
+    Assert.That(service.PipelineNames, Does.Contain("dynamic"));
+  }
 }

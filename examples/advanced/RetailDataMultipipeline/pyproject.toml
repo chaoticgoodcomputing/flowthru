@@ -1,0 +1,14 @@
+[project]
+name = "retail-data-multipipeline"
+version = "0.1.0"
+description = "RetailDataMultipipeline Python graphing nodes"
+requires-python = ">=3.13"
+dependencies = [
+  "pandas>=2.0.0",
+  "pyarrow>=18.0.0",
+  "plotly>=5.0.0",
+  "kaleido>=0.2.1",
+]
+
+[tool.uv]
+dev-dependencies = []
