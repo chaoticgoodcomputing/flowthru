@@ -22,7 +22,7 @@ public class Program
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
-      services => ConfigureServices(services, Directory.GetCurrentDirectory())
+      services => ConfigureServices(services, basePath: Directory.GetCurrentDirectory())
     );
 
   /// <summary>

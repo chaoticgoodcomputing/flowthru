@@ -20,6 +20,8 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
 {
   public const string MissingCatalogId = "FT2001";
   public const string UnusedCatalogId = "FT2002";
+  public const string UnboundConcreteParamId = "FT2003";
+  public const string MissingUseConfigurationId = "FT2004";
 
   private static readonly DiagnosticDescriptor MissingCatalogRule =
     new(
@@ -43,8 +45,35 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       description: "A catalog was registered but no pipeline references it. This may indicate dead configuration."
     );
 
+  private static readonly DiagnosticDescriptor UnboundConcreteParamRule =
+    new(
+      UnboundConcreteParamId,
+      "Unbound concrete parameter",
+      "Pipeline '{0}' has parameter '{1}' of type '{2}' that will be resolved from DI. If it is a configuration object, pass configurationSection to RegisterPipeline.",
+      "Flowthru.Registration",
+      DiagnosticSeverity.Warning,
+      isEnabledByDefault: true,
+      description: "A concrete-class pipeline parameter that is not a catalog will be resolved from DI at pipeline-build time. If it is a configuration POCO, pass configurationSection to RegisterPipeline to bind it from appsettings instead."
+    );
+
+  private static readonly DiagnosticDescriptor MissingUseConfigurationRule =
+    new(
+      MissingUseConfigurationId,
+      "Missing UseConfiguration call",
+      "Pipeline '{0}' specifies configurationSection '{1}' but UseConfiguration() has not been called",
+      "Flowthru.Registration",
+      DiagnosticSeverity.Error,
+      isEnabledByDefault: true,
+      description: "A RegisterPipeline call references a configurationSection, but UseConfiguration() was never called on the builder. The pipeline will throw at pre-flight time."
+    );
+
   public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-    ImmutableArray.Create(MissingCatalogRule, UnusedCatalogRule);
+    ImmutableArray.Create(
+      MissingCatalogRule,
+      UnusedCatalogRule,
+      UnboundConcreteParamRule,
+      MissingUseConfigurationRule
+    );
 
   public override void Initialize(AnalysisContext context)
   {
@@ -102,12 +131,17 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       string,
       IInvocationOperation
     >();
-    // Collect pipeline registrations with their required catalog types
+    // Collect pipeline registrations with their required catalogs and any ambiguous concrete params
     var pipelineRegistrations = new System.Collections.Generic.List<(
       string Label,
       IInvocationOperation Invocation,
-      System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs
+      System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs,
+      System.Collections.Generic.List<(ITypeSymbol Type, string ParamName)> AmbiguousConcreteParams
     )>();
+
+    bool hasUseConfiguration = body.DescendantsAndSelf()
+      .OfType<IInvocationOperation>()
+      .Any(c => c.TargetMethod.Name == "UseConfiguration");
 
     foreach (var descendant in body.DescendantsAndSelf())
     {
@@ -130,17 +164,20 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       // ── RegisterPipeline ──
       if (methodName == "RegisterPipeline")
       {
-        var (label, requiredCatalogs) = ResolvePipelineRequirements(call, dataCatalogBaseType);
+        var (label, requiredCatalogs, ambiguousConcreteParams) = ResolvePipelineRequirements(
+          call,
+          dataCatalogBaseType
+        );
         if (label != null)
         {
-          pipelineRegistrations.Add((label, call, requiredCatalogs));
+          pipelineRegistrations.Add((label, call, requiredCatalogs, ambiguousConcreteParams));
         }
       }
     }
 
-    // Cross-reference: FT1001 — pipeline requires catalog not registered
+    // Cross-reference: FT2001 — pipeline requires catalog not registered
     var allReferencedCatalogs = new System.Collections.Generic.HashSet<string>();
-    foreach (var (label, invocation, requiredCatalogs) in pipelineRegistrations)
+    foreach (var (label, invocation, requiredCatalogs, _) in pipelineRegistrations)
     {
       foreach (var required in requiredCatalogs)
       {
@@ -160,7 +197,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       }
     }
 
-    // Cross-reference: FT1002 — catalog registered but never referenced
+    // Cross-reference: FT2002 — catalog registered but never referenced
     foreach (var kvp in registeredCatalogs)
     {
       if (!allReferencedCatalogs.Contains(kvp.Key))
@@ -178,6 +215,54 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
           catalogName
         );
         context.ReportDiagnostic(diagnostic);
+      }
+    }
+
+    // FT2003 — concrete non-catalog parameter not bound from configuration
+    foreach (var (label, invocation, _, ambiguousConcreteParams) in pipelineRegistrations)
+    {
+      foreach (var (paramType, paramName) in ambiguousConcreteParams)
+      {
+        var diagnostic = Diagnostic.Create(
+          UnboundConcreteParamRule,
+          invocation.Syntax.GetLocation(),
+          label,
+          paramName,
+          paramType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+        );
+        context.ReportDiagnostic(diagnostic);
+      }
+    }
+
+    // FT2004 — configurationSection supplied but UseConfiguration never called
+    if (!hasUseConfiguration)
+    {
+      foreach (var (label, invocation, _, _) in pipelineRegistrations)
+      {
+        string? sectionValue = null;
+        foreach (var arg in invocation.Arguments)
+        {
+          if (
+            arg.Parameter?.Name == "configurationSection"
+            && arg.Value.ConstantValue.HasValue
+            && arg.Value.ConstantValue.Value is string s
+          )
+          {
+            sectionValue = s;
+            break;
+          }
+        }
+
+        if (sectionValue != null)
+        {
+          var diagnostic = Diagnostic.Create(
+            MissingUseConfigurationRule,
+            invocation.Syntax.GetLocation(),
+            label,
+            sectionValue
+          );
+          context.ReportDiagnostic(diagnostic);
+        }
       }
     }
   }
@@ -223,18 +308,31 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   }
 
   /// <summary>
-  /// Extracts the pipeline label and required catalog types from a RegisterPipeline call.
-  /// Resolves the Delegate argument to its method signature and inspects parameter types.
+  /// Extracts the pipeline label, required catalog types, and unbound concrete parameters
+  /// from a RegisterPipeline call.
+  /// <para>
+  /// Parameters are classified the same way the runtime resolver does:
+  /// <list type="bullet">
+  /// <item>Extends <c>DataCatalogBase</c> → required catalog (FT2001 if missing UseCatalog)</item>
+  /// <item>Interface → DI-resolved service (no warning — extension territory)</item>
+  /// <item>Concrete class, not covered by configurationSection → ambiguous (FT2003)</item>
+  /// </list>
+  /// </para>
   /// </summary>
   private static (
     string? Label,
-    System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs
+    System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs,
+    System.Collections.Generic.List<(ITypeSymbol Type, string ParamName)> AmbiguousConcreteParams
   ) ResolvePipelineRequirements(IInvocationOperation call, INamedTypeSymbol dataCatalogBaseType)
   {
     string? label = null;
     var requiredCatalogs = new System.Collections.Generic.List<ITypeSymbol>();
+    var ambiguousConcreteParams = new System.Collections.Generic.List<(
+      ITypeSymbol Type,
+      string ParamName
+    )>();
 
-    // Extract label from first string argument
+    // Extract label
     foreach (var arg in call.Arguments)
     {
       if (arg.Parameter?.Name == "label" && arg.Value.ConstantValue.HasValue)
@@ -244,68 +342,83 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       }
     }
 
-    // Extract delegate parameter — find the 'pipeline' argument
+    // Detect whether configurationSection was supplied with a non-null string value.
+    // The runtime binds the FIRST concrete non-catalog non-interface param from config;
+    // all others fall through to DI.
+    bool hasConfigSection = false;
+    foreach (var arg in call.Arguments)
+    {
+      if (
+        arg.Parameter?.Name == "configurationSection"
+        && arg.Value.ConstantValue.HasValue
+        && arg.Value.ConstantValue.Value is string
+      )
+      {
+        hasConfigSection = true;
+        break;
+      }
+    }
+
+    // Resolve pipeline parameters via delegate signature or method group.
+    System.Collections.Generic.IEnumerable<IParameterSymbol>? pipelineParams = null;
     foreach (var arg in call.Arguments)
     {
       if (arg.Parameter?.Name != "pipeline")
         continue;
 
+      // Path 1: lambda / typed Func — read from the delegate's Invoke method
       var delegateType = ResolveMethodSignatureFromArgument(arg.Value);
-      if (delegateType == null)
-        continue;
-
-      // The delegate's invoke method parameters are the pipeline's dependencies
-      var invokeMethod = delegateType.DelegateInvokeMethod;
-      if (invokeMethod == null)
-        continue;
-
-      foreach (var param in invokeMethod.Parameters)
+      if (delegateType?.DelegateInvokeMethod != null)
       {
-        if (InheritsFrom(param.Type, dataCatalogBaseType))
-        {
-          requiredCatalogs.Add(param.Type);
-        }
+        pipelineParams = delegateType.DelegateInvokeMethod.Parameters;
+        break;
       }
+
+      // Path 2: method group — unwrap any conversion wrapper and read Method.Parameters
+      IOperation value = arg.Value;
+      while (value is IConversionOperation conv)
+        value = conv.Operand;
+      if (value is IMethodReferenceOperation methodRef)
+        pipelineParams = methodRef.Method.Parameters;
+
       break;
     }
 
-    // Also try resolving from method group directly
-    if (requiredCatalogs.Count == 0)
+    if (pipelineParams != null)
     {
-      foreach (var arg in call.Arguments)
-      {
-        if (arg.Parameter?.Name != "pipeline")
-          continue;
+      // The runtime consumes configurationSection on the first concrete non-catalog
+      // non-interface param it encounters (left to right). Track that slot.
+      bool configSectionConsumed = false;
 
-        // For method group conversions, walk to the referenced method
-        if (arg.Value is IMethodReferenceOperation methodRef)
+      foreach (var param in pipelineParams)
+      {
+        if (InheritsFrom(param.Type, dataCatalogBaseType))
         {
-          foreach (var param in methodRef.Method.Parameters)
+          // Catalog — must be registered via UseCatalog.
+          requiredCatalogs.Add(param.Type);
+        }
+        else if (param.Type.TypeKind == TypeKind.Interface)
+        {
+          // Interface — DI-resolved service. Core has no visibility into what registers
+          // it; extensions own that contract. No diagnostic.
+        }
+        else
+        {
+          // Concrete non-catalog class — could be a config POCO or an explicitly
+          // registered DI type. If configurationSection covers this slot, it's fine.
+          if (hasConfigSection && !configSectionConsumed)
           {
-            if (InheritsFrom(param.Type, dataCatalogBaseType))
-            {
-              requiredCatalogs.Add(param.Type);
-            }
+            configSectionConsumed = true;
+          }
+          else
+          {
+            ambiguousConcreteParams.Add((param.Type, param.Name));
           }
         }
-        else if (
-          arg.Value is IConversionOperation conversion
-          && conversion.Operand is IMethodReferenceOperation innerRef
-        )
-        {
-          foreach (var param in innerRef.Method.Parameters)
-          {
-            if (InheritsFrom(param.Type, dataCatalogBaseType))
-            {
-              requiredCatalogs.Add(param.Type);
-            }
-          }
-        }
-        break;
       }
     }
 
-    return (label, requiredCatalogs);
+    return (label, requiredCatalogs, ambiguousConcreteParams);
   }
 
   private static INamedTypeSymbol? ResolveMethodSignatureFromArgument(IOperation value)
