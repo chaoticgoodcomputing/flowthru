@@ -431,12 +431,6 @@ public sealed class PythonRuntimeOptions
     var venvPath = Path.Combine(directory, ".venv");
     var pyvenvCfg = Path.Combine(venvPath, "pyvenv.cfg");
 
-    // If .venv already exists and is valid, return it immediately
-    if (File.Exists(pyvenvCfg))
-    {
-      return venvPath;
-    }
-
     // Check if uv manifest files exist
     if (!File.Exists(pyprojectPath) || !File.Exists(uvLockPath))
     {
