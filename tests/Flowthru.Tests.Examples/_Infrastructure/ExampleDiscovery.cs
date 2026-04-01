@@ -4,19 +4,22 @@ using Flowthru.Services;
 namespace Flowthru.Tests.Examples.Infrastructure;
 
 /// <summary>
-/// Discovers Flowthru example projects by cross-referencing project-referenced assemblies
-/// against the <c>examples/</c> directory structure.
+/// Discovers Flowthru example projects by inspecting assemblies in the test output directory.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Discovery strategy (no manual <see cref="Assembly.LoadFrom"/>):
+/// Discovery strategy:
 /// </para>
 /// <list type="number">
-///   <item>Enumerate project directories under <c>examples/starter/</c> and <c>examples/advanced/</c>.</item>
-///   <item>For each directory whose name matches a <c>.csproj</c>, attempt to load the assembly
-///         from the test output directory (where <c>&lt;ProjectReference&gt;</c> copies it at build time).</item>
+///   <item>Enumerate <c>.dll</c> files in the test output directory
+///         (populated at build time via <c>&lt;ProjectReference&gt;</c>).</item>
+///   <item>Filter to assemblies where <see cref="Assembly.EntryPoint"/> is non-null —
+///         this excludes library projects (<c>OutputType=Library</c>) without requiring
+///         MSBuild metadata at runtime.</item>
 ///   <item>Verify the assembly contains a type with a <c>ConfigureServices</c> method
 ///         returning <see cref="IServiceProvider"/>.</item>
+///   <item>Locate the source project by searching the <c>examples/</c> directory tree
+///         for a matching <c>.csproj</c> file, excluding <c>examples/archived/</c>.</item>
 /// </list>
 /// </remarks>
 public static class ExampleDiscovery
@@ -39,68 +42,61 @@ public static class ExampleDiscovery
 
     var testOutputDir = Path.GetDirectoryName(typeof(ExampleDiscovery).Assembly.Location)!;
 
-    foreach (var (name, category, sourcePath) in GetExampleProjectDirectories())
+    foreach (var dllPath in Directory.GetFiles(testOutputDir, "*.dll"))
     {
+      var name = Path.GetFileNameWithoutExtension(dllPath);
       var assembly = TryLoadAssembly(name, testOutputDir);
       if (assembly == null)
-      {
-        TestContext.Progress.WriteLine(
-          $"[Discovery] Skipping {name}: assembly not found in {testOutputDir}"
-        );
         continue;
-      }
 
-      var entryPoint = FindConfigureServicesType(assembly);
-      if (entryPoint == null)
-      {
-        TestContext.Progress.WriteLine(
-          $"[Discovery] Skipping {name}: no type with ConfigureServices(string?) found"
-        );
+      // Libraries have a null EntryPoint; only executables (OutputType=Exe) are runnable examples.
+      if (assembly.EntryPoint == null)
         continue;
-      }
 
-      // Calculate output directory: dist/examples/{category}/{name}/net10.0/
-      var outputPath = Path.Combine(WorkspaceRoot, "dist", "examples", category, name, "net10.0");
+      var entryPointType = FindConfigureServicesType(assembly);
+      if (entryPointType == null)
+        continue;
+
+      var (sourcePath, category) = FindSourceProject(name);
+      if (sourcePath == null)
+        continue;
 
       yield return new ExampleProject
       {
         Name = name,
         ProjectPath = sourcePath,
-        OutputPath = outputPath,
-        EntryPointType = entryPoint,
+        OutputPath = Path.Combine(WorkspaceRoot, "dist", "examples", category, name, "net10.0"),
+        EntryPointType = entryPointType,
       };
     }
   }
 
   /// <summary>
-  /// Enumerates example project directories that contain a matching <c>.csproj</c> file.
-  /// Searches <c>examples/starter/</c> and <c>examples/advanced/</c>.
-  /// <c>examples/archived/</c> is intentionally excluded — archived projects are not built
-  /// or tested.
+  /// Searches the <c>examples/</c> directory tree for a <c>.csproj</c> matching
+  /// <paramref name="assemblyName"/>, excluding <c>examples/archived/</c>.
+  /// Returns the directory containing the <c>.csproj</c> and the top-level category folder
+  /// (e.g. <c>"starter"</c> or <c>"advanced"</c>).
   /// </summary>
-  private static IEnumerable<(
-    string Name,
-    string Category,
-    string SourcePath
-  )> GetExampleProjectDirectories()
+  private static (string? SourcePath, string Category) FindSourceProject(string assemblyName)
   {
-    var categories = new[] { "starter", "advanced" };
+    var matches = Directory.GetFiles(
+      ExamplesDirectory,
+      $"{assemblyName}.csproj",
+      SearchOption.AllDirectories
+    );
 
-    foreach (var category in categories)
+    foreach (var csproj in matches)
     {
-      var categoryDir = System.IO.Path.Combine(ExamplesDirectory, category);
-      if (!Directory.Exists(categoryDir))
+      var relative = Path.GetRelativePath(ExamplesDirectory, csproj);
+      var segments = relative.Split(Path.DirectorySeparatorChar);
+
+      if (segments[0].Equals("archived", StringComparison.OrdinalIgnoreCase))
         continue;
 
-      foreach (var projectDir in Directory.GetDirectories(categoryDir))
-      {
-        var name = System.IO.Path.GetFileName(projectDir);
-        var csproj = System.IO.Path.Combine(projectDir, $"{name}.csproj");
-
-        if (File.Exists(csproj))
-          yield return (name, category, projectDir);
-      }
+      return (Path.GetDirectoryName(csproj)!, segments[0]);
     }
+
+    return (null, string.Empty);
   }
 
   /// <summary>

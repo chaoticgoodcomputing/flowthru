@@ -25,10 +25,12 @@
     <PackageReference Include="Flowthru" Version="*" />
     
     <!-- Dynamically reference all example projects for coverage collection -->
-    <!-- New examples in examples/starter/ or examples/advanced/ will be automatically discovered. -->
-    <!-- examples/archived/ is intentionally excluded — archived projects are not tested. -->
-    <ProjectReference Include="..\..\examples\starter\**\*.csproj" />
-    <ProjectReference Include="..\..\examples\advanced\**\*.csproj" />
+    <!-- New examples anywhere under examples/ will be automatically discovered. -->
+    <!-- examples/archived/ is intentionally excluded — archived projects are not built or tested. -->
+    <!-- Library sub-projects (OutputType=Library) are filtered at runtime by ExampleDiscovery -->
+    <!-- using Assembly.EntryPoint — only executable assemblies become test cases. -->
+    <ProjectReference Include="..\..\examples\**\*.csproj"
+                      Exclude="..\..\examples\archived\**\*.csproj" />
   </ItemGroup>
 
   <!--
