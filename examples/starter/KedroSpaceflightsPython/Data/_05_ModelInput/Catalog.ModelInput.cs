@@ -12,24 +12,24 @@ public partial class Catalog
   /// <summary>
   /// Training features split from the model input table. Transient (memory only).
   /// </summary>
-  public ICatalogEntry<IEnumerable<XValues>> XTest =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<XValues>(label: "XTest"));
+  public IItem<IEnumerable<XValues>> XTest =>
+    CreateItem(() => Items.Enumerable.Memory<XValues>(label: "XTest"));
 
   /// <summary>
   /// Test features split from the model input table. Transient (memory only).
   /// </summary>
-  public ICatalogEntry<IEnumerable<XValues>> XTrain =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<XValues>(label: "XTrain"));
+  public IItem<IEnumerable<XValues>> XTrain =>
+    CreateItem(() => Items.Enumerable.Memory<XValues>(label: "XTrain"));
 
   /// <summary>
   /// Test targets split from the model input table. Transient (memory only).
   /// </summary>
-  public ICatalogEntry<IEnumerable<YValues>> YTest =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<YValues>(label: "YTest"));
+  public IItem<IEnumerable<YValues>> YTest =>
+    CreateItem(() => Items.Enumerable.Memory<YValues>(label: "YTest"));
 
   /// <summary>
   /// Training targets split from the model input table. Transient (memory only).
   /// </summary>
-  public ICatalogEntry<IEnumerable<YValues>> YTrain =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<YValues>(label: "YTrain"));
+  public IItem<IEnumerable<YValues>> YTrain =>
+    CreateItem(() => Items.Enumerable.Memory<YValues>(label: "YTrain"));
 }

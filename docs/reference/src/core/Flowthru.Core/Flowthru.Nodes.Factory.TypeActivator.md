@@ -1,6 +1,6 @@
 # <a id="Flowthru_Nodes_Factory_TypeActivator"></a> Class TypeActivator
 
-Namespace: [Flowthru.Nodes.Factory](Flowthru.Nodes.Factory.md)  
+Namespace: [Flowthru.Steps.Factory](Flowthru.Steps.Factory.md)  
 Assembly: Flowthru.Core.dll  
 
 Factory for creating instances of types using compiled expression trees for performance.
@@ -12,7 +12,7 @@ public static class TypeActivator
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[TypeActivator](Flowthru.Nodes.Factory.TypeActivator.md)
+[TypeActivator](Flowthru.Steps.Factory.TypeActivator.md)
 
 #### Inherited Members
 

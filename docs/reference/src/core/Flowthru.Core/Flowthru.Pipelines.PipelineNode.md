@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_PipelineNode"></a> Class PipelineNode
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Represents a node within a pipeline, wrapping the transformation function with metadata
@@ -13,7 +13,7 @@ public class PipelineNode
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PipelineNode](Flowthru.Pipelines.PipelineNode.md)
+[PipelineNode](Flowthru.Flows.PipelineNode.md)
 
 #### Inherited Members
 
@@ -94,7 +94,7 @@ public List<PipelineNode> Dependencies { get; }
 
 #### Property Value
 
- [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[PipelineNode](Flowthru.Pipelines.PipelineNode.md)\>
+ [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[PipelineNode](Flowthru.Flows.PipelineNode.md)\>
 
 #### Remarks
 

@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Results;
@@ -10,10 +10,10 @@ namespace Flowthru.Results;
 /// This is the default formatter used by the CLI.
 /// Produces colorful, detailed output suitable for interactive terminal sessions.
 /// </remarks>
-public class ConsoleResultFormatter : IPipelineResultFormatter
+public class ConsoleResultFormatter : IFlowResultFormatter
 {
   /// <inheritdoc />
-  public void Format(PipelineResult result, ILogger logger)
+  public void Format(FlowResult result, ILogger logger)
   {
     if (result.Success)
     {
@@ -25,26 +25,26 @@ public class ConsoleResultFormatter : IPipelineResultFormatter
     }
   }
 
-  private void FormatSuccess(PipelineResult result, ILogger logger)
+  private void FormatSuccess(FlowResult result, ILogger logger)
   {
     logger.LogInformation("================================================================");
-    logger.LogInformation("Pipeline: {PipelineName}", result.PipelineName ?? "Unknown");
+    logger.LogInformation("Pipeline: {FlowName}", result.FlowName ?? "Unknown");
     logger.LogInformation("Status: ✓ SUCCESS");
     logger.LogInformation("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
     logger.LogInformation("================================================================");
     logger.LogInformation("");
 
-    if (result.NodeResults.Count > 0)
+    if (result.StepResults.Count > 0)
     {
-      logger.LogInformation("Nodes Executed ({Count}):", result.NodeResults.Count);
+      logger.LogInformation("Nodes Executed ({Count}):", result.StepResults.Count);
 
-      foreach (var (nodeName, nodeResult) in result.NodeResults)
+      foreach (var (nodeName, nodeResult) in result.StepResults)
       {
         if (nodeResult.Success)
         {
           logger.LogInformation(
             "  ✓ {NodeName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)",
-            nodeResult.NodeName,
+            nodeResult.StepName,
             nodeResult.ExecutionTime.TotalSeconds,
             nodeResult.InputCount,
             nodeResult.OutputCount
@@ -55,7 +55,7 @@ public class ConsoleResultFormatter : IPipelineResultFormatter
           // This shouldn't happen in a successful pipeline, but handle it anyway
           logger.LogWarning(
             "  ✗ {NodeName,-40} {Duration,6:F2}s   FAILED",
-            nodeResult.NodeName,
+            nodeResult.StepName,
             nodeResult.ExecutionTime.TotalSeconds
           );
         }
@@ -67,18 +67,18 @@ public class ConsoleResultFormatter : IPipelineResultFormatter
     logger.LogInformation("================================================================");
   }
 
-  private void FormatFailure(PipelineResult result, ILogger logger)
+  private void FormatFailure(FlowResult result, ILogger logger)
   {
     logger.LogError("================================================================");
-    logger.LogError("Pipeline: {PipelineName}", result.PipelineName ?? "Unknown");
+    logger.LogError("Pipeline: {FlowName}", result.FlowName ?? "Unknown");
     logger.LogError("Status: ✗ FAILED");
     logger.LogError("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
     logger.LogError("================================================================");
     logger.LogError("");
 
     // Show which nodes succeeded before failure
-    var succeededNodes = result.NodeResults.Values.Where(n => n.Success).ToList();
-    var failedNode = result.NodeResults.Values.FirstOrDefault(n => !n.Success);
+    var succeededNodes = result.StepResults.Values.Where(n => n.Success).ToList();
+    var failedNode = result.StepResults.Values.FirstOrDefault(n => !n.Success);
 
     if (succeededNodes.Any())
     {
@@ -87,7 +87,7 @@ public class ConsoleResultFormatter : IPipelineResultFormatter
       {
         logger.LogInformation(
           "  ✓ {NodeName,-40} {Duration,6:F2}s",
-          nodeResult.NodeName,
+          nodeResult.StepName,
           nodeResult.ExecutionTime.TotalSeconds
         );
       }
@@ -98,7 +98,7 @@ public class ConsoleResultFormatter : IPipelineResultFormatter
     if (failedNode != null)
     {
       logger.LogError("Failed Node:");
-      logger.LogError("  ✗ {NodeName}", failedNode.NodeName);
+      logger.LogError("  ✗ {NodeName}", failedNode.StepName);
       logger.LogError("  Duration: {Duration:F2}s", failedNode.ExecutionTime.TotalSeconds);
 
       if (failedNode.Exception != null)

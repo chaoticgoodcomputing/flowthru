@@ -18,7 +18,7 @@ public class CompilationTest
     var entry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity>("test", context!);
 
     // Verify it returns the correct type
-    var _ = entry as ICatalogEntry<IEnumerable<TestEntity>>;
+    var _ = entry as IItem<IEnumerable<TestEntity>>;
   }
 
   public void TypedContextFactoryOverloadsWork()
@@ -30,7 +30,7 @@ public class CompilationTest
       "test",
       typedFactory
     );
-    var _ = entryTypedFactory as ICatalogEntry<IEnumerable<TestEntity>>;
+    var _ = entryTypedFactory as IItem<IEnumerable<TestEntity>>;
 
     // Func<TContext> with typed save delegate — TContext flows to delegate, no cast needed
     var entryWithSaveFunc = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
@@ -56,7 +56,7 @@ public class CompilationTest
       "test",
       factory
     );
-    var _ = entryFactory as ICatalogEntry<IEnumerable<TestEntity>>;
+    var _ = entryFactory as IItem<IEnumerable<TestEntity>>;
 
     // IDbContextFactory<TContext> with typed save delegate
     var entryWithSaveFunc = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
@@ -77,7 +77,7 @@ public class CompilationTest
       typedFactory,
       saveFunc: (db, data, ct) => Task.CompletedTask
     );
-    var _ = entryTyped as ICatalogEntry<TestEntity>;
+    var _ = entryTyped as IItem<TestEntity>;
 
     // Single IDbContextFactory<TContext>
     var entryFactory = EFCoreCatalogEntries.Single.EFCore<TestEntity, TestDbContext>(

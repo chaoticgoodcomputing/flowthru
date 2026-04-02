@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using SpaceflightsDistributed.DataProcessing.Data;
 using SpaceflightsDistributed.DataScience.Data;
 using SpaceflightsDistributed.Reporting.Data;
@@ -26,16 +26,16 @@ public static class ReportingPipeline
   /// <param name="ds">The data science catalog supplying model predictions.</param>
   /// <param name="r">The reporting catalog receiving all report and chart outputs.</param>
   /// <param name="parameters">Configuration for the pipeline.</param>
-  public static Pipeline Create(
+  public static Flow Create(
     DataProcessingCatalog dp,
     DataScienceCatalog ds,
     ReportingCatalog r,
     Params parameters
   )
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ComparePassengerCapacity",
         description: "Aggregates average shuttle passenger capacity grouped by shuttle type.",
         transform: ComparePassengerCapacityNode.Create(),
@@ -43,7 +43,7 @@ public static class ReportingPipeline
         output: r.ShuttleCapacityReport
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GeneratePassengerCapacityChart",
         description: "Generates a bar chart of passenger capacity rankings by shuttle type.",
         transform: GeneratePassengerCapacityChartNode.Create(),
@@ -51,7 +51,7 @@ public static class ReportingPipeline
         output: r.ShuttlePassengerCapacityChart
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GenerateConfusionMatrixChart",
         description: "Generates a confusion matrix heatmap from model price predictions.",
         transform: CreateConfusionMatrixNode.Create(parameters.ConfusionMatrixOptions),

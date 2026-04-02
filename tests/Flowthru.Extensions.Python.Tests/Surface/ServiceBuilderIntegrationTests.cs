@@ -1,5 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Services;
+using Flowthru.Flows;
 using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,7 +26,7 @@ public class ServiceBuilderIntegrationTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog(new TestCatalog());
-      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipelines.Pipeline>());
+      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
       flowthru.UsePython();
     });
 
@@ -48,7 +49,7 @@ public class ServiceBuilderIntegrationTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog(new TestCatalog());
-      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipelines.Pipeline>());
+      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
       flowthru.UsePython(python =>
       {
         python.ModuleSearchPaths.Add("/custom/path");
@@ -64,5 +65,5 @@ public class ServiceBuilderIntegrationTests
   }
 
   // Minimal test catalog for integration tests
-  private class TestCatalog : Data.DataCatalogBase { }
+  private class TestCatalog : Data.CatalogAbstract { }
 }

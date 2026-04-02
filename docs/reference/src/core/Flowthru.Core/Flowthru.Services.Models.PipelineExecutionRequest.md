@@ -73,18 +73,18 @@ public ExecutionOptions? Options { get; init; }
 
 #### Property Value
 
- [ExecutionOptions](Flowthru.Pipelines.ExecutionOptions.md)?
+ [ExecutionOptions](Flowthru.Flows.ExecutionOptions.md)?
 
 #### Remarks
 
 If null, uses default execution options.
 
-### <a id="Flowthru_Services_Models_PipelineExecutionRequest_PipelineName"></a> PipelineName
+### <a id="Flowthru_Services_Models_PipelineExecutionRequest_FlowName"></a> FlowName
 
 Name of the pipeline to execute.
 
 ```csharp
-public required string PipelineName { get; init; }
+public required string FlowName { get; init; }
 ```
 
 #### Property Value
@@ -96,12 +96,12 @@ public required string PipelineName { get; init; }
 Optional slicing strategy to execute a subset of the pipeline.
 
 ```csharp
-public PipelineSliceStrategy? SliceStrategy { get; init; }
+public FlowSliceStrategy? SliceStrategy { get; init; }
 ```
 
 #### Property Value
 
- [PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)?
+ [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)?
 
 #### Remarks
 

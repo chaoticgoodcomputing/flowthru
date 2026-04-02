@@ -5,28 +5,28 @@ namespace SpaceflightsPythonEFCore.Data;
 
 public partial class Catalog
 {
-  public ICatalogEntry<IEnumerable<CompanySchema>> Companies =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<CompanySchema>> Companies =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<CompanySchema>(
+        Items.Enumerable.Csv<CompanySchema>(
           label: "Companies",
           filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
         )
     );
 
-  public ICatalogEntry<IEnumerable<ReviewSchema>> Reviews =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ReviewSchema>> Reviews =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<ReviewSchema>(
+        Items.Enumerable.Csv<ReviewSchema>(
           label: "Reviews",
           filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
         )
     );
 
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> Shuttles =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Excel<ShuttleSchema>(
+        Items.Enumerable.Excel<ShuttleSchema>(
           label: "Shuttles",
           filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
           sheetName: "Sheet1"

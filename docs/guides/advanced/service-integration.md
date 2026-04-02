@@ -79,7 +79,7 @@ app.MapPost("/pipelines/run", async (
 {
     var options = new ExecutionOptions
     {
-        SliceStrategy = new PipelineSliceStrategy
+        SliceStrategy = new FlowSliceStrategy
         {
             Pipelines = request.Pipelines is { Count: > 0 }
                 ? request.Pipelines.ToHashSet()
@@ -119,21 +119,21 @@ public record PipelineRunRequest
 }
 ```
 
-`PipelineSliceStrategy` properties are `IReadOnlySet<string>?` — convert from lists at the boundary.
+`FlowSliceStrategy` properties are `IReadOnlySet<string>?` — convert from lists at the boundary.
 
 ## Handling Results
 
-`PipelineResult` carries structured execution data. Map it to your application's response model rather than returning it directly:
+`FlowResult` carries structured execution data. Map it to your application's response model rather than returning it directly:
 
 ```csharp
-static PipelineRunResponse MapToResponse(PipelineResult result)
+static PipelineRunResponse MapToResponse(FlowResult result)
 {
     return new PipelineRunResponse
     {
         Success = result.Success,
         DurationMs = result.ExecutionTime.TotalMilliseconds,
-        NodesExecuted = result.NodeResults.Count,
-        NodeSummaries = result.NodeResults.Select(kvp => new NodeSummary
+        NodesExecuted = result.StepResults.Count,
+        NodeSummaries = result.StepResults.Select(kvp => new NodeSummary
         {
             Name = kvp.Key,
             Success = kvp.Value.Success,
@@ -169,7 +169,7 @@ public class PipelineBackgroundService : BackgroundService
         {
             _logger.LogInformation(
                 "Pipeline completed: {NodeCount} nodes in {Duration}s",
-                result.NodeResults.Count,
+                result.StepResults.Count,
                 result.ExecutionTime.TotalSeconds);
         }
         else

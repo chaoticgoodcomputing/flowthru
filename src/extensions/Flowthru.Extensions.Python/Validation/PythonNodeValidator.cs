@@ -3,86 +3,83 @@ using System.Reflection;
 using Flowthru.Data.Validation;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Marshalling;
-using Flowthru.Extensions.Python.Nodes;
 using Flowthru.Extensions.Python.Runtime;
-using Flowthru.Pipelines;
-using Flowthru.Pipelines.Validation;
+using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flows;
+using Flowthru.Flows.Validation;
 using Python.Runtime;
 
 namespace Flowthru.Extensions.Python.Validation;
 
 /// <summary>
-/// Validation hook for Python nodes.
+/// Validation hook for Python steps.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <strong>Phase 4 pre-flight validation:</strong>
-/// Validates Python nodes during pipeline pre-flight to catch schema mismatches,
+/// Validates Python steps during flow pre-flight to catch schema mismatches,
 /// incorrect function signatures, and structural errors before execution.
 /// </para>
 /// <para>
 /// <strong>Checks performed:</strong>
 /// <list type="bullet">
-/// <item>@node decorator schemas match C# generic type parameters</item>
+/// <item>@step decorator schemas match C# generic type parameters</item>
 /// <item>Function signature arity is correct for input count</item>
 /// <item>Dry-run with 0-row data validates output structure</item>
 /// </list>
 /// </para>
 /// <para>
 /// <strong>Integration:</strong>
-/// Register this hook via Pipeline.ValidationHooks during pipeline setup.
-/// The hook is automatically invoked during Pipeline.ValidateExternalInputsAsync().
+/// Register this hook via Flow.ValidationHooks during flow setup.
+/// The hook is automatically invoked during Flow.ValidateExternalInputsAsync().
 /// </para>
 /// </remarks>
-public class PythonNodeValidator : IPipelineValidationHook
+public class PythonStepValidator : IFlowValidationHook
 {
   private readonly IPythonExecutor _executor;
   private readonly PythonRuntime _runtime;
 
   /// <summary>
-  /// Initializes a new instance of <see cref="PythonNodeValidator"/>.
+  /// Initializes a new instance of <see cref="PythonStepValidator"/>.
   /// </summary>
   /// <param name="executor">Python executor for function inspection</param>
   /// <param name="runtime">Python runtime for GIL management</param>
-  public PythonNodeValidator(IPythonExecutor executor, PythonRuntime runtime)
+  public PythonStepValidator(IPythonExecutor executor, PythonRuntime runtime)
   {
     _executor = executor ?? throw new ArgumentNullException(nameof(executor));
     _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
   }
 
   /// <inheritdoc />
-  public async Task<ValidationResult> ValidateAsync(
-    Pipeline pipeline,
-    CancellationToken cancellationToken
-  )
+  public async Task<ValidationResult> ValidateAsync(Flow flow, CancellationToken cancellationToken)
   {
     var errors = new List<ValidationError>();
 
-    foreach (var node in pipeline.Nodes)
+    foreach (var step in flow.Steps)
     {
-      // Check if this is a Python node by examining the transform function
-      if (!IsPythonNode(node, out var pythonNodeInfo))
+      // Check if this is a Python step by examining the transform function
+      if (!IsPythonStep(step, out var pythonStepInfo))
       {
-        continue; // Skip non-Python nodes
+        continue; // Skip non-Python steps
       }
 
       // Validate decorator and schema compatibility
-      var nodeResult = await ValidatePythonNode(pythonNodeInfo!, cancellationToken);
-      errors.AddRange(nodeResult.Errors);
+      var stepResult = await ValidatePythonStep(pythonStepInfo!, cancellationToken);
+      errors.AddRange(stepResult.Errors);
     }
 
     return new ValidationResult(errors);
   }
 
   /// <summary>
-  /// Checks if a pipeline node is a Python node.
+  /// Checks if a flow step is a Python step.
   /// </summary>
-  private bool IsPythonNode(Flowthru.Pipelines.PipelineNode node, out PythonNodeInfo? info)
+  private bool IsPythonStep(FlowStep step, out PythonStepInfo? info)
   {
     info = null;
 
-    // Python nodes use PythonNodeWrapper<TInput, TOutput> as the transform target
-    var transform = node.TransformFunction;
+    // Python steps use PythonStepWrapper<TInput, TOutput> as the transform target
+    var transform = step.TransformFunction;
     if (transform.Target == null)
     {
       return false;
@@ -90,14 +87,14 @@ public class PythonNodeValidator : IPipelineValidationHook
 
     var targetType = transform.Target.GetType();
 
-    // Check if target is PythonNodeWrapper<,>
+    // Check if target is PythonStepWrapper<,>
     if (!targetType.IsGenericType)
     {
       return false;
     }
 
     var genericTypeDef = targetType.GetGenericTypeDefinition();
-    if (genericTypeDef != typeof(PythonNodeWrapper<,>))
+    if (genericTypeDef != typeof(PythonStepWrapper<,>))
     {
       return false;
     }
@@ -132,9 +129,9 @@ public class PythonNodeValidator : IPipelineValidationHook
       return false;
     }
 
-    info = new PythonNodeInfo
+    info = new PythonStepInfo
     {
-      Label = node.Label,
+      Label = step.Label,
       ModuleName = moduleName,
       FunctionName = functionName,
       InputType = genericArgs[0],
@@ -145,10 +142,10 @@ public class PythonNodeValidator : IPipelineValidationHook
   }
 
   /// <summary>
-  /// Validates a single Python node.
+  /// Validates a single Python step.
   /// </summary>
-  private async Task<ValidationResult> ValidatePythonNode(
-    PythonNodeInfo nodeInfo,
+  private async Task<ValidationResult> ValidatePythonStep(
+    PythonStepInfo stepInfo,
     CancellationToken cancellationToken
   )
   {
@@ -164,15 +161,15 @@ public class PythonNodeValidator : IPipelineValidationHook
       {
         using (Py.GIL())
         {
-          module = Py.Import(nodeInfo.ModuleName);
-          function = module.GetAttr(nodeInfo.FunctionName);
+          module = Py.Import(stepInfo.ModuleName);
+          function = module.GetAttr(stepInfo.FunctionName);
         }
       }
       catch (PythonException ex)
       {
         errors.Add(
           new ValidationError(
-            nodeInfo.Label,
+            stepInfo.Label,
             ValidationErrorType.InvalidFormat,
             $"Failed to import Python function: {ex.Message}",
             ex.ToString()
@@ -182,7 +179,7 @@ public class PythonNodeValidator : IPipelineValidationHook
       }
 
       // Check decorator metadata
-      var decoratorResult = ValidateDecorator(nodeInfo, function);
+      var decoratorResult = ValidateDecorator(stepInfo, function);
       errors.AddRange(decoratorResult.Errors);
 
       if (!decoratorResult.IsValid)
@@ -191,9 +188,9 @@ public class PythonNodeValidator : IPipelineValidationHook
       }
 
       // Dry-run dtype validation for tabular outputs
-      if (IsEnumerableSchema(nodeInfo.OutputType))
+      if (IsEnumerableSchema(stepInfo.OutputType))
       {
-        var dryRunResult = ValidateDryRunDtypes(nodeInfo, function);
+        var dryRunResult = ValidateDryRunDtypes(stepInfo, function);
         errors.AddRange(dryRunResult.Errors);
       }
     }
@@ -210,7 +207,7 @@ public class PythonNodeValidator : IPipelineValidationHook
   /// passes it through the Python function, and checks if the output dtypes
   /// can be safely coerced to the C# schema types.
   /// </remarks>
-  private ValidationResult ValidateDryRunDtypes(PythonNodeInfo nodeInfo, PyObject function)
+  private ValidationResult ValidateDryRunDtypes(PythonStepInfo stepInfo, PyObject function)
   {
     var errors = new List<ValidationError>();
 
@@ -218,7 +215,7 @@ public class PythonNodeValidator : IPipelineValidationHook
     {
       using (Py.GIL())
       {
-        var schemaType = nodeInfo.OutputType.GetGenericArguments()[0];
+        var schemaType = stepInfo.OutputType.GetGenericArguments()[0];
 
         // Build expected dtype spec from C# schema
         var buildDtypeSpecMethod = typeof(ArrowSchemaMapper)
@@ -248,14 +245,14 @@ public class PythonNodeValidator : IPipelineValidationHook
         );
 
         // Note: A full dry-run would require creating 0-row input DataFrames for all inputs,
-        // invoking the function, and checking output dtypes. This is complex for multi-input nodes
+        // invoking the function, and checking output dtypes. This is complex for multi-input step
         // and may have side effects (imports, setup code).
         //
         // Instead, we rely on:
-        // 1. Registration-time validation (@node decorator exists)
+        // 1. Registration-time validation (@step decorator exists)
         // 2. Runtime automatic coercion in _flowthru_arrow.py (df_to_ipc with dtype_spec)
         //
-        // If a Python node returns incompatible dtypes, the runtime coercion will raise
+        // If a Python step returns incompatible dtypes, the runtime coercion will raise
         // detailed TypeError/OverflowError with fix guidance.
         //
         // Pre-flight dry-run validation would be added here as a Phase 5 enhancement.
@@ -265,7 +262,7 @@ public class PythonNodeValidator : IPipelineValidationHook
     {
       errors.Add(
         new ValidationError(
-          nodeInfo.Label,
+          stepInfo.Label,
           ValidationErrorType.InspectionFailure,
           $"Dry-run dtype validation failed: {ex.Message}",
           "This is a framework error, not a user error. Report this issue."
@@ -291,9 +288,9 @@ public class PythonNodeValidator : IPipelineValidationHook
   }
 
   /// <summary>
-  /// Validates that the @node decorator metadata matches C# type parameters.
+  /// Validates that the @step decorator metadata matches C# type parameters.
   /// </summary>
-  private ValidationResult ValidateDecorator(PythonNodeInfo nodeInfo, PyObject function)
+  private ValidationResult ValidateDecorator(PythonStepInfo stepInfo, PyObject function)
   {
     var errors = new List<ValidationError>();
 
@@ -302,9 +299,9 @@ public class PythonNodeValidator : IPipelineValidationHook
     {
       errors.Add(
         new ValidationError(
-          nodeInfo.Label,
+          stepInfo.Label,
           ValidationErrorType.SchemaMismatch,
-          $"Function '{nodeInfo.FunctionName}' is missing @node decorator metadata",
+          $"Function '{stepInfo.FunctionName}' is missing @step decorator metadata",
           "This should have been caught during registration-time validation"
         )
       );
@@ -340,15 +337,15 @@ public class PythonNodeValidator : IPipelineValidationHook
     }
 
     // Extract C# schema names from type parameters (Phase 5: supports tuples)
-    var csharpInputSchemas = ExtractSchemaNames(nodeInfo.InputType);
-    var csharpOutputSchemas = ExtractSchemaNames(nodeInfo.OutputType);
+    var csharpInputSchemas = ExtractSchemaNames(stepInfo.InputType);
+    var csharpOutputSchemas = ExtractSchemaNames(stepInfo.OutputType);
 
     // Validate input schema count
     if (decoratorInputs.Count != csharpInputSchemas.Count)
     {
       errors.Add(
         new ValidationError(
-          nodeInfo.Label,
+          stepInfo.Label,
           ValidationErrorType.SchemaMismatch,
           $"Input schema count mismatch: C# expects {csharpInputSchemas.Count} input(s), decorator declares {decoratorInputs.Count}",
           $"C# inputs: [{string.Join(", ", csharpInputSchemas)}]\nDecorator inputs: [{string.Join(", ", decoratorInputs)}]"
@@ -361,7 +358,7 @@ public class PythonNodeValidator : IPipelineValidationHook
     {
       errors.Add(
         new ValidationError(
-          nodeInfo.Label,
+          stepInfo.Label,
           ValidationErrorType.SchemaMismatch,
           $"Output schema count mismatch: C# expects {csharpOutputSchemas.Count} output(s), decorator declares {decoratorOutputs.Count}",
           $"C# outputs: [{string.Join(", ", csharpOutputSchemas)}]\nDecorator outputs: [{string.Join(", ", decoratorOutputs)}]"
@@ -376,10 +373,10 @@ public class PythonNodeValidator : IPipelineValidationHook
       {
         errors.Add(
           new ValidationError(
-            nodeInfo.Label,
+            stepInfo.Label,
             ValidationErrorType.SchemaMismatch,
             $"Input schema mismatch at position {i + 1}:\n  C# registration declares:  {csharpInputSchemas[i]}\n  Python decorator declares: {decoratorInputs[i]}",
-            "The @node decorator must match the C# generic type parameters"
+            "The @step decorator must match the C# generic type parameters"
           )
         );
       }
@@ -392,17 +389,17 @@ public class PythonNodeValidator : IPipelineValidationHook
       {
         errors.Add(
           new ValidationError(
-            nodeInfo.Label,
+            stepInfo.Label,
             ValidationErrorType.SchemaMismatch,
             $"Output schema mismatch at position {i + 1}:\n  C# registration declares:  {csharpOutputSchemas[i]}\n  Python decorator declares: {decoratorOutputs[i]}",
-            "The @node decorator must match the C# generic type parameters"
+            "The @step decorator must match the C# generic type parameters"
           )
         );
       }
     }
 
     // Phase 5: Validate function arity using inspect.signature
-    var arityResult = ValidateFunctionArity(nodeInfo, function, csharpInputSchemas.Count);
+    var arityResult = ValidateFunctionArity(stepInfo, function, csharpInputSchemas.Count);
     errors.AddRange(arityResult.Errors);
 
     return new ValidationResult(errors);
@@ -412,7 +409,7 @@ public class PythonNodeValidator : IPipelineValidationHook
   /// Validates that the Python function's parameter count matches expected input count (Phase 5).
   /// </summary>
   private ValidationResult ValidateFunctionArity(
-    PythonNodeInfo nodeInfo,
+    PythonStepInfo stepInfo,
     PyObject function,
     int expectedParamCount
   )
@@ -433,9 +430,9 @@ public class PythonNodeValidator : IPipelineValidationHook
         {
           errors.Add(
             new ValidationError(
-              nodeInfo.Label,
+              stepInfo.Label,
               ValidationErrorType.SchemaMismatch,
-              $"Function parameter count mismatch: Python function '{nodeInfo.FunctionName}' has {actualParamCount} parameter(s), but C# registration expects {expectedParamCount} input(s)",
+              $"Function parameter count mismatch: Python function '{stepInfo.FunctionName}' has {actualParamCount} parameter(s), but C# registration expects {expectedParamCount} input(s)",
               $"Update the Python function signature to accept {expectedParamCount} parameter(s)"
             )
           );
@@ -446,7 +443,7 @@ public class PythonNodeValidator : IPipelineValidationHook
     {
       errors.Add(
         new ValidationError(
-          nodeInfo.Label,
+          stepInfo.Label,
           ValidationErrorType.InvalidFormat,
           $"Failed to inspect function signature: {ex.Message}",
           "Ensure the Python function is properly defined"
@@ -520,9 +517,9 @@ public class PythonNodeValidator : IPipelineValidationHook
   }
 
   /// <summary>
-  /// Information about a Python node extracted from the pipeline.
+  /// Information about a Python step extracted from the flow.
   /// </summary>
-  private class PythonNodeInfo
+  private class PythonStepInfo
   {
     public required string Label { get; init; }
     public required string ModuleName { get; init; }

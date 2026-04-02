@@ -11,8 +11,8 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  public ICatalogEntry<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
+    CreateItem(
       () =>
         EFCoreCatalogEntries
           .Enumerable.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
@@ -22,8 +22,8 @@ public partial class Catalog
           .WithInspectionLevel(InspectionLevel.Shallow)
     );
 
-  public ICatalogEntry<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
+    CreateItem(
       () =>
         EFCoreCatalogEntries
           .Enumerable.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(

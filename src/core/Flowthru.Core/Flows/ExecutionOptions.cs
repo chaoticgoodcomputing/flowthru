@@ -1,6 +1,6 @@
 using Flowthru.Results;
 
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
 /// Configuration options for pipeline execution.
@@ -47,7 +47,7 @@ public class ExecutionOptions
   /// <remarks>
   /// Defaults to ConsoleResultFormatter if not specified.
   /// </remarks>
-  public IPipelineResultFormatter? ResultFormatter { get; set; }
+  public IFlowResultFormatter? ResultFormatter { get; set; }
 
   /// <summary>
   /// Optional slicing strategy to apply when executing pipelines.
@@ -56,13 +56,13 @@ public class ExecutionOptions
   /// When provided, only nodes matching the slice strategy will be executed.
   /// Used when slicing flags are provided without a specific pipeline name.
   /// </remarks>
-  public PipelineSliceStrategy? SliceStrategy { get; set; }
+  public FlowSliceStrategy? SliceStrategy { get; set; }
 
   /// <summary>
   /// Gets the configured formatter or creates a default one.
   /// </summary>
   /// <returns>The result formatter to use</returns>
-  internal IPipelineResultFormatter GetFormatter()
+  internal IFlowResultFormatter GetFormatter()
   {
     return ResultFormatter ?? new ConsoleResultFormatter();
   }

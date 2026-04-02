@@ -1,6 +1,6 @@
+using Flowthru.Flows;
 using Flowthru.Misc.ML.UMAP;
 using Flowthru.Misc.ML.UMAP.Core;
-using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Helpers.Nodes;
 using UmapReferenceComparisons.Pipelines.DigitsComparison.Nodes;
@@ -26,7 +26,7 @@ namespace UmapReferenceComparisons.Pipelines.DigitsComparison;
 /// </remarks>
 public static class DigitsComparisonPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
     var umapParameters = new UmapParameters
     {
@@ -40,9 +40,9 @@ public static class DigitsComparisonPipeline
       Verbosity = 2,
     };
 
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ConvertDigitsToUmapInput",
         description: """
           Converts Digits-specific schema to universal UmapInput format.

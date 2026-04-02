@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_Validation_ValidationOptions"></a> Class ValidationOptions
 
-Namespace: [Flowthru.Pipelines.Validation](Flowthru.Pipelines.Validation.md)  
+Namespace: [Flowthru.Flows.Validation](Flowthru.Flows.Validation.md)  
 Assembly: Flowthru.Core.dll  
 
 Configuration for pipeline validation behavior.
@@ -12,7 +12,7 @@ public class ValidationOptions
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)
+[ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
 #### Inherited Members
 
@@ -73,7 +73,7 @@ public static ValidationOptions Default()
 
 #### Returns
 
- [ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)
+ [ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
 ### <a id="Flowthru_Pipelines_Validation_ValidationOptions_Inspect_Flowthru_Data_ICatalogEntry_Flowthru_Data_Validation_InspectionLevel_"></a> Inspect\(ICatalogEntry, InspectionLevel\)
 
@@ -95,7 +95,7 @@ The inspection level to use for this entry
 
 #### Returns
 
- [ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)
+ [ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
 This ValidationOptions instance for fluent chaining
 

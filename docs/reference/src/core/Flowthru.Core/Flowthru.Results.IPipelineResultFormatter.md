@@ -1,4 +1,4 @@
-# <a id="Flowthru_Results_IPipelineResultFormatter"></a> Interface IPipelineResultFormatter
+# <a id="Flowthru_Results_IFlowResultFormatter"></a> Interface IFlowResultFormatter
 
 Namespace: [Flowthru.Results](Flowthru.Results.md)  
 Assembly: Flowthru.Core.dll  
@@ -6,13 +6,13 @@ Assembly: Flowthru.Core.dll
 Interface for formatting pipeline execution results.
 
 ```csharp
-public interface IPipelineResultFormatter
+public interface IFlowResultFormatter
 ```
 
 ## Remarks
 
 <p>
-Result formatters transform a PipelineResult into human-readable or
+Result formatters transform a FlowResult into human-readable or
 machine-readable output via logging.
 </p>
 <p>
@@ -25,17 +25,17 @@ Future formatters: JSON, Markdown, compact CI/CD format.
 
 ## Methods
 
-### <a id="Flowthru_Results_IPipelineResultFormatter_Format_Flowthru_Pipelines_PipelineResult_Microsoft_Extensions_Logging_ILogger_"></a> Format\(PipelineResult, ILogger\)
+### <a id="Flowthru_Results_IFlowResultFormatter_Format_Flowthru_Pipelines_FlowResult_Microsoft_Extensions_Logging_ILogger_"></a> Format\(FlowResult, ILogger\)
 
 Formats and outputs the pipeline result.
 
 ```csharp
-void Format(PipelineResult result, ILogger logger)
+void Format(FlowResult result, ILogger logger)
 ```
 
 #### Parameters
 
-`result` [PipelineResult](Flowthru.Pipelines.PipelineResult.md)
+`result` [FlowResult](Flowthru.Flows.FlowResult.md)
 
 The pipeline execution result
 

@@ -11,8 +11,8 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  public ICatalogEntry<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
+    CreateItem(
       () =>
         EFCoreCatalogEntries.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
           label: "ModelInputTable",

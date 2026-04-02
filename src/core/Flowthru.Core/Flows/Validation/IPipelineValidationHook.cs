@@ -1,22 +1,22 @@
 using Flowthru.Data.Validation;
 
-namespace Flowthru.Pipelines.Validation;
+namespace Flowthru.Flows.Validation;
 
 /// <summary>
-/// Validation hook that runs during pipeline pre-flight checks.
+/// Validation hook that runs during flow pre-flight checks.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Validation hooks provide an extensibility point for extensions to contribute
 /// their own validation logic during the pre-flight phase. Hooks are invoked after
 /// DAG analysis but before external input inspection, allowing extensions to
-/// validate their own node types.
+/// validate their own step types.
 /// </para>
 /// <para>
 /// <strong>Example use cases:</strong>
 /// <list type="bullet">
-/// <item>Python extension validates @node decorators match C# types</item>
-/// <item>Custom extensions validate node-specific configuration</item>
+/// <item>Python extension validates @step decorators match C# types</item>
+/// <item>Custom extensions validate step-specific configuration</item>
 /// <item>Third-party plugins validate external dependencies</item>
 /// </list>
 /// </para>
@@ -24,9 +24,9 @@ namespace Flowthru.Pipelines.Validation;
 /// <strong>Hook execution order:</strong>
 /// </para>
 /// <list type="number">
-/// <item>Pipeline.Build() - DAG construction and layer assignment</item>
+/// <item>Flow.Build() - DAG construction and layer assignment</item>
 /// <item>ValidationHooks.ValidateAsync() - Extension-specific validation</item>
-/// <item>Pipeline.ValidateExternalInputsAsync() - External input inspection</item>
+/// <item>Flow.ValidateExternalInputsAsync() - External input inspection</item>
 /// </list>
 /// <para>
 /// <strong>Error handling:</strong>
@@ -34,12 +34,12 @@ namespace Flowthru.Pipelines.Validation;
 /// Multiple hooks may run, and all errors are aggregated into a single result.
 /// </para>
 /// </remarks>
-public interface IPipelineValidationHook
+public interface IFlowValidationHook
 {
   /// <summary>
-  /// Validates pipeline nodes during pre-flight checks.
+  /// Validates flow steps during pre-flight checks.
   /// </summary>
-  /// <param name="pipeline">The pipeline being validated</param>
+  /// <param name="flow">The flow being validated</param>
   /// <param name="cancellationToken">Cancellation token for async operations</param>
   /// <returns>Validation result containing any errors found</returns>
   /// <remarks>
@@ -48,8 +48,8 @@ public interface IPipelineValidationHook
   /// <list type="bullet">
   /// <item>Never throw exceptions (return errors in ValidationResult)</item>
   /// <item>Be idempotent (safe to call multiple times)</item>
-  /// <item>Be reasonably fast (executed during pre-flight, blocks pipeline start)</item>
-  /// <item>Only validate nodes they understand (ignore other node types)</item>
+  /// <item>Be reasonably fast (executed during pre-flight, blocks flow start)</item>
+  /// <item>Only validate steps they understand (ignore other step types)</item>
   /// </list>
   /// </para>
   /// <para>
@@ -57,17 +57,17 @@ public interface IPipelineValidationHook
   /// </para>
   /// <code>
   /// public async Task&lt;ValidationResult&gt; ValidateAsync(
-  ///   Pipeline pipeline,
+  ///   Flow flow,
   ///   CancellationToken cancellationToken)
   /// {
   ///   var result = ValidationResult.Success();
   ///
-  ///   foreach (var node in pipeline.Nodes)
+  ///   foreach (var step in flow.Steps)
   ///   {
-  ///     if (IsPythonNode(node))
+  ///     if (IsPythonStep(step))
   ///     {
-  ///       var nodeResult = await ValidatePythonNode(node, cancellationToken);
-  ///       result.Merge(nodeResult);
+  ///       var stepResult = await ValidatePythonStep(step, cancellationToken);
+  ///       result.Merge(stepResult);
   ///     }
   ///   }
   ///
@@ -75,5 +75,5 @@ public interface IPipelineValidationHook
   /// }
   /// </code>
   /// </remarks>
-  Task<ValidationResult> ValidateAsync(Pipeline pipeline, CancellationToken cancellationToken);
+  Task<ValidationResult> ValidateAsync(Flow flow, CancellationToken cancellationToken);
 }

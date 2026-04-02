@@ -1,4 +1,4 @@
-namespace Flowthru.Nodes;
+namespace Flowthru.Steps;
 
 /// <summary>
 /// Marker type representing "no meaningful data" for nodes with side-effects or data generation.
@@ -72,10 +72,8 @@ public sealed class NoData
   /// <remarks>
   /// Alias for readability in pipeline declarations where nodes don't consume external inputs.
   /// </remarks>
-  public static Data.ICatalogEntry<NoData> Input =>
-    Data.CatalogEntries.Null<NoData>(
-      $"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}"
-    );
+  public static Data.IItem<NoData> Input =>
+    Data.Items.Null<NoData>($"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
@@ -84,26 +82,22 @@ public sealed class NoData
   /// <remarks>
   /// Alias for readability in pipeline declarations where nodes produce no meaningful output.
   /// </remarks>
-  public static Data.ICatalogEntry<NoData> Output =>
-    Data.CatalogEntries.Null<NoData>(
-      $"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}"
-    );
+  public static Data.IItem<NoData> Output =>
+    Data.Items.Null<NoData>($"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
   /// Semantic alias for Output - use whichever reads better in context.
   /// </summary>
-  public static Data.ICatalogEntry<NoData> Discard =>
-    Data.CatalogEntries.Null<NoData>(
-      $"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}"
-    );
+  public static Data.IItem<NoData> Discard =>
+    Data.Items.Null<NoData>($"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Creates a unique null catalog entry for use as a node input (no-input nodes).
   /// Semantic alias for Input - use whichever reads better in context.
   /// </summary>
-  public static Data.ICatalogEntry<NoData> None =>
-    Data.CatalogEntries.Null<NoData>($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
+  public static Data.IItem<NoData> None =>
+    Data.Items.Null<NoData>($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Returns the standard NoData result for side-effect-only nodes.

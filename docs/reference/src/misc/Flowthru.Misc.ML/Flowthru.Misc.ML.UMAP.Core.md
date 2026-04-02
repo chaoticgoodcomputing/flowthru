@@ -35,7 +35,7 @@ These parameters control the mathematical behavior of the algorithm across all s
 
 Fluent builder for UMAP pipelines with automatic strategy selection.
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
  [UmapProgress](Flowthru.Misc.ML.UMAP.Core.UmapProgress.md)
 

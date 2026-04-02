@@ -1,6 +1,7 @@
 using Flowthru.Configuration;
 using Flowthru.Data;
 using Flowthru.Data.Storage.Strategies;
+using Flowthru.Flows;
 using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +16,7 @@ namespace Flowthru.Services;
 /// <remarks>
 /// <para>
 /// This builder configures the service layer without CLI coupling.
-/// Use it to register catalogs, pipelines, and optional features.
+/// Use it to register catalogs, flows, and optional features.
 /// </para>
 /// <para>
 /// <strong>Basic Usage:</strong>
@@ -23,7 +24,7 @@ namespace Flowthru.Services;
 /// services.AddFlowthru(flowthru =>
 /// {
 ///     flowthru.RegisterCatalog(_ => new MyCatalog(dataPath));
-///     flowthru.RegisterPipeline("my_pipeline", MyPipeline.Create);
+///     flowthru.RegisterFlow("my_flow", MyFlow.Create);
 /// });
 /// </code>
 /// </para>
@@ -33,11 +34,11 @@ public sealed class FlowthruServiceBuilder
   private readonly IServiceCollection _services;
   private readonly List<Type> _registeredCatalogTypes = new();
   private readonly List<
-    Func<IServiceProvider, IEnumerable<DataCatalogBase>>
+    Func<IServiceProvider, IEnumerable<CatalogAbstract>>
   > _dynamicCatalogFactories = new();
-  private readonly List<PipelineRegistrationEntry> _registrations = new();
-  private Func<IServiceProvider, Dictionary<string, Pipelines.Pipeline>>? _pipelineFactory;
-  private PipelineRegistrationEntry? _lastRegistration;
+  private readonly List<FlowRegistrationEntry> _registrations = new();
+  private Func<IServiceProvider, Dictionary<string, Flow>>? _flowFactory;
+  private FlowRegistrationEntry? _lastRegistration;
   private IConfiguration? _configuration;
 
   internal FlowthruServiceBuilder(IServiceCollection services)
@@ -46,19 +47,16 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Internal entry type that carries a pipeline factory and its associated metadata.
-  /// Replaces the PipelineRegistrar indirection for cleaner multi-catalog support.
+  /// Internal entry type that carries a flow factory and its associated metadata.
+  /// Replaces the FlowRegistrar indirection for cleaner multi-catalog support.
   /// </summary>
-  internal sealed class PipelineRegistrationEntry
+  internal sealed class FlowRegistrationEntry
   {
     public string Label { get; }
-    public Func<IServiceProvider, Pipelines.Pipeline> Factory { get; }
+    public Func<IServiceProvider, Flow> Factory { get; }
     public string Description { get; set; } = "";
 
-    internal PipelineRegistrationEntry(
-      string label,
-      Func<IServiceProvider, Pipelines.Pipeline> factory
-    )
+    internal FlowRegistrationEntry(string label, Func<IServiceProvider, Flow> factory)
     {
       Label = label;
       Factory = factory;
@@ -75,7 +73,7 @@ public sealed class FlowthruServiceBuilder
   /// parameter injection (e.g., IConfiguration, IOptions).
   /// </remarks>
   public FlowthruServiceBuilder RegisterCatalog<TCatalog>()
-    where TCatalog : DataCatalogBase
+    where TCatalog : CatalogAbstract
   {
     _services.AddSingleton<TCatalog>();
     _registeredCatalogTypes.Add(typeof(TCatalog));
@@ -90,7 +88,7 @@ public sealed class FlowthruServiceBuilder
   /// <remarks>
   /// Use this when the catalog doesn't require dependency injection.
   /// </remarks>
-  public FlowthruServiceBuilder RegisterCatalog(DataCatalogBase catalog)
+  public FlowthruServiceBuilder RegisterCatalog(CatalogAbstract catalog)
   {
     if (catalog == null)
     {
@@ -115,7 +113,7 @@ public sealed class FlowthruServiceBuilder
   public FlowthruServiceBuilder RegisterCatalog<TCatalog>(
     Func<IServiceProvider, TCatalog> catalogFactory
   )
-    where TCatalog : DataCatalogBase
+    where TCatalog : CatalogAbstract
   {
     if (catalogFactory == null)
     {
@@ -136,10 +134,10 @@ public sealed class FlowthruServiceBuilder
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
   /// All registered catalogs will receive DI service injection and appear in
-  /// <see cref="IFlowthruService.Catalogs"/>. Use with <see cref="RegisterPipelines"/> to
-  /// wire per-catalog pipelines in a loop.
+  /// <see cref="IFlowthruService.Catalogs"/>. Use with <see cref="RegisterFlows"/> to
+  /// wire per-catalog flows in a loop.
   /// </remarks>
-  public FlowthruServiceBuilder RegisterCatalogs(IEnumerable<DataCatalogBase> catalogs)
+  public FlowthruServiceBuilder RegisterCatalogs(IEnumerable<CatalogAbstract> catalogs)
   {
     if (catalogs == null)
       throw new ArgumentNullException(nameof(catalogs));
@@ -156,7 +154,7 @@ public sealed class FlowthruServiceBuilder
   /// <param name="catalogsFactory">Factory that returns the catalog collection</param>
   /// <returns>This builder for method chaining</returns>
   public FlowthruServiceBuilder RegisterCatalogs(
-    Func<IServiceProvider, IEnumerable<DataCatalogBase>> catalogsFactory
+    Func<IServiceProvider, IEnumerable<CatalogAbstract>> catalogsFactory
   )
   {
     if (catalogsFactory == null)
@@ -167,64 +165,64 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Escape-hatch for registering pipelines via a full-access service provider factory.
+  /// Escape-hatch for registering flows via a full-access service provider factory.
   /// </summary>
-  /// <param name="pipelineFactory">Factory function that receives the service provider and returns the pipeline dictionary</param>
+  /// <param name="flowFactory">Factory function that receives the service provider and returns the flow dictionary</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
-  /// Prefer <see cref="RegisterPipeline(string, Delegate, string?)"/> for standard pipeline registration.
-  /// Use this only when you need full service provider access during pipeline construction.
+  /// Prefer <see cref="RegisterFlow(string, Delegate, string?)"/> for standard flow registration.
+  /// Use this only when you need full service provider access during flow construction.
   /// </remarks>
-  public FlowthruServiceBuilder RegisterPipelines(
-    Func<IServiceProvider, Dictionary<string, Pipelines.Pipeline>> pipelineFactory
+  public FlowthruServiceBuilder RegisterFlows(
+    Func<IServiceProvider, Dictionary<string, Flow>> flowFactory
   )
   {
-    if (pipelineFactory == null)
+    if (flowFactory == null)
     {
-      throw new ArgumentNullException(nameof(pipelineFactory));
+      throw new ArgumentNullException(nameof(flowFactory));
     }
 
-    _pipelineFactory = pipelineFactory;
+    _flowFactory = flowFactory;
 
     return this;
   }
 
   /// <summary>
-  /// Registers a pipeline by inspecting the delegate's parameter types at runtime.
-  /// Parameters that extend <see cref="DataCatalogBase"/> are resolved from DI as catalogs.
+  /// Registers a flow by inspecting the delegate's parameter types at runtime.
+  /// Parameters that extend <see cref="CatalogAbstract"/> are resolved from DI as catalogs.
   /// All other parameters are resolved from DI as services.
   /// </summary>
-  /// <param name="label">Unique pipeline name</param>
-  /// <param name="pipeline">A method group or delegate whose parameters are catalogs, services, or config objects</param>
+  /// <param name="label">Unique flow name</param>
+  /// <param name="flow">A method group or delegate whose parameters are catalogs, services, or config objects</param>
   /// <param name="configurationSection">
   /// Optional configuration section path. When provided, the last non-catalog, non-service parameter
   /// is bound from configuration instead of DI.
   /// </param>
   /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder RegisterPipeline(
+  public FlowthruServiceBuilder RegisterFlow(
     string label,
-    Delegate pipeline,
+    Delegate flow,
     string? configurationSection = null
   )
   {
     if (string.IsNullOrWhiteSpace(label))
-      throw new ArgumentException("Pipeline label cannot be null or empty.", nameof(label));
-    if (pipeline == null)
-      throw new ArgumentNullException(nameof(pipeline));
+      throw new ArgumentException("Flow label cannot be null or empty.", nameof(label));
+    if (flow == null)
+      throw new ArgumentNullException(nameof(flow));
 
-    var method = pipeline.Method;
+    var method = flow.Method;
     var parameters = method.GetParameters();
 
     // Validate return type
-    if (method.ReturnType != typeof(Pipelines.Pipeline))
+    if (method.ReturnType != typeof(Flow))
     {
       throw new ArgumentException(
-        $"Pipeline delegate must return Pipeline, but '{method.Name}' returns {method.ReturnType.Name}.",
-        nameof(pipeline)
+        $"Flow delegate must return Flow, but '{method.Name}' returns {method.ReturnType.Name}.",
+        nameof(flow)
       );
     }
 
-    // Build the resolver: for each parameter, determine how to resolve it at pipeline-build time
+    // Build the resolver: for each parameter, determine how to resolve it at flow-build time
     var resolvers = new Func<IServiceProvider, object?>[parameters.Length];
     for (int i = 0; i < parameters.Length; i++)
     {
@@ -232,7 +230,7 @@ public sealed class FlowthruServiceBuilder
 
       if (
         configurationSection != null
-        && !typeof(DataCatalogBase).IsAssignableFrom(paramType)
+        && !typeof(CatalogAbstract).IsAssignableFrom(paramType)
         && !paramType.IsInterface
       )
       {
@@ -240,7 +238,7 @@ public sealed class FlowthruServiceBuilder
         if (_configuration == null)
         {
           throw new InvalidOperationException(
-            $"Pipeline '{label}' specifies a configuration section but UseConfiguration() has not been called."
+            $"Flow '{label}' specifies a configuration section but UseConfiguration() has not been called."
           );
         }
 
@@ -257,15 +255,15 @@ public sealed class FlowthruServiceBuilder
       }
     }
 
-    var capturedDelegate = pipeline;
-    var entry = new PipelineRegistrationEntry(
+    var capturedDelegate = flow;
+    var entry = new FlowRegistrationEntry(
       label,
       sp =>
       {
         var args = new object?[resolvers.Length];
         for (int i = 0; i < resolvers.Length; i++)
           args[i] = resolvers[i](sp);
-        return (Pipelines.Pipeline)capturedDelegate.DynamicInvoke(args)!;
+        return (Flow)capturedDelegate.DynamicInvoke(args)!;
       }
     );
     _registrations.Add(entry);
@@ -274,16 +272,16 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Adds a description to the most recently registered pipeline.
+  /// Adds a description to the most recently registered flow.
   /// </summary>
-  /// <param name="description">Human-readable description of what the pipeline does</param>
+  /// <param name="description">Human-readable description of what the flow does</param>
   /// <returns>This builder for method chaining</returns>
   public FlowthruServiceBuilder WithDescription(string description)
   {
     if (_lastRegistration == null)
     {
       throw new InvalidOperationException(
-        "WithDescription() can only be used after RegisterPipeline()."
+        "WithDescription() can only be used after RegisterFlow()."
       );
     }
 
@@ -448,7 +446,7 @@ public sealed class FlowthruServiceBuilder
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
   /// <para>
-  /// Metadata export is optional. If not configured, pipelines will execute
+  /// Metadata export is optional. If not configured, flows will execute
   /// without generating DAG diagrams or metadata files.
   /// </para>
   /// <para>
@@ -556,10 +554,10 @@ public sealed class FlowthruServiceBuilder
                 };
                 mermaid.WithDirection(direction);
 
-                // Apply color configuration for active nodes and data
-                if (!string.IsNullOrEmpty(options.Mermaid.ActiveNodeColor))
+                // Apply color configuration for active steps and data
+                if (!string.IsNullOrEmpty(options.Mermaid.ActiveStepColor))
                 {
-                  mermaid.WithActiveNodeColor(options.Mermaid.ActiveNodeColor);
+                  mermaid.WithActiveStepColor(options.Mermaid.ActiveStepColor);
                 }
                 if (!string.IsNullOrEmpty(options.Mermaid.ActiveDataColor))
                 {
@@ -604,53 +602,53 @@ public sealed class FlowthruServiceBuilder
 
   /// <summary>
   /// Internal method called by AddFlowthru to register the catalog collection and
-  /// pipeline dictionary into the DI container. Must be called after all RegisterCatalog
-  /// and RegisterPipeline calls have been made.
+  /// flow dictionary into the DI container. Must be called after all RegisterCatalog
+  /// and RegisterFlow calls have been made.
   /// </summary>
-  internal void RegisterPipelineDictionary()
+  internal void RegisterFlowDictionary()
   {
     // Always register the catalog collection so FlowthruService can inject all catalogs.
     // Merges both type-registered catalogs (RegisterCatalog) and dynamically constructed
     // catalog collections (RegisterCatalogs).
     var catalogTypes = _registeredCatalogTypes.ToList();
     var dynamicFactories = _dynamicCatalogFactories.ToList();
-    _services.AddSingleton<IReadOnlyList<DataCatalogBase>>(sp =>
+    _services.AddSingleton<IReadOnlyList<CatalogAbstract>>(sp =>
     {
-      var typedCatalogs = catalogTypes.Select(t => (DataCatalogBase)sp.GetRequiredService(t));
+      var typedCatalogs = catalogTypes.Select(t => (CatalogAbstract)sp.GetRequiredService(t));
       var dynamicCatalogs = dynamicFactories.SelectMany(f => f(sp));
       return typedCatalogs.Concat(dynamicCatalogs).ToList().AsReadOnly();
     });
 
     var snapshot = _registrations.ToList();
-    var factory = _pipelineFactory;
+    var factory = _flowFactory;
 
     if (snapshot.Count == 0 && factory == null)
     {
       throw new InvalidOperationException(
-        "No pipelines were registered. Call RegisterPipeline() or RegisterPipelines() before building the service."
+        "No flows were registered. Call RegisterFlow() or RegisterFlows() before building the service."
       );
     }
 
-    _services.AddSingleton<Dictionary<string, Pipelines.Pipeline>>(sp =>
+    _services.AddSingleton<Dictionary<string, Flow>>(sp =>
     {
-      var result = new Dictionary<string, Pipelines.Pipeline>();
+      var result = new Dictionary<string, Flow>();
 
-      // Source 1: RegisterPipelines factory (registered first so inline registrations can override)
+      // Source 1: RegisterFlows factory (registered first so inline registrations can override)
       if (factory != null)
       {
-        foreach (var (key, pipeline) in factory(sp))
+        foreach (var (key, flow) in factory(sp))
         {
-          result[key] = pipeline;
+          result[key] = flow;
         }
       }
 
-      // Source 2: RegisterPipeline calls (wins on key collision)
+      // Source 2: RegisterFlow calls (wins on key collision)
       foreach (var reg in snapshot)
       {
-        var pipeline = reg.Factory(sp);
-        pipeline.Name = reg.Label;
-        pipeline.Description = reg.Description;
-        result[reg.Label] = pipeline;
+        var flow = reg.Factory(sp);
+        flow.Name = reg.Label;
+        flow.Description = reg.Description;
+        result[reg.Label] = flow;
       }
 
       return result;

@@ -1,4 +1,4 @@
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
 /// Controls how deeply a dry run validates the pipeline before stopping.

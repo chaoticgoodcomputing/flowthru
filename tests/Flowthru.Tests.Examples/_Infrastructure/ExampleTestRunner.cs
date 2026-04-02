@@ -48,7 +48,7 @@ public sealed class ExampleTestRunner
       var flowthruService = services.GetRequiredService<IFlowthruService>();
 
       using var cts = new CancellationTokenSource();
-      var executionTask = flowthruService.ExecutePipelineAsync(cancellationToken: cts.Token);
+      var executionTask = flowthruService.ExecuteFlowAsync(cancellationToken: cts.Token);
       var timeoutTask = Task.Delay(_timeout, CancellationToken.None);
 
       var completedTask = await Task.WhenAny(executionTask, timeoutTask);

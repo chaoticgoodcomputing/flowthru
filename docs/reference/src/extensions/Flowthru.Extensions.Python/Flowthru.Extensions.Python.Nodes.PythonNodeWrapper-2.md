@@ -1,6 +1,6 @@
 # <a id="Flowthru_Extensions_Python_Nodes_PythonNodeWrapper_2"></a> Class PythonNodeWrapper<TInput, TOutput\>
 
-Namespace: [Flowthru.Extensions.Python.Nodes](Flowthru.Extensions.Python.Nodes.md)  
+Namespace: [](.md)  
 Assembly: Flowthru.Extensions.Python.dll  
 
 Thin wrapper that binds an <xref href="Flowthru.Extensions.Python.Execution.IPythonExecutor" data-throw-if-not-resolved="false"></xref> to a specific module/function pair,
@@ -19,7 +19,7 @@ public sealed class PythonNodeWrapper<TInput, TOutput>
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PythonNodeWrapper<TInput, TOutput\>](Flowthru.Extensions.Python.Nodes.PythonNodeWrapper\-2.md)
+[PythonNodeWrapper<TInput, TOutput\>](.PythonNodeWrapper\-2.md)
 
 #### Inherited Members
 

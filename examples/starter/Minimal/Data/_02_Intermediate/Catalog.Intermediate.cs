@@ -8,10 +8,10 @@ public partial class Catalog
   /// <summary>
   /// Greetings with "Hello" prefix.
   /// </summary>
-  public ICatalogEntry<IEnumerable<GreetingSchema>> HelloGreetings =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<GreetingSchema>> HelloGreetings =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<GreetingSchema>(
+        Items.Enumerable.Csv<GreetingSchema>(
           label: "HelloGreetings",
           filePath: $"{_basePath}/Data/_02_Intermediate/Datasets/hello_greetings.csv"
         )

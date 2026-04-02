@@ -12,7 +12,7 @@ namespace Flowthru.Meta;
 /// Supports tokens for pipeline metadata and slice criteria:
 /// </para>
 /// <list type="bullet">
-/// <item><c>{PipelineName}</c> - Sanitized pipeline name</item>
+/// <item><c>{FlowName}</c> - Sanitized pipeline name</item>
 /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled)</item>
 /// <item><c>{SliceType}</c> - Slice descriptor: "FromNodes", "Tags", "Mixed", or empty</item>
 /// <item><c>{Pipelines}</c> - Comma-separated list of pipelines</item>
@@ -32,7 +32,7 @@ namespace Flowthru.Meta;
 /// <strong>Example:</strong>
 /// </para>
 /// <code>
-/// Template: "dag-{PipelineName}-{Timestamp}-{SliceType}"
+/// Template: "dag-{FlowName}-{Timestamp}-{SliceType}"
 /// Unsliced: "dag-DataProcessing-20260304-153045"
 /// Sliced:   "dag-DataProcessing-20260304-153045-FromNodes"
 /// </code>
@@ -57,7 +57,7 @@ internal static class FilenameTemplateParser
         var token = match.Groups[1].Value;
         return token switch
         {
-          "PipelineName" => SanitizeFilename(dag.PipelineName),
+          "FlowName" => SanitizeFilename(dag.FlowName),
           "Timestamp" => timestamp ?? string.Empty,
           "SliceType" => dag.AppliedSlice?.GetSliceTypeDescriptor() ?? string.Empty,
           "Pipelines" => FormatList(dag.AppliedSlice?.Pipelines),

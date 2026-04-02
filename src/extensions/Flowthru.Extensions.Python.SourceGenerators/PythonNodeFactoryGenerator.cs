@@ -9,29 +9,34 @@ using Microsoft.CodeAnalysis.Text;
 namespace Flowthru.Extensions.Python.SourceGenerators;
 
 /// <summary>
-/// Generates strongly-typed factory methods from Python @node decorators.
+/// Generates strongly-typed factory methods from Python @step decorators.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Discovers Python files with @node decorators at build time and generates
+/// Discovers Python files with @step decorators at build time and generates
 /// factory methods that return Func&lt;(inputs), (outputs)&gt; delegates for use
-/// with the standard AddNode pipeline builder interface.
+/// with the standard AddStep flow builder interface.
 /// </para>
 /// <para>
-/// This moves Python node registration from runtime (stringly-typed module/function names)
+/// This moves Python step registration from runtime (stringly-typed module/function names)
 /// to build-time (strongly-typed factory methods with tuple signatures).
 /// </para>
 /// </remarks>
 [Generator]
-public class PythonNodeFactoryGenerator : IIncrementalGenerator
+public class PythonStepFactoryGenerator : IIncrementalGenerator
 {
+  /// <summary>
+  /// Initializes the source generator by registering a flow that discovers Python steps
+  /// and generates factory methods for them.
+  /// </summary>
+  /// <param name="context">The incremental generator initialization context</param>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
     // For debugging: always generate a diagnostic file to confirm generator is running
     context.RegisterPostInitializationOutput(ctx =>
     {
       ctx.AddSource(
-        "_PythonNodeFactoryGenerator.Diagnostic.g.cs",
+        "_PythonStepFactoryGenerator.Diagnostic.g.cs",
         SourceText.From("// Generator is running", Encoding.UTF8)
       );
     });
@@ -39,8 +44,8 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
     // Find all Python files marked as AdditionalFiles
     var pythonFiles = context.AdditionalTextsProvider.Where(file => file.Path.EndsWith(".py"));
 
-    // Parse each Python file to extract @node decorators
-    var nodeDeclarations = pythonFiles
+    // Parse each Python file to extract @step decorators
+    var stepDeclarations = pythonFiles
       .Select(
         (file, ct) =>
         {
@@ -48,43 +53,43 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
           if (content == null)
             return null;
 
-          return ParsePythonNode(file.Path, content);
+          return ParsePythonStep(file.Path, content);
         }
       )
-      .Where(node => node != null)
+      .Where(step => step != null)
       .Collect();
 
-    // Generate factory class from all discovered nodes
+    // Generate factory class from all discovered steps
     context.RegisterSourceOutput(
-      nodeDeclarations,
-      (ctx, nodes) =>
+      stepDeclarations,
+      (ctx, steps) =>
       {
-        if (nodes.Length == 0)
+        if (steps.Length == 0)
         {
-          // Add diagnostic output showing we got no nodes
+          // Add diagnostic output showing we got no steps
           ctx.AddSource(
-            "_PythonNodeFactoryGenerator.NoNodes.g.cs",
-            SourceText.From("// No Python nodes discovered", Encoding.UTF8)
+            "_PythonStepFactoryGenerator.NoSteps.g.cs",
+            SourceText.From("// No Python steps discovered", Encoding.UTF8)
           );
           return;
         }
 
-        var validNodes = nodes.Where(n => n != null).Select(n => n!).ToList();
-        if (validNodes.Count == 0)
+        var validSteps = steps.Where(n => n != null).Select(n => n!).ToList();
+        if (validSteps.Count == 0)
           return;
 
-        var source = GeneratePythonNodeFactories(validNodes);
-        ctx.AddSource("PythonNodes.g.cs", SourceText.From(source, Encoding.UTF8));
+        var source = GeneratePythonStepFactories(validSteps);
+        ctx.AddSource("PythonSteps.g.cs", SourceText.From(source, Encoding.UTF8));
       }
     );
   }
 
-  private static PythonNodeInfo? ParsePythonNode(string filePath, string content)
+  private static PythonStepInfo? ParsePythonStep(string filePath, string content)
   {
-    // Regex to match @node decorator with inputs/outputs
-    // Handles: @node(inputs=["Schema1", "Schema2"], outputs=["Schema3"])
+    // Regex to match @step decorator with inputs/outputs
+    // Handles: @step(inputs=["Schema1", "Schema2"], outputs=["Schema3"])
     var decoratorPattern =
-      @"@node\s*\(\s*inputs\s*=\s*\[([^\]]*)\]\s*,\s*outputs\s*=\s*(\[[^\]]*\]|None)\s*\)";
+      @"@step\s*\(\s*inputs\s*=\s*\[([^\]]*)\]\s*,\s*outputs\s*=\s*(\[[^\]]*\]|None)\s*\)";
     var functionPattern = @"def\s+(\w+)\s*\(";
 
     var decoratorMatch = Regex.Match(content, decoratorPattern);
@@ -107,10 +112,10 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
     var outputs = outputsRaw == "None" ? new List<string>() : ParseSchemaList(outputsRaw);
 
     // Derive module path from file path
-    // e.g., Pipelines/DataScience/Nodes/split_data.py → Pipelines.DataScience.Nodes.split_data
+    // e.g., Flows/DataScience/Steps/split_data.py → Flows.DataScience.Steps.split_data
     var modulePath = DeriveModulePath(filePath);
 
-    return new PythonNodeInfo(
+    return new PythonStepInfo(
       functionName: functionName,
       modulePath: modulePath,
       inputs: inputs,
@@ -143,14 +148,14 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
   private static string DeriveModulePath(string filePath)
   {
     // Extract the relative path from the project and convert to Python module notation
-    // Look for common markers like "Pipelines" or "Nodes"
+    // Look for common markers like "Flows" or "Steps"
     var parts = filePath.Replace('\\', '/').Split('/');
     var relevantParts = new List<string>();
     var startCapturing = false;
 
     foreach (var part in parts)
     {
-      if (part == "Pipelines" || startCapturing)
+      if (part == "Flows" || startCapturing)
       {
         startCapturing = true;
         if (part.EndsWith(".py"))
@@ -167,7 +172,7 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
     return string.Join(".", relevantParts);
   }
 
-  private static string GeneratePythonNodeFactories(List<PythonNodeInfo> nodes)
+  private static string GeneratePythonStepFactories(List<PythonStepInfo> steps)
   {
     var sb = new StringBuilder();
 
@@ -177,19 +182,19 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
     sb.AppendLine("using System;");
     sb.AppendLine("using System.Collections.Generic;");
     sb.AppendLine("using Flowthru.Extensions.Python.Execution;");
-    sb.AppendLine("using Flowthru.Extensions.Python.Nodes;");
+    sb.AppendLine("using Flowthru.Extensions.Python.Steps;");
     sb.AppendLine();
     sb.AppendLine("namespace Flowthru.Extensions.Python.Generated;");
     sb.AppendLine();
     sb.AppendLine("/// <summary>");
-    sb.AppendLine("/// Strongly-typed factory methods for Python nodes discovered at build time.");
+    sb.AppendLine("/// Strongly-typed factory methods for Python steps discovered at build time.");
     sb.AppendLine("/// </summary>");
-    sb.AppendLine("public static class PythonNodes");
+    sb.AppendLine("public static class PythonSteps");
     sb.AppendLine("{");
 
-    foreach (var node in nodes)
+    foreach (var step in steps)
     {
-      GenerateFactoryMethod(sb, node);
+      GenerateFactoryMethod(sb, step);
       sb.AppendLine();
     }
 
@@ -198,11 +203,11 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
     return sb.ToString();
   }
 
-  private static void GenerateFactoryMethod(StringBuilder sb, PythonNodeInfo node)
+  private static void GenerateFactoryMethod(StringBuilder sb, PythonStepInfo step)
   {
     // Generate type parameters
-    var inputTypes = node.Inputs.Select(MapSchemaToType).ToList();
-    var outputTypes = node.Outputs.Select(MapSchemaToType).ToList();
+    var inputTypes = step.Inputs.Select(MapSchemaToType).ToList();
+    var outputTypes = step.Outputs.Select(MapSchemaToType).ToList();
 
     // Determine input/output tuple structures
     var inputTupleType = inputTypes.Count switch
@@ -221,27 +226,27 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
 
     // Generate XML documentation
     sb.AppendLine($"  /// <summary>");
-    sb.AppendLine($"  /// Creates a Python node for {node.FunctionName}.");
+    sb.AppendLine($"  /// Creates a Python step for {step.FunctionName}.");
     sb.AppendLine($"  /// </summary>");
     sb.AppendLine($"  /// <param name=\"executor\">Python executor instance.</param>");
     sb.AppendLine($"  /// <returns>");
     sb.AppendLine(
-      $"  /// A function that invokes the Python node with the specified inputs and outputs."
+      $"  /// A function that invokes the Python step with the specified inputs and outputs."
     );
     sb.AppendLine($"  /// </returns>");
 
     // Generate method signature
-    var methodName = ToPascalCase(node.FunctionName);
+    var methodName = ToPascalCase(step.FunctionName);
     sb.AppendLine($"  public static Func<{inputTupleType}, {outputTupleType}> {methodName}(");
     sb.AppendLine($"    IPythonExecutor executor");
     sb.AppendLine($"  )");
     sb.AppendLine("  {");
 
     // Create wrapper
-    sb.AppendLine($"    var wrapper = new PythonNodeWrapper<{inputTupleType}, {outputTupleType}>(");
+    sb.AppendLine($"    var wrapper = new PythonStepWrapper<{inputTupleType}, {outputTupleType}>(");
     sb.AppendLine($"      executor,");
-    sb.AppendLine($"      module: \"{node.ModulePath}\",");
-    sb.AppendLine($"      function: \"{node.FunctionName}\"");
+    sb.AppendLine($"      module: \"{step.ModulePath}\",");
+    sb.AppendLine($"      function: \"{step.FunctionName}\"");
     sb.AppendLine($"    );");
     sb.AppendLine();
     sb.AppendLine($"    return wrapper.GetTransform();");
@@ -272,16 +277,16 @@ public class PythonNodeFactoryGenerator : IIncrementalGenerator
 }
 
 /// <summary>
-/// Information about a Python node parsed from source.
+/// Information about a Python step parsed from source.
 /// </summary>
-internal class PythonNodeInfo
+internal class PythonStepInfo
 {
   public string FunctionName { get; }
   public string ModulePath { get; }
   public List<string> Inputs { get; }
   public List<string> Outputs { get; }
 
-  public PythonNodeInfo(
+  public PythonStepInfo(
     string functionName,
     string modulePath,
     List<string> inputs,

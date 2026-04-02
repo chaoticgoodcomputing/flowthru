@@ -1,6 +1,6 @@
 # <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory"></a> Class PythonNodeFactory
 
-Namespace: [Flowthru.Extensions.Python.Nodes](Flowthru.Extensions.Python.Nodes.md)  
+Namespace: [](.md)  
 Assembly: Flowthru.Extensions.Python.dll  
 
 Extension methods for adding Python nodes to pipelines.
@@ -12,7 +12,7 @@ public static class PythonNodeFactory
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PythonNodeFactory](Flowthru.Extensions.Python.Nodes.PythonNodeFactory.md)
+[PythonNodeFactory](.PythonNodeFactory.md)
 
 #### Inherited Members
 
@@ -39,7 +39,7 @@ Source-generated N×M overloads for multi-I/O support (Phase 5).
     IPythonExecutor executor,
     PythonRuntime runtime)
 {
-    return PipelineBuilder.CreatePipeline(pipeline =&gt;
+    return FlowBuilder.CreateFlow(pipeline =&gt;
     {
         pipeline.AddPythonNode(
             label: "Transform",
@@ -59,17 +59,17 @@ Source-generated N×M overloads for multi-I/O support (Phase 5).
 
 ## Methods
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__2_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TInput, TOutput\>\(PipelineBuilder, string, string, string, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__2_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TInput, TOutput\>\(FlowBuilder, string, string, string, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, IPythonExecutor, string\)
 
 Adds a Python node with single input and single output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TInput, TOutput>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TInput, TOutput>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance.
 
@@ -104,7 +104,7 @@ Optional node description.
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining.
 
@@ -134,17 +134,17 @@ Mismatched types produce compiler errors.
 <ul><li>Decorator schemas match C# generic types</li><li>Function signature arity is correct</li><li>Dry-run with 0-row data validates output structure</li></ul>
 </p>
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__3_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2\>\(PipelineBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__3_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -178,7 +178,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -196,17 +196,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__4_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -240,7 +240,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -262,17 +262,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -306,7 +306,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -332,17 +332,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -376,7 +376,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -406,17 +406,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -450,7 +450,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -484,17 +484,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -528,7 +528,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -566,17 +566,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__System_ValueTuple_Flowthru_Data_ICatalogEntry___8____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__System_ValueTuple_Flowthru_Data_ICatalogEntry___8____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -610,7 +610,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -652,17 +652,17 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__3_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___Flowthru_Data_ICatalogEntry___2__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__3_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___Flowthru_Data_ICatalogEntry___2__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 1 output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -696,7 +696,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -714,17 +714,17 @@ Input type 2
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__4_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -758,7 +758,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -780,17 +780,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -824,7 +824,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -850,17 +850,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -894,7 +894,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -924,17 +924,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -968,7 +968,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1002,17 +1002,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1046,7 +1046,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1084,17 +1084,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1128,7 +1128,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1170,17 +1170,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__System_ValueTuple_Flowthru_Data_ICatalogEntry___9____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__System_ValueTuple_Flowthru_Data_ICatalogEntry___9____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1214,7 +1214,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1260,17 +1260,17 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__4_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Data_ICatalogEntry___3__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Data_ICatalogEntry___3__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 1 output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1304,7 +1304,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1326,17 +1326,17 @@ Input type 3
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1370,7 +1370,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1396,17 +1396,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1440,7 +1440,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1470,17 +1470,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1514,7 +1514,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1548,17 +1548,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1592,7 +1592,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1630,17 +1630,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1674,7 +1674,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1716,17 +1716,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1760,7 +1760,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1806,17 +1806,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__System_ValueTuple_Flowthru_Data_ICatalogEntry___10____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__System_ValueTuple_Flowthru_Data_ICatalogEntry___10____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1850,7 +1850,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1900,17 +1900,17 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Data_ICatalogEntry___4__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Data_ICatalogEntry___4__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 1 output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -1944,7 +1944,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -1970,17 +1970,17 @@ Input type 4
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2014,7 +2014,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2044,17 +2044,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2088,7 +2088,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2122,17 +2122,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2166,7 +2166,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2204,17 +2204,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2248,7 +2248,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2290,17 +2290,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2334,7 +2334,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2380,17 +2380,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2424,7 +2424,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2474,17 +2474,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__System_ValueTuple_Flowthru_Data_ICatalogEntry___11____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__System_ValueTuple_Flowthru_Data_ICatalogEntry___11____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2518,7 +2518,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2572,17 +2572,17 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Data_ICatalogEntry___5__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Data_ICatalogEntry___5__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 1 output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2616,7 +2616,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2646,17 +2646,17 @@ Input type 5
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2690,7 +2690,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2724,17 +2724,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2768,7 +2768,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2806,17 +2806,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2850,7 +2850,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2892,17 +2892,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -2936,7 +2936,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -2982,17 +2982,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3026,7 +3026,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3076,17 +3076,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3120,7 +3120,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3174,17 +3174,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__System_ValueTuple_Flowthru_Data_ICatalogEntry___12____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__System_ValueTuple_Flowthru_Data_ICatalogEntry___12____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3218,7 +3218,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3276,17 +3276,17 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Data_ICatalogEntry___6__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Data_ICatalogEntry___6__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 1 output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3320,7 +3320,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3354,17 +3354,17 @@ Input type 6
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3398,7 +3398,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3436,17 +3436,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3480,7 +3480,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3522,17 +3522,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3566,7 +3566,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3612,17 +3612,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3656,7 +3656,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3706,17 +3706,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3750,7 +3750,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3804,17 +3804,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3848,7 +3848,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -3906,17 +3906,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__14_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__System_ValueTuple_Flowthru_Data_ICatalogEntry___13____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__System_ValueTuple_Flowthru_Data_ICatalogEntry___13____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -3950,7 +3950,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4012,17 +4012,17 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Data_ICatalogEntry___7__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Data_ICatalogEntry___7__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 1 output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4056,7 +4056,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4094,17 +4094,17 @@ Input type 7
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4138,7 +4138,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4180,17 +4180,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4224,7 +4224,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4270,17 +4270,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4314,7 +4314,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4364,17 +4364,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4408,7 +4408,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4462,17 +4462,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4506,7 +4506,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4564,17 +4564,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__14_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4608,7 +4608,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4670,17 +4670,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__15_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__System_ValueTuple_Flowthru_Data_ICatalogEntry___14____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__15_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__System_ValueTuple_Flowthru_Data_ICatalogEntry___14____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4714,7 +4714,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4780,17 +4780,17 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____Flowthru_Data_ICatalogEntry___8__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____Flowthru_Data_ICatalogEntry___8__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 1 output.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4824,7 +4824,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4866,17 +4866,17 @@ Input type 8
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 2 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -4910,7 +4910,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -4956,17 +4956,17 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 3 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -5000,7 +5000,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -5050,17 +5050,17 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 4 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -5094,7 +5094,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -5148,17 +5148,17 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 5 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -5192,7 +5192,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -5250,17 +5250,17 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__14_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 6 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -5294,7 +5294,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -5356,17 +5356,17 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__15_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__15_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 7 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -5400,7 +5400,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 
@@ -5466,17 +5466,17 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__16_Flowthru_Pipelines_PipelineBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14__System_ValueTuple_Flowthru_Data_ICatalogEntry___15____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(PipelineBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonNode__16_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14__System_ValueTuple_Flowthru_Data_ICatalogEntry___15____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 8 outputs.
 
 ```csharp
-public static PipelineBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this PipelineBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
 
-`builder` PipelineBuilder
+`builder` FlowBuilder
 
 Pipeline builder instance
 
@@ -5510,7 +5510,7 @@ Optional node description
 
 #### Returns
 
- PipelineBuilder
+ FlowBuilder
 
 This builder for method chaining
 

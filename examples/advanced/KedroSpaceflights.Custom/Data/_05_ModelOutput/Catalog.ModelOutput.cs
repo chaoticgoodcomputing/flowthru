@@ -10,10 +10,10 @@ public partial class Catalog
   /// Contains R², MAE, RMSE, etc.
   /// Stored as a singleton object (pipeline produces single metrics object).
   /// </summary>
-  public ICatalogEntry<ModelMetrics> ModelMetrics =>
-    GetOrCreateEntry(
+  public IItem<ModelMetrics> ModelMetrics =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ModelMetrics>(
+        Items.Single.Json<ModelMetrics>(
           label: "ModelMetrics",
           filePath: $"{_basePath}/_05_ModelOutput/Datasets/model_metrics.json"
         )
@@ -23,10 +23,10 @@ public partial class Catalog
   /// Model predictions with actual and predicted values.
   /// Used for evaluation and visualization.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<ModelPredictions>(
+        Items.Enumerable.Csv<ModelPredictions>(
           label: "ModelPredictions",
           filePath: $"{_basePath}/_05_ModelOutput/Datasets/model_predictions.csv"
         )

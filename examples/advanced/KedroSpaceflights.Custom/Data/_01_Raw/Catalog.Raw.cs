@@ -14,10 +14,10 @@ public partial class Catalog
   /// This is a critical Layer 0 input from an external source, configured for deep inspection
   /// to ensure data quality before pipeline execution.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<CompanyRawSchema>> Companies =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<CompanyRawSchema>> Companies =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<CompanyRawSchema>(
+        Items.Enumerable.Csv<CompanyRawSchema>(
           label: "RawCompanies",
           filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
         )
@@ -31,10 +31,10 @@ public partial class Catalog
   /// This is a critical Layer 0 input from an external source, configured for deep inspection
   /// to ensure data quality before pipeline execution.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<ReviewRawSchema>> Reviews =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ReviewRawSchema>> Reviews =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<ReviewRawSchema>(
+        Items.Enumerable.Csv<ReviewRawSchema>(
           label: "RawReviews",
           filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
         )
@@ -50,10 +50,10 @@ public partial class Catalog
   /// This is a critical Layer 0 input from an external source, configured for deep inspection
   /// to ensure data quality before pipeline execution.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<ShuttleRawSchema>> Shuttles =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ShuttleRawSchema>> Shuttles =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Excel<ShuttleRawSchema>(
+        Items.Enumerable.Excel<ShuttleRawSchema>(
           label: "RawShuttles",
           filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
           sheetName: "Sheet1"
@@ -69,10 +69,10 @@ public partial class Catalog
   /// used for validation purposes in the DataDiagnostics pipeline.
   /// Uses KedroModelInputSchema to match the external Kedro CSV format.
   /// </remarks>
-  public ICatalogEntry<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<KedroModelInputSchema>(
+        Items.Enumerable.Csv<KedroModelInputSchema>(
           label: "KedroModelInputTable",
           filePath: $"{_basePath}/_01_Raw/Datasets/kedro_model_input_table.csv"
         )

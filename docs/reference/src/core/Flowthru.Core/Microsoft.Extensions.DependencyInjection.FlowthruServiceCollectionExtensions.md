@@ -85,7 +85,7 @@ public class MyController
 
     public async Task&lt;IActionResult&gt; RunPipeline(string name)
     {
-        var request = new PipelineExecutionRequest { PipelineName = name };
+        var request = new PipelineExecutionRequest { FlowName = name };
         var result = await _flowthru.ExecutePipelineAsync(request);
         return Ok(result);
     }

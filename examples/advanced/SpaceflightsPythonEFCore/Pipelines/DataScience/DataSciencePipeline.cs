@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flows;
 using SpaceflightsPythonEFCore.Data;
 using SpaceflightsPythonEFCore.Data._03_Primary.Schemas;
 using SpaceflightsPythonEFCore.Data._05_ModelInput.Schemas;
@@ -17,9 +17,9 @@ namespace SpaceflightsPythonEFCore.Pipelines.DataScience;
 /// </summary>
 public static class DataSciencePipeline
 {
-  public static Pipeline Create(Catalog catalog, IPythonExecutor executor)
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddPythonNode<
         IEnumerable<ModelInputTableSchema>,

@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
 using Flowthru.Extensions.Python.Runtime;
+using Flowthru.Extensions.Python.Steps;
 using Flowthru.Extensions.Python.Tests.Schemas;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,12 +9,12 @@ namespace Flowthru.Extensions.Python.Tests.Integration;
 
 /// <summary>
 /// Integration tests for Python node wrappers.
-/// Tests the complete Phase 2 implementation: scalar marshalling and PythonNodeWrapper.
+/// Tests the complete Phase 2 implementation: scalar marshalling and PythonStepWrapper.
 /// </summary>
 [TestFixture]
 [Category("Python")]
 [Category("Integration")]
-public class PythonNodeWrapperIntegrationTests
+public class PythonStepWrapperIntegrationTests
 {
   private IServiceProvider _serviceProvider = null!;
   private IPythonExecutor _executor = null!;
@@ -53,10 +53,10 @@ public class PythonNodeWrapperIntegrationTests
   }
 
   [Test]
-  public void PythonNodeWrapper_TrainModel_ExecutesSuccessfully()
+  public void PythonStepWrapper_TrainModel_ExecutesSuccessfully()
   {
     // Arrange
-    var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+    var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
       "scalar_nodes",
       "train_model"
@@ -87,10 +87,10 @@ public class PythonNodeWrapperIntegrationTests
   }
 
   [Test]
-  public void PythonNodeWrapper_Identity_PreservesData()
+  public void PythonStepWrapper_Identity_PreservesData()
   {
     // Arrange
-    var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelConfigSchema>(
+    var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
       _executor,
       "scalar_nodes",
       "identity"
@@ -115,10 +115,10 @@ public class PythonNodeWrapperIntegrationTests
   }
 
   [Test]
-  public void PythonNodeWrapper_DoubleIterations_ModifiesCorrectly()
+  public void PythonStepWrapper_DoubleIterations_ModifiesCorrectly()
   {
     // Arrange
-    var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelConfigSchema>(
+    var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
       _executor,
       "scalar_nodes",
       "double_iterations"
@@ -143,16 +143,16 @@ public class PythonNodeWrapperIntegrationTests
   }
 
   [Test]
-  public void PythonNodeWrapper_CanBeChained_WorksAsFunc()
+  public void PythonStepWrapper_CanBeChained_WorksAsFunc()
   {
     // Arrange: Create two wrappers and chain them
-    var doubleWrapper = new PythonNodeWrapper<ModelConfigSchema, ModelConfigSchema>(
+    var doubleWrapper = new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
       _executor,
       "scalar_nodes",
       "double_iterations"
     );
 
-    var trainWrapper = new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+    var trainWrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
       "scalar_nodes",
       "train_model"
@@ -184,10 +184,10 @@ public class PythonNodeWrapperIntegrationTests
   }
 
   [Test]
-  public void PythonNodeWrapper_DictWithSerializedLabel_MapsCorrectly()
+  public void PythonStepWrapper_DictWithSerializedLabel_MapsCorrectly()
   {
     // Arrange - Test dict → singleton with SerializedLabel attributes
-    var wrapper = new PythonNodeWrapper<(int, int), MetricsReportSchema>(
+    var wrapper = new PythonStepWrapper<(int, int), MetricsReportSchema>(
       _executor,
       "scalar_nodes",
       "calculate_metrics"
@@ -213,10 +213,10 @@ public class PythonNodeWrapperIntegrationTests
   }
 
   [Test]
-  public void PythonNodeWrapper_DictWithSerializedLabel_PartialMatch()
+  public void PythonStepWrapper_DictWithSerializedLabel_PartialMatch()
   {
     // Arrange - Test with non-100% accuracy
-    var wrapper = new PythonNodeWrapper<(int, int), MetricsReportSchema>(
+    var wrapper = new PythonStepWrapper<(int, int), MetricsReportSchema>(
       _executor,
       "scalar_nodes",
       "calculate_metrics"

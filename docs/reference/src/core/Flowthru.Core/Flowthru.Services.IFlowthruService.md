@@ -35,7 +35,7 @@ This service is DI-injectable and CLI-agnostic, enabling use in:
         var options = new ExecutionOptions
         {
             DryRun = false,
-            SliceStrategy = new PipelineSliceStrategy
+            SliceStrategy = new FlowSliceStrategy
             {
                 Pipelines = new HashSet&lt;string&gt; { "data_processing" }
             }
@@ -45,7 +45,7 @@ This service is DI-injectable and CLI-agnostic, enabling use in:
 
         if (result.Success)
         {
-            Console.WriteLine($"Processed {result.NodeResults.Count} nodes");
+            Console.WriteLine($"Processed {result.StepResults.Count} nodes");
         }
     }
 }</code></pre>
@@ -65,12 +65,12 @@ IReadOnlyList<DataCatalogBase> Catalogs { get; }
 
  [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[DataCatalogBase](Flowthru.Data.DataCatalogBase.md)\>
 
-### <a id="Flowthru_Services_IFlowthruService_PipelineNames"></a> PipelineNames
+### <a id="Flowthru_Services_IFlowthruService_FlowNames"></a> FlowNames
 
 Gets the names of all registered pipelines.
 
 ```csharp
-IReadOnlyCollection<string> PipelineNames { get; }
+IReadOnlyCollection<string> FlowNames { get; }
 ```
 
 #### Property Value
@@ -84,12 +84,12 @@ IReadOnlyCollection<string> PipelineNames { get; }
 Executes all registered pipelines, optionally sliced by criteria.
 
 ```csharp
-Task<PipelineResult> ExecutePipelineAsync(ExecutionOptions? options = null, bool exportMetadata = true, string? metadataOutputDirectory = null, CancellationToken cancellationToken = default)
+Task<FlowResult> ExecutePipelineAsync(ExecutionOptions? options = null, bool exportMetadata = true, string? metadataOutputDirectory = null, CancellationToken cancellationToken = default)
 ```
 
 #### Parameters
 
-`options` [ExecutionOptions](Flowthru.Pipelines.ExecutionOptions.md)?
+`options` [ExecutionOptions](Flowthru.Flows.ExecutionOptions.md)?
 
 Execution options with optional slice strategy
 
@@ -107,7 +107,7 @@ Cancellation token
 
 #### Returns
 
- [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[PipelineResult](Flowthru.Pipelines.PipelineResult.md)\>
+ [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[FlowResult](Flowthru.Flows.FlowResult.md)\>
 
 Execution result with timing, node results, and status
 
@@ -127,12 +127,12 @@ The method performs:
 6. Pipeline execution (unless dry run)
 7. Result formatting
 
-### <a id="Flowthru_Services_IFlowthruService_GetDagMetadata_System_String_Flowthru_Pipelines_PipelineSliceStrategy_"></a> GetDagMetadata\(string?, PipelineSliceStrategy?\)
+### <a id="Flowthru_Services_IFlowthruService_GetDagMetadata_System_String_Flowthru_Pipelines_FlowSliceStrategy_"></a> GetDagMetadata\(string?, FlowSliceStrategy?\)
 
 Gets the full DAG metadata for pipeline introspection.
 
 ```csharp
-DagMetadata GetDagMetadata(string? pipelineName = null, PipelineSliceStrategy? sliceStrategy = null)
+DagMetadata GetDagMetadata(string? pipelineName = null, FlowSliceStrategy? sliceStrategy = null)
 ```
 
 #### Parameters
@@ -142,7 +142,7 @@ DagMetadata GetDagMetadata(string? pipelineName = null, PipelineSliceStrategy? s
 Optional pipeline name to inspect a single pipeline.
 When null, all registered pipelines are merged into a unified DAG.
 
-`sliceStrategy` [PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)?
+`sliceStrategy` [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)?
 
 Optional slice strategy to filter the DAG (e.g., from-node, to-data).
 When provided, the returned metadata includes slice overlay information
@@ -169,7 +169,7 @@ var dag = flowthru.GetDagMetadata();
 var dag = flowthru.GetDagMetadata("DataProcessing");
 
 // Inspect downstream of a specific node
-var dag = flowthru.GetDagMetadata(sliceStrategy: new PipelineSliceStrategy
+var dag = flowthru.GetDagMetadata(sliceStrategy: new FlowSliceStrategy
 {
     FromNodes = new HashSet&lt;string&gt; { "PreprocessCompanies" }
 });</code></pre>

@@ -1,151 +1,143 @@
 using Flowthru.Data;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
+using Flowthru.Flows.Validation;
 
 namespace Flowthru.Registry;
 
 /// <summary>
-/// Implementation of IPipelineRegistrar that builds a dictionary of pipelines.
+/// Implementation of IFlowRegistrar that builds a dictionary of flows.
 /// </summary>
-/// <typeparam name="TCatalog">The catalog type that pipelines will use</typeparam>
-internal class PipelineRegistrar<TCatalog> : IPipelineRegistrar<TCatalog>
-  where TCatalog : DataCatalogBase
+/// <typeparam name="TCatalog">The catalog type that flows will use</typeparam>
+internal class FlowRegistrar<TCatalog> : IFlowRegistrar<TCatalog>
+  where TCatalog : CatalogAbstract
 {
   private readonly TCatalog _catalog;
-  private readonly Dictionary<string, Func<Pipeline>> _factories = new();
-  private readonly Dictionary<string, PipelineMetadata> _metadata = new();
-  private string? _lastRegisteredPipeline;
+  private readonly Dictionary<string, Func<Flow>> _factories = new();
+  private readonly Dictionary<string, FlowRegistration> _metadata = new();
+  private string? _lastRegisteredFlow;
 
   /// <summary>
-  /// Initializes a new instance of PipelineRegistrar.
+  /// Initializes a new instance of FlowRegistrar.
   /// </summary>
-  /// <param name="catalog">The catalog instance to pass to pipeline factories</param>
-  internal PipelineRegistrar(TCatalog catalog)
+  /// <param name="catalog">The catalog instance to pass to flow factories</param>
+  internal FlowRegistrar(TCatalog catalog)
   {
     _catalog = catalog;
   }
 
   /// <inheritdoc />
-  public IPipelineRegistrar<TCatalog> Register(
-    string name,
-    Func<TCatalog, Pipeline> pipelineFactory
-  )
+  public IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Flow> flowFactory)
   {
     if (string.IsNullOrWhiteSpace(name))
     {
-      throw new ArgumentException("Pipeline name cannot be null or empty", nameof(name));
+      throw new ArgumentException("Flow name cannot be null or empty", nameof(name));
     }
 
     if (_factories.ContainsKey(name))
     {
-      throw new InvalidOperationException($"Pipeline '{name}' is already registered");
+      throw new InvalidOperationException($"Flow '{name}' is already registered");
     }
 
     // Wrap factory to capture catalog
-    _factories[name] = () => pipelineFactory(_catalog);
+    _factories[name] = () => flowFactory(_catalog);
 
     // Initialize metadata
-    _metadata[name] = new PipelineMetadata { Name = name };
-    _lastRegisteredPipeline = name;
+    _metadata[name] = new FlowRegistration { Name = name };
+    _lastRegisteredFlow = name;
 
     return this;
   }
 
   /// <inheritdoc />
-  public IPipelineRegistrar<TCatalog> Register<TParams>(
+  public IFlowRegistrar<TCatalog> Register<TParams>(
     string name,
-    Func<TCatalog, TParams, Pipeline> pipelineFactory,
+    Func<TCatalog, TParams, Flow> flowFactory,
     TParams parameters
   )
   {
     if (string.IsNullOrWhiteSpace(name))
     {
-      throw new ArgumentException("Pipeline name cannot be null or empty", nameof(name));
+      throw new ArgumentException("Flow name cannot be null or empty", nameof(name));
     }
 
     if (_factories.ContainsKey(name))
     {
-      throw new InvalidOperationException($"Pipeline '{name}' is already registered");
+      throw new InvalidOperationException($"Flow '{name}' is already registered");
     }
 
     // Wrap factory to capture catalog and parameters
-    _factories[name] = () => pipelineFactory(_catalog, parameters);
+    _factories[name] = () => flowFactory(_catalog, parameters);
 
     // Initialize metadata
-    _metadata[name] = new PipelineMetadata { Name = name };
-    _lastRegisteredPipeline = name;
+    _metadata[name] = new FlowRegistration { Name = name };
+    _lastRegisteredFlow = name;
 
     return this;
   }
 
   /// <inheritdoc />
-  public IPipelineRegistrar<TCatalog> WithDescription(string description)
+  public IFlowRegistrar<TCatalog> WithDescription(string description)
   {
-    if (_lastRegisteredPipeline == null)
+    if (_lastRegisteredFlow == null)
     {
       throw new InvalidOperationException(
-        "No pipeline has been registered yet. Call Register() first."
+        "No flow has been registered yet. Call Register() first."
       );
     }
 
-    if (!_metadata.ContainsKey(_lastRegisteredPipeline))
+    if (!_metadata.ContainsKey(_lastRegisteredFlow))
     {
-      throw new InvalidOperationException(
-        $"Pipeline '{_lastRegisteredPipeline}' has not been registered"
-      );
+      throw new InvalidOperationException($"Flow '{_lastRegisteredFlow}' has not been registered");
     }
 
-    _metadata[_lastRegisteredPipeline].Description = description;
+    _metadata[_lastRegisteredFlow].Description = description;
     return this;
   }
 
   /// <inheritdoc />
-  public IPipelineRegistrar<TCatalog> WithValidation(
-    Action<Pipelines.Validation.ValidationOptions> configure
-  )
+  public IFlowRegistrar<TCatalog> WithValidation(Action<ValidationOptions> configure)
   {
-    if (_lastRegisteredPipeline == null)
+    if (_lastRegisteredFlow == null)
     {
       throw new InvalidOperationException(
-        "No pipeline has been registered yet. Call Register() first."
+        "No Flow has been registered yet. Call Register() first."
       );
     }
 
-    if (!_metadata.ContainsKey(_lastRegisteredPipeline))
+    if (!_metadata.ContainsKey(_lastRegisteredFlow))
     {
-      throw new InvalidOperationException(
-        $"Pipeline '{_lastRegisteredPipeline}' has not been registered"
-      );
+      throw new InvalidOperationException($"Flow '{_lastRegisteredFlow}' has not been registered");
     }
 
-    configure(_metadata[_lastRegisteredPipeline].ValidationOptions);
+    configure(_metadata[_lastRegisteredFlow].ValidationOptions);
     return this;
   }
 
   /// <summary>
-  /// Builds and returns all registered pipelines with their metadata applied.
+  /// Builds and returns all registered flows with their metadata applied.
   /// </summary>
-  /// <returns>Dictionary of pipeline names to pipeline instances</returns>
-  internal Dictionary<string, Pipeline> Build()
+  /// <returns>Dictionary of flow names to flow instances</returns>
+  internal Dictionary<string, Flow> Build()
   {
-    var pipelines = new Dictionary<string, Pipeline>();
+    var flows = new Dictionary<string, Flow>();
 
     foreach (var (name, factory) in _factories)
     {
-      // Invoke factory to create pipeline
-      var pipeline = factory();
+      // Invoke factory to create flow
+      var flow = factory();
 
       // Apply metadata
-      pipeline.Name = name;
+      flow.Name = name;
 
       if (_metadata.TryGetValue(name, out var metadata))
       {
-        pipeline.Description = metadata.Description;
-        pipeline.ValidationOptions = metadata.ValidationOptions;
+        flow.Description = metadata.Description;
+        flow.ValidationOptions = metadata.ValidationOptions;
       }
 
-      pipelines[name] = pipeline;
+      flows[name] = flow;
     }
 
-    return pipelines;
+    return flows;
   }
 }

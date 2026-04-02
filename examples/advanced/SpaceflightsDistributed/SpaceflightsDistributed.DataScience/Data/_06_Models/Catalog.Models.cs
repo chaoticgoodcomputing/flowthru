@@ -5,10 +5,10 @@ namespace SpaceflightsDistributed.DataScience.Data;
 
 public partial class DataScienceCatalog
 {
-  public ICatalogEntry<LinearRegressionModel> Regressor =>
-    GetOrCreateEntry(
+  public IItem<LinearRegressionModel> Regressor =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<LinearRegressionModel>(
+        Items.Single.Json<LinearRegressionModel>(
           label: "Regressor",
           filePath: $"{_basePath}/_06_Models/Datasets/regressor.json"
         )

@@ -1,5 +1,5 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
+using Flowthru.Extensions.Python.Steps;
 using Flowthru.Extensions.Python.Tests.Schemas;
 using Flowthru.Tests.Common;
 using Microsoft.CodeAnalysis;
@@ -30,10 +30,10 @@ public class PythonNodeTypeSafetyTests
     var code =
       @"
             using Flowthru.Data;
-            using Flowthru.Extensions.Python.Nodes;
+            using Flowthru.Extensions.Python.Steps;
             using Flowthru.Extensions.Python.Execution;
             using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Pipelines;
+            using Flowthru.Flows;
             
             public class TestProgram
             {
@@ -43,7 +43,7 @@ public class PythonNodeTypeSafetyTests
                     var config = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""config"");
                     var result = CatalogEntries.Single.Memory<ModelResultSchema>(label: ""result"");
                     
-                    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+                    var pipeline = FlowBuilder.CreateFlow(builder =>
                     {
                         builder.AddPythonNode(
                             label: ""Test"",
@@ -86,10 +86,10 @@ public class PythonNodeTypeSafetyTests
     var code =
       @"
             using Flowthru.Data;
-            using Flowthru.Extensions.Python.Nodes;
+            using Flowthru.Extensions.Python.Steps;
             using Flowthru.Extensions.Python.Execution;
             using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Pipelines;
+            using Flowthru.Flows;
             
             public class TestProgram
             {
@@ -99,7 +99,7 @@ public class PythonNodeTypeSafetyTests
                     var config = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""config"");
                     var wrongOutput = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""wrong_output"");
                     
-                    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+                    var pipeline = FlowBuilder.CreateFlow(builder =>
                     {
                         // Relying on type inference, but types still don't match
                         builder.AddPythonNode(

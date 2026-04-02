@@ -5,20 +5,20 @@ using Python.Runtime;
 namespace Flowthru.Extensions.Python.Validation;
 
 /// <summary>
-/// Performs basic validation checks during Python node registration.
+/// Performs basic validation checks during Python step registration.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <strong>Phase 4 registration-time validation:</strong>
-/// Validates that the Python module, function, and @node decorator exist before
-/// creating the node wrapper. This provides fast feedback during pipeline definition.
+/// Validates that the Python module, function, and @step decorator exist before
+/// creating the step wrapper. This provides fast feedback during flow definition.
 /// </para>
 /// <para>
 /// <strong>Checks performed:</strong>
 /// <list type="bullet">
 /// <item>Module is importable (exists, no syntax errors)</item>
 /// <item>Function exists in module</item>
-/// <item>Function has @node decorator with metadata</item>
+/// <item>Function has @step decorator with metadata</item>
 /// </list>
 /// </para>
 /// <para>
@@ -30,14 +30,14 @@ namespace Flowthru.Extensions.Python.Validation;
 /// </list>
 /// </para>
 /// </remarks>
-internal static class PythonNodeRegistrationValidator
+internal static class PythonStepRegistrationValidator
 {
   /// <summary>
-  /// Validates that a Python node can be registered.
+  /// Validates that a Python step can be registered.
   /// </summary>
   /// <param name="executor">Python executor for module/function inspection</param>
   /// <param name="runtime">Python runtime for GIL management</param>
-  /// <param name="moduleName">Python module name (e.g., "pipelines.nodes.transform")</param>
+  /// <param name="moduleName">Python module name (e.g., "flows.steps.transform")</param>
   /// <param name="functionName">Python function name (e.g., "encode_species")</param>
   /// <exception cref="InvalidOperationException">
   /// Thrown if module, function, or decorator is missing or invalid
@@ -62,7 +62,7 @@ internal static class PythonNodeRegistrationValidator
       catch (PythonException ex)
       {
         throw new InvalidOperationException(
-          $"Python node registration failed: Module '{moduleName}' not found in sys.path\n\n"
+          $"Python step registration failed: Module '{moduleName}' not found in sys.path\n\n"
             + $"Error: {ex.Message}\n\n"
             + "Check:\n"
             + "  - Module name spelling\n"
@@ -90,7 +90,7 @@ internal static class PythonNodeRegistrationValidator
           }
 
           throw new InvalidOperationException(
-            $"Python node registration failed: Function '{functionName}' not found in module '{moduleName}'\n\n"
+            $"Python step registration failed: Function '{functionName}' not found in module '{moduleName}'\n\n"
               + $"Available functions: {string.Join(", ", availableFunctions)}\n\n"
               + "Check:\n"
               + "  - Function name spelling\n"
@@ -101,20 +101,20 @@ internal static class PythonNodeRegistrationValidator
 
       PyObject function = module.GetAttr(functionName);
 
-      // Check 3: @node decorator is present
+      // Check 3: @step decorator is present
       if (!function.HasAttr("__flowthru_inputs__") || !function.HasAttr("__flowthru_outputs__"))
       {
         throw new InvalidOperationException(
-          $"Python node registration failed: Function '{functionName}' in module '{moduleName}' "
-            + "is missing required @node decorator.\n\n"
+          $"Python step registration failed: Function '{functionName}' in module '{moduleName}' "
+            + "is missing required @step decorator.\n\n"
             + "Add decorator to declare schema contract:\n\n"
-            + "  from flowthru import node\n"
+            + "  from flowthru import step\n"
             + "  from flowthru_schemas import InputSchema, OutputSchema\n"
             + "  \n"
-            + $"  @node(inputs=[InputSchema], outputs=[OutputSchema])\n"
+            + $"  @step(inputs=[InputSchema], outputs=[OutputSchema])\n"
             + $"  def {functionName}(...):\n"
             + "      ...\n\n"
-            + "The @node decorator is required for all Python nodes in Flowthru pipelines."
+            + "The @step decorator is required for all Python steps in Flows."
         );
       }
 

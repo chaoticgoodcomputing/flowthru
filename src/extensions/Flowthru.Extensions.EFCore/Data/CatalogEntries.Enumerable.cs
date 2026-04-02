@@ -46,14 +46,14 @@ public static partial class EFCoreCatalogEntries
     /// }
     ///
     /// // In pipeline
-    /// var pipeline = new PipelineBuilder("CompanyPipeline")
+    /// var pipeline = new FlowBuilder("CompanyPipeline")
     ///   .AddNode("load_companies", catalog => new LoadCompaniesNode(
     ///     outputs: catalog.Companies(db)
     ///   ))
     ///   .Build();
     /// </code>
     /// </example>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T>(
+    public static Item<IEnumerable<T>> EFCore<T>(
       string label,
       DbContext context,
       bool allowEmptyData = false,
@@ -63,7 +63,7 @@ public static partial class EFCoreCatalogEntries
       where T : class
     {
       var storage = new EFCoreStorageAdapter<T>(context, allowEmptyData, queryCustomizer, saveFunc);
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public static partial class EFCoreCatalogEntries
     /// }
     /// </code>
     /// </example>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T>(
+    public static Item<IEnumerable<T>> EFCore<T>(
       string label,
       Func<DbContext> contextFactory,
       bool allowEmptyData = false,
@@ -118,7 +118,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         saveFunc
       );
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
     /// Defaults to RemoveRange + AddRange when null.</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T, TContext>(
+    public static Item<IEnumerable<T>> EFCore<T, TContext>(
       string label,
       Func<TContext> contextFactory,
       bool allowEmptyData = false,
@@ -154,7 +154,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         baseSaveFunc
       );
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
     /// Defaults to RemoveRange + AddRange when null.</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T, TContext>(
+    public static Item<IEnumerable<T>> EFCore<T, TContext>(
       string label,
       IDbContextFactory<TContext> contextFactory,
       bool allowEmptyData = false,
@@ -189,7 +189,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         baseSaveFunc
       );
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
   }
 }

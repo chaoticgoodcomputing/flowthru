@@ -1,7 +1,7 @@
 using Flowthru.Data;
 using Flowthru.Data.Validation;
 
-namespace Flowthru.Pipelines.Validation;
+namespace Flowthru.Flows.Validation;
 
 /// <summary>
 /// Configuration for pipeline validation behavior.
@@ -10,7 +10,7 @@ namespace Flowthru.Pipelines.Validation;
 /// <para>
 /// ValidationOptions provides pipeline-level overrides for validation configuration.
 /// The primary mechanism for validation configuration is catalog-level via the
-/// <see cref="ICatalogEntry.PreferredInspectionLevel"/> property and the fluent
+/// <see cref="IItem.PreferredInspectionLevel"/> property and the fluent
 /// <c>.WithInspectionLevel()</c> API.
 /// </para>
 /// <para>
@@ -64,7 +64,7 @@ public class ValidationOptions
   /// This configuration only applies to Layer 0 inputs (external data).
   /// Intermediate outputs are never inspected regardless of this setting.
   /// </remarks>
-  public ValidationOptions Inspect(ICatalogEntry catalogEntry, InspectionLevel level)
+  public ValidationOptions Inspect(IItem catalogEntry, InspectionLevel level)
   {
     if (catalogEntry == null)
     {
@@ -112,7 +112,7 @@ public class ValidationOptions
   /// (e.g., skipping validation in performance tests, or enabling deep validation during debugging).
   /// </para>
   /// </remarks>
-  internal InspectionLevel GetEffectiveInspectionLevel(ICatalogEntry catalogEntry)
+  internal InspectionLevel GetEffectiveInspectionLevel(IItem catalogEntry)
   {
     if (catalogEntry == null)
     {

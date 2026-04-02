@@ -1,4 +1,4 @@
-# <a id="Flowthru_Registry_IPipelineRegistrar_1"></a> Interface IPipelineRegistrar<TCatalog\>
+# <a id="Flowthru_Registry_IFlowRegistrar_1"></a> Interface IFlowRegistrar<TCatalog\>
 
 Namespace: [Flowthru.Registry](Flowthru.Registry.md)  
 Assembly: Flowthru.Core.dll  
@@ -6,7 +6,7 @@ Assembly: Flowthru.Core.dll
 Fluent interface for registering pipelines in a type-safe manner.
 
 ```csharp
-public interface IPipelineRegistrar<TCatalog> where TCatalog : DataCatalogBase
+public interface IFlowRegistrar<TCatalog> where TCatalog : DataCatalogBase
 ```
 
 #### Type Parameters
@@ -24,7 +24,7 @@ pipelines accept the correct catalog type.
 </p>
 <p>
 <strong>Usage:</strong>
-<pre><code class="lang-csharp">protected override void RegisterPipelines(IPipelineRegistrar&lt;MyCatalog&gt; registrar)
+<pre><code class="lang-csharp">protected override void RegisterPipelines(IFlowRegistrar&lt;MyCatalog&gt; registrar)
 {
     // Pipeline without parameters
     registrar.Register("processing", ProcessingPipeline.Create);
@@ -39,12 +39,12 @@ pipelines accept the correct catalog type.
 
 ## Methods
 
-### <a id="Flowthru_Registry_IPipelineRegistrar_1_Register_System_String_System_Func__0_Flowthru_Pipelines_Pipeline__"></a> Register\(string, Func<TCatalog, Pipeline\>\)
+### <a id="Flowthru_Registry_IFlowRegistrar_1_Register_System_String_System_Func__0_Flowthru_Pipelines_Pipeline__"></a> Register\(string, Func<TCatalog, Pipeline\>\)
 
 Registers a pipeline with a parameterless factory function.
 
 ```csharp
-IPipelineRegistrar<TCatalog> Register(string name, Func<TCatalog, Pipeline> pipelineFactory)
+IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Pipeline> pipelineFactory)
 ```
 
 #### Parameters
@@ -53,13 +53,13 @@ IPipelineRegistrar<TCatalog> Register(string name, Func<TCatalog, Pipeline> pipe
 
 Unique pipeline name
 
-`pipelineFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<TCatalog, [Pipeline](Flowthru.Pipelines.Pipeline.md)\>
+`pipelineFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<TCatalog, [Pipeline](Flowthru.Flows.Pipeline.md)\>
 
 Factory function that creates the pipeline from catalog
 
 #### Returns
 
- [IPipelineRegistrar](Flowthru.Registry.IPipelineRegistrar\-1.md)<TCatalog\>
+ [IFlowRegistrar](Flowthru.Registry.IFlowRegistrar\-1.md)<TCatalog\>
 
 This registrar for method chaining
 
@@ -67,12 +67,12 @@ This registrar for method chaining
 
 Use this overload when the pipeline doesn't require parameters.
 
-### <a id="Flowthru_Registry_IPipelineRegistrar_1_Register__1_System_String_System_Func__0___0_Flowthru_Pipelines_Pipeline____0_"></a> Register<TParams\>\(string, Func<TCatalog, TParams, Pipeline\>, TParams\)
+### <a id="Flowthru_Registry_IFlowRegistrar_1_Register__1_System_String_System_Func__0___0_Flowthru_Pipelines_Pipeline____0_"></a> Register<TParams\>\(string, Func<TCatalog, TParams, Pipeline\>, TParams\)
 
 Registers a pipeline with a parameterized factory function.
 
 ```csharp
-IPipelineRegistrar<TCatalog> Register<TParams>(string name, Func<TCatalog, TParams, Pipeline> pipelineFactory, TParams parameters)
+IFlowRegistrar<TCatalog> Register<TParams>(string name, Func<TCatalog, TParams, Pipeline> pipelineFactory, TParams parameters)
 ```
 
 #### Parameters
@@ -81,7 +81,7 @@ IPipelineRegistrar<TCatalog> Register<TParams>(string name, Func<TCatalog, TPara
 
 Unique pipeline name
 
-`pipelineFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-3)<TCatalog, TParams, [Pipeline](Flowthru.Pipelines.Pipeline.md)\>
+`pipelineFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-3)<TCatalog, TParams, [Pipeline](Flowthru.Flows.Pipeline.md)\>
 
 Factory function that creates the pipeline from catalog and parameters
 
@@ -91,7 +91,7 @@ Parameter instance to pass to the pipeline
 
 #### Returns
 
- [IPipelineRegistrar](Flowthru.Registry.IPipelineRegistrar\-1.md)<TCatalog\>
+ [IFlowRegistrar](Flowthru.Registry.IFlowRegistrar\-1.md)<TCatalog\>
 
 This registrar for method chaining
 
@@ -111,12 +111,12 @@ Parameters are strongly typed and checked at compile time.
 The factory signature must match: <code>Func&lt;TCatalog, TParams, Pipeline&gt;</code>
 </p>
 
-### <a id="Flowthru_Registry_IPipelineRegistrar_1_WithDescription_System_String_"></a> WithDescription\(string\)
+### <a id="Flowthru_Registry_IFlowRegistrar_1_WithDescription_System_String_"></a> WithDescription\(string\)
 
 Adds a description to the most recently registered pipeline.
 
 ```csharp
-IPipelineRegistrar<TCatalog> WithDescription(string description)
+IFlowRegistrar<TCatalog> WithDescription(string description)
 ```
 
 #### Parameters
@@ -127,7 +127,7 @@ Human-readable description of what the pipeline does
 
 #### Returns
 
- [IPipelineRegistrar](Flowthru.Registry.IPipelineRegistrar\-1.md)<TCatalog\>
+ [IFlowRegistrar](Flowthru.Registry.IFlowRegistrar\-1.md)<TCatalog\>
 
 This registrar for method chaining
 
@@ -135,23 +135,23 @@ This registrar for method chaining
 
 Use this overload when fluently chaining after Register().
 
-### <a id="Flowthru_Registry_IPipelineRegistrar_1_WithValidation_System_Action_Flowthru_Pipelines_Validation_ValidationOptions__"></a> WithValidation\(Action<ValidationOptions\>\)
+### <a id="Flowthru_Registry_IFlowRegistrar_1_WithValidation_System_Action_Flowthru_Pipelines_Validation_ValidationOptions__"></a> WithValidation\(Action<ValidationOptions\>\)
 
 Configures validation options for the most recently registered pipeline.
 
 ```csharp
-IPipelineRegistrar<TCatalog> WithValidation(Action<ValidationOptions> configure)
+IFlowRegistrar<TCatalog> WithValidation(Action<ValidationOptions> configure)
 ```
 
 #### Parameters
 
-`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)\>
+`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)\>
 
 Action to configure validation behavior
 
 #### Returns
 
- [IPipelineRegistrar](Flowthru.Registry.IPipelineRegistrar\-1.md)<TCatalog\>
+ [IFlowRegistrar](Flowthru.Registry.IFlowRegistrar\-1.md)<TCatalog\>
 
 This registrar for method chaining
 

@@ -10,13 +10,13 @@ namespace Flowthru.Data;
 /// <remarks>
 /// <para>
 /// <strong>Problem Solved:</strong>
-/// Expression-bodied properties (<c>Property => new Entry()</c>) create new instances on each access,
+/// Expression-bodied properties (<c>Property => new Item()</c>) create new instances on each access,
 /// breaking DAG dependency resolution which relies on object identity.
 /// </para>
 /// <para>
 /// <strong>Solution:</strong>
 /// Uses reflection to:
-/// 1. Discover all ICatalogEntry properties on derived classes
+/// 1. Discover all IItem properties on derived classes
 /// 2. Create backing fields to cache instances
 /// 3. Intercept property getters to return cached instances
 /// </para>
@@ -34,35 +34,35 @@ namespace Flowthru.Data;
 ///     protected string BasePath { get; }
 ///
 ///     // Declare once - automatically cached!
-///     public ICatalogEntry&lt;IEnumerable&lt;MyData&gt;&gt; MyData =>
-///         GetOrCreateEntry(() => new CsvCatalogEntry&lt;MyData&gt;("my_data", $"{BasePath}/data.csv"));
+///     public IItem&lt;IEnumerable&lt;MyData&gt;&gt; MyData =>
+///         CreateItem(() => new CsvCatalogItem&lt;MyData&gt;("my_data", $"{BasePath}/data.csv"));
 /// }
 /// </code>
 /// </para>
 /// <para>
 /// <strong>Key Benefits:</strong>
-/// - Declare catalog entries ONCE (no redundant constructor code)
+/// - Declare catalog items ONCE (no redundant constructor code)
 /// - Automatic instance caching (object identity preserved)
 /// - Type-safe (compile-time checks)
 /// - Zero runtime overhead after first access (cached delegates)
 /// </para>
 /// </remarks>
-public abstract class DataCatalogBase
+public abstract class CatalogAbstract
 {
   /// <summary>
   /// Cache of property values to ensure object identity for DAG resolution.
-  /// Key: Property name, Value: Cached ICatalogEntry instance
+  /// Key: Property name, Value: Cached IItem instance
   /// </summary>
-  private readonly ConcurrentDictionary<string, ICatalogEntry> _propertyCache = new();
+  private readonly ConcurrentDictionary<string, IItem> _propertyCache = new();
 
   /// <summary>
-  /// The display label used to identify this catalog instance in pipeline metadata.
+  /// The display label used to identify this catalog instance in flow metadata.
   /// Defaults to the concrete class name when not specified.
   /// </summary>
   /// <remarks>
   /// Pass an explicit label when constructing multiple instances of the same catalog type
-  /// in a single pipeline (e.g., per-partition or per-shard catalogs) so their entries
-  /// receive distinct qualified identifiers in the DAG: <c>CatalogLabel.EntryLabel</c>.
+  /// in a single flow (e.g., per-partition or per-shard catalogs) so their items
+  /// receive distinct qualified identifiers in the DAG: <c>CatalogLabel.ItemLabel</c>.
   /// </remarks>
   public string CatalogLabel { get; }
 
@@ -70,31 +70,31 @@ public abstract class DataCatalogBase
   /// Optional display label for this catalog instance. When omitted, defaults to the
   /// concrete class name via <c>GetType().Name</c>.
   /// </param>
-  protected DataCatalogBase(string? catalogLabel = null)
+  protected CatalogAbstract(string? catalogLabel = null)
   {
     CatalogLabel = catalogLabel ?? GetType().Name;
   }
 
   /// <summary>
-  /// Optional service provider for dependency injection into catalog entries.
+  /// Optional service provider for dependency injection into catalog items.
   /// </summary>
   /// <remarks>
-  /// Set by the service layer before pipeline execution to enable catalog
-  /// entries to resolve services (e.g., database connections, HTTP clients).
+  /// Set by the service layer before flow execution to enable catalog
+  /// items to resolve services (e.g., database connections, HTTP clients).
   /// </remarks>
   public IServiceProvider? Services { get; set; }
 
   /// <summary>
-  /// Gets or creates a unified catalog entry, caching it for subsequent accesses.
+  /// Gets or creates a unified catalog item, caching it for subsequent accesses.
   /// </summary>
   /// <typeparam name="T">
-  /// The data type stored in this catalog entry.
+  /// The data type stored in this catalog item.
   /// For singletons: Use T directly (e.g., LinearRegressionModel)
   /// For collections: Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;FeatureRow&gt;)
   /// </typeparam>
-  /// <param name="factory">Factory function to create the entry on first access</param>
+  /// <param name="factory">Factory function to create the item on first access</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog entry instance</returns>
+  /// <returns>Cached catalog item instance</returns>
   /// <remarks>
   /// <para>
   /// <strong>Unified API (v0.5.0):</strong> This single method replaces GetOrCreateObject
@@ -104,51 +104,51 @@ public abstract class DataCatalogBase
   /// <strong>Usage Examples:</strong>
   /// <code>
   /// // Singleton object
-  /// public ICatalogEntry&lt;LinearRegressionModel&gt; Model =>
-  ///     GetOrCreateEntry(() =&gt; CatalogEntries.Single.Memory&lt;LinearRegressionModel&gt;("model"));
+  /// public IItem&lt;LinearRegressionModel&gt; Model =>
+  ///     GetOrCreateItem(() =&gt; Items.Single.Memory&lt;LinearRegressionModel&gt;("model"));
   ///
   /// // Collection
-  /// public ICatalogEntry&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
-  ///     GetOrCreateEntry(() =&gt; CatalogEntries.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));
+  /// public IItem&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
+  ///     GetOrCreateItem(() =&gt; Items.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));
   /// </code>
   /// </para>
   /// </remarks>
-  protected ICatalogEntry<T> GetOrCreateEntry<T>(
-    Func<ICatalogEntry<T>> factory,
+  protected IItem<T> CreateItem<T>(
+    Func<IItem<T>> factory,
     [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
   )
   {
-    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory());
-    if (entry is CatalogEntry<T> concrete)
+    var item = _propertyCache.GetOrAdd(propertyName, _ => factory());
+    if (item is Item<T> concrete)
       concrete.SetOwningCatalog(CatalogLabel);
-    return (ICatalogEntry<T>)entry;
+    return (IItem<T>)item;
   }
 
   /// <summary>
-  /// Gets or creates a unified catalog entry with service provider access.
+  /// Gets or creates a unified catalog item with service provider access.
   /// </summary>
   /// <typeparam name="T">The data type (singleton or collection)</typeparam>
   /// <param name="factory">Factory function that receives service provider</param>
   /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog entry instance</returns>
-  protected ICatalogEntry<T> GetOrCreateEntry<T>(
-    Func<IServiceProvider?, ICatalogEntry<T>> factory,
+  /// <returns>Cached catalog item instance</returns>
+  protected IItem<T> CreateItem<T>(
+    Func<IServiceProvider?, IItem<T>> factory,
     [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
   )
   {
-    var entry = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
-    if (entry is CatalogEntry<T> concrete)
+    var item = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
+    if (item is Item<T> concrete)
       concrete.SetOwningCatalog(CatalogLabel);
-    return (ICatalogEntry<T>)entry;
+    return (IItem<T>)item;
   }
 
   /// <summary>
-  /// Initializes all catalog entry properties by invoking their getters once.
+  /// Initializes all catalog item properties by invoking their getters once.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// <strong>Purpose:</strong> Eager initialization ensures all entries are cached
-  /// before pipeline construction begins, preventing any potential race conditions
+  /// <strong>Purpose:</strong> Eager initialization ensures all items are cached
+  /// before flow construction begins, preventing any potential race conditions
   /// or unexpected lazy initialization behavior.
   /// </para>
   /// <para>
@@ -157,7 +157,7 @@ public abstract class DataCatalogBase
   /// </para>
   /// <para>
   /// <strong>How It Works:</strong>
-  /// Uses reflection to find all public instance properties that return ICatalogEntry,
+  /// Uses reflection to find all public instance properties that return IItem,
   /// then invokes each getter once to populate the cache.
   /// </para>
   /// </remarks>
@@ -165,7 +165,7 @@ public abstract class DataCatalogBase
   {
     var catalogProperties = GetType()
       .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-      .Where(p => typeof(ICatalogEntry).IsAssignableFrom(p.PropertyType));
+      .Where(p => typeof(IItem).IsAssignableFrom(p.PropertyType));
 
     foreach (var property in catalogProperties)
     {
@@ -175,14 +175,14 @@ public abstract class DataCatalogBase
   }
 
   /// <summary>
-  /// Gets all cached catalog entries.
+  /// Gets all cached catalog items.
   /// </summary>
-  /// <returns>Enumerable of all initialized catalog entries</returns>
+  /// <returns>Enumerable of all initialized catalog items</returns>
   /// <remarks>
-  /// Useful for diagnostic purposes or when you need to iterate over all entries
+  /// Useful for diagnostic purposes or when you need to iterate over all items
   /// (e.g., for validation, cleanup, or reporting).
   /// </remarks>
-  protected IEnumerable<ICatalogEntry> GetAllEntries()
+  protected IEnumerable<IItem> GetAllItems()
   {
     return _propertyCache.Values;
   }
@@ -192,7 +192,7 @@ public abstract class DataCatalogBase
   /// </summary>
   /// <remarks>
   /// <para>
-  /// <strong>Warning:</strong> Clearing the cache after pipeline construction will break
+  /// <strong>Warning:</strong> Clearing the cache after flow construction will break
   /// DAG dependencies since new instances will be created on next access.
   /// </para>
   /// <para>

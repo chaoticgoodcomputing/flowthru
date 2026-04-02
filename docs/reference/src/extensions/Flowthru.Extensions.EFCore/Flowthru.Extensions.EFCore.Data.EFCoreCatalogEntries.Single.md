@@ -67,7 +67,7 @@ public ICatalogEntry&lt;ModelMetrics&gt; Metrics(DbContext db) =&gt;
   CatalogEntries.Single.EFCore&lt;ModelMetrics&gt;("metrics", db);
 
 // In pipeline
-var pipeline = new PipelineBuilder("MetricsPipeline")
+var pipeline = new FlowBuilder("MetricsPipeline")
   .AddNode("save_metrics", catalog =&gt; new SaveMetricsNode(
     outputs: catalog.Metrics(db)
   ))

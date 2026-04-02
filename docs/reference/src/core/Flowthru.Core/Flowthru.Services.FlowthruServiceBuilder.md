@@ -181,7 +181,7 @@ This builder for method chaining
 #### Remarks
 
 All registered catalogs will receive DI service injection and appear in
-<xref href="Flowthru.Services.IFlowthruService.Catalogs" data-throw-if-not-resolved="false"></xref>. Use with <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterPipelines(System.Func%7bSystem.IServiceProvider%2cSystem.Collections.Generic.Dictionary%7bSystem.String%2cFlowthru.Pipelines.Pipeline%7d%7d)" data-throw-if-not-resolved="false"></xref> to
+<xref href="Flowthru.Services.IFlowthruService.Catalogs" data-throw-if-not-resolved="false"></xref>. Use with <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterPipelines(System.Func%7bSystem.IServiceProvider%2cSystem.Collections.Generic.Dictionary%7bSystem.String%2cFlowthru.Flows.Pipeline%7d%7d)" data-throw-if-not-resolved="false"></xref> to
 wire per-catalog pipelines in a loop.
 
 ### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterCatalogs_System_Func_System_IServiceProvider_System_Collections_Generic_IEnumerable_Flowthru_Data_DataCatalogBase___"></a> RegisterCatalogs\(Func<IServiceProvider, IEnumerable<DataCatalogBase\>\>\)
@@ -246,7 +246,7 @@ public FlowthruServiceBuilder RegisterPipelines(Func<IServiceProvider, Dictionar
 
 #### Parameters
 
-`pipelineFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Pipeline](Flowthru.Pipelines.Pipeline.md)\>\>
+`pipelineFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Pipeline](Flowthru.Flows.Pipeline.md)\>\>
 
 Factory function that receives the service provider and returns the pipeline dictionary
 

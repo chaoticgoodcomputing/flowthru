@@ -27,9 +27,9 @@ public class FlowthruOptions
   public CatalogOptions Catalog { get; set; } = new();
 
   /// <summary>
-  /// Pipeline registration and configuration.
+  /// Flow registration and configuration.
   /// </summary>
-  public Dictionary<string, PipelineOptions> Pipelines { get; set; } = new();
+  public Dictionary<string, FlowOptions> Flows { get; set; } = new();
 
   /// <summary>
   /// Logging configuration (extends standard .NET logging configuration).
@@ -65,7 +65,7 @@ public class MetadataOptions
   /// Supports dynamic tokens that are replaced during export:
   /// </para>
   /// <list type="bullet">
-  /// <item><c>{PipelineName}</c> - Sanitized pipeline name</item>
+  /// <item><c>{FlowName}</c> - Sanitized flow name</item>
   /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled in Timestamp.IncludeTimestamp)</item>
   /// <item><c>{SliceType}</c> - "FromNodes", "Tags", "Mixed", or empty if unsliced</item>
   /// <item><c>{FromNodes}</c> - Comma-separated list of from-nodes</item>
@@ -79,7 +79,7 @@ public class MetadataOptions
   /// File extensions are added by individual providers (.json, .md, etc.).
   /// </para>
   /// <para>
-  /// <strong>Default:</strong> <c>"dag-{PipelineName}-{Timestamp}-{SliceType}"</c>
+  /// <strong>Default:</strong> <c>"dag-{FlowName}-{Timestamp}-{SliceType}"</c>
   /// </para>
   /// <para>
   /// <strong>Examples:</strong>
@@ -89,7 +89,7 @@ public class MetadataOptions
   /// <item>Sliced: <c>dag-DataProcessing-20260304-153045-FromNodes.json</c></item>
   /// </list>
   /// </remarks>
-  public string FilenameTemplate { get; set; } = "dag-{PipelineName}-{Timestamp}-{SliceType}";
+  public string FilenameTemplate { get; set; } = "dag-{FlowName}-{Timestamp}-{SliceType}";
 
   /// <summary>
   /// Configuration for timestamp generation in metadata filenames.
@@ -140,7 +140,7 @@ public class MermaidMetadataOptions
   /// Color applied to nodes that are in the execution slice.
   /// Default: #2E7D32 (Material Design green-800).
   /// </remarks>
-  public string ActiveNodeColor { get; set; } = "#2E7D32";
+  public string ActiveStepColor { get; set; } = "#2E7D32";
 
   /// <summary>
   /// Hex color code for active (sliced) catalog entries.
@@ -194,12 +194,12 @@ public class CatalogOptions
 }
 
 /// <summary>
-/// Configuration options for a single pipeline.
+/// Configuration options for a single flow.
 /// </summary>
-public class PipelineOptions
+public class FlowOptions
 {
   /// <summary>
-  /// The fully-qualified type name of the pipeline factory class.
+  /// The fully-qualified type name of the flow factory class.
   /// Must have a static Create method that accepts (catalog, parameters?).
   /// </summary>
   public string? Type { get; set; }
@@ -210,26 +210,26 @@ public class PipelineOptions
   public string FactoryMethod { get; set; } = "Create";
 
   /// <summary>
-  /// Human-readable description of the pipeline.
+  /// Human-readable description of the Flow.
   /// </summary>
   public string? Description { get; set; }
 
   /// <summary>
-  /// Pipeline-specific parameters (nested configuration section).
-  /// The structure must match the pipeline's parameter type.
+  /// Flow-specific parameters (nested configuration section).
+  /// The structure must match the Flow's parameter type.
   /// </summary>
   public Dictionary<string, object>? Parameters { get; set; }
 
   /// <summary>
-  /// Validation configuration for this pipeline.
+  /// Validation configuration for this flow.
   /// </summary>
-  public PipelineValidationOptions? Validation { get; set; }
+  public FlowValidationOptions? Validation { get; set; }
 }
 
 /// <summary>
-/// Configuration options for pipeline validation behavior.
+/// Configuration options for flow validation behavior.
 /// </summary>
-public class PipelineValidationOptions
+public class FlowValidationOptions
 {
   /// <summary>
   /// Default inspection level for all Layer 0 inputs.

@@ -64,17 +64,17 @@ public class Program
       flowthru.RegisterCatalogs(shardCatalogs);
 
       // Static pipelines resolved via DI
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "DataIngestion",
         (CoreCatalog cat) => DataIngestionPipeline.Create(cat)
       );
-      flowthru.RegisterPipeline("Reporting", (CoreCatalog cat) => ReportingPipeline.Create(cat));
-      flowthru.RegisterPipeline("Graphing", GraphingPipeline.Create);
+      flowthru.RegisterFlow("Reporting", (CoreCatalog cat) => ReportingPipeline.Create(cat));
+      flowthru.RegisterFlow("Graphing", GraphingPipeline.Create);
 
       // Dynamic per-country analysis pipelines + fan-in consolidation
-      flowthru.RegisterPipelines(_ =>
+      flowthru.RegisterFlows(_ =>
       {
-        var pipelines = new Dictionary<string, Flowthru.Pipelines.Pipeline>();
+        var pipelines = new Dictionary<string, Flowthru.Flows.Flow>();
         foreach (var shard in shardCatalogs)
         {
           pipelines[$"Analysis_{shard.Country.Replace(' ', '_')}"] = AnalysisPipeline.Create(

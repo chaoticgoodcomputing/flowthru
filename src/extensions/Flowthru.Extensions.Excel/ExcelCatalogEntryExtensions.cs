@@ -7,7 +7,7 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension methods that add Excel support to <see cref="CatalogEntries.Enumerable"/>.
+/// Extension methods that add Excel support to <see cref="Items.Enumerable"/>.
 /// </summary>
 public static class ExcelCatalogEntryExtensions
 {
@@ -15,7 +15,7 @@ public static class ExcelCatalogEntryExtensions
   /// Creates a read-only Excel file catalog entry with IEnumerable container.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="CatalogEntries.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="Items.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="filePath">Path to Excel file (.xlsx)</param>
   /// <param name="sheetName">Name of the sheet to read</param>
@@ -39,8 +39,8 @@ public static class ExcelCatalogEntryExtensions
   /// <item>CanWrite: false (Excel adapter is read-only via ExcelDataReader)</item>
   /// </list>
   /// </remarks>
-  public static CatalogEntry<IEnumerable<TRow>> Excel<TRow>(
-    this EnumerableCatalogEntries _,
+  public static Item<IEnumerable<TRow>> Excel<TRow>(
+    this EnumerableItems _,
     string label,
     string filePath,
     string sheetName
@@ -52,6 +52,6 @@ public static class ExcelCatalogEntryExtensions
     var container = new EnumerableContainerAdapter<TRow>();
     var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
 
-    return new CatalogEntry<IEnumerable<TRow>>(label, storage);
+    return new Item<IEnumerable<TRow>>(label, storage);
   }
 }

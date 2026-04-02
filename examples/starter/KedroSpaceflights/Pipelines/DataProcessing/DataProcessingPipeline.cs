@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using KedroSpaceflights.Data;
 using KedroSpaceflights.Pipelines.DataProcessing.Nodes;
 
@@ -15,11 +15,11 @@ public static class DataProcessingPipeline
   /// </summary>
   /// <param name="catalog">The data catalog containing input and output entries.</param>
   /// <returns>A configured pipeline that produces a model input table from raw data sources.</returns>
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessCompanies",
         description: "Cleans and preprocesses raw company data.",
         transform: PreprocessCompaniesNode.Create(),
@@ -27,7 +27,7 @@ public static class DataProcessingPipeline
         output: catalog.PreprocessedCompanies
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessShuttles",
         description: "Cleans and preprocesses raw shuttle data.",
         transform: PreprocessShuttlesNode.Create(),

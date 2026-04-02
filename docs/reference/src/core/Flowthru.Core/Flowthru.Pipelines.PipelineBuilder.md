@@ -1,18 +1,18 @@
-# <a id="Flowthru_Pipelines_PipelineBuilder"></a> Class PipelineBuilder
+# <a id="Flowthru_Pipelines_FlowBuilder"></a> Class FlowBuilder
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Fluent builder for constructing type-safe data pipelines with function-based nodes.
 
 ```csharp
-public class PipelineBuilder
+public class FlowBuilder
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+[FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 #### Inherited Members
 
@@ -46,7 +46,7 @@ types at pipeline construction time, catching type mismatches before execution.
 <p>
 <strong>Usage Patterns:</strong>
 </p>
-<pre><code class="lang-csharp">var pipeline = PipelineBuilder.CreatePipeline(builder =&gt;
+<pre><code class="lang-csharp">var pipeline = FlowBuilder.CreateFlow(builder =&gt;
 {
     // Simple synchronous node
     builder.AddNode(
@@ -86,13 +86,13 @@ await pipeline.ExecuteAsync();</code></pre>
 
 ## Methods
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__2_System_String_System_Func___0_System_Threading_Tasks_Task___1___Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__System_String_"></a> AddNode<TInput, TOutput\>\(string, Func<TInput, Task<TOutput\>\>, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__2_System_String_System_Func___0_System_Threading_Tasks_Task___1___Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__System_String_"></a> AddNode<TInput, TOutput\>\(string, Func<TInput, Task<TOutput\>\>, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, string\)
 
 Adds a node with single input and single output (asynchronous transformation).
 All types are inferred from the transformation function signature.
 
 ```csharp
-public PipelineBuilder AddNode<TInput, TOutput>(string label, Func<TInput, Task<TOutput>> transform, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, string description = "")
+public FlowBuilder AddNode<TInput, TOutput>(string label, Func<TInput, Task<TOutput>> transform, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, string description = "")
 ```
 
 #### Parameters
@@ -117,7 +117,7 @@ Catalog entry to store output data
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -131,13 +131,13 @@ Input type (inferred from transform)
 
 Output type (inferred from transform)
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__2_System_String_System_Func___0_System_Threading_CancellationToken_System_Threading_Tasks_Task___1___Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__System_String_"></a> AddNode<TInput, TOutput\>\(string, Func<TInput, CancellationToken, Task<TOutput\>\>, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__2_System_String_System_Func___0_System_Threading_CancellationToken_System_Threading_Tasks_Task___1___Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__System_String_"></a> AddNode<TInput, TOutput\>\(string, Func<TInput, CancellationToken, Task<TOutput\>\>, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, string\)
 
 Adds a node with single input and single output (asynchronous transformation with cancellation support).
 All types are inferred from the transformation function signature.
 
 ```csharp
-public PipelineBuilder AddNode<TInput, TOutput>(string label, Func<TInput, CancellationToken, Task<TOutput>> transform, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, string description = "")
+public FlowBuilder AddNode<TInput, TOutput>(string label, Func<TInput, CancellationToken, Task<TOutput>> transform, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, string description = "")
 ```
 
 #### Parameters
@@ -162,7 +162,7 @@ Catalog entry to store output data
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -176,13 +176,13 @@ Input type (inferred from transform)
 
 Output type (inferred from transform)
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__2_System_String_System_Func___0___1__Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__System_String_"></a> AddNode<TInput, TOutput\>\(string, Func<TInput, TOutput\>, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__2_System_String_System_Func___0___1__Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__System_String_"></a> AddNode<TInput, TOutput\>\(string, Func<TInput, TOutput\>, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, string\)
 
 Adds a node with single input and single output (synchronous transformation).
 All types are inferred from the transformation function signature.
 
 ```csharp
-public PipelineBuilder AddNode<TInput, TOutput>(string label, Func<TInput, TOutput> transform, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, string description = "")
+public FlowBuilder AddNode<TInput, TOutput>(string label, Func<TInput, TOutput> transform, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, string description = "")
 ```
 
 #### Parameters
@@ -207,7 +207,7 @@ Catalog entry to store output data
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -221,13 +221,13 @@ Input type (inferred from transform)
 
 Output type (inferred from transform)
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__2_System_String_System_Collections_Generic_IReadOnlyList_Flowthru_Data_ICatalogEntry___0___Flowthru_Data_ICatalogEntry___1__System_Func_System_Collections_Generic_IReadOnlyList___0____1__System_String_"></a> AddNode<TIn, TOut\>\(string, IReadOnlyList<ICatalogEntry<TIn\>\>, ICatalogEntry<TOut\>, Func<IReadOnlyList<TIn\>, TOut\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__2_System_String_System_Collections_Generic_IReadOnlyList_Flowthru_Data_ICatalogEntry___0___Flowthru_Data_ICatalogEntry___1__System_Func_System_Collections_Generic_IReadOnlyList___0____1__System_String_"></a> AddNode<TIn, TOut\>\(string, IReadOnlyList<ICatalogEntry<TIn\>\>, ICatalogEntry<TOut\>, Func<IReadOnlyList<TIn\>, TOut\>, string\)
 
 Adds a homogeneous fan-in node: N catalog entries of the same element type collapse
 into a single node whose transform receives all N loaded collections as a typed list.
 
 ```csharp
-public PipelineBuilder AddNode<TIn, TOut>(string label, IReadOnlyList<ICatalogEntry<TIn>> inputs, ICatalogEntry<TOut> output, Func<IReadOnlyList<TIn>, TOut> node, string description = "")
+public FlowBuilder AddNode<TIn, TOut>(string label, IReadOnlyList<ICatalogEntry<TIn>> inputs, ICatalogEntry<TOut> output, Func<IReadOnlyList<TIn>, TOut> node, string description = "")
 ```
 
 #### Parameters
@@ -254,7 +254,7 @@ Optional human-readable description
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -275,12 +275,12 @@ aggregating per-partition catalogs constructed in a loop. The function receives
 <code>IReadOnlyList&lt;TIn&gt;</code> where each element corresponds to one input entry
 in declaration order. An empty inputs list is allowed but produces an empty list argument.
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__3_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_String_"></a> AddNode<TIn1, TOut1, TOut2\>\(string, Func<TIn1, Task<\(TOut1, TOut2\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__3_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_String_"></a> AddNode<TIn1, TOut1, TOut2\>\(string, Func<TIn1, Task<\(TOut1, TOut2\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 1 input and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2>(string label, Func<TIn1, Task<(TOut1, TOut2)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2>(string label, Func<TIn1, Task<(TOut1, TOut2)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -307,7 +307,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -325,12 +325,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__3_System_String_System_Func___0_System_ValueTuple___1___2___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_String_"></a> AddNode<TIn1, TOut1, TOut2\>\(string, Func<TIn1, \(TOut1, TOut2\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__3_System_String_System_Func___0_System_ValueTuple___1___2___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_String_"></a> AddNode<TIn1, TOut1, TOut2\>\(string, Func<TIn1, \(TOut1, TOut2\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 1 input and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2>(string label, Func<TIn1, (TOut1, TOut2)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2>(string label, Func<TIn1, (TOut1, TOut2)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -357,7 +357,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -375,12 +375,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__4_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__4_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 1 input and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -407,7 +407,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -429,12 +429,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__4_System_String_System_Func___0_System_ValueTuple___1___2___3___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__4_System_String_System_Func___0_System_ValueTuple___1___2___3___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 1 input and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3>(string label, Func<TIn1, (TOut1, TOut2, TOut3)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3>(string label, Func<TIn1, (TOut1, TOut2, TOut3)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -461,7 +461,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -483,12 +483,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 1 input and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -515,7 +515,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -541,12 +541,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func___0_System_ValueTuple___1___2___3___4___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func___0_System_ValueTuple___1___2___3___4___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 1 input and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -573,7 +573,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -599,12 +599,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 1 input and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -631,7 +631,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -661,12 +661,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 1 input and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -693,7 +693,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -723,12 +723,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5___6____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5___6____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 1 input and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -755,7 +755,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -789,12 +789,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___6___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___6___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 1 input and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -821,7 +821,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -855,12 +855,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5___6___7____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5___6___7____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 1 input and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -887,7 +887,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -925,12 +925,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___6___7___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___6___7___Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 1 input and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -957,7 +957,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -995,12 +995,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5___6___7_System_ValueTuple___8_____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__System_ValueTuple_Flowthru_Data_ICatalogEntry___8____System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func___0_System_Threading_Tasks_Task_System_ValueTuple___1___2___3___4___5___6___7_System_ValueTuple___8_____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__System_ValueTuple_Flowthru_Data_ICatalogEntry___8____System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<TIn1, Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 1 input and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<TIn1, Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -1027,7 +1027,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1069,12 +1069,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___6___7_System_ValueTuple___8____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__System_ValueTuple_Flowthru_Data_ICatalogEntry___8____System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func___0_System_ValueTuple___1___2___3___4___5___6___7_System_ValueTuple___8____Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__System_ValueTuple_Flowthru_Data_ICatalogEntry___8____System_String_"></a> AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<TIn1, \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 1 input and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<TIn1, (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -1101,7 +1101,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1143,12 +1143,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__3_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___Flowthru_Data_ICatalogEntry___2__System_String_"></a> AddNode<TIn1, TIn2, TOut1\>\(string, Func<\(TIn1, TIn2\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__3_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___Flowthru_Data_ICatalogEntry___2__System_String_"></a> AddNode<TIn1, TIn2, TOut1\>\(string, Func<\(TIn1, TIn2\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 2 inputs and 1 output (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1>(string label, Func<(TIn1, TIn2), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1>(string label, Func<(TIn1, TIn2), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -1175,7 +1175,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1193,12 +1193,12 @@ Input type 2
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__3_System_String_System_Func_System_ValueTuple___0___1____2__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___Flowthru_Data_ICatalogEntry___2__System_String_"></a> AddNode<TIn1, TIn2, TOut1\>\(string, Func<\(TIn1, TIn2\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__3_System_String_System_Func_System_ValueTuple___0___1____2__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___Flowthru_Data_ICatalogEntry___2__System_String_"></a> AddNode<TIn1, TIn2, TOut1\>\(string, Func<\(TIn1, TIn2\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 2 inputs and 1 output (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1>(string label, Func<(TIn1, TIn2), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1>(string label, Func<(TIn1, TIn2), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -1225,7 +1225,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1243,12 +1243,12 @@ Input type 2
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 2 inputs and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -1275,7 +1275,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1297,12 +1297,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 2 inputs and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2>(string label, Func<(TIn1, TIn2), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2>(string label, Func<(TIn1, TIn2), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -1329,7 +1329,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1351,12 +1351,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 2 inputs and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -1383,7 +1383,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1409,12 +1409,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 2 inputs and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -1441,7 +1441,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1467,12 +1467,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 2 inputs and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -1499,7 +1499,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1529,12 +1529,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 2 inputs and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -1561,7 +1561,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1591,12 +1591,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 2 inputs and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -1623,7 +1623,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1657,12 +1657,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 2 inputs and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -1689,7 +1689,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1723,12 +1723,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 2 inputs and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -1755,7 +1755,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1793,12 +1793,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 2 inputs and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -1825,7 +1825,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1863,12 +1863,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 2 inputs and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -1895,7 +1895,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -1937,12 +1937,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 2 inputs and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -1969,7 +1969,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2011,12 +2011,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6___7___8_System_ValueTuple___9_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__System_ValueTuple_Flowthru_Data_ICatalogEntry___9____System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1__System_Threading_Tasks_Task_System_ValueTuple___2___3___4___5___6___7___8_System_ValueTuple___9_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__System_ValueTuple_Flowthru_Data_ICatalogEntry___9____System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 2 inputs and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -2043,7 +2043,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2089,12 +2089,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___7___8_System_ValueTuple___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__System_ValueTuple_Flowthru_Data_ICatalogEntry___9____System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1__System_ValueTuple___2___3___4___5___6___7___8_System_ValueTuple___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__System_ValueTuple_Flowthru_Data_ICatalogEntry___9____System_String_"></a> AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 2 inputs and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -2121,7 +2121,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2167,12 +2167,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Data_ICatalogEntry___3__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Data_ICatalogEntry___3__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 3 inputs and 1 output (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1>(string label, Func<(TIn1, TIn2, TIn3), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1>(string label, Func<(TIn1, TIn2, TIn3), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -2199,7 +2199,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2221,12 +2221,12 @@ Input type 3
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1___2____3__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Data_ICatalogEntry___3__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__4_System_String_System_Func_System_ValueTuple___0___1___2____3__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Data_ICatalogEntry___3__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 3 inputs and 1 output (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1>(string label, Func<(TIn1, TIn2, TIn3), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1>(string label, Func<(TIn1, TIn2, TIn3), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -2253,7 +2253,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2275,12 +2275,12 @@ Input type 3
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 3 inputs and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -2307,7 +2307,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2333,12 +2333,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 3 inputs and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -2365,7 +2365,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2391,12 +2391,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 3 inputs and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -2423,7 +2423,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2453,12 +2453,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 3 inputs and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -2485,7 +2485,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2515,12 +2515,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 3 inputs and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -2547,7 +2547,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2581,12 +2581,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 3 inputs and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -2613,7 +2613,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2647,12 +2647,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 3 inputs and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -2679,7 +2679,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2717,12 +2717,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 3 inputs and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -2749,7 +2749,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2787,12 +2787,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 3 inputs and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -2819,7 +2819,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2861,12 +2861,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 3 inputs and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -2893,7 +2893,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -2935,12 +2935,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 3 inputs and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -2967,7 +2967,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3013,12 +3013,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 3 inputs and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -3045,7 +3045,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3091,12 +3091,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7___8___9_System_ValueTuple___10_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__System_ValueTuple_Flowthru_Data_ICatalogEntry___10____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2__System_Threading_Tasks_Task_System_ValueTuple___3___4___5___6___7___8___9_System_ValueTuple___10_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__System_ValueTuple_Flowthru_Data_ICatalogEntry___10____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 3 inputs and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -3123,7 +3123,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3173,12 +3173,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___8___9_System_ValueTuple___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__System_ValueTuple_Flowthru_Data_ICatalogEntry___10____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2__System_ValueTuple___3___4___5___6___7___8___9_System_ValueTuple___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__System_ValueTuple_Flowthru_Data_ICatalogEntry___10____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 3 inputs and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -3205,7 +3205,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3255,12 +3255,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Data_ICatalogEntry___4__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Data_ICatalogEntry___4__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 4 inputs and 1 output (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -3287,7 +3287,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3313,12 +3313,12 @@ Input type 4
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2___3____4__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Data_ICatalogEntry___4__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__5_System_String_System_Func_System_ValueTuple___0___1___2___3____4__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Data_ICatalogEntry___4__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 4 inputs and 1 output (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -3345,7 +3345,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3371,12 +3371,12 @@ Input type 4
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 4 inputs and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -3403,7 +3403,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3433,12 +3433,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 4 inputs and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -3465,7 +3465,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3495,12 +3495,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 4 inputs and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -3527,7 +3527,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3561,12 +3561,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 4 inputs and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -3593,7 +3593,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3627,12 +3627,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 4 inputs and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -3659,7 +3659,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3697,12 +3697,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 4 inputs and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -3729,7 +3729,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3767,12 +3767,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 4 inputs and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -3799,7 +3799,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3841,12 +3841,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 4 inputs and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -3873,7 +3873,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3915,12 +3915,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 4 inputs and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -3947,7 +3947,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -3993,12 +3993,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 4 inputs and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -4025,7 +4025,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4071,12 +4071,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 4 inputs and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -4103,7 +4103,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4153,12 +4153,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 4 inputs and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -4185,7 +4185,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4235,12 +4235,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8___9___10_System_ValueTuple___11_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__System_ValueTuple_Flowthru_Data_ICatalogEntry___11____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3__System_Threading_Tasks_Task_System_ValueTuple___4___5___6___7___8___9___10_System_ValueTuple___11_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__System_ValueTuple_Flowthru_Data_ICatalogEntry___11____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 4 inputs and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -4267,7 +4267,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4321,12 +4321,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___9___10_System_ValueTuple___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__System_ValueTuple_Flowthru_Data_ICatalogEntry___11____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3__System_ValueTuple___4___5___6___7___8___9___10_System_ValueTuple___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__System_ValueTuple_Flowthru_Data_ICatalogEntry___11____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 4 inputs and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -4353,7 +4353,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4407,12 +4407,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Data_ICatalogEntry___5__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Data_ICatalogEntry___5__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 5 inputs and 1 output (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -4439,7 +4439,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4469,12 +4469,12 @@ Input type 5
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3___4____5__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Data_ICatalogEntry___5__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__6_System_String_System_Func_System_ValueTuple___0___1___2___3___4____5__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Data_ICatalogEntry___5__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 5 inputs and 1 output (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -4501,7 +4501,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4531,12 +4531,12 @@ Input type 5
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 5 inputs and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -4563,7 +4563,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4597,12 +4597,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 5 inputs and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -4629,7 +4629,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4663,12 +4663,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 5 inputs and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -4695,7 +4695,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4733,12 +4733,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 5 inputs and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -4765,7 +4765,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4803,12 +4803,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 5 inputs and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -4835,7 +4835,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4877,12 +4877,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 5 inputs and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -4909,7 +4909,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -4951,12 +4951,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 5 inputs and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -4983,7 +4983,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5029,12 +5029,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 5 inputs and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -5061,7 +5061,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5107,12 +5107,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 5 inputs and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -5139,7 +5139,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5189,12 +5189,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 5 inputs and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -5221,7 +5221,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5271,12 +5271,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 5 inputs and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -5303,7 +5303,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5357,12 +5357,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 5 inputs and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -5389,7 +5389,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5443,12 +5443,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9___10___11_System_ValueTuple___12_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__System_ValueTuple_Flowthru_Data_ICatalogEntry___12____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_Threading_Tasks_Task_System_ValueTuple___5___6___7___8___9___10___11_System_ValueTuple___12_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__System_ValueTuple_Flowthru_Data_ICatalogEntry___12____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 5 inputs and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -5475,7 +5475,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5533,12 +5533,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___10___11_System_ValueTuple___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__System_ValueTuple_Flowthru_Data_ICatalogEntry___12____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4__System_ValueTuple___5___6___7___8___9___10___11_System_ValueTuple___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__System_ValueTuple_Flowthru_Data_ICatalogEntry___12____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 5 inputs and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -5565,7 +5565,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5623,12 +5623,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Data_ICatalogEntry___6__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Data_ICatalogEntry___6__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 6 inputs and 1 output (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -5655,7 +5655,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5689,12 +5689,12 @@ Input type 6
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5____6__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Data_ICatalogEntry___6__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__7_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5____6__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Data_ICatalogEntry___6__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 6 inputs and 1 output (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -5721,7 +5721,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5755,12 +5755,12 @@ Input type 6
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 6 inputs and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -5787,7 +5787,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5825,12 +5825,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 6 inputs and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -5857,7 +5857,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5895,12 +5895,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 6 inputs and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -5927,7 +5927,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -5969,12 +5969,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 6 inputs and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -6001,7 +6001,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6043,12 +6043,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 6 inputs and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -6075,7 +6075,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6121,12 +6121,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 6 inputs and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -6153,7 +6153,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6199,12 +6199,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 6 inputs and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -6231,7 +6231,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6281,12 +6281,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 6 inputs and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -6313,7 +6313,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6363,12 +6363,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 6 inputs and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -6395,7 +6395,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6449,12 +6449,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 6 inputs and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -6481,7 +6481,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6535,12 +6535,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10___11___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10___11___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 6 inputs and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -6567,7 +6567,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6625,12 +6625,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___11___12___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___11___12___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 6 inputs and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -6657,7 +6657,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6715,12 +6715,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10___11___12_System_ValueTuple___13_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__System_ValueTuple_Flowthru_Data_ICatalogEntry___13____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_Threading_Tasks_Task_System_ValueTuple___6___7___8___9___10___11___12_System_ValueTuple___13_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__System_ValueTuple_Flowthru_Data_ICatalogEntry___13____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 6 inputs and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -6747,7 +6747,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6809,12 +6809,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___11___12_System_ValueTuple___13____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__System_ValueTuple_Flowthru_Data_ICatalogEntry___13____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5__System_ValueTuple___6___7___8___9___10___11___12_System_ValueTuple___13____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__System_ValueTuple_Flowthru_Data_ICatalogEntry___13____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 6 inputs and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -6841,7 +6841,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6903,12 +6903,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Data_ICatalogEntry___7__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task___7___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Data_ICatalogEntry___7__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 7 inputs and 1 output (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -6935,7 +6935,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -6973,12 +6973,12 @@ Input type 7
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6____7__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Data_ICatalogEntry___7__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__8_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6____7__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Data_ICatalogEntry___7__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 7 inputs and 1 output (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -7005,7 +7005,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7043,12 +7043,12 @@ Input type 7
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 7 inputs and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -7075,7 +7075,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7117,12 +7117,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 7 inputs and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -7149,7 +7149,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7191,12 +7191,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 7 inputs and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -7223,7 +7223,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7269,12 +7269,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 7 inputs and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -7301,7 +7301,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7347,12 +7347,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 7 inputs and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -7379,7 +7379,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7429,12 +7429,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 7 inputs and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -7461,7 +7461,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7511,12 +7511,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 7 inputs and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -7543,7 +7543,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7597,12 +7597,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 7 inputs and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -7629,7 +7629,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7683,12 +7683,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 7 inputs and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -7715,7 +7715,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7773,12 +7773,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___12___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___12___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 7 inputs and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -7805,7 +7805,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7863,12 +7863,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11___12___13____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11___12___13____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 7 inputs and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -7895,7 +7895,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -7957,12 +7957,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___12___13___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___12___13___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 7 inputs and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -7989,7 +7989,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8051,12 +8051,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11___12___13_System_ValueTuple___14_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__System_ValueTuple_Flowthru_Data_ICatalogEntry___14____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_Threading_Tasks_Task_System_ValueTuple___7___8___9___10___11___12___13_System_ValueTuple___14_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__System_ValueTuple_Flowthru_Data_ICatalogEntry___14____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 7 inputs and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -8083,7 +8083,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8149,12 +8149,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___12___13_System_ValueTuple___14____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__System_ValueTuple_Flowthru_Data_ICatalogEntry___14____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6__System_ValueTuple___7___8___9___10___11___12___13_System_ValueTuple___14____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__System_ValueTuple_Flowthru_Data_ICatalogEntry___14____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 7 inputs and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -8181,7 +8181,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8247,12 +8247,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____Flowthru_Data_ICatalogEntry___8__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task___8___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____Flowthru_Data_ICatalogEntry___8__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<TOut1\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 8 inputs and 1 output (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<TOut1>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -8279,7 +8279,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8321,12 +8321,12 @@ Input type 8
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7_____8__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____Flowthru_Data_ICatalogEntry___8__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), ICatalogEntry<TOut1\>, string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__9_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7_____8__System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____Flowthru_Data_ICatalogEntry___8__System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), TOut1\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), ICatalogEntry<TOut1\>, string\)
 
 Adds a node with 8 inputs and 1 output (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, ICatalogEntry<TOut1> output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), TOut1> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, ICatalogEntry<TOut1> output, string description = "")
 ```
 
 #### Parameters
@@ -8353,7 +8353,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8395,12 +8395,12 @@ Input type 8
 
 Output type 1
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 8 inputs and 2 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -8427,7 +8427,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8473,12 +8473,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__10_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), string\)
 
 Adds a node with 8 inputs and 2 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, string description = "")
 ```
 
 #### Parameters
@@ -8505,7 +8505,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8551,12 +8551,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 8 inputs and 3 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -8583,7 +8583,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8633,12 +8633,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__11_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), string\)
 
 Adds a node with 8 inputs and 3 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, string description = "")
 ```
 
 #### Parameters
@@ -8665,7 +8665,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8715,12 +8715,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 8 inputs and 4 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -8747,7 +8747,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8801,12 +8801,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__12_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), string\)
 
 Adds a node with 8 inputs and 4 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, string description = "")
 ```
 
 #### Parameters
@@ -8833,7 +8833,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8887,12 +8887,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 8 inputs and 5 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -8919,7 +8919,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -8977,12 +8977,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__13_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), string\)
 
 Adds a node with 8 inputs and 5 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, string description = "")
 ```
 
 #### Parameters
@@ -9009,7 +9009,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -9067,12 +9067,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12___13____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12___13____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 8 inputs and 6 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -9099,7 +9099,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -9161,12 +9161,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___13___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__14_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___13___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), string\)
 
 Adds a node with 8 inputs and 6 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, string description = "")
 ```
 
 #### Parameters
@@ -9193,7 +9193,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -9255,12 +9255,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12___13___14____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12___13___14____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 8 inputs and 7 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -9287,7 +9287,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -9353,12 +9353,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___13___14___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__15_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___13___14___System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14___System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), string\)
 
 Adds a node with 8 inputs and 7 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, string description = "")
 ```
 
 #### Parameters
@@ -9385,7 +9385,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -9451,12 +9451,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__16_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12___13___14_System_ValueTuple___15_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14__System_ValueTuple_Flowthru_Data_ICatalogEntry___15____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__16_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_Threading_Tasks_Task_System_ValueTuple___8___9___10___11___12___13___14_System_ValueTuple___15_____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14__System_ValueTuple_Flowthru_Data_ICatalogEntry___15____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), Task<\(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 8 inputs and 8 outputs (asynchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), Task<(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)>> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -9483,7 +9483,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -9553,12 +9553,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_AddNode__16_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___13___14_System_ValueTuple___15____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14__System_ValueTuple_Flowthru_Data_ICatalogEntry___15____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
+### <a id="Flowthru_Pipelines_FlowBuilder_AddNode__16_System_String_System_Func_System_ValueTuple___0___1___2___3___4___5___6_System_ValueTuple___7___System_ValueTuple___8___9___10___11___12___13___14_System_ValueTuple___15____System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14__System_ValueTuple_Flowthru_Data_ICatalogEntry___15____System_String_"></a> AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(string, Func<\(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8\), \(TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\)\>, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), string\)
 
 Adds a node with 8 inputs and 8 outputs (synchronous transformation).
 
 ```csharp
-public PipelineBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
+public FlowBuilder AddNode<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(string label, Func<(TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8), (TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8)> transform, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, string description = "")
 ```
 
 #### Parameters
@@ -9585,7 +9585,7 @@ Optional description of the node's purpose
 
 #### Returns
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 This builder for method chaining
 
@@ -9655,23 +9655,23 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Pipelines_PipelineBuilder_CreatePipeline_System_Action_Flowthru_Pipelines_PipelineBuilder__"></a> CreatePipeline\(Action<PipelineBuilder\>\)
+### <a id="Flowthru_Pipelines_FlowBuilder_CreateFlow_System_Action_Flowthru_Pipelines_FlowBuilder__"></a> CreateFlow\(Action<FlowBuilder\>\)
 
 Creates and configures a new pipeline using the builder pattern.
 
 ```csharp
-public static Pipeline CreatePipeline(Action<PipelineBuilder> configure)
+public static Pipeline CreateFlow(Action<FlowBuilder> configure)
 ```
 
 #### Parameters
 
-`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)\>
+`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[FlowBuilder](Flowthru.Flows.FlowBuilder.md)\>
 
 Action to configure the pipeline by adding nodes
 
 #### Returns
 
- [Pipeline](Flowthru.Pipelines.Pipeline.md)
+ [Pipeline](Flowthru.Flows.Pipeline.md)
 
 Configured but not yet built pipeline
 

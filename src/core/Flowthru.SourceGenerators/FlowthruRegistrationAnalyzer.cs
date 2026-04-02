@@ -7,74 +7,105 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Flowthru.SourceGenerators;
 
 /// <summary>
-/// Roslyn analyzer that cross-references RegisterCatalog and RegisterPipeline calls
+/// Roslyn analyzer that cross-references RegisterCatalog and RegisterFlow calls
 /// within an AddFlowthru configuration block.
 ///
 /// Emits compile-time diagnostics when:
-///   FT1001 — A pipeline delegate parameter extends DataCatalogBase but no
+///   FT1001 — A flow delegate parameter extends DataCatalogBase but no
 ///            matching RegisterCatalog registration was found.
-///   FT1002 — A RegisterCatalog registration is never referenced by any pipeline.
+///   FT1002 — A RegisterCatalog registration is never referenced by any flow.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
 {
+  /// <summary>
+  /// No catalog registered for a flow parameter that extends DataCatalogBase.
+  /// </summary>
   public const string MissingCatalogId = "FT2001";
+
+  /// <summary>
+  /// A catalog was registered via RegisterCatalog but is not referenced by any flow.
+  /// </summary>
   public const string UnusedCatalogId = "FT2002";
+
+  /// <summary>
+  /// A flow has a concrete-class parameter that is not a catalog and is not covered by
+  /// configurationSection, meaning it will be resolved from DI. This may be intentional,
+  /// but if the parameter is a configuration POCO, the user should pass configurationSection
+  /// to RegisterFlow to bind it from appsettings instead.
+  /// </summary>
   public const string UnboundConcreteParamId = "FT2003";
+
+  /// <summary>
+  /// A flow registration specifies a configurationSection but UseConfiguration() was never called
+  /// on the builder. The flow will throw at pre-flight time when it attempts to resolve the
+  /// configurationSection.
+  /// </summary>
   public const string MissingUseConfigurationId = "FT2004";
 
-  private static readonly DiagnosticDescriptor MissingCatalogRule =
+  private static readonly DiagnosticDescriptor _missingCatalogRule =
     new(
       MissingCatalogId,
       "Missing catalog registration",
-      "Pipeline '{0}' requires catalog '{1}' but no matching RegisterCatalog registration was found",
+      "Flow '{0}' requires catalog '{1}' but no matching RegisterCatalog registration was found",
       "Flowthru.Registration",
       DiagnosticSeverity.Error,
       isEnabledByDefault: true,
-      description: "Every DataCatalogBase-derived parameter in a RegisterPipeline delegate must have a corresponding RegisterCatalog registration."
+      description: "Every DataCatalogBase-derived parameter in a RegisterFlow delegate must have a corresponding RegisterCatalog registration."
     );
 
-  private static readonly DiagnosticDescriptor UnusedCatalogRule =
+  private static readonly DiagnosticDescriptor _unusedCatalogRule =
     new(
       UnusedCatalogId,
       "Unused catalog registration",
-      "Catalog '{0}' is registered via RegisterCatalog but is not referenced by any pipeline",
+      "Catalog '{0}' is registered via RegisterCatalog but is not referenced by any flow",
       "Flowthru.Registration",
       DiagnosticSeverity.Warning,
       isEnabledByDefault: true,
-      description: "A catalog was registered but no pipeline references it. This may indicate dead configuration."
+      description: "A catalog was registered but no flow references it. This may indicate dead configuration."
     );
 
-  private static readonly DiagnosticDescriptor UnboundConcreteParamRule =
+  private static readonly DiagnosticDescriptor _unboundConcreteParamRule =
     new(
       UnboundConcreteParamId,
       "Unbound concrete parameter",
-      "Pipeline '{0}' has parameter '{1}' of type '{2}' that will be resolved from DI. If it is a configuration object, pass configurationSection to RegisterPipeline.",
+      "Flow '{0}' has parameter '{1}' of type '{2}' that will be resolved from DI. If it is a configuration object, pass configurationSection to RegisterFlow.",
       "Flowthru.Registration",
       DiagnosticSeverity.Warning,
       isEnabledByDefault: true,
-      description: "A concrete-class pipeline parameter that is not a catalog will be resolved from DI at pipeline-build time. If it is a configuration POCO, pass configurationSection to RegisterPipeline to bind it from appsettings instead."
+      description: "A concrete-class flow parameter that is not a catalog will be resolved from DI at flow-build time. If it is a configuration POCO, pass configurationSection to RegisterFlow to bind it from appsettings instead."
     );
 
-  private static readonly DiagnosticDescriptor MissingUseConfigurationRule =
+  private static readonly DiagnosticDescriptor _missingUseConfigurationRule =
     new(
       MissingUseConfigurationId,
       "Missing UseConfiguration call",
-      "Pipeline '{0}' specifies configurationSection '{1}' but UseConfiguration() has not been called",
+      "Flow '{0}' specifies configurationSection '{1}' but UseConfiguration() has not been called",
       "Flowthru.Registration",
       DiagnosticSeverity.Error,
       isEnabledByDefault: true,
-      description: "A RegisterPipeline call references a configurationSection, but UseConfiguration() was never called on the builder. The pipeline will throw at pre-flight time."
+      description: "A RegisterFlow call references a configurationSection, but UseConfiguration() was never called on the builder. The flow will throw at pre-flight time."
     );
 
+  /// <summary>
+  /// Supported diagnostics for this analyzer. Each descriptor corresponds to a specific
+  /// registration issue.
+  /// </summary>
   public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
     ImmutableArray.Create(
-      MissingCatalogRule,
-      UnusedCatalogRule,
-      UnboundConcreteParamRule,
-      MissingUseConfigurationRule
+      _missingCatalogRule,
+      _unusedCatalogRule,
+      _unboundConcreteParamRule,
+      _missingUseConfigurationRule
     );
 
+  /// <summary>
+  /// Initializes the analyzer by registering an operation block action that analyzes
+  /// the body of the lambda passed to AddFlowthru. We look for RegisterCatalog and
+  /// RegisterFlow calls, extract their relevant information, and cross-reference them to
+  /// emit diagnostics for any inconsistencies.
+  /// </summary>
+  /// <param name="context"></param>
   public override void Initialize(AnalysisContext context)
   {
     context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -85,24 +116,30 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   private static void AnalyzeOperationBlock(OperationBlockAnalysisContext context)
   {
     // We look for invocations of AddFlowthru that pass a lambda configuring the builder.
-    // Within that lambda, we collect RegisterCatalog and RegisterPipeline calls.
+    // Within that lambda, we collect RegisterCatalog and RegisterFlow calls.
 
     var dataCatalogBaseType = context.Compilation.GetTypeByMetadataName(
       "Flowthru.Data.DataCatalogBase"
     );
     if (dataCatalogBaseType == null)
+    {
       return;
+    }
 
     foreach (var block in context.OperationBlocks)
     {
       foreach (var operation in block.DescendantsAndSelf())
       {
         if (operation is not IInvocationOperation invocation)
+        {
           continue;
+        }
 
         // Match: services.AddFlowthru(flowthru => { ... })
         if (invocation.TargetMethod.Name != "AddFlowthru")
+        {
           continue;
+        }
 
         // Find the lambda argument
         var lambdaArg = invocation
@@ -113,7 +150,9 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
           .FirstOrDefault();
 
         if (lambdaArg?.Body == null)
+        {
           continue;
+        }
 
         AnalyzeFlowthruBlock(context, lambdaArg.Body, dataCatalogBaseType);
       }
@@ -131,8 +170,8 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       string,
       IInvocationOperation
     >();
-    // Collect pipeline registrations with their required catalogs and any ambiguous concrete params
-    var pipelineRegistrations = new System.Collections.Generic.List<(
+    // Collect flow registrations with their required catalogs and any ambiguous concrete params
+    var flowRegistrations = new System.Collections.Generic.List<(
       string Label,
       IInvocationOperation Invocation,
       System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs,
@@ -146,7 +185,9 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     foreach (var descendant in body.DescendantsAndSelf())
     {
       if (descendant is not IInvocationOperation call)
+      {
         continue;
+      }
 
       var methodName = call.TargetMethod.Name;
 
@@ -161,23 +202,23 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
         }
       }
 
-      // ── RegisterPipeline ──
-      if (methodName == "RegisterPipeline")
+      // ── RegisterFlow ──
+      if (methodName == "RegisterFlow")
       {
-        var (label, requiredCatalogs, ambiguousConcreteParams) = ResolvePipelineRequirements(
+        var (label, requiredCatalogs, ambiguousConcreteParams) = ResolveFlowRequirements(
           call,
           dataCatalogBaseType
         );
         if (label != null)
         {
-          pipelineRegistrations.Add((label, call, requiredCatalogs, ambiguousConcreteParams));
+          flowRegistrations.Add((label, call, requiredCatalogs, ambiguousConcreteParams));
         }
       }
     }
 
-    // Cross-reference: FT2001 — pipeline requires catalog not registered
+    // Cross-reference: FT2001 — flow requires catalog not registered
     var allReferencedCatalogs = new System.Collections.Generic.HashSet<string>();
-    foreach (var (label, invocation, requiredCatalogs, _) in pipelineRegistrations)
+    foreach (var (label, invocation, requiredCatalogs, _) in flowRegistrations)
     {
       foreach (var required in requiredCatalogs)
       {
@@ -187,7 +228,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
         if (!registeredCatalogs.ContainsKey(key))
         {
           var diagnostic = Diagnostic.Create(
-            MissingCatalogRule,
+            _missingCatalogRule,
             invocation.Syntax.GetLocation(),
             label,
             required.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
@@ -210,7 +251,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
             : "unknown";
 
         var diagnostic = Diagnostic.Create(
-          UnusedCatalogRule,
+          _unusedCatalogRule,
           kvp.Value.Syntax.GetLocation(),
           catalogName
         );
@@ -219,12 +260,12 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     }
 
     // FT2003 — concrete non-catalog parameter not bound from configuration
-    foreach (var (label, invocation, _, ambiguousConcreteParams) in pipelineRegistrations)
+    foreach (var (label, invocation, _, ambiguousConcreteParams) in flowRegistrations)
     {
       foreach (var (paramType, paramName) in ambiguousConcreteParams)
       {
         var diagnostic = Diagnostic.Create(
-          UnboundConcreteParamRule,
+          _unboundConcreteParamRule,
           invocation.Syntax.GetLocation(),
           label,
           paramName,
@@ -237,7 +278,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     // FT2004 — configurationSection supplied but UseConfiguration never called
     if (!hasUseConfiguration)
     {
-      foreach (var (label, invocation, _, _) in pipelineRegistrations)
+      foreach (var (label, invocation, _, _) in flowRegistrations)
       {
         string? sectionValue = null;
         foreach (var arg in invocation.Arguments)
@@ -256,7 +297,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
         if (sectionValue != null)
         {
           var diagnostic = Diagnostic.Create(
-            MissingUseConfigurationRule,
+            _missingUseConfigurationRule,
             invocation.Syntax.GetLocation(),
             label,
             sectionValue
@@ -283,7 +324,9 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     {
       var typeArg = method.TypeArguments[0];
       if (InheritsFrom(typeArg, dataCatalogBaseType))
+      {
         return typeArg;
+      }
     }
 
     // Non-generic: RegisterCatalog(catalogInstance) — infer from argument type.
@@ -294,22 +337,29 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     {
       IOperation argValue = call.Arguments[0].Value;
       while (argValue is IConversionOperation conv && conv.IsImplicit)
+      {
         argValue = conv.Operand;
+      }
+
       var argType = argValue.Type;
       if (argType != null && InheritsFrom(argType, dataCatalogBaseType))
+      {
         return argType;
+      }
     }
 
     // Infer from lambda return type: RegisterCatalog(_ => new MyCatalog(...))
     if (method.TypeArguments.Length == 1)
+    {
       return method.TypeArguments[0];
+    }
 
     return null;
   }
 
   /// <summary>
-  /// Extracts the pipeline label, required catalog types, and unbound concrete parameters
-  /// from a RegisterPipeline call.
+  /// Extracts the flow label, required catalog types, and unbound concrete parameters
+  /// from a RegisterFlow call.
   /// <para>
   /// Parameters are classified the same way the runtime resolver does:
   /// <list type="bullet">
@@ -323,7 +373,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     string? Label,
     System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs,
     System.Collections.Generic.List<(ITypeSymbol Type, string ParamName)> AmbiguousConcreteParams
-  ) ResolvePipelineRequirements(IInvocationOperation call, INamedTypeSymbol dataCatalogBaseType)
+  ) ResolveFlowRequirements(IInvocationOperation call, INamedTypeSymbol dataCatalogBaseType)
   {
     string? label = null;
     var requiredCatalogs = new System.Collections.Generic.List<ITypeSymbol>();
@@ -359,38 +409,45 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       }
     }
 
-    // Resolve pipeline parameters via delegate signature or method group.
-    System.Collections.Generic.IEnumerable<IParameterSymbol>? pipelineParams = null;
+    // Resolve flow parameters via delegate signature or method group.
+    System.Collections.Generic.IEnumerable<IParameterSymbol>? flowParams = null;
     foreach (var arg in call.Arguments)
     {
-      if (arg.Parameter?.Name != "pipeline")
+      if (arg.Parameter?.Name != "flow")
+      {
         continue;
+      }
 
       // Path 1: lambda / typed Func — read from the delegate's Invoke method
       var delegateType = ResolveMethodSignatureFromArgument(arg.Value);
       if (delegateType?.DelegateInvokeMethod != null)
       {
-        pipelineParams = delegateType.DelegateInvokeMethod.Parameters;
+        flowParams = delegateType.DelegateInvokeMethod.Parameters;
         break;
       }
 
       // Path 2: method group — unwrap any conversion wrapper and read Method.Parameters
       IOperation value = arg.Value;
       while (value is IConversionOperation conv)
+      {
         value = conv.Operand;
+      }
+
       if (value is IMethodReferenceOperation methodRef)
-        pipelineParams = methodRef.Method.Parameters;
+      {
+        flowParams = methodRef.Method.Parameters;
+      }
 
       break;
     }
 
-    if (pipelineParams != null)
+    if (flowParams != null)
     {
       // The runtime consumes configurationSection on the first concrete non-catalog
       // non-interface param it encounters (left to right). Track that slot.
       bool configSectionConsumed = false;
 
-      foreach (var param in pipelineParams)
+      foreach (var param in flowParams)
       {
         if (InheritsFrom(param.Type, dataCatalogBaseType))
         {
@@ -425,7 +482,9 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   {
     // Unwrap conversions (method group → Delegate)
     while (value is IConversionOperation conversion)
+    {
       value = conversion.Operand;
+    }
 
     if (value is IDelegateCreationOperation delegateCreation)
     {
@@ -438,13 +497,18 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   private static bool InheritsFrom(ITypeSymbol? type, INamedTypeSymbol baseType)
   {
     if (type == null)
+    {
       return false;
+    }
 
     var current = type.BaseType;
     while (current != null)
     {
       if (SymbolEqualityComparer.Default.Equals(current, baseType))
+      {
         return true;
+      }
+
       current = current.BaseType;
     }
     return false;

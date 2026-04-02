@@ -1,18 +1,18 @@
-# <a id="Flowthru_Pipelines_PipelineResult"></a> Class PipelineResult
+# <a id="Flowthru_Pipelines_FlowResult"></a> Class FlowResult
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Represents the result of a pipeline execution.
 
 ```csharp
-public class PipelineResult
+public class FlowResult
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PipelineResult](Flowthru.Pipelines.PipelineResult.md)
+[FlowResult](Flowthru.Flows.FlowResult.md)
 
 #### Inherited Members
 
@@ -38,7 +38,7 @@ timing, individual node results, and error details.
 if (result.Success)
 {
     Console.WriteLine($"Pipeline completed in {result.ExecutionTime.TotalSeconds:F2}s");
-    foreach (var nodeResult in result.NodeResults.Values)
+    foreach (var nodeResult in result.StepResults.Values)
     {
         Console.WriteLine($"  {nodeResult.NodeName}: {nodeResult.ExecutionTime.TotalSeconds:F2}s");
     }
@@ -50,7 +50,7 @@ else
 
 ## Properties
 
-### <a id="Flowthru_Pipelines_PipelineResult_Exception"></a> Exception
+### <a id="Flowthru_Pipelines_FlowResult_Exception"></a> Exception
 
 Exception that caused pipeline failure, if any.
 
@@ -67,7 +67,7 @@ public Exception? Exception { get; init; }
 Null if Success is true. Contains the first exception that caused
 pipeline execution to halt if Success is false.
 
-### <a id="Flowthru_Pipelines_PipelineResult_ExecutionTime"></a> ExecutionTime
+### <a id="Flowthru_Pipelines_FlowResult_ExecutionTime"></a> ExecutionTime
 
 Total execution time for the entire pipeline.
 
@@ -79,7 +79,7 @@ public TimeSpan ExecutionTime { get; init; }
 
  [TimeSpan](https://learn.microsoft.com/dotnet/api/system.timespan)
 
-### <a id="Flowthru_Pipelines_PipelineResult_IsDryRun"></a> IsDryRun
+### <a id="Flowthru_Pipelines_FlowResult_IsDryRun"></a> IsDryRun
 
 Indicates whether this was a dry run (pre-flight checks only).
 
@@ -91,36 +91,36 @@ public bool IsDryRun { get; init; }
 
  [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
 
-### <a id="Flowthru_Pipelines_PipelineResult_NodeResults"></a> NodeResults
+### <a id="Flowthru_Pipelines_FlowResult_StepResults"></a> StepResults
 
 Results for individual nodes, keyed by node name.
 
 ```csharp
-public Dictionary<string, NodeResult> NodeResults { get; init; }
+public Dictionary<string, NodeResult> StepResults { get; init; }
 ```
 
 #### Property Value
 
- [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [NodeResult](Flowthru.Pipelines.NodeResult.md)\>
+ [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [NodeResult](Flowthru.Flows.NodeResult.md)\>
 
 #### Remarks
 
 Dictionary keys are the node names as specified in the pipeline definition.
 Values contain execution details for each node.
 
-### <a id="Flowthru_Pipelines_PipelineResult_PipelineName"></a> PipelineName
+### <a id="Flowthru_Pipelines_FlowResult_FlowName"></a> FlowName
 
 The name of the pipeline that was executed.
 
 ```csharp
-public string? PipelineName { get; init; }
+public string? FlowName { get; init; }
 ```
 
 #### Property Value
 
  [string](https://learn.microsoft.com/dotnet/api/system.string)?
 
-### <a id="Flowthru_Pipelines_PipelineResult_Success"></a> Success
+### <a id="Flowthru_Pipelines_FlowResult_Success"></a> Success
 
 Indicates whether the pipeline executed successfully.
 
@@ -134,12 +134,12 @@ public bool Success { get; init; }
 
 ## Methods
 
-### <a id="Flowthru_Pipelines_PipelineResult_CreateDryRunSuccess_System_TimeSpan_System_Int32_System_Int32_System_Int32_System_String_"></a> CreateDryRunSuccess\(TimeSpan, int, int, int, string?\)
+### <a id="Flowthru_Pipelines_FlowResult_CreateDryRunSuccess_System_TimeSpan_System_Int32_System_Int32_System_Int32_System_String_"></a> CreateDryRunSuccess\(TimeSpan, int, int, int, string?\)
 
 Creates a successful dry run result.
 
 ```csharp
-public static PipelineResult CreateDryRunSuccess(TimeSpan preFlightDuration, int nodeCount, int layerCount, int validatedInputCount, string? pipelineName = null)
+public static FlowResult CreateDryRunSuccess(TimeSpan preFlightDuration, int nodeCount, int layerCount, int validatedInputCount, string? pipelineName = null)
 ```
 
 #### Parameters
@@ -166,16 +166,16 @@ Name of the pipeline
 
 #### Returns
 
- [PipelineResult](Flowthru.Pipelines.PipelineResult.md)
+ [FlowResult](Flowthru.Flows.FlowResult.md)
 
 A successful dry run result
 
-### <a id="Flowthru_Pipelines_PipelineResult_CreateFailure_System_TimeSpan_System_Exception_System_Collections_Generic_Dictionary_System_String_Flowthru_Pipelines_NodeResult__System_String_"></a> CreateFailure\(TimeSpan, Exception, Dictionary<string, NodeResult\>?, string?\)
+### <a id="Flowthru_Pipelines_FlowResult_CreateFailure_System_TimeSpan_System_Exception_System_Collections_Generic_Dictionary_System_String_Flowthru_Pipelines_NodeResult__System_String_"></a> CreateFailure\(TimeSpan, Exception, Dictionary<string, NodeResult\>?, string?\)
 
 Creates a failed pipeline result.
 
 ```csharp
-public static PipelineResult CreateFailure(TimeSpan executionTime, Exception exception, Dictionary<string, NodeResult>? nodeResults = null, string? pipelineName = null)
+public static FlowResult CreateFailure(TimeSpan executionTime, Exception exception, Dictionary<string, NodeResult>? nodeResults = null, string? pipelineName = null)
 ```
 
 #### Parameters
@@ -184,31 +184,31 @@ public static PipelineResult CreateFailure(TimeSpan executionTime, Exception exc
 
 `exception` [Exception](https://learn.microsoft.com/dotnet/api/system.exception)
 
-`nodeResults` [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [NodeResult](Flowthru.Pipelines.NodeResult.md)\>?
+`nodeResults` [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [NodeResult](Flowthru.Flows.NodeResult.md)\>?
 
 `pipelineName` [string](https://learn.microsoft.com/dotnet/api/system.string)?
 
 #### Returns
 
- [PipelineResult](Flowthru.Pipelines.PipelineResult.md)
+ [FlowResult](Flowthru.Flows.FlowResult.md)
 
-### <a id="Flowthru_Pipelines_PipelineResult_CreateSuccess_System_TimeSpan_System_Collections_Generic_Dictionary_System_String_Flowthru_Pipelines_NodeResult__System_String_"></a> CreateSuccess\(TimeSpan, Dictionary<string, NodeResult\>, string?\)
+### <a id="Flowthru_Pipelines_FlowResult_CreateSuccess_System_TimeSpan_System_Collections_Generic_Dictionary_System_String_Flowthru_Pipelines_NodeResult__System_String_"></a> CreateSuccess\(TimeSpan, Dictionary<string, NodeResult\>, string?\)
 
 Creates a successful pipeline result.
 
 ```csharp
-public static PipelineResult CreateSuccess(TimeSpan executionTime, Dictionary<string, NodeResult> nodeResults, string? pipelineName = null)
+public static FlowResult CreateSuccess(TimeSpan executionTime, Dictionary<string, NodeResult> nodeResults, string? pipelineName = null)
 ```
 
 #### Parameters
 
 `executionTime` [TimeSpan](https://learn.microsoft.com/dotnet/api/system.timespan)
 
-`nodeResults` [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [NodeResult](Flowthru.Pipelines.NodeResult.md)\>
+`nodeResults` [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [NodeResult](Flowthru.Flows.NodeResult.md)\>
 
 `pipelineName` [string](https://learn.microsoft.com/dotnet/api/system.string)?
 
 #### Returns
 
- [PipelineResult](Flowthru.Pipelines.PipelineResult.md)
+ [FlowResult](Flowthru.Flows.FlowResult.md)
 

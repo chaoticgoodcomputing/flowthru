@@ -1,6 +1,6 @@
+using Flowthru.Flows;
 using Flowthru.Misc.ML.UMAP;
 using Flowthru.Misc.ML.UMAP.Core;
-using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 using UmapReferenceComparisons.Helpers.Nodes;
@@ -23,7 +23,7 @@ namespace UmapReferenceComparisons.Pipelines.IrisComparison;
 /// </remarks>
 public static class IrisComparisonPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
     var umapParameters = new UmapParameters
     {
@@ -36,9 +36,9 @@ public static class IrisComparisonPipeline
       Verbosity = 2,
     };
 
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ConvertIrisToUmapInput",
         description: """
           Converts Iris-specific schema to universal UmapInput format.

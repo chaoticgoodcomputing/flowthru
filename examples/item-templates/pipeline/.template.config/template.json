@@ -13,7 +13,7 @@
     "language": "C#",
     "type": "item"
   },
-  "sourceName": "PipelineName",
+  "sourceName": "FlowName",
   "symbols": {
     "ProjectName": {
       "type": "parameter",
@@ -44,10 +44,10 @@
   ],
   "primaryOutputs": [
     {
-      "path": "PipelineName/PipelineNamePipeline.cs"
+      "path": "FlowName/FlowNamePipeline.cs"
     },
     {
-      "path": "PipelineName/Nodes/PipelineNameDummyNode.cs"
+      "path": "FlowName/Nodes/FlowNameDummyNode.cs"
     }
   ],
   "postActions": [
@@ -58,7 +58,7 @@
           "text": "1. If ProjectName was not specified, replace 'ProjectName' with your actual project namespace in the generated files."
         },
         {
-          "text": "2. Register the pipeline in Program.cs: flowthru.RegisterPipeline<YourPipelineNamePipeline>();"
+          "text": "2. Register the pipeline in Program.cs: flowthru.RegisterPipeline<YourFlowNamePipeline>();"
         },
         {
           "text": "3. Replace the dummy node with actual transformation logic and update input/output catalog entries."

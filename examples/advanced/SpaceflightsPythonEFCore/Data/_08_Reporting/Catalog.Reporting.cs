@@ -7,28 +7,28 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  public ICatalogEntry<string> CapacityPlotExpress =>
-    GetOrCreateEntry(
+  public IItem<string> CapacityPlotExpress =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        Items.Single.Text(
           label: "CapacityPlotExpress",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_passenger_capacity_plot_exp.json"
         )
     );
 
-  public ICatalogEntry<string> CapacityPlotGraphObj =>
-    GetOrCreateEntry(
+  public IItem<string> CapacityPlotGraphObj =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        Items.Single.Text(
           label: "CapacityPlotGraphObj",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_passenger_capacity_plot_go.json"
         )
     );
 
-  public ICatalogEntry<byte[]> ConfusionMatrix =>
-    GetOrCreateEntry(
+  public IItem<byte[]> ConfusionMatrix =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        Items.Single.Binary(
           label: "ConfusionMatrix",
           filePath: $"{_basePath}/_08_Reporting/Images/confusion_matrix.png"
         )

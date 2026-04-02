@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using RetailDataMultipipeline.Data;
 using RetailDataMultipipeline.Pipelines.Analysis.Nodes;
 
@@ -10,9 +10,9 @@ namespace RetailDataMultipipeline.Pipelines.Analysis;
 /// </summary>
 public static class AnalysisPipeline
 {
-  public static Pipeline Create(CoreCatalog core, CountryShardCatalog shard)
+  public static Flow Create(CoreCatalog core, CountryShardCatalog shard)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddNode(
         label: "ComputeWeeklyDtu",

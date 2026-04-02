@@ -8,7 +8,7 @@ namespace Flowthru.Extensions.MLNet;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Discovery Pattern:</strong> Import this class alongside <see cref="CatalogEntries"/>
+/// <strong>Discovery Pattern:</strong> Import this class alongside <see cref="Items"/>
 /// for ML.NET-specific catalog entry factory methods.
 /// </para>
 /// <para>
@@ -24,10 +24,10 @@ namespace Flowthru.Extensions.MLNet;
 /// <code>
 /// using Flowthru.Data;
 /// using Flowthru.Extensions.MLNet;
-/// 
+///
 /// // Core entries
 /// var csvEntry = CatalogEntries.Enumerable.Csv&lt;MySchema&gt;("data", "data.csv");
-/// 
+///
 /// // MLNet entries
 /// var modelEntry = CatalogEntriesMLNet.OnnxModel("model", "model.onnx");
 /// </code>
@@ -48,8 +48,8 @@ public static class CatalogEntriesMLNet
   /// );
   /// </code>
   /// </example>
-  public static ICatalogEntry<byte[]> OnnxModel(string label, string filePath)
+  public static IItem<byte[]> OnnxModel(string label, string filePath)
   {
-    return new CatalogEntry<byte[]>(label, new OnnxModelStorageAdapter(filePath));
+    return new Item<byte[]>(label, new OnnxModelStorageAdapter(filePath));
   }
 }

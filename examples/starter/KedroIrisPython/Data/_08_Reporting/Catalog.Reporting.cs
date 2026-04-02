@@ -11,10 +11,10 @@ public partial class Catalog
   /// <summary>
   /// Model accuracy report with detailed metrics.
   /// </summary>
-  public ICatalogEntry<AccuracyReportSchema> AccuracyReport =>
-    GetOrCreateEntry(
+  public IItem<AccuracyReportSchema> AccuracyReport =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<AccuracyReportSchema>(
+        Items.Single.Json<AccuracyReportSchema>(
           label: "AccuracyReport",
           filePath: $"{_basePath}/_08_Reporting/Datasets/accuracy_report.json"
         )

@@ -1,6 +1,6 @@
 using Flowthru.Data;
+using Flowthru.Flows;
 using Flowthru.Meta.Models;
-using Flowthru.Pipelines;
 
 namespace Flowthru.Meta.Builders;
 
@@ -26,7 +26,7 @@ internal static class DagBuilder
   /// <param name="pipeline">The pipeline to extract metadata from (must be built)</param>
   /// <returns>Complete DAG metadata including nodes, catalog entries, and edges</returns>
   /// <exception cref="InvalidOperationException">Thrown if pipeline is not built</exception>
-  public static DagMetadata Build(Pipeline pipeline)
+  public static DagMetadata Build(Flow pipeline)
   {
     if (!pipeline.IsBuilt)
     {
@@ -36,21 +36,21 @@ internal static class DagBuilder
     }
 
     // Always build from the full DAG to provide complete context
-    var allNodes = pipeline.NodesList;
-    var slicedNodes = pipeline.GetSlicedNodes();
+    var allNodes = pipeline.StepsList;
+    var slicedNodes = pipeline.GetSlicedSteps();
 
     var dag = new DagMetadata
     {
-      PipelineName = pipeline.Name ?? "UnnamedPipeline",
+      FlowName = pipeline.Name ?? "UnnamedPipeline",
       GeneratedAt = DateTime.UtcNow,
       AppliedSlice =
         pipeline.AppliedSlice != null ? DagSliceMetadata.FromStrategy(pipeline.AppliedSlice) : null,
-      SlicedNodeIds = slicedNodes != null ? slicedNodes.Select(n => n.Label).ToHashSet() : null,
-      SlicedCatalogEntryKeys =
+      SlicedStepIds = slicedNodes != null ? slicedNodes.Select(n => n.Label).ToHashSet() : null,
+      SlicedCatalogItemIds =
         slicedNodes != null
           ? slicedNodes
             .SelectMany(n => n.Outputs)
-            .SelectMany(ExpandCatalogEntry)
+            .SelectMany(ExpandCatalogItem)
             .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
             .Select(e => GetQualifiedLabel(e))
             .ToHashSet()
@@ -58,214 +58,211 @@ internal static class DagBuilder
     };
 
     // Step 1: Extract all catalog entries from full DAG
-    var allCatalogEntries = ExtractCatalogEntries(allNodes);
+    var allCatalogItems = ExtractCatalogItems(allNodes);
 
     // Step 2: Build node metadata with layer information
-    dag.Nodes.AddRange(BuildNodeMetadata(allNodes));
+    dag.Steps.AddRange(BuildStepMetadata(allNodes));
 
     // Step 3: Build catalog entry metadata with producer-consumer relationships
-    dag.CatalogEntries.AddRange(BuildCatalogEntryMetadata(allCatalogEntries, dag.Nodes));
+    dag.CatalogItems.AddRange(BuildCatalogItemMetadata(allCatalogItems, dag.Steps));
 
     // Step 4: Generate edges representing data flow
-    dag.Edges.AddRange(BuildEdges(dag.Nodes, allCatalogEntries));
+    dag.Edges.AddRange(BuildEdges(dag.Steps, allCatalogItems));
 
     return dag;
   }
 
   /// <summary>
-  /// Extracts all unique catalog entries from the pipeline nodes.
+  /// Extracts all unique catalog items from the flow steps.
   /// </summary>
   /// <remarks>
-  /// Handles both simple catalog entries and CatalogMap entries by expanding
-  /// maps into their constituent catalog entries.
+  /// Handles both simple catalog items and CatalogMap items by expanding
+  /// maps into their constituent parts.
   /// </remarks>
-  private static Dictionary<string, ICatalogEntry> ExtractCatalogEntries(List<PipelineNode> nodes)
+  private static Dictionary<string, IItem> ExtractCatalogItems(List<FlowStep> steps)
   {
-    var catalogEntries = new Dictionary<string, ICatalogEntry>();
+    var catalogItems = new Dictionary<string, IItem>();
 
-    foreach (var node in nodes)
+    foreach (var step in steps)
     {
       // Process inputs
-      foreach (var input in node.Inputs)
+      foreach (var input in step.Inputs)
       {
-        AddCatalogEntry(catalogEntries, input);
+        AddCatalogItem(catalogItems, input);
       }
 
       // Process outputs
-      foreach (var output in node.Outputs)
+      foreach (var output in step.Outputs)
       {
-        AddCatalogEntry(catalogEntries, output);
+        AddCatalogItem(catalogItems, output);
       }
     }
 
-    return catalogEntries;
+    return catalogItems;
   }
 
   /// <summary>
-  /// Adds a catalog entry to the dictionary, expanding CatalogMaps if necessary.
+  /// Adds a catalog item to the dictionary, expanding CatalogMaps if necessary.
   /// </summary>
-  private static void AddCatalogEntry(
-    Dictionary<string, ICatalogEntry> catalogEntries,
-    ICatalogEntry entry
-  )
+  private static void AddCatalogItem(Dictionary<string, IItem> catalogItems, IItem item)
   {
-    // Skip _nodata entries (placeholder entries that don't represent actual data)
-    if (entry.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+    // Skip _nodata items (placeholder items that don't represent actual data)
+    if (item.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
     {
       return;
     }
 
-    // Check if this is a CatalogMap (which needs to be expanded into individual entries)
-    var entryType = entry.GetType();
-    if (entryType.IsGenericType && entryType.GetGenericTypeDefinition().Name == "CatalogMap`1")
+    // Check if this is a CatalogMap (which needs to be expanded into individual items)
+    var itemType = item.GetType();
+    if (itemType.IsGenericType && itemType.GetGenericTypeDefinition().Name == "CatalogMap`1")
     {
-      // Use reflection to get the mapped entries from CatalogMap
-      var getMappedEntriesMethod = entryType.GetMethod(
-        "GetMappedEntries",
+      // Use reflection to get the mapped items from CatalogMap
+      var getMappedItemsMethod = itemType.GetMethod(
+        "GetMappedItems",
         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
       );
 
-      if (getMappedEntriesMethod?.Invoke(entry, null) is IEnumerable<ICatalogEntry> mappedEntries)
+      if (getMappedItemsMethod?.Invoke(item, null) is IEnumerable<IItem> mappedItems)
       {
-        foreach (var mappedEntry in mappedEntries)
+        foreach (var mappedItem in mappedItems)
         {
-          // Skip _nodata entries in mapped entries too
-          if (!mappedEntry.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
+          // Skip _nodata in mapped items too
+          if (!mappedItem.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
           {
-            catalogEntries.TryAdd(GetQualifiedLabel(mappedEntry), mappedEntry);
+            catalogItems.TryAdd(GetQualifiedLabel(mappedItem), mappedItem);
           }
         }
       }
     }
     else
     {
-      // Simple catalog entry
-      catalogEntries.TryAdd(GetQualifiedLabel(entry), entry);
+      // Simple catalog item
+      catalogItems.TryAdd(GetQualifiedLabel(item), item);
     }
   }
 
   /// <summary>
-  /// Builds metadata for all nodes in the pipeline.
+  /// Builds metadata for all steps in the flow.
   /// </summary>
-  private static List<NodeMetadata> BuildNodeMetadata(List<PipelineNode> nodes)
+  private static List<StepMetadata> BuildStepMetadata(List<FlowStep> steps)
   {
-    var nodeMetadataList = new List<NodeMetadata>();
+    var stepMetadataList = new List<StepMetadata>();
 
-    foreach (var pipelineNode in nodes)
+    foreach (var flowStep in steps)
     {
-      // Use node name directly (no longer extracting from instance type)
-      var nodeTypeName = pipelineNode.Label;
+      // Use step name directly (no longer extracting from instance type)
+      var stepLabel = flowStep.Label;
 
       // Get input catalog keys (expanding CatalogMaps, filtering _nodata)
-      var inputKeys = pipelineNode
-        .Inputs.SelectMany(ExpandCatalogEntry)
+      var inputKeys = flowStep
+        .Inputs.SelectMany(ExpandCatalogItem)
         .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
         .Select(e => GetQualifiedLabel(e))
         .ToList();
 
       // Get output catalog keys (expanding CatalogMaps, filtering _nodata)
-      var outputKeys = pipelineNode
-        .Outputs.SelectMany(ExpandCatalogEntry)
+      var outputKeys = flowStep
+        .Outputs.SelectMany(ExpandCatalogItem)
         .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
         .Select(e => GetQualifiedLabel(e))
         .ToList();
 
-      // Extract original pipeline name from node name if merged
-      // Merged nodes have format: "PipelineName.NodeName"
-      var originalPipelineName = ExtractOriginalPipelineName(pipelineNode.Label);
+      // Extract original flow name from flow label if merged
+      // Merged nodes have format: "FlowName.NodeName"
+      var originalFlowName = ExtractOriginalFlowName(flowStep.Label);
 
-      nodeMetadataList.Add(
-        new NodeMetadata
+      stepMetadataList.Add(
+        new StepMetadata
         {
-          Id = pipelineNode.Label,
-          Label = pipelineNode.Label,
-          NodeType = nodeTypeName,
-          Layer = pipelineNode.Layer,
-          PipelineName = originalPipelineName ?? "UnnamedPipeline",
+          Id = flowStep.Label,
+          Label = flowStep.Label,
+          StepType = stepLabel,
+          Layer = flowStep.Layer,
+          FlowName = originalFlowName ?? "UnnamedFlow",
           Inputs = inputKeys,
           Outputs = outputKeys,
         }
       );
     }
 
-    return nodeMetadataList;
+    return stepMetadataList;
   }
 
   /// <summary>
-  /// Extracts the original pipeline name from a node name in a merged pipeline.
+  /// Extracts the original flow name from a step name in a merged pipeline.
   /// </summary>
-  /// <param name="nodeName">The node name (may be prefixed with pipeline name)</param>
-  /// <returns>The original pipeline name if detected, otherwise null</returns>
+  /// <param name="stepName">The step name (may be prefixed with flow name)</param>
+  /// <returns>The original flow name if detected, otherwise null</returns>
   /// <remarks>
-  /// In merged pipelines, node names are prefixed with their original pipeline name
+  /// In merged flows, step names are prefixed with their original subflow name
   /// (e.g., "DataProcessing.PreprocessCompanies"). This method extracts that prefix.
-  /// For non-merged pipelines, returns null.
+  /// For non-merged flows, returns null.
   /// </remarks>
-  private static string? ExtractOriginalPipelineName(string nodeName)
+  private static string? ExtractOriginalFlowName(string stepName)
   {
-    // Check if node name contains a dot (indicating it's from a merged pipeline)
-    var dotIndex = nodeName.IndexOf('.');
+    // Check if step name contains a dot (indicating it's from a merged flow)
+    var dotIndex = stepName.IndexOf('.');
     if (dotIndex > 0)
     {
-      // Extract the prefix before the first dot as the original pipeline name
-      return nodeName.Substring(0, dotIndex);
+      // Extract the prefix before the first dot as the original flow name
+      return stepName.Substring(0, dotIndex);
     }
 
-    // No prefix found - use the current pipeline name
-    return "UnnamedPipeline";
+    // No prefix found - use the current flow name
+    return "UnnamedFlow";
   }
 
   /// <summary>
-  /// Expands a catalog entry, returning multiple entries if it's a CatalogMap.
+  /// Expands a catalog item, returning multiple items if it's a CatalogMap.
   /// </summary>
-  private static IEnumerable<ICatalogEntry> ExpandCatalogEntry(ICatalogEntry entry)
+  private static IEnumerable<IItem> ExpandCatalogItem(IItem item)
   {
-    var entryType = entry.GetType();
-    if (entryType.IsGenericType && entryType.GetGenericTypeDefinition().Name == "CatalogMap`1")
+    var itemType = item.GetType();
+    if (itemType.IsGenericType && itemType.GetGenericTypeDefinition().Name == "CatalogMap`1")
     {
-      var getMappedEntriesMethod = entryType.GetMethod(
-        "GetMappedEntries",
+      var getMappedItemsMethod = itemType.GetMethod(
+        "GetMappedItems",
         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
       );
 
-      if (getMappedEntriesMethod?.Invoke(entry, null) is IEnumerable<ICatalogEntry> mappedEntries)
+      if (getMappedItemsMethod?.Invoke(item, null) is IEnumerable<IItem> mappedItems)
       {
-        return mappedEntries;
+        return mappedItems;
       }
     }
 
-    return new[] { entry };
+    return new[] { item };
   }
 
   /// <summary>
-  /// Builds metadata for all catalog entries with producer-consumer relationships.
+  /// Builds metadata for all catalog items with producer-consumer relationships.
   /// </summary>
-  private static List<CatalogEntryMetadata> BuildCatalogEntryMetadata(
-    Dictionary<string, ICatalogEntry> catalogEntries,
-    List<NodeMetadata> nodes
+  private static List<ItemMetadata> BuildCatalogItemMetadata(
+    Dictionary<string, IItem> catalogItems,
+    List<StepMetadata> steps
   )
   {
-    var entries = new List<CatalogEntryMetadata>();
+    var entries = new List<ItemMetadata>();
 
-    foreach (var (key, entry) in catalogEntries)
+    foreach (var (key, entry) in catalogItems)
     {
       // Find producer (node that outputs this catalog entry)
-      var producer = nodes.FirstOrDefault(n => n.Outputs.Contains(key));
+      var producer = steps.FirstOrDefault(n => n.Outputs.Contains(key));
 
       // Find consumers (nodes that input this catalog entry)
-      var consumers = nodes.Where(n => n.Inputs.Contains(key)).Select(n => n.Id).ToList();
+      var consumers = steps.Where(n => n.Inputs.Contains(key)).Select(n => n.Id).ToList();
 
       // Extract simple type name from DataType
       var dataTypeName = GetSimpleTypeName(entry.DataType);
 
       // Build fields dictionary with additional metadata
-      var fields = BuildCatalogEntryFields(entry);
+      var fields = BuildCatalogItemFields(entry);
 
       // Generate schema (will be implemented in SchemaInference)
       var schema = SchemaInference.InferSchema(entry.DataType);
 
       entries.Add(
-        new CatalogEntryMetadata
+        new ItemMetadata
         {
           Key = key,
           Label = key,
@@ -288,10 +285,10 @@ internal static class DagBuilder
   /// Extracts metadata like filepath, catalog type, read-only status, etc.
   /// using reflection to check for well-known properties.
   /// </remarks>
-  private static Dictionary<string, object> BuildCatalogEntryFields(ICatalogEntry entry)
+  private static Dictionary<string, object> BuildCatalogItemFields(IItem item)
   {
     var fields = new Dictionary<string, object>();
-    var entryType = entry.GetType();
+    var entryType = item.GetType();
 
     // Add catalog type name
     fields["catalogType"] = GetSimpleTypeName(entryType);
@@ -300,7 +297,7 @@ internal static class DagBuilder
     var filePathProperty = entryType.GetProperty("FilePath");
     if (filePathProperty != null)
     {
-      var filePath = filePathProperty.GetValue(entry);
+      var filePath = filePathProperty.GetValue(item);
       if (filePath != null)
       {
         fields["filepath"] = filePath;
@@ -308,7 +305,7 @@ internal static class DagBuilder
     }
 
     // Check if read-only using StorageTraits
-    var adapter = entry.GetType().GetProperty("Adapter")?.GetValue(entry);
+    var adapter = item.GetType().GetProperty("Adapter")?.GetValue(item);
     if (adapter != null)
     {
       var traitsProperty = adapter.GetType().GetProperty("Traits");
@@ -323,9 +320,9 @@ internal static class DagBuilder
     }
 
     // Get inspection level if configured
-    if (entry.PreferredInspectionLevel.HasValue)
+    if (item.PreferredInspectionLevel.HasValue)
     {
-      fields["inspectionLevel"] = entry.PreferredInspectionLevel.Value.ToString();
+      fields["inspectionLevel"] = item.PreferredInspectionLevel.Value.ToString();
     }
 
     return fields;
@@ -336,22 +333,22 @@ internal static class DagBuilder
   /// </summary>
   /// <remarks>
   /// Creates two types of edges:
-  /// 1. Catalog Entry → Node (node reads from catalog)
-  /// 2. Node → Catalog Entry (node writes to catalog)
+  /// 1. Catalog Item → Node (node reads from catalog)
+  /// 2. Node → Catalog Item (node writes to catalog)
   /// </remarks>
   private static List<EdgeMetadata> BuildEdges(
-    List<NodeMetadata> nodes,
-    Dictionary<string, ICatalogEntry> catalogEntries
+    List<StepMetadata> steps,
+    Dictionary<string, IItem> catalogItems
   )
   {
     var edges = new List<EdgeMetadata>();
 
-    foreach (var node in nodes)
+    foreach (var step in steps)
     {
-      // Create edges for inputs (Catalog → Node)
-      foreach (var inputKey in node.Inputs)
+      // Create edges for inputs (Catalog Item → Node)
+      foreach (var inputKey in step.Inputs)
       {
-        if (catalogEntries.TryGetValue(inputKey, out var catalogEntry))
+        if (catalogItems.TryGetValue(inputKey, out var catalogEntry))
         {
           var dataTypeName = GetSimpleTypeName(catalogEntry.DataType);
 
@@ -359,7 +356,7 @@ internal static class DagBuilder
             new EdgeMetadata
             {
               Source = inputKey,
-              Target = node.Id,
+              Target = step.Id,
               DataType = dataTypeName,
             }
           );
@@ -367,16 +364,16 @@ internal static class DagBuilder
       }
 
       // Create edges for outputs (Node → Catalog)
-      foreach (var outputKey in node.Outputs)
+      foreach (var outputKey in step.Outputs)
       {
-        if (catalogEntries.TryGetValue(outputKey, out var catalogEntry))
+        if (catalogItems.TryGetValue(outputKey, out var catalogEntry))
         {
           var dataTypeName = GetSimpleTypeName(catalogEntry.DataType);
 
           edges.Add(
             new EdgeMetadata
             {
-              Source = node.Id,
+              Source = step.Id,
               Target = outputKey,
               DataType = dataTypeName,
             }
@@ -412,11 +409,11 @@ internal static class DagBuilder
   }
 
   /// <summary>
-  /// Returns the fully-qualified metadata label for a catalog entry.
-  /// When the entry was created via <c>DataCatalogBase.GetOrCreateEntry</c> the catalog's
-  /// <c>CatalogLabel</c> is prepended: <c>"CatalogName.EntryLabel"</c>.
-  /// Falls back to <c>entry.Label</c> for entries created outside a catalog.
+  /// Returns the fully-qualified metadata label for a catalog item.
+  /// When the item was created via <c>DataCatalogBase.GetOrCreateItem</c> the catalog's
+  /// <c>CatalogLabel</c> is prepended: <c>"CatalogName.ItemLabel"</c>.
+  /// Falls back to <c>item.Label</c> for items created outside a catalog.
   /// </summary>
-  private static string GetQualifiedLabel(ICatalogEntry entry) =>
-    entry.OwningCatalogLabel is { } catalog ? $"{catalog}.{entry.Label}" : entry.Label;
+  private static string GetQualifiedLabel(IItem item) =>
+    item.OwningCatalogLabel is { } catalog ? $"{catalog}.{item.Label}" : item.Label;
 }

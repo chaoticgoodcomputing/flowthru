@@ -6,7 +6,7 @@ namespace SpaceflightsDistributed.DataProcessing.Data;
 /// Data catalog for the DataProcessing pipeline library.
 /// Owns all raw, intermediate, and primary data layers for the Spaceflights domain.
 /// </summary>
-public partial class DataProcessingCatalog : DataCatalogBase
+public partial class DataProcessingCatalog : CatalogAbstract
 {
   private readonly string _basePath;
 

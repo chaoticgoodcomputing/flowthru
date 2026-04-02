@@ -13,10 +13,10 @@ public partial class Catalog
   /// <summary>
   /// Passenger capacity analysis report grouped by shuttle type.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Json<ShuttleCapacityReport>(
+        Items.Enumerable.Json<ShuttleCapacityReport>(
           label: "ShuttleCapacityReport",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json"
         )
@@ -26,20 +26,18 @@ public partial class Catalog
   /// Shuttle passenger capacity bar chart (in-memory GenericChart).
   /// Intermediate chart object stored in memory for downstream export to PNG.
   /// </summary>
-  public ICatalogEntry<GenericChart> ShuttlePassengerCapacityChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
-    );
+  public IItem<GenericChart> ShuttlePassengerCapacityChart =>
+    CreateItem(() => Items.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart"));
 
   /// <summary>
   /// Shuttle passenger capacity bar chart (PNG image).
   /// Static image representation of the passenger capacity visualization.
   /// Stored as binary PNG file.
   /// </summary>
-  public ICatalogEntry<byte[]> ShuttlePassengerCapacityPlotPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> ShuttlePassengerCapacityPlotPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        Items.Single.Binary(
           label: "ShuttlePassengerCapacityPlotPng",
           filePath: $"{_basePath}/_08_Reporting/Images/shuttle_passenger_capacity_plot.png"
         )
@@ -49,20 +47,18 @@ public partial class Catalog
   /// Confusion matrix heatmap (in-memory GenericChart).
   /// Intermediate chart object stored in memory for downstream export to PNG.
   /// </summary>
-  public ICatalogEntry<GenericChart> ConfusionMatrixChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "ConfusionMatrixChart")
-    );
+  public IItem<GenericChart> ConfusionMatrixChart =>
+    CreateItem(() => Items.Single.Memory<GenericChart>(label: "ConfusionMatrixChart"));
 
   /// <summary>
   /// Confusion matrix heatmap (PNG image).
   /// Static image representation of the confusion matrix visualization.
   /// Stored as binary PNG file.
   /// </summary>
-  public ICatalogEntry<byte[]> ConfusionMatrixPlotPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> ConfusionMatrixPlotPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        Items.Single.Binary(
           label: "ConfusionMatrixPlotPng",
           filePath: $"{_basePath}/_08_Reporting/Images/confusion_matrix_plot.png"
         )

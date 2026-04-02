@@ -103,11 +103,11 @@ public class Program
 
       // Register pipelines with resolved executor
       flowthru
-        .RegisterPipeline(label: "DataEngineering", pipeline: DataEngineeringPipeline.Create)
+        .RegisterFlow(label: "DataEngineering", flow: DataEngineeringPipeline.Create)
         .WithDescription("Splits iris data into training and test sets using Python");
 
       flowthru
-        .RegisterPipeline(label: "DataScience", pipeline: DataSciencePipeline.Create)
+        .RegisterFlow(label: "DataScience", flow: DataSciencePipeline.Create)
         .WithDescription(
           "Trains multi-class logistic regression model and evaluates predictions using Python"
         );

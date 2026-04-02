@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using KedroSpaceflights.Custom.Data;
 using KedroSpaceflights.Custom.Pipelines.DataProcessing.Nodes;
 
@@ -27,12 +27,12 @@ namespace KedroSpaceflights.Custom.Pipelines.DataProcessing;
 /// </summary>
 public static class DataProcessingPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // Node 1: Preprocess companies (simple: single input → single output)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessCompanies",
         transform: PreprocessCompaniesNode.Create(),
         input: catalog.Companies,
@@ -40,7 +40,7 @@ public static class DataProcessingPipeline
       );
 
       // Node 2: Preprocess shuttles (simple: single input → single output)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessShuttles",
         transform: PreprocessShuttlesNode.Create(),
         input: catalog.Shuttles,
@@ -50,7 +50,7 @@ public static class DataProcessingPipeline
       // Node 3: Preprocess reviews (simple: single input → single output)
       // Note: Minor refactor compared to Kedro - we preprocess reviews separately
       // rather than handling raw reviews in create_model_input_table
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessReviews",
         transform: PreprocessReviewsNode.Create(),
         input: catalog.Reviews,

@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using KedroSpaceflights.Data;
 
 namespace KedroSpaceflights.Pipelines.DataScience;
@@ -25,9 +25,9 @@ public static class DataSciencePipeline
   /// <param name="catalog">The data catalog containing input and output entries.</param>
   /// <param name="parameters">Configuration parameters for the pipeline.</param>
   /// <returns>A configured pipeline that produces a trained model and evaluation metrics.</returns>
-  public static Pipeline Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddNode(
         label: "SplitData",
@@ -37,7 +37,7 @@ public static class DataSciencePipeline
         output: (catalog.TrainSplit, catalog.TestSplit)
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TrainModel",
         description: "Trains a regression model to predict shuttle prices.",
         transform: Nodes.TrainModelNode.Create(),

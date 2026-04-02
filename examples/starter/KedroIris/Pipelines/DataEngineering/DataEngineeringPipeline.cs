@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using KedroIris.Data;
 using KedroIris.Pipelines.DataEngineering.Nodes;
 
@@ -26,9 +26,9 @@ public static class DataEngineeringPipeline
   /// <param name="catalog">The data catalog containing input and output entries.</param>
   /// <param name="parameters">Configuration parameters for the pipeline.</param>
   /// <returns>A configured pipeline that produces training and test splits with one-hot encoding.</returns>
-  public static Pipeline Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddNode(
         label: "SplitAndEncode",

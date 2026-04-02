@@ -5,10 +5,10 @@ namespace SpaceflightsDistributed.DataProcessing.Data;
 
 public partial class DataProcessingCatalog
 {
-  public ICatalogEntry<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<ModelInputTableSchema>(
+        Items.Enumerable.Parquet<ModelInputTableSchema>(
           label: "ModelInputTable",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
         )

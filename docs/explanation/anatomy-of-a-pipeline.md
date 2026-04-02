@@ -214,7 +214,7 @@ public static class DataEngineeringPipeline
 {
   public static Pipeline Create(Catalog catalog, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddNode(
         label: "SplitAndEncode", // Unique label for this node in the pipeline

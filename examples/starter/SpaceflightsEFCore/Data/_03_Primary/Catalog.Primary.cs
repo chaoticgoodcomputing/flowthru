@@ -14,8 +14,8 @@ public partial class Catalog
   /// Master table of features and labels prepared for model training.
   /// Combines preprocessed company and shuttle data into a single feature matrix.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
+    CreateItem(
       () =>
         EFCoreCatalogEntries.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
           label: "ModelInputTable",

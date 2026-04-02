@@ -10,10 +10,10 @@ public partial class Catalog
   /// Contains intercept and coefficients for price prediction.
   /// Stored as JSON to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
-  public ICatalogEntry<LinearRegressionModel> Regressor =>
-    GetOrCreateEntry(
+  public IItem<LinearRegressionModel> Regressor =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<LinearRegressionModel>(
+        Items.Single.Json<LinearRegressionModel>(
           label: "Regressor",
           filePath: $"{_basePath}/_04_Models/Datasets/regressor.json"
         )

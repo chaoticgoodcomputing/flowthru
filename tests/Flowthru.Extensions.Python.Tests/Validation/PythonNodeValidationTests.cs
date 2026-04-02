@@ -1,10 +1,10 @@
 using Flowthru.Data.Validation;
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
 using Flowthru.Extensions.Python.Runtime;
+using Flowthru.Extensions.Python.Steps;
 using Flowthru.Extensions.Python.Tests.Schemas;
 using Flowthru.Extensions.Python.Validation;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,7 @@ public class PythonNodeValidationTests
   private PythonRuntime _runtime = null!;
 #pragma warning restore NUnit1032
 
-  private PythonNodeValidator _validator = null!;
+  private PythonStepValidator _validator = null!;
 
   [SetUp]
   public void SetUp()
@@ -46,7 +46,7 @@ public class PythonNodeValidationTests
     _executor = _serviceProvider.GetRequiredService<IPythonExecutor>();
     _runtime = _serviceProvider.GetRequiredService<PythonRuntime>();
 
-    _validator = new PythonNodeValidator(_executor, _runtime);
+    _validator = new PythonStepValidator(_executor, _runtime);
   }
 
   [TearDown]
@@ -268,7 +268,7 @@ public class PythonNodeValidationTests
   public async Task ValidateAsync_NonPythonNode_Skipped()
   {
     // Arrange - empty pipeline with no Python nodes
-    var pipeline = new Pipeline();
+    var pipeline = new Flow();
 
     // Act
     var result = await _validator.ValidateAsync(pipeline, CancellationToken.None);
@@ -284,9 +284,9 @@ public class PythonNodeValidationTests
   /// <summary>
   /// Creates a minimal test pipeline with a single Python node.
   /// </summary>
-  private Pipeline CreateTestPipeline(string moduleName, string functionName)
+  private Flow CreateTestPipeline(string moduleName, string functionName)
   {
-    var pipeline = new Pipeline();
+    var pipeline = new Flow();
 
     // Create Python node wrapper
     var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
@@ -296,16 +296,16 @@ public class PythonNodeValidationTests
     );
 
     // Create a PipelineNode using the public constructor
-    var pipelineNode = new Flowthru.Pipelines.PipelineNode(
+    var pipelineNode = new Flowthru.Flows.FlowStep(
       label: "python_node",
       description: $"Test Python node: {moduleName}.{functionName}",
-      node: wrapper.GetTransform(),
-      inputs: Array.Empty<Data.ICatalogEntry>(),
-      outputs: Array.Empty<Data.ICatalogEntry>()
+      step: wrapper.GetTransform(),
+      inputs: Array.Empty<Data.IItem>(),
+      outputs: Array.Empty<Data.IItem>()
     );
 
     // Use reflection to access internal AddNode method for testing
-    var addNodeMethod = typeof(Pipeline).GetMethod(
+    var addNodeMethod = typeof(Flow).GetMethod(
       "AddNode",
       System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
     );

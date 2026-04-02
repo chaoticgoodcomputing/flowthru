@@ -40,7 +40,7 @@ public class DashboardMetadataProvider : IMetadataProvider
     {
         var payload = new
         {
-            PipelineName = dag.PipelineName,
+            FlowName = dag.FlowName,
             NodeCount = dag.Nodes.Count,
             EdgeCount = dag.Edges.Count,
             Timestamp = DateTime.UtcNow
@@ -92,7 +92,7 @@ services.AddFlowthru(flowthru =>
     {
         meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json => json
             .WithOutputDirectory("metadata")
-            .WithFilenameTemplate("dag-{PipelineName}-{Timestamp}")
+            .WithFilenameTemplate("dag-{FlowName}-{Timestamp}")
             .WithTimestamp("yyyyMMdd-HHmmss")
             .UseCompactFormat());
             
@@ -143,7 +143,7 @@ var singlePipelineDag = service.GetDagMetadata(pipelineName: "DataEngineering");
 
 // Get DAG with slicing applied
 var slicedDag = service.GetDagMetadata(
-    sliceStrategy: new PipelineSliceStrategy
+    sliceStrategy: new FlowSliceStrategy
     {
         ToNodes = new HashSet<string> { "TransformNode" }
     }
@@ -159,7 +159,7 @@ Useful for tooling, tests, or debugging pipeline structure before execution.
 ```csharp
 meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json => json
     .WithOutputDirectory("metadata")
-    .WithFilenameTemplate("dag-{PipelineName}-{Timestamp}")
+    .WithFilenameTemplate("dag-{FlowName}-{Timestamp}")
     .WithTimestamp("yyyyMMdd-HHmmss")
     .UseCompactFormat());
 ```

@@ -54,7 +54,7 @@ Creates a new UMAP pipeline with default settings.
 Euclidean metric is used by default, and strategies will be auto-selected based on data shape.
 
 ```csharp
-public static UmapPipelineBuilder Create(UmapParameters? parameters = null)
+public static UmapFlowBuilder Create(UmapParameters? parameters = null)
 ```
 
 #### Parameters
@@ -66,5 +66,5 @@ If null, uses defaults appropriate for the data.
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 

@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flows;
 using RetailDataMultipipeline.Data;
 
 namespace RetailDataMultipipeline.Pipelines.Graphing;
@@ -12,11 +12,11 @@ namespace RetailDataMultipipeline.Pipelines.Graphing;
 /// </summary>
 public static class GraphingPipeline
 {
-  public static Pipeline Create(CoreCatalog catalog, IPythonExecutor executor)
+  public static Flow Create(CoreCatalog catalog, IPythonExecutor executor)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "PlotDollarsChart",
         description: "Line chart of weekly GBP revenue per country (Plotly PNG).",
         module: "Pipelines.Graphing.Nodes.plot_dtu_charts",
@@ -26,7 +26,7 @@ public static class GraphingPipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "PlotTransactionsChart",
         description: "Line chart of weekly transaction count per country (Plotly PNG).",
         module: "Pipelines.Graphing.Nodes.plot_dtu_charts",
@@ -36,7 +36,7 @@ public static class GraphingPipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "PlotUsersChart",
         description: "Line chart of weekly unique customers per country (Plotly PNG).",
         module: "Pipelines.Graphing.Nodes.plot_dtu_charts",

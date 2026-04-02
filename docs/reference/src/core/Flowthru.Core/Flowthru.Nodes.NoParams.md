@@ -1,6 +1,6 @@
 # <a id="Flowthru_Nodes_NoParams"></a> Class NoParams
 
-Namespace: [Flowthru.Nodes](Flowthru.Nodes.md)  
+Namespace: [Flowthru.Steps](Flowthru.Steps.md)  
 Assembly: Flowthru.Core.dll  
 
 Marker type for nodes that don't require parameters.
@@ -13,7 +13,7 @@ public sealed class NoParams
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[NoParams](Flowthru.Nodes.NoParams.md)
+[NoParams](Flowthru.Steps.NoParams.md)
 
 #### Inherited Members
 

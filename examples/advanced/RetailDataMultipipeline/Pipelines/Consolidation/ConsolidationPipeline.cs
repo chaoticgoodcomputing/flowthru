@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using RetailDataMultipipeline.Data;
 
 namespace RetailDataMultipipeline.Pipelines.Consolidation;
@@ -14,16 +14,16 @@ namespace RetailDataMultipipeline.Pipelines.Consolidation;
 /// </remarks>
 public static class ConsolidationPipeline
 {
-  public static Pipeline Create(CoreCatalog core, List<CountryShardCatalog> shards)
+  public static Flow Create(CoreCatalog core, List<CountryShardCatalog> shards)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ConsolidateShards",
         description: "Concatenates all per-country weekly DTU shards into a single Parquet dataset.",
         inputs: shards.Select(s => s.WeeklyDtu).ToList(),
         output: core.AllCountriesWeeklyDtu,
-        node: batches => batches.SelectMany(b => b)
+        step: batches => batches.SelectMany(b => b)
       );
     });
   }

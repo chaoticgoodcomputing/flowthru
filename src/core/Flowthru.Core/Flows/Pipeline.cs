@@ -5,104 +5,104 @@ using Flowthru.Meta.Builders;
 using Flowthru.Meta.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
-/// Represents a complete data pipeline with nodes, dependencies, and execution order.
+/// Represents a complete data flow with steps, dependencies, and execution order.
 /// </summary>
 /// <remarks>
 /// <para>
-/// A pipeline is a directed acyclic graph (DAG) of transformation nodes.
-/// Each node reads data from catalog entries, performs transformations,
+/// A flow is a directed acyclic graph (DAG) of transformation steps.
+/// Each step reads data from catalog entries, performs transformations,
 /// and writes results back to catalog entries.
 /// </para>
 /// <para>
 /// <strong>Execution Model:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>Nodes are organized into layers via topological sort</item>
-/// <item>Nodes in layer 0 have no dependencies (read external data only)</item>
-/// <item>Nodes in layer N depend only on nodes in layers 0..N-1</item>
-/// <item>Sequential execution: Execute all nodes in layer order</item>
-/// <item>Parallel execution (Phase 2): Execute nodes within same layer concurrently</item>
+/// <item>Steps are organized into layers via topological sort</item>
+/// <item>Steps in layer 0 have no dependencies (read external data only)</item>
+/// <item>Steps in layer N depend only on steps in layers 0..N-1</item>
+/// <item>Sequential execution: Execute all steps in layer order</item>
+/// <item>Parallel execution (Phase 2): Execute steps within same layer concurrently</item>
 /// </list>
 /// <para>
 /// <strong>Single Producer Rule:</strong> Each catalog entry can be written by at most
-/// one node. This ensures deterministic execution order and prevents race conditions.
+/// one step. This ensures deterministic execution order and prevents race conditions.
 /// </para>
 /// </remarks>
-public class Pipeline
+public class Flow
 {
   /// <summary>
-  /// All nodes in this pipeline, in the order they were added.
+  /// All steps in this flow, in the order they were added.
   /// </summary>
   /// <remarks>
-  /// Exposed as public to enable validation hooks (Phase 4) to inspect nodes.
-  /// The collection is read-only - nodes can only be added via PipelineBuilder.
+  /// Exposed as public to enable validation hooks (Phase 4) to inspect steps.
+  /// The collection is read-only - steps can only be added via FlowBuilder.
   /// </remarks>
-  public IReadOnlyList<PipelineNode> Nodes => _nodes.AsReadOnly();
+  public IReadOnlyList<FlowStep> Steps => _steps.AsReadOnly();
 
   /// <summary>
-  /// Internal accessor for the mutable node list. Used by pipeline internals.
+  /// Internal accessor for the mutable step list. Used by flow internals.
   /// </summary>
-  internal List<PipelineNode> NodesList => _nodes;
+  internal List<FlowStep> StepsList => _steps;
 
-  private readonly List<PipelineNode> _nodes = new();
+  private readonly List<FlowStep> _steps = new();
 
   /// <summary>
-  /// Subset of nodes to execute after slicing is applied.
-  /// Null if no slicing was applied (execute all nodes).
+  /// Subset of steps to execute after slicing is applied.
+  /// Null if no slicing was applied (execute all steps).
   /// </summary>
-  private List<PipelineNode>? _slicedNodes;
+  private List<FlowStep>? _slicedSteps;
 
   /// <summary>
-  /// Nodes grouped by execution layer.
+  /// Steps grouped by execution layer.
   /// Populated after Build() is called.
   /// </summary>
-  internal IReadOnlyList<List<PipelineNode>>? ExecutionLayers { get; private set; }
+  internal IReadOnlyList<List<FlowStep>>? ExecutionLayers { get; private set; }
 
   /// <summary>
   /// The slice strategy applied during the most recent Build() call, if any.
   /// </summary>
   /// <remarks>
   /// Cached to enable metadata export to include slice criteria.
-  /// Null if pipeline was built without slicing.
+  /// Null if flow was built without slicing.
   /// </remarks>
-  internal PipelineSliceStrategy? AppliedSlice { get; private set; }
+  internal FlowSliceStrategy? AppliedSlice { get; private set; }
 
   /// <summary>
-  /// Optional logger for pipeline execution.
+  /// Optional logger for flow execution.
   /// </summary>
   public ILogger? Logger { get; set; }
 
   /// <summary>
-  /// Optional service provider for dependency injection into nodes.
+  /// Optional service provider for dependency injection into steps.
   /// </summary>
   /// <remarks>
-  /// Set by the service layer before pipeline execution to enable nodes
+  /// Set by the service layer before flow execution to enable steps
   /// to resolve services (e.g., database connections, external APIs).
   /// </remarks>
   public IServiceProvider? ServiceProvider { get; set; }
 
   /// <summary>
-  /// Pipeline name for identification and logging.
+  /// Flow name for identification and logging.
   /// </summary>
   /// <remarks>
-  /// Set by PipelineRegistry during pipeline registration.
+  /// Set by FlowRegistry during flow registration.
   /// </remarks>
   public string? Name { get; internal set; }
 
   /// <summary>
-  /// Optional description of what this pipeline does.
+  /// Optional description of what this flow does.
   /// </summary>
   public string? Description { get; internal set; }
 
   /// <summary>
-  /// Validation options for this pipeline.
+  /// Validation options for this flow.
   /// </summary>
   /// <remarks>
   /// Configures how external data sources (Layer 0 inputs) are validated
-  /// before pipeline execution begins.
+  /// before flow execution begins.
   /// </remarks>
   public Validation.ValidationOptions ValidationOptions { get; internal set; } =
     Validation.ValidationOptions.Default();
@@ -112,208 +112,208 @@ public class Pipeline
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Extensions can register hooks to validate their own node types during pre-flight.
+  /// Extensions can register hooks to validate their own step types during pre-flight.
   /// Hooks are invoked after DAG analysis but before external input inspection.
   /// </para>
   /// <para>
   /// <strong>Hook execution order:</strong>
   /// </para>
   /// <list type="number">
-  /// <item>Pipeline.Build() - DAG construction and layer assignment</item>
+  /// <item>Flow.Build() - DAG construction and layer assignment</item>
   /// <item>ValidationHooks.ValidateAsync() - Extension-specific validation</item>
-  /// <item>Pipeline.ValidateExternalInputsAsync() - External input inspection</item>
+  /// <item>Flow.ValidateExternalInputsAsync() - External input inspection</item>
   /// </list>
   /// <para>
   /// <strong>Example (Python extension):</strong>
   /// </para>
   /// <code>
-  /// pipeline.ValidationHooks.Add(new PythonNodeValidator(executor, runtime));
+  /// flow.ValidationHooks.Add(new PythonStepValidator(executor, runtime));
   /// </code>
   /// </remarks>
-  public List<Validation.IPipelineValidationHook> ValidationHooks { get; } = new();
+  public List<Validation.IFlowValidationHook> ValidationHooks { get; } = new();
 
   /// <summary>
-  /// Indicates whether the pipeline has been built (dependencies analyzed and layers assigned).
+  /// Indicates whether the flow has been built (dependencies analyzed and layers assigned).
   /// </summary>
   public bool IsBuilt => ExecutionLayers != null;
 
   /// <summary>
-  /// Gets the sliced subset of nodes (if slicing was applied), otherwise null.
+  /// Gets the sliced subset of steps (if slicing was applied), otherwise null.
   /// </summary>
   /// <remarks>
-  /// Used by metadata export to ensure only nodes that will execute are included in the DAG.
+  /// Used by metadata export to ensure only steps that will execute are included in the DAG.
   /// </remarks>
-  internal List<PipelineNode>? GetSlicedNodes() => _slicedNodes;
+  internal List<FlowStep>? GetSlicedSteps() => _slicedSteps;
 
   /// <summary>
-  /// Adds a node to the pipeline.
+  /// Adds a step to the flow.
   /// </summary>
-  /// <param name="node">The pipeline node to add</param>
-  /// <exception cref="InvalidOperationException">Thrown if pipeline has already been built</exception>
-  internal void AddNode(PipelineNode node)
+  /// <param name="step">The flow step to add</param>
+  /// <exception cref="InvalidOperationException">Thrown if flow has already been built</exception>
+  internal void AddStep(FlowStep step)
   {
     if (IsBuilt)
     {
       throw new InvalidOperationException(
-        "Cannot add nodes to a pipeline that has already been built. "
-          + "Create a new pipeline or use PipelineBuilder."
+        "Cannot add steps to a flow that has already been built. "
+          + "Create a new flow or use FlowBuilder."
       );
     }
 
-    _nodes.Add(node);
+    _steps.Add(step);
   }
 
   /// <summary>
-  /// Merges multiple pipelines into a single pipeline by combining all their nodes.
+  /// Merges multiple flows into a single flow by combining all their steps.
   /// </summary>
-  /// <param name="pipelines">Dictionary of pipeline names to pipeline instances</param>
-  /// <returns>A new pipeline containing all nodes from all input pipelines</returns>
+  /// <param name="flows">Dictionary of flow names to flow instances</param>
+  /// <returns>A new flow containing all steps from all input flows</returns>
   /// <remarks>
   /// <para>
-  /// This method creates a new pipeline by combining all nodes from the input pipelines.
-  /// Node names are prefixed with their source pipeline name (e.g., "data_processing.PreprocessCompanies")
+  /// This method creates a new flow by combining all steps from the input flows.
+  /// Step names are prefixed with their source flow name (e.g., "data_processing.PreprocessCompanies")
   /// to ensure uniqueness and maintain traceability in logs.
   /// </para>
   /// <para>
-  /// The existing DependencyAnalyzer will automatically resolve cross-pipeline dependencies
-  /// based on catalog entries. The single producer rule is enforced - if multiple pipelines
+  /// The existing DependencyAnalyzer will automatically resolve cross-flow dependencies
+  /// based on catalog entries. The single producer rule is enforced - if multiple flows
   /// attempt to write to the same catalog entry, Build() will throw an InvalidOperationException.
   /// </para>
   /// </remarks>
-  public static Pipeline Merge(Dictionary<string, Pipeline> pipelines)
+  public static Flow Merge(Dictionary<string, Flow> flows)
   {
-    var mergedPipeline = new Pipeline
+    var mergedFlows = new Flow
     {
-      Name = "Pipelines",
-      Description = $"Combined execution of: {string.Join(", ", pipelines.Keys)}",
+      Name = "Flows",
+      Description = $"Combined execution of: {string.Join(", ", flows.Keys)}",
     };
 
-    // Combine all nodes from all pipelines, prefixing node names with pipeline name
-    foreach (var (pipelineName, pipeline) in pipelines)
+    // Combine all steps from all flows, prefixing step names with flow name
+    foreach (var (flowName, flow) in flows)
     {
-      foreach (var node in pipeline.Nodes)
+      foreach (var step in flow.Steps)
       {
-        // Create a new node with prefixed name
-        var prefixedNode = new PipelineNode(
-          label: $"{pipelineName}.{node.Label}",
-          description: node.Description,
-          node: node.TransformFunction,
-          inputs: node.Inputs,
-          outputs: node.Outputs
+        // Create a new step with prefixed name
+        var prefixedStep = new FlowStep(
+          label: $"{flowName}.{step.Label}",
+          description: step.Description,
+          step: step.TransformFunction,
+          inputs: step.Inputs,
+          outputs: step.Outputs
         );
 
-        mergedPipeline.AddNode(prefixedNode);
+        mergedFlows.AddStep(prefixedStep);
       }
     }
 
-    return mergedPipeline;
+    return mergedFlows;
   }
 
   /// <summary>
-  /// Builds the pipeline by analyzing dependencies and assigning execution layers.
-  /// Must be called before executing the pipeline.
+  /// Builds the flow by analyzing dependencies and assigning execution layers.
+  /// Must be called before executing the flow.
   /// </summary>
-  /// <param name="sliceStrategy">Optional slicing strategy to filter nodes before execution</param>
+  /// <param name="sliceStrategy">Optional slicing strategy to filter steps before execution</param>
   /// <exception cref="InvalidOperationException">
   /// Thrown if:
-  /// - Multiple nodes write to the same catalog entry (single producer rule)
+  /// - Multiple steps write to the same catalog entry (single producer rule)
   /// - Circular dependency is detected
-  /// - Slice strategy references non-existent nodes or catalog entries
+  /// - Slice strategy references non-existent steps or catalog entries
   /// </exception>
   /// <remarks>
   /// <para>
-  /// <strong>Slicing:</strong> If a slicing strategy is provided, only nodes matching
+  /// <strong>Slicing:</strong> If a slicing strategy is provided, only steps matching
   /// the strategy will be included in the execution. The slice always forms a valid
   /// sub-DAG with all required dependencies.
   /// </para>
   /// </remarks>
-  public void Build(PipelineSliceStrategy? sliceStrategy = null)
+  public void Build(FlowSliceStrategy? sliceStrategy = null)
   {
     if (IsBuilt)
     {
-      Logger?.LogWarning("Pipeline.Build() called on already-built pipeline. Rebuilding...");
+      Logger?.LogWarning("Flow.Build() called on already-built flow. Rebuilding...");
     }
 
-    Logger?.LogInformation("Building pipeline with {NodeCount} nodes", _nodes.Count);
+    Logger?.LogInformation("Building flow with {StepCount} steps", _steps.Count);
 
     // Cache the slice strategy for metadata export
     AppliedSlice = sliceStrategy?.IsSliced == true ? sliceStrategy : null;
 
-    // Step 1: Build dependency graph on the FULL node set
+    // Step 1: Build dependency graph on the FULL step set
     // This must happen before slicing, as slicing logic traverses dependencies
-    DependencyAnalyzer.BuildDependencyGraph(_nodes);
+    DependencyAnalyzer.BuildDependencyGraph(_steps);
 
     // Step 2: Apply slicing if requested
     if (sliceStrategy?.IsSliced == true)
     {
-      Logger?.LogInformation("Applying pipeline slice strategy");
-      _slicedNodes = DependencyAnalyzer.SliceNodes(_nodes, sliceStrategy);
+      Logger?.LogInformation("Applying flow slice strategy");
+      _slicedSteps = DependencyAnalyzer.SliceSteps(_steps, sliceStrategy);
       Logger?.LogInformation(
-        "Slice reduced pipeline from {OriginalCount} to {SlicedCount} nodes",
-        _nodes.Count,
-        _slicedNodes.Count
+        "Slice reduced flow from {OriginalCount} to {SlicedCount} steps",
+        _steps.Count,
+        _slicedSteps.Count
       );
     }
     else
     {
-      _slicedNodes = null; // No slicing - execute all nodes
+      _slicedSteps = null; // No slicing - execute all steps
     }
 
-    // Step 3: Assign execution layers to the final node set (sliced or full)
+    // Step 3: Assign execution layers to the final step set (sliced or full)
     // This ensures Layer 0 correctly identifies external inputs in the execution context
-    var nodesToExecute = _slicedNodes ?? _nodes;
-    DependencyAnalyzer.AssignLayers(nodesToExecute);
+    var stepsToExecute = _slicedSteps ?? _steps;
+    DependencyAnalyzer.AssignLayers(stepsToExecute);
 
-    // Step 4: Group nodes by layer for execution
-    ExecutionLayers = DependencyAnalyzer.GroupByLayer(nodesToExecute).ToList();
+    // Step 4: Group steps by layer for execution
+    ExecutionLayers = DependencyAnalyzer.GroupByLayer(stepsToExecute).ToList();
 
     Logger?.LogInformation(
-      "Pipeline built successfully. Execution will proceed in {LayerCount} layers",
+      "Flow built successfully. Execution will proceed in {LayerCount} layers",
       ExecutionLayers.Count
     );
 
     // Log layer details
     for (int i = 0; i < ExecutionLayers.Count; i++)
     {
-      var layerNodes = ExecutionLayers[i];
+      var layerSteps = ExecutionLayers[i];
       Logger?.LogDebug(
-        "Layer {LayerIndex}: {NodeCount} nodes ({NodeNames})",
+        "Layer {LayerIndex}: {StepCount} steps ({StepNames})",
         i,
-        layerNodes.Count,
-        string.Join(", ", layerNodes.Select(n => n.Label))
+        layerSteps.Count,
+        string.Join(", ", layerSteps.Select(n => n.Label))
       );
     }
   }
 
   /// <summary>
-  /// Exports DAG metadata for this pipeline.
+  /// Exports DAG metadata for this Flow.
   /// </summary>
-  /// <returns>Complete DAG metadata including nodes, catalog entries, and edges</returns>
-  /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
+  /// <returns>Complete DAG metadata including steps, catalog entries, and edges</returns>
+  /// <exception cref="InvalidOperationException">Thrown if flow has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method extracts structural metadata from the built pipeline, creating
+  /// This method extracts structural metadata from the built flow , creating
   /// a complete representation of the DAG (Directed Acyclic Graph) that can be
   /// serialized to JSON for visualization in Flowthru.Viz.
   /// </para>
   /// <para>
-  /// <strong>Prerequisites:</strong> Pipeline must be built before calling this method.
+  /// <strong>Prerequisites:</strong> Flow must be built before calling this method.
   /// Call Build() first if IsBuilt is false.
   /// </para>
   /// <para>
   /// <strong>Usage:</strong>
   /// </para>
   /// <code>
-  /// var pipeline = DataProcessingPipeline.Create(catalog);
-  /// pipeline.Build();
+  /// var flow = DataProcessingFlow.Create(catalog);
+  /// flow.Build();
   ///
-  /// var dag = pipeline.ExportDag();
+  /// var dag = flow.ExportDag();
   /// var json = dag.ToJson();
   /// File.WriteAllText("dag.json", json);
   /// </code>
   /// <para>
   /// This method is non-destructive and idempotent - it can be called multiple
-  /// times without affecting the pipeline state.
+  /// times without affecting the flow state.
   /// </para>
   /// </remarks>
   public DagMetadata ExportDag()
@@ -321,34 +321,31 @@ public class Pipeline
     if (!IsBuilt)
     {
       throw new InvalidOperationException(
-        "Cannot export DAG metadata from an unbuilt pipeline. Call Build() first."
+        "Cannot export DAG metadata from an unbuilt flow. Call Build() first."
       );
     }
 
-    Logger?.LogDebug(
-      "Exporting DAG metadata for pipeline '{PipelineName}'",
-      Name ?? "UnnamedPipeline"
-    );
+    Logger?.LogDebug("Exporting DAG metadata for flow '{FlowName}'", Name ?? "UnnamedFlow");
 
     return DagBuilder.Build(this);
   }
 
   /// <summary>
-  /// Validates all external inputs before pipeline execution.
+  /// Validates all external inputs before flow execution.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token for validation I/O operations</param>
   /// <returns>ValidationResult containing any errors found</returns>
-  /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
+  /// <exception cref="InvalidOperationException">Thrown if flow has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method inspects catalog entries that are consumed by the pipeline but not
-  /// produced by any node in the execution set. These are pre-existing external data
-  /// sources (files, databases, APIs) that must exist and be valid before the pipeline
+  /// This method inspects catalog entries that are consumed by the flow but not
+  /// produced by any step in the execution set. These are pre-existing external data
+  /// sources (files, databases, APIs) that must exist and be valid before the flow
   /// can execute.
   /// </para>
   /// <para>
-  /// <strong>Slicing Support:</strong> In sliced pipelines, catalog entries that were
-  /// produced by nodes outside the slice are correctly identified as external inputs
+  /// <strong>Slicing Support:</strong> In sliced flows, catalog entries that were
+  /// produced by steps outside the slice are correctly identified as external inputs
   /// and validated. This prevents runtime failures from missing intermediate data.
   /// </para>
   /// <para>
@@ -368,20 +365,20 @@ public class Pipeline
   /// <item>Otherwise → Shallow (all storage adapters support inspection)</item>
   /// </list>
   /// <para>
-  /// <strong>Important:</strong> Only external inputs are inspected. Intermediate pipeline
+  /// <strong>Important:</strong> Only external inputs are inspected. Intermediate flow
   /// outputs produced within the execution set are never inspected, as they don't exist yet.
   /// </para>
   /// <para>
   /// <strong>Usage:</strong>
   /// </para>
   /// <code>
-  /// pipeline.Build();
-  /// var validationResult = await pipeline.ValidateExternalInputsAsync();
+  /// flow.Build();
+  /// var validationResult = await flow.ValidateExternalInputsAsync();
   /// if (!validationResult.IsValid) {
   ///   // Handle validation errors before execution
   ///   validationResult.ThrowIfInvalid();
   /// }
-  /// await pipeline.RunAsync();
+  /// await flow.RunAsync();
   /// </code>
   /// </remarks>
   public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync(
@@ -391,20 +388,20 @@ public class Pipeline
     if (!IsBuilt)
     {
       throw new InvalidOperationException(
-        "Pipeline must be built before validation. Call Build() first."
+        "Flow must be built before validation. Call Build() first."
       );
     }
 
     var result = Data.Validation.ValidationResult.Success();
 
-    // No nodes? No validation needed
+    // No steps? No validation needed
     if (ExecutionLayers!.Count == 0)
     {
-      Logger?.LogInformation("No nodes in pipeline, nothing to validate");
+      Logger?.LogInformation("No steps in flow, nothing to validate");
       return result;
     }
 
-    // Phase 4: Invoke validation hooks (e.g., Python node validation)
+    // Phase 4: Invoke validation hooks (e.g., Python step validation)
     if (ValidationHooks.Count > 0)
     {
       Logger?.LogInformation("Running {HookCount} validation hook(s)", ValidationHooks.Count);
@@ -447,17 +444,17 @@ public class Pipeline
       }
     }
 
-    // Build a set of catalog entries produced by nodes in the execution set
-    var nodesToExecute = ExecutionLayers.SelectMany(layer => layer).ToList();
+    // Build a set of catalog entries produced by stepsin the execution set
+    var stepsToExecute = ExecutionLayers.SelectMany(layer => layer).ToList();
     var producedEntries = new HashSet<string>(
-      nodesToExecute.SelectMany(node => node.Outputs.Select(entry => entry.Label)),
+      stepsToExecute.SelectMany(step => step.Outputs.Select(entry => entry.Label)),
       StringComparer.OrdinalIgnoreCase
     );
 
-    // Find all catalog entries consumed by nodes that are NOT produced by any node
-    // These are external inputs in the execution context (including sliced pipelines)
-    var externalInputs = nodesToExecute
-      .SelectMany(node => node.Inputs)
+    // Find all catalog entries consumed by steps that are NOT produced by any steps
+    // These are external inputs in the execution context (including sliced flows)
+    var externalInputs = stepsToExecute
+      .SelectMany(step => step.Inputs)
       .Where(entry => !producedEntries.Contains(entry.Label))
       .DistinctBy(entry => entry.Label)
       .ToList();
@@ -553,53 +550,53 @@ public class Pipeline
   }
 
   /// <summary>
-  /// /// Builds and executes the pipeline, returning comprehensive execution results.
+  /// /// Builds and executes the flow, returning comprehensive execution results.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
-  /// <returns>PipelineResult containing execution status, timing, and node results</returns>
+  /// <returns>FlowResult containing execution status, timing, and flow results</returns>
   /// <remarks>
   /// <para>
-  /// This is the primary high-level API for executing pipelines. It automatically
-  /// calls Build() if the pipeline hasn't been built yet, then executes and tracks results.
+  /// This is the primary high-level API for executing flows. It automatically
+  /// calls Build() if the flow hasn't been built yet, then executes and tracks results.
   /// </para>
   /// </remarks>
-  public async Task<PipelineResult> RunAsync(CancellationToken cancellationToken)
+  public async Task<FlowResult> RunAsync(CancellationToken cancellationToken)
   {
     var stopwatch = Stopwatch.StartNew();
-    var nodeResults = new Dictionary<string, NodeResult>();
+    var stepResults = new Dictionary<string, StepResult>();
 
     try
     {
-      // Ensure pipeline is built
+      // Ensure flow is built
       if (!IsBuilt)
       {
-        Logger?.LogInformation("Building pipeline before execution");
+        Logger?.LogInformation("Building flow before execution");
         Build();
       }
 
-      Logger?.LogInformation("Starting pipeline execution via RunAsync()");
+      Logger?.LogInformation("Starting flow execution via RunAsync()");
 
       // Execute all layers
       foreach (var layer in ExecutionLayers!)
       {
-        Logger?.LogInformation("Executing layer with {NodeCount} nodes", layer.Count);
+        Logger?.LogInformation("Executing layer with {StepCount} steps", layer.Count);
 
-        foreach (var pipelineNode in layer)
+        foreach (var flowStep in layer)
         {
-          // Check for cancellation before starting each node
+          // Check for cancellation before starting each step
           cancellationToken.ThrowIfCancellationRequested();
 
-          var nodeResult = await ExecuteNodeWithTrackingAsync(pipelineNode, cancellationToken);
-          nodeResults[pipelineNode.Label] = nodeResult;
+          var stepResult = await ExecuteStepWithTrackingAsync(flowStep, cancellationToken);
+          stepResults[flowStep.Label] = stepResult;
 
-          // If node failed, stop execution
-          if (!nodeResult.Success)
+          // If step failed, stop execution
+          if (!stepResult.Success)
           {
             stopwatch.Stop();
-            return PipelineResult.CreateFailure(
+            return FlowResult.CreateFailure(
               stopwatch.Elapsed,
-              nodeResult.Exception!,
-              nodeResults,
+              stepResult.Exception!,
+              stepResults,
               Name
             );
           }
@@ -608,11 +605,11 @@ public class Pipeline
 
       stopwatch.Stop();
       Logger?.LogInformation(
-        "Pipeline execution completed successfully in {ElapsedMs}ms",
+        "Flow execution completed successfully in {ElapsedMs}ms",
         stopwatch.ElapsedMilliseconds
       );
 
-      return PipelineResult.CreateSuccess(stopwatch.Elapsed, nodeResults, Name);
+      return FlowResult.CreateSuccess(stopwatch.Elapsed, stepResults, Name);
     }
     catch (OperationCanceledException)
     {
@@ -624,22 +621,22 @@ public class Pipeline
     catch (Exception ex)
     {
       stopwatch.Stop();
-      Logger?.LogError(ex, "Pipeline execution failed: {ErrorMessage}", ex.Message);
-      return PipelineResult.CreateFailure(stopwatch.Elapsed, ex, nodeResults, Name);
+      Logger?.LogError(ex, "Flow execution failed: {ErrorMessage}", ex.Message);
+      return FlowResult.CreateFailure(stopwatch.Elapsed, ex, stepResults, Name);
     }
   }
 
   /// <summary>
-  /// Executes the pipeline sequentially, layer by layer.
+  /// Executes the flow sequentially, layer by layer.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
-  /// <returns>Task representing the pipeline execution</returns>
-  /// <exception cref="InvalidOperationException">Thrown if pipeline has not been built</exception>
+  /// <returns>Task representing the flow execution</returns>
+  /// <exception cref="InvalidOperationException">Thrown if flow has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method executes nodes in topological order:
-  /// 1. Execute all nodes in layer 0 sequentially
-  /// 2. Execute all nodes in layer 1 sequentially
+  /// This method executes flow in topological order:
+  /// 1. Execute all flow in layer 0 sequentially
+  /// 2. Execute all flow in layer 1 sequentially
   /// 3. Continue until all layers are complete
   /// </para>
   /// <para>
@@ -648,7 +645,7 @@ public class Pipeline
   /// </para>
   /// <para>
   /// In Phase 2, this will be replaced with a parallel executor that can run
-  /// nodes within the same layer concurrently.
+  /// steps within the same layer concurrently.
   /// </para>
   /// </remarks>
   public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -656,50 +653,50 @@ public class Pipeline
     if (!IsBuilt)
     {
       throw new InvalidOperationException(
-        "Pipeline must be built before execution. Call Build() first."
+        "Flow must be built before execution. Call Build() first."
       );
     }
 
-    Logger?.LogInformation("Starting pipeline execution");
+    Logger?.LogInformation("Starting flow execution");
 
     try
     {
       foreach (var layer in ExecutionLayers!)
       {
-        Logger?.LogInformation("Executing layer with {NodeCount} nodes", layer.Count);
+        Logger?.LogInformation("Executing layer with {StepCount} steps", layer.Count);
 
-        foreach (var pipelineNode in layer)
+        foreach (var flowStep in layer)
         {
-          // Check for cancellation before starting each node
+          // Check for cancellation before starting each step
           cancellationToken.ThrowIfCancellationRequested();
 
-          await ExecuteNodeAsync(pipelineNode, cancellationToken);
+          await ExecuteStepAsync(flowStep, cancellationToken);
         }
       }
 
-      Logger?.LogInformation("Pipeline execution completed successfully");
+      Logger?.LogInformation("Flow execution completed successfully");
     }
     catch (Exception ex)
     {
-      Logger?.LogError(ex, "Pipeline execution failed: {ErrorMessage}", ex.Message);
+      Logger?.LogError(ex, "Flow execution failed: {ErrorMessage}", ex.Message);
       throw;
     }
   }
 
   /// <summary>
-  /// Determines whether a node's transformation function accepts a CancellationToken parameter.
+  /// Determines whether a step's transformation function accepts a CancellationToken parameter.
   /// </summary>
   /// <param name="transformFunc">The transformation function delegate</param>
   /// <returns>True if the function accepts a CancellationToken as its last parameter</returns>
   /// <remarks>
-  /// Supports optional cancellation awareness in node functions. Nodes can opt-in to cancellation
+  /// Supports optional cancellation awareness in step functions. Steps can opt-in to cancellation
   /// by accepting a CancellationToken as the last parameter:
   /// <list type="bullet">
   /// <item>Func&lt;TIn, CancellationToken, Task&lt;TOut&gt;&gt; - single input with cancellation</item>
   /// <item>Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOut&gt;&gt; - multi-input with cancellation</item>
   /// </list>
   /// </remarks>
-  private static bool NodeAcceptsCancellationToken(Delegate transformFunc)
+  private static bool StepAcceptsCancellationToken(Delegate transformFunc)
   {
     var invokeMethod = transformFunc.GetType().GetMethod("Invoke");
     var parameters = invokeMethod!.GetParameters();
@@ -709,13 +706,13 @@ public class Pipeline
   }
 
   /// <summary>
-  /// Executes a single node with execution tracking and returns detailed results.
+  /// Executes a single step with execution tracking and returns detailed results.
   /// </summary>
-  /// <param name="pipelineNode">The node to execute</param>
+  /// <param name="flowStep">The step to execute</param>
   /// <param name="cancellationToken">Cancellation token for I/O operations</param>
-  /// <returns>NodeResult with execution details</returns>
-  private async Task<NodeResult> ExecuteNodeWithTrackingAsync(
-    PipelineNode pipelineNode,
+  /// <returns>StepResult with execution details</returns>
+  private async Task<StepResult> ExecuteStepWithTrackingAsync(
+    FlowStep flowStep,
     CancellationToken cancellationToken
   )
   {
@@ -724,35 +721,35 @@ public class Pipeline
     try
     {
       // Get input counts for diagnostics (before loading data)
-      var inputCountAffs = pipelineNode.Inputs.Select(entry => entry.GetCountAsync());
+      var inputCountAffs = flowStep.Inputs.Select(entry => entry.GetCountAsync());
       var inputCountTasks = inputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputCountResults = await Task.WhenAll(inputCountTasks);
       var inputCounts = inputCountResults;
       var totalInputCount = inputCounts.Sum();
 
       Logger?.LogInformation(
-        "Executing node: {NodeName} (inputs: {InputCount} observations from {EntryCount} entries)",
-        pipelineNode.Label,
+        "Executing step: {StepName} (inputs: {InputCount} observations from {EntryCount} entries)",
+        flowStep.Label,
         totalInputCount,
-        pipelineNode.Inputs.Count
+        flowStep.Inputs.Count
       );
 
       // Load inputs from catalog entries
       // LoadUntyped() returns T directly (singleton or collection), no wrapping needed
-      var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
+      var inputAffs = flowStep.Inputs.Select(entry => entry.LoadUntyped());
       var inputLoadTasks = inputAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
       // Prepare input parameter for function invocation
-      // For single-input nodes: pass data directly (T)
-      // For multi-input nodes: construct tuple (T1, T2, ...) or pass as object[] for fan-in
+      // For single-input steps: pass data directly (T)
+      // For multi-input steps: construct tuple (T1, T2, ...) or pass as object[] for fan-in
       object inputParameter;
-      if (pipelineNode.Inputs.Count == 1)
+      if (flowStep.Inputs.Count == 1)
       {
         // Single input: pass data directly, unless this is a fan-in wrapper (Func<object[], TOut>)
-        // in which case the node still expects an object[] even with a single entry.
-        var singleFuncType = pipelineNode.TransformFunction.GetType();
+        // in which case the step still expects an object[] even with a single entry.
+        var singleFuncType = flowStep.TransformFunction.GetType();
         var singleParams = singleFuncType.GetMethod("Invoke")!.GetParameters();
         if (singleParams.Length == 1 && singleParams[0].ParameterType == typeof(object[]))
           inputParameter = (object)inputs; // fan-in wrapper with single shard
@@ -761,16 +758,16 @@ public class Pipeline
       }
       else
       {
-        // Multi-input: construct tuple from loaded values, or pass as object[] for fan-in nodes.
+        // Multi-input: construct tuple from loaded values, or pass as object[] for fan-in steps.
         // Use the function's actual parameter type to ensure correct tuple signature.
-        var funcType = pipelineNode.TransformFunction.GetType();
+        var funcType = flowStep.TransformFunction.GetType();
         var invokeMethod = funcType.GetMethod("Invoke");
         var parameters = invokeMethod!.GetParameters();
 
         if (parameters.Length != 1)
         {
           throw new InvalidOperationException(
-            $"Transform function for node {pipelineNode.Label} should have exactly 1 parameter (tuple), but has {parameters.Length}"
+            $"Transform function for step {flowStep.Label} should have exactly 1 parameter (tuple), but has {parameters.Length}"
           );
         }
 
@@ -778,7 +775,7 @@ public class Pipeline
 
         if (paramType == typeof(object[]))
         {
-          // Fan-in node: the PipelineBuilder wraps Func<IReadOnlyList<TIn>, TOut> into
+          // Fan-in step: the FlowBuilder wraps Func<IReadOnlyList<TIn>, TOut> into
           // Func<object[], TOut>. Pass the loaded array as a single boxed object so
           // DynamicInvoke receives new object[]{ inputs } — no array-spreading occurs.
           inputParameter = (object)inputs;
@@ -799,7 +796,7 @@ public class Pipeline
           catch (Exception ex)
           {
             throw new InvalidOperationException(
-              $"Failed to create {inputs.Length}-tuple for node {pipelineNode.Label}. "
+              $"Failed to create {inputs.Length}-tuple for step {flowStep.Label}. "
                 + $"Expected tuple type: {tupleType.FullName}, Input types: [{string.Join(", ", inputs.Select(v => v?.GetType().Name ?? "null"))}]",
               ex
             );
@@ -808,10 +805,10 @@ public class Pipeline
       }
 
       // Invoke transformation function directly via DynamicInvoke
-      // Pass cancellation token if the node signature accepts it
-      var transformFunc = pipelineNode.TransformFunction;
+      // Pass cancellation token if the step signature accepts it
+      var transformFunc = flowStep.TransformFunction;
       object? result;
-      if (NodeAcceptsCancellationToken(transformFunc))
+      if (StepAcceptsCancellationToken(transformFunc))
       {
         result = transformFunc.DynamicInvoke(inputParameter, cancellationToken);
       }
@@ -821,13 +818,13 @@ public class Pipeline
       }
       File.AppendAllText(
         "/tmp/flowthru_diag.log",
-        $"[{DateTime.Now:HH:mm:ss.fff}] Pipeline: Transform invoked, result type={result?.GetType().Name ?? "null"}\n"
+        $"[{DateTime.Now:HH:mm:ss.fff}] Flow: Transform invoked, result type={result?.GetType().Name ?? "null"}\n"
       );
 
       if (result == null)
       {
         throw new InvalidOperationException(
-          $"Transform function for node {pipelineNode.Label} returned null"
+          $"Transform function for step {flowStep.Label} returned null"
         );
       }
 
@@ -847,12 +844,12 @@ public class Pipeline
 
       // Save outputs to catalog entries
       // SaveUntyped() accepts T directly (singleton or collection), no unwrapping needed
-      if (output != null && pipelineNode.Outputs.Count > 0)
+      if (output != null && flowStep.Outputs.Count > 0)
       {
-        if (pipelineNode.Outputs.Count == 1)
+        if (flowStep.Outputs.Count == 1)
         {
           // Single output: save directly
-          var catalogEntry = pipelineNode.Outputs[0];
+          var catalogEntry = flowStep.Outputs[0];
           await catalogEntry.SaveUntyped(output).Run(cancellationToken);
         }
         else
@@ -862,23 +859,23 @@ public class Pipeline
           if (!tupleType.IsGenericType || !tupleType.FullName!.StartsWith("System.ValueTuple"))
           {
             throw new InvalidOperationException(
-              $"Multi-output node '{pipelineNode.Label}' must return tuple, got: {tupleType.Name}"
+              $"Multi-output step '{flowStep.Label}' must return tuple, got: {tupleType.Name}"
             );
           }
 
           // Get tuple fields (Item1, Item2, ...)
           var tupleFields = tupleType.GetFields();
-          if (tupleFields.Length != pipelineNode.Outputs.Count)
+          if (tupleFields.Length != flowStep.Outputs.Count)
           {
             throw new InvalidOperationException(
-              $"Multi-output node '{pipelineNode.Label}': Tuple arity ({tupleFields.Length}) doesn't match output count ({pipelineNode.Outputs.Count})"
+              $"Multi-output step '{flowStep.Label}': Tuple arity ({tupleFields.Length}) doesn't match output count ({flowStep.Outputs.Count})"
             );
           }
 
           // Save each output directly from tuple field
-          for (int i = 0; i < pipelineNode.Outputs.Count; i++)
+          for (int i = 0; i < flowStep.Outputs.Count; i++)
           {
-            var catalogEntry = pipelineNode.Outputs[i];
+            var catalogEntry = flowStep.Outputs[i];
             var field = tupleFields[i];
             var outputData = field.GetValue(output);
 
@@ -890,22 +887,22 @@ public class Pipeline
       stopwatch.Stop();
 
       // Get output counts for diagnostics (after saving data)
-      var outputCountAffs = pipelineNode.Outputs.Select(entry => entry.GetCountAsync());
+      var outputCountAffs = flowStep.Outputs.Select(entry => entry.GetCountAsync());
       var outputCountTasks = outputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var outputCountResults = await Task.WhenAll(outputCountTasks);
       var outputCounts = outputCountResults;
       var totalOutputCount = outputCounts.Sum();
 
       Logger?.LogInformation(
-        "Node {NodeName} completed: {InputCount} observations in → {OutputCount} observations out ({ElapsedMs}ms)",
-        pipelineNode.Label,
+        "Step {StepName} completed: {InputCount} observations in → {OutputCount} observations out ({ElapsedMs}ms)",
+        flowStep.Label,
         totalInputCount,
         totalOutputCount,
         stopwatch.ElapsedMilliseconds
       );
 
-      return NodeResult.CreateSuccess(
-        pipelineNode.Label,
+      return StepResult.CreateSuccess(
+        flowStep.Label,
         stopwatch.Elapsed,
         totalInputCount,
         totalOutputCount
@@ -924,43 +921,35 @@ public class Pipeline
     catch (Exception ex)
     {
       stopwatch.Stop();
-      Logger?.LogError(
-        ex,
-        "Node {NodeName} failed: {ErrorMessage}",
-        pipelineNode.Label,
-        ex.Message
-      );
-      return NodeResult.CreateFailure(pipelineNode.Label, stopwatch.Elapsed, ex);
+      Logger?.LogError(ex, "Step {StepName} failed: {ErrorMessage}", flowStep.Label, ex.Message);
+      return StepResult.CreateFailure(flowStep.Label, stopwatch.Elapsed, ex);
     }
   }
 
   /// <summary>
-  /// Executes a single node by loading its inputs, invoking the transformation,
+  /// Executes a single step by loading its inputs, invoking the transformation,
   /// and saving its outputs.
   /// </summary>
-  /// <param name="pipelineNode">The node to execute</param>
+  /// <param name="flowStep">The step to execute</param>
   /// <param name="cancellationToken">Cancellation token for I/O operations</param>
-  private async Task ExecuteNodeAsync(
-    PipelineNode pipelineNode,
-    CancellationToken cancellationToken
-  )
+  private async Task ExecuteStepAsync(FlowStep flowStep, CancellationToken cancellationToken)
   {
-    Logger?.LogInformation("Executing node: {NodeName}", pipelineNode.Label);
+    Logger?.LogInformation("Executing step: {StepName}", flowStep.Label);
 
     try
     {
       // Load inputs from catalog entries
-      var inputAffs = pipelineNode.Inputs.Select(entry => entry.LoadUntyped());
+      var inputAffs = flowStep.Inputs.Select(entry => entry.LoadUntyped());
       var inputLoadTasks = inputAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
 
       // Prepare input parameter
       object inputParameter;
-      if (pipelineNode.Inputs.Count == 1)
+      if (flowStep.Inputs.Count == 1)
       {
         // Single input, unless this is a fan-in wrapper (Func<object[], TOut>)
-        var singleFuncType = pipelineNode.TransformFunction.GetType();
+        var singleFuncType = flowStep.TransformFunction.GetType();
         var singleParams = singleFuncType.GetMethod("Invoke")!.GetParameters();
         if (singleParams.Length == 1 && singleParams[0].ParameterType == typeof(object[]))
           inputParameter = (object)inputs;
@@ -970,14 +959,14 @@ public class Pipeline
       else
       {
         // Use the function's actual parameter type to ensure correct tuple signature
-        var funcType = pipelineNode.TransformFunction.GetType();
+        var funcType = flowStep.TransformFunction.GetType();
         var invokeMethod = funcType.GetMethod("Invoke");
         var parameters = invokeMethod!.GetParameters();
         var paramType = parameters[0].ParameterType;
 
         if (paramType == typeof(object[]))
         {
-          // Fan-in node: pass the loaded array as a single boxed object.
+          // Fan-in step: pass the loaded array as a single boxed object.
           inputParameter = (object)inputs;
         }
         else
@@ -986,16 +975,16 @@ public class Pipeline
           inputParameter =
             Activator.CreateInstance(tupleType, inputs)
             ?? throw new InvalidOperationException(
-              $"Failed to create tuple for node {pipelineNode.Label}"
+              $"Failed to create tuple for step {flowStep.Label}"
             );
         }
       }
 
       // Invoke transformation function
-      // Pass cancellation token if the node signature accepts it
-      var transformFunc = pipelineNode.TransformFunction;
+      // Pass cancellation token if the step signature accepts it
+      var transformFunc = flowStep.TransformFunction;
       Task? resultTask;
-      if (NodeAcceptsCancellationToken(transformFunc))
+      if (StepAcceptsCancellationToken(transformFunc))
       {
         resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter, cancellationToken);
       }
@@ -1007,7 +996,7 @@ public class Pipeline
       if (resultTask == null)
       {
         throw new InvalidOperationException(
-          $"Transform function for {pipelineNode.Label} returned null"
+          $"Transform function for {flowStep.Label} returned null"
         );
       }
 
@@ -1015,31 +1004,26 @@ public class Pipeline
       var output = GetTaskResult(resultTask);
 
       // Save outputs
-      if (output != null && pipelineNode.Outputs.Count > 0)
+      if (output != null && flowStep.Outputs.Count > 0)
       {
-        if (pipelineNode.Outputs.Count == 1)
+        if (flowStep.Outputs.Count == 1)
         {
-          await pipelineNode.Outputs[0].SaveUntyped(output).Run(cancellationToken);
+          await flowStep.Outputs[0].SaveUntyped(output).Run(cancellationToken);
         }
         else
         {
           var tupleFields = output.GetType().GetFields();
-          for (int i = 0; i < pipelineNode.Outputs.Count; i++)
+          for (int i = 0; i < flowStep.Outputs.Count; i++)
           {
             var outputData = tupleFields[i].GetValue(output);
-            await pipelineNode.Outputs[i].SaveUntyped(outputData!).Run(cancellationToken);
+            await flowStep.Outputs[i].SaveUntyped(outputData!).Run(cancellationToken);
           }
         }
       }
     }
     catch (Exception ex)
     {
-      Logger?.LogError(
-        ex,
-        "Node {NodeName} failed: {ErrorMessage}",
-        pipelineNode.Label,
-        ex.Message
-      );
+      Logger?.LogError(ex, "Step {StepName} failed: {ErrorMessage}", flowStep.Label, ex.Message);
       throw;
     }
   }

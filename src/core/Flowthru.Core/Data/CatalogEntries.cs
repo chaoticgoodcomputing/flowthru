@@ -60,12 +60,12 @@ namespace Flowthru.Data;
 /// var json = CatalogEntries.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");
 /// </code>
 /// </example>
-public static partial class CatalogEntries
+public static partial class Items
 {
   /// <summary>
   /// Factory methods for <see cref="IEnumerable{T}"/> catalog entries.
   /// </summary>
-  public static EnumerableCatalogEntries Enumerable { get; } = new EnumerableCatalogEntries();
+  public static EnumerableItems Enumerable { get; } = new EnumerableItems();
 
   /// <summary>
   /// Creates a null catalog entry for side-effect-only nodes.
@@ -88,9 +88,9 @@ public static partial class CatalogEntries
   /// <item>CanRead: false (Load throws NotSupportedException)</item>
   /// </list>
   /// </remarks>
-  public static CatalogEntry<T> Null<T>(string label)
+  public static Item<T> Null<T>(string label)
   {
     var storage = new NullStorageAdapter<T>();
-    return new CatalogEntry<T>(label, storage);
+    return new Item<T>(label, storage);
   }
 }

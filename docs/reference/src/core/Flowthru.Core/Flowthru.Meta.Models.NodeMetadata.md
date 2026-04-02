@@ -140,13 +140,13 @@ public List<string> Outputs { get; init; }
 For multi-output nodes using CatalogMap, this contains all mapped entries.
 Example: ["XTrain", "XTest", "YTrain", "YTest"]
 
-### <a id="Flowthru_Meta_Models_NodeMetadata_PipelineName"></a> PipelineName
+### <a id="Flowthru_Meta_Models_NodeMetadata_FlowName"></a> FlowName
 
 Name of the parent pipeline this node belongs to.
 
 ```csharp
 [JsonPropertyName("pipelineName")]
-public required string PipelineName { get; init; }
+public required string FlowName { get; init; }
 ```
 
 #### Property Value

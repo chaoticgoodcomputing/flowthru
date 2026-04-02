@@ -1,19 +1,19 @@
 namespace Flowthru.Extensions.Python.Runtime;
 
 /// <summary>
-/// Controls how Python node execution is isolated between FlowthruService instances.
+/// Controls how Python step execution is isolated between FlowthruService instances.
 /// </summary>
 public enum PythonExecutionMode
 {
   /// <summary>
-  /// Executes Python nodes in the same process via Python.NET.
+  /// Executes Python steps in the same process via Python.NET.
   /// Fast (no IPC overhead), but all services share one Python interpreter,
-  /// <c>sys.modules</c>, and GIL. Use when co-hosted pipelines are known to be compatible.
+  /// <c>sys.modules</c>, and GIL. Use when co-hosted flows are known to be compatible.
   /// </summary>
   InProcess,
 
   /// <summary>
-  /// Executes Python nodes in an isolated child process per FlowthruService.
+  /// Executes Python steps in an isolated child process per FlowthruService.
   /// Each service gets its own Python interpreter, venv, <c>sys.path</c>, and module cache.
   /// Default for multi-service scenarios.
   /// </summary>
@@ -104,7 +104,7 @@ public sealed class PythonRuntimeOptions
   public string UvPath { get; set; } = "uv";
 
   /// <summary>
-  /// Controls whether Python nodes run in the same process or an isolated child process.
+  /// Controls whether Python steps run in the same process or an isolated child process.
   /// Defaults to <see cref="PythonExecutionMode.Subprocess"/> for per-service isolation.
   /// Set to <see cref="PythonExecutionMode.InProcess"/> to opt in to shared-interpreter mode.
   /// </summary>
@@ -122,8 +122,8 @@ public sealed class PythonRuntimeOptions
   /// </list>
   /// </para>
   /// <para>
-  /// Python nodes at <c>Pipelines/DataScience/Nodes/train_model.py</c> are referenced as
-  /// <c>"Pipelines.DataScience.Nodes.train_model"</c> when the project root is in <c>sys.path</c>.
+  /// Python steps at <c>Flows/DataScience/Steps/train_model.py</c> are referenced as
+  /// <c>"Flows.DataScience.Steps.train_model"</c> when the project root is in <c>sys.path</c>.
   /// </para>
   /// </remarks>
   public List<string> ModuleSearchPaths { get; set; } = new();

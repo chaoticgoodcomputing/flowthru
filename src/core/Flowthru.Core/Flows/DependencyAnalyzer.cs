@@ -1,6 +1,6 @@
 using Flowthru.Data;
 
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
 /// Analyzes pipeline node dependencies and performs topological sort to determine execution order.
@@ -43,7 +43,7 @@ internal static class DependencyAnalyzer
   /// This method combines BuildDependencyGraph and AssignLayers for convenience.
   /// For sliced pipelines, call these methods separately to recalculate layers post-slice.
   /// </remarks>
-  public static void AnalyzeAndAssignLayers(List<PipelineNode> nodes)
+  public static void AnalyzeAndAssignLayers(List<FlowStep> nodes)
   {
     BuildDependencyGraph(nodes);
     AssignLayers(nodes);
@@ -60,7 +60,7 @@ internal static class DependencyAnalyzer
   /// This phase must occur before slicing, as the slicing logic traverses node dependencies
   /// to determine which nodes to include. Layer assignment should happen separately after slicing.
   /// </remarks>
-  public static void BuildDependencyGraph(List<PipelineNode> nodes)
+  public static void BuildDependencyGraph(List<FlowStep> nodes)
   {
     // Step 1: Build producer map (catalog entry → node that produces it)
     var producerMap = BuildProducerMap(nodes);
@@ -77,9 +77,9 @@ internal static class DependencyAnalyzer
   /// <exception cref="InvalidOperationException">
   /// Thrown if multiple nodes write to the same catalog entry
   /// </exception>
-  private static Dictionary<string, PipelineNode> BuildProducerMap(List<PipelineNode> nodes)
+  private static Dictionary<string, FlowStep> BuildProducerMap(List<FlowStep> nodes)
   {
-    var producerMap = new Dictionary<string, PipelineNode>(StringComparer.OrdinalIgnoreCase);
+    var producerMap = new Dictionary<string, FlowStep>(StringComparer.OrdinalIgnoreCase);
 
     foreach (var node in nodes)
     {
@@ -107,8 +107,8 @@ internal static class DependencyAnalyzer
   /// <param name="nodes">All nodes in the pipeline</param>
   /// <param name="producerMap">Map of catalog entry labels to their producer nodes</param>
   private static void ResolveDependencies(
-    List<PipelineNode> nodes,
-    Dictionary<string, PipelineNode> producerMap
+    List<FlowStep> nodes,
+    Dictionary<string, FlowStep> producerMap
   )
   {
     foreach (var node in nodes)
@@ -138,16 +138,16 @@ internal static class DependencyAnalyzer
   /// This method should be called after slicing to ensure Layer 0 correctly identifies
   /// nodes with no dependencies in the execution context.
   /// </remarks>
-  public static void AssignLayers(List<PipelineNode> nodes)
+  public static void AssignLayers(List<FlowStep> nodes)
   {
     // Track which nodes have been assigned layers
-    var assigned = new HashSet<PipelineNode>();
+    var assigned = new HashSet<FlowStep>();
     var currentLayer = 0;
 
     // Keep assigning layers until all nodes are processed
     while (assigned.Count < nodes.Count)
     {
-      var nodesInCurrentLayer = new List<PipelineNode>();
+      var nodesInCurrentLayer = new List<FlowStep>();
 
       // Find nodes whose dependencies are all already assigned
       foreach (var node in nodes)
@@ -192,7 +192,7 @@ internal static class DependencyAnalyzer
   /// </summary>
   /// <param name="nodes">All nodes in the pipeline (must have layers assigned)</param>
   /// <returns>Nodes grouped by layer, ordered by layer number</returns>
-  public static IEnumerable<List<PipelineNode>> GroupByLayer(List<PipelineNode> nodes)
+  public static IEnumerable<List<FlowStep>> GroupByLayer(List<FlowStep> nodes)
   {
     return nodes.GroupBy(n => n.Layer).OrderBy(g => g.Key).Select(g => g.ToList());
   }
@@ -221,10 +221,7 @@ internal static class DependencyAnalyzer
   /// sub-DAG that can execute without missing dependencies.
   /// </para>
   /// </remarks>
-  public static List<PipelineNode> SliceNodes(
-    List<PipelineNode> allNodes,
-    PipelineSliceStrategy strategy
-  )
+  public static List<FlowStep> SliceSteps(List<FlowStep> allNodes, FlowSliceStrategy strategy)
   {
     if (!strategy.IsSliced)
     {
@@ -235,16 +232,16 @@ internal static class DependencyAnalyzer
     // No need to call BuildProducerMap/ResolveDependencies here
 
     var nodesByLabel = allNodes.ToDictionary(n => n.Label, StringComparer.OrdinalIgnoreCase);
-    var selectedNodes = new HashSet<PipelineNode>(allNodes);
+    var selectedNodes = new HashSet<FlowStep>(allNodes);
 
     // Step 1: Apply pipeline filter (if specified, for merged pipelines)
-    if (strategy.Pipelines is { Count: > 0 })
+    if (strategy.Flows is { Count: > 0 })
     {
-      var pipelineFilter = new HashSet<PipelineNode>();
+      var pipelineFilter = new HashSet<FlowStep>();
 
-      foreach (var pipelineName in strategy.Pipelines)
+      foreach (var pipelineName in strategy.Flows)
       {
-        // Find nodes that belong to this pipeline (prefix match: "PipelineName.NodeName")
+        // Find nodes that belong to this pipeline (prefix match: "FlowName.NodeName")
         var pipelineNodes = allNodes.Where(n =>
         {
           var dotIndex = n.Label.IndexOf('.');
@@ -253,8 +250,8 @@ internal static class DependencyAnalyzer
             return false; // Not a merged pipeline node
           }
 
-          var nodePipelineName = n.Label.Substring(0, dotIndex);
-          return nodePipelineName.Equals(pipelineName, StringComparison.OrdinalIgnoreCase);
+          var nodeFlowName = n.Label.Substring(0, dotIndex);
+          return nodeFlowName.Equals(pipelineName, StringComparison.OrdinalIgnoreCase);
         });
 
         pipelineFilter.UnionWith(pipelineNodes);
@@ -263,7 +260,7 @@ internal static class DependencyAnalyzer
       if (pipelineFilter.Count == 0)
       {
         throw new InvalidOperationException(
-          $"Pipelines filter did not match any nodes. Specified: {string.Join(", ", strategy.Pipelines)}"
+          $"Pipelines filter did not match any nodes. Specified: {string.Join(", ", strategy.Flows)}"
         );
       }
 
@@ -273,7 +270,7 @@ internal static class DependencyAnalyzer
     // Step 2: Apply OnlyNodes filter (explicit allowlist + dependencies)
     if (strategy.OnlyNodes is { Count: > 0 })
     {
-      var explicitNodes = new HashSet<PipelineNode>();
+      var explicitNodes = new HashSet<FlowStep>();
       foreach (var nodeName in strategy.OnlyNodes)
       {
         if (!nodesByLabel.TryGetValue(nodeName, out var node))
@@ -291,7 +288,7 @@ internal static class DependencyAnalyzer
     }
 
     // Step 3: Apply FromData (find consumers, expand downstream)
-    var fromNodesExpanded = new HashSet<PipelineNode>();
+    var fromNodesExpanded = new HashSet<FlowStep>();
     if (strategy.FromData is { Count: > 0 })
     {
       // Find nodes that consume any of the specified catalog entries
@@ -334,7 +331,7 @@ internal static class DependencyAnalyzer
     }
 
     // Step 5: Apply ToData (find producers, expand upstream)
-    var toNodesExpanded = new HashSet<PipelineNode>();
+    var toNodesExpanded = new HashSet<FlowStep>();
     if (strategy.ToData is { Count: > 0 })
     {
       // Find nodes that produce any of the specified catalog entries
@@ -380,7 +377,7 @@ internal static class DependencyAnalyzer
 
     // Filter each node's dependencies to only include nodes in the sliced set
     // Dependencies pointing outside the slice become external inputs in the sliced context
-    var slicedSet = new HashSet<PipelineNode>(slicedList);
+    var slicedSet = new HashSet<FlowStep>(slicedList);
     foreach (var node in slicedList)
     {
       node.Dependencies.RemoveAll(dep => !slicedSet.Contains(dep));
@@ -392,10 +389,10 @@ internal static class DependencyAnalyzer
   /// <summary>
   /// Expands a set of nodes to include all upstream dependencies (transitive closure).
   /// </summary>
-  private static HashSet<PipelineNode> ExpandUpstream(HashSet<PipelineNode> nodes)
+  private static HashSet<FlowStep> ExpandUpstream(HashSet<FlowStep> nodes)
   {
-    var result = new HashSet<PipelineNode>();
-    var toVisit = new Queue<PipelineNode>(nodes);
+    var result = new HashSet<FlowStep>();
+    var toVisit = new Queue<FlowStep>(nodes);
 
     while (toVisit.Count > 0)
     {
@@ -415,15 +412,15 @@ internal static class DependencyAnalyzer
   /// <summary>
   /// Expands a set of nodes to include all downstream dependents (transitive closure).
   /// </summary>
-  private static HashSet<PipelineNode> ExpandDownstream(
-    HashSet<PipelineNode> nodes,
-    List<PipelineNode> allNodes
+  private static HashSet<FlowStep> ExpandDownstream(
+    HashSet<FlowStep> nodes,
+    List<FlowStep> allNodes
   )
   {
-    var result = new HashSet<PipelineNode>(nodes);
+    var result = new HashSet<FlowStep>(nodes);
     var dependencyMap = BuildDependencyMap(allNodes);
 
-    var toVisit = new Queue<PipelineNode>(nodes);
+    var toVisit = new Queue<FlowStep>(nodes);
     while (toVisit.Count > 0)
     {
       var current = toVisit.Dequeue();
@@ -445,11 +442,9 @@ internal static class DependencyAnalyzer
   /// <summary>
   /// Builds a reverse dependency map (node → nodes that depend on it).
   /// </summary>
-  private static Dictionary<PipelineNode, List<PipelineNode>> BuildDependencyMap(
-    List<PipelineNode> allNodes
-  )
+  private static Dictionary<FlowStep, List<FlowStep>> BuildDependencyMap(List<FlowStep> allNodes)
   {
-    var map = new Dictionary<PipelineNode, List<PipelineNode>>();
+    var map = new Dictionary<FlowStep, List<FlowStep>>();
 
     foreach (var node in allNodes)
     {
@@ -457,7 +452,7 @@ internal static class DependencyAnalyzer
       {
         if (!map.ContainsKey(dependency))
         {
-          map[dependency] = new List<PipelineNode>();
+          map[dependency] = new List<FlowStep>();
         }
         map[dependency].Add(node);
       }

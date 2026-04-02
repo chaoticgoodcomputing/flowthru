@@ -11,10 +11,10 @@ public partial class Catalog
   /// Contains metrics for each fold, mean, std dev, and comparison to Kedro.
   /// Stored as JSON to preserve nested List&lt;FoldMetric&gt; structure.
   /// </summary>
-  public ICatalogEntry<CrossValidationResults> CrossValidationResults =>
-    GetOrCreateEntry(
+  public IItem<CrossValidationResults> CrossValidationResults =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<CrossValidationResults>(
+        Items.Single.Json<CrossValidationResults>(
           label: "CrossValidationResults",
           filePath: $"{_basePath}/_06_Reporting/Datasets/cross_validation_results.json"
         )
@@ -24,10 +24,10 @@ public partial class Catalog
   /// Cross-validation summary report in Markdown format.
   /// Human-readable report summarizing model performance and validation results.
   /// </summary>
-  public ICatalogEntry<string> CrossValidationReport =>
-    GetOrCreateEntry(
+  public IItem<string> CrossValidationReport =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        Items.Single.Text(
           label: "CrossValidationReport",
           filePath: $"{_basePath}/_06_Reporting/Datasets/cross_validation_report.md"
         )
@@ -37,10 +37,8 @@ public partial class Catalog
   /// Shuttle passenger capacity bar chart (in-memory GenericChart).
   /// Intermediate chart object stored in memory for downstream export to multiple formats.
   /// </summary>
-  public ICatalogEntry<GenericChart> ShuttlePassengerCapacityChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
-    );
+  public IItem<GenericChart> ShuttlePassengerCapacityChart =>
+    CreateItem(() => Items.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart"));
 
   /// <summary>
   /// Shuttle passenger capacity visualization (Plotly JSON).
@@ -52,10 +50,10 @@ public partial class Catalog
   /// figure specification with data traces and layout configuration. Can be rendered in browsers
   /// using plotly.js or converted to static images using Plotly.NET.ImageExport.
   /// </remarks>
-  public ICatalogEntry<string> ShuttlePassengerCapacityPlot =>
-    GetOrCreateEntry(
+  public IItem<string> ShuttlePassengerCapacityPlot =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        Items.Single.Text(
           label: "ShuttlePassengerCapacityPlot",
           filePath: $"{_basePath}/_06_Reporting/Datasets/shuttle_passenger_capacity_plot.json"
         )
@@ -65,10 +63,8 @@ public partial class Catalog
   /// Confusion matrix heatmap (in-memory GenericChart).
   /// Intermediate chart object stored in memory for downstream export to multiple formats.
   /// </summary>
-  public ICatalogEntry<GenericChart> ConfusionMatrixChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "ConfusionMatrixChart")
-    );
+  public IItem<GenericChart> ConfusionMatrixChart =>
+    CreateItem(() => Items.Single.Memory<GenericChart>(label: "ConfusionMatrixChart"));
 
   /// <summary>
   /// Confusion matrix heatmap visualization (Plotly JSON).
@@ -80,10 +76,10 @@ public partial class Catalog
   /// The heatmap displays a 2x2 confusion matrix with color-coded cells showing classification
   /// performance. JSON format allows browser-based rendering and potential conversion to PNG.
   /// </remarks>
-  public ICatalogEntry<string> ConfusionMatrixPlot =>
-    GetOrCreateEntry(
+  public IItem<string> ConfusionMatrixPlot =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        Items.Single.Text(
           label: "ConfusionMatrixPlot",
           filePath: $"{_basePath}/_06_Reporting/Datasets/confusion_matrix_plot.json"
         )
@@ -98,10 +94,10 @@ public partial class Catalog
   /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> ShuttlePassengerCapacityPlotPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> ShuttlePassengerCapacityPlotPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        Items.Single.Binary(
           label: "ShuttlePassengerCapacityPlotPng",
           filePath: $"{_basePath}/_06_Reporting/Datasets/shuttle_passenger_capacity_plot.png"
         )
@@ -116,10 +112,10 @@ public partial class Catalog
   /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> ConfusionMatrixPlotPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> ConfusionMatrixPlotPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        Items.Single.Binary(
           label: "ConfusionMatrixPlotPng",
           filePath: $"{_basePath}/_06_Reporting/Datasets/confusion_matrix_plot.png"
         )
@@ -130,10 +126,8 @@ public partial class Catalog
   /// Intermediate chart object showing R² distribution analysis with scatter plot,
   /// normal curve, mean line, and Kedro reference line.
   /// </summary>
-  public ICatalogEntry<GenericChart> CrossValidationChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "CrossValidationChart")
-    );
+  public IItem<GenericChart> CrossValidationChart =>
+    CreateItem(() => Items.Single.Memory<GenericChart>(label: "CrossValidationChart"));
 
   /// <summary>
   /// Cross-validation visualization (Plotly JSON).
@@ -146,10 +140,10 @@ public partial class Catalog
   /// <remarks>
   /// Stored as Plotly JSON specification for interactive visualization.
   /// </remarks>
-  public ICatalogEntry<string> CrossValidationPlot =>
-    GetOrCreateEntry(
+  public IItem<string> CrossValidationPlot =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        Items.Single.Text(
           label: "CrossValidationPlot",
           filePath: $"{_basePath}/_06_Reporting/Datasets/cross_validation_plot.json"
         )
@@ -164,10 +158,10 @@ public partial class Catalog
   /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> CrossValidationPlotPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> CrossValidationPlotPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        Items.Single.Binary(
           label: "CrossValidationPlotPng",
           filePath: $"{_basePath}/_06_Reporting/Datasets/cross_validation_plot.png"
         )
@@ -178,10 +172,8 @@ public partial class Catalog
   /// Intermediate chart object showing actual vs predicted values with color-coded dots
   /// (yellow for over-estimates, red for under-estimates) and a 1:1 identity reference line.
   /// </summary>
-  public ICatalogEntry<GenericChart> PredictionScatterChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "PredictionScatterChart")
-    );
+  public IItem<GenericChart> PredictionScatterChart =>
+    CreateItem(() => Items.Single.Memory<GenericChart>(label: "PredictionScatterChart"));
 
   /// <summary>
   /// Prediction scatter plot visualization (Plotly JSON).
@@ -194,10 +186,10 @@ public partial class Catalog
   /// <remarks>
   /// Stored as Plotly JSON specification for interactive visualization.
   /// </remarks>
-  public ICatalogEntry<string> PredictionScatterPlot =>
-    GetOrCreateEntry(
+  public IItem<string> PredictionScatterPlot =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        Items.Single.Text(
           label: "PredictionScatterPlot",
           filePath: $"{_basePath}/_06_Reporting/Datasets/prediction_scatter_plot.json"
         )
@@ -212,10 +204,10 @@ public partial class Catalog
   /// Uses CatalogEntries.Binary factory method to store actual PNG binary data with proper file format.
   /// The PNG file can be opened directly in image viewers or embedded in reports.
   /// </remarks>
-  public ICatalogEntry<byte[]> PredictionScatterPlotPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> PredictionScatterPlotPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        Items.Single.Binary(
           label: "PredictionScatterPlotPng",
           filePath: $"{_basePath}/_06_Reporting/Datasets/prediction_scatter_plot.png"
         )

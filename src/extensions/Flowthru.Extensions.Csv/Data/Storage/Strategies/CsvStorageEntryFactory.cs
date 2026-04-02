@@ -52,22 +52,19 @@ public sealed class CsvStorageEntryFactory : IStorageEntryFactory
   }
 
   /// <inheritdoc />
-  public ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(
-    string label,
-    StorageOptions? options = null
-  )
+  public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
     where T : notnull, IFlatSchema, ITextSerializable
   {
     var path = ResolvePath(label, options, ".csv");
-    return CatalogEntries.Enumerable.Csv<T>(label, path);
+    return Items.Enumerable.Csv<T>(label, path);
   }
 
   /// <inheritdoc />
-  public ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null)
+  public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
     where T : IStructuredSerializable
   {
     var path = ResolvePath(label, options, ".json");
-    return CatalogEntries.Single.Json<T>(label, path);
+    return Items.Single.Json<T>(label, path);
   }
 
   private string ResolvePath(string label, StorageOptions? options, string defaultExtension)

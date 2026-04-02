@@ -100,7 +100,7 @@ using Flowthru.Services.Models;
 
 var options = new ExecutionOptions
 {
-    SliceStrategy = new PipelineSliceStrategy
+    SliceStrategy = new FlowSliceStrategy
     {
         Pipelines = new HashSet<string> { "DataScience" },
         FromNodes = new HashSet<string> { "PreprocessCompanies", "PreprocessShuttles" },
@@ -114,7 +114,7 @@ var result = await service.ExecutePipelineAsync(options, exportMetadata: true, m
 ### All Strategy Properties
 
 ```csharp
-var strategy = new PipelineSliceStrategy
+var strategy = new FlowSliceStrategy
 {
     Pipelines = new HashSet<string> { "DataScience", "Reporting" },  // filter by pipeline name
     FromNodes = new HashSet<string> { "NodeA", "NodeB" },            // + upstream

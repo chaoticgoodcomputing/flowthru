@@ -18,7 +18,7 @@ public interface ICatalogFactory
   /// <param name="options">Catalog configuration options</param>
   /// <param name="serviceProvider">Service provider for dependency injection</param>
   /// <returns>The configured catalog instance</returns>
-  DataCatalogBase CreateCatalog(CatalogOptions options, IServiceProvider serviceProvider);
+  CatalogAbstract CreateCatalog(CatalogOptions options, IServiceProvider serviceProvider);
 }
 
 /// <summary>
@@ -32,7 +32,7 @@ public interface ICatalogFactory
 /// </remarks>
 internal class ReflectionCatalogFactory : ICatalogFactory
 {
-  public DataCatalogBase CreateCatalog(CatalogOptions options, IServiceProvider serviceProvider)
+  public CatalogAbstract CreateCatalog(CatalogOptions options, IServiceProvider serviceProvider)
   {
     if (string.IsNullOrWhiteSpace(options.Type))
     {
@@ -69,7 +69,7 @@ internal class ReflectionCatalogFactory : ICatalogFactory
       );
     }
 
-    if (!typeof(DataCatalogBase).IsAssignableFrom(catalogType))
+    if (!typeof(CatalogAbstract).IsAssignableFrom(catalogType))
     {
       throw new InvalidOperationException(
         $"Type '{options.Type}' does not inherit from DataCatalogBase."
@@ -140,7 +140,7 @@ internal class ReflectionCatalogFactory : ICatalogFactory
 
       if (allMatched)
       {
-        var catalog = (DataCatalogBase)constructor.Invoke(constructorArgs);
+        var catalog = (CatalogAbstract)constructor.Invoke(constructorArgs);
         return catalog;
       }
     }

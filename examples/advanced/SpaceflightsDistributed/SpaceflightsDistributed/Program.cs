@@ -62,21 +62,21 @@ public class Program
       // ─── Pipeline Registration ─────────────────────────────────────────────
 
       flowthru
-        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses companies and shuttles data into a model input table");
 
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
+          flow: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
         )
         .WithDescription("Trains linear regression model for shuttle price prediction");
 
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "Reporting",
-          pipeline: ReportingPipeline.Create,
+          flow: ReportingPipeline.Create,
           configurationSection: "Flowthru:Pipelines:Reporting"
         )
         .WithDescription(

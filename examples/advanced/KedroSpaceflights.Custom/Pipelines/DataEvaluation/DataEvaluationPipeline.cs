@@ -1,5 +1,5 @@
-using Flowthru.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
+using Flowthru.Steps;
 using KedroSpaceflights.Custom.Data;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 using KedroSpaceflights.Custom.Data._04_Models.Schemas;
@@ -43,9 +43,9 @@ public static class DataEvaluationPipeline
     public CrossValidateModelNode.Params CrossValidationParams { get; init; } = new();
   }
 
-  public static Pipeline Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // Node 1: Evaluate OLS model (multi-input → multi-output)
       pipeline.AddNode(
@@ -56,7 +56,7 @@ public static class DataEvaluationPipeline
       );
 
       // Node 2: Cross-validation for R² distribution analysis and comparison to Kedro
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PerformCrossValidatedOLSRegressionTest",
         transform: CrossValidateModelNode.Create(parameters.CrossValidationParams),
         input: catalog.ModelInputTable,

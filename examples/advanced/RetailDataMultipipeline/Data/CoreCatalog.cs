@@ -2,7 +2,7 @@ using Flowthru.Data;
 
 namespace RetailDataMultipipeline.Data;
 
-public partial class CoreCatalog : DataCatalogBase
+public partial class CoreCatalog : CatalogAbstract
 {
   private readonly string _basePath;
 

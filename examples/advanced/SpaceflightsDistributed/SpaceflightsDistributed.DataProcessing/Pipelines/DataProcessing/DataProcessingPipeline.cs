@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using SpaceflightsDistributed.DataProcessing.Data;
 using SpaceflightsDistributed.DataProcessing.Pipelines.DataProcessing.Nodes;
 
@@ -10,11 +10,11 @@ namespace SpaceflightsDistributed.DataProcessing.Pipelines.DataProcessing;
 /// </summary>
 public static class DataProcessingPipeline
 {
-  public static Pipeline Create(DataProcessingCatalog catalog)
+  public static Flow Create(DataProcessingCatalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessCompanies",
         description: "Cleans and preprocesses raw company data.",
         transform: PreprocessCompaniesNode.Create(),
@@ -22,7 +22,7 @@ public static class DataProcessingPipeline
         output: catalog.PreprocessedCompanies
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessShuttles",
         description: "Cleans and preprocesses raw shuttle data.",
         transform: PreprocessShuttlesNode.Create(),

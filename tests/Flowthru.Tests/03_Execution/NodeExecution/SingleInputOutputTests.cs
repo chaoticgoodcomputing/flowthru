@@ -1,5 +1,5 @@
 using System.Linq;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestNodes;
 
@@ -31,9 +31,9 @@ public class SingleInputOutputTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Passthrough",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -77,9 +77,9 @@ public class SingleInputOutputTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Increment",
         transform: IncrementNode.Create(),
         input: catalog.Input,
@@ -123,9 +123,9 @@ public class SingleInputOutputTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "DoubleValue",
         transform: DoubleValueNode.Create(),
         input: catalog.Input,
@@ -166,9 +166,9 @@ public class SingleInputOutputTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Failing",
         transform: FailingNode.Create(),
         input: catalog.Input,

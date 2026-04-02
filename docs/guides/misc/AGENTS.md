@@ -26,8 +26,8 @@ Data/                               # Everything related to data definitions
 └── _08_Reporting/                  # Descriptive and summary outputs for business consumption
 
 Pipelines/                          # All pipelines
-└── <PipelineName>/
-    ├── <PipelineName>Pipeline.cs   # Nodes wired to input/output catalog entries
+└── <FlowName>/
+    ├── <FlowName>Pipeline.cs   # Nodes wired to input/output catalog entries
     └── Nodes/
         └── *.cs                    # Individual transformation nodes
 ```
@@ -49,7 +49,7 @@ Follow these steps in order:
 2. **Plan intermediate schemas.** Identify what data shapes are needed between each transformation step.
 3. **Write schemas.** Create schema classes for input, output, and all intermediary data in the appropriate `Data/<Layer>/Schemas/` directories.
 4. **Create catalog entries.** Add catalog entries for each schema in the corresponding `Catalog.<Layer>.cs` file. Each entry declares its schema type and storage strategy.
-5. **Write nodes.** Implement the transformation logic in `Pipelines/<PipelineName>/Nodes/`. Each node declares typed inputs and outputs matching the schemas from step 3.
-6. **Wire the pipeline.** Connect nodes to their catalog entries in `Pipelines/<PipelineName>/<PipelineName>Pipeline.cs`.
+5. **Write nodes.** Implement the transformation logic in `Pipelines/<FlowName>/Nodes/`. Each node declares typed inputs and outputs matching the schemas from step 3.
+6. **Wire the pipeline.** Connect nodes to their catalog entries in `Pipelines/<FlowName>/<FlowName>Pipeline.cs`.
 7. **Register the pipeline.** Add the pipeline to `Program.cs` so the CLI runner can discover it.
 8. **Run and confirm.** Execute the pipeline with `dotnet run` and verify the output.

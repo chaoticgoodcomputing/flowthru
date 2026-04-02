@@ -9,15 +9,15 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  public ICatalogEntry<IEnumerable<XValues>> XTest =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<XValues>(label: "XTest"));
+  public IItem<IEnumerable<XValues>> XTest =>
+    CreateItem(() => Items.Enumerable.Memory<XValues>(label: "XTest"));
 
-  public ICatalogEntry<IEnumerable<XValues>> XTrain =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<XValues>(label: "XTrain"));
+  public IItem<IEnumerable<XValues>> XTrain =>
+    CreateItem(() => Items.Enumerable.Memory<XValues>(label: "XTrain"));
 
-  public ICatalogEntry<IEnumerable<YValues>> YTest =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<YValues>(label: "YTest"));
+  public IItem<IEnumerable<YValues>> YTest =>
+    CreateItem(() => Items.Enumerable.Memory<YValues>(label: "YTest"));
 
-  public ICatalogEntry<IEnumerable<YValues>> YTrain =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<YValues>(label: "YTrain"));
+  public IItem<IEnumerable<YValues>> YTrain =>
+    CreateItem(() => Items.Enumerable.Memory<YValues>(label: "YTrain"));
 }

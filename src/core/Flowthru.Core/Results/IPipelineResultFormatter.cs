@@ -1,14 +1,14 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Results;
 
 /// <summary>
-/// Interface for formatting pipeline execution results.
+/// Interface for formatting flow execution results.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Result formatters transform a PipelineResult into human-readable or
+/// Result formatters transform a FlowResult into human-readable or
 /// machine-readable output via logging.
 /// </para>
 /// <para>
@@ -19,12 +19,12 @@ namespace Flowthru.Results;
 /// Future formatters: JSON, Markdown, compact CI/CD format.
 /// </para>
 /// </remarks>
-public interface IPipelineResultFormatter
+public interface IFlowResultFormatter
 {
   /// <summary>
-  /// Formats and outputs the pipeline result.
+  /// Formats and outputs the flow result.
   /// </summary>
-  /// <param name="result">The pipeline execution result</param>
+  /// <param name="result">The flow execution result</param>
   /// <param name="logger">The logger to write output to</param>
-  void Format(PipelineResult result, ILogger logger);
+  void Format(FlowResult result, ILogger logger);
 }

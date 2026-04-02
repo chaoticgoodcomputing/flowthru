@@ -13,11 +13,11 @@ namespace Flowthru.Meta;
 /// </para>
 /// <para>
 /// The generated diagram uses Mermaid flowchart syntax with:
-/// - Nodes as rectangles with rounded corners
-/// - Catalog entries as cylindrical database shapes
-/// - Pipeline subgraphs grouping nodes by their origin pipeline
+/// - Steps as rectangles with rounded corners
+/// - Catalog items as cylindrical database shapes
+/// - Flow subgraphs grouping nodes by their origin flow
 /// - External data (no producer) shown with special styling
-/// - Produced data (has producer) inside their producer's pipeline subgraph
+/// - Produced data (has producer) inside their producer's flow subgraph
 /// </para>
 /// </remarks>
 public static class MermaidMetadataExtensions
@@ -27,8 +27,8 @@ public static class MermaidMetadataExtensions
   /// </summary>
   /// <param name="dag">The DAG metadata to visualize</param>
   /// <param name="direction">Flow direction code (TB, LR, BT, RL). Defaults to TB (Top to Bottom).</param>
-  /// <param name="activeNodeColor">Hex color for active (sliced) nodes. Defaults to #2E7D32.</param>
-  /// <param name="activeDataColor">Hex color for active (sliced) catalog entries. Defaults to #2E7D32.</param>
+  /// <param name="activeStepColor">Hex color for active (sliced) steps. Defaults to #2E7D32.</param>
+  /// <param name="activeItemColor">Hex color for active (sliced) catalog items. Defaults to #2E7D32.</param>
   /// <returns>Complete Markdown document with Mermaid code fence</returns>
   /// <remarks>
   /// <para>
@@ -55,8 +55,8 @@ public static class MermaidMetadataExtensions
   public static string ToMermaidDiagram(
     this DagMetadata dag,
     string direction = "TB",
-    string activeNodeColor = "#2E7D32",
-    string activeDataColor = "#2E7D32"
+    string activeStepColor = "#2E7D32",
+    string activeItemColor = "#2E7D32"
   )
   {
     var sb = new StringBuilder();
@@ -66,98 +66,96 @@ public static class MermaidMetadataExtensions
     sb.AppendLine($"flowchart {direction}");
     sb.AppendLine();
 
-    // Classify catalog entries into external and produced
-    var externalEntries = dag.CatalogEntries.Where(e => string.IsNullOrEmpty(e.Producer)).ToList();
+    // Classify catalog items into external and produced
+    var externalItems = dag.CatalogItems.Where(e => string.IsNullOrEmpty(e.Producer)).ToList();
 
-    var producedEntries = dag.CatalogEntries.Where(e => !string.IsNullOrEmpty(e.Producer)).ToList();
+    var producedItems = dag.CatalogItems.Where(e => !string.IsNullOrEmpty(e.Producer)).ToList();
 
     // Define all external data inputs first (cylindrical database shape)
-    if (externalEntries.Any())
+    if (externalItems.Any())
     {
       sb.AppendLine("    %% External Data Inputs");
-      foreach (var entry in externalEntries)
+      foreach (var item in externalItems)
       {
-        sb.AppendLine($"    {SanitizeId(entry.Key)}[(\"{EscapeLabel(entry.Label)}\")]");
+        sb.AppendLine($"    {SanitizeId(item.Key)}[(\"{EscapeLabel(item.Label)}\")]");
       }
       sb.AppendLine();
     }
 
-    // Group nodes by pipeline
-    var pipelineGroups = dag.Nodes.GroupBy(n => n.PipelineName).OrderBy(g => g.Key);
+    // Group steps by flow
+    var flowGroups = dag.Steps.GroupBy(n => n.FlowName).OrderBy(g => g.Key);
 
-    foreach (var pipelineGroup in pipelineGroups)
+    foreach (var flowGroup in flowGroups)
     {
-      var pipelineName = pipelineGroup.Key;
-      var pipelineNodes = pipelineGroup.OrderBy(n => n.Layer).ThenBy(n => n.Id).ToList();
+      var flowName = flowGroup.Key;
+      var flowSteps = flowGroup.OrderBy(n => n.Layer).ThenBy(n => n.Id).ToList();
 
-      sb.AppendLine($"    subgraph {SanitizeId(pipelineName)}[\"{EscapeLabel(pipelineName)}\"]");
+      sb.AppendLine($"    subgraph {SanitizeId(flowName)}[\"{EscapeLabel(flowName)}\"]");
 
-      // Find produced catalog entries that belong to this pipeline
-      var pipelineCatalogEntries = producedEntries
-        .Where(e => pipelineNodes.Any(n => n.Id == e.Producer))
-        .ToList();
+      // Find produced catalog items that belong to this flow
+      var flowItems = producedItems.Where(e => flowSteps.Any(n => n.Id == e.Producer)).ToList();
 
-      // Define nodes (rectangles) with styling for sliced nodes
-      foreach (var node in pipelineNodes)
+      // Define steps (rectangles) with styling for steps in the slice
+      foreach (var step in flowSteps)
       {
-        var nodeId = SanitizeId(node.Id);
-        var nodeLabel = EscapeLabel(node.Label);
+        var stepId = SanitizeId(step.Id);
+        var stepLabel = EscapeLabel(step.Label);
 
-        // Apply color fill to nodes in the execution slice
-        if (dag.SlicedNodeIds != null && dag.SlicedNodeIds.Contains(node.Id))
+        // Apply color fill to steps in the execution slice
+        if (dag.SlicedStepIds != null && dag.SlicedStepIds.Contains(step.Id))
         {
-          sb.AppendLine($"        {nodeId}[\"{nodeLabel}\"]");
-          sb.AppendLine($"        style {nodeId} fill:{activeNodeColor}");
+          sb.AppendLine($"        {stepId}[\"{stepLabel}\"]");
+          sb.AppendLine($"        style {stepId} fill:{activeStepColor}");
         }
         else
         {
-          sb.AppendLine($"        {nodeId}[\"{nodeLabel}\"]");
+          sb.AppendLine($"        {stepId}[\"{stepLabel}\"]");
         }
       }
 
-      // Define catalog entries produced by this pipeline (cylindrical database shape)
-      foreach (var entry in pipelineCatalogEntries)
+      // Define catalog items produced by this flow (cylindrical database shape)
+      foreach (var item in flowItems)
       {
-        var entryId = SanitizeId(entry.Key);
-        var entryLabel = EscapeLabel(entry.Label);
+        var itemId = SanitizeId(item.Key);
+        var itemLabel = EscapeLabel(item.Label);
 
-        sb.AppendLine($"        {entryId}[(\"{entryLabel}\")]");
+        sb.AppendLine($"        {itemId}[(\"{itemLabel}\")]");
 
-        // Apply color fill to catalog entries in the execution slice
-        if (dag.SlicedCatalogEntryKeys != null && dag.SlicedCatalogEntryKeys.Contains(entry.Key))
+        // Apply color fill to catalog items in the execution slice
+        if (dag.SlicedCatalogItemIds != null && dag.SlicedCatalogItemIds.Contains(item.Key))
         {
-          sb.AppendLine($"        style {entryId} fill:{activeDataColor}");
+          sb.AppendLine($"        style {itemId} fill:{activeItemColor}");
         }
       }
 
       sb.AppendLine();
 
-      // Generate edges for this pipeline
-      foreach (var node in pipelineNodes)
+      // Generate edges for this flow
+      foreach (var step in flowSteps)
       {
-        // Input edges - only include if the input is produced by this pipeline (not external!)
-        foreach (var input in node.Inputs)
+        // Input edges - only include if the input is produced by this flow (not external!)
+        foreach (var input in step.Inputs)
         {
-          var inputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Key == input);
-          if (inputEntry != null)
+          var inputItem = dag.CatalogItems.FirstOrDefault(e => e.Key == input);
+          if (inputItem != null)
           {
-            var isProducedByThisPipeline = pipelineCatalogEntries.Any(e => e.Key == input);
+            var isProducedByThisFlow = flowItems.Any(e => e.Key == input);
 
-            // Only include edges from data produced within this pipeline
-            if (isProducedByThisPipeline)
+            // Only include edges from data produced within this flow
+            if (isProducedByThisFlow)
             {
-              sb.AppendLine($"        {SanitizeId(input)} --> {SanitizeId(node.Id)}");
+              sb.AppendLine($"        {SanitizeId(input)} --> {SanitizeId(step.Id)}");
             }
           }
         }
 
-        // Output edges - node to its produced catalog entries
-        foreach (var output in node.Outputs)
+        // Output edges - node to its produced catalog items
+        foreach (var output in step.Outputs)
         {
-          var catalogEntry = pipelineCatalogEntries.FirstOrDefault(e => e.Key == output);
-          if (catalogEntry != null)
+          var catalogItem = flowItems.FirstOrDefault(e => e.Key == output);
+          if (catalogItem != null)
           {
-            sb.AppendLine($"        {SanitizeId(node.Id)} --> {SanitizeId(output)}");
+            sb.AppendLine($"        {SanitizeId(step.Id)} --> {SanitizeId(output)}");
           }
         }
       }
@@ -166,47 +164,47 @@ public static class MermaidMetadataExtensions
       sb.AppendLine();
     }
 
-    // Generate external data to node edges (outside subgraphs)
-    sb.AppendLine("    %% External Data to Pipeline Edges");
-    foreach (var entry in externalEntries)
+    // Generate external data to step edges (outside subgraphs)
+    sb.AppendLine("    %% External Data to Flow Edges");
+    foreach (var item in externalItems)
     {
-      foreach (var consumer in entry.Consumers)
+      foreach (var consumer in item.Consumers)
       {
-        var consumerNode = dag.Nodes.FirstOrDefault(n => n.Id == consumer);
-        if (consumerNode != null)
+        var consumerStep = dag.Steps.FirstOrDefault(n => n.Id == consumer);
+        if (consumerStep != null)
         {
-          sb.AppendLine($"    {SanitizeId(entry.Key)} --> {SanitizeId(consumer)}");
+          sb.AppendLine($"    {SanitizeId(item.Key)} --> {SanitizeId(consumer)}");
         }
       }
     }
     sb.AppendLine();
 
-    // Generate cross-pipeline edges (catalog entries that connect different pipelines)
-    var crossPipelineEdges = new List<(string source, string target)>();
+    // Generate cross-flow edges (catalog items that connect different flows)
+    var crossFlowEdges = new List<(string source, string target)>();
 
-    foreach (var entry in producedEntries)
+    foreach (var item in producedItems)
     {
-      var producerNode = dag.Nodes.FirstOrDefault(n => n.Id == entry.Producer);
-      if (producerNode == null)
+      var producerStep = dag.Steps.FirstOrDefault(n => n.Id == item.Producer);
+      if (producerStep == null)
       {
         continue;
       }
 
-      foreach (var consumer in entry.Consumers)
+      foreach (var consumer in item.Consumers)
       {
-        var consumerNode = dag.Nodes.FirstOrDefault(n => n.Id == consumer);
-        if (consumerNode != null && consumerNode.PipelineName != producerNode.PipelineName)
+        var consumerStep = dag.Steps.FirstOrDefault(n => n.Id == consumer);
+        if (consumerStep != null && consumerStep.FlowName != producerStep.FlowName)
         {
-          // This catalog entry connects two different pipelines
-          crossPipelineEdges.Add((entry.Key, consumer));
+          // This catalog item connects two different flows
+          crossFlowEdges.Add((item.Key, consumer));
         }
       }
     }
 
-    if (crossPipelineEdges.Any())
+    if (crossFlowEdges.Any())
     {
-      sb.AppendLine("    %% Cross-Pipeline Data Flow");
-      foreach (var (source, target) in crossPipelineEdges.Distinct())
+      sb.AppendLine("    %% Cross-Flow Data Flow");
+      foreach (var (source, target) in crossFlowEdges.Distinct())
       {
         sb.AppendLine($"    {SanitizeId(source)} -.-> {SanitizeId(target)}");
       }

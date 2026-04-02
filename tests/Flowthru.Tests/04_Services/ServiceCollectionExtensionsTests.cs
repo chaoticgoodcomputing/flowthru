@@ -1,7 +1,7 @@
 using Flowthru.Data;
+using Flowthru.Flows;
 using Flowthru.Meta;
 using Flowthru.Meta.Providers;
-using Flowthru.Pipelines;
 using Flowthru.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestNodes;
@@ -28,7 +28,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
-      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -49,7 +49,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog(catalog);
-      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -70,7 +70,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog<SimpleThreeNodeCatalog>();
-      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -91,7 +91,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog<SimpleThreeNodeCatalog>(sp => new SimpleThreeNodeCatalog());
-      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -114,12 +114,12 @@ public class ServiceCollectionExtensionsTests
     {
       var catalog = new SimpleThreeNodeCatalog();
       flowthru.RegisterCatalog(catalog);
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "test",
         (SimpleThreeNodeCatalog cat) =>
-          PipelineBuilder.CreatePipeline(builder =>
+          FlowBuilder.CreateFlow(builder =>
           {
-            builder.AddNode(
+            builder.AddStep(
               label: "Node",
               transform: PassthroughNode.Create(),
               input: cat.Input,
@@ -133,8 +133,8 @@ public class ServiceCollectionExtensionsTests
     var service = serviceProvider.GetRequiredService<IFlowthruService>();
 
     // Assert
-    Assert.That(service.PipelineNames, Has.Count.EqualTo(1));
-    Assert.That(service.PipelineNames, Does.Contain("test"));
+    Assert.That(service.FlowNames, Has.Count.EqualTo(1));
+    Assert.That(service.FlowNames, Does.Contain("test"));
   }
 
   [Test]
@@ -167,7 +167,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
-      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
       flowthru.ConfigureMetadata(meta =>
       {
         meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
@@ -195,7 +195,7 @@ public class ServiceCollectionExtensionsTests
     services.AddFlowthru(flowthru =>
     {
       flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
-      flowthru.RegisterPipelines(sp => new Dictionary<string, Pipeline>());
+      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -221,12 +221,12 @@ public class ServiceCollectionExtensionsTests
     {
       flowthru.RegisterCatalog(catalog);
 
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "inline",
         (SimpleThreeNodeCatalog cat) =>
-          PipelineBuilder.CreatePipeline(builder =>
+          FlowBuilder.CreateFlow(builder =>
           {
-            builder.AddNode(
+            builder.AddStep(
               label: "Node",
               transform: PassthroughNode.Create(),
               input: cat.Input,
@@ -235,11 +235,11 @@ public class ServiceCollectionExtensionsTests
           })
       );
 
-      flowthru.RegisterPipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>
       {
-        ["dynamic"] = PipelineBuilder.CreatePipeline(builder =>
+        ["dynamic"] = FlowBuilder.CreateFlow(builder =>
         {
-          builder.AddNode(
+          builder.AddStep(
             label: "Node",
             transform: PassthroughNode.Create(),
             input: catalog.Input,
@@ -253,8 +253,8 @@ public class ServiceCollectionExtensionsTests
     var service = serviceProvider.GetRequiredService<IFlowthruService>();
 
     // Assert — both pipelines are present
-    Assert.That(service.PipelineNames, Has.Count.EqualTo(2));
-    Assert.That(service.PipelineNames, Does.Contain("inline"));
-    Assert.That(service.PipelineNames, Does.Contain("dynamic"));
+    Assert.That(service.FlowNames, Has.Count.EqualTo(2));
+    Assert.That(service.FlowNames, Does.Contain("inline"));
+    Assert.That(service.FlowNames, Does.Contain("dynamic"));
   }
 }

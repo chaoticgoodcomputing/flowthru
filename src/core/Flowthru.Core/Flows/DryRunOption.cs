@@ -1,4 +1,4 @@
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
 /// Represents a dry-run configuration. Can be assigned from a <see cref="bool"/>

@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Minimal.Data;
 using Minimal.Pipelines.Greetings.Nodes;
 
@@ -16,12 +16,12 @@ public static class GreetingsPipeline
   /// <returns>
   /// A configured pipeline that transforms names into various greeting formats.
   /// </returns>
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // Node 1: Transform names to "Hello, {name}!"
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CreateHello",
         description: "Transform names into 'Hello' greetings.",
         transform: CreateHelloNode.Create(),

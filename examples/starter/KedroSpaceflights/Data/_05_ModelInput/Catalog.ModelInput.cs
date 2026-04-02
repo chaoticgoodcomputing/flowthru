@@ -12,12 +12,12 @@ public partial class Catalog
   /// <summary>
   /// Training dataset split from the model input table. Transient (memory only).
   /// </summary>
-  public ICatalogEntry<IEnumerable<TrainingData>> TrainSplit =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TrainingData>(label: "XTrain"));
+  public IItem<IEnumerable<TrainingData>> TrainSplit =>
+    CreateItem(() => Items.Enumerable.Memory<TrainingData>(label: "XTrain"));
 
   /// <summary>
   /// Test dataset split from the model input table. Transient (memory only).
   /// </summary>
-  public ICatalogEntry<IEnumerable<TestData>> TestSplit =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "XTest"));
+  public IItem<IEnumerable<TestData>> TestSplit =>
+    CreateItem(() => Items.Enumerable.Memory<TestData>(label: "XTest"));
 }

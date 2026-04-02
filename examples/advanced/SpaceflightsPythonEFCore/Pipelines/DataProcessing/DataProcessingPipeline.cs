@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using SpaceflightsPythonEFCore.Data;
 using SpaceflightsPythonEFCore.Pipelines.DataProcessing.Nodes;
 
@@ -10,11 +10,11 @@ namespace SpaceflightsPythonEFCore.Pipelines.DataProcessing;
 /// </summary>
 public static class DataProcessingPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessCompanies",
         description: "Parse and validate raw company data (C#). Stores result in EFCore.",
         transform: PreprocessCompaniesNode.Create(),
@@ -22,7 +22,7 @@ public static class DataProcessingPipeline
         output: catalog.PreprocessedCompanies
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "PreprocessShuttles",
         description: "Parse and validate raw shuttle data (C#). Stores result in EFCore.",
         transform: PreprocessShuttlesNode.Create(),

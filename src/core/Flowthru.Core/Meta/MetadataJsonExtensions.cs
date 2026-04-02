@@ -33,7 +33,7 @@ public static class MetadataJsonExtensions
   /// Output format uses:
   /// </para>
   /// <list type="bullet">
-  /// <item>camelCase property names (pipelineName, not PipelineName)</item>
+  /// <item>camelCase property names (pipelineName, not FlowName)</item>
   /// <item>Indented formatting for readability</item>
   /// <item>Null properties omitted</item>
   /// <item>Enums serialized as strings</item>

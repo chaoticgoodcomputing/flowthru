@@ -11,7 +11,7 @@ namespace RetailDataMultipipeline.Data;
 /// receive distinct qualified identifiers in the DAG metadata:
 /// e.g., <c>UnitedKingdomShardCatalog.WeeklyDtu</c>.
 /// </remarks>
-public class CountryShardCatalog : DataCatalogBase
+public class CountryShardCatalog : CatalogAbstract
 {
   private readonly string _basePath;
 
@@ -28,10 +28,10 @@ public class CountryShardCatalog : DataCatalogBase
   /// <summary>
   /// Per-country weekly DTU Parquet shard, currency-converted to GBP.
   /// </summary>
-  public ICatalogEntry<IEnumerable<WeeklyDtuSchema>> WeeklyDtu =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<WeeklyDtuSchema>> WeeklyDtu =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<WeeklyDtuSchema>(
+        Items.Enumerable.Parquet<WeeklyDtuSchema>(
           label: $"WeeklyDtu_{Slugify(Country)}",
           filePath: $"{_basePath}/_03_Primary/Datasets/weekly_dtu_{Slugify(Country)}.parquet"
         )

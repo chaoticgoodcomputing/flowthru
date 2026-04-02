@@ -11,10 +11,10 @@ public partial class Catalog
   /// <summary>
   /// Predictions from the trained model on the test set.
   /// </summary>
-  public ICatalogEntry<IEnumerable<PredictionSchema>> Predictions =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<PredictionSchema>> Predictions =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<PredictionSchema>(
+        Items.Enumerable.Csv<PredictionSchema>(
           label: "Predictions",
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.csv"
         )

@@ -1,28 +1,28 @@
 using Flowthru.Data;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 
 namespace Flowthru.Registry;
 
 /// <summary>
-/// Fluent interface for registering pipelines in a type-safe manner.
+/// Fluent interface for registering flows in a type-safe manner.
 /// </summary>
-/// <typeparam name="TCatalog">The catalog type that pipelines will use</typeparam>
+/// <typeparam name="TCatalog">The catalog type that flows will use</typeparam>
 /// <remarks>
 /// <para>
-/// This interface provides compile-time type safety by tying pipeline factories
+/// This interface provides compile-time type safety by tying flow factories
 /// to a specific catalog type. The registrar validates that all registered
-/// pipelines accept the correct catalog type.
+/// flows accept the correct catalog type.
 /// </para>
 /// <para>
 /// <strong>Usage:</strong>
 /// <code>
-/// protected override void RegisterPipelines(IPipelineRegistrar&lt;MyCatalog&gt; registrar)
+/// protected override void RegisterFlows(IFlowRegistrar&lt;MyCatalog&gt; registrar)
 /// {
-///     // Pipeline without parameters
-///     registrar.Register("processing", ProcessingPipeline.Create);
+///     // Flow without parameters
+///     registrar.Register("processing", ProcessingFlow.Create);
 ///
-///     // Pipeline with parameters
-///     registrar.Register("training", TrainPipeline.Create, new TrainOptions());
+///     // Flow with parameters
+///     registrar.Register("training", TrainFlow.Create, new TrainOptions());
 ///
 ///     // Add metadata
 ///     registrar.WithDescription("processing", "Cleans and transforms raw data");
@@ -30,55 +30,55 @@ namespace Flowthru.Registry;
 /// </code>
 /// </para>
 /// </remarks>
-public interface IPipelineRegistrar<TCatalog>
-  where TCatalog : DataCatalogBase
+public interface IFlowRegistrar<TCatalog>
+  where TCatalog : CatalogAbstract
 {
   /// <summary>
-  /// Registers a pipeline with a parameterless factory function.
+  /// Registers a flow with a parameterless factory function.
   /// </summary>
-  /// <param name="name">Unique pipeline name</param>
-  /// <param name="pipelineFactory">Factory function that creates the pipeline from catalog</param>
+  /// <param name="name">Unique flow name</param>
+  /// <param name="flowFactory">Factory function that creates the flow from catalog</param>
   /// <returns>This registrar for method chaining</returns>
   /// <remarks>
-  /// Use this overload when the pipeline doesn't require parameters.
+  /// Use this overload when the flow doesn't require parameters.
   /// </remarks>
-  IPipelineRegistrar<TCatalog> Register(string name, Func<TCatalog, Pipeline> pipelineFactory);
+  IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Flow> flowFactory);
 
   /// <summary>
-  /// Registers a pipeline with a parameterized factory function.
+  /// Registers a flow with a parameterized factory function.
   /// </summary>
-  /// <typeparam name="TParams">The type of parameters the pipeline requires</typeparam>
-  /// <param name="name">Unique pipeline name</param>
-  /// <param name="pipelineFactory">Factory function that creates the pipeline from catalog and parameters</param>
-  /// <param name="parameters">Parameter instance to pass to the pipeline</param>
+  /// <typeparam name="TParams">The type of parameters the flow requires</typeparam>
+  /// <param name="name">Unique flow name</param>
+  /// <param name="flowFactory">Factory function that creates the flow from catalog and parameters</param>
+  /// <param name="parameters">Parameter instance to pass to the flow</param>
   /// <returns>This registrar for method chaining</returns>
   /// <remarks>
   /// <para>
-  /// Use this overload when the pipeline requires configuration parameters.
+  /// Use this overload when the flow requires configuration parameters.
   /// Parameters are strongly typed and checked at compile time.
   /// </para>
   /// <para>
-  /// The factory signature must match: <c>Func&lt;TCatalog, TParams, Pipeline&gt;</c>
+  /// The factory signature must match: <c>Func&lt;TCatalog, TParams, Flow&gt;</c>
   /// </para>
   /// </remarks>
-  IPipelineRegistrar<TCatalog> Register<TParams>(
+  IFlowRegistrar<TCatalog> Register<TParams>(
     string name,
-    Func<TCatalog, TParams, Pipeline> pipelineFactory,
+    Func<TCatalog, TParams, Flow> flowFactory,
     TParams parameters
   );
 
   /// <summary>
-  /// Adds a description to the most recently registered pipeline.
+  /// Adds a description to the most recently registered flow.
   /// </summary>
-  /// <param name="description">Human-readable description of what the pipeline does</param>
+  /// <param name="description">Human-readable description of what the flow does</param>
   /// <returns>This registrar for method chaining</returns>
   /// <remarks>
   /// Use this overload when fluently chaining after Register().
   /// </remarks>
-  IPipelineRegistrar<TCatalog> WithDescription(string description);
+  IFlowRegistrar<TCatalog> WithDescription(string description);
 
   /// <summary>
-  /// Configures validation options for the most recently registered pipeline.
+  /// Configures validation options for the most recently registered flow.
   /// </summary>
   /// <param name="configure">Action to configure validation behavior</param>
   /// <returns>This registrar for method chaining</returns>
@@ -91,14 +91,17 @@ public interface IPipelineRegistrar<TCatalog>
   /// <strong>Example:</strong>
   /// </para>
   /// <code>
-  /// registrar.Register("data_processing", ProcessingPipeline.Create)
+  /// registrar.Register("data_processing", ProcessingFlow.Create)
+  ///   .WithValidation(validation => {
+  ///     validation.Inspect(catalog.Companies, InspectionLevel.Deep);
+  /// </para>
+  /// <code>
+  /// registrar.Register("data_processing", ProcessingFlow.Create)
   ///   .WithValidation(validation => {
   ///     validation.Inspect(catalog.Companies, InspectionLevel.Deep);
   ///     validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
   ///   });
   /// </code>
   /// </remarks>
-  IPipelineRegistrar<TCatalog> WithValidation(
-    Action<Pipelines.Validation.ValidationOptions> configure
-  );
+  IFlowRegistrar<TCatalog> WithValidation(Action<Flows.Validation.ValidationOptions> configure);
 }

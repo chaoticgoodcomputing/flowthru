@@ -53,7 +53,7 @@ public interface IStorageEntryFactory
   /// (e.g., "Companies" → "Companies.csv" or "dbo.Companies").
   /// </para>
   /// </remarks>
-  ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
+  IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
     where T : notnull, IFlatSchema, ITextSerializable;
 
   /// <summary>
@@ -72,6 +72,6 @@ public interface IStorageEntryFactory
   /// Typically uses structured formats (JSON, MessagePack) for singletons.
   /// </para>
   /// </remarks>
-  ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null)
+  IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
     where T : IStructuredSerializable;
 }

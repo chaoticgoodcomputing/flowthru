@@ -12,10 +12,10 @@ public partial class Catalog
   /// Trained multi-class logistic regression model.
   /// Contains weight matrix for all three species classifiers.
   /// </summary>
-  public ICatalogEntry<ModelWeightsSchema> IrisModel =>
-    GetOrCreateEntry(
+  public IItem<ModelWeightsSchema> IrisModel =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ModelWeightsSchema>(
+        Items.Single.Json<ModelWeightsSchema>(
           label: "IrisModel",
           filePath: $"{_basePath}/_06_Models/Datasets/iris_model.json"
         )

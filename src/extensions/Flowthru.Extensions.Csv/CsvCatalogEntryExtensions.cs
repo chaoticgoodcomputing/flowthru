@@ -7,7 +7,7 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension methods that add CSV support to <see cref="CatalogEntries.Enumerable"/>.
+/// Extension methods that add CSV support to <see cref="Items.Enumerable"/>.
 /// </summary>
 public static class CsvCatalogEntryExtensions
 {
@@ -15,7 +15,7 @@ public static class CsvCatalogEntryExtensions
   /// Creates a CSV file catalog entry with IEnumerable container.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="CatalogEntries.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="Items.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="filePath">Path to CSV file</param>
   /// <returns>Catalog entry with file + CSV + IEnumerable composition</returns>
@@ -35,8 +35,8 @@ public static class CsvCatalogEntryExtensions
   /// <item>All other traits use filesystem baseline defaults</item>
   /// </list>
   /// </remarks>
-  public static CatalogEntry<IEnumerable<TRow>> Csv<TRow>(
-    this EnumerableCatalogEntries _,
+  public static Item<IEnumerable<TRow>> Csv<TRow>(
+    this EnumerableItems _,
     string label,
     string filePath
   )
@@ -47,7 +47,7 @@ public static class CsvCatalogEntryExtensions
     var container = new EnumerableContainerAdapter<TRow>();
     var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
 
-    return new CatalogEntry<IEnumerable<TRow>>(label, storage);
+    return new Item<IEnumerable<TRow>>(label, storage);
   }
 
   /// <summary>
@@ -55,7 +55,7 @@ public static class CsvCatalogEntryExtensions
   /// concatenates them into a single <see cref="IEnumerable{TRow}"/>.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="CatalogEntries.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="Items.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="directoryPath">Path to the directory containing the CSV files</param>
   /// <returns>Read-only catalog entry that concatenates every <c>*.csv</c> in the directory</returns>
@@ -64,16 +64,13 @@ public static class CsvCatalogEntryExtensions
   /// This entry is <strong>read-only</strong> — attempting to save will fail with
   /// <see cref="NotSupportedException"/>.
   /// </remarks>
-  public static CatalogEntry<IEnumerable<TRow>> CsvDirectory<TRow>(
-    this EnumerableCatalogEntries _,
+  public static Item<IEnumerable<TRow>> CsvDirectory<TRow>(
+    this EnumerableItems _,
     string label,
     string directoryPath
   )
     where TRow : notnull, IFlatSchema, ITextSerializable
   {
-    return new CatalogEntry<IEnumerable<TRow>>(
-      label,
-      new DirectoryCsvStorageAdapter<TRow>(directoryPath)
-    );
+    return new Item<IEnumerable<TRow>>(label, new DirectoryCsvStorageAdapter<TRow>(directoryPath));
   }
 }

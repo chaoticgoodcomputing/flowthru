@@ -3,20 +3,20 @@ using System.Text.Json.Serialization;
 namespace Flowthru.Meta.Models;
 
 /// <summary>
-/// Root metadata model representing a complete pipeline DAG (Directed Acyclic Graph).
+/// Root metadata model representing a complete FlowthruService DAG (Directed Acyclic Graph).
 /// </summary>
 /// <remarks>
-/// This model captures the structure of a built pipeline, including all nodes,
-/// catalog entries, and their relationships. It serves as the backbone for
+/// This model captures the structure of a built flow, including all steps,
+/// catalog items, and their relationships. It serves as the backbone for
 /// Flowthru.Viz visualization.
 /// </remarks>
 public class DagMetadata
 {
   /// <summary>
-  /// Name of the pipeline this DAG represents.
+  /// Name of the flow this DAG represents.
   /// </summary>
-  [JsonPropertyName("pipelineName")]
-  public required string PipelineName { get; init; }
+  [JsonPropertyName("flowName")]
+  public required string FlowName { get; init; }
 
   /// <summary>
   /// Timestamp when this metadata was generated.
@@ -25,23 +25,23 @@ public class DagMetadata
   public DateTime GeneratedAt { get; init; } = DateTime.UtcNow;
 
   /// <summary>
-  /// All nodes in the pipeline with their metadata.
+  /// All steps in the flow with their metadata.
   /// </summary>
-  [JsonPropertyName("nodes")]
-  public List<NodeMetadata> Nodes { get; init; } = new();
+  [JsonPropertyName("steps")]
+  public List<StepMetadata> Steps { get; init; } = new();
 
   /// <summary>
-  /// All catalog entries (datasets) involved in the pipeline.
+  /// All catalog items involved in the flow.
   /// </summary>
-  [JsonPropertyName("catalogEntries")]
-  public List<CatalogEntryMetadata> CatalogEntries { get; init; } = new();
+  [JsonPropertyName("catalogItems")]
+  public List<ItemMetadata> CatalogItems { get; init; } = new();
 
   /// <summary>
   /// All edges representing data flow in the DAG.
   /// </summary>
   /// <remarks>
-  /// Edges connect catalog entries to nodes and nodes to catalog entries,
-  /// forming the complete data flow graph.
+  /// Edges connect catalog items to steps and steps to catalog items,
+  /// forming the complete graph.
   /// </remarks>
   [JsonPropertyName("edges")]
   public List<EdgeMetadata> Edges { get; init; } = new();
@@ -50,8 +50,8 @@ public class DagMetadata
   /// Slice criteria applied to generate this DAG, if any.
   /// </summary>
   /// <remarks>
-  /// Present when the DAG represents a sliced subset of the full pipeline.
-  /// Null when the DAG represents the complete, unsliced pipeline.
+  /// Present when the DAG represents a sliced subset of the full Flow.
+  /// Null when the DAG represents the complete, unsliced flow.
   /// Used for reproducibility, debugging, and filename generation.
   /// </remarks>
   [JsonPropertyName("appliedSlice")]
@@ -59,28 +59,28 @@ public class DagMetadata
   public DagSliceMetadata? AppliedSlice { get; init; }
 
   /// <summary>
-  /// Node IDs that are in the active execution slice, if a slice was applied.
+  /// Step IDs that are in the active execution slice, if a slice was applied.
   /// </summary>
   /// <remarks>
-  /// When a slice is applied, this contains the IDs of nodes that will actually execute.
-  /// The Nodes collection contains the full DAG, while this set identifies the subset.
-  /// Null when no slice was applied (all nodes execute).
+  /// When a slice is applied, this contains the IDs of steps that will actually execute.
+  /// The Steps collection contains the full DAG, while this set identifies the subset.
+  /// Null when no slice was applied (all steps execute).
   /// Enables visualization tools to highlight execution paths while showing full context.
   /// </remarks>
-  [JsonPropertyName("slicedNodeIds")]
+  [JsonPropertyName("slicedStepIds")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  public HashSet<string>? SlicedNodeIds { get; init; }
+  public HashSet<string>? SlicedStepIds { get; init; }
 
   /// <summary>
-  /// Catalog entry keys that are produced by nodes in the active execution slice.
+  /// Catalog item IDsthat are produced by steps in the active execution slice.
   /// </summary>
   /// <remarks>
-  /// When a slice is applied, this contains the keys of catalog entries (data) that
-  /// will be written during execution. Derived from the outputs of sliced nodes.
+  /// When a slice is applied, this contains the keys of catalog items (data) that
+  /// will be written during execution. Derived from the outputs of sliced steps.
   /// Null when no slice was applied (all data may be updated).
-  /// Enables visualization tools to highlight both nodes and the data they produce.
+  /// Enables visualization tools to highlight both steps and the data they produce.
   /// </remarks>
-  [JsonPropertyName("slicedCatalogEntryKeys")]
+  [JsonPropertyName("slicedCatalogItemIds")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-  public HashSet<string>? SlicedCatalogEntryKeys { get; init; }
+  public HashSet<string>? SlicedCatalogItemIds { get; init; }
 }

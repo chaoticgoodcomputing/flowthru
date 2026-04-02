@@ -76,10 +76,7 @@ public sealed class DatabaseStorageEntryFactory : IStorageEntryFactory
   /// <exception cref="NotImplementedException">
   /// Phase 2 stub - database support not yet implemented
   /// </exception>
-  public ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(
-    string label,
-    StorageOptions? options = null
-  )
+  public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
     where T : notnull, IFlatSchema, ITextSerializable
   {
     throw new NotImplementedException(
@@ -103,7 +100,7 @@ public sealed class DatabaseStorageEntryFactory : IStorageEntryFactory
   /// <exception cref="NotImplementedException">
   /// Phase 2 stub - database support not yet implemented
   /// </exception>
-  public ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null)
+  public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
     where T : IStructuredSerializable
   {
     throw new NotImplementedException(

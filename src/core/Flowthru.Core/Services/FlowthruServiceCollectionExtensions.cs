@@ -48,7 +48,7 @@ public static class FlowthruServiceCollectionExtensions
   ///
   ///     public async Task&lt;IActionResult&gt; RunPipeline(string name)
   ///     {
-  ///         var request = new PipelineExecutionRequest { PipelineName = name };
+  ///         var request = new PipelineExecutionRequest { FlowName = name };
   ///         var result = await _flowthru.ExecutePipelineAsync(request);
   ///         return Ok(result);
   ///     }
@@ -76,7 +76,7 @@ public static class FlowthruServiceCollectionExtensions
     configure(builder);
 
     // Register pipeline dictionary factory if inline registrations exist
-    builder.RegisterPipelineDictionary();
+    builder.RegisterFlowDictionary();
 
     // Register core service
     services.AddSingleton<IFlowthruService, FlowthruService>();

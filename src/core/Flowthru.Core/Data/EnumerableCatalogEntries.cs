@@ -7,7 +7,7 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension point for <see cref="CatalogEntries.Enumerable"/> factory methods.
+/// Extension point for <see cref="Items.Enumerable"/> factory methods.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -26,7 +26,7 @@ namespace Flowthru.Data;
 /// <strong>Use Cases:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item>Standard data processing pipelines (90% of cases)</item>
+/// <item>Standard data processing flows (90% of cases)</item>
 /// <item>Interop with .NET libraries expecting IEnumerable</item>
 /// <item>LINQ query composition</item>
 /// <item>Large datasets where you'll enumerate only once</item>
@@ -37,17 +37,17 @@ namespace Flowthru.Data;
 /// register new formats.
 /// </para>
 /// </remarks>
-public sealed class EnumerableCatalogEntries
+public sealed class EnumerableItems
 {
-  internal EnumerableCatalogEntries() { }
+  internal EnumerableItems() { }
 
   /// <summary>
-  /// Creates a JSON file catalog entry with IEnumerable container for collections.
+  /// Creates a JSON file catalog item with IEnumerable container for collections.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be structured-serializable)</typeparam>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="filePath">Path to JSON file</param>
-  /// <returns>Catalog entry with file + JSON + IEnumerable composition</returns>
+  /// <returns>Catalog item with file + JSON + IEnumerable composition</returns>
   /// <remarks>
   /// <para>
   /// <strong>Requirements:</strong>
@@ -68,7 +68,7 @@ public sealed class EnumerableCatalogEntries
   /// <strong>Serialization:</strong> JSON array format for collections
   /// </para>
   /// </remarks>
-  public CatalogEntry<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
+  public Item<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
     where TRow : notnull, IStructuredSerializable
   {
     var medium = new FileStorageMedium(filePath);
@@ -76,18 +76,18 @@ public sealed class EnumerableCatalogEntries
     var container = new EnumerableContainerAdapter<TRow>();
     var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
 
-    return new CatalogEntry<IEnumerable<TRow>>(label, storage);
+    return new Item<IEnumerable<TRow>>(label, storage);
   }
 
   /// <summary>
-  /// Creates an in-memory transient catalog entry with IEnumerable container.
+  /// Creates an in-memory transient catalog item with IEnumerable container.
   /// </summary>
   /// <typeparam name="TRow">Row schema type</typeparam>
   /// <param name="label">Unique catalog label for DAG resolution</param>
-  /// <returns>Catalog entry with memory storage (no serialization)</returns>
+  /// <returns>Catalog item with memory storage (no serialization)</returns>
   /// <remarks>
   /// <para>
-  /// <strong>Use Case:</strong> Intermediate pipeline data that doesn't need persistence
+  /// <strong>Use Case:</strong> Intermediate flow data that doesn't need persistence
   /// </para>
   /// <para>
   /// <strong>Storage Traits:</strong>
@@ -96,9 +96,9 @@ public sealed class EnumerableCatalogEntries
   /// <item>IsPersistent: false (data lost when process ends)</item>
   /// </list>
   /// </remarks>
-  public CatalogEntry<IEnumerable<TRow>> Memory<TRow>(string label)
+  public Item<IEnumerable<TRow>> Memory<TRow>(string label)
   {
     var storage = new MemoryStorageAdapter<IEnumerable<TRow>>();
-    return new CatalogEntry<IEnumerable<TRow>>(label, storage);
+    return new Item<IEnumerable<TRow>>(label, storage);
   }
 }

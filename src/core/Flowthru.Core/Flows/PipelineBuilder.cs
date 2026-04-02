@@ -1,15 +1,15 @@
 using Flowthru.Data;
-using Flowthru.Nodes;
+using Flowthru.Steps;
 
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
-/// Fluent builder for constructing type-safe data pipelines with function-based nodes.
+/// Fluent builder for constructing type-safe flows with function-based steps.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <strong>Function-Based Design (v0.5.0):</strong>
-/// Nodes are pure transformation functions with compile-time type safety.
+/// Steps are pure transformation functions with compile-time type safety.
 /// Both synchronous and asynchronous functions are supported:
 /// - Sync: Func&lt;TInput, TOutput&gt;
 /// - Async: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
@@ -18,187 +18,190 @@ namespace Flowthru.Pipelines;
 /// </para>
 /// <para>
 /// Use synchronous functions for pure data transformations. Use asynchronous functions
-/// only when your node performs I/O operations (external APIs, databases, etc.).
+/// only when your step performs I/O operations (external APIs, databases, etc.).
 /// </para>
 /// <para>
 /// The compiler infers all types from function signatures and validates catalog entry
-/// types at pipeline construction time, catching type mismatches before execution.
+/// types at flow construction time, catching type mismatches before execution.
 /// </para>
 /// <para>
 /// <strong>Usage Patterns:</strong>
 /// </para>
 /// <code>
-/// var pipeline = PipelineBuilder.CreatePipeline(builder =>
+/// var flow = FlowBuilder.CreateFlow(builder =>
 /// {
-///     // Simple synchronous node
-///     builder.AddNode(
+///     // Simple synchronous step
+///     builder.AddStep(
 ///         name: "Preprocess",
-///         transform: PreprocessNode.Create(),
+///         transform: PreprocessStep.Create(),
 ///         input: catalog.RawData,
 ///         output: catalog.ProcessedData
 ///     );
 ///
-///     // Multi-input node: tuple → single output
-///     builder.AddNode(
+///     // Multi-input step: tuple → single output
+///     builder.AddStep(
 ///         name: "TrainModel",
-///         transform: TrainModelNode.Create(),
+///         transform: TrainModelStep.Create(),
 ///         input: (catalog.XTrain, catalog.YTrain),
 ///         output: catalog.Model
 ///     );
 ///
-///     // Multi-output node: single input → tuple
-///     builder.AddNode(
+///     // Multi-output step: single input → tuple
+///     builder.AddStep(
 ///         name: "SplitData",
-///         transform: SplitDataNode.Create(),
+///         transform: SplitDataStep.Create(),
 ///         input: catalog.Data,
 ///         output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
 ///     );
 ///
-///     // Asynchronous node (only when needed for I/O)
-///     builder.AddNode(
+///     // Asynchronous step (only when needed for I/O)
+///     builder.AddStep(
 ///         name: "FetchExternalData",
-///         transform: ExternalDataNode.Create(),
+///         transform: ExternalDataStep.Create(),
 ///         input: catalog.Config,
 ///         output: catalog.ExternalData
 ///     );
 /// });
 ///
-/// pipeline.Build();
-/// await pipeline.ExecuteAsync();
+/// flow.Build();
+/// await flow.ExecuteAsync();
 /// </code>
 /// </remarks>
-public partial class PipelineBuilder
+public partial class FlowBuilder
 {
   /// <summary>
-  /// Maximum number of inputs supported by generated AddNode overloads.
+  /// Maximum number of inputs supported by generated AddStep overloads.
   /// </summary>
   internal const int MaxInputs = 8;
 
   /// <summary>
-  /// Maximum number of outputs supported by generated AddNode overloads.
+  /// Maximum number of outputs supported by generated AddStep overloads.
   /// </summary>
   internal const int MaxOutputs = 8;
 
-  private readonly Pipeline _pipeline = new();
+  private readonly Flow _flow = new();
 
   /// <summary>
-  /// Creates and configures a new pipeline using the builder pattern.
+  /// Creates and configures a new flow using the builder pattern.
   /// </summary>
-  /// <param name="configure">Action to configure the pipeline by adding nodes</param>
-  /// <returns>Configured but not yet built pipeline</returns>
-  public static Pipeline CreatePipeline(Action<PipelineBuilder> configure)
+  /// <param name="configure">Action to configure the flow by adding steps</param>
+  /// <returns>Configured but not yet built flow</returns>
+  public static Flow CreateFlow(Action<FlowBuilder> configure)
   {
-    var builder = new PipelineBuilder();
+    var builder = new FlowBuilder();
     configure(builder);
-    return builder._pipeline;
+    return builder._flow;
   }
 
   /// <summary>
-  /// Adds a node with single input and single output (asynchronous transformation).
+  /// Adds a step with single input and single output (asynchronous transformation).
   /// All types are inferred from the transformation function signature.
   /// </summary>
   /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
   /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
-  /// <param name="label">Unique identifier for this node</param>
+  /// <param name="label">Unique identifier for this step</param>
   /// <param name="transform">Asynchronous transformation function from input to output</param>
   /// <param name="input">Catalog entry providing input data</param>
   /// <param name="output">Catalog entry to store output data</param>
+  /// <param name="description">Optional description for this step</param>
   /// <returns>This builder for method chaining</returns>
-  public PipelineBuilder AddNode<TInput, TOutput>(
+  public FlowBuilder AddStep<TInput, TOutput>(
     string label,
     Func<TInput, Task<TOutput>> transform,
-    ICatalogEntry<TInput> input,
-    ICatalogEntry<TOutput> output,
+    IItem<TInput> input,
+    IItem<TOutput> output,
     string description = ""
   )
   {
-    var pipelineNode = new PipelineNode(
+    var flowStep = new FlowStep(
       label: label,
       description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input },
-      outputs: new List<ICatalogEntry> { output }
+      step: transform,
+      inputs: new List<IItem> { input },
+      outputs: new List<IItem> { output }
     );
 
-    _pipeline.AddNode(pipelineNode);
+    _flow.AddStep(flowStep);
     return this;
   }
 
   /// <summary>
-  /// Adds a node with single input and single output (asynchronous transformation with cancellation support).
+  /// Adds a step with single input and single output (asynchronous transformation with cancellation support).
   /// All types are inferred from the transformation function signature.
   /// </summary>
   /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
   /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
-  /// <param name="label">Unique identifier for this node</param>
+  /// <param name="label">Unique identifier for this step</param>
   /// <param name="transform">Asynchronous transformation function from input to output with cancellation token</param>
   /// <param name="input">Catalog entry providing input data</param>
   /// <param name="output">Catalog entry to store output data</param>
+  /// <param name="description">Optional description for this step</param>
   /// <returns>This builder for method chaining</returns>
-  public PipelineBuilder AddNode<TInput, TOutput>(
+  public FlowBuilder AddStep<TInput, TOutput>(
     string label,
     Func<TInput, CancellationToken, Task<TOutput>> transform,
-    ICatalogEntry<TInput> input,
-    ICatalogEntry<TOutput> output,
+    IItem<TInput> input,
+    IItem<TOutput> output,
     string description = ""
   )
   {
-    var pipelineNode = new PipelineNode(
+    var flowStep = new FlowStep(
       label: label,
       description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input },
-      outputs: new List<ICatalogEntry> { output }
+      step: transform,
+      inputs: new List<IItem> { input },
+      outputs: new List<IItem> { output }
     );
 
-    _pipeline.AddNode(pipelineNode);
+    _flow.AddStep(flowStep);
     return this;
   }
 
   /// <summary>
-  /// Adds a node with single input and single output (synchronous transformation).
+  /// Adds a step with single input and single output (synchronous transformation).
   /// All types are inferred from the transformation function signature.
   /// </summary>
   /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
   /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
-  /// <param name="label">Unique identifier for this node</param>
+  /// <param name="label">Unique identifier for this step</param>
   /// <param name="transform">Synchronous transformation function from input to output</param>
   /// <param name="input">Catalog entry providing input data</param>
   /// <param name="output">Catalog entry to store output data</param>
+  /// <param name="description">Optional description for this step</param>
   /// <returns>This builder for method chaining</returns>
-  public PipelineBuilder AddNode<TInput, TOutput>(
+  public FlowBuilder AddStep<TInput, TOutput>(
     string label,
     Func<TInput, TOutput> transform,
-    ICatalogEntry<TInput> input,
-    ICatalogEntry<TOutput> output,
+    IItem<TInput> input,
+    IItem<TOutput> output,
     string description = ""
   )
   {
-    var pipelineNode = new PipelineNode(
+    var flowStep = new FlowStep(
       label: label,
       description: description,
-      node: transform,
-      inputs: new List<ICatalogEntry> { input },
-      outputs: new List<ICatalogEntry> { output }
+      step: transform,
+      inputs: new List<IItem> { input },
+      outputs: new List<IItem> { output }
     );
 
-    _pipeline.AddNode(pipelineNode);
+    _flow.AddStep(flowStep);
     return this;
   }
 
   // Additional overloads (2-8 inputs, 1-8 outputs) are auto-generated via source generator.
-  // See: Flowthru.SourceGenerators/PipelineBuilderGenerator.cs
+  // See: Flowthru.SourceGenerators/FlowBuilderGenerator.cs
 
   /// <summary>
-  /// Adds a homogeneous fan-in node: N catalog entries of the same element type collapse
-  /// into a single node whose transform receives all N loaded collections as a typed list.
+  /// Adds a homogeneous fan-in step: N catalog entries of the same element type collapse
+  /// into a single step whose transform receives all N loaded collections as a typed list.
   /// </summary>
   /// <typeparam name="TIn">Element type of each input catalog entry</typeparam>
   /// <typeparam name="TOut">Output type produced by the transform</typeparam>
-  /// <param name="label">Unique identifier for this node</param>
+  /// <param name="label">Unique identifier for this step</param>
   /// <param name="inputs">Variable-length list of same-typed input entries</param>
   /// <param name="output">Catalog entry to store the merged result</param>
-  /// <param name="node">Transform function receiving all N loaded values as a typed read-only list</param>
+  /// <param name="step">Transform function receiving all N loaded values as a typed read-only list</param>
   /// <param name="description">Optional human-readable description</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
@@ -207,11 +210,11 @@ public partial class PipelineBuilder
   /// <c>IReadOnlyList&lt;TIn&gt;</c> where each element corresponds to one input entry
   /// in declaration order. An empty inputs list is allowed but produces an empty list argument.
   /// </remarks>
-  public PipelineBuilder AddNode<TIn, TOut>(
+  public FlowBuilder AddStep<TIn, TOut>(
     string label,
-    IReadOnlyList<ICatalogEntry<TIn>> inputs,
-    ICatalogEntry<TOut> output,
-    Func<IReadOnlyList<TIn>, TOut> node,
+    IReadOnlyList<IItem<TIn>> inputs,
+    IItem<TOut> output,
+    Func<IReadOnlyList<TIn>, TOut> step,
     string description = ""
   )
   {
@@ -219,26 +222,26 @@ public partial class PipelineBuilder
       throw new ArgumentNullException(nameof(inputs));
     if (output == null)
       throw new ArgumentNullException(nameof(output));
-    if (node == null)
-      throw new ArgumentNullException(nameof(node));
+    if (step == null)
+      throw new ArgumentNullException(nameof(step));
 
-    var capturedNode = node;
+    var capturedStep = step;
     // Wrap into Func<object[], TOut>. The executor uses the parameter type as a signal:
     // when it is object[], it passes the loaded inputs array directly rather than building
     // a ValueTuple. inputParameter is declared as object in the executor so DynamicInvoke
     // receives new object[]{ inputParameter } — no array-spreading occurs.
-    Func<object[], TOut> wrappedNode = rawInputs =>
-      capturedNode(rawInputs.Cast<TIn>().ToList().AsReadOnly());
+    Func<object[], TOut> wrappedStep = rawInputs =>
+      capturedStep(rawInputs.Cast<TIn>().ToList().AsReadOnly());
 
-    var pipelineNode = new PipelineNode(
+    var flowStep = new FlowStep(
       label: label,
       description: description,
-      node: wrappedNode,
-      inputs: inputs.Cast<ICatalogEntry>().ToList(),
-      outputs: new List<ICatalogEntry> { output }
+      step: wrappedStep,
+      inputs: inputs.Cast<IItem>().ToList(),
+      outputs: new List<IItem> { output }
     );
 
-    _pipeline.AddNode(pipelineNode);
+    _flow.AddStep(flowStep);
     return this;
   }
 }

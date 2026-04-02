@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flows;
 using KedroSpaceflightsPython.Data;
 using KedroSpaceflightsPython.Data._01_Raw.Schemas;
 using KedroSpaceflightsPython.Data._02_Intermediate.Schemas;
@@ -16,11 +16,11 @@ public static class DataProcessingPipeline
   /// <summary>
   /// Creates the data processing pipeline.
   /// </summary>
-  public static Pipeline Create(Catalog catalog, IPythonExecutor executor)
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "PreprocessCompanies",
         description: "Clean and parse company data (Python)",
         module: "Pipelines.DataProcessing.Nodes.preprocess_companies",
@@ -30,7 +30,7 @@ public static class DataProcessingPipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "PreprocessShuttles",
         description: "Clean and parse shuttle data (Python)",
         module: "Pipelines.DataProcessing.Nodes.preprocess_shuttles",

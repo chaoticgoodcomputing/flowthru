@@ -9,10 +9,10 @@ public partial class CoreCatalog
   /// All retail transactions consolidated from the daily CSV files into a single
   /// Parquet dataset with fully-typed columns. This is the canonical "full history" view.
   /// </summary>
-  public ICatalogEntry<IEnumerable<RetailTransactionIntermediateSchema>> AllRetailTransactions =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<RetailTransactionIntermediateSchema>> AllRetailTransactions =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<RetailTransactionIntermediateSchema>(
+        Items.Enumerable.Parquet<RetailTransactionIntermediateSchema>(
           label: "AllRetailTransactions",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/all_retail_transactions.parquet"
         )

@@ -1,42 +1,42 @@
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
-/// Represents the result of a pipeline execution.
+/// Represents the result of a flow execution.
 /// </summary>
 /// <remarks>
 /// <para>
 /// This class provides comprehensive execution information including success status,
-/// timing, individual node results, and error details.
+/// timing, individual step results, and error details.
 /// </para>
 /// <para>
 /// <strong>Usage Pattern:</strong>
 /// </para>
 /// <code>
-/// var result = await pipeline.RunAsync();
+/// var result = await flow.RunAsync();
 ///
 /// if (result.Success)
 /// {
-///     Console.WriteLine($"Pipeline completed in {result.ExecutionTime.TotalSeconds:F2}s");
-///     foreach (var nodeResult in result.NodeResults.Values)
+///     Console.WriteLine($"Flow completed in {result.ExecutionTime.TotalSeconds:F2}s");
+///     foreach (var stepResult in result.StepResults.Values)
 ///     {
-///         Console.WriteLine($"  {nodeResult.NodeName}: {nodeResult.ExecutionTime.TotalSeconds:F2}s");
+///         Console.WriteLine($"  {stepResult.StepName}: {stepResult.ExecutionTime.TotalSeconds:F2}s");
 ///     }
 /// }
 /// else
 /// {
-///     Console.WriteLine($"Pipeline failed: {result.Exception?.Message}");
+///     Console.WriteLine($"Flow failed: {result.Exception?.Message}");
 /// }
 /// </code>
 /// </remarks>
-public class PipelineResult
+public class FlowResult
 {
   /// <summary>
-  /// The name of the pipeline that was executed.
+  /// The name of the flow that was executed.
   /// </summary>
-  public string? PipelineName { get; init; }
+  public string? FlowName { get; init; }
 
   /// <summary>
-  /// Indicates whether the pipeline executed successfully.
+  /// Indicates whether the flow executed successfully.
   /// </summary>
   public bool Success { get; init; }
 
@@ -46,65 +46,65 @@ public class PipelineResult
   public bool IsDryRun { get; init; }
 
   /// <summary>
-  /// Total execution time for the entire pipeline.
+  /// Total execution time for the entire flow.
   /// </summary>
   public TimeSpan ExecutionTime { get; init; }
 
   /// <summary>
-  /// Results for individual nodes, keyed by node name.
+  /// Results for individual steps, keyed by step name.
   /// </summary>
   /// <remarks>
-  /// Dictionary keys are the node names as specified in the pipeline definition.
-  /// Values contain execution details for each node.
+  /// Dictionary keys are the step names as specified in the flow definition.
+  /// Values contain execution details for each step.
   /// </remarks>
-  public Dictionary<string, NodeResult> NodeResults { get; init; } = new();
+  public Dictionary<string, StepResult> StepResults { get; init; } = new();
 
   /// <summary>
-  /// Exception that caused pipeline failure, if any.
+  /// Exception that caused flow failure, if any.
   /// </summary>
   /// <remarks>
   /// Null if Success is true. Contains the first exception that caused
-  /// pipeline execution to halt if Success is false.
+  /// flow execution to halt if Success is false.
   /// </remarks>
   public Exception? Exception { get; init; }
 
   /// <summary>
-  /// Creates a successful pipeline result.
+  /// Creates a successful flow result.
   /// </summary>
-  public static PipelineResult CreateSuccess(
+  public static FlowResult CreateSuccess(
     TimeSpan executionTime,
-    Dictionary<string, NodeResult> nodeResults,
-    string? pipelineName = null
+    Dictionary<string, StepResult> stepResults,
+    string? flowName = null
   )
   {
-    return new PipelineResult
+    return new FlowResult
     {
       Success = true,
       IsDryRun = false,
       ExecutionTime = executionTime,
-      NodeResults = nodeResults,
-      PipelineName = pipelineName,
+      StepResults = stepResults,
+      FlowName = flowName,
     };
   }
 
   /// <summary>
-  /// Creates a failed pipeline result.
+  /// Creates a failed flow result.
   /// </summary>
-  public static PipelineResult CreateFailure(
+  public static FlowResult CreateFailure(
     TimeSpan executionTime,
     Exception exception,
-    Dictionary<string, NodeResult>? nodeResults = null,
-    string? pipelineName = null
+    Dictionary<string, StepResult>? stepResults = null,
+    string? flowName = null
   )
   {
-    return new PipelineResult
+    return new FlowResult
     {
       Success = false,
       IsDryRun = false,
       ExecutionTime = executionTime,
       Exception = exception,
-      NodeResults = nodeResults ?? new(),
-      PipelineName = pipelineName,
+      StepResults = stepResults ?? new(),
+      FlowName = flowName,
     };
   }
 
@@ -112,90 +112,90 @@ public class PipelineResult
   /// Creates a successful dry run result.
   /// </summary>
   /// <param name="preFlightDuration">Time spent on pre-flight checks</param>
-  /// <param name="nodeCount">Total number of nodes in the pipeline</param>
+  /// <param name="stepCount">Total number of steps in the flow</param>
   /// <param name="layerCount">Number of execution layers</param>
   /// <param name="validatedInputCount">Number of external inputs validated</param>
-  /// <param name="pipelineName">Name of the pipeline</param>
+  /// <param name="flowName">Name of the flow</param>
   /// <returns>A successful dry run result</returns>
-  public static PipelineResult CreateDryRunSuccess(
+  public static FlowResult CreateDryRunSuccess(
     TimeSpan preFlightDuration,
-    int nodeCount,
+    int stepCount,
     int layerCount,
     int validatedInputCount,
-    string? pipelineName = null
+    string? flowName = null
   )
   {
-    return new PipelineResult
+    return new FlowResult
     {
       Success = true,
       IsDryRun = true,
       ExecutionTime = preFlightDuration,
-      NodeResults = new Dictionary<string, NodeResult>(),
-      PipelineName = pipelineName,
+      StepResults = new Dictionary<string, StepResult>(),
+      FlowName = flowName,
     };
   }
 }
 
 /// <summary>
-/// Represents the execution result of a single pipeline node.
+/// Represents the execution result of a single flow step.
 /// </summary>
-public class NodeResult
+public class StepResult
 {
   /// <summary>
-  /// The name of the node that was executed.
+  /// The name of the step that was executed.
   /// </summary>
-  public required string NodeName { get; init; }
+  public required string StepName { get; init; }
 
   /// <summary>
-  /// Indicates whether the node executed successfully.
+  /// Indicates whether the step executed successfully.
   /// </summary>
   public bool Success { get; init; }
 
   /// <summary>
-  /// Execution time for this specific node.
+  /// Execution time for this specific step.
   /// </summary>
   public TimeSpan ExecutionTime { get; init; }
 
   /// <summary>
-  /// Exception that occurred during node execution, if any.
+  /// Exception that occurred during step execution, if any.
   /// </summary>
   /// <remarks>
   /// Null if Success is true. Contains the exception that caused
-  /// the node to fail if Success is false.
+  /// the step to fail if Success is false.
   /// </remarks>
   public Exception? Exception { get; init; }
 
   /// <summary>
-  /// Number of input items processed by this node.
+  /// Number of input items processed by this step.
   /// </summary>
   /// <remarks>
-  /// For multi-input nodes, this represents the total count across
+  /// For multi-input steps, this represents the total count across
   /// all input catalog entries.
   /// </remarks>
   public int InputCount { get; init; }
 
   /// <summary>
-  /// Number of output items produced by this node.
+  /// Number of output items produced by this step.
   /// </summary>
   /// <remarks>
-  /// For multi-output nodes, this represents the total count across
+  /// For multi-output steps, this represents the total count across
   /// all output catalog entries.
   /// </remarks>
   public int OutputCount { get; init; }
 
   /// <summary>
-  /// Creates a successful node result.
+  /// Creates a successful step result.
   /// </summary>
-  public static NodeResult CreateSuccess(
-    string nodeName,
+  public static StepResult CreateSuccess(
+    string stepName,
     TimeSpan executionTime,
     int inputCount,
     int outputCount
   )
   {
-    return new NodeResult
+    return new StepResult
     {
-      NodeName = nodeName,
+      StepName = stepName,
       Success = true,
       ExecutionTime = executionTime,
       InputCount = inputCount,
@@ -204,18 +204,18 @@ public class NodeResult
   }
 
   /// <summary>
-  /// Creates a failed node result.
+  /// Creates a failed step result.
   /// </summary>
-  public static NodeResult CreateFailure(
-    string nodeName,
+  public static StepResult CreateFailure(
+    string stepName,
     TimeSpan executionTime,
     Exception exception,
     int inputCount = 0
   )
   {
-    return new NodeResult
+    return new StepResult
     {
-      NodeName = nodeName,
+      StepName = stepName,
       Success = false,
       ExecutionTime = executionTime,
       Exception = exception,

@@ -115,13 +115,13 @@ public List<NodeMetadata> Nodes { get; init; }
 
  [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[NodeMetadata](Flowthru.Meta.Models.NodeMetadata.md)\>
 
-### <a id="Flowthru_Meta_Models_DagMetadata_PipelineName"></a> PipelineName
+### <a id="Flowthru_Meta_Models_DagMetadata_FlowName"></a> FlowName
 
 Name of the pipeline this DAG represents.
 
 ```csharp
 [JsonPropertyName("pipelineName")]
-public required string PipelineName { get; init; }
+public required string FlowName { get; init; }
 ```
 
 #### Property Value

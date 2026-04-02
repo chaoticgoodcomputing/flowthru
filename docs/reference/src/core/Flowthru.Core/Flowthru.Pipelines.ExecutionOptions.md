@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_ExecutionOptions"></a> Class ExecutionOptions
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Configuration options for pipeline execution.
@@ -12,7 +12,7 @@ public class ExecutionOptions
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[ExecutionOptions](Flowthru.Pipelines.ExecutionOptions.md)
+[ExecutionOptions](Flowthru.Flows.ExecutionOptions.md)
 
 #### Inherited Members
 
@@ -40,14 +40,14 @@ public DryRunOption DryRun { get; set; }
 
 #### Property Value
 
- [DryRunOption](Flowthru.Pipelines.DryRunOption.md)
+ [DryRunOption](Flowthru.Flows.DryRunOption.md)
 
 #### Remarks
 
 Assign <code>true</code> to perform all pre-flight operations (structure validation,
 validation hooks, and external data source inspection) without executing nodes.
-Assign a <xref href="Flowthru.Pipelines.ValidationDepth" data-throw-if-not-resolved="false"></xref> value to control how deeply the pre-flight
-checks run — for example, <xref href="Flowthru.Pipelines.ValidationDepth.StructureOnly" data-throw-if-not-resolved="false"></xref> validates
+Assign a <xref href="Flowthru.Flows.ValidationDepth" data-throw-if-not-resolved="false"></xref> value to control how deeply the pre-flight
+checks run — for example, <xref href="Flowthru.Flows.ValidationDepth.StructureOnly" data-throw-if-not-resolved="false"></xref> validates
 the pipeline graph and runs extension hooks without probing any data sources.
 Assign <code>false</code> (default) to run normally without a dry-run stop.
 
@@ -73,12 +73,12 @@ When true, nodes in the same execution layer run concurrently.
 The result formatter to use for displaying execution results.
 
 ```csharp
-public IPipelineResultFormatter? ResultFormatter { get; set; }
+public IFlowResultFormatter? ResultFormatter { get; set; }
 ```
 
 #### Property Value
 
- [IPipelineResultFormatter](Flowthru.Results.IPipelineResultFormatter.md)?
+ [IFlowResultFormatter](Flowthru.Results.IFlowResultFormatter.md)?
 
 #### Remarks
 
@@ -89,12 +89,12 @@ Defaults to ConsoleResultFormatter if not specified.
 Optional slicing strategy to apply when executing pipelines.
 
 ```csharp
-public PipelineSliceStrategy? SliceStrategy { get; set; }
+public FlowSliceStrategy? SliceStrategy { get; set; }
 ```
 
 #### Property Value
 
- [PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)?
+ [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)?
 
 #### Remarks
 

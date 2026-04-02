@@ -1,6 +1,6 @@
 # <a id="Flowthru_Nodes_NoData"></a> Class NoData
 
-Namespace: [Flowthru.Nodes](Flowthru.Nodes.md)  
+Namespace: [Flowthru.Steps](Flowthru.Steps.md)  
 Assembly: Flowthru.Core.dll  
 
 Marker type representing "no meaningful data" for nodes with side-effects or data generation.
@@ -13,7 +13,7 @@ public sealed class NoData
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[NoData](Flowthru.Nodes.NoData.md)
+[NoData](Flowthru.Steps.NoData.md)
 
 #### Inherited Members
 
@@ -85,7 +85,7 @@ public static readonly NoData Value
 
 #### Field Value
 
- [NoData](Flowthru.Nodes.NoData.md)
+ [NoData](Flowthru.Steps.NoData.md)
 
 ## Properties
 
@@ -100,7 +100,7 @@ public static ICatalogEntry<NoData> Discard { get; }
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 ### <a id="Flowthru_Nodes_NoData_Input"></a> Input
 
@@ -113,7 +113,7 @@ public static ICatalogEntry<NoData> Input { get; }
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 #### Remarks
 
@@ -130,7 +130,7 @@ public static ICatalogEntry<NoData> None { get; }
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 ### <a id="Flowthru_Nodes_NoData_Output"></a> Output
 
@@ -143,7 +143,7 @@ public static ICatalogEntry<NoData> Output { get; }
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 #### Remarks
 
@@ -162,7 +162,7 @@ public static Task<IEnumerable<NoData>> Result()
 
 #### Returns
 
- [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[NoData](Flowthru.Nodes.NoData.md)\>\>
+ [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[NoData](Flowthru.Steps.NoData.md)\>\>
 
 Singleton collection containing NoData.Value
 

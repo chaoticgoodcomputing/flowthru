@@ -5,7 +5,7 @@ namespace Minimal.Data;
 /// <summary>
 /// Data catalog providing access to all datasets in the pipeline.
 /// </summary>
-public partial class Catalog : DataCatalogBase
+public partial class Catalog : CatalogAbstract
 {
   private readonly string _basePath;
 

@@ -57,7 +57,7 @@ public class Program
 
       // Register the greetings pipeline
       flowthru
-        .RegisterPipeline(label: "Greetings", pipeline: GreetingsPipeline.Create)
+        .RegisterFlow(label: "Greetings", flow: GreetingsPipeline.Create)
         .WithDescription(
           "A minimal pipeline demonstrating name transformation into multiple greeting formats"
         );

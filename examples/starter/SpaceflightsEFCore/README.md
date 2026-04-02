@@ -88,7 +88,7 @@ public static partial class DataCatalog
 using var db = new AppDbContext();
 await db.Database.MigrateAsync();
 
-var pipeline = new PipelineBuilder("CompanyETL")
+var pipeline = new FlowBuilder("CompanyETL")
     .AddNode("extract", catalog => new ExtractCompaniesNode(
         inputs: catalog.SourceCompanies(db),
         outputs: catalog.RawCompanies()

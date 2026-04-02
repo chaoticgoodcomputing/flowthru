@@ -1,11 +1,11 @@
-namespace Flowthru.Pipelines;
+namespace Flowthru.Flows;
 
 /// <summary>
-/// Defines a strategy for slicing a pipeline to execute a subset of nodes.
+/// Defines a strategy for slicing a flow to execute a subset of nodes.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Pipeline slicing allows executing only specific portions of a DAG while maintaining
+/// flow slicing allows executing only specific portions of a DAG while maintaining
 /// execution validity. All slicing operations preserve the runnability guarantee:
 /// the resulting sub-DAG must be executable without missing dependencies.
 /// </para>
@@ -13,7 +13,7 @@ namespace Flowthru.Pipelines;
 /// <strong>Slicing Strategies:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item><strong>Pipelines:</strong> Filter to nodes from specific named pipelines (in merged DAGs)</item>
+/// <item><strong>flows:</strong> Filter to nodes from specific named flows (in merged DAGs)</item>
 /// <item><strong>FromNodes:</strong> Include specified nodes and all downstream dependents</item>
 /// <item><strong>ToNodes:</strong> Include specified nodes and all upstream dependencies (run "up to" these nodes)</item>
 /// <item><strong>FromData:</strong> Include nodes consuming specified catalog entries and all downstream dependents</item>
@@ -31,17 +31,17 @@ namespace Flowthru.Pipelines;
 /// are not supported.
 /// </para>
 /// </remarks>
-public sealed class PipelineSliceStrategy
+public sealed class FlowSliceStrategy
 {
   /// <summary>
-  /// Filter to nodes from these named pipelines (applies to merged pipelines).
+  /// Filter to nodes from these named flows (applies to merged flows).
   /// </summary>
   /// <remarks>
-  /// In merged pipelines, nodes are prefixed with their pipeline name (e.g., "DataScience.TrainModel").
-  /// This filter includes only nodes from the specified pipelines.
-  /// Pipeline names are case-insensitive.
+  /// In merged flows, nodes are prefixed with their flow name (e.g., "DataScience.TrainModel").
+  /// This filter includes only nodes from the specified flows.
+  /// flow names are case-insensitive.
   /// </remarks>
-  public IReadOnlySet<string>? Pipelines { get; init; }
+  public IReadOnlySet<string>? Flows { get; init; }
 
   /// <summary>
   /// Start from these nodes, including all downstream dependents.
@@ -58,7 +58,7 @@ public sealed class PipelineSliceStrategy
   /// <remarks>
   /// Expands to include all transitive dependencies needed to run these nodes.
   /// Equivalent to "run everything up to and including these nodes".
-  /// Useful for testing specific outputs without running the entire pipeline.
+  /// Useful for testing specific outputs without running the entire flow.
   /// </remarks>
   public IReadOnlySet<string>? ToNodes { get; init; }
 
@@ -68,6 +68,8 @@ public sealed class PipelineSliceStrategy
   /// <remarks>
   /// Finds all nodes that read the specified catalog entries, then expands downstream.
   /// Useful for impact analysis - "what breaks if I change this data?"
+  ///
+  /// TODO: Remove this, as it is now sufficient to reference both steps and data entries as nodes.
   /// </remarks>
   public IReadOnlySet<string>? FromData { get; init; }
 
@@ -77,6 +79,8 @@ public sealed class PipelineSliceStrategy
   /// <remarks>
   /// Finds the nodes that write the specified catalog entries, then expands upstream.
   /// Useful for targeted execution - "run everything needed to produce this data".
+  ///
+  /// TODO: Remove this, as it is now sufficient to reference both steps and data entries as nodes.
   /// </remarks>
   public IReadOnlySet<string>? ToData { get; init; }
 
@@ -93,7 +97,7 @@ public sealed class PipelineSliceStrategy
   /// Whether any slicing is configured.
   /// </summary>
   public bool IsSliced =>
-    Pipelines != null
+    Flows != null
     || FromNodes != null
     || ToNodes != null
     || FromData != null
@@ -101,7 +105,7 @@ public sealed class PipelineSliceStrategy
     || OnlyNodes != null;
 
   /// <summary>
-  /// No filtering - execute entire pipeline.
+  /// No filtering - execute entire flow.
   /// </summary>
-  public static PipelineSliceStrategy All() => new();
+  public static FlowSliceStrategy All() => new();
 }

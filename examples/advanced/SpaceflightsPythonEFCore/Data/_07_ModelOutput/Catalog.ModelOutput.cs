@@ -15,17 +15,17 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  public ICatalogEntry<ModelMetrics> ModelMetrics =>
-    GetOrCreateEntry(
+  public IItem<ModelMetrics> ModelMetrics =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ModelMetrics>(
+        Items.Single.Json<ModelMetrics>(
           label: "ModelMetrics",
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/model_metrics.json"
         )
     );
 
-  public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
+    CreateItem(
       () =>
         EFCoreCatalogEntries.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
           label: "ModelPredictions",

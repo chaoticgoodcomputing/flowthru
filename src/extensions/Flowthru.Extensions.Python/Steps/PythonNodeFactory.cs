@@ -2,33 +2,33 @@ using Flowthru.Data;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Validation;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 
-namespace Flowthru.Extensions.Python.Nodes;
+namespace Flowthru.Extensions.Python.Steps;
 
 /// <summary>
-/// Extension methods for adding Python nodes to pipelines.
+/// Extension methods for adding Python steps to flows.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <strong>Phases 2-5 implementation:</strong>
-/// Hand-written 1×1 AddPythonNode(Phase 2-4).
+/// Hand-written 1×1 AddPythonStep(Phase 2-4).
 /// Source-generated N×M overloads for multi-I/O support (Phase 5).
 /// </para>
 /// <para>
 /// <strong>Usage:</strong>
 /// </para>
 /// <code>
-/// public static Pipeline Create(
+/// public static Flow Create(
 ///     Catalog catalog,
 ///     IPythonExecutor executor,
 ///     PythonRuntime runtime)
 /// {
-///     return PipelineBuilder.CreatePipeline(pipeline =>
+///     return FlowBuilder.CreateFlow(flow =>
 ///     {
-///         pipeline.AddPythonNode(
+///         flow.AddPythonStep(
 ///             label: "Transform",
-///             module: "my_nodes.transform",
+///             module: "my_steps.transform",
 ///             function: "process",
 ///             input: catalog.RawData,
 ///             output: catalog.ProcessedData,
@@ -45,30 +45,30 @@ namespace Flowthru.Extensions.Python.Nodes;
 /// </list>
 /// </para>
 /// </remarks>
-public static partial class PythonNodeFactory
+public static partial class PythonStepFactory
 {
   /// <summary>
-  /// Adds a Python node with single input and single output.
+  /// Adds a Python step with single input and single output.
   /// </summary>
-  /// <typeparam name="TInput">Input type (must match catalog entry type).</typeparam>
-  /// <typeparam name="TOutput">Output type (must match catalog entry type).</typeparam>
-  /// <param name="builder">Pipeline builder instance.</param>
-  /// <param name="label">Unique identifier for this node.</param>
+  /// <typeparam name="TInput">Input type (must match catalog item type).</typeparam>
+  /// <typeparam name="TOutput">Output type (must match catalog item type).</typeparam>
+  /// <param name="builder">Flow builder instance.</param>
+  /// <param name="label">Unique identifier for this step.</param>
   /// <param name="module">
-  /// Dotted Python module name (e.g., "Pipelines.DataScience.train_model").
+  /// Dotted Python module name (e.g., "Flows.DataScience.train_model").
   /// Must be resolvable via sys.path.
   /// </param>
   /// <param name="function">Python function name within the module.</param>
-  /// <param name="input">Catalog entry providing input data.</param>
-  /// <param name="output">Catalog entry to store output data.</param>
+  /// <param name="input">Catalog item providing input data.</param>
+  /// <param name="output">Catalog item to store output data.</param>
   /// <param name="executor">Python executor for invoking the function.</param>
   /// <param name="runtime">Python runtime for GIL management.</param>
-  /// <param name="description">Optional node description.</param>
+  /// <param name="description">Optional step description.</param>
   /// <returns>This builder for method chaining.</returns>
   /// <remarks>
   /// <para>
   /// <strong>Compile-time type safety:</strong>
-  /// Generic type parameters are inferred from catalog entries.
+  /// Generic type parameters are inferred from catalog items.
   /// Mismatched types produce compiler errors.
   /// </para>
   /// <para>
@@ -76,7 +76,7 @@ public static partial class PythonNodeFactory
   /// <list type="bullet">
   /// <item>Module is importable (exists, no syntax errors)</item>
   /// <item>Function exists in module</item>
-  /// <item>@node decorator is present</item>
+  /// <item>@step decorator is present</item>
   /// </list>
   /// </para>
   /// <para>
@@ -88,13 +88,13 @@ public static partial class PythonNodeFactory
   /// </list>
   /// </para>
   /// </remarks>
-  public static PipelineBuilder AddPythonNode<TInput, TOutput>(
-    this PipelineBuilder builder,
+  public static FlowBuilder AddPythonStep<TInput, TOutput>(
+    this FlowBuilder builder,
     string label,
     string module,
     string function,
-    ICatalogEntry<TInput> input,
-    ICatalogEntry<TOutput> output,
+    IItem<TInput> input,
+    IItem<TOutput> output,
     IPythonExecutor executor,
     string description = ""
   )
@@ -135,14 +135,14 @@ public static partial class PythonNodeFactory
     }
 
     // Phase 4: Registration-time validation via executor
-    executor.ValidateNode(module, function);
+    executor.ValidateStep(module, function);
 
-    var wrapper = new PythonNodeWrapper<TInput, TOutput>(executor, module, function);
+    var wrapper = new PythonStepWrapper<TInput, TOutput>(executor, module, function);
 
-    // Delegate to the existing AddNode infrastructure
+    // Delegate to the existing AddStep infrastructure
     // This ensures DAG scheduling, dependency analysis, and all other
-    // pipeline mechanics work identically for Python and C# nodes
-    return builder.AddNode(
+    // flow mechanics work identically for Python and C# steps
+    return builder.AddStep(
       label: label,
       transform: wrapper.GetTransform(),
       input: input,
