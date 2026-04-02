@@ -34,7 +34,7 @@
 		],
 		"description": "Creates a basic Flowthru pipeline structure."
 	},
-	"FlowthruNode": {
+	"FlowthruStep": {
 		"scope": "csharp",
 		"prefix": "_node",
 		"body": [

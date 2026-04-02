@@ -12,7 +12,7 @@ public interface IPythonExecutor
 ## Remarks
 
 <p>
-Decouples the execution strategy from Python node wiring.
+Decouples the execution strategy from Python step wiring.
 Two implementations ship out of the box:
 <ul><li><xref href="Flowthru.Extensions.Python.Execution.PythonNetExecutor" data-throw-if-not-resolved="false"></xref> — in-process via Python.NET (opt-in)</li><li><xref href="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor" data-throw-if-not-resolved="false"></xref> — isolated child process per service (default)</li></ul>
 </p>
@@ -41,7 +41,7 @@ TOutput Invoke<TInput, TOutput>(string moduleName, string functionName, TInput i
 
 `moduleName` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Dotted module name (e.g., <code>"Pipelines.DataScience.train_model"</code>).
+Dotted module name (e.g., <code>"Flows.DataScience.train_model"</code>).
 Must be resolvable via the executor's configured <code>sys.path</code>.
 
 `functionName` [string](https://learn.microsoft.com/dotnet/api/system.string)
@@ -76,12 +76,12 @@ C# output type. Same range as <code class="typeparamref">TInput</code>.
 Thrown if the module cannot be imported, the function cannot be resolved,
 or marshalling fails.
 
-### <a id="Flowthru_Extensions_Python_Execution_IPythonExecutor_ValidateNode_System_String_System_String_"></a> ValidateNode\(string, string\)
+### <a id="Flowthru_Extensions_Python_Execution_IPythonExecutor_ValidateStep_System_String_System_String_"></a> ValidateStep\(string, string\)
 
-Validates that a Python node exists and satisfies Flowthru's <code>@node</code> contract.
+Validates that a Python step exists and satisfies Flowthru's <code>@step</code> contract.
 
 ```csharp
-void ValidateNode(string moduleName, string functionName)
+void ValidateStep(string moduleName, string functionName)
 ```
 
 #### Parameters
@@ -99,5 +99,5 @@ Python function name within the module.
  [InvalidOperationException](https://learn.microsoft.com/dotnet/api/system.invalidoperationexception)
 
 Thrown if the module is not importable, the function is missing, or the
-<code>@node</code> decorator is absent.
+<code>@step</code> decorator is absent.
 

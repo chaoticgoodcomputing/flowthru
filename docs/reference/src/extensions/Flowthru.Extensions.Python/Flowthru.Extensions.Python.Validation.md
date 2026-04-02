@@ -2,7 +2,7 @@
 
 ### Classes
 
- [PythonNodeValidator](Flowthru.Extensions.Python.Validation.PythonNodeValidator.md)
+ [PythonStepValidator](Flowthru.Extensions.Python.Validation.PythonStepValidator.md)
 
-Validation hook for Python nodes.
+Validation hook for Python steps.
 

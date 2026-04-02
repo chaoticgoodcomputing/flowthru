@@ -180,7 +180,7 @@ The data type (typically NoData)
 #### Remarks
 
 <p>
-<strong>Use Case:</strong> Nodes that perform side effects (logging, visualization) without producing meaningful data
+<strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
 </p>
 <p>
 <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.

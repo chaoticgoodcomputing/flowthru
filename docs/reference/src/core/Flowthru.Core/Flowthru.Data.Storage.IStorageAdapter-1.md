@@ -64,7 +64,7 @@ All operations return <xref href="Flowthru.Effects.FlowIO%601" data-throw-if-not
 <strong>Usage in Catalog Entries:</strong>
 </p>
 <p>
-<xref href="Flowthru.Data.ICatalogEntry%601" data-throw-if-not-resolved="false"></xref> delegates to this interface:
+<xref href="Flowthru.Data.IItem%601" data-throw-if-not-resolved="false"></xref> delegates to this interface:
 </p>
 <pre><code class="lang-csharp">public class CatalogEntry&lt;T&gt; : ICatalogEntry&lt;T&gt;
 {

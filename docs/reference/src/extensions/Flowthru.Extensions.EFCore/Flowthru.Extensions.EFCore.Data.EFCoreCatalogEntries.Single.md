@@ -29,7 +29,7 @@ public static class EFCoreCatalogEntries.Single
 Creates an Entity Framework Core catalog entry for single database-backed entities.
 
 ```csharp
-public static CatalogEntry<T> EFCore<T>(string label, DbContext context, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, T, CancellationToken, Task>? saveFunc = null) where T : class
+public static Item<T> EFCore<T>(string label, DbContext context, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, T, CancellationToken, Task>? saveFunc = null) where T : class
 ```
 
 #### Parameters
@@ -50,7 +50,7 @@ DbContext instance (caller owns lifecycle)
 
 #### Returns
 
- CatalogEntry<T\>
+ Item<T\>
 
 Catalog entry for EFCore single entity storage
 
@@ -97,7 +97,7 @@ To create a read-only catalog entry, apply a constraint:
 Creates an Entity Framework Core catalog entry for single database-backed entities using a factory.
 
 ```csharp
-public static CatalogEntry<T> EFCore<T>(string label, Func<DbContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, T, CancellationToken, Task>? saveFunc = null) where T : class
+public static Item<T> EFCore<T>(string label, Func<DbContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, T, CancellationToken, Task>? saveFunc = null) where T : class
 ```
 
 #### Parameters
@@ -118,7 +118,7 @@ Factory that creates DbContext instances (adapter owns lifecycle)
 
 #### Returns
 
- CatalogEntry<T\>
+ Item<T\>
 
 Catalog entry for EFCore single entity storage
 
@@ -161,7 +161,7 @@ The concrete <code class="typeparamref">TContext</code> flows through to the sav
 eliminating any downcast inside the delegate body.
 
 ```csharp
-public static CatalogEntry<T> EFCore<T, TContext>(string label, Func<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, T, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
+public static Item<T> EFCore<T, TContext>(string label, Func<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, T, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
 ```
 
 #### Parameters
@@ -189,7 +189,7 @@ Optional save delegate receiving the concrete <code class="typeparamref">TContex
 
 #### Returns
 
- CatalogEntry<T\>
+ Item<T\>
 
 Catalog entry for EFCore single entity storage
 
@@ -208,7 +208,7 @@ Concrete DbContext type
 Creates a single-entity EFCore catalog entry using <xref href="Microsoft.EntityFrameworkCore.IDbContextFactory%601" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
-public static CatalogEntry<T> EFCore<T, TContext>(string label, IDbContextFactory<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, T, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
+public static Item<T> EFCore<T, TContext>(string label, IDbContextFactory<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, T, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
 ```
 
 #### Parameters
@@ -236,7 +236,7 @@ Optional save delegate receiving the concrete <code class="typeparamref">TContex
 
 #### Returns
 
- CatalogEntry<T\>
+ Item<T\>
 
 Catalog entry for EFCore single entity storage
 

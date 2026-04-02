@@ -10,34 +10,34 @@
 
 ### Classes
 
- [CatalogEntries](Flowthru.Data.CatalogEntries.md)
-
-Static factory methods for creating catalog entries with common configurations.
-
- [CatalogEntry<T\>](Flowthru.Data.CatalogEntry\-1.md)
-
-Standard catalog entry implementation that delegates to a storage adapter.
-
- [DataCatalogBase](Flowthru.Data.DataCatalogBase.md)
+ [CatalogAbstract](Flowthru.Data.CatalogAbstract.md)
 
 Base class for strongly-typed catalog implementations with automatic property caching.
 
- [EnumerableCatalogEntries](Flowthru.Data.EnumerableCatalogEntries.md)
+ [EnumerableItems](Flowthru.Data.EnumerableItems.md)
 
-Extension point for <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref> factory methods.
+Extension point for <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref> factory methods.
 
- [CatalogEntries.Single](Flowthru.Data.CatalogEntries.Single.md)
+ [Item<T\>](Flowthru.Data.Item\-1.md)
+
+Standard catalog item implementation that delegates to a storage adapter.
+
+ [Items](Flowthru.Data.Items.md)
+
+Static factory methods for creating catalog entries with common configurations.
+
+ [Items.Single](Flowthru.Data.Items.Single.md)
 
 Factory methods for single (non-collection) values.
 
 ### Interfaces
 
- [ICatalogEntry<T\>](Flowthru.Data.ICatalogEntry\-1.md)
+ [IItem<T\>](Flowthru.Data.IItem\-1.md)
 
-Unified catalog entry with cardinality encoded in the type parameter.
+Unified catalog item with cardinality encoded in the type parameter.
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry.md)
+ [IItem](Flowthru.Data.IItem.md)
 
-Non-generic base interface for catalog entries.
-Provides untyped operations for internal use by the pipeline executor and mapping layer.
+Non-generic base interface for catalog items.
+Provides untyped operations for internal use by the flow executor and mapping layer.
 

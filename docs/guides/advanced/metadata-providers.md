@@ -41,7 +41,7 @@ public class DashboardMetadataProvider : IMetadataProvider
         var payload = new
         {
             FlowName = dag.FlowName,
-            NodeCount = dag.Nodes.Count,
+            StepCount = dag.Steps.Count,
             EdgeCount = dag.Edges.Count,
             Timestamp = DateTime.UtcNow
         };
@@ -145,7 +145,7 @@ var singlePipelineDag = service.GetDagMetadata(pipelineName: "DataEngineering");
 var slicedDag = service.GetDagMetadata(
     sliceStrategy: new FlowSliceStrategy
     {
-        ToNodes = new HashSet<string> { "TransformNode" }
+        ToSteps = new HashSet<string> { "TransformStep" }
     }
 );
 ```
@@ -170,6 +170,6 @@ meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json => json
 meta.AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid => mermaid
     .WithOutputDirectory("metadata")
     .WithDirection(MermaidFlowchartDirection.LeftToRight)
-    .WithActiveNodeColor("#90EE90")
+    .WithActiveStepColor("#90EE90")
     .WithActiveDataColor("#ADD8E6"));
 ```

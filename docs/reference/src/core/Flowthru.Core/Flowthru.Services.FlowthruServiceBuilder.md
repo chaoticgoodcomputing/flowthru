@@ -27,14 +27,14 @@ public sealed class FlowthruServiceBuilder
 
 <p>
 This builder configures the service layer without CLI coupling.
-Use it to register catalogs, pipelines, and optional features.
+Use it to register catalogs, flows, and optional features.
 </p>
 <p>
 <strong>Basic Usage:</strong>
 <pre><code class="lang-csharp">services.AddFlowthru(flowthru =&gt;
 {
     flowthru.RegisterCatalog(_ =&gt; new MyCatalog(dataPath));
-    flowthru.RegisterPipeline("my_pipeline", MyPipeline.Create);
+    flowthru.RegisterFlow("my_flow", MyFlow.Create);
 });</code></pre>
 </p>
 
@@ -63,7 +63,7 @@ This builder for method chaining
 #### Remarks
 
 <p>
-Metadata export is optional. If not configured, pipelines will execute
+Metadata export is optional. If not configured, flows will execute
 without generating DAG diagrams or metadata files.
 </p>
 <p>
@@ -81,7 +81,7 @@ without generating DAG diagrams or metadata files.
 Registers a catalog type with constructor injection.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalog<TCatalog>() where TCatalog : DataCatalogBase
+public FlowthruServiceBuilder RegisterCatalog<TCatalog>() where TCatalog : CatalogAbstract
 ```
 
 #### Returns
@@ -101,17 +101,17 @@ The catalog type
 The catalog will be resolved from the DI container, allowing constructor
 parameter injection (e.g., IConfiguration, IOptions).
 
-### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterCatalog_Flowthru_Data_DataCatalogBase_"></a> RegisterCatalog\(DataCatalogBase\)
+### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterCatalog_Flowthru_Data_CatalogAbstract_"></a> RegisterCatalog\(CatalogAbstract\)
 
 Registers a catalog instance directly.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalog(DataCatalogBase catalog)
+public FlowthruServiceBuilder RegisterCatalog(CatalogAbstract catalog)
 ```
 
 #### Parameters
 
-`catalog` [DataCatalogBase](Flowthru.Data.DataCatalogBase.md)
+`catalog` [CatalogAbstract](Flowthru.Data.CatalogAbstract.md)
 
 The catalog instance
 
@@ -130,7 +130,7 @@ Use this when the catalog doesn't require dependency injection.
 Registers a catalog factory that receives the service provider.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalog<TCatalog>(Func<IServiceProvider, TCatalog> catalogFactory) where TCatalog : DataCatalogBase
+public FlowthruServiceBuilder RegisterCatalog<TCatalog>(Func<IServiceProvider, TCatalog> catalogFactory) where TCatalog : CatalogAbstract
 ```
 
 #### Parameters
@@ -156,19 +156,19 @@ The concrete catalog type
 Use this when the catalog needs to resolve services during construction,
 or when construction requires parameters unavailable at the call site.
 
-### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterCatalogs_System_Collections_Generic_IEnumerable_Flowthru_Data_DataCatalogBase__"></a> RegisterCatalogs\(IEnumerable<DataCatalogBase\>\)
+### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterCatalogs_System_Collections_Generic_IEnumerable_Flowthru_Data_CatalogAbstract__"></a> RegisterCatalogs\(IEnumerable<CatalogAbstract\>\)
 
 Registers a collection of pre-built catalog instances produced by iterative or dynamic
 construction — the fan-out pattern where N identical-shaped catalogs differ only by
 their construction parameters (e.g., one catalog per US state).
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalogs(IEnumerable<DataCatalogBase> catalogs)
+public FlowthruServiceBuilder RegisterCatalogs(IEnumerable<CatalogAbstract> catalogs)
 ```
 
 #### Parameters
 
-`catalogs` [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[DataCatalogBase](Flowthru.Data.DataCatalogBase.md)\>
+`catalogs` [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[CatalogAbstract](Flowthru.Data.CatalogAbstract.md)\>
 
 The catalog instances to register
 
@@ -181,21 +181,21 @@ This builder for method chaining
 #### Remarks
 
 All registered catalogs will receive DI service injection and appear in
-<xref href="Flowthru.Services.IFlowthruService.Catalogs" data-throw-if-not-resolved="false"></xref>. Use with <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterPipelines(System.Func%7bSystem.IServiceProvider%2cSystem.Collections.Generic.Dictionary%7bSystem.String%2cFlowthru.Flows.Pipeline%7d%7d)" data-throw-if-not-resolved="false"></xref> to
-wire per-catalog pipelines in a loop.
+<xref href="Flowthru.Services.IFlowthruService.Catalogs" data-throw-if-not-resolved="false"></xref>. Use with <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterFlows(System.Func%7bSystem.IServiceProvider%2cSystem.Collections.Generic.Dictionary%7bSystem.String%2cFlowthru.Flows.Flow%7d%7d)" data-throw-if-not-resolved="false"></xref> to
+wire per-catalog flows in a loop.
 
-### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterCatalogs_System_Func_System_IServiceProvider_System_Collections_Generic_IEnumerable_Flowthru_Data_DataCatalogBase___"></a> RegisterCatalogs\(Func<IServiceProvider, IEnumerable<DataCatalogBase\>\>\)
+### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterCatalogs_System_Func_System_IServiceProvider_System_Collections_Generic_IEnumerable_Flowthru_Data_CatalogAbstract___"></a> RegisterCatalogs\(Func<IServiceProvider, IEnumerable<CatalogAbstract\>\>\)
 
 Registers catalogs produced by a factory that receives the service provider —
 useful when catalog construction itself requires DI resolution.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalogs(Func<IServiceProvider, IEnumerable<DataCatalogBase>> catalogsFactory)
+public FlowthruServiceBuilder RegisterCatalogs(Func<IServiceProvider, IEnumerable<CatalogAbstract>> catalogsFactory)
 ```
 
 #### Parameters
 
-`catalogsFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[DataCatalogBase](Flowthru.Data.DataCatalogBase.md)\>\>
+`catalogsFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[CatalogAbstract](Flowthru.Data.CatalogAbstract.md)\>\>
 
 Factory that returns the catalog collection
 
@@ -205,23 +205,23 @@ Factory that returns the catalog collection
 
 This builder for method chaining
 
-### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterPipeline_System_String_System_Delegate_System_String_"></a> RegisterPipeline\(string, Delegate, string?\)
+### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterFlow_System_String_System_Delegate_System_String_"></a> RegisterFlow\(string, Delegate, string?\)
 
-Registers a pipeline by inspecting the delegate's parameter types at runtime.
-Parameters that extend <xref href="Flowthru.Data.DataCatalogBase" data-throw-if-not-resolved="false"></xref> are resolved from DI as catalogs.
+Registers a flow by inspecting the delegate's parameter types at runtime.
+Parameters that extend <xref href="Flowthru.Data.CatalogAbstract" data-throw-if-not-resolved="false"></xref> are resolved from DI as catalogs.
 All other parameters are resolved from DI as services.
 
 ```csharp
-public FlowthruServiceBuilder RegisterPipeline(string label, Delegate pipeline, string? configurationSection = null)
+public FlowthruServiceBuilder RegisterFlow(string label, Delegate flow, string? configurationSection = null)
 ```
 
 #### Parameters
 
 `label` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Unique pipeline name
+Unique flow name
 
-`pipeline` [Delegate](https://learn.microsoft.com/dotnet/api/system.delegate)
+`flow` [Delegate](https://learn.microsoft.com/dotnet/api/system.delegate)
 
 A method group or delegate whose parameters are catalogs, services, or config objects
 
@@ -236,19 +236,19 @@ is bound from configuration instead of DI.
 
 This builder for method chaining
 
-### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterPipelines_System_Func_System_IServiceProvider_System_Collections_Generic_Dictionary_System_String_Flowthru_Pipelines_Pipeline___"></a> RegisterPipelines\(Func<IServiceProvider, Dictionary<string, Pipeline\>\>\)
+### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterFlows_System_Func_System_IServiceProvider_System_Collections_Generic_Dictionary_System_String_Flowthru_Flows_Flow___"></a> RegisterFlows\(Func<IServiceProvider, Dictionary<string, Flow\>\>\)
 
-Escape-hatch for registering pipelines via a full-access service provider factory.
+Escape-hatch for registering flows via a full-access service provider factory.
 
 ```csharp
-public FlowthruServiceBuilder RegisterPipelines(Func<IServiceProvider, Dictionary<string, Pipeline>> pipelineFactory)
+public FlowthruServiceBuilder RegisterFlows(Func<IServiceProvider, Dictionary<string, Flow>> flowFactory)
 ```
 
 #### Parameters
 
-`pipelineFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Pipeline](Flowthru.Flows.Pipeline.md)\>\>
+`flowFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Flow](Flowthru.Flows.Flow.md)\>\>
 
-Factory function that receives the service provider and returns the pipeline dictionary
+Factory function that receives the service provider and returns the flow dictionary
 
 #### Returns
 
@@ -258,8 +258,8 @@ This builder for method chaining
 
 #### Remarks
 
-Prefer <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterPipeline(System.String%2cSystem.Delegate%2cSystem.String)" data-throw-if-not-resolved="false"></xref> for standard pipeline registration.
-Use this only when you need full service provider access during pipeline construction.
+Prefer <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterFlow(System.String%2cSystem.Delegate%2cSystem.String)" data-throw-if-not-resolved="false"></xref> for standard flow registration.
+Use this only when you need full service provider access during flow construction.
 
 ### <a id="Flowthru_Services_FlowthruServiceBuilder_UseConfiguration_System_Action_Flowthru_Configuration_FlowthruConfigurationOptions__"></a> UseConfiguration\(Action<FlowthruConfigurationOptions\>?\)
 
@@ -365,7 +365,7 @@ This builder for method chaining
 
 ### <a id="Flowthru_Services_FlowthruServiceBuilder_WithDescription_System_String_"></a> WithDescription\(string\)
 
-Adds a description to the most recently registered pipeline.
+Adds a description to the most recently registered flow.
 
 ```csharp
 public FlowthruServiceBuilder WithDescription(string description)
@@ -375,7 +375,7 @@ public FlowthruServiceBuilder WithDescription(string description)
 
 `description` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Human-readable description of what the pipeline does
+Human-readable description of what the flow does
 
 #### Returns
 

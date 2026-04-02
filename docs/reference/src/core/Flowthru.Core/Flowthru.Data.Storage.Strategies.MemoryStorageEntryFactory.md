@@ -54,7 +54,7 @@ public async Task MyTest()
 Creates a catalog entry for an enumerable dataset.
 
 ```csharp
-public ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null) where T : notnull, IFlatSchema, ITextSerializable
+public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null) where T : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Parameters
@@ -69,7 +69,7 @@ Optional storage options
 
 #### Returns
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
 
 Configured catalog entry
 
@@ -95,7 +95,7 @@ If options.Path is null, the label is used to derive a default path
 Creates a catalog entry for a singleton object.
 
 ```csharp
-public ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null) where T : IStructuredSerializable
+public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null) where T : IStructuredSerializable
 ```
 
 #### Parameters
@@ -110,7 +110,7 @@ Optional storage options
 
 #### Returns
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<T\>
+ [IItem](Flowthru.Data.IItem\-1.md)<T\>
 
 Configured catalog entry
 

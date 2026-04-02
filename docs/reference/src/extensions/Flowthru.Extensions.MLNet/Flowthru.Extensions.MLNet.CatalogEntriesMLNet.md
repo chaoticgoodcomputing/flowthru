@@ -27,7 +27,7 @@ public static class CatalogEntriesMLNet
 ## Remarks
 
 <p>
-<strong>Discovery Pattern:</strong> Import this class alongside <xref href="Flowthru.Data.CatalogEntries" data-throw-if-not-resolved="false"></xref>
+<strong>Discovery Pattern:</strong> Import this class alongside <xref href="Flowthru.Data.Items" data-throw-if-not-resolved="false"></xref>
 for ML.NET-specific catalog entry factory methods.
 </p>
 <p>
@@ -53,7 +53,7 @@ var modelEntry = CatalogEntriesMLNet.OnnxModel("model", "model.onnx");</code></p
 Creates a catalog entry for an ONNX model file.
 
 ```csharp
-public static ICatalogEntry<byte[]> OnnxModel(string label, string filePath)
+public static IItem<byte[]> OnnxModel(string label, string filePath)
 ```
 
 #### Parameters
@@ -68,7 +68,7 @@ Path to the .onnx model file
 
 #### Returns
 
- ICatalogEntry<[byte](https://learn.microsoft.com/dotnet/api/system.byte)\[\]\>
+ IItem<[byte](https://learn.microsoft.com/dotnet/api/system.byte)\[\]\>
 
 A catalog entry wrapping an ONNX model storage adapter
 

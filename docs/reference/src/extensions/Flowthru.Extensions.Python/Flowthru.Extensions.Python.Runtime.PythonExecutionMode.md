@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Extensions.Python.Runtime](Flowthru.Extensions.Python.Runtime.md)  
 Assembly: Flowthru.Extensions.Python.dll  
 
-Controls how Python node execution is isolated between FlowthruService instances.
+Controls how Python step execution is isolated between FlowthruService instances.
 
 ```csharp
 public enum PythonExecutionMode
@@ -13,15 +13,15 @@ public enum PythonExecutionMode
 
 `InProcess = 0` 
 
-Executes Python nodes in the same process via Python.NET.
+Executes Python steps in the same process via Python.NET.
 Fast (no IPC overhead), but all services share one Python interpreter,
-<code>sys.modules</code>, and GIL. Use when co-hosted pipelines are known to be compatible.
+<code>sys.modules</code>, and GIL. Use when co-hosted flows are known to be compatible.
 
 
 
 `Subprocess = 1` 
 
-Executes Python nodes in an isolated child process per FlowthruService.
+Executes Python steps in an isolated child process per FlowthruService.
 Each service gets its own Python interpreter, venv, <code>sys.path</code>, and module cache.
 Default for multi-service scenarios.
 

@@ -29,7 +29,7 @@ public static class EFCoreCatalogEntries.Enumerable
 Creates an Entity Framework Core catalog entry for database-backed collections.
 
 ```csharp
-public static CatalogEntry<IEnumerable<T>> EFCore<T>(string label, DbContext context, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class
+public static Item<IEnumerable<T>> EFCore<T>(string label, DbContext context, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class
 ```
 
 #### Parameters
@@ -52,7 +52,7 @@ If true, empty tables pass validation (default: false)
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
 
 Catalog entry for EFCore database storage
 
@@ -103,7 +103,7 @@ Set allowEmptyData: true for tables that may legitimately be empty.
 Creates an Entity Framework Core catalog entry with a DbContext factory.
 
 ```csharp
-public static CatalogEntry<IEnumerable<T>> EFCore<T>(string label, Func<DbContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class
+public static Item<IEnumerable<T>> EFCore<T>(string label, Func<DbContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<DbContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class
 ```
 
 #### Parameters
@@ -126,7 +126,7 @@ If true, empty tables pass validation (default: false)
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
 
 Catalog entry for EFCore database storage
 
@@ -172,7 +172,7 @@ The concrete <code class="typeparamref">TContext</code> flows through to the sav
 eliminating any downcast inside the delegate body.
 
 ```csharp
-public static CatalogEntry<IEnumerable<T>> EFCore<T, TContext>(string label, Func<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
+public static Item<IEnumerable<T>> EFCore<T, TContext>(string label, Func<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
 ```
 
 #### Parameters
@@ -200,7 +200,7 @@ Optional save delegate receiving the concrete <code class="typeparamref">TContex
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
 
 Catalog entry for EFCore database storage
 
@@ -220,7 +220,7 @@ Creates an EFCore catalog entry using <xref href="Microsoft.EntityFrameworkCore.
 the idiomatic EFCore pattern for per-operation context isolation and concurrent node safety.
 
 ```csharp
-public static CatalogEntry<IEnumerable<T>> EFCore<T, TContext>(string label, IDbContextFactory<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
+public static Item<IEnumerable<T>> EFCore<T, TContext>(string label, IDbContextFactory<TContext> contextFactory, bool allowEmptyData = false, Func<IQueryable<T>, IQueryable<T>>? queryCustomizer = null, Func<TContext, IEnumerable<T>, CancellationToken, Task>? saveFunc = null) where T : class where TContext : DbContext
 ```
 
 #### Parameters
@@ -248,7 +248,7 @@ Optional save delegate receiving the concrete <code class="typeparamref">TContex
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
 
 Catalog entry for EFCore database storage
 

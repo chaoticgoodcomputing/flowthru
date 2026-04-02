@@ -29,7 +29,7 @@ Cardinality is determined by T itself:
 system (ICatalogObject/ICatalogDataset). Cardinality is now purely a type-level concern.
 </p>
 <p>
-<strong>Type Alignment:</strong> Node TInput/TOutput types should directly match catalog entry
+<strong>Type Alignment:</strong> Step TInput/TOutput types should directly match catalog entry
 T types, eliminating the need for wrapping/unwrapping ceremony.
 </p>
 <p>

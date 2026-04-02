@@ -115,7 +115,7 @@ public record PipelineRunRequest
     public List<string>? Pipelines { get; init; }
     public List<string>? ToData { get; init; }
     public List<string>? FromData { get; init; }
-    public List<string>? OnlyNodes { get; init; }
+    public List<string>? OnlySteps { get; init; }
 }
 ```
 
@@ -132,8 +132,8 @@ static PipelineRunResponse MapToResponse(FlowResult result)
     {
         Success = result.Success,
         DurationMs = result.ExecutionTime.TotalMilliseconds,
-        NodesExecuted = result.StepResults.Count,
-        NodeSummaries = result.StepResults.Select(kvp => new NodeSummary
+        StepsExecuted = result.StepResults.Count,
+        StepSummaries = result.StepResults.Select(kvp => new StepSummary
         {
             Name = kvp.Key,
             Success = kvp.Value.Success,
@@ -168,7 +168,7 @@ public class PipelineBackgroundService : BackgroundService
         if (result.Success)
         {
             _logger.LogInformation(
-                "Pipeline completed: {NodeCount} nodes in {Duration}s",
+                "Pipeline completed: {StepCount} nodes in {Duration}s",
                 result.StepResults.Count,
                 result.ExecutionTime.TotalSeconds);
         }

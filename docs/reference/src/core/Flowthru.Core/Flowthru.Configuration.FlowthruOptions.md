@@ -57,6 +57,18 @@ public CatalogOptions Catalog { get; set; }
 
  [CatalogOptions](Flowthru.Configuration.CatalogOptions.md)
 
+### <a id="Flowthru_Configuration_FlowthruOptions_Flows"></a> Flows
+
+Flow registration and configuration.
+
+```csharp
+public Dictionary<string, FlowOptions> Flows { get; set; }
+```
+
+#### Property Value
+
+ [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [FlowOptions](Flowthru.Configuration.FlowOptions.md)\>
+
 ### <a id="Flowthru_Configuration_FlowthruOptions_Logging"></a> Logging
 
 Logging configuration (extends standard .NET logging configuration).
@@ -80,16 +92,4 @@ public MetadataOptions Metadata { get; set; }
 #### Property Value
 
  [MetadataOptions](Flowthru.Configuration.MetadataOptions.md)
-
-### <a id="Flowthru_Configuration_FlowthruOptions_Pipelines"></a> Pipelines
-
-Pipeline registration and configuration.
-
-```csharp
-public Dictionary<string, PipelineOptions> Pipelines { get; set; }
-```
-
-#### Property Value
-
- [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [PipelineOptions](Flowthru.Configuration.PipelineOptions.md)\>
 

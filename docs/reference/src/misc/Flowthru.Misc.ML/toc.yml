@@ -2,155 +2,155 @@
 - name: Flowthru.Misc.ML.UMAP.Core
   href: Flowthru.Misc.ML.UMAP.Core.md
   items:
-    - name: Classes
-    - name: CurveFitting
-      href: Flowthru.Misc.ML.UMAP.Core.CurveFitting.md
-    - name: DataShape
-      href: Flowthru.Misc.ML.UMAP.Core.DataShape.md
-    - name: UmapFitResult
-      href: Flowthru.Misc.ML.UMAP.Core.UmapFitResult.md
-    - name: UmapGraphResult
-      href: Flowthru.Misc.ML.UMAP.Core.UmapGraphResult.md
-    - name: UmapParameters
-      href: Flowthru.Misc.ML.UMAP.Core.UmapParameters.md
-    - name: UmapPipeline
-      href: Flowthru.Misc.ML.UMAP.Core.UmapPipeline.md
-    - name: UmapFlowBuilder
-      href: Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md
-    - name: UmapProgress
-      href: Flowthru.Misc.ML.UMAP.Core.UmapProgress.md
-    - name: UmapRuntimeReport
-      href: Flowthru.Misc.ML.UMAP.Core.UmapRuntimeReport.md
+  - name: Classes
+  - name: CurveFitting
+    href: Flowthru.Misc.ML.UMAP.Core.CurveFitting.md
+  - name: DataShape
+    href: Flowthru.Misc.ML.UMAP.Core.DataShape.md
+  - name: UmapFitResult
+    href: Flowthru.Misc.ML.UMAP.Core.UmapFitResult.md
+  - name: UmapFlowBuilder
+    href: Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md
+  - name: UmapGraphResult
+    href: Flowthru.Misc.ML.UMAP.Core.UmapGraphResult.md
+  - name: UmapParameters
+    href: Flowthru.Misc.ML.UMAP.Core.UmapParameters.md
+  - name: UmapPipeline
+    href: Flowthru.Misc.ML.UMAP.Core.UmapPipeline.md
+  - name: UmapProgress
+    href: Flowthru.Misc.ML.UMAP.Core.UmapProgress.md
+  - name: UmapRuntimeReport
+    href: Flowthru.Misc.ML.UMAP.Core.UmapRuntimeReport.md
 - name: Flowthru.Misc.ML.UMAP.Core.Markers
   href: Flowthru.Misc.ML.UMAP.Core.Markers.md
   items:
-    - name: Interfaces
-    - name: IMetric
-      href: Flowthru.Misc.ML.UMAP.Core.Markers.IMetric.md
-    - name: IOutputMetric
-      href: Flowthru.Misc.ML.UMAP.Core.Markers.IOutputMetric.md
+  - name: Interfaces
+  - name: IMetric
+    href: Flowthru.Misc.ML.UMAP.Core.Markers.IMetric.md
+  - name: IOutputMetric
+    href: Flowthru.Misc.ML.UMAP.Core.Markers.IOutputMetric.md
 - name: Flowthru.Misc.ML.UMAP.Core.Utils
   href: Flowthru.Misc.ML.UMAP.Core.Utils.md
   items:
-    - name: Classes
-    - name: CosineMetric
-      href: Flowthru.Misc.ML.UMAP.Core.Utils.CosineMetric.md
-    - name: CustomMetric
-      href: Flowthru.Misc.ML.UMAP.Core.Utils.CustomMetric.md
-    - name: EuclideanMetric
-      href: Flowthru.Misc.ML.UMAP.Core.Utils.EuclideanMetric.md
-    - name: ManhattanMetric
-      href: Flowthru.Misc.ML.UMAP.Core.Utils.ManhattanMetric.md
+  - name: Classes
+  - name: CosineMetric
+    href: Flowthru.Misc.ML.UMAP.Core.Utils.CosineMetric.md
+  - name: CustomMetric
+    href: Flowthru.Misc.ML.UMAP.Core.Utils.CustomMetric.md
+  - name: EuclideanMetric
+    href: Flowthru.Misc.ML.UMAP.Core.Utils.EuclideanMetric.md
+  - name: ManhattanMetric
+    href: Flowthru.Misc.ML.UMAP.Core.Utils.ManhattanMetric.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement
   href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.md
   items:
-    - name: Classes
-    - name: GraphRefinementResult
-      href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.GraphRefinementResult.md
-    - name: Interfaces
-    - name: IGraphRefinementStrategy
-      href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.IGraphRefinementStrategy.md
+  - name: Classes
+  - name: GraphRefinementResult
+    href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.GraphRefinementResult.md
+  - name: Interfaces
+  - name: IGraphRefinementStrategy
+    href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.IGraphRefinementStrategy.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.Implementations
   href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.Implementations.md
   items:
-    - name: Classes
-    - name: AdaptiveThresholding
-      href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.Implementations.AdaptiveThresholding.md
+  - name: Classes
+  - name: AdaptiveThresholding
+    href: Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement.Implementations.AdaptiveThresholding.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit
   href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.md
   items:
-    - name: Classes
-    - name: LayoutInitResult
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.LayoutInitResult.md
-    - name: Interfaces
-    - name: ILayoutInitStrategy
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.ILayoutInitStrategy.md
+  - name: Classes
+  - name: LayoutInitResult
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.LayoutInitResult.md
+  - name: Interfaces
+  - name: ILayoutInitStrategy
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.ILayoutInitStrategy.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.Implementations
   href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.Implementations.md
   items:
-    - name: Classes
-    - name: RandomInit
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.Implementations.RandomInit.md
-    - name: SpectralInit
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.Implementations.SpectralInit.md
+  - name: Classes
+  - name: RandomInit
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.Implementations.RandomInit.md
+  - name: SpectralInit
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.Implementations.SpectralInit.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization
   href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.md
   items:
-    - name: Classes
-    - name: LayoutOptimizationResult
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.LayoutOptimizationResult.md
-    - name: OptimizationParameters
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.OptimizationParameters.md
-    - name: Structs
-    - name: GraphEdge
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.GraphEdge.md
-    - name: Interfaces
-    - name: ILayoutOptimizationStrategy
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.ILayoutOptimizationStrategy.md
+  - name: Classes
+  - name: LayoutOptimizationResult
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.LayoutOptimizationResult.md
+  - name: OptimizationParameters
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.OptimizationParameters.md
+  - name: Structs
+  - name: GraphEdge
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.GraphEdge.md
+  - name: Interfaces
+  - name: ILayoutOptimizationStrategy
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.ILayoutOptimizationStrategy.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.Implementations
   href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.Implementations.md
   items:
-    - name: Classes
-    - name: EuclideanSGD
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.Implementations.EuclideanSGD.md
-    - name: EuclideanSGDOptimized
-      href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.Implementations.EuclideanSGDOptimized.md
+  - name: Classes
+  - name: EuclideanSGD
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.Implementations.EuclideanSGD.md
+  - name: EuclideanSGDOptimized
+    href: Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization.Implementations.EuclideanSGDOptimized.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric
   href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.md
   items:
-    - name: Classes
-    - name: LocalMetricResult
-      href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.LocalMetricResult.md
-    - name: Interfaces
-    - name: ILocalMetricStrategy
-      href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.ILocalMetricStrategy.md
+  - name: Classes
+  - name: LocalMetricResult
+    href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.LocalMetricResult.md
+  - name: Interfaces
+  - name: ILocalMetricStrategy
+    href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.ILocalMetricStrategy.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.Implementations
   href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.Implementations.md
   items:
-    - name: Classes
-    - name: BinarySearchSmoothing
-      href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.Implementations.BinarySearchSmoothing.md
+  - name: Classes
+  - name: BinarySearchSmoothing
+    href: Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.Implementations.BinarySearchSmoothing.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength
   href: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength.md
   items:
-    - name: Interfaces
-    - name: IMembershipStrengthStrategy
-      href: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength.IMembershipStrengthStrategy.md
+  - name: Interfaces
+  - name: IMembershipStrengthStrategy
+    href: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength.IMembershipStrengthStrategy.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength.Implementations
   href: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength.Implementations.md
   items:
-    - name: Classes
-    - name: ExponentialKernel
-      href: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength.Implementations.ExponentialKernel.md
+  - name: Classes
+  - name: ExponentialKernel
+    href: Flowthru.Misc.ML.UMAP.Strategies.MembershipStrength.Implementations.ExponentialKernel.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch
   href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.md
   items:
-    - name: Classes
-    - name: NeighborSearchResult
-      href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.NeighborSearchResult.md
-    - name: Interfaces
-    - name: INeighborSearchStrategy
-      href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.INeighborSearchStrategy.md
+  - name: Classes
+  - name: NeighborSearchResult
+    href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.NeighborSearchResult.md
+  - name: Interfaces
+  - name: INeighborSearchStrategy
+    href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.INeighborSearchStrategy.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.Implementations
   href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.Implementations.md
   items:
-    - name: Classes
-    - name: BruteForceSearch
-      href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.Implementations.BruteForceSearch.md
-    - name: NNDescentSearch
-      href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.Implementations.NNDescentSearch.md
+  - name: Classes
+  - name: BruteForceSearch
+    href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.Implementations.BruteForceSearch.md
+  - name: NNDescentSearch
+    href: Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.Implementations.NNDescentSearch.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule
   href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.md
   items:
-    - name: Classes
-    - name: SamplingScheduleResult
-      href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.SamplingScheduleResult.md
-    - name: Interfaces
-    - name: ISamplingScheduleStrategy
-      href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.ISamplingScheduleStrategy.md
+  - name: Classes
+  - name: SamplingScheduleResult
+    href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.SamplingScheduleResult.md
+  - name: Interfaces
+  - name: ISamplingScheduleStrategy
+    href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.ISamplingScheduleStrategy.md
 - name: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.Implementations
   href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.Implementations.md
   items:
-    - name: Classes
-    - name: ProportionalSampling
-      href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.Implementations.ProportionalSampling.md
+  - name: Classes
+  - name: ProportionalSampling
+    href: Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule.Implementations.ProportionalSampling.md

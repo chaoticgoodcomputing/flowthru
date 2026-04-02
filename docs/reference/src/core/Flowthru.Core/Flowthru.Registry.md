@@ -4,5 +4,5 @@
 
  [IFlowRegistrar<TCatalog\>](Flowthru.Registry.IFlowRegistrar\-1.md)
 
-Fluent interface for registering pipelines in a type-safe manner.
+Fluent interface for registering flows in a type-safe manner.
 

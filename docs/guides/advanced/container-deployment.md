@@ -58,11 +58,11 @@ static FlowSliceStrategy BuildSliceStrategy()
     return new FlowSliceStrategy
     {
         Pipelines  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_PIPELINES")),
-        FromNodes  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_FROM_NODES")),
-        ToNodes    = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_TO_NODES")),
+        FromSteps  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_FROM_NODES")),
+        ToSteps    = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_TO_NODES")),
         FromData   = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_FROM_DATA")),
         ToData     = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_TO_DATA")),
-        OnlyNodes  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_ONLY_NODES")),
+        OnlySteps  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_ONLY_NODES")),
     };
 }
 ```
@@ -165,7 +165,7 @@ if (!result.Success)
 
     foreach (var (name, node) in result.StepResults.Where(n => !n.Value.Success))
     {
-        logger.LogError("  Node {Node} failed: {Error}", name, node.Exception?.Message);
+        logger.LogError("  Step {Step} failed: {Error}", name, node.Exception?.Message);
     }
 }
 ```

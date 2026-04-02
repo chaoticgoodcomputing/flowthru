@@ -74,8 +74,8 @@ Flowthru handles these through an **effect type** called `FlowIO<T>`. If you're 
 The key runtime guarantees:
 
 - **All I/O is lazy and explicit.** Side effects cannot be accidentally dropped or silently ignored.
-- **Errors are captured, never swallowed.** Node failures propagate to structured pipeline results. Silent `catch {}` blocks are a bug.
-- **Nodes are isolated.** A failing node halts execution and reports which node failed and why — partial silent failures are not possible.
+- **Errors are captured, never swallowed.** Step failures propagate to structured pipeline results. Silent `catch {}` blocks are a bug.
+- **Steps are isolated.** A failing node halts execution and reports which node failed and why — partial silent failures are not possible.
 
 ## Decision Rules for Contributors
 

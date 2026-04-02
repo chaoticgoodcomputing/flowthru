@@ -10,6 +10,14 @@ Configuration options for data catalog construction.
 
 Extension methods for configuration-related operations.
 
+ [FlowOptions](Flowthru.Configuration.FlowOptions.md)
+
+Configuration options for a single flow.
+
+ [FlowValidationOptions](Flowthru.Configuration.FlowValidationOptions.md)
+
+Configuration options for flow validation behavior.
+
  [FlowthruConfigurationOptions](Flowthru.Configuration.FlowthruConfigurationOptions.md)
 
 Options for configuring how Flowthru loads configuration files.
@@ -33,14 +41,6 @@ Configuration options for Mermaid diagram export.
  [MetadataOptions](Flowthru.Configuration.MetadataOptions.md)
 
 Configuration options for metadata collection and export.
-
- [PipelineOptions](Flowthru.Configuration.PipelineOptions.md)
-
-Configuration options for a single pipeline.
-
- [PipelineValidationOptions](Flowthru.Configuration.PipelineValidationOptions.md)
-
-Configuration options for pipeline validation behavior.
 
  [TimestampConfiguration](Flowthru.Configuration.TimestampConfiguration.md)
 

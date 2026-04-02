@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Extensions.Csv.dll  
 
-Extension methods that add CSV support to <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>.
+Extension methods that add CSV support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
 public static class CsvCatalogEntryExtensions
@@ -26,19 +26,19 @@ public static class CsvCatalogEntryExtensions
 
 ## Methods
 
-### <a id="Flowthru_Data_CsvCatalogEntryExtensions_Csv__1_Flowthru_Data_EnumerableCatalogEntries_System_String_System_String_"></a> Csv<TRow\>\(EnumerableCatalogEntries, string, string\)
+### <a id="Flowthru_Data_CsvCatalogEntryExtensions_Csv__1_Flowthru_Data_EnumerableItems_System_String_System_String_"></a> Csv<TRow\>\(EnumerableItems, string, string\)
 
 Creates a CSV file catalog entry with IEnumerable container.
 
 ```csharp
-public static CatalogEntry<IEnumerable<TRow>> Csv<TRow>(this EnumerableCatalogEntries _, string label, string filePath) where TRow : notnull, IFlatSchema, ITextSerializable
+public static Item<IEnumerable<TRow>> Csv<TRow>(this EnumerableItems _, string label, string filePath) where TRow : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Parameters
 
-`_` EnumerableCatalogEntries
+`_` EnumerableItems
 
-The enumerable catalog entries factory (from <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>)
+The enumerable catalog entries factory (from <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>)
 
 `label` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
@@ -50,7 +50,7 @@ Path to CSV file
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
 
 Catalog entry with file + CSV + IEnumerable composition
 
@@ -71,20 +71,20 @@ Row schema type (must be flat and text-serializable)
 </p>
 <ul><li>CanStream: true (CSV supports row-by-row streaming)</li><li>All other traits use filesystem baseline defaults</li></ul>
 
-### <a id="Flowthru_Data_CsvCatalogEntryExtensions_CsvDirectory__1_Flowthru_Data_EnumerableCatalogEntries_System_String_System_String_"></a> CsvDirectory<TRow\>\(EnumerableCatalogEntries, string, string\)
+### <a id="Flowthru_Data_CsvCatalogEntryExtensions_CsvDirectory__1_Flowthru_Data_EnumerableItems_System_String_System_String_"></a> CsvDirectory<TRow\>\(EnumerableItems, string, string\)
 
 Creates a catalog entry that reads all CSV files in a directory and
 concatenates them into a single <xref href="System.Collections.Generic.IEnumerable%601" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
-public static CatalogEntry<IEnumerable<TRow>> CsvDirectory<TRow>(this EnumerableCatalogEntries _, string label, string directoryPath) where TRow : notnull, IFlatSchema, ITextSerializable
+public static Item<IEnumerable<TRow>> CsvDirectory<TRow>(this EnumerableItems _, string label, string directoryPath) where TRow : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Parameters
 
-`_` EnumerableCatalogEntries
+`_` EnumerableItems
 
-The enumerable catalog entries factory (from <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>)
+The enumerable catalog entries factory (from <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>)
 
 `label` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
@@ -96,7 +96,7 @@ Path to the directory containing the CSV files
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
 
 Read-only catalog entry that concatenates every <code>*.csv</code> in the directory
 

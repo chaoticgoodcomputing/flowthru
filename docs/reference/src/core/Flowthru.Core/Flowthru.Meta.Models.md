@@ -2,13 +2,9 @@
 
 ### Classes
 
- [CatalogEntryMetadata](Flowthru.Meta.Models.CatalogEntryMetadata.md)
-
-Metadata describing a single catalog entry (dataset) in the pipeline.
-
  [DagMetadata](Flowthru.Meta.Models.DagMetadata.md)
 
-Root metadata model representing a complete pipeline DAG (Directed Acyclic Graph).
+Root metadata model representing a complete FlowthruService DAG (Directed Acyclic Graph).
 
  [DagSliceMetadata](Flowthru.Meta.Models.DagSliceMetadata.md)
 
@@ -18,9 +14,9 @@ Metadata describing how a pipeline was sliced during execution.
 
 Metadata describing an edge in the pipeline DAG.
 
- [NodeMetadata](Flowthru.Meta.Models.NodeMetadata.md)
+ [ItemMetadata](Flowthru.Meta.Models.ItemMetadata.md)
 
-Metadata describing a single node in the pipeline DAG.
+Metadata describing a single catalog item (dataset, json object, API response, whatever) in the flow.
 
  [SchemaField](Flowthru.Meta.Models.SchemaField.md)
 
@@ -29,4 +25,8 @@ A single field (property) in a schema.
  [SchemaMetadata](Flowthru.Meta.Models.SchemaMetadata.md)
 
 Schema information for a data type.
+
+ [StepMetadata](Flowthru.Meta.Models.StepMetadata.md)
+
+Metadata describing a single step in the flow DAG.
 

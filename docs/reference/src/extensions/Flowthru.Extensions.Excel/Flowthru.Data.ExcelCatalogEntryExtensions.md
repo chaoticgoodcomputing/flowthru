@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Extensions.Excel.dll  
 
-Extension methods that add Excel support to <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>.
+Extension methods that add Excel support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
 public static class ExcelCatalogEntryExtensions
@@ -26,19 +26,19 @@ public static class ExcelCatalogEntryExtensions
 
 ## Methods
 
-### <a id="Flowthru_Data_ExcelCatalogEntryExtensions_Excel__1_Flowthru_Data_EnumerableCatalogEntries_System_String_System_String_System_String_"></a> Excel<TRow\>\(EnumerableCatalogEntries, string, string, string\)
+### <a id="Flowthru_Data_ExcelCatalogEntryExtensions_Excel__1_Flowthru_Data_EnumerableItems_System_String_System_String_System_String_"></a> Excel<TRow\>\(EnumerableItems, string, string, string\)
 
 Creates a read-only Excel file catalog entry with IEnumerable container.
 
 ```csharp
-public static CatalogEntry<IEnumerable<TRow>> Excel<TRow>(this EnumerableCatalogEntries _, string label, string filePath, string sheetName) where TRow : notnull, IFlatSchema, ITextSerializable
+public static Item<IEnumerable<TRow>> Excel<TRow>(this EnumerableItems _, string label, string filePath, string sheetName) where TRow : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Parameters
 
-`_` EnumerableCatalogEntries
+`_` EnumerableItems
 
-The enumerable catalog entries factory (from <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>)
+The enumerable catalog entries factory (from <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>)
 
 `label` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
@@ -54,7 +54,7 @@ Name of the sheet to read
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
 
 Catalog entry with read-only Excel support
 
