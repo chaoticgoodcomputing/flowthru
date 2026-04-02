@@ -18,8 +18,8 @@ namespace Flowthru.Flows;
 /// </list>
 /// <para>
 /// <strong>Layer Assignment:</strong>
-/// - Layer 0: Nodes with no dependencies (read only external data)
-/// - Layer N: Nodes whose dependencies are all in layers 0..N-1
+/// - Layer 0: Steps with no dependencies (read only external data)
+/// - Layer N: Steps whose dependencies are all in layers 0..N-1
 /// </para>
 /// <para>
 /// <strong>Pipeline Slicing:</strong>
@@ -132,7 +132,7 @@ internal static class DependencyAnalyzer
   /// <summary>
   /// Assigns execution layers to nodes via topological sort.
   /// </summary>
-  /// <param name="nodes">Nodes to assign layers to (full pipeline or sliced subset)</param>
+  /// <param name="nodes">Steps to assign layers to (full pipeline or sliced subset)</param>
   /// <exception cref="InvalidOperationException">Thrown if a circular dependency is detected</exception>
   /// <remarks>
   /// This method should be called after slicing to ensure Layer 0 correctly identifies
@@ -170,10 +170,10 @@ internal static class DependencyAnalyzer
       // If no nodes were assigned this iteration, we have a cycle
       if (nodesInCurrentLayer.Count == 0)
       {
-        var unassignedNodes = nodes.Where(n => !assigned.Contains(n)).Select(n => n.Label);
+        var unassignedSteps = nodes.Where(n => !assigned.Contains(n)).Select(n => n.Label);
         throw new InvalidOperationException(
           $"Circular dependency detected in pipeline. "
-            + $"Unassigned nodes: {string.Join(", ", unassignedNodes)}"
+            + $"Unassigned nodes: {string.Join(", ", unassignedSteps)}"
         );
       }
 
@@ -191,7 +191,7 @@ internal static class DependencyAnalyzer
   /// Groups nodes by their assigned execution layer.
   /// </summary>
   /// <param name="nodes">All nodes in the pipeline (must have layers assigned)</param>
-  /// <returns>Nodes grouped by layer, ordered by layer number</returns>
+  /// <returns>Steps grouped by layer, ordered by layer number</returns>
   public static IEnumerable<List<FlowStep>> GroupByLayer(List<FlowStep> nodes)
   {
     return nodes.GroupBy(n => n.Layer).OrderBy(g => g.Key).Select(g => g.ToList());
@@ -200,39 +200,39 @@ internal static class DependencyAnalyzer
   /// <summary>
   /// Slices a pipeline to include only nodes matching the specified strategy.
   /// </summary>
-  /// <param name="allNodes">All nodes in the pipeline</param>
+  /// <param name="allSteps">All nodes in the pipeline</param>
   /// <param name="strategy">The slicing strategy to apply</param>
   /// <returns>Filtered list of nodes forming a valid sub-DAG</returns>
   /// <exception cref="InvalidOperationException">
   /// Thrown if:
   /// - FromData references catalog entries not consumed by any node
   /// - ToData references catalog entries not produced by any node
-  /// - OnlyNodes references non-existent node names
-  /// - FromNodes/ToNodes references non-existent node names
+  /// - OnlySteps references non-existent node names
+  /// - FromSteps/ToSteps references non-existent node names
   /// </exception>
   /// <remarks>
   /// <para>
   /// Multiple strategies compose via intersection. For example,
-  /// <c>FromNodes + ToNodes</c> produces nodes in the intersection of the downstream
-  /// tree of FromNodes and the upstream tree of ToNodes.
+  /// <c>FromSteps + ToSteps</c> produces nodes in the intersection of the downstream
+  /// tree of FromSteps and the upstream tree of ToSteps.
   /// </para>
   /// <para>
   /// <strong>Runnability Guarantee:</strong> The returned node set always forms a valid
   /// sub-DAG that can execute without missing dependencies.
   /// </para>
   /// </remarks>
-  public static List<FlowStep> SliceSteps(List<FlowStep> allNodes, FlowSliceStrategy strategy)
+  public static List<FlowStep> SliceSteps(List<FlowStep> allSteps, FlowSliceStrategy strategy)
   {
     if (!strategy.IsSliced)
     {
-      return allNodes;
+      return allSteps;
     }
 
     // Dependencies are already resolved by Pipeline.Build() before slicing
     // No need to call BuildProducerMap/ResolveDependencies here
 
-    var nodesByLabel = allNodes.ToDictionary(n => n.Label, StringComparer.OrdinalIgnoreCase);
-    var selectedNodes = new HashSet<FlowStep>(allNodes);
+    var nodesByLabel = allSteps.ToDictionary(n => n.Label, StringComparer.OrdinalIgnoreCase);
+    var selectedSteps = new HashSet<FlowStep>(allSteps);
 
     // Step 1: Apply pipeline filter (if specified, for merged pipelines)
     if (strategy.Flows is { Count: > 0 })
@@ -241,8 +241,8 @@ internal static class DependencyAnalyzer
 
       foreach (var pipelineName in strategy.Flows)
       {
-        // Find nodes that belong to this pipeline (prefix match: "FlowName.NodeName")
-        var pipelineNodes = allNodes.Where(n =>
+        // Find nodes that belong to this pipeline (prefix match: "FlowName.StepName")
+        var pipelineSteps = allSteps.Where(n =>
         {
           var dotIndex = n.Label.IndexOf('.');
           if (dotIndex <= 0)
@@ -254,7 +254,7 @@ internal static class DependencyAnalyzer
           return nodeFlowName.Equals(pipelineName, StringComparison.OrdinalIgnoreCase);
         });
 
-        pipelineFilter.UnionWith(pipelineNodes);
+        pipelineFilter.UnionWith(pipelineSteps);
       }
 
       if (pipelineFilter.Count == 0)
@@ -264,116 +264,116 @@ internal static class DependencyAnalyzer
         );
       }
 
-      selectedNodes.IntersectWith(pipelineFilter);
+      selectedSteps.IntersectWith(pipelineFilter);
     }
 
-    // Step 2: Apply OnlyNodes filter (explicit allowlist + dependencies)
-    if (strategy.OnlyNodes is { Count: > 0 })
+    // Step 2: Apply OnlySteps filter (explicit allowlist + dependencies)
+    if (strategy.OnlySteps is { Count: > 0 })
     {
-      var explicitNodes = new HashSet<FlowStep>();
-      foreach (var nodeName in strategy.OnlyNodes)
+      var explicitSteps = new HashSet<FlowStep>();
+      foreach (var nodeName in strategy.OnlySteps)
       {
         if (!nodesByLabel.TryGetValue(nodeName, out var node))
         {
           throw new InvalidOperationException(
-            $"OnlyNodes references non-existent node: '{nodeName}'"
+            $"OnlySteps references non-existent node: '{nodeName}'"
           );
         }
-        explicitNodes.Add(node);
+        explicitSteps.Add(node);
       }
 
       // Include all upstream dependencies to maintain runnability
-      var withDependencies = ExpandUpstream(explicitNodes);
-      selectedNodes.IntersectWith(withDependencies);
+      var withDependencies = ExpandUpstream(explicitSteps);
+      selectedSteps.IntersectWith(withDependencies);
     }
 
     // Step 3: Apply FromData (find consumers, expand downstream)
-    var fromNodesExpanded = new HashSet<FlowStep>();
+    var fromStepsExpanded = new HashSet<FlowStep>();
     if (strategy.FromData is { Count: > 0 })
     {
       // Find nodes that consume any of the specified catalog entries
       foreach (var dataLabel in strategy.FromData)
       {
-        var consumingNodes = allNodes.Where(n =>
+        var consumingSteps = allSteps.Where(n =>
           n.Inputs.Any(entry => entry.Label.Equals(dataLabel, StringComparison.OrdinalIgnoreCase))
         );
 
-        if (!consumingNodes.Any())
+        if (!consumingSteps.Any())
         {
           throw new InvalidOperationException(
             $"FromData references catalog entry '{dataLabel}' which is not consumed by any node"
           );
         }
 
-        fromNodesExpanded.UnionWith(consumingNodes);
+        fromStepsExpanded.UnionWith(consumingSteps);
       }
     }
 
-    // Step 4: Apply FromNodes (include downstream dependents)
-    if (strategy.FromNodes is { Count: > 0 })
+    // Step 4: Apply FromSteps (include downstream dependents)
+    if (strategy.FromSteps is { Count: > 0 })
     {
-      foreach (var nodeName in strategy.FromNodes)
+      foreach (var nodeName in strategy.FromSteps)
       {
         if (!nodesByLabel.TryGetValue(nodeName, out var node))
         {
           throw new InvalidOperationException(
-            $"FromNodes references non-existent node: '{nodeName}'"
+            $"FromSteps references non-existent node: '{nodeName}'"
           );
         }
-        fromNodesExpanded.Add(node);
+        fromStepsExpanded.Add(node);
       }
     }
 
-    if (fromNodesExpanded.Count > 0)
+    if (fromStepsExpanded.Count > 0)
     {
-      var withDownstream = ExpandDownstream(fromNodesExpanded, allNodes);
-      selectedNodes.IntersectWith(withDownstream);
+      var withDownstream = ExpandDownstream(fromStepsExpanded, allSteps);
+      selectedSteps.IntersectWith(withDownstream);
     }
 
     // Step 5: Apply ToData (find producers, expand upstream)
-    var toNodesExpanded = new HashSet<FlowStep>();
+    var toStepsExpanded = new HashSet<FlowStep>();
     if (strategy.ToData is { Count: > 0 })
     {
       // Find nodes that produce any of the specified catalog entries
       foreach (var dataLabel in strategy.ToData)
       {
-        var producingNode = allNodes.FirstOrDefault(n =>
+        var producingStep = allSteps.FirstOrDefault(n =>
           n.Outputs.Any(entry => entry.Label.Equals(dataLabel, StringComparison.OrdinalIgnoreCase))
         );
 
-        if (producingNode == null)
+        if (producingStep == null)
         {
           throw new InvalidOperationException(
             $"ToData references catalog entry '{dataLabel}' which is not produced by any node"
           );
         }
 
-        toNodesExpanded.Add(producingNode);
+        toStepsExpanded.Add(producingStep);
       }
     }
 
-    // Step 6: Apply ToNodes (include upstream dependencies to reach these nodes)
-    if (strategy.ToNodes is { Count: > 0 })
+    // Step 6: Apply ToSteps (include upstream dependencies to reach these nodes)
+    if (strategy.ToSteps is { Count: > 0 })
     {
-      foreach (var nodeName in strategy.ToNodes)
+      foreach (var nodeName in strategy.ToSteps)
       {
         if (!nodesByLabel.TryGetValue(nodeName, out var node))
         {
           throw new InvalidOperationException(
-            $"ToNodes references non-existent node: '{nodeName}'"
+            $"ToSteps references non-existent node: '{nodeName}'"
           );
         }
-        toNodesExpanded.Add(node);
+        toStepsExpanded.Add(node);
       }
     }
 
-    if (toNodesExpanded.Count > 0)
+    if (toStepsExpanded.Count > 0)
     {
-      var withUpstream = ExpandUpstream(toNodesExpanded);
-      selectedNodes.IntersectWith(withUpstream);
+      var withUpstream = ExpandUpstream(toStepsExpanded);
+      selectedSteps.IntersectWith(withUpstream);
     }
 
-    var slicedList = selectedNodes.ToList();
+    var slicedList = selectedSteps.ToList();
 
     // Filter each node's dependencies to only include nodes in the sliced set
     // Dependencies pointing outside the slice become external inputs in the sliced context
@@ -414,11 +414,11 @@ internal static class DependencyAnalyzer
   /// </summary>
   private static HashSet<FlowStep> ExpandDownstream(
     HashSet<FlowStep> nodes,
-    List<FlowStep> allNodes
+    List<FlowStep> allSteps
   )
   {
     var result = new HashSet<FlowStep>(nodes);
-    var dependencyMap = BuildDependencyMap(allNodes);
+    var dependencyMap = BuildDependencyMap(allSteps);
 
     var toVisit = new Queue<FlowStep>(nodes);
     while (toVisit.Count > 0)
@@ -442,11 +442,11 @@ internal static class DependencyAnalyzer
   /// <summary>
   /// Builds a reverse dependency map (node → nodes that depend on it).
   /// </summary>
-  private static Dictionary<FlowStep, List<FlowStep>> BuildDependencyMap(List<FlowStep> allNodes)
+  private static Dictionary<FlowStep, List<FlowStep>> BuildDependencyMap(List<FlowStep> allSteps)
   {
     var map = new Dictionary<FlowStep, List<FlowStep>>();
 
-    foreach (var node in allNodes)
+    foreach (var node in allSteps)
     {
       foreach (var dependency in node.Dependencies)
       {

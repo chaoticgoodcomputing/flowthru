@@ -75,7 +75,7 @@ public static partial class Items
   /// <returns>Catalog entry for void/no-data semantics</returns>
   /// <remarks>
   /// <para>
-  /// <strong>Use Case:</strong> Nodes that perform side effects (logging, visualization) without producing meaningful data
+  /// <strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
   /// </para>
   /// <para>
   /// <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.

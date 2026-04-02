@@ -59,7 +59,7 @@ internal sealed class FlowthruService : IFlowthruService
       pipeline.Logger = _logger;
       pipeline.ServiceProvider = _services;
 
-      // Register validation hooks (e.g., PythonNodeValidator from Python extension)
+      // Register validation hooks (e.g., PythonStepValidator from Python extension)
       foreach (var hook in validationHooks)
       {
         pipeline.ValidationHooks.Add(hook);
@@ -111,7 +111,7 @@ internal sealed class FlowthruService : IFlowthruService
     _logger.LogInformation("→ Building pipeline and analyzing dependencies...");
     mergedPipeline.Build(options.SliceStrategy);
     _logger.LogInformation(
-      "  ✓ {NodeCount} nodes organized into {LayerCount} execution layers",
+      "  ✓ {StepCount} nodes organized into {LayerCount} execution layers",
       mergedPipeline.Steps.Count,
       mergedPipeline.ExecutionLayers!.Count
     );
@@ -135,8 +135,8 @@ internal sealed class FlowthruService : IFlowthruService
         validationResult.ThrowIfInvalid();
       }
 
-      var layer0Nodes = mergedPipeline.ExecutionLayers![0];
-      validatedInputCount = layer0Nodes.SelectMany(node => node.Inputs).Distinct().Count();
+      var layer0Steps = mergedPipeline.ExecutionLayers![0];
+      validatedInputCount = layer0Steps.SelectMany(node => node.Inputs).Distinct().Count();
       _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
     }
 
@@ -172,7 +172,7 @@ internal sealed class FlowthruService : IFlowthruService
       _logger.LogInformation("════════════════════════════════════════");
       _logger.LogInformation("");
       _logger.LogInformation(
-        "Nodes: {Count} nodes across {Layers} layers",
+        "Steps: {Count} nodes across {Layers} layers",
         mergedPipeline.Steps.Count,
         mergedPipeline.ExecutionLayers!.Count
       );

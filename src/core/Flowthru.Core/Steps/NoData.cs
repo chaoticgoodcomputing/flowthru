@@ -2,7 +2,7 @@ namespace Flowthru.Steps;
 
 /// <summary>
 /// Marker type representing "no meaningful data" for nodes with side-effects or data generation.
-/// Used as input/output type in NodeBase when a node doesn't consume or produce meaningful data.
+/// Used as input/output type in StepBase when a node doesn't consume or produce meaningful data.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -18,8 +18,8 @@ namespace Flowthru.Steps;
 /// <strong>Usage Examples:</strong>
 /// </para>
 /// <code>
-/// // Node with no inputs (data generation)
-/// public class GenerateDataNode : NodeBase&lt;NoData, OutputSchema&gt;
+/// // Step with no inputs (data generation)
+/// public class GenerateDataStep : StepBase&lt;NoData, OutputSchema&gt;
 /// {
 ///     protected override Task&lt;IEnumerable&lt;OutputSchema&gt;&gt; Transform(IEnumerable&lt;NoData&gt; input)
 ///     {
@@ -28,8 +28,8 @@ namespace Flowthru.Steps;
 ///     }
 /// }
 ///
-/// // Node with no outputs (side-effects only)
-/// public class ValidateNode : NodeBase&lt;InputSchema, NoData&gt;
+/// // Step with no outputs (side-effects only)
+/// public class ValidateStep : StepBase&lt;InputSchema, NoData&gt;
 /// {
 ///     protected override Task&lt;IEnumerable&lt;NoData&gt;&gt; Transform(IEnumerable&lt;InputSchema&gt; input)
 ///     {
@@ -44,12 +44,12 @@ namespace Flowthru.Steps;
 /// </para>
 /// <code>
 /// // Simple syntax with automatic unique key generation
-/// pipeline.AddStep&lt;ValidationNode&gt;(
+/// pipeline.AddStep&lt;ValidationStep&gt;(
 ///     input: catalog.InputData,
 ///     output: NoData.Output  // or just: NoData.Discard
 /// );
 ///
-/// pipeline.AddStep&lt;GenerateDataNode&gt;(
+/// pipeline.AddStep&lt;GenerateDataStep&gt;(
 ///     input: NoData.Input,  // or just: NoData.None
 ///     output: catalog.GeneratedData
 /// );

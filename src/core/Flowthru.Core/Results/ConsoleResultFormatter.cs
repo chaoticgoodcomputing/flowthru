@@ -36,14 +36,14 @@ public class ConsoleResultFormatter : IFlowResultFormatter
 
     if (result.StepResults.Count > 0)
     {
-      logger.LogInformation("Nodes Executed ({Count}):", result.StepResults.Count);
+      logger.LogInformation("Steps Executed ({Count}):", result.StepResults.Count);
 
       foreach (var (nodeName, nodeResult) in result.StepResults)
       {
         if (nodeResult.Success)
         {
           logger.LogInformation(
-            "  ✓ {NodeName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)",
+            "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)",
             nodeResult.StepName,
             nodeResult.ExecutionTime.TotalSeconds,
             nodeResult.InputCount,
@@ -54,7 +54,7 @@ public class ConsoleResultFormatter : IFlowResultFormatter
         {
           // This shouldn't happen in a successful pipeline, but handle it anyway
           logger.LogWarning(
-            "  ✗ {NodeName,-40} {Duration,6:F2}s   FAILED",
+            "  ✗ {StepName,-40} {Duration,6:F2}s   FAILED",
             nodeResult.StepName,
             nodeResult.ExecutionTime.TotalSeconds
           );
@@ -77,16 +77,16 @@ public class ConsoleResultFormatter : IFlowResultFormatter
     logger.LogError("");
 
     // Show which nodes succeeded before failure
-    var succeededNodes = result.StepResults.Values.Where(n => n.Success).ToList();
-    var failedNode = result.StepResults.Values.FirstOrDefault(n => !n.Success);
+    var succeededSteps = result.StepResults.Values.Where(n => n.Success).ToList();
+    var failedStep = result.StepResults.Values.FirstOrDefault(n => !n.Success);
 
-    if (succeededNodes.Any())
+    if (succeededSteps.Any())
     {
-      logger.LogInformation("Nodes Completed Before Failure ({Count}):", succeededNodes.Count);
-      foreach (var nodeResult in succeededNodes)
+      logger.LogInformation("Steps Completed Before Failure ({Count}):", succeededSteps.Count);
+      foreach (var nodeResult in succeededSteps)
       {
         logger.LogInformation(
-          "  ✓ {NodeName,-40} {Duration,6:F2}s",
+          "  ✓ {StepName,-40} {Duration,6:F2}s",
           nodeResult.StepName,
           nodeResult.ExecutionTime.TotalSeconds
         );
@@ -95,19 +95,19 @@ public class ConsoleResultFormatter : IFlowResultFormatter
     }
 
     // Show failed node
-    if (failedNode != null)
+    if (failedStep != null)
     {
-      logger.LogError("Failed Node:");
-      logger.LogError("  ✗ {NodeName}", failedNode.StepName);
-      logger.LogError("  Duration: {Duration:F2}s", failedNode.ExecutionTime.TotalSeconds);
+      logger.LogError("Failed Step:");
+      logger.LogError("  ✗ {StepName}", failedStep.StepName);
+      logger.LogError("  Duration: {Duration:F2}s", failedStep.ExecutionTime.TotalSeconds);
 
-      if (failedNode.Exception != null)
+      if (failedStep.Exception != null)
       {
-        logger.LogError("  Error: {ErrorMessage}", failedNode.Exception.Message);
+        logger.LogError("  Error: {ErrorMessage}", failedStep.Exception.Message);
         logger.LogError("  Stack Trace:");
 
         // Format stack trace with indentation
-        var stackLines = failedNode.Exception.StackTrace?.Split('\n') ?? Array.Empty<string>();
+        var stackLines = failedStep.Exception.StackTrace?.Split('\n') ?? Array.Empty<string>();
         foreach (var line in stackLines.Take(10)) // Limit to first 10 lines
         {
           logger.LogError("    {StackLine}", line.TrimEnd());

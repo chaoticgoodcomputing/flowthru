@@ -42,7 +42,7 @@ public static partial class EFCoreCatalogEntries
     ///
     /// // In pipeline
     /// var pipeline = new FlowBuilder("MetricsPipeline")
-    ///   .AddStep("save_metrics", catalog => new SaveMetricsNode(
+    ///   .AddStep("save_metrics", catalog => new SaveMetricsStep(
     ///     outputs: catalog.Metrics(db)
     ///   ))
     ///   .Build();

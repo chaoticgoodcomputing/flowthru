@@ -14,7 +14,7 @@ public class MermaidMetadataProviderBuilder
   private MermaidMetadataProvider.MermaidFlowchartDirection _direction = MermaidMetadataProvider
     .MermaidFlowchartDirection
     .TopToBottom;
-  private string _activeNodeColor = "#2E7D32";
+  private string _activeStepColor = "#2E7D32";
   private string _activeDataColor = "#2E7D32";
   private ILogger? _logger;
 
@@ -71,7 +71,7 @@ public class MermaidMetadataProviderBuilder
   /// <returns>This builder for fluent chaining</returns>
   public MermaidMetadataProviderBuilder WithActiveStepColor(string color)
   {
-    _activeNodeColor = color ?? throw new ArgumentNullException(nameof(color));
+    _activeStepColor = color ?? throw new ArgumentNullException(nameof(color));
     return this;
   }
 
@@ -108,7 +108,7 @@ public class MermaidMetadataProviderBuilder
       _filenameTemplate,
       _timestampConfig,
       _direction,
-      _activeNodeColor,
+      _activeStepColor,
       _activeDataColor,
       _logger
     );

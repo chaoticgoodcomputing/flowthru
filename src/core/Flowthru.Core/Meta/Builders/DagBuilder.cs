@@ -36,8 +36,8 @@ internal static class DagBuilder
     }
 
     // Always build from the full DAG to provide complete context
-    var allNodes = pipeline.StepsList;
-    var slicedNodes = pipeline.GetSlicedSteps();
+    var allSteps = pipeline.StepsList;
+    var slicedSteps = pipeline.GetSlicedSteps();
 
     var dag = new DagMetadata
     {
@@ -45,10 +45,10 @@ internal static class DagBuilder
       GeneratedAt = DateTime.UtcNow,
       AppliedSlice =
         pipeline.AppliedSlice != null ? DagSliceMetadata.FromStrategy(pipeline.AppliedSlice) : null,
-      SlicedStepIds = slicedNodes != null ? slicedNodes.Select(n => n.Label).ToHashSet() : null,
+      SlicedStepIds = slicedSteps != null ? slicedSteps.Select(n => n.Label).ToHashSet() : null,
       SlicedCatalogItemIds =
-        slicedNodes != null
-          ? slicedNodes
+        slicedSteps != null
+          ? slicedSteps
             .SelectMany(n => n.Outputs)
             .SelectMany(ExpandCatalogItem)
             .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
@@ -58,10 +58,10 @@ internal static class DagBuilder
     };
 
     // Step 1: Extract all catalog entries from full DAG
-    var allCatalogItems = ExtractCatalogItems(allNodes);
+    var allCatalogItems = ExtractCatalogItems(allSteps);
 
     // Step 2: Build node metadata with layer information
-    dag.Steps.AddRange(BuildStepMetadata(allNodes));
+    dag.Steps.AddRange(BuildStepMetadata(allSteps));
 
     // Step 3: Build catalog entry metadata with producer-consumer relationships
     dag.CatalogItems.AddRange(BuildCatalogItemMetadata(allCatalogItems, dag.Steps));
@@ -168,7 +168,7 @@ internal static class DagBuilder
         .ToList();
 
       // Extract original flow name from flow label if merged
-      // Merged nodes have format: "FlowName.NodeName"
+      // Merged nodes have format: "FlowName.StepName"
       var originalFlowName = ExtractOriginalFlowName(flowStep.Label);
 
       stepMetadataList.Add(
@@ -333,8 +333,8 @@ internal static class DagBuilder
   /// </summary>
   /// <remarks>
   /// Creates two types of edges:
-  /// 1. Catalog Item → Node (node reads from catalog)
-  /// 2. Node → Catalog Item (node writes to catalog)
+  /// 1. Catalog Item → Step (node reads from catalog)
+  /// 2. Step → Catalog Item (node writes to catalog)
   /// </remarks>
   private static List<EdgeMetadata> BuildEdges(
     List<StepMetadata> steps,
@@ -345,7 +345,7 @@ internal static class DagBuilder
 
     foreach (var step in steps)
     {
-      // Create edges for inputs (Catalog Item → Node)
+      // Create edges for inputs (Catalog Item → Step)
       foreach (var inputKey in step.Inputs)
       {
         if (catalogItems.TryGetValue(inputKey, out var catalogEntry))
@@ -363,7 +363,7 @@ internal static class DagBuilder
         }
       }
 
-      // Create edges for outputs (Node → Catalog)
+      // Create edges for outputs (Step → Catalog)
       foreach (var outputKey in step.Outputs)
       {
         if (catalogItems.TryGetValue(outputKey, out var catalogEntry))

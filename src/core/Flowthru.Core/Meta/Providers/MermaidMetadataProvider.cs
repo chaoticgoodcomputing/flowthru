@@ -14,7 +14,7 @@ namespace Flowthru.Meta.Providers;
 public class MermaidMetadataProvider : IMetadataProvider
 {
   private readonly MermaidFlowchartDirection _direction;
-  private readonly string _activeNodeColor;
+  private readonly string _activeStepColor;
   private readonly string _activeDataColor;
   private readonly string _outputDirectory;
   private readonly string _filenameTemplate;
@@ -46,7 +46,7 @@ public class MermaidMetadataProvider : IMetadataProvider
   /// <param name="filenameTemplate">Template for generating output filenames</param>
   /// <param name="timestampConfig">Configuration for timestamp handling in filenames</param>
   /// <param name="direction">Flow direction for the diagram</param>
-  /// <param name="activeNodeColor">Hex color for active (sliced) nodes</param>
+  /// <param name="activeStepColor">Hex color for active (sliced) nodes</param>
   /// <param name="activeDataColor">Hex color for active (sliced) catalog entries</param>
   /// <param name="logger">Optional logger for diagnostic messages</param>
   public MermaidMetadataProvider(
@@ -54,7 +54,7 @@ public class MermaidMetadataProvider : IMetadataProvider
     string filenameTemplate,
     TimestampConfiguration timestampConfig,
     MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom,
-    string activeNodeColor = "#2E7D32",
+    string activeStepColor = "#2E7D32",
     string activeDataColor = "#2E7D32",
     ILogger? logger = null
   )
@@ -64,7 +64,7 @@ public class MermaidMetadataProvider : IMetadataProvider
       filenameTemplate ?? throw new ArgumentNullException(nameof(filenameTemplate));
     _timestampConfig = timestampConfig ?? throw new ArgumentNullException(nameof(timestampConfig));
     _direction = direction;
-    _activeNodeColor = activeNodeColor;
+    _activeStepColor = activeStepColor;
     _activeDataColor = activeDataColor;
     _logger = logger;
   }
@@ -90,7 +90,7 @@ public class MermaidMetadataProvider : IMetadataProvider
       // Generate Mermaid diagram with configured direction and colors
       var mermaid = dag.ToMermaidDiagram(
         GetDirectionCode(_direction),
-        _activeNodeColor,
+        _activeStepColor,
         _activeDataColor
       );
 
