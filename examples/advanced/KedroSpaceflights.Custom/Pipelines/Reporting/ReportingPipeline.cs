@@ -66,7 +66,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // // Step 3: Export chart to base64-encoded PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportPassengerCapacityPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ShuttlePassengerCapacityChart,
@@ -93,7 +93,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // // Step 3: Export chart to base64-encoded PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportConfusionMatrixPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ConfusionMatrixChart,
@@ -120,7 +120,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // Step 3: Export chart to base64-encoded PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportCrossValidationPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.CrossValidationChart,
@@ -138,7 +138,7 @@ public static class ReportingPipeline
       // ===== Prediction Scatter Plot Visualization =====
 
       // Step 1: Generate scatter plot from model metrics and predictions
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GeneratePredictionScatterChart",
         transform: GeneratePredictionScatterNode.Create(),
         input: (catalog.ModelMetrics, catalog.ModelPredictions),
@@ -155,7 +155,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // // Step 3: Export chart to PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportPredictionScatterPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.PredictionScatterChart,

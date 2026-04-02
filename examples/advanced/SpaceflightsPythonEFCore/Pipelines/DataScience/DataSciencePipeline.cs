@@ -21,7 +21,7 @@ public static class DataSciencePipeline
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         IEnumerable<ModelInputTableSchema>,
         IEnumerable<XValues>,
         IEnumerable<XValues>,
@@ -37,7 +37,7 @@ public static class DataSciencePipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "TrainModel",
         description: "Train linear regression model on train split (Python).",
         module: "Pipelines.DataScience.Nodes.train_model",
@@ -47,7 +47,7 @@ public static class DataSciencePipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         LinearRegressionModel,
         IEnumerable<XValues>,
         IEnumerable<YValues>,
@@ -62,7 +62,7 @@ public static class DataSciencePipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         LinearRegressionModel,
         IEnumerable<XValues>,
         IEnumerable<YValues>,

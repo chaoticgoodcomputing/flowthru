@@ -78,7 +78,7 @@ public class TabularNodeTests
       },
     };
 
-    var wrapper = new PythonNodeWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
+    var wrapper = new PythonStepWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
       _executor,
       "_Fixtures.tabular_nodes",
       "passthrough"
@@ -137,7 +137,7 @@ public class TabularNodeTests
       },
     };
 
-    var wrapper = new PythonNodeWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
+    var wrapper = new PythonStepWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
       _executor,
       "_Fixtures.tabular_nodes",
       "filter_rows"
@@ -162,7 +162,7 @@ public class TabularNodeTests
     // Arrange
     var inputData = Array.Empty<SimpleRowSchema>();
 
-    var wrapper = new PythonNodeWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
+    var wrapper = new PythonStepWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
       _executor,
       "_Fixtures.tabular_nodes",
       "passthrough"
@@ -198,7 +198,7 @@ public class TabularNodeTests
       },
     };
 
-    var wrapper = new PythonNodeWrapper<
+    var wrapper = new PythonStepWrapper<
       IEnumerable<ExtendedTypesSchema>,
       IEnumerable<ExtendedTypesSchema>
     >(_executor, "_Fixtures.tabular_nodes", "passthrough");
@@ -233,7 +233,7 @@ public class TabularNodeTests
       },
     };
 
-    var wrapper = new PythonNodeWrapper<
+    var wrapper = new PythonStepWrapper<
       IEnumerable<ExtendedTypesSchema>,
       IEnumerable<ExtendedTypesSchema>
     >(_executor, "_Fixtures.tabular_nodes", "passthrough");
@@ -263,7 +263,7 @@ public class TabularNodeTests
       })
       .ToArray();
 
-    var wrapper = new PythonNodeWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
+    var wrapper = new PythonStepWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
       _executor,
       "_Fixtures.tabular_nodes",
       "passthrough"
@@ -294,7 +294,7 @@ public class TabularNodeTests
       },
     };
 
-    var wrapper = new PythonNodeWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
+    var wrapper = new PythonStepWrapper<IEnumerable<SimpleRowSchema>, IEnumerable<SimpleRowSchema>>(
       _executor,
       "_Fixtures.tabular_nodes",
       "passthrough"

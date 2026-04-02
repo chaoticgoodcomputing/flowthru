@@ -68,7 +68,7 @@ public ICatalogEntry&lt;ModelMetrics&gt; Metrics(DbContext db) =&gt;
 
 // In pipeline
 var pipeline = new FlowBuilder("MetricsPipeline")
-  .AddNode("save_metrics", catalog =&gt; new SaveMetricsNode(
+  .AddStep("save_metrics", catalog =&gt; new SaveMetricsNode(
     outputs: catalog.Metrics(db)
   ))
   .Build();</code></pre>

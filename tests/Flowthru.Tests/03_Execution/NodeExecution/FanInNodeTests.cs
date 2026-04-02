@@ -18,7 +18,7 @@ public class FanInNodeTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public async Task AddNode_FanIn_ReceivesAllInputCollections()
+  public async Task AddStep_FanIn_ReceivesAllInputCollections()
   {
     // Arrange — three shards, each with one row of data
     var shardA = new ShardCatalog("A");
@@ -91,7 +91,7 @@ public class FanInNodeTests
   }
 
   [Test]
-  public async Task AddNode_FanIn_SingleInput_BehavesLikeRegularNode()
+  public async Task AddStep_FanIn_SingleInput_BehavesLikeRegularNode()
   {
     // Edge case: fan-in with exactly one input should still work correctly.
     var shard = new ShardCatalog("only");
@@ -126,7 +126,7 @@ public class FanInNodeTests
   }
 
   [Test]
-  public async Task AddNode_FanIn_DagResolvesEdges_WhenUpstreamPipelineProducesShards()
+  public async Task AddStep_FanIn_DagResolvesEdges_WhenUpstreamPipelineProducesShards()
   {
     // Arrange — one upstream pipeline writes to two shards; fan-in pipeline merges them.
     var shardA = new ShardCatalog("dag_a");

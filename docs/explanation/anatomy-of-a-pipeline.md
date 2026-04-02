@@ -216,7 +216,7 @@ public static class DataEngineeringPipeline
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "SplitAndEncode", // Unique label for this node in the pipeline
         transform: SplitAndEncodeNode.Create(),
         input: catalog.IrisRaw,

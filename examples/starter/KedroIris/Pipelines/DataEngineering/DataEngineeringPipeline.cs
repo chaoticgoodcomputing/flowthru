@@ -30,7 +30,7 @@ public static class DataEngineeringPipeline
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "SplitAndEncode",
         description: """
           Splits the Iris dataset into training and test sets.

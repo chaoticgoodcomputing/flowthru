@@ -42,9 +42,9 @@ public class TemplateIntegrationTests
       );
     }
 
-    TestContext.WriteLine($"Installing template from: {_templateInstallPath}");
+    TestContext.Out.WriteLine($"Installing template from: {_templateInstallPath}");
     TemplateInstaller.Install(_templateInstallPath);
-    TestContext.WriteLine("Template installed successfully");
+    TestContext.Out.WriteLine("Template installed successfully");
   }
 
   /// <summary>
@@ -55,9 +55,9 @@ public class TemplateIntegrationTests
   {
     if (_templateInstallPath != null)
     {
-      TestContext.WriteLine("Uninstalling template...");
+      TestContext.Out.WriteLine("Uninstalling template...");
       TemplateInstaller.Uninstall(_templateInstallPath);
-      TestContext.WriteLine("Template uninstalled");
+      TestContext.Out.WriteLine("Template uninstalled");
     }
 
     // Clean up test output directory
@@ -67,7 +67,7 @@ public class TemplateIntegrationTests
       try
       {
         Directory.Delete(testOutputPath, recursive: true);
-        TestContext.WriteLine($"Cleaned up test output directory: {testOutputPath}");
+        TestContext.Out.WriteLine($"Cleaned up test output directory: {testOutputPath}");
       }
       catch
       {
@@ -86,7 +86,7 @@ public class TemplateIntegrationTests
     var runner = new TemplateTestRunner(template);
 
     // Act
-    TestContext.WriteLine($"Testing: {template}");
+    TestContext.Out.WriteLine($"Testing: {template}");
     var result = await runner.GenerateAndRunAsync();
 
     // Assert
@@ -100,35 +100,35 @@ public class TemplateIntegrationTests
   /// </summary>
   private static void LogResult(TemplateTestResult result)
   {
-    TestContext.WriteLine($"Duration: {result.Duration.TotalSeconds:F2}s");
-    TestContext.WriteLine($"Exit Code: {result.ExitCode}");
+    TestContext.Out.WriteLine($"Duration: {result.Duration.TotalSeconds:F2}s");
+    TestContext.Out.WriteLine($"Exit Code: {result.ExitCode}");
 
     if (!string.IsNullOrEmpty(result.DiagnosticMessage))
     {
-      TestContext.WriteLine($"Diagnostic: {result.DiagnosticMessage}");
+      TestContext.Out.WriteLine($"Diagnostic: {result.DiagnosticMessage}");
     }
 
     if (result.Exception != null)
     {
-      TestContext.WriteLine("--- Exception Details ---");
-      TestContext.WriteLine($"Type: {result.Exception.GetType().FullName}");
-      TestContext.WriteLine($"Message: {result.Exception.Message}");
-      TestContext.WriteLine($"StackTrace:\n{result.Exception.StackTrace}");
-      TestContext.WriteLine("--- End Exception Details ---");
+      TestContext.Out.WriteLine("--- Exception Details ---");
+      TestContext.Out.WriteLine($"Type: {result.Exception.GetType().FullName}");
+      TestContext.Out.WriteLine($"Message: {result.Exception.Message}");
+      TestContext.Out.WriteLine($"StackTrace:\n{result.Exception.StackTrace}");
+      TestContext.Out.WriteLine("--- End Exception Details ---");
     }
 
     if (!string.IsNullOrEmpty(result.StandardOutput))
     {
-      TestContext.WriteLine("--- Standard Output ---");
-      TestContext.WriteLine(result.StandardOutput);
-      TestContext.WriteLine("--- End Standard Output ---");
+      TestContext.Out.WriteLine("--- Standard Output ---");
+      TestContext.Out.WriteLine(result.StandardOutput);
+      TestContext.Out.WriteLine("--- End Standard Output ---");
     }
 
     if (!string.IsNullOrEmpty(result.StandardError))
     {
-      TestContext.WriteLine("--- Standard Error ---");
-      TestContext.WriteLine(result.StandardError);
-      TestContext.WriteLine("--- End Standard Error ---");
+      TestContext.Out.WriteLine("--- Standard Error ---");
+      TestContext.Out.WriteLine(result.StandardError);
+      TestContext.Out.WriteLine("--- End Standard Error ---");
     }
   }
 }

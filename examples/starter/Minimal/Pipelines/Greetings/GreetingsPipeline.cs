@@ -30,7 +30,7 @@ public static class GreetingsPipeline
       );
 
       // Node 2: Transform "Hello" greetings into "Goodbye" and "So long" variants
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TransformGreetings",
         description: "Convert 'Hello' greetings into 'Goodbye' and 'So long' variants.",
         transform: TransformGreetingsNode.Create(),

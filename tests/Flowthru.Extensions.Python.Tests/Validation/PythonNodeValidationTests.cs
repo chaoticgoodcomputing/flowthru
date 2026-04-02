@@ -69,7 +69,7 @@ public class PythonNodeValidationTests
     // Arrange & Act & Assert
     var ex = Assert.Throws<InvalidOperationException>(
       () =>
-        new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+        new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
           _executor,
           "_Fixtures.nonexistent_module",
           "some_function"
@@ -85,7 +85,7 @@ public class PythonNodeValidationTests
     // Arrange & Act & Assert
     var ex = Assert.Throws<InvalidOperationException>(
       () =>
-        new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+        new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
           _executor,
           "_Fixtures.validation_test_nodes",
           "nonexistent_function"
@@ -101,7 +101,7 @@ public class PythonNodeValidationTests
     // Arrange & Act & Assert
     var ex = Assert.Throws<InvalidOperationException>(
       () =>
-        new PythonNodeWrapper<ModelConfigSchema, ModelConfigSchema>(
+        new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
           _executor,
           "_Fixtures.validation_test_nodes",
           "missing_decorator_node"
@@ -115,7 +115,7 @@ public class PythonNodeValidationTests
   public void ValidateRegistration_ValidNode_Succeeds()
   {
     // Arrange & Act
-    var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+    var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
       "_Fixtures.validation_test_nodes",
       "valid_node"
@@ -289,7 +289,7 @@ public class PythonNodeValidationTests
     var pipeline = new Flow();
 
     // Create Python node wrapper
-    var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+    var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
       moduleName,
       functionName
@@ -304,15 +304,15 @@ public class PythonNodeValidationTests
       outputs: Array.Empty<Data.IItem>()
     );
 
-    // Use reflection to access internal AddNode method for testing
+    // Use reflection to access internal AddStep method for testing
     var addNodeMethod = typeof(Flow).GetMethod(
-      "AddNode",
+      "AddStep",
       System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
     );
 
     if (addNodeMethod == null)
     {
-      throw new InvalidOperationException("Could not find Pipeline.AddNode method via reflection");
+      throw new InvalidOperationException("Could not find Pipeline.AddStep method via reflection");
     }
 
     addNodeMethod.Invoke(pipeline, new object[] { pipelineNode });

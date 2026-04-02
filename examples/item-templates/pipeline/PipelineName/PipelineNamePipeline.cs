@@ -21,7 +21,7 @@ public static class FlowNamePipeline
     return FlowBuilder.CreateFlow(pipeline =>
     {
       // Start with a dummy node - replace with your actu
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "FlowNameDummy",
         description: "Placeholder",
         transform: FlowNameDummyNode.Create(),

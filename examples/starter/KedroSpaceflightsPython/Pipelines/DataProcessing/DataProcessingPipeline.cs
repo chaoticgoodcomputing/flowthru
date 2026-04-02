@@ -40,7 +40,7 @@ public static class DataProcessingPipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         IEnumerable<PreprocessedShuttleSchema>,
         IEnumerable<PreprocessedCompanySchema>,
         IEnumerable<ReviewSchema>,

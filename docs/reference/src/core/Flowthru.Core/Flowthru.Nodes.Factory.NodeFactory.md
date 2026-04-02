@@ -69,6 +69,6 @@ The node type to instantiate
 </p>
 <p>
 These requirements are enforced at compile-time via generic constraints in
-FlowBuilder.AddNode methods.
+FlowBuilder.AddStep methods.
 </p>
 

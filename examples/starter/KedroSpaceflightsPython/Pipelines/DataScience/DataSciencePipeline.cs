@@ -22,7 +22,7 @@ public static class DataSciencePipeline
     return FlowBuilder.CreateFlow(pipeline =>
     {
       // Split data into train/test sets (1×4 output node)
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         IEnumerable<ModelInputTableSchema>,
         IEnumerable<XValues>,
         IEnumerable<XValues>,
@@ -39,7 +39,7 @@ public static class DataSciencePipeline
       );
 
       // Train model (2×1 input node, returns sklearn model object)
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "TrainModel",
         description: "Train linear regression model (Python 2×1 node)",
         module: "Pipelines.DataScience.Nodes.train_model",
@@ -50,7 +50,7 @@ public static class DataSciencePipeline
       );
 
       // Evaluate model (3×1 input node with sklearn model object)
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         LinearRegressionModel,
         IEnumerable<XValues>,
         IEnumerable<YValues>,
@@ -66,7 +66,7 @@ public static class DataSciencePipeline
       );
 
       // Generate predictions for visualization (3×1 input node)
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         LinearRegressionModel,
         IEnumerable<XValues>,
         IEnumerable<YValues>,

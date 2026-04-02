@@ -30,7 +30,7 @@ public static class DataProcessingPipeline
         output: catalog.PreprocessedShuttles
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CreateModelInputTable",
         description: "Joins preprocessed shuttle and company data with review scores.",
         transform: CreateModelInputTableNode.Create(),

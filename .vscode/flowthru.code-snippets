@@ -19,7 +19,7 @@
 			"  {",
 			"    return FlowBuilder.CreateFlow(pipeline =>",
 			"    {",
-			"      pipeline.AddNode(",
+			"      pipeline.AddStep(",
 			"        label: \"$2\",",
 			"        description: \"\"\"",
 			"          $3",

@@ -58,7 +58,7 @@ public static class DataProcessingPipeline
       );
 
       // Node 4: Create model input table (multi-input: 3 inputs → single output)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CreateModelInputTable",
         transform: CreateModelInputTableNode.Create(),
         input: (catalog.CleanedShuttles, catalog.CleanedCompanies, catalog.CleanedReviews),

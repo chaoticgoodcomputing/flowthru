@@ -33,7 +33,7 @@ public static class DataSciencePipeline
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "SplitData",
         description: "Splits the model input table into training and test sets.",
         transform: SplitDataNode.Create(parameters.ModelOptions),
@@ -49,7 +49,7 @@ public static class DataSciencePipeline
         output: ds.Regressor
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "EvaluateModel",
         description: "Evaluates the trained model on the test set and computes metrics.",
         transform: EvaluateModelNode.Create(),

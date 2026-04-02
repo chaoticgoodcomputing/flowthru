@@ -551,9 +551,9 @@ public class FlowthruServiceTests
 
     // Assert
     Assert.That(dag, Is.Not.Null);
-    Assert.That(dag.Nodes, Has.Count.EqualTo(2));
+    Assert.That(dag.Steps, Has.Count.EqualTo(2));
     Assert.That(dag.Edges, Is.Not.Empty);
-    Assert.That(dag.CatalogEntries, Is.Not.Empty);
+    Assert.That(dag.CatalogItems, Is.Not.Empty);
     Assert.That(dag.AppliedSlice, Is.Null);
     Assert.That(dag.SlicedStepIds, Is.Null);
   }
@@ -596,7 +596,7 @@ public class FlowthruServiceTests
 
     // Assert
     Assert.That(dag, Is.Not.Null);
-    Assert.That(dag.Nodes, Has.Count.EqualTo(1));
+    Assert.That(dag.Steps, Has.Count.EqualTo(1));
   }
 
   [Test]
@@ -675,7 +675,7 @@ public class FlowthruServiceTests
     var dag = service.GetDagMetadata("test");
 
     // Assert
-    var node = dag.Nodes.Single();
+    var node = dag.Steps.Single();
     Assert.That(node.Inputs, Is.Not.Empty);
     Assert.That(node.Outputs, Is.Not.Empty);
     Assert.That(node.Layer, Is.GreaterThanOrEqualTo(0));
@@ -704,12 +704,12 @@ public class FlowthruServiceTests
     var dag = service.GetDagMetadata("test");
 
     // Assert — the output catalog entry should have "Process" as its producer
-    var outputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Producer is not null);
+    var outputEntry = dag.CatalogItems.FirstOrDefault(e => e.Producer is not null);
     Assert.That(outputEntry, Is.Not.Null);
     Assert.That(outputEntry!.Producer, Is.Not.Null.And.Not.Empty);
 
     // The input catalog entry should have "Process" as a consumer
-    var inputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Consumers.Count > 0);
+    var inputEntry = dag.CatalogItems.FirstOrDefault(e => e.Consumers.Count > 0);
     Assert.That(inputEntry, Is.Not.Null);
     Assert.That(inputEntry!.Consumers, Is.Not.Empty);
   }
@@ -767,8 +767,8 @@ public class FlowthruServiceTests
     // Assert
     Assert.That(result.Success, Is.True);
     Assert.That(capturingProvider.CapturedDag, Is.Not.Null, "Provider should capture DAG metadata");
-    Assert.That(capturingProvider.CapturedDag.Nodes, Has.Count.EqualTo(1));
-    Assert.That(capturingProvider.CapturedDag.CatalogEntries, Is.Not.Empty);
+    Assert.That(capturingProvider.CapturedDag.Steps, Has.Count.EqualTo(1));
+    Assert.That(capturingProvider.CapturedDag.CatalogItems, Is.Not.Empty);
   }
 
   [Test]

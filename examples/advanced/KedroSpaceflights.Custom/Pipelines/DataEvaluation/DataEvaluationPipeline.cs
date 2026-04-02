@@ -48,7 +48,7 @@ public static class DataEvaluationPipeline
     return FlowBuilder.CreateFlow(pipeline =>
     {
       // Node 1: Evaluate OLS model (multi-input → multi-output)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "EvaluateOLSModel",
         transform: EvaluateModelNode.Create(),
         input: (catalog.Regressor, catalog.XTest, catalog.YTest),

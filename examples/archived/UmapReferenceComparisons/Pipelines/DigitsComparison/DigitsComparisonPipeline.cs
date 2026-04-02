@@ -53,7 +53,7 @@ public static class DigitsComparisonPipeline
         output: catalog.DigitsUmapInput
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TransformDigitsWithCSharpUmap",
         description: """
           Applies C# UMAP to Digits input features using the same parameters
@@ -72,7 +72,7 @@ public static class DigitsComparisonPipeline
         output: (catalog.DigitsCSharpOutput, catalog.DigitsRuntimeReport)
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CompareDigitsOutputs",
         description: """
           Compares C# UMAP output against Python reference output using neighborhood preservation validation.
@@ -101,7 +101,7 @@ public static class DigitsComparisonPipeline
         output: catalog.DigitsComparison
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "VisualizeComparison",
         description: """
           Creates a side-by-side scatter plot comparing Python and C# UMAP embeddings.
@@ -124,7 +124,7 @@ public static class DigitsComparisonPipeline
       );
 
       // NOTE: Commented out due to performance issues with Plotly.NET
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportVisualizationToPng",
       //   description: """
       //     Exports the side-by-side comparison chart to a PNG file.

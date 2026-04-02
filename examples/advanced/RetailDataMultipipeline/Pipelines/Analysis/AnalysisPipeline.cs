@@ -14,7 +14,7 @@ public static class AnalysisPipeline
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ComputeWeeklyDtu",
         description: $"Converts currency and aggregates weekly DTU metrics for {shard.Country}.",
         transform: ComputeWeeklyDtuNode.Create(shard.Country),

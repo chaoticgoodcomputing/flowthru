@@ -49,7 +49,7 @@ public static class IrisComparisonPipeline
         output: catalog.IrisUmapInput
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TransformIrisWithCSharpUmap",
         description: """
           Applies C# UMAP to Iris input features using the same parameters
@@ -75,7 +75,7 @@ public static class IrisComparisonPipeline
         output: (catalog.IrisCSharpOutput, catalog.IrisRuntimeReport)
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CompareIrisOutputs",
         description: """
           Compares C# UMAP output against Python reference output using neighborhood preservation validation.
@@ -102,7 +102,7 @@ public static class IrisComparisonPipeline
         output: catalog.IrisComparison
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "VisualizeComparison",
         description: """
           Creates a side-by-side scatter plot comparing Python and C# UMAP embeddings.
@@ -132,7 +132,7 @@ public static class IrisComparisonPipeline
       );
 
       // NOTE: Commented out due to performance issues with Plotly.NET
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportVisualizationToPng",
       //   description: """
       //     Exports the side-by-side comparison chart to a PNG file.

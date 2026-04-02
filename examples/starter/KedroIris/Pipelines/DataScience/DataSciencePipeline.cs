@@ -35,7 +35,7 @@ public static class DataSciencePipeline
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TrainModel",
         description: "Trains a multi-class logistic regression model using gradient descent.",
         transform: TrainModelNode.Create(parameters.NumTrainIter, parameters.LearningRate),
@@ -43,7 +43,7 @@ public static class DataSciencePipeline
         output: catalog.IrisModel
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "Predict",
         description: "Predicts species classifications for the test set using the trained model.",
         transform: PredictNode.Create(),
@@ -51,7 +51,7 @@ public static class DataSciencePipeline
         output: catalog.Predictions
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "Evaluate",
         description: "Evaluates prediction accuracy and saves metrics to the reporting layer.",
         transform: EvaluateModelNode.Create(),

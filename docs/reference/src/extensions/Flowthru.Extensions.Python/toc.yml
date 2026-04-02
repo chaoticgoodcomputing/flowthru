@@ -32,8 +32,8 @@
     - name: Classes
     - name: PythonNodeFactory
       href: .PythonNodeFactory.md
-    - name: PythonNodeWrapper<TInput, TOutput>
-      href: .PythonNodeWrapper-2.md
+    - name: PythonStepWrapper<TInput, TOutput>
+      href: .PythonStepWrapper-2.md
 - name: Flowthru.Extensions.Python.Runtime
   href: Flowthru.Extensions.Python.Runtime.md
   items:

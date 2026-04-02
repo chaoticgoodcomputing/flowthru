@@ -228,8 +228,8 @@ await pipeline.ExecuteAsync();
 
 // Option 2: Migration node in pipeline
 var pipeline = new FlowBuilder("Setup")
-    .AddNode("migrate", catalog => new MigrationNode(db))
-    .AddNode("load_data", catalog => new LoadNode(...))
+    .AddStep("migrate", catalog => new MigrationNode(db))
+    .AddStep("load_data", catalog => new LoadNode(...))
     .Build();
 ```
 

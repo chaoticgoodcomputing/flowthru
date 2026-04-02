@@ -36,7 +36,7 @@ public static class DataDiagnosticsPipeline
     return FlowBuilder.CreateFlow(pipeline =>
     {
       // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ValidateModelInputTableAgainstKedroSource",
         transform: ValidateAgainstKedroNode.Create(),
         input: (catalog.ModelInputTable, catalog.KedroModelInputTable),

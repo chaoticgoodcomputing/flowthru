@@ -62,12 +62,12 @@ public class ValidateNode : NodeBase&lt;InputSchema, NoData&gt;
 to a unique NullCatalogDataset instance:
 </p>
 <pre><code class="lang-csharp">// Simple syntax with automatic unique key generation
-pipeline.AddNode&lt;ValidationNode&gt;(
+pipeline.AddStep&lt;ValidationNode&gt;(
     input: catalog.InputData,
     output: NoData.Output  // or just: NoData.Discard
 );
 
-pipeline.AddNode&lt;GenerateDataNode&gt;(
+pipeline.AddStep&lt;GenerateDataNode&gt;(
     input: NoData.Input,  // or just: NoData.None
     output: catalog.GeneratedData
 );</code></pre>

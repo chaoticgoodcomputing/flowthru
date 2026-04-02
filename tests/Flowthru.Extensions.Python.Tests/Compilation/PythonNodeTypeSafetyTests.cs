@@ -11,7 +11,7 @@ namespace Flowthru.Extensions.Python.Tests.Compilation;
 /// Compilation tests verifying that Python node wiring is type-safe at compile-time.
 /// </summary>
 /// <remarks>
-/// These tests verify that the catalog entry types passed to AddPythonNode are
+/// These tests verify that the catalog entry types passed to AddPythonStep are
 /// self-consistent and correctly inferred by the compiler.
 ///
 /// Note: Schema contract violations between C# generic types and Python @node
@@ -24,7 +24,7 @@ namespace Flowthru.Extensions.Python.Tests.Compilation;
 public class PythonNodeTypeSafetyTests
 {
   [Test]
-  public void AddPythonNode_WithMatchingTypes_CompilesSuccessfully()
+  public void AddPythonStep_WithMatchingTypes_CompilesSuccessfully()
   {
     // Arrange: Code with correct type matching
     var code =
@@ -45,7 +45,7 @@ public class PythonNodeTypeSafetyTests
                     
                     var pipeline = FlowBuilder.CreateFlow(builder =>
                     {
-                        builder.AddPythonNode(
+                        builder.AddPythonStep(
                             label: ""Test"",
                             module: ""test"",
                             function: ""test"",
@@ -79,7 +79,7 @@ public class PythonNodeTypeSafetyTests
   }
 
   [Test]
-  public void AddPythonNode_WithInferredMatchingTypes_CompilesSuccessfully()
+  public void AddPythonStep_WithInferredMatchingTypes_CompilesSuccessfully()
   {
     // Arrange: Code that relies on type inference (no explicit generic params)
     // Type mismatch should still be caught
@@ -102,7 +102,7 @@ public class PythonNodeTypeSafetyTests
                     var pipeline = FlowBuilder.CreateFlow(builder =>
                     {
                         // Relying on type inference, but types still don't match
-                        builder.AddPythonNode(
+                        builder.AddPythonStep(
                             label: ""Test"",
                             module: ""test"",
                             function: ""test"",

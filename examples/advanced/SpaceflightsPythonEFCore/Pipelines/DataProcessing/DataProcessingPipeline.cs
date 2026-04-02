@@ -30,7 +30,7 @@ public static class DataProcessingPipeline
         output: catalog.PreprocessedShuttles
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CreateModelInputTable",
         description: "Join preprocessed shuttles, companies, and reviews into a model input table (C#). Stores result in EFCore for Python consumption.",
         transform: CreateModelInputTableNode.Create(),

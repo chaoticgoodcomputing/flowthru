@@ -89,7 +89,7 @@ If you try to use a constrained entry incorrectly, the pipeline fails during con
 
 ```csharp
 // ❌ This fails at pipeline.Build() — before any data is processed
-pipeline.AddNode(
+pipeline.AddStep(
     name: "WriteToReadOnly",
     transform: node,
     input: catalog.InputData,

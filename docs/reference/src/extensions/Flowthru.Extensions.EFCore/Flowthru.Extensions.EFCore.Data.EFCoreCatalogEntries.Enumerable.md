@@ -73,7 +73,7 @@ public static partial class DataCatalog
 
 // In pipeline
 var pipeline = new FlowBuilder("CompanyPipeline")
-  .AddNode("load_companies", catalog =&gt; new LoadCompaniesNode(
+  .AddStep("load_companies", catalog =&gt; new LoadCompaniesNode(
     outputs: catalog.Companies(db)
   ))
   .Build();</code></pre>

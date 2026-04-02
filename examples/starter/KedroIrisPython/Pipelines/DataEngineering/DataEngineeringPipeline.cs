@@ -19,7 +19,7 @@ public static class DataEngineeringPipeline
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         IEnumerable<IrisRawSchema>,
         IEnumerable<FeatureVectorSchema>,
         IEnumerable<TargetLabelSchema>,

@@ -68,7 +68,7 @@ public static class ReportingPipeline
 
       // NOTE: Commented out due to performance issues with Plotly.NET
       // // Step 2: Export chart to PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportPassengerCapacityPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ShuttlePassengerCapacityChart,
@@ -87,7 +87,7 @@ public static class ReportingPipeline
 
       // NOTE: Commented out due to performance issues with Plotly.NET
       // // Step 2: Export chart to PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportConfusionMatrixPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ConfusionMatrixChart,

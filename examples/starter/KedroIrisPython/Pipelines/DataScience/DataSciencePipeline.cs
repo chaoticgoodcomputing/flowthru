@@ -21,7 +21,7 @@ public static class DataSciencePipeline
     return FlowBuilder.CreateFlow(pipeline =>
     {
       // Train model using training data
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         IEnumerable<FeatureVectorSchema>,
         IEnumerable<TargetLabelSchema>,
         byte[]
@@ -36,7 +36,7 @@ public static class DataSciencePipeline
       );
 
       // Generate predictions using trained model
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         byte[],
         IEnumerable<FeatureVectorSchema>,
         IEnumerable<PredictionSchema>
@@ -51,7 +51,7 @@ public static class DataSciencePipeline
       );
 
       // Report accuracy metrics
-      pipeline.AddPythonNode<
+      pipeline.AddPythonStep<
         IEnumerable<PredictionSchema>,
         IEnumerable<TargetLabelSchema>,
         AccuracyReportSchema

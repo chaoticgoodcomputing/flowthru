@@ -89,11 +89,11 @@ using var db = new AppDbContext();
 await db.Database.MigrateAsync();
 
 var pipeline = new FlowBuilder("CompanyETL")
-    .AddNode("extract", catalog => new ExtractCompaniesNode(
+    .AddStep("extract", catalog => new ExtractCompaniesNode(
         inputs: catalog.SourceCompanies(db),
         outputs: catalog.RawCompanies()
     ))
-    .AddNode("transform", catalog => new TransformCompaniesNode(
+    .AddStep("transform", catalog => new TransformCompaniesNode(
         inputs: catalog.RawCompanies(),
         outputs: catalog.ProcessedCompanies(db)
     ))

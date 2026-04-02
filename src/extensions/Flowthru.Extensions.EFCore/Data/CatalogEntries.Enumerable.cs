@@ -47,7 +47,7 @@ public static partial class EFCoreCatalogEntries
     ///
     /// // In pipeline
     /// var pipeline = new FlowBuilder("CompanyPipeline")
-    ///   .AddNode("load_companies", catalog => new LoadCompaniesNode(
+    ///   .AddStep("load_companies", catalog => new LoadCompaniesNode(
     ///     outputs: catalog.Companies(db)
     ///   ))
     ///   .Build();
