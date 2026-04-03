@@ -47,7 +47,7 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Internal entry type that carries a flow factory and its associated metadata.
+  /// Internal entry type that carries a Flow factory and its associated metadata.
   /// Replaces the FlowRegistrar indirection for cleaner multi-catalog support.
   /// </summary>
   internal sealed class FlowRegistrationEntry
@@ -167,11 +167,11 @@ public sealed class FlowthruServiceBuilder
   /// <summary>
   /// Escape-hatch for registering flows via a full-access service provider factory.
   /// </summary>
-  /// <param name="flowFactory">Factory function that receives the service provider and returns the flow dictionary</param>
+  /// <param name="flowFactory">Factory function that receives the service provider and returns the Flow dictionary</param>
   /// <returns>This builder for method chaining</returns>
   /// <remarks>
-  /// Prefer <see cref="RegisterFlow(string, Delegate, string?)"/> for standard flow registration.
-  /// Use this only when you need full service provider access during flow construction.
+  /// Prefer <see cref="RegisterFlow(string, Delegate, string?)"/> for standard Flow registration.
+  /// Use this only when you need full service provider access during Flow construction.
   /// </remarks>
   public FlowthruServiceBuilder RegisterFlows(
     Func<IServiceProvider, Dictionary<string, Flow>> flowFactory
@@ -188,11 +188,11 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
-  /// Registers a flow by inspecting the delegate's parameter types at runtime.
+  /// Registers a Flow by inspecting the delegate's parameter types at runtime.
   /// Parameters that extend <see cref="CatalogAbstract"/> are resolved from DI as catalogs.
   /// All other parameters are resolved from DI as services.
   /// </summary>
-  /// <param name="label">Unique flow name</param>
+  /// <param name="label">Unique Flow name</param>
   /// <param name="flow">A method group or delegate whose parameters are catalogs, services, or config objects</param>
   /// <param name="configurationSection">
   /// Optional configuration section path. When provided, the last non-catalog, non-service parameter
@@ -274,7 +274,7 @@ public sealed class FlowthruServiceBuilder
   /// <summary>
   /// Adds a description to the most recently registered flow.
   /// </summary>
-  /// <param name="description">Human-readable description of what the flow does</param>
+  /// <param name="description">Human-readable description of what the Flow does</param>
   /// <returns>This builder for method chaining</returns>
   public FlowthruServiceBuilder WithDescription(string description)
   {
@@ -602,7 +602,7 @@ public sealed class FlowthruServiceBuilder
 
   /// <summary>
   /// Internal method called by AddFlowthru to register the catalog collection and
-  /// flow dictionary into the DI container. Must be called after all RegisterCatalog
+  /// Flow dictionary into the DI container. Must be called after all RegisterCatalog
   /// and RegisterFlow calls have been made.
   /// </summary>
   internal void RegisterFlowDictionary()

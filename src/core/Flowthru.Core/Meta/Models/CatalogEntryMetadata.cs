@@ -7,7 +7,7 @@ namespace Flowthru.Meta.Models;
 /// </summary>
 /// <remarks>
 /// Catalog items represent data sources and sinks. They can be external files,
-/// intermediate flow outputs, or final results. Each item is uniquely identified
+/// intermediate Flow outputs, or final results. Each item is uniquely identified
 /// by its key.
 /// </remarks>
 public class ItemMetadata
@@ -71,7 +71,7 @@ public class ItemMetadata
   /// Step ID that produces (writes to) this catalog item.
   /// </summary>
   /// <remarks>
-  /// Null for external inputs (Layer 0 inputs that exist before flow execution).
+  /// Null for external inputs (Layer 0 inputs that exist before Flow execution).
   /// Example: "PreprocessCompanies"
   /// </remarks>
   [JsonPropertyName("producer")]

@@ -159,7 +159,7 @@ public static partial class EFCoreCatalogEntries
 
     /// <summary>
     /// Creates an EFCore catalog entry using <see cref="IDbContextFactory{TContext}"/> —
-    /// the idiomatic EFCore pattern for per-operation context isolation and concurrent node safety.
+    /// the idiomatic EFCore pattern for per-operation context isolation and concurrent step safety.
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     /// <typeparam name="TContext">Concrete DbContext type</typeparam>

@@ -4,7 +4,7 @@ namespace Flowthru.Extensions.Python.Steps;
 
 /// <summary>
 /// Thin wrapper that binds an <see cref="IPythonExecutor"/> to a specific module/function pair,
-/// exposing it as a typed <c>Func&lt;TInput, TOutput&gt;</c> for use with the flow builder.
+/// exposing it as a typed <c>Func&lt;TInput, TOutput&gt;</c> for use with the Flow builder.
 /// </summary>
 /// <remarks>
 /// All marshalling (scalar, tabular, bytes, multi-I/O tuples) is delegated to the executor.

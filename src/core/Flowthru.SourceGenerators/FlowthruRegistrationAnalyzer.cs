@@ -11,7 +11,7 @@ namespace Flowthru.SourceGenerators;
 /// within an AddFlowthru configuration block.
 ///
 /// Emits compile-time diagnostics when:
-///   FT1001 — A flow delegate parameter extends DataCatalogBase but no
+///   FT1001 — A Flow delegate parameter extends DataCatalogBase but no
 ///            matching RegisterCatalog registration was found.
 ///   FT1002 — A RegisterCatalog registration is never referenced by any flow.
 /// </summary>
@@ -19,7 +19,7 @@ namespace Flowthru.SourceGenerators;
 public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
 {
   /// <summary>
-  /// No catalog registered for a flow parameter that extends DataCatalogBase.
+  /// No catalog registered for a Flow parameter that extends DataCatalogBase.
   /// </summary>
   public const string MissingCatalogId = "FT2001";
 
@@ -29,7 +29,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   public const string UnusedCatalogId = "FT2002";
 
   /// <summary>
-  /// A flow has a concrete-class parameter that is not a catalog and is not covered by
+  /// A Flow has a concrete-class parameter that is not a catalog and is not covered by
   /// configurationSection, meaning it will be resolved from DI. This may be intentional,
   /// but if the parameter is a configuration POCO, the user should pass configurationSection
   /// to RegisterFlow to bind it from appsettings instead.
@@ -37,8 +37,8 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   public const string UnboundConcreteParamId = "FT2003";
 
   /// <summary>
-  /// A flow registration specifies a configurationSection but UseConfiguration() was never called
-  /// on the builder. The flow will throw at pre-flight time when it attempts to resolve the
+  /// A Flow registration specifies a configurationSection but UseConfiguration() was never called
+  /// on the builder. The Flow will throw at pre-flight time when it attempts to resolve the
   /// configurationSection.
   /// </summary>
   public const string MissingUseConfigurationId = "FT2004";
@@ -170,7 +170,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       string,
       IInvocationOperation
     >();
-    // Collect flow registrations with their required catalogs and any ambiguous concrete params
+    // Collect Flow registrations with their required catalogs and any ambiguous concrete params
     var flowRegistrations = new System.Collections.Generic.List<(
       string Label,
       IInvocationOperation Invocation,
@@ -216,7 +216,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       }
     }
 
-    // Cross-reference: FT2001 — flow requires catalog not registered
+    // Cross-reference: FT2001 — Flow requires catalog not registered
     var allReferencedCatalogs = new System.Collections.Generic.HashSet<string>();
     foreach (var (label, invocation, requiredCatalogs, _) in flowRegistrations)
     {
@@ -358,7 +358,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   }
 
   /// <summary>
-  /// Extracts the flow label, required catalog types, and unbound concrete parameters
+  /// Extracts the Flow label, required catalog types, and unbound concrete parameters
   /// from a RegisterFlow call.
   /// <para>
   /// Parameters are classified the same way the runtime resolver does:
@@ -409,7 +409,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       }
     }
 
-    // Resolve flow parameters via delegate signature or method group.
+    // Resolve Flow parameters via delegate signature or method group.
     System.Collections.Generic.IEnumerable<IParameterSymbol>? flowParams = null;
     foreach (var arg in call.Arguments)
     {

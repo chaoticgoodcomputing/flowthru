@@ -22,13 +22,13 @@ namespace Flowthru.Flows;
 /// </para>
 /// <para>
 /// The compiler infers all types from function signatures and validates catalog entry
-/// types at flow construction time, catching type mismatches before execution.
+/// types at Flow construction time, catching type mismatches before execution.
 /// </para>
 /// <para>
 /// <strong>Usage Patterns:</strong>
 /// </para>
 /// <code>
-/// var flow = FlowBuilder.CreateFlow(builder =>
+/// var Flow = FlowBuilder.CreateFlow(builder =>
 /// {
 ///     // Simple synchronous step
 ///     builder.AddStep(
@@ -82,9 +82,9 @@ public partial class FlowBuilder
   private readonly Flow _flow = new();
 
   /// <summary>
-  /// Creates and configures a new flow using the builder pattern.
+  /// Creates and configures a new Flow using the builder pattern.
   /// </summary>
-  /// <param name="configure">Action to configure the flow by adding steps</param>
+  /// <param name="configure">Action to configure the Flow by adding steps</param>
   /// <returns>Configured but not yet built flow</returns>
   public static Flow CreateFlow(Action<FlowBuilder> configure)
   {

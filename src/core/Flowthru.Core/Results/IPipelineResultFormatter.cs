@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace Flowthru.Results;
 
 /// <summary>
-/// Interface for formatting flow execution results.
+/// Interface for formatting Flow execution results.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -22,9 +22,9 @@ namespace Flowthru.Results;
 public interface IFlowResultFormatter
 {
   /// <summary>
-  /// Formats and outputs the flow result.
+  /// Formats and outputs the Flow result.
   /// </summary>
-  /// <param name="result">The flow execution result</param>
+  /// <param name="result">The Flow execution result</param>
   /// <param name="logger">The logger to write output to</param>
   void Format(FlowResult result, ILogger logger);
 }

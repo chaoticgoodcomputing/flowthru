@@ -17,7 +17,7 @@ namespace Flowthru.Meta;
 /// - Catalog items as cylindrical database shapes
 /// - Flow subgraphs grouping nodes by their origin flow
 /// - External data (no producer) shown with special styling
-/// - Produced data (has producer) inside their producer's flow subgraph
+/// - Produced data (has producer) inside their producer's Flow subgraph
 /// </para>
 /// </remarks>
 public static class MermaidMetadataExtensions
@@ -113,7 +113,7 @@ public static class MermaidMetadataExtensions
         }
       }
 
-      // Define catalog items produced by this flow (cylindrical database shape)
+      // Define catalog items produced by this Flow (cylindrical database shape)
       foreach (var item in flowItems)
       {
         var itemId = SanitizeId(item.Key);
@@ -133,7 +133,7 @@ public static class MermaidMetadataExtensions
       // Generate edges for this flow
       foreach (var step in flowSteps)
       {
-        // Input edges - only include if the input is produced by this flow (not external!)
+        // Input edges - only include if the input is produced by this Flow (not external!)
         foreach (var input in step.Inputs)
         {
           var inputItem = dag.CatalogItems.FirstOrDefault(e => e.Key == input);
@@ -149,7 +149,7 @@ public static class MermaidMetadataExtensions
           }
         }
 
-        // Output edges - node to its produced catalog items
+        // Output edges - step to its produced catalog items
         foreach (var output in step.Outputs)
         {
           var catalogItem = flowItems.FirstOrDefault(e => e.Key == output);

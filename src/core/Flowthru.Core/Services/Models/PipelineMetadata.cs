@@ -4,7 +4,7 @@ namespace Flowthru.Services.Models;
 /// Metadata about a flow's structure and configuration.
 /// </summary>
 /// <remarks>
-/// Provides read-only information about a flow without executing it.
+/// Provides read-only information about a Flow without executing it.
 /// Useful for discovery, validation, and UI generation.
 /// </remarks>
 public sealed record FlowMetadata
@@ -35,7 +35,7 @@ public sealed record FlowMetadata
   public required IReadOnlyList<string> ExternalInputs { get; init; }
 
   /// <summary>
-  /// Whether the flow has been built (DAG analyzed).
+  /// Whether the Flow has been built (DAG analyzed).
   /// </summary>
   public required bool IsBuilt { get; init; }
 }

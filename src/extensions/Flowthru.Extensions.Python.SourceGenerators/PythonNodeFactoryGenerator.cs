@@ -15,7 +15,7 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 /// <para>
 /// Discovers Python files with @step decorators at build time and generates
 /// factory methods that return Func&lt;(inputs), (outputs)&gt; delegates for use
-/// with the standard AddStep flow builder interface.
+/// with the standard AddStep Flow builder interface.
 /// </para>
 /// <para>
 /// This moves Python step registration from runtime (stringly-typed module/function names)
@@ -26,7 +26,7 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 public class PythonStepFactoryGenerator : IIncrementalGenerator
 {
   /// <summary>
-  /// Initializes the source generator by registering a flow that discovers Python steps
+  /// Initializes the source generator by registering a Flow that discovers Python steps
   /// and generates factory methods for them.
   /// </summary>
   /// <param name="context">The incremental generator initialization context</param>

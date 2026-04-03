@@ -99,18 +99,18 @@ public interface IFlowthruService
   /// </summary>
   /// <param name="flowName">Flow name</param>
   /// <returns>Flow metadata</returns>
-  /// <exception cref="KeyNotFoundException">Thrown if flow name not found</exception>
+  /// <exception cref="KeyNotFoundException">Thrown if Flow name not found</exception>
   /// <remarks>
   /// Returns structural information without executing the flow.
-  /// The flow must be built for accurate layer and input information.
+  /// The Flow must be built for accurate layer and input information.
   /// </remarks>
   FlowMetadata GetFlowMetadata(string flowName);
 
   /// <summary>
-  /// Gets the full DAG metadata for flow introspection.
+  /// Gets the full DAG metadata for Flow introspection.
   /// </summary>
   /// <param name="flowName">
-  /// Optional flow name to inspect a single flow.
+  /// Optional Flow name to inspect a single flow.
   /// When null, all registered flows are merged into a unified DAG.
   /// </param>
   /// <param name="sliceStrategy">
@@ -132,13 +132,13 @@ public interface IFlowthruService
   ///
   /// Examples:
   /// <code>
-  /// // Inspect all flow merged
+  /// // Inspect all Flow merged
   /// var dag = flowthru.GetDagMetadata();
   ///
   /// // Inspect a single flow
   /// var dag = flowthru.GetDagMetadata("DataProcessing");
   ///
-  /// // Inspect downstream of a specific flow node
+  /// // Inspect downstream of a specific Flow node
   /// var dag = flowthru.GetDagMetadata(sliceStrategy: new FlowSliceStrategy
   /// {
   ///     FromSteps = new HashSet&lt;string&gt; { "PreprocessCompanies" }
@@ -153,7 +153,7 @@ public interface IFlowthruService
   /// <param name="flowName">Flow name</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>Validation result</returns>
-  /// <exception cref="KeyNotFoundException">Thrown if flow name not found</exception>
+  /// <exception cref="KeyNotFoundException">Thrown if Flow name not found</exception>
   /// <remarks>
   /// Checks accessibility of external data sources without executing the flow.
   /// Useful for pre-flight validation in CI/CD or scheduled jobs.

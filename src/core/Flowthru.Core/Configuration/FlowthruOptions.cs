@@ -65,7 +65,7 @@ public class MetadataOptions
   /// Supports dynamic tokens that are replaced during export:
   /// </para>
   /// <list type="bullet">
-  /// <item><c>{FlowName}</c> - Sanitized flow name</item>
+  /// <item><c>{FlowName}</c> - Sanitized Flow name</item>
   /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled in Timestamp.IncludeTimestamp)</item>
   /// <item><c>{SliceType}</c> - "FromNodes", "Tags", "Mixed", or empty if unsliced</item>
   /// <item><c>{FromNodes}</c> - Comma-separated list of from-nodes</item>
@@ -199,7 +199,7 @@ public class CatalogOptions
 public class FlowOptions
 {
   /// <summary>
-  /// The fully-qualified type name of the flow factory class.
+  /// The fully-qualified type name of the Flow factory class.
   /// Must have a static Create method that accepts (catalog, parameters?).
   /// </summary>
   public string? Type { get; set; }
@@ -227,7 +227,7 @@ public class FlowOptions
 }
 
 /// <summary>
-/// Configuration options for flow validation behavior.
+/// Configuration options for Flow validation behavior.
 /// </summary>
 public class FlowValidationOptions
 {

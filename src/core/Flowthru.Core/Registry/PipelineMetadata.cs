@@ -6,8 +6,8 @@ namespace Flowthru.Registry;
 /// Metadata describing a registered flow.
 /// </summary>
 /// <remarks>
-/// Used internally by the flow registry to store flow information
-/// beyond just the flow instance itself.
+/// Used internally by the flow registry to store Flow information
+/// beyond just the Flow instance itself.
 /// </remarks>
 internal class FlowRegistration
 {
@@ -17,7 +17,7 @@ internal class FlowRegistration
   public required string Name { get; init; }
 
   /// <summary>
-  /// Optional human-readable description of what the flow does.
+  /// Optional human-readable description of what the Flow does.
   /// </summary>
   public string? Description { get; set; }
 

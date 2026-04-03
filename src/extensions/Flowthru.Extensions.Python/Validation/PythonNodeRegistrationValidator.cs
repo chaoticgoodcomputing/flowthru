@@ -11,7 +11,7 @@ namespace Flowthru.Extensions.Python.Validation;
 /// <para>
 /// <strong>Phase 4 registration-time validation:</strong>
 /// Validates that the Python module, function, and @step decorator exist before
-/// creating the step wrapper. This provides fast feedback during flow definition.
+/// creating the step wrapper. This provides fast feedback during Flow definition.
 /// </para>
 /// <para>
 /// <strong>Checks performed:</strong>

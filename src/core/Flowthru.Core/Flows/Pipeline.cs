@@ -8,11 +8,11 @@ using Microsoft.Extensions.Logging;
 namespace Flowthru.Flows;
 
 /// <summary>
-/// Represents a complete data flow with steps, dependencies, and execution order.
+/// Represents a complete data Flow with steps, dependencies, and execution order.
 /// </summary>
 /// <remarks>
 /// <para>
-/// A flow is a directed acyclic graph (DAG) of transformation steps.
+/// A Flow is a directed acyclic graph (DAG) of transformation steps.
 /// Each step reads data from catalog entries, performs transformations,
 /// and writes results back to catalog entries.
 /// </para>
@@ -43,7 +43,7 @@ public class Flow
   public IReadOnlyList<FlowStep> Steps => _steps.AsReadOnly();
 
   /// <summary>
-  /// Internal accessor for the mutable step list. Used by flow internals.
+  /// Internal accessor for the mutable step list. Used by Flow internals.
   /// </summary>
   internal List<FlowStep> StepsList => _steps;
 
@@ -66,12 +66,12 @@ public class Flow
   /// </summary>
   /// <remarks>
   /// Cached to enable metadata export to include slice criteria.
-  /// Null if flow was built without slicing.
+  /// Null if Flow was built without slicing.
   /// </remarks>
   internal FlowSliceStrategy? AppliedSlice { get; private set; }
 
   /// <summary>
-  /// Optional logger for flow execution.
+  /// Optional logger for Flow execution.
   /// </summary>
   public ILogger? Logger { get; set; }
 
@@ -79,7 +79,7 @@ public class Flow
   /// Optional service provider for dependency injection into steps.
   /// </summary>
   /// <remarks>
-  /// Set by the service layer before flow execution to enable steps
+  /// Set by the service layer before Flow execution to enable steps
   /// to resolve services (e.g., database connections, external APIs).
   /// </remarks>
   public IServiceProvider? ServiceProvider { get; set; }
@@ -88,12 +88,12 @@ public class Flow
   /// Flow name for identification and logging.
   /// </summary>
   /// <remarks>
-  /// Set by FlowRegistry during flow registration.
+  /// Set by FlowRegistry during Flow registration.
   /// </remarks>
   public string? Name { get; internal set; }
 
   /// <summary>
-  /// Optional description of what this flow does.
+  /// Optional description of what this Flow does.
   /// </summary>
   public string? Description { get; internal set; }
 
@@ -102,7 +102,7 @@ public class Flow
   /// </summary>
   /// <remarks>
   /// Configures how external data sources (Layer 0 inputs) are validated
-  /// before flow execution begins.
+  /// before Flow execution begins.
   /// </remarks>
   public Validation.ValidationOptions ValidationOptions { get; internal set; } =
     Validation.ValidationOptions.Default();
@@ -133,7 +133,7 @@ public class Flow
   public List<Validation.IFlowValidationHook> ValidationHooks { get; } = new();
 
   /// <summary>
-  /// Indicates whether the flow has been built (dependencies analyzed and layers assigned).
+  /// Indicates whether the Flow has been built (dependencies analyzed and layers assigned).
   /// </summary>
   public bool IsBuilt => ExecutionLayers != null;
 
@@ -148,8 +148,8 @@ public class Flow
   /// <summary>
   /// Adds a step to the flow.
   /// </summary>
-  /// <param name="step">The flow step to add</param>
-  /// <exception cref="InvalidOperationException">Thrown if flow has already been built</exception>
+  /// <param name="step">The Flow step to add</param>
+  /// <exception cref="InvalidOperationException">Thrown if Flow has already been built</exception>
   internal void AddStep(FlowStep step)
   {
     if (IsBuilt)
@@ -164,14 +164,14 @@ public class Flow
   }
 
   /// <summary>
-  /// Merges multiple flows into a single flow by combining all their steps.
+  /// Merges multiple flows into a single Flow by combining all their steps.
   /// </summary>
-  /// <param name="flows">Dictionary of flow names to flow instances</param>
-  /// <returns>A new flow containing all steps from all input flows</returns>
+  /// <param name="flows">Dictionary of flow names to Flow instances</param>
+  /// <returns>A new Flow containing all steps from all input flows</returns>
   /// <remarks>
   /// <para>
-  /// This method creates a new flow by combining all steps from the input flows.
-  /// Step names are prefixed with their source flow name (e.g., "data_processing.PreprocessCompanies")
+  /// This method creates a new Flow by combining all steps from the input flows.
+  /// Step names are prefixed with their source Flow name (e.g., "data_processing.PreprocessCompanies")
   /// to ensure uniqueness and maintain traceability in logs.
   /// </para>
   /// <para>
@@ -188,7 +188,7 @@ public class Flow
       Description = $"Combined execution of: {string.Join(", ", flows.Keys)}",
     };
 
-    // Combine all steps from all flows, prefixing step names with flow name
+    // Combine all steps from all flows, prefixing step names with Flow name
     foreach (var (flowName, flow) in flows)
     {
       foreach (var step in flow.Steps)
@@ -210,7 +210,7 @@ public class Flow
   }
 
   /// <summary>
-  /// Builds the flow by analyzing dependencies and assigning execution layers.
+  /// Builds the Flow by analyzing dependencies and assigning execution layers.
   /// Must be called before executing the flow.
   /// </summary>
   /// <param name="sliceStrategy">Optional slicing strategy to filter steps before execution</param>
@@ -289,10 +289,10 @@ public class Flow
   /// Exports DAG metadata for this Flow.
   /// </summary>
   /// <returns>Complete DAG metadata including steps, catalog entries, and edges</returns>
-  /// <exception cref="InvalidOperationException">Thrown if flow has not been built</exception>
+  /// <exception cref="InvalidOperationException">Thrown if Flow has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method extracts structural metadata from the built flow , creating
+  /// This method extracts structural metadata from the built Flow , creating
   /// a complete representation of the DAG (Directed Acyclic Graph) that can be
   /// serialized to JSON for visualization in Flowthru.Viz.
   /// </para>
@@ -304,7 +304,7 @@ public class Flow
   /// <strong>Usage:</strong>
   /// </para>
   /// <code>
-  /// var flow = DataProcessingFlow.Create(catalog);
+  /// var Flow = DataProcessingFlow.Create(catalog);
   /// flow.Build();
   ///
   /// var dag = flow.ExportDag();
@@ -313,7 +313,7 @@ public class Flow
   /// </code>
   /// <para>
   /// This method is non-destructive and idempotent - it can be called multiple
-  /// times without affecting the flow state.
+  /// times without affecting the Flow state.
   /// </para>
   /// </remarks>
   public DagMetadata ExportDag()
@@ -331,14 +331,14 @@ public class Flow
   }
 
   /// <summary>
-  /// Validates all external inputs before flow execution.
+  /// Validates all external inputs before Flow execution.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token for validation I/O operations</param>
   /// <returns>ValidationResult containing any errors found</returns>
-  /// <exception cref="InvalidOperationException">Thrown if flow has not been built</exception>
+  /// <exception cref="InvalidOperationException">Thrown if Flow has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method inspects catalog entries that are consumed by the flow but not
+  /// This method inspects catalog entries that are consumed by the Flow but not
   /// produced by any step in the execution set. These are pre-existing external data
   /// sources (files, databases, APIs) that must exist and be valid before the flow
   /// can execute.
@@ -553,11 +553,11 @@ public class Flow
   /// /// Builds and executes the flow, returning comprehensive execution results.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
-  /// <returns>FlowResult containing execution status, timing, and flow results</returns>
+  /// <returns>FlowResult containing execution status, timing, and Flow results</returns>
   /// <remarks>
   /// <para>
   /// This is the primary high-level API for executing flows. It automatically
-  /// calls Build() if the flow hasn't been built yet, then executes and tracks results.
+  /// calls Build() if the Flow hasn't been built yet, then executes and tracks results.
   /// </para>
   /// </remarks>
   public async Task<FlowResult> RunAsync(CancellationToken cancellationToken)
@@ -567,7 +567,7 @@ public class Flow
 
     try
     {
-      // Ensure flow is built
+      // Ensure Flow is built
       if (!IsBuilt)
       {
         Logger?.LogInformation("Building flow before execution");
@@ -627,16 +627,16 @@ public class Flow
   }
 
   /// <summary>
-  /// Executes the flow sequentially, layer by layer.
+  /// Executes the Flow sequentially, layer by layer.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
-  /// <returns>Task representing the flow execution</returns>
-  /// <exception cref="InvalidOperationException">Thrown if flow has not been built</exception>
+  /// <returns>Task representing the Flow execution</returns>
+  /// <exception cref="InvalidOperationException">Thrown if Flow has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method executes flow in topological order:
-  /// 1. Execute all flow in layer 0 sequentially
-  /// 2. Execute all flow in layer 1 sequentially
+  /// This method executes Flow in topological order:
+  /// 1. Execute all Flow in layer 0 sequentially
+  /// 2. Execute all Flow in layer 1 sequentially
   /// 3. Continue until all layers are complete
   /// </para>
   /// <para>

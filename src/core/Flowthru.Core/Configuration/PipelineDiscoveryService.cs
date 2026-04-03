@@ -15,7 +15,7 @@ internal class FlowDiscoveryService
   /// </summary>
   /// <param name="configuration">Configuration instance</param>
   /// <param name="catalogType">The catalog type to use</param>
-  /// <returns>Dictionary of flow label to factory function</returns>
+  /// <returns>Dictionary of Flow label to factory function</returns>
   public static Dictionary<string, FlowFactoryInfo> DiscoverFlows(
     IConfiguration configuration,
     Type catalogType
@@ -59,7 +59,7 @@ internal class FlowDiscoveryService
     IConfigurationSection flowSection
   )
   {
-    // Find the flow factory type
+    // Find the Flow factory type
     Type? factoryType = null;
 
     // Try Type.GetType first (supports fully qualified names with assembly)
@@ -150,7 +150,7 @@ internal class FlowDiscoveryService
 }
 
 /// <summary>
-/// Information about a discovered flow factory.
+/// Information about a discovered Flow factory.
 /// </summary>
 internal class FlowFactoryInfo
 {
@@ -163,7 +163,7 @@ internal class FlowFactoryInfo
   public FlowValidationOptions? ValidationOptions { get; init; }
 
   /// <summary>
-  /// Invokes the factory method to create a flow instance.
+  /// Invokes the factory method to create a Flow instance.
   /// </summary>
   public Flow CreateFlow(CatalogAbstract catalog)
   {

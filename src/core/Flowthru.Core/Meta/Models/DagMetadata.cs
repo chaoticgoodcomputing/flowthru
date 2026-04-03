@@ -13,7 +13,7 @@ namespace Flowthru.Meta.Models;
 public class DagMetadata
 {
   /// <summary>
-  /// Name of the flow this DAG represents.
+  /// Name of the Flow this DAG represents.
   /// </summary>
   [JsonPropertyName("flowName")]
   public required string FlowName { get; init; }
@@ -25,7 +25,7 @@ public class DagMetadata
   public DateTime GeneratedAt { get; init; } = DateTime.UtcNow;
 
   /// <summary>
-  /// All steps in the flow with their metadata.
+  /// All steps in the Flow with their metadata.
   /// </summary>
   [JsonPropertyName("steps")]
   public List<StepMetadata> Steps { get; init; } = new();
@@ -37,7 +37,7 @@ public class DagMetadata
   public List<ItemMetadata> CatalogItems { get; init; } = new();
 
   /// <summary>
-  /// All edges representing data flow in the DAG.
+  /// All edges representing data Flow in the DAG.
   /// </summary>
   /// <remarks>
   /// Edges connect catalog items to steps and steps to catalog items,

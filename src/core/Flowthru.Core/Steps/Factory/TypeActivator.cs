@@ -18,7 +18,7 @@ namespace Flowthru.Steps.Factory;
 /// - Significantly faster than Activator.CreateInstance&lt;T&gt;() for repeated calls
 /// </para>
 /// <para>
-/// <strong>Inspiration:</strong> ChainSharp uses similar pattern for node instantiation.
+/// <strong>Inspiration:</strong> ChainSharp uses similar pattern for step instantiation.
 /// </para>
 /// <para>
 /// <strong>Thread Safety:</strong> This class is thread-safe. Multiple threads can safely

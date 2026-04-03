@@ -141,7 +141,7 @@ public static partial class PythonStepFactory
 
     // Delegate to the existing AddStep infrastructure
     // This ensures DAG scheduling, dependency analysis, and all other
-    // flow mechanics work identically for Python and C# steps
+    // Flow mechanics work identically for Python and C# steps
     return builder.AddStep(
       label: label,
       transform: wrapper.GetTransform(),

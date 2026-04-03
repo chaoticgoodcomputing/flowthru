@@ -164,7 +164,7 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// <summary>
   /// Validates that the entity type T is properly configured in the DbContext.
   /// Forces EF Core model building to catch configuration errors during catalog initialization
-  /// (pre-flight phase) rather than at runtime during node execution.
+  /// (pre-flight phase) rather than at runtime during step execution.
   /// </summary>
   /// <param name="context">DbContext to validate against</param>
   /// <exception cref="InvalidOperationException">

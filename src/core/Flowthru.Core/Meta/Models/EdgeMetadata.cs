@@ -7,7 +7,7 @@ namespace Flowthru.Meta.Models;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Edges represent data flow between catalog entries and nodes. The DAG contains
+/// Edges represent data Flow between catalog entries and nodes. The DAG contains
 /// two types of edges:
 /// </para>
 /// <list type="bullet">

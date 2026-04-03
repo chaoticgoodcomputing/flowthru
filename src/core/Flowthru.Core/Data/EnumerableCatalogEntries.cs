@@ -87,7 +87,7 @@ public sealed class EnumerableItems
   /// <returns>Catalog item with memory storage (no serialization)</returns>
   /// <remarks>
   /// <para>
-  /// <strong>Use Case:</strong> Intermediate flow data that doesn't need persistence
+  /// <strong>Use Case:</strong> Intermediate Flow data that doesn't need persistence
   /// </para>
   /// <para>
   /// <strong>Storage Traits:</strong>

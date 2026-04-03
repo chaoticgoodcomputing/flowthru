@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace Flowthru.Meta.Models;
 
 /// <summary>
-/// Metadata describing a single step in the flow DAG.
+/// Metadata describing a single step in the Flow DAG.
 /// </summary>
 /// <remarks>
 /// Steps are the processing units in a flow. Each step reads from one or more
@@ -53,7 +53,7 @@ public class StepMetadata
   public int Layer { get; init; }
 
   /// <summary>
-  /// Name of the parent flow this step belongs to.
+  /// Name of the parent Flow this step belongs to.
   /// </summary>
   /// <remarks>
   /// Important for merged flows where steps from multiple flows

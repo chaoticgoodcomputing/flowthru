@@ -3,7 +3,7 @@ using Flowthru.Data.Validation;
 namespace Flowthru.Flows.Validation;
 
 /// <summary>
-/// Validation hook that runs during flow pre-flight checks.
+/// Validation hook that runs during Flow pre-flight checks.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -37,9 +37,9 @@ namespace Flowthru.Flows.Validation;
 public interface IFlowValidationHook
 {
   /// <summary>
-  /// Validates flow steps during pre-flight checks.
+  /// Validates Flow steps during pre-flight checks.
   /// </summary>
-  /// <param name="flow">The flow being validated</param>
+  /// <param name="flow">The Flow being validated</param>
   /// <param name="cancellationToken">Cancellation token for async operations</param>
   /// <returns>Validation result containing any errors found</returns>
   /// <remarks>
@@ -48,7 +48,7 @@ public interface IFlowValidationHook
   /// <list type="bullet">
   /// <item>Never throw exceptions (return errors in ValidationResult)</item>
   /// <item>Be idempotent (safe to call multiple times)</item>
-  /// <item>Be reasonably fast (executed during pre-flight, blocks flow start)</item>
+  /// <item>Be reasonably fast (executed during pre-flight, blocks Flow start)</item>
   /// <item>Only validate steps they understand (ignore other step types)</item>
   /// </list>
   /// </para>

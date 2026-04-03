@@ -62,7 +62,7 @@ public class FlowStep
   /// - Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOutput&gt;&gt;
   /// </para>
   /// <para>
-  /// When a Step accepts a CancellationToken, the flow will pass the runtime token during
+  /// When a Step accepts a CancellationToken, the Flow will pass the runtime token during
   /// execution, allowing the step to cancel long-running operations cooperatively. Steps that
   /// do not accept a CancellationToken will only be cancelled between step executions.
   /// </para>
@@ -85,7 +85,7 @@ public class FlowStep
   public IReadOnlyList<IItem> Outputs { get; }
 
   /// <summary>
-  /// Other flow steps that must execute before this step.
+  /// Other Flow steps that must execute before this step.
   /// Populated during dependency analysis by checking which steps produce our inputs.
   /// </summary>
   /// <remarks>
@@ -102,7 +102,7 @@ public class FlowStep
   public int Layer { get; set; } = -1; // -1 indicates not yet assigned
 
   /// <summary>
-  /// Creates a new flow step with a transformation function.
+  /// Creates a new Flow step with a transformation function.
   /// </summary>
   /// <param name="label">Unique identifier for this step</param>
   /// <param name="description">Optional description of this step</param>

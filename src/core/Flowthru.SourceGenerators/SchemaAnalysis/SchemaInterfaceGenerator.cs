@@ -55,7 +55,7 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
       return null;
 #pragma warning restore CS8603
 
-    var typeDeclaration = (TypeDeclarationSyntax)ctx.TargetStep;
+    var typeDeclaration = (TypeDeclarationSyntax)ctx.TargetNode;
 
     // Check for partial modifier
     bool isPartial = typeDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword);

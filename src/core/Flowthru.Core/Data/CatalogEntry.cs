@@ -93,7 +93,7 @@ public sealed class Item<T> : IItem<T>
   /// applied via <see cref=\"Constrain\"/>.
   /// </para>
   /// <para>
-  /// Used by flow validation to enforce read-only constraints, network requirements, etc.
+  /// Used by Flow validation to enforce read-only constraints, network requirements, etc.
   /// </para>
   /// </remarks>
   public StorageTraits Traits => _effectiveTraits ?? _storage.Traits;
@@ -177,7 +177,7 @@ public sealed class Item<T> : IItem<T>
   /// <returns>This catalog item for method chaining</returns>
   /// <remarks>
   /// <para>
-  /// Used to configure how this item should be validated before flow execution.
+  /// Used to configure how this item should be validated before Flow execution.
   /// </para>
   /// <para>
   /// Example:

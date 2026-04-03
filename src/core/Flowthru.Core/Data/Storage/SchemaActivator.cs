@@ -22,7 +22,7 @@ namespace Flowthru.Data.Storage;
 /// </list>
 /// <para>
 /// This activator's role is to enable deserialization by creating instances that will be populated
-/// via property reflection. No validation is performed here - that happens at the flow boundaries.
+/// via property reflection. No validation is performed here - that happens at the Flow boundaries.
 /// </para>
 /// <para>
 /// <strong>Instantiation Strategy:</strong>

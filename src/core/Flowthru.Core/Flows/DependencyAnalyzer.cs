@@ -207,14 +207,14 @@ internal static class DependencyAnalyzer
   /// Thrown if:
   /// - FromData references catalog entries not consumed by any node
   /// - ToData references catalog entries not produced by any node
-  /// - OnlySteps references non-existent node names
-  /// - FromSteps/ToSteps references non-existent node names
+  /// - OnlyNodes references non-existent node names
+  /// - FromNodes/ToNodes references non-existent node names
   /// </exception>
   /// <remarks>
   /// <para>
   /// Multiple strategies compose via intersection. For example,
-  /// <c>FromSteps + ToSteps</c> produces nodes in the intersection of the downstream
-  /// tree of FromSteps and the upstream tree of ToSteps.
+  /// <c>FromNodes + ToNodes</c> produces nodes in the intersection of the downstream
+  /// tree of FromNodes and the upstream tree of ToNodes.
   /// </para>
   /// <para>
   /// <strong>Runnability Guarantee:</strong> The returned node set always forms a valid
@@ -267,16 +267,16 @@ internal static class DependencyAnalyzer
       selectedSteps.IntersectWith(pipelineFilter);
     }
 
-    // Step 2: Apply OnlySteps filter (explicit allowlist + dependencies)
-    if (strategy.OnlySteps is { Count: > 0 })
+    // Step 2: Apply OnlyNodes filter (explicit allowlist + dependencies)
+    if (strategy.OnlyNodes is { Count: > 0 })
     {
       var explicitSteps = new HashSet<FlowStep>();
-      foreach (var nodeName in strategy.OnlySteps)
+      foreach (var nodeName in strategy.OnlyNodes)
       {
         if (!nodesByLabel.TryGetValue(nodeName, out var node))
         {
           throw new InvalidOperationException(
-            $"OnlySteps references non-existent node: '{nodeName}'"
+            $"OnlyNodes references non-existent node: '{nodeName}'"
           );
         }
         explicitSteps.Add(node);
@@ -309,15 +309,15 @@ internal static class DependencyAnalyzer
       }
     }
 
-    // Step 4: Apply FromSteps (include downstream dependents)
-    if (strategy.FromSteps is { Count: > 0 })
+    // Step 4: Apply FromNodes (include downstream dependents)
+    if (strategy.FromNodes is { Count: > 0 })
     {
-      foreach (var nodeName in strategy.FromSteps)
+      foreach (var nodeName in strategy.FromNodes)
       {
         if (!nodesByLabel.TryGetValue(nodeName, out var node))
         {
           throw new InvalidOperationException(
-            $"FromSteps references non-existent node: '{nodeName}'"
+            $"FromNodes references non-existent node: '{nodeName}'"
           );
         }
         fromStepsExpanded.Add(node);
@@ -352,15 +352,15 @@ internal static class DependencyAnalyzer
       }
     }
 
-    // Step 6: Apply ToSteps (include upstream dependencies to reach these nodes)
-    if (strategy.ToSteps is { Count: > 0 })
+    // Step 6: Apply ToNodes (include upstream dependencies to reach these nodes)
+    if (strategy.ToNodes is { Count: > 0 })
     {
-      foreach (var nodeName in strategy.ToSteps)
+      foreach (var nodeName in strategy.ToNodes)
       {
         if (!nodesByLabel.TryGetValue(nodeName, out var node))
         {
           throw new InvalidOperationException(
-            $"ToSteps references non-existent node: '{nodeName}'"
+            $"ToNodes references non-existent node: '{nodeName}'"
           );
         }
         toStepsExpanded.Add(node);

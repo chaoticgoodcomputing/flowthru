@@ -9,7 +9,7 @@ namespace Flowthru.Registry;
 /// <typeparam name="TCatalog">The catalog type that flows will use</typeparam>
 /// <remarks>
 /// <para>
-/// This interface provides compile-time type safety by tying flow factories
+/// This interface provides compile-time type safety by tying Flow factories
 /// to a specific catalog type. The registrar validates that all registered
 /// flows accept the correct catalog type.
 /// </para>
@@ -34,27 +34,27 @@ public interface IFlowRegistrar<TCatalog>
   where TCatalog : CatalogAbstract
 {
   /// <summary>
-  /// Registers a flow with a parameterless factory function.
+  /// Registers a Flow with a parameterless factory function.
   /// </summary>
-  /// <param name="name">Unique flow name</param>
-  /// <param name="flowFactory">Factory function that creates the flow from catalog</param>
+  /// <param name="name">Unique Flow name</param>
+  /// <param name="flowFactory">Factory function that creates the Flow from catalog</param>
   /// <returns>This registrar for method chaining</returns>
   /// <remarks>
-  /// Use this overload when the flow doesn't require parameters.
+  /// Use this overload when the Flow doesn't require parameters.
   /// </remarks>
   IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Flow> flowFactory);
 
   /// <summary>
-  /// Registers a flow with a parameterized factory function.
+  /// Registers a Flow with a parameterized factory function.
   /// </summary>
-  /// <typeparam name="TParams">The type of parameters the flow requires</typeparam>
-  /// <param name="name">Unique flow name</param>
-  /// <param name="flowFactory">Factory function that creates the flow from catalog and parameters</param>
+  /// <typeparam name="TParams">The type of parameters the Flow requires</typeparam>
+  /// <param name="name">Unique Flow name</param>
+  /// <param name="flowFactory">Factory function that creates the Flow from catalog and parameters</param>
   /// <param name="parameters">Parameter instance to pass to the flow</param>
   /// <returns>This registrar for method chaining</returns>
   /// <remarks>
   /// <para>
-  /// Use this overload when the flow requires configuration parameters.
+  /// Use this overload when the Flow requires configuration parameters.
   /// Parameters are strongly typed and checked at compile time.
   /// </para>
   /// <para>
@@ -70,7 +70,7 @@ public interface IFlowRegistrar<TCatalog>
   /// <summary>
   /// Adds a description to the most recently registered flow.
   /// </summary>
-  /// <param name="description">Human-readable description of what the flow does</param>
+  /// <param name="description">Human-readable description of what the Flow does</param>
   /// <returns>This registrar for method chaining</returns>
   /// <remarks>
   /// Use this overload when fluently chaining after Register().

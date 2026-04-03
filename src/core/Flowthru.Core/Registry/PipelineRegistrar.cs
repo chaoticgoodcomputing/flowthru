@@ -19,7 +19,7 @@ internal class FlowRegistrar<TCatalog> : IFlowRegistrar<TCatalog>
   /// <summary>
   /// Initializes a new instance of FlowRegistrar.
   /// </summary>
-  /// <param name="catalog">The catalog instance to pass to flow factories</param>
+  /// <param name="catalog">The catalog instance to pass to Flow factories</param>
   internal FlowRegistrar(TCatalog catalog)
   {
     _catalog = catalog;
@@ -116,7 +116,7 @@ internal class FlowRegistrar<TCatalog> : IFlowRegistrar<TCatalog>
   /// <summary>
   /// Builds and returns all registered flows with their metadata applied.
   /// </summary>
-  /// <returns>Dictionary of flow names to flow instances</returns>
+  /// <returns>Dictionary of flow names to Flow instances</returns>
   internal Dictionary<string, Flow> Build()
   {
     var flows = new Dictionary<string, Flow>();

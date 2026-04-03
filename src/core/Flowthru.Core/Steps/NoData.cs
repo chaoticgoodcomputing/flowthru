@@ -2,7 +2,7 @@ namespace Flowthru.Steps;
 
 /// <summary>
 /// Marker type representing "no meaningful data" for nodes with side-effects or data generation.
-/// Used as input/output type in StepBase when a node doesn't consume or produce meaningful data.
+/// Used as input/output type in StepBase when a step doesn't consume or produce meaningful data.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -61,12 +61,12 @@ public sealed class NoData
 
   /// <summary>
   /// Singleton instance of NoData.
-  /// Use this value when returning NoData from node transformations.
+  /// Use this value when returning NoData from step transformations.
   /// </summary>
   public static readonly NoData Value = new();
 
   /// <summary>
-  /// Creates a unique null catalog entry for use as a node input (no-input nodes).
+  /// Creates a unique null catalog entry for use as a step input (no-input nodes).
   /// Each call generates a new instance with a unique key to avoid DAG conflicts.
   /// </summary>
   /// <remarks>
@@ -76,7 +76,7 @@ public sealed class NoData
     Data.Items.Null<NoData>($"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
-  /// Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
+  /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
   /// Each call generates a new instance with a unique key to avoid DAG conflicts.
   /// </summary>
   /// <remarks>
@@ -86,14 +86,14 @@ public sealed class NoData
     Data.Items.Null<NoData>($"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
-  /// Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
+  /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
   /// Semantic alias for Output - use whichever reads better in context.
   /// </summary>
   public static Data.IItem<NoData> Discard =>
     Data.Items.Null<NoData>($"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
-  /// Creates a unique null catalog entry for use as a node input (no-input nodes).
+  /// Creates a unique null catalog entry for use as a step input (no-input nodes).
   /// Semantic alias for Input - use whichever reads better in context.
   /// </summary>
   public static Data.IItem<NoData> None =>

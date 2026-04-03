@@ -73,7 +73,7 @@ internal static class DagBuilder
   }
 
   /// <summary>
-  /// Extracts all unique catalog items from the flow steps.
+  /// Extracts all unique catalog items from the Flow steps.
   /// </summary>
   /// <remarks>
   /// Handles both simple catalog items and CatalogMap items by expanding
@@ -167,7 +167,7 @@ internal static class DagBuilder
         .Select(e => GetQualifiedLabel(e))
         .ToList();
 
-      // Extract original flow name from flow label if merged
+      // Extract original flow name from Flow label if merged
       // Merged nodes have format: "FlowName.StepName"
       var originalFlowName = ExtractOriginalFlowName(flowStep.Label);
 
@@ -189,10 +189,10 @@ internal static class DagBuilder
   }
 
   /// <summary>
-  /// Extracts the original flow name from a step name in a merged pipeline.
+  /// Extracts the original Flow name from a step name in a merged pipeline.
   /// </summary>
-  /// <param name="stepName">The step name (may be prefixed with flow name)</param>
-  /// <returns>The original flow name if detected, otherwise null</returns>
+  /// <param name="stepName">The step name (may be prefixed with Flow name)</param>
+  /// <returns>The original Flow name if detected, otherwise null</returns>
   /// <remarks>
   /// In merged flows, step names are prefixed with their original subflow name
   /// (e.g., "DataProcessing.PreprocessCompanies"). This method extracts that prefix.
@@ -204,11 +204,11 @@ internal static class DagBuilder
     var dotIndex = stepName.IndexOf('.');
     if (dotIndex > 0)
     {
-      // Extract the prefix before the first dot as the original flow name
+      // Extract the prefix before the first dot as the original Flow name
       return stepName.Substring(0, dotIndex);
     }
 
-    // No prefix found - use the current flow name
+    // No prefix found - use the current Flow name
     return "UnnamedFlow";
   }
 
@@ -329,7 +329,7 @@ internal static class DagBuilder
   }
 
   /// <summary>
-  /// Builds edges representing data flow in the DAG.
+  /// Builds edges representing data Flow in the DAG.
   /// </summary>
   /// <remarks>
   /// Creates two types of edges:

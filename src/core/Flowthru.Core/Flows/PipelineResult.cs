@@ -1,7 +1,7 @@
 namespace Flowthru.Flows;
 
 /// <summary>
-/// Represents the result of a flow execution.
+/// Represents the result of a Flow execution.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -31,12 +31,12 @@ namespace Flowthru.Flows;
 public class FlowResult
 {
   /// <summary>
-  /// The name of the flow that was executed.
+  /// The name of the Flow that was executed.
   /// </summary>
   public string? FlowName { get; init; }
 
   /// <summary>
-  /// Indicates whether the flow executed successfully.
+  /// Indicates whether the Flow executed successfully.
   /// </summary>
   public bool Success { get; init; }
 
@@ -54,22 +54,22 @@ public class FlowResult
   /// Results for individual steps, keyed by step name.
   /// </summary>
   /// <remarks>
-  /// Dictionary keys are the step names as specified in the flow definition.
+  /// Dictionary keys are the step names as specified in the Flow definition.
   /// Values contain execution details for each step.
   /// </remarks>
   public Dictionary<string, StepResult> StepResults { get; init; } = new();
 
   /// <summary>
-  /// Exception that caused flow failure, if any.
+  /// Exception that caused Flow failure, if any.
   /// </summary>
   /// <remarks>
   /// Null if Success is true. Contains the first exception that caused
-  /// flow execution to halt if Success is false.
+  /// Flow execution to halt if Success is false.
   /// </remarks>
   public Exception? Exception { get; init; }
 
   /// <summary>
-  /// Creates a successful flow result.
+  /// Creates a successful Flow result.
   /// </summary>
   public static FlowResult CreateSuccess(
     TimeSpan executionTime,
@@ -88,7 +88,7 @@ public class FlowResult
   }
 
   /// <summary>
-  /// Creates a failed flow result.
+  /// Creates a failed Flow result.
   /// </summary>
   public static FlowResult CreateFailure(
     TimeSpan executionTime,
@@ -137,7 +137,7 @@ public class FlowResult
 }
 
 /// <summary>
-/// Represents the execution result of a single flow step.
+/// Represents the execution result of a single Flow step.
 /// </summary>
 public class StepResult
 {

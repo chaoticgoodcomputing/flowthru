@@ -5,10 +5,10 @@ namespace Flowthru.Data;
 
 /// <summary>
 /// Non-generic base interface for catalog items.
-/// Provides untyped operations for internal use by the flow executor and mapping layer.
+/// Provides untyped operations for internal use by the Flow executor and mapping layer.
 /// </summary>
 /// <remarks>
-/// This interface enables the flow to work with catalog items
+/// This interface enables the Flow to work with catalog items
 /// without knowing their specific type parameter at compile-time.
 /// </remarks>
 public interface IItem

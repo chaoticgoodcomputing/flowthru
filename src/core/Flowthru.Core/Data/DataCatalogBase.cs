@@ -56,12 +56,12 @@ public abstract class CatalogAbstract
   private readonly ConcurrentDictionary<string, IItem> _propertyCache = new();
 
   /// <summary>
-  /// The display label used to identify this catalog instance in flow metadata.
+  /// The display label used to identify this catalog instance in Flow metadata.
   /// Defaults to the concrete class name when not specified.
   /// </summary>
   /// <remarks>
   /// Pass an explicit label when constructing multiple instances of the same catalog type
-  /// in a single flow (e.g., per-partition or per-shard catalogs) so their items
+  /// in a single Flow (e.g., per-partition or per-shard catalogs) so their items
   /// receive distinct qualified identifiers in the DAG: <c>CatalogLabel.ItemLabel</c>.
   /// </remarks>
   public string CatalogLabel { get; }
@@ -79,7 +79,7 @@ public abstract class CatalogAbstract
   /// Optional service provider for dependency injection into catalog items.
   /// </summary>
   /// <remarks>
-  /// Set by the service layer before flow execution to enable catalog
+  /// Set by the service layer before Flow execution to enable catalog
   /// items to resolve services (e.g., database connections, HTTP clients).
   /// </remarks>
   public IServiceProvider? Services { get; set; }
@@ -148,7 +148,7 @@ public abstract class CatalogAbstract
   /// <remarks>
   /// <para>
   /// <strong>Purpose:</strong> Eager initialization ensures all items are cached
-  /// before flow construction begins, preventing any potential race conditions
+  /// before Flow construction begins, preventing any potential race conditions
   /// or unexpected lazy initialization behavior.
   /// </para>
   /// <para>
@@ -192,7 +192,7 @@ public abstract class CatalogAbstract
   /// </summary>
   /// <remarks>
   /// <para>
-  /// <strong>Warning:</strong> Clearing the cache after flow construction will break
+  /// <strong>Warning:</strong> Clearing the cache after Flow construction will break
   /// DAG dependencies since new instances will be created on next access.
   /// </para>
   /// <para>

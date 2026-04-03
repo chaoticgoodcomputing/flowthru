@@ -17,7 +17,7 @@ namespace Flowthru.Extensions.Python.Validation;
 /// <remarks>
 /// <para>
 /// <strong>Phase 4 pre-flight validation:</strong>
-/// Validates Python steps during flow pre-flight to catch schema mismatches,
+/// Validates Python steps during Flow pre-flight to catch schema mismatches,
 /// incorrect function signatures, and structural errors before execution.
 /// </para>
 /// <para>
@@ -30,7 +30,7 @@ namespace Flowthru.Extensions.Python.Validation;
 /// </para>
 /// <para>
 /// <strong>Integration:</strong>
-/// Register this hook via Flow.ValidationHooks during flow setup.
+/// Register this hook via Flow.ValidationHooks during Flow setup.
 /// The hook is automatically invoked during Flow.ValidateExternalInputsAsync().
 /// </para>
 /// </remarks>
@@ -72,7 +72,7 @@ public class PythonStepValidator : IFlowValidationHook
   }
 
   /// <summary>
-  /// Checks if a flow step is a Python step.
+  /// Checks if a Flow step is a Python step.
   /// </summary>
   private bool IsPythonStep(FlowStep step, out PythonStepInfo? info)
   {

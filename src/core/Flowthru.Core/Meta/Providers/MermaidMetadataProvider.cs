@@ -137,7 +137,7 @@ public class MermaidMetadataProvider : IMetadataProvider
   }
 
   /// <summary>
-  /// Converts flow direction enum to Mermaid direction code.
+  /// Converts Flow direction enum to Mermaid direction code.
   /// </summary>
   private static string GetDirectionCode(MermaidFlowchartDirection direction)
   {
