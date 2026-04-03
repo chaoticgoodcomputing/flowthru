@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.35](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.34...v0.1.35) (2026-04-03)
+
+
+### Bug Fixes
+
+* directory names ([d1ddb23](https://github.com/chaoticgoodcomputing/flowthru/commit/d1ddb23c46b22e29ab617eb6c9f5d6d858370655))
+* misc naming convention lags ([90b57e0](https://github.com/chaoticgoodcomputing/flowthru/commit/90b57e0d0b7af021a05aea0b176ffbecb654d9b4))
+* resolve missing nuget publish key ([f22a0da](https://github.com/chaoticgoodcomputing/flowthru/commit/f22a0daf8a4925a5031cee60c2301785950ce1ab))
+
 ## [0.1.34](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.33...v0.1.34) (2026-04-03)
 
 
