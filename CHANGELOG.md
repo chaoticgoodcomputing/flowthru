@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.36](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.35...v0.1.36) (2026-04-03)
+
+
+### Bug Fixes
+
+* slice surface and docs updates ([1b032e6](https://github.com/chaoticgoodcomputing/flowthru/commit/1b032e659b28f555cba2b9f07577ed371987771a))
+
+
+### Documentation
+
+* docs update on slice surface ([1c5206e](https://github.com/chaoticgoodcomputing/flowthru/commit/1c5206e283205399d16c9967ee1caa21528f145c))
+
 ## [0.1.35](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.34...v0.1.35) (2026-04-03)
 
 

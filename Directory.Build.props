@@ -23,7 +23,7 @@
 
   <!-- Centralized NuGet package configuration for all src/ projects -->
   <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src'))">
-    <Version>0.1.35</Version>
+    <Version>0.1.36</Version>
     <Authors>Spencer Elkington</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/chaoticgoodcomputing/flowthru</RepositoryUrl>
