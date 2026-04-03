@@ -104,7 +104,7 @@ public class PythonNodeValidationTests
         new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
           _executor,
           "_Fixtures.validation_test_nodes",
-          "missing_decorator_node"
+          "missing_decorator_step"
         )
     );
 
@@ -118,7 +118,7 @@ public class PythonNodeValidationTests
     var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
       "_Fixtures.validation_test_nodes",
-      "valid_node"
+      "valid_step"
     );
 
     // Assert
@@ -254,7 +254,7 @@ public class PythonNodeValidationTests
   public async Task ValidateAsync_ValidNode_NoErrors()
   {
     // Arrange
-    var pipeline = CreateTestPipeline("_Fixtures.validation_test_nodes", "valid_node");
+    var pipeline = CreateTestPipeline("_Fixtures.validation_test_nodes", "valid_step");
 
     // Act
     var result = await _validator.ValidateAsync(pipeline, CancellationToken.None);
