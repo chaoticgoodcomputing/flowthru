@@ -231,6 +231,6 @@ jobs:
         if: steps.version_check.outputs.changed == 'true'
         run: |
           dotnet nuget push "dist/packages/*.nupkg" \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --api-key ${{ secrets.FLOWTHRU_NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
