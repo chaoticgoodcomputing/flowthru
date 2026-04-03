@@ -8,7 +8,7 @@ Root metadata model representing a complete FlowthruService DAG (Directed Acycli
 
  [DagSliceMetadata](Flowthru.Meta.Models.DagSliceMetadata.md)
 
-Metadata describing how a pipeline was sliced during execution.
+Metadata describing how a flow was sliced during execution.
 
  [EdgeMetadata](Flowthru.Meta.Models.EdgeMetadata.md)
 

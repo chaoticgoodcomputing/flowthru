@@ -31,17 +31,23 @@ execution validity. All slicing operations preserve the runnability guarantee:
 the resulting sub-DAG must be executable without missing dependencies.
 </p>
 <p>
+Because a Flowthru flow is a bipartite graph of steps and catalog items, all slice
+targets are addressed uniformly by label — whether the label belongs to a step or a
+catalog item. The resolver checks the step index first; if no step matches, it falls
+back to the catalog item index and resolves to the relevant producer or consumer steps.
+</p>
+<p>
 <strong>Slicing Strategies:</strong>
 </p>
-<ul><li><strong>flows:</strong> Filter to nodes from specific named flows (in merged DAGs)</li><li><strong>FromNodes:</strong> Include specified nodes and all downstream dependents</li><li><strong>ToNodes:</strong> Include specified nodes and all upstream dependencies (run "up to" these nodes)</li><li><strong>FromData:</strong> Include nodes consuming specified catalog entries and all downstream dependents</li><li><strong>ToData:</strong> Include nodes producing specified catalog entries and all upstream dependencies</li><li><strong>OnlyNodes:</strong> Explicit allowlist of nodes plus minimal required dependencies</li></ul>
+<ul><li><strong>Flows:</strong> Filter to nodes from specific named flows (in merged DAGs)</li><li><strong>From:</strong> Include specified nodes and all downstream dependents. Accepts step labels or catalog item labels (resolves to consumers).</li><li><strong>To:</strong> Include specified nodes and all upstream dependencies. Accepts step labels or catalog item labels (resolves to producer).</li><li><strong>Only:</strong> Explicit allowlist plus minimal required dependencies. Accepts step labels or catalog item labels (resolves to producer).</li></ul>
 <p>
 <strong>Composition:</strong> Multiple strategies compose via intersection (additive filtering).
-For example, <code>--from-nodes A --to-data B</code> produces nodes in the downstream dependency
-tree of A that are also required to produce data B.
+For example, <code>--from A --to B</code> produces nodes in the downstream dependency
+tree of A that are also required to produce B.
 </p>
 <p>
 <strong>Runnability Guarantee:</strong> Slicing operations are additive only. Subtractive
-operations (<code>--from-nodes A --except B</code>) would break the runnability guarantee and
+operations (<code>--from A --except B</code>) would break the runnability guarantee and
 are not supported.
 </p>
 
@@ -61,35 +67,16 @@ public IReadOnlySet<string>? Flows { get; init; }
 
 #### Remarks
 
-In merged flows, nodes are prefixed with their Flow name (e.g., "DataScience.TrainModel").
-This filter includes only nodes from the specified flows.
+In merged flows, steps are prefixed with their Flow name (e.g., "DataScience.TrainModel").
+This filter includes only steps from the specified flows.
 Flow names are case-insensitive.
 
-### <a id="Flowthru_Flows_FlowSliceStrategy_FromData"></a> FromData
-
-Start from nodes that consume these catalog entry labels, including all downstream dependents.
-
-```csharp
-public IReadOnlySet<string>? FromData { get; init; }
-```
-
-#### Property Value
-
- [IReadOnlySet](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlyset\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>?
-
-#### Remarks
-
-Finds all nodes that read the specified catalog entries, then expands downstream.
-Useful for impact analysis - "what breaks if I change this data?"
-
-TODO: Remove this, as it is now sufficient to reference both steps and data entries as nodes.
-
-### <a id="Flowthru_Flows_FlowSliceStrategy_FromNodes"></a> FromNodes
+### <a id="Flowthru_Flows_FlowSliceStrategy_From"></a> From
 
 Start from these nodes, including all downstream dependents.
 
 ```csharp
-public IReadOnlySet<string>? FromNodes { get; init; }
+public IReadOnlySet<string>? From { get; init; }
 ```
 
 #### Property Value
@@ -98,8 +85,10 @@ public IReadOnlySet<string>? FromNodes { get; init; }
 
 #### Remarks
 
-Expands to include all nodes that depend on these nodes (transitively).
-Useful for impact analysis - "what breaks if I change this node?"
+Each label is resolved against the step index first. If no step matches, the label is
+treated as a catalog item and resolved to all steps that consume it.
+Expands to include all transitively dependent steps.
+Useful for impact analysis: "what is affected if I change this step or item?"
 
 ### <a id="Flowthru_Flows_FlowSliceStrategy_IsSliced"></a> IsSliced
 
@@ -113,12 +102,12 @@ public bool IsSliced { get; }
 
  [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
 
-### <a id="Flowthru_Flows_FlowSliceStrategy_OnlyNodes"></a> OnlyNodes
+### <a id="Flowthru_Flows_FlowSliceStrategy_Only"></a> Only
 
-Explicit allowlist of node names (dependencies auto-included).
+Explicit allowlist of nodes (dependencies auto-included).
 
 ```csharp
-public IReadOnlySet<string>? OnlyNodes { get; init; }
+public IReadOnlySet<string>? Only { get; init; }
 ```
 
 #### Property Value
@@ -127,34 +116,16 @@ public IReadOnlySet<string>? OnlyNodes { get; init; }
 
 #### Remarks
 
-Specifies exactly which nodes to execute, then automatically includes any
-required dependencies to maintain DAG validity.
+Each label is resolved against the step index first. If no step matches, the label is
+treated as a catalog item and resolved to the step that produces it.
+Automatically includes all transitive upstream dependencies to maintain DAG validity.
 
-### <a id="Flowthru_Flows_FlowSliceStrategy_ToData"></a> ToData
-
-End at nodes that produce these catalog entry labels, including all upstream dependencies.
-
-```csharp
-public IReadOnlySet<string>? ToData { get; init; }
-```
-
-#### Property Value
-
- [IReadOnlySet](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlyset\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>?
-
-#### Remarks
-
-Finds the nodes that write the specified catalog entries, then expands upstream.
-Useful for targeted execution - "run everything needed to produce this data".
-
-TODO: Remove this, as it is now sufficient to reference both steps and data entries as nodes.
-
-### <a id="Flowthru_Flows_FlowSliceStrategy_ToNodes"></a> ToNodes
+### <a id="Flowthru_Flows_FlowSliceStrategy_To"></a> To
 
 End at these nodes, including all upstream dependencies needed to produce them.
 
 ```csharp
-public IReadOnlySet<string>? ToNodes { get; init; }
+public IReadOnlySet<string>? To { get; init; }
 ```
 
 #### Property Value
@@ -163,9 +134,11 @@ public IReadOnlySet<string>? ToNodes { get; init; }
 
 #### Remarks
 
-Expands to include all transitive dependencies needed to run these nodes.
+Each label is resolved against the step index first. If no step matches, the label is
+treated as a catalog item and resolved to the step that produces it.
+Expands to include all transitive dependencies.
 Equivalent to "run everything up to and including these nodes".
-Useful for testing specific outputs without running the entire flow.
+Useful for targeted execution: "run everything needed to produce this step or item".
 
 ## Methods
 

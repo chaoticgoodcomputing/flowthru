@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Meta.Models](Flowthru.Meta.Models.md)  
 Assembly: Flowthru.Core.dll  
 
-Metadata describing how a pipeline was sliced during execution.
+Metadata describing how a flow was sliced during execution.
 
 ```csharp
 public class DagSliceMetadata
@@ -26,90 +26,65 @@ public class DagSliceMetadata
 
 ## Remarks
 
-Captures the criteria used to select a subset of nodes from the full pipeline DAG.
+Captures the criteria used to select a subset of steps from the full flow DAG.
 This information is essential for:
-<ul><li>Reproducibility - rerun the exact same slice</li><li>Debugging - understand what was included/excluded when failures occur</li><li>Auditing - track which pipeline subsets were executed in production</li><li>Visualization - indicate sliced vs. full DAG in metadata exports</li></ul>
+<ul><li>Reproducibility - rerun the exact same slice</li><li>Debugging - understand what was included/excluded when failures occur</li><li>Auditing - track which flow subsets were executed in production</li><li>Visualization - indicate sliced vs. full DAG in metadata exports</li></ul>
 
 ## Properties
 
-### <a id="Flowthru_Meta_Models_DagSliceMetadata_FromData"></a> FromData
+### <a id="Flowthru_Meta_Models_DagSliceMetadata_Flows"></a> Flows
 
-Catalog entry labels whose consumers are included (expanded downstream).
+Flow names used to filter the merged DAG.
 
 ```csharp
-[JsonPropertyName("fromData")]
+[JsonPropertyName("flows")]
 [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public string[]? FromData { get; init; }
+public string[]? Flows { get; init; }
 ```
 
 #### Property Value
 
  [string](https://learn.microsoft.com/dotnet/api/system.string)\[\]?
 
-### <a id="Flowthru_Meta_Models_DagSliceMetadata_FromNodes"></a> FromNodes
+### <a id="Flowthru_Meta_Models_DagSliceMetadata_From"></a> From
 
-Node names from which the slice expanded downstream (dependents included).
+Node labels from which the slice expanded downstream. Each label may be a step
+label or a catalog item label (resolved to its consumer steps).
 
 ```csharp
-[JsonPropertyName("fromNodes")]
+[JsonPropertyName("from")]
 [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public string[]? FromNodes { get; init; }
+public string[]? From { get; init; }
 ```
 
 #### Property Value
 
  [string](https://learn.microsoft.com/dotnet/api/system.string)\[\]?
 
-### <a id="Flowthru_Meta_Models_DagSliceMetadata_OnlyNodes"></a> OnlyNodes
+### <a id="Flowthru_Meta_Models_DagSliceMetadata_Only"></a> Only
 
-Explicit allowlist of node names (with dependencies auto-included).
+Explicit allowlist of node labels (with upstream dependencies auto-included). Each label
+may be a step label or a catalog item label (resolved to its producer step).
 
 ```csharp
-[JsonPropertyName("onlyNodes")]
+[JsonPropertyName("only")]
 [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public string[]? OnlyNodes { get; init; }
+public string[]? Only { get; init; }
 ```
 
 #### Property Value
 
  [string](https://learn.microsoft.com/dotnet/api/system.string)\[\]?
 
-### <a id="Flowthru_Meta_Models_DagSliceMetadata_Pipelines"></a> Pipelines
+### <a id="Flowthru_Meta_Models_DagSliceMetadata_To"></a> To
 
-Pipeline names to include in the merged DAG.
-
-```csharp
-[JsonPropertyName("pipelines")]
-[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public string[]? Pipelines { get; init; }
-```
-
-#### Property Value
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)\[\]?
-
-### <a id="Flowthru_Meta_Models_DagSliceMetadata_ToData"></a> ToData
-
-Catalog entry labels whose producers are included (expanded upstream).
+Node labels to which the slice expanded upstream. Each label may be a step
+label or a catalog item label (resolved to its producer step).
 
 ```csharp
-[JsonPropertyName("toData")]
+[JsonPropertyName("to")]
 [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public string[]? ToData { get; init; }
-```
-
-#### Property Value
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)\[\]?
-
-### <a id="Flowthru_Meta_Models_DagSliceMetadata_ToNodes"></a> ToNodes
-
-Node names to which the slice expanded upstream (dependencies included).
-
-```csharp
-[JsonPropertyName("toNodes")]
-[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public string[]? ToNodes { get; init; }
+public string[]? To { get; init; }
 ```
 
 #### Property Value
