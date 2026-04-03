@@ -116,7 +116,7 @@ public interface IFlowthruService
   /// <param name="sliceStrategy">
   /// Optional slice strategy to filter the DAG (e.g., from-node).
   /// When provided, the returned metadata includes slice overlay information
-  /// (SlicedStepIds and SlicedCatalogEntryKeys) identifying which nodes
+  /// (SlicedStepIds and SlicedItemKeys) identifying which nodes
   /// and data are in the active execution subset.
   /// </param>
   /// <returns>

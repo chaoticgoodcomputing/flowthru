@@ -36,13 +36,13 @@ public sealed class MemoryStorageEntryFactory : IStorageEntryFactory
   public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
     where T : notnull, IFlatSchema, ITextSerializable
   {
-    return Items.Enumerable.Memory<T>(label);
+    return ItemFactory.Enumerable.Memory<T>(label);
   }
 
   /// <inheritdoc />
   public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
     where T : IStructuredSerializable
   {
-    return Items.Single.Memory<T>(label);
+    return ItemFactory.Single.Memory<T>(label);
   }
 }

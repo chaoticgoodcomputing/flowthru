@@ -12,7 +12,7 @@ public partial class CoreCatalog
   public IItem<IEnumerable<RetailTransactionSchema>> RetailTransactionsRaw =>
     CreateItem(
       () =>
-        Items.Enumerable.CsvDirectory<RetailTransactionSchema>(
+        ItemFactory.Enumerable.CsvDirectory<RetailTransactionSchema>(
           label: "RetailTransactionsRaw",
           directoryPath: $"{_basePath}/_01_Raw/Datasets"
         )
@@ -24,7 +24,7 @@ public partial class CoreCatalog
   public IItem<IEnumerable<CountryCurrencySchema>> CountryCurrencies =>
     CreateItem(
       () =>
-        Items.Enumerable.Json<CountryCurrencySchema>(
+        ItemFactory.Enumerable.Json<CountryCurrencySchema>(
           label: "CountryCurrencies",
           filePath: $"{_basePath}/_01_Raw/Datasets/country_currencies.json"
         )
@@ -36,7 +36,7 @@ public partial class CoreCatalog
   public IItem<IEnumerable<OfxRateResponseSchema>> OfxRates =>
     CreateItem(
       () =>
-        Items.Enumerable.Json<OfxRateResponseSchema>(
+        ItemFactory.Enumerable.Json<OfxRateResponseSchema>(
           label: "OfxRates",
           filePath: $"{_basePath}/_01_Raw/Datasets/ofx_rates.json"
         )

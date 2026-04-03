@@ -2,12 +2,12 @@
 - name: Flowthru.Data
   href: Flowthru.Data.md
   items:
-  - name: Classes
-  - name: ParquetCatalogEntryExtensions
-    href: Flowthru.Data.ParquetCatalogEntryExtensions.md
+    - name: Classes
+    - name: ParquetItemExtensions
+      href: Flowthru.Data.ParquetItemExtensions.md
 - name: Flowthru.Data.Storage.Format
   href: Flowthru.Data.Storage.Format.md
   items:
-  - name: Classes
-  - name: ParquetFormatSerializer<TRow>
-    href: Flowthru.Data.Storage.Format.ParquetFormatSerializer-1.md
+    - name: Classes
+    - name: ParquetFormatSerializer<TRow>
+      href: Flowthru.Data.Storage.Format.ParquetFormatSerializer-1.md

@@ -32,7 +32,7 @@ public record SimpleSchema(
     string Name       // Looks for "Name" in CSV/Excel/JSON
 ) : IFlatSchema, ITextSerializable;
 
-var simple = CatalogEntries.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
+var simple = Items.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
 
 // Tier 2: Explicit annotations - handle naming mismatches
 public record ShuttleSchema(
@@ -49,15 +49,15 @@ public record ShuttleSchema(
     int CompanyId
 ) : IFlatSchema, ITextSerializable;
 
-var shuttles = CatalogEntries.Enumerable.Excel&lt;ShuttleSchema&gt;(
+var shuttles = Items.Enumerable.Excel&lt;ShuttleSchema&gt;(
     "shuttles",
     "data/shuttles.xlsx",
     "Sheet1"
 );
 
 // Same schema works across all formats
-var csv = CatalogEntries.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
-var json = CatalogEntries.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");</code></pre>
+var csv = Items.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
+var json = Items.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");</code></pre>
 
 ## Remarks
 

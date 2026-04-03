@@ -15,7 +15,7 @@ public partial class Catalog
   public IItem<ModelWeightsSchema> IrisModel =>
     CreateItem(
       () =>
-        Items.Single.Json<ModelWeightsSchema>(
+        ItemFactory.Single.Json<ModelWeightsSchema>(
           label: "IrisModel",
           filePath: $"{_basePath}/_06_Models/Datasets/iris_model.json"
         )

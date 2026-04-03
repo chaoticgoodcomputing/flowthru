@@ -11,7 +11,7 @@ public partial class Catalog
   public IItem<IEnumerable<NameSchema>> Names =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<NameSchema>(
+        ItemFactory.Enumerable.Csv<NameSchema>(
           label: "Names",
           filePath: $"{_basePath}/Data/_01_Raw/Datasets/names.csv"
         )

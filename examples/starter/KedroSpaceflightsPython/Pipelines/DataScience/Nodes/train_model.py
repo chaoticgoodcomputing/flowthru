@@ -1,13 +1,13 @@
-"""Model training node using scikit-learn."""
+"""Model training step using scikit-learn."""
 import logging
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(inputs=["XValues", "YValues"], outputs="LinearRegressionModel")
+@step(inputs=["XValues", "YValues"], outputs="LinearRegressionModel")
 def train_model(X_train: pd.DataFrame, y_train: pd.DataFrame) -> dict:
     """Trains the linear regression model.
 

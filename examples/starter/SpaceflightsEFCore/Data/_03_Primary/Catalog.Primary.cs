@@ -17,7 +17,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
           label: "ModelInputTable",
           contextFactory: _contextFactory,
           // Demonstrates query customization: order by shuttle ID for deterministic output.

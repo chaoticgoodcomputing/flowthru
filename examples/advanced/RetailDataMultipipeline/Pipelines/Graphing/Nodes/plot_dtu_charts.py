@@ -1,6 +1,6 @@
-"""Daily DTU chart generation nodes.
+"""Daily DTU chart generation steps.
 
-Each node reads the consolidated all-countries daily DTU dataset and produces a
+Each step reads the consolidated all-countries daily DTU dataset and produces a
 PNG line chart (one trace per country) for a single metric.
 """
 
@@ -10,12 +10,12 @@ import logging
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(inputs=["WeeklyDtuSchema"], outputs="DollarsChart")
+@step(inputs=["WeeklyDtuSchema"], outputs="DollarsChart")
 def plot_dollars_chart(daily_dtu: pd.DataFrame) -> bytes:
     """Line chart of weekly GBP revenue per country.
 
@@ -45,7 +45,7 @@ def plot_dollars_chart(daily_dtu: pd.DataFrame) -> bytes:
     return pio.to_image(fig, format="png")
 
 
-@node(inputs=["WeeklyDtuSchema"], outputs="TransactionsChart")
+@step(inputs=["WeeklyDtuSchema"], outputs="TransactionsChart")
 def plot_transactions_chart(daily_dtu: pd.DataFrame) -> bytes:
     """Line chart of weekly transaction count per country.
 
@@ -74,7 +74,7 @@ def plot_transactions_chart(daily_dtu: pd.DataFrame) -> bytes:
     return pio.to_image(fig, format="png")
 
 
-@node(inputs=["WeeklyDtuSchema"], outputs="UsersChart")
+@step(inputs=["WeeklyDtuSchema"], outputs="UsersChart")
 def plot_users_chart(daily_dtu: pd.DataFrame) -> bytes:
     """Line chart of weekly unique customer count per country.
 

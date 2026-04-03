@@ -22,7 +22,7 @@ public sealed record CompanySchema(
 // ❌ Not flat - contains collection
 public sealed record OrderSchema(
     string OrderId,
-    List&lt;LineItem&gt; Items  // Collection = nested!
+    List&lt;LineItem&gt; ItemFactory  // Collection = nested!
 ) : INestedSchema, IStructuredSerializable;</code></pre>
 
 ## Remarks

@@ -32,7 +32,7 @@ public interface IItem
 
   /// <summary>
   /// The label of the <see cref="Flowthru.Data.CatalogAbstract"/>-derived class that created
-  /// this item. Set automatically by <c>GetOrCreateItem</c>; null for items created outside
+  /// this item. Set automatically by <c>CreateItem</c>; null for items created outside
   /// a catalog or by custom <see cref="IItem"/> implementations.
   /// </summary>
   /// <remarks>

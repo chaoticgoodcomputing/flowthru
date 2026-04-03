@@ -1,4 +1,4 @@
-# <a id="Flowthru_Extensions_MLNet_CatalogEntriesMLNet"></a> Class CatalogEntriesMLNet
+# <a id="Flowthru_Extensions_MLNet_ItemsMLNet"></a> Class ItemsMLNet
 
 Namespace: [Flowthru.Extensions.MLNet](Flowthru.Extensions.MLNet.md)  
 Assembly: Flowthru.Extensions.MLNet.dll  
@@ -6,13 +6,13 @@ Assembly: Flowthru.Extensions.MLNet.dll
 Factory methods for creating ML.NET-related catalog entries.
 
 ```csharp
-public static class CatalogEntriesMLNet
+public static class ItemsMLNet
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[CatalogEntriesMLNet](Flowthru.Extensions.MLNet.CatalogEntriesMLNet.md)
+[ItemsMLNet](Flowthru.Extensions.MLNet.ItemsMLNet.md)
 
 #### Inherited Members
 
@@ -41,14 +41,14 @@ for ML.NET-specific catalog entry factory methods.
 using Flowthru.Extensions.MLNet;
 
 // Core entries
-var csvEntry = CatalogEntries.Enumerable.Csv&lt;MySchema&gt;("data", "data.csv");
+var csvEntry = Items.Enumerable.Csv&lt;MySchema&gt;("data", "data.csv");
 
 // MLNet entries
-var modelEntry = CatalogEntriesMLNet.OnnxModel("model", "model.onnx");</code></pre>
+var modelEntry = ItemsMLNet.OnnxModel("model", "model.onnx");</code></pre>
 
 ## Methods
 
-### <a id="Flowthru_Extensions_MLNet_CatalogEntriesMLNet_OnnxModel_System_String_System_String_"></a> OnnxModel\(string, string\)
+### <a id="Flowthru_Extensions_MLNet_ItemsMLNet_OnnxModel_System_String_System_String_"></a> OnnxModel\(string, string\)
 
 Creates a catalog entry for an ONNX model file.
 
@@ -74,7 +74,7 @@ A catalog entry wrapping an ONNX model storage adapter
 
 #### Examples
 
-<pre><code class="lang-csharp">var entry = CatalogEntriesMLNet.OnnxModel(
+<pre><code class="lang-csharp">var entry = ItemsMLNet.OnnxModel(
     label: "BertModel",
     filePath: "models/bert-base.onnx"
 );</code></pre>

@@ -45,9 +45,9 @@ public partial class Catalog : DataCatalogBase
         InitializeCatalogProperties();
     }
 
-    public ICatalogEntry<IEnumerable<Company>> Companies =>
+    public IItem<IEnumerable<Company>> Companies =>
         GetOrCreateEntry(() =>
-            EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+            EFCoreItems.Enumerable.EFCore<Company, AppDbContext>(
                 label: "Companies",
                 contextFactory: _contextFactory
             )
@@ -79,13 +79,13 @@ Use `EFCore<T, TContext>` to preserve the concrete context type all the way to s
 
 ```csharp
 // IDbContextFactory<TContext> overload — recommended for concurrent pipelines
-EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+EFCoreItems.Enumerable.EFCore<Company, AppDbContext>(
     label: "Companies",
     contextFactory: dbContextFactory   // IDbContextFactory<AppDbContext>
 )
 
 // Func<TContext> overload — useful when constructing contexts manually
-EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+EFCoreItems.Enumerable.EFCore<Company, AppDbContext>(
     label: "Companies",
     contextFactory: () => new AppDbContext(options)
 )
@@ -96,13 +96,13 @@ EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
 The `queryCustomizer` parameter shapes the query before execution. Use it for navigation property includes, filtering, or ordering:
 
 ```csharp
-EFCoreCatalogEntries.Enumerable.EFCore<Person, AppDbContext>(
+EFCoreItems.Enumerable.EFCore<Person, AppDbContext>(
     label: "Persons",
     contextFactory: _contextFactory,
     queryCustomizer: q => q.Include(p => p.Address).AsNoTracking()
 )
 
-EFCoreCatalogEntries.Enumerable.EFCore<Shuttle, AppDbContext>(
+EFCoreItems.Enumerable.EFCore<Shuttle, AppDbContext>(
     label: "Shuttles",
     contextFactory: _contextFactory,
     queryCustomizer: q => q.OrderBy(s => s.Id)
@@ -114,7 +114,7 @@ EFCoreCatalogEntries.Enumerable.EFCore<Shuttle, AppDbContext>(
 Override the default `RemoveRange + AddRange` write strategy via `saveFunc`. The typed context is passed directly — no cast needed:
 
 ```csharp
-EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+EFCoreItems.Enumerable.EFCore<Company, AppDbContext>(
     label: "Companies",
     contextFactory: _contextFactory,
     saveFunc: async (ctx, data, ct) =>
@@ -142,7 +142,7 @@ saveFunc: async (ctx, data, ct) =>
 For tables that store exactly one row (trained models, configuration records, aggregated metrics):
 
 ```csharp
-EFCoreCatalogEntries.Single.EFCore<ModelMetrics, AppDbContext>(
+EFCoreItems.Single.EFCore<ModelMetrics, AppDbContext>(
     label: "ModelMetrics",
     contextFactory: _contextFactory
 )
@@ -155,7 +155,7 @@ The adapter validates "exactly one row" during pre-flight. Use `allowEmptyData: 
 Use `.Constrain()` to prevent writes. The pipeline fails at build time — not at runtime — if a node attempts to write to a constrained entry:
 
 ```csharp
-EFCoreCatalogEntries.Enumerable.EFCore<SourceRecord, SourceDbContext>(
+EFCoreItems.Enumerable.EFCore<SourceRecord, SourceDbContext>(
     label: "SourceData",
     contextFactory: _sourceFactory)
 .Constrain(traits => traits with { CanWrite = false })
@@ -166,7 +166,7 @@ EFCoreCatalogEntries.Enumerable.EFCore<SourceRecord, SourceDbContext>(
 By default, an empty table fails pre-flight validation. Set `allowEmptyData: true` for tables that are legitimately empty on first run:
 
 ```csharp
-EFCoreCatalogEntries.Enumerable.EFCore<AuditEvent, AppDbContext>(
+EFCoreItems.Enumerable.EFCore<AuditEvent, AppDbContext>(
     label: "AuditEvents",
     contextFactory: _contextFactory,
     allowEmptyData: true

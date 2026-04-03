@@ -1,4 +1,4 @@
-# <a id="Flowthru_Data_CatalogEntry_1"></a> Class CatalogEntry<T\>
+# <a id="Flowthru_Data_Item_1"></a> Class Item<T\>
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Core.dll  
@@ -6,7 +6,7 @@ Assembly: Flowthru.Core.dll
 Standard catalog entry implementation that delegates to a storage adapter.
 
 ```csharp
-public sealed class CatalogEntry<T> : ICatalogEntry<T>, ICatalogEntry
+public sealed class Item<T> : IItem<T>, IItem
 ```
 
 #### Type Parameters
@@ -18,12 +18,12 @@ The data type (container with rows)
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[CatalogEntry<T\>](Flowthru.Data.CatalogEntry\-1.md)
+[Item<T\>](Flowthru.Data.Item\-1.md)
 
 #### Implements
 
-[ICatalogEntry<T\>](Flowthru.Data.ICatalogEntry\-1.md), 
-[ICatalogEntry](Flowthru.Data.ICatalogEntry.md)
+[IItem<T\>](Flowthru.Data.IItem\-1.md), 
+[IItem](Flowthru.Data.IItem.md)
 
 #### Inherited Members
 
@@ -42,7 +42,7 @@ The data type (container with rows)
 <p>
 This class is a thin wrapper that delegates all operations to an <xref href="Flowthru.Data.Storage.IStorageAdapter%601" data-throw-if-not-resolved="false"></xref>.
 The storage adapter handles the actual I/O logic, while this class provides:
-- ICatalogEntry interface implementation
+- IItem interface implementation
 - Identity for DAG dependency resolution (via Key)
 - Type erasure for pipeline heterogeneous collections
 </p>
@@ -50,15 +50,15 @@ The storage adapter handles the actual I/O logic, while this class provides:
 <strong>Construction:</strong>
 </p>
 <p>
-Typically created via static factory methods in <xref href="Flowthru.Data.CatalogEntries" data-throw-if-not-resolved="false"></xref>:
+Typically created via static factory methods in <xref href="Flowthru.Data.Items" data-throw-if-not-resolved="false"></xref>:
 </p>
-<pre><code class="lang-csharp">var entry = CatalogEntries.Csv&lt;CompanySchema&gt;("companies", "data.csv");
-// Returns: ICatalogEntry&lt;IEnumerable&lt;CompanySchema&gt;&gt;</code></pre>
+<pre><code class="lang-csharp">var entry = Items.Csv&lt;CompanySchema&gt;("companies", "data.csv");
+// Returns: IItem&lt;IEnumerable&lt;CompanySchema&gt;&gt;</code></pre>
 <p>
 <strong>Composition vs Inheritance:</strong>
 </p>
 <p>
-Previous design: Inheritance hierarchy (CsvCatalogEntry, JsonCatalogEntry, etc.)
+Previous design: Inheritance hierarchy (CsvItem, JsonItem, etc.)
 New design: Single class + composed storage adapter
 </p>
 <p>
@@ -77,12 +77,12 @@ entry automatically forwards. All storage adapters are required to implement ins
 
 ## Constructors
 
-### <a id="Flowthru_Data_CatalogEntry_1__ctor_System_String_Flowthru_Data_Storage_IStorageAdapter__0__"></a> CatalogEntry\(string, IStorageAdapter<T\>\)
+### <a id="Flowthru_Data_Item_1__ctor_System_String_Flowthru_Data_Storage_IStorageAdapter__0__"></a> Item\(string, IStorageAdapter<T\>\)
 
 Creates a new catalog entry with the specified key and storage adapter.
 
 ```csharp
-public CatalogEntry(string label, IStorageAdapter<T> storage)
+public Item(string label, IStorageAdapter<T> storage)
 ```
 
 #### Parameters
@@ -97,7 +97,7 @@ Storage adapter that handles I/O operations
 
 ## Properties
 
-### <a id="Flowthru_Data_CatalogEntry_1_DataType"></a> DataType
+### <a id="Flowthru_Data_Item_1_DataType"></a> DataType
 
 The runtime type of data stored in this catalog entry.
 For singletons: Returns typeof(T).
@@ -111,7 +111,7 @@ public Type DataType { get; }
 
  [Type](https://learn.microsoft.com/dotnet/api/system.type)
 
-### <a id="Flowthru_Data_CatalogEntry_1_Label"></a> Label
+### <a id="Flowthru_Data_Item_1_Label"></a> Label
 
 Unique label identifying this catalog entry within the data catalog.
 
@@ -123,11 +123,11 @@ public string Label { get; }
 
  [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-### <a id="Flowthru_Data_CatalogEntry_1_OwningCatalogLabel"></a> OwningCatalogLabel
+### <a id="Flowthru_Data_Item_1_OwningCatalogLabel"></a> OwningCatalogLabel
 
 The label of the <xref href="Flowthru.Data.DataCatalogBase" data-throw-if-not-resolved="false"></xref>-derived class that created
 this entry. Set automatically by <code>GetOrCreateEntry</code>; null for entries created outside
-a catalog or by custom <xref href="Flowthru.Data.ICatalogEntry" data-throw-if-not-resolved="false"></xref> implementations.
+a catalog or by custom <xref href="Flowthru.Data.IItem" data-throw-if-not-resolved="false"></xref> implementations.
 
 ```csharp
 public string? OwningCatalogLabel { get; }
@@ -143,7 +143,7 @@ Used by the metadata layer to produce fully-qualified entry identifiers in the f
 <code>CatalogLabel.EntryLabel</code>. First-write-wins: cross-catalog shared entries retain
 the label of the catalog that originally created them.
 
-### <a id="Flowthru_Data_CatalogEntry_1_PreferredInspectionLevel"></a> PreferredInspectionLevel
+### <a id="Flowthru_Data_Item_1_PreferredInspectionLevel"></a> PreferredInspectionLevel
 
 Gets the preferred inspection level for this catalog entry.
 
@@ -155,7 +155,7 @@ public InspectionLevel? PreferredInspectionLevel { get; }
 
  [InspectionLevel](Flowthru.Data.Validation.InspectionLevel.md)?
 
-### <a id="Flowthru_Data_CatalogEntry_1_Traits"></a> Traits
+### <a id="Flowthru_Data_Item_1_Traits"></a> Traits
 
 ```csharp
 public StorageTraits Traits { get; }
@@ -167,10 +167,10 @@ public StorageTraits Traits { get; }
 
 ## Methods
 
-### <a id="Flowthru_Data_CatalogEntry_1_Constrain_System_Func_Flowthru_Data_Capabilities_StorageTraits_Flowthru_Data_Capabilities_StorageTraits__"></a> Constrain\(Func<StorageTraits, StorageTraits\>\)
+### <a id="Flowthru_Data_Item_1_Constrain_System_Func_Flowthru_Data_Capabilities_StorageTraits_Flowthru_Data_Capabilities_StorageTraits__"></a> Constrain\(Func<StorageTraits, StorageTraits\>\)
 
 ```csharp
-public CatalogEntry<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn)
+public Item<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn)
 ```
 
 #### Parameters
@@ -179,9 +179,9 @@ public CatalogEntry<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<T\>
+ [Item](Flowthru.Data.Item\-1.md)<T\>
 
-### <a id="Flowthru_Data_CatalogEntry_1_Exists"></a> Exists\(\)
+### <a id="Flowthru_Data_Item_1_Exists"></a> Exists\(\)
 
 Checks if data exists at this catalog entry location.
 Returns an effect that can fail.
@@ -194,7 +194,7 @@ public FlowIO<bool> Exists()
 
  [FlowIO](Flowthru.Effects.FlowIO\-1.md)<[bool](https://learn.microsoft.com/dotnet/api/system.boolean)\>
 
-### <a id="Flowthru_Data_CatalogEntry_1_GetCountAsync"></a> GetCountAsync\(\)
+### <a id="Flowthru_Data_Item_1_GetCountAsync"></a> GetCountAsync\(\)
 
 Gets the count of items in this catalog entry.
 For collections (IEnumerable&lt;T&gt;), returns the enumerable count.
@@ -208,7 +208,7 @@ public FlowIO<int> GetCountAsync()
 
  [FlowIO](Flowthru.Effects.FlowIO\-1.md)<[int](https://learn.microsoft.com/dotnet/api/system.int32)\>
 
-### <a id="Flowthru_Data_CatalogEntry_1_InspectDeep"></a> InspectDeep\(\)
+### <a id="Flowthru_Data_Item_1_InspectDeep"></a> InspectDeep\(\)
 
 Performs deep validation of this catalog entry.
 
@@ -227,7 +227,7 @@ Effect producing validation result
 Forwards the call directly to the underlying storage adapter.
 All storage adapters must implement inspection.
 
-### <a id="Flowthru_Data_CatalogEntry_1_InspectShallow_System_Int32_"></a> InspectShallow\(int\)
+### <a id="Flowthru_Data_Item_1_InspectShallow_System_Int32_"></a> InspectShallow\(int\)
 
 Performs shallow validation of this catalog entry.
 
@@ -252,7 +252,7 @@ Effect producing validation result
 Forwards the call directly to the underlying storage adapter.
 All storage adapters must implement inspection.
 
-### <a id="Flowthru_Data_CatalogEntry_1_Load"></a> Load\(\)
+### <a id="Flowthru_Data_Item_1_Load"></a> Load\(\)
 
 Load data as an effect (can fail, is async, can be cancelled).
 Returns T directly, which may itself be an IEnumerable or Seq.
@@ -265,7 +265,7 @@ public FlowIO<T> Load()
 
  [FlowIO](Flowthru.Effects.FlowIO\-1.md)<T\>
 
-### <a id="Flowthru_Data_CatalogEntry_1_LoadUntyped"></a> LoadUntyped\(\)
+### <a id="Flowthru_Data_Item_1_LoadUntyped"></a> LoadUntyped\(\)
 
 Loads data from the catalog entry as an untyped object.
 Returns an effect that can fail.
@@ -279,7 +279,7 @@ public FlowIO<object> LoadUntyped()
 
  [FlowIO](Flowthru.Effects.FlowIO\-1.md)<[object](https://learn.microsoft.com/dotnet/api/system.object)\>
 
-### <a id="Flowthru_Data_CatalogEntry_1_Save__0_"></a> Save\(T\)
+### <a id="Flowthru_Data_Item_1_Save__0_"></a> Save\(T\)
 
 Save data as an effect.
 Accepts T directly, which may itself be an IEnumerable or Seq.
@@ -296,7 +296,7 @@ public FlowIO<FlowUnit> Save(T data)
 
  [FlowIO](Flowthru.Effects.FlowIO\-1.md)<[FlowUnit](Flowthru.Effects.FlowUnit.md)\>
 
-### <a id="Flowthru_Data_CatalogEntry_1_SaveUntyped_System_Object_"></a> SaveUntyped\(object\)
+### <a id="Flowthru_Data_Item_1_SaveUntyped_System_Object_"></a> SaveUntyped\(object\)
 
 Saves untyped data to the catalog entry.
 Returns an effect that can fail.
@@ -314,12 +314,12 @@ public FlowIO<FlowUnit> SaveUntyped(object data)
 
  [FlowIO](Flowthru.Effects.FlowIO\-1.md)<[FlowUnit](Flowthru.Effects.FlowUnit.md)\>
 
-### <a id="Flowthru_Data_CatalogEntry_1_WithInspectionLevel_Flowthru_Data_Validation_InspectionLevel_"></a> WithInspectionLevel\(InspectionLevel\)
+### <a id="Flowthru_Data_Item_1_WithInspectionLevel_Flowthru_Data_Validation_InspectionLevel_"></a> WithInspectionLevel\(InspectionLevel\)
 
 Sets the preferred inspection level for this catalog entry.
 
 ```csharp
-public CatalogEntry<T> WithInspectionLevel(InspectionLevel level)
+public Item<T> WithInspectionLevel(InspectionLevel level)
 ```
 
 #### Parameters
@@ -330,7 +330,7 @@ The inspection level to use
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<T\>
+ [Item](Flowthru.Data.Item\-1.md)<T\>
 
 This catalog entry for method chaining
 
@@ -342,6 +342,6 @@ Used to configure how this entry should be validated before pipeline execution.
 <p>
 Example:
 </p>
-<pre><code class="lang-csharp">var entry = CatalogEntries.Csv&lt;Company&gt;("companies", "data.csv")
+<pre><code class="lang-csharp">var entry = Items.Csv&lt;Company&gt;("companies", "data.csv")
     .WithInspectionLevel(InspectionLevel.Deep);</code></pre>
 

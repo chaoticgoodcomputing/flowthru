@@ -7,7 +7,7 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension point for <see cref="Items.Enumerable"/> factory methods.
+/// Extension point for <see cref="ItemFactory.Enumerable"/> factory methods.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -37,9 +37,9 @@ namespace Flowthru.Data;
 /// register new formats.
 /// </para>
 /// </remarks>
-public sealed class EnumerableItems
+public sealed class EnumerableItemFactory
 {
-  internal EnumerableItems() { }
+  internal EnumerableItemFactory() { }
 
   /// <summary>
   /// Creates a JSON file catalog item with IEnumerable container for collections.

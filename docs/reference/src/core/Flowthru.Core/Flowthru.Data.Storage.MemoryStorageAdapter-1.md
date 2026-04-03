@@ -37,11 +37,11 @@ The data type to store in memory
 
 <pre><code class="lang-csharp">// Singleton usage
 var modelStorage = new MemoryStorageAdapter&lt;LinearRegressionModel&gt;();
-var modelEntry = new CatalogEntry&lt;LinearRegressionModel&gt;("model", modelStorage);
+var modelEntry = new Item&lt;LinearRegressionModel&gt;("model", modelStorage);
 
 // Collection usage
 var dataStorage = new MemoryStorageAdapter&lt;IEnumerable&lt;FeatureRow&gt;&gt;();
-var dataEntry = new CatalogEntry&lt;IEnumerable&lt;FeatureRow&gt;&gt;("features", dataStorage);</code></pre>
+var dataEntry = new Item&lt;IEnumerable&lt;FeatureRow&gt;&gt;("features", dataStorage);</code></pre>
 
 ## Remarks
 

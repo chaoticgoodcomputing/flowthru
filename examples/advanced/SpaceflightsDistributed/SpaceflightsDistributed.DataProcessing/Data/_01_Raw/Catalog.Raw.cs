@@ -8,7 +8,7 @@ public partial class DataProcessingCatalog
   public IItem<IEnumerable<CompanySchema>> Companies =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<CompanySchema>(
+        ItemFactory.Enumerable.Csv<CompanySchema>(
           label: "Companies",
           filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
         )
@@ -17,7 +17,7 @@ public partial class DataProcessingCatalog
   public IItem<IEnumerable<ReviewSchema>> Reviews =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<ReviewSchema>(
+        ItemFactory.Enumerable.Csv<ReviewSchema>(
           label: "Reviews",
           filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
         )
@@ -26,7 +26,7 @@ public partial class DataProcessingCatalog
   public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
     CreateItem(
       () =>
-        Items.Enumerable.Excel<ShuttleSchema>(
+        ItemFactory.Enumerable.Excel<ShuttleSchema>(
           label: "Shuttles",
           filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
           sheetName: "Sheet1"

@@ -14,7 +14,7 @@ public partial class Catalog
   public IItem<AccuracyReportSchema> AccuracyReport =>
     CreateItem(
       () =>
-        Items.Single.Json<AccuracyReportSchema>(
+        ItemFactory.Single.Json<AccuracyReportSchema>(
           label: "AccuracyReport",
           filePath: $"{_basePath}/_08_Reporting/Datasets/accuracy_report.json"
         )

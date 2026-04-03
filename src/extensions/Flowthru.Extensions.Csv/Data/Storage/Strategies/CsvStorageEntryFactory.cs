@@ -56,7 +56,7 @@ public sealed class CsvStorageEntryFactory : IStorageEntryFactory
     where T : notnull, IFlatSchema, ITextSerializable
   {
     var path = ResolvePath(label, options, ".csv");
-    return Items.Enumerable.Csv<T>(label, path);
+    return ItemFactory.Enumerable.Csv<T>(label, path);
   }
 
   /// <inheritdoc />
@@ -64,7 +64,7 @@ public sealed class CsvStorageEntryFactory : IStorageEntryFactory
     where T : IStructuredSerializable
   {
     var path = ResolvePath(label, options, ".json");
-    return Items.Single.Json<T>(label, path);
+    return ItemFactory.Single.Json<T>(label, path);
   }
 
   private string ResolvePath(string label, StorageOptions? options, string defaultExtension)

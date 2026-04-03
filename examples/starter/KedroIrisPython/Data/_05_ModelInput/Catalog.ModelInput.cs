@@ -15,7 +15,7 @@ public partial class Catalog
   public IItem<IEnumerable<FeatureVectorSchema>> TrainX =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
           label: "TrainX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_x.parquet"
         )
@@ -27,7 +27,7 @@ public partial class Catalog
   public IItem<IEnumerable<TargetLabelSchema>> TrainY =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<TargetLabelSchema>(
+        ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
           label: "TrainY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_y.parquet"
         )
@@ -39,7 +39,7 @@ public partial class Catalog
   public IItem<IEnumerable<FeatureVectorSchema>> TestX =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
           label: "TestX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_x.parquet"
         )
@@ -51,7 +51,7 @@ public partial class Catalog
   public IItem<IEnumerable<TargetLabelSchema>> TestY =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<TargetLabelSchema>(
+        ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
           label: "TestY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_y.parquet"
         )

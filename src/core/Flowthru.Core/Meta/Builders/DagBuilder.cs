@@ -410,7 +410,7 @@ internal static class DagBuilder
 
   /// <summary>
   /// Returns the fully-qualified metadata label for a catalog item.
-  /// When the item was created via <c>DataCatalogBase.GetOrCreateItem</c> the catalog's
+  /// When the item was created via <c>DataCatalogBase.CreateItem</c> the catalog's
   /// <c>CatalogLabel</c> is prepended: <c>"CatalogName.ItemLabel"</c>.
   /// Falls back to <c>item.Label</c> for items created outside a catalog.
   /// </summary>

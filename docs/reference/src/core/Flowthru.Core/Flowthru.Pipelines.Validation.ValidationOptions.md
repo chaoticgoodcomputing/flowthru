@@ -29,7 +29,7 @@ public class ValidationOptions
 <p>
 ValidationOptions provides pipeline-level overrides for validation configuration.
 The primary mechanism for validation configuration is catalog-level via the
-<xref href="Flowthru.Data.ICatalogEntry.PreferredInspectionLevel" data-throw-if-not-resolved="false"></xref> property and the fluent
+<xref href="Flowthru.Data.IItem.PreferredInspectionLevel" data-throw-if-not-resolved="false"></xref> property and the fluent
 <code>.WithInspectionLevel()</code> API.
 </p>
 <p>
@@ -75,17 +75,17 @@ public static ValidationOptions Default()
 
  [ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
-### <a id="Flowthru_Pipelines_Validation_ValidationOptions_Inspect_Flowthru_Data_ICatalogEntry_Flowthru_Data_Validation_InspectionLevel_"></a> Inspect\(ICatalogEntry, InspectionLevel\)
+### <a id="Flowthru_Pipelines_Validation_ValidationOptions_Inspect_Flowthru_Data_IItem_Flowthru_Data_Validation_InspectionLevel_"></a> Inspect\(IItem, InspectionLevel\)
 
 Specifies the inspection level for a specific catalog entry.
 
 ```csharp
-public ValidationOptions Inspect(ICatalogEntry catalogEntry, InspectionLevel level)
+public ValidationOptions Inspect(IItem catalogEntry, InspectionLevel level)
 ```
 
 #### Parameters
 
-`catalogEntry` [ICatalogEntry](Flowthru.Data.ICatalogEntry.md)
+`catalogEntry` [IItem](Flowthru.Data.IItem.md)
 
 The catalog entry to configure
 

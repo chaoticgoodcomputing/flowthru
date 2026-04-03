@@ -1,16 +1,16 @@
-# <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries"></a> Class EFCoreCatalogEntries
+# <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems"></a> Class EFCoreItems
 
 Namespace: [Flowthru.Extensions.EFCore.Data](Flowthru.Extensions.EFCore.Data.md)  
 Assembly: Flowthru.Extensions.EFCore.dll  
 
 ```csharp
-public static class EFCoreCatalogEntries
+public static class EFCoreItems
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[EFCoreCatalogEntries](Flowthru.Extensions.EFCore.Data.EFCoreCatalogEntries.md)
+[EFCoreItems](Flowthru.Extensions.EFCore.Data.EFCoreItems.md)
 
 #### Inherited Members
 

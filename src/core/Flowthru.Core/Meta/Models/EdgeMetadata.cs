@@ -16,7 +16,7 @@ namespace Flowthru.Meta.Models;
 /// </list>
 /// <para>
 /// Together, these edges form the complete data flow:
-/// <c>CatalogEntry → Step → CatalogEntry → Step → ...</c>
+/// <c>Item → Step → Item → Step → ...</c>
 /// </para>
 /// </remarks>
 public class EdgeMetadata

@@ -14,7 +14,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
           label: "ModelInputTable",
           contextFactory: _contextFactory,
           queryCustomizer: q => q.OrderBy(r => r.ShuttleId)

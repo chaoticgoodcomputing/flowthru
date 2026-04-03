@@ -1,18 +1,18 @@
 """
 Test fixtures for Phase 4 validation testing.
 
-This module contains deliberately malformed nodes to test validation error detection.
+This module contains deliberately malformed steps to test validation error detection.
 """
 
-from flowthru import node
+from flowthru import step
 
 
-# ─── Valid nodes for baseline testing ───────────────────────────────────
+# ─── Valid steps for baseline testing ───────────────────────────────────
 
 
-@node(inputs=["ModelConfigSchema"], outputs=["ModelResultSchema"])
-def valid_node(config):
-    """A properly decorated node for baseline testing."""
+@step(inputs=["ModelConfigSchema"], outputs=["ModelResultSchema"])
+def valid_step(config):
+    """A properly decorated step for baseline testing."""
     return {
         "Accuracy": 0.95,
         "Loss": 0.05,
@@ -24,15 +24,15 @@ def valid_node(config):
 # ─── Missing decorator (caught at registration time) ────────────────────
 
 
-def missing_decorator_node(config):
-    """Node without @node decorator - should fail registration-time validation."""
+def missing_decorator_step(config):
+    """Node without @step decorator - should fail registration-time validation."""
     return config
 
 
 # ─── Schema mismatch scenarios (caught at pre-flight) ───────────────────
 
 
-@node(inputs=["WrongInputSchema"], outputs=["ModelResultSchema"])
+@step(inputs=["WrongInputSchema"], outputs=["ModelResultSchema"])
 def wrong_input_schema(config):
     """Decorator declares wrong input schema."""
     return {
@@ -43,7 +43,7 @@ def wrong_input_schema(config):
     }
 
 
-@node(inputs=["ModelConfigSchema"], outputs=["WrongOutputSchema"])
+@step(inputs=["ModelConfigSchema"], outputs=["WrongOutputSchema"])
 def wrong_output_schema(config):
     """Decorator declares wrong output schema."""
     return {
@@ -54,7 +54,7 @@ def wrong_output_schema(config):
     }
 
 
-@node(
+@step(
     inputs=["ModelConfigSchema", "ExtraInputSchema"],
     outputs=["ModelResultSchema"]
 )
@@ -68,7 +68,7 @@ def too_many_inputs(config):
     }
 
 
-@node(
+@step(
     inputs=["ModelConfigSchema"],
     outputs=["ModelResultSchema", "ExtraOutputSchema"],
 )
@@ -82,7 +82,7 @@ def too_many_outputs(config):
     }
 
 
-@node(inputs=[], outputs=["ModelResultSchema"])
+@step(inputs=[], outputs=["ModelResultSchema"])
 def zero_inputs(config):
     """Decorator declares no input schemas."""
     return {
@@ -93,7 +93,7 @@ def zero_inputs(config):
     }
 
 
-@node(inputs=["ModelConfigSchema"], outputs=[])
+@step(inputs=["ModelConfigSchema"], outputs=[])
 def zero_outputs(config):
     """Decorator declares no output schemas."""
     return {

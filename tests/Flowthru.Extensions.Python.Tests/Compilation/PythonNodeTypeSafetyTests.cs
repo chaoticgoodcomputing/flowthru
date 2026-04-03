@@ -14,7 +14,7 @@ namespace Flowthru.Extensions.Python.Tests.Compilation;
 /// These tests verify that the catalog entry types passed to AddPythonStep are
 /// self-consistent and correctly inferred by the compiler.
 ///
-/// Note: Schema contract violations between C# generic types and Python @node
+/// Note: Schema contract violations between C# generic types and Python @step
 /// decorator declarations are caught at pre-flight, not compile-time — see
 /// <see cref="Flowthru.Extensions.Python.Tests.Validation.PythonNodeValidationTests"/>.
 /// </remarks>
@@ -40,8 +40,8 @@ public class PythonNodeTypeSafetyTests
                 public void TestMethod(
                     IPythonExecutor executor)
                 {
-                    var config = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""config"");
-                    var result = CatalogEntries.Single.Memory<ModelResultSchema>(label: ""result"");
+                    var config = ItemFactory.Single.Memory<ModelConfigSchema>(label: ""config"");
+                    var result = ItemFactory.Single.Memory<ModelResultSchema>(label: ""result"");
                     
                     var pipeline = FlowBuilder.CreateFlow(builder =>
                     {
@@ -96,8 +96,8 @@ public class PythonNodeTypeSafetyTests
                 public void TestMethod(
                     IPythonExecutor executor)
                 {
-                    var config = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""config"");
-                    var wrongOutput = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""wrong_output"");
+                    var config = ItemFactory.Single.Memory<ModelConfigSchema>(label: ""config"");
+                    var wrongOutput = ItemFactory.Single.Memory<ModelConfigSchema>(label: ""wrong_output"");
                     
                     var pipeline = FlowBuilder.CreateFlow(builder =>
                     {

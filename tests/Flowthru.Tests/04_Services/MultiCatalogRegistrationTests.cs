@@ -129,7 +129,7 @@ public class MultiCatalogRegistrationTests
   public async Task RegisterPipeline_TwoCatalogs_DagResolvesCrossCatalogEdge()
   {
     // Arrange — the Bridge pipeline reads up.UpstreamOutput, which is written by the
-    // Upstream pipeline. When merged, the DAG must see a single ICatalogEntry instance
+    // Upstream pipeline. When merged, the DAG must see a single IItem instance
     // (object identity) and schedule Bridge after Upstream.
     var upstream = new UpstreamCatalog();
     var downstream = new DownstreamCatalog();

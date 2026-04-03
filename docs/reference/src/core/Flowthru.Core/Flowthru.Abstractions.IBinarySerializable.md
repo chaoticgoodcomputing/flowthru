@@ -27,9 +27,9 @@ public sealed record CompanySchema(
 ) : IFlatSchema, ITextSerializable, IBinarySerializable, IStructuredSerializable;
 
 // ⚠️ Nested schema - binary serialization less optimal
-public sealed record OrderWithItems(
+public sealed record OrderWithItemFactory(
     string OrderId,
-    List&lt;LineItem&gt; Items  // Nested column in Parquet
+    List&lt;LineItem&gt; ItemFactory  // Nested column in Parquet
 ) : INestedSchema, IBinarySerializable, IStructuredSerializable;</code></pre>
 
 ## Remarks

@@ -11,13 +11,13 @@ namespace KedroSpaceflights.Pipelines.Reporting.Nodes;
 /// <para>
 /// This node handles the PNG export concern separately from chart generation,
 /// enabling a clean separation of visualization logic from output format concerns.
-/// The PNG binary data can be stored in a BinaryFileCatalogEntry&lt;byte[]&gt;.
+/// The PNG binary data can be stored in a BinaryFileItem&lt;byte[]&gt;.
 /// </para>
 /// <para>
 /// <strong>Input:</strong> GenericChart object from memory catalog
 /// </para>
 /// <para>
-/// <strong>Output:</strong> PNG binary data as byte[] (can be stored in BinaryFileCatalogEntry&lt;byte[]&gt;)
+/// <strong>Output:</strong> PNG binary data as byte[] (can be stored in BinaryFileItem&lt;byte[]&gt;)
 /// </para>
 /// <para>
 /// <strong>Reusability:</strong> This node can be used for any Plotly chart type

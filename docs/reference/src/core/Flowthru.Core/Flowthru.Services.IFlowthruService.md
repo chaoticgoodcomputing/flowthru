@@ -146,7 +146,7 @@ When null, all registered flows are merged into a unified DAG.
 
 Optional slice strategy to filter the DAG (e.g., from-node).
 When provided, the returned metadata includes slice overlay information
-(SlicedNodeIds and SlicedCatalogEntryKeys) identifying which nodes
+(SlicedNodeIds and SlicedItemKeys) identifying which nodes
 and data are in the active execution subset.
 
 #### Returns

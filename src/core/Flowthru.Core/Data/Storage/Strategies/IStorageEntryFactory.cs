@@ -29,8 +29,8 @@ namespace Flowthru.Data.Storage.Strategies;
 ///         InitializeCatalogProperties();
 ///     }
 ///
-///     public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies =>
-///         GetOrCreateEntry(() => _storage.CreateEnumerable&lt;Company&gt;("Companies"));
+///     public IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies =>
+///         CreateEntry(() => _storage.CreateEnumerable&lt;Company&gt;("Companies"));
 /// }
 /// </code>
 /// </remarks>

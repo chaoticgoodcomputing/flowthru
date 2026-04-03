@@ -1,8 +1,8 @@
-"""Data preprocessing nodes for companies data."""
+"""Data preprocessing steps for companies data."""
 import logging
 import numpy as np
 import pandas as pd
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def _parse_percentage(x: pd.Series) -> pd.Series:
     return x
 
 
-@node(inputs=["CompanyRawSchema"], outputs=["CompanyPreprocessedSchema"])
+@step(inputs=["CompanyRawSchema"], outputs=["CompanyPreprocessedSchema"])
 def preprocess_companies(companies: pd.DataFrame) -> pd.DataFrame:
     """Preprocesses the data for companies.
 

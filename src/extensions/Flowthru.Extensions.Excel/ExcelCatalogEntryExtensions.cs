@@ -7,15 +7,15 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension methods that add Excel support to <see cref="Items.Enumerable"/>.
+/// Extension methods that add Excel support to <see cref="ItemFactory.Enumerable"/>.
 /// </summary>
-public static class ExcelCatalogEntryExtensions
+public static class ExcelItemExtensions
 {
   /// <summary>
   /// Creates a read-only Excel file catalog entry with IEnumerable container.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="Items.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="filePath">Path to Excel file (.xlsx)</param>
   /// <param name="sheetName">Name of the sheet to read</param>
@@ -40,7 +40,7 @@ public static class ExcelCatalogEntryExtensions
   /// </list>
   /// </remarks>
   public static Item<IEnumerable<TRow>> Excel<TRow>(
-    this EnumerableItems _,
+    this EnumerableItemFactory _,
     string label,
     string filePath,
     string sheetName

@@ -1,16 +1,16 @@
-# <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Single"></a> Class EFCoreCatalogEntries.Single
+# <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Single"></a> Class EFCoreItems.Single
 
 Namespace: [Flowthru.Extensions.EFCore.Data](Flowthru.Extensions.EFCore.Data.md)  
 Assembly: Flowthru.Extensions.EFCore.dll  
 
 ```csharp
-public static class EFCoreCatalogEntries.Single
+public static class EFCoreItems.Single
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[EFCoreCatalogEntries.Single](Flowthru.Extensions.EFCore.Data.EFCoreCatalogEntries.Single.md)
+[EFCoreItems.Single](Flowthru.Extensions.EFCore.Data.EFCoreItems.Single.md)
 
 #### Inherited Members
 
@@ -24,7 +24,7 @@ public static class EFCoreCatalogEntries.Single
 
 ## Methods
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Single_EFCore__1_System_String_Microsoft_EntityFrameworkCore_DbContext_System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, DbContext, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, T, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Single_EFCore__1_System_String_Microsoft_EntityFrameworkCore_DbContext_System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, DbContext, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, T, CancellationToken, Task\>?\)
 
 Creates an Entity Framework Core catalog entry for single database-backed entities.
 
@@ -63,8 +63,8 @@ Entity type (must be a class configured in DbContext)
 #### Examples
 
 <pre><code class="lang-csharp">// In catalog
-public ICatalogEntry&lt;ModelMetrics&gt; Metrics(DbContext db) =&gt;
-  CatalogEntries.Single.EFCore&lt;ModelMetrics&gt;("metrics", db);
+public IItem&lt;ModelMetrics&gt; Metrics(DbContext db) =&gt;
+  Items.Single.EFCore&lt;ModelMetrics&gt;("metrics", db);
 
 // In pipeline
 var pipeline = new FlowBuilder("MetricsPipeline")
@@ -92,7 +92,7 @@ To create a read-only catalog entry, apply a constraint:
 <code>.Constrain(traits =&gt; traits with { CanWrite = false })</code>
 </p>
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Single_EFCore__1_System_String_System_Func_Microsoft_EntityFrameworkCore_DbContext__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, Func<DbContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, T, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Single_EFCore__1_System_String_System_Func_Microsoft_EntityFrameworkCore_DbContext__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, Func<DbContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, T, CancellationToken, Task\>?\)
 
 Creates an Entity Framework Core catalog entry for single database-backed entities using a factory.
 
@@ -133,8 +133,8 @@ Entity type (must be a class configured in DbContext)
 <pre><code class="lang-csharp">// In catalog with factory
 private readonly IServiceProvider _serviceProvider;
 
-public ICatalogEntry&lt;ModelMetrics&gt; Metrics =&gt;
-  CatalogEntries.Single.EFCore&lt;ModelMetrics&gt;(
+public IItem&lt;ModelMetrics&gt; Metrics =&gt;
+  Items.Single.EFCore&lt;ModelMetrics&gt;(
     "metrics",
     () =&gt; _serviceProvider.GetRequiredService&lt;MyDbContext&gt;()
   );</code></pre>
@@ -154,7 +154,7 @@ To create a read-only catalog entry, apply a constraint:
 <code>.Constrain(traits =&gt; traits with { CanWrite = false })</code>
 </p>
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Single_EFCore__2_System_String_System_Func___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, Func<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, T, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Single_EFCore__2_System_String_System_Func___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, Func<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, T, CancellationToken, Task\>?\)
 
 Creates a single-entity EFCore catalog entry with a typed DbContext factory.
 The concrete <code class="typeparamref">TContext</code> flows through to the save delegate,
@@ -203,7 +203,7 @@ Entity type
 
 Concrete DbContext type
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Single_EFCore__2_System_String_Microsoft_EntityFrameworkCore_IDbContextFactory___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, IDbContextFactory<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, T, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Single_EFCore__2_System_String_Microsoft_EntityFrameworkCore_IDbContextFactory___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1___0_System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, IDbContextFactory<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, T, CancellationToken, Task\>?\)
 
 Creates a single-entity EFCore catalog entry using <xref href="Microsoft.EntityFrameworkCore.IDbContextFactory%601" data-throw-if-not-resolved="false"></xref>.
 

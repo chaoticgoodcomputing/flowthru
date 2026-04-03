@@ -14,7 +14,7 @@ public partial class Catalog
   public IItem<MetricsSchema> Metrics =>
     CreateItem(
       () =>
-        Items.Single.Json<MetricsSchema>(
+        ItemFactory.Single.Json<MetricsSchema>(
           label: "Metrics",
           filePath: $"{_basePath}/_08_Reporting/Datasets/metrics.json"
         )

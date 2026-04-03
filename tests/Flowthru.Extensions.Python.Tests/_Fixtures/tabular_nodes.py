@@ -1,14 +1,14 @@
 """
-Test fixtures for Phase 3 tabular (DataFrame) Python node integration.
+Test fixtures for Phase 3 tabular (DataFrame) Python step integration.
 
 This module provides test functions that receive and return pandas DataFrames,
 demonstrating Arrow marshalling for tabular data.
 """
 
-from flowthru import node
+from flowthru import step
 
 
-@node(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
+@step(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
 def passthrough(df):
     """
     Identity function for round-trip testing.
@@ -22,7 +22,7 @@ def passthrough(df):
     return df
 
 
-@node(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
+@step(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
 def transform_simple(df):
     """
     Transform function that adds a computed column and filters rows.
@@ -36,7 +36,7 @@ def transform_simple(df):
     return df.assign(computed=lambda d: d["value"] * 2).query("value > 0")
 
 
-@node(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
+@step(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
 def filter_rows(df):
     """
     Filter DataFrame to only rows where value > 50.
@@ -50,7 +50,7 @@ def filter_rows(df):
     return df[df["value"] > 50].reset_index(drop=True)
 
 
-@node(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
+@step(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
 def rename_columns(df):
     """
     Rename columns in DataFrame (for schema validation testing).
@@ -64,7 +64,7 @@ def rename_columns(df):
     return df.rename(columns={"name": "label"})
 
 
-@node(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
+@step(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
 def add_computed_column(df):
     """
     Add a computed column based on existing data.
@@ -78,7 +78,7 @@ def add_computed_column(df):
     return df.assign(double_value=lambda d: d["value"] * 2)
 
 
-@node(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
+@step(inputs=["SimpleRowSchema"], outputs=["SimpleRowSchema"])
 def aggregate_data(df):
     """
     Aggregate DataFrame by computing summary statistics.

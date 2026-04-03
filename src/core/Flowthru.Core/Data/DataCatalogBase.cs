@@ -97,19 +97,19 @@ public abstract class CatalogAbstract
   /// <returns>Cached catalog item instance</returns>
   /// <remarks>
   /// <para>
-  /// <strong>Unified API (v0.5.0):</strong> This single method replaces GetOrCreateObject
-  /// and GetOrCreateDataset. Cardinality is determined by the type parameter T.
+  /// <strong>Unified API (v0.5.0):</strong> This single method replaces CreateObject
+  /// and CreateDataset. Cardinality is determined by the type parameter T.
   /// </para>
   /// <para>
   /// <strong>Usage Examples:</strong>
   /// <code>
   /// // Singleton object
   /// public IItem&lt;LinearRegressionModel&gt; Model =>
-  ///     GetOrCreateItem(() =&gt; Items.Single.Memory&lt;LinearRegressionModel&gt;("model"));
+  ///     CreateItem(() =&gt; ItemFactory.Single.Memory&lt;LinearRegressionModel&gt;("model"));
   ///
   /// // Collection
   /// public IItem&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
-  ///     GetOrCreateItem(() =&gt; Items.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));
+  ///     CreateItem(() =&gt; ItemFactory.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));
   /// </code>
   /// </para>
   /// </remarks>
@@ -182,7 +182,7 @@ public abstract class CatalogAbstract
   /// Useful for diagnostic purposes or when you need to iterate over all items
   /// (e.g., for validation, cleanup, or reporting).
   /// </remarks>
-  protected IEnumerable<IItem> GetAllItems()
+  protected IEnumerable<IItem> GetAllItemFactory()
   {
     return _propertyCache.Values;
   }

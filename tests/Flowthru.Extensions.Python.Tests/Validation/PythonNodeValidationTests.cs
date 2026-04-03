@@ -108,7 +108,7 @@ public class PythonNodeValidationTests
         )
     );
 
-    Assert.That(ex.Message, Does.Contain("missing required @node decorator"));
+    Assert.That(ex.Message, Does.Contain("missing required @step decorator"));
   }
 
   [Test]

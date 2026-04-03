@@ -13,23 +13,23 @@ public partial class Catalog
   /// Training features split from the model input table. Transient (memory only).
   /// </summary>
   public IItem<IEnumerable<XValues>> XTest =>
-    CreateItem(() => Items.Enumerable.Memory<XValues>(label: "XTest"));
+    CreateItem(() => ItemFactory.Enumerable.Memory<XValues>(label: "XTest"));
 
   /// <summary>
   /// Test features split from the model input table. Transient (memory only).
   /// </summary>
   public IItem<IEnumerable<XValues>> XTrain =>
-    CreateItem(() => Items.Enumerable.Memory<XValues>(label: "XTrain"));
+    CreateItem(() => ItemFactory.Enumerable.Memory<XValues>(label: "XTrain"));
 
   /// <summary>
   /// Test targets split from the model input table. Transient (memory only).
   /// </summary>
   public IItem<IEnumerable<YValues>> YTest =>
-    CreateItem(() => Items.Enumerable.Memory<YValues>(label: "YTest"));
+    CreateItem(() => ItemFactory.Enumerable.Memory<YValues>(label: "YTest"));
 
   /// <summary>
   /// Training targets split from the model input table. Transient (memory only).
   /// </summary>
   public IItem<IEnumerable<YValues>> YTrain =>
-    CreateItem(() => Items.Enumerable.Memory<YValues>(label: "YTrain"));
+    CreateItem(() => ItemFactory.Enumerable.Memory<YValues>(label: "YTrain"));
 }

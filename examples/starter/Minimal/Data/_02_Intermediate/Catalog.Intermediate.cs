@@ -11,7 +11,7 @@ public partial class Catalog
   public IItem<IEnumerable<GreetingSchema>> HelloGreetings =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<GreetingSchema>(
+        ItemFactory.Enumerable.Csv<GreetingSchema>(
           label: "HelloGreetings",
           filePath: $"{_basePath}/Data/_02_Intermediate/Datasets/hello_greetings.csv"
         )

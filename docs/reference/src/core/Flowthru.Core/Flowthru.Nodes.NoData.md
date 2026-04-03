@@ -95,12 +95,12 @@ Creates a unique null catalog entry for use as a node output (side-effect-only n
 Semantic alias for Output - use whichever reads better in context.
 
 ```csharp
-public static ICatalogEntry<NoData> Discard { get; }
+public static IItem<NoData> Discard { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 ### <a id="Flowthru_Nodes_NoData_Input"></a> Input
 
@@ -108,12 +108,12 @@ Creates a unique null catalog entry for use as a node input (no-input nodes).
 Each call generates a new instance with a unique key to avoid DAG conflicts.
 
 ```csharp
-public static ICatalogEntry<NoData> Input { get; }
+public static IItem<NoData> Input { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 #### Remarks
 
@@ -125,12 +125,12 @@ Creates a unique null catalog entry for use as a node input (no-input nodes).
 Semantic alias for Input - use whichever reads better in context.
 
 ```csharp
-public static ICatalogEntry<NoData> None { get; }
+public static IItem<NoData> None { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 ### <a id="Flowthru_Nodes_NoData_Output"></a> Output
 
@@ -138,12 +138,12 @@ Creates a unique null catalog entry for use as a node output (side-effect-only n
 Each call generates a new instance with a unique key to avoid DAG conflicts.
 
 ```csharp
-public static ICatalogEntry<NoData> Output { get; }
+public static IItem<NoData> Output { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 #### Remarks
 

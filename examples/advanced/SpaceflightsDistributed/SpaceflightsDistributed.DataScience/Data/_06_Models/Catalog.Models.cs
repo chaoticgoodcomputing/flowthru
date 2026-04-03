@@ -8,7 +8,7 @@ public partial class DataScienceCatalog
   public IItem<LinearRegressionModel> Regressor =>
     CreateItem(
       () =>
-        Items.Single.Json<LinearRegressionModel>(
+        ItemFactory.Single.Json<LinearRegressionModel>(
           label: "Regressor",
           filePath: $"{_basePath}/_06_Models/Datasets/regressor.json"
         )

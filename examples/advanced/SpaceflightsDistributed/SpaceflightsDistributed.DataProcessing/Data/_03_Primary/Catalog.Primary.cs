@@ -8,7 +8,7 @@ public partial class DataProcessingCatalog
   public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<ModelInputTableSchema>(
+        ItemFactory.Enumerable.Parquet<ModelInputTableSchema>(
           label: "ModelInputTable",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
         )

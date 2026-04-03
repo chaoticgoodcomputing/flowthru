@@ -15,7 +15,7 @@ public partial class Catalog
   public IItem<IEnumerable<IrisFeatureSchema>> IrisFeatures =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<IrisFeatureSchema>(
+        ItemFactory.Enumerable.Csv<IrisFeatureSchema>(
           label: "IrisFeatures",
           filePath: $"{_basePath}/_04_Feature/Datasets/iris_features.csv"
         )

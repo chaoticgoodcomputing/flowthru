@@ -16,7 +16,7 @@ public partial class Catalog
   public IItem<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
     CreateItem(
       () =>
-        Items.Enumerable.Json<ShuttleCapacityReport>(
+        ItemFactory.Enumerable.Json<ShuttleCapacityReport>(
           label: "ShuttleCapacityReport",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json"
         )
@@ -27,7 +27,9 @@ public partial class Catalog
   /// Intermediate chart object stored in memory for downstream export to PNG.
   /// </summary>
   public IItem<GenericChart> ShuttlePassengerCapacityChart =>
-    CreateItem(() => Items.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart"));
+    CreateItem(
+      () => ItemFactory.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
+    );
 
   /// <summary>
   /// Shuttle passenger capacity bar chart (PNG image).
@@ -37,7 +39,7 @@ public partial class Catalog
   public IItem<byte[]> ShuttlePassengerCapacityPlotPng =>
     CreateItem(
       () =>
-        Items.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "ShuttlePassengerCapacityPlotPng",
           filePath: $"{_basePath}/_08_Reporting/Images/shuttle_passenger_capacity_plot.png"
         )
@@ -48,7 +50,7 @@ public partial class Catalog
   /// Intermediate chart object stored in memory for downstream export to PNG.
   /// </summary>
   public IItem<GenericChart> ConfusionMatrixChart =>
-    CreateItem(() => Items.Single.Memory<GenericChart>(label: "ConfusionMatrixChart"));
+    CreateItem(() => ItemFactory.Single.Memory<GenericChart>(label: "ConfusionMatrixChart"));
 
   /// <summary>
   /// Confusion matrix heatmap (PNG image).
@@ -58,7 +60,7 @@ public partial class Catalog
   public IItem<byte[]> ConfusionMatrixPlotPng =>
     CreateItem(
       () =>
-        Items.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "ConfusionMatrixPlotPng",
           filePath: $"{_basePath}/_08_Reporting/Images/confusion_matrix_plot.png"
         )

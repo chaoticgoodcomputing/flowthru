@@ -10,10 +10,10 @@ public partial class Catalog
 {
   // TODO: Add feature datasets here as they are created
   // Example:
-  // public ICatalogEntry<IEnumerable<FeatureSchema>> Features =>
-  //   GetOrCreateEntry(
+  // public IItem<IEnumerable<FeatureSchema>> Features =>
+  //   CreateEntry(
   //     () =>
-  //       CatalogEntries.Enumerable.Csv<FeatureSchema>(
+  //       ItemFactory.Enumerable.Csv<FeatureSchema>(
   //         label: "Features",
   //         filePath: $"{_basePath}/_04_Feature/Datasets/features.csv"
   //       )

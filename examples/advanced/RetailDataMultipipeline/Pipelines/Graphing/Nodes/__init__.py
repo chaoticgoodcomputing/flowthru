@@ -1,1 +1,1 @@
-"""Graphing pipeline nodes."""
+"""Graphing pipeline steps."""

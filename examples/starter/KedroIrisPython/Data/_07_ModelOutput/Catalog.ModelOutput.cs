@@ -14,7 +14,7 @@ public partial class Catalog
   public IItem<IEnumerable<PredictionSchema>> Predictions =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<PredictionSchema>(
+        ItemFactory.Enumerable.Parquet<PredictionSchema>(
           label: "Predictions",
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.parquet"
         )

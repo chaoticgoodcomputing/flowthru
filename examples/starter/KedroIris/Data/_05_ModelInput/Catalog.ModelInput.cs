@@ -15,7 +15,7 @@ public partial class Catalog
   public IItem<IEnumerable<FeatureVectorSchema>> TrainX =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Csv<FeatureVectorSchema>(
           label: "TrainX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_x.csv"
         )
@@ -27,7 +27,7 @@ public partial class Catalog
   public IItem<IEnumerable<TargetLabelSchema>> TrainY =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<TargetLabelSchema>(
+        ItemFactory.Enumerable.Csv<TargetLabelSchema>(
           label: "TrainY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_y.csv"
         )
@@ -39,7 +39,7 @@ public partial class Catalog
   public IItem<IEnumerable<FeatureVectorSchema>> TestX =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Csv<FeatureVectorSchema>(
           label: "TestX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_x.csv"
         )
@@ -51,7 +51,7 @@ public partial class Catalog
   public IItem<IEnumerable<TargetLabelSchema>> TestY =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<TargetLabelSchema>(
+        ItemFactory.Enumerable.Csv<TargetLabelSchema>(
           label: "TestY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_y.csv"
         )

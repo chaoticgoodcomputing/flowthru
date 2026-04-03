@@ -37,7 +37,7 @@ public class Program
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
 
-      // Configure Python runtime — makes Pipelines/ importable and exposes the @node decorator
+      // Configure Python runtime — makes Pipelines/ importable and exposes the @step decorator
       flowthru.UsePython(python =>
       {
         python.ModuleSearchPaths.Add(basePath);

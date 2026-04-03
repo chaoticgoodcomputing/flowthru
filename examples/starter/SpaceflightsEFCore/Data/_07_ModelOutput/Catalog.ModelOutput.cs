@@ -16,7 +16,7 @@ public partial class Catalog
   public IItem<ModelMetrics> ModelMetrics =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
+        EFCoreItemFactory.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
           label: "ModelMetrics",
           contextFactory: _contextFactory
         )
@@ -28,7 +28,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
           label: "ModelPredictions",
           contextFactory: _contextFactory
         )

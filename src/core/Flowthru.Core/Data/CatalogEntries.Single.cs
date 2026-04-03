@@ -3,7 +3,7 @@ using Flowthru.Data.Storage;
 
 namespace Flowthru.Data;
 
-public static partial class Items
+public static partial class ItemFactory
 {
   /// <summary>
   /// Factory methods for single (non-collection) values.

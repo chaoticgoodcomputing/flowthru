@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Data;
 
-public static partial class EFCoreCatalogEntries
+public static partial class EFCoreItemFactory
 {
   public static partial class Single
   {
@@ -37,8 +37,8 @@ public static partial class EFCoreCatalogEntries
     /// <example>
     /// <code>
     /// // In catalog
-    /// public ICatalogEntry&lt;ModelMetrics&gt; Metrics(DbContext db) =>
-    ///   CatalogEntries.Single.EFCore&lt;ModelMetrics&gt;("metrics", db);
+    /// public IItem&lt;ModelMetrics&gt; Metrics(DbContext db) =>
+    ///   ItemFactory.Single.EFCore&lt;ModelMetrics&gt;("metrics", db);
     ///
     /// // In pipeline
     /// var pipeline = new FlowBuilder("MetricsPipeline")
@@ -93,8 +93,8 @@ public static partial class EFCoreCatalogEntries
     /// // In catalog with factory
     /// private readonly IServiceProvider _serviceProvider;
     ///
-    /// public ICatalogEntry&lt;ModelMetrics&gt; Metrics =>
-    ///   CatalogEntries.Single.EFCore&lt;ModelMetrics&gt;(
+    /// public IItem&lt;ModelMetrics&gt; Metrics =>
+    ///   ItemFactory.Single.EFCore&lt;ModelMetrics&gt;(
     ///     "metrics",
     ///     () => _serviceProvider.GetRequiredService&lt;MyDbContext&gt;()
     ///   );

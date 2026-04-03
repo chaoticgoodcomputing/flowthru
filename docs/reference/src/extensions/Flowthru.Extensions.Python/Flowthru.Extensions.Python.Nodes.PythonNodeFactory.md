@@ -59,12 +59,12 @@ Source-generated N×M overloads for multi-I/O support (Phase 5).
 
 ## Methods
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__2_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TInput, TOutput\>\(FlowBuilder, string, string, string, ICatalogEntry<TInput\>, ICatalogEntry<TOutput\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__2_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TInput, TOutput\>\(FlowBuilder, string, string, string, IItem<TInput\>, IItem<TOutput\>, IPythonExecutor, string\)
 
 Adds a Python node with single input and single output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TInput, TOutput>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TInput> input, ICatalogEntry<TOutput> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TInput, TOutput>(this FlowBuilder builder, string label, string module, string function, IItem<TInput> input, IItem<TOutput> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -86,11 +86,11 @@ Must be resolvable via sys.path.
 
 Python function name within the module.
 
-`input` ICatalogEntry<TInput\>
+`input` IItem<TInput\>
 
 Catalog entry providing input data.
 
-`output` ICatalogEntry<TOutput\>
+`output` IItem<TOutput\>
 
 Catalog entry to store output data.
 
@@ -134,12 +134,12 @@ Mismatched types produce compiler errors.
 <ul><li>Decorator schemas match C# generic types</li><li>Function signature arity is correct</li><li>Dry-run with 0-row data validates output structure</li></ul>
 </p>
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__3_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__3_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__System_ValueTuple_Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2\>\(FlowBuilder, string, string, string, IItem<TIn1\>, \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, IItem<TIn1> input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -160,11 +160,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` ICatalogEntry<TIn1\>
+`input` IItem<TIn1\>
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -196,12 +196,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__System_ValueTuple_Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, IItem<TIn1\>, \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, IItem<TIn1> input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -222,11 +222,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` ICatalogEntry<TIn1\>
+`input` IItem<TIn1\>
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -262,12 +262,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__System_ValueTuple_Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, IItem<TIn1\>, \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, IItem<TIn1> input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -288,11 +288,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` ICatalogEntry<TIn1\>
+`input` IItem<TIn1\>
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -332,12 +332,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__System_ValueTuple_Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, IItem<TIn1\>, \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, IItem<TIn1> input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -358,11 +358,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` ICatalogEntry<TIn1\>
+`input` IItem<TIn1\>
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -406,12 +406,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__System_ValueTuple_Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, IItem<TIn1\>, \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, IItem<TIn1> input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -432,11 +432,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` ICatalogEntry<TIn1\>
+`input` IItem<TIn1\>
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -484,12 +484,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__System_ValueTuple_Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, IItem<TIn1\>, \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, IItem<TIn1> input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -510,11 +510,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` ICatalogEntry<TIn1\>
+`input` IItem<TIn1\>
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -566,12 +566,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_ICatalogEntry___0__System_ValueTuple_Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__System_ValueTuple_Flowthru_Data_ICatalogEntry___8____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, ICatalogEntry<TIn1\>, \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_Flowthru_Data_IItem___0__System_ValueTuple_Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__System_ValueTuple_Flowthru_Data_IItem___8____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, IItem<TIn1\>, \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 1 input and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, ICatalogEntry<TIn1> input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, IItem<TIn1> input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -592,11 +592,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` ICatalogEntry<TIn1\>
+`input` IItem<TIn1\>
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -652,12 +652,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__3_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___Flowthru_Data_ICatalogEntry___2__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__3_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___Flowthru_Data_IItem___2__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), IItem<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 1 output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, IItem<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -678,11 +678,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` ICatalogEntry<TOut1\>
+`output` IItem<TOut1\>
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -714,12 +714,12 @@ Input type 2
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___System_ValueTuple_Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -740,11 +740,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -780,12 +780,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___System_ValueTuple_Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -806,11 +806,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -850,12 +850,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___System_ValueTuple_Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -876,11 +876,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -924,12 +924,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___System_ValueTuple_Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -950,11 +950,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1002,12 +1002,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___System_ValueTuple_Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1028,11 +1028,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1084,12 +1084,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___System_ValueTuple_Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1110,11 +1110,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1170,12 +1170,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1___System_ValueTuple_Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__System_ValueTuple_Flowthru_Data_ICatalogEntry___9____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1___System_ValueTuple_Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__System_ValueTuple_Flowthru_Data_IItem___9____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 2 inputs and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1196,11 +1196,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1260,12 +1260,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___Flowthru_Data_ICatalogEntry___3__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__4_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___Flowthru_Data_IItem___3__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), IItem<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 1 output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, IItem<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1286,11 +1286,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` ICatalogEntry<TOut1\>
+`output` IItem<TOut1\>
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1326,12 +1326,12 @@ Input type 3
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___System_ValueTuple_Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1352,11 +1352,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1396,12 +1396,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___System_ValueTuple_Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1422,11 +1422,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1470,12 +1470,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___System_ValueTuple_Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1496,11 +1496,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1548,12 +1548,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___System_ValueTuple_Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1574,11 +1574,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1630,12 +1630,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___System_ValueTuple_Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1656,11 +1656,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1716,12 +1716,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___System_ValueTuple_Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1742,11 +1742,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1806,12 +1806,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2___System_ValueTuple_Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__System_ValueTuple_Flowthru_Data_ICatalogEntry___10____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2___System_ValueTuple_Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__System_ValueTuple_Flowthru_Data_IItem___10____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 3 inputs and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1832,11 +1832,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1900,12 +1900,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___Flowthru_Data_ICatalogEntry___4__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__5_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___Flowthru_Data_IItem___4__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), IItem<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 1 output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, IItem<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1926,11 +1926,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` ICatalogEntry<TOut1\>
+`output` IItem<TOut1\>
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -1970,12 +1970,12 @@ Input type 4
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___System_ValueTuple_Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -1996,11 +1996,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2044,12 +2044,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___System_ValueTuple_Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2070,11 +2070,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2122,12 +2122,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___System_ValueTuple_Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2148,11 +2148,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2204,12 +2204,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___System_ValueTuple_Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2230,11 +2230,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2290,12 +2290,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___System_ValueTuple_Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2316,11 +2316,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2380,12 +2380,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___System_ValueTuple_Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2406,11 +2406,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2474,12 +2474,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3___System_ValueTuple_Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__System_ValueTuple_Flowthru_Data_ICatalogEntry___11____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3___System_ValueTuple_Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__System_ValueTuple_Flowthru_Data_IItem___11____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 4 inputs and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2500,11 +2500,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2572,12 +2572,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___Flowthru_Data_ICatalogEntry___5__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__6_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___Flowthru_Data_IItem___5__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), IItem<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 1 output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, IItem<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2598,11 +2598,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` ICatalogEntry<TOut1\>
+`output` IItem<TOut1\>
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2646,12 +2646,12 @@ Input type 5
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___System_ValueTuple_Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2672,11 +2672,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2724,12 +2724,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___System_ValueTuple_Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2750,11 +2750,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2806,12 +2806,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___System_ValueTuple_Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2832,11 +2832,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2892,12 +2892,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___System_ValueTuple_Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -2918,11 +2918,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -2982,12 +2982,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___System_ValueTuple_Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3008,11 +3008,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3076,12 +3076,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___System_ValueTuple_Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3102,11 +3102,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3174,12 +3174,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4___System_ValueTuple_Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__System_ValueTuple_Flowthru_Data_ICatalogEntry___12____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4___System_ValueTuple_Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__System_ValueTuple_Flowthru_Data_IItem___12____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 5 inputs and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3200,11 +3200,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3276,12 +3276,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___Flowthru_Data_ICatalogEntry___6__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__7_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___Flowthru_Data_IItem___6__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), IItem<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 1 output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, IItem<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3302,11 +3302,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` ICatalogEntry<TOut1\>
+`output` IItem<TOut1\>
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3354,12 +3354,12 @@ Input type 6
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___System_ValueTuple_Flowthru_Data_IItem___6__Flowthru_Data_IItem___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3380,11 +3380,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3436,12 +3436,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___System_ValueTuple_Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3462,11 +3462,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3522,12 +3522,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___System_ValueTuple_Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3548,11 +3548,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3612,12 +3612,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___System_ValueTuple_Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3638,11 +3638,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3706,12 +3706,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___System_ValueTuple_Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3732,11 +3732,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3804,12 +3804,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___System_ValueTuple_Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3830,11 +3830,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -3906,12 +3906,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5___System_ValueTuple_Flowthru_Data_ICatalogEntry___6__Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__System_ValueTuple_Flowthru_Data_ICatalogEntry___13____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5___System_ValueTuple_Flowthru_Data_IItem___6__Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12__System_ValueTuple_Flowthru_Data_IItem___13____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 6 inputs and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -3932,11 +3932,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4012,12 +4012,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___Flowthru_Data_ICatalogEntry___7__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__8_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___Flowthru_Data_IItem___7__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), IItem<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 1 output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, IItem<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4038,11 +4038,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` ICatalogEntry<TOut1\>
+`output` IItem<TOut1\>
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4094,12 +4094,12 @@ Input type 7
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___System_ValueTuple_Flowthru_Data_IItem___7__Flowthru_Data_IItem___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4120,11 +4120,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4180,12 +4180,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___System_ValueTuple_Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4206,11 +4206,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4270,12 +4270,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___System_ValueTuple_Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4296,11 +4296,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4364,12 +4364,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___System_ValueTuple_Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4390,11 +4390,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4462,12 +4462,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___System_ValueTuple_Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4488,11 +4488,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4564,12 +4564,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___System_ValueTuple_Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12__Flowthru_Data_IItem___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4590,11 +4590,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4670,12 +4670,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__15_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6___System_ValueTuple_Flowthru_Data_ICatalogEntry___7__Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__System_ValueTuple_Flowthru_Data_ICatalogEntry___14____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__15_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6___System_ValueTuple_Flowthru_Data_IItem___7__Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12__Flowthru_Data_IItem___13__System_ValueTuple_Flowthru_Data_IItem___14____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 7 inputs and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4696,11 +4696,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4780,12 +4780,12 @@ Output type 7
 
 Output type 8
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____Flowthru_Data_ICatalogEntry___8__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), ICatalogEntry<TOut1\>, IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__9_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____Flowthru_Data_IItem___8__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), IItem<TOut1\>, IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 1 output.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, ICatalogEntry<TOut1> output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, IItem<TOut1> output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4806,11 +4806,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` ICatalogEntry<TOut1\>
+`output` IItem<TOut1\>
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4866,12 +4866,12 @@ Input type 8
 
 Output type 1
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__10_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____System_ValueTuple_Flowthru_Data_IItem___8__Flowthru_Data_IItem___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), \(IItem<TOut1\>, IItem<TOut2\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 2 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, (IItem<TOut1>, IItem<TOut2>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4892,11 +4892,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -4956,12 +4956,12 @@ Output type 1
 
 Output type 2
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__11_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____System_ValueTuple_Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 3 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -4982,11 +4982,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -5050,12 +5050,12 @@ Output type 2
 
 Output type 3
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__12_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____System_ValueTuple_Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 4 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -5076,11 +5076,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -5148,12 +5148,12 @@ Output type 3
 
 Output type 4
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__13_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____System_ValueTuple_Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 5 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -5174,11 +5174,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -5250,12 +5250,12 @@ Output type 4
 
 Output type 5
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__14_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____System_ValueTuple_Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12__Flowthru_Data_IItem___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 6 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -5276,11 +5276,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -5356,12 +5356,12 @@ Output type 5
 
 Output type 6
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__15_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__15_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____System_ValueTuple_Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12__Flowthru_Data_IItem___13__Flowthru_Data_IItem___14___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 7 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -5382,11 +5382,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 
@@ -5466,12 +5466,12 @@ Output type 6
 
 Output type 7
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__16_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_ICatalogEntry___0__Flowthru_Data_ICatalogEntry___1__Flowthru_Data_ICatalogEntry___2__Flowthru_Data_ICatalogEntry___3__Flowthru_Data_ICatalogEntry___4__Flowthru_Data_ICatalogEntry___5__Flowthru_Data_ICatalogEntry___6__System_ValueTuple_Flowthru_Data_ICatalogEntry___7____System_ValueTuple_Flowthru_Data_ICatalogEntry___8__Flowthru_Data_ICatalogEntry___9__Flowthru_Data_ICatalogEntry___10__Flowthru_Data_ICatalogEntry___11__Flowthru_Data_ICatalogEntry___12__Flowthru_Data_ICatalogEntry___13__Flowthru_Data_ICatalogEntry___14__System_ValueTuple_Flowthru_Data_ICatalogEntry___15____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\), \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\), IPythonExecutor, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeFactory_AddPythonStep__16_Flowthru_Pipelines_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Data_IItem___0__Flowthru_Data_IItem___1__Flowthru_Data_IItem___2__Flowthru_Data_IItem___3__Flowthru_Data_IItem___4__Flowthru_Data_IItem___5__Flowthru_Data_IItem___6__System_ValueTuple_Flowthru_Data_IItem___7____System_ValueTuple_Flowthru_Data_IItem___8__Flowthru_Data_IItem___9__Flowthru_Data_IItem___10__Flowthru_Data_IItem___11__Flowthru_Data_IItem___12__Flowthru_Data_IItem___13__Flowthru_Data_IItem___14__System_ValueTuple_Flowthru_Data_IItem___15____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\), \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\), IPythonExecutor, string\)
 
 Adds a Python node with 8 inputs and 8 outputs.
 
 ```csharp
-public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (ICatalogEntry<TIn1>, ICatalogEntry<TIn2>, ICatalogEntry<TIn3>, ICatalogEntry<TIn4>, ICatalogEntry<TIn5>, ICatalogEntry<TIn6>, ICatalogEntry<TIn7>, ICatalogEntry<TIn8>) input, (ICatalogEntry<TOut1>, ICatalogEntry<TOut2>, ICatalogEntry<TOut3>, ICatalogEntry<TOut4>, ICatalogEntry<TOut5>, ICatalogEntry<TOut6>, ICatalogEntry<TOut7>, ICatalogEntry<TOut8>) output, IPythonExecutor executor, string description = "")
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (IItem<TIn1>, IItem<TIn2>, IItem<TIn3>, IItem<TIn4>, IItem<TIn5>, IItem<TIn6>, IItem<TIn7>, IItem<TIn8>) input, (IItem<TOut1>, IItem<TOut2>, IItem<TOut3>, IItem<TOut4>, IItem<TOut5>, IItem<TOut6>, IItem<TOut7>, IItem<TOut8>) output, IPythonExecutor executor, string description = "")
 ```
 
 #### Parameters
@@ -5492,11 +5492,11 @@ Dotted Python module name (e.g., "Pipelines.DataScience.train_model")
 
 Python function name within the module
 
-`input` \(ICatalogEntry<TIn1\>, ICatalogEntry<TIn2\>, ICatalogEntry<TIn3\>, ICatalogEntry<TIn4\>, ICatalogEntry<TIn5\>, ICatalogEntry<TIn6\>, ICatalogEntry<TIn7\>, ICatalogEntry<TIn8\>\)
+`input` \(IItem<TIn1\>, IItem<TIn2\>, IItem<TIn3\>, IItem<TIn4\>, IItem<TIn5\>, IItem<TIn6\>, IItem<TIn7\>, IItem<TIn8\>\)
 
 Catalog entry or tuple of catalog entries providing input data
 
-`output` \(ICatalogEntry<TOut1\>, ICatalogEntry<TOut2\>, ICatalogEntry<TOut3\>, ICatalogEntry<TOut4\>, ICatalogEntry<TOut5\>, ICatalogEntry<TOut6\>, ICatalogEntry<TOut7\>, ICatalogEntry<TOut8\>\)
+`output` \(IItem<TOut1\>, IItem<TOut2\>, IItem<TOut3\>, IItem<TOut4\>, IItem<TOut5\>, IItem<TOut6\>, IItem<TOut7\>, IItem<TOut8\>\)
 
 Catalog entry or tuple of catalog entries to store output data
 

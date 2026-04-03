@@ -3,7 +3,7 @@ import logging
 import pickle
 import numpy as np
 import pandas as pd
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ def _sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 
-@node(inputs=["bytes", "FeatureVectorSchema"], outputs=["PredictionSchema"])
+@step(inputs=["bytes", "FeatureVectorSchema"], outputs=["PredictionSchema"])
 def predict(model_bytes: bytes, test_x: pd.DataFrame) -> pd.DataFrame:
     """Node for making predictions given a pre-trained model and a test set.
     

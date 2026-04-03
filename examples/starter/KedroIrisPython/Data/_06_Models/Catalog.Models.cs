@@ -14,7 +14,7 @@ public partial class Catalog
   public IItem<byte[]> ModelWeights =>
     CreateItem(
       () =>
-        Items.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "ModelWeights",
           filePath: $"{_basePath}/_06_Models/Datasets/model.pkl"
         )

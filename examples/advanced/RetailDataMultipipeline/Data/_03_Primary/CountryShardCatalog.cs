@@ -31,7 +31,7 @@ public class CountryShardCatalog : CatalogAbstract
   public IItem<IEnumerable<WeeklyDtuSchema>> WeeklyDtu =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<WeeklyDtuSchema>(
+        ItemFactory.Enumerable.Parquet<WeeklyDtuSchema>(
           label: $"WeeklyDtu_{Slugify(Country)}",
           filePath: $"{_basePath}/_03_Primary/Datasets/weekly_dtu_{Slugify(Country)}.parquet"
         )

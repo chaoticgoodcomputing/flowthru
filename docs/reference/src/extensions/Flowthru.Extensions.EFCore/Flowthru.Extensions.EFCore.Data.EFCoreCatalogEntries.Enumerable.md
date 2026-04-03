@@ -1,16 +1,16 @@
-# <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Enumerable"></a> Class EFCoreCatalogEntries.Enumerable
+# <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Enumerable"></a> Class EFCoreItems.Enumerable
 
 Namespace: [Flowthru.Extensions.EFCore.Data](Flowthru.Extensions.EFCore.Data.md)  
 Assembly: Flowthru.Extensions.EFCore.dll  
 
 ```csharp
-public static class EFCoreCatalogEntries.Enumerable
+public static class EFCoreItems.Enumerable
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[EFCoreCatalogEntries.Enumerable](Flowthru.Extensions.EFCore.Data.EFCoreCatalogEntries.Enumerable.md)
+[EFCoreItems.Enumerable](Flowthru.Extensions.EFCore.Data.EFCoreItems.Enumerable.md)
 
 #### Inherited Members
 
@@ -24,7 +24,7 @@ public static class EFCoreCatalogEntries.Enumerable
 
 ## Methods
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Enumerable_EFCore__1_System_String_Microsoft_EntityFrameworkCore_DbContext_System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, DbContext, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, IEnumerable<T\>, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Enumerable_EFCore__1_System_String_Microsoft_EntityFrameworkCore_DbContext_System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, DbContext, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, IEnumerable<T\>, CancellationToken, Task\>?\)
 
 Creates an Entity Framework Core catalog entry for database-backed collections.
 
@@ -67,8 +67,8 @@ Entity type (must be a class configured in DbContext)
 <pre><code class="lang-csharp">// In catalog
 public static partial class DataCatalog
 {
-  public static ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies(DbContext db) =&gt;
-    CatalogEntries.Enumerable.EFCore&lt;Company&gt;("companies", db);
+  public static IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies(DbContext db) =&gt;
+    Items.Enumerable.EFCore&lt;Company&gt;("companies", db);
 }
 
 // In pipeline
@@ -98,7 +98,7 @@ By default (allowEmptyData: false), empty tables fail pre-flight validation.
 Set allowEmptyData: true for tables that may legitimately be empty.
 </p>
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Enumerable_EFCore__1_System_String_System_Func_Microsoft_EntityFrameworkCore_DbContext__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, Func<DbContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, IEnumerable<T\>, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Enumerable_EFCore__1_System_String_System_Func_Microsoft_EntityFrameworkCore_DbContext__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func_Microsoft_EntityFrameworkCore_DbContext_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T\>\(string, Func<DbContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<DbContext, IEnumerable<T\>, CancellationToken, Task\>?\)
 
 Creates an Entity Framework Core catalog entry with a DbContext factory.
 
@@ -146,8 +146,8 @@ public static partial class DataCatalog
       .UseSqlServer(connectionString)
       .Options);
 
-  public static ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies() =&gt;
-    CatalogEntries.Enumerable.EFCore&lt;Company&gt;("companies", CreateDbContext);
+  public static IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies() =&gt;
+    Items.Enumerable.EFCore&lt;Company&gt;("companies", CreateDbContext);
 }</code></pre>
 
 #### Remarks
@@ -165,7 +165,7 @@ To create a read-only catalog entry, apply a constraint:
 <code>.Constrain(traits =&gt; traits with { CanWrite = false })</code>
 </p>
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Enumerable_EFCore__2_System_String_System_Func___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, Func<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, IEnumerable<T\>, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Enumerable_EFCore__2_System_String_System_Func___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, Func<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, IEnumerable<T\>, CancellationToken, Task\>?\)
 
 Creates an EFCore catalog entry with a typed DbContext factory.
 The concrete <code class="typeparamref">TContext</code> flows through to the save delegate,
@@ -214,7 +214,7 @@ Entity type
 
 Concrete DbContext type
 
-### <a id="Flowthru_Extensions_EFCore_Data_EFCoreCatalogEntries_Enumerable_EFCore__2_System_String_Microsoft_EntityFrameworkCore_IDbContextFactory___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, IDbContextFactory<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, IEnumerable<T\>, CancellationToken, Task\>?\)
+### <a id="Flowthru_Extensions_EFCore_Data_EFCoreItems_Enumerable_EFCore__2_System_String_Microsoft_EntityFrameworkCore_IDbContextFactory___1__System_Boolean_System_Func_System_Linq_IQueryable___0__System_Linq_IQueryable___0___System_Func___1_System_Collections_Generic_IEnumerable___0__System_Threading_CancellationToken_System_Threading_Tasks_Task__"></a> EFCore<T, TContext\>\(string, IDbContextFactory<TContext\>, bool, Func<IQueryable<T\>, IQueryable<T\>\>?, Func<TContext, IEnumerable<T\>, CancellationToken, Task\>?\)
 
 Creates an EFCore catalog entry using <xref href="Microsoft.EntityFrameworkCore.IDbContextFactory%601" data-throw-if-not-resolved="false"></xref> —
 the idiomatic EFCore pattern for per-operation context isolation and concurrent node safety.

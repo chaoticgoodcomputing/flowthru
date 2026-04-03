@@ -24,10 +24,10 @@ namespace Flowthru.Data;
 /// <strong>Construction:</strong>
 /// </para>
 /// <para>
-/// Typically created via static factory methods in <see cref="Items"/>:
+/// Typically created via static factory methods in <see cref="ItemFactory"/>:
 /// </para>
 /// <code>
-/// var item = CatalogItems.Csv&lt;CompanySchema&gt;("companies", "data.csv");
+/// var item = CatalogItemFactory.Csv&lt;CompanySchema&gt;("companies", "data.csv");
 /// // Returns: ICatalogItem&lt;IEnumerable&lt;CompanySchema&gt;&gt;
 /// </code>
 /// <para>
@@ -183,7 +183,7 @@ public sealed class Item<T> : IItem<T>
   /// Example:
   /// </para>
   /// <code>
-  /// var item = CatalogItems.Csv&lt;Company&gt;("companies", "data.csv")
+  /// var item = CatalogItemFactory.Csv&lt;Company&gt;("companies", "data.csv")
   ///     .WithInspectionLevel(InspectionLevel.Deep);
   /// </code>
   /// </remarks>
@@ -222,7 +222,7 @@ public sealed class Item<T> : IItem<T>
   /// </para>
   /// <code>
   /// public ICatalogItem&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =>
-  ///     GetOrCreateItem(() => CatalogItems.Enumerable.Csv&lt;Company&gt;(
+  ///     CreateItem(() => CatalogItemFactory.Enumerable.Csv&lt;Company&gt;(
   ///         "ref_data", $"{_basePath}/reference.csv")
   ///         .Constrain(t => t with { CanWrite = false }));
   /// </code>

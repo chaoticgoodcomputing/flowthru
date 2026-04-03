@@ -205,7 +205,7 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
     sb.AppendLine();
     sb.AppendLine("\"\"\"");
     sb.AppendLine("Generated Python schemas from C# [FlowthruSchema] types.");
-    sb.AppendLine("Import these types in your Python nodes for IDE support.");
+    sb.AppendLine("Import these types in your Python steps for IDE support.");
     sb.AppendLine("\"\"\"");
     sb.AppendLine();
 

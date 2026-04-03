@@ -33,7 +33,7 @@ two types of edges:
 <ul><li><strong>Catalog → Node:</strong> A node reads from a catalog entry</li><li><strong>Node → Catalog:</strong> A node writes to a catalog entry</li></ul>
 <p>
 Together, these edges form the complete data flow:
-<code>CatalogEntry → Node → CatalogEntry → Node → ...</code>
+<code>Item → Node → Item → Node → ...</code>
 </p>
 
 ## Properties

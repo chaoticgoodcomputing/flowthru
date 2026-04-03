@@ -15,7 +15,7 @@ public partial class Catalog
   public IItem<string> CapacityPlotExpress =>
     CreateItem(
       () =>
-        Items.Single.Text(
+        ItemFactory.Single.Text(
           label: "CapacityPlotExpress",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_passenger_capacity_plot_exp.json"
         )
@@ -28,7 +28,7 @@ public partial class Catalog
   public IItem<string> CapacityPlotGraphObj =>
     CreateItem(
       () =>
-        Items.Single.Text(
+        ItemFactory.Single.Text(
           label: "CapacityPlotGraphObj",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_passenger_capacity_plot_go.json"
         )
@@ -42,7 +42,7 @@ public partial class Catalog
   public IItem<byte[]> ConfusionMatrix =>
     CreateItem(
       () =>
-        Items.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "ConfusionMatrix",
           filePath: $"{_basePath}/_08_Reporting/Images/confusion_matrix.png"
         )

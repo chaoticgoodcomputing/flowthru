@@ -7,15 +7,15 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension methods that add CSV support to <see cref="Items.Enumerable"/>.
+/// Extension methods that add CSV support to <see cref="ItemFactory.Enumerable"/>.
 /// </summary>
-public static class CsvCatalogEntryExtensions
+public static class CsvItemExtensions
 {
   /// <summary>
   /// Creates a CSV file catalog entry with IEnumerable container.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="Items.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="filePath">Path to CSV file</param>
   /// <returns>Catalog entry with file + CSV + IEnumerable composition</returns>
@@ -36,7 +36,7 @@ public static class CsvCatalogEntryExtensions
   /// </list>
   /// </remarks>
   public static Item<IEnumerable<TRow>> Csv<TRow>(
-    this EnumerableItems _,
+    this EnumerableItemFactory _,
     string label,
     string filePath
   )
@@ -55,7 +55,7 @@ public static class CsvCatalogEntryExtensions
   /// concatenates them into a single <see cref="IEnumerable{TRow}"/>.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="Items.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="directoryPath">Path to the directory containing the CSV files</param>
   /// <returns>Read-only catalog entry that concatenates every <c>*.csv</c> in the directory</returns>
@@ -65,7 +65,7 @@ public static class CsvCatalogEntryExtensions
   /// <see cref="NotSupportedException"/>.
   /// </remarks>
   public static Item<IEnumerable<TRow>> CsvDirectory<TRow>(
-    this EnumerableItems _,
+    this EnumerableItemFactory _,
     string label,
     string directoryPath
   )

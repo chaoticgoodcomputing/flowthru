@@ -8,7 +8,7 @@ public partial class DataScienceCatalog
   public IItem<ModelMetrics> ModelMetrics =>
     CreateItem(
       () =>
-        Items.Single.Json<ModelMetrics>(
+        ItemFactory.Single.Json<ModelMetrics>(
           label: "ModelMetrics",
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/model_metrics.json"
         )
@@ -17,7 +17,7 @@ public partial class DataScienceCatalog
   public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
     CreateItem(
       () =>
-        Items.Enumerable.Json<ModelPredictions>(
+        ItemFactory.Enumerable.Json<ModelPredictions>(
           label: "ModelPredictions",
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/model_predictions.json"
         )

@@ -11,7 +11,7 @@ public partial class Catalog
   public IItem<IEnumerable<GoodbyeSchema>> Goodbyes =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<GoodbyeSchema>(
+        ItemFactory.Enumerable.Csv<GoodbyeSchema>(
           label: "Goodbyes",
           filePath: $"{_basePath}/Data/_03_Primary/Datasets/goodbyes.csv"
         )
@@ -23,7 +23,7 @@ public partial class Catalog
   public IItem<IEnumerable<SoLongSchema>> SoLongs =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<SoLongSchema>(
+        ItemFactory.Enumerable.Csv<SoLongSchema>(
           label: "SoLongs",
           filePath: $"{_basePath}/Data/_03_Primary/Datasets/solongs.csv"
         )

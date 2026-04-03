@@ -54,7 +54,7 @@ A <strong>capability</strong> widens beyond it (e.g., streamable, appendable, tr
 Traits are declared at two levels:
 </p>
 <ul><li><strong>Adapter level:</strong> The adapter author declares what the storage medium intrinsically supports.
-These are structural truths (e.g., an HTTP GET endpoint cannot write).</li><li><strong>Catalog level:</strong> The pipeline author can further constrain an adapter using <code>CatalogEntry.Constrain()</code>.
+These are structural truths (e.g., an HTTP GET endpoint cannot write).</li><li><strong>Catalog level:</strong> The pipeline author can further constrain an adapter using <code>Item.Constrain()</code>.
 Constraints can only tighten, never loosen (one-way ratchet).</li></ul>
 <p>
 <strong>Usage in Adapters:</strong>
@@ -77,8 +77,8 @@ Constraints can only tighten, never loosen (one-way ratchet).</li></ul>
 <p>
 <strong>Usage in Catalogs:</strong>
 </p>
-<pre><code class="lang-csharp">public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =&gt;
-    GetOrCreateEntry(() =&gt; CatalogEntries.Enumerable.Csv&lt;Company&gt;(
+<pre><code class="lang-csharp">public IItem&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =&gt;
+    GetOrCreateEntry(() =&gt; Items.Enumerable.Csv&lt;Company&gt;(
         "ref_data", $"{_basePath}/reference.csv")
         .Constrain(t =&gt; t with { CanWrite = false }));</code></pre>
 

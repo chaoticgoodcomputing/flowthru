@@ -682,7 +682,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void GetDagMetadata_CatalogEntriesHaveProducerConsumerInfo()
+  public void GetDagMetadata_ItemsHaveProducerConsumerInfo()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();

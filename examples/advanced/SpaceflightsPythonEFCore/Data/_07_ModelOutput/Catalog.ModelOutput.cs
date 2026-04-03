@@ -18,7 +18,7 @@ public partial class Catalog
   public IItem<ModelMetrics> ModelMetrics =>
     CreateItem(
       () =>
-        Items.Single.Json<ModelMetrics>(
+        ItemFactory.Single.Json<ModelMetrics>(
           label: "ModelMetrics",
           filePath: $"{_basePath}/_07_ModelOutput/Datasets/model_metrics.json"
         )
@@ -27,7 +27,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
           label: "ModelPredictions",
           contextFactory: _contextFactory,
           saveFunc: BulkSavePredictions

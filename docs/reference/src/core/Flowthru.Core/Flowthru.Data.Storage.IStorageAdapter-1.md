@@ -66,7 +66,7 @@ All operations return <xref href="Flowthru.Effects.FlowIO%601" data-throw-if-not
 <p>
 <xref href="Flowthru.Data.IItem%601" data-throw-if-not-resolved="false"></xref> delegates to this interface:
 </p>
-<pre><code class="lang-csharp">public class CatalogEntry&lt;T&gt; : ICatalogEntry&lt;T&gt;
+<pre><code class="lang-csharp">public class Item&lt;T&gt; : IItem&lt;T&gt;
 {
     private readonly IStorageAdapter&lt;T&gt; _storage;
 

@@ -7,15 +7,15 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension methods that add Parquet support to <see cref="Items.Enumerable"/>.
+/// Extension methods that add Parquet support to <see cref="ItemFactory.Enumerable"/>.
 /// </summary>
-public static class ParquetCatalogEntryExtensions
+public static class ParquetItemExtensions
 {
   /// <summary>
   /// Creates a Parquet file catalog entry with IEnumerable container.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and binary-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="Items.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="filePath">Path to Parquet file</param>
   /// <returns>Catalog entry with file + Parquet + IEnumerable composition</returns>
@@ -32,7 +32,7 @@ public static class ParquetCatalogEntryExtensions
   /// </para>
   /// </remarks>
   public static Item<IEnumerable<TRow>> Parquet<TRow>(
-    this EnumerableItems _,
+    this EnumerableItemFactory _,
     string label,
     string filePath
   )

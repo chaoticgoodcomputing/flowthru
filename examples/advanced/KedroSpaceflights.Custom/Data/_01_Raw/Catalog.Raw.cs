@@ -17,7 +17,7 @@ public partial class Catalog
   public IItem<IEnumerable<CompanyRawSchema>> Companies =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<CompanyRawSchema>(
+        ItemFactory.Enumerable.Csv<CompanyRawSchema>(
           label: "RawCompanies",
           filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
         )
@@ -34,7 +34,7 @@ public partial class Catalog
   public IItem<IEnumerable<ReviewRawSchema>> Reviews =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<ReviewRawSchema>(
+        ItemFactory.Enumerable.Csv<ReviewRawSchema>(
           label: "RawReviews",
           filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
         )
@@ -53,7 +53,7 @@ public partial class Catalog
   public IItem<IEnumerable<ShuttleRawSchema>> Shuttles =>
     CreateItem(
       () =>
-        Items.Enumerable.Excel<ShuttleRawSchema>(
+        ItemFactory.Enumerable.Excel<ShuttleRawSchema>(
           label: "RawShuttles",
           filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
           sheetName: "Sheet1"
@@ -72,7 +72,7 @@ public partial class Catalog
   public IItem<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<KedroModelInputSchema>(
+        ItemFactory.Enumerable.Csv<KedroModelInputSchema>(
           label: "KedroModelInputTable",
           filePath: $"{_basePath}/_01_Raw/Datasets/kedro_model_input_table.csv"
         )

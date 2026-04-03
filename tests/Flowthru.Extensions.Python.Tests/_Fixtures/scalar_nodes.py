@@ -1,14 +1,14 @@
 """
-Test module for Phase 2 scalar Python node integration.
+Test module for Phase 2 scalar Python step integration.
 
 This module simulates a simple model training function that takes
 a configuration object and returns a result object.
 """
 
-from flowthru import node
+from flowthru import step
 
 
-@node(inputs=["ModelConfigSchema"], outputs=["ModelResultSchema"])
+@step(inputs=["ModelConfigSchema"], outputs=["ModelResultSchema"])
 def train_model(config):
     """
     Simulates model training by computing accuracy based on config parameters.
@@ -37,7 +37,7 @@ def train_model(config):
     }
 
 
-@node(inputs=["ModelConfigSchema"], outputs=["ModelConfigSchema"])
+@step(inputs=["ModelConfigSchema"], outputs=["ModelConfigSchema"])
 def identity(value):
     """
     Identity function for testing simple pass-through.
@@ -51,7 +51,7 @@ def identity(value):
     return value
 
 
-@node(inputs=["ModelConfigSchema"], outputs=["ModelConfigSchema"])
+@step(inputs=["ModelConfigSchema"], outputs=["ModelConfigSchema"])
 def double_iterations(config):
     """
     Doubles the iteration count in a config.
@@ -67,12 +67,12 @@ def double_iterations(config):
     return result
 
 
-@node(inputs=["int", "int"], outputs=["MetricsReportSchema"])
+@step(inputs=["int", "int"], outputs=["MetricsReportSchema"])
 def calculate_metrics(correct, total):
     """
     Calculates metrics and returns a dictionary with snake_case keys.
 
-    This simulates a Python node returning a dictionary to a single-object
+    This simulates a Python step returning a dictionary to a single-object
     catalog entry with SerializedLabel attributes.
 
     Args:

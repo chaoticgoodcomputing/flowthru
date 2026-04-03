@@ -44,7 +44,7 @@ namespace Flowthru.Data.Storage;
 /// <see cref="IItem{T}"/> delegates to this interface:
 /// </para>
 /// <code>
-/// public class CatalogEntry&lt;T&gt; : ICatalogEntry&lt;T&gt;
+/// public class Item&lt;T&gt; : IItem&lt;T&gt;
 /// {
 ///     private readonly IStorageAdapter&lt;T&gt; _storage;
 ///

@@ -73,7 +73,7 @@ public sealed class NoData
   /// Alias for readability in pipeline declarations where nodes don't consume external inputs.
   /// </remarks>
   public static Data.IItem<NoData> Input =>
-    Data.Items.Null<NoData>($"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    Data.ItemFactory.Null<NoData>($"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
@@ -83,21 +83,21 @@ public sealed class NoData
   /// Alias for readability in pipeline declarations where nodes produce no meaningful output.
   /// </remarks>
   public static Data.IItem<NoData> Output =>
-    Data.Items.Null<NoData>($"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    Data.ItemFactory.Null<NoData>($"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
   /// Semantic alias for Output - use whichever reads better in context.
   /// </summary>
   public static Data.IItem<NoData> Discard =>
-    Data.Items.Null<NoData>($"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    Data.ItemFactory.Null<NoData>($"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Creates a unique null catalog entry for use as a step input (no-input nodes).
   /// Semantic alias for Input - use whichever reads better in context.
   /// </summary>
   public static Data.IItem<NoData> None =>
-    Data.Items.Null<NoData>($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    Data.ItemFactory.Null<NoData>($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
   /// <summary>
   /// Returns the standard NoData result for side-effect-only nodes.

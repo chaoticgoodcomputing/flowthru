@@ -15,7 +15,7 @@ public partial class CoreCatalog
   public IItem<IEnumerable<WeeklyDtuSchema>> AllCountriesWeeklyDtu =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<WeeklyDtuSchema>(
+        ItemFactory.Enumerable.Parquet<WeeklyDtuSchema>(
           label: "AllCountriesWeeklyDtu",
           filePath: $"{_basePath}/_03_Primary/Datasets/all_countries_weekly_dtu.parquet"
         )

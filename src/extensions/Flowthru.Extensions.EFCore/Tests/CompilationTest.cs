@@ -15,7 +15,7 @@ public class CompilationTest
     DbContext? context = null;
 
     // Extension method from Flowthru.Extensions.EFCore
-    var entry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity>("test", context!);
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>("test", context!);
 
     // Verify it returns the correct type
     var _ = entry as IItem<IEnumerable<TestEntity>>;
@@ -26,21 +26,21 @@ public class CompilationTest
     Func<TestDbContext> typedFactory = () => null!;
 
     // Func<TContext> overload — no cast of DbContext in save delegate
-    var entryTypedFactory = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entryTypedFactory = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       typedFactory
     );
     var _ = entryTypedFactory as IItem<IEnumerable<TestEntity>>;
 
     // Func<TContext> with typed save delegate — TContext flows to delegate, no cast needed
-    var entryWithSaveFunc = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entryWithSaveFunc = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       typedFactory,
       saveFunc: (db, data, ct) => Task.CompletedTask
     );
 
     // Func<TContext> with query customizer
-    var entryWithCustomizer = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entryWithCustomizer = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       typedFactory,
       queryCustomizer: q => q.Where(e => e.Id > 0)
@@ -52,14 +52,14 @@ public class CompilationTest
     IDbContextFactory<TestDbContext> factory = new TestDbContextFactory();
 
     // IDbContextFactory<TContext> overload — idiomatic EFCore concurrency pattern
-    var entryFactory = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entryFactory = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       factory
     );
     var _ = entryFactory as IItem<IEnumerable<TestEntity>>;
 
     // IDbContextFactory<TContext> with typed save delegate
-    var entryWithSaveFunc = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entryWithSaveFunc = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       factory,
       saveFunc: (db, data, ct) => Task.CompletedTask
@@ -72,7 +72,7 @@ public class CompilationTest
     IDbContextFactory<TestDbContext> factory = new TestDbContextFactory();
 
     // Single Func<TContext> with typed save delegate
-    var entryTyped = EFCoreCatalogEntries.Single.EFCore<TestEntity, TestDbContext>(
+    var entryTyped = EFCoreItemFactory.Single.EFCore<TestEntity, TestDbContext>(
       "test",
       typedFactory,
       saveFunc: (db, data, ct) => Task.CompletedTask
@@ -80,10 +80,7 @@ public class CompilationTest
     var _ = entryTyped as IItem<TestEntity>;
 
     // Single IDbContextFactory<TContext>
-    var entryFactory = EFCoreCatalogEntries.Single.EFCore<TestEntity, TestDbContext>(
-      "test",
-      factory
-    );
+    var entryFactory = EFCoreItemFactory.Single.EFCore<TestEntity, TestDbContext>("test", factory);
   }
 
   private class TestEntity

@@ -12,7 +12,7 @@ public partial class CoreCatalog
   public IItem<IEnumerable<RetailTransactionIntermediateSchema>> AllRetailTransactions =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<RetailTransactionIntermediateSchema>(
+        ItemFactory.Enumerable.Parquet<RetailTransactionIntermediateSchema>(
           label: "AllRetailTransactions",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/all_retail_transactions.parquet"
         )

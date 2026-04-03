@@ -1,4 +1,4 @@
-# <a id="Flowthru_Data_CsvCatalogEntryExtensions"></a> Class CsvCatalogEntryExtensions
+# <a id="Flowthru_Data_CsvItemExtensions"></a> Class CsvItemExtensions
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Extensions.Csv.dll  
@@ -6,13 +6,13 @@ Assembly: Flowthru.Extensions.Csv.dll
 Extension methods that add CSV support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
-public static class CsvCatalogEntryExtensions
+public static class CsvItemExtensions
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[CsvCatalogEntryExtensions](Flowthru.Data.CsvCatalogEntryExtensions.md)
+[CsvItemExtensions](Flowthru.Data.CsvItemExtensions.md)
 
 #### Inherited Members
 
@@ -26,7 +26,7 @@ public static class CsvCatalogEntryExtensions
 
 ## Methods
 
-### <a id="Flowthru_Data_CsvCatalogEntryExtensions_Csv__1_Flowthru_Data_EnumerableItems_System_String_System_String_"></a> Csv<TRow\>\(EnumerableItems, string, string\)
+### <a id="Flowthru_Data_CsvItemExtensions_Csv__1_Flowthru_Data_EnumerableItems_System_String_System_String_"></a> Csv<TRow\>\(EnumerableItems, string, string\)
 
 Creates a CSV file catalog entry with IEnumerable container.
 
@@ -71,7 +71,7 @@ Row schema type (must be flat and text-serializable)
 </p>
 <ul><li>CanStream: true (CSV supports row-by-row streaming)</li><li>All other traits use filesystem baseline defaults</li></ul>
 
-### <a id="Flowthru_Data_CsvCatalogEntryExtensions_CsvDirectory__1_Flowthru_Data_EnumerableItems_System_String_System_String_"></a> CsvDirectory<TRow\>\(EnumerableItems, string, string\)
+### <a id="Flowthru_Data_CsvItemExtensions_CsvDirectory__1_Flowthru_Data_EnumerableItems_System_String_System_String_"></a> CsvDirectory<TRow\>\(EnumerableItems, string, string\)
 
 Creates a catalog entry that reads all CSV files in a directory and
 concatenates them into a single <xref href="System.Collections.Generic.IEnumerable%601" data-throw-if-not-resolved="false"></xref>.

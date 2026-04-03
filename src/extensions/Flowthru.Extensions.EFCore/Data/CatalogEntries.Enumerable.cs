@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Data;
 
-public static partial class EFCoreCatalogEntries
+public static partial class EFCoreItemFactory
 {
   public static partial class Enumerable
   {
@@ -41,8 +41,8 @@ public static partial class EFCoreCatalogEntries
     /// // In catalog
     /// public static partial class DataCatalog
     /// {
-    ///   public static ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies(DbContext db) =>
-    ///     CatalogEntries.Enumerable.EFCore&lt;Company&gt;("companies", db);
+    ///   public static IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies(DbContext db) =>
+    ///     ItemFactory.Enumerable.EFCore&lt;Company&gt;("companies", db);
     /// }
     ///
     /// // In pipeline
@@ -98,8 +98,8 @@ public static partial class EFCoreCatalogEntries
     ///       .UseSqlServer(connectionString)
     ///       .Options);
     ///
-    ///   public static ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies() =>
-    ///     CatalogEntries.Enumerable.EFCore&lt;Company&gt;("companies", CreateDbContext);
+    ///   public static IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies() =>
+    ///     ItemFactory.Enumerable.EFCore&lt;Company&gt;("companies", CreateDbContext);
     /// }
     /// </code>
     /// </example>

@@ -37,7 +37,7 @@ internal static class EnumMetadataRegistry
   /// This method is thread-safe. If multiple threads request metadata for the same enum type
   /// simultaneously, the metadata will be computed only once.
   /// </remarks>
-  public static EnumMetadataCache<TEnum> GetOrCreate<TEnum>()
+  public static EnumMetadataCache<TEnum> Create<TEnum>()
     where TEnum : struct, Enum
   {
     Type enumType = typeof(TEnum);

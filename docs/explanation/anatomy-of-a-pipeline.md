@@ -75,9 +75,9 @@ In this example:
 // Data/_01_Raw/Catalog.Raw.cs
 public partial class Catalog
 {
-  public ICatalogEntry<IEnumerable<IrisRawSchema>> IrisRaw =>
+  public IItem<IEnumerable<IrisRawSchema>> IrisRaw =>
     GetOrCreateEntry(() =>
-      CatalogEntries.Enumerable.Csv<IrisRawSchema>(
+      ItemFactory.Enumerable.Csv<IrisRawSchema>(
         label: "IrisRaw",
         filePath: $"{_basePath}/_01_Raw/Datasets/iris.csv"
       )
@@ -95,9 +95,9 @@ In this example:
 // Data/_04_Feature/Catalog.Feature.cs
 public partial class Catalog
 {
-  public ICatalogEntry<IEnumerable<IrisFeatureSchema>> IrisFeatures =>
+  public IItem<IEnumerable<IrisFeatureSchema>> IrisFeatures =>
     GetOrCreateEntry(() =>
-      CatalogEntries.Enumerable.Parquet<IrisFeatureSchema>(
+      ItemFactory.Enumerable.Parquet<IrisFeatureSchema>(
         label: "IrisFeatures",
         filePath: $"{_basePath}/_04_Feature/Datasets/iris_features.parquet"
       )

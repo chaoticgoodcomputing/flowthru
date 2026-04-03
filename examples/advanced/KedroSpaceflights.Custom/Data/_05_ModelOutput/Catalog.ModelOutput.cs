@@ -13,7 +13,7 @@ public partial class Catalog
   public IItem<ModelMetrics> ModelMetrics =>
     CreateItem(
       () =>
-        Items.Single.Json<ModelMetrics>(
+        ItemFactory.Single.Json<ModelMetrics>(
           label: "ModelMetrics",
           filePath: $"{_basePath}/_05_ModelOutput/Datasets/model_metrics.json"
         )
@@ -26,7 +26,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<ModelPredictions>(
+        ItemFactory.Enumerable.Csv<ModelPredictions>(
           label: "ModelPredictions",
           filePath: $"{_basePath}/_05_ModelOutput/Datasets/model_predictions.csv"
         )

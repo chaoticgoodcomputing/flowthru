@@ -1,1 +1,1 @@
-"""Reporting pipeline nodes."""
+"""Reporting pipeline steps."""

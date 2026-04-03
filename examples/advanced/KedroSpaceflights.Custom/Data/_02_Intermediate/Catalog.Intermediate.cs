@@ -12,7 +12,7 @@ public partial class Catalog
   public IItem<IEnumerable<CompanySchema>> CleanedCompanies =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<CompanySchema>(
+        ItemFactory.Enumerable.Parquet<CompanySchema>(
           label: "CleanedCompanies",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_companies.parquet"
         )
@@ -25,7 +25,7 @@ public partial class Catalog
   public IItem<IEnumerable<ShuttleSchema>> CleanedShuttles =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<ShuttleSchema>(
+        ItemFactory.Enumerable.Parquet<ShuttleSchema>(
           label: "CleanedShuttles",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_shuttles.parquet"
         )
@@ -38,7 +38,7 @@ public partial class Catalog
   public IItem<IEnumerable<ReviewSchema>> CleanedReviews =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<ReviewSchema>(
+        ItemFactory.Enumerable.Parquet<ReviewSchema>(
           label: "CleanedReviews",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_reviews.parquet"
         )
@@ -50,7 +50,7 @@ public partial class Catalog
   public IItem<IEnumerable<CompanySchema>> CleanedCompaniesCsv =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<CompanySchema>(
+        ItemFactory.Enumerable.Csv<CompanySchema>(
           label: "CleanedCompaniesCsv",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_companies.csv"
         )
@@ -62,7 +62,7 @@ public partial class Catalog
   public IItem<IEnumerable<ShuttleSchema>> CleanedShuttlesCsv =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<ShuttleSchema>(
+        ItemFactory.Enumerable.Csv<ShuttleSchema>(
           label: "CleanedShuttlesCsv",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_shuttles.csv"
         )

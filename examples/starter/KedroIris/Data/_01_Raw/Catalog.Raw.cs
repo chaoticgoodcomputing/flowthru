@@ -14,7 +14,7 @@ public partial class Catalog
   public IItem<IEnumerable<IrisRawSchema>> IrisRaw =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<IrisRawSchema>(
+        ItemFactory.Enumerable.Csv<IrisRawSchema>(
           label: "IrisRaw",
           filePath: $"{_basePath}/_01_Raw/Datasets/iris.csv"
         )

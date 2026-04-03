@@ -26,7 +26,7 @@ namespace Flowthru.Flows.Validation;
 /// </para>
 /// <code>
 /// public ICatalogDataset&lt;Company&gt; Companies =>
-///   GetOrCreateDataset(() => new CsvCatalogDataset&lt;Company&gt;("companies", "data/companies.csv")
+///   CreateDataset(() => new CsvCatalogDataset&lt;Company&gt;("companies", "data/companies.csv")
 ///     .WithInspectionLevel(InspectionLevel.Deep));
 /// </code>
 /// <para>

@@ -32,7 +32,7 @@ namespace Flowthru.Data;
 ///     string Name       // Looks for "Name" in CSV/Excel/JSON
 /// ) : IFlatSchema, ITextSerializable;
 ///
-/// var simple = CatalogEntries.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
+/// var simple = ItemFactory.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
 ///
 /// // Tier 2: Explicit annotations - handle naming mismatches
 /// public record ShuttleSchema(
@@ -49,23 +49,23 @@ namespace Flowthru.Data;
 ///     int CompanyId
 /// ) : IFlatSchema, ITextSerializable;
 ///
-/// var shuttles = CatalogEntries.Enumerable.Excel&lt;ShuttleSchema&gt;(
+/// var shuttles = ItemFactory.Enumerable.Excel&lt;ShuttleSchema&gt;(
 ///     "shuttles",
 ///     "data/shuttles.xlsx",
 ///     "Sheet1"
 /// );
 ///
 /// // Same schema works across all formats
-/// var csv = CatalogEntries.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
-/// var json = CatalogEntries.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");
+/// var csv = ItemFactory.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
+/// var json = ItemFactory.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");
 /// </code>
 /// </example>
-public static partial class Items
+public static partial class ItemFactory
 {
   /// <summary>
   /// Factory methods for <see cref="IEnumerable{T}"/> catalog entries.
   /// </summary>
-  public static EnumerableItems Enumerable { get; } = new EnumerableItems();
+  public static EnumerableItemFactory Enumerable { get; } = new EnumerableItemFactory();
 
   /// <summary>
   /// Creates a null catalog entry for side-effect-only nodes.

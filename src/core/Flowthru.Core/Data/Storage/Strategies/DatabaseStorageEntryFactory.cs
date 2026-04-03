@@ -90,7 +90,7 @@ public sealed class DatabaseStorageEntryFactory : IStorageEntryFactory
     // var medium = new DatabaseStorageMedium(_connectionString, tableName);
     // var format = new SqlFormatSerializer<T>();
     // var container = new EnumerableContainerAdapter<T>();
-    // return new CatalogEntry<IEnumerable<T>>(
+    // return new Item<IEnumerable<T>>(
     //     label,
     //     new ComposedStorageAdapter<IEnumerable<T>, T>(medium, format, container)
     // );

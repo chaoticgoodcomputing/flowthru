@@ -13,7 +13,7 @@ public partial class Catalog
   public IItem<LinearRegressionModel> Regressor =>
     CreateItem(
       () =>
-        Items.Single.Json<LinearRegressionModel>(
+        ItemFactory.Single.Json<LinearRegressionModel>(
           label: "Regressor",
           filePath: $"{_basePath}/_04_Models/Datasets/regressor.json"
         )

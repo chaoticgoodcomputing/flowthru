@@ -89,7 +89,7 @@ public class Program
         // Add project root to sys.path (for importing from Pipelines/)
         python.ModuleSearchPaths.Add(basePath);
 
-        // Add output directory for flowthru Python package (contains @node decorator)
+        // Add output directory for flowthru Python package (contains @step decorator)
         var outputDir = AppDomain.CurrentDomain.BaseDirectory;
         python.ModuleSearchPaths.Add(outputDir);
 

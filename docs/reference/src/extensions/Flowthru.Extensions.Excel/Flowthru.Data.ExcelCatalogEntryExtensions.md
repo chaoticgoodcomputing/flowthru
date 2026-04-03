@@ -1,4 +1,4 @@
-# <a id="Flowthru_Data_ExcelCatalogEntryExtensions"></a> Class ExcelCatalogEntryExtensions
+# <a id="Flowthru_Data_ExcelItemExtensions"></a> Class ExcelItemExtensions
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Extensions.Excel.dll  
@@ -6,13 +6,13 @@ Assembly: Flowthru.Extensions.Excel.dll
 Extension methods that add Excel support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
-public static class ExcelCatalogEntryExtensions
+public static class ExcelItemExtensions
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[ExcelCatalogEntryExtensions](Flowthru.Data.ExcelCatalogEntryExtensions.md)
+[ExcelItemExtensions](Flowthru.Data.ExcelItemExtensions.md)
 
 #### Inherited Members
 
@@ -26,7 +26,7 @@ public static class ExcelCatalogEntryExtensions
 
 ## Methods
 
-### <a id="Flowthru_Data_ExcelCatalogEntryExtensions_Excel__1_Flowthru_Data_EnumerableItems_System_String_System_String_System_String_"></a> Excel<TRow\>\(EnumerableItems, string, string, string\)
+### <a id="Flowthru_Data_ExcelItemExtensions_Excel__1_Flowthru_Data_EnumerableItems_System_String_System_String_System_String_"></a> Excel<TRow\>\(EnumerableItems, string, string, string\)
 
 Creates a read-only Excel file catalog entry with IEnumerable container.
 

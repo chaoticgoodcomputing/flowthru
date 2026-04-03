@@ -1,4 +1,4 @@
-"""Confusion matrix visualization node."""
+"""Confusion matrix visualization step."""
 import io
 import logging
 import matplotlib
@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sn
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(inputs=["ModelPredictions"], outputs="ConfusionMatrix")
+@step(inputs=["ModelPredictions"], outputs="ConfusionMatrix")
 def create_confusion_matrix(predictions: pd.DataFrame) -> bytes:
     """Create a confusion matrix from regression predictions binned into categories.
     

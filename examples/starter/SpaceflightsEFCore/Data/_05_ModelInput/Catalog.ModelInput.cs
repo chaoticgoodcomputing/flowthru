@@ -16,7 +16,7 @@ public partial class Catalog
   public IItem<IEnumerable<TrainingData>> TrainSplit =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<TrainingData, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<TrainingData, SpaceflightsDbContext>(
           label: "XTrain",
           contextFactory: _contextFactory
         )
@@ -28,7 +28,7 @@ public partial class Catalog
   public IItem<IEnumerable<TestData>> TestSplit =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<TestData, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<TestData, SpaceflightsDbContext>(
           label: "XTest",
           contextFactory: _contextFactory
         )

@@ -1,13 +1,13 @@
-"""Model prediction generation node."""
+"""Model prediction generation step."""
 import logging
 import numpy as np
 import pandas as pd
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(inputs=["LinearRegressionModel", "XValues", "YValues"], outputs="ModelPredictions")
+@step(inputs=["LinearRegressionModel", "XValues", "YValues"], outputs="ModelPredictions")
 def generate_predictions(regressor_params: dict, X_test: pd.DataFrame, y_test: pd.DataFrame) -> pd.DataFrame:
     """Generate predictions from the trained model for visualization.
     

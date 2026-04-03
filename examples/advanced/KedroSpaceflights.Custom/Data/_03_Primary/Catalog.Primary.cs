@@ -13,7 +13,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelInputSchema>> ModelInputTable =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<ModelInputSchema>(
+        ItemFactory.Enumerable.Parquet<ModelInputSchema>(
           label: "ModelInputTable",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
         )
@@ -25,7 +25,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelInputSchema>> ModelInputTableJsonMinified =>
     CreateItem(
       () =>
-        Items.Enumerable.Json<ModelInputSchema>(
+        ItemFactory.Enumerable.Json<ModelInputSchema>(
           label: "ModelInputTableJsonMinified",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.min.json"
         )
@@ -37,7 +37,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelInputSchema>> ModelInputTableCsv =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<ModelInputSchema>(
+        ItemFactory.Enumerable.Csv<ModelInputSchema>(
           label: "ModelInputTableCsv",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.csv"
         )
@@ -49,7 +49,7 @@ public partial class Catalog
   /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
   public IItem<IEnumerable<FeatureRow>> XTrain =>
-    CreateItem(() => Items.Enumerable.Memory<FeatureRow>(label: "XTrain"));
+    CreateItem(() => ItemFactory.Enumerable.Memory<FeatureRow>(label: "XTrain"));
 
   /// <summary>
   /// Testing features (X_test).
@@ -59,7 +59,7 @@ public partial class Catalog
   public IItem<IEnumerable<FeatureRow>> XTest =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<FeatureRow>(
+        ItemFactory.Enumerable.Parquet<FeatureRow>(
           label: "XTest",
           filePath: $"{_basePath}/_03_Primary/Datasets/x_test.parquet"
         )
@@ -71,7 +71,7 @@ public partial class Catalog
   /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
   public IItem<IEnumerable<TargetValue>> YTrain =>
-    CreateItem(() => Items.Enumerable.Memory<TargetValue>(label: "YTrain"));
+    CreateItem(() => ItemFactory.Enumerable.Memory<TargetValue>(label: "YTrain"));
 
   /// <summary>
   /// Testing targets (y_test).
@@ -81,7 +81,7 @@ public partial class Catalog
   public IItem<IEnumerable<TargetValue>> YTest =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<TargetValue>(
+        ItemFactory.Enumerable.Parquet<TargetValue>(
           label: "YTest",
           filePath: $"{_basePath}/_03_Primary/Datasets/y_test.parquet"
         )

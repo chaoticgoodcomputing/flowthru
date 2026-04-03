@@ -22,8 +22,8 @@ Call `.Constrain()` on any catalog entry to narrow its capabilities:
 ```csharp
 public class DataCatalog : DataCatalogBase
 {
-    public ICatalogEntry<IEnumerable<Company>> Companies => GetOrCreateEntry(() =>
-        CatalogEntries.Enumerable.Csv<Company>("companies", "data/companies.csv")
+    public IItem<IEnumerable<Company>> Companies => GetOrCreateEntry(() =>
+        ItemFactory.Enumerable.Csv<Company>("companies", "data/companies.csv")
             .Constrain(traits => traits with { CanWrite = false })
     );
 }
@@ -39,20 +39,20 @@ Mark external data sources as read-only to prevent accidental modifications:
 
 ```csharp
 // API endpoint that only supports GET requests
-public ICatalogEntry<WeatherData> WeatherFeed => GetOrCreateEntry(() =>
-    CatalogEntries.Single.Http<WeatherData>("weather", "https://api.weather.com/current")
+public IItem<WeatherData> WeatherFeed => GetOrCreateEntry(() =>
+    ItemFactory.Single.Http<WeatherData>("weather", "https://api.weather.com/current")
         .Constrain(traits => traits with { CanWrite = false })
 );
 
 // Production database view used for reporting
-public ICatalogEntry<IEnumerable<SalesRecord>> ProductionSales => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.EFCore<SalesRecord>("sales", dbContext)
+public IItem<IEnumerable<SalesRecord>> ProductionSales => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.EFCore<SalesRecord>("sales", dbContext)
         .Constrain(traits => traits with { CanWrite = false })
 );
 
 // Archived historical data that must not change
-public ICatalogEntry<IEnumerable<Transaction>> HistoricalTransactions => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Parquet<Transaction>("archive", "data/2024/transactions.parquet")
+public IItem<IEnumerable<Transaction>> HistoricalTransactions => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Parquet<Transaction>("archive", "data/2024/transactions.parquet")
         .Constrain(traits => traits with { CanWrite = false })
 );
 ```
@@ -62,8 +62,8 @@ public ICatalogEntry<IEnumerable<Transaction>> HistoricalTransactions => GetOrCr
 Mark catalog entries that require network connectivity to prevent offline execution attempts:
 
 ```csharp
-public ICatalogEntry<IEnumerable<User>> RemoteUsers => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Http<User>("users", "https://internal.api/users")
+public IItem<IEnumerable<User>> RemoteUsers => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Http<User>("users", "https://internal.api/users")
         .Constrain(traits => traits with 
         { 
             RequiresNetwork = true,
@@ -77,8 +77,8 @@ public ICatalogEntry<IEnumerable<User>> RemoteUsers => GetOrCreateEntry(() =>
 Mark in-memory or cache-based entries as non-persistent:
 
 ```csharp
-public ICatalogEntry<ProcessedData> Cache => GetOrCreateEntry(() =>
-    CatalogEntries.Single.Memory<ProcessedData>("cache")
+public IItem<ProcessedData> Cache => GetOrCreateEntry(() =>
+    ItemFactory.Single.Memory<ProcessedData>("cache")
     // Memory adapter already sets IsPersistent = false
 );
 ```
@@ -125,8 +125,8 @@ Attempts to relax constraints throw `InvalidOperationException` with a detailed 
 Apply multiple constraints in a single call:
 
 ```csharp
-public ICatalogEntry<IEnumerable<AuditLog>> AuditLogs => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Csv<AuditLog>("audit", "logs/audit.csv")
+public IItem<IEnumerable<AuditLog>> AuditLogs => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Csv<AuditLog>("audit", "logs/audit.csv")
         .Constrain(traits => traits with 
         { 
             CanWrite = false,
@@ -139,8 +139,8 @@ public ICatalogEntry<IEnumerable<AuditLog>> AuditLogs => GetOrCreateEntry(() =>
 Or chain multiple constraints for readability:
 
 ```csharp
-public ICatalogEntry<IEnumerable<Customer>> Customers => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Csv<Customer>("customers", "data/customers.csv")
+public IItem<IEnumerable<Customer>> Customers => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Csv<Customer>("customers", "data/customers.csv")
         .Constrain(traits => traits with { CanWrite = false })
         .Constrain(traits => traits with { RequiresNetwork = false })
 );
@@ -170,13 +170,13 @@ Default values represent **filesystem-file** semantics — the common case for l
 Prevent pipelines from modifying reference data used across multiple projects:
 
 ```csharp
-public ICatalogEntry<IEnumerable<Country>> Countries => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Csv<Country>("countries", "reference/countries.csv")
+public IItem<IEnumerable<Country>> Countries => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Csv<Country>("countries", "reference/countries.csv")
         .Constrain(traits => traits with { CanWrite = false })
 );
 
-public ICatalogEntry<IEnumerable<Currency>> Currencies => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Json<Currency>("currencies", "reference/currencies.json")
+public IItem<IEnumerable<Currency>> Currencies => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Json<Currency>("currencies", "reference/currencies.json")
         .Constrain(traits => traits with { CanWrite = false })
 );
 ```
@@ -186,9 +186,9 @@ public ICatalogEntry<IEnumerable<Currency>> Currencies => GetOrCreateEntry(() =>
 Use configuration to apply different constraints in different environments:
 
 ```csharp
-public ICatalogEntry<IEnumerable<Order>> Orders => GetOrCreateEntry(() =>
+public IItem<IEnumerable<Order>> Orders => GetOrCreateEntry(() =>
 {
-    var entry = CatalogEntries.Enumerable.EFCore<Order>("orders", dbContext, readOnly: false);
+    var entry = ItemFactory.Enumerable.EFCore<Order>("orders", dbContext, readOnly: false);
     
     // In production, make orders read-only for reporting pipelines
     if (_environment.IsProduction)
@@ -206,13 +206,13 @@ In multi-stage pipelines where early stages produce data for later stages, preve
 
 ```csharp
 // Stage 1: Data ingestion (writes allowed)
-public ICatalogEntry<IEnumerable<RawData>> RawData => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Csv<RawData>("raw", "data/raw.csv")
+public IItem<IEnumerable<RawData>> RawData => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Csv<RawData>("raw", "data/raw.csv")
 );
 
 // Stage 2: Used as read-only input to transformations
-public ICatalogEntry<IEnumerable<RawData>> RawDataReadOnly => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Csv<RawData>("raw_readonly", "data/raw.csv")
+public IItem<IEnumerable<RawData>> RawDataReadOnly => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Csv<RawData>("raw_readonly", "data/raw.csv")
         .Constrain(traits => traits with { CanWrite = false })
 );
 ```

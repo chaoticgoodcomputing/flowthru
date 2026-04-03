@@ -14,7 +14,7 @@ public partial class Catalog
   public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries
+        EFCoreItemFactory
           .Enumerable.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
             label: "PreprocessedCompanies",
             contextFactory: _contextFactory
@@ -25,7 +25,7 @@ public partial class Catalog
   public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
     CreateItem(
       () =>
-        EFCoreCatalogEntries
+        EFCoreItemFactory
           .Enumerable.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(
             label: "PreprocessedShuttles",
             contextFactory: _contextFactory

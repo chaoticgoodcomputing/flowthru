@@ -29,7 +29,7 @@ backends based on the environment:
         InitializeCatalogProperties();
     }
 
-    public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies =&gt;
+    public IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies =&gt;
         GetOrCreateEntry(() =&gt; _storage.CreateEnumerable&lt;Company&gt;("Companies"));
 }</code></pre>
 

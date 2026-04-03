@@ -6,7 +6,7 @@
 
 ### Classes
 
- [CsvCatalogEntryExtensions](Flowthru.Data.CsvCatalogEntryExtensions.md)
+ [CsvItemExtensions](Flowthru.Data.CsvItemExtensions.md)
 
 Extension methods that add CSV support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 

@@ -8,7 +8,7 @@ public partial class CoreCatalog
   public IItem<IEnumerable<CountryTransactionSummarySchema>> CountryTransactionSummary =>
     CreateItem(
       () =>
-        Items.Enumerable.Csv<CountryTransactionSummarySchema>(
+        ItemFactory.Enumerable.Csv<CountryTransactionSummarySchema>(
           label: "CountryTransactionSummary",
           filePath: $"{_basePath}/_08_Reporting/Datasets/country_transaction_summary.csv"
         )
@@ -18,7 +18,7 @@ public partial class CoreCatalog
   public IItem<byte[]> DollarsChart =>
     CreateItem(
       () =>
-        Items.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "DollarsChart",
           filePath: $"{_basePath}/_08_Reporting/Charts/dollars_chart.png"
         )
@@ -28,7 +28,7 @@ public partial class CoreCatalog
   public IItem<byte[]> TransactionsChart =>
     CreateItem(
       () =>
-        Items.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "TransactionsChart",
           filePath: $"{_basePath}/_08_Reporting/Charts/transactions_chart.png"
         )
@@ -38,7 +38,7 @@ public partial class CoreCatalog
   public IItem<byte[]> UsersChart =>
     CreateItem(
       () =>
-        Items.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "UsersChart",
           filePath: $"{_basePath}/_08_Reporting/Charts/users_chart.png"
         )

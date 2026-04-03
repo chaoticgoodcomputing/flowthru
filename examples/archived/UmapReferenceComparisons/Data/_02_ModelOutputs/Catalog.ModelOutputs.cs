@@ -12,7 +12,7 @@ public partial class Catalog
   public IItem<IEnumerable<UmapOutputRow>> IrisCSharpOutput =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<UmapOutputRow>(
+        ItemFactory.Enumerable.Parquet<UmapOutputRow>(
           label: "IrisCSharpOutput",
           filePath: $"{_basePath}/_02_ModelOutputs/Datasets/iris_csharp_output.parquet"
         )
@@ -21,7 +21,7 @@ public partial class Catalog
   public IItem<IEnumerable<UmapOutputRow>> DigitsCSharpOutput =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<UmapOutputRow>(
+        ItemFactory.Enumerable.Parquet<UmapOutputRow>(
           label: "DigitsCSharpOutput",
           filePath: $"{_basePath}/_02_ModelOutputs/Datasets/digits_csharp_output.parquet"
         )
@@ -30,7 +30,7 @@ public partial class Catalog
   public IItem<IEnumerable<UmapOutputRow>> MnistCSharpOutput =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<UmapOutputRow>(
+        ItemFactory.Enumerable.Parquet<UmapOutputRow>(
           label: "MnistCSharpOutput",
           filePath: $"{_basePath}/_02_ModelOutputs/Datasets/mnist_csharp_output.parquet"
         )
@@ -39,7 +39,7 @@ public partial class Catalog
   public IItem<IEnumerable<UmapOutputRow>> FashionMnistCSharpOutput =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<UmapOutputRow>(
+        ItemFactory.Enumerable.Parquet<UmapOutputRow>(
           label: "FashionMnistCSharpOutput",
           filePath: $"{_basePath}/_02_ModelOutputs/Datasets/fashion_mnist_csharp_output.parquet"
         )
@@ -48,7 +48,7 @@ public partial class Catalog
   public IItem<IEnumerable<UmapOutputRow>> MnistTransformTrainCSharpOutput =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<UmapOutputRow>(
+        ItemFactory.Enumerable.Parquet<UmapOutputRow>(
           label: "MnistTransformTrainCSharpOutput",
           filePath: $"{_basePath}/_02_ModelOutputs/Datasets/mnist_transform_train_csharp_output.parquet"
         )
@@ -57,7 +57,7 @@ public partial class Catalog
   public IItem<IEnumerable<UmapOutputRow>> MnistTransformTestCSharpOutput =>
     CreateItem(
       () =>
-        Items.Enumerable.Parquet<UmapOutputRow>(
+        ItemFactory.Enumerable.Parquet<UmapOutputRow>(
           label: "MnistTransformTestCSharpOutput",
           filePath: $"{_basePath}/_02_ModelOutputs/Datasets/mnist_transform_test_csharp_output.parquet"
         )

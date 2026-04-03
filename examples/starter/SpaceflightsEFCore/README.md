@@ -8,7 +8,7 @@ This example demonstrates using `Flowthru.Extensions.EFCore` to read and write d
 - ✅ Database catalog entries as pipeline seeds (Layer 0 inputs)
 - ✅ Injected DbContext lifecycle management
 - ✅ Reading and writing entities via EFCore adapter
-- ✅ Partial class pattern for extending `CatalogEntries` from external package
+- ✅ Partial class pattern for extending `Items` from external package
 
 ## Project Structure
 
@@ -72,12 +72,12 @@ public class AppDbContext : DbContext
 public static partial class DataCatalog
 {
     // Database source (seed)
-    public static ICatalogEntry<IEnumerable<CompanySchema>> SourceCompanies(DbContext db) =>
-        CatalogEntries.Enumerable.EFCore<CompanySchema>("source_companies", db, readOnly: true);
+    public static IItem<IEnumerable<CompanySchema>> SourceCompanies(DbContext db) =>
+        Items.Enumerable.EFCore<CompanySchema>("source_companies", db, readOnly: true);
     
     // Database destination (output)
-    public static ICatalogEntry<IEnumerable<CompanySchema>> ProcessedCompanies(DbContext db) =>
-        CatalogEntries.Enumerable.EFCore<CompanySchema>("processed_companies", db);
+    public static IItem<IEnumerable<CompanySchema>> ProcessedCompanies(DbContext db) =>
+        Items.Enumerable.EFCore<CompanySchema>("processed_companies", db);
 }
 ```
 

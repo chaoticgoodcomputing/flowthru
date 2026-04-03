@@ -1,18 +1,18 @@
-# <a id="Flowthru_Data_EnumerableCatalogEntries"></a> Class EnumerableCatalogEntries
+# <a id="Flowthru_Data_EnumerableItems"></a> Class EnumerableItems
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Core.dll  
 
-Extension point for <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref> factory methods.
+Extension point for <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref> factory methods.
 
 ```csharp
-public sealed class EnumerableCatalogEntries
+public sealed class EnumerableItems
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[EnumerableCatalogEntries](Flowthru.Data.EnumerableCatalogEntries.md)
+[EnumerableItems](Flowthru.Data.EnumerableItems.md)
 
 #### Inherited Members
 
@@ -44,12 +44,12 @@ register new formats.
 
 ## Methods
 
-### <a id="Flowthru_Data_EnumerableCatalogEntries_Json__1_System_String_System_String_"></a> Json<TRow\>\(string, string\)
+### <a id="Flowthru_Data_EnumerableItems_Json__1_System_String_System_String_"></a> Json<TRow\>\(string, string\)
 
 Creates a JSON file catalog entry with IEnumerable container for collections.
 
 ```csharp
-public CatalogEntry<IEnumerable<TRow>> Json<TRow>(string label, string filePath) where TRow : notnull, IStructuredSerializable
+public Item<IEnumerable<TRow>> Json<TRow>(string label, string filePath) where TRow : notnull, IStructuredSerializable
 ```
 
 #### Parameters
@@ -64,7 +64,7 @@ Path to JSON file
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
+ [Item](Flowthru.Data.Item\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
 
 Catalog entry with file + JSON + IEnumerable composition
 
@@ -88,12 +88,12 @@ Row schema type (must be structured-serializable)
 <strong>Serialization:</strong> JSON array format for collections
 </p>
 
-### <a id="Flowthru_Data_EnumerableCatalogEntries_Memory__1_System_String_"></a> Memory<TRow\>\(string\)
+### <a id="Flowthru_Data_EnumerableItems_Memory__1_System_String_"></a> Memory<TRow\>\(string\)
 
 Creates an in-memory transient catalog entry with IEnumerable container.
 
 ```csharp
-public CatalogEntry<IEnumerable<TRow>> Memory<TRow>(string label)
+public Item<IEnumerable<TRow>> Memory<TRow>(string label)
 ```
 
 #### Parameters
@@ -104,7 +104,7 @@ Unique catalog label for DAG resolution
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
+ [Item](Flowthru.Data.Item\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
 
 Catalog entry with memory storage (no serialization)
 
