@@ -40,24 +40,40 @@ public class Program
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
-      services => ConfigureServices(services, Directory.GetCurrentDirectory())
+      services =>
+        ConfigureServices(
+          services,
+          Directory.GetCurrentDirectory(),
+          AppDomain.CurrentDomain.BaseDirectory
+        )
     );
 
   /// <summary>
   /// Configures services for the application. Used by test infrastructure.
   /// </summary>
   /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
-  public static IServiceProvider ConfigureServices(string? basePath = null)
+  public static IServiceProvider ConfigureServices(
+    string? basePath = null,
+    string? outputPath = null
+  )
   {
     var services = new ServiceCollection();
-    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+    ConfigureServices(
+      services,
+      basePath ?? Directory.GetCurrentDirectory(),
+      outputPath ?? AppDomain.CurrentDomain.BaseDirectory
+    );
     return services.BuildServiceProvider();
   }
 
   /// <summary>
   /// Shared service configuration logic.
   /// </summary>
-  private static void ConfigureServices(IServiceCollection services, string basePath)
+  private static void ConfigureServices(
+    IServiceCollection services,
+    string basePath,
+    string outputPath
+  )
   {
     // Add logging first (required by PythonRuntime)
     services.AddLogging(logging =>
@@ -86,15 +102,12 @@ public class Program
       // Configure Python runtime
       flowthru.UsePython(python =>
       {
-        // Add project root to sys.path (for importing from Pipelines/)
+        // Project root: makes Pipelines/ importable as a Python module tree
         python.ModuleSearchPaths.Add(basePath);
-
-        // Add output directory for flowthru Python package (contains @step decorator)
-        var outputDir = AppDomain.CurrentDomain.BaseDirectory;
-        python.ModuleSearchPaths.Add(outputDir);
-
-        // Note: PythonRuntime auto-discovers .venv in AppContext.BaseDirectory via uv sync
-        // No need to manually add site-packages path here
+        // Output directory: contains the flowthru package (@step decorator)
+        python.ModuleSearchPaths.Add(outputPath);
+        // Use this example's own output directory for venv isolation
+        python.VenvPath = outputPath;
       });
 
       // Phase 6 workaround: Resolve Python dependencies for pipeline registration

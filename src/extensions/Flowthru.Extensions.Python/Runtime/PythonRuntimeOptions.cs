@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace Flowthru.Extensions.Python.Runtime;
 
 /// <summary>
@@ -267,12 +269,20 @@ public sealed class PythonRuntimeOptions
   /// </remarks>
   public string GetResolvedPythonExe()
   {
-    // 1. Explicit VenvPath
+    // 1. Explicit VenvPath — try as existing .venv, then as project dir for uv sync
     if (!string.IsNullOrWhiteSpace(VenvPath))
     {
       var exe = FindPythonExeInVenv(VenvPath);
       if (exe != null)
         return exe;
+
+      var uvVenvPath = EnsureVenvViaUv(VenvPath);
+      if (uvVenvPath != null)
+      {
+        exe = FindPythonExeInVenv(uvVenvPath);
+        if (exe != null)
+          return exe;
+      }
     }
 
     // 2. Auto-init .venv via uv sync in output directory (same trigger as GetResolvedPythonDll)
@@ -424,6 +434,10 @@ public sealed class PythonRuntimeOptions
   /// Returns the <c>.venv/</c> path if successful, or <c>null</c> if files are missing or sync fails.
   /// </para>
   /// </remarks>
+  // One semaphore per directory prevents concurrent uv sync calls from racing on the same .venv.
+  private static readonly ConcurrentDictionary<string, SemaphoreSlim> _uvSyncLocks =
+    new(StringComparer.OrdinalIgnoreCase);
+
   private string? EnsureVenvViaUv(string directory)
   {
     var pyprojectPath = Path.Combine(directory, "pyproject.toml");
@@ -437,59 +451,81 @@ public sealed class PythonRuntimeOptions
       return null; // Not a uv-managed project
     }
 
-    // If .venv exists but lacks pyvenv.cfg, it's corrupt — delete and recreate
-    if (Directory.Exists(venvPath))
+    // Fast path: venv already exists and is valid — no lock needed.
+    if (File.Exists(pyvenvCfg))
     {
-      try
-      {
-        Directory.Delete(venvPath, recursive: true);
-      }
-      catch
-      {
-        // Deletion failed (permissions, locked files, etc.) — let uv sync handle it
-      }
+      return venvPath;
     }
 
-    // Run uv sync to materialize .venv
+    // Slow path: venv is missing or corrupt. One caller creates it; others wait and reuse.
+    var semaphore = _uvSyncLocks.GetOrAdd(directory, _ => new SemaphoreSlim(1, 1));
+    semaphore.Wait();
     try
     {
-      var startInfo = new System.Diagnostics.ProcessStartInfo
-      {
-        FileName = UvPath,
-        Arguments = "sync --frozen --python-preference only-managed",
-        WorkingDirectory = directory,
-        UseShellExecute = false,
-        RedirectStandardOutput = true,
-        RedirectStandardError = true,
-        CreateNoWindow = true,
-      };
-
-      using var process = System.Diagnostics.Process.Start(startInfo);
-      if (process == null)
-      {
-        return null; // Failed to start process
-      }
-
-      process.WaitForExit();
-
-      // Check if .venv was created successfully
-      if (process.ExitCode == 0 && File.Exists(pyvenvCfg))
+      // Re-check under the lock — another thread may have created it while we were waiting.
+      if (File.Exists(pyvenvCfg))
       {
         return venvPath;
       }
 
-      // Sync failed — log stderr if available for diagnostics
-      var stderr = process.StandardError.ReadToEnd();
-      if (!string.IsNullOrWhiteSpace(stderr))
+      // If .venv exists but lacks pyvenv.cfg, it's corrupt — delete and recreate
+      if (Directory.Exists(venvPath))
       {
-        Console.Error.WriteLine($"uv sync failed: {stderr}");
+        try
+        {
+          Directory.Delete(venvPath, recursive: true);
+        }
+        catch
+        {
+          // Deletion failed (permissions, locked files, etc.) — let uv sync handle it
+        }
       }
-      return null;
+
+      // Run uv sync to materialize .venv
+      try
+      {
+        var startInfo = new System.Diagnostics.ProcessStartInfo
+        {
+          FileName = UvPath,
+          Arguments = "sync --frozen --python-preference only-managed",
+          WorkingDirectory = directory,
+          UseShellExecute = false,
+          RedirectStandardOutput = true,
+          RedirectStandardError = true,
+          CreateNoWindow = true,
+        };
+
+        using var process = System.Diagnostics.Process.Start(startInfo);
+        if (process == null)
+        {
+          return null; // Failed to start process
+        }
+
+        process.WaitForExit();
+
+        // Check if .venv was created successfully
+        if (process.ExitCode == 0 && File.Exists(pyvenvCfg))
+        {
+          return venvPath;
+        }
+
+        // Sync failed — log stderr if available for diagnostics
+        var stderr = process.StandardError.ReadToEnd();
+        if (!string.IsNullOrWhiteSpace(stderr))
+        {
+          Console.Error.WriteLine($"uv sync failed: {stderr}");
+        }
+        return null;
+      }
+      catch
+      {
+        // uv not found, permission denied, etc. — fall through to other resolution methods
+        return null;
+      }
     }
-    catch
+    finally
     {
-      // uv not found, permission denied, etc. — fall through to other resolution methods
-      return null;
+      semaphore.Release();
     }
   }
 }

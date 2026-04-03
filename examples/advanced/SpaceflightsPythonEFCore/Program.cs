@@ -43,17 +43,33 @@ public class Program
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
-      services => ConfigureServices(services, Directory.GetCurrentDirectory())
+      services =>
+        ConfigureServices(
+          services,
+          Directory.GetCurrentDirectory(),
+          AppDomain.CurrentDomain.BaseDirectory
+        )
     );
 
-  public static IServiceProvider ConfigureServices(string? basePath = null)
+  public static IServiceProvider ConfigureServices(
+    string? basePath = null,
+    string? outputPath = null
+  )
   {
     var services = new ServiceCollection();
-    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+    ConfigureServices(
+      services,
+      basePath ?? Directory.GetCurrentDirectory(),
+      outputPath ?? AppDomain.CurrentDomain.BaseDirectory
+    );
     return services.BuildServiceProvider();
   }
 
-  private static void ConfigureServices(IServiceCollection services, string basePath)
+  private static void ConfigureServices(
+    IServiceCollection services,
+    string basePath,
+    string outputPath
+  )
   {
     services.AddLogging(logging =>
     {
@@ -91,7 +107,8 @@ public class Program
       flowthru.UsePython(python =>
       {
         python.ModuleSearchPaths.Add(basePath);
-        python.ModuleSearchPaths.Add(AppDomain.CurrentDomain.BaseDirectory);
+        python.ModuleSearchPaths.Add(outputPath);
+        python.VenvPath = outputPath;
       });
 
       // Resolve the Python executor before pipeline registration (Phase 6 workaround).
