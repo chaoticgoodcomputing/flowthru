@@ -1,8 +1,8 @@
-# Anatomy of a Flowthru Pipeline
+# Anatomy of a Flowthru Flow
 
-This document walks through the structure of a Flowthru pipeline. What are nodes? What is the Data Catalog? How do pipelines come together? This anatomy serves as an explanation of Flowthru concepts, and how they connect.
+This document walks through the structure of a Flowthru flow. What are steps? What is the Catalog? How do flows come together? This anatomy serves as an explanation of Flowthru concepts, and how they connect.
 
-We'll be using snippets from the Iris starter example. By the end, you'll understand how schemas, catalogs, nodes, and pipelines fit together.
+We'll be using snippets from the Iris starter example. By the end, you'll understand how schemas, catalogs, steps, and flows fit together.
 
 ## Flowthru Project Layout
 
@@ -13,15 +13,15 @@ KedroIris/
 ├── Program.cs
 ├── Data/
 │   └── ...
-├── Pipelines/
+├── Flows/
     └── ...
 ```
 
-These reflect the only two concerns you should have when writing a good data pipeline: What **data** will you need, and what **transformations** will you need to apply?
+These reflect the only two concerns you should have when writing a good data flow: What **data** will you need, and what **transformations** will you need to apply?
 
 ## Data
 
-In Flowthru pipelines, the pieces of your database are organized into a Catalog. Every file, table, or object used as an input or output for your pipeline is catalogued in this system. When writing catalog entries, you should only have two concerns:
+In Flowthru flows, the pieces of your database are organized into a Catalog. Every file, table, or object used as an input or output for your flow is catalogued in this system. When writing catalog items, you should only have two concerns:
 
 1. What is the shape, or **schema**, of this entry; and
 2. How will this entry be stored?
@@ -61,9 +61,9 @@ Key points:
 - **`[SerializedLabel("...")]`** maps C# property names to external field names (e.g., CSV headers). Omit it when names match.
 
 
-### Catalog Entries
+### Catalog Items
 
-Each catalog entry has three important details:
+Each catalog item has three important details:
 
 1. **Schema:** the shape of the data it stores
 2. **Name:** the name of the entry in the catalog
@@ -86,7 +86,7 @@ public partial class Catalog
 ```
 
 1. The **schema** is a list (`IEnumerable`) of `IrisRawSchema` entries.
-2. The **name** is `IrisRaw`. You'd be able to reference this catalog entry in your pipelines with `catalog.IrisRaw`.
+2. The **name** is `IrisRaw`. You'd be able to reference this catalog item in your flows with `catalog.IrisRaw`.
 3. The **format** is `csv`, and the data will be stored in the Data directory at `Data/_01_Raw/Datasets/iris.csv`.
 
 In this example:
@@ -106,7 +106,7 @@ public partial class Catalog
 ```
 
 1. The **schema** is a list of `IrisFeatureSchema` entries
-2. The **name** is `IrisFeatures`, which you could reference in your pipelines as `catalog.IrisFeatures`
+2. The **name** is `IrisFeatures`, which you could reference in your flows as `catalog.IrisFeatures`
 3. The **format** is Parquet, located at `Data/_04_Feature/Datasets/iris_features.parquet`
 
 ### Data Layers
@@ -133,48 +133,48 @@ KedroIris/
 └── Data/
     ├── Catalog.cs                    # Core catalog class
     ├── _01_Raw/
-    │   ├── Catalog.Raw.cs            # Catalog entries in this layer
+    │   ├── Catalog.Raw.cs            # Catalog items in this layer
     │   ├── Schemas/                  # Schemas for this layer
     │   └── Datasets/                 # Actual data files
     ├── ...
     └── _08_Reporting/
-        ├── Catalog.Reporting.cs      # Catalog entries in this layer
+        ├── Catalog.Reporting.cs      # Catalog items in this layer
         ├── Schemas/                  # Schemas for this layer
         └── Datasets/                 # Actual data files
 ```
 
 ### Catalog Root
 
-The root catalog file links together all of the layer-specific catalog entry extensions. 
+The root catalog file links together all of the layer-specific catalog item extensions. 
 
 ```csharp
 // Data/Catalog.cs
-public partial class Catalog : DataCatalogBase
-{
-  private readonly string _basePath;
-
-  public Catalog(string basePath)
+public partial class Catalog : CatalogAbstract
   {
-    _basePath = basePath;
-    InitializeCatalogProperties();  // Required!
+    private readonly string _basePath;
+
+    public Catalog(string basePath)
+    {
+      _basePath = basePath;
+      InitializeCatalogProperties();  // Required!
+    }
   }
-}
 ```
 
-This is a small file that you shouldn't need to update often if you're just adding, removing, or modified catalog entries. It's primary purpose is to set up configuration used across all of your catalog entries.
+This is a small file that you shouldn't need to update often if you're just adding, removing, or modified catalog items. It's primary purpose is to set up configuration used across all of your catalog items.
 
-## Pipelines
+## Flows
 
-Pipelines are made up of **nodes** — transformation functions that are built to move data from one schema to another. The goal is to keep things simple at each level:
+Flows are made up of **steps** — transformation functions that are built to move data from one schema to another. The goal is to keep things simple at each level:
 
-1. When writing a node, you don't need to worry about how it's connecting to other nodes — you just need to make sure it inputs the schema, and outputs  the schema
+1. When writing a step, you don't need to worry about how it's connecting to other steps — you just need to make sure it inputs the schema, and outputs  the schema
 
 ### Steps
 
-Steps are simply functions. Easy! The **only** purpose of a node is to take in data that has one schema, and convert it to data that has another schema.
+Steps are simply functions. Easy! The **only** purpose of a step is to take in data that has one schema, and convert it to data that has another schema.
 
 ```csharp
-// Pipelines/DataEngineering/Steps/SplitAndEncodeStep.cs
+// Flows/DataEngineering/Steps/SplitAndEncodeStep.cs
 public static class SplitAndEncodeStep
 {
   public static Func<
@@ -194,30 +194,30 @@ public static class SplitAndEncodeStep
 
 Key points:
 
-- Steps are a *contract*: that data for the node will **always** come in as the input schemas, and **always** come out as the output schemas.
+- Steps are a *contract*: that data for the step will **always** come in as the input schemas, and **always** come out as the output schemas.
 - Steps can have any number of inputs, and any number of outputs — as long as they're defined in the input and output schemas, you're not limited to just one-in, one-out.
 
 
-### Pipelines
+### Flows
 
-Pipelines define how nodes are connected. When building a pipeline, the task is simple:
+Flows define how steps are connected. When building a flow, the task is simple:
 
-1. Add a node by it's `Create()` function
-2. Define which catalog entries will be input into the node
-3. Define which catalog entries will be output by the node
+1. Add a step by its `Create()` function
+2. Define which catalog items will be input into the step
+3. Define which catalog items will be output by the step
 
-You'll repeat this process for as many nodes as the pipeline 
+You'll repeat this process for as many steps as the flow 
 
 ```csharp
-// Pipelines/DataEngineering/DataEngineeringPipeline.cs
-public static class DataEngineeringPipeline
+// Flows/DataEngineering/DataEngineeringFlow.cs
+public static class DataEngineeringFlow
 {
-  public static Pipeline Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow(flow =>
     {
-      pipeline.AddStep(
-        label: "SplitAndEncode", // Unique label for this node in the pipeline
+      flow.AddStep(
+        label: "SplitAndEncode", // Unique label for this step in the flow
         transform: SplitAndEncodeStep.Create(),
         input: catalog.IrisRaw,
         output: catalog.IrisFeatures
@@ -229,8 +229,8 @@ public static class DataEngineeringPipeline
 
 Key points:
 
-- **Steps are never directly connected to each other**: Steps always take in Catalog entries, and output Catalog entries — *never* directly to each other.
-- **Order doesn't matter.** A node in the pipeline is **only** ever concerned about its input data and output data. Flowthru handles the order when you run the pipeline: as long as the data is available, or generated by another node, your pipeline will run.
+- **Steps are never directly connected to each other**: Steps always take in catalog items, and output catalog items — *never* directly to each other.
+- **Order doesn't matter.** A step in the flow is **only** ever concerned about its input data and output data. Flowthru handles the order when you run the flow: as long as the data is available, or generated by another step, your flow will run.
 
 ## Entry Point
 
@@ -241,19 +241,19 @@ private static void ConfigureServices(IServiceCollection services, string basePa
 {
     services.AddFlowthru(flowthru =>
     {
-        flowthru.RegisterCatalog(_ => new Catalog(basePath: "Data")));
+        flowthru.RegisterCatalog(_ => new Catalog(basePath: "Data"));
 
-        flowthru.RegisterPipeline<Catalog>(
+        flowthru.RegisterFlow(
             label: "DataEngineering",
-            pipeline: DataEngineeringPipeline.Create,
+            flow: DataEngineeringFlow.Create
         );
 
-        flowthru.RegisterPipeline<Catalog>(
+        flowthru.RegisterFlow(
             label: "DataScience",
-            pipeline: DataSciencePipeline.Create,
+            flow: DataScienceFlow.Create
         );
     });
 }
 ```
 
-And that's it! This finishes the pipeline anatomy. At this point, you have Catalog entries, connected with Steps in your Pipelines — everything you need to find new and creative ways to organize, analyze, and report on your data!
+And that's it! This finishes the flow anatomy. At this point, you have catalog items, connected with Steps in your Flows — everything you need to find new and creative ways to organize, analyze, and report on your data!

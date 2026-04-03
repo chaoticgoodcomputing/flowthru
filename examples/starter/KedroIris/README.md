@@ -10,12 +10,12 @@ In order to execute this pipeline, move into this directory and run:
 dotnet run
 ```
 
-This will run both the Data Engineering and Data Science pipelines in sequence, generating the final [model metrics output.](./Data/_08_Reporting/Datasets/metrics.json)
+This will run both the Data Engineering and Data Science flows in sequence, generating the final [model metrics output.](./Data/_08_Reporting/Datasets/metrics.json)
 
-Once you've confirmed your pipeline runs successfully, you can begin:
+Once you've confirmed your flow runs successfully, you can begin:
 
-1. Adding new data, nodes, and pipelines to your project; and
-2. Using the [Flowthru service](./Program.cs) to run your Flowthru pipelines from other .NET projects.
+1. Adding new data, steps, and flows to your project; and
+2. Using the [Flowthru service](./Program.cs) to run your Flowthru flows from other .NET projects.
 
 ## Project Structure
 

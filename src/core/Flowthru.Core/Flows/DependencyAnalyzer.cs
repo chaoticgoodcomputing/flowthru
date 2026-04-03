@@ -198,26 +198,30 @@ internal static class DependencyAnalyzer
   }
 
   /// <summary>
-  /// Slices a pipeline to include only nodes matching the specified strategy.
+  /// Slices a flow to include only steps matching the specified strategy.
   /// </summary>
-  /// <param name="allSteps">All nodes in the pipeline</param>
+  /// <param name="allSteps">All steps in the flow</param>
   /// <param name="strategy">The slicing strategy to apply</param>
-  /// <returns>Filtered list of nodes forming a valid sub-DAG</returns>
+  /// <returns>Filtered list of steps forming a valid sub-DAG</returns>
   /// <exception cref="InvalidOperationException">
   /// Thrown if:
-  /// - FromData references catalog entries not consumed by any node
-  /// - ToData references catalog entries not produced by any node
-  /// - OnlyNodes references non-existent node names
-  /// - FromNodes/ToNodes references non-existent node names
+  /// - Flows filter matched no steps for the specified flow names
+  /// - A label in From/To/Only does not match any step or catalog item in the flow
+  /// - A catalog item label in To/Only has no producer step
   /// </exception>
   /// <remarks>
   /// <para>
-  /// Multiple strategies compose via intersection. For example,
-  /// <c>FromNodes + ToNodes</c> produces nodes in the intersection of the downstream
-  /// tree of FromNodes and the upstream tree of ToNodes.
+  /// Labels in <see cref="FlowSliceStrategy.From"/>, <see cref="FlowSliceStrategy.To"/>, and
+  /// <see cref="FlowSliceStrategy.Only"/> are resolved uniformly: the step index is checked
+  /// first, then the catalog item index (resolving to the relevant consumer or producer steps).
   /// </para>
   /// <para>
-  /// <strong>Runnability Guarantee:</strong> The returned node set always forms a valid
+  /// Multiple strategies compose via intersection. For example,
+  /// <c>From + To</c> produces steps in the intersection of the downstream
+  /// tree of From and the upstream tree of To.
+  /// </para>
+  /// <para>
+  /// <strong>Runnability Guarantee:</strong> The returned step set always forms a valid
   /// sub-DAG that can execute without missing dependencies.
   /// </para>
   /// </remarks>
@@ -228,162 +232,160 @@ internal static class DependencyAnalyzer
       return allSteps;
     }
 
-    // Dependencies are already resolved by Pipeline.Build() before slicing
-    // No need to call BuildProducerMap/ResolveDependencies here
-
-    var nodesByLabel = allSteps.ToDictionary(n => n.Label, StringComparer.OrdinalIgnoreCase);
+    // Dependencies are already resolved by Flow.Build() before slicing.
+    var stepsByLabel = allSteps.ToDictionary(n => n.Label, StringComparer.OrdinalIgnoreCase);
     var selectedSteps = new HashSet<FlowStep>(allSteps);
 
-    // Step 1: Apply pipeline filter (if specified, for merged pipelines)
+    // Step 1: Apply flows filter (for merged flows, restricts by flow name prefix)
     if (strategy.Flows is { Count: > 0 })
     {
-      var pipelineFilter = new HashSet<FlowStep>();
+      var flowsFilter = new HashSet<FlowStep>();
 
-      foreach (var pipelineName in strategy.Flows)
+      foreach (var flowName in strategy.Flows)
       {
-        // Find nodes that belong to this pipeline (prefix match: "FlowName.StepName")
-        var pipelineSteps = allSteps.Where(n =>
+        // Steps in merged flows are labeled "FlowName.StepName"
+        var flowSteps = allSteps.Where(n =>
         {
           var dotIndex = n.Label.IndexOf('.');
           if (dotIndex <= 0)
-          {
-            return false; // Not a merged pipeline node
-          }
-
+            return false;
           var nodeFlowName = n.Label.Substring(0, dotIndex);
-          return nodeFlowName.Equals(pipelineName, StringComparison.OrdinalIgnoreCase);
+          return nodeFlowName.Equals(flowName, StringComparison.OrdinalIgnoreCase);
         });
 
-        pipelineFilter.UnionWith(pipelineSteps);
+        flowsFilter.UnionWith(flowSteps);
       }
 
-      if (pipelineFilter.Count == 0)
+      if (flowsFilter.Count == 0)
       {
         throw new InvalidOperationException(
-          $"Pipelines filter did not match any nodes. Specified: {string.Join(", ", strategy.Flows)}"
+          $"Flows filter matched no steps. Specified: {string.Join(", ", strategy.Flows)}"
         );
       }
 
-      selectedSteps.IntersectWith(pipelineFilter);
+      selectedSteps.IntersectWith(flowsFilter);
     }
 
-    // Step 2: Apply OnlyNodes filter (explicit allowlist + dependencies)
-    if (strategy.OnlyNodes is { Count: > 0 })
+    // Step 2: Apply Only filter (explicit allowlist + upstream dependencies)
+    if (strategy.Only is { Count: > 0 })
     {
       var explicitSteps = new HashSet<FlowStep>();
-      foreach (var nodeName in strategy.OnlyNodes)
+      foreach (var label in strategy.Only)
       {
-        if (!nodesByLabel.TryGetValue(nodeName, out var node))
-        {
-          throw new InvalidOperationException(
-            $"OnlyNodes references non-existent node: '{nodeName}'"
-          );
-        }
-        explicitSteps.Add(node);
+        explicitSteps.UnionWith(ResolveToProducers(label, allSteps, stepsByLabel, "Only"));
       }
 
-      // Include all upstream dependencies to maintain runnability
       var withDependencies = ExpandUpstream(explicitSteps);
       selectedSteps.IntersectWith(withDependencies);
     }
 
-    // Step 3: Apply FromData (find consumers, expand downstream)
-    var fromStepsExpanded = new HashSet<FlowStep>();
-    if (strategy.FromData is { Count: > 0 })
+    // Step 3: Apply From filter (resolve to starting steps, expand downstream)
+    if (strategy.From is { Count: > 0 })
     {
-      // Find nodes that consume any of the specified catalog entries
-      foreach (var dataLabel in strategy.FromData)
+      var fromSteps = new HashSet<FlowStep>();
+      foreach (var label in strategy.From)
       {
-        var consumingSteps = allSteps.Where(n =>
-          n.Inputs.Any(entry => entry.Label.Equals(dataLabel, StringComparison.OrdinalIgnoreCase))
-        );
-
-        if (!consumingSteps.Any())
-        {
-          throw new InvalidOperationException(
-            $"FromData references catalog entry '{dataLabel}' which is not consumed by any node"
-          );
-        }
-
-        fromStepsExpanded.UnionWith(consumingSteps);
+        fromSteps.UnionWith(ResolveToConsumers(label, allSteps, stepsByLabel, "From"));
       }
-    }
 
-    // Step 4: Apply FromNodes (include downstream dependents)
-    if (strategy.FromNodes is { Count: > 0 })
-    {
-      foreach (var nodeName in strategy.FromNodes)
-      {
-        if (!nodesByLabel.TryGetValue(nodeName, out var node))
-        {
-          throw new InvalidOperationException(
-            $"FromNodes references non-existent node: '{nodeName}'"
-          );
-        }
-        fromStepsExpanded.Add(node);
-      }
-    }
-
-    if (fromStepsExpanded.Count > 0)
-    {
-      var withDownstream = ExpandDownstream(fromStepsExpanded, allSteps);
+      var withDownstream = ExpandDownstream(fromSteps, allSteps);
       selectedSteps.IntersectWith(withDownstream);
     }
 
-    // Step 5: Apply ToData (find producers, expand upstream)
-    var toStepsExpanded = new HashSet<FlowStep>();
-    if (strategy.ToData is { Count: > 0 })
+    // Step 4: Apply To filter (resolve to ending steps, expand upstream)
+    if (strategy.To is { Count: > 0 })
     {
-      // Find nodes that produce any of the specified catalog entries
-      foreach (var dataLabel in strategy.ToData)
+      var toSteps = new HashSet<FlowStep>();
+      foreach (var label in strategy.To)
       {
-        var producingStep = allSteps.FirstOrDefault(n =>
-          n.Outputs.Any(entry => entry.Label.Equals(dataLabel, StringComparison.OrdinalIgnoreCase))
-        );
-
-        if (producingStep == null)
-        {
-          throw new InvalidOperationException(
-            $"ToData references catalog entry '{dataLabel}' which is not produced by any node"
-          );
-        }
-
-        toStepsExpanded.Add(producingStep);
+        toSteps.UnionWith(ResolveToProducers(label, allSteps, stepsByLabel, "To"));
       }
-    }
 
-    // Step 6: Apply ToNodes (include upstream dependencies to reach these nodes)
-    if (strategy.ToNodes is { Count: > 0 })
-    {
-      foreach (var nodeName in strategy.ToNodes)
-      {
-        if (!nodesByLabel.TryGetValue(nodeName, out var node))
-        {
-          throw new InvalidOperationException(
-            $"ToNodes references non-existent node: '{nodeName}'"
-          );
-        }
-        toStepsExpanded.Add(node);
-      }
-    }
-
-    if (toStepsExpanded.Count > 0)
-    {
-      var withUpstream = ExpandUpstream(toStepsExpanded);
+      var withUpstream = ExpandUpstream(toSteps);
       selectedSteps.IntersectWith(withUpstream);
     }
 
     var slicedList = selectedSteps.ToList();
 
-    // Filter each node's dependencies to only include nodes in the sliced set
-    // Dependencies pointing outside the slice become external inputs in the sliced context
+    // Trim dependencies to only include steps in the sliced set.
+    // Edges pointing outside the slice become external inputs in the sliced context.
     var slicedSet = new HashSet<FlowStep>(slicedList);
-    foreach (var node in slicedList)
+    foreach (var step in slicedList)
     {
-      node.Dependencies.RemoveAll(dep => !slicedSet.Contains(dep));
+      step.Dependencies.RemoveAll(dep => !slicedSet.Contains(dep));
     }
 
     return slicedList;
+  }
+
+  /// <summary>
+  /// Resolves a label to one or more "producer" steps: tries the step index first,
+  /// then falls back to finding the step that produces a catalog item with that label.
+  /// Used for <c>To</c> and <c>Only</c> targets.
+  /// </summary>
+  private static IEnumerable<FlowStep> ResolveToProducers(
+    string label,
+    List<FlowStep> allSteps,
+    Dictionary<string, FlowStep> stepsByLabel,
+    string contextName
+  )
+  {
+    // Try as a step label first
+    if (stepsByLabel.TryGetValue(label, out var step))
+    {
+      return [step];
+    }
+
+    // Fall back: treat as a catalog item label and find the producing step
+    var producer = allSteps.FirstOrDefault(n =>
+      n.Outputs.Any(item => item.Label.Equals(label, StringComparison.OrdinalIgnoreCase))
+    );
+
+    if (producer != null)
+    {
+      return [producer];
+    }
+
+    throw new InvalidOperationException(
+      $"{contextName} references '{label}' which does not match any step label "
+        + $"or catalog item produced by any step in the flow."
+    );
+  }
+
+  /// <summary>
+  /// Resolves a label to one or more "consumer" steps: tries the step index first,
+  /// then falls back to finding all steps that consume a catalog item with that label.
+  /// Used for <c>From</c> targets.
+  /// </summary>
+  private static IEnumerable<FlowStep> ResolveToConsumers(
+    string label,
+    List<FlowStep> allSteps,
+    Dictionary<string, FlowStep> stepsByLabel,
+    string contextName
+  )
+  {
+    // Try as a step label first
+    if (stepsByLabel.TryGetValue(label, out var step))
+    {
+      return [step];
+    }
+
+    // Fall back: treat as a catalog item label and find all consuming steps
+    var consumers = allSteps
+      .Where(n =>
+        n.Inputs.Any(item => item.Label.Equals(label, StringComparison.OrdinalIgnoreCase))
+      )
+      .ToList();
+
+    if (consumers.Count > 0)
+    {
+      return consumers;
+    }
+
+    throw new InvalidOperationException(
+      $"{contextName} references '{label}' which does not match any step label "
+        + $"or catalog item consumed by any step in the flow."
+    );
   }
 
   /// <summary>

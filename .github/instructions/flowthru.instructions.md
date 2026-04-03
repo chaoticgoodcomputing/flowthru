@@ -8,16 +8,16 @@ Flowthru is a type-safe data engineering framework for .NET. Before starting wor
 
 <pipeline_development>
 
-## Pipeline Development
+## Flow Development
 
-Working in `examples/` or building pipelines as a downstream user?
+Working in `examples/` or building flows as a downstream user?
 
-Review `/docs/explanation/anatomy-of-a-pipeline.md` for project structure, schemas, catalogs, nodes, and configuration patterns.
+Review `/docs/explanation/anatomy-of-a-flow.md` for project structure, schemas, catalogs, steps, and configuration patterns.
 
-When creating or modifying pipelines:
+When creating or modifying flows:
 - Follow the layered data directory convention (`_01_Raw`, `_02_Intermediate`, etc.)
-- Use catalog entries as typed properties, not string keys
-- Wire nodes to catalog entries with matching schema types
+- Use catalog items as typed properties, not string keys
+- Wire steps to catalog items with matching schema types
 
 </pipeline_development>
 

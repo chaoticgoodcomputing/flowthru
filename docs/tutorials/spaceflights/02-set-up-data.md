@@ -1,6 +1,6 @@
 # Set Up Data
 
-This page explains how to add datasets to your project and register them in Flowthru's Data Catalog. You'll define schemas for each dataset and create catalog entries that connect schemas to physical files.
+This page explains how to add datasets to your project and register them in Flowthru's Catalog. You'll define schemas for each dataset and create catalog items that connect schemas to physical files.
 
 ## Project Datasets
 
@@ -126,26 +126,26 @@ We'll take the process we did for the CompanySchema and repeat it for the Review
 
 You can find these schemas online in the [Flowthru Spaceflights starter code](https://github.com/chaoticgoodcomputing/flowthru/tree/main/examples/starter/Spaceflights/Data/_01_Raw/Schemas).
 
-## Create Catalog Entries
+## Create Catalog Items
 
 We now have the **data** (the tables we downloaded earlier) and the **schemas** — what those tables actually look like.
 
-With those two pieces of information, we can now create **Data Catalog** entries for these tables! The purpose of data catalog is to bring together three pieces of information necessary to work with your data:
+With those two pieces of information, we can now create **Catalog** items for these tables! The purpose of the catalog is to bring together three pieces of information necessary to work with your data:
 
 1. **How** the data is shaped — the *schema*
 2. **What format** it's stored in (CSV, Parquet, Excel)
 3. **Where** the data lives
 
-For raw data, we'll put our Catalog entries into the file at:
+For raw data, we'll put our catalog items into the file at:
 
 ```
 Spaceflights
 ├── Data/                      # Data catalog and schemas
     ├── _01_Raw/
-        ├── Catalog.Raw.cs     # The Data Catalog for raw data
+        ├── Catalog.Raw.cs     # The Catalog for raw data
 ```
 
-This file will already have a CSV catalog entry from the minimal starter. We'll be creating three catalog entries that look very similar to that one. The pattern for Catalog entries is:
+This file will already have a CSV catalog item from the minimal starter. We'll be creating three catalog items that look very similar to that one. The pattern for catalog items is:
 
 ```csharp
 using Flowthru.Data;
@@ -172,7 +172,7 @@ public partial class Catalog
 
 Let's break down what information we need, and where to put it:
 
-1. In the `__NAME__` sections, we'll put the name of the data entry, as we want to reference it in our code, later
+1. In the `__NAME__` sections, we'll put the name of the catalog item, as we want to reference it in our code, later
 2. In the `__SCHEMA__` sections, we'll use the name of the schema we created for the file
 3. In the `__FORMAT__` section, we'll say how our data is stored — in this case, CSV
 4. In the `__PATH__` section, we'll state where, in our project, the data is located.

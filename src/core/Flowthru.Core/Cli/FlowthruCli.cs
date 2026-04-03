@@ -152,7 +152,7 @@ public sealed class FlowthruCli
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Unhandled exception during pipeline execution");
+      _logger.LogError(ex, "Unhandled exception during flow execution");
       await _output.WriteLineAsync($"Fatal error: {ex.Message}");
       return 1;
     }
@@ -163,38 +163,36 @@ public sealed class FlowthruCli
   /// </summary>
   private void ShowHelp()
   {
-    _output.WriteLine("Flowthru - Type-safe data engineering pipelines for .NET");
+    _output.WriteLine("Flowthru - Type-safe data engineering flows for .NET");
     _output.WriteLine();
     ShowUsage();
     _output.WriteLine();
     _output.WriteLine("Options:");
-    _output.WriteLine("  --dry-run              Validate without executing nodes");
+    _output.WriteLine("  --dry-run              Validate without executing steps");
     _output.WriteLine("  --no-metadata          Disable metadata export");
     _output.WriteLine("  --metadata-output DIR  Specify metadata output directory");
     _output.WriteLine("  -h, --help             Show this help message");
     _output.WriteLine("  -v, --version          Show version information");
     _output.WriteLine();
-    _output.WriteLine("Pipeline Slicing:");
-    _output.WriteLine("  --pipelines NAMES      Filter to specific pipelines by name");
+    _output.WriteLine("Flow Slicing:");
+    _output.WriteLine("  --flows NAMES          Filter to specific flows by name");
     _output.WriteLine(
-      "  --from-nodes NODES     Start from nodes, include all downstream dependents"
-    );
-    _output.WriteLine("  --to-nodes NODES       End at nodes, include all upstream dependencies");
-    _output.WriteLine("  --from-data ENTRIES    Start from data consumers, include all downstream");
-    _output.WriteLine("  --to-data ENTRIES      End at data producers, include all upstream");
-    _output.WriteLine(
-      "  --only-nodes NODES     Execute only these nodes (auto-include dependencies)"
+      "  --from LABELS          Start from these steps/items, include all downstream"
     );
     _output.WriteLine(
-      "  --tags TAGS            Filter to nodes with ALL specified tags (AND logic)"
+      "  --to LABELS            End at these steps/items, include all upstream dependencies"
+    );
+    _output.WriteLine(
+      "  --only LABELS          Execute only these steps/items (upstream deps auto-included)"
     );
     _output.WriteLine();
-    _output.WriteLine("  Multiple slicing options compose via intersection.");
+    _output.WriteLine("  Labels can be step names or catalog item names — resolved uniformly.");
+    _output.WriteLine("  Multiple flags narrow the result via intersection.");
     _output.WriteLine(
-      "  Use comma-separated values: --pipelines DataScience --tags feature,training"
+      "  Use comma-separated values: --flows DataScience --only TrainModel,IrisFeatures"
     );
     _output.WriteLine();
-    _output.WriteLine("Available Pipelines:");
+    _output.WriteLine("Available Flows:");
     foreach (var name in _service.FlowNames.OrderBy(n => n))
     {
       var metadata = _service.GetFlowMetadata(name);

@@ -14,13 +14,11 @@ namespace Flowthru.Meta;
 /// <list type="bullet">
 /// <item><c>{FlowName}</c> - Sanitized pipeline name</item>
 /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled)</item>
-/// <item><c>{SliceType}</c> - Slice descriptor: "FromNodes", "Tags", "Mixed", or empty</item>
-/// <item><c>{Pipelines}</c> - Comma-separated list of pipelines</item>
-/// <item><c>{FromNodes}</c> - Comma-separated list of from-nodes</item>
-/// <item><c>{ToNodes}</c> - Comma-separated list of to-nodes</item>
-/// <item><c>{FromData}</c> - Comma-separated list of from-data</item>
-/// <item><c>{ToData}</c> - Comma-separated list of to-data</item>
-/// <item><c>{OnlyNodes}</c> - Comma-separated list of only-nodes</item>
+/// <item><c>{SliceType}</c> - Slice descriptor: "From", "To", "Only", "Flows", "Mixed", or empty</item>
+/// <item><c>{Flows}</c> - Comma-separated list of flow names</item>
+/// <item><c>{From}</c> - Comma-separated list of from labels</item>
+/// <item><c>{To}</c> - Comma-separated list of to labels</item>
+/// <item><c>{Only}</c> - Comma-separated list of only labels</item>
 /// <item><c>{Tags}</c> - Comma-separated list of tags</item>
 /// </list>
 /// <para>
@@ -60,12 +58,10 @@ internal static class FilenameTemplateParser
           "FlowName" => SanitizeFilename(dag.FlowName),
           "Timestamp" => timestamp ?? string.Empty,
           "SliceType" => dag.AppliedSlice?.GetSliceTypeDescriptor() ?? string.Empty,
-          "Pipelines" => FormatList(dag.AppliedSlice?.Pipelines),
-          "FromNodes" => FormatList(dag.AppliedSlice?.FromNodes),
-          "ToNodes" => FormatList(dag.AppliedSlice?.ToNodes),
-          "FromData" => FormatList(dag.AppliedSlice?.FromData),
-          "ToData" => FormatList(dag.AppliedSlice?.ToData),
-          "OnlyNodes" => FormatList(dag.AppliedSlice?.OnlyNodes),
+          "Flows" => FormatList(dag.AppliedSlice?.Flows),
+          "From" => FormatList(dag.AppliedSlice?.From),
+          "To" => FormatList(dag.AppliedSlice?.To),
+          "Only" => FormatList(dag.AppliedSlice?.Only),
           _ => match.Value, // Unknown tokens left as-is
         };
       }

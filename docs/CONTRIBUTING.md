@@ -4,8 +4,8 @@ First things first — thanks for being willing to contribute to the Flowthru do
 
 Before starting to plan docs updates, please take a look at the [core contributor guide](../CONTRIBUTING.md) to understand the philosophy for Flowthru to better line up new documentation with the two core promises of Flowthru:
 
-> 1. End-users can easily write data pipelines, and have a development experience focused on what *their* pipelines will do, not how Flowthru is handling the pipeline.
-> 2. If an error can occur in the pipeline they've created, it will occur as soon in the development process as possible.
+> 1. End-users can easily write data pipelines, and have a development experience focused on what *their* flows will do, not how Flowthru is handling the flow.
+> 2. If an error can occur in the flow they've created, it will occur as soon in the development process as possible.
 
 ## The Question-Driven Process
 
@@ -24,22 +24,22 @@ This question reveals both your audience and the type of documentation you're cr
 
 Consider these examples:
 
-- **"How do I start writing my first pipeline?"** → This is someone learning. They need a tutorial.
-- **"How can I read data from a database instead of local files?"** → This is someone working with a specific need. They need a guide.
-- **"Why does Flowthru use so many types?"** → This is someone studying the framework's design. They need an explanation.
-- **"What parameters does `Item` accept?"** → This is someone looking up technical details. They need reference documentation.
+- "How do I create my first flow?" → Tutorial
+- "How can I read data from a database instead of local files?" → Guide
+- "Why does Flowthru use so many types?" → Explanation
+- "What parameters does `Item` accept?" → Reference
 
 The same topic can yield different documentation depending on the question:
 
 **Topic: Schemas**
-- "How do I create my first schema?" → Tutorial
+- "How do I create my first catalog item?" → Tutorial
 - "How do I handle optional fields in my schema?" → Guide
-- "Why do I have to use schemas on my nodes and catalog entries?" → Explanation
+- "Why do I have to use schemas on my steps and catalog items?" → Explanation
 - "What attributes can I use on schema properties?" → Reference
 
 Understanding this pattern means understanding your audience. Flowthru has two primary audiences:
 
-1. **End-users** — data engineers building pipelines with Flowthru
+1. **End-users** — data engineers building flows with Flowthru
 2. **Contributors** — developers extending or maintaining Flowthru itself
 
 Both audiences move through the same cycle: learning → working → studying → working. The question they're asking tells you where they are in that cycle.
@@ -55,13 +55,13 @@ docs/
 ├── guides/
 │   └── advanced/           # Extension authoring guides
 ├── explanation/
-│   ├── anatomy-of-a-pipeline.md   # End-user: how pipelines work
+│   ├── anatomy-of-a-flow.md       # End-user: how flows work
 │   └── advanced/
 │       └── storage-composition.md # Contributor: internal architecture
 └── reference/              # Generated from code — see below
 ```
 
-**End-user content** lives at the category root. It answers questions from data engineers building pipelines.
+**End-user content** lives at the category root. It answers questions from data engineers building flows.
 
 **Contributor content** lives in `advanced/`. It answers questions from developers extending or maintaining Flowthru itself — storage adapters, source generators, validation layers.
 
@@ -71,7 +71,7 @@ docs/
 
 Tutorials are lessons. They guide someone through their first encounter with a concept by having them build something concrete. The goal isn't the artifact they create — it's the learning that happens while creating it.
 
-A tutorial answers: *"How do I write my first Flowthru pipeline?"*
+A tutorial answers: *"How do I write my first Flowthru flow?"*
 
 Not: *"How do I build a production data pipeline?"* (too broad, too advanced)
 
@@ -87,9 +87,9 @@ Not: *"How do I build a production data pipeline?"* (too broad, too advanced)
 
 Guides help familiar users introduce specific features or fixes to their current work. The user already knows Flowthru basics; they have a specific goal and need practical direction. Guides are defined by user needs, not by what the API offers.
 
-A guide answers: *"How do I use database tables for my catalog entries?"*
+A guide answers: *"How do I use database tables for my catalog items?"*
 
-Not: *"How does the storage adapter work?"* (Too theoretical for a concrete guide)
+- "I need to read from X source — what do I configure?"*
 
 **Characteristics:**
 - Focused on a specific, achievable goal
@@ -128,9 +128,9 @@ This ensures:
 - No drift between code and documentation
 - Contributors focus on tutorials, guides, and explanations where human authorship adds value
 
-Reference answers: *"What are all of the storage strategies available for Data Catalog entries?"*
+Reference answers: *"What are all of the storage strategies available for catalog items?"*
 
-Not: *"How do I create a new data catalog entry?"* (that's a guide) or *"Why do data catalog entries need schema types?"* (that's explanation)
+Not: *"How do I create a new catalog item?"* (that's a guide) or *"Why do catalog items need schema types?"* (that's explanation)
 
 **Characteristics:**
 - Factual, complete, structured
@@ -151,14 +151,14 @@ When you're ready to write or edit documentation:
 
 ### Example: Working Through a Topic
 
-Let's say you want to document "catalog entries." Start by listing questions:
+Let's say you want to document "catalog items." Start by listing questions:
 
-- "How do I create my first catalog entry?" → Tutorial
-- "How do I configure a catalog entry for Parquet files?" → Guide
-- "Why are catalog entries properties rather than string keys?" → Explanation
+- "How do I create my first catalog item?" → Tutorial
+- "How do I configure a catalog item for Parquet files?" → Guide
+- "Why are catalog items properties rather than string keys?" → Explanation
 - "What methods are available on `IItem<T>`?" → Reference
 
-Each question becomes a separate piece of documentation in its appropriate category. Together, they serve users at every stage of their journey with catalog entries.
+Each question becomes a separate piece of documentation in its appropriate category. Together, they serve users at every stage of their journey with catalog items.
 
 ### Example: Recognizing Mismatched Content
 

@@ -10,24 +10,28 @@ namespace Flowthru.Flows;
 /// the resulting sub-DAG must be executable without missing dependencies.
 /// </para>
 /// <para>
+/// Because a Flowthru flow is a bipartite graph of steps and catalog items, all slice
+/// targets are addressed uniformly by label — whether the label belongs to a step or a
+/// catalog item. The resolver checks the step index first; if no step matches, it falls
+/// back to the catalog item index and resolves to the relevant producer or consumer steps.
+/// </para>
+/// <para>
 /// <strong>Slicing Strategies:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item><strong>flows:</strong> Filter to nodes from specific named flows (in merged DAGs)</item>
-/// <item><strong>FromNodes:</strong> Include specified nodes and all downstream dependents</item>
-/// <item><strong>ToNodes:</strong> Include specified nodes and all upstream dependencies (run "up to" these nodes)</item>
-/// <item><strong>FromData:</strong> Include nodes consuming specified catalog entries and all downstream dependents</item>
-/// <item><strong>ToData:</strong> Include nodes producing specified catalog entries and all upstream dependencies</item>
-/// <item><strong>OnlyNodes:</strong> Explicit allowlist of nodes plus minimal required dependencies</item>
+/// <item><strong>Flows:</strong> Filter to nodes from specific named flows (in merged DAGs)</item>
+/// <item><strong>From:</strong> Include specified nodes and all downstream dependents. Accepts step labels or catalog item labels (resolves to consumers).</item>
+/// <item><strong>To:</strong> Include specified nodes and all upstream dependencies. Accepts step labels or catalog item labels (resolves to producer).</item>
+/// <item><strong>Only:</strong> Explicit allowlist plus minimal required dependencies. Accepts step labels or catalog item labels (resolves to producer).</item>
 /// </list>
 /// <para>
 /// <strong>Composition:</strong> Multiple strategies compose via intersection (additive filtering).
-/// For example, <c>--from-nodes A --to-data B</c> produces nodes in the downstream dependency
-/// tree of A that are also required to produce data B.
+/// For example, <c>--from A --to B</c> produces nodes in the downstream dependency
+/// tree of A that are also required to produce B.
 /// </para>
 /// <para>
 /// <strong>Runnability Guarantee:</strong> Slicing operations are additive only. Subtractive
-/// operations (<c>--from-nodes A --except B</c>) would break the runnability guarantee and
+/// operations (<c>--from A --except B</c>) would break the runnability guarantee and
 /// are not supported.
 /// </para>
 /// </remarks>
@@ -37,8 +41,8 @@ public sealed class FlowSliceStrategy
   /// Filter to nodes from these named flows (applies to merged flows).
   /// </summary>
   /// <remarks>
-  /// In merged flows, nodes are prefixed with their Flow name (e.g., "DataScience.TrainModel").
-  /// This filter includes only nodes from the specified flows.
+  /// In merged flows, steps are prefixed with their Flow name (e.g., "DataScience.TrainModel").
+  /// This filter includes only steps from the specified flows.
   /// Flow names are case-insensitive.
   /// </remarks>
   public IReadOnlySet<string>? Flows { get; init; }
@@ -47,62 +51,39 @@ public sealed class FlowSliceStrategy
   /// Start from these nodes, including all downstream dependents.
   /// </summary>
   /// <remarks>
-  /// Expands to include all nodes that depend on these nodes (transitively).
-  /// Useful for impact analysis - "what breaks if I change this node?"
+  /// Each label is resolved against the step index first. If no step matches, the label is
+  /// treated as a catalog item and resolved to all steps that consume it.
+  /// Expands to include all transitively dependent steps.
+  /// Useful for impact analysis: "what is affected if I change this step or item?"
   /// </remarks>
-  public IReadOnlySet<string>? FromNodes { get; init; }
+  public IReadOnlySet<string>? From { get; init; }
 
   /// <summary>
   /// End at these nodes, including all upstream dependencies needed to produce them.
   /// </summary>
   /// <remarks>
-  /// Expands to include all transitive dependencies needed to run these nodes.
+  /// Each label is resolved against the step index first. If no step matches, the label is
+  /// treated as a catalog item and resolved to the step that produces it.
+  /// Expands to include all transitive dependencies.
   /// Equivalent to "run everything up to and including these nodes".
-  /// Useful for testing specific outputs without running the entire flow.
+  /// Useful for targeted execution: "run everything needed to produce this step or item".
   /// </remarks>
-  public IReadOnlySet<string>? ToNodes { get; init; }
+  public IReadOnlySet<string>? To { get; init; }
 
   /// <summary>
-  /// Start from nodes that consume these catalog entry labels, including all downstream dependents.
+  /// Explicit allowlist of nodes (dependencies auto-included).
   /// </summary>
   /// <remarks>
-  /// Finds all nodes that read the specified catalog entries, then expands downstream.
-  /// Useful for impact analysis - "what breaks if I change this data?"
-  ///
-  /// TODO: Remove this, as it is now sufficient to reference both steps and data entries as nodes.
+  /// Each label is resolved against the step index first. If no step matches, the label is
+  /// treated as a catalog item and resolved to the step that produces it.
+  /// Automatically includes all transitive upstream dependencies to maintain DAG validity.
   /// </remarks>
-  public IReadOnlySet<string>? FromData { get; init; }
-
-  /// <summary>
-  /// End at nodes that produce these catalog entry labels, including all upstream dependencies.
-  /// </summary>
-  /// <remarks>
-  /// Finds the nodes that write the specified catalog entries, then expands upstream.
-  /// Useful for targeted execution - "run everything needed to produce this data".
-  ///
-  /// TODO: Remove this, as it is now sufficient to reference both steps and data entries as nodes.
-  /// </remarks>
-  public IReadOnlySet<string>? ToData { get; init; }
-
-  /// <summary>
-  /// Explicit allowlist of node names (dependencies auto-included).
-  /// </summary>
-  /// <remarks>
-  /// Specifies exactly which nodes to execute, then automatically includes any
-  /// required dependencies to maintain DAG validity.
-  /// </remarks>
-  public IReadOnlySet<string>? OnlyNodes { get; init; }
+  public IReadOnlySet<string>? Only { get; init; }
 
   /// <summary>
   /// Whether any slicing is configured.
   /// </summary>
-  public bool IsSliced =>
-    Flows != null
-    || FromNodes != null
-    || ToNodes != null
-    || FromData != null
-    || ToData != null
-    || OnlyNodes != null;
+  public bool IsSliced => Flows != null || From != null || To != null || Only != null;
 
   /// <summary>
   /// No filtering - execute entire flow.

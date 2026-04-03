@@ -624,9 +624,9 @@ public class FlowthruServiceTests
 
     var service = CreateService(catalog, pipelines);
 
-    // Act — slice to just Step1 (merged names are prefixed with pipeline name)
+    // Act — slice to just Step1 (merged names are prefixed with flow name)
     var dag = service.GetDagMetadata(
-      sliceStrategy: new FlowSliceStrategy { ToNodes = new HashSet<string> { "test.Step1" } }
+      sliceStrategy: new FlowSliceStrategy { To = new HashSet<string> { "test.Step1" } }
     );
 
     // Assert

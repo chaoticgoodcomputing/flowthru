@@ -9,24 +9,22 @@ namespace Flowthru.Cli;
 internal static class ArgumentParser
 {
   /// <summary>
-  /// Parses command-line arguments into a pipeline execution request.
+  /// Parses command-line arguments into a flow execution request.
   /// </summary>
   /// <param name="args">Command-line arguments</param>
-  /// <param name="availablePipelines">Available pipeline names for validation</param>
-  /// <returns>Parsed execution request, or null to execute all pipelines</returns>
-  public static ParsedArguments Parse(string[] args, IEnumerable<string> availablePipelines)
+  /// <param name="availableFlows">Available flow names for validation</param>
+  /// <returns>Parsed execution request</returns>
+  public static ParsedArguments Parse(string[] args, IEnumerable<string> availableFlows)
   {
     var options = new ExecutionOptions();
     var exportMetadata = true;
     string? metadataOutputDirectory = null;
 
     // Slicing options
-    HashSet<string>? pipelines = null;
-    HashSet<string>? fromNodes = null;
-    HashSet<string>? toNodes = null;
-    HashSet<string>? fromData = null;
-    HashSet<string>? toData = null;
-    HashSet<string>? onlyNodes = null;
+    HashSet<string>? flows = null;
+    HashSet<string>? from = null;
+    HashSet<string>? to = null;
+    HashSet<string>? only = null;
 
     // Parse arguments
     for (int i = 0; i < args.Length; i++)
@@ -54,85 +52,57 @@ internal static class ArgumentParser
           }
           break;
 
-        case "--pipelines":
-        case "--pipeline":
+        case "--flows":
+        case "--flow":
           if (i + 1 < args.Length)
           {
-            pipelines ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            pipelines.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+            flows ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            flows.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+          }
+          else
+          {
+            throw new ArgumentException("--flows requires a comma-separated list of flow names");
+          }
+          break;
+
+        case "--from":
+          if (i + 1 < args.Length)
+          {
+            from ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            from.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
           }
           else
           {
             throw new ArgumentException(
-              "--pipelines requires a comma-separated list of pipeline names"
+              "--from requires a comma-separated list of step or catalog item labels"
             );
           }
           break;
 
-        case "--from-nodes":
+        case "--to":
           if (i + 1 < args.Length)
           {
-            fromNodes ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            fromNodes.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+            to ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            to.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
           }
           else
           {
             throw new ArgumentException(
-              "--from-nodes requires a comma-separated list of node names"
+              "--to requires a comma-separated list of step or catalog item labels"
             );
           }
           break;
 
-        case "--to-nodes":
+        case "--only":
           if (i + 1 < args.Length)
           {
-            toNodes ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            toNodes.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
-          }
-          else
-          {
-            throw new ArgumentException("--to-nodes requires a comma-separated list of node names");
-          }
-          break;
-
-        case "--from-data":
-          if (i + 1 < args.Length)
-          {
-            fromData ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            fromData.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
+            only ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            only.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
           }
           else
           {
             throw new ArgumentException(
-              "--from-data requires a comma-separated list of catalog entry names"
-            );
-          }
-          break;
-
-        case "--to-data":
-          if (i + 1 < args.Length)
-          {
-            toData ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            toData.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
-          }
-          else
-          {
-            throw new ArgumentException(
-              "--to-data requires a comma-separated list of catalog entry names"
-            );
-          }
-          break;
-
-        case "--only-nodes":
-          if (i + 1 < args.Length)
-          {
-            onlyNodes ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            onlyNodes.UnionWith(args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries));
-          }
-          else
-          {
-            throw new ArgumentException(
-              "--only-nodes requires a comma-separated list of node names"
+              "--only requires a comma-separated list of step or catalog item labels"
             );
           }
           break;
@@ -152,27 +122,17 @@ internal static class ArgumentParser
 
     // Build slice strategy if any slicing flags were provided
     FlowSliceStrategy? sliceStrategy = null;
-    if (
-      pipelines != null
-      || fromNodes != null
-      || toNodes != null
-      || fromData != null
-      || toData != null
-      || onlyNodes != null
-    )
+    if (flows != null || from != null || to != null || only != null)
     {
       sliceStrategy = new FlowSliceStrategy
       {
-        Flows = pipelines,
-        FromNodes = fromNodes,
-        ToNodes = toNodes,
-        FromData = fromData,
-        ToData = toData,
-        OnlyNodes = onlyNodes,
+        Flows = flows,
+        From = from,
+        To = to,
+        Only = only,
       };
     }
 
-    // Attach slice strategy to options when executing
     if (sliceStrategy != null)
     {
       options.SliceStrategy = sliceStrategy;
@@ -194,7 +154,7 @@ internal static class ArgumentParser
 internal sealed class ParsedArguments
 {
   /// <summary>
-  /// Whether to execute all pipelines (now always true, with optional slicing).
+  /// Whether to execute all flows (always true, with optional slicing).
   /// </summary>
   public bool ExecuteAll { get; init; }
 
