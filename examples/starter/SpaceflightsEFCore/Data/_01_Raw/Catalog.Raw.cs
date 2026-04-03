@@ -8,10 +8,10 @@ public partial class Catalog
   /// <summary>
   /// Raw company data imported from external sources.
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanySchema>> Companies =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<CompanySchema>> Companies =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<CompanySchema>(
+        ItemFactory.Enumerable.Csv<CompanySchema>(
           label: "Companies",
           filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
         )
@@ -20,10 +20,10 @@ public partial class Catalog
   /// <summary>
   /// Raw review data imported from external sources.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ReviewSchema>> Reviews =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ReviewSchema>> Reviews =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<ReviewSchema>(
+        ItemFactory.Enumerable.Csv<ReviewSchema>(
           label: "Reviews",
           filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
         )
@@ -32,10 +32,10 @@ public partial class Catalog
   /// <summary>
   /// Raw shuttle data imported from external sources.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> Shuttles =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Excel<ShuttleSchema>(
+        ItemFactory.Enumerable.Excel<ShuttleSchema>(
           label: "Shuttles",
           filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
           sheetName: "Sheet1"

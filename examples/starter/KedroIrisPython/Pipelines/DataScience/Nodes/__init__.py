@@ -1,1 +1,1 @@
-"""Data science nodes package."""
+"""Data science steps package."""

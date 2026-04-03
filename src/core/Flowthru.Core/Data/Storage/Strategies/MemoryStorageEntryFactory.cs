@@ -33,19 +33,16 @@ namespace Flowthru.Data.Storage.Strategies;
 public sealed class MemoryStorageEntryFactory : IStorageEntryFactory
 {
   /// <inheritdoc />
-  public ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(
-    string label,
-    StorageOptions? options = null
-  )
+  public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
     where T : notnull, IFlatSchema, ITextSerializable
   {
-    return CatalogEntries.Enumerable.Memory<T>(label);
+    return ItemFactory.Enumerable.Memory<T>(label);
   }
 
   /// <inheritdoc />
-  public ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null)
+  public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
     where T : IStructuredSerializable
   {
-    return CatalogEntries.Single.Memory<T>(label);
+    return ItemFactory.Single.Memory<T>(label);
   }
 }

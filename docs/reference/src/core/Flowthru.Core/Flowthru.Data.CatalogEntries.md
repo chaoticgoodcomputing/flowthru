@@ -1,4 +1,4 @@
-# <a id="Flowthru_Data_CatalogEntries"></a> Class CatalogEntries
+# <a id="Flowthru_Data_Items"></a> Class Items
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Core.dll  
@@ -6,13 +6,13 @@ Assembly: Flowthru.Core.dll
 Static factory methods for creating catalog entries with common configurations.
 
 ```csharp
-public static class CatalogEntries
+public static class Items
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[CatalogEntries](Flowthru.Data.CatalogEntries.md)
+[Items](Flowthru.Data.Items.md)
 
 #### Inherited Members
 
@@ -32,7 +32,7 @@ public record SimpleSchema(
     string Name       // Looks for "Name" in CSV/Excel/JSON
 ) : IFlatSchema, ITextSerializable;
 
-var simple = CatalogEntries.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
+var simple = Items.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
 
 // Tier 2: Explicit annotations - handle naming mismatches
 public record ShuttleSchema(
@@ -49,15 +49,15 @@ public record ShuttleSchema(
     int CompanyId
 ) : IFlatSchema, ITextSerializable;
 
-var shuttles = CatalogEntries.Enumerable.Excel&lt;ShuttleSchema&gt;(
+var shuttles = Items.Enumerable.Excel&lt;ShuttleSchema&gt;(
     "shuttles",
     "data/shuttles.xlsx",
     "Sheet1"
 );
 
 // Same schema works across all formats
-var csv = CatalogEntries.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
-var json = CatalogEntries.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");</code></pre>
+var csv = Items.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
+var json = Items.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");</code></pre>
 
 ## Remarks
 
@@ -81,26 +81,26 @@ when they differ. This works uniformly across CSV, Excel, JSON, and most formats
 
 ## Properties
 
-### <a id="Flowthru_Data_CatalogEntries_Enumerable"></a> Enumerable
+### <a id="Flowthru_Data_Items_Enumerable"></a> Enumerable
 
 Factory methods for <xref href="System.Collections.Generic.IEnumerable%601" data-throw-if-not-resolved="false"></xref> catalog entries.
 
 ```csharp
-public static EnumerableCatalogEntries Enumerable { get; }
+public static EnumerableItems Enumerable { get; }
 ```
 
 #### Property Value
 
- [EnumerableCatalogEntries](Flowthru.Data.EnumerableCatalogEntries.md)
+ [EnumerableItems](Flowthru.Data.EnumerableItems.md)
 
 ## Methods
 
-### <a id="Flowthru_Data_CatalogEntries_Null__1_System_String_"></a> Null<T\>\(string\)
+### <a id="Flowthru_Data_Items_Null__1_System_String_"></a> Null<T\>\(string\)
 
 Creates a null catalog entry for side-effect-only nodes.
 
 ```csharp
-public static CatalogEntry<T> Null<T>(string label)
+public static Item<T> Null<T>(string label)
 ```
 
 #### Parameters
@@ -111,7 +111,7 @@ Unique catalog label for DAG resolution
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<T\>
+ [Item](Flowthru.Data.Item\-1.md)<T\>
 
 Catalog entry for void/no-data semantics
 
@@ -124,7 +124,7 @@ The data type (typically NoData)
 #### Remarks
 
 <p>
-<strong>Use Case:</strong> Nodes that perform side effects (logging, visualization) without producing meaningful data
+<strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
 </p>
 <p>
 <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.

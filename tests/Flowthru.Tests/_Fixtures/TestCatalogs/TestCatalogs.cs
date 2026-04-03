@@ -5,30 +5,30 @@ namespace Flowthru.Tests.Fixtures.TestCatalogs;
 /// <summary>
 /// Simple test catalog with three sequential processing steps.
 /// </summary>
-public class SimpleThreeNodeCatalog : DataCatalogBase
+public class SimpleThreeNodeCatalog : CatalogAbstract
 {
   public SimpleThreeNodeCatalog()
   {
     InitializeCatalogProperties();
   }
 
-  public ICatalogEntry<IEnumerable<TestData>> Input =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "input"));
+  public IItem<IEnumerable<TestData>> Input =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input"));
 
-  public ICatalogEntry<IEnumerable<TestData>> StepOne =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "step_one"));
+  public IItem<IEnumerable<TestData>> StepOne =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "step_one"));
 
-  public ICatalogEntry<IEnumerable<TestData>> StepTwo =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "step_two"));
+  public IItem<IEnumerable<TestData>> StepTwo =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "step_two"));
 
-  public ICatalogEntry<IEnumerable<TestData>> Output =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "output"));
+  public IItem<IEnumerable<TestData>> Output =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "output"));
 }
 
 /// <summary>
 /// Empty catalog for testing edge cases.
 /// </summary>
-public class EmptyCatalog : DataCatalogBase
+public class EmptyCatalog : CatalogAbstract
 {
   public EmptyCatalog()
   {
@@ -39,7 +39,7 @@ public class EmptyCatalog : DataCatalogBase
 /// <summary>
 /// Complex catalog with multiple layers for testing DAG construction.
 /// </summary>
-public class ComplexMultiLayerCatalog : DataCatalogBase
+public class ComplexMultiLayerCatalog : CatalogAbstract
 {
   public ComplexMultiLayerCatalog()
   {
@@ -47,29 +47,29 @@ public class ComplexMultiLayerCatalog : DataCatalogBase
   }
 
   // Layer 0 inputs
-  public ICatalogEntry<IEnumerable<TestData>> InputA =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "input_a"));
+  public IItem<IEnumerable<TestData>> InputA =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_a"));
 
-  public ICatalogEntry<IEnumerable<TestData>> InputB =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "input_b"));
+  public IItem<IEnumerable<TestData>> InputB =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_b"));
 
-  public ICatalogEntry<IEnumerable<TestData>> InputC =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "input_c"));
+  public IItem<IEnumerable<TestData>> InputC =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_c"));
 
   // Layer 1 intermediates
-  public ICatalogEntry<IEnumerable<TestData>> ProcessedA =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "processed_a"));
+  public IItem<IEnumerable<TestData>> ProcessedA =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "processed_a"));
 
-  public ICatalogEntry<IEnumerable<TestData>> ProcessedB =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "processed_b"));
+  public IItem<IEnumerable<TestData>> ProcessedB =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "processed_b"));
 
   // Layer 2 merged
-  public ICatalogEntry<IEnumerable<TestData>> Merged =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "merged"));
+  public IItem<IEnumerable<TestData>> Merged =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "merged"));
 
   // Layer 3 final
-  public ICatalogEntry<IEnumerable<TestData>> Final =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "final"));
+  public IItem<IEnumerable<TestData>> Final =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "final"));
 }
 
 /// <summary>
@@ -86,54 +86,54 @@ public record TestData
 /// Upstream catalog for multi-catalog pipeline tests.
 /// Owns the raw input entry and an output entry that a downstream catalog bridges.
 /// </summary>
-public class UpstreamCatalog : DataCatalogBase
+public class UpstreamCatalog : CatalogAbstract
 {
   public UpstreamCatalog()
   {
     InitializeCatalogProperties();
   }
 
-  public ICatalogEntry<IEnumerable<TestData>> UpstreamInput =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "upstream_input"));
+  public IItem<IEnumerable<TestData>> UpstreamInput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "upstream_input"));
 
-  public ICatalogEntry<IEnumerable<TestData>> UpstreamOutput =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "upstream_output"));
+  public IItem<IEnumerable<TestData>> UpstreamOutput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "upstream_output"));
 }
 
 /// <summary>
 /// Downstream catalog for multi-catalog pipeline tests.
 /// Owns its own output; bridges to UpstreamCatalog.UpstreamOutput are wired via the pipeline.
 /// </summary>
-public class DownstreamCatalog : DataCatalogBase
+public class DownstreamCatalog : CatalogAbstract
 {
   public DownstreamCatalog()
   {
     InitializeCatalogProperties();
   }
 
-  public ICatalogEntry<IEnumerable<TestData>> DownstreamOutput =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "downstream_output"));
+  public IItem<IEnumerable<TestData>> DownstreamOutput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "downstream_output"));
 }
 
 /// <summary>
 /// Third catalog for 3-arity pipeline tests.
 /// </summary>
-public class ThirdCatalog : DataCatalogBase
+public class ThirdCatalog : CatalogAbstract
 {
   public ThirdCatalog()
   {
     InitializeCatalogProperties();
   }
 
-  public ICatalogEntry<IEnumerable<TestData>> FinalOutput =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "final_output"));
+  public IItem<IEnumerable<TestData>> FinalOutput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "final_output"));
 }
 
 /// <summary>
 /// Per-shard catalog for fan-in and RegisterCatalogs tests.
 /// Each instance is keyed by a unique shard label, giving every entry a distinct identity.
 /// </summary>
-public class ShardCatalog : DataCatalogBase
+public class ShardCatalog : CatalogAbstract
 {
   private readonly string _shardKey;
 
@@ -143,22 +143,20 @@ public class ShardCatalog : DataCatalogBase
     InitializeCatalogProperties();
   }
 
-  public ICatalogEntry<IEnumerable<TestData>> ShardData =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Enumerable.Memory<TestData>(label: $"shard_data_{_shardKey}")
-    );
+  public IItem<IEnumerable<TestData>> ShardData =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: $"shard_data_{_shardKey}"));
 }
 
 /// <summary>
 /// Master catalog that aggregates data from multiple ShardCatalogs.
 /// </summary>
-public class MasterCatalog : DataCatalogBase
+public class MasterCatalog : CatalogAbstract
 {
   public MasterCatalog()
   {
     InitializeCatalogProperties();
   }
 
-  public ICatalogEntry<IEnumerable<TestData>> AllData =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TestData>(label: "all_data"));
+  public IItem<IEnumerable<TestData>> AllData =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "all_data"));
 }

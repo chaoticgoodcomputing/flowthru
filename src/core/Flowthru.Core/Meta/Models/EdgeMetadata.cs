@@ -7,16 +7,16 @@ namespace Flowthru.Meta.Models;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Edges represent data flow between catalog entries and nodes. The DAG contains
+/// Edges represent data Flow between catalog entries and nodes. The DAG contains
 /// two types of edges:
 /// </para>
 /// <list type="bullet">
-/// <item><strong>Catalog → Node:</strong> A node reads from a catalog entry</item>
-/// <item><strong>Node → Catalog:</strong> A node writes to a catalog entry</item>
+/// <item><strong>Catalog → Step:</strong> A node reads from a catalog entry</item>
+/// <item><strong>Step → Catalog:</strong> A node writes to a catalog entry</item>
 /// </list>
 /// <para>
 /// Together, these edges form the complete data flow:
-/// <c>CatalogEntry → Node → CatalogEntry → Node → ...</c>
+/// <c>Item → Step → Item → Step → ...</c>
 /// </para>
 /// </remarks>
 public class EdgeMetadata
@@ -25,8 +25,8 @@ public class EdgeMetadata
   /// Source identifier (either a catalog entry key or node ID).
   /// </summary>
   /// <remarks>
-  /// For Catalog → Node edges, this is a catalog entry key.
-  /// For Node → Catalog edges, this is a node ID.
+  /// For Catalog → Step edges, this is a catalog entry key.
+  /// For Step → Catalog edges, this is a node ID.
   /// </remarks>
   [JsonPropertyName("source")]
   public required string Source { get; init; }
@@ -35,8 +35,8 @@ public class EdgeMetadata
   /// Target identifier (either a node ID or catalog entry key).
   /// </summary>
   /// <remarks>
-  /// For Catalog → Node edges, this is a node ID.
-  /// For Node → Catalog edges, this is a catalog entry key.
+  /// For Catalog → Step edges, this is a node ID.
+  /// For Step → Catalog edges, this is a catalog entry key.
   /// </remarks>
   [JsonPropertyName("target")]
   public required string Target { get; init; }

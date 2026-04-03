@@ -11,7 +11,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace Flowthru.Misc.ML.UMAP.Core;
 
-public sealed class UmapPipelineBuilder
+public sealed class UmapFlowBuilder
 {
   private readonly UmapParameters _parameters;
   private IMetric _inputMetric = EuclideanMetric.Instance;
@@ -24,61 +24,61 @@ public sealed class UmapPipelineBuilder
   private ISamplingScheduleStrategy? _samplingSchedule;
   private ILayoutOptimizationStrategy? _layoutOptimization;
 
-  internal UmapPipelineBuilder(UmapParameters parameters)
+  internal UmapFlowBuilder(UmapParameters parameters)
   {
     _parameters = parameters;
     _parameters.Validate();
   }
 
-  public UmapPipelineBuilder WithInputMetric(IMetric metric)
+  public UmapFlowBuilder WithInputMetric(IMetric metric)
   {
     _inputMetric = metric ?? throw new ArgumentNullException(nameof(metric));
     return this;
   }
 
-  public UmapPipelineBuilder WithOutputMetric(IOutputMetric metric)
+  public UmapFlowBuilder WithOutputMetric(IOutputMetric metric)
   {
     _outputMetric = metric;
     return this;
   }
 
-  public UmapPipelineBuilder WithNeighborSearch(INeighborSearchStrategy strategy)
+  public UmapFlowBuilder WithNeighborSearch(INeighborSearchStrategy strategy)
   {
     _neighborSearch = strategy;
     return this;
   }
 
-  public UmapPipelineBuilder WithLocalMetric(ILocalMetricStrategy strategy)
+  public UmapFlowBuilder WithLocalMetric(ILocalMetricStrategy strategy)
   {
     _localMetric = strategy;
     return this;
   }
 
-  public UmapPipelineBuilder WithMembershipStrength(IMembershipStrengthStrategy strategy)
+  public UmapFlowBuilder WithMembershipStrength(IMembershipStrengthStrategy strategy)
   {
     _membershipStrength = strategy;
     return this;
   }
 
-  public UmapPipelineBuilder WithGraphRefinement(IGraphRefinementStrategy strategy)
+  public UmapFlowBuilder WithGraphRefinement(IGraphRefinementStrategy strategy)
   {
     _graphRefinement = strategy;
     return this;
   }
 
-  public UmapPipelineBuilder WithLayoutInit(ILayoutInitStrategy strategy)
+  public UmapFlowBuilder WithLayoutInit(ILayoutInitStrategy strategy)
   {
     _layoutInit = strategy;
     return this;
   }
 
-  public UmapPipelineBuilder WithSamplingSchedule(ISamplingScheduleStrategy strategy)
+  public UmapFlowBuilder WithSamplingSchedule(ISamplingScheduleStrategy strategy)
   {
     _samplingSchedule = strategy;
     return this;
   }
 
-  public UmapPipelineBuilder WithLayoutOptimization(ILayoutOptimizationStrategy strategy)
+  public UmapFlowBuilder WithLayoutOptimization(ILayoutOptimizationStrategy strategy)
   {
     _layoutOptimization = strategy;
     return this;

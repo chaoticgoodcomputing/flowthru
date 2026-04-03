@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.34](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.33...v0.1.34) (2026-04-03)
+
+
+### Bug Fixes
+
+* bulk correction ([d073eac](https://github.com/chaoticgoodcomputing/flowthru/commit/d073eac69af074eb2a5fdebaf6ff06cff65a193a))
+* bulk correction ([37d71a5](https://github.com/chaoticgoodcomputing/flowthru/commit/37d71a5858a3808aebe1d40943023e41e059b917))
+* checkpoint: is it finally done? ([68f3cef](https://github.com/chaoticgoodcomputing/flowthru/commit/68f3cef753314cfe9276e39b7398994a2b852808))
+* checkpoint: jesus christ ([3b15d3e](https://github.com/chaoticgoodcomputing/flowthru/commit/3b15d3e3652b62650fd618e482e4ea42d363d683))
+* consistent naming for registrations ([f42778a](https://github.com/chaoticgoodcomputing/flowthru/commit/f42778a0fa30375708ae8287ed05fdd7f619bb62))
+* finalize transition ([1bd3624](https://github.com/chaoticgoodcomputing/flowthru/commit/1bd3624500ba126f268a1831b897dc352ed5b71b))
+* minor test fixes ([6681e0a](https://github.com/chaoticgoodcomputing/flowthru/commit/6681e0a95ce55a6e4989d71dc595dae555b67f2c))
+* misc bulk replacements ([4e1f4d0](https://github.com/chaoticgoodcomputing/flowthru/commit/4e1f4d0cb4ffd56fb4df6b3b066ba19252f074e7))
+
+
+### Documentation
+
+* add docfx metadata pipeline (C# => Markdown reference) ([af2b744](https://github.com/chaoticgoodcomputing/flowthru/commit/af2b7441ea8cb604b2291f485b852ccdb7e34cfd))
+* almost there ([f232443](https://github.com/chaoticgoodcomputing/flowthru/commit/f23244373e76a7d23607bc237af90b6a2b00f1d2))
+
 ## [0.1.33](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.32...v0.1.33) (2026-04-01)
 
 

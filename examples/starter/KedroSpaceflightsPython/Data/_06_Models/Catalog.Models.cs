@@ -12,10 +12,10 @@ public partial class Catalog
   /// <summary>
   /// Trained linear regression model with coefficients and feature names.
   /// </summary>
-  public ICatalogEntry<LinearRegressionModel> Regressor =>
-    GetOrCreateEntry(
+  public IItem<LinearRegressionModel> Regressor =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<LinearRegressionModel>(
+        ItemFactory.Single.Json<LinearRegressionModel>(
           label: "Regressor",
           filePath: $"{_basePath}/_06_Models/Datasets/regressor.json"
         )

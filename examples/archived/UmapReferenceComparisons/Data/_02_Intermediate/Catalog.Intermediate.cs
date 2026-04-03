@@ -12,26 +12,24 @@ public partial class Catalog
   /// <summary>
   /// Iris dataset in universal UMAP input format (in-memory).
   /// </summary>
-  public ICatalogEntry<IEnumerable<UmapInput>> IrisUmapInput =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<UmapInput>(label: "IrisUmapInput"));
+  public IItem<IEnumerable<UmapInput>> IrisUmapInput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<UmapInput>(label: "IrisUmapInput"));
 
   /// <summary>
   /// Digits dataset in universal UMAP input format (in-memory).
   /// </summary>
-  public ICatalogEntry<IEnumerable<UmapInput>> DigitsUmapInput =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<UmapInput>(label: "DigitsUmapInput"));
+  public IItem<IEnumerable<UmapInput>> DigitsUmapInput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<UmapInput>(label: "DigitsUmapInput"));
 
   /// <summary>
   /// MNIST dataset in universal UMAP input format (in-memory).
   /// </summary>
-  public ICatalogEntry<IEnumerable<UmapInput>> MnistUmapInput =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<UmapInput>(label: "MnistUmapInput"));
+  public IItem<IEnumerable<UmapInput>> MnistUmapInput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<UmapInput>(label: "MnistUmapInput"));
 
   /// <summary>
   /// Fashion-MNIST dataset in universal UMAP input format (in-memory).
   /// </summary>
-  public ICatalogEntry<IEnumerable<UmapInput>> FashionMnistUmapInput =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Enumerable.Memory<UmapInput>(label: "FashionMnistUmapInput")
-    );
+  public IItem<IEnumerable<UmapInput>> FashionMnistUmapInput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<UmapInput>(label: "FashionMnistUmapInput"));
 }

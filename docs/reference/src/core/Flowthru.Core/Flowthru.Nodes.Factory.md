@@ -1,12 +1,12 @@
-# <a id="Flowthru_Nodes_Factory"></a> Namespace Flowthru.Nodes.Factory
+# <a id="Flowthru_Nodes_Factory"></a> Namespace Flowthru.Steps.Factory
 
 ### Classes
 
- [NodeFactory](Flowthru.Nodes.Factory.NodeFactory.md)
+ [NodeFactory](Flowthru.Steps.Factory.NodeFactory.md)
 
 Factory for creating node instances using TypeActivator.
 
- [TypeActivator](Flowthru.Nodes.Factory.TypeActivator.md)
+ [TypeActivator](Flowthru.Steps.Factory.TypeActivator.md)
 
 Factory for creating instances of types using compiled expression trees for performance.
 

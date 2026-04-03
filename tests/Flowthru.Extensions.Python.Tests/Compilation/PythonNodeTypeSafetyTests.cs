@@ -1,5 +1,5 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
+using Flowthru.Extensions.Python.Steps;
 using Flowthru.Extensions.Python.Tests.Schemas;
 using Flowthru.Tests.Common;
 using Microsoft.CodeAnalysis;
@@ -11,10 +11,10 @@ namespace Flowthru.Extensions.Python.Tests.Compilation;
 /// Compilation tests verifying that Python node wiring is type-safe at compile-time.
 /// </summary>
 /// <remarks>
-/// These tests verify that the catalog entry types passed to AddPythonNode are
+/// These tests verify that the catalog entry types passed to AddPythonStep are
 /// self-consistent and correctly inferred by the compiler.
 ///
-/// Note: Schema contract violations between C# generic types and Python @node
+/// Note: Schema contract violations between C# generic types and Python @step
 /// decorator declarations are caught at pre-flight, not compile-time — see
 /// <see cref="Flowthru.Extensions.Python.Tests.Validation.PythonNodeValidationTests"/>.
 /// </remarks>
@@ -24,28 +24,28 @@ namespace Flowthru.Extensions.Python.Tests.Compilation;
 public class PythonNodeTypeSafetyTests
 {
   [Test]
-  public void AddPythonNode_WithMatchingTypes_CompilesSuccessfully()
+  public void AddPythonStep_WithMatchingTypes_CompilesSuccessfully()
   {
     // Arrange: Code with correct type matching
     var code =
       @"
             using Flowthru.Data;
-            using Flowthru.Extensions.Python.Nodes;
+            using Flowthru.Extensions.Python.Steps;
             using Flowthru.Extensions.Python.Execution;
             using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Pipelines;
+            using Flowthru.Flows;
             
             public class TestProgram
             {
                 public void TestMethod(
                     IPythonExecutor executor)
                 {
-                    var config = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""config"");
-                    var result = CatalogEntries.Single.Memory<ModelResultSchema>(label: ""result"");
+                    var config = ItemFactory.Single.Memory<ModelConfigSchema>(label: ""config"");
+                    var result = ItemFactory.Single.Memory<ModelResultSchema>(label: ""result"");
                     
-                    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+                    var pipeline = FlowBuilder.CreateFlow(builder =>
                     {
-                        builder.AddPythonNode(
+                        builder.AddPythonStep(
                             label: ""Test"",
                             module: ""test"",
                             function: ""test"",
@@ -79,30 +79,30 @@ public class PythonNodeTypeSafetyTests
   }
 
   [Test]
-  public void AddPythonNode_WithInferredMatchingTypes_CompilesSuccessfully()
+  public void AddPythonStep_WithInferredMatchingTypes_CompilesSuccessfully()
   {
     // Arrange: Code that relies on type inference (no explicit generic params)
     // Type mismatch should still be caught
     var code =
       @"
             using Flowthru.Data;
-            using Flowthru.Extensions.Python.Nodes;
+            using Flowthru.Extensions.Python.Steps;
             using Flowthru.Extensions.Python.Execution;
             using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Pipelines;
+            using Flowthru.Flows;
             
             public class TestProgram
             {
                 public void TestMethod(
                     IPythonExecutor executor)
                 {
-                    var config = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""config"");
-                    var wrongOutput = CatalogEntries.Single.Memory<ModelConfigSchema>(label: ""wrong_output"");
+                    var config = ItemFactory.Single.Memory<ModelConfigSchema>(label: ""config"");
+                    var wrongOutput = ItemFactory.Single.Memory<ModelConfigSchema>(label: ""wrong_output"");
                     
-                    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+                    var pipeline = FlowBuilder.CreateFlow(builder =>
                     {
                         // Relying on type inference, but types still don't match
-                        builder.AddPythonNode(
+                        builder.AddPythonStep(
                             label: ""Test"",
                             module: ""test"",
                             function: ""test"",

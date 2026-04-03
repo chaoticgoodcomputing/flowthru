@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using KedroIris.Data;
 using KedroIris.Pipelines.DataScience.Nodes;
 
@@ -31,11 +31,11 @@ public static class DataSciencePipeline
   /// <param name="catalog">The data catalog containing input and output entries.</param>
   /// <param name="parameters">Configuration parameters for the pipeline.</param>
   /// <returns>A configured pipeline that produces a trained model, predictions, and metrics.</returns>
-  public static Pipeline Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TrainModel",
         description: "Trains a multi-class logistic regression model using gradient descent.",
         transform: TrainModelNode.Create(parameters.NumTrainIter, parameters.LearningRate),
@@ -43,7 +43,7 @@ public static class DataSciencePipeline
         output: catalog.IrisModel
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "Predict",
         description: "Predicts species classifications for the test set using the trained model.",
         transform: PredictNode.Create(),
@@ -51,7 +51,7 @@ public static class DataSciencePipeline
         output: catalog.Predictions
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "Evaluate",
         description: "Evaluates prediction accuracy and saves metrics to the reporting layer.",
         transform: EvaluateModelNode.Create(),

@@ -1,6 +1,6 @@
 # <a id="Flowthru_Nodes_NoData"></a> Class NoData
 
-Namespace: [Flowthru.Nodes](Flowthru.Nodes.md)  
+Namespace: [Flowthru.Steps](Flowthru.Steps.md)  
 Assembly: Flowthru.Core.dll  
 
 Marker type representing "no meaningful data" for nodes with side-effects or data generation.
@@ -13,7 +13,7 @@ public sealed class NoData
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[NoData](Flowthru.Nodes.NoData.md)
+[NoData](Flowthru.Steps.NoData.md)
 
 #### Inherited Members
 
@@ -62,12 +62,12 @@ public class ValidateNode : NodeBase&lt;InputSchema, NoData&gt;
 to a unique NullCatalogDataset instance:
 </p>
 <pre><code class="lang-csharp">// Simple syntax with automatic unique key generation
-pipeline.AddNode&lt;ValidationNode&gt;(
+pipeline.AddStep&lt;ValidationNode&gt;(
     input: catalog.InputData,
     output: NoData.Output  // or just: NoData.Discard
 );
 
-pipeline.AddNode&lt;GenerateDataNode&gt;(
+pipeline.AddStep&lt;GenerateDataNode&gt;(
     input: NoData.Input,  // or just: NoData.None
     output: catalog.GeneratedData
 );</code></pre>
@@ -85,7 +85,7 @@ public static readonly NoData Value
 
 #### Field Value
 
- [NoData](Flowthru.Nodes.NoData.md)
+ [NoData](Flowthru.Steps.NoData.md)
 
 ## Properties
 
@@ -95,12 +95,12 @@ Creates a unique null catalog entry for use as a node output (side-effect-only n
 Semantic alias for Output - use whichever reads better in context.
 
 ```csharp
-public static ICatalogEntry<NoData> Discard { get; }
+public static IItem<NoData> Discard { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 ### <a id="Flowthru_Nodes_NoData_Input"></a> Input
 
@@ -108,12 +108,12 @@ Creates a unique null catalog entry for use as a node input (no-input nodes).
 Each call generates a new instance with a unique key to avoid DAG conflicts.
 
 ```csharp
-public static ICatalogEntry<NoData> Input { get; }
+public static IItem<NoData> Input { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 #### Remarks
 
@@ -125,12 +125,12 @@ Creates a unique null catalog entry for use as a node input (no-input nodes).
 Semantic alias for Input - use whichever reads better in context.
 
 ```csharp
-public static ICatalogEntry<NoData> None { get; }
+public static IItem<NoData> None { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 ### <a id="Flowthru_Nodes_NoData_Output"></a> Output
 
@@ -138,12 +138,12 @@ Creates a unique null catalog entry for use as a node output (side-effect-only n
 Each call generates a new instance with a unique key to avoid DAG conflicts.
 
 ```csharp
-public static ICatalogEntry<NoData> Output { get; }
+public static IItem<NoData> Output { get; }
 ```
 
 #### Property Value
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[NoData](Flowthru.Nodes.NoData.md)\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[NoData](Flowthru.Steps.NoData.md)\>
 
 #### Remarks
 
@@ -162,7 +162,7 @@ public static Task<IEnumerable<NoData>> Result()
 
 #### Returns
 
- [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[NoData](Flowthru.Nodes.NoData.md)\>\>
+ [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[NoData](Flowthru.Steps.NoData.md)\>\>
 
 Singleton collection containing NoData.Value
 

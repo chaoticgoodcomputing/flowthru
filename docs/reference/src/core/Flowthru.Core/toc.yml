@@ -40,6 +40,10 @@
     href: Flowthru.Configuration.CatalogOptions.md
   - name: ConfigurationExtensions
     href: Flowthru.Configuration.ConfigurationExtensions.md
+  - name: FlowOptions
+    href: Flowthru.Configuration.FlowOptions.md
+  - name: FlowValidationOptions
+    href: Flowthru.Configuration.FlowValidationOptions.md
   - name: FlowthruConfigurationOptions
     href: Flowthru.Configuration.FlowthruConfigurationOptions.md
   - name: FlowthruOptions
@@ -52,10 +56,6 @@
     href: Flowthru.Configuration.MermaidMetadataOptions.md
   - name: MetadataOptions
     href: Flowthru.Configuration.MetadataOptions.md
-  - name: PipelineOptions
-    href: Flowthru.Configuration.PipelineOptions.md
-  - name: PipelineValidationOptions
-    href: Flowthru.Configuration.PipelineValidationOptions.md
   - name: TimestampConfiguration
     href: Flowthru.Configuration.TimestampConfiguration.md
   - name: Interfaces
@@ -65,21 +65,21 @@
   href: Flowthru.Data.md
   items:
   - name: Classes
-  - name: CatalogEntries
-    href: Flowthru.Data.CatalogEntries.md
-  - name: CatalogEntries.Single
-    href: Flowthru.Data.CatalogEntries.Single.md
-  - name: CatalogEntry<T>
-    href: Flowthru.Data.CatalogEntry-1.md
-  - name: DataCatalogBase
-    href: Flowthru.Data.DataCatalogBase.md
-  - name: EnumerableCatalogEntries
-    href: Flowthru.Data.EnumerableCatalogEntries.md
+  - name: CatalogAbstract
+    href: Flowthru.Data.CatalogAbstract.md
+  - name: EnumerableItems
+    href: Flowthru.Data.EnumerableItems.md
+  - name: Item<T>
+    href: Flowthru.Data.Item-1.md
+  - name: Items
+    href: Flowthru.Data.Items.md
+  - name: Items.Single
+    href: Flowthru.Data.Items.Single.md
   - name: Interfaces
-  - name: ICatalogEntry
-    href: Flowthru.Data.ICatalogEntry.md
-  - name: ICatalogEntry<T>
-    href: Flowthru.Data.ICatalogEntry-1.md
+  - name: IItem
+    href: Flowthru.Data.IItem.md
+  - name: IItem<T>
+    href: Flowthru.Data.IItem-1.md
 - name: Flowthru.Data.Capabilities
   href: Flowthru.Data.Capabilities.md
   items:
@@ -179,6 +179,39 @@
     href: Flowthru.Effects.FlowIO-1.md
   - name: FlowUnit
     href: Flowthru.Effects.FlowUnit.md
+- name: Flowthru.Flows
+  href: Flowthru.Flows.md
+  items:
+  - name: Classes
+  - name: ExecutionOptions
+    href: Flowthru.Flows.ExecutionOptions.md
+  - name: Flow
+    href: Flowthru.Flows.Flow.md
+  - name: FlowBuilder
+    href: Flowthru.Flows.FlowBuilder.md
+  - name: FlowResult
+    href: Flowthru.Flows.FlowResult.md
+  - name: FlowSliceStrategy
+    href: Flowthru.Flows.FlowSliceStrategy.md
+  - name: FlowStep
+    href: Flowthru.Flows.FlowStep.md
+  - name: StepResult
+    href: Flowthru.Flows.StepResult.md
+  - name: Structs
+  - name: DryRunOption
+    href: Flowthru.Flows.DryRunOption.md
+  - name: Enums
+  - name: ValidationDepth
+    href: Flowthru.Flows.ValidationDepth.md
+- name: Flowthru.Flows.Validation
+  href: Flowthru.Flows.Validation.md
+  items:
+  - name: Classes
+  - name: ValidationOptions
+    href: Flowthru.Flows.Validation.ValidationOptions.md
+  - name: Interfaces
+  - name: IFlowValidationHook
+    href: Flowthru.Flows.Validation.IFlowValidationHook.md
 - name: Flowthru.Meta
   href: Flowthru.Meta.md
   items:
@@ -203,20 +236,20 @@
   href: Flowthru.Meta.Models.md
   items:
   - name: Classes
-  - name: CatalogEntryMetadata
-    href: Flowthru.Meta.Models.CatalogEntryMetadata.md
   - name: DagMetadata
     href: Flowthru.Meta.Models.DagMetadata.md
   - name: DagSliceMetadata
     href: Flowthru.Meta.Models.DagSliceMetadata.md
   - name: EdgeMetadata
     href: Flowthru.Meta.Models.EdgeMetadata.md
-  - name: NodeMetadata
-    href: Flowthru.Meta.Models.NodeMetadata.md
+  - name: ItemMetadata
+    href: Flowthru.Meta.Models.ItemMetadata.md
   - name: SchemaField
     href: Flowthru.Meta.Models.SchemaField.md
   - name: SchemaMetadata
     href: Flowthru.Meta.Models.SchemaMetadata.md
+  - name: StepMetadata
+    href: Flowthru.Meta.Models.StepMetadata.md
 - name: Flowthru.Meta.Providers
   href: Flowthru.Meta.Providers.md
   items:
@@ -231,61 +264,12 @@
   - name: Enums
   - name: MermaidMetadataProvider.MermaidFlowchartDirection
     href: Flowthru.Meta.Providers.MermaidMetadataProvider.MermaidFlowchartDirection.md
-- name: Flowthru.Nodes
-  href: Flowthru.Nodes.md
-  items:
-  - name: Classes
-  - name: NoData
-    href: Flowthru.Nodes.NoData.md
-  - name: NoParams
-    href: Flowthru.Nodes.NoParams.md
-- name: Flowthru.Nodes.Factory
-  href: Flowthru.Nodes.Factory.md
-  items:
-  - name: Classes
-  - name: NodeFactory
-    href: Flowthru.Nodes.Factory.NodeFactory.md
-  - name: TypeActivator
-    href: Flowthru.Nodes.Factory.TypeActivator.md
-- name: Flowthru.Pipelines
-  href: Flowthru.Pipelines.md
-  items:
-  - name: Classes
-  - name: ExecutionOptions
-    href: Flowthru.Pipelines.ExecutionOptions.md
-  - name: NodeResult
-    href: Flowthru.Pipelines.NodeResult.md
-  - name: Pipeline
-    href: Flowthru.Pipelines.Pipeline.md
-  - name: PipelineBuilder
-    href: Flowthru.Pipelines.PipelineBuilder.md
-  - name: PipelineNode
-    href: Flowthru.Pipelines.PipelineNode.md
-  - name: PipelineResult
-    href: Flowthru.Pipelines.PipelineResult.md
-  - name: PipelineSliceStrategy
-    href: Flowthru.Pipelines.PipelineSliceStrategy.md
-  - name: Structs
-  - name: DryRunOption
-    href: Flowthru.Pipelines.DryRunOption.md
-  - name: Enums
-  - name: ValidationDepth
-    href: Flowthru.Pipelines.ValidationDepth.md
-- name: Flowthru.Pipelines.Validation
-  href: Flowthru.Pipelines.Validation.md
-  items:
-  - name: Classes
-  - name: ValidationOptions
-    href: Flowthru.Pipelines.Validation.ValidationOptions.md
-  - name: Interfaces
-  - name: IPipelineValidationHook
-    href: Flowthru.Pipelines.Validation.IPipelineValidationHook.md
 - name: Flowthru.Registry
   href: Flowthru.Registry.md
   items:
   - name: Interfaces
-  - name: IPipelineRegistrar<TCatalog>
-    href: Flowthru.Registry.IPipelineRegistrar-1.md
+  - name: IFlowRegistrar<TCatalog>
+    href: Flowthru.Registry.IFlowRegistrar-1.md
 - name: Flowthru.Results
   href: Flowthru.Results.md
   items:
@@ -293,8 +277,8 @@
   - name: ConsoleResultFormatter
     href: Flowthru.Results.ConsoleResultFormatter.md
   - name: Interfaces
-  - name: IPipelineResultFormatter
-    href: Flowthru.Results.IPipelineResultFormatter.md
+  - name: IFlowResultFormatter
+    href: Flowthru.Results.IFlowResultFormatter.md
 - name: Flowthru.Services
   href: Flowthru.Services.md
   items:
@@ -308,10 +292,24 @@
   href: Flowthru.Services.Models.md
   items:
   - name: Classes
-  - name: PipelineExecutionRequest
-    href: Flowthru.Services.Models.PipelineExecutionRequest.md
-  - name: PipelineMetadata
-    href: Flowthru.Services.Models.PipelineMetadata.md
+  - name: FlowMetadata
+    href: Flowthru.Services.Models.FlowMetadata.md
+- name: Flowthru.Steps
+  href: Flowthru.Steps.md
+  items:
+  - name: Classes
+  - name: NoData
+    href: Flowthru.Steps.NoData.md
+  - name: NoParams
+    href: Flowthru.Steps.NoParams.md
+- name: Flowthru.Steps.Factory
+  href: Flowthru.Steps.Factory.md
+  items:
+  - name: Classes
+  - name: StepFactory
+    href: Flowthru.Steps.Factory.StepFactory.md
+  - name: TypeActivator
+    href: Flowthru.Steps.Factory.TypeActivator.md
 - name: Microsoft.Extensions.DependencyInjection
   href: Microsoft.Extensions.DependencyInjection.md
   items:

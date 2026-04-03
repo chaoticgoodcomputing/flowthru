@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using KedroSpaceflights.Data;
 using KedroSpaceflights.Pipelines.Reporting.Nodes;
 
@@ -41,15 +41,15 @@ public static class ReportingPipeline
   /// <param name="catalog">The data catalog containing input and output entries.</param>
   /// <param name="parameters">Configuration parameters for the pipeline (optional).</param>
   /// <returns>A configured pipeline that produces visualizations and reports.</returns>
-  public static Pipeline Create(Catalog catalog, Params? parameters = null)
+  public static Flow Create(Catalog catalog, Params? parameters = null)
   {
     var p = parameters ?? new Params();
 
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // ===== Shuttle Passenger Capacity Report (JSON) =====
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ComparePassengerCapacity",
         transform: ComparePassengerCapacityNode.Create(),
         input: catalog.PreprocessedShuttles,
@@ -59,7 +59,7 @@ public static class ReportingPipeline
       // ===== Shuttle Passenger Capacity Visualization =====
 
       // Step 1: Generate chart from preprocessed shuttle data
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GeneratePassengerCapacityChart",
         transform: GeneratePassengerCapacityChartNode.Create(),
         input: catalog.PreprocessedShuttles,
@@ -68,7 +68,7 @@ public static class ReportingPipeline
 
       // NOTE: Commented out due to performance issues with Plotly.NET
       // // Step 2: Export chart to PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportPassengerCapacityPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ShuttlePassengerCapacityChart,
@@ -78,7 +78,7 @@ public static class ReportingPipeline
       // ===== Confusion Matrix Visualization =====
 
       // Step 1: Generate confusion matrix heatmap from model predictions
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GenerateConfusionMatrixChart",
         transform: CreateConfusionMatrixNode.Create(p.ConfusionMatrixOptions),
         input: catalog.ModelPredictions,
@@ -87,7 +87,7 @@ public static class ReportingPipeline
 
       // NOTE: Commented out due to performance issues with Plotly.NET
       // // Step 2: Export chart to PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportConfusionMatrixPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ConfusionMatrixChart,

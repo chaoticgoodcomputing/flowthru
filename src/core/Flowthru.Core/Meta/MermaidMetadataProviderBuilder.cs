@@ -9,12 +9,12 @@ namespace Flowthru.Meta;
 public class MermaidMetadataProviderBuilder
 {
   private string _outputDirectory = "metadata";
-  private string _filenameTemplate = "dag-{PipelineName}-{Timestamp}-{SliceType}";
+  private string _filenameTemplate = "dag-{FlowName}-{Timestamp}-{SliceType}";
   private TimestampConfiguration _timestampConfig = new();
   private MermaidMetadataProvider.MermaidFlowchartDirection _direction = MermaidMetadataProvider
     .MermaidFlowchartDirection
     .TopToBottom;
-  private string _activeNodeColor = "#2E7D32";
+  private string _activeStepColor = "#2E7D32";
   private string _activeDataColor = "#2E7D32";
   private ILogger? _logger;
 
@@ -32,7 +32,7 @@ public class MermaidMetadataProviderBuilder
   /// <summary>
   /// Sets the filename template for metadata files.
   /// </summary>
-  /// <param name="template">Template with placeholders: {PipelineName}, {Timestamp}, {SliceType}</param>
+  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
   /// <returns>This builder for fluent chaining</returns>
   public MermaidMetadataProviderBuilder WithFilenameTemplate(string template)
   {
@@ -69,9 +69,9 @@ public class MermaidMetadataProviderBuilder
   /// </summary>
   /// <param name="color">Hex color code (e.g., "#2E7D32")</param>
   /// <returns>This builder for fluent chaining</returns>
-  public MermaidMetadataProviderBuilder WithActiveNodeColor(string color)
+  public MermaidMetadataProviderBuilder WithActiveStepColor(string color)
   {
-    _activeNodeColor = color ?? throw new ArgumentNullException(nameof(color));
+    _activeStepColor = color ?? throw new ArgumentNullException(nameof(color));
     return this;
   }
 
@@ -108,7 +108,7 @@ public class MermaidMetadataProviderBuilder
       _filenameTemplate,
       _timestampConfig,
       _direction,
-      _activeNodeColor,
+      _activeStepColor,
       _activeDataColor,
       _logger
     );

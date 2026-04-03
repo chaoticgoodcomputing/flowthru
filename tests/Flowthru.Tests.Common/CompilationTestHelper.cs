@@ -47,7 +47,7 @@ public static class CompilationTestHelper
     {
       // Add Flowthru assembly reference
       references.Add(
-        MetadataReference.CreateFromFile(typeof(Data.DataCatalogBase).Assembly.Location)
+        MetadataReference.CreateFromFile(typeof(Data.CatalogAbstract).Assembly.Location)
       );
 
       // Add LanguageExt for Flowthru dependencies

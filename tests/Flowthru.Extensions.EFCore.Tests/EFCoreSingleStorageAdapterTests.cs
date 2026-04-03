@@ -32,7 +32,7 @@ public class EFCoreSingleStorageAdapterTests
   {
     var testEntity = new TestEntity { Id = 1, Name = "Alice" };
 
-    var entry = EFCoreCatalogEntries.Single.EFCore<TestEntity>(
+    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
       "test",
       () => new TestDbContext(_options)
     );
@@ -47,7 +47,7 @@ public class EFCoreSingleStorageAdapterTests
   [Test]
   public async Task AllowEmptyData_False_FailsInspectionOnEmptyTable()
   {
-    var entry = EFCoreCatalogEntries.Single.EFCore<TestEntity>(
+    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
       "test",
       () => new TestDbContext(_options),
       allowEmptyData: false
@@ -61,7 +61,7 @@ public class EFCoreSingleStorageAdapterTests
   [Test]
   public async Task AllowEmptyData_True_PassesInspectionOnEmptyTable()
   {
-    var entry = EFCoreCatalogEntries.Single.EFCore<TestEntity>(
+    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
       "test",
       () => new TestDbContext(_options),
       allowEmptyData: true

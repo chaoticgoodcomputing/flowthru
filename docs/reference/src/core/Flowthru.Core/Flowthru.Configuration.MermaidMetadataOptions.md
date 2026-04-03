@@ -43,12 +43,12 @@ public string ActiveDataColor { get; set; }
 Color applied to data catalog entries produced by sliced nodes.
 Default: #2E7D32 (Material Design green-800).
 
-### <a id="Flowthru_Configuration_MermaidMetadataOptions_ActiveNodeColor"></a> ActiveNodeColor
+### <a id="Flowthru_Configuration_MermaidMetadataOptions_ActiveStepColor"></a> ActiveStepColor
 
 Hex color code for active (sliced) nodes.
 
 ```csharp
-public string ActiveNodeColor { get; set; }
+public string ActiveStepColor { get; set; }
 ```
 
 #### Property Value

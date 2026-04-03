@@ -7,7 +7,7 @@ namespace SpaceflightsPythonEFCore.Data;
 /// Data catalog for the SpaceflightsPythonEFCore pipeline.
 /// Combines EFCore storage (DataProcessing and ModelPredictions) with Python-consumed file and memory entries.
 /// </summary>
-public partial class Catalog : DataCatalogBase
+public partial class Catalog : CatalogAbstract
 {
   private readonly string _basePath;
   private readonly IDbContextFactory<SpaceflightsDbContext> _contextFactory;

@@ -6,7 +6,7 @@ namespace SpaceflightsDistributed.Reporting.Data;
 /// Data catalog for the Reporting pipeline library.
 /// Owns reporting outputs — capacity reports and visualization charts.
 /// </summary>
-public partial class ReportingCatalog : DataCatalogBase
+public partial class ReportingCatalog : CatalogAbstract
 {
   private readonly string _basePath;
 

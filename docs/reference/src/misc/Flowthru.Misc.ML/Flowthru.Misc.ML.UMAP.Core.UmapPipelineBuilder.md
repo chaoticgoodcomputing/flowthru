@@ -1,16 +1,16 @@
-# <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder"></a> Class UmapPipelineBuilder
+# <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder"></a> Class UmapFlowBuilder
 
 Namespace: [Flowthru.Misc.ML.UMAP.Core](Flowthru.Misc.ML.UMAP.Core.md)  
 Assembly: Flowthru.Misc.ML.dll  
 
 ```csharp
-public sealed class UmapPipelineBuilder
+public sealed class UmapFlowBuilder
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+[UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
 #### Inherited Members
 
@@ -23,7 +23,7 @@ public sealed class UmapPipelineBuilder
 
 ## Methods
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_FitTransform_System_Single_____"></a> FitTransform\(float\[\]\[\]\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_FitTransform_System_Single_____"></a> FitTransform\(float\[\]\[\]\)
 
 Fits UMAP and transforms data in one step.
 Auto-selects strategies based on data characteristics if not explicitly set.
@@ -44,7 +44,7 @@ Input data as jagged array (n_samples, n_features)
 
 Low-dimensional embedding (n_samples, n_components)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_FitTransform_MathNet_Numerics_LinearAlgebra_Matrix_System_Single__"></a> FitTransform\(Matrix<float\>\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_FitTransform_MathNet_Numerics_LinearAlgebra_Matrix_System_Single__"></a> FitTransform\(Matrix<float\>\)
 
 Fits UMAP and transforms data in one step.
 Auto-selects strategies based on data characteristics if not explicitly set.
@@ -71,7 +71,7 @@ TODO: Consider deprecating this overload. Matrix&lt;float&gt; adds virtual call 
 and intermediate allocations compared to float[][]. Only kept for compatibility with
 SpectralInit which uses Math.Net for eigenvalue decomposition.
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_FitTransformWithReport_MathNet_Numerics_LinearAlgebra_Matrix_System_Single__"></a> FitTransformWithReport\(Matrix<float\>\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_FitTransformWithReport_MathNet_Numerics_LinearAlgebra_Matrix_System_Single__"></a> FitTransformWithReport\(Matrix<float\>\)
 
 Fits UMAP and transforms data in one step, returning full result including runtime report.
 Auto-selects strategies based on data characteristics if not explicitly set.
@@ -92,10 +92,10 @@ Input data matrix (n_samples, n_features)
 
 Complete UMAP result including embedding and runtime metrics
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithGraphRefinement_Flowthru_Misc_ML_UMAP_Strategies_GraphRefinement_IGraphRefinementStrategy_"></a> WithGraphRefinement\(IGraphRefinementStrategy\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithGraphRefinement_Flowthru_Misc_ML_UMAP_Strategies_GraphRefinement_IGraphRefinementStrategy_"></a> WithGraphRefinement\(IGraphRefinementStrategy\)
 
 ```csharp
-public UmapPipelineBuilder WithGraphRefinement(IGraphRefinementStrategy strategy)
+public UmapFlowBuilder WithGraphRefinement(IGraphRefinementStrategy strategy)
 ```
 
 #### Parameters
@@ -104,12 +104,12 @@ public UmapPipelineBuilder WithGraphRefinement(IGraphRefinementStrategy strategy
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithInputMetric_Flowthru_Misc_ML_UMAP_Core_Markers_IMetric_"></a> WithInputMetric\(IMetric\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithInputMetric_Flowthru_Misc_ML_UMAP_Core_Markers_IMetric_"></a> WithInputMetric\(IMetric\)
 
 ```csharp
-public UmapPipelineBuilder WithInputMetric(IMetric metric)
+public UmapFlowBuilder WithInputMetric(IMetric metric)
 ```
 
 #### Parameters
@@ -118,12 +118,12 @@ public UmapPipelineBuilder WithInputMetric(IMetric metric)
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithLayoutInit_Flowthru_Misc_ML_UMAP_Strategies_LayoutInit_ILayoutInitStrategy_"></a> WithLayoutInit\(ILayoutInitStrategy\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithLayoutInit_Flowthru_Misc_ML_UMAP_Strategies_LayoutInit_ILayoutInitStrategy_"></a> WithLayoutInit\(ILayoutInitStrategy\)
 
 ```csharp
-public UmapPipelineBuilder WithLayoutInit(ILayoutInitStrategy strategy)
+public UmapFlowBuilder WithLayoutInit(ILayoutInitStrategy strategy)
 ```
 
 #### Parameters
@@ -132,12 +132,12 @@ public UmapPipelineBuilder WithLayoutInit(ILayoutInitStrategy strategy)
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithLayoutOptimization_Flowthru_Misc_ML_UMAP_Strategies_LayoutOptimization_ILayoutOptimizationStrategy_"></a> WithLayoutOptimization\(ILayoutOptimizationStrategy\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithLayoutOptimization_Flowthru_Misc_ML_UMAP_Strategies_LayoutOptimization_ILayoutOptimizationStrategy_"></a> WithLayoutOptimization\(ILayoutOptimizationStrategy\)
 
 ```csharp
-public UmapPipelineBuilder WithLayoutOptimization(ILayoutOptimizationStrategy strategy)
+public UmapFlowBuilder WithLayoutOptimization(ILayoutOptimizationStrategy strategy)
 ```
 
 #### Parameters
@@ -146,12 +146,12 @@ public UmapPipelineBuilder WithLayoutOptimization(ILayoutOptimizationStrategy st
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithLocalMetric_Flowthru_Misc_ML_UMAP_Strategies_LocalMetric_ILocalMetricStrategy_"></a> WithLocalMetric\(ILocalMetricStrategy\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithLocalMetric_Flowthru_Misc_ML_UMAP_Strategies_LocalMetric_ILocalMetricStrategy_"></a> WithLocalMetric\(ILocalMetricStrategy\)
 
 ```csharp
-public UmapPipelineBuilder WithLocalMetric(ILocalMetricStrategy strategy)
+public UmapFlowBuilder WithLocalMetric(ILocalMetricStrategy strategy)
 ```
 
 #### Parameters
@@ -160,12 +160,12 @@ public UmapPipelineBuilder WithLocalMetric(ILocalMetricStrategy strategy)
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithMembershipStrength_Flowthru_Misc_ML_UMAP_Strategies_MembershipStrength_IMembershipStrengthStrategy_"></a> WithMembershipStrength\(IMembershipStrengthStrategy\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithMembershipStrength_Flowthru_Misc_ML_UMAP_Strategies_MembershipStrength_IMembershipStrengthStrategy_"></a> WithMembershipStrength\(IMembershipStrengthStrategy\)
 
 ```csharp
-public UmapPipelineBuilder WithMembershipStrength(IMembershipStrengthStrategy strategy)
+public UmapFlowBuilder WithMembershipStrength(IMembershipStrengthStrategy strategy)
 ```
 
 #### Parameters
@@ -174,12 +174,12 @@ public UmapPipelineBuilder WithMembershipStrength(IMembershipStrengthStrategy st
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithNeighborSearch_Flowthru_Misc_ML_UMAP_Strategies_NeighborSearch_INeighborSearchStrategy_"></a> WithNeighborSearch\(INeighborSearchStrategy\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithNeighborSearch_Flowthru_Misc_ML_UMAP_Strategies_NeighborSearch_INeighborSearchStrategy_"></a> WithNeighborSearch\(INeighborSearchStrategy\)
 
 ```csharp
-public UmapPipelineBuilder WithNeighborSearch(INeighborSearchStrategy strategy)
+public UmapFlowBuilder WithNeighborSearch(INeighborSearchStrategy strategy)
 ```
 
 #### Parameters
@@ -188,12 +188,12 @@ public UmapPipelineBuilder WithNeighborSearch(INeighborSearchStrategy strategy)
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithOutputMetric_Flowthru_Misc_ML_UMAP_Core_Markers_IOutputMetric_"></a> WithOutputMetric\(IOutputMetric\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithOutputMetric_Flowthru_Misc_ML_UMAP_Core_Markers_IOutputMetric_"></a> WithOutputMetric\(IOutputMetric\)
 
 ```csharp
-public UmapPipelineBuilder WithOutputMetric(IOutputMetric metric)
+public UmapFlowBuilder WithOutputMetric(IOutputMetric metric)
 ```
 
 #### Parameters
@@ -202,12 +202,12 @@ public UmapPipelineBuilder WithOutputMetric(IOutputMetric metric)
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
-### <a id="Flowthru_Misc_ML_UMAP_Core_UmapPipelineBuilder_WithSamplingSchedule_Flowthru_Misc_ML_UMAP_Strategies_SamplingSchedule_ISamplingScheduleStrategy_"></a> WithSamplingSchedule\(ISamplingScheduleStrategy\)
+### <a id="Flowthru_Misc_ML_UMAP_Core_UmapFlowBuilder_WithSamplingSchedule_Flowthru_Misc_ML_UMAP_Strategies_SamplingSchedule_ISamplingScheduleStrategy_"></a> WithSamplingSchedule\(ISamplingScheduleStrategy\)
 
 ```csharp
-public UmapPipelineBuilder WithSamplingSchedule(ISamplingScheduleStrategy strategy)
+public UmapFlowBuilder WithSamplingSchedule(ISamplingScheduleStrategy strategy)
 ```
 
 #### Parameters
@@ -216,5 +216,5 @@ public UmapPipelineBuilder WithSamplingSchedule(ISamplingScheduleStrategy strate
 
 #### Returns
 
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 

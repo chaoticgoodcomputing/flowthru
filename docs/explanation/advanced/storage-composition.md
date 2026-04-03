@@ -140,11 +140,11 @@ public class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
 
 ## Catalog-Level Constraint Narrowing
 
-After adapter creation, pipeline authors can further constrain catalog entries using `CatalogEntry<T>.Constrain()`:
+After adapter creation, pipeline authors can further constrain catalog entries using `Item<T>.Constrain()`:
 
 ```csharp
-public ICatalogEntry<IEnumerable<Company>> Companies => GetOrCreateEntry(() =>
-    CatalogEntries.Enumerable.Csv<Company>("companies", "data/companies.csv")
+public IItem<IEnumerable<Company>> Companies => GetOrCreateEntry(() =>
+    ItemFactory.Enumerable.Csv<Company>("companies", "data/companies.csv")
         .Constrain(traits => traits with { CanWrite = false })
 );
 ```
@@ -201,7 +201,7 @@ The trait system solves all three:
 
 - **Composable**: Eight independent boolean flags
 - **Queryable**: `adapter.Traits.CanWrite` checked before operation
-- **Fail-fast**: `CatalogEntry.Constrain()` validates at initialization
+- **Fail-fast**: `Item.Constrain()` validates at initialization
 
 The old interfaces remain as `[Obsolete]` for backward compatibility but have no effect on pipeline behavior.
 
@@ -211,9 +211,9 @@ The storage architecture is implemented in:
 
 - `src/core/Flowthru/Data/Capabilities/StorageTraits.cs` — the trait record
 - `src/core/Flowthru/Data/Storage/ComposedStorageAdapter.cs` — trait merging logic
-- `src/core/Flowthru/Data/CatalogEntry.cs` — `Constrain()` with ratchet validation
+- `src/core/Flowthru/Data/Item.cs` — `Constrain()` with ratchet validation
 - `src/core/Flowthru/Data/Storage/Medium/` — medium implementations with traits
 - `src/core/Flowthru/Data/Storage/Format/` — format serializers with traits
 
-Catalog entry factories (`CatalogEntries.Enumerable.Csv<T>(...)`) construct composed adapters with sensible defaults. Extension authors creating custom adapters should declare traits that accurately reflect their capabilities.
+Catalog entry factories (`ItemFactory.Enumerable.Csv<T>(...)`) construct composed adapters with sensible defaults. Extension authors creating custom adapters should declare traits that accurately reflect their capabilities.
 

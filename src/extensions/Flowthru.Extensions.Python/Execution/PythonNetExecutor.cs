@@ -97,10 +97,10 @@ public sealed class PythonNetExecutor : IPythonExecutor
   }
 
   /// <inheritdoc />
-  public void ValidateNode(string moduleName, string functionName)
+  public void ValidateStep(string moduleName, string functionName)
   {
     _runtime.Initialize();
-    PythonNodeRegistrationValidator.ValidateRegistration(_runtime, moduleName, functionName);
+    PythonStepRegistrationValidator.ValidateRegistration(_runtime, moduleName, functionName);
   }
 
   // ── Scalar path ──────────────────────────────────────────────────────────────────────

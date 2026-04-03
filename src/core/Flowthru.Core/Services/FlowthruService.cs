@@ -1,9 +1,10 @@
 using System.Diagnostics;
 using Flowthru.Data;
 using Flowthru.Data.Validation;
+using Flowthru.Flows;
+using Flowthru.Flows.Validation;
 using Flowthru.Meta;
 using Flowthru.Meta.Models;
-using Flowthru.Pipelines;
 using Flowthru.Services.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,13 +16,13 @@ namespace Flowthru.Services;
 /// </summary>
 /// <remarks>
 /// This service wraps pipeline execution logic in a CLI-agnostic interface.
-/// It delegates to existing <see cref="Pipeline"/> execution methods while
+/// It delegates to existing <see cref="Flow"/> execution methods while
 /// providing a cleaner API for programmatic use.
 /// </remarks>
 internal sealed class FlowthruService : IFlowthruService
 {
-  private readonly IReadOnlyList<DataCatalogBase> _catalogs;
-  private readonly Dictionary<string, Pipeline> _pipelines;
+  private readonly IReadOnlyList<CatalogAbstract> _catalogs;
+  private readonly Dictionary<string, Flow> _pipelines;
   private readonly IServiceProvider _services;
   private readonly ILogger<FlowthruService> _logger;
   private readonly FlowthruMetadataBuilder? _metadataBuilder;
@@ -30,8 +31,8 @@ internal sealed class FlowthruService : IFlowthruService
   /// Initializes a new instance of FlowthruService.
   /// </summary>
   public FlowthruService(
-    IReadOnlyList<DataCatalogBase> catalogs,
-    Dictionary<string, Pipeline> pipelines,
+    IReadOnlyList<CatalogAbstract> catalogs,
+    Dictionary<string, Flow> pipelines,
     IServiceProvider services,
     ILogger<FlowthruService> logger,
     FlowthruMetadataBuilder? metadataBuilder = null
@@ -50,9 +51,7 @@ internal sealed class FlowthruService : IFlowthruService
     }
 
     // Resolve validation hooks from DI (Phase 4: extensions can register hooks)
-    var validationHooks = _services
-      .GetServices<Pipelines.Validation.IPipelineValidationHook>()
-      .ToList();
+    var validationHooks = _services.GetServices<IFlowValidationHook>().ToList();
 
     // Inject services into each pipeline and build
     foreach (var pipeline in _pipelines.Values)
@@ -60,7 +59,7 @@ internal sealed class FlowthruService : IFlowthruService
       pipeline.Logger = _logger;
       pipeline.ServiceProvider = _services;
 
-      // Register validation hooks (e.g., PythonNodeValidator from Python extension)
+      // Register validation hooks (e.g., PythonStepValidator from Python extension)
       foreach (var hook in validationHooks)
       {
         pipeline.ValidationHooks.Add(hook);
@@ -71,13 +70,13 @@ internal sealed class FlowthruService : IFlowthruService
   }
 
   /// <inheritdoc />
-  public IReadOnlyCollection<string> PipelineNames => _pipelines.Keys;
+  public IReadOnlyCollection<string> FlowNames => _pipelines.Keys;
 
   /// <inheritdoc />
-  public IReadOnlyList<DataCatalogBase> Catalogs => _catalogs;
+  public IReadOnlyList<CatalogAbstract> Catalogs => _catalogs;
 
   /// <inheritdoc />
-  public async Task<PipelineResult> ExecutePipelineAsync(
+  public async Task<FlowResult> ExecuteFlowAsync(
     ExecutionOptions? options = null,
     bool exportMetadata = true,
     string? metadataOutputDirectory = null,
@@ -87,10 +86,10 @@ internal sealed class FlowthruService : IFlowthruService
     var totalStopwatch = Stopwatch.StartNew();
 
     _logger.LogInformation("Merging all pipelines into unified DAG.");
-    _logger.LogInformation("Available pipelines: {Pipelines}", string.Join(", ", PipelineNames));
+    _logger.LogInformation("Available pipelines: {Pipelines}", string.Join(", ", FlowNames));
 
     // Merge all pipelines into a single DAG
-    var mergedPipeline = Pipeline.Merge(_pipelines);
+    var mergedPipeline = Flow.Merge(_pipelines);
 
     // Inject services and logger
     mergedPipeline.Logger = _logger;
@@ -112,8 +111,8 @@ internal sealed class FlowthruService : IFlowthruService
     _logger.LogInformation("→ Building pipeline and analyzing dependencies...");
     mergedPipeline.Build(options.SliceStrategy);
     _logger.LogInformation(
-      "  ✓ {NodeCount} nodes organized into {LayerCount} execution layers",
-      mergedPipeline.Nodes.Count,
+      "  ✓ {StepCount} nodes organized into {LayerCount} execution layers",
+      mergedPipeline.Steps.Count,
       mergedPipeline.ExecutionLayers!.Count
     );
 
@@ -136,8 +135,8 @@ internal sealed class FlowthruService : IFlowthruService
         validationResult.ThrowIfInvalid();
       }
 
-      var layer0Nodes = mergedPipeline.ExecutionLayers![0];
-      validatedInputCount = layer0Nodes.SelectMany(node => node.Inputs).Distinct().Count();
+      var layer0Steps = mergedPipeline.ExecutionLayers![0];
+      validatedInputCount = layer0Steps.SelectMany(node => node.Inputs).Distinct().Count();
       _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
     }
 
@@ -173,8 +172,8 @@ internal sealed class FlowthruService : IFlowthruService
       _logger.LogInformation("════════════════════════════════════════");
       _logger.LogInformation("");
       _logger.LogInformation(
-        "Nodes: {Count} nodes across {Layers} layers",
-        mergedPipeline.Nodes.Count,
+        "Steps: {Count} nodes across {Layers} layers",
+        mergedPipeline.Steps.Count,
         mergedPipeline.ExecutionLayers!.Count
       );
       _logger.LogInformation("External Inputs: {Count} validated", validatedInputCount);
@@ -184,9 +183,9 @@ internal sealed class FlowthruService : IFlowthruService
       _logger.LogInformation("");
 
       totalStopwatch.Stop();
-      return PipelineResult.CreateDryRunSuccess(
+      return FlowResult.CreateDryRunSuccess(
         totalStopwatch.Elapsed,
-        mergedPipeline.Nodes.Count,
+        mergedPipeline.Steps.Count,
         mergedPipeline.ExecutionLayers!.Count,
         validatedInputCount,
         "Pipeline"
@@ -213,12 +212,12 @@ internal sealed class FlowthruService : IFlowthruService
   }
 
   /// <inheritdoc />
-  public PipelineMetadata GetPipelineMetadata(string pipelineName)
+  public FlowMetadata GetFlowMetadata(string pipelineName)
   {
     if (!_pipelines.TryGetValue(pipelineName, out var pipeline))
     {
       throw new KeyNotFoundException(
-        $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", PipelineNames)}"
+        $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
       );
     }
 
@@ -229,11 +228,11 @@ internal sealed class FlowthruService : IFlowthruService
         .Distinct()
         .ToList() ?? new List<string>();
 
-    return new PipelineMetadata
+    return new FlowMetadata
     {
       Name = pipeline.Name ?? pipelineName,
       Description = pipeline.Description,
-      NodeCount = pipeline.Nodes.Count,
+      StepCount = pipeline.Steps.Count,
       LayerCount = pipeline.ExecutionLayers?.Count ?? 0,
       ExternalInputs = externalInputs,
       IsBuilt = pipeline.IsBuilt,
@@ -243,22 +242,21 @@ internal sealed class FlowthruService : IFlowthruService
   /// <inheritdoc />
   public DagMetadata GetDagMetadata(
     string? pipelineName = null,
-    PipelineSliceStrategy? sliceStrategy = null
+    FlowSliceStrategy? sliceStrategy = null
   )
   {
-    Dictionary<string, Pipeline> toMerge;
+    Dictionary<string, Flow> toMerge;
 
     if (pipelineName is not null)
     {
       if (!_pipelines.TryGetValue(pipelineName, out var namedPipeline))
       {
         throw new KeyNotFoundException(
-          $"Pipeline '{pipelineName}' not found. "
-            + $"Available: {string.Join(", ", PipelineNames)}"
+          $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
         );
       }
 
-      toMerge = new Dictionary<string, Pipeline> { [pipelineName] = namedPipeline };
+      toMerge = new Dictionary<string, Flow> { [pipelineName] = namedPipeline };
     }
     else
     {
@@ -267,7 +265,7 @@ internal sealed class FlowthruService : IFlowthruService
 
     // Always merge to produce a fresh pipeline instance — avoids mutating
     // the registered pipelines' Build/Slice state as a side effect.
-    var pipeline = Pipeline.Merge(toMerge);
+    var pipeline = Flow.Merge(toMerge);
     pipeline.Logger = _logger;
     pipeline.ServiceProvider = _services;
     pipeline.Build(sliceStrategy);
@@ -276,7 +274,7 @@ internal sealed class FlowthruService : IFlowthruService
   }
 
   /// <inheritdoc />
-  public async Task<ValidationResult> ValidatePipelineAsync(
+  public async Task<ValidationResult> ValidateFlowAsync(
     string pipelineName,
     CancellationToken cancellationToken = default
   )
@@ -284,7 +282,7 @@ internal sealed class FlowthruService : IFlowthruService
     if (!_pipelines.TryGetValue(pipelineName, out var pipeline))
     {
       throw new KeyNotFoundException(
-        $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", PipelineNames)}"
+        $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
       );
     }
 
@@ -292,7 +290,7 @@ internal sealed class FlowthruService : IFlowthruService
   }
 
   private async Task ExportPipelineMetadataAsync(
-    Pipeline pipeline,
+    Flow pipeline,
     string pipelineName,
     string? outputDirectory
   )

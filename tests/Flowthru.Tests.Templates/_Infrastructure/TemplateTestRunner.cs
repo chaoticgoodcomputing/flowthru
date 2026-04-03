@@ -187,10 +187,10 @@ public sealed class TemplateTestRunner
         );
       }
 
-      // Step 4: Run pipeline (or all pipelines if PipelineName is null) in dry-run mode
+      // Step 4: Run pipeline (or all pipelines if FlowName is null) in dry-run mode
       var runCommand =
-        _project.PipelineName != null
-          ? $"run --no-build -- {_project.PipelineName} --dry-run"
+        _project.FlowName != null
+          ? $"run --no-build -- {_project.FlowName} --dry-run"
           : "run --no-build -- --dry-run";
 
       var runResult = await RunProcessAsync(

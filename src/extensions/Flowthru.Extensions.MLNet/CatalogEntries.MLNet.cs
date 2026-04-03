@@ -8,7 +8,7 @@ namespace Flowthru.Extensions.MLNet;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Discovery Pattern:</strong> Import this class alongside <see cref="CatalogEntries"/>
+/// <strong>Discovery Pattern:</strong> Import this class alongside <see cref="ItemFactory"/>
 /// for ML.NET-specific catalog entry factory methods.
 /// </para>
 /// <para>
@@ -24,15 +24,15 @@ namespace Flowthru.Extensions.MLNet;
 /// <code>
 /// using Flowthru.Data;
 /// using Flowthru.Extensions.MLNet;
-/// 
+///
 /// // Core entries
-/// var csvEntry = CatalogEntries.Enumerable.Csv&lt;MySchema&gt;("data", "data.csv");
-/// 
+/// var csvEntry = ItemFactory.Enumerable.Csv&lt;MySchema&gt;("data", "data.csv");
+///
 /// // MLNet entries
-/// var modelEntry = CatalogEntriesMLNet.OnnxModel("model", "model.onnx");
+/// var modelEntry = ItemFactoryMLNet.OnnxModel("model", "model.onnx");
 /// </code>
 /// </remarks>
-public static class CatalogEntriesMLNet
+public static class ItemFactoryMLNet
 {
   /// <summary>
   /// Creates a catalog entry for an ONNX model file.
@@ -42,14 +42,14 @@ public static class CatalogEntriesMLNet
   /// <returns>A catalog entry wrapping an ONNX model storage adapter</returns>
   /// <example>
   /// <code>
-  /// var entry = CatalogEntriesMLNet.OnnxModel(
+  /// var entry = ItemFactoryMLNet.OnnxModel(
   ///     label: "BertModel",
   ///     filePath: "models/bert-base.onnx"
   /// );
   /// </code>
   /// </example>
-  public static ICatalogEntry<byte[]> OnnxModel(string label, string filePath)
+  public static IItem<byte[]> OnnxModel(string label, string filePath)
   {
-    return new CatalogEntry<byte[]>(label, new OnnxModelStorageAdapter(filePath));
+    return new Item<byte[]>(label, new OnnxModelStorageAdapter(filePath));
   }
 }

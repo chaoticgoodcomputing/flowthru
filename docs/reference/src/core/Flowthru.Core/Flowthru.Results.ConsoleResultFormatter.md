@@ -6,7 +6,7 @@ Assembly: Flowthru.Core.dll
 Formats pipeline results as human-readable console output.
 
 ```csharp
-public class ConsoleResultFormatter : IPipelineResultFormatter
+public class ConsoleResultFormatter : IFlowResultFormatter
 ```
 
 #### Inheritance
@@ -16,7 +16,7 @@ public class ConsoleResultFormatter : IPipelineResultFormatter
 
 #### Implements
 
-[IPipelineResultFormatter](Flowthru.Results.IPipelineResultFormatter.md)
+[IFlowResultFormatter](Flowthru.Results.IFlowResultFormatter.md)
 
 #### Inherited Members
 
@@ -35,19 +35,19 @@ Produces colorful, detailed output suitable for interactive terminal sessions.
 
 ## Methods
 
-### <a id="Flowthru_Results_ConsoleResultFormatter_Format_Flowthru_Pipelines_PipelineResult_Microsoft_Extensions_Logging_ILogger_"></a> Format\(PipelineResult, ILogger\)
+### <a id="Flowthru_Results_ConsoleResultFormatter_Format_Flowthru_Flows_FlowResult_Microsoft_Extensions_Logging_ILogger_"></a> Format\(FlowResult, ILogger\)
 
-Formats and outputs the pipeline result.
+Formats and outputs the flow result.
 
 ```csharp
-public void Format(PipelineResult result, ILogger logger)
+public void Format(FlowResult result, ILogger logger)
 ```
 
 #### Parameters
 
-`result` [PipelineResult](Flowthru.Pipelines.PipelineResult.md)
+`result` [FlowResult](Flowthru.Flows.FlowResult.md)
 
-The pipeline execution result
+The flow execution result
 
 `logger` [ILogger](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger)
 

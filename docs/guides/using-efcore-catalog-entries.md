@@ -8,7 +8,7 @@ This guide is for teams who already have a working Flowthru pipeline backed by f
 dotnet add package Flowthru.Extensions.EFCore
 ```
 
-This package provides `EFCoreCatalogEntries`, the primary namespace for creating EFCore-backed catalog entries.
+This package provides `EFCoreItemFactory`, the primary namespace for creating EFCore-backed catalog entries.
 
 ## What your schemas need
 
@@ -103,9 +103,9 @@ using Flowthru.Extensions.EFCore.Data;
 
 public partial class Catalog
 {
-    public ICatalogEntry<IEnumerable<PreprocessedCompany>> PreprocessedCompanies =>
+    public IItem<IEnumerable<PreprocessedCompany>> PreprocessedCompanies =>
         GetOrCreateEntry(() =>
-            EFCoreCatalogEntries.Enumerable.EFCore<PreprocessedCompany, AppDbContext>(
+            EFCoreItemFactory.Enumerable.EFCore<PreprocessedCompany, AppDbContext>(
                 label: "PreprocessedCompanies",
                 contextFactory: _contextFactory
             )
@@ -123,9 +123,9 @@ For tables that store exactly one row — a trained model, a configuration recor
 // Data/_06_Models/Catalog.Models.cs
 public partial class Catalog
 {
-    public ICatalogEntry<TrainedModel> Regressor =>
+    public IItem<TrainedModel> Regressor =>
         GetOrCreateEntry(() =>
-            EFCoreCatalogEntries.Single.EFCore<TrainedModel, AppDbContext>(
+            EFCoreItemFactory.Single.EFCore<TrainedModel, AppDbContext>(
                 label: "Regressor",
                 contextFactory: _contextFactory
             )
@@ -141,21 +141,21 @@ The `queryCustomizer` parameter receives the raw `IQueryable<T>` before the adap
 
 ```csharp
 // Order for deterministic output
-EFCoreCatalogEntries.Enumerable.EFCore<Shuttle, AppDbContext>(
+EFCoreItemFactory.Enumerable.EFCore<Shuttle, AppDbContext>(
     label: "Shuttles",
     contextFactory: _contextFactory,
     queryCustomizer: q => q.OrderBy(s => s.Id)
 )
 
 // Load with a navigation property
-EFCoreCatalogEntries.Enumerable.EFCore<Person, AppDbContext>(
+EFCoreItemFactory.Enumerable.EFCore<Person, AppDbContext>(
     label: "Persons",
     contextFactory: _contextFactory,
     queryCustomizer: q => q.Include(p => p.Address).AsNoTracking()
 )
 
 // Filter to a subset
-EFCoreCatalogEntries.Enumerable.EFCore<Record, AppDbContext>(
+EFCoreItemFactory.Enumerable.EFCore<Record, AppDbContext>(
     label: "ActiveRecords",
     contextFactory: _contextFactory,
     queryCustomizer: q => q.Where(r => r.IsActive)
@@ -170,7 +170,7 @@ The default save strategy is `RemoveRange` + `AddRange` (full replace semantics,
 
 ```csharp
 // Upsert instead of replace
-EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+EFCoreItemFactory.Enumerable.EFCore<Company, AppDbContext>(
     label: "Companies",
     contextFactory: _contextFactory,
     saveFunc: async (ctx, data, ct) =>
@@ -206,7 +206,7 @@ internal static class MyProjectSaveFuncs
 }
 
 // In your catalog entry:
-EFCoreCatalogEntries.Enumerable.EFCore<Company, AppDbContext>(
+EFCoreItemFactory.Enumerable.EFCore<Company, AppDbContext>(
     label: "Companies",
     contextFactory: _contextFactory,
     saveFunc: MyProjectSaveFuncs.ReplaceCompanies
@@ -228,7 +228,7 @@ saveFunc: async (ctx, data, ct) =>
 Use `.Constrain()` to mark source or reference tables as read-only. Flowthru will fail at pipeline build time — before any data moves — if a node attempts to write to this entry:
 
 ```csharp
-EFCoreCatalogEntries.Enumerable.EFCore<SourceRecord, SourceDbContext>(
+EFCoreItemFactory.Enumerable.EFCore<SourceRecord, SourceDbContext>(
     label: "SourceRecords",
     contextFactory: _sourceFactory)
 .Constrain(traits => traits with { CanWrite = false })
@@ -241,7 +241,7 @@ See [Constraining Catalog Entries](constraining-catalog-entries.md) for the full
 By default, an empty table fails pre-flight validation. The adapter expects each catalog entry to have data before the pipeline runs. For tables that are legitimately empty on first run — audit logs, optional output tables, or incremental pipelines — set `allowEmptyData: true`:
 
 ```csharp
-EFCoreCatalogEntries.Enumerable.EFCore<AuditEvent, AppDbContext>(
+EFCoreItemFactory.Enumerable.EFCore<AuditEvent, AppDbContext>(
     label: "AuditEvents",
     contextFactory: _contextFactory,
     allowEmptyData: true

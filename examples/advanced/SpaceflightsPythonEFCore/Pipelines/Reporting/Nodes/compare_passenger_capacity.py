@@ -1,15 +1,15 @@
-"""Passenger capacity comparison visualization nodes."""
+"""Passenger capacity comparison visualization steps."""
 import logging
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 import plotly.io as pio
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(inputs=["PreprocessedShuttleSchema"], outputs="CapacityPlotExpress")
+@step(inputs=["PreprocessedShuttleSchema"], outputs="CapacityPlotExpress")
 def compare_passenger_capacity_exp(preprocessed_shuttles: pd.DataFrame) -> str:
     """Create passenger capacity comparison using plotly.express.
     
@@ -48,7 +48,7 @@ def compare_passenger_capacity_exp(preprocessed_shuttles: pd.DataFrame) -> str:
     return pio.to_json(fig, pretty=True)
 
 
-@node(inputs=["PreprocessedShuttleSchema"], outputs="CapacityPlotGraphObj")
+@step(inputs=["PreprocessedShuttleSchema"], outputs="CapacityPlotGraphObj")
 def compare_passenger_capacity_go(preprocessed_shuttles: pd.DataFrame) -> str:
     """Create passenger capacity comparison using plotly.graph_objects.
     

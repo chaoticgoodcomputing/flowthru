@@ -3,17 +3,17 @@ using System.Text.Json.Serialization;
 namespace Flowthru.Meta.Models;
 
 /// <summary>
-/// Metadata describing a single catalog entry (dataset) in the pipeline.
+/// Metadata describing a single catalog item (dataset, json object, API response, whatever) in the flow.
 /// </summary>
 /// <remarks>
-/// Catalog entries represent data sources and sinks. They can be external files,
-/// intermediate pipeline outputs, or final results. Each entry is uniquely identified
+/// Catalog items represent data sources and sinks. They can be external files,
+/// intermediate Flow outputs, or final results. Each item is uniquely identified
 /// by its key.
 /// </remarks>
-public class CatalogEntryMetadata
+public class ItemMetadata
 {
   /// <summary>
-  /// Unique key identifying this catalog entry.
+  /// Unique key identifying this catalog item.
   /// </summary>
   /// <remarks>
   /// Corresponds to the catalog property name or explicitly set key.
@@ -23,7 +23,7 @@ public class CatalogEntryMetadata
   public required string Key { get; init; }
 
   /// <summary>
-  /// Human-readable display label for this catalog entry.
+  /// Human-readable display label for this catalog item.
   /// </summary>
   /// <remarks>
   /// May be formatted for better display in Flowthru.Viz.
@@ -33,7 +33,7 @@ public class CatalogEntryMetadata
   public required string Label { get; init; }
 
   /// <summary>
-  /// The C# type name of data stored in this catalog entry.
+  /// The C# type name of data stored in this catalog item.
   /// </summary>
   /// <remarks>
   /// Simple type name without namespace.
@@ -53,7 +53,7 @@ public class CatalogEntryMetadata
   public SchemaMetadata? Schema { get; init; }
 
   /// <summary>
-  /// Additional metadata fields specific to the catalog entry type.
+  /// Additional metadata fields specific to the catalog item type.
   /// </summary>
   /// <remarks>
   /// <para>Examples of fields:</para>
@@ -68,20 +68,20 @@ public class CatalogEntryMetadata
   public Dictionary<string, object> Fields { get; init; } = new();
 
   /// <summary>
-  /// Node ID that produces (writes to) this catalog entry.
+  /// Step ID that produces (writes to) this catalog item.
   /// </summary>
   /// <remarks>
-  /// Null for external inputs (Layer 0 inputs that exist before pipeline execution).
+  /// Null for external inputs (Layer 0 inputs that exist before Flow execution).
   /// Example: "PreprocessCompanies"
   /// </remarks>
   [JsonPropertyName("producer")]
   public string? Producer { get; init; }
 
   /// <summary>
-  /// List of node IDs that consume (read from) this catalog entry.
+  /// List of step IDs that consume (read from) this catalog item.
   /// </summary>
   /// <remarks>
-  /// Empty for pipeline outputs that aren't consumed by other nodes.
+  /// Empty for item outputs that aren't consumed by other steps.
   /// Example: ["CreateModelInputTable", "ValidateData"]
   /// </remarks>
   [JsonPropertyName("consumers")]

@@ -55,9 +55,9 @@ public static class UmapPipeline
   /// UMAP hyperparameters (n_neighbors, min_dist, etc.).
   /// If null, uses defaults appropriate for the data.
   /// </param>
-  public static UmapPipelineBuilder Create(UmapParameters? parameters = null)
+  public static UmapFlowBuilder Create(UmapParameters? parameters = null)
   {
-    return new UmapPipelineBuilder(parameters ?? new UmapParameters());
+    return new UmapFlowBuilder(parameters ?? new UmapParameters());
   }
 }
 

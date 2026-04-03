@@ -9,10 +9,10 @@ public partial class Catalog
   /// Preprocessed company data in Parquet format.
   /// Cleaned and validated company records.
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompanies =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<CompanySchema>> CleanedCompanies =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<CompanySchema>(
+        ItemFactory.Enumerable.Parquet<CompanySchema>(
           label: "CleanedCompanies",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_companies.parquet"
         )
@@ -22,10 +22,10 @@ public partial class Catalog
   /// Preprocessed shuttle data in Parquet format.
   /// Cleaned and validated shuttle records.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttles =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ShuttleSchema>> CleanedShuttles =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<ShuttleSchema>(
+        ItemFactory.Enumerable.Parquet<ShuttleSchema>(
           label: "CleanedShuttles",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_shuttles.parquet"
         )
@@ -35,10 +35,10 @@ public partial class Catalog
   /// Preprocessed review data in Parquet format.
   /// Cleaned and validated review records with parsed numeric scores.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ReviewSchema>> CleanedReviews =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ReviewSchema>> CleanedReviews =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<ReviewSchema>(
+        ItemFactory.Enumerable.Parquet<ReviewSchema>(
           label: "CleanedReviews",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_reviews.parquet"
         )
@@ -47,10 +47,10 @@ public partial class Catalog
   /// <summary>
   /// Preprocessed companies exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<CompanySchema>> CleanedCompaniesCsv =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<CompanySchema>> CleanedCompaniesCsv =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<CompanySchema>(
+        ItemFactory.Enumerable.Csv<CompanySchema>(
           label: "CleanedCompaniesCsv",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_companies.csv"
         )
@@ -59,10 +59,10 @@ public partial class Catalog
   /// <summary>
   /// Preprocessed shuttles exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> CleanedShuttlesCsv =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ShuttleSchema>> CleanedShuttlesCsv =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<ShuttleSchema>(
+        ItemFactory.Enumerable.Csv<ShuttleSchema>(
           label: "CleanedShuttlesCsv",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/cleaned_shuttles.csv"
         )

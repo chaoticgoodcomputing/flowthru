@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_Validation_IPipelineValidationHook"></a> Interface IPipelineValidationHook
 
-Namespace: [Flowthru.Pipelines.Validation](Flowthru.Pipelines.Validation.md)  
+Namespace: [Flowthru.Flows.Validation](Flowthru.Flows.Validation.md)  
 Assembly: Flowthru.Core.dll  
 
 Validation hook that runs during pipeline pre-flight checks.
@@ -43,7 +43,7 @@ Task<ValidationResult> ValidateAsync(Pipeline pipeline, CancellationToken cancel
 
 #### Parameters
 
-`pipeline` [Pipeline](Flowthru.Pipelines.Pipeline.md)
+`pipeline` [Pipeline](Flowthru.Flows.Pipeline.md)
 
 The pipeline being validated
 

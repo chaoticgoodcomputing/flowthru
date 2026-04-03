@@ -48,7 +48,7 @@ public sealed class ExampleTestRunner
       var flowthruService = services.GetRequiredService<IFlowthruService>();
 
       using var cts = new CancellationTokenSource();
-      var executionTask = flowthruService.ExecutePipelineAsync(cancellationToken: cts.Token);
+      var executionTask = flowthruService.ExecuteFlowAsync(cancellationToken: cts.Token);
       var timeoutTask = Task.Delay(_timeout, CancellationToken.None);
 
       var completedTask = await Task.WhenAny(executionTask, timeoutTask);
@@ -90,9 +90,13 @@ public sealed class ExampleTestRunner
     finally
     {
       if (services is IAsyncDisposable asyncDisposable)
+      {
         await asyncDisposable.DisposeAsync();
+      }
       else if (services is IDisposable disposable)
+      {
         disposable.Dispose();
+      }
     }
   }
 
@@ -115,9 +119,15 @@ public sealed class ExampleTestRunner
     {
       0 => null,
       1 when parameters[0].ParameterType == typeof(string) => [_example.ProjectPath],
+      2
+        when parameters[0].ParameterType == typeof(string)
+          && parameters[1].ParameterType == typeof(string) => (object?[])
+        [_example.ProjectPath, _example.OutputPath],
       _ => throw new InvalidOperationException(
         $"ConfigureServices on {_example.EntryPointType.FullName} has an unexpected signature. "
-          + "Expected: IServiceProvider ConfigureServices() or IServiceProvider ConfigureServices(string? basePath)"
+          + "Expected: IServiceProvider ConfigureServices() or "
+          + "IServiceProvider ConfigureServices(string? basePath) or "
+          + "IServiceProvider ConfigureServices(string? basePath, string? outputPath)"
       ),
     };
 

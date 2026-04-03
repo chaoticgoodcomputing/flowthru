@@ -36,7 +36,7 @@ The object type to serialize
 ## Examples
 
 <pre><code class="lang-csharp">var storage = new SingletonJsonStorageAdapter&lt;LinearRegressionModel&gt;("model.json");
-var entry = new CatalogEntry&lt;LinearRegressionModel&gt;("model", storage);
+var entry = new Item&lt;LinearRegressionModel&gt;("model", storage);
 
 // Save
 await entry.Save(model).RunAsync();

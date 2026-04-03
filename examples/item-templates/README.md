@@ -46,7 +46,7 @@ DataProcessing/
 
 **Before (generated):**
 ```csharp
-pipeline.AddNode(
+pipeline.AddStep(
   label: "DataProcessingDummy",
   description: "Placeholder node - replace with actual transformation logic.",
   transform: DataProcessingDummyNode.Create(),
@@ -57,7 +57,7 @@ pipeline.AddNode(
 
 **After (with real schemas):**
 ```csharp
-pipeline.AddNode(
+pipeline.AddStep(
   label: "PreprocessCompanies",
   description: "Clean and validate company data.",
   transform: PreprocessCompaniesNode.Create(),

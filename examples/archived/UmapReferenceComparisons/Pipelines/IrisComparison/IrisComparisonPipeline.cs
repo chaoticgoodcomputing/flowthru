@@ -1,6 +1,6 @@
+using Flowthru.Flows;
 using Flowthru.Misc.ML.UMAP;
 using Flowthru.Misc.ML.UMAP.Core;
-using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 using UmapReferenceComparisons.Helpers.Nodes;
@@ -23,7 +23,7 @@ namespace UmapReferenceComparisons.Pipelines.IrisComparison;
 /// </remarks>
 public static class IrisComparisonPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
     var umapParameters = new UmapParameters
     {
@@ -36,9 +36,9 @@ public static class IrisComparisonPipeline
       Verbosity = 2,
     };
 
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ConvertIrisToUmapInput",
         description: """
           Converts Iris-specific schema to universal UmapInput format.
@@ -49,7 +49,7 @@ public static class IrisComparisonPipeline
         output: catalog.IrisUmapInput
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TransformIrisWithCSharpUmap",
         description: """
           Applies C# UMAP to Iris input features using the same parameters
@@ -75,7 +75,7 @@ public static class IrisComparisonPipeline
         output: (catalog.IrisCSharpOutput, catalog.IrisRuntimeReport)
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CompareIrisOutputs",
         description: """
           Compares C# UMAP output against Python reference output using neighborhood preservation validation.
@@ -102,7 +102,7 @@ public static class IrisComparisonPipeline
         output: catalog.IrisComparison
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "VisualizeComparison",
         description: """
           Creates a side-by-side scatter plot comparing Python and C# UMAP embeddings.
@@ -132,7 +132,7 @@ public static class IrisComparisonPipeline
       );
 
       // NOTE: Commented out due to performance issues with Plotly.NET
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportVisualizationToPng",
       //   description: """
       //     Exports the side-by-side comparison chart to a PNG file.

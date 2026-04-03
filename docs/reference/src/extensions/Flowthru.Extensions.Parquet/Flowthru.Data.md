@@ -2,7 +2,7 @@
 
 ### Classes
 
- [ParquetCatalogEntryExtensions](Flowthru.Data.ParquetCatalogEntryExtensions.md)
+ [ParquetItemExtensions](Flowthru.Data.ParquetItemExtensions.md)
 
-Extension methods that add Parquet support to <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>.
+Extension methods that add Parquet support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 

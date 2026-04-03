@@ -1,8 +1,8 @@
-"""Data preprocessing nodes for shuttle data."""
+"""Data preprocessing steps for shuttle data."""
 import logging
 import numpy as np
 import pandas as pd
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ def _parse_money(x: pd.Series) -> pd.Series:
     return x
 
 
-@node(inputs=["ShuttleRawSchema"], outputs=["ShuttlePreprocessedSchema"])
+@step(inputs=["ShuttleRawSchema"], outputs=["ShuttlePreprocessedSchema"])
 def preprocess_shuttles(shuttles: pd.DataFrame) -> pd.DataFrame:
     """Preprocesses the data for shuttles.
 

@@ -1,4 +1,4 @@
-# <a id="Flowthru_Meta_Models_CatalogEntryMetadata"></a> Class CatalogEntryMetadata
+# <a id="Flowthru_Meta_Models_ItemMetadata"></a> Class ItemMetadata
 
 Namespace: [Flowthru.Meta.Models](Flowthru.Meta.Models.md)  
 Assembly: Flowthru.Core.dll  
@@ -6,13 +6,13 @@ Assembly: Flowthru.Core.dll
 Metadata describing a single catalog entry (dataset) in the pipeline.
 
 ```csharp
-public class CatalogEntryMetadata
+public class ItemMetadata
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[CatalogEntryMetadata](Flowthru.Meta.Models.CatalogEntryMetadata.md)
+[ItemMetadata](Flowthru.Meta.Models.ItemMetadata.md)
 
 #### Inherited Members
 
@@ -32,7 +32,7 @@ by its key.
 
 ## Properties
 
-### <a id="Flowthru_Meta_Models_CatalogEntryMetadata_Consumers"></a> Consumers
+### <a id="Flowthru_Meta_Models_ItemMetadata_Consumers"></a> Consumers
 
 List of node IDs that consume (read from) this catalog entry.
 
@@ -50,7 +50,7 @@ public List<string> Consumers { get; init; }
 Empty for pipeline outputs that aren't consumed by other nodes.
 Example: ["CreateModelInputTable", "ValidateData"]
 
-### <a id="Flowthru_Meta_Models_CatalogEntryMetadata_DataType"></a> DataType
+### <a id="Flowthru_Meta_Models_ItemMetadata_DataType"></a> DataType
 
 The C# type name of data stored in this catalog entry.
 
@@ -68,7 +68,7 @@ public required string DataType { get; init; }
 Simple type name without namespace.
 Example: "Company", "Shuttle", "ModelInput"
 
-### <a id="Flowthru_Meta_Models_CatalogEntryMetadata_Fields"></a> Fields
+### <a id="Flowthru_Meta_Models_ItemMetadata_Fields"></a> Fields
 
 Additional metadata fields specific to the catalog entry type.
 
@@ -86,7 +86,7 @@ public Dictionary<string, object> Fields { get; init; }
 <p>Examples of fields:</p>
 <ul><li><code>filepath</code>: Path to file for file-based datasets</li><li><code>catalogType</code>: Type of catalog dataset (CsvCatalogDataset, ParquetCatalogDataset, etc.)</li><li><code>isReadOnly</code>: Whether the dataset is read-only</li><li><code>inspectionLevel</code>: Validation inspection level (None, Shallow, Deep)</li></ul>
 
-### <a id="Flowthru_Meta_Models_CatalogEntryMetadata_Key"></a> Key
+### <a id="Flowthru_Meta_Models_ItemMetadata_Key"></a> Key
 
 Unique key identifying this catalog entry.
 
@@ -104,7 +104,7 @@ public required string Key { get; init; }
 Corresponds to the catalog property name or explicitly set key.
 Example: "Companies", "CleanedCompanies", "ModelInputTable"
 
-### <a id="Flowthru_Meta_Models_CatalogEntryMetadata_Label"></a> Label
+### <a id="Flowthru_Meta_Models_ItemMetadata_Label"></a> Label
 
 Human-readable display label for this catalog entry.
 
@@ -122,7 +122,7 @@ public required string Label { get; init; }
 May be formatted for better display in Flowthru.Viz.
 Example: "Companies", "Cleaned Companies", "Model Input Table"
 
-### <a id="Flowthru_Meta_Models_CatalogEntryMetadata_Producer"></a> Producer
+### <a id="Flowthru_Meta_Models_ItemMetadata_Producer"></a> Producer
 
 Node ID that produces (writes to) this catalog entry.
 
@@ -140,7 +140,7 @@ public string? Producer { get; init; }
 Null for external inputs (Layer 0 inputs that exist before pipeline execution).
 Example: "PreprocessCompanies"
 
-### <a id="Flowthru_Meta_Models_CatalogEntryMetadata_Schema"></a> Schema
+### <a id="Flowthru_Meta_Models_ItemMetadata_Schema"></a> Schema
 
 Schema information inferred from the data type.
 

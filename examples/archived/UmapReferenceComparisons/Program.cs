@@ -51,16 +51,13 @@ public class Program
 
       // Register comparison pipelines
       flowthru
-        .RegisterPipeline(label: "IrisComparisonPipeline", pipeline: IrisComparisonPipeline.Create)
+        .RegisterFlow(label: "IrisComparisonPipeline", flow: IrisComparisonPipeline.Create)
         .WithDescription(
           "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
         );
 
       flowthru
-        .RegisterPipeline(
-          label: "DigitsComparisonPipeline",
-          pipeline: DigitsComparisonPipeline.Create
-        )
+        .RegisterFlow(label: "DigitsComparisonPipeline", flow: DigitsComparisonPipeline.Create)
         .WithDescription(
           "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
         );

@@ -2,7 +2,7 @@
 
 ### Classes
 
- [ExcelCatalogEntryExtensions](Flowthru.Data.ExcelCatalogEntryExtensions.md)
+ [ExcelItemExtensions](Flowthru.Data.ExcelItemExtensions.md)
 
-Extension methods that add Excel support to <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>.
+Extension methods that add Excel support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 

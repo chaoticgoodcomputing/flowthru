@@ -1,5 +1,5 @@
-using Flowthru.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
+using Flowthru.Steps;
 using KedroSpaceflights.Custom.Data;
 using KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
@@ -31,12 +31,12 @@ namespace KedroSpaceflights.Custom.Pipelines.DataDiagnostics;
 /// </summary>
 public static class DataDiagnosticsPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // Node 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ValidateModelInputTableAgainstKedroSource",
         transform: ValidateAgainstKedroNode.Create(),
         input: (catalog.ModelInputTable, catalog.KedroModelInputTable),
@@ -44,7 +44,7 @@ public static class DataDiagnosticsPipeline
       );
 
       // Node 2: Export cleaned companies to CSV for manual inspection
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportCompaniesToDiagnosticCsv",
         transform: PassthroughInputToOutputNode<CompanySchema>.Create(),
         input: catalog.CleanedCompanies,
@@ -52,7 +52,7 @@ public static class DataDiagnosticsPipeline
       );
 
       // Node 3: Export cleaned shuttles to CSV for manual inspection
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportShuttlesToDiagnosticCsv",
         transform: PassthroughInputToOutputNode<ShuttleSchema>.Create(),
         input: catalog.CleanedShuttles,
@@ -60,7 +60,7 @@ public static class DataDiagnosticsPipeline
       );
 
       // Node 4: Export model input table to CSV for manual inspection
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportModelInputTableToDiagnosticCsv",
         transform: PassthroughInputToOutputNode<ModelInputSchema>.Create(),
         input: catalog.ModelInputTable,
@@ -68,7 +68,7 @@ public static class DataDiagnosticsPipeline
       );
 
       // Node 5: Export model input table to minified JSON for production/compact storage
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportModelInputTableToMinifiedJson",
         transform: PassthroughInputToOutputNode<ModelInputSchema>.Create(),
         input: catalog.ModelInputTable,

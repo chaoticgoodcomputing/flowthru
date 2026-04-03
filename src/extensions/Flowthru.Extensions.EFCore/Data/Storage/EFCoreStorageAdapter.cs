@@ -68,14 +68,14 @@ namespace Flowthru.Data.Storage;
 /// <code>
 /// // Injected DbContext (from DI container)
 /// var adapter = new EFCoreStorageAdapter&lt;Company&gt;(dbContext);
-/// var entry = new CatalogEntry&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter);
+/// var entry = new Item&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter);
 ///
 /// // Factory-based DbContext (created per operation)
 /// var adapter = new EFCoreStorageAdapter&lt;Company&gt;(() => new AppDbContext(options));
-/// var entry = new CatalogEntry&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter);
+/// var entry = new Item&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter);
 ///
 /// // Read-only mode (apply constraint at catalog level)
-/// var entry = new CatalogEntry&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter)
+/// var entry = new Item&lt;IEnumerable&lt;Company&gt;&gt;("companies", adapter)
 ///   .Constrain(traits => traits with { CanWrite = false });
 ///
 /// // Allow empty tables during validation
@@ -164,7 +164,7 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// <summary>
   /// Validates that the entity type T is properly configured in the DbContext.
   /// Forces EF Core model building to catch configuration errors during catalog initialization
-  /// (pre-flight phase) rather than at runtime during node execution.
+  /// (pre-flight phase) rather than at runtime during step execution.
   /// </summary>
   /// <param name="context">DbContext to validate against</param>
   /// <exception cref="InvalidOperationException">

@@ -1,13 +1,13 @@
-# <a id="Flowthru_Extensions_Python_Nodes_PythonNodeWrapper_2"></a> Class PythonNodeWrapper<TInput, TOutput\>
+# <a id="Flowthru_Extensions_Python_Nodes_PythonStepWrapper_2"></a> Class PythonStepWrapper<TInput, TOutput\>
 
-Namespace: [Flowthru.Extensions.Python.Nodes](Flowthru.Extensions.Python.Nodes.md)  
+Namespace: [](.md)  
 Assembly: Flowthru.Extensions.Python.dll  
 
 Thin wrapper that binds an <xref href="Flowthru.Extensions.Python.Execution.IPythonExecutor" data-throw-if-not-resolved="false"></xref> to a specific module/function pair,
 exposing it as a typed <code>Func&lt;TInput, TOutput&gt;</code> for use with the pipeline builder.
 
 ```csharp
-public sealed class PythonNodeWrapper<TInput, TOutput>
+public sealed class PythonStepWrapper<TInput, TOutput>
 ```
 
 #### Type Parameters
@@ -19,7 +19,7 @@ public sealed class PythonNodeWrapper<TInput, TOutput>
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PythonNodeWrapper<TInput, TOutput\>](Flowthru.Extensions.Python.Nodes.PythonNodeWrapper\-2.md)
+[PythonStepWrapper<TInput, TOutput\>](.PythonStepWrapper\-2.md)
 
 #### Inherited Members
 
@@ -36,10 +36,10 @@ All marshalling (scalar, tabular, bytes, multi-I/O tuples) is delegated to the e
 
 ## Constructors
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeWrapper_2__ctor_Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_System_String_"></a> PythonNodeWrapper\(IPythonExecutor, string, string\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonStepWrapper_2__ctor_Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_System_String_"></a> PythonStepWrapper\(IPythonExecutor, string, string\)
 
 ```csharp
-public PythonNodeWrapper(IPythonExecutor executor, string moduleName, string functionName)
+public PythonStepWrapper(IPythonExecutor executor, string moduleName, string functionName)
 ```
 
 #### Parameters
@@ -52,7 +52,7 @@ public PythonNodeWrapper(IPythonExecutor executor, string moduleName, string fun
 
 ## Methods
 
-### <a id="Flowthru_Extensions_Python_Nodes_PythonNodeWrapper_2_GetTransform"></a> GetTransform\(\)
+### <a id="Flowthru_Extensions_Python_Nodes_PythonStepWrapper_2_GetTransform"></a> GetTransform\(\)
 
 Gets the transformation function that invokes the Python node.
 

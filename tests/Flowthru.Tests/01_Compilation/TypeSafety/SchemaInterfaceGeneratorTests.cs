@@ -385,7 +385,7 @@ public class SchemaInterfaceGeneratorTests
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Integration: generated schema works with CatalogEntries
+  // Integration: generated schema works with Items
   // ─────────────────────────────────────────────────────────────
 
   [Test]

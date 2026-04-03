@@ -1,4 +1,4 @@
-# <a id="Flowthru_Data_ICatalogEntry_1"></a> Interface ICatalogEntry<T\>
+# <a id="Flowthru_Data_IItem_1"></a> Interface IItem<T\>
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Core.dll  
@@ -6,7 +6,7 @@ Assembly: Flowthru.Core.dll
 Unified catalog entry with cardinality encoded in the type parameter.
 
 ```csharp
-public interface ICatalogEntry<T> : ICatalogEntry
+public interface IItem<T> : IItem
 ```
 
 #### Type Parameters
@@ -20,7 +20,7 @@ Cardinality is determined by T itself:
 
 #### Implements
 
-[ICatalogEntry](Flowthru.Data.ICatalogEntry.md)
+[IItem](Flowthru.Data.IItem.md)
 
 ## Remarks
 
@@ -29,7 +29,7 @@ Cardinality is determined by T itself:
 system (ICatalogObject/ICatalogDataset). Cardinality is now purely a type-level concern.
 </p>
 <p>
-<strong>Type Alignment:</strong> Node TInput/TOutput types should directly match catalog entry
+<strong>Type Alignment:</strong> Step TInput/TOutput types should directly match catalog entry
 T types, eliminating the need for wrapping/unwrapping ceremony.
 </p>
 <p>
@@ -42,7 +42,7 @@ an async computation that can fail. This provides:
 
 ## Methods
 
-### <a id="Flowthru_Data_ICatalogEntry_1_Load"></a> Load\(\)
+### <a id="Flowthru_Data_IItem_1_Load"></a> Load\(\)
 
 Load data as an effect (can fail, is async, can be cancelled).
 Returns T directly, which may itself be an IEnumerable or Seq.
@@ -55,7 +55,7 @@ FlowIO<T> Load()
 
  [FlowIO](Flowthru.Effects.FlowIO\-1.md)<T\>
 
-### <a id="Flowthru_Data_ICatalogEntry_1_Save__0_"></a> Save\(T\)
+### <a id="Flowthru_Data_IItem_1_Save__0_"></a> Save\(T\)
 
 Save data as an effect.
 Accepts T directly, which may itself be an IEnumerable or Seq.

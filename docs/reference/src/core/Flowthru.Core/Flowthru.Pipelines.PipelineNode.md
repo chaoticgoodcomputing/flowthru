@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_PipelineNode"></a> Class PipelineNode
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Represents a node within a pipeline, wrapping the transformation function with metadata
@@ -13,7 +13,7 @@ public class PipelineNode
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PipelineNode](Flowthru.Pipelines.PipelineNode.md)
+[PipelineNode](Flowthru.Flows.PipelineNode.md)
 
 #### Inherited Members
 
@@ -53,12 +53,12 @@ This is necessary for extensions (e.g., Python) to validate their own node types
 
 ## Constructors
 
-### <a id="Flowthru_Pipelines_PipelineNode__ctor_System_String_System_String_System_Delegate_System_Collections_Generic_IReadOnlyList_Flowthru_Data_ICatalogEntry__System_Collections_Generic_IReadOnlyList_Flowthru_Data_ICatalogEntry__"></a> PipelineNode\(string, string?, Delegate, IReadOnlyList<ICatalogEntry\>, IReadOnlyList<ICatalogEntry\>\)
+### <a id="Flowthru_Pipelines_PipelineNode__ctor_System_String_System_String_System_Delegate_System_Collections_Generic_IReadOnlyList_Flowthru_Data_IItem__System_Collections_Generic_IReadOnlyList_Flowthru_Data_IItem__"></a> PipelineNode\(string, string?, Delegate, IReadOnlyList<IItem\>, IReadOnlyList<IItem\>\)
 
 Creates a new pipeline node with a transformation function.
 
 ```csharp
-public PipelineNode(string label, string? description, Delegate node, IReadOnlyList<ICatalogEntry> inputs, IReadOnlyList<ICatalogEntry> outputs)
+public PipelineNode(string label, string? description, Delegate node, IReadOnlyList<IItem> inputs, IReadOnlyList<IItem> outputs)
 ```
 
 #### Parameters
@@ -73,11 +73,11 @@ Unique identifier for this node
 
 The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)
 
-`inputs` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[ICatalogEntry](Flowthru.Data.ICatalogEntry.md)\>
+`inputs` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[IItem](Flowthru.Data.IItem.md)\>
 
 Catalog entries this node reads
 
-`outputs` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[ICatalogEntry](Flowthru.Data.ICatalogEntry.md)\>
+`outputs` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[IItem](Flowthru.Data.IItem.md)\>
 
 Catalog entries this node writes
 
@@ -94,7 +94,7 @@ public List<PipelineNode> Dependencies { get; }
 
 #### Property Value
 
- [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[PipelineNode](Flowthru.Pipelines.PipelineNode.md)\>
+ [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[PipelineNode](Flowthru.Flows.PipelineNode.md)\>
 
 #### Remarks
 
@@ -120,12 +120,12 @@ Catalog entries that this node reads as input.
 These may be produced by other nodes (dependencies) or be external prerequisites.
 
 ```csharp
-public IReadOnlyList<ICatalogEntry> Inputs { get; }
+public IReadOnlyList<IItem> Inputs { get; }
 ```
 
 #### Property Value
 
- [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[ICatalogEntry](Flowthru.Data.ICatalogEntry.md)\>
+ [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[IItem](Flowthru.Data.IItem.md)\>
 
 ### <a id="Flowthru_Pipelines_PipelineNode_Label"></a> Label
 
@@ -159,12 +159,12 @@ Catalog entries that this node writes as output.
 Per the single producer rule, each entry here must be unique across all nodes.
 
 ```csharp
-public IReadOnlyList<ICatalogEntry> Outputs { get; }
+public IReadOnlyList<IItem> Outputs { get; }
 ```
 
 #### Property Value
 
- [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[ICatalogEntry](Flowthru.Data.ICatalogEntry.md)\>
+ [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[IItem](Flowthru.Data.IItem.md)\>
 
 ### <a id="Flowthru_Pipelines_PipelineNode_TransformFunction"></a> TransformFunction
 

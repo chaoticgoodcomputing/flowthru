@@ -1,18 +1,18 @@
-# <a id="Flowthru_Data_ParquetCatalogEntryExtensions"></a> Class ParquetCatalogEntryExtensions
+# <a id="Flowthru_Data_ParquetItemExtensions"></a> Class ParquetItemExtensions
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Extensions.Parquet.dll  
 
-Extension methods that add Parquet support to <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>.
+Extension methods that add Parquet support to <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
-public static class ParquetCatalogEntryExtensions
+public static class ParquetItemExtensions
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[ParquetCatalogEntryExtensions](Flowthru.Data.ParquetCatalogEntryExtensions.md)
+[ParquetItemExtensions](Flowthru.Data.ParquetItemExtensions.md)
 
 #### Inherited Members
 
@@ -26,19 +26,19 @@ public static class ParquetCatalogEntryExtensions
 
 ## Methods
 
-### <a id="Flowthru_Data_ParquetCatalogEntryExtensions_Parquet__1_Flowthru_Data_EnumerableCatalogEntries_System_String_System_String_"></a> Parquet<TRow\>\(EnumerableCatalogEntries, string, string\)
+### <a id="Flowthru_Data_ParquetItemExtensions_Parquet__1_Flowthru_Data_EnumerableItems_System_String_System_String_"></a> Parquet<TRow\>\(EnumerableItems, string, string\)
 
 Creates a Parquet file catalog entry with IEnumerable container.
 
 ```csharp
-public static CatalogEntry<IEnumerable<TRow>> Parquet<TRow>(this EnumerableCatalogEntries _, string label, string filePath) where TRow : notnull, IFlatSchema, IBinarySerializable
+public static Item<IEnumerable<TRow>> Parquet<TRow>(this EnumerableItems _, string label, string filePath) where TRow : notnull, IFlatSchema, IBinarySerializable
 ```
 
 #### Parameters
 
-`_` EnumerableCatalogEntries
+`_` EnumerableItems
 
-The enumerable catalog entries factory (from <xref href="Flowthru.Data.CatalogEntries.Enumerable" data-throw-if-not-resolved="false"></xref>)
+The enumerable catalog entries factory (from <xref href="Flowthru.Data.Items.Enumerable" data-throw-if-not-resolved="false"></xref>)
 
 `label` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
@@ -50,7 +50,7 @@ Path to Parquet file
 
 #### Returns
 
- CatalogEntry<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
+ Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>
 
 Catalog entry with file + Parquet + IEnumerable composition
 

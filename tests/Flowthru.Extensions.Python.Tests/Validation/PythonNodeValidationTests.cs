@@ -1,10 +1,10 @@
 using Flowthru.Data.Validation;
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
 using Flowthru.Extensions.Python.Runtime;
+using Flowthru.Extensions.Python.Steps;
 using Flowthru.Extensions.Python.Tests.Schemas;
 using Flowthru.Extensions.Python.Validation;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,7 @@ public class PythonNodeValidationTests
   private PythonRuntime _runtime = null!;
 #pragma warning restore NUnit1032
 
-  private PythonNodeValidator _validator = null!;
+  private PythonStepValidator _validator = null!;
 
   [SetUp]
   public void SetUp()
@@ -46,7 +46,7 @@ public class PythonNodeValidationTests
     _executor = _serviceProvider.GetRequiredService<IPythonExecutor>();
     _runtime = _serviceProvider.GetRequiredService<PythonRuntime>();
 
-    _validator = new PythonNodeValidator(_executor, _runtime);
+    _validator = new PythonStepValidator(_executor, _runtime);
   }
 
   [TearDown]
@@ -69,7 +69,7 @@ public class PythonNodeValidationTests
     // Arrange & Act & Assert
     var ex = Assert.Throws<InvalidOperationException>(
       () =>
-        new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+        new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
           _executor,
           "_Fixtures.nonexistent_module",
           "some_function"
@@ -85,7 +85,7 @@ public class PythonNodeValidationTests
     // Arrange & Act & Assert
     var ex = Assert.Throws<InvalidOperationException>(
       () =>
-        new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+        new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
           _executor,
           "_Fixtures.validation_test_nodes",
           "nonexistent_function"
@@ -101,24 +101,24 @@ public class PythonNodeValidationTests
     // Arrange & Act & Assert
     var ex = Assert.Throws<InvalidOperationException>(
       () =>
-        new PythonNodeWrapper<ModelConfigSchema, ModelConfigSchema>(
+        new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
           _executor,
           "_Fixtures.validation_test_nodes",
-          "missing_decorator_node"
+          "missing_decorator_step"
         )
     );
 
-    Assert.That(ex.Message, Does.Contain("missing required @node decorator"));
+    Assert.That(ex.Message, Does.Contain("missing required @step decorator"));
   }
 
   [Test]
   public void ValidateRegistration_ValidNode_Succeeds()
   {
     // Arrange & Act
-    var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+    var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
       "_Fixtures.validation_test_nodes",
-      "valid_node"
+      "valid_step"
     );
 
     // Assert
@@ -254,7 +254,7 @@ public class PythonNodeValidationTests
   public async Task ValidateAsync_ValidNode_NoErrors()
   {
     // Arrange
-    var pipeline = CreateTestPipeline("_Fixtures.validation_test_nodes", "valid_node");
+    var pipeline = CreateTestPipeline("_Fixtures.validation_test_nodes", "valid_step");
 
     // Act
     var result = await _validator.ValidateAsync(pipeline, CancellationToken.None);
@@ -268,7 +268,7 @@ public class PythonNodeValidationTests
   public async Task ValidateAsync_NonPythonNode_Skipped()
   {
     // Arrange - empty pipeline with no Python nodes
-    var pipeline = new Pipeline();
+    var pipeline = new Flow();
 
     // Act
     var result = await _validator.ValidateAsync(pipeline, CancellationToken.None);
@@ -284,35 +284,35 @@ public class PythonNodeValidationTests
   /// <summary>
   /// Creates a minimal test pipeline with a single Python node.
   /// </summary>
-  private Pipeline CreateTestPipeline(string moduleName, string functionName)
+  private Flow CreateTestPipeline(string moduleName, string functionName)
   {
-    var pipeline = new Pipeline();
+    var pipeline = new Flow();
 
     // Create Python node wrapper
-    var wrapper = new PythonNodeWrapper<ModelConfigSchema, ModelResultSchema>(
+    var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
       moduleName,
       functionName
     );
 
     // Create a PipelineNode using the public constructor
-    var pipelineNode = new Flowthru.Pipelines.PipelineNode(
+    var pipelineNode = new Flowthru.Flows.FlowStep(
       label: "python_node",
       description: $"Test Python node: {moduleName}.{functionName}",
-      node: wrapper.GetTransform(),
-      inputs: Array.Empty<Data.ICatalogEntry>(),
-      outputs: Array.Empty<Data.ICatalogEntry>()
+      step: wrapper.GetTransform(),
+      inputs: Array.Empty<Data.IItem>(),
+      outputs: Array.Empty<Data.IItem>()
     );
 
-    // Use reflection to access internal AddNode method for testing
-    var addNodeMethod = typeof(Pipeline).GetMethod(
-      "AddNode",
+    // Use reflection to access internal AddStep method for testing
+    var addNodeMethod = typeof(Flow).GetMethod(
+      "AddStep",
       System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
     );
 
     if (addNodeMethod == null)
     {
-      throw new InvalidOperationException("Could not find Pipeline.AddNode method via reflection");
+      throw new InvalidOperationException("Could not find Pipeline.AddStep method via reflection");
     }
 
     addNodeMethod.Invoke(pipeline, new object[] { pipelineNode });

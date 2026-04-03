@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using RetailDataMultipipeline.Data;
 using RetailDataMultipipeline.Pipelines.Reporting.Nodes;
 
@@ -9,11 +9,11 @@ namespace RetailDataMultipipeline.Pipelines.Reporting;
 /// </summary>
 public static class ReportingPipeline
 {
-  public static Pipeline Create(CoreCatalog catalog)
+  public static Flow Create(CoreCatalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "SummarizeByCountry",
         description: "Counts debit and credit line items per country across the full transaction history.",
         transform: SummarizeByCountryNode.Create(),

@@ -1,30 +1,30 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using ProjectName.Data;
-using ProjectName.Pipelines.PipelineName.Nodes;
+using ProjectName.Pipelines.FlowName.Nodes;
 
-namespace ProjectName.Pipelines.PipelineName;
+namespace ProjectName.Pipelines.FlowName;
 
 /// <summary>
-/// Pipeline for PipelineName operations.
+/// Pipeline for FlowName operations.
 /// </summary>
-public static class PipelineNamePipeline
+public static class FlowNamePipeline
 {
   /// <summary>
-  /// Creates the PipelineName pipeline.
+  /// Creates the FlowName pipeline.
   /// </summary>
   /// <param name="catalog">The data catalog containing input and output entries.</param>
   /// <returns>
-  /// A configured pipeline for PipelineName processing.
+  /// A configured pipeline for FlowName processing.
   /// </returns>
   public static Pipeline Create(Catalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // Start with a dummy node - replace with your actu
-      pipeline.AddNode(
-        label: "PipelineNameDummy",
+      pipeline.AddStep(
+        label: "FlowNameDummy",
         description: "Placeholder",
-        transform: PipelineNameDummyNode.Create(),
+        transform: FlowNameDummyNode.Create(),
         input: catalog.NoData,
         output: catalog.NoData
       );

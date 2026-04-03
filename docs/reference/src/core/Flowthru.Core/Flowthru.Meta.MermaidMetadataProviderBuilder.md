@@ -60,12 +60,12 @@ Hex color code (e.g., "#2E7D32")
 
 This builder for fluent chaining
 
-### <a id="Flowthru_Meta_MermaidMetadataProviderBuilder_WithActiveNodeColor_System_String_"></a> WithActiveNodeColor\(string\)
+### <a id="Flowthru_Meta_MermaidMetadataProviderBuilder_WithActiveStepColor_System_String_"></a> WithActiveStepColor\(string\)
 
 Sets the color for active (sliced) nodes.
 
 ```csharp
-public MermaidMetadataProviderBuilder WithActiveNodeColor(string color)
+public MermaidMetadataProviderBuilder WithActiveStepColor(string color)
 ```
 
 #### Parameters
@@ -112,7 +112,7 @@ public MermaidMetadataProviderBuilder WithFilenameTemplate(string template)
 
 `template` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Template with placeholders: {PipelineName}, {Timestamp}, {SliceType}
+Template with placeholders: {FlowName}, {Timestamp}, {SliceType}
 
 #### Returns
 

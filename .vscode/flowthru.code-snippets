@@ -10,16 +10,16 @@
 		"scope": "csharp",
 		"prefix": "_pipeline",
 		"body": [
-			"using Flowthru.Pipelines;",
+			"using Flowthru.Flows;",
 			"using $1",
 			"",
 			"public static class ${RELATIVE_FILEPATH/.*?(\\w+).cs$/$1/}",
 			"{",
 			"  public static Pipeline Create(Catalog catalog)",
 			"  {",
-			"    return PipelineBuilder.CreatePipeline(pipeline =>",
+			"    return FlowBuilder.CreateFlow(pipeline =>",
 			"    {",
-			"      pipeline.AddNode(",
+			"      pipeline.AddStep(",
 			"        label: \"$2\",",
 			"        description: \"\"\"",
 			"          $3",
@@ -34,7 +34,7 @@
 		],
 		"description": "Creates a basic Flowthru pipeline structure."
 	},
-	"FlowthruNode": {
+	"FlowthruStep": {
 		"scope": "csharp",
 		"prefix": "_node",
 		"body": [

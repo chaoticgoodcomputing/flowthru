@@ -22,6 +22,8 @@ Used by strategy factories to select appropriate default strategies.
 Result of the complete UMAP FitTransform operation.
 Contains the final embedding and all intermediate results.
 
+ [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
+
  [UmapGraphResult](Flowthru.Misc.ML.UMAP.Core.UmapGraphResult.md)
 
 Result of computing the UMAP graph (phases 1-3).
@@ -34,8 +36,6 @@ These parameters control the mathematical behavior of the algorithm across all s
  [UmapPipeline](Flowthru.Misc.ML.UMAP.Core.UmapPipeline.md)
 
 Fluent builder for UMAP pipelines with automatic strategy selection.
-
- [UmapPipelineBuilder](Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md)
 
  [UmapProgress](Flowthru.Misc.ML.UMAP.Core.UmapProgress.md)
 

@@ -2,18 +2,18 @@
 - name: Flowthru.Extensions.MLNet
   href: Flowthru.Extensions.MLNet.md
   items:
-  - name: Classes
-  - name: CatalogEntriesMLNet
-    href: Flowthru.Extensions.MLNet.CatalogEntriesMLNet.md
+    - name: Classes
+    - name: ItemsMLNet
+      href: Flowthru.Extensions.MLNet.ItemsMLNet.md
 - name: Flowthru.Extensions.MLNet.Container
   href: Flowthru.Extensions.MLNet.Container.md
   items:
-  - name: Classes
-  - name: DataViewContainerAdapter<T>
-    href: Flowthru.Extensions.MLNet.Container.DataViewContainerAdapter-1.md
+    - name: Classes
+    - name: DataViewContainerAdapter<T>
+      href: Flowthru.Extensions.MLNet.Container.DataViewContainerAdapter-1.md
 - name: Flowthru.Extensions.MLNet.Storage
   href: Flowthru.Extensions.MLNet.Storage.md
   items:
-  - name: Classes
-  - name: OnnxModelStorageAdapter
-    href: Flowthru.Extensions.MLNet.Storage.OnnxModelStorageAdapter.md
+    - name: Classes
+    - name: OnnxModelStorageAdapter
+      href: Flowthru.Extensions.MLNet.Storage.OnnxModelStorageAdapter.md

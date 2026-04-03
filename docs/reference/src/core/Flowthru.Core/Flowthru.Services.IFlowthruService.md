@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Services](Flowthru.Services.md)  
 Assembly: Flowthru.Core.dll  
 
-Core service for executing Flowthru pipelines programmatically.
+Core service for executing Flowthru flows programmatically.
 
 ```csharp
 public interface IFlowthruService
@@ -35,17 +35,17 @@ This service is DI-injectable and CLI-agnostic, enabling use in:
         var options = new ExecutionOptions
         {
             DryRun = false,
-            SliceStrategy = new PipelineSliceStrategy
+            SliceStrategy = new FlowSliceStrategy
             {
-                Pipelines = new HashSet&lt;string&gt; { "data_processing" }
+                Flows = new HashSet&lt;string&gt; { "data_processing" }
             }
         };
 
-        var result = await _flowthru.ExecutePipelineAsync(options);
+        var result = await _flowthru.ExecuteFlowAsync(options);
 
         if (result.Success)
         {
-            Console.WriteLine($"Processed {result.NodeResults.Count} nodes");
+            Console.WriteLine($"Processed {result.StepResults.Count} flow");
         }
     }
 }</code></pre>
@@ -58,19 +58,19 @@ This service is DI-injectable and CLI-agnostic, enabling use in:
 Gets all registered catalog instances.
 
 ```csharp
-IReadOnlyList<DataCatalogBase> Catalogs { get; }
+IReadOnlyList<CatalogAbstract> Catalogs { get; }
 ```
 
 #### Property Value
 
- [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[DataCatalogBase](Flowthru.Data.DataCatalogBase.md)\>
+ [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[CatalogAbstract](Flowthru.Data.CatalogAbstract.md)\>
 
-### <a id="Flowthru_Services_IFlowthruService_PipelineNames"></a> PipelineNames
+### <a id="Flowthru_Services_IFlowthruService_FlowNames"></a> FlowNames
 
-Gets the names of all registered pipelines.
+Gets the names of all registered flows.
 
 ```csharp
-IReadOnlyCollection<string> PipelineNames { get; }
+IReadOnlyCollection<string> FlowNames { get; }
 ```
 
 #### Property Value
@@ -79,17 +79,17 @@ IReadOnlyCollection<string> PipelineNames { get; }
 
 ## Methods
 
-### <a id="Flowthru_Services_IFlowthruService_ExecutePipelineAsync_Flowthru_Pipelines_ExecutionOptions_System_Boolean_System_String_System_Threading_CancellationToken_"></a> ExecutePipelineAsync\(ExecutionOptions?, bool, string?, CancellationToken\)
+### <a id="Flowthru_Services_IFlowthruService_ExecuteFlowAsync_Flowthru_Flows_ExecutionOptions_System_Boolean_System_String_System_Threading_CancellationToken_"></a> ExecuteFlowAsync\(ExecutionOptions?, bool, string?, CancellationToken\)
 
-Executes all registered pipelines, optionally sliced by criteria.
+Executes all registered flows, optionally sliced by criteria.
 
 ```csharp
-Task<PipelineResult> ExecutePipelineAsync(ExecutionOptions? options = null, bool exportMetadata = true, string? metadataOutputDirectory = null, CancellationToken cancellationToken = default)
+Task<FlowResult> ExecuteFlowAsync(ExecutionOptions? options = null, bool exportMetadata = true, string? metadataOutputDirectory = null, CancellationToken cancellationToken = default)
 ```
 
 #### Parameters
 
-`options` [ExecutionOptions](Flowthru.Pipelines.ExecutionOptions.md)?
+`options` [ExecutionOptions](Flowthru.Flows.ExecutionOptions.md)?
 
 Execution options with optional slice strategy
 
@@ -107,69 +107,69 @@ Cancellation token
 
 #### Returns
 
- [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[PipelineResult](Flowthru.Pipelines.PipelineResult.md)\>
+ [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[FlowResult](Flowthru.Flows.FlowResult.md)\>
 
-Execution result with timing, node results, and status
+Execution result with timing, step results, and status
 
 #### Remarks
 
-This method always merges all registered pipelines into a single DAG,
+This method always merges all registered flows into a single DAG,
 then applies optional slicing criteria from the execution options.
-This enables cross-pipeline queries (e.g., --to-data across all pipelines).
-To execute only specific pipelines, use SliceStrategy.Pipelines.
+This enables cross-flow queries (e.g., --to-data across all flows).
+To execute only specific flows, use SliceStrategy.Flows.
 
 The method performs:
-1. Pipeline merging into unified DAG
+1. Flow merging into unified DAG
 2. Service injection
 3. DAG building and slice application
 4. Metadata export (if requested)
 5. External input validation
-6. Pipeline execution (unless dry run)
+6. Flow execution (unless dry run)
 7. Result formatting
 
-### <a id="Flowthru_Services_IFlowthruService_GetDagMetadata_System_String_Flowthru_Pipelines_PipelineSliceStrategy_"></a> GetDagMetadata\(string?, PipelineSliceStrategy?\)
+### <a id="Flowthru_Services_IFlowthruService_GetDagMetadata_System_String_Flowthru_Flows_FlowSliceStrategy_"></a> GetDagMetadata\(string?, FlowSliceStrategy?\)
 
-Gets the full DAG metadata for pipeline introspection.
+Gets the full DAG metadata for flow introspection.
 
 ```csharp
-DagMetadata GetDagMetadata(string? pipelineName = null, PipelineSliceStrategy? sliceStrategy = null)
+DagMetadata GetDagMetadata(string? flowName = null, FlowSliceStrategy? sliceStrategy = null)
 ```
 
 #### Parameters
 
-`pipelineName` [string](https://learn.microsoft.com/dotnet/api/system.string)?
+`flowName` [string](https://learn.microsoft.com/dotnet/api/system.string)?
 
-Optional pipeline name to inspect a single pipeline.
-When null, all registered pipelines are merged into a unified DAG.
+Optional flow name to inspect a single flow.
+When null, all registered flows are merged into a unified DAG.
 
-`sliceStrategy` [PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)?
+`sliceStrategy` [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)?
 
-Optional slice strategy to filter the DAG (e.g., from-node, to-data).
+Optional slice strategy to filter the DAG (e.g., from-node).
 When provided, the returned metadata includes slice overlay information
-(SlicedNodeIds and SlicedCatalogEntryKeys) identifying which nodes
+(SlicedNodeIds and SlicedItemKeys) identifying which nodes
 and data are in the active execution subset.
 
 #### Returns
 
  [DagMetadata](Flowthru.Meta.Models.DagMetadata.md)
 
-Full DAG metadata including nodes, catalog entries, edges, schemas,
+Full DAG metadata including steps, catalog entries, edges, schemas,
 and producer-consumer relationships.
 
 #### Remarks
 
-This method does not execute the pipeline. It returns structural metadata
+This method does not execute the flow. It returns structural metadata
 useful for visualization, impact analysis, data lineage, and debugging.
 
 Examples:
-<pre><code class="lang-csharp">// Inspect all pipelines merged
+<pre><code class="lang-csharp">// Inspect all flow merged
 var dag = flowthru.GetDagMetadata();
 
-// Inspect a single pipeline
+// Inspect a single flow
 var dag = flowthru.GetDagMetadata("DataProcessing");
 
-// Inspect downstream of a specific node
-var dag = flowthru.GetDagMetadata(sliceStrategy: new PipelineSliceStrategy
+// Inspect downstream of a specific flow node
+var dag = flowthru.GetDagMetadata(sliceStrategy: new FlowSliceStrategy
 {
     FromNodes = new HashSet&lt;string&gt; { "PreprocessCompanies" }
 });</code></pre>
@@ -178,52 +178,52 @@ var dag = flowthru.GetDagMetadata(sliceStrategy: new PipelineSliceStrategy
 
  [KeyNotFoundException](https://learn.microsoft.com/dotnet/api/system.collections.generic.keynotfoundexception)
 
-Thrown if <code class="paramref">pipelineName</code> is specified but not found.
+Thrown if <code class="paramref">flowName</code> is specified but not found.
 
-### <a id="Flowthru_Services_IFlowthruService_GetPipelineMetadata_System_String_"></a> GetPipelineMetadata\(string\)
+### <a id="Flowthru_Services_IFlowthruService_GetFlowMetadata_System_String_"></a> GetFlowMetadata\(string\)
 
-Gets metadata about a pipeline's structure.
+Gets metadata about a Flow's structure.
 
 ```csharp
-PipelineMetadata GetPipelineMetadata(string pipelineName)
+FlowMetadata GetFlowMetadata(string flowName)
 ```
 
 #### Parameters
 
-`pipelineName` [string](https://learn.microsoft.com/dotnet/api/system.string)
+`flowName` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Pipeline name
+Flow name
 
 #### Returns
 
- [PipelineMetadata](Flowthru.Services.Models.PipelineMetadata.md)
+ [FlowMetadata](Flowthru.Services.Models.FlowMetadata.md)
 
-Pipeline metadata
+Flow metadata
 
 #### Remarks
 
-Returns structural information without executing the pipeline.
-The pipeline must be built for accurate layer and input information.
+Returns structural information without executing the flow.
+The flow must be built for accurate layer and input information.
 
 #### Exceptions
 
  [KeyNotFoundException](https://learn.microsoft.com/dotnet/api/system.collections.generic.keynotfoundexception)
 
-Thrown if pipeline name not found
+Thrown if flow name not found
 
-### <a id="Flowthru_Services_IFlowthruService_ValidatePipelineAsync_System_String_System_Threading_CancellationToken_"></a> ValidatePipelineAsync\(string, CancellationToken\)
+### <a id="Flowthru_Services_IFlowthruService_ValidateFlowAsync_System_String_System_Threading_CancellationToken_"></a> ValidateFlowAsync\(string, CancellationToken\)
 
-Validates all external inputs (Layer 0) for a pipeline.
+Validates all external inputs (Layer 0) for a flow.
 
 ```csharp
-Task<ValidationResult> ValidatePipelineAsync(string pipelineName, CancellationToken cancellationToken = default)
+Task<ValidationResult> ValidateFlowAsync(string flowName, CancellationToken cancellationToken = default)
 ```
 
 #### Parameters
 
-`pipelineName` [string](https://learn.microsoft.com/dotnet/api/system.string)
+`flowName` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Pipeline name
+Flow name
 
 `cancellationToken` [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken)
 
@@ -237,12 +237,12 @@ Validation result
 
 #### Remarks
 
-Checks accessibility of external data sources without executing the pipeline.
+Checks accessibility of external data sources without executing the flow.
 Useful for pre-flight validation in CI/CD or scheduled jobs.
 
 #### Exceptions
 
  [KeyNotFoundException](https://learn.microsoft.com/dotnet/api/system.collections.generic.keynotfoundexception)
 
-Thrown if pipeline name not found
+Thrown if flow name not found
 

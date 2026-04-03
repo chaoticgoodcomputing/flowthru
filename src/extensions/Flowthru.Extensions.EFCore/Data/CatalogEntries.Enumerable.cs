@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Data;
 
-public static partial class EFCoreCatalogEntries
+public static partial class EFCoreItemFactory
 {
   public static partial class Enumerable
   {
@@ -41,19 +41,19 @@ public static partial class EFCoreCatalogEntries
     /// // In catalog
     /// public static partial class DataCatalog
     /// {
-    ///   public static ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies(DbContext db) =>
-    ///     CatalogEntries.Enumerable.EFCore&lt;Company&gt;("companies", db);
+    ///   public static IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies(DbContext db) =>
+    ///     ItemFactory.Enumerable.EFCore&lt;Company&gt;("companies", db);
     /// }
     ///
     /// // In pipeline
-    /// var pipeline = new PipelineBuilder("CompanyPipeline")
-    ///   .AddNode("load_companies", catalog => new LoadCompaniesNode(
+    /// var pipeline = new FlowBuilder("CompanyPipeline")
+    ///   .AddStep("load_companies", catalog => new LoadCompaniesStep(
     ///     outputs: catalog.Companies(db)
     ///   ))
     ///   .Build();
     /// </code>
     /// </example>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T>(
+    public static Item<IEnumerable<T>> EFCore<T>(
       string label,
       DbContext context,
       bool allowEmptyData = false,
@@ -63,7 +63,7 @@ public static partial class EFCoreCatalogEntries
       where T : class
     {
       var storage = new EFCoreStorageAdapter<T>(context, allowEmptyData, queryCustomizer, saveFunc);
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
 
     /// <summary>
@@ -98,12 +98,12 @@ public static partial class EFCoreCatalogEntries
     ///       .UseSqlServer(connectionString)
     ///       .Options);
     ///
-    ///   public static ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies() =>
-    ///     CatalogEntries.Enumerable.EFCore&lt;Company&gt;("companies", CreateDbContext);
+    ///   public static IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies() =>
+    ///     ItemFactory.Enumerable.EFCore&lt;Company&gt;("companies", CreateDbContext);
     /// }
     /// </code>
     /// </example>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T>(
+    public static Item<IEnumerable<T>> EFCore<T>(
       string label,
       Func<DbContext> contextFactory,
       bool allowEmptyData = false,
@@ -118,7 +118,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         saveFunc
       );
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
     /// Defaults to RemoveRange + AddRange when null.</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T, TContext>(
+    public static Item<IEnumerable<T>> EFCore<T, TContext>(
       string label,
       Func<TContext> contextFactory,
       bool allowEmptyData = false,
@@ -154,12 +154,12 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         baseSaveFunc
       );
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
 
     /// <summary>
     /// Creates an EFCore catalog entry using <see cref="IDbContextFactory{TContext}"/> —
-    /// the idiomatic EFCore pattern for per-operation context isolation and concurrent node safety.
+    /// the idiomatic EFCore pattern for per-operation context isolation and concurrent step safety.
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     /// <typeparam name="TContext">Concrete DbContext type</typeparam>
@@ -170,7 +170,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
     /// Defaults to RemoveRange + AddRange when null.</param>
     /// <returns>Catalog entry for EFCore database storage</returns>
-    public static CatalogEntry<IEnumerable<T>> EFCore<T, TContext>(
+    public static Item<IEnumerable<T>> EFCore<T, TContext>(
       string label,
       IDbContextFactory<TContext> contextFactory,
       bool allowEmptyData = false,
@@ -189,7 +189,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         baseSaveFunc
       );
-      return new CatalogEntry<IEnumerable<T>>(label, storage);
+      return new Item<IEnumerable<T>>(label, storage);
     }
   }
 }

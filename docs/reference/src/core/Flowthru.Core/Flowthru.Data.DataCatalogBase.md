@@ -34,7 +34,7 @@ breaking DAG dependency resolution which relies on object identity.
 <p>
 <strong>Solution:</strong>
 Uses reflection to:
-1. Discover all ICatalogEntry properties on derived classes
+1. Discover all IItem properties on derived classes
 2. Create backing fields to cache instances
 3. Intercept property getters to return cached instances
 </p>
@@ -51,8 +51,8 @@ Uses reflection to:
     protected string BasePath { get; }
 
     // Declare once - automatically cached!
-    public ICatalogEntry&lt;IEnumerable&lt;MyData&gt;&gt; MyData =&gt;
-        GetOrCreateEntry(() =&gt; new CsvCatalogEntry&lt;MyData&gt;("my_data", $"{BasePath}/data.csv"));
+    public IItem&lt;IEnumerable&lt;MyData&gt;&gt; MyData =&gt;
+        GetOrCreateEntry(() =&gt; new CsvItem&lt;MyData&gt;("my_data", $"{BasePath}/data.csv"));
 }</code></pre>
 </p>
 <p>
@@ -142,12 +142,12 @@ catalog state between test runs.
 Gets all cached catalog entries.
 
 ```csharp
-protected IEnumerable<ICatalogEntry> GetAllEntries()
+protected IEnumerable<IItem> GetAllEntries()
 ```
 
 #### Returns
 
- [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[ICatalogEntry](Flowthru.Data.ICatalogEntry.md)\>
+ [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[IItem](Flowthru.Data.IItem.md)\>
 
 Enumerable of all initialized catalog entries
 
@@ -156,17 +156,17 @@ Enumerable of all initialized catalog entries
 Useful for diagnostic purposes or when you need to iterate over all entries
 (e.g., for validation, cleanup, or reporting).
 
-### <a id="Flowthru_Data_DataCatalogBase_GetOrCreateEntry__1_System_Func_Flowthru_Data_ICatalogEntry___0___System_String_"></a> GetOrCreateEntry<T\>\(Func<ICatalogEntry<T\>\>, string\)
+### <a id="Flowthru_Data_DataCatalogBase_GetOrCreateEntry__1_System_Func_Flowthru_Data_IItem___0___System_String_"></a> GetOrCreateEntry<T\>\(Func<IItem<T\>\>, string\)
 
 Gets or creates a unified catalog entry, caching it for subsequent accesses.
 
 ```csharp
-protected ICatalogEntry<T> GetOrCreateEntry<T>(Func<ICatalogEntry<T>> factory, string propertyName = "")
+protected IItem<T> GetOrCreateEntry<T>(Func<IItem<T>> factory, string propertyName = "")
 ```
 
 #### Parameters
 
-`factory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-1)<[ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<T\>\>
+`factory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-1)<[IItem](Flowthru.Data.IItem\-1.md)<T\>\>
 
 Factory function to create the entry on first access
 
@@ -176,7 +176,7 @@ Auto-populated by compiler with calling property name
 
 #### Returns
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<T\>
+ [IItem](Flowthru.Data.IItem\-1.md)<T\>
 
 Cached catalog entry instance
 
@@ -197,25 +197,25 @@ and GetOrCreateDataset. Cardinality is determined by the type parameter T.
 <p>
 <strong>Usage Examples:</strong>
 <pre><code class="lang-csharp">// Singleton object
-public ICatalogEntry&lt;LinearRegressionModel&gt; Model =&gt;
-    GetOrCreateEntry(() =&gt; CatalogEntries.Single.Memory&lt;LinearRegressionModel&gt;("model"));
+public IItem&lt;LinearRegressionModel&gt; Model =&gt;
+    GetOrCreateEntry(() =&gt; Items.Single.Memory&lt;LinearRegressionModel&gt;("model"));
 
 // Collection
-public ICatalogEntry&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
-    GetOrCreateEntry(() =&gt; CatalogEntries.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));</code></pre>
+public IItem&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
+    GetOrCreateEntry(() =&gt; Items.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));</code></pre>
 </p>
 
-### <a id="Flowthru_Data_DataCatalogBase_GetOrCreateEntry__1_System_Func_System_IServiceProvider_Flowthru_Data_ICatalogEntry___0___System_String_"></a> GetOrCreateEntry<T\>\(Func<IServiceProvider?, ICatalogEntry<T\>\>, string\)
+### <a id="Flowthru_Data_DataCatalogBase_GetOrCreateEntry__1_System_Func_System_IServiceProvider_Flowthru_Data_IItem___0___System_String_"></a> GetOrCreateEntry<T\>\(Func<IServiceProvider?, IItem<T\>\>, string\)
 
 Gets or creates a unified catalog entry with service provider access.
 
 ```csharp
-protected ICatalogEntry<T> GetOrCreateEntry<T>(Func<IServiceProvider?, ICatalogEntry<T>> factory, string propertyName = "")
+protected IItem<T> GetOrCreateEntry<T>(Func<IServiceProvider?, IItem<T>> factory, string propertyName = "")
 ```
 
 #### Parameters
 
-`factory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider)?, [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<T\>\>
+`factory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider)?, [IItem](Flowthru.Data.IItem\-1.md)<T\>\>
 
 Factory function that receives service provider
 
@@ -225,7 +225,7 @@ Auto-populated by compiler with calling property name
 
 #### Returns
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<T\>
+ [IItem](Flowthru.Data.IItem\-1.md)<T\>
 
 Cached catalog entry instance
 
@@ -256,7 +256,7 @@ after all configuration properties (like BasePath) are set.
 </p>
 <p>
 <strong>How It Works:</strong>
-Uses reflection to find all public instance properties that return ICatalogEntry,
+Uses reflection to find all public instance properties that return IItem,
 then invokes each getter once to populate the cache.
 </p>
 

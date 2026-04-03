@@ -102,7 +102,7 @@ JSON string representation
 <p>
 Output format uses:
 </p>
-<ul><li>camelCase property names (pipelineName, not PipelineName)</li><li>Indented formatting for readability</li><li>Null properties omitted</li><li>Enums serialized as strings</li></ul>
+<ul><li>camelCase property names (pipelineName, not FlowName)</li><li>Indented formatting for readability</li><li>Null properties omitted</li><li>Enums serialized as strings</li></ul>
 <p>
 This format is optimized for Flowthru.Viz consumption and human readability.
 </p>

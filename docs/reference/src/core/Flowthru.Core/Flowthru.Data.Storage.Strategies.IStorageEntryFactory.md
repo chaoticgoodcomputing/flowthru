@@ -29,7 +29,7 @@ backends based on the environment:
         InitializeCatalogProperties();
     }
 
-    public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies =&gt;
+    public IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies =&gt;
         GetOrCreateEntry(() =&gt; _storage.CreateEnumerable&lt;Company&gt;("Companies"));
 }</code></pre>
 
@@ -40,7 +40,7 @@ backends based on the environment:
 Creates a catalog entry for an enumerable dataset.
 
 ```csharp
-ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null) where T : notnull, IFlatSchema, ITextSerializable
+IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null) where T : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Parameters
@@ -55,7 +55,7 @@ Optional storage options
 
 #### Returns
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
+ [IItem](Flowthru.Data.IItem\-1.md)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>\>
 
 Configured catalog entry
 
@@ -81,7 +81,7 @@ If options.Path is null, the label is used to derive a default path
 Creates a catalog entry for a singleton object.
 
 ```csharp
-ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null) where T : IStructuredSerializable
+IItem<T> CreateSingle<T>(string label, StorageOptions? options = null) where T : IStructuredSerializable
 ```
 
 #### Parameters
@@ -96,7 +96,7 @@ Optional storage options
 
 #### Returns
 
- [ICatalogEntry](Flowthru.Data.ICatalogEntry\-1.md)<T\>
+ [IItem](Flowthru.Data.IItem\-1.md)<T\>
 
 Configured catalog entry
 

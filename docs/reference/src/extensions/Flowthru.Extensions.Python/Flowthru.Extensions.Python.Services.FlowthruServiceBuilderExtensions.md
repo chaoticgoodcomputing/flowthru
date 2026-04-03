@@ -102,8 +102,8 @@ Use this for:
         .UsePython(python =&gt;
         {
             python.PythonDll = "/usr/lib/x86_64-linux-gnu/libpython3.12.so";
-            python.ModuleSearchPaths.Add("Pipelines");
-            python.ModuleSearchPaths.Add("SharedNodes");
+            python.ModuleSearchPaths.Add("Flows");
+            python.ModuleSearchPaths.Add("SharedSteps");
         });
 });</code></pre>
 </p>

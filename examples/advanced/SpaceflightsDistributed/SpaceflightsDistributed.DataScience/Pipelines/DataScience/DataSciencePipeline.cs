@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using SpaceflightsDistributed.DataProcessing.Data;
 using SpaceflightsDistributed.DataScience.Data;
 using SpaceflightsDistributed.DataScience.Pipelines.DataScience.Nodes;
@@ -29,11 +29,11 @@ public static class DataSciencePipeline
   /// <param name="dp">The data processing catalog supplying the model input table.</param>
   /// <param name="ds">The data science catalog receiving splits, model, and metrics.</param>
   /// <param name="parameters">Configuration parameters for the pipeline.</param>
-  public static Pipeline Create(DataProcessingCatalog dp, DataScienceCatalog ds, Params parameters)
+  public static Flow Create(DataProcessingCatalog dp, DataScienceCatalog ds, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "SplitData",
         description: "Splits the model input table into training and test sets.",
         transform: SplitDataNode.Create(parameters.ModelOptions),
@@ -41,7 +41,7 @@ public static class DataSciencePipeline
         output: (ds.TrainSplit, ds.TestSplit)
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TrainModel",
         description: "Trains a regression model to predict shuttle prices.",
         transform: TrainModelNode.Create(),
@@ -49,7 +49,7 @@ public static class DataSciencePipeline
         output: ds.Regressor
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "EvaluateModel",
         description: "Evaluates the trained model on the test set and computes metrics.",
         transform: EvaluateModelNode.Create(),

@@ -13,10 +13,10 @@ public partial class Catalog
   /// <summary>
   /// Training dataset with features and labels.
   /// </summary>
-  public ICatalogEntry<IEnumerable<TrainingData>> TrainSplit =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<TrainingData>> TrainSplit =>
+    CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<TrainingData, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<TrainingData, SpaceflightsDbContext>(
           label: "XTrain",
           contextFactory: _contextFactory
         )
@@ -25,10 +25,10 @@ public partial class Catalog
   /// <summary>
   /// Test dataset with features and labels for model evaluation.
   /// </summary>
-  public ICatalogEntry<IEnumerable<TestData>> TestSplit =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<TestData>> TestSplit =>
+    CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<TestData, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<TestData, SpaceflightsDbContext>(
           label: "XTest",
           contextFactory: _contextFactory
         )

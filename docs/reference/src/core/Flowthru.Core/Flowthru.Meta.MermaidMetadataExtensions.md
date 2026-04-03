@@ -32,11 +32,11 @@ Mermaid diagrams provide immediate visualization in Markdown-compatible tools
 </p>
 <p>
 The generated diagram uses Mermaid flowchart syntax with:
-- Nodes as rectangles with rounded corners
-- Catalog entries as cylindrical database shapes
-- Pipeline subgraphs grouping nodes by their origin pipeline
+- Steps as rectangles with rounded corners
+- Catalog items as cylindrical database shapes
+- Flow subgraphs grouping nodes by their origin flow
 - External data (no producer) shown with special styling
-- Produced data (has producer) inside their producer's pipeline subgraph
+- Produced data (has producer) inside their producer's flow subgraph
 </p>
 
 ## Methods
@@ -46,7 +46,7 @@ The generated diagram uses Mermaid flowchart syntax with:
 Generates a Mermaid flowchart representation of the DAG, wrapped in a code fence.
 
 ```csharp
-public static string ToMermaidDiagram(this DagMetadata dag, string direction = "TB", string activeNodeColor = "#2E7D32", string activeDataColor = "#2E7D32")
+public static string ToMermaidDiagram(this DagMetadata dag, string direction = "TB", string activeStepColor = "#2E7D32", string activeItemColor = "#2E7D32")
 ```
 
 #### Parameters
@@ -59,13 +59,13 @@ The DAG metadata to visualize
 
 Flow direction code (TB, LR, BT, RL). Defaults to TB (Top to Bottom).
 
-`activeNodeColor` [string](https://learn.microsoft.com/dotnet/api/system.string)
+`activeStepColor` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Hex color for active (sliced) nodes. Defaults to #2E7D32.
+Hex color for active (sliced) steps. Defaults to #2E7D32.
 
-`activeDataColor` [string](https://learn.microsoft.com/dotnet/api/system.string)
+`activeItemColor` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Hex color for active (sliced) catalog entries. Defaults to #2E7D32.
+Hex color for active (sliced) catalog items. Defaults to #2E7D32.
 
 #### Returns
 

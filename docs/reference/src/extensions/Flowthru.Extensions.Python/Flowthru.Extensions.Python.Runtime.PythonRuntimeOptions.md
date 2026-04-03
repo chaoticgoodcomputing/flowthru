@@ -45,7 +45,7 @@ in the output directory to materialize <code>.venv/</code> in-place.
 
 ### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_ExecutionMode"></a> ExecutionMode
 
-Controls whether Python nodes run in the same process or an isolated child process.
+Controls whether Python steps run in the same process or an isolated child process.
 Defaults to <xref href="Flowthru.Extensions.Python.Runtime.PythonExecutionMode.Subprocess" data-throw-if-not-resolved="false"></xref> for per-service isolation.
 Set to <xref href="Flowthru.Extensions.Python.Runtime.PythonExecutionMode.InProcess" data-throw-if-not-resolved="false"></xref> to opt in to shared-interpreter mode.
 
@@ -76,8 +76,8 @@ If empty, resolved in order:
 <ol><li><code>FLOWTHRU_PYTHON_PATH</code> environment variable (colon/semicolon-separated)</li><li>Project root (directory containing <code>.csproj</code>)</li></ol>
 </p>
 <p>
-Python nodes at <code>Pipelines/DataScience/Nodes/train_model.py</code> are referenced as
-<code>"Pipelines.DataScience.Nodes.train_model"</code> when the project root is in <code>sys.path</code>.
+Python steps at <code>Flows/DataScience/Steps/train_model.py</code> are referenced as
+<code>"Flows.DataScience.Steps.train_model"</code> when the project root is in <code>sys.path</code>.
 </p>
 
 ### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_PythonDll"></a> PythonDll

@@ -1,50 +1,50 @@
-# <a id="Flowthru_Pipelines"></a> Namespace Flowthru.Pipelines
+# <a id="Flowthru_Pipelines"></a> Namespace Flowthru.Flows
 
 ### Namespaces
 
- [Flowthru.Pipelines.Validation](Flowthru.Pipelines.Validation.md)
+ [Flowthru.Flows.Validation](Flowthru.Flows.Validation.md)
 
 ### Classes
 
- [ExecutionOptions](Flowthru.Pipelines.ExecutionOptions.md)
+ [ExecutionOptions](Flowthru.Flows.ExecutionOptions.md)
 
 Configuration options for pipeline execution.
 
- [NodeResult](Flowthru.Pipelines.NodeResult.md)
+ [NodeResult](Flowthru.Flows.NodeResult.md)
 
 Represents the execution result of a single pipeline node.
 
- [Pipeline](Flowthru.Pipelines.Pipeline.md)
+ [Pipeline](Flowthru.Flows.Pipeline.md)
 
 Represents a complete data pipeline with nodes, dependencies, and execution order.
 
- [PipelineBuilder](Flowthru.Pipelines.PipelineBuilder.md)
+ [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
 Fluent builder for constructing type-safe data pipelines with function-based nodes.
 
- [PipelineNode](Flowthru.Pipelines.PipelineNode.md)
+ [PipelineNode](Flowthru.Flows.PipelineNode.md)
 
 Represents a node within a pipeline, wrapping the transformation function with metadata
 about its inputs, outputs, and dependencies.
 
- [PipelineResult](Flowthru.Pipelines.PipelineResult.md)
+ [FlowResult](Flowthru.Flows.FlowResult.md)
 
 Represents the result of a pipeline execution.
 
- [PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)
+ [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)
 
 Defines a strategy for slicing a pipeline to execute a subset of nodes.
 
 ### Structs
 
- [DryRunOption](Flowthru.Pipelines.DryRunOption.md)
+ [DryRunOption](Flowthru.Flows.DryRunOption.md)
 
 Represents a dry-run configuration. Can be assigned from a <xref href="System.Boolean" data-throw-if-not-resolved="false"></xref>
-or a <xref href="Flowthru.Pipelines.ValidationDepth" data-throw-if-not-resolved="false"></xref> value.
+or a <xref href="Flowthru.Flows.ValidationDepth" data-throw-if-not-resolved="false"></xref> value.
 
 ### Enums
 
- [ValidationDepth](Flowthru.Pipelines.ValidationDepth.md)
+ [ValidationDepth](Flowthru.Flows.ValidationDepth.md)
 
 Controls how deeply a dry run validates the pipeline before stopping.
 

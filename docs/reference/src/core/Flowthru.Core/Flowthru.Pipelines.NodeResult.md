@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_NodeResult"></a> Class NodeResult
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Represents the execution result of a single pipeline node.
@@ -12,7 +12,7 @@ public class NodeResult
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[NodeResult](Flowthru.Pipelines.NodeResult.md)
+[NodeResult](Flowthru.Flows.NodeResult.md)
 
 #### Inherited Members
 
@@ -135,7 +135,7 @@ public static NodeResult CreateFailure(string nodeName, TimeSpan executionTime, 
 
 #### Returns
 
- [NodeResult](Flowthru.Pipelines.NodeResult.md)
+ [NodeResult](Flowthru.Flows.NodeResult.md)
 
 ### <a id="Flowthru_Pipelines_NodeResult_CreateSuccess_System_String_System_TimeSpan_System_Int32_System_Int32_"></a> CreateSuccess\(string, TimeSpan, int, int\)
 
@@ -157,5 +157,5 @@ public static NodeResult CreateSuccess(string nodeName, TimeSpan executionTime, 
 
 #### Returns
 
- [NodeResult](Flowthru.Pipelines.NodeResult.md)
+ [NodeResult](Flowthru.Flows.NodeResult.md)
 

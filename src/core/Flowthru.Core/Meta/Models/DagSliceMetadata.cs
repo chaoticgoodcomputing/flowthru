@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 
 namespace Flowthru.Meta.Models;
 
@@ -61,9 +61,9 @@ public class DagSliceMetadata
   public string[]? OnlyNodes { get; init; }
 
   /// <summary>
-  /// Creates a <see cref="DagSliceMetadata"/> from a <see cref="PipelineSliceStrategy"/>.
+  /// Creates a <see cref="DagSliceMetadata"/> from a <see cref="FlowSliceStrategy"/>.
   /// </summary>
-  internal static DagSliceMetadata? FromStrategy(PipelineSliceStrategy? strategy)
+  internal static DagSliceMetadata? FromStrategy(FlowSliceStrategy? strategy)
   {
     if (strategy == null)
     {
@@ -72,7 +72,7 @@ public class DagSliceMetadata
 
     return new DagSliceMetadata
     {
-      Pipelines = strategy.Pipelines?.ToArray(),
+      Pipelines = strategy.Flows?.ToArray(),
       FromNodes = strategy.FromNodes?.ToArray(),
       ToNodes = strategy.ToNodes?.ToArray(),
       FromData = strategy.FromData?.ToArray(),

@@ -8,10 +8,10 @@ public partial class Catalog
   /// <summary>
   /// Raw name data imported from CSV file.
   /// </summary>
-  public ICatalogEntry<IEnumerable<NameSchema>> Names =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<NameSchema>> Names =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<NameSchema>(
+        ItemFactory.Enumerable.Csv<NameSchema>(
           label: "Names",
           filePath: $"{_basePath}/Data/_01_Raw/Datasets/names.csv"
         )

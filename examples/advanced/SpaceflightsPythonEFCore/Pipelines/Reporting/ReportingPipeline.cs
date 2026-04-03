@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flows;
 using SpaceflightsPythonEFCore.Data;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 using SpaceflightsPythonEFCore.Data._07_ModelOutput.Schemas;
@@ -14,11 +14,11 @@ namespace SpaceflightsPythonEFCore.Pipelines.Reporting;
 /// </summary>
 public static class ReportingPipeline
 {
-  public static Pipeline Create(Catalog catalog, IPythonExecutor executor)
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "ComparePassengerCapacityExpress",
         description: "Shuttle capacity bar chart via plotly.express (Python). Reads PreprocessedShuttles from EFCore.",
         module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
@@ -28,7 +28,7 @@ public static class ReportingPipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "ComparePassengerCapacityGraphObj",
         description: "Shuttle capacity bar chart via plotly.graph_objects (Python). Reads PreprocessedShuttles from EFCore.",
         module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
@@ -38,7 +38,7 @@ public static class ReportingPipeline
         executor: executor
       );
 
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "CreateConfusionMatrix",
         description: "Confusion matrix heatmap from model predictions (Python). Reads ModelPredictions from EFCore.",
         module: "Pipelines.Reporting.Nodes.create_confusion_matrix",

@@ -29,8 +29,8 @@ namespace Flowthru.Data.Storage.Strategies;
 ///         InitializeCatalogProperties();
 ///     }
 ///
-///     public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; Companies =>
-///         GetOrCreateEntry(() => _storage.CreateEnumerable&lt;Company&gt;("Companies"));
+///     public IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies =>
+///         CreateEntry(() => _storage.CreateEnumerable&lt;Company&gt;("Companies"));
 /// }
 /// </code>
 /// </remarks>
@@ -53,7 +53,7 @@ public interface IStorageEntryFactory
   /// (e.g., "Companies" → "Companies.csv" or "dbo.Companies").
   /// </para>
   /// </remarks>
-  ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
+  IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
     where T : notnull, IFlatSchema, ITextSerializable;
 
   /// <summary>
@@ -72,6 +72,6 @@ public interface IStorageEntryFactory
   /// Typically uses structured formats (JSON, MessagePack) for singletons.
   /// </para>
   /// </remarks>
-  ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null)
+  IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
     where T : IStructuredSerializable;
 }

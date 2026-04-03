@@ -80,7 +80,7 @@ public JsonMetadataProviderBuilder WithFilenameTemplate(string template)
 
 `template` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Template with placeholders: {PipelineName}, {Timestamp}, {SliceType}
+Template with placeholders: {FlowName}, {Timestamp}, {SliceType}
 
 #### Returns
 

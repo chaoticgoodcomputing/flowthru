@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_ValidationDepth"></a> Enum ValidationDepth
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Controls how deeply a dry run validates the pipeline before stopping.

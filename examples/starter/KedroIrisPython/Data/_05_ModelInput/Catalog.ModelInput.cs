@@ -12,10 +12,10 @@ public partial class Catalog
   /// <summary>
   /// Training feature vectors (X).
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureVectorSchema>> TrainX =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<FeatureVectorSchema>> TrainX =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
           label: "TrainX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_x.parquet"
         )
@@ -24,10 +24,10 @@ public partial class Catalog
   /// <summary>
   /// Training target labels (Y) with one-hot encoding.
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetLabelSchema>> TrainY =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<TargetLabelSchema>> TrainY =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<TargetLabelSchema>(
+        ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
           label: "TrainY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_y.parquet"
         )
@@ -36,10 +36,10 @@ public partial class Catalog
   /// <summary>
   /// Test feature vectors (X).
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureVectorSchema>> TestX =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<FeatureVectorSchema>> TestX =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
           label: "TestX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_x.parquet"
         )
@@ -48,10 +48,10 @@ public partial class Catalog
   /// <summary>
   /// Test target labels (Y) with one-hot encoding.
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetLabelSchema>> TestY =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<TargetLabelSchema>> TestY =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<TargetLabelSchema>(
+        ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
           label: "TestY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_y.parquet"
         )

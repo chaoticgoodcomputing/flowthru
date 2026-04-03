@@ -1,18 +1,18 @@
-# <a id="Flowthru_Pipelines_PipelineSliceStrategy"></a> Class PipelineSliceStrategy
+# <a id="Flowthru_Pipelines_FlowSliceStrategy"></a> Class FlowSliceStrategy
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Defines a strategy for slicing a pipeline to execute a subset of nodes.
 
 ```csharp
-public sealed class PipelineSliceStrategy
+public sealed class FlowSliceStrategy
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)
+[FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)
 
 #### Inherited Members
 
@@ -47,7 +47,7 @@ are not supported.
 
 ## Properties
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_FromData"></a> FromData
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_FromData"></a> FromData
 
 Start from nodes that consume these catalog entry labels, including all downstream dependents.
 
@@ -64,7 +64,7 @@ public IReadOnlySet<string>? FromData { get; init; }
 Finds all nodes that read the specified catalog entries, then expands downstream.
 Useful for impact analysis - "what breaks if I change this data?"
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_FromNodes"></a> FromNodes
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_FromNodes"></a> FromNodes
 
 Start from these nodes, including all downstream dependents.
 
@@ -81,7 +81,7 @@ public IReadOnlySet<string>? FromNodes { get; init; }
 Expands to include all nodes that depend on these nodes (transitively).
 Useful for impact analysis - "what breaks if I change this node?"
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_IsSliced"></a> IsSliced
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_IsSliced"></a> IsSliced
 
 Whether any slicing is configured.
 
@@ -93,7 +93,7 @@ public bool IsSliced { get; }
 
  [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_OnlyNodes"></a> OnlyNodes
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_OnlyNodes"></a> OnlyNodes
 
 Explicit allowlist of node names (dependencies auto-included).
 
@@ -110,7 +110,7 @@ public IReadOnlySet<string>? OnlyNodes { get; init; }
 Specifies exactly which nodes to execute, then automatically includes any
 required dependencies to maintain DAG validity.
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_Pipelines"></a> Pipelines
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_Pipelines"></a> Pipelines
 
 Filter to nodes from these named pipelines (applies to merged pipelines).
 
@@ -128,7 +128,7 @@ In merged pipelines, nodes are prefixed with their pipeline name (e.g., "DataSci
 This filter includes only nodes from the specified pipelines.
 Pipeline names are case-insensitive.
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_ToData"></a> ToData
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_ToData"></a> ToData
 
 End at nodes that produce these catalog entry labels, including all upstream dependencies.
 
@@ -145,7 +145,7 @@ public IReadOnlySet<string>? ToData { get; init; }
 Finds the nodes that write the specified catalog entries, then expands upstream.
 Useful for targeted execution - "run everything needed to produce this data".
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_ToNodes"></a> ToNodes
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_ToNodes"></a> ToNodes
 
 End at these nodes, including all upstream dependencies needed to produce them.
 
@@ -165,15 +165,15 @@ Useful for testing specific outputs without running the entire pipeline.
 
 ## Methods
 
-### <a id="Flowthru_Pipelines_PipelineSliceStrategy_All"></a> All\(\)
+### <a id="Flowthru_Pipelines_FlowSliceStrategy_All"></a> All\(\)
 
 No filtering - execute entire pipeline.
 
 ```csharp
-public static PipelineSliceStrategy All()
+public static FlowSliceStrategy All()
 ```
 
 #### Returns
 
- [PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)
+ [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)
 

@@ -22,7 +22,7 @@ environment-specific catalogs (e.g., local files in dev, remote DB in prod).
 Creates a catalog instance based on configuration.
 
 ```csharp
-DataCatalogBase CreateCatalog(CatalogOptions options, IServiceProvider serviceProvider)
+CatalogAbstract CreateCatalog(CatalogOptions options, IServiceProvider serviceProvider)
 ```
 
 #### Parameters
@@ -37,7 +37,7 @@ Service provider for dependency injection
 
 #### Returns
 
- [DataCatalogBase](Flowthru.Data.DataCatalogBase.md)
+ [CatalogAbstract](Flowthru.Data.CatalogAbstract.md)
 
 The configured catalog instance
 

@@ -1,5 +1,5 @@
-using Flowthru.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
+using Flowthru.Steps;
 using KedroSpaceflights.Custom.Data;
 using KedroSpaceflights.Custom.Pipelines.Reporting.Nodes;
 
@@ -42,14 +42,14 @@ namespace KedroSpaceflights.Custom.Pipelines.Reporting;
 /// </remarks>
 public static class ReportingPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // ===== Shuttle Passenger Capacity Visualization =====
 
       // Step 1: Generate chart from processed shuttle data
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GeneratePassengerCapacityChart",
         transform: ComparePassengerCapacityNode.Create(),
         input: catalog.CleanedShuttles,
@@ -57,7 +57,7 @@ public static class ReportingPipeline
       );
 
       // Step 2: Export chart to JSON for interactive visualization
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportPassengerCapacityJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.ShuttlePassengerCapacityChart,
@@ -66,7 +66,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // // Step 3: Export chart to base64-encoded PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportPassengerCapacityPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ShuttlePassengerCapacityChart,
@@ -76,7 +76,7 @@ public static class ReportingPipeline
       // ===== Confusion Matrix Visualization =====
 
       // Step 1: Generate confusion matrix heatmap from company data
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GenerateConfusionMatrixChart",
         transform: CreateConfusionMatrixNode.Create(),
         input: catalog.CleanedCompanies,
@@ -84,7 +84,7 @@ public static class ReportingPipeline
       );
 
       // Step 2: Export chart to JSON for interactive visualization
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportConfusionMatrixJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.ConfusionMatrixChart,
@@ -93,7 +93,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // // Step 3: Export chart to base64-encoded PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportConfusionMatrixPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.ConfusionMatrixChart,
@@ -103,7 +103,7 @@ public static class ReportingPipeline
       // ===== Cross-Validation Results Visualization =====
 
       // Step 1: Generate comprehensive cross-validation chart
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GenerateCrossValidationChart",
         transform: VisualizeCrossValidationNode.Create(),
         input: catalog.CrossValidationResults,
@@ -111,7 +111,7 @@ public static class ReportingPipeline
       );
 
       // Step 2: Export chart to JSON for interactive visualization
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportCrossValidationJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.CrossValidationChart,
@@ -120,7 +120,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // Step 3: Export chart to base64-encoded PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportCrossValidationPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.CrossValidationChart,
@@ -128,7 +128,7 @@ public static class ReportingPipeline
       // );
 
       // Node 6: Generate human-readable Markdown report from cross-validation results
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GenerateCrossValidationReport",
         transform: GenerateCrossValidationReportNode.Create(),
         input: catalog.CrossValidationResults,
@@ -138,7 +138,7 @@ public static class ReportingPipeline
       // ===== Prediction Scatter Plot Visualization =====
 
       // Step 1: Generate scatter plot from model metrics and predictions
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "GeneratePredictionScatterChart",
         transform: GeneratePredictionScatterNode.Create(),
         input: (catalog.ModelMetrics, catalog.ModelPredictions),
@@ -146,7 +146,7 @@ public static class ReportingPipeline
       );
 
       // Step 2: Export chart to JSON for interactive visualization
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ExportPredictionScatterJson",
         transform: PlotlyJsonExportNode.Create(),
         input: catalog.PredictionScatterChart,
@@ -155,7 +155,7 @@ public static class ReportingPipeline
 
       // Removed to cut down Chromium dependency for test runs.
       // // Step 3: Export chart to PNG for static reports
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportPredictionScatterPng",
       //   transform: PlotlyImageExportNode.Create(),
       //   input: catalog.PredictionScatterChart,

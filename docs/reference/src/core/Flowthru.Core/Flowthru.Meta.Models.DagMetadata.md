@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Meta.Models](Flowthru.Meta.Models.md)  
 Assembly: Flowthru.Core.dll  
 
-Root metadata model representing a complete pipeline DAG (Directed Acyclic Graph).
+Root metadata model representing a complete FlowthruService DAG (Directed Acyclic Graph).
 
 ```csharp
 public class DagMetadata
@@ -32,8 +32,8 @@ public class DagMetadata
 
 ## Remarks
 
-This model captures the structure of a built pipeline, including all nodes,
-catalog entries, and their relationships. It serves as the backbone for
+This model captures the structure of a built flow, including all steps,
+catalog items, and their relationships. It serves as the backbone for
 Flowthru.Viz visualization.
 
 ## Properties
@@ -54,22 +54,22 @@ public DagSliceMetadata? AppliedSlice { get; init; }
 
 #### Remarks
 
-Present when the DAG represents a sliced subset of the full pipeline.
-Null when the DAG represents the complete, unsliced pipeline.
+Present when the DAG represents a sliced subset of the full Flow.
+Null when the DAG represents the complete, unsliced flow.
 Used for reproducibility, debugging, and filename generation.
 
-### <a id="Flowthru_Meta_Models_DagMetadata_CatalogEntries"></a> CatalogEntries
+### <a id="Flowthru_Meta_Models_DagMetadata_CatalogItems"></a> CatalogItems
 
-All catalog entries (datasets) involved in the pipeline.
+All catalog items involved in the flow.
 
 ```csharp
-[JsonPropertyName("catalogEntries")]
-public List<CatalogEntryMetadata> CatalogEntries { get; init; }
+[JsonPropertyName("catalogItems")]
+public List<ItemMetadata> CatalogItems { get; init; }
 ```
 
 #### Property Value
 
- [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[CatalogEntryMetadata](Flowthru.Meta.Models.CatalogEntryMetadata.md)\>
+ [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[ItemMetadata](Flowthru.Meta.Models.ItemMetadata.md)\>
 
 ### <a id="Flowthru_Meta_Models_DagMetadata_Edges"></a> Edges
 
@@ -86,8 +86,21 @@ public List<EdgeMetadata> Edges { get; init; }
 
 #### Remarks
 
-Edges connect catalog entries to nodes and nodes to catalog entries,
-forming the complete data flow graph.
+Edges connect catalog items to steps and steps to catalog items,
+forming the complete graph.
+
+### <a id="Flowthru_Meta_Models_DagMetadata_FlowName"></a> FlowName
+
+Name of the flow this DAG represents.
+
+```csharp
+[JsonPropertyName("flowName")]
+public required string FlowName { get; init; }
+```
+
+#### Property Value
+
+ [string](https://learn.microsoft.com/dotnet/api/system.string)
 
 ### <a id="Flowthru_Meta_Models_DagMetadata_GeneratedAt"></a> GeneratedAt
 
@@ -102,40 +115,14 @@ public DateTime GeneratedAt { get; init; }
 
  [DateTime](https://learn.microsoft.com/dotnet/api/system.datetime)
 
-### <a id="Flowthru_Meta_Models_DagMetadata_Nodes"></a> Nodes
+### <a id="Flowthru_Meta_Models_DagMetadata_SlicedCatalogItemIds"></a> SlicedCatalogItemIds
 
-All nodes in the pipeline with their metadata.
-
-```csharp
-[JsonPropertyName("nodes")]
-public List<NodeMetadata> Nodes { get; init; }
-```
-
-#### Property Value
-
- [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[NodeMetadata](Flowthru.Meta.Models.NodeMetadata.md)\>
-
-### <a id="Flowthru_Meta_Models_DagMetadata_PipelineName"></a> PipelineName
-
-Name of the pipeline this DAG represents.
+Catalog item IDsthat are produced by steps in the active execution slice.
 
 ```csharp
-[JsonPropertyName("pipelineName")]
-public required string PipelineName { get; init; }
-```
-
-#### Property Value
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-### <a id="Flowthru_Meta_Models_DagMetadata_SlicedCatalogEntryKeys"></a> SlicedCatalogEntryKeys
-
-Catalog entry keys that are produced by nodes in the active execution slice.
-
-```csharp
-[JsonPropertyName("slicedCatalogEntryKeys")]
+[JsonPropertyName("slicedCatalogItemIds")]
 [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public HashSet<string>? SlicedCatalogEntryKeys { get; init; }
+public HashSet<string>? SlicedCatalogItemIds { get; init; }
 ```
 
 #### Property Value
@@ -144,19 +131,19 @@ public HashSet<string>? SlicedCatalogEntryKeys { get; init; }
 
 #### Remarks
 
-When a slice is applied, this contains the keys of catalog entries (data) that
-will be written during execution. Derived from the outputs of sliced nodes.
+When a slice is applied, this contains the keys of catalog items (data) that
+will be written during execution. Derived from the outputs of sliced steps.
 Null when no slice was applied (all data may be updated).
-Enables visualization tools to highlight both nodes and the data they produce.
+Enables visualization tools to highlight both steps and the data they produce.
 
-### <a id="Flowthru_Meta_Models_DagMetadata_SlicedNodeIds"></a> SlicedNodeIds
+### <a id="Flowthru_Meta_Models_DagMetadata_SlicedStepIds"></a> SlicedStepIds
 
-Node IDs that are in the active execution slice, if a slice was applied.
+Step IDs that are in the active execution slice, if a slice was applied.
 
 ```csharp
-[JsonPropertyName("slicedNodeIds")]
+[JsonPropertyName("slicedStepIds")]
 [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-public HashSet<string>? SlicedNodeIds { get; init; }
+public HashSet<string>? SlicedStepIds { get; init; }
 ```
 
 #### Property Value
@@ -165,8 +152,21 @@ public HashSet<string>? SlicedNodeIds { get; init; }
 
 #### Remarks
 
-When a slice is applied, this contains the IDs of nodes that will actually execute.
-The Nodes collection contains the full DAG, while this set identifies the subset.
-Null when no slice was applied (all nodes execute).
+When a slice is applied, this contains the IDs of steps that will actually execute.
+The Steps collection contains the full DAG, while this set identifies the subset.
+Null when no slice was applied (all steps execute).
 Enables visualization tools to highlight execution paths while showing full context.
+
+### <a id="Flowthru_Meta_Models_DagMetadata_Steps"></a> Steps
+
+All steps in the flow with their metadata.
+
+```csharp
+[JsonPropertyName("steps")]
+public List<StepMetadata> Steps { get; init; }
+```
+
+#### Property Value
+
+ [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[StepMetadata](Flowthru.Meta.Models.StepMetadata.md)\>
 

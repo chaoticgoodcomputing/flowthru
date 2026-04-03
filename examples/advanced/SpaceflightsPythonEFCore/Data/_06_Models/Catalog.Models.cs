@@ -9,10 +9,10 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  public ICatalogEntry<LinearRegressionModel> Regressor =>
-    GetOrCreateEntry(
+  public IItem<LinearRegressionModel> Regressor =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<LinearRegressionModel>(
+        ItemFactory.Single.Json<LinearRegressionModel>(
           label: "Regressor",
           filePath: $"{_basePath}/_06_Models/Datasets/regressor.json"
         )

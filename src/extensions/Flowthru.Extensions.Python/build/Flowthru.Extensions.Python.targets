@@ -68,7 +68,7 @@
           PackagePath="build"
           Visible="false" />
 
-    <!-- flowthru Python package (__init__.py, node.py) -->
+    <!-- flowthru Python package (__init__.py, step.py) -->
     <None Include="$(MSBuildThisFileDirectory)flowthru\__init__.py"
           CopyToOutputDirectory="PreserveNewest"
           PackageCopyToOutput="true"
@@ -76,13 +76,13 @@
           PackagePath="build\flowthru"
           Visible="false"
           Link="flowthru\__init__.py" />
-    <None Include="$(MSBuildThisFileDirectory)flowthru\node.py"
+    <None Include="$(MSBuildThisFileDirectory)flowthru\step.py"
           CopyToOutputDirectory="PreserveNewest"
           PackageCopyToOutput="true"
           Pack="true"
           PackagePath="build\flowthru"
           Visible="false"
-          Link="flowthru\node.py" />
+          Link="flowthru\step.py" />
   </ItemGroup>
 
   <!--

@@ -9,14 +9,14 @@
     href: Flowthru.Misc.ML.UMAP.Core.DataShape.md
   - name: UmapFitResult
     href: Flowthru.Misc.ML.UMAP.Core.UmapFitResult.md
+  - name: UmapFlowBuilder
+    href: Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md
   - name: UmapGraphResult
     href: Flowthru.Misc.ML.UMAP.Core.UmapGraphResult.md
   - name: UmapParameters
     href: Flowthru.Misc.ML.UMAP.Core.UmapParameters.md
   - name: UmapPipeline
     href: Flowthru.Misc.ML.UMAP.Core.UmapPipeline.md
-  - name: UmapPipelineBuilder
-    href: Flowthru.Misc.ML.UMAP.Core.UmapPipelineBuilder.md
   - name: UmapProgress
     href: Flowthru.Misc.ML.UMAP.Core.UmapProgress.md
   - name: UmapRuntimeReport

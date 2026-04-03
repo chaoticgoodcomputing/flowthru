@@ -9,7 +9,7 @@ namespace Flowthru.Data.Storage;
 /// <typeparam name="T">The data type (typically NoData)</typeparam>
 /// <remarks>
 /// <para>
-/// <strong>Use Case:</strong> Nodes that perform side effects (logging, visualization, alerts)
+/// <strong>Use Case:</strong> Steps that perform side effects (logging, visualization, alerts)
 /// but don't produce data that downstream nodes need.
 /// </para>
 /// <para>

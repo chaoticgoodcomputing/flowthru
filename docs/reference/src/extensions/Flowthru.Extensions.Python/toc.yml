@@ -26,14 +26,6 @@
     href: Flowthru.Extensions.Python.Marshalling.ArrowSchemaMapper.md
   - name: ScalarMarshaller
     href: Flowthru.Extensions.Python.Marshalling.ScalarMarshaller.md
-- name: Flowthru.Extensions.Python.Nodes
-  href: Flowthru.Extensions.Python.Nodes.md
-  items:
-  - name: Classes
-  - name: PythonNodeFactory
-    href: Flowthru.Extensions.Python.Nodes.PythonNodeFactory.md
-  - name: PythonNodeWrapper<TInput, TOutput>
-    href: Flowthru.Extensions.Python.Nodes.PythonNodeWrapper-2.md
 - name: Flowthru.Extensions.Python.Runtime
   href: Flowthru.Extensions.Python.Runtime.md
   items:
@@ -51,9 +43,17 @@
   - name: Classes
   - name: FlowthruServiceBuilderExtensions
     href: Flowthru.Extensions.Python.Services.FlowthruServiceBuilderExtensions.md
+- name: Flowthru.Extensions.Python.Steps
+  href: Flowthru.Extensions.Python.Steps.md
+  items:
+  - name: Classes
+  - name: PythonStepFactory
+    href: Flowthru.Extensions.Python.Steps.PythonStepFactory.md
+  - name: PythonStepWrapper<TInput, TOutput>
+    href: Flowthru.Extensions.Python.Steps.PythonStepWrapper-2.md
 - name: Flowthru.Extensions.Python.Validation
   href: Flowthru.Extensions.Python.Validation.md
   items:
   - name: Classes
-  - name: PythonNodeValidator
-    href: Flowthru.Extensions.Python.Validation.PythonNodeValidator.md
+  - name: PythonStepValidator
+    href: Flowthru.Extensions.Python.Validation.PythonStepValidator.md

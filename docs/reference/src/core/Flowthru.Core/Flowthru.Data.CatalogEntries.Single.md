@@ -1,4 +1,4 @@
-# <a id="Flowthru_Data_CatalogEntries_Single"></a> Class CatalogEntries.Single
+# <a id="Flowthru_Data_Items_Single"></a> Class Items.Single
 
 Namespace: [Flowthru.Data](Flowthru.Data.md)  
 Assembly: Flowthru.Core.dll  
@@ -6,13 +6,13 @@ Assembly: Flowthru.Core.dll
 Factory methods for single (non-collection) values.
 
 ```csharp
-public static class CatalogEntries.Single
+public static class Items.Single
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[CatalogEntries.Single](Flowthru.Data.CatalogEntries.Single.md)
+[Items.Single](Flowthru.Data.Items.Single.md)
 
 #### Inherited Members
 
@@ -36,12 +36,12 @@ These methods create catalog entries for single objects rather than collections.
 
 ## Methods
 
-### <a id="Flowthru_Data_CatalogEntries_Single_Binary_System_String_System_String_"></a> Binary\(string, string\)
+### <a id="Flowthru_Data_Items_Single_Binary_System_String_System_String_"></a> Binary\(string, string\)
 
 Creates a binary file catalog entry.
 
 ```csharp
-public static CatalogEntry<byte[]> Binary(string label, string filePath)
+public static Item<byte[]> Binary(string label, string filePath)
 ```
 
 #### Parameters
@@ -56,7 +56,7 @@ Path to binary file (.png, .jpg, .pdf, etc.)
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<[byte](https://learn.microsoft.com/dotnet/api/system.byte)\[\]\>
+ [Item](Flowthru.Data.Item\-1.md)<[byte](https://learn.microsoft.com/dotnet/api/system.byte)\[\]\>
 
 Catalog entry for binary file with byte array content
 
@@ -72,12 +72,12 @@ Catalog entry for binary file with byte array content
 <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
 </p>
 
-### <a id="Flowthru_Data_CatalogEntries_Single_Json__1_System_String_System_String_"></a> Json<T\>\(string, string\)
+### <a id="Flowthru_Data_Items_Single_Json__1_System_String_System_String_"></a> Json<T\>\(string, string\)
 
 Creates a JSON file catalog entry for a single object (non-collection).
 
 ```csharp
-public static CatalogEntry<T> Json<T>(string label, string filePath) where T : IStructuredSerializable
+public static Item<T> Json<T>(string label, string filePath) where T : IStructuredSerializable
 ```
 
 #### Parameters
@@ -92,7 +92,7 @@ Path to JSON file
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<T\>
+ [Item](Flowthru.Data.Item\-1.md)<T\>
 
 Catalog entry for singleton JSON object
 
@@ -115,12 +115,12 @@ Object type (must be structured-serializable)
 format/container composition for direct object serialization.
 </p>
 
-### <a id="Flowthru_Data_CatalogEntries_Single_Memory__1_System_String_"></a> Memory<T\>\(string\)
+### <a id="Flowthru_Data_Items_Single_Memory__1_System_String_"></a> Memory<T\>\(string\)
 
 Creates a memory catalog entry for a single object (non-collection).
 
 ```csharp
-public static CatalogEntry<T> Memory<T>(string label)
+public static Item<T> Memory<T>(string label)
 ```
 
 #### Parameters
@@ -131,7 +131,7 @@ Unique catalog label for DAG resolution
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<T\>
+ [Item](Flowthru.Data.Item\-1.md)<T\>
 
 Catalog entry for in-memory singleton
 
@@ -151,12 +151,12 @@ Object type
 </p>
 <ul><li>ML models (LinearRegressionModel)</li><li>Charts (GenericChart from Plotly.NET)</li><li>Metrics objects (ModelMetrics, CrossValidationResults)</li><li>Any singleton data that doesn't need persistence</li></ul>
 
-### <a id="Flowthru_Data_CatalogEntries_Single_Null__1_System_String_"></a> Null<T\>\(string\)
+### <a id="Flowthru_Data_Items_Single_Null__1_System_String_"></a> Null<T\>\(string\)
 
 Creates a null catalog entry for side-effect-only nodes.
 
 ```csharp
-public static CatalogEntry<T> Null<T>(string label)
+public static Item<T> Null<T>(string label)
 ```
 
 #### Parameters
@@ -167,7 +167,7 @@ Unique catalog label for DAG resolution
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<T\>
+ [Item](Flowthru.Data.Item\-1.md)<T\>
 
 Catalog entry for void/no-data semantics
 
@@ -180,7 +180,7 @@ The data type (typically NoData)
 #### Remarks
 
 <p>
-<strong>Use Case:</strong> Nodes that perform side effects (logging, visualization) without producing meaningful data
+<strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
 </p>
 <p>
 <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.
@@ -190,12 +190,12 @@ The data type (typically NoData)
 </p>
 <ul><li>CanWrite: false (Save is a no-op)</li><li>CanRead: false (Load throws NotSupportedException)</li></ul>
 
-### <a id="Flowthru_Data_CatalogEntries_Single_Text_System_String_System_String_"></a> Text\(string, string\)
+### <a id="Flowthru_Data_Items_Single_Text_System_String_System_String_"></a> Text\(string, string\)
 
 Creates a plain text file catalog entry.
 
 ```csharp
-public static CatalogEntry<string> Text(string label, string filePath)
+public static Item<string> Text(string label, string filePath)
 ```
 
 #### Parameters
@@ -210,7 +210,7 @@ Path to text file (.txt, .md, etc.)
 
 #### Returns
 
- [CatalogEntry](Flowthru.Data.CatalogEntry\-1.md)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
+ [Item](Flowthru.Data.Item\-1.md)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
 
 Catalog entry for text file with string content
 

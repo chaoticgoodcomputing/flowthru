@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_Validation_ValidationOptions"></a> Class ValidationOptions
 
-Namespace: [Flowthru.Pipelines.Validation](Flowthru.Pipelines.Validation.md)  
+Namespace: [Flowthru.Flows.Validation](Flowthru.Flows.Validation.md)  
 Assembly: Flowthru.Core.dll  
 
 Configuration for pipeline validation behavior.
@@ -12,7 +12,7 @@ public class ValidationOptions
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)
+[ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
 #### Inherited Members
 
@@ -29,7 +29,7 @@ public class ValidationOptions
 <p>
 ValidationOptions provides pipeline-level overrides for validation configuration.
 The primary mechanism for validation configuration is catalog-level via the
-<xref href="Flowthru.Data.ICatalogEntry.PreferredInspectionLevel" data-throw-if-not-resolved="false"></xref> property and the fluent
+<xref href="Flowthru.Data.IItem.PreferredInspectionLevel" data-throw-if-not-resolved="false"></xref> property and the fluent
 <code>.WithInspectionLevel()</code> API.
 </p>
 <p>
@@ -73,19 +73,19 @@ public static ValidationOptions Default()
 
 #### Returns
 
- [ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)
+ [ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
-### <a id="Flowthru_Pipelines_Validation_ValidationOptions_Inspect_Flowthru_Data_ICatalogEntry_Flowthru_Data_Validation_InspectionLevel_"></a> Inspect\(ICatalogEntry, InspectionLevel\)
+### <a id="Flowthru_Pipelines_Validation_ValidationOptions_Inspect_Flowthru_Data_IItem_Flowthru_Data_Validation_InspectionLevel_"></a> Inspect\(IItem, InspectionLevel\)
 
 Specifies the inspection level for a specific catalog entry.
 
 ```csharp
-public ValidationOptions Inspect(ICatalogEntry catalogEntry, InspectionLevel level)
+public ValidationOptions Inspect(IItem catalogEntry, InspectionLevel level)
 ```
 
 #### Parameters
 
-`catalogEntry` [ICatalogEntry](Flowthru.Data.ICatalogEntry.md)
+`catalogEntry` [IItem](Flowthru.Data.IItem.md)
 
 The catalog entry to configure
 
@@ -95,7 +95,7 @@ The inspection level to use for this entry
 
 #### Returns
 
- [ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)
+ [ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
 This ValidationOptions instance for fluent chaining
 

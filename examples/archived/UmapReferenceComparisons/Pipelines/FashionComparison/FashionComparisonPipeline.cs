@@ -1,6 +1,6 @@
+using Flowthru.Flows;
 using Flowthru.Misc.ML.UMAP;
 using Flowthru.Misc.ML.UMAP.Core;
-using Flowthru.Pipelines;
 using UmapReferenceComparisons.Data;
 using UmapReferenceComparisons.Helpers.Nodes;
 using UmapReferenceComparisons.Pipelines.FashionComparison.Nodes;
@@ -25,7 +25,7 @@ namespace UmapReferenceComparisons.Pipelines.FashionComparison;
 /// </remarks>
 public static class FashionComparisonPipeline
 {
-  public static Pipeline Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
   {
     var umapParameters = new UmapParameters
     {
@@ -38,9 +38,9 @@ public static class FashionComparisonPipeline
       Verbosity = 2,
     };
 
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ConvertFashionMnistToUmapInput",
         description: "Converts Fashion-MNIST schema to universal UmapInput format (float[784] features, class label)",
         transform: ConvertFashionMnistToUmapInputNode.Create(),
@@ -48,7 +48,7 @@ public static class FashionComparisonPipeline
         output: catalog.FashionMnistUmapInput
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TransformFashionMnistWithCSharpUmap",
         description: "Applies C# UMAP to Fashion-MNIST input features using Python reference parameters. Outputs both the embedding and runtime performance metrics.",
         transform: TransformWithUmapNode.Create(
@@ -64,7 +64,7 @@ public static class FashionComparisonPipeline
 
       // This node requires a brute force KNN, and is too slow to test currently.
 
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "CompareFashionMnistOutputs",
       //   description: "Compares C# UMAP output against Python reference output using neighborhood preservation validation.",
       //   transform: CompareUmapImplementationsNode.Create(
@@ -86,7 +86,7 @@ public static class FashionComparisonPipeline
       //   output: catalog.FashionMnistComparison
       // );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "VisualizeFashionMnistComparison",
         description: "Creates a side-by-side scatter plot comparing Python and C# UMAP embeddings. Points colored by class.",
         transform: VisualizeUmapComparisonNode.Create(
@@ -105,7 +105,7 @@ public static class FashionComparisonPipeline
       );
 
       // NOTE: Commented out due to performance issues with Plotly.NET
-      // pipeline.AddNode(
+      // pipeline.AddStep(
       //   label: "ExportFashionMnistVisualizationToPng",
       //   description: "Exports the side-by-side comparison chart to a PNG file.",
       //   transform: PlotlyImageExportNode.Create(),

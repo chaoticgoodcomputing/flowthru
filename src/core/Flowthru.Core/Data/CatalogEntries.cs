@@ -32,7 +32,7 @@ namespace Flowthru.Data;
 ///     string Name       // Looks for "Name" in CSV/Excel/JSON
 /// ) : IFlatSchema, ITextSerializable;
 ///
-/// var simple = CatalogEntries.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
+/// var simple = ItemFactory.Enumerable.Csv&lt;SimpleSchema&gt;("data", "data.csv");
 ///
 /// // Tier 2: Explicit annotations - handle naming mismatches
 /// public record ShuttleSchema(
@@ -49,23 +49,23 @@ namespace Flowthru.Data;
 ///     int CompanyId
 /// ) : IFlatSchema, ITextSerializable;
 ///
-/// var shuttles = CatalogEntries.Enumerable.Excel&lt;ShuttleSchema&gt;(
+/// var shuttles = ItemFactory.Enumerable.Excel&lt;ShuttleSchema&gt;(
 ///     "shuttles",
 ///     "data/shuttles.xlsx",
 ///     "Sheet1"
 /// );
 ///
 /// // Same schema works across all formats
-/// var csv = CatalogEntries.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
-/// var json = CatalogEntries.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");
+/// var csv = ItemFactory.Enumerable.Csv&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.csv");
+/// var json = ItemFactory.Enumerable.Json&lt;ShuttleSchema&gt;("shuttles", "data/shuttles.json");
 /// </code>
 /// </example>
-public static partial class CatalogEntries
+public static partial class ItemFactory
 {
   /// <summary>
   /// Factory methods for <see cref="IEnumerable{T}"/> catalog entries.
   /// </summary>
-  public static EnumerableCatalogEntries Enumerable { get; } = new EnumerableCatalogEntries();
+  public static EnumerableItemFactory Enumerable { get; } = new EnumerableItemFactory();
 
   /// <summary>
   /// Creates a null catalog entry for side-effect-only nodes.
@@ -75,7 +75,7 @@ public static partial class CatalogEntries
   /// <returns>Catalog entry for void/no-data semantics</returns>
   /// <remarks>
   /// <para>
-  /// <strong>Use Case:</strong> Nodes that perform side effects (logging, visualization) without producing meaningful data
+  /// <strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
   /// </para>
   /// <para>
   /// <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.
@@ -88,9 +88,9 @@ public static partial class CatalogEntries
   /// <item>CanRead: false (Load throws NotSupportedException)</item>
   /// </list>
   /// </remarks>
-  public static CatalogEntry<T> Null<T>(string label)
+  public static Item<T> Null<T>(string label)
   {
     var storage = new NullStorageAdapter<T>();
-    return new CatalogEntry<T>(label, storage);
+    return new Item<T>(label, storage);
   }
 }

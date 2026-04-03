@@ -79,7 +79,7 @@ app.MapPost("/pipelines/run", async (
 {
     var options = new ExecutionOptions
     {
-        SliceStrategy = new PipelineSliceStrategy
+        SliceStrategy = new FlowSliceStrategy
         {
             Pipelines = request.Pipelines is { Count: > 0 }
                 ? request.Pipelines.ToHashSet()
@@ -115,25 +115,25 @@ public record PipelineRunRequest
     public List<string>? Pipelines { get; init; }
     public List<string>? ToData { get; init; }
     public List<string>? FromData { get; init; }
-    public List<string>? OnlyNodes { get; init; }
+    public List<string>? OnlySteps { get; init; }
 }
 ```
 
-`PipelineSliceStrategy` properties are `IReadOnlySet<string>?` — convert from lists at the boundary.
+`FlowSliceStrategy` properties are `IReadOnlySet<string>?` — convert from lists at the boundary.
 
 ## Handling Results
 
-`PipelineResult` carries structured execution data. Map it to your application's response model rather than returning it directly:
+`FlowResult` carries structured execution data. Map it to your application's response model rather than returning it directly:
 
 ```csharp
-static PipelineRunResponse MapToResponse(PipelineResult result)
+static PipelineRunResponse MapToResponse(FlowResult result)
 {
     return new PipelineRunResponse
     {
         Success = result.Success,
         DurationMs = result.ExecutionTime.TotalMilliseconds,
-        NodesExecuted = result.NodeResults.Count,
-        NodeSummaries = result.NodeResults.Select(kvp => new NodeSummary
+        StepsExecuted = result.StepResults.Count,
+        StepSummaries = result.StepResults.Select(kvp => new StepSummary
         {
             Name = kvp.Key,
             Success = kvp.Value.Success,
@@ -168,8 +168,8 @@ public class PipelineBackgroundService : BackgroundService
         if (result.Success)
         {
             _logger.LogInformation(
-                "Pipeline completed: {NodeCount} nodes in {Duration}s",
-                result.NodeResults.Count,
+                "Pipeline completed: {StepCount} nodes in {Duration}s",
+                result.StepResults.Count,
                 result.ExecutionTime.TotalSeconds);
         }
         else

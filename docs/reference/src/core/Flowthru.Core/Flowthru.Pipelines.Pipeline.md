@@ -1,6 +1,6 @@
 # <a id="Flowthru_Pipelines_Pipeline"></a> Class Pipeline
 
-Namespace: [Flowthru.Pipelines](Flowthru.Pipelines.md)  
+Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
 Represents a complete data pipeline with nodes, dependencies, and execution order.
@@ -12,7 +12,7 @@ public class Pipeline
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[Pipeline](Flowthru.Pipelines.Pipeline.md)
+[Pipeline](Flowthru.Flows.Pipeline.md)
 
 #### Inherited Members
 
@@ -104,12 +104,12 @@ public IReadOnlyList<PipelineNode> Nodes { get; }
 
 #### Property Value
 
- [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[PipelineNode](Flowthru.Pipelines.PipelineNode.md)\>
+ [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[PipelineNode](Flowthru.Flows.PipelineNode.md)\>
 
 #### Remarks
 
 Exposed as public to enable validation hooks (Phase 4) to inspect nodes.
-The collection is read-only - nodes can only be added via PipelineBuilder.
+The collection is read-only - nodes can only be added via FlowBuilder.
 
 ### <a id="Flowthru_Pipelines_Pipeline_ServiceProvider"></a> ServiceProvider
 
@@ -138,7 +138,7 @@ public List<IPipelineValidationHook> ValidationHooks { get; }
 
 #### Property Value
 
- [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[IPipelineValidationHook](Flowthru.Pipelines.Validation.IPipelineValidationHook.md)\>
+ [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[IPipelineValidationHook](Flowthru.Flows.Validation.IPipelineValidationHook.md)\>
 
 #### Remarks
 
@@ -165,7 +165,7 @@ public ValidationOptions ValidationOptions { get; }
 
 #### Property Value
 
- [ValidationOptions](Flowthru.Pipelines.Validation.ValidationOptions.md)
+ [ValidationOptions](Flowthru.Flows.Validation.ValidationOptions.md)
 
 #### Remarks
 
@@ -174,18 +174,18 @@ before pipeline execution begins.
 
 ## Methods
 
-### <a id="Flowthru_Pipelines_Pipeline_Build_Flowthru_Pipelines_PipelineSliceStrategy_"></a> Build\(PipelineSliceStrategy?\)
+### <a id="Flowthru_Pipelines_Pipeline_Build_Flowthru_Pipelines_FlowSliceStrategy_"></a> Build\(FlowSliceStrategy?\)
 
 Builds the pipeline by analyzing dependencies and assigning execution layers.
 Must be called before executing the pipeline.
 
 ```csharp
-public void Build(PipelineSliceStrategy? sliceStrategy = null)
+public void Build(FlowSliceStrategy? sliceStrategy = null)
 ```
 
 #### Parameters
 
-`sliceStrategy` [PipelineSliceStrategy](Flowthru.Pipelines.PipelineSliceStrategy.md)?
+`sliceStrategy` [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)?
 
 Optional slicing strategy to filter nodes before execution
 
@@ -304,13 +304,13 @@ public static Pipeline Merge(Dictionary<string, Pipeline> pipelines)
 
 #### Parameters
 
-`pipelines` [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Pipeline](Flowthru.Pipelines.Pipeline.md)\>
+`pipelines` [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Pipeline](Flowthru.Flows.Pipeline.md)\>
 
 Dictionary of pipeline names to pipeline instances
 
 #### Returns
 
- [Pipeline](Flowthru.Pipelines.Pipeline.md)
+ [Pipeline](Flowthru.Flows.Pipeline.md)
 
 A new pipeline containing all nodes from all input pipelines
 
@@ -332,7 +332,7 @@ attempt to write to the same catalog entry, Build() will throw an InvalidOperati
 /// Builds and executes the pipeline, returning comprehensive execution results.
 
 ```csharp
-public Task<PipelineResult> RunAsync(CancellationToken cancellationToken)
+public Task<FlowResult> RunAsync(CancellationToken cancellationToken)
 ```
 
 #### Parameters
@@ -343,9 +343,9 @@ Cancellation token to signal graceful shutdown
 
 #### Returns
 
- [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[PipelineResult](Flowthru.Pipelines.PipelineResult.md)\>
+ [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[FlowResult](Flowthru.Flows.FlowResult.md)\>
 
-PipelineResult containing execution status, timing, and node results
+FlowResult containing execution status, timing, and node results
 
 #### Remarks
 

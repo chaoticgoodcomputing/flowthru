@@ -5,7 +5,7 @@ namespace KedroIrisPython.Data;
 /// <summary>
 /// Data catalog for the Iris pipeline, providing access to datasets across all data layers.
 /// </summary>
-public partial class Catalog : DataCatalogBase
+public partial class Catalog : CatalogAbstract
 {
   private readonly string _basePath;
 

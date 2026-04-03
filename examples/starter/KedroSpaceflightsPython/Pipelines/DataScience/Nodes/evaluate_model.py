@@ -1,14 +1,14 @@
-"""Model evaluation node."""
+"""Model evaluation step."""
 import logging
 import numpy as np
 import pandas as pd
 from sklearn.metrics import max_error, mean_absolute_error, r2_score
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(inputs=["LinearRegressionModel", "XValues", "YValues"], outputs="ModelMetrics")
+@step(inputs=["LinearRegressionModel", "XValues", "YValues"], outputs="ModelMetrics")
 def evaluate_model(regressor_params: dict, X_test: pd.DataFrame, y_test: pd.DataFrame) -> dict:
     """Calculates and logs the coefficient of determination.
 

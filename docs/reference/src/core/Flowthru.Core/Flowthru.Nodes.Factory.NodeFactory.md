@@ -1,6 +1,6 @@
 # <a id="Flowthru_Nodes_Factory_NodeFactory"></a> Class NodeFactory
 
-Namespace: [Flowthru.Nodes.Factory](Flowthru.Nodes.Factory.md)  
+Namespace: [Flowthru.Steps.Factory](Flowthru.Steps.Factory.md)  
 Assembly: Flowthru.Core.dll  
 
 Factory for creating node instances using TypeActivator.
@@ -12,7 +12,7 @@ public static class NodeFactory
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
-[NodeFactory](Flowthru.Nodes.Factory.NodeFactory.md)
+[NodeFactory](Flowthru.Steps.Factory.NodeFactory.md)
 
 #### Inherited Members
 
@@ -69,6 +69,6 @@ The node type to instantiate
 </p>
 <p>
 These requirements are enforced at compile-time via generic constraints in
-PipelineBuilder.AddNode methods.
+FlowBuilder.AddStep methods.
 </p>
 

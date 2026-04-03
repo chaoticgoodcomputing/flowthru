@@ -14,5 +14,5 @@ Configuration options for the Python runtime.
 
  [PythonExecutionMode](Flowthru.Extensions.Python.Runtime.PythonExecutionMode.md)
 
-Controls how Python node execution is isolated between FlowthruService instances.
+Controls how Python step execution is isolated between FlowthruService instances.
 
