@@ -7,10 +7,10 @@ using Microsoft.CodeAnalysis.Text;
 namespace Flowthru.SourceGenerators;
 
 /// <summary>
-/// Generates AddNode overloads for PipelineBuilder supporting up to 8 inputs and 8 outputs.
+/// Generates AddStep overloads for FlowBuilder supporting up to 8 inputs and 8 outputs.
 /// </summary>
 [Generator]
-public class PipelineBuilderGenerator : IIncrementalGenerator
+public class FlowBuilderGenerator : IIncrementalGenerator
 {
   private const int MaxInputs = 8;
   private const int MaxOutputs = 8;
@@ -27,12 +27,12 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
         if (name != "Flowthru.Core")
           return;
 
-        GenerateAddNodeOverloads(ctx);
+        GenerateAddStepOverloads(ctx);
       }
     );
   }
 
-  private static void GenerateAddNodeOverloads(SourceProductionContext context)
+  private static void GenerateAddStepOverloads(SourceProductionContext context)
   {
     var sb = new StringBuilder();
 
@@ -43,11 +43,11 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
       #nullable enable
 
       using Flowthru.Data;
-      using Flowthru.Nodes;
+      using Flowthru.Steps;
 
-      namespace Flowthru.Pipelines;
+      namespace Flowthru.Flows;
 
-      public partial class PipelineBuilder
+      public partial class FlowBuilder
       {
       """
     );
@@ -64,22 +64,19 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
         }
 
         // Generate both async and sync versions
-        GenerateAddNodeOverload(sb, inputs, outputs, isAsync: true);
+        GenerateAddStepOverload(sb, inputs, outputs, isAsync: true);
         sb.AppendLine();
-        GenerateAddNodeOverload(sb, inputs, outputs, isAsync: false);
+        GenerateAddStepOverload(sb, inputs, outputs, isAsync: false);
         sb.AppendLine();
       }
     }
 
     sb.AppendLine("}");
 
-    context.AddSource(
-      "PipelineBuilder.Generated.cs",
-      SourceText.From(sb.ToString(), Encoding.UTF8)
-    );
+    context.AddSource("FlowBuilder.Generated.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
   }
 
-  private static void GenerateAddNodeOverload(
+  private static void GenerateAddStepOverload(
     StringBuilder sb,
     int inputCount,
     int outputCount,
@@ -97,7 +94,7 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
 
     sb.AppendLine(
       $$"""
-        public PipelineBuilder AddNode<{{typeParams}}>(
+        public FlowBuilder AddStep<{{typeParams}}>(
           string label,
           {{funcSignature}} transform,
           {{inputParam}} input,
@@ -120,15 +117,15 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
 
     sb.AppendLine(
       $$"""
-          var pipelineNode = new PipelineNode(
+          var flowStep = new FlowStep(
             label: label,
             description: description,
-            node: transform,
-            inputs: new List<ICatalogEntry> { {{inputsList}} },
-            outputs: new List<ICatalogEntry> { {{outputsList}} }
+            step: transform,
+            inputs: new List<IItem> { {{inputsList}} },
+            outputs: new List<IItem> { {{outputsList}} }
           );
 
-          _pipeline.AddNode(pipelineNode);
+          _flow.AddStep(flowStep);
           return this;
         }
       """
@@ -146,7 +143,7 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
     sb.AppendLine(
       $"""
         /// <summary>
-        /// Adds a node with {inputCount} input{(
+        /// Adds a step with {inputCount} input{(
         inputCount == 1 ? "" : "s"
       )} and {outputCount} output{(outputCount == 1 ? "" : "s")}{asyncDesc}.
         /// </summary>
@@ -169,11 +166,11 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
       : "Synchronous transformation function";
     sb.AppendLine(
       $"""
-        /// <param name="label">Unique identifier for this node</param>
+        /// <param name="label">Unique identifier for this step</param>
         /// <param name="transform">{transformDesc}</param>
-        /// <param name="input">Catalog entry or tuple of catalog entries providing input data</param>
-        /// <param name="output">Catalog entry or tuple of catalog entries to store output data</param>
-        /// <param name="description">Optional description of the node's purpose</param>
+        /// <param name="input">Catalog item or tuple of catalog items providing input data</param>
+        /// <param name="output">Catalog item or tuple of catalog items to store output data</param>
+        /// <param name="description">Optional description of the step's purpose</param>
         /// <returns>This builder for method chaining</returns>
       """
     );
@@ -214,13 +211,10 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
   {
     if (inputCount == 1)
     {
-      return "ICatalogEntry<TIn1>";
+      return "IItem<TIn1>";
     }
 
-    var types = string.Join(
-      ", ",
-      Enumerable.Range(1, inputCount).Select(i => $"ICatalogEntry<TIn{i}>")
-    );
+    var types = string.Join(", ", Enumerable.Range(1, inputCount).Select(i => $"IItem<TIn{i}>"));
     return $"({types})";
   }
 
@@ -228,13 +222,10 @@ public class PipelineBuilderGenerator : IIncrementalGenerator
   {
     if (outputCount == 1)
     {
-      return "ICatalogEntry<TOut1>";
+      return "IItem<TOut1>";
     }
 
-    var types = string.Join(
-      ", ",
-      Enumerable.Range(1, outputCount).Select(i => $"ICatalogEntry<TOut{i}>")
-    );
+    var types = string.Join(", ", Enumerable.Range(1, outputCount).Select(i => $"IItem<TOut{i}>"));
     return $"({types})";
   }
 

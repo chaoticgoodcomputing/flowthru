@@ -55,15 +55,15 @@
              Pack="true"
              PackagePath="build\" />
     
-    <!-- Include flowthru Python package (Phase 4: @node decorator) -->
+    <!-- Include flowthru Python package -->
     <Content Include="build\flowthru\__init__.py" 
              CopyToOutputDirectory="PreserveNewest" 
              Link="flowthru\__init__.py"
              Pack="true" 
              PackagePath="build\flowthru\" />
-    <Content Include="build\flowthru\node.py" 
+    <Content Include="build\flowthru\step.py" 
              CopyToOutputDirectory="PreserveNewest" 
-             Link="flowthru\node.py"
+             Link="flowthru\step.py"
              Pack="true" 
              PackagePath="build\flowthru\" />
   </ItemGroup>

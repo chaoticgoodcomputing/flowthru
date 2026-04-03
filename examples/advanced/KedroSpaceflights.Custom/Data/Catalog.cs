@@ -19,7 +19,7 @@ namespace KedroSpaceflights.Custom.Data;
 /// <item>_99_Reference: Reference data for validation</item>
 /// </list>
 /// </remarks>
-public partial class Catalog : DataCatalogBase
+public partial class Catalog : CatalogAbstract
 {
   private readonly string _basePath;
 

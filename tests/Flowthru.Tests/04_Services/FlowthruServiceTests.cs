@@ -1,7 +1,7 @@
 using Flowthru.Data;
 using Flowthru.Data.Validation;
+using Flowthru.Flows;
 using Flowthru.Meta.Models;
-using Flowthru.Pipelines;
 using Flowthru.Services;
 using Flowthru.Services.Models;
 using Flowthru.Tests.Common;
@@ -45,7 +45,7 @@ public class FlowthruServiceTests
 
   private IFlowthruService CreateService(
     SimpleThreeNodeCatalog catalog,
-    Dictionary<string, Pipeline> pipelines
+    Dictionary<string, Flow> pipelines
   )
   {
     // Use the public AddFlowthru extension method to create the service
@@ -53,8 +53,8 @@ public class FlowthruServiceTests
     services.AddLogging();
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(sp => pipelines);
+      flowthru.RegisterCatalog(catalog);
+      flowthru.RegisterFlows(sp => pipelines);
     });
 
     var serviceProvider = services.BuildServiceProvider();
@@ -65,16 +65,16 @@ public class FlowthruServiceTests
   public void Constructor_WithNullCatalog_ThrowsArgumentNullException()
   {
     // Arrange
-    DataCatalogBase nullCatalog = null!;
+    CatalogAbstract nullCatalog = null!;
 
-    // Act & Assert — UseCatalog(null) must throw immediately, not silently register null
+    // Act & Assert — RegisterCatalog(null) must throw immediately, not silently register null
     var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
 
     Assert.Throws<ArgumentNullException>(() =>
     {
       services.AddFlowthru(flowthru =>
       {
-        flowthru.UseCatalog(nullCatalog);
+        flowthru.RegisterCatalog(nullCatalog);
       });
     });
   }
@@ -93,7 +93,7 @@ public class FlowthruServiceTests
     {
       services.AddFlowthru(flowthru =>
       {
-        flowthru.UseCatalog(catalog);
+        flowthru.RegisterCatalog(catalog);
         // Don't register pipelines
       });
 
@@ -117,13 +117,13 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void PipelineNames_ReturnsRegisteredPipelines()
+  public void FlowNames_ReturnsRegisteredPipelines()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipeline1 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node1",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -131,9 +131,9 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipeline2 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node2",
         transform: PassthroughNode.Create(),
         input: catalog.StepOne,
@@ -141,7 +141,7 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline>
+    var pipelines = new Dictionary<string, Flow>
     {
       ["pipeline1"] = pipeline1,
       ["pipeline2"] = pipeline2,
@@ -150,7 +150,7 @@ public class FlowthruServiceTests
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var names = service.PipelineNames;
+    var names = service.FlowNames;
 
     // Assert
     Assert.That(names, Has.Count.EqualTo(2));
@@ -163,7 +163,7 @@ public class FlowthruServiceTests
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipelines = new Dictionary<string, Pipeline>();
+    var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
 
@@ -191,9 +191,9 @@ public class FlowthruServiceTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -202,17 +202,17 @@ public class FlowthruServiceTests
     });
 
     pipeline.Name = "test_pipeline";
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var result = await service.ExecutePipelineAsync(options: null, exportMetadata: false);
+    var result = await service.ExecuteFlowAsync(options: null, exportMetadata: false);
 
     // Assert
     Assert.That(result.Success, Is.True);
     Assert.That(result.IsDryRun, Is.False);
-    Assert.That(result.NodeResults, Has.Count.EqualTo(1));
+    Assert.That(result.StepResults, Has.Count.EqualTo(1));
   }
 
   [Test]
@@ -231,9 +231,9 @@ public class FlowthruServiceTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -241,12 +241,12 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var result = await service.ExecutePipelineAsync(
+    var result = await service.ExecuteFlowAsync(
       options: new ExecutionOptions { DryRun = true },
       exportMetadata: false
     );
@@ -254,7 +254,7 @@ public class FlowthruServiceTests
     // Assert
     Assert.That(result.Success, Is.True);
     Assert.That(result.IsDryRun, Is.True);
-    Assert.That(result.NodeResults, Is.Empty);
+    Assert.That(result.StepResults, Is.Empty);
 
     // Verify output was not written
     var outputExists = await catalog.Output.Exists().Run();
@@ -267,9 +267,9 @@ public class FlowthruServiceTests
     // Arrange — no data seeded; StructureOnly must not probe any data source
     var catalog = new SimpleThreeNodeCatalog();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -277,11 +277,11 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var result = await service.ExecutePipelineAsync(
+    var result = await service.ExecuteFlowAsync(
       options: new ExecutionOptions { DryRun = ValidationDepth.StructureOnly },
       exportMetadata: false
     );
@@ -289,7 +289,7 @@ public class FlowthruServiceTests
     // Assert
     Assert.That(result.Success, Is.True);
     Assert.That(result.IsDryRun, Is.True);
-    Assert.That(result.NodeResults, Is.Empty);
+    Assert.That(result.StepResults, Is.Empty);
   }
 
   [Test]
@@ -298,9 +298,9 @@ public class FlowthruServiceTests
     // Arrange — no data seeded; Full depth must surface the missing external input
     var catalog = new SimpleThreeNodeCatalog();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -308,13 +308,13 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
     var service = CreateService(catalog, pipelines);
 
     // Act & Assert — Full validation probes external inputs and must fail when absent
     Assert.ThrowsAsync<ValidationException>(
       async () =>
-        await service.ExecutePipelineAsync(
+        await service.ExecuteFlowAsync(
           options: new ExecutionOptions { DryRun = true },
           exportMetadata: false
         )
@@ -337,9 +337,9 @@ public class FlowthruServiceTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline1 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node1",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -347,9 +347,9 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipeline2 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node2",
         transform: PassthroughNode.Create(),
         input: catalog.StepOne,
@@ -357,7 +357,7 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline>
+    var pipelines = new Dictionary<string, Flow>
     {
       ["pipeline1"] = pipeline1,
       ["pipeline2"] = pipeline2,
@@ -366,11 +366,11 @@ public class FlowthruServiceTests
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var result = await service.ExecutePipelineAsync();
+    var result = await service.ExecuteFlowAsync();
 
     // Assert
     Assert.That(result.Success, Is.True);
-    Assert.That(result.NodeResults, Has.Count.EqualTo(2));
+    Assert.That(result.StepResults, Has.Count.EqualTo(2));
   }
 
   [Test]
@@ -378,9 +378,9 @@ public class FlowthruServiceTests
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -393,17 +393,17 @@ public class FlowthruServiceTests
     pipeline.Description = "Test pipeline description";
 
     pipeline.Build();
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var metadata = service.GetPipelineMetadata("test_pipeline");
+    var metadata = service.GetFlowMetadata("test_pipeline");
 
     // Assert
     Assert.That(metadata.Name, Is.EqualTo("test_pipeline"));
     Assert.That(metadata.Description, Is.EqualTo("Test pipeline description"));
-    Assert.That(metadata.NodeCount, Is.EqualTo(1));
+    Assert.That(metadata.StepCount, Is.EqualTo(1));
     Assert.That(metadata.LayerCount, Is.EqualTo(1)); // Single layer: node with no dependencies
     Assert.That(metadata.IsBuilt, Is.True);
   }
@@ -413,13 +413,13 @@ public class FlowthruServiceTests
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipelines = new Dictionary<string, Pipeline>();
+    var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
 
     // Act & Assert
     var exception = Assert.Throws<KeyNotFoundException>(
-      () => service.GetPipelineMetadata("NonExistent")
+      () => service.GetFlowMetadata("NonExistent")
     );
 
     Assert.That(exception.Message, Does.Contain("NonExistent"));
@@ -441,9 +441,9 @@ public class FlowthruServiceTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -451,12 +451,12 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var validationResult = await service.ValidatePipelineAsync("test_pipeline");
+    var validationResult = await service.ValidateFlowAsync("test_pipeline");
 
     // Assert
     Assert.That(validationResult.IsValid, Is.True);
@@ -470,9 +470,9 @@ public class FlowthruServiceTests
     var catalog = new SimpleThreeNodeCatalog();
     // Note: Not saving any data to Input
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -483,12 +483,12 @@ public class FlowthruServiceTests
     // Configure validation to check for Shallow inspection (existence check)
     pipeline.ValidationOptions.Inspect(catalog.Input, Data.Validation.InspectionLevel.Shallow);
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
     // Act
-    var validationResult = await service.ValidatePipelineAsync("test_pipeline");
+    var validationResult = await service.ValidateFlowAsync("test_pipeline");
 
     // Assert
     Assert.That(validationResult.IsValid, Is.False);
@@ -501,26 +501,26 @@ public class FlowthruServiceTests
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipelines = new Dictionary<string, Pipeline>();
+    var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
 
     // Act & Assert
     var exception = Assert.ThrowsAsync<KeyNotFoundException>(
-      async () => await service.ValidatePipelineAsync("NonExistent")
+      async () => await service.ValidateFlowAsync("NonExistent")
     );
 
     Assert.That(exception.Message, Does.Contain("NonExistent"));
   }
 
   [Test]
-  public void GetDagMetadata_WithNoPipelineName_ReturnsMergedDag()
+  public void GetDagMetadata_WithNoFlowName_ReturnsMergedDag()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipeline1 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node1",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -528,9 +528,9 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipeline2 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node2",
         transform: PassthroughNode.Create(),
         input: catalog.StepOne,
@@ -538,7 +538,7 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline>
+    var pipelines = new Dictionary<string, Flow>
     {
       ["pipeline1"] = pipeline1,
       ["pipeline2"] = pipeline2,
@@ -551,21 +551,21 @@ public class FlowthruServiceTests
 
     // Assert
     Assert.That(dag, Is.Not.Null);
-    Assert.That(dag.Nodes, Has.Count.EqualTo(2));
+    Assert.That(dag.Steps, Has.Count.EqualTo(2));
     Assert.That(dag.Edges, Is.Not.Empty);
-    Assert.That(dag.CatalogEntries, Is.Not.Empty);
+    Assert.That(dag.CatalogItems, Is.Not.Empty);
     Assert.That(dag.AppliedSlice, Is.Null);
-    Assert.That(dag.SlicedNodeIds, Is.Null);
+    Assert.That(dag.SlicedStepIds, Is.Null);
   }
 
   [Test]
-  public void GetDagMetadata_WithPipelineName_ReturnsSinglePipelineDag()
+  public void GetDagMetadata_WithFlowName_ReturnsSinglePipelineDag()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipeline1 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node1",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -573,9 +573,9 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipeline2 = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node2",
         transform: PassthroughNode.Create(),
         input: catalog.StepOne,
@@ -583,7 +583,7 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline>
+    var pipelines = new Dictionary<string, Flow>
     {
       ["pipeline1"] = pipeline1,
       ["pipeline2"] = pipeline2,
@@ -596,7 +596,7 @@ public class FlowthruServiceTests
 
     // Assert
     Assert.That(dag, Is.Not.Null);
-    Assert.That(dag.Nodes, Has.Count.EqualTo(1));
+    Assert.That(dag.Steps, Has.Count.EqualTo(1));
   }
 
   [Test]
@@ -604,15 +604,15 @@ public class FlowthruServiceTests
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Node1",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
         output: catalog.StepOne
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "Node2",
         transform: PassthroughNode.Create(),
         input: catalog.StepOne,
@@ -620,18 +620,18 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
     // Act — slice to just Node1 (merged names are prefixed with pipeline name)
     var dag = service.GetDagMetadata(
-      sliceStrategy: new PipelineSliceStrategy { ToNodes = new HashSet<string> { "test.Node1" } }
+      sliceStrategy: new FlowSliceStrategy { ToNodes = new HashSet<string> { "test.Node1" } }
     );
 
     // Assert
     Assert.That(dag, Is.Not.Null);
-    Assert.That(dag.SlicedNodeIds, Is.Not.Null);
+    Assert.That(dag.SlicedStepIds, Is.Not.Null);
     Assert.That(dag.AppliedSlice, Is.Not.Null);
   }
 
@@ -640,7 +640,7 @@ public class FlowthruServiceTests
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipelines = new Dictionary<string, Pipeline>();
+    var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
 
@@ -657,9 +657,9 @@ public class FlowthruServiceTests
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -667,7 +667,7 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
@@ -675,20 +675,20 @@ public class FlowthruServiceTests
     var dag = service.GetDagMetadata("test");
 
     // Assert
-    var node = dag.Nodes.Single();
+    var node = dag.Steps.Single();
     Assert.That(node.Inputs, Is.Not.Empty);
     Assert.That(node.Outputs, Is.Not.Empty);
     Assert.That(node.Layer, Is.GreaterThanOrEqualTo(0));
   }
 
   [Test]
-  public void GetDagMetadata_CatalogEntriesHaveProducerConsumerInfo()
+  public void GetDagMetadata_ItemsHaveProducerConsumerInfo()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -696,7 +696,7 @@ public class FlowthruServiceTests
       );
     });
 
-    var pipelines = new Dictionary<string, Pipeline> { ["test"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test"] = pipeline };
 
     var service = CreateService(catalog, pipelines);
 
@@ -704,12 +704,12 @@ public class FlowthruServiceTests
     var dag = service.GetDagMetadata("test");
 
     // Assert — the output catalog entry should have "Process" as its producer
-    var outputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Producer is not null);
+    var outputEntry = dag.CatalogItems.FirstOrDefault(e => e.Producer is not null);
     Assert.That(outputEntry, Is.Not.Null);
     Assert.That(outputEntry!.Producer, Is.Not.Null.And.Not.Empty);
 
     // The input catalog entry should have "Process" as a consumer
-    var inputEntry = dag.CatalogEntries.FirstOrDefault(e => e.Consumers.Count > 0);
+    var inputEntry = dag.CatalogItems.FirstOrDefault(e => e.Consumers.Count > 0);
     Assert.That(inputEntry, Is.Not.Null);
     Assert.That(inputEntry!.Consumers, Is.Not.Empty);
   }
@@ -730,9 +730,9 @@ public class FlowthruServiceTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -741,7 +741,7 @@ public class FlowthruServiceTests
     });
 
     pipeline.Name = "test_pipeline";
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 
     var capturingProvider = new CapturingMetadataProvider();
 
@@ -750,8 +750,8 @@ public class FlowthruServiceTests
     services.AddLogging();
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(_ => pipelines);
+      flowthru.RegisterCatalog(catalog);
+      flowthru.RegisterFlows(_ => pipelines);
       flowthru.ConfigureMetadata(metadata =>
       {
         metadata.AddProvider(capturingProvider);
@@ -762,13 +762,13 @@ public class FlowthruServiceTests
     var service = serviceProvider.GetRequiredService<IFlowthruService>();
 
     // Act - run with exportMetadata: true
-    var result = await service.ExecutePipelineAsync(options: null, exportMetadata: true);
+    var result = await service.ExecuteFlowAsync(options: null, exportMetadata: true);
 
     // Assert
     Assert.That(result.Success, Is.True);
     Assert.That(capturingProvider.CapturedDag, Is.Not.Null, "Provider should capture DAG metadata");
-    Assert.That(capturingProvider.CapturedDag.Nodes, Has.Count.EqualTo(1));
-    Assert.That(capturingProvider.CapturedDag.CatalogEntries, Is.Not.Empty);
+    Assert.That(capturingProvider.CapturedDag.Steps, Has.Count.EqualTo(1));
+    Assert.That(capturingProvider.CapturedDag.CatalogItems, Is.Not.Empty);
   }
 
   [Test]
@@ -787,9 +787,9 @@ public class FlowthruServiceTests
     };
     await catalog.Input.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Process",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -798,7 +798,7 @@ public class FlowthruServiceTests
     });
 
     pipeline.Name = "test_pipeline";
-    var pipelines = new Dictionary<string, Pipeline> { ["test_pipeline"] = pipeline };
+    var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 
     var capturingProvider = new CapturingMetadataProvider();
 
@@ -807,8 +807,8 @@ public class FlowthruServiceTests
     services.AddLogging();
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(catalog);
-      flowthru.UsePipelines(_ => pipelines);
+      flowthru.RegisterCatalog(catalog);
+      flowthru.RegisterFlows(_ => pipelines);
       flowthru.ConfigureMetadata(metadata =>
       {
         metadata.AddProvider(capturingProvider);
@@ -819,7 +819,7 @@ public class FlowthruServiceTests
     var service = serviceProvider.GetRequiredService<IFlowthruService>();
 
     // Act - run with exportMetadata: false (default)
-    var result = await service.ExecutePipelineAsync(options: null, exportMetadata: false);
+    var result = await service.ExecuteFlowAsync(options: null, exportMetadata: false);
 
     // Assert
     Assert.That(result.Success, Is.True);

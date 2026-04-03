@@ -55,7 +55,7 @@ public static class TemplateDiscovery
         StarterName = shortName,
         ProjectName = projectName,
         GeneratedPath = Path.Combine(testOutputPath, projectName),
-        PipelineName = null,
+        FlowName = null,
       };
     }
 

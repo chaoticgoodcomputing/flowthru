@@ -44,7 +44,7 @@ public class Program
     services.AddFlowthru(flowthru =>
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
       // Output pipeline metadata
       flowthru.ConfigureMetadata(meta =>
@@ -60,18 +60,18 @@ public class Program
 
       // Register data engineering pipeline with configuration parameters
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "DataEngineering",
-          pipeline: DataEngineeringPipeline.Create,
+          flow: DataEngineeringPipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataEngineering"
         )
         .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
       // Register data science pipeline with configuration parameters
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
+          flow: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
         )
         .WithDescription("Trains multi-class logistic regression model for iris classification");

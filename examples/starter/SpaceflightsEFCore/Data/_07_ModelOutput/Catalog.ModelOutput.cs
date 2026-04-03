@@ -13,10 +13,10 @@ public partial class Catalog
   /// <summary>
   /// Evaluation metrics for the trained model (R², MAE, etc).
   /// </summary>
-  public ICatalogEntry<ModelMetrics> ModelMetrics =>
-    GetOrCreateEntry(
+  public IItem<ModelMetrics> ModelMetrics =>
+    CreateItem(
       () =>
-        EFCoreCatalogEntries.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
+        EFCoreItemFactory.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
           label: "ModelMetrics",
           contextFactory: _contextFactory
         )
@@ -25,10 +25,10 @@ public partial class Catalog
   /// <summary>
   /// Model predictions on the test set with actual vs predicted prices.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelPredictions>> ModelPredictions =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
+    CreateItem(
       () =>
-        EFCoreCatalogEntries.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
+        EFCoreItemFactory.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
           label: "ModelPredictions",
           contextFactory: _contextFactory
         )

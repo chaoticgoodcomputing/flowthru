@@ -1,5 +1,5 @@
 using Flowthru.Data;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 
 namespace Flowthru.Tests.Execution.NodeExecution;
@@ -18,7 +18,7 @@ public class FanInNodeTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public async Task AddNode_FanIn_ReceivesAllInputCollections()
+  public async Task AddStep_FanIn_ReceivesAllInputCollections()
   {
     // Arrange — three shards, each with one row of data
     var shardA = new ShardCatalog("A");
@@ -63,19 +63,19 @@ public class FanInNodeTests
       )
       .Run();
 
-    var inputs = new List<ICatalogEntry<IEnumerable<TestData>>>
+    var inputs = new List<IItem<IEnumerable<TestData>>>
     {
       shardA.ShardData,
       shardB.ShardData,
       shardC.ShardData,
     };
 
-    var pipeline = PipelineBuilder.CreatePipeline(b =>
-      b.AddNode(
+    var pipeline = FlowBuilder.CreateFlow(b =>
+      b.AddStep(
         label: "Append",
         inputs: inputs,
         output: master.AllData,
-        node: batches => batches.SelectMany(x => x)
+        step: batches => batches.SelectMany(x => x)
       )
     );
 
@@ -91,7 +91,7 @@ public class FanInNodeTests
   }
 
   [Test]
-  public async Task AddNode_FanIn_SingleInput_BehavesLikeRegularNode()
+  public async Task AddStep_FanIn_SingleInput_BehavesLikeRegularNode()
   {
     // Edge case: fan-in with exactly one input should still work correctly.
     var shard = new ShardCatalog("only");
@@ -108,12 +108,12 @@ public class FanInNodeTests
     };
     await shard.ShardData.Save(testData).Run();
 
-    var pipeline = PipelineBuilder.CreatePipeline(b =>
-      b.AddNode(
+    var pipeline = FlowBuilder.CreateFlow(b =>
+      b.AddStep(
         label: "PassthroughFanIn",
         inputs: [shard.ShardData],
         output: master.AllData,
-        node: batches => batches.SelectMany(x => x)
+        step: batches => batches.SelectMany(x => x)
       )
     );
 
@@ -126,7 +126,7 @@ public class FanInNodeTests
   }
 
   [Test]
-  public async Task AddNode_FanIn_DagResolvesEdges_WhenUpstreamPipelineProducesShards()
+  public async Task AddStep_FanIn_DagResolvesEdges_WhenUpstreamPipelineProducesShards()
   {
     // Arrange — one upstream pipeline writes to two shards; fan-in pipeline merges them.
     var shardA = new ShardCatalog("dag_a");
@@ -154,15 +154,15 @@ public class FanInNodeTests
       .Run();
 
     // Pipeline 1: distribute input across the two shards
-    var distributor = PipelineBuilder.CreatePipeline(b =>
+    var distributor = FlowBuilder.CreateFlow(b =>
     {
-      b.AddNode(
+      b.AddStep(
         label: "ToShardA",
         transform: (IEnumerable<TestData> data) => data.Where(x => x.Id == 10),
         input: source.Input,
         output: shardA.ShardData
       );
-      b.AddNode(
+      b.AddStep(
         label: "ToShardB",
         transform: (IEnumerable<TestData> data) => data.Where(x => x.Id == 20),
         input: source.Input,
@@ -171,17 +171,17 @@ public class FanInNodeTests
     });
 
     // Pipeline 2: merge both shards into master
-    var merger = PipelineBuilder.CreatePipeline(b =>
-      b.AddNode(
+    var merger = FlowBuilder.CreateFlow(b =>
+      b.AddStep(
         label: "Merge",
         inputs: [shardA.ShardData, shardB.ShardData],
         output: master.AllData,
-        node: batches => batches.SelectMany(x => x)
+        step: batches => batches.SelectMany(x => x)
       )
     );
 
-    var merged = Pipeline.Merge(
-      new Dictionary<string, Pipeline> { ["distributor"] = distributor, ["merger"] = merger }
+    var merged = Flow.Merge(
+      new Dictionary<string, Flow> { ["distributor"] = distributor, ["merger"] = merger }
     );
     merged.Build();
 

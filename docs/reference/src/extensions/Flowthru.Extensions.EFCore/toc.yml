@@ -1,0 +1,25 @@
+### YamlMime:TableOfContent
+- name: Flowthru.Data.Storage
+  href: Flowthru.Data.Storage.md
+  items:
+    - name: Classes
+    - name: EFCoreSingleStorageAdapter<T>
+      href: Flowthru.Data.Storage.EFCoreSingleStorageAdapter-1.md
+    - name: EFCoreStorageAdapter<T>
+      href: Flowthru.Data.Storage.EFCoreStorageAdapter-1.md
+- name: Flowthru.Extensions.EFCore.Data
+  href: Flowthru.Extensions.EFCore.Data.md
+  items:
+    - name: Classes
+    - name: EFCoreItems
+      href: Flowthru.Extensions.EFCore.Data.EFCoreItems.md
+    - name: EFCoreItems.Enumerable
+      href: Flowthru.Extensions.EFCore.Data.EFCoreItems.Enumerable.md
+    - name: EFCoreItems.Single
+      href: Flowthru.Extensions.EFCore.Data.EFCoreItems.Single.md
+- name: Flowthru.Extensions.EFCore.Tests
+  href: Flowthru.Extensions.EFCore.Tests.md
+  items:
+    - name: Classes
+    - name: CompilationTest
+      href: Flowthru.Extensions.EFCore.Tests.CompilationTest.md

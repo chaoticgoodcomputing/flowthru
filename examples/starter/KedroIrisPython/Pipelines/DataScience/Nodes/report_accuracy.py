@@ -2,12 +2,12 @@
 import logging
 import numpy as np
 import pandas as pd
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(inputs=["PredictionSchema", "TargetLabelSchema"], outputs="AccuracyReportSchema")
+@step(inputs=["PredictionSchema", "TargetLabelSchema"], outputs="AccuracyReportSchema")
 def report_accuracy(predictions: pd.DataFrame, test_y: pd.DataFrame) -> dict:
     """Node for reporting the accuracy of the predictions.
     

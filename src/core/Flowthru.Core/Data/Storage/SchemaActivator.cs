@@ -13,16 +13,16 @@ namespace Flowthru.Data.Storage;
 /// <strong>Design Philosophy:</strong>
 /// </para>
 /// <para>
-/// With Flowthru's strong node contracts, schemas with required members are guaranteed to contain
+/// With Flowthru's strong step contracts, schemas with required members are guaranteed to contain
 /// valid data because:
 /// </para>
 /// <list type="bullet">
 /// <item><strong>Layer 0 (Seeds):</strong> Validation phase checks required fields exist before execution</item>
-/// <item><strong>Layers 1+ (Node outputs):</strong> C# compiler enforces required members when nodes construct output</item>
+/// <item><strong>Layers 1+ (Step outputs):</strong> C# compiler enforces required members when steps construct output</item>
 /// </list>
 /// <para>
 /// This activator's role is to enable deserialization by creating instances that will be populated
-/// via property reflection. No validation is performed here - that happens at the pipeline boundaries.
+/// via property reflection. No validation is performed here - that happens at the Flow boundaries.
 /// </para>
 /// <para>
 /// <strong>Instantiation Strategy:</strong>
@@ -82,7 +82,7 @@ public static class SchemaActivator
   /// <para>
   /// This is safe because:
   /// - Layer 0: Validation ensures required fields exist in data
-  /// - Layers 1+: Data came from valid node output
+  /// - Layers 1+: Data came from valid step output
   /// </para>
   /// </remarks>
   public static T CreateInstance<T>()
@@ -171,7 +171,7 @@ public static class SchemaActivator
   /// This is safe in Flowthru because properties will be populated immediately
   /// via reflection from deserialized data, which is guaranteed to contain all
   /// required fields (via validation phase for Layer 0, or compiler enforcement
-  /// for node outputs).
+  /// for step outputs).
   /// </para>
   /// </remarks>
   private static T CreateUninitializedObject<T>()

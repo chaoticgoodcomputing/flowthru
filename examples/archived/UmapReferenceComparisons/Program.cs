@@ -47,20 +47,17 @@ public class Program
     {
       // Load configuration
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
       // Register comparison pipelines
       flowthru
-        .RegisterPipeline(label: "IrisComparisonPipeline", pipeline: IrisComparisonPipeline.Create)
+        .RegisterFlow(label: "IrisComparisonPipeline", flow: IrisComparisonPipeline.Create)
         .WithDescription(
           "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
         );
 
       flowthru
-        .RegisterPipeline(
-          label: "DigitsComparisonPipeline",
-          pipeline: DigitsComparisonPipeline.Create
-        )
+        .RegisterFlow(label: "DigitsComparisonPipeline", flow: DigitsComparisonPipeline.Create)
         .WithDescription(
           "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
         );

@@ -11,113 +11,109 @@ public partial class Catalog
   // Reports - Comparison results and analysis outputs
   // ============================================================================
 
-  public ICatalogEntry<ComparisonResult> IrisComparison =>
-    GetOrCreateEntry(
+  public IItem<ComparisonResult> IrisComparison =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ComparisonResult>(
+        ItemFactory.Single.Json<ComparisonResult>(
           label: "IrisComparison",
           filePath: $"{_basePath}/_03_Reports/Datasets/iris_comparison.json"
         )
     );
 
-  public ICatalogEntry<string> IrisRuntimeReport =>
-    GetOrCreateEntry(
+  public IItem<string> IrisRuntimeReport =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        ItemFactory.Single.Text(
           label: "IrisRuntimeReport",
           filePath: $"{_basePath}/_03_Reports/Datasets/iris_runtime_report.txt"
         )
     );
 
-  public ICatalogEntry<GenericChart> IrisVisualization =>
-    GetOrCreateEntry(() => CatalogEntries.Single.Memory<GenericChart>(label: "IrisVisualization"));
+  public IItem<GenericChart> IrisVisualization =>
+    CreateItem(() => ItemFactory.Single.Memory<GenericChart>(label: "IrisVisualization"));
 
-  public ICatalogEntry<byte[]> IrisVisualizationPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> IrisVisualizationPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "IrisVisualizationPng",
           filePath: $"{_basePath}/_03_Reports/Datasets/iris_comparison.png"
         )
     );
 
-  public ICatalogEntry<ComparisonResult> DigitsComparison =>
-    GetOrCreateEntry(
+  public IItem<ComparisonResult> DigitsComparison =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ComparisonResult>(
+        ItemFactory.Single.Json<ComparisonResult>(
           label: "DigitsComparison",
           filePath: $"{_basePath}/_03_Reports/Datasets/digits_comparison.json"
         )
     );
 
-  public ICatalogEntry<string> DigitsRuntimeReport =>
-    GetOrCreateEntry(
+  public IItem<string> DigitsRuntimeReport =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        ItemFactory.Single.Text(
           label: "DigitsRuntimeReport",
           filePath: $"{_basePath}/_03_Reports/Datasets/digits_runtime_report.txt"
         )
     );
 
-  public ICatalogEntry<GenericChart> DigitsVisualization =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "DigitsVisualization")
-    );
+  public IItem<GenericChart> DigitsVisualization =>
+    CreateItem(() => ItemFactory.Single.Memory<GenericChart>(label: "DigitsVisualization"));
 
-  public ICatalogEntry<byte[]> DigitsVisualizationPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> DigitsVisualizationPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "DigitsVisualizationPng",
           filePath: $"{_basePath}/_03_Reports/Datasets/digits_comparison.png"
         )
     );
 
-  public ICatalogEntry<ComparisonResult> MnistComparison =>
-    GetOrCreateEntry(
+  public IItem<ComparisonResult> MnistComparison =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ComparisonResult>(
+        ItemFactory.Single.Json<ComparisonResult>(
           label: "MnistComparison",
           filePath: $"{_basePath}/_03_Reports/Datasets/mnist_comparison.json"
         )
     );
 
-  public ICatalogEntry<ComparisonResult> FashionMnistComparison =>
-    GetOrCreateEntry(
+  public IItem<ComparisonResult> FashionMnistComparison =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ComparisonResult>(
+        ItemFactory.Single.Json<ComparisonResult>(
           label: "FashionMnistComparison",
           filePath: $"{_basePath}/_03_Reports/Datasets/fashion_mnist_comparison.json"
         )
     );
 
-  public ICatalogEntry<string> FashionMnistRuntimeReport =>
-    GetOrCreateEntry(
+  public IItem<string> FashionMnistRuntimeReport =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        ItemFactory.Single.Text(
           label: "FashionMnistRuntimeReport",
           filePath: $"{_basePath}/_03_Reports/Datasets/fashion_mnist_runtime_report.txt"
         )
     );
 
-  public ICatalogEntry<ComparisonResult> MnistTransformComparison =>
-    GetOrCreateEntry(
+  public IItem<ComparisonResult> MnistTransformComparison =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<ComparisonResult>(
+        ItemFactory.Single.Json<ComparisonResult>(
           label: "MnistTransformComparison",
           filePath: $"{_basePath}/_03_Reports/Datasets/mnist_transform_comparison.json"
         )
     );
 
-  public ICatalogEntry<GenericChart> FashionMnistVisualization =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "FashionMnistVisualization")
-    );
+  public IItem<GenericChart> FashionMnistVisualization =>
+    CreateItem(() => ItemFactory.Single.Memory<GenericChart>(label: "FashionMnistVisualization"));
 
-  public ICatalogEntry<byte[]> FashionMnistVisualizationPng =>
-    GetOrCreateEntry(
+  public IItem<byte[]> FashionMnistVisualizationPng =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "FashionMnistVisualizationPng",
           filePath: $"{_basePath}/_03_Reports/Datasets/fashion_mnist_comparison.png"
         )

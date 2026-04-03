@@ -1,11 +1,11 @@
 using Flowthru.Abstractions;
 
-namespace ProjectName.Pipelines.PipelineName.Nodes;
+namespace ProjectName.Pipelines.FlowName.Nodes;
 
 /// <summary>
-/// Dummy node for PipelineName pipeline - replace with actual transformation logic.
+/// Dummy node for FlowName pipeline - replace with actual transformation logic.
 /// </summary>
-public static class PipelineNameDummyNode
+public static class FlowNameDummyNode
 {
   /// <summary>
   /// Creates a dummy transformation function. Replace this with your actual processing logic.

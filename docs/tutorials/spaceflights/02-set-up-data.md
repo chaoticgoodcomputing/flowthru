@@ -157,10 +157,10 @@ public partial class Catalog
 {
   /// ...
 
-  public ICatalogEntry<IEnumerable<__SCHEMA__>> __NAME__ =>
+  public IItem<IEnumerable<__SCHEMA__>> __NAME__ =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.__FORMAT__<__SCHEMA__>(
+        Items.Enumerable.__FORMAT__<__SCHEMA__>(
           label: "__NAME__",
           path: "__PATH__"
         )
@@ -187,10 +187,10 @@ For our CompanySchema then:
 Our entry for Companies, then, will look like:
 
 ```cs
-  public ICatalogEntry<IEnumerable<CompanySchema>> Companies =>
+  public IItem<IEnumerable<CompanySchema>> Companies =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.Csv<CompanySchema>(
+        Items.Enumerable.Csv<CompanySchema>(
           label: "Companies",
           path: $"{basePath}/Data/_01_Raw/Datasets/companies.csv"
         )
@@ -210,28 +210,28 @@ public partial class Catalog
 
   // Minimal "Names" Entry — keep it for now, to keep the project building.
 
-  public ICatalogEntry<IEnumerable<CompanySchema>> Companies =>
+  public IItem<IEnumerable<CompanySchema>> Companies =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.Csv<CompanySchema>(
+        Items.Enumerable.Csv<CompanySchema>(
           label: "Companies",
           filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
         )
     );
 
-  public ICatalogEntry<IEnumerable<ReviewSchema>> Reviews =>
+  public IItem<IEnumerable<ReviewSchema>> Reviews =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.Csv<ReviewSchema>(
+        Items.Enumerable.Csv<ReviewSchema>(
           label: "Reviews",
           filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
         )
     );
 
-  public ICatalogEntry<IEnumerable<ShuttleSchema>> Shuttles =>
+  public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
     GetOrCreateEntry(
       () =>
-        CatalogEntries.Enumerable.Excel<ShuttleSchema>(
+        Items.Enumerable.Excel<ShuttleSchema>(
           label: "Shuttles",
           filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
           sheetName: "Sheet1"

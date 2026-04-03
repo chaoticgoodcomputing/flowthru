@@ -11,10 +11,10 @@ public partial class Catalog
   /// <summary>
   /// Raw iris dataset with measurements and species labels.
   /// </summary>
-  public ICatalogEntry<IEnumerable<IrisRawSchema>> IrisRaw =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<IrisRawSchema>> IrisRaw =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<IrisRawSchema>(
+        ItemFactory.Enumerable.Csv<IrisRawSchema>(
           label: "IrisRaw",
           filePath: $"{_basePath}/_01_Raw/Datasets/iris.csv"
         )

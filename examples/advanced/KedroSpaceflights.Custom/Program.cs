@@ -53,7 +53,7 @@ public class Program
       // Enable configuration loading from appsettings.json files
       // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.UseCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
       flowthru.ConfigureMetadata(meta =>
       {
         var metadataPath = Path.Combine(basePath, "Metadata");
@@ -66,33 +66,33 @@ public class Program
       });
 
       flowthru
-        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses raw data and creates model input table");
 
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
+          flow: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
         )
         .WithDescription("Trains ML model");
 
       flowthru
-        .RegisterPipeline(label: "DataDiagnostics", pipeline: DataDiagnosticsPipeline.Create)
+        .RegisterFlow(label: "DataDiagnostics", flow: DataDiagnosticsPipeline.Create)
         .WithDescription(
           "Validates pipeline outputs against Kedro reference and exports diagnostic data"
         );
 
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "DataEvaluation",
-          pipeline: DataEvaluationPipeline.Create,
+          flow: DataEvaluationPipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataEvaluation"
         )
         .WithDescription("Evaluates ML model performance and cross-validation");
 
       flowthru
-        .RegisterPipeline(label: "Reporting", pipeline: ReportingPipeline.Create)
+        .RegisterFlow(label: "Reporting", flow: ReportingPipeline.Create)
         .WithDescription("Generates reports and visualizations");
     });
 

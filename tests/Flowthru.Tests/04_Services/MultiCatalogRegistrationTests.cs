@@ -1,5 +1,5 @@
 using Flowthru.Data;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestNodes;
@@ -21,7 +21,7 @@ public class MultiCatalogRegistrationTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void UseCatalog_MultipleCatalogs_AllResolvableByConcreteType()
+  public void RegisterCatalog_MultipleCatalogs_AllResolvableByConcreteType()
   {
     // Arrange
     var services = new ServiceCollection();
@@ -30,13 +30,13 @@ public class MultiCatalogRegistrationTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
-      flowthru.RegisterPipeline(
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
+      flowthru.RegisterFlow(
         "Upstream",
         (UpstreamCatalog up) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
     });
@@ -60,13 +60,13 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
-      flowthru.RegisterPipeline(
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
+      flowthru.RegisterFlow(
         "Upstream",
         (UpstreamCatalog up) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
     });
@@ -95,24 +95,24 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
 
       // Single-catalog upstream pipeline
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Upstream",
         (UpstreamCatalog up) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
       // 2-catalog bridge pipeline: reads from upstream, writes to downstream
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
       );
     });
@@ -121,15 +121,15 @@ public class MultiCatalogRegistrationTests
     var service = sp.GetRequiredService<IFlowthruService>();
 
     // Assert
-    Assert.That(service.PipelineNames, Does.Contain("Upstream"));
-    Assert.That(service.PipelineNames, Does.Contain("Bridge"));
+    Assert.That(service.FlowNames, Does.Contain("Upstream"));
+    Assert.That(service.FlowNames, Does.Contain("Bridge"));
   }
 
   [Test]
   public async Task RegisterPipeline_TwoCatalogs_DagResolvesCrossCatalogEdge()
   {
     // Arrange — the Bridge pipeline reads up.UpstreamOutput, which is written by the
-    // Upstream pipeline. When merged, the DAG must see a single ICatalogEntry instance
+    // Upstream pipeline. When merged, the DAG must see a single IItem instance
     // (object identity) and schedule Bridge after Upstream.
     var upstream = new UpstreamCatalog();
     var downstream = new DownstreamCatalog();
@@ -150,22 +150,22 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(upstream);
-      flowthru.UseCatalog(downstream);
+      flowthru.RegisterCatalog(upstream);
+      flowthru.RegisterCatalog(downstream);
 
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Upstream",
         (UpstreamCatalog up) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
       );
     });
@@ -174,11 +174,11 @@ public class MultiCatalogRegistrationTests
     var service = sp.GetRequiredService<IFlowthruService>();
 
     // Act
-    var result = await service.ExecutePipelineAsync(exportMetadata: false);
+    var result = await service.ExecuteFlowAsync(exportMetadata: false);
 
     // Assert — both pipelines executed and data flowed through
     Assert.That(result.Success, Is.True);
-    Assert.That(result.NodeResults, Has.Count.EqualTo(2));
+    Assert.That(result.StepResults, Has.Count.EqualTo(2));
 
     var output = await downstream.DownstreamOutput.Load().Run();
     Assert.That(output, Is.Not.Null);
@@ -214,33 +214,33 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(upstream);
-      flowthru.UseCatalog(downstream);
-      flowthru.UseCatalog(third);
+      flowthru.RegisterCatalog(upstream);
+      flowthru.RegisterCatalog(downstream);
+      flowthru.RegisterCatalog(third);
 
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Upstream",
         (UpstreamCatalog up) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
-          PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+          FlowBuilder.CreateFlow(b =>
+            b.AddStep("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
       );
 
       // 3-catalog pipeline reads from both upstream and downstream, writes to third
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Merge",
         (UpstreamCatalog up, DownstreamCatalog down, ThirdCatalog t) =>
-          PipelineBuilder.CreatePipeline(b =>
+          FlowBuilder.CreateFlow(b =>
             // Use downstream output (which depends on upstream) as the final step input
-            b.AddNode("Merge", PassthroughNode.Create(), down.DownstreamOutput, t.FinalOutput)
+            b.AddStep("Merge", PassthroughNode.Create(), down.DownstreamOutput, t.FinalOutput)
           )
       );
     });
@@ -249,11 +249,11 @@ public class MultiCatalogRegistrationTests
     var service = sp.GetRequiredService<IFlowthruService>();
 
     // Act
-    var result = await service.ExecutePipelineAsync(exportMetadata: false);
+    var result = await service.ExecuteFlowAsync(exportMetadata: false);
 
     // Assert — all three pipelines executed in dependency order
     Assert.That(result.Success, Is.True);
-    Assert.That(result.NodeResults, Has.Count.EqualTo(3));
+    Assert.That(result.StepResults, Has.Count.EqualTo(3));
 
     var finalOutput = await third.FinalOutput.Load().Run();
     Assert.That(finalOutput!.First().Name, Is.EqualTo("three-catalog"));
@@ -272,15 +272,15 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog<UpstreamCatalog>();
-      flowthru.UseCatalog<DownstreamCatalog>();
+      flowthru.RegisterCatalog<UpstreamCatalog>();
+      flowthru.RegisterCatalog<DownstreamCatalog>();
 
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           "Bridge",
           (UpstreamCatalog up, DownstreamCatalog down) =>
-            PipelineBuilder.CreatePipeline(b =>
-              b.AddNode("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+            FlowBuilder.CreateFlow(b =>
+              b.AddStep("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
             )
         )
         .WithDescription("Bridges upstream to downstream domain");
@@ -288,7 +288,7 @@ public class MultiCatalogRegistrationTests
 
     var sp = services.BuildServiceProvider();
     var service = sp.GetRequiredService<IFlowthruService>();
-    var meta = service.GetPipelineMetadata("Bridge");
+    var meta = service.GetFlowMetadata("Bridge");
 
     // Assert
     Assert.That(meta.Description, Is.EqualTo("Bridges upstream to downstream domain"));
@@ -308,34 +308,34 @@ public class MultiCatalogRegistrationTests
     var upstream = new UpstreamCatalog();
     var downstream = new DownstreamCatalog();
 
-    Pipeline? upstreamPipeline = null;
-    Pipeline? bridgePipeline = null;
+    Flow? upstreamPipeline = null;
+    Flow? bridgePipeline = null;
 
     var services = new ServiceCollection();
     services.AddLogging();
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(upstream);
-      flowthru.UseCatalog(downstream);
+      flowthru.RegisterCatalog(upstream);
+      flowthru.RegisterCatalog(downstream);
 
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Upstream",
         (UpstreamCatalog up) =>
         {
-          upstreamPipeline = PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("P", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+          upstreamPipeline = FlowBuilder.CreateFlow(b =>
+            b.AddStep("P", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
           );
           return upstreamPipeline;
         }
       );
 
-      flowthru.RegisterPipeline(
+      flowthru.RegisterFlow(
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
         {
-          bridgePipeline = PipelineBuilder.CreatePipeline(b =>
-            b.AddNode("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+          bridgePipeline = FlowBuilder.CreateFlow(b =>
+            b.AddStep("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
           );
           return bridgePipeline;
         }
@@ -347,8 +347,8 @@ public class MultiCatalogRegistrationTests
     _ = sp.GetRequiredService<IFlowthruService>();
 
     // Assert — UpstreamOutput entry is the same instance in both pipelines
-    var upstreamOutputInProducer = upstreamPipeline!.Nodes.First(n => n.Label == "P").Outputs[0];
-    var upstreamOutputInConsumer = bridgePipeline!.Nodes.First(n => n.Label == "B").Inputs[0];
+    var upstreamOutputInProducer = upstreamPipeline!.Steps.First(n => n.Label == "P").Outputs[0];
+    var upstreamOutputInConsumer = bridgePipeline!.Steps.First(n => n.Label == "B").Inputs[0];
 
     Assert.That(
       upstreamOutputInProducer,
@@ -358,14 +358,14 @@ public class MultiCatalogRegistrationTests
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // UseCatalogs — dynamic/iterative catalog registration
+  // RegisterCatalogs — dynamic/iterative catalog registration
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void UseCatalogs_InstanceOverload_AllCatalogsVisibleToService()
+  public void RegisterCatalogs_InstanceOverload_AllCatalogsVisibleToService()
   {
     // Arrange — simulate the fan-out pattern: N catalogs built in a loop,
-    // registered via UseCatalogs rather than individual UseCatalog calls.
+    // registered via RegisterCatalogs rather than individual RegisterCatalog calls.
     var shards = new[] { new ShardCatalog("X"), new ShardCatalog("Y"), new ShardCatalog("Z") };
 
     var services = new ServiceCollection();
@@ -373,12 +373,12 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalogs(shards);
+      flowthru.RegisterCatalogs(shards);
 
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>
       {
         // Minimal pipeline so AddFlowthru has something to inject
-        ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
+        ["noop"] = FlowBuilder.CreateFlow(_ => { }),
       });
     });
 
@@ -395,9 +395,9 @@ public class MultiCatalogRegistrationTests
   }
 
   [Test]
-  public void UseCatalogs_MixedWithUseCatalog_AllCatalogsVisibleToService()
+  public void RegisterCatalogs_MixedWithRegisterCatalog_AllCatalogsVisibleToService()
   {
-    // Arrange — one static catalog registered via UseCatalog, N via UseCatalogs.
+    // Arrange — one static catalog registered via RegisterCatalog, N via RegisterCatalogs.
     var staticCatalog = new UpstreamCatalog();
     var shards = new[] { new ShardCatalog("P"), new ShardCatalog("Q") };
 
@@ -406,12 +406,12 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalog(staticCatalog);
-      flowthru.UseCatalogs(shards);
+      flowthru.RegisterCatalog(staticCatalog);
+      flowthru.RegisterCatalogs(shards);
 
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>
       {
-        ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
+        ["noop"] = FlowBuilder.CreateFlow(_ => { }),
       });
     });
 
@@ -423,17 +423,17 @@ public class MultiCatalogRegistrationTests
     Assert.That(
       service.Catalogs.OfType<UpstreamCatalog>().Count(),
       Is.EqualTo(1),
-      "Static UseCatalog entry should be present"
+      "Static RegisterCatalog entry should be present"
     );
     Assert.That(
       service.Catalogs.OfType<ShardCatalog>().Count(),
       Is.EqualTo(2),
-      "Dynamic UseCatalogs entries should be present"
+      "Dynamic RegisterCatalogs entries should be present"
     );
   }
 
   [Test]
-  public void UseCatalogs_FactoryOverload_AllCatalogsVisibleToService()
+  public void RegisterCatalogs_FactoryOverload_AllCatalogsVisibleToService()
   {
     // Arrange — catalogs produced by a factory that receives the service provider.
     var services = new ServiceCollection();
@@ -441,13 +441,13 @@ public class MultiCatalogRegistrationTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.UseCatalogs(_ =>
-        new DataCatalogBase[] { new ShardCatalog("factory_1"), new ShardCatalog("factory_2") }
+      flowthru.RegisterCatalogs(_ =>
+        new CatalogAbstract[] { new ShardCatalog("factory_1"), new ShardCatalog("factory_2") }
       );
 
-      flowthru.UsePipelines(_ => new Dictionary<string, Pipeline>
+      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>
       {
-        ["noop"] = PipelineBuilder.CreatePipeline(_ => { }),
+        ["noop"] = FlowBuilder.CreateFlow(_ => { }),
       });
     });
 

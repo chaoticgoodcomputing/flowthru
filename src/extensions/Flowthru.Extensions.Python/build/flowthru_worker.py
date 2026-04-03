@@ -199,7 +199,7 @@ def main() -> None:
     try:
         _flowthru_arrow = importlib.import_module("_flowthru_arrow")
     except ImportError:
-        pass  # tabular nodes will raise at invocation time with a clear message
+        pass  # tabular steps will raise at invocation time with a clear message
 
     sys.stdout.write(
         json.dumps({

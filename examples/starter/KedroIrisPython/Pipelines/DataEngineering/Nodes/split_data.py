@@ -1,9 +1,9 @@
-"""Data engineering node for splitting iris data into train/test sets."""
+"""Data engineering step for splitting iris data into train/test sets."""
 import pandas as pd
-from flowthru import node
+from flowthru import step
 
 
-@node(
+@step(
     inputs=["IrisRawSchema"],
     outputs=["FeatureVectorSchema", "TargetLabelSchema", "FeatureVectorSchema", "TargetLabelSchema"]
 )

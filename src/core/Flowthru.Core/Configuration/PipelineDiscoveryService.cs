@@ -1,65 +1,65 @@
 using System.Reflection;
 using Flowthru.Data;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Microsoft.Extensions.Configuration;
 
 namespace Flowthru.Configuration;
 
 /// <summary>
-/// Discovers and registers pipelines from configuration.
+/// Discovers and registers flows from configuration.
 /// </summary>
-internal class PipelineDiscoveryService
+internal class FlowDiscoveryService
 {
   /// <summary>
-  /// Discovers pipelines from configuration and returns factory functions.
+  /// Discovers flows from configuration and returns factory functions.
   /// </summary>
   /// <param name="configuration">Configuration instance</param>
   /// <param name="catalogType">The catalog type to use</param>
-  /// <returns>Dictionary of pipeline label to factory function</returns>
-  public static Dictionary<string, PipelineFactoryInfo> DiscoverPipelines(
+  /// <returns>Dictionary of Flow label to factory function</returns>
+  public static Dictionary<string, FlowFactoryInfo> DiscoverFlows(
     IConfiguration configuration,
     Type catalogType
   )
   {
     var flowthruConfig = configuration.GetSection(FlowthruOptions.SectionName);
-    var pipelinesSection = flowthruConfig.GetSection("Pipelines");
+    var flowsSection = flowthruConfig.GetSection("Flows");
 
-    if (!pipelinesSection.Exists())
+    if (!flowsSection.Exists())
     {
-      return new Dictionary<string, PipelineFactoryInfo>();
+      return new Dictionary<string, FlowFactoryInfo>();
     }
 
-    var pipelines = new Dictionary<string, PipelineFactoryInfo>();
+    var flows = new Dictionary<string, FlowFactoryInfo>();
 
-    foreach (var pipelineSection in pipelinesSection.GetChildren())
+    foreach (var flowSection in flowsSection.GetChildren())
     {
-      var label = pipelineSection.Key;
-      var options = new PipelineOptions();
-      pipelineSection.Bind(options);
+      var label = flowSection.Key;
+      var options = new FlowOptions();
+      flowSection.Bind(options);
 
       if (string.IsNullOrWhiteSpace(options.Type))
       {
         throw new InvalidOperationException(
-          $"Pipeline '{label}' is missing required 'Type' configuration. "
-            + $"Example: \"Pipelines\": {{ \"{label}\": {{ \"Type\": \"MyApp.Pipelines.MyPipeline\" }} }}"
+          $"Flow '{label}' is missing required 'Type' configuration. "
+            + $"Example: \"Flows\": {{ \"{label}\": {{ \"Type\": \"MyApp.Flows.MyFlow\" }} }}"
         );
       }
 
-      var factoryInfo = CreateFactoryInfo(label, options, catalogType, pipelineSection);
-      pipelines[label] = factoryInfo;
+      var factoryInfo = CreateFactoryInfo(label, options, catalogType, flowSection);
+      flows[label] = factoryInfo;
     }
 
-    return pipelines;
+    return flows;
   }
 
-  private static PipelineFactoryInfo CreateFactoryInfo(
+  private static FlowFactoryInfo CreateFactoryInfo(
     string label,
-    PipelineOptions options,
+    FlowOptions options,
     Type catalogType,
-    IConfigurationSection pipelineSection
+    IConfigurationSection flowSection
   )
   {
-    // Find the pipeline factory type
+    // Find the Flow factory type
     Type? factoryType = null;
 
     // Try Type.GetType first (supports fully qualified names with assembly)
@@ -81,8 +81,8 @@ internal class PipelineDiscoveryService
     if (factoryType == null)
     {
       throw new InvalidOperationException(
-        $"Could not find pipeline type '{options.Type}' for pipeline '{label}'. "
-          + $"Ensure the type name is fully qualified (e.g., 'MyApp.Pipelines.MyPipeline')."
+        $"Could not find flow type '{options.Type}' for flow '{label}'. "
+          + $"Ensure the type name is fully qualified (e.g., 'MyApp.Flows.MyFlow')."
       );
     }
 
@@ -95,9 +95,9 @@ internal class PipelineDiscoveryService
     if (factoryMethod == null)
     {
       throw new InvalidOperationException(
-        $"Could not find static method '{options.FactoryMethod}' on type '{options.Type}' for pipeline '{label}'. "
-          + $"Expected signature: public static Pipeline Create({catalogType.Name} catalog) or "
-          + $"public static Pipeline Create({catalogType.Name} catalog, TParams parameters)"
+        $"Could not find static method '{options.FactoryMethod}' on type '{options.Type}' for Flow '{label}'. "
+          + $"Expected signature: public static Flow Create({catalogType.Name} catalog) or "
+          + $"public static Flow Create({catalogType.Name} catalog, TParams parameters)"
       );
     }
 
@@ -110,33 +110,33 @@ internal class PipelineDiscoveryService
       );
     }
 
-    // Check if this is a parameterless or parameterized pipeline
+    // Check if this is a parameterless or parameterized flow
     Type? parameterType = null;
     object? parameterInstance = null;
 
     if (parameters.Length > 1)
     {
-      // Parameterized pipeline
+      // Parameterized flow
       parameterType = parameters[1].ParameterType;
 
       // Load and validate parameters from configuration
-      var parametersSection = pipelineSection.GetSection("Parameters");
+      var parametersSection = flowSection.GetSection("Parameters");
       if (!parametersSection.Exists() && options.Parameters == null)
       {
         throw new InvalidOperationException(
-          $"Pipeline '{label}' requires parameters of type '{parameterType.Name}', "
+          $"Flow '{label}' requires parameters of type '{parameterType.Name}', "
             + $"but no 'Parameters' section was found in configuration."
         );
       }
 
       parameterInstance = ConfigurationExtensions.GetValidated(
-        pipelineSection,
+        flowSection,
         "Parameters",
         parameterType
       );
     }
 
-    return new PipelineFactoryInfo
+    return new FlowFactoryInfo
     {
       Label = label,
       FactoryType = factoryType,
@@ -150,9 +150,9 @@ internal class PipelineDiscoveryService
 }
 
 /// <summary>
-/// Information about a discovered pipeline factory.
+/// Information about a discovered Flow factory.
 /// </summary>
-internal class PipelineFactoryInfo
+internal class FlowFactoryInfo
 {
   public required string Label { get; init; }
   public required Type FactoryType { get; init; }
@@ -160,25 +160,25 @@ internal class PipelineFactoryInfo
   public Type? ParameterType { get; init; }
   public object? ParameterInstance { get; init; }
   public string? Description { get; init; }
-  public PipelineValidationOptions? ValidationOptions { get; init; }
+  public FlowValidationOptions? ValidationOptions { get; init; }
 
   /// <summary>
-  /// Invokes the factory method to create a pipeline instance.
+  /// Invokes the factory method to create a Flow instance.
   /// </summary>
-  public Pipeline CreatePipeline(DataCatalogBase catalog)
+  public Flow CreateFlow(CatalogAbstract catalog)
   {
     var args =
       ParameterInstance != null
         ? new object[] { catalog, ParameterInstance }
         : new object[] { catalog };
 
-    if (FactoryMethod.Invoke(null, args) is not Pipeline pipeline)
+    if (FactoryMethod.Invoke(null, args) is not Flow flow)
     {
       throw new InvalidOperationException(
-        $"Factory method '{FactoryMethod.Name}' on type '{FactoryType.Name}' returned null or non-Pipeline value."
+        $"Factory method '{FactoryMethod.Name}' on type '{FactoryType.Name}' returned null or non-Flow value."
       );
     }
 
-    return pipeline;
+    return flow;
   }
 }

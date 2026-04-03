@@ -11,10 +11,10 @@ public partial class Catalog
   /// Trained logistic regression model weights.
   /// Stored as a pickled binary file (Python pickle format).
   /// </summary>
-  public ICatalogEntry<byte[]> ModelWeights =>
-    GetOrCreateEntry(
+  public IItem<byte[]> ModelWeights =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "ModelWeights",
           filePath: $"{_basePath}/_06_Models/Datasets/model.pkl"
         )

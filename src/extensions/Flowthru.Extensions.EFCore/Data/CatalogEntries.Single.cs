@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Data;
 
-public static partial class EFCoreCatalogEntries
+public static partial class EFCoreItemFactory
 {
   public static partial class Single
   {
@@ -37,18 +37,18 @@ public static partial class EFCoreCatalogEntries
     /// <example>
     /// <code>
     /// // In catalog
-    /// public ICatalogEntry&lt;ModelMetrics&gt; Metrics(DbContext db) =>
-    ///   CatalogEntries.Single.EFCore&lt;ModelMetrics&gt;("metrics", db);
+    /// public IItem&lt;ModelMetrics&gt; Metrics(DbContext db) =>
+    ///   ItemFactory.Single.EFCore&lt;ModelMetrics&gt;("metrics", db);
     ///
     /// // In pipeline
-    /// var pipeline = new PipelineBuilder("MetricsPipeline")
-    ///   .AddNode("save_metrics", catalog => new SaveMetricsNode(
+    /// var pipeline = new FlowBuilder("MetricsPipeline")
+    ///   .AddStep("save_metrics", catalog => new SaveMetricsStep(
     ///     outputs: catalog.Metrics(db)
     ///   ))
     ///   .Build();
     /// </code>
     /// </example>
-    public static CatalogEntry<T> EFCore<T>(
+    public static Item<T> EFCore<T>(
       string label,
       DbContext context,
       bool allowEmptyData = false,
@@ -64,7 +64,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         saveFunc
       );
-      return new CatalogEntry<T>(label, adapter);
+      return new Item<T>(label, adapter);
     }
 
     /// <summary>
@@ -93,14 +93,14 @@ public static partial class EFCoreCatalogEntries
     /// // In catalog with factory
     /// private readonly IServiceProvider _serviceProvider;
     ///
-    /// public ICatalogEntry&lt;ModelMetrics&gt; Metrics =>
-    ///   CatalogEntries.Single.EFCore&lt;ModelMetrics&gt;(
+    /// public IItem&lt;ModelMetrics&gt; Metrics =>
+    ///   ItemFactory.Single.EFCore&lt;ModelMetrics&gt;(
     ///     "metrics",
     ///     () => _serviceProvider.GetRequiredService&lt;MyDbContext&gt;()
     ///   );
     /// </code>
     /// </example>
-    public static CatalogEntry<T> EFCore<T>(
+    public static Item<T> EFCore<T>(
       string label,
       Func<DbContext> contextFactory,
       bool allowEmptyData = false,
@@ -115,7 +115,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         saveFunc
       );
-      return new CatalogEntry<T>(label, adapter);
+      return new Item<T>(label, adapter);
     }
 
     /// <summary>
@@ -132,7 +132,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
     /// Defaults to clear-and-insert when null.</param>
     /// <returns>Catalog entry for EFCore single entity storage</returns>
-    public static CatalogEntry<T> EFCore<T, TContext>(
+    public static Item<T> EFCore<T, TContext>(
       string label,
       Func<TContext> contextFactory,
       bool allowEmptyData = false,
@@ -151,7 +151,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         baseSaveFunc
       );
-      return new CatalogEntry<T>(label, adapter);
+      return new Item<T>(label, adapter);
     }
 
     /// <summary>
@@ -166,7 +166,7 @@ public static partial class EFCoreCatalogEntries
     /// <param name="saveFunc">Optional save delegate receiving the concrete <typeparamref name="TContext"/>.
     /// Defaults to clear-and-insert when null.</param>
     /// <returns>Catalog entry for EFCore single entity storage</returns>
-    public static CatalogEntry<T> EFCore<T, TContext>(
+    public static Item<T> EFCore<T, TContext>(
       string label,
       IDbContextFactory<TContext> contextFactory,
       bool allowEmptyData = false,
@@ -185,7 +185,7 @@ public static partial class EFCoreCatalogEntries
         queryCustomizer,
         baseSaveFunc
       );
-      return new CatalogEntry<T>(label, adapter);
+      return new Item<T>(label, adapter);
     }
   }
 }

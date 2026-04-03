@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Flowthru.Data;
 using Flowthru.Data.Storage;
 using Flowthru.Effects;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestNodes;
 
@@ -36,9 +36,9 @@ public class CancellationTests
     };
     await catalog.Input.Save(testData).Run();
 
-    Pipeline pipeline = PipelineBuilder.CreatePipeline(builder =>
+    Flow pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Passthrough",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -78,9 +78,9 @@ public class CancellationTests
     };
     await catalog.Input.Save(testData).Run();
 
-    Pipeline pipeline = PipelineBuilder.CreatePipeline(builder =>
+    Flow pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "Increment",
         transform: IncrementNode.Create(),
         input: catalog.Input,
@@ -125,10 +125,10 @@ public class CancellationTests
     };
     await catalog.Input.Save(testData).Run();
 
-    Pipeline pipeline = PipelineBuilder.CreatePipeline(builder =>
+    Flow pipeline = FlowBuilder.CreateFlow(builder =>
     {
       // First node: quick passthrough
-      builder.AddNode(
+      builder.AddStep(
         label: "FirstNode",
         transform: PassthroughNode.Create(),
         input: catalog.Input,
@@ -136,7 +136,7 @@ public class CancellationTests
       );
 
       // Second node: delayed
-      builder.AddNode(
+      builder.AddStep(
         label: "SecondNode",
         transform: DelayedNode.Create(TimeSpan.FromSeconds(10)),
         input: catalog.StepOne,
@@ -183,10 +183,10 @@ public class CancellationTests
     };
     await catalog.Input.Save(testData).Run();
 
-    Pipeline pipeline = PipelineBuilder.CreatePipeline(builder =>
+    Flow pipeline = FlowBuilder.CreateFlow(builder =>
     {
       // Node with long delay
-      builder.AddNode(
+      builder.AddStep(
         label: "LongRunningNode",
         transform: DelayedNode.Create(TimeSpan.FromSeconds(10)),
         input: catalog.Input,
@@ -225,8 +225,8 @@ public class CancellationTests
     var fastAdapter = new MemoryStorageAdapter<IEnumerable<TestData>>();
     var catalog = new TestCatalog();
 
-    catalog.SlowData = new CatalogEntry<IEnumerable<TestData>>("SlowData", slowAdapter);
-    catalog.FastData = new CatalogEntry<IEnumerable<TestData>>("FastData", fastAdapter);
+    catalog.SlowData = new Item<IEnumerable<TestData>>("SlowData", slowAdapter);
+    catalog.FastData = new Item<IEnumerable<TestData>>("FastData", fastAdapter);
 
     var testData = new[]
     {
@@ -241,9 +241,9 @@ public class CancellationTests
     // Seed the slow adapter with data
     slowAdapter.SetData(testData);
 
-    Pipeline pipeline = PipelineBuilder.CreatePipeline(builder =>
+    Flow pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "LoadFromSlowStorage",
         transform: PassthroughNode.Create(),
         input: catalog.SlowData,
@@ -281,8 +281,8 @@ public class CancellationTests
     var fastAdapter = new MemoryStorageAdapter<IEnumerable<TestData>>();
     var catalog = new TestCatalog();
 
-    catalog.FastData = new CatalogEntry<IEnumerable<TestData>>("FastData", fastAdapter);
-    catalog.SlowData = new CatalogEntry<IEnumerable<TestData>>("SlowData", slowAdapter);
+    catalog.FastData = new Item<IEnumerable<TestData>>("FastData", fastAdapter);
+    catalog.SlowData = new Item<IEnumerable<TestData>>("SlowData", slowAdapter);
 
     var testData = new[]
     {
@@ -295,9 +295,9 @@ public class CancellationTests
     };
     await catalog.FastData.Save(testData).Run();
 
-    Pipeline pipeline = PipelineBuilder.CreatePipeline(builder =>
+    Flow pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "SaveToSlowStorage",
         transform: PassthroughNode.Create(),
         input: catalog.FastData,
@@ -328,10 +328,10 @@ public class CancellationTests
   /// <summary>
   /// Custom test catalog with additional properties for slow storage adapters.
   /// </summary>
-  private class TestCatalog : DataCatalogBase
+  private class TestCatalog : CatalogAbstract
   {
-    public CatalogEntry<IEnumerable<TestData>> SlowData { get; set; } = null!;
-    public CatalogEntry<IEnumerable<TestData>> FastData { get; set; } = null!;
+    public Item<IEnumerable<TestData>> SlowData { get; set; } = null!;
+    public Item<IEnumerable<TestData>> FastData { get; set; } = null!;
   }
 
   /// <summary>

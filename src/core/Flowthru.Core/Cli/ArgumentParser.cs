@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Services.Models;
 
 namespace Flowthru.Cli;
@@ -151,7 +151,7 @@ internal static class ArgumentParser
     }
 
     // Build slice strategy if any slicing flags were provided
-    PipelineSliceStrategy? sliceStrategy = null;
+    FlowSliceStrategy? sliceStrategy = null;
     if (
       pipelines != null
       || fromNodes != null
@@ -161,9 +161,9 @@ internal static class ArgumentParser
       || onlyNodes != null
     )
     {
-      sliceStrategy = new PipelineSliceStrategy
+      sliceStrategy = new FlowSliceStrategy
       {
-        Pipelines = pipelines,
+        Flows = pipelines,
         FromNodes = fromNodes,
         ToNodes = toNodes,
         FromData = fromData,

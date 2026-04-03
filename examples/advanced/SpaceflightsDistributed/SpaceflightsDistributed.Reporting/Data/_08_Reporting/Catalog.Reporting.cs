@@ -9,22 +9,20 @@ namespace SpaceflightsDistributed.Reporting.Data;
 /// </summary>
 public partial class ReportingCatalog
 {
-  public ICatalogEntry<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Json<ShuttleCapacityReport>(
+        ItemFactory.Enumerable.Json<ShuttleCapacityReport>(
           label: "ShuttleCapacityReport",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json"
         )
     );
 
-  public ICatalogEntry<GenericChart> ShuttlePassengerCapacityChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
+  public IItem<GenericChart> ShuttlePassengerCapacityChart =>
+    CreateItem(
+      () => ItemFactory.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
     );
 
-  public ICatalogEntry<GenericChart> ConfusionMatrixChart =>
-    GetOrCreateEntry(
-      () => CatalogEntries.Single.Memory<GenericChart>(label: "ConfusionMatrixChart")
-    );
+  public IItem<GenericChart> ConfusionMatrixChart =>
+    CreateItem(() => ItemFactory.Single.Memory<GenericChart>(label: "ConfusionMatrixChart"));
 }

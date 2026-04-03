@@ -5,40 +5,40 @@ namespace RetailDataMultipipeline.Data;
 
 public partial class CoreCatalog
 {
-  public ICatalogEntry<IEnumerable<CountryTransactionSummarySchema>> CountryTransactionSummary =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<CountryTransactionSummarySchema>> CountryTransactionSummary =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<CountryTransactionSummarySchema>(
+        ItemFactory.Enumerable.Csv<CountryTransactionSummarySchema>(
           label: "CountryTransactionSummary",
           filePath: $"{_basePath}/_08_Reporting/Datasets/country_transaction_summary.csv"
         )
     );
 
   /// <summary>Daily GBP revenue per country — line chart (PNG).</summary>
-  public ICatalogEntry<byte[]> DollarsChart =>
-    GetOrCreateEntry(
+  public IItem<byte[]> DollarsChart =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "DollarsChart",
           filePath: $"{_basePath}/_08_Reporting/Charts/dollars_chart.png"
         )
     );
 
   /// <summary>Daily transaction count per country — line chart (PNG).</summary>
-  public ICatalogEntry<byte[]> TransactionsChart =>
-    GetOrCreateEntry(
+  public IItem<byte[]> TransactionsChart =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "TransactionsChart",
           filePath: $"{_basePath}/_08_Reporting/Charts/transactions_chart.png"
         )
     );
 
   /// <summary>Daily unique customers per country — line chart (PNG).</summary>
-  public ICatalogEntry<byte[]> UsersChart =>
-    GetOrCreateEntry(
+  public IItem<byte[]> UsersChart =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "UsersChart",
           filePath: $"{_basePath}/_08_Reporting/Charts/users_chart.png"
         )

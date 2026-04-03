@@ -94,7 +94,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   }
 
   /// <inheritdoc />
-  public void ValidateNode(string moduleName, string functionName)
+  public void ValidateStep(string moduleName, string functionName)
   {
     EnsureStarted();
 
@@ -111,7 +111,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     {
       var msg = resp["message"]?.GetValue<string>() ?? "Unknown error";
       throw new InvalidOperationException(
-        $"Python node validation failed for {moduleName}.{functionName}: {msg}"
+        $"Python step validation failed for {moduleName}.{functionName}: {msg}"
       );
     }
   }

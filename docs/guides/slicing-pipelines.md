@@ -100,11 +100,11 @@ using Flowthru.Services.Models;
 
 var options = new ExecutionOptions
 {
-    SliceStrategy = new PipelineSliceStrategy
+    SliceStrategy = new FlowSliceStrategy
     {
         Pipelines = new HashSet<string> { "DataScience" },
-        FromNodes = new HashSet<string> { "PreprocessCompanies", "PreprocessShuttles" },
-        ToNodes = new HashSet<string> { "CreateModelInput" }
+        FromSteps = new HashSet<string> { "PreprocessCompanies", "PreprocessShuttles" },
+        ToSteps = new HashSet<string> { "CreateModelInput" }
     }
 };
 
@@ -114,14 +114,14 @@ var result = await service.ExecutePipelineAsync(options, exportMetadata: true, m
 ### All Strategy Properties
 
 ```csharp
-var strategy = new PipelineSliceStrategy
+var strategy = new FlowSliceStrategy
 {
     Pipelines = new HashSet<string> { "DataScience", "Reporting" },  // filter by pipeline name
-    FromNodes = new HashSet<string> { "NodeA", "NodeB" },            // + upstream
-    ToNodes = new HashSet<string> { "NodeC" },                       // + downstream
+    FromSteps = new HashSet<string> { "StepA", "StepB" },            // + upstream
+    ToSteps = new HashSet<string> { "StepC" },                       // + downstream
     FromData = new HashSet<string> { "model_input" },                // consumers + downstream
     ToData = new HashSet<string> { "raw_data" },                     // producers + upstream
-    OnlyNodes = new HashSet<string> { "NodeD", "NodeE" }             // explicit allowlist
+    OnlySteps = new HashSet<string> { "StepD", "StepE" }             // explicit allowlist
 };
 ```
 
@@ -135,12 +135,12 @@ var options = new ExecutionOptions(); // No slicing, all pipelines execute
 
 Slicing guarantees runnability — the result is always a valid sub-DAG:
 
-1. **Pipelines** filters nodes by pipeline name prefix (e.g., "DataScience.NodeName")
-2. **FromNodes** includes all upstream dependencies (transitive closure)
-3. **ToNodes** includes all downstream dependents (transitive closure)
+1. **Pipelines** filters nodes by pipeline name prefix (e.g., "DataScience.StepName")
+2. **FromSteps** includes all upstream dependencies (transitive closure)
+3. **ToSteps** includes all downstream dependents (transitive closure)
 4. **FromData** resolves to consumer nodes, then includes downstream (transitive closure)
 5. **ToData** resolves to producer nodes, then includes upstream (transitive closure)
-6. **OnlyNodes** automatically includes required dependencies
+6. **OnlySteps** automatically includes required dependencies
 7. Multiple strategies intersect — each narrows the result set
 
 **Slicing is additive only.** There is no `--except` flag because subtractive operations break the runnability guarantee.
@@ -169,7 +169,7 @@ Available pipelines: DataScience, DataProcessing, Reporting
 ```
 
 ```
-✗ FromNodes references non-existent node: 'InvalidNode'
+✗ FromSteps references non-existent node: 'InvalidStep'
 Available nodes: PreprocessCompanies, PreprocessShuttles, ...
 ```
 

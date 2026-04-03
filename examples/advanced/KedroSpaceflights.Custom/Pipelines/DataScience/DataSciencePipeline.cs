@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using KedroSpaceflights.Custom.Data;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 using KedroSpaceflights.Custom.Pipelines.DataEvaluation.Nodes;
@@ -44,12 +44,12 @@ public static class DataSciencePipeline
     public CreateTestTrainSplitNode.TestTrainSplitParams ModelParams { get; init; } = new();
   }
 
-  public static Pipeline Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // Node 1: Split data into train/test sets (single input → multi-output)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "CreateTestTrainSplitDatasets",
         transform: CreateTestTrainSplitNode.Create(parameters: parameters.ModelParams),
         input: catalog.ModelInputTable,
@@ -57,7 +57,7 @@ public static class DataSciencePipeline
       );
 
       // Node 2: Train OLS regression model (multi-input → single output)
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TrainOLSModel",
         transform: TrainModelNode.Create(),
         input: (catalog.XTrain, catalog.YTrain),

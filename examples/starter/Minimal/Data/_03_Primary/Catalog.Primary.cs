@@ -8,10 +8,10 @@ public partial class Catalog
   /// <summary>
   /// Farewell greetings with "Goodbye" prefix.
   /// </summary>
-  public ICatalogEntry<IEnumerable<GoodbyeSchema>> Goodbyes =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<GoodbyeSchema>> Goodbyes =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<GoodbyeSchema>(
+        ItemFactory.Enumerable.Csv<GoodbyeSchema>(
           label: "Goodbyes",
           filePath: $"{_basePath}/Data/_03_Primary/Datasets/goodbyes.csv"
         )
@@ -20,10 +20,10 @@ public partial class Catalog
   /// <summary>
   /// Farewell greetings with "So long" prefix.
   /// </summary>
-  public ICatalogEntry<IEnumerable<SoLongSchema>> SoLongs =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<SoLongSchema>> SoLongs =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<SoLongSchema>(
+        ItemFactory.Enumerable.Csv<SoLongSchema>(
           label: "SoLongs",
           filePath: $"{_basePath}/Data/_03_Primary/Datasets/solongs.csv"
         )

@@ -29,7 +29,7 @@ namespace Flowthru.Data.Storage.Strategies;
 /// <code>
 /// services.AddFlowthru(flowthru =>
 /// {
-///     flowthru.UseCatalog&lt;MyCatalog&gt;();
+///     flowthru.RegisterCatalog&lt;MyCatalog&gt;();
 ///
 ///     if (env.IsProduction())
 ///     {
@@ -76,10 +76,7 @@ public sealed class DatabaseStorageEntryFactory : IStorageEntryFactory
   /// <exception cref="NotImplementedException">
   /// Phase 2 stub - database support not yet implemented
   /// </exception>
-  public ICatalogEntry<IEnumerable<T>> CreateEnumerable<T>(
-    string label,
-    StorageOptions? options = null
-  )
+  public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
     where T : notnull, IFlatSchema, ITextSerializable
   {
     throw new NotImplementedException(
@@ -93,7 +90,7 @@ public sealed class DatabaseStorageEntryFactory : IStorageEntryFactory
     // var medium = new DatabaseStorageMedium(_connectionString, tableName);
     // var format = new SqlFormatSerializer<T>();
     // var container = new EnumerableContainerAdapter<T>();
-    // return new CatalogEntry<IEnumerable<T>>(
+    // return new Item<IEnumerable<T>>(
     //     label,
     //     new ComposedStorageAdapter<IEnumerable<T>, T>(medium, format, container)
     // );
@@ -103,7 +100,7 @@ public sealed class DatabaseStorageEntryFactory : IStorageEntryFactory
   /// <exception cref="NotImplementedException">
   /// Phase 2 stub - database support not yet implemented
   /// </exception>
-  public ICatalogEntry<T> CreateSingle<T>(string label, StorageOptions? options = null)
+  public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
     where T : IStructuredSerializable
   {
     throw new NotImplementedException(

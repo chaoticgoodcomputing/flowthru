@@ -30,9 +30,9 @@ internal static class EnumSerializationHelper
       throw new ArgumentException($"Type '{enumType.Name}' is not an enum type.", nameof(enumType));
     }
 
-    // Use reflection to call EnumMetadataRegistry.GetOrCreate<TEnum>()
+    // Use reflection to call EnumMetadataRegistry.Create<TEnum>()
     var getOrCreateMethod = typeof(EnumMetadataRegistry)
-      .GetMethod(nameof(EnumMetadataRegistry.GetOrCreate))!
+      .GetMethod(nameof(EnumMetadataRegistry.Create))!
       .MakeGenericMethod(enumType);
 
     var metadata = getOrCreateMethod.Invoke(null, null)!;
@@ -68,9 +68,9 @@ internal static class EnumSerializationHelper
       throw new ArgumentException($"Type '{enumType.Name}' is not an enum type.", nameof(enumType));
     }
 
-    // Use reflection to call EnumMetadataRegistry.GetOrCreate<TEnum>()
+    // Use reflection to call EnumMetadataRegistry.Create<TEnum>()
     var getOrCreateMethod = typeof(EnumMetadataRegistry)
-      .GetMethod(nameof(EnumMetadataRegistry.GetOrCreate))!
+      .GetMethod(nameof(EnumMetadataRegistry.Create))!
       .MakeGenericMethod(enumType);
 
     var metadata = getOrCreateMethod.Invoke(null, null)!;

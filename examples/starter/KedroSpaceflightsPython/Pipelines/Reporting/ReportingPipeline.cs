@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Nodes;
-using Flowthru.Pipelines;
+using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flows;
 using KedroSpaceflightsPython.Data;
 using KedroSpaceflightsPython.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsPython.Data._07_ModelOutput.Schemas;
@@ -16,12 +16,12 @@ public static class ReportingPipeline
   /// <summary>
   /// Creates the reporting pipeline.
   /// </summary>
-  public static Pipeline Create(Catalog catalog, IPythonExecutor executor)
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
       // Compare passenger capacity using plotly.express
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "ComparePassengerCapacityExpress",
         description: "Generate passenger capacity bar chart using plotly.express",
         module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
@@ -32,7 +32,7 @@ public static class ReportingPipeline
       );
 
       // Compare passenger capacity using plotly.graph_objects
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "ComparePassengerCapacityGraphObj",
         description: "Generate passenger capacity bar chart using plotly.graph_objects",
         module: "Pipelines.Reporting.Nodes.compare_passenger_capacity",
@@ -43,7 +43,7 @@ public static class ReportingPipeline
       );
 
       // Create confusion matrix from model predictions
-      pipeline.AddPythonNode(
+      pipeline.AddPythonStep(
         label: "CreateConfusionMatrix",
         description: "Generate confusion matrix heatmap from model predictions (binned into categories)",
         module: "Pipelines.Reporting.Nodes.create_confusion_matrix",

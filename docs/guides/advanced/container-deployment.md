@@ -13,7 +13,7 @@ Deploy a Flowthru pipeline as a standalone container image for execution in envi
 A containerized pipeline replaces `FlowthruCli` with a minimal `Program.cs` that owns its own DI container. The key difference: no CLI argument parsing, no filesystem-based configuration.
 
 ```csharp
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,7 @@ services.AddLogging(logging =>
 services.AddFlowthru(flowthru =>
 {
     flowthru
-        .UseCatalog<MyCatalog>()
+        .RegisterCatalog<MyCatalog>()
         .RegisterPipeline<MyCatalog>("Ingest", catalog => IngestPipeline.Create(catalog))
         .RegisterPipeline<MyCatalog>("Transform", catalog => TransformPipeline.Create(catalog));
 
@@ -50,19 +50,19 @@ return result.Success ? 0 : 1;
 
 // --- helpers ---
 
-static PipelineSliceStrategy BuildSliceStrategy()
+static FlowSliceStrategy BuildSliceStrategy()
 {
     static HashSet<string>? ParseCsv(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : new(value.Split(',', StringSplitOptions.RemoveEmptyEntries));
 
-    return new PipelineSliceStrategy
+    return new FlowSliceStrategy
     {
         Pipelines  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_PIPELINES")),
-        FromNodes  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_FROM_NODES")),
-        ToNodes    = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_TO_NODES")),
+        FromSteps  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_FROM_NODES")),
+        ToSteps    = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_TO_NODES")),
         FromData   = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_FROM_DATA")),
         ToData     = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_TO_DATA")),
-        OnlyNodes  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_ONLY_NODES")),
+        OnlySteps  = ParseCsv(Environment.GetEnvironmentVariable("FLOWTHRU_ONLY_NODES")),
     };
 }
 ```
@@ -87,7 +87,7 @@ services.AddFlowthru(flowthru =>
 {
     // No UseConfiguration() call — the IConfiguration above is already registered
     flowthru
-        .UseCatalog<MyCatalog>()
+        .RegisterCatalog<MyCatalog>()
         .RegisterPipeline<MyCatalog>("Ingest", catalog => IngestPipeline.Create(catalog));
 });
 ```
@@ -152,7 +152,7 @@ docker run \
 
 ## Inspecting Results
 
-`ExecutePipelineAsync` returns a `PipelineResult` — a structured value object with `Success`, `ExecutionTime`, per-node `NodeResults` (including individual timing, I/O counts, and exceptions), and an optional top-level `Exception`. Serialize it to structured output for your runtime's observability:
+`ExecutePipelineAsync` returns a `FlowResult` — a structured value object with `Success`, `ExecutionTime`, per-node `StepResults` (including individual timing, I/O counts, and exceptions), and an optional top-level `Exception`. Serialize it to structured output for your runtime's observability:
 
 ```csharp
 var result = await flowthru.ExecutePipelineAsync(options, cancellationToken: cts.Token);
@@ -163,9 +163,9 @@ if (!result.Success)
         result.ExecutionTime.TotalSeconds,
         result.Exception?.Message);
 
-    foreach (var (name, node) in result.NodeResults.Where(n => !n.Value.Success))
+    foreach (var (name, node) in result.StepResults.Where(n => !n.Value.Success))
     {
-        logger.LogError("  Node {Node} failed: {Error}", name, node.Exception?.Message);
+        logger.LogError("  Step {Step} failed: {Error}", name, node.Exception?.Message);
     }
 }
 ```

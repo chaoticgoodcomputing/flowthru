@@ -1,5 +1,5 @@
 using System.Reflection;
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -46,7 +46,8 @@ public sealed class FlowthruCli
     _output = output ?? Console.Out;
   }
 
-  /// <summa standalone Flowthru CLI application with automatic service provider lifecycle management.
+  /// <summary>
+  /// Creates and runs a standalone Flowthru CLI application with automatic service provider lifecycle management.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -107,7 +108,7 @@ public sealed class FlowthruCli
     try
     {
       // Parse arguments
-      var parsed = ArgumentParser.Parse(args, _service.PipelineNames);
+      var parsed = ArgumentParser.Parse(args, _service.FlowNames);
 
       // Handle special commands
       if (parsed.ShowHelp)
@@ -131,7 +132,7 @@ public sealed class FlowthruCli
       }
 
       // Execute unified pipeline (with optional slicing)
-      var result = await _service.ExecutePipelineAsync(
+      var result = await _service.ExecuteFlowAsync(
         parsed.Options,
         parsed.ExportMetadata,
         parsed.MetadataOutputDirectory,
@@ -194,9 +195,9 @@ public sealed class FlowthruCli
     );
     _output.WriteLine();
     _output.WriteLine("Available Pipelines:");
-    foreach (var name in _service.PipelineNames.OrderBy(n => n))
+    foreach (var name in _service.FlowNames.OrderBy(n => n))
     {
-      var metadata = _service.GetPipelineMetadata(name);
+      var metadata = _service.GetFlowMetadata(name);
       _output.WriteLine($"  {name, -20} {metadata.Description ?? "(no description)"}");
     }
   }
@@ -229,20 +230,20 @@ public sealed class FlowthruCli
   /// Formats pipeline execution results.
   /// </summary>
   /// <param name="result">Pipeline execution result</param>
-  private void FormatResult(PipelineResult result)
+  private void FormatResult(FlowResult result)
   {
     _output.WriteLine();
     _output.WriteLine("═══════════════════════════════════════════════════════════");
-    _output.WriteLine($"Pipeline: {result.PipelineName ?? "(merged)"}");
+    _output.WriteLine($"Pipeline: {result.FlowName ?? "(merged)"}");
     _output.WriteLine($"Status: {(result.Success ? "✓ SUCCESS" : "✗ FAILED")}");
     _output.WriteLine($"Duration: {result.ExecutionTime:hh\\:mm\\:ss\\.fff}");
-    _output.WriteLine($"Nodes: {result.NodeResults.Count} executed");
+    _output.WriteLine($"Nodes: {result.StepResults.Count} executed");
 
     if (!result.Success)
     {
       _output.WriteLine();
       _output.WriteLine("Failed Nodes:");
-      foreach (var (label, nodeResult) in result.NodeResults.Where(n => !n.Value.Success))
+      foreach (var (label, nodeResult) in result.StepResults.Where(n => !n.Value.Success))
       {
         _output.WriteLine($"  - {label}: {nodeResult.Exception?.Message ?? "Unknown error"}");
       }

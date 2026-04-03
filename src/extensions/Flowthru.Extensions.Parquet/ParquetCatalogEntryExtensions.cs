@@ -7,15 +7,15 @@ using Flowthru.Data.Storage.Medium;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Extension methods that add Parquet support to <see cref="CatalogEntries.Enumerable"/>.
+/// Extension methods that add Parquet support to <see cref="ItemFactory.Enumerable"/>.
 /// </summary>
-public static class ParquetCatalogEntryExtensions
+public static class ParquetItemExtensions
 {
   /// <summary>
   /// Creates a Parquet file catalog entry with IEnumerable container.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and binary-serializable)</typeparam>
-  /// <param name="_">The enumerable catalog entries factory (from <see cref="CatalogEntries.Enumerable"/>)</param>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="filePath">Path to Parquet file</param>
   /// <returns>Catalog entry with file + Parquet + IEnumerable composition</returns>
@@ -31,8 +31,8 @@ public static class ParquetCatalogEntryExtensions
   /// <strong>Performance:</strong> Optimized for large datasets with columnar storage.
   /// </para>
   /// </remarks>
-  public static CatalogEntry<IEnumerable<TRow>> Parquet<TRow>(
-    this EnumerableCatalogEntries _,
+  public static Item<IEnumerable<TRow>> Parquet<TRow>(
+    this EnumerableItemFactory _,
     string label,
     string filePath
   )
@@ -43,6 +43,6 @@ public static class ParquetCatalogEntryExtensions
     var container = new EnumerableContainerAdapter<TRow>();
     var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
 
-    return new CatalogEntry<IEnumerable<TRow>>(label, storage);
+    return new Item<IEnumerable<TRow>>(label, storage);
   }
 }

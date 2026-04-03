@@ -12,10 +12,10 @@ public partial class Catalog
   /// <summary>
   /// Training feature vectors (X).
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureVectorSchema>> TrainX =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<FeatureVectorSchema>> TrainX =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Csv<FeatureVectorSchema>(
           label: "TrainX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_x.csv"
         )
@@ -24,10 +24,10 @@ public partial class Catalog
   /// <summary>
   /// Training target labels (Y).
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetLabelSchema>> TrainY =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<TargetLabelSchema>> TrainY =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<TargetLabelSchema>(
+        ItemFactory.Enumerable.Csv<TargetLabelSchema>(
           label: "TrainY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/train_y.csv"
         )
@@ -36,10 +36,10 @@ public partial class Catalog
   /// <summary>
   /// Test feature vectors (X).
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureVectorSchema>> TestX =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<FeatureVectorSchema>> TestX =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<FeatureVectorSchema>(
+        ItemFactory.Enumerable.Csv<FeatureVectorSchema>(
           label: "TestX",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_x.csv"
         )
@@ -48,10 +48,10 @@ public partial class Catalog
   /// <summary>
   /// Test target labels (Y).
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetLabelSchema>> TestY =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<TargetLabelSchema>> TestY =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<TargetLabelSchema>(
+        ItemFactory.Enumerable.Csv<TargetLabelSchema>(
           label: "TestY",
           filePath: $"{_basePath}/_05_ModelInput/Datasets/test_y.csv"
         )

@@ -7,20 +7,20 @@ using Microsoft.CodeAnalysis.Text;
 namespace Flowthru.Extensions.Python.SourceGenerators;
 
 /// <summary>
-/// Generates AddPythonNode overloads for PipelineBuilder supporting up to 8 inputs and 8 outputs.
+/// Generates AddPythonStep overloads for FlowBuilder supporting up to 8 inputs and 8 outputs.
 /// </summary>
 /// <remarks>
 /// <para>
 /// <strong>Phase 5 implementation:</strong>
-/// Mirrors PipelineBuilderGenerator's combinatorial approach but for Python nodes.
-/// Each overload accepts executor and runtime parameters and delegates to PythonNodeWrapper.
+/// Mirrors FlowBuilderGenerator's combinatorial approach but for Python steps.
+/// Each overload accepts executor and runtime parameters and delegates to PythonStepWrapper.
 /// </para>
 /// <para>
 /// Sync-only in Phase 5 — async support deferred to Phase 6.
 /// </para>
 /// </remarks>
 [Generator]
-public class PythonNodeGenerator : IIncrementalGenerator
+public class PythonStepGenerator : IIncrementalGenerator
 {
   private const int MaxInputs = 8;
   private const int MaxOutputs = 8;
@@ -28,11 +28,11 @@ public class PythonNodeGenerator : IIncrementalGenerator
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
     // Run for any project that references Flowthru.Extensions.Python
-    // (unlike PipelineBuilderGenerator which only runs for the core Flowthru assembly)
-    context.RegisterPostInitializationOutput(ctx => GenerateAddPythonNode(ctx));
+    // (unlike FlowBuilderGenerator which only runs for the core Flowthru assembly)
+    context.RegisterPostInitializationOutput(ctx => GenerateAddPythonStep(ctx));
   }
 
-  private static void GenerateAddPythonNode(IncrementalGeneratorPostInitializationContext context)
+  private static void GenerateAddPythonStep(IncrementalGeneratorPostInitializationContext context)
   {
     var sb = new StringBuilder();
 
@@ -44,13 +44,13 @@ public class PythonNodeGenerator : IIncrementalGenerator
 
       using Flowthru.Data;
       using Flowthru.Extensions.Python.Execution;
-      using Flowthru.Extensions.Python.Nodes;
+      using Flowthru.Extensions.Python.Steps;
       using Flowthru.Extensions.Python.Runtime;
-      using Flowthru.Pipelines;
+      using Flowthru.Flows;
 
-      namespace Flowthru.Extensions.Python.Nodes;
+      namespace Flowthru.Extensions.Python.Steps;
 
-      public static partial class PythonNodeFactory
+      public static partial class PythonStepFactory
       {
       """
     );
@@ -67,7 +67,7 @@ public class PythonNodeGenerator : IIncrementalGenerator
         }
 
         // Generate sync version only (Phase 5)
-        GenerateAddPythonNode(sb, inputs, outputs);
+        GenerateAddPythonStep(sb, inputs, outputs);
         sb.AppendLine();
       }
     }
@@ -75,12 +75,12 @@ public class PythonNodeGenerator : IIncrementalGenerator
     sb.AppendLine("}");
 
     context.AddSource(
-      "PythonNodeFactory.Generated.cs",
+      "PythonStepFactory.Generated.cs",
       SourceText.From(sb.ToString(), Encoding.UTF8)
     );
   }
 
-  private static void GenerateAddPythonNode(StringBuilder sb, int inputCount, int outputCount)
+  private static void GenerateAddPythonStep(StringBuilder sb, int inputCount, int outputCount)
   {
     // Generate XML documentation
     GenerateXmlDoc(sb, inputCount, outputCount);
@@ -96,8 +96,8 @@ public class PythonNodeGenerator : IIncrementalGenerator
 
     sb.AppendLine(
       $$"""
-        public static PipelineBuilder AddPythonNode<{{typeParams}}>(
-          this PipelineBuilder builder,
+        public static FlowBuilder AddPythonStep<{{typeParams}}>(
+          this FlowBuilder builder,
           string label,
           string module,
           string function,
@@ -116,7 +116,7 @@ public class PythonNodeGenerator : IIncrementalGenerator
     // Generate output deconstruction if needed
     GenerateOutputDeconstruction(sb, outputCount);
 
-    // Generate inputs and outputs lists for AddNode
+    // Generate inputs and outputs lists for AddStep
     var inputsList = GenerateInputsList(inputCount);
     var outputsList = GenerateOutputsList(outputCount);
 
@@ -154,11 +154,11 @@ public class PythonNodeGenerator : IIncrementalGenerator
     // Create wrapper with tuple types
     sb.AppendLine(
       $$"""
-          var wrapper = new PythonNodeWrapper<{{inputTupleType}}, {{outputTupleType}}>(executor, module, function);
-          executor.ValidateNode(module, function);
+          var wrapper = new PythonStepWrapper<{{inputTupleType}}, {{outputTupleType}}>(executor, module, function);
+          executor.ValidateStep(module, function);
 
-          // Delegate to existing AddNode infrastructure
-          return builder.AddNode(
+          // Delegate to existing AddStep infrastructure
+          return builder.AddStep(
             label: label,
             transform: wrapper.GetTransform(),
             input: input,
@@ -175,7 +175,7 @@ public class PythonNodeGenerator : IIncrementalGenerator
     sb.AppendLine(
       $"""
         /// <summary>
-        /// Adds a Python node with {inputCount} input{(
+        /// Adds a Python step with {inputCount} input{(
         inputCount == 1 ? "" : "s"
       )} and {outputCount} output{(outputCount == 1 ? "" : "s")}.
         /// </summary>
@@ -195,14 +195,14 @@ public class PythonNodeGenerator : IIncrementalGenerator
     // Parameter documentation
     sb.AppendLine(
       """
-        /// <param name="builder">Pipeline builder instance</param>
-        /// <param name="label">Unique identifier for this node</param>
-        /// <param name="module">Dotted Python module name (e.g., "Pipelines.DataScience.train_model")</param>
+        /// <param name="builder">Flow builder instance</param>
+        /// <param name="label">Unique identifier for this step</param>
+        /// <param name="module">Dotted Python module name (e.g., "Flows.DataScience.train_model")</param>
         /// <param name="function">Python function name within the module</param>
-        /// <param name="input">Catalog entry or tuple of catalog entries providing input data</param>
-        /// <param name="output">Catalog entry or tuple of catalog entries to store output data</param>
+        /// <param name="input">Catalog item or tuple of catalog items providing input data</param>
+        /// <param name="output">Catalog item or tuple of catalog items to store output data</param>
         /// <param name="executor">Python executor for invoking the function</param>
-        /// <param name="description">Optional node description</param>
+        /// <param name="description">Optional step description</param>
         /// <returns>This builder for method chaining</returns>
       """
     );
@@ -228,13 +228,10 @@ public class PythonNodeGenerator : IIncrementalGenerator
   {
     if (inputCount == 1)
     {
-      return "ICatalogEntry<TIn1>";
+      return "IItem<TIn1>";
     }
 
-    var types = string.Join(
-      ", ",
-      Enumerable.Range(1, inputCount).Select(i => $"ICatalogEntry<TIn{i}>")
-    );
+    var types = string.Join(", ", Enumerable.Range(1, inputCount).Select(i => $"IItem<TIn{i}>"));
     return $"({types})";
   }
 
@@ -242,13 +239,10 @@ public class PythonNodeGenerator : IIncrementalGenerator
   {
     if (outputCount == 1)
     {
-      return "ICatalogEntry<TOut1>";
+      return "IItem<TOut1>";
     }
 
-    var types = string.Join(
-      ", ",
-      Enumerable.Range(1, outputCount).Select(i => $"ICatalogEntry<TOut{i}>")
-    );
+    var types = string.Join(", ", Enumerable.Range(1, outputCount).Select(i => $"IItem<TOut{i}>"));
     return $"({types})";
   }
 

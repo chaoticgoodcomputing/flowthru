@@ -40,7 +40,7 @@ namespace Flowthru.Data.Capabilities;
 /// <list type="bullet">
 /// <item><strong>Adapter level:</strong> The adapter author declares what the storage medium intrinsically supports.
 /// These are structural truths (e.g., an HTTP GET endpoint cannot write).</item>
-/// <item><strong>Catalog level:</strong> The pipeline author can further constrain an adapter using <c>CatalogEntry.Constrain()</c>.
+/// <item><strong>Catalog level:</strong> The pipeline author can further constrain an adapter using <c>Item.Constrain()</c>.
 /// Constraints can only tighten, never loosen (one-way ratchet).</item>
 /// </list>
 /// <para>
@@ -67,8 +67,8 @@ namespace Flowthru.Data.Capabilities;
 /// <strong>Usage in Catalogs:</strong>
 /// </para>
 /// <code>
-/// public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =&gt;
-///     GetOrCreateEntry(() =&gt; CatalogEntries.Enumerable.Csv&lt;Company&gt;(
+/// public IItem&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =&gt;
+///     CreateEntry(() =&gt; ItemFactory.Enumerable.Csv&lt;Company&gt;(
 ///         "ref_data", $"{_basePath}/reference.csv")
 ///         .Constrain(t =&gt; t with { CanWrite = false }));
 /// </code>

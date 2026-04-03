@@ -80,9 +80,9 @@ public class JsonMetadataProvider : IMetadataProvider
         File.Move(tempPath, filePath);
 
         _logger?.LogInformation(
-          "Successfully exported JSON metadata ({Nodes} nodes, {Entries} catalog entries, {Edges} edges)",
-          dag.Nodes.Count,
-          dag.CatalogEntries.Count,
+          "Successfully exported JSON metadata ({Steps} nodes, {Entries} catalog entries, {Edges} edges)",
+          dag.Steps.Count,
+          dag.CatalogItems.Count,
           dag.Edges.Count
         );
       }

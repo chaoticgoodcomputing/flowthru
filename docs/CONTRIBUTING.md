@@ -27,7 +27,7 @@ Consider these examples:
 - **"How do I start writing my first pipeline?"** → This is someone learning. They need a tutorial.
 - **"How can I read data from a database instead of local files?"** → This is someone working with a specific need. They need a guide.
 - **"Why does Flowthru use so many types?"** → This is someone studying the framework's design. They need an explanation.
-- **"What parameters does `CatalogEntry` accept?"** → This is someone looking up technical details. They need reference documentation.
+- **"What parameters does `Item` accept?"** → This is someone looking up technical details. They need reference documentation.
 
 The same topic can yield different documentation depending on the question:
 
@@ -156,7 +156,7 @@ Let's say you want to document "catalog entries." Start by listing questions:
 - "How do I create my first catalog entry?" → Tutorial
 - "How do I configure a catalog entry for Parquet files?" → Guide
 - "Why are catalog entries properties rather than string keys?" → Explanation
-- "What methods are available on `ICatalogEntry<T>`?" → Reference
+- "What methods are available on `IItem<T>`?" → Reference
 
 Each question becomes a separate piece of documentation in its appropriate category. Together, they serve users at every stage of their journey with catalog entries.
 

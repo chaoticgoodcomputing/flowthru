@@ -8,10 +8,10 @@ public partial class Catalog
   /// <summary>
   /// Preprocessed company data with validated and strongly-typed fields.
   /// </summary>
-  public ICatalogEntry<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<PreprocessedCompanySchema>(
+        ItemFactory.Enumerable.Parquet<PreprocessedCompanySchema>(
           label: "PreprocessedCompanies",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/preprocessed_companies.parquet"
         )
@@ -20,10 +20,10 @@ public partial class Catalog
   /// <summary>
   /// Preprocessed shuttle data with validated and strongly-typed fields.
   /// </summary>
-  public ICatalogEntry<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<PreprocessedShuttleSchema>(
+        ItemFactory.Enumerable.Parquet<PreprocessedShuttleSchema>(
           label: "PreprocessedShuttles",
           filePath: $"{_basePath}/_02_Intermediate/Datasets/preprocessed_shuttles.parquet"
         )

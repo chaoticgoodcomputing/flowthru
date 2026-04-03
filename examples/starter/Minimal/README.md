@@ -63,4 +63,4 @@ View generated greetings in:
 - **Catalog entries** connecting schemas to files
 - **Simple node functions** with pure transformations
 - **Multiple outputs** from a single node (1→2)
-- **Pipeline construction** with `PipelineBuilder`
+- **Pipeline construction** with `FlowBuilder`

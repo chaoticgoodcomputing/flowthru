@@ -9,7 +9,7 @@ namespace Flowthru.Meta;
 public class JsonMetadataProviderBuilder
 {
   private string _outputDirectory = "metadata";
-  private string _filenameTemplate = "dag-{PipelineName}-{Timestamp}-{SliceType}";
+  private string _filenameTemplate = "dag-{FlowName}-{Timestamp}-{SliceType}";
   private TimestampConfiguration _timestampConfig = new();
   private bool _useCompactFormat = false;
   private ILogger? _logger;
@@ -28,7 +28,7 @@ public class JsonMetadataProviderBuilder
   /// <summary>
   /// Sets the filename template for metadata files.
   /// </summary>
-  /// <param name="template">Template with placeholders: {PipelineName}, {Timestamp}, {SliceType}</param>
+  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
   /// <returns>This builder for fluent chaining</returns>
   public JsonMetadataProviderBuilder WithFilenameTemplate(string template)
   {

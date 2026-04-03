@@ -55,28 +55,28 @@ public class Program
       // ─── Catalog Registration ──────────────────────────────────────────────
       // Each library owns its own catalog.
 
-      flowthru.UseCatalog(_ => new DataProcessingCatalog(dataPath));
-      flowthru.UseCatalog(_ => new DataScienceCatalog(dataPath));
-      flowthru.UseCatalog(_ => new ReportingCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
 
       // ─── Pipeline Registration ─────────────────────────────────────────────
 
       flowthru
-        .RegisterPipeline(label: "DataProcessing", pipeline: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
         .WithDescription("Preprocesses companies and shuttles data into a model input table");
 
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "DataScience",
-          pipeline: DataSciencePipeline.Create,
+          flow: DataSciencePipeline.Create,
           configurationSection: "Flowthru:Pipelines:DataScience"
         )
         .WithDescription("Trains linear regression model for shuttle price prediction");
 
       flowthru
-        .RegisterPipeline(
+        .RegisterFlow(
           label: "Reporting",
-          pipeline: ReportingPipeline.Create,
+          flow: ReportingPipeline.Create,
           configurationSection: "Flowthru:Pipelines:Reporting"
         )
         .WithDescription(

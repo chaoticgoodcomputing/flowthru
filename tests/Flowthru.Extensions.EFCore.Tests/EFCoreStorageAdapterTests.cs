@@ -37,7 +37,7 @@ public class EFCoreStorageAdapterTests
       new TestEntity { Id = 2, Name = "Bob" },
     };
 
-    var entry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity>(
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
       "test",
       () => new TestDbContext(_options)
     );
@@ -58,13 +58,13 @@ public class EFCoreStorageAdapterTests
       new TestEntity { Id = 2, Name = "Bob" },
     };
 
-    var saveEntry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity>(
+    var saveEntry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
       "save",
       () => new TestDbContext(_options)
     );
     await saveEntry.Save(testData).Run();
 
-    var filteredEntry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity>(
+    var filteredEntry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
       "filtered",
       () => new TestDbContext(_options),
       queryCustomizer: q => q.Where(e => e.Id == 2)
@@ -84,7 +84,7 @@ public class EFCoreStorageAdapterTests
     };
     bool saveCalled = false;
 
-    var entry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       () => new TestDbContext(_options),
       saveFunc: async (ctx, data, ct) =>
@@ -108,7 +108,7 @@ public class EFCoreStorageAdapterTests
     };
     Type? receivedContextType = null;
 
-    var entry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       () => new TestDbContext(_options),
       saveFunc: async (ctx, data, ct) =>
@@ -131,7 +131,7 @@ public class EFCoreStorageAdapterTests
       new TestEntity { Id = 1, Name = "Alice" },
     };
 
-    var entry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>(
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
       "test",
       () => new TestDbContext(_options)
     );
@@ -152,7 +152,7 @@ public class EFCoreStorageAdapterTests
     };
     var factory = new TestDbContextFactory(_options);
 
-    var entry = EFCoreCatalogEntries.Enumerable.EFCore<TestEntity, TestDbContext>("test", factory);
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("test", factory);
 
     await entry.Save(testData).Run();
     var loaded = (await entry.Load().Run()).ToList();

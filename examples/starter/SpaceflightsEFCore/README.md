@@ -8,7 +8,7 @@ This example demonstrates using `Flowthru.Extensions.EFCore` to read and write d
 - ✅ Database catalog entries as pipeline seeds (Layer 0 inputs)
 - ✅ Injected DbContext lifecycle management
 - ✅ Reading and writing entities via EFCore adapter
-- ✅ Partial class pattern for extending `CatalogEntries` from external package
+- ✅ Partial class pattern for extending `Items` from external package
 
 ## Project Structure
 
@@ -72,12 +72,12 @@ public class AppDbContext : DbContext
 public static partial class DataCatalog
 {
     // Database source (seed)
-    public static ICatalogEntry<IEnumerable<CompanySchema>> SourceCompanies(DbContext db) =>
-        CatalogEntries.Enumerable.EFCore<CompanySchema>("source_companies", db, readOnly: true);
+    public static IItem<IEnumerable<CompanySchema>> SourceCompanies(DbContext db) =>
+        Items.Enumerable.EFCore<CompanySchema>("source_companies", db, readOnly: true);
     
     // Database destination (output)
-    public static ICatalogEntry<IEnumerable<CompanySchema>> ProcessedCompanies(DbContext db) =>
-        CatalogEntries.Enumerable.EFCore<CompanySchema>("processed_companies", db);
+    public static IItem<IEnumerable<CompanySchema>> ProcessedCompanies(DbContext db) =>
+        Items.Enumerable.EFCore<CompanySchema>("processed_companies", db);
 }
 ```
 
@@ -88,12 +88,12 @@ public static partial class DataCatalog
 using var db = new AppDbContext();
 await db.Database.MigrateAsync();
 
-var pipeline = new PipelineBuilder("CompanyETL")
-    .AddNode("extract", catalog => new ExtractCompaniesNode(
+var pipeline = new FlowBuilder("CompanyETL")
+    .AddStep("extract", catalog => new ExtractCompaniesNode(
         inputs: catalog.SourceCompanies(db),
         outputs: catalog.RawCompanies()
     ))
-    .AddNode("transform", catalog => new TransformCompaniesNode(
+    .AddStep("transform", catalog => new TransformCompaniesNode(
         inputs: catalog.RawCompanies(),
         outputs: catalog.ProcessedCompanies(db)
     ))

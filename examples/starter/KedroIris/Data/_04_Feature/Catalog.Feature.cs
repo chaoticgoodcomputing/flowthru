@@ -12,10 +12,10 @@ public partial class Catalog
   /// Iris data with one-hot encoded species classifications.
   /// Created by the DataEngineering pipeline after splitting and encoding.
   /// </summary>
-  public ICatalogEntry<IEnumerable<IrisFeatureSchema>> IrisFeatures =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<IrisFeatureSchema>> IrisFeatures =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<IrisFeatureSchema>(
+        ItemFactory.Enumerable.Csv<IrisFeatureSchema>(
           label: "IrisFeatures",
           filePath: $"{_basePath}/_04_Feature/Datasets/iris_features.csv"
         )

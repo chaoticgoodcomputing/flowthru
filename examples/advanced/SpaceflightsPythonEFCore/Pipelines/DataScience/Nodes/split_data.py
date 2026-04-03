@@ -1,8 +1,8 @@
-"""Data splitting node for train/test split."""
+"""Data splitting step for train/test split."""
 import logging
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ FEATURES = [
 ]
 
 
-@node(
+@step(
     inputs=["ModelInputTableSchema"],
     outputs=["XValues", "XValues", "YValues", "YValues"],
 )

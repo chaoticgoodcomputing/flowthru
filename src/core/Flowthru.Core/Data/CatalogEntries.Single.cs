@@ -3,14 +3,14 @@ using Flowthru.Data.Storage;
 
 namespace Flowthru.Data;
 
-public static partial class CatalogEntries
+public static partial class ItemFactory
 {
   /// <summary>
   /// Factory methods for single (non-collection) values.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// These methods create catalog entries for single objects rather than collections.
+  /// These methods create catalog items for single objects rather than collections.
   /// </para>
   /// <para>
   /// <strong>Use Cases:</strong>
@@ -20,18 +20,18 @@ public static partial class CatalogEntries
   /// <item>Metrics and evaluation results (single JSON objects)</item>
   /// <item>Text reports (Markdown, plain text)</item>
   /// <item>Binary files (images, PDFs)</item>
-  /// <item>Side-effect-only nodes (null/void semantics)</item>
+  /// <item>Side-effect-only steps (null/void semantics)</item>
   /// </list>
   /// </remarks>
   public static partial class Single
   {
     /// <summary>
-    /// Creates a JSON file catalog entry for a single object (non-collection).
+    /// Creates a JSON file catalog item for a single object (non-collection).
     /// </summary>
     /// <typeparam name="T">Object type (must be structured-serializable)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="filePath">Path to JSON file</param>
-    /// <returns>Catalog entry for singleton JSON object</returns>
+    /// <returns>Catalog item for singleton JSON object</returns>
     /// <remarks>
     /// <para>
     /// <strong>Use Case:</strong> Model files, configuration objects, metrics, single records
@@ -44,19 +44,19 @@ public static partial class CatalogEntries
     /// format/container composition for direct object serialization.
     /// </para>
     /// </remarks>
-    public static CatalogEntry<T> Json<T>(string label, string filePath)
+    public static Item<T> Json<T>(string label, string filePath)
       where T : IStructuredSerializable
     {
       var storage = new SingletonJsonStorageAdapter<T>(filePath);
-      return new CatalogEntry<T>(label, storage);
+      return new Item<T>(label, storage);
     }
 
     /// <summary>
-    /// Creates a memory catalog entry for a single object (non-collection).
+    /// Creates a memory catalog item for a single object (non-collection).
     /// </summary>
     /// <typeparam name="T">Object type</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
-    /// <returns>Catalog entry for in-memory singleton</returns>
+    /// <returns>Catalog item for in-memory singleton</returns>
     /// <remarks>
     /// <para>
     /// <strong>Use Case:</strong> Models, charts, computed metrics that stay in memory
@@ -71,18 +71,18 @@ public static partial class CatalogEntries
     /// <item>Any singleton data that doesn't need persistence</item>
     /// </list>
     /// </remarks>
-    public static CatalogEntry<T> Memory<T>(string label)
+    public static Item<T> Memory<T>(string label)
     {
       var storage = new MemoryStorageAdapter<T>();
-      return new CatalogEntry<T>(label, storage);
+      return new Item<T>(label, storage);
     }
 
     /// <summary>
-    /// Creates a plain text file catalog entry.
+    /// Creates a plain text file catalog item .
     /// </summary>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="filePath">Path to text file (.txt, .md, etc.)</param>
-    /// <returns>Catalog entry for text file with string content</returns>
+    /// <returns>Catalog item for text file with string content</returns>
     /// <remarks>
     /// <para>
     /// <strong>Use Case:</strong> Markdown reports, plain text logs, configuration files
@@ -94,18 +94,18 @@ public static partial class CatalogEntries
     /// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
     /// </para>
     /// </remarks>
-    public static CatalogEntry<string> Text(string label, string filePath)
+    public static Item<string> Text(string label, string filePath)
     {
       var storage = new TextFileStorageAdapter(filePath);
-      return new CatalogEntry<string>(label, storage);
+      return new Item<string>(label, storage);
     }
 
     /// <summary>
-    /// Creates a binary file catalog entry.
+    /// Creates a binary file catalog item.
     /// </summary>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="filePath">Path to binary file (.png, .jpg, .pdf, etc.)</param>
-    /// <returns>Catalog entry for binary file with byte array content</returns>
+    /// <returns>Catalog item for binary file with byte array content</returns>
     /// <remarks>
     /// <para>
     /// <strong>Use Case:</strong> Images (PNG, JPG), PDFs, any binary data
@@ -117,21 +117,21 @@ public static partial class CatalogEntries
     /// <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
     /// </para>
     /// </remarks>
-    public static CatalogEntry<byte[]> Binary(string label, string filePath)
+    public static Item<byte[]> Binary(string label, string filePath)
     {
       var storage = new BinaryFileStorageAdapter(filePath);
-      return new CatalogEntry<byte[]>(label, storage);
+      return new Item<byte[]>(label, storage);
     }
 
     /// <summary>
-    /// Creates a null catalog entry for side-effect-only nodes.
+    /// Creates a null catalog item for side-effect-only steps.
     /// </summary>
     /// <typeparam name="T">The data type (typically NoData)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
-    /// <returns>Catalog entry for void/no-data semantics</returns>
+    /// <returns>Catalog item for void/no-data semantics</returns>
     /// <remarks>
     /// <para>
-    /// <strong>Use Case:</strong> Nodes that perform side effects (logging, visualization) without producing meaningful data
+    /// <strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
     /// </para>
     /// <para>
     /// <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.
@@ -144,10 +144,10 @@ public static partial class CatalogEntries
     /// <item>CanRead: false (Load throws NotSupportedException)</item>
     /// </list>
     /// </remarks>
-    public static CatalogEntry<T> Null<T>(string label)
+    public static Item<T> Null<T>(string label)
     {
       var storage = new NullStorageAdapter<T>();
-      return new CatalogEntry<T>(label, storage);
+      return new Item<T>(label, storage);
     }
   }
 }

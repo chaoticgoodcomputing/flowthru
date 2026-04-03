@@ -13,7 +13,7 @@ namespace Flowthru.Tests.Services.StorageStrategies;
 public class StorageStrategyIntegrationTests
 {
   // Example catalog using IStorageEntryFactory injection
-  private class TestCatalog : DataCatalogBase
+  private class TestCatalog : CatalogAbstract
   {
     private readonly IStorageEntryFactory _storage;
 
@@ -23,8 +23,8 @@ public class StorageStrategyIntegrationTests
       InitializeCatalogProperties();
     }
 
-    public ICatalogEntry<IEnumerable<RequiredMembersSchema>> TestData =>
-      GetOrCreateEntry(() => _storage.CreateEnumerable<RequiredMembersSchema>("TestData"));
+    public IItem<IEnumerable<RequiredMembersSchema>> TestData =>
+      CreateItem(() => _storage.CreateEnumerable<RequiredMembersSchema>("TestData"));
   }
 
   [Test]
@@ -105,8 +105,8 @@ public class StorageStrategyIntegrationTests
     services.AddFlowthru(builder =>
     {
       builder.UseStorageStrategy<MemoryStorageEntryFactory>();
-      builder.UseCatalog<TestCatalog>();
-      builder.UsePipelines(_ => []);
+      builder.RegisterCatalog<TestCatalog>();
+      builder.RegisterFlows(_ => []);
     });
 
     var provider = services.BuildServiceProvider();
@@ -135,8 +135,8 @@ public class StorageStrategyIntegrationTests
     services.AddFlowthru(builder =>
     {
       builder.UseStorageStrategy<CsvStorageEntryFactory>();
-      builder.UseCatalog<TestCatalog>();
-      builder.UsePipelines(_ => []);
+      builder.RegisterCatalog<TestCatalog>();
+      builder.RegisterFlows(_ => []);
     });
 
     var provider = services.BuildServiceProvider();

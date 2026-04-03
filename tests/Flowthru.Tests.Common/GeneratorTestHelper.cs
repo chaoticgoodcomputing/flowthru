@@ -35,7 +35,7 @@ public static class GeneratorTestHelper
 
     // Flowthru assembly — so the marker interfaces resolve
     references.Add(
-      MetadataReference.CreateFromFile(typeof(Data.DataCatalogBase).Assembly.Location)
+      MetadataReference.CreateFromFile(typeof(Data.CatalogAbstract).Assembly.Location)
     );
 
     var compilation = CSharpCompilation.Create(

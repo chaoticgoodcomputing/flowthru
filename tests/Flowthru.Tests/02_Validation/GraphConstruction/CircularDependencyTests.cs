@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestNodes;
 
@@ -26,21 +26,21 @@ public class CircularDependencyTests
     // ===========
     // Arrange: Create a circular dependency A → B → C → A
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeA",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeB",
         transform: PassthroughNode.Create(),
         input: _catalog.StepOne,
         output: _catalog.StepTwo
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeC",
         transform: PassthroughNode.Create(),
         input: _catalog.StepTwo,
@@ -67,9 +67,9 @@ public class CircularDependencyTests
     // ===========
     // Note: Self-loops are currently allowed in the implementation
     // as they can represent update-in-place operations
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "SelfLoop",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
@@ -90,15 +90,15 @@ public class CircularDependencyTests
     // ===========
     // Arrange: A → B → A
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeA",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeB",
         transform: PassthroughNode.Create(),
         input: _catalog.StepOne,
@@ -118,21 +118,21 @@ public class CircularDependencyTests
     // ===========
     // Arrange: Linear pipeline A → B → C
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeA",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeB",
         transform: PassthroughNode.Create(),
         input: _catalog.StepOne,
         output: _catalog.StepTwo
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeC",
         transform: PassthroughNode.Create(),
         input: _catalog.StepTwo,

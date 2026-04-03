@@ -1,10 +1,10 @@
 """
 Flowthru Python extension package.
 
-Provides decorators and utilities for writing Python nodes in Flowthru pipelines.
+Provides decorators and utilities for writing Python steps in Flowthru pipelines.
 """
 
-from .node import node
+from .step import step
 
-__all__ = ["node"]
+__all__ = ["step"]
 __version__ = "0.1.0"

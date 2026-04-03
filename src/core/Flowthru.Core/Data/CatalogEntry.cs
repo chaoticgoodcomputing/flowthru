@@ -6,7 +6,7 @@ using Flowthru.Effects;
 namespace Flowthru.Data;
 
 /// <summary>
-/// Standard catalog entry implementation that delegates to a storage adapter.
+/// Standard catalog item implementation that delegates to a storage adapter.
 /// </summary>
 /// <typeparam name="T">The data type (container with rows)</typeparam>
 /// <remarks>
@@ -16,25 +16,25 @@ namespace Flowthru.Data;
 /// <para>
 /// This class is a thin wrapper that delegates all operations to an <see cref="IStorageAdapter{T}"/>.
 /// The storage adapter handles the actual I/O logic, while this class provides:
-/// - ICatalogEntry interface implementation
+/// - ICatalogItem interface implementation
 /// - Identity for DAG dependency resolution (via Key)
-/// - Type erasure for pipeline heterogeneous collections
+/// - Type erasure for Flow heterogeneous collections
 /// </para>
 /// <para>
 /// <strong>Construction:</strong>
 /// </para>
 /// <para>
-/// Typically created via static factory methods in <see cref="CatalogEntries"/>:
+/// Typically created via static factory methods in <see cref="ItemFactory"/>:
 /// </para>
 /// <code>
-/// var entry = CatalogEntries.Csv&lt;CompanySchema&gt;("companies", "data.csv");
-/// // Returns: ICatalogEntry&lt;IEnumerable&lt;CompanySchema&gt;&gt;
+/// var item = CatalogItemFactory.Csv&lt;CompanySchema&gt;("companies", "data.csv");
+/// // Returns: ICatalogItem&lt;IEnumerable&lt;CompanySchema&gt;&gt;
 /// </code>
 /// <para>
 /// <strong>Composition vs Inheritance:</strong>
 /// </para>
 /// <para>
-/// Previous design: Inheritance hierarchy (CsvCatalogEntry, JsonCatalogEntry, etc.)
+/// Previous design: Inheritance hierarchy (CsvCatalogItem, JsonCatalogItem, etc.)
 /// New design: Single class + composed storage adapter
 /// </para>
 /// <para>
@@ -48,10 +48,10 @@ namespace Flowthru.Data;
 /// </para>
 /// <para>
 /// The underlying storage adapter provides inspection methods, which this catalog
-/// entry automatically forwards. All storage adapters are required to implement inspection.
+/// item automatically forwards. All storage adapters are required to implement inspection.
 /// </para>
 /// </remarks>
-public sealed class CatalogEntry<T> : ICatalogEntry<T>
+public sealed class Item<T> : IItem<T>
 {
   private readonly IStorageAdapter<T> _storage;
   private InspectionLevel? _preferredInspectionLevel;
@@ -59,11 +59,11 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   private string? _owningCatalogLabel;
 
   /// <summary>
-  /// Creates a new catalog entry with the specified key and storage adapter.
+  /// Creates a new catalog item with the specified key and storage adapter.
   /// </summary>
-  /// <param name="label">Unique identifier for this catalog entry</param>
+  /// <param name="label">Unique identifier for this catalog item</param>
   /// <param name="storage">Storage adapter that handles I/O operations</param>
-  public CatalogEntry(string label, IStorageAdapter<T> storage)
+  public Item(string label, IStorageAdapter<T> storage)
   {
     this.Label = label ?? throw new ArgumentNullException(nameof(label));
     _storage = storage ?? throw new ArgumentNullException(nameof(storage));
@@ -85,7 +85,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   internal void SetOwningCatalog(string label) => _owningCatalogLabel ??= label;
 
   /// <summary>
-  /// Gets the effective storage traits for this catalog entry.
+  /// Gets the effective storage traits for this catalog item.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -93,7 +93,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   /// applied via <see cref=\"Constrain\"/>.
   /// </para>
   /// <para>
-  /// Used by pipeline validation to enforce read-only constraints, network requirements, etc.
+  /// Used by Flow validation to enforce read-only constraints, network requirements, etc.
   /// </para>
   /// </remarks>
   public StorageTraits Traits => _effectiveTraits ?? _storage.Traits;
@@ -123,7 +123,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
     return FlowIO.Fail<FlowUnit>(
       new Exception(
         $"Type mismatch: Cannot save data of type '{data?.GetType().Name ?? "null"}' "
-          + $"to catalog entry '{Label}' expecting type '{typeof(T).Name}'"
+          + $"to catalog item '{Label}' expecting type '{typeof(T).Name}'"
       )
     );
   }
@@ -171,23 +171,23 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   }
 
   /// <summary>
-  /// Sets the preferred inspection level for this catalog entry.
+  /// Sets the preferred inspection level for this catalog item.
   /// </summary>
   /// <param name="level">The inspection level to use</param>
-  /// <returns>This catalog entry for method chaining</returns>
+  /// <returns>This catalog item for method chaining</returns>
   /// <remarks>
   /// <para>
-  /// Used to configure how this entry should be validated before pipeline execution.
+  /// Used to configure how this item should be validated before Flow execution.
   /// </para>
   /// <para>
   /// Example:
   /// </para>
   /// <code>
-  /// var entry = CatalogEntries.Csv&lt;Company&gt;("companies", "data.csv")
+  /// var item = CatalogItemFactory.Csv&lt;Company&gt;("companies", "data.csv")
   ///     .WithInspectionLevel(InspectionLevel.Deep);
   /// </code>
   /// </remarks>
-  public CatalogEntry<T> WithInspectionLevel(InspectionLevel level)
+  public Item<T> WithInspectionLevel(InspectionLevel level)
   {
     _preferredInspectionLevel = level;
     return this;
@@ -197,7 +197,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   /// Applies user-specified constraints to the storage traits.
   /// </summary>
   /// <param name="constraintFn">Function that modifies traits to apply constraints</param>
-  /// <returns>This catalog entry for method chaining</returns>
+  /// <returns>This catalog item for method chaining</returns>
   /// <remarks>
   /// <para>
   /// <strong>One-Way Ratchet:</strong> Constraints can only tighten, never loosen.
@@ -221,8 +221,8 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   /// <strong>Example:</strong>
   /// </para>
   /// <code>
-  /// public ICatalogEntry&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =>
-  ///     GetOrCreateEntry(() => CatalogEntries.Enumerable.Csv&lt;Company&gt;(
+  /// public ICatalogItem&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =>
+  ///     CreateItem(() => CatalogItemFactory.Enumerable.Csv&lt;Company&gt;(
   ///         "ref_data", $"{_basePath}/reference.csv")
   ///         .Constrain(t => t with { CanWrite = false }));
   /// </code>
@@ -230,7 +230,7 @@ public sealed class CatalogEntry<T> : ICatalogEntry<T>
   /// <exception cref=\"InvalidOperationException\">
   /// Thrown when attempting to loosen a constraint (grant a capability the adapter doesn't support)
   /// </exception>
-  public CatalogEntry<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn)
+  public Item<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn)
   {
     if (constraintFn == null)
       throw new ArgumentNullException(nameof(constraintFn));

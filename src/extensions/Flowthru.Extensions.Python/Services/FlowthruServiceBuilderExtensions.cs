@@ -31,7 +31,7 @@ public static class FlowthruServiceBuilderExtensions
   /// services.AddFlowthru(flowthru =>
   /// {
   ///     flowthru
-  ///         .UseCatalog&lt;MyCatalog&gt;()
+  ///         .RegisterCatalog&lt;MyCatalog&gt;()
   ///         .UsePython();  // Auto-detects .venv/, project root, etc.
   /// });
   /// </code>
@@ -64,12 +64,12 @@ public static class FlowthruServiceBuilderExtensions
   /// services.AddFlowthru(flowthru =>
   /// {
   ///     flowthru
-  ///         .UseCatalog&lt;MyCatalog&gt;()
+  ///         .RegisterCatalog&lt;MyCatalog&gt;()
   ///         .UsePython(python =>
   ///         {
   ///             python.PythonDll = "/usr/lib/x86_64-linux-gnu/libpython3.12.so";
-  ///             python.ModuleSearchPaths.Add("Pipelines");
-  ///             python.ModuleSearchPaths.Add("SharedNodes");
+  ///             python.ModuleSearchPaths.Add("Flows");
+  ///             python.ModuleSearchPaths.Add("SharedSteps");
   ///         });
   /// });
   /// </code>
@@ -80,7 +80,7 @@ public static class FlowthruServiceBuilderExtensions
   /// services.AddFlowthru(flowthru =>
   /// {
   ///     flowthru
-  ///         .UseCatalog&lt;MyCatalog&gt;()
+  ///         .RegisterCatalog&lt;MyCatalog&gt;()
   ///         .UsePython(python =>
   ///         {
   ///             // Reads PYTHONNET_PYDLL, FLOWTHRU_PYTHON_VENV, FLOWTHRU_PYTHON_PATH
@@ -124,7 +124,7 @@ public static class FlowthruServiceBuilderExtensions
       // Register pre-flight decorator + dry-run dtype validation (in-process only)
       builder
         .Services()
-        .AddSingleton<Flowthru.Pipelines.Validation.IPipelineValidationHook, PythonNodeValidator>();
+        .AddSingleton<Flowthru.Flows.Validation.IFlowValidationHook, PythonStepValidator>();
     }
     else
     {

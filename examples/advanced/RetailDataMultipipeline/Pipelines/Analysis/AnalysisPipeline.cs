@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using RetailDataMultipipeline.Data;
 using RetailDataMultipipeline.Pipelines.Analysis.Nodes;
 
@@ -6,15 +6,15 @@ namespace RetailDataMultipipeline.Pipelines.Analysis;
 
 /// <summary>
 /// Computes weekly DTU metrics for a single country shard.
-/// Instantiated once per <see cref="CountryShardCatalog"/> via <c>UsePipelines</c> in Program.cs.
+/// Instantiated once per <see cref="CountryShardCatalog"/> via <c>RegisterPipelines</c> in Program.cs.
 /// </summary>
 public static class AnalysisPipeline
 {
-  public static Pipeline Create(CoreCatalog core, CountryShardCatalog shard)
+  public static Flow Create(CoreCatalog core, CountryShardCatalog shard)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "ComputeWeeklyDtu",
         description: $"Converts currency and aggregates weekly DTU metrics for {shard.Country}.",
         transform: ComputeWeeklyDtuNode.Create(shard.Country),

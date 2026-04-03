@@ -24,11 +24,10 @@ public sealed record TemplateProject
   /// Gets the pipeline name to execute for testing.
   /// If null, only validates template generation and compilation.
   /// </summary>
-  public string? PipelineName { get; init; }
+  public string? FlowName { get; init; }
 
   /// <summary>
   /// Returns a string representation for test display.
   /// </summary>
-  public override string ToString() =>
-    PipelineName != null ? $"{StarterName}/{PipelineName}" : StarterName;
+  public override string ToString() => FlowName != null ? $"{StarterName}/{FlowName}" : StarterName;
 }

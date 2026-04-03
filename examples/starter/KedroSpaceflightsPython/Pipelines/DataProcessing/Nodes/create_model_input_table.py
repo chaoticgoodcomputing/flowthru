@@ -1,12 +1,12 @@
-"""Data joining node to create model input table."""
+"""Data joining step to create model input table."""
 import logging
 import pandas as pd
-from flowthru import node
+from flowthru import step
 
 logger = logging.getLogger(__name__)
 
 
-@node(
+@step(
     inputs=["ShuttlePreprocessedSchema", "CompanyPreprocessedSchema", "ReviewSchema"],
     outputs=["ModelInputTableSchema"],
 )

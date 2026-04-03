@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestNodes;
 
@@ -26,15 +26,15 @@ public class MultipleWritersTests
     // ===========
     // Arrange: Two nodes both write to StepOne
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeA",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeB",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
@@ -59,21 +59,21 @@ public class MultipleWritersTests
     // ===========
     // Arrange: Three nodes all write to Output
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeA",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.Output
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeB",
         transform: PassthroughNode.Create(),
         input: _catalog.StepOne,
         output: _catalog.Output
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeC",
         transform: PassthroughNode.Create(),
         input: _catalog.StepTwo,
@@ -93,21 +93,21 @@ public class MultipleWritersTests
     // ===========
     // Arrange: Each node writes to a unique output
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeA",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeB",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.StepTwo
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeC",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
@@ -128,21 +128,21 @@ public class MultipleWritersTests
     // ===========
     // Arrange: Linear pipeline where each node reads from previous node's output
     // ===========
-    var pipeline = PipelineBuilder.CreatePipeline(builder =>
+    var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeA",
         transform: PassthroughNode.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeB",
         transform: PassthroughNode.Create(),
         input: _catalog.StepOne,
         output: _catalog.StepTwo
       );
-      builder.AddNode(
+      builder.AddStep(
         label: "NodeC",
         transform: PassthroughNode.Create(),
         input: _catalog.StepTwo,

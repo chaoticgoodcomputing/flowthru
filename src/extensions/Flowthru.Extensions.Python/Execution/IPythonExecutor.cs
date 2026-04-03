@@ -5,7 +5,7 @@ namespace Flowthru.Extensions.Python.Execution;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Decouples the execution strategy from Python node wiring.
+/// Decouples the execution strategy from Python step wiring.
 /// Two implementations ship out of the box:
 /// <list type="bullet">
 /// <item><see cref="PythonNetExecutor"/> — in-process via Python.NET (opt-in)</item>
@@ -41,7 +41,7 @@ public interface IPythonExecutor
   /// C# output type. Same range as <typeparamref name="TInput"/>.
   /// </typeparam>
   /// <param name="moduleName">
-  /// Dotted module name (e.g., <c>"Pipelines.DataScience.train_model"</c>).
+  /// Dotted module name (e.g., <c>"Flows.DataScience.train_model"</c>).
   /// Must be resolvable via the executor's configured <c>sys.path</c>.
   /// </param>
   /// <param name="functionName">Python function name within the module.</param>
@@ -54,13 +54,13 @@ public interface IPythonExecutor
   TOutput Invoke<TInput, TOutput>(string moduleName, string functionName, TInput input);
 
   /// <summary>
-  /// Validates that a Python node exists and satisfies Flowthru's <c>@node</c> contract.
+  /// Validates that a Python step exists and satisfies Flowthru's <c>@step</c> contract.
   /// </summary>
   /// <param name="moduleName">Dotted Python module name.</param>
   /// <param name="functionName">Python function name within the module.</param>
   /// <exception cref="InvalidOperationException">
   /// Thrown if the module is not importable, the function is missing, or the
-  /// <c>@node</c> decorator is absent.
+  /// <c>@step</c> decorator is absent.
   /// </exception>
-  void ValidateNode(string moduleName, string functionName);
+  void ValidateStep(string moduleName, string functionName);
 }

@@ -12,10 +12,10 @@ public partial class Catalog
   /// Passenger capacity comparison visualization (plotly.express format).
   /// Stores JSON representation of plotly figure for shuttle capacity by type.
   /// </summary>
-  public ICatalogEntry<string> CapacityPlotExpress =>
-    GetOrCreateEntry(
+  public IItem<string> CapacityPlotExpress =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        ItemFactory.Single.Text(
           label: "CapacityPlotExpress",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_passenger_capacity_plot_exp.json"
         )
@@ -25,10 +25,10 @@ public partial class Catalog
   /// Passenger capacity comparison visualization (plotly.graph_objects format).
   /// Stores JSON representation of plotly figure for shuttle capacity by type.
   /// </summary>
-  public ICatalogEntry<string> CapacityPlotGraphObj =>
-    GetOrCreateEntry(
+  public IItem<string> CapacityPlotGraphObj =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Text(
+        ItemFactory.Single.Text(
           label: "CapacityPlotGraphObj",
           filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_passenger_capacity_plot_go.json"
         )
@@ -39,10 +39,10 @@ public partial class Catalog
   /// Shows actual vs predicted price categories (Low/Medium/High) as a heatmap.
   /// Stores PNG image as binary data.
   /// </summary>
-  public ICatalogEntry<byte[]> ConfusionMatrix =>
-    GetOrCreateEntry(
+  public IItem<byte[]> ConfusionMatrix =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Binary(
+        ItemFactory.Single.Binary(
           label: "ConfusionMatrix",
           filePath: $"{_basePath}/_08_Reporting/Images/confusion_matrix.png"
         )

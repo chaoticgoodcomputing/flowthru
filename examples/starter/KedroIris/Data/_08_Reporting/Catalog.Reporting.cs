@@ -11,10 +11,10 @@ public partial class Catalog
   /// <summary>
   /// Model evaluation metrics including accuracy and confusion statistics.
   /// </summary>
-  public ICatalogEntry<MetricsSchema> Metrics =>
-    GetOrCreateEntry(
+  public IItem<MetricsSchema> Metrics =>
+    CreateItem(
       () =>
-        CatalogEntries.Single.Json<MetricsSchema>(
+        ItemFactory.Single.Json<MetricsSchema>(
           label: "Metrics",
           filePath: $"{_basePath}/_08_Reporting/Datasets/metrics.json"
         )

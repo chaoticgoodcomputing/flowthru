@@ -118,7 +118,7 @@ public interface IStorageMedium
   /// <remarks>
   /// <para>
   /// This is used to determine if a catalog entry is a "seed" (Layer 0 input)
-  /// or if it's produced by a node in the pipeline.
+  /// or if it's produced by a step in the pipeline.
   /// </para>
   /// </remarks>
   FlowIO<bool> Exists();

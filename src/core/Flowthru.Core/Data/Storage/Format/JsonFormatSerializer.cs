@@ -411,7 +411,7 @@ internal sealed class SerializedEnumJsonConverter<TEnum> : JsonConverter<TEnum>
 
   public SerializedEnumJsonConverter()
   {
-    _metadata = Serialization.EnumMetadataRegistry.GetOrCreate<TEnum>();
+    _metadata = Serialization.EnumMetadataRegistry.Create<TEnum>();
   }
 
   public override TEnum Read(

@@ -1,4 +1,4 @@
-using Flowthru.Pipelines;
+using Flowthru.Flows;
 using SpaceflightsEFCore.Data;
 
 namespace SpaceflightsEFCore.Pipelines.DataScience;
@@ -25,11 +25,11 @@ public static class DataSciencePipeline
   /// <param name="catalog">The data catalog containing input and output entries.</param>
   /// <param name="parameters">Configuration parameters for the pipeline.</param>
   /// <returns>A configured pipeline that produces a trained model and evaluation metrics.</returns>
-  public static Pipeline Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
   {
-    return PipelineBuilder.CreatePipeline(pipeline =>
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "SplitData",
         description: "Splits model input data into training and test sets.",
         transform: Nodes.SplitDataNode.Create(parameters.ModelOptions),
@@ -37,7 +37,7 @@ public static class DataSciencePipeline
         output: (catalog.TrainSplit, catalog.TestSplit)
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "TrainModel",
         description: "Trains a regression model to predict shuttle prices.",
         transform: Nodes.TrainModelNode.Create(),
@@ -45,7 +45,7 @@ public static class DataSciencePipeline
         output: catalog.Regressor
       );
 
-      pipeline.AddNode(
+      pipeline.AddStep(
         label: "EvaluateModel",
         description: "Evaluates the trained model on the test set and computes metrics and predictions.",
         transform: Nodes.EvaluateModelNode.Create(),

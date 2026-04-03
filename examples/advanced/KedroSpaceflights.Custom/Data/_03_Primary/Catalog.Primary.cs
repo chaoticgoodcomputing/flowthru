@@ -10,10 +10,10 @@ public partial class Catalog
   /// Model input table in Parquet format.
   /// Joined dataset ready for ML training.
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTable =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelInputSchema>> ModelInputTable =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<ModelInputSchema>(
+        ItemFactory.Enumerable.Parquet<ModelInputSchema>(
           label: "ModelInputTable",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
         )
@@ -22,10 +22,10 @@ public partial class Catalog
   /// <summary>
   /// Model input table exported as minified JSON (compact, production-ready format).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableJsonMinified =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelInputSchema>> ModelInputTableJsonMinified =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Json<ModelInputSchema>(
+        ItemFactory.Enumerable.Json<ModelInputSchema>(
           label: "ModelInputTableJsonMinified",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.min.json"
         )
@@ -34,10 +34,10 @@ public partial class Catalog
   /// <summary>
   /// Model input table exported as CSV (for debugging).
   /// </summary>
-  public ICatalogEntry<IEnumerable<ModelInputSchema>> ModelInputTableCsv =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<ModelInputSchema>> ModelInputTableCsv =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Csv<ModelInputSchema>(
+        ItemFactory.Enumerable.Csv<ModelInputSchema>(
           label: "ModelInputTableCsv",
           filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.csv"
         )
@@ -48,18 +48,18 @@ public partial class Catalog
   /// Feature vectors for model training.
   /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureRow>> XTrain =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<FeatureRow>(label: "XTrain"));
+  public IItem<IEnumerable<FeatureRow>> XTrain =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<FeatureRow>(label: "XTrain"));
 
   /// <summary>
   /// Testing features (X_test).
   /// Feature vectors for model evaluation.
   /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
-  public ICatalogEntry<IEnumerable<FeatureRow>> XTest =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<FeatureRow>> XTest =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<FeatureRow>(
+        ItemFactory.Enumerable.Parquet<FeatureRow>(
           label: "XTest",
           filePath: $"{_basePath}/_03_Primary/Datasets/x_test.parquet"
         )
@@ -70,18 +70,18 @@ public partial class Catalog
   /// Target prices for model training.
   /// Stored in memory as it's only used within the DataScience pipeline.
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetValue>> YTrain =>
-    GetOrCreateEntry(() => CatalogEntries.Enumerable.Memory<TargetValue>(label: "YTrain"));
+  public IItem<IEnumerable<TargetValue>> YTrain =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TargetValue>(label: "YTrain"));
 
   /// <summary>
   /// Testing targets (y_test).
   /// Target prices for model evaluation.
   /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
   /// </summary>
-  public ICatalogEntry<IEnumerable<TargetValue>> YTest =>
-    GetOrCreateEntry(
+  public IItem<IEnumerable<TargetValue>> YTest =>
+    CreateItem(
       () =>
-        CatalogEntries.Enumerable.Parquet<TargetValue>(
+        ItemFactory.Enumerable.Parquet<TargetValue>(
           label: "YTest",
           filePath: $"{_basePath}/_03_Primary/Datasets/y_test.parquet"
         )

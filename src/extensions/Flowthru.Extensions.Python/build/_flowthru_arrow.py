@@ -2,12 +2,12 @@
 Flowthru Arrow IPC bridge for DataFrame marshalling.
 
 This module handles the boundary between C# Arrow RecordBatch (as IPC buffers)
-and pandas DataFrames for Python nodes.
+and pandas DataFrames for Python steps.
 
 **Purpose:**
 Provides bidirectional conversion between:
 - C# Arrow IPC buffers (from ArrowMarshaller.ToIpcBuffer)
-- pandas DataFrames (for Python node functions)
+- pandas DataFrames (for Python step functions)
 
 **Type Safety:**
 The C# side controls the schema (column names, types, nullability).
@@ -98,7 +98,7 @@ def df_to_ipc(df, dtype_spec=None) -> bytes:
 
     Example:
         >>> # Called by ArrowMarshaller internally
-        >>> result_df = my_node_function(input_df)
+        >>> result_df = my_step_function(input_df)
         >>> dtype_spec = {'id': 'int32', 'score': 'float64'}
         >>> ipc_buffer = df_to_ipc(result_df, dtype_spec)
         >>> # C# receives buffer via Python.NET
@@ -266,7 +266,7 @@ def _coerce_to_int32(df, col, current_dtype):
             if len(non_null_values) > 0 and not (non_null_values == non_null_values.astype('int64')).all():
                 raise TypeError(
                     f"Column '{col}' contains fractional values, cannot convert to int32. "
-                    f"Use 'float' or 'double' in C# schema, or round values in Python node."
+                    f"Use 'float' or 'double' in C# schema, or round values in Python step."
                 )
         
         # Use nullable Int32 if there are nulls, otherwise regular int32
@@ -277,7 +277,7 @@ def _coerce_to_int32(df, col, current_dtype):
     else:
         raise TypeError(
             f"Cannot coerce column '{col}' with dtype {current_dtype} to int32. "
-            f"Convert to numeric type in Python node first."
+            f"Convert to numeric type in Python step first."
         )
 
 

@@ -221,7 +221,7 @@ internal sealed class SerializedEnumCsvConverter<TEnum>
 
   public SerializedEnumCsvConverter()
   {
-    _metadata = Serialization.EnumMetadataRegistry.GetOrCreate<TEnum>();
+    _metadata = Serialization.EnumMetadataRegistry.Create<TEnum>();
   }
 
   public override object? ConvertFromString(
