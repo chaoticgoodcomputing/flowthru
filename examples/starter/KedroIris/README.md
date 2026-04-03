@@ -19,7 +19,7 @@ Once you've confirmed your pipeline runs successfully, you can begin:
 
 ## Project Structure
 
-### Pipeline Structure
+### Flow Structure
 
 ```mermaid
 flowchart TB
@@ -57,10 +57,10 @@ flowchart TB
         DataScience_Evaluate --> Metrics
     end
 
-    %% External Data to Pipeline Edges
+    %% External Data to Flow Edges
     IrisRaw --> DataEngineering_SplitAndEncode
 
-    %% Cross-Pipeline Data Flow
+    %% Cross-Flow Data Flow
     TrainX -.-> DataScience_TrainModel
     TrainY -.-> DataScience_TrainModel
     TestX -.-> DataScience_Predict
@@ -78,7 +78,7 @@ KedroIris/
 │   │   └── Datasets/iris.csv
 │   ├── ...
 │   └── _08_Reporting/             # Metrics and visualizations
-├── Pipelines/
+├── Flows/
 │   ├── DataEngineering/           # Data splitting and encoding
 │   └── DataScience/               # Model training and evaluation
 ```

@@ -8,11 +8,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RetailDataMultipipeline.Data;
-using RetailDataMultipipeline.Pipelines.Analysis;
-using RetailDataMultipipeline.Pipelines.Consolidation;
-using RetailDataMultipipeline.Pipelines.DataIngestion;
-using RetailDataMultipipeline.Pipelines.Graphing;
-using RetailDataMultipipeline.Pipelines.Reporting;
+using RetailDataMultipipeline.Flows.Analysis;
+using RetailDataMultipipeline.Flows.Consolidation;
+using RetailDataMultipipeline.Flows.DataIngestion;
+using RetailDataMultipipeline.Flows.Graphing;
+using RetailDataMultipipeline.Flows.Reporting;
 
 namespace RetailDataMultipipeline;
 
@@ -53,7 +53,7 @@ public class Program
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
 
-      // Configure Python runtime — makes Pipelines/ importable and exposes the @step decorator
+      // Configure Python runtime — makes Flows/ importable and exposes the @step decorator
       flowthru.UsePython(python =>
       {
         python.ModuleSearchPaths.Add(basePath);
@@ -81,12 +81,9 @@ public class Program
       flowthru.RegisterCatalogs(shardCatalogs);
 
       // Static pipelines resolved via DI
-      flowthru.RegisterFlow(
-        "DataIngestion",
-        (CoreCatalog cat) => DataIngestionPipeline.Create(cat)
-      );
-      flowthru.RegisterFlow("Reporting", (CoreCatalog cat) => ReportingPipeline.Create(cat));
-      flowthru.RegisterFlow("Graphing", GraphingPipeline.Create);
+      flowthru.RegisterFlow("DataIngestion", (CoreCatalog cat) => DataIngestionFlow.Create(cat));
+      flowthru.RegisterFlow("Reporting", (CoreCatalog cat) => ReportingFlow.Create(cat));
+      flowthru.RegisterFlow("Graphing", GraphingFlow.Create);
 
       // Dynamic per-country analysis pipelines + fan-in consolidation
       flowthru.RegisterFlows(_ =>
@@ -94,12 +91,12 @@ public class Program
         var pipelines = new Dictionary<string, Flowthru.Flows.Flow>();
         foreach (var shard in shardCatalogs)
         {
-          pipelines[$"Analysis_{shard.Country.Replace(' ', '_')}"] = AnalysisPipeline.Create(
+          pipelines[$"Analysis_{shard.Country.Replace(' ', '_')}"] = AnalysisFlow.Create(
             coreCatalog,
             shard
           );
         }
-        pipelines["Consolidation"] = ConsolidationPipeline.Create(coreCatalog, shardCatalogs);
+        pipelines["Consolidation"] = ConsolidationFlow.Create(coreCatalog, shardCatalogs);
         return pipelines;
       });
 

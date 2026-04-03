@@ -4,7 +4,7 @@ namespace KedroSpaceflights.Custom.Data._05_ModelOutput.Schemas;
 
 /// <summary>
 /// Model evaluation metrics.
-/// Output of EvaluateModelNode.
+/// Output of EvaluateModelStep.
 /// </summary>
 public record ModelMetrics
   : IFlatSchema,

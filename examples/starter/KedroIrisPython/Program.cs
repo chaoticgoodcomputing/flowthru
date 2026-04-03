@@ -6,8 +6,8 @@ using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroIrisPython.Data;
-using KedroIrisPython.Pipelines.DataEngineering;
-using KedroIrisPython.Pipelines.DataScience;
+using KedroIrisPython.Flows.DataEngineering;
+using KedroIrisPython.Flows.DataScience;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -100,7 +100,7 @@ public class Program
       // Configure Python runtime
       flowthru.UsePython(python =>
       {
-        // Project root: makes Pipelines/ importable as a Python module tree
+        // Project root: makes Flows/ importable as a Python module tree
         python.ModuleSearchPaths.Add(basePath);
         // Output directory: contains the flowthru package (@step decorator)
         python.ModuleSearchPaths.Add(outputPath);
@@ -117,11 +117,11 @@ public class Program
 
       // Register pipelines with resolved executor
       flowthru
-        .RegisterFlow(label: "DataEngineering", flow: DataEngineeringPipeline.Create)
+        .RegisterFlow(label: "DataEngineering", flow: DataEngineeringFlow.Create)
         .WithDescription("Splits iris data into training and test sets using Python");
 
       flowthru
-        .RegisterFlow(label: "DataScience", flow: DataSciencePipeline.Create)
+        .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
         .WithDescription(
           "Trains multi-class logistic regression model and evaluates predictions using Python"
         );

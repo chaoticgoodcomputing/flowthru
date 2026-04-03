@@ -2,16 +2,16 @@
 
 This directory contains item templates for scaffolding components within existing Flowthru projects.
 
-## Pipeline Template
+## Flow Template
 
 The pipeline template creates a new pipeline with a starter node structure.
 
 ### Usage
 
-From within your Flowthru project's `Pipelines/` directory:
+From within your Flowthru project's `Flows/` directory:
 
 ```bash
-cd Pipelines
+cd Flows
 dotnet new flowthru-pipeline --name DataProcessing --ProjectName YourProjectName
 ```
 
@@ -23,9 +23,9 @@ dotnet new flowthru-pipeline --name DataProcessing --ProjectName YourProjectName
 
 ```
 DataProcessing/
-├── DataProcessingPipeline.cs       # Pipeline definition with dummy node
-└── Nodes/
-    └── DataProcessingDummyNode.cs  # Placeholder node (NoData → NoData)
+├── DataProcessingFlow.cs       # Flow definition with dummy node
+└── Steps/
+    └── DataProcessingDummyStep.cs  # Placeholder node (NoData → NoData)
 ```
 
 ### Next Steps After Generation
@@ -34,7 +34,7 @@ DataProcessing/
 
 2. **Register the pipeline** in `Program.cs`:
    ```csharp
-   flowthru.RegisterPipeline<DataProcessingPipeline>();
+   flowthru.RegisterFlow<DataProcessingFlow>();
    ```
 
 3. **Replace the dummy node** with actual transformation logic:
@@ -49,7 +49,7 @@ DataProcessing/
 pipeline.AddStep(
   label: "DataProcessingDummy",
   description: "Placeholder node - replace with actual transformation logic.",
-  transform: DataProcessingDummyNode.Create(),
+  transform: DataProcessingDummyStep.Create(),
   input: catalog.NoData,
   output: catalog.NoData
 );
@@ -60,7 +60,7 @@ pipeline.AddStep(
 pipeline.AddStep(
   label: "PreprocessCompanies",
   description: "Clean and validate company data.",
-  transform: PreprocessCompaniesNode.Create(),
+  transform: PreprocessCompaniesStep.Create(),
   input: catalog.CompaniesRaw,
   output: catalog.CompaniesIntermediate
 );
@@ -68,6 +68,6 @@ pipeline.AddStep(
 
 ## Notes
 
-- Item templates should be run from the `Pipelines/` directory of your Flowthru project
+- Item templates should be run from the `Flows/` directory of your Flowthru project
 - The generated pipeline uses `NoData` input/output so it can be registered and tested immediately
-- Multiple nodes can be added by creating additional node files in the `Nodes/` directory
+- Multiple nodes can be added by creating additional node files in the `Steps/` directory

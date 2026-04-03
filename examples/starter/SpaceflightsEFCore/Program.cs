@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SpaceflightsEFCore.Data;
-using SpaceflightsEFCore.Pipelines.DataProcessing;
-using SpaceflightsEFCore.Pipelines.DataScience;
-using SpaceflightsEFCore.Pipelines.Reporting;
+using SpaceflightsEFCore.Flows.DataProcessing;
+using SpaceflightsEFCore.Flows.DataScience;
+using SpaceflightsEFCore.Flows.Reporting;
 
 namespace SpaceflightsEFCore;
 
@@ -61,15 +61,15 @@ public class Program
 
       // Register data processing pipeline
       flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
         .WithDescription("Preprocesses companies and shuttles data");
 
       // Register data science pipeline with configuration parameters
       flowthru
         .RegisterFlow(
           label: "DataScience",
-          flow: DataSciencePipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataScience"
+          flow: DataScienceFlow.Create,
+          configurationSection: "Flowthru:Flows:DataScience"
         )
         .WithDescription("Trains linear regression model for price prediction");
 
@@ -77,8 +77,8 @@ public class Program
       flowthru
         .RegisterFlow(
           label: "Reporting",
-          flow: ReportingPipeline.Create,
-          configurationSection: "Flowthru:Pipelines:Reporting"
+          flow: ReportingFlow.Create,
+          configurationSection: "Flowthru:Flows:Reporting"
         )
         .WithDescription("Generates passenger capacity reports and visualizations");
     });

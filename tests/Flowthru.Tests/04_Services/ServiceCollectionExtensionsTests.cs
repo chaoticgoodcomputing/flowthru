@@ -4,7 +4,7 @@ using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
-using Flowthru.Tests.Fixtures.TestNodes;
+using Flowthru.Tests.Fixtures.TestSteps;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Tests.Services;

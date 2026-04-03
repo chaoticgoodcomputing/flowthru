@@ -1,4 +1,4 @@
-# Kedro Iris (Python Nodes)
+# Kedro Iris (Python Steps)
 
 A Flowthru example demonstrating Python node integration using the classic [Iris classification problem](https://en.wikipedia.org/wiki/Iris_flower_data_set) from the [Kedro Iris starter](https://github.com/kedro-org/kedro-starters/tree/main/astro-airflow-iris).
 
@@ -27,7 +27,7 @@ KedroIrisPython/
 │   ├── _06_Models/             # Trained model weights
 │   ├── _07_ModelOutput/        # Predictions
 │   └── _08_Reporting/          # Accuracy metrics
-└── Pipelines/
+└── Flows/
     ├── DataEngineering/        # Data splitting nodes (Python)
     └── DataScience/            # ML training nodes (Python)
 ```
@@ -53,19 +53,19 @@ Or via NX:
 nx run KedroIrisPython:run
 ```
 
-## Python Nodes
+## Python Steps
 
 All data processing and ML logic is implemented in Python:
 
-- **Data Engineering Pipeline:**
+- **Data Engineering Flow:**
   - `split_data` — Split iris.csv into train/test sets (1×4 outputs)
 
-- **Data Science Pipeline:**
+- **Data Science Flow:**
   - `train_model` — Train multi-class logistic regression (numpy)
   - `predict` — Generate predictions on test set
   - `report_accuracy` — Compute and save accuracy metrics
 
-## Pipelines
+## Flows
 
 ### Data Engineering
 

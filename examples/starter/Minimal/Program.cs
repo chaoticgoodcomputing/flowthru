@@ -5,7 +5,7 @@ using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Minimal.Data;
-using Minimal.Pipelines.Greetings;
+using Minimal.Flows.Greetings;
 
 namespace Minimal;
 
@@ -57,7 +57,7 @@ public class Program
 
       // Register the greetings pipeline
       flowthru
-        .RegisterFlow(label: "Greetings", flow: GreetingsPipeline.Create)
+        .RegisterFlow(label: "Greetings", flow: GreetingsFlow.Create)
         .WithDescription(
           "A minimal pipeline demonstrating name transformation into multiple greeting formats"
         );

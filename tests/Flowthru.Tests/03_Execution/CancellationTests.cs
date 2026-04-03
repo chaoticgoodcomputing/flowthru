@@ -6,7 +6,7 @@ using Flowthru.Data.Storage;
 using Flowthru.Effects;
 using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
-using Flowthru.Tests.Fixtures.TestNodes;
+using Flowthru.Tests.Fixtures.TestSteps;
 
 namespace Flowthru.Tests.Execution;
 
@@ -108,7 +108,7 @@ public class CancellationTests
   }
 
   [Test]
-  public async Task RunAsync_CancelledBetweenNodes_ThrowsOperationCanceledException()
+  public async Task RunAsync_CancelledBetweenSteps_ThrowsOperationCanceledException()
   {
     // ===========
     // Arrange
@@ -166,7 +166,7 @@ public class CancellationTests
   }
 
   [Test]
-  public async Task RunAsync_CancelledDuringNodeExecution_ThrowsOperationCanceledException()
+  public async Task RunAsync_CancelledDuringStepExecution_ThrowsOperationCanceledException()
   {
     // ===========
     // Arrange

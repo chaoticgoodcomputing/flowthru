@@ -5,7 +5,7 @@ namespace KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 
 /// <summary>
 /// Final model input data schema (result of joining companies, shuttles, and reviews).
-/// Output of CreateModelInputNode.
+/// Output of CreateModelInputStep.
 /// </summary>
 [FlowthruSchema]
 public partial record ModelInputSchema

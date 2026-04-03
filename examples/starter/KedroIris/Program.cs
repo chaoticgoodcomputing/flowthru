@@ -3,8 +3,8 @@ using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroIris.Data;
-using KedroIris.Pipelines.DataEngineering;
-using KedroIris.Pipelines.DataScience;
+using KedroIris.Flows.DataEngineering;
+using KedroIris.Flows.DataScience;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -62,8 +62,8 @@ public class Program
       flowthru
         .RegisterFlow(
           label: "DataEngineering",
-          flow: DataEngineeringPipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataEngineering"
+          flow: DataEngineeringFlow.Create,
+          configurationSection: "Flowthru:Flows:DataEngineering"
         )
         .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
@@ -71,8 +71,8 @@ public class Program
       flowthru
         .RegisterFlow(
           label: "DataScience",
-          flow: DataSciencePipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataScience"
+          flow: DataScienceFlow.Create,
+          configurationSection: "Flowthru:Flows:DataScience"
         )
         .WithDescription("Trains multi-class logistic regression model for iris classification");
     });

@@ -3,11 +3,11 @@
   "author": "Chaotic Good Computing",
   "classifications": [
     "Data Engineering",
-    "Pipeline",
+    "Flow",
     "Flowthru"
   ],
-  "identity": "Flowthru.Item.Pipeline",
-  "name": "Flowthru Pipeline",
+  "identity": "Flowthru.Item.Flow",
+  "name": "Flowthru Flow",
   "shortName": "flowthru-pipeline",
   "tags": {
     "language": "C#",
@@ -44,10 +44,10 @@
   ],
   "primaryOutputs": [
     {
-      "path": "FlowName/FlowNamePipeline.cs"
+      "path": "FlowName/FlowNameFlow.cs"
     },
     {
-      "path": "FlowName/Nodes/FlowNameDummyNode.cs"
+      "path": "FlowName/Steps/FlowNameDummyStep.cs"
     }
   ],
   "postActions": [
@@ -58,7 +58,7 @@
           "text": "1. If ProjectName was not specified, replace 'ProjectName' with your actual project namespace in the generated files."
         },
         {
-          "text": "2. Register the pipeline in Program.cs: flowthru.RegisterPipeline<YourFlowNamePipeline>();"
+          "text": "2. Register the pipeline in Program.cs: flowthru.RegisterFlow<YourFlowNameFlow>();"
         },
         {
           "text": "3. Replace the dummy node with actual transformation logic and update input/output catalog entries."

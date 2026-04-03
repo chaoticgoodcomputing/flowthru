@@ -1,4 +1,4 @@
-# Kedro Spaceflights (Python Nodes)
+# Kedro Spaceflights (Python Steps)
 
 A Flowthru example demonstrating Python node integration using the [Kedro Spaceflights](https://github.com/kedro-org/kedro-starters) tutorial as a reference.
 
@@ -23,7 +23,7 @@ KedroSpaceflightsPython/
 │   ├── Catalog.cs
 │   ├── _01_Raw/                # Raw data CSVs/Excel
 │   └── _08_Reporting/          # Visualization outputs
-└── Pipelines/
+└── Flows/
     ├── DataProcessing/         # Data preprocessing nodes (Python)
     ├── DataScience/            # ML training nodes (Python)
     └── Reporting/              # Visualization nodes (Python)
@@ -50,21 +50,21 @@ Or via NX:
 nx run KedroSpaceflightsPython:run
 ```
 
-## Python Nodes
+## Python Steps
 
 All data preprocessing, ML, and visualization logic is implemented in Python:
 
-- **Data Processing Pipeline:**
+- **Data Processing Flow:**
   - `preprocess_companies` — Clean company data
   - `preprocess_shuttles` — Clean shuttle data
   - `create_model_input_table` — Join datasets (3×1 inputs)
 
-- **Data Science Pipeline:**
+- **Data Science Flow:**
   - `split_data` — Split into train/test sets (1×4 outputs)
   - `train_model` — Train linear regression (2×1 inputs)
   - `evaluate_model` — Compute metrics (3×1 inputs)
 
-- **Reporting Pipeline:**
+- **Reporting Flow:**
   - `compare_passenger_capacity_exp` — Generate Plotly Express bar chart
   - `compare_passenger_capacity_go` — Generate Plotly Graph Objects bar chart
   - `create_confusion_matrix` — Generate matplotlib/seaborn confusion matrix heatmap

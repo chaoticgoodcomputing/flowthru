@@ -2,13 +2,13 @@
 
 A minimal greeting transformation pipeline demonstrating Flowthru's core concepts.
 
-## What This Pipeline Does
+## What This Flow Does
 
 This pipeline demonstrates a simple three-stage transformation:
 
 1. **Input**: A CSV file containing 10 names
-2. **Node 1**: Transform each name to "Hello, {name}!"
-3. **Node 2**: Split into two outputs:
+2. **Step 1**: Transform each name to "Hello, {name}!"
+3. **Step 2**: Split into two outputs:
    - "Goodbye, {name}!" 
    - "So long, {name}!"
 
@@ -35,15 +35,15 @@ Minimal/
 │       └── Schemas/
 │           ├── GoodbyeSchema.cs    # Schema for "Goodbye" greetings
 │           └── SoLongSchema.cs     # Schema for "So long" greetings
-└── Pipelines/
+└── Flows/
     └── Greetings/
-        ├── GreetingsPipeline.cs    # Pipeline definition
-        └── Nodes/
-            ├── CreateHelloNode.cs  # Node 1: name → "Hello, name!"
-            └── TransformGreetingsNode.cs  # Node 2: 1→2 transformation
+        ├── GreetingsFlow.cs    # Flow definition
+        └── Steps/
+            ├── CreateHelloStep.cs  # Step 1: name → "Hello, name!"
+            └── TransformGreetingsStep.cs  # Step 2: 1→2 transformation
 ```
 
-## Running the Pipeline
+## Running the Flow
 
 Build and run:
 
@@ -63,4 +63,4 @@ View generated greetings in:
 - **Catalog entries** connecting schemas to files
 - **Simple node functions** with pure transformations
 - **Multiple outputs** from a single node (1→2)
-- **Pipeline construction** with `FlowBuilder`
+- **Flow construction** with `FlowBuilder`

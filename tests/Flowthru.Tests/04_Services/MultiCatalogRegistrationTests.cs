@@ -2,7 +2,7 @@ using Flowthru.Data;
 using Flowthru.Flows;
 using Flowthru.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
-using Flowthru.Tests.Fixtures.TestNodes;
+using Flowthru.Tests.Fixtures.TestSteps;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Tests.Services;
@@ -126,7 +126,7 @@ public class MultiCatalogRegistrationTests
   }
 
   [Test]
-  public async Task RegisterPipeline_TwoCatalogs_DagResolvesCrossCatalogEdge()
+  public async Task RegisterFlow_TwoCatalogs_DagResolvesCrossCatalogEdge()
   {
     // Arrange — the Bridge pipeline reads up.UpstreamOutput, which is written by the
     // Upstream pipeline. When merged, the DAG must see a single IItem instance
@@ -191,7 +191,7 @@ public class MultiCatalogRegistrationTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public async Task RegisterPipeline_ThreeCatalogs_DagResolvesFullChain()
+  public async Task RegisterFlow_ThreeCatalogs_DagResolvesFullChain()
   {
     // Arrange — three catalogs: Upstream → Downstream → Third
     var upstream = new UpstreamCatalog();

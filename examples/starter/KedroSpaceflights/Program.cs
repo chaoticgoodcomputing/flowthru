@@ -3,9 +3,9 @@ using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroSpaceflights.Data;
-using KedroSpaceflights.Pipelines.DataProcessing;
-using KedroSpaceflights.Pipelines.DataScience;
-using KedroSpaceflights.Pipelines.Reporting;
+using KedroSpaceflights.Flows.DataProcessing;
+using KedroSpaceflights.Flows.DataScience;
+using KedroSpaceflights.Flows.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -61,15 +61,15 @@ public class Program
 
       // Register data processing pipeline
       flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
         .WithDescription("Preprocesses companies and shuttles data");
 
       // Register data science pipeline with configuration parameters
       flowthru
         .RegisterFlow(
           label: "DataScience",
-          flow: DataSciencePipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataScience"
+          flow: DataScienceFlow.Create,
+          configurationSection: "Flowthru:Flows:DataScience"
         )
         .WithDescription("Trains linear regression model for price prediction");
 
@@ -77,8 +77,8 @@ public class Program
       flowthru
         .RegisterFlow(
           label: "Reporting",
-          flow: ReportingPipeline.Create,
-          configurationSection: "Flowthru:Pipelines:Reporting"
+          flow: ReportingFlow.Create,
+          configurationSection: "Flowthru:Flows:Reporting"
         )
         .WithDescription("Generates passenger capacity reports and visualizations");
     });

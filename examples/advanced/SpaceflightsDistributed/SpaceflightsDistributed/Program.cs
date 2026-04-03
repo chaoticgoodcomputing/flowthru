@@ -5,11 +5,11 @@ using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SpaceflightsDistributed.DataProcessing.Data;
-using SpaceflightsDistributed.DataProcessing.Pipelines.DataProcessing;
+using SpaceflightsDistributed.DataProcessing.Flows.DataProcessing;
 using SpaceflightsDistributed.DataScience.Data;
-using SpaceflightsDistributed.DataScience.Pipelines.DataScience;
+using SpaceflightsDistributed.DataScience.Flows.DataScience;
 using SpaceflightsDistributed.Reporting.Data;
-using SpaceflightsDistributed.Reporting.Pipelines.Reporting;
+using SpaceflightsDistributed.Reporting.Flows.Reporting;
 
 namespace SpaceflightsDistributed;
 
@@ -18,13 +18,13 @@ namespace SpaceflightsDistributed;
 ///
 /// This example demonstrates Flowthru's multi-catalog pipeline registration API.
 /// Three independently-versioned library projects each define their own catalog
-/// and the pipelines between them are expressed via multi-catalog RegisterPipeline
+/// and the pipelines between them are expressed via multi-catalog RegisterFlow
 /// overloads — making cross-domain data dependencies part of the type signature, not
 /// a runtime convention.
 ///
-///   DataProcessingPipeline.Create(DataProcessingCatalog dc)
-///   DataSciencePipeline.Create(DataProcessingCatalog dp, DataScienceCatalog ds, Params p)
-///   ReportingPipeline.Create(DataProcessingCatalog dp, DataScienceCatalog ds, ReportingCatalog r)
+///   DataProcessingFlow.Create(DataProcessingCatalog dc)
+///   DataScienceFlow.Create(DataProcessingCatalog dp, DataScienceCatalog ds, Params p)
+///   ReportingFlow.Create(DataProcessingCatalog dp, DataScienceCatalog ds, ReportingCatalog r)
 /// </summary>
 public class Program
 {
@@ -59,25 +59,25 @@ public class Program
       flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
       flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
 
-      // ─── Pipeline Registration ─────────────────────────────────────────────
+      // ─── Flow Registration ─────────────────────────────────────────────
 
       flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
         .WithDescription("Preprocesses companies and shuttles data into a model input table");
 
       flowthru
         .RegisterFlow(
           label: "DataScience",
-          flow: DataSciencePipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataScience"
+          flow: DataScienceFlow.Create,
+          configurationSection: "Flowthru:Flows:DataScience"
         )
         .WithDescription("Trains linear regression model for shuttle price prediction");
 
       flowthru
         .RegisterFlow(
           label: "Reporting",
-          flow: ReportingPipeline.Create,
-          configurationSection: "Flowthru:Pipelines:Reporting"
+          flow: ReportingFlow.Create,
+          configurationSection: "Flowthru:Flows:Reporting"
         )
         .WithDescription(
           "Generates passenger capacity reports and confusion matrix visualizations"

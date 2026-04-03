@@ -6,7 +6,7 @@ using Flowthru.Services;
 using Flowthru.Services.Models;
 using Flowthru.Tests.Common;
 using Flowthru.Tests.Fixtures.TestCatalogs;
-using Flowthru.Tests.Fixtures.TestNodes;
+using Flowthru.Tests.Fixtures.TestSteps;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -176,7 +176,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithValidPipeline_ExecutesSuccessfully()
+  public async Task ExecutePipelineAsync_WithValidFlow_ExecutesSuccessfully()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
@@ -216,7 +216,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithDryRun_DoesNotExecuteNodes()
+  public async Task ExecuteFlowAsync_WithDryRun_DoesNotExecuteSteps()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
@@ -262,7 +262,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithStructureOnlyDryRun_SucceedsWithoutData()
+  public async Task ExecuteFlowAsync_WithStructureOnlyDryRun_SucceedsWithoutData()
   {
     // Arrange — no data seeded; StructureOnly must not probe any data source
     var catalog = new SimpleThreeNodeCatalog();
@@ -293,7 +293,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithFullDryRun_FailsWithoutData()
+  public async Task ExecuteFlowAsync_WithFullDryRun_FailsWithoutData()
   {
     // Arrange — no data seeded; Full depth must surface the missing external input
     var catalog = new SimpleThreeNodeCatalog();
@@ -322,7 +322,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_MergesAndExecutesPipelines()
+  public async Task ExecutePipelineAsync_MergesAndExecutesFlows()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
@@ -426,7 +426,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ValidatePipelineAsync_WithValidInputs_ReturnsSuccess()
+  public async Task ValidateFlowAsync_WithValidInputs_ReturnsSuccess()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
@@ -464,7 +464,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ValidatePipelineAsync_WithMissingInputs_ReturnsFailure()
+  public async Task ValidateFlowAsync_WithMissingInputs_ReturnsFailure()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
@@ -715,7 +715,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithMetadataProvider_CapturesMetadata()
+  public async Task ExecuteFlowAsync_WithMetadataProvider_CapturesMetadata()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();
@@ -772,7 +772,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithoutMetadataExport_DoesNotCallProvider()
+  public async Task ExecuteFlowAsync_WithoutMetadataExport_DoesNotCallProvider()
   {
     // Arrange
     var catalog = new SimpleThreeNodeCatalog();

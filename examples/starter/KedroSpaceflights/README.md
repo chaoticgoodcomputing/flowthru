@@ -19,7 +19,7 @@ Once you've confirmed your pipeline runs successfully, you can begin:
 
 ## Project Structure
 
-### Pipeline Structure
+### Flow Structure
 
 ```mermaid
 flowchart TB
@@ -85,12 +85,12 @@ flowchart TB
         Reporting_ExportConfusionMatrixPng --> ConfusionMatrixPlotPng
     end
 
-    %% External Data to Pipeline Edges
+    %% External Data to Flow Edges
     Companies --> DataProcessing_PreprocessCompanies
     Shuttles --> DataProcessing_PreprocessShuttles
     Reviews --> DataProcessing_CreateModelInputTable
 
-    %% Cross-Pipeline Data Flow
+    %% Cross-Flow Data Flow
     PreprocessedShuttles -.-> Reporting_ComparePassengerCapacity
     PreprocessedShuttles -.-> Reporting_GeneratePassengerCapacityChart
     ModelInputTable -.-> DataScience_SplitData
@@ -109,7 +109,7 @@ KedroSpaceflights/
 │   │   └── Datasets/shuttles.xlsx
 │   ├── ...
 │   └── _08_Reporting/              # Metrics and visualizations
-├── Pipelines/
+├── Flows/
 │   ├── DataEngineering/            # Data splitting and encoding
 │   ├── DataScience/                # Model training and evaluation
 │   └── Reporting/                  # Final reports

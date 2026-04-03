@@ -1,7 +1,7 @@
 using System.Linq;
 using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
-using Flowthru.Tests.Fixtures.TestNodes;
+using Flowthru.Tests.Fixtures.TestSteps;
 
 namespace Flowthru.Tests.Execution.NodeExecution;
 
@@ -14,7 +14,7 @@ namespace Flowthru.Tests.Execution.NodeExecution;
 public class SingleInputOutputTests
 {
   [Test]
-  public async Task Execute_WithPassthroughNode_PreservesData()
+  public async Task Execute_WithPassthroughStep_PreservesData()
   {
     // ===========
     // Arrange
@@ -60,7 +60,7 @@ public class SingleInputOutputTests
   }
 
   [Test]
-  public async Task Execute_WithIncrementNode_IncrementsId()
+  public async Task Execute_WithIncrementStep_IncrementsId()
   {
     // ===========
     // Arrange
@@ -106,7 +106,7 @@ public class SingleInputOutputTests
   }
 
   [Test]
-  public async Task Execute_WithDoubleValueNode_DoublesValue()
+  public async Task Execute_WithDoubleValueStep_DoublesValue()
   {
     // ===========
     // Arrange
@@ -149,7 +149,7 @@ public class SingleInputOutputTests
   }
 
   [Test]
-  public async Task Execute_WithFailingNode_ThrowsExpectedException()
+  public async Task Execute_WithFailingStep_ThrowsExpectedException()
   {
     // ===========
     // Arrange

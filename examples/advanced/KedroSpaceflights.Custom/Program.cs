@@ -3,11 +3,11 @@ using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroSpaceflights.Custom.Data;
-using KedroSpaceflights.Custom.Pipelines.DataDiagnostics;
-using KedroSpaceflights.Custom.Pipelines.DataEvaluation;
-using KedroSpaceflights.Custom.Pipelines.DataProcessing;
-using KedroSpaceflights.Custom.Pipelines.DataScience;
-using KedroSpaceflights.Custom.Pipelines.Reporting;
+using KedroSpaceflights.Custom.Flows.DataDiagnostics;
+using KedroSpaceflights.Custom.Flows.DataEvaluation;
+using KedroSpaceflights.Custom.Flows.DataProcessing;
+using KedroSpaceflights.Custom.Flows.DataScience;
+using KedroSpaceflights.Custom.Flows.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,8 +17,8 @@ namespace KedroSpaceflights.Custom;
 /// Entry point for the Spaceflights FlowThru example.
 /// Demonstrates a hybrid configuration approach:
 /// - Infrastructure (catalog, metadata, logging) configured in appsettings.json
-/// - Pipeline registration in code for compile-time safety
-/// - Pipeline parameters loaded from appsettings.json for easy tuning
+/// - Flow registration in code for compile-time safety
+/// - Flow parameters loaded from appsettings.json for easy tuning
 /// </summary>
 public class Program
 {
@@ -66,19 +66,19 @@ public class Program
       });
 
       flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
         .WithDescription("Preprocesses raw data and creates model input table");
 
       flowthru
         .RegisterFlow(
           label: "DataScience",
-          flow: DataSciencePipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataScience"
+          flow: DataScienceFlow.Create,
+          configurationSection: "Flowthru:Flows:DataScience"
         )
         .WithDescription("Trains ML model");
 
       flowthru
-        .RegisterFlow(label: "DataDiagnostics", flow: DataDiagnosticsPipeline.Create)
+        .RegisterFlow(label: "DataDiagnostics", flow: DataDiagnosticsFlow.Create)
         .WithDescription(
           "Validates pipeline outputs against Kedro reference and exports diagnostic data"
         );
@@ -86,13 +86,13 @@ public class Program
       flowthru
         .RegisterFlow(
           label: "DataEvaluation",
-          flow: DataEvaluationPipeline.Create,
-          configurationSection: "Flowthru:Pipelines:DataEvaluation"
+          flow: DataEvaluationFlow.Create,
+          configurationSection: "Flowthru:Flows:DataEvaluation"
         )
         .WithDescription("Evaluates ML model performance and cross-validation");
 
       flowthru
-        .RegisterFlow(label: "Reporting", flow: ReportingPipeline.Create)
+        .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
         .WithDescription("Generates reports and visualizations");
     });
 

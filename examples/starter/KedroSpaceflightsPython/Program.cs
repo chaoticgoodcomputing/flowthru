@@ -6,9 +6,9 @@ using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Flowthru.Services;
 using KedroSpaceflightsPython.Data;
-using KedroSpaceflightsPython.Pipelines.DataProcessing;
-using KedroSpaceflightsPython.Pipelines.DataScience;
-using KedroSpaceflightsPython.Pipelines.Reporting;
+using KedroSpaceflightsPython.Flows.DataProcessing;
+using KedroSpaceflightsPython.Flows.DataScience;
+using KedroSpaceflightsPython.Flows.Reporting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -102,7 +102,7 @@ public class Program
       // Configure Python runtime
       flowthru.UsePython(python =>
       {
-        // Project root: makes Pipelines/ importable as a Python module tree
+        // Project root: makes Flows/ importable as a Python module tree
         python.ModuleSearchPaths.Add(basePath);
         // Output directory: contains the flowthru package (@step decorator)
         python.ModuleSearchPaths.Add(outputPath);
@@ -119,17 +119,17 @@ public class Program
 
       // Register pipelines with resolved executor
       flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
         .WithDescription("Preprocesses companies, shuttles, and reviews data using Python");
 
       flowthru
-        .RegisterFlow(label: "DataScience", flow: DataSciencePipeline.Create)
+        .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
         .WithDescription(
           "Trains linear regression model for price prediction using Python/scikit-learn"
         );
 
       flowthru
-        .RegisterFlow(label: "Reporting", flow: ReportingPipeline.Create)
+        .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
         .WithDescription(
           "Generates visualization outputs including passenger capacity plots and confusion matrix"
         );

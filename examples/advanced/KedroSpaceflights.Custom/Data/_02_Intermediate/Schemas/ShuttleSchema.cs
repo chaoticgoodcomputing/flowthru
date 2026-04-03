@@ -4,7 +4,7 @@ namespace KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 
 /// <summary>
 /// Processed shuttle data with type conversions applied.
-/// Output of PreprocessShuttlesNode.
+/// Output of PreprocessShuttlesStep.
 /// </summary>
 public record ShuttleSchema
   : IFlatSchema,

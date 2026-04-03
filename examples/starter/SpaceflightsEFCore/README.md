@@ -15,15 +15,15 @@ This example demonstrates using `Flowthru.Extensions.EFCore` to read and write d
 ```
 examples/efcore-integration/
 ├── README.md                 # This file
-├── Program.cs                # Pipeline execution
+├── Program.cs                # Flow execution
 ├── Data/
 │   │── AppDbContext.cs       # EF Core DbContext
 │   └── CompanySchema.cs      # FlowthruSchema entity
 ├── Catalog/
 │   └── DataCatalog.cs        # Catalog entry definitions
-└── Nodes/
-    ├── ExtractCompaniesNode.cs
-    └── TransformCompaniesNode.cs
+└── Steps/
+    ├── ExtractCompaniesStep.cs
+    └── TransformCompaniesStep.cs
 ```
 
 ## Running the Example
@@ -81,7 +81,7 @@ public static partial class DataCatalog
 }
 ```
 
-### 4. Pipeline Using EFCore
+### 4. Flow Using EFCore
 
 ```csharp
 // Program.cs
@@ -89,11 +89,11 @@ using var db = new AppDbContext();
 await db.Database.MigrateAsync();
 
 var pipeline = new FlowBuilder("CompanyETL")
-    .AddStep("extract", catalog => new ExtractCompaniesNode(
+    .AddStep("extract", catalog => new ExtractCompaniesStep(
         inputs: catalog.SourceCompanies(db),
         outputs: catalog.RawCompanies()
     ))
-    .AddStep("transform", catalog => new TransformCompaniesNode(
+    .AddStep("transform", catalog => new TransformCompaniesStep(
         inputs: catalog.RawCompanies(),
         outputs: catalog.ProcessedCompanies(db)
     ))

@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SpaceflightsPythonEFCore.Data;
-using SpaceflightsPythonEFCore.Pipelines.DataProcessing;
-using SpaceflightsPythonEFCore.Pipelines.DataScience;
-using SpaceflightsPythonEFCore.Pipelines.Reporting;
+using SpaceflightsPythonEFCore.Flows.DataProcessing;
+using SpaceflightsPythonEFCore.Flows.DataScience;
+using SpaceflightsPythonEFCore.Flows.Reporting;
 
 namespace SpaceflightsPythonEFCore;
 
@@ -103,7 +103,7 @@ public class Program
       });
 
       // Configure Python runtime; module search paths include the project root so
-      // "Pipelines.DataScience.Nodes.*" and "Pipelines.Reporting.Nodes.*" resolve correctly.
+      // "Flows.DataScience.Steps.*" and "Flows.Reporting.Steps.*" resolve correctly.
       flowthru.UsePython(python =>
       {
         python.ModuleSearchPaths.Add(basePath);
@@ -118,15 +118,15 @@ public class Program
         tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
 
       flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingPipeline.Create)
+        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
         .WithDescription("Preprocesses companies and shuttles (C#), stores in EFCore");
 
       flowthru
-        .RegisterFlow(label: "DataScience", flow: DataSciencePipeline.Create)
+        .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
         .WithDescription("Trains and evaluates regression model (Python); reads/writes EFCore");
 
       flowthru
-        .RegisterFlow(label: "Reporting", flow: ReportingPipeline.Create)
+        .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
         .WithDescription(
           "Generates visualizations (Python); reads PreprocessedShuttles and ModelPredictions from EFCore"
         );

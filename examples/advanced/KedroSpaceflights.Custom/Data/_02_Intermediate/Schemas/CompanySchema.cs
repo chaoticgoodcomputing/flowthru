@@ -4,7 +4,7 @@ namespace KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 
 /// <summary>
 /// Processed company data with type conversions applied.
-/// Output of PreprocessCompaniesNode.
+/// Output of PreprocessCompaniesStep.
 /// </summary>
 public record CompanySchema
   : IFlatSchema,

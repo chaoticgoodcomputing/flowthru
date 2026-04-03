@@ -251,7 +251,7 @@ public class PythonNodeValidationTests
   }
 
   [Test]
-  public async Task ValidateAsync_ValidNode_NoErrors()
+  public async Task ValidateAsync_ValidStep_NoErrors()
   {
     // Arrange
     var pipeline = CreateTestPipeline("_Fixtures.validation_test_nodes", "valid_step");
@@ -265,7 +265,7 @@ public class PythonNodeValidationTests
   }
 
   [Test]
-  public async Task ValidateAsync_NonPythonNode_Skipped()
+  public async Task ValidateAsync_NonPythonStep_Skipped()
   {
     // Arrange - empty pipeline with no Python nodes
     var pipeline = new Flow();

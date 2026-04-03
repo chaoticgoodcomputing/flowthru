@@ -4,7 +4,7 @@ namespace KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 
 /// <summary>
 /// Processed review data with type conversions applied and nulls removed.
-/// Output of PreprocessReviewsNode.
+/// Output of PreprocessReviewsStep.
 /// </summary>
 public record ReviewSchema
   : IFlatSchema,

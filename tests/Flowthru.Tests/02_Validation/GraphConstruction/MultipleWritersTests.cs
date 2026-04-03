@@ -1,6 +1,6 @@
 using Flowthru.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
-using Flowthru.Tests.Fixtures.TestNodes;
+using Flowthru.Tests.Fixtures.TestSteps;
 
 namespace Flowthru.Tests.Validation.GraphConstruction;
 
