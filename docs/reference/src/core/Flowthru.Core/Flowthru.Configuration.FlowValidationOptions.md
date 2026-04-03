@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Configuration](Flowthru.Configuration.md)  
 Assembly: Flowthru.Core.dll  
 
-Configuration options for flow validation behavior.
+Configuration options for Flow validation behavior.
 
 ```csharp
 public class FlowValidationOptions

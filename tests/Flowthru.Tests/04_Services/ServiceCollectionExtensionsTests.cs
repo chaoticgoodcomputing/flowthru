@@ -27,7 +27,7 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
+      flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
       flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
@@ -43,7 +43,7 @@ public class ServiceCollectionExtensionsTests
   {
     // Arrange
     var services = new ServiceCollection();
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
 
     // Act
     services.AddFlowthru(flowthru =>
@@ -55,7 +55,7 @@ public class ServiceCollectionExtensionsTests
     var serviceProvider = services.BuildServiceProvider();
 
     // Assert — catalogs are registered by concrete type, not DataCatalogBase
-    var resolvedCatalog = serviceProvider.GetService<SimpleThreeNodeCatalog>();
+    var resolvedCatalog = serviceProvider.GetService<SimpleThreeStepCatalog>();
     Assert.That(resolvedCatalog, Is.Not.Null);
     Assert.That(resolvedCatalog, Is.SameAs(catalog));
   }
@@ -69,16 +69,16 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog<SimpleThreeNodeCatalog>();
+      flowthru.RegisterCatalog<SimpleThreeStepCatalog>();
       flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
 
     // Assert — concrete type is resolvable directly
-    var catalog = serviceProvider.GetService<SimpleThreeNodeCatalog>();
+    var catalog = serviceProvider.GetService<SimpleThreeStepCatalog>();
     Assert.That(catalog, Is.Not.Null);
-    Assert.That(catalog, Is.InstanceOf<SimpleThreeNodeCatalog>());
+    Assert.That(catalog, Is.InstanceOf<SimpleThreeStepCatalog>());
   }
 
   [Test]
@@ -90,20 +90,20 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog<SimpleThreeNodeCatalog>(sp => new SimpleThreeNodeCatalog());
+      flowthru.RegisterCatalog<SimpleThreeStepCatalog>(sp => new SimpleThreeStepCatalog());
       flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
     var serviceProvider = services.BuildServiceProvider();
 
     // Assert — concrete type is resolvable directly
-    var catalog = serviceProvider.GetService<SimpleThreeNodeCatalog>();
+    var catalog = serviceProvider.GetService<SimpleThreeStepCatalog>();
     Assert.That(catalog, Is.Not.Null);
-    Assert.That(catalog, Is.InstanceOf<SimpleThreeNodeCatalog>());
+    Assert.That(catalog, Is.InstanceOf<SimpleThreeStepCatalog>());
   }
 
   [Test]
-  public void AddFlowthru_RegistersPipelines()
+  public void AddFlowthru_RegistersFlows()
   {
     // Arrange
     var services = new ServiceCollection();
@@ -112,16 +112,16 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      var catalog = new SimpleThreeNodeCatalog();
+      var catalog = new SimpleThreeStepCatalog();
       flowthru.RegisterCatalog(catalog);
       flowthru.RegisterFlow(
         "test",
-        (SimpleThreeNodeCatalog cat) =>
+        (SimpleThreeStepCatalog cat) =>
           FlowBuilder.CreateFlow(builder =>
           {
             builder.AddStep(
-              label: "Node",
-              transform: PassthroughNode.Create(),
+              label: "Step",
+              transform: PassthroughStep.Create(),
               input: cat.Input,
               output: cat.Output
             );
@@ -166,7 +166,7 @@ public class ServiceCollectionExtensionsTests
     // Act
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
+      flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
       flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
       flowthru.ConfigureMetadata(meta =>
       {
@@ -194,7 +194,7 @@ public class ServiceCollectionExtensionsTests
 
     services.AddFlowthru(flowthru =>
     {
-      flowthru.RegisterCatalog(new SimpleThreeNodeCatalog());
+      flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
       flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
     });
 
@@ -209,13 +209,13 @@ public class ServiceCollectionExtensionsTests
   }
 
   [Test]
-  public void AddFlowthru_RegisterPipelineAndRegisterPipelines_MergesAll()
+  public void AddFlowthru_RegisterFlowAndRegisterFlows_MergesAll()
   {
     // Arrange — one inline registration and one factory-based registration
     var services = new ServiceCollection();
     services.AddLogging();
 
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
 
     services.AddFlowthru(flowthru =>
     {
@@ -223,12 +223,12 @@ public class ServiceCollectionExtensionsTests
 
       flowthru.RegisterFlow(
         "inline",
-        (SimpleThreeNodeCatalog cat) =>
+        (SimpleThreeStepCatalog cat) =>
           FlowBuilder.CreateFlow(builder =>
           {
             builder.AddStep(
-              label: "Node",
-              transform: PassthroughNode.Create(),
+              label: "Step",
+              transform: PassthroughStep.Create(),
               input: cat.Input,
               output: cat.Output
             );
@@ -240,8 +240,8 @@ public class ServiceCollectionExtensionsTests
         ["dynamic"] = FlowBuilder.CreateFlow(builder =>
         {
           builder.AddStep(
-            label: "Node",
-            transform: PassthroughNode.Create(),
+            label: "Step",
+            transform: PassthroughStep.Create(),
             input: catalog.Input,
             output: catalog.Output
           );

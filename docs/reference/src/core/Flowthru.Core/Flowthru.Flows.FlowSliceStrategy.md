@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
-Defines a strategy for slicing a flow to execute a subset of nodes.
+Defines a strategy for slicing a Flow to execute a subset of nodes.
 
 ```csharp
 public sealed class FlowSliceStrategy
@@ -26,7 +26,7 @@ public sealed class FlowSliceStrategy
 ## Remarks
 
 <p>
-flow slicing allows executing only specific portions of a DAG while maintaining
+Flow slicing allows executing only specific portions of a DAG while maintaining
 execution validity. All slicing operations preserve the runnability guarantee:
 the resulting sub-DAG must be executable without missing dependencies.
 </p>
@@ -61,9 +61,9 @@ public IReadOnlySet<string>? Flows { get; init; }
 
 #### Remarks
 
-In merged flows, nodes are prefixed with their flow name (e.g., "DataScience.TrainModel").
+In merged flows, nodes are prefixed with their Flow name (e.g., "DataScience.TrainModel").
 This filter includes only nodes from the specified flows.
-flow names are case-insensitive.
+Flow names are case-insensitive.
 
 ### <a id="Flowthru_Flows_FlowSliceStrategy_FromData"></a> FromData
 

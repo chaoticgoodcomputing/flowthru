@@ -129,7 +129,7 @@ The method performs:
 
 ### <a id="Flowthru_Services_IFlowthruService_GetDagMetadata_System_String_Flowthru_Flows_FlowSliceStrategy_"></a> GetDagMetadata\(string?, FlowSliceStrategy?\)
 
-Gets the full DAG metadata for flow introspection.
+Gets the full DAG metadata for Flow introspection.
 
 ```csharp
 DagMetadata GetDagMetadata(string? flowName = null, FlowSliceStrategy? sliceStrategy = null)
@@ -139,14 +139,14 @@ DagMetadata GetDagMetadata(string? flowName = null, FlowSliceStrategy? sliceStra
 
 `flowName` [string](https://learn.microsoft.com/dotnet/api/system.string)?
 
-Optional flow name to inspect a single flow.
+Optional Flow name to inspect a single flow.
 When null, all registered flows are merged into a unified DAG.
 
 `sliceStrategy` [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)?
 
 Optional slice strategy to filter the DAG (e.g., from-node).
 When provided, the returned metadata includes slice overlay information
-(SlicedNodeIds and SlicedItemKeys) identifying which nodes
+(SlicedStepIds and SlicedItemKeys) identifying which nodes
 and data are in the active execution subset.
 
 #### Returns
@@ -162,16 +162,16 @@ This method does not execute the flow. It returns structural metadata
 useful for visualization, impact analysis, data lineage, and debugging.
 
 Examples:
-<pre><code class="lang-csharp">// Inspect all flow merged
+<pre><code class="lang-csharp">// Inspect all Flow merged
 var dag = flowthru.GetDagMetadata();
 
 // Inspect a single flow
 var dag = flowthru.GetDagMetadata("DataProcessing");
 
-// Inspect downstream of a specific flow node
+// Inspect downstream of a specific Flow node
 var dag = flowthru.GetDagMetadata(sliceStrategy: new FlowSliceStrategy
 {
-    FromNodes = new HashSet&lt;string&gt; { "PreprocessCompanies" }
+    FromSteps = new HashSet&lt;string&gt; { "PreprocessCompanies" }
 });</code></pre>
 
 #### Exceptions
@@ -203,13 +203,13 @@ Flow metadata
 #### Remarks
 
 Returns structural information without executing the flow.
-The flow must be built for accurate layer and input information.
+The Flow must be built for accurate layer and input information.
 
 #### Exceptions
 
  [KeyNotFoundException](https://learn.microsoft.com/dotnet/api/system.collections.generic.keynotfoundexception)
 
-Thrown if flow name not found
+Thrown if Flow name not found
 
 ### <a id="Flowthru_Services_IFlowthruService_ValidateFlowAsync_System_String_System_Threading_CancellationToken_"></a> ValidateFlowAsync\(string, CancellationToken\)
 
@@ -244,5 +244,5 @@ Useful for pre-flight validation in CI/CD or scheduled jobs.
 
  [KeyNotFoundException](https://learn.microsoft.com/dotnet/api/system.collections.generic.keynotfoundexception)
 
-Thrown if flow name not found
+Thrown if Flow name not found
 

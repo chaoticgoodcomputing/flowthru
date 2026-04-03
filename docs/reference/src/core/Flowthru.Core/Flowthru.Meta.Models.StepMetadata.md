@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Meta.Models](Flowthru.Meta.Models.md)  
 Assembly: Flowthru.Core.dll  
 
-Metadata describing a single step in the flow DAG.
+Metadata describing a single step in the Flow DAG.
 
 ```csharp
 public class StepMetadata
@@ -34,7 +34,7 @@ catalog entries (outputs).
 
 ### <a id="Flowthru_Meta_Models_StepMetadata_FlowName"></a> FlowName
 
-Name of the parent flow this step belongs to.
+Name of the parent Flow this step belongs to.
 
 ```csharp
 [JsonPropertyName("flowName")]

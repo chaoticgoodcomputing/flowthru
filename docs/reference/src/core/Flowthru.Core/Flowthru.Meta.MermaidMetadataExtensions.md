@@ -36,7 +36,7 @@ The generated diagram uses Mermaid flowchart syntax with:
 - Catalog items as cylindrical database shapes
 - Flow subgraphs grouping nodes by their origin flow
 - External data (no producer) shown with special styling
-- Produced data (has producer) inside their producer's flow subgraph
+- Produced data (has producer) inside their producer's Flow subgraph
 </p>
 
 ## Methods

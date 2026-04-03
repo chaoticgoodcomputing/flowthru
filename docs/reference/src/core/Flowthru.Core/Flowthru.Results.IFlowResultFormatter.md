@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Results](Flowthru.Results.md)  
 Assembly: Flowthru.Core.dll  
 
-Interface for formatting flow execution results.
+Interface for formatting Flow execution results.
 
 ```csharp
 public interface IFlowResultFormatter
@@ -27,7 +27,7 @@ Future formatters: JSON, Markdown, compact CI/CD format.
 
 ### <a id="Flowthru_Results_IFlowResultFormatter_Format_Flowthru_Flows_FlowResult_Microsoft_Extensions_Logging_ILogger_"></a> Format\(FlowResult, ILogger\)
 
-Formats and outputs the flow result.
+Formats and outputs the Flow result.
 
 ```csharp
 void Format(FlowResult result, ILogger logger)
@@ -37,7 +37,7 @@ void Format(FlowResult result, ILogger logger)
 
 `result` [FlowResult](Flowthru.Flows.FlowResult.md)
 
-The flow execution result
+The Flow execution result
 
 `logger` [ILogger](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger)
 

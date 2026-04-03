@@ -40,7 +40,7 @@ The primary mechanism for validation configuration is catalog-level via the
 <strong>Catalog-Level Configuration (Recommended):</strong>
 </p>
 <pre><code class="lang-csharp">public ICatalogDataset&lt;Company&gt; Companies =&gt;
-  GetOrCreateDataset(() =&gt; new CsvCatalogDataset&lt;Company&gt;("companies", "data/companies.csv")
+  CreateDataset(() =&gt; new CsvCatalogDataset&lt;Company&gt;("companies", "data/companies.csv")
     .WithInspectionLevel(InspectionLevel.Deep));</code></pre>
 <p>
 <strong>Pipeline-Level Override (Advanced):</strong>

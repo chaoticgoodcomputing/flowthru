@@ -5,9 +5,9 @@ namespace Flowthru.Tests.Fixtures.TestCatalogs;
 /// <summary>
 /// Simple test catalog with three sequential processing steps.
 /// </summary>
-public class SimpleThreeNodeCatalog : CatalogAbstract
+public class SimpleThreeStepCatalog : CatalogAbstract
 {
-  public SimpleThreeNodeCatalog()
+  public SimpleThreeStepCatalog()
   {
     InitializeCatalogProperties();
   }

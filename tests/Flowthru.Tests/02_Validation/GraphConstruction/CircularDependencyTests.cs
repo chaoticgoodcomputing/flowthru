@@ -5,19 +5,19 @@ using Flowthru.Tests.Fixtures.TestSteps;
 namespace Flowthru.Tests.Validation.GraphConstruction;
 
 /// <summary>
-/// Tests verifying that circular dependencies are detected during Pipeline.Build().
+/// Tests verifying that circular dependencies are detected during Flow.Build().
 /// </summary>
 [TestFixture]
 [Category("Validation")]
 [Category("GraphConstruction")]
 public class CircularDependencyTests
 {
-  private SimpleThreeNodeCatalog _catalog = null!;
+  private SimpleThreeStepCatalog _catalog = null!;
 
   [SetUp]
   public void SetUp()
   {
-    _catalog = new SimpleThreeNodeCatalog();
+    _catalog = new SimpleThreeStepCatalog();
   }
 
   [Test]
@@ -29,20 +29,20 @@ public class CircularDependencyTests
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "NodeA",
-        transform: PassthroughNode.Create(),
+        label: "StepA",
+        transform: PassthroughStep.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
       builder.AddStep(
-        label: "NodeB",
-        transform: PassthroughNode.Create(),
+        label: "StepB",
+        transform: PassthroughStep.Create(),
         input: _catalog.StepOne,
         output: _catalog.StepTwo
       );
       builder.AddStep(
-        label: "NodeC",
-        transform: PassthroughNode.Create(),
+        label: "StepC",
+        transform: PassthroughStep.Create(),
         input: _catalog.StepTwo,
         output: _catalog.Input
       ); // Circle!
@@ -63,7 +63,7 @@ public class CircularDependencyTests
   public void Build_WhenSelfLoop_IsAllowed()
   {
     // ===========
-    // Arrange: Node writes to its own input (A → A)
+    // Arrange: Step writes to its own input (A → A)
     // ===========
     // Note: Self-loops are currently allowed in the implementation
     // as they can represent update-in-place operations
@@ -71,7 +71,7 @@ public class CircularDependencyTests
     {
       builder.AddStep(
         label: "SelfLoop",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: _catalog.Input,
         output: _catalog.Input
       );
@@ -85,7 +85,7 @@ public class CircularDependencyTests
   }
 
   [Test]
-  public void Build_WhenTwoNodeCircle_ThrowsInvalidOperationException()
+  public void Build_WhenTwoStepCircle_ThrowsInvalidOperationException()
   {
     // ===========
     // Arrange: A → B → A
@@ -93,14 +93,14 @@ public class CircularDependencyTests
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "NodeA",
-        transform: PassthroughNode.Create(),
+        label: "StepA",
+        transform: PassthroughStep.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
       builder.AddStep(
-        label: "NodeB",
-        transform: PassthroughNode.Create(),
+        label: "StepB",
+        transform: PassthroughStep.Create(),
         input: _catalog.StepOne,
         output: _catalog.Input
       ); // Circle back
@@ -121,20 +121,20 @@ public class CircularDependencyTests
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "NodeA",
-        transform: PassthroughNode.Create(),
+        label: "StepA",
+        transform: PassthroughStep.Create(),
         input: _catalog.Input,
         output: _catalog.StepOne
       );
       builder.AddStep(
-        label: "NodeB",
-        transform: PassthroughNode.Create(),
+        label: "StepB",
+        transform: PassthroughStep.Create(),
         input: _catalog.StepOne,
         output: _catalog.StepTwo
       );
       builder.AddStep(
-        label: "NodeC",
-        transform: PassthroughNode.Create(),
+        label: "StepC",
+        transform: PassthroughStep.Create(),
         input: _catalog.StepTwo,
         output: _catalog.Output
       );

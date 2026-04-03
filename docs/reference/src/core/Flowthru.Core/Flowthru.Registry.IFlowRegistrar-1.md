@@ -18,7 +18,7 @@ The catalog type that flows will use
 ## Remarks
 
 <p>
-This interface provides compile-time type safety by tying flow factories
+This interface provides compile-time type safety by tying Flow factories
 to a specific catalog type. The registrar validates that all registered
 flows accept the correct catalog type.
 </p>
@@ -41,7 +41,7 @@ flows accept the correct catalog type.
 
 ### <a id="Flowthru_Registry_IFlowRegistrar_1_Register_System_String_System_Func__0_Flowthru_Flows_Flow__"></a> Register\(string, Func<TCatalog, Flow\>\)
 
-Registers a flow with a parameterless factory function.
+Registers a Flow with a parameterless factory function.
 
 ```csharp
 IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Flow> flowFactory)
@@ -51,11 +51,11 @@ IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Flow> flowFactory)
 
 `name` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Unique flow name
+Unique Flow name
 
 `flowFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<TCatalog, [Flow](Flowthru.Flows.Flow.md)\>
 
-Factory function that creates the flow from catalog
+Factory function that creates the Flow from catalog
 
 #### Returns
 
@@ -65,11 +65,11 @@ This registrar for method chaining
 
 #### Remarks
 
-Use this overload when the flow doesn't require parameters.
+Use this overload when the Flow doesn't require parameters.
 
 ### <a id="Flowthru_Registry_IFlowRegistrar_1_Register__1_System_String_System_Func__0___0_Flowthru_Flows_Flow____0_"></a> Register<TParams\>\(string, Func<TCatalog, TParams, Flow\>, TParams\)
 
-Registers a flow with a parameterized factory function.
+Registers a Flow with a parameterized factory function.
 
 ```csharp
 IFlowRegistrar<TCatalog> Register<TParams>(string name, Func<TCatalog, TParams, Flow> flowFactory, TParams parameters)
@@ -79,11 +79,11 @@ IFlowRegistrar<TCatalog> Register<TParams>(string name, Func<TCatalog, TParams, 
 
 `name` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Unique flow name
+Unique Flow name
 
 `flowFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-3)<TCatalog, TParams, [Flow](Flowthru.Flows.Flow.md)\>
 
-Factory function that creates the flow from catalog and parameters
+Factory function that creates the Flow from catalog and parameters
 
 `parameters` TParams
 
@@ -99,12 +99,12 @@ This registrar for method chaining
 
 `TParams` 
 
-The type of parameters the flow requires
+The type of parameters the Flow requires
 
 #### Remarks
 
 <p>
-Use this overload when the flow requires configuration parameters.
+Use this overload when the Flow requires configuration parameters.
 Parameters are strongly typed and checked at compile time.
 </p>
 <p>
@@ -123,7 +123,7 @@ IFlowRegistrar<TCatalog> WithDescription(string description)
 
 `description` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Human-readable description of what the flow does
+Human-readable description of what the Flow does
 
 #### Returns
 

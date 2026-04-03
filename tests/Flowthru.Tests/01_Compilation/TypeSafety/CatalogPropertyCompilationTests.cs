@@ -27,7 +27,7 @@ public class CatalogPropertyCompilationTests
             {
                 public void TestMethod()
                 {
-                    var catalog = new SimpleThreeNodeCatalog();
+                    var catalog = new SimpleThreeStepCatalog();
                     var data = catalog.Inpt; // Typo: should be 'Input'
                 }
             }
@@ -39,7 +39,7 @@ public class CatalogPropertyCompilationTests
     var compilation = CompilationTestHelper.Compile(
       code,
       includeFlowthru: true,
-      typeof(SimpleThreeNodeCatalog)
+      typeof(SimpleThreeStepCatalog)
     );
 
     // ===========
@@ -72,7 +72,7 @@ public class CatalogPropertyCompilationTests
             {
                 public void TestMethod()
                 {
-                    var catalog = new SimpleThreeNodeCatalog();
+                    var catalog = new SimpleThreeStepCatalog();
                     var data = catalog.Input; // Correct property name
                 }
             }
@@ -84,7 +84,7 @@ public class CatalogPropertyCompilationTests
     var compilation = CompilationTestHelper.Compile(
       code,
       includeFlowthru: true,
-      typeof(SimpleThreeNodeCatalog)
+      typeof(SimpleThreeStepCatalog)
     );
 
     // ===========
@@ -117,7 +117,7 @@ public class CatalogPropertyCompilationTests
             {
                 public void TestMethod()
                 {
-                    var catalog = new SimpleThreeNodeCatalog();
+                    var catalog = new SimpleThreeStepCatalog();
                     var data = catalog.NonExistentProperty;
                 }
             }
@@ -129,7 +129,7 @@ public class CatalogPropertyCompilationTests
     var compilation = CompilationTestHelper.Compile(
       code,
       includeFlowthru: true,
-      typeof(SimpleThreeNodeCatalog)
+      typeof(SimpleThreeStepCatalog)
     );
 
     // ===========

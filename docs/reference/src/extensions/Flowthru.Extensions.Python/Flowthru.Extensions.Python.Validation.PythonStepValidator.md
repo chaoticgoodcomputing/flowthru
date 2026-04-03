@@ -32,7 +32,7 @@ IFlowValidationHook
 
 <p>
 <strong>Phase 4 pre-flight validation:</strong>
-Validates Python steps during flow pre-flight to catch schema mismatches,
+Validates Python steps during Flow pre-flight to catch schema mismatches,
 incorrect function signatures, and structural errors before execution.
 </p>
 <p>
@@ -41,7 +41,7 @@ incorrect function signatures, and structural errors before execution.
 </p>
 <p>
 <strong>Integration:</strong>
-Register this hook via Flow.ValidationHooks during flow setup.
+Register this hook via Flow.ValidationHooks during Flow setup.
 The hook is automatically invoked during Flow.ValidateExternalInputsAsync().
 </p>
 
@@ -69,7 +69,7 @@ Python runtime for GIL management
 
 ### <a id="Flowthru_Extensions_Python_Validation_PythonStepValidator_ValidateAsync_Flowthru_Flows_Flow_System_Threading_CancellationToken_"></a> ValidateAsync\(Flow, CancellationToken\)
 
-Validates flow steps during pre-flight checks.
+Validates Flow steps during pre-flight checks.
 
 ```csharp
 public Task<ValidationResult> ValidateAsync(Flow flow, CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ public Task<ValidationResult> ValidateAsync(Flow flow, CancellationToken cancell
 
 `flow` Flow
 
-The flow being validated
+The Flow being validated
 
 `cancellationToken` [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken)
 
@@ -95,7 +95,7 @@ Validation result containing any errors found
 
 <p>
 Implementations should:
-<ul><li>Never throw exceptions (return errors in ValidationResult)</li><li>Be idempotent (safe to call multiple times)</li><li>Be reasonably fast (executed during pre-flight, blocks flow start)</li><li>Only validate steps they understand (ignore other step types)</li></ul>
+<ul><li>Never throw exceptions (return errors in ValidationResult)</li><li>Be idempotent (safe to call multiple times)</li><li>Be reasonably fast (executed during pre-flight, blocks Flow start)</li><li>Only validate steps they understand (ignore other step types)</li></ul>
 </p>
 <p>
 <strong>Example implementation (Python extension):</strong>

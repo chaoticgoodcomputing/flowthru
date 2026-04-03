@@ -10,5 +10,5 @@ Formats pipeline results as human-readable console output.
 
  [IFlowResultFormatter](Flowthru.Results.IFlowResultFormatter.md)
 
-Interface for formatting flow execution results.
+Interface for formatting Flow execution results.
 

@@ -4,7 +4,7 @@ Namespace: [Flowthru.Data](Flowthru.Data.md)
 Assembly: Flowthru.Core.dll  
 
 Non-generic base interface for catalog items.
-Provides untyped operations for internal use by the flow executor and mapping layer.
+Provides untyped operations for internal use by the Flow executor and mapping layer.
 
 ```csharp
 public interface IItem
@@ -12,7 +12,7 @@ public interface IItem
 
 ## Remarks
 
-This interface enables the flow to work with catalog items
+This interface enables the Flow to work with catalog items
 without knowing their specific type parameter at compile-time.
 
 ## Properties
@@ -46,7 +46,7 @@ string Label { get; }
 ### <a id="Flowthru_Data_IItem_OwningCatalogLabel"></a> OwningCatalogLabel
 
 The label of the <xref href="Flowthru.Data.CatalogAbstract" data-throw-if-not-resolved="false"></xref>-derived class that created
-this item. Set automatically by <code>GetOrCreateItem</code>; null for items created outside
+this item. Set automatically by <code>CreateItem</code>; null for items created outside
 a catalog or by custom <xref href="Flowthru.Data.IItem" data-throw-if-not-resolved="false"></xref> implementations.
 
 ```csharp

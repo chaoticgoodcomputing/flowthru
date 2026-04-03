@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Flows.Validation](Flowthru.Flows.Validation.md)  
 Assembly: Flowthru.Core.dll  
 
-Validation hook that runs during flow pre-flight checks.
+Validation hook that runs during Flow pre-flight checks.
 
 ```csharp
 public interface IFlowValidationHook
@@ -35,7 +35,7 @@ Multiple hooks may run, and all errors are aggregated into a single result.
 
 ### <a id="Flowthru_Flows_Validation_IFlowValidationHook_ValidateAsync_Flowthru_Flows_Flow_System_Threading_CancellationToken_"></a> ValidateAsync\(Flow, CancellationToken\)
 
-Validates flow steps during pre-flight checks.
+Validates Flow steps during pre-flight checks.
 
 ```csharp
 Task<ValidationResult> ValidateAsync(Flow flow, CancellationToken cancellationToken)
@@ -45,7 +45,7 @@ Task<ValidationResult> ValidateAsync(Flow flow, CancellationToken cancellationTo
 
 `flow` [Flow](Flowthru.Flows.Flow.md)
 
-The flow being validated
+The Flow being validated
 
 `cancellationToken` [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken)
 
@@ -61,7 +61,7 @@ Validation result containing any errors found
 
 <p>
 Implementations should:
-<ul><li>Never throw exceptions (return errors in ValidationResult)</li><li>Be idempotent (safe to call multiple times)</li><li>Be reasonably fast (executed during pre-flight, blocks flow start)</li><li>Only validate steps they understand (ignore other step types)</li></ul>
+<ul><li>Never throw exceptions (return errors in ValidationResult)</li><li>Be idempotent (safe to call multiple times)</li><li>Be reasonably fast (executed during pre-flight, blocks Flow start)</li><li>Only validate steps they understand (ignore other step types)</li></ul>
 </p>
 <p>
 <strong>Example implementation (Python extension):</strong>

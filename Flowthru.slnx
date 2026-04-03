@@ -34,6 +34,6 @@
     <Project Path="examples\advanced\SpaceflightsDistributed\SpaceflightsDistributed.DataScience\SpaceflightsDistributed.DataScience.csproj" />
     <Project Path="examples\advanced\SpaceflightsDistributed\SpaceflightsDistributed.Reporting\SpaceflightsDistributed.Reporting.csproj" />
     <Project Path="examples\advanced\SpaceflightsDistributed\SpaceflightsDistributed\SpaceflightsDistributed.csproj" />
-    <Project Path="examples\advanced\RetailDataMultipipeline\RetailDataMultipipeline.csproj" />
+    <Project Path="examples\advanced\RetailDataSplitFlow\RetailDataSplitFlow.csproj" />
   </Folder>
 </Solution>

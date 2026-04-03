@@ -73,7 +73,7 @@ public List<ItemMetadata> CatalogItems { get; init; }
 
 ### <a id="Flowthru_Meta_Models_DagMetadata_Edges"></a> Edges
 
-All edges representing data flow in the DAG.
+All edges representing data Flow in the DAG.
 
 ```csharp
 [JsonPropertyName("edges")]
@@ -91,7 +91,7 @@ forming the complete graph.
 
 ### <a id="Flowthru_Meta_Models_DagMetadata_FlowName"></a> FlowName
 
-Name of the flow this DAG represents.
+Name of the Flow this DAG represents.
 
 ```csharp
 [JsonPropertyName("flowName")]
@@ -159,7 +159,7 @@ Enables visualization tools to highlight execution paths while showing full cont
 
 ### <a id="Flowthru_Meta_Models_DagMetadata_Steps"></a> Steps
 
-All steps in the flow with their metadata.
+All steps in the Flow with their metadata.
 
 ```csharp
 [JsonPropertyName("steps")]

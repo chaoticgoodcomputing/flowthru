@@ -65,7 +65,7 @@ public Dictionary<string, object>? Parameters { get; set; }
 
 ### <a id="Flowthru_Configuration_FlowOptions_Type"></a> Type
 
-The fully-qualified type name of the flow factory class.
+The fully-qualified type name of the Flow factory class.
 Must have a static Create method that accepts (catalog, parameters?).
 
 ```csharp

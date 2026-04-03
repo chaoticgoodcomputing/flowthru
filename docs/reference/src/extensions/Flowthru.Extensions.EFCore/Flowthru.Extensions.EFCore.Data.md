@@ -2,9 +2,9 @@
 
 ### Classes
 
- [EFCoreItems](Flowthru.Extensions.EFCore.Data.EFCoreItems.md)
+ [EFCoreItemFactory](Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.md)
 
- [EFCoreItems.Enumerable](Flowthru.Extensions.EFCore.Data.EFCoreItems.Enumerable.md)
+ [EFCoreItemFactory.Enumerable](Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Enumerable.md)
 
- [EFCoreItems.Single](Flowthru.Extensions.EFCore.Data.EFCoreItems.Single.md)
+ [EFCoreItemFactory.Single](Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Single.md)
 

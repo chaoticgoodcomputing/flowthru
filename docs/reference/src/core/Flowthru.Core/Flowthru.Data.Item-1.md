@@ -50,9 +50,9 @@ The storage adapter handles the actual I/O logic, while this class provides:
 <strong>Construction:</strong>
 </p>
 <p>
-Typically created via static factory methods in <xref href="Flowthru.Data.Items" data-throw-if-not-resolved="false"></xref>:
+Typically created via static factory methods in <xref href="Flowthru.Data.ItemFactory" data-throw-if-not-resolved="false"></xref>:
 </p>
-<pre><code class="lang-csharp">var item = CatalogItems.Csv&lt;CompanySchema&gt;("companies", "data.csv");
+<pre><code class="lang-csharp">var item = CatalogItemFactory.Csv&lt;CompanySchema&gt;("companies", "data.csv");
 // Returns: ICatalogItem&lt;IEnumerable&lt;CompanySchema&gt;&gt;</code></pre>
 <p>
 <strong>Composition vs Inheritance:</strong>
@@ -126,7 +126,7 @@ public string Label { get; }
 ### <a id="Flowthru_Data_Item_1_OwningCatalogLabel"></a> OwningCatalogLabel
 
 The label of the <xref href="Flowthru.Data.CatalogAbstract" data-throw-if-not-resolved="false"></xref>-derived class that created
-this item. Set automatically by <code>GetOrCreateItem</code>; null for items created outside
+this item. Set automatically by <code>CreateItem</code>; null for items created outside
 a catalog or by custom <xref href="Flowthru.Data.IItem" data-throw-if-not-resolved="false"></xref> implementations.
 
 ```csharp
@@ -337,11 +337,11 @@ This catalog item for method chaining
 #### Remarks
 
 <p>
-Used to configure how this item should be validated before flow execution.
+Used to configure how this item should be validated before Flow execution.
 </p>
 <p>
 Example:
 </p>
-<pre><code class="lang-csharp">var item = CatalogItems.Csv&lt;Company&gt;("companies", "data.csv")
+<pre><code class="lang-csharp">var item = CatalogItemFactory.Csv&lt;Company&gt;("companies", "data.csv")
     .WithInspectionLevel(InspectionLevel.Deep);</code></pre>
 

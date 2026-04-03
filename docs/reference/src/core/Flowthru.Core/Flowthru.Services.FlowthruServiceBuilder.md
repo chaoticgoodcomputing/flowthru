@@ -207,7 +207,7 @@ This builder for method chaining
 
 ### <a id="Flowthru_Services_FlowthruServiceBuilder_RegisterFlow_System_String_System_Delegate_System_String_"></a> RegisterFlow\(string, Delegate, string?\)
 
-Registers a flow by inspecting the delegate's parameter types at runtime.
+Registers a Flow by inspecting the delegate's parameter types at runtime.
 Parameters that extend <xref href="Flowthru.Data.CatalogAbstract" data-throw-if-not-resolved="false"></xref> are resolved from DI as catalogs.
 All other parameters are resolved from DI as services.
 
@@ -219,7 +219,7 @@ public FlowthruServiceBuilder RegisterFlow(string label, Delegate flow, string? 
 
 `label` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Unique flow name
+Unique Flow name
 
 `flow` [Delegate](https://learn.microsoft.com/dotnet/api/system.delegate)
 
@@ -248,7 +248,7 @@ public FlowthruServiceBuilder RegisterFlows(Func<IServiceProvider, Dictionary<st
 
 `flowFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Flow](Flowthru.Flows.Flow.md)\>\>
 
-Factory function that receives the service provider and returns the flow dictionary
+Factory function that receives the service provider and returns the Flow dictionary
 
 #### Returns
 
@@ -258,8 +258,8 @@ This builder for method chaining
 
 #### Remarks
 
-Prefer <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterFlow(System.String%2cSystem.Delegate%2cSystem.String)" data-throw-if-not-resolved="false"></xref> for standard flow registration.
-Use this only when you need full service provider access during flow construction.
+Prefer <xref href="Flowthru.Services.FlowthruServiceBuilder.RegisterFlow(System.String%2cSystem.Delegate%2cSystem.String)" data-throw-if-not-resolved="false"></xref> for standard Flow registration.
+Use this only when you need full service provider access during Flow construction.
 
 ### <a id="Flowthru_Services_FlowthruServiceBuilder_UseConfiguration_System_Action_Flowthru_Configuration_FlowthruConfigurationOptions__"></a> UseConfiguration\(Action<FlowthruConfigurationOptions\>?\)
 
@@ -375,7 +375,7 @@ public FlowthruServiceBuilder WithDescription(string description)
 
 `description` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Human-readable description of what the flow does
+Human-readable description of what the Flow does
 
 #### Returns
 

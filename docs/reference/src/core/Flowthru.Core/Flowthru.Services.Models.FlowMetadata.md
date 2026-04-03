@@ -29,7 +29,7 @@ public sealed record FlowMetadata : IEquatable<FlowMetadata>
 
 ## Remarks
 
-Provides read-only information about a flow without executing it.
+Provides read-only information about a Flow without executing it.
 Useful for discovery, validation, and UI generation.
 
 ## Properties
@@ -60,7 +60,7 @@ public required IReadOnlyList<string> ExternalInputs { get; init; }
 
 ### <a id="Flowthru_Services_Models_FlowMetadata_IsBuilt"></a> IsBuilt
 
-Whether the flow has been built (DAG analyzed).
+Whether the Flow has been built (DAG analyzed).
 
 ```csharp
 public required bool IsBuilt { get; init; }

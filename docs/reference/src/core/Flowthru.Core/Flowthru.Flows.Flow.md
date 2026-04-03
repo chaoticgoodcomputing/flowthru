@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
-Represents a complete data flow with steps, dependencies, and execution order.
+Represents a complete data Flow with steps, dependencies, and execution order.
 
 ```csharp
 public class Flow
@@ -27,7 +27,7 @@ public class Flow
 ## Remarks
 
 <p>
-A flow is a directed acyclic graph (DAG) of transformation steps.
+A Flow is a directed acyclic graph (DAG) of transformation steps.
 Each step reads data from catalog entries, performs transformations,
 and writes results back to catalog entries.
 </p>
@@ -44,7 +44,7 @@ one step. This ensures deterministic execution order and prevents race condition
 
 ### <a id="Flowthru_Flows_Flow_Description"></a> Description
 
-Optional description of what this flow does.
+Optional description of what this Flow does.
 
 ```csharp
 public string? Description { get; }
@@ -56,7 +56,7 @@ public string? Description { get; }
 
 ### <a id="Flowthru_Flows_Flow_IsBuilt"></a> IsBuilt
 
-Indicates whether the flow has been built (dependencies analyzed and layers assigned).
+Indicates whether the Flow has been built (dependencies analyzed and layers assigned).
 
 ```csharp
 public bool IsBuilt { get; }
@@ -68,7 +68,7 @@ public bool IsBuilt { get; }
 
 ### <a id="Flowthru_Flows_Flow_Logger"></a> Logger
 
-Optional logger for flow execution.
+Optional logger for Flow execution.
 
 ```csharp
 public ILogger? Logger { get; set; }
@@ -92,7 +92,7 @@ public string? Name { get; }
 
 #### Remarks
 
-Set by FlowRegistry during flow registration.
+Set by FlowRegistry during Flow registration.
 
 ### <a id="Flowthru_Flows_Flow_ServiceProvider"></a> ServiceProvider
 
@@ -108,7 +108,7 @@ public IServiceProvider? ServiceProvider { get; set; }
 
 #### Remarks
 
-Set by the service layer before flow execution to enable steps
+Set by the service layer before Flow execution to enable steps
 to resolve services (e.g., database connections, external APIs).
 
 ### <a id="Flowthru_Flows_Flow_Steps"></a> Steps
@@ -170,13 +170,13 @@ public ValidationOptions ValidationOptions { get; }
 #### Remarks
 
 Configures how external data sources (Layer 0 inputs) are validated
-before flow execution begins.
+before Flow execution begins.
 
 ## Methods
 
 ### <a id="Flowthru_Flows_Flow_Build_Flowthru_Flows_FlowSliceStrategy_"></a> Build\(FlowSliceStrategy?\)
 
-Builds the flow by analyzing dependencies and assigning execution layers.
+Builds the Flow by analyzing dependencies and assigning execution layers.
 Must be called before executing the flow.
 
 ```csharp
@@ -208,7 +208,7 @@ Thrown if:
 
 ### <a id="Flowthru_Flows_Flow_ExecuteAsync_System_Threading_CancellationToken_"></a> ExecuteAsync\(CancellationToken\)
 
-Executes the flow sequentially, layer by layer.
+Executes the Flow sequentially, layer by layer.
 
 ```csharp
 public Task ExecuteAsync(CancellationToken cancellationToken)
@@ -224,14 +224,14 @@ Cancellation token to signal graceful shutdown
 
  [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)
 
-Task representing the flow execution
+Task representing the Flow execution
 
 #### Remarks
 
 <p>
-This method executes flow in topological order:
-1. Execute all flow in layer 0 sequentially
-2. Execute all flow in layer 1 sequentially
+This method executes Flow in topological order:
+1. Execute all Flow in layer 0 sequentially
+2. Execute all Flow in layer 1 sequentially
 3. Continue until all layers are complete
 </p>
 <p>
@@ -247,7 +247,7 @@ steps within the same layer concurrently.
 
  [InvalidOperationException](https://learn.microsoft.com/dotnet/api/system.invalidoperationexception)
 
-Thrown if flow has not been built
+Thrown if Flow has not been built
 
 ### <a id="Flowthru_Flows_Flow_ExportDag"></a> ExportDag\(\)
 
@@ -266,7 +266,7 @@ Complete DAG metadata including steps, catalog entries, and edges
 #### Remarks
 
 <p>
-This method extracts structural metadata from the built flow , creating
+This method extracts structural metadata from the built Flow , creating
 a complete representation of the DAG (Directed Acyclic Graph) that can be
 serialized to JSON for visualization in Flowthru.Viz.
 </p>
@@ -277,7 +277,7 @@ Call Build() first if IsBuilt is false.
 <p>
 <strong>Usage:</strong>
 </p>
-<pre><code class="lang-csharp">var flow = DataProcessingFlow.Create(catalog);
+<pre><code class="lang-csharp">var Flow = DataProcessingFlow.Create(catalog);
 flow.Build();
 
 var dag = flow.ExportDag();
@@ -285,18 +285,18 @@ var json = dag.ToJson();
 File.WriteAllText("dag.json", json);</code></pre>
 <p>
 This method is non-destructive and idempotent - it can be called multiple
-times without affecting the flow state.
+times without affecting the Flow state.
 </p>
 
 #### Exceptions
 
  [InvalidOperationException](https://learn.microsoft.com/dotnet/api/system.invalidoperationexception)
 
-Thrown if flow has not been built
+Thrown if Flow has not been built
 
 ### <a id="Flowthru_Flows_Flow_Merge_System_Collections_Generic_Dictionary_System_String_Flowthru_Flows_Flow__"></a> Merge\(Dictionary<string, Flow\>\)
 
-Merges multiple flows into a single flow by combining all their steps.
+Merges multiple flows into a single Flow by combining all their steps.
 
 ```csharp
 public static Flow Merge(Dictionary<string, Flow> flows)
@@ -306,19 +306,19 @@ public static Flow Merge(Dictionary<string, Flow> flows)
 
 `flows` [Dictionary](https://learn.microsoft.com/dotnet/api/system.collections.generic.dictionary\-2)<[string](https://learn.microsoft.com/dotnet/api/system.string), [Flow](Flowthru.Flows.Flow.md)\>
 
-Dictionary of flow names to flow instances
+Dictionary of flow names to Flow instances
 
 #### Returns
 
  [Flow](Flowthru.Flows.Flow.md)
 
-A new flow containing all steps from all input flows
+A new Flow containing all steps from all input flows
 
 #### Remarks
 
 <p>
-This method creates a new flow by combining all steps from the input flows.
-Step names are prefixed with their source flow name (e.g., "data_processing.PreprocessCompanies")
+This method creates a new Flow by combining all steps from the input flows.
+Step names are prefixed with their source Flow name (e.g., "data_processing.PreprocessCompanies")
 to ensure uniqueness and maintain traceability in logs.
 </p>
 <p>
@@ -345,18 +345,18 @@ Cancellation token to signal graceful shutdown
 
  [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[FlowResult](Flowthru.Flows.FlowResult.md)\>
 
-FlowResult containing execution status, timing, and flow results
+FlowResult containing execution status, timing, and Flow results
 
 #### Remarks
 
 <p>
 This is the primary high-level API for executing flows. It automatically
-calls Build() if the flow hasn't been built yet, then executes and tracks results.
+calls Build() if the Flow hasn't been built yet, then executes and tracks results.
 </p>
 
 ### <a id="Flowthru_Flows_Flow_ValidateExternalInputsAsync_System_Threading_CancellationToken_"></a> ValidateExternalInputsAsync\(CancellationToken\)
 
-Validates all external inputs before flow execution.
+Validates all external inputs before Flow execution.
 
 ```csharp
 public Task<ValidationResult> ValidateExternalInputsAsync(CancellationToken cancellationToken = default)
@@ -377,7 +377,7 @@ ValidationResult containing any errors found
 #### Remarks
 
 <p>
-This method inspects catalog entries that are consumed by the flow but not
+This method inspects catalog entries that are consumed by the Flow but not
 produced by any step in the execution set. These are pre-existing external data
 sources (files, databases, APIs) that must exist and be valid before the flow
 can execute.
@@ -414,5 +414,5 @@ await flow.RunAsync();</code></pre>
 
  [InvalidOperationException](https://learn.microsoft.com/dotnet/api/system.invalidoperationexception)
 
-Thrown if flow has not been built
+Thrown if Flow has not been built
 

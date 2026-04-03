@@ -44,7 +44,7 @@ public class FlowthruServiceTests
   }
 
   private IFlowthruService CreateService(
-    SimpleThreeNodeCatalog catalog,
+    SimpleThreeStepCatalog catalog,
     Dictionary<string, Flow> pipelines
   )
   {
@@ -80,10 +80,10 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void Constructor_WithNullPipelines_ThrowsArgumentNullException()
+  public void Constructor_WithNullFlows_ThrowsArgumentNullException()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
 
     // Act & Assert
     var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
@@ -117,15 +117,15 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void FlowNames_ReturnsRegisteredPipelines()
+  public void FlowNames_ReturnsRegisteredFlows()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node1",
-        transform: PassthroughNode.Create(),
+        label: "Step1",
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.StepOne
       );
@@ -134,8 +134,8 @@ public class FlowthruServiceTests
     var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node2",
-        transform: PassthroughNode.Create(),
+        label: "Step2",
+        transform: PassthroughStep.Create(),
         input: catalog.StepOne,
         output: catalog.Output
       );
@@ -162,7 +162,7 @@ public class FlowthruServiceTests
   public void Catalog_ReturnsCatalogInstance()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
@@ -172,14 +172,14 @@ public class FlowthruServiceTests
 
     // Assert
     Assert.That(result, Is.Not.Empty);
-    Assert.That(result.First(), Is.InstanceOf<SimpleThreeNodeCatalog>());
+    Assert.That(result.First(), Is.InstanceOf<SimpleThreeStepCatalog>());
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_WithValidFlow_ExecutesSuccessfully()
+  public async Task ExecuteFlowAsync_WithValidFlow_ExecutesSuccessfully()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -195,7 +195,7 @@ public class FlowthruServiceTests
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -219,7 +219,7 @@ public class FlowthruServiceTests
   public async Task ExecuteFlowAsync_WithDryRun_DoesNotExecuteSteps()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -235,7 +235,7 @@ public class FlowthruServiceTests
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -265,13 +265,13 @@ public class FlowthruServiceTests
   public async Task ExecuteFlowAsync_WithStructureOnlyDryRun_SucceedsWithoutData()
   {
     // Arrange — no data seeded; StructureOnly must not probe any data source
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
 
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -296,13 +296,13 @@ public class FlowthruServiceTests
   public async Task ExecuteFlowAsync_WithFullDryRun_FailsWithoutData()
   {
     // Arrange — no data seeded; Full depth must surface the missing external input
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
 
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -322,10 +322,10 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task ExecutePipelineAsync_MergesAndExecutesFlows()
+  public async Task ExecuteFlowAsync_MergesAndExecutesFlows()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -340,8 +340,8 @@ public class FlowthruServiceTests
     var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node1",
-        transform: PassthroughNode.Create(),
+        label: "Step1",
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.StepOne
       );
@@ -350,8 +350,8 @@ public class FlowthruServiceTests
     var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node2",
-        transform: PassthroughNode.Create(),
+        label: "Step2",
+        transform: PassthroughStep.Create(),
         input: catalog.StepOne,
         output: catalog.Output
       );
@@ -374,15 +374,15 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void GetPipelineMetadata_WithValidPipeline_ReturnsMetadata()
+  public void GetFlowMetadata_WithValidFlow_ReturnsMetadata()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -409,10 +409,10 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void GetPipelineMetadata_WithNonExistentPipeline_ThrowsKeyNotFoundException()
+  public void GetFlowMetadata_WithNonExistentFlow_ThrowsKeyNotFoundException()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
@@ -429,7 +429,7 @@ public class FlowthruServiceTests
   public async Task ValidateFlowAsync_WithValidInputs_ReturnsSuccess()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -445,7 +445,7 @@ public class FlowthruServiceTests
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -467,14 +467,14 @@ public class FlowthruServiceTests
   public async Task ValidateFlowAsync_WithMissingInputs_ReturnsFailure()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     // Note: Not saving any data to Input
 
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -497,10 +497,10 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void ValidatePipelineAsync_WithNonExistentPipeline_ThrowsKeyNotFoundException()
+  public void ValidateFlowAsync_WithNonExistentFlow_ThrowsKeyNotFoundException()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
@@ -517,12 +517,12 @@ public class FlowthruServiceTests
   public void GetDagMetadata_WithNoFlowName_ReturnsMergedDag()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node1",
-        transform: PassthroughNode.Create(),
+        label: "Step1",
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.StepOne
       );
@@ -531,8 +531,8 @@ public class FlowthruServiceTests
     var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node2",
-        transform: PassthroughNode.Create(),
+        label: "Step2",
+        transform: PassthroughStep.Create(),
         input: catalog.StepOne,
         output: catalog.Output
       );
@@ -559,15 +559,15 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void GetDagMetadata_WithFlowName_ReturnsSinglePipelineDag()
+  public void GetDagMetadata_WithFlowName_ReturnsSingleFlowDag()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipeline1 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node1",
-        transform: PassthroughNode.Create(),
+        label: "Step1",
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.StepOne
       );
@@ -576,8 +576,8 @@ public class FlowthruServiceTests
     var pipeline2 = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node2",
-        transform: PassthroughNode.Create(),
+        label: "Step2",
+        transform: PassthroughStep.Create(),
         input: catalog.StepOne,
         output: catalog.Output
       );
@@ -603,18 +603,18 @@ public class FlowthruServiceTests
   public void GetDagMetadata_WithSliceStrategy_IncludesSliceOverlay()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
-        label: "Node1",
-        transform: PassthroughNode.Create(),
+        label: "Step1",
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.StepOne
       );
       builder.AddStep(
-        label: "Node2",
-        transform: PassthroughNode.Create(),
+        label: "Step2",
+        transform: PassthroughStep.Create(),
         input: catalog.StepOne,
         output: catalog.Output
       );
@@ -624,9 +624,9 @@ public class FlowthruServiceTests
 
     var service = CreateService(catalog, pipelines);
 
-    // Act — slice to just Node1 (merged names are prefixed with pipeline name)
+    // Act — slice to just Step1 (merged names are prefixed with pipeline name)
     var dag = service.GetDagMetadata(
-      sliceStrategy: new FlowSliceStrategy { ToNodes = new HashSet<string> { "test.Node1" } }
+      sliceStrategy: new FlowSliceStrategy { ToNodes = new HashSet<string> { "test.Step1" } }
     );
 
     // Assert
@@ -636,10 +636,10 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void GetDagMetadata_WithNonExistentPipeline_ThrowsKeyNotFoundException()
+  public void GetDagMetadata_WithNonExistentFlow_ThrowsKeyNotFoundException()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipelines = new Dictionary<string, Flow>();
 
     var service = CreateService(catalog, pipelines);
@@ -653,15 +653,15 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public void GetDagMetadata_NodesHaveInputsAndOutputs()
+  public void GetDagMetadata_StepsHaveInputsAndOutputs()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -685,12 +685,12 @@ public class FlowthruServiceTests
   public void GetDagMetadata_ItemsHaveProducerConsumerInfo()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -718,7 +718,7 @@ public class FlowthruServiceTests
   public async Task ExecuteFlowAsync_WithMetadataProvider_CapturesMetadata()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -734,7 +734,7 @@ public class FlowthruServiceTests
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -775,7 +775,7 @@ public class FlowthruServiceTests
   public async Task ExecuteFlowAsync_WithoutMetadataExport_DoesNotCallProvider()
   {
     // Arrange
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -791,7 +791,7 @@ public class FlowthruServiceTests
     {
       builder.AddStep(
         label: "Process",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );

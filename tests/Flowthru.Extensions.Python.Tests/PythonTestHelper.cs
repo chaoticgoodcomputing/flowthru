@@ -45,7 +45,7 @@ public static class PythonTestHelper
     // Add test output directory (contains _flowthru_arrow.py)
     options.ModuleSearchPaths.Add(AppContext.BaseDirectory);
 
-    // Add _Fixtures subdirectory (contains test modules: scalar_nodes.py, tabular_nodes.py, test_module.py)
+    // Add _Fixtures subdirectory (contains test modules: scalar_steps.py, tabular_steps.py, test_module.py)
     var fixturesPath = Path.Combine(AppContext.BaseDirectory, "_Fixtures");
     if (Directory.Exists(fixturesPath))
     {

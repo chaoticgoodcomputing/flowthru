@@ -67,14 +67,14 @@
   - name: Classes
   - name: CatalogAbstract
     href: Flowthru.Data.CatalogAbstract.md
-  - name: EnumerableItems
-    href: Flowthru.Data.EnumerableItems.md
+  - name: EnumerableItemFactory
+    href: Flowthru.Data.EnumerableItemFactory.md
   - name: Item<T>
     href: Flowthru.Data.Item-1.md
-  - name: Items
-    href: Flowthru.Data.Items.md
-  - name: Items.Single
-    href: Flowthru.Data.Items.Single.md
+  - name: ItemFactory
+    href: Flowthru.Data.ItemFactory.md
+  - name: ItemFactory.Single
+    href: Flowthru.Data.ItemFactory.Single.md
   - name: Interfaces
   - name: IItem
     href: Flowthru.Data.IItem.md

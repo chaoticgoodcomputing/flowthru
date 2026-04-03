@@ -12,7 +12,7 @@ Configuration options for pipeline execution.
 
  [Flow](Flowthru.Flows.Flow.md)
 
-Represents a complete data flow with steps, dependencies, and execution order.
+Represents a complete data Flow with steps, dependencies, and execution order.
 
  [FlowBuilder](Flowthru.Flows.FlowBuilder.md)
 
@@ -20,11 +20,11 @@ Fluent builder for constructing type-safe flows with function-based steps.
 
  [FlowResult](Flowthru.Flows.FlowResult.md)
 
-Represents the result of a flow execution.
+Represents the result of a Flow execution.
 
  [FlowSliceStrategy](Flowthru.Flows.FlowSliceStrategy.md)
 
-Defines a strategy for slicing a flow to execute a subset of nodes.
+Defines a strategy for slicing a Flow to execute a subset of nodes.
 
  [FlowStep](Flowthru.Flows.FlowStep.md)
 
@@ -33,7 +33,7 @@ about its inputs, outputs, and dependencies.
 
  [StepResult](Flowthru.Flows.StepResult.md)
 
-Represents the execution result of a single flow step.
+Represents the execution result of a single Flow step.
 
 ### Structs
 

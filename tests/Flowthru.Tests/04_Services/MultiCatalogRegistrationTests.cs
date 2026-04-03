@@ -36,7 +36,7 @@ public class MultiCatalogRegistrationTests
         "Upstream",
         (UpstreamCatalog up) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+            b.AddStep("U1", PassthroughStep.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
     });
@@ -66,7 +66,7 @@ public class MultiCatalogRegistrationTests
         "Upstream",
         (UpstreamCatalog up) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("U1", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+            b.AddStep("U1", PassthroughStep.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
     });
@@ -87,7 +87,7 @@ public class MultiCatalogRegistrationTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void RegisterPipeline_TwoCatalogs_PipelineIsRegistered()
+  public void RegisterFlow_TwoCatalogs_FlowIsRegistered()
   {
     // Arrange
     var services = new ServiceCollection();
@@ -103,7 +103,7 @@ public class MultiCatalogRegistrationTests
         "Upstream",
         (UpstreamCatalog up) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+            b.AddStep("Process", PassthroughStep.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
@@ -112,7 +112,7 @@ public class MultiCatalogRegistrationTests
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+            b.AddStep("Bridge", PassthroughStep.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
       );
     });
@@ -157,7 +157,7 @@ public class MultiCatalogRegistrationTests
         "Upstream",
         (UpstreamCatalog up) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+            b.AddStep("Process", PassthroughStep.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
@@ -165,7 +165,7 @@ public class MultiCatalogRegistrationTests
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+            b.AddStep("Bridge", PassthroughStep.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
       );
     });
@@ -222,7 +222,7 @@ public class MultiCatalogRegistrationTests
         "Upstream",
         (UpstreamCatalog up) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("Process", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+            b.AddStep("Process", PassthroughStep.Create(), up.UpstreamInput, up.UpstreamOutput)
           )
       );
 
@@ -230,7 +230,7 @@ public class MultiCatalogRegistrationTests
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
           FlowBuilder.CreateFlow(b =>
-            b.AddStep("Bridge", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+            b.AddStep("Bridge", PassthroughStep.Create(), up.UpstreamOutput, down.DownstreamOutput)
           )
       );
 
@@ -240,7 +240,7 @@ public class MultiCatalogRegistrationTests
         (UpstreamCatalog up, DownstreamCatalog down, ThirdCatalog t) =>
           FlowBuilder.CreateFlow(b =>
             // Use downstream output (which depends on upstream) as the final step input
-            b.AddStep("Merge", PassthroughNode.Create(), down.DownstreamOutput, t.FinalOutput)
+            b.AddStep("Merge", PassthroughStep.Create(), down.DownstreamOutput, t.FinalOutput)
           )
       );
     });
@@ -264,7 +264,7 @@ public class MultiCatalogRegistrationTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void RegisterPipeline_TwoCatalogs_WithDescription_SetsDescription()
+  public void RegisterFlow_TwoCatalogs_WithDescription_SetsDescription()
   {
     // Arrange
     var services = new ServiceCollection();
@@ -280,7 +280,7 @@ public class MultiCatalogRegistrationTests
           "Bridge",
           (UpstreamCatalog up, DownstreamCatalog down) =>
             FlowBuilder.CreateFlow(b =>
-              b.AddStep("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+              b.AddStep("B", PassthroughStep.Create(), up.UpstreamOutput, down.DownstreamOutput)
             )
         )
         .WithDescription("Bridges upstream to downstream domain");
@@ -299,7 +299,7 @@ public class MultiCatalogRegistrationTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void RegisterPipeline_TwoCatalogs_SharedEntryPreservesObjectIdentity()
+  public void RegisterFlow_TwoCatalogs_SharedEntryPreservesObjectIdentity()
   {
     // Arrange — upstream.UpstreamOutput is referenced by both the Upstream pipeline
     // (as an output) and the Bridge pipeline (as an input). Both pipelines receive the
@@ -308,8 +308,8 @@ public class MultiCatalogRegistrationTests
     var upstream = new UpstreamCatalog();
     var downstream = new DownstreamCatalog();
 
-    Flow? upstreamPipeline = null;
-    Flow? bridgePipeline = null;
+    Flow? upstreamFlow = null;
+    Flow? bridgeFlow = null;
 
     var services = new ServiceCollection();
     services.AddLogging();
@@ -323,10 +323,10 @@ public class MultiCatalogRegistrationTests
         "Upstream",
         (UpstreamCatalog up) =>
         {
-          upstreamPipeline = FlowBuilder.CreateFlow(b =>
-            b.AddStep("P", PassthroughNode.Create(), up.UpstreamInput, up.UpstreamOutput)
+          upstreamFlow = FlowBuilder.CreateFlow(b =>
+            b.AddStep("P", PassthroughStep.Create(), up.UpstreamInput, up.UpstreamOutput)
           );
-          return upstreamPipeline;
+          return upstreamFlow;
         }
       );
 
@@ -334,10 +334,10 @@ public class MultiCatalogRegistrationTests
         "Bridge",
         (UpstreamCatalog up, DownstreamCatalog down) =>
         {
-          bridgePipeline = FlowBuilder.CreateFlow(b =>
-            b.AddStep("B", PassthroughNode.Create(), up.UpstreamOutput, down.DownstreamOutput)
+          bridgeFlow = FlowBuilder.CreateFlow(b =>
+            b.AddStep("B", PassthroughStep.Create(), up.UpstreamOutput, down.DownstreamOutput)
           );
-          return bridgePipeline;
+          return bridgeFlow;
         }
       );
     });
@@ -347,8 +347,8 @@ public class MultiCatalogRegistrationTests
     _ = sp.GetRequiredService<IFlowthruService>();
 
     // Assert — UpstreamOutput entry is the same instance in both pipelines
-    var upstreamOutputInProducer = upstreamPipeline!.Steps.First(n => n.Label == "P").Outputs[0];
-    var upstreamOutputInConsumer = bridgePipeline!.Steps.First(n => n.Label == "B").Inputs[0];
+    var upstreamOutputInProducer = upstreamFlow!.Steps.First(n => n.Label == "P").Outputs[0];
+    var upstreamOutputInConsumer = bridgeFlow!.Steps.First(n => n.Label == "B").Inputs[0];
 
     Assert.That(
       upstreamOutputInProducer,

@@ -28,5 +28,5 @@ Schema information for a data type.
 
  [StepMetadata](Flowthru.Meta.Models.StepMetadata.md)
 
-Metadata describing a single step in the flow DAG.
+Metadata describing a single step in the Flow DAG.
 

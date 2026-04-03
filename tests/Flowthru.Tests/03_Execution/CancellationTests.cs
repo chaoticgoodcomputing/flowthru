@@ -24,7 +24,7 @@ public class CancellationTests
     // ===========
     // Arrange
     // ===========
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -40,7 +40,7 @@ public class CancellationTests
     {
       builder.AddStep(
         label: "Passthrough",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -66,7 +66,7 @@ public class CancellationTests
     // ===========
     // Arrange
     // ===========
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -82,7 +82,7 @@ public class CancellationTests
     {
       builder.AddStep(
         label: "Increment",
-        transform: IncrementNode.Create(),
+        transform: IncrementStep.Create(),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -100,11 +100,11 @@ public class CancellationTests
     // ===========
     // Assert
     // ===========
-    Assert.That(result.Success, Is.True, "Pipeline should complete successfully with valid token");
+    Assert.That(result.Success, Is.True, "Flow should complete successfully with valid token");
     Assert.That(result.Exception, Is.Null);
 
     var output = await catalog.Output.Load().Run();
-    Assert.That(output.First().Id, Is.EqualTo(2), "Node should have executed");
+    Assert.That(output.First().Id, Is.EqualTo(2), "Step should have executed");
   }
 
   [Test]
@@ -113,7 +113,7 @@ public class CancellationTests
     // ===========
     // Arrange
     // ===========
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -129,16 +129,16 @@ public class CancellationTests
     {
       // First node: quick passthrough
       builder.AddStep(
-        label: "FirstNode",
-        transform: PassthroughNode.Create(),
+        label: "FirstStep",
+        transform: PassthroughStep.Create(),
         input: catalog.Input,
         output: catalog.StepOne
       );
 
       // Second node: delayed
       builder.AddStep(
-        label: "SecondNode",
-        transform: DelayedNode.Create(TimeSpan.FromSeconds(10)),
+        label: "SecondStep",
+        transform: DelayedStep.Create(TimeSpan.FromSeconds(10)),
         input: catalog.StepOne,
         output: catalog.Output
       );
@@ -162,7 +162,7 @@ public class CancellationTests
     // Assert
     // ===========
     var exception = Assert.ThrowsAsync<OperationCanceledException>(async () => await pipelineTask);
-    Assert.That(exception, Is.Not.Null, "Pipeline should throw OperationCanceledException");
+    Assert.That(exception, Is.Not.Null, "Flow should throw OperationCanceledException");
   }
 
   [Test]
@@ -171,7 +171,7 @@ public class CancellationTests
     // ===========
     // Arrange
     // ===========
-    var catalog = new SimpleThreeNodeCatalog();
+    var catalog = new SimpleThreeStepCatalog();
     var testData = new[]
     {
       new TestData
@@ -185,10 +185,10 @@ public class CancellationTests
 
     Flow pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      // Node with long delay
+      // Step with long delay
       builder.AddStep(
-        label: "LongRunningNode",
-        transform: DelayedNode.Create(TimeSpan.FromSeconds(10)),
+        label: "LongRunningStep",
+        transform: DelayedStep.Create(TimeSpan.FromSeconds(10)),
         input: catalog.Input,
         output: catalog.Output
       );
@@ -212,7 +212,7 @@ public class CancellationTests
     // Assert
     // ===========
     var exception = Assert.ThrowsAsync<OperationCanceledException>(async () => await pipelineTask);
-    Assert.That(exception, Is.Not.Null, "Pipeline should throw OperationCanceledException");
+    Assert.That(exception, Is.Not.Null, "Flow should throw OperationCanceledException");
   }
 
   [Test]
@@ -245,7 +245,7 @@ public class CancellationTests
     {
       builder.AddStep(
         label: "LoadFromSlowStorage",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.SlowData,
         output: catalog.FastData
       );
@@ -268,7 +268,7 @@ public class CancellationTests
     // Assert
     // ===========
     var exception = Assert.ThrowsAsync<OperationCanceledException>(async () => await pipelineTask);
-    Assert.That(exception, Is.Not.Null, "Pipeline should throw when IO is cancelled");
+    Assert.That(exception, Is.Not.Null, "Flow should throw when IO is cancelled");
   }
 
   [Test]
@@ -299,7 +299,7 @@ public class CancellationTests
     {
       builder.AddStep(
         label: "SaveToSlowStorage",
-        transform: PassthroughNode.Create(),
+        transform: PassthroughStep.Create(),
         input: catalog.FastData,
         output: catalog.SlowData
       );
@@ -322,7 +322,7 @@ public class CancellationTests
     // Assert
     // ===========
     var exception = Assert.ThrowsAsync<OperationCanceledException>(async () => await pipelineTask);
-    Assert.That(exception, Is.Not.Null, "Pipeline should throw when IO Save is cancelled");
+    Assert.That(exception, Is.Not.Null, "Flow should throw when IO Save is cancelled");
   }
 
   /// <summary>

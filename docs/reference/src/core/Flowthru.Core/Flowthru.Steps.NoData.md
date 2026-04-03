@@ -4,7 +4,7 @@ Namespace: [Flowthru.Steps](Flowthru.Steps.md)
 Assembly: Flowthru.Core.dll  
 
 Marker type representing "no meaningful data" for nodes with side-effects or data generation.
-Used as input/output type in NodeBase when a node doesn't consume or produce meaningful data.
+Used as input/output type in StepBase when a step doesn't consume or produce meaningful data.
 
 ```csharp
 public sealed class NoData
@@ -38,8 +38,8 @@ naming for .NET developers unfamiliar with functional terminology.
 <p>
 <strong>Usage Examples:</strong>
 </p>
-<pre><code class="lang-csharp">// Node with no inputs (data generation)
-public class GenerateDataNode : NodeBase&lt;NoData, OutputSchema&gt;
+<pre><code class="lang-csharp">// Step with no inputs (data generation)
+public class GenerateDataStep : StepBase&lt;NoData, OutputSchema&gt;
 {
     protected override Task&lt;IEnumerable&lt;OutputSchema&gt;&gt; Transform(IEnumerable&lt;NoData&gt; input)
     {
@@ -48,8 +48,8 @@ public class GenerateDataNode : NodeBase&lt;NoData, OutputSchema&gt;
     }
 }
 
-// Node with no outputs (side-effects only)
-public class ValidateNode : NodeBase&lt;InputSchema, NoData&gt;
+// Step with no outputs (side-effects only)
+public class ValidateStep : StepBase&lt;InputSchema, NoData&gt;
 {
     protected override Task&lt;IEnumerable&lt;NoData&gt;&gt; Transform(IEnumerable&lt;InputSchema&gt; input)
     {
@@ -62,12 +62,12 @@ public class ValidateNode : NodeBase&lt;InputSchema, NoData&gt;
 to a unique NullCatalogDataset instance:
 </p>
 <pre><code class="lang-csharp">// Simple syntax with automatic unique key generation
-pipeline.AddStep&lt;ValidationNode&gt;(
+pipeline.AddStep&lt;ValidationStep&gt;(
     input: catalog.InputData,
     output: NoData.Output  // or just: NoData.Discard
 );
 
-pipeline.AddStep&lt;GenerateDataNode&gt;(
+pipeline.AddStep&lt;GenerateDataStep&gt;(
     input: NoData.Input,  // or just: NoData.None
     output: catalog.GeneratedData
 );</code></pre>
@@ -77,7 +77,7 @@ pipeline.AddStep&lt;GenerateDataNode&gt;(
 ### <a id="Flowthru_Steps_NoData_Value"></a> Value
 
 Singleton instance of NoData.
-Use this value when returning NoData from node transformations.
+Use this value when returning NoData from step transformations.
 
 ```csharp
 public static readonly NoData Value
@@ -91,7 +91,7 @@ public static readonly NoData Value
 
 ### <a id="Flowthru_Steps_NoData_Discard"></a> Discard
 
-Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
+Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
 Semantic alias for Output - use whichever reads better in context.
 
 ```csharp
@@ -104,7 +104,7 @@ public static IItem<NoData> Discard { get; }
 
 ### <a id="Flowthru_Steps_NoData_Input"></a> Input
 
-Creates a unique null catalog entry for use as a node input (no-input nodes).
+Creates a unique null catalog entry for use as a step input (no-input nodes).
 Each call generates a new instance with a unique key to avoid DAG conflicts.
 
 ```csharp
@@ -121,7 +121,7 @@ Alias for readability in pipeline declarations where nodes don't consume externa
 
 ### <a id="Flowthru_Steps_NoData_None"></a> None
 
-Creates a unique null catalog entry for use as a node input (no-input nodes).
+Creates a unique null catalog entry for use as a step input (no-input nodes).
 Semantic alias for Input - use whichever reads better in context.
 
 ```csharp
@@ -134,7 +134,7 @@ public static IItem<NoData> None { get; }
 
 ### <a id="Flowthru_Steps_NoData_Output"></a> Output
 
-Creates a unique null catalog entry for use as a node output (side-effect-only nodes).
+Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
 Each call generates a new instance with a unique key to avoid DAG conflicts.
 
 ```csharp

@@ -41,7 +41,7 @@ for immediate visualization in GitHub, VS Code, and other Mermaid-compatible vie
 Initializes a new Mermaid metadata provider.
 
 ```csharp
-public MermaidMetadataProvider(string outputDirectory, string filenameTemplate, TimestampConfiguration timestampConfig, MermaidMetadataProvider.MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom, string activeNodeColor = "#2E7D32", string activeDataColor = "#2E7D32", ILogger? logger = null)
+public MermaidMetadataProvider(string outputDirectory, string filenameTemplate, TimestampConfiguration timestampConfig, MermaidMetadataProvider.MermaidFlowchartDirection direction = MermaidFlowchartDirection.TopToBottom, string activeStepColor = "#2E7D32", string activeDataColor = "#2E7D32", ILogger? logger = null)
 ```
 
 #### Parameters
@@ -62,7 +62,7 @@ Configuration for timestamp handling in filenames
 
 Flow direction for the diagram
 
-`activeNodeColor` [string](https://learn.microsoft.com/dotnet/api/system.string)
+`activeStepColor` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
 Hex color for active (sliced) nodes
 

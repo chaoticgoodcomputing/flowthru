@@ -27,13 +27,13 @@ public class EdgeMetadata
 ## Remarks
 
 <p>
-Edges represent data flow between catalog entries and nodes. The DAG contains
+Edges represent data Flow between catalog entries and nodes. The DAG contains
 two types of edges:
 </p>
-<ul><li><strong>Catalog → Node:</strong> A node reads from a catalog entry</li><li><strong>Node → Catalog:</strong> A node writes to a catalog entry</li></ul>
+<ul><li><strong>Catalog → Step:</strong> A node reads from a catalog entry</li><li><strong>Step → Catalog:</strong> A node writes to a catalog entry</li></ul>
 <p>
 Together, these edges form the complete data flow:
-<code>Item → Node → Item → Node → ...</code>
+<code>Item → Step → Item → Step → ...</code>
 </p>
 
 ## Properties
@@ -71,8 +71,8 @@ public required string Source { get; init; }
 
 #### Remarks
 
-For Catalog → Node edges, this is a catalog entry key.
-For Node → Catalog edges, this is a node ID.
+For Catalog → Step edges, this is a catalog entry key.
+For Step → Catalog edges, this is a node ID.
 
 ### <a id="Flowthru_Meta_Models_EdgeMetadata_Target"></a> Target
 
@@ -89,6 +89,6 @@ public required string Target { get; init; }
 
 #### Remarks
 
-For Catalog → Node edges, this is a node ID.
-For Node → Catalog edges, this is a catalog entry key.
+For Catalog → Step edges, this is a node ID.
+For Step → Catalog edges, this is a catalog entry key.
 

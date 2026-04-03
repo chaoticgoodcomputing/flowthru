@@ -17,7 +17,7 @@ namespace Flowthru.Tests.Examples.Infrastructure;
 ///   <item><b>Hard timeout via <c>Task.WhenAny</c></b> — prevents infinite hangs even when
 ///         the pipeline does not honour <see cref="CancellationToken"/>.</item>
 ///   <item><b>Cooperative cancellation</b> — a <see cref="CancellationToken"/> is passed to
-///         <c>ExecuteAllPipelinesAsync</c> so pipelines that do check it can exit early on timeout.</item>
+///         <c>ExecuteAllFlowsAsync</c> so pipelines that do check it can exit early on timeout.</item>
 /// </list>
 /// </remarks>
 public sealed class ExampleTestRunner

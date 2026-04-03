@@ -82,7 +82,7 @@ concrete class name via <code>GetType().Name</code>.
 
 ### <a id="Flowthru_Data_CatalogAbstract_CatalogLabel"></a> CatalogLabel
 
-The display label used to identify this catalog instance in flow metadata.
+The display label used to identify this catalog instance in Flow metadata.
 Defaults to the concrete class name when not specified.
 
 ```csharp
@@ -96,7 +96,7 @@ public string CatalogLabel { get; }
 #### Remarks
 
 Pass an explicit label when constructing multiple instances of the same catalog type
-in a single flow (e.g., per-partition or per-shard catalogs) so their items
+in a single Flow (e.g., per-partition or per-shard catalogs) so their items
 receive distinct qualified identifiers in the DAG: <code>CatalogLabel.ItemLabel</code>.
 
 ### <a id="Flowthru_Data_CatalogAbstract_Services"></a> Services
@@ -113,7 +113,7 @@ public IServiceProvider? Services { get; set; }
 
 #### Remarks
 
-Set by the service layer before flow execution to enable catalog
+Set by the service layer before Flow execution to enable catalog
 items to resolve services (e.g., database connections, HTTP clients).
 
 ## Methods
@@ -129,7 +129,7 @@ protected void ClearCache()
 #### Remarks
 
 <p>
-<strong>Warning:</strong> Clearing the cache after flow construction will break
+<strong>Warning:</strong> Clearing the cache after Flow construction will break
 DAG dependencies since new instances will be created on next access.
 </p>
 <p>
@@ -172,18 +172,18 @@ For collections: Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;FeatureRow&gt;)
 #### Remarks
 
 <p>
-<strong>Unified API (v0.5.0):</strong> This single method replaces GetOrCreateObject
-and GetOrCreateDataset. Cardinality is determined by the type parameter T.
+<strong>Unified API (v0.5.0):</strong> This single method replaces CreateObject
+and CreateDataset. Cardinality is determined by the type parameter T.
 </p>
 <p>
 <strong>Usage Examples:</strong>
 <pre><code class="lang-csharp">// Singleton object
 public IItem&lt;LinearRegressionModel&gt; Model =&gt;
-    GetOrCreateItem(() =&gt; Items.Single.Memory&lt;LinearRegressionModel&gt;("model"));
+    CreateItem(() =&gt; ItemFactory.Single.Memory&lt;LinearRegressionModel&gt;("model"));
 
 // Collection
 public IItem&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
-    GetOrCreateItem(() =&gt; Items.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));</code></pre>
+    CreateItem(() =&gt; ItemFactory.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));</code></pre>
 </p>
 
 ### <a id="Flowthru_Data_CatalogAbstract_CreateItem__1_System_Func_System_IServiceProvider_Flowthru_Data_IItem___0___System_String_"></a> CreateItem<T\>\(Func<IServiceProvider?, IItem<T\>\>, string\)
@@ -216,12 +216,12 @@ Cached catalog item instance
 
 The data type (singleton or collection)
 
-### <a id="Flowthru_Data_CatalogAbstract_GetAllItems"></a> GetAllItems\(\)
+### <a id="Flowthru_Data_CatalogAbstract_GetAllItemFactory"></a> GetAllItemFactory\(\)
 
 Gets all cached catalog items.
 
 ```csharp
-protected IEnumerable<IItem> GetAllItems()
+protected IEnumerable<IItem> GetAllItemFactory()
 ```
 
 #### Returns
@@ -247,7 +247,7 @@ protected void InitializeCatalogProperties()
 
 <p>
 <strong>Purpose:</strong> Eager initialization ensures all items are cached
-before flow construction begins, preventing any potential race conditions
+before Flow construction begins, preventing any potential race conditions
 or unexpected lazy initialization behavior.
 </p>
 <p>

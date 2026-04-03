@@ -58,7 +58,7 @@ public class PythonStepWrapperIntegrationTests
     // Arrange
     var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
-      "scalar_nodes",
+      "scalar_steps",
       "train_model"
     );
 
@@ -92,7 +92,7 @@ public class PythonStepWrapperIntegrationTests
     // Arrange
     var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
       _executor,
-      "scalar_nodes",
+      "scalar_steps",
       "identity"
     );
 
@@ -120,7 +120,7 @@ public class PythonStepWrapperIntegrationTests
     // Arrange
     var wrapper = new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
       _executor,
-      "scalar_nodes",
+      "scalar_steps",
       "double_iterations"
     );
 
@@ -148,13 +148,13 @@ public class PythonStepWrapperIntegrationTests
     // Arrange: Create two wrappers and chain them
     var doubleWrapper = new PythonStepWrapper<ModelConfigSchema, ModelConfigSchema>(
       _executor,
-      "scalar_nodes",
+      "scalar_steps",
       "double_iterations"
     );
 
     var trainWrapper = new PythonStepWrapper<ModelConfigSchema, ModelResultSchema>(
       _executor,
-      "scalar_nodes",
+      "scalar_steps",
       "train_model"
     );
 
@@ -189,7 +189,7 @@ public class PythonStepWrapperIntegrationTests
     // Arrange - Test dict → singleton with SerializedLabel attributes
     var wrapper = new PythonStepWrapper<(int, int), MetricsReportSchema>(
       _executor,
-      "scalar_nodes",
+      "scalar_steps",
       "calculate_metrics"
     );
 
@@ -218,7 +218,7 @@ public class PythonStepWrapperIntegrationTests
     // Arrange - Test with non-100% accuracy
     var wrapper = new PythonStepWrapper<(int, int), MetricsReportSchema>(
       _executor,
-      "scalar_nodes",
+      "scalar_steps",
       "calculate_metrics"
     );
 

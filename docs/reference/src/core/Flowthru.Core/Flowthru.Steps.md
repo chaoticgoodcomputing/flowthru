@@ -9,10 +9,10 @@
  [NoData](Flowthru.Steps.NoData.md)
 
 Marker type representing "no meaningful data" for nodes with side-effects or data generation.
-Used as input/output type in NodeBase when a node doesn't consume or produce meaningful data.
+Used as input/output type in StepBase when a step doesn't consume or produce meaningful data.
 
  [NoParams](Flowthru.Steps.NoParams.md)
 
 Marker type for nodes that don't require parameters.
-Used as the default TParameters type in NodeBase&lt;TInput, TOutput, TParameters&gt;.
+Used as the default TParameters type in StepBase&lt;TInput, TOutput, TParameters&gt;.
 

@@ -8,7 +8,7 @@
 
 ### Classes
 
- [ItemsMLNet](Flowthru.Extensions.MLNet.ItemsMLNet.md)
+ [ItemFactoryMLNet](Flowthru.Extensions.MLNet.ItemFactoryMLNet.md)
 
 Factory methods for creating ML.NET-related catalog entries.
 

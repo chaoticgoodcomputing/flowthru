@@ -4,7 +4,7 @@ Namespace: [Flowthru.Extensions.Python.Steps](Flowthru.Extensions.Python.Steps.m
 Assembly: Flowthru.Extensions.Python.dll  
 
 Thin wrapper that binds an <xref href="Flowthru.Extensions.Python.Execution.IPythonExecutor" data-throw-if-not-resolved="false"></xref> to a specific module/function pair,
-exposing it as a typed <code>Func&lt;TInput, TOutput&gt;</code> for use with the flow builder.
+exposing it as a typed <code>Func&lt;TInput, TOutput&gt;</code> for use with the Flow builder.
 
 ```csharp
 public sealed class PythonStepWrapper<TInput, TOutput>

@@ -49,7 +49,7 @@ This is necessary for extensions (e.g., Python) to validate their own step types
 
 ### <a id="Flowthru_Flows_FlowStep__ctor_System_String_System_String_System_Delegate_System_Collections_Generic_IReadOnlyList_Flowthru_Data_IItem__System_Collections_Generic_IReadOnlyList_Flowthru_Data_IItem__"></a> FlowStep\(string, string?, Delegate, IReadOnlyList<IItem\>, IReadOnlyList<IItem\>\)
 
-Creates a new flow step with a transformation function.
+Creates a new Flow step with a transformation function.
 
 ```csharp
 public FlowStep(string label, string? description, Delegate step, IReadOnlyList<IItem> inputs, IReadOnlyList<IItem> outputs)
@@ -81,7 +81,7 @@ Catalog entries this step writes
 
 ### <a id="Flowthru_Flows_FlowStep_Dependencies"></a> Dependencies
 
-Other flow steps that must execute before this step.
+Other Flow steps that must execute before this step.
 Populated during dependency analysis by checking which steps produce our inputs.
 
 ```csharp
@@ -195,7 +195,7 @@ by accepting a CancellationToken as the last parameter:
 - Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOutput&gt;&gt;
 </p>
 <p>
-When a Step accepts a CancellationToken, the flow will pass the runtime token during
+When a Step accepts a CancellationToken, the Flow will pass the runtime token during
 execution, allowing the step to cancel long-running operations cooperatively. Steps that
 do not accept a CancellationToken will only be cancelled between step executions.
 </p>

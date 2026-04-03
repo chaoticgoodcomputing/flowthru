@@ -41,12 +41,12 @@ only when your step performs I/O operations (external APIs, databases, etc.).
 </p>
 <p>
 The compiler infers all types from function signatures and validates catalog entry
-types at flow construction time, catching type mismatches before execution.
+types at Flow construction time, catching type mismatches before execution.
 </p>
 <p>
 <strong>Usage Patterns:</strong>
 </p>
-<pre><code class="lang-csharp">var flow = FlowBuilder.CreateFlow(builder =&gt;
+<pre><code class="lang-csharp">var Flow = FlowBuilder.CreateFlow(builder =&gt;
 {
     // Simple synchronous step
     builder.AddStep(
@@ -9663,7 +9663,7 @@ Output type 8
 
 ### <a id="Flowthru_Flows_FlowBuilder_CreateFlow_System_Action_Flowthru_Flows_FlowBuilder__"></a> CreateFlow\(Action<FlowBuilder\>\)
 
-Creates and configures a new flow using the builder pattern.
+Creates and configures a new Flow using the builder pattern.
 
 ```csharp
 public static Flow CreateFlow(Action<FlowBuilder> configure)
@@ -9673,7 +9673,7 @@ public static Flow CreateFlow(Action<FlowBuilder> configure)
 
 `configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[FlowBuilder](Flowthru.Flows.FlowBuilder.md)\>
 
-Action to configure the flow by adding steps
+Action to configure the Flow by adding steps
 
 #### Returns
 

@@ -16,7 +16,7 @@ Configuration options for a single flow.
 
  [FlowValidationOptions](Flowthru.Configuration.FlowValidationOptions.md)
 
-Configuration options for flow validation behavior.
+Configuration options for Flow validation behavior.
 
  [FlowthruConfigurationOptions](Flowthru.Configuration.FlowthruConfigurationOptions.md)
 

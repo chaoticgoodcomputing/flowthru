@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
-Represents the execution result of a single flow step.
+Represents the execution result of a single Flow step.
 
 ```csharp
 public class StepResult

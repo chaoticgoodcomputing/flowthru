@@ -78,7 +78,7 @@ Constraints can only tighten, never loosen (one-way ratchet).</li></ul>
 <strong>Usage in Catalogs:</strong>
 </p>
 <pre><code class="lang-csharp">public IItem&lt;IEnumerable&lt;Company&gt;&gt; ReferenceData =&gt;
-    GetOrCreateEntry(() =&gt; Items.Enumerable.Csv&lt;Company&gt;(
+    CreateEntry(() =&gt; ItemFactory.Enumerable.Csv&lt;Company&gt;(
         "ref_data", $"{_basePath}/reference.csv")
         .Constrain(t =&gt; t with { CanWrite = false }));</code></pre>
 

@@ -10,5 +10,5 @@ Configuration for pipeline validation behavior.
 
  [IFlowValidationHook](Flowthru.Flows.Validation.IFlowValidationHook.md)
 
-Validation hook that runs during flow pre-flight checks.
+Validation hook that runs during Flow pre-flight checks.
 

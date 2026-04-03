@@ -55,7 +55,7 @@ public string FilenameTemplate { get; set; }
 <p>
 Supports dynamic tokens that are replaced during export:
 </p>
-<ul><li><code>{FlowName}</code> - Sanitized flow name</li><li><code>{Timestamp}</code> - Formatted timestamp (empty if disabled in Timestamp.IncludeTimestamp)</li><li><code>{SliceType}</code> - "FromNodes", "Tags", "Mixed", or empty if unsliced</li><li><code>{FromNodes}</code> - Comma-separated list of from-nodes</li><li><code>{ToNodes}</code> - Comma-separated list of to-nodes</li><li><code>{FromInputs}</code> - Comma-separated list of from-inputs</li><li><code>{OnlyNodes}</code> - Comma-separated list of only-nodes</li><li><code>{Tags}</code> - Comma-separated list of tags</li></ul>
+<ul><li><code>{FlowName}</code> - Sanitized Flow name</li><li><code>{Timestamp}</code> - Formatted timestamp (empty if disabled in Timestamp.IncludeTimestamp)</li><li><code>{SliceType}</code> - "FromNodes", "Tags", "Mixed", or empty if unsliced</li><li><code>{FromNodes}</code> - Comma-separated list of from-nodes</li><li><code>{ToNodes}</code> - Comma-separated list of to-nodes</li><li><code>{FromInputs}</code> - Comma-separated list of from-inputs</li><li><code>{OnlyNodes}</code> - Comma-separated list of only-nodes</li><li><code>{Tags}</code> - Comma-separated list of tags</li></ul>
 <p>
 Empty tokens are automatically collapsed to prevent double-separators.
 File extensions are added by individual providers (.json, .md, etc.).

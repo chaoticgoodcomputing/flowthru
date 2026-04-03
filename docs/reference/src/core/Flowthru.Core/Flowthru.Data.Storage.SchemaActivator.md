@@ -45,13 +45,13 @@ var modern = SchemaActivator.CreateInstance&lt;NewSchema&gt;();</code></pre>
 <strong>Design Philosophy:</strong>
 </p>
 <p>
-With Flowthru's strong node contracts, schemas with required members are guaranteed to contain
+With Flowthru's strong step contracts, schemas with required members are guaranteed to contain
 valid data because:
 </p>
-<ul><li><strong>Layer 0 (Seeds):</strong> Validation phase checks required fields exist before execution</li><li><strong>Layers 1+ (Node outputs):</strong> C# compiler enforces required members when nodes construct output</li></ul>
+<ul><li><strong>Layer 0 (Seeds):</strong> Validation phase checks required fields exist before execution</li><li><strong>Layers 1+ (Step outputs):</strong> C# compiler enforces required members when steps construct output</li></ul>
 <p>
 This activator's role is to enable deserialization by creating instances that will be populated
-via property reflection. No validation is performed here - that happens at the pipeline boundaries.
+via property reflection. No validation is performed here - that happens at the Flow boundaries.
 </p>
 <p>
 <strong>Instantiation Strategy:</strong>
@@ -103,7 +103,7 @@ The returned instance will have:
 <p>
 This is safe because:
 - Layer 0: Validation ensures required fields exist in data
-- Layers 1+: Data came from valid node output
+- Layers 1+: Data came from valid step output
 </p>
 
 #### Exceptions

@@ -30,7 +30,7 @@ backends based on the environment:
     }
 
     public IItem&lt;IEnumerable&lt;Company&gt;&gt; Companies =&gt;
-        GetOrCreateEntry(() =&gt; _storage.CreateEnumerable&lt;Company&gt;("Companies"));
+        CreateEntry(() =&gt; _storage.CreateEnumerable&lt;Company&gt;("Companies"));
 }</code></pre>
 
 ## Methods

@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Flows](Flowthru.Flows.md)  
 Assembly: Flowthru.Core.dll  
 
-Represents the result of a flow execution.
+Represents the result of a Flow execution.
 
 ```csharp
 public class FlowResult
@@ -52,7 +52,7 @@ else
 
 ### <a id="Flowthru_Flows_FlowResult_Exception"></a> Exception
 
-Exception that caused flow failure, if any.
+Exception that caused Flow failure, if any.
 
 ```csharp
 public Exception? Exception { get; init; }
@@ -65,7 +65,7 @@ public Exception? Exception { get; init; }
 #### Remarks
 
 Null if Success is true. Contains the first exception that caused
-flow execution to halt if Success is false.
+Flow execution to halt if Success is false.
 
 ### <a id="Flowthru_Flows_FlowResult_ExecutionTime"></a> ExecutionTime
 
@@ -81,7 +81,7 @@ public TimeSpan ExecutionTime { get; init; }
 
 ### <a id="Flowthru_Flows_FlowResult_FlowName"></a> FlowName
 
-The name of the flow that was executed.
+The name of the Flow that was executed.
 
 ```csharp
 public string? FlowName { get; init; }
@@ -117,12 +117,12 @@ public Dictionary<string, StepResult> StepResults { get; init; }
 
 #### Remarks
 
-Dictionary keys are the step names as specified in the flow definition.
+Dictionary keys are the step names as specified in the Flow definition.
 Values contain execution details for each step.
 
 ### <a id="Flowthru_Flows_FlowResult_Success"></a> Success
 
-Indicates whether the flow executed successfully.
+Indicates whether the Flow executed successfully.
 
 ```csharp
 public bool Success { get; init; }
@@ -172,7 +172,7 @@ A successful dry run result
 
 ### <a id="Flowthru_Flows_FlowResult_CreateFailure_System_TimeSpan_System_Exception_System_Collections_Generic_Dictionary_System_String_Flowthru_Flows_StepResult__System_String_"></a> CreateFailure\(TimeSpan, Exception, Dictionary<string, StepResult\>?, string?\)
 
-Creates a failed flow result.
+Creates a failed Flow result.
 
 ```csharp
 public static FlowResult CreateFailure(TimeSpan executionTime, Exception exception, Dictionary<string, StepResult>? stepResults = null, string? flowName = null)
@@ -194,7 +194,7 @@ public static FlowResult CreateFailure(TimeSpan executionTime, Exception excepti
 
 ### <a id="Flowthru_Flows_FlowResult_CreateSuccess_System_TimeSpan_System_Collections_Generic_Dictionary_System_String_Flowthru_Flows_StepResult__System_String_"></a> CreateSuccess\(TimeSpan, Dictionary<string, StepResult\>, string?\)
 
-Creates a successful flow result.
+Creates a successful Flow result.
 
 ```csharp
 public static FlowResult CreateSuccess(TimeSpan executionTime, Dictionary<string, StepResult> stepResults, string? flowName = null)

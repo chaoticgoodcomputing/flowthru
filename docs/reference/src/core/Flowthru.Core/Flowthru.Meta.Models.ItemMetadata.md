@@ -27,7 +27,7 @@ public class ItemMetadata
 ## Remarks
 
 Catalog items represent data sources and sinks. They can be external files,
-intermediate flow outputs, or final results. Each item is uniquely identified
+intermediate Flow outputs, or final results. Each item is uniquely identified
 by its key.
 
 ## Properties
@@ -137,7 +137,7 @@ public string? Producer { get; init; }
 
 #### Remarks
 
-Null for external inputs (Layer 0 inputs that exist before flow execution).
+Null for external inputs (Layer 0 inputs that exist before Flow execution).
 Example: "PreprocessCompanies"
 
 ### <a id="Flowthru_Meta_Models_ItemMetadata_Schema"></a> Schema

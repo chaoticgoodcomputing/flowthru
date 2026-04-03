@@ -37,7 +37,7 @@ using reflection on first call, then caches compiled expression trees for subseq
 - Significantly faster than Activator.CreateInstance&lt;T&gt;() for repeated calls
 </p>
 <p>
-<strong>Inspiration:</strong> ChainSharp uses similar pattern for node instantiation.
+<strong>Inspiration:</strong> ChainSharp uses similar pattern for step instantiation.
 </p>
 <p>
 <strong>Thread Safety:</strong> This class is thread-safe. Multiple threads can safely

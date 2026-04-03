@@ -37,7 +37,7 @@ Produces colorful, detailed output suitable for interactive terminal sessions.
 
 ### <a id="Flowthru_Results_ConsoleResultFormatter_Format_Flowthru_Flows_FlowResult_Microsoft_Extensions_Logging_ILogger_"></a> Format\(FlowResult, ILogger\)
 
-Formats and outputs the flow result.
+Formats and outputs the Flow result.
 
 ```csharp
 public void Format(FlowResult result, ILogger logger)
@@ -47,7 +47,7 @@ public void Format(FlowResult result, ILogger logger)
 
 `result` [FlowResult](Flowthru.Flows.FlowResult.md)
 
-The flow execution result
+The Flow execution result
 
 `logger` [ILogger](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger)
 
