@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._05_ModelOutput.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
@@ -31,6 +32,7 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 /// separation of concerns and reusable export pipelines.
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class GeneratePredictionScatterStep
 {
   public static Func<

@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using System.ComponentModel.DataAnnotations;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 using KedroSpaceflights.Custom.Data._06_Reporting.Schemas;
@@ -10,6 +11,7 @@ namespace KedroSpaceflights.Custom.Flows.DataEvaluation.Steps;
 /// Performs k-fold cross-validation to generate R² distribution.
 /// Helps understand model stability and variance across different train/test splits.
 /// </summary>
+[FlowthruStep]
 public static class CrossValidateModelStep
 {
   /// <summary>

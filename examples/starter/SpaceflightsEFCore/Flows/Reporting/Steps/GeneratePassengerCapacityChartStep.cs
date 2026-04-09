@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
@@ -23,6 +24,7 @@ namespace SpaceflightsEFCore.Flows.Reporting.Steps;
 /// <strong>Output:</strong> GenericChart bar chart stored in memory for downstream PNG export
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class GeneratePassengerCapacityChartStep
 {
   public static Func<IEnumerable<PreprocessedShuttleSchema>, GenericChart> Create(

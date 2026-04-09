@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Custom.Flows.DataScience.Steps;
@@ -6,6 +7,7 @@ namespace KedroSpaceflights.Custom.Flows.DataScience.Steps;
 /// Splits model input data into training and testing sets.
 /// Extracts features and target variable (price) for ML training.
 /// </summary>
+[FlowthruStep]
 public static class CreateTestTrainSplitStep
 {
   // Following FlowThru's artifact colocation policy:

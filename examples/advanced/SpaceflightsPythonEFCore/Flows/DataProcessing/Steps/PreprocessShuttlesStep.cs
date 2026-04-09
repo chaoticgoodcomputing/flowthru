@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsPythonEFCore.Data._01_Raw.Schemas;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 
@@ -8,6 +9,7 @@ namespace SpaceflightsPythonEFCore.Flows.DataProcessing.Steps;
 /// Parses numeric fields, booleans, currency strings, and passes engine type through.
 /// Records with unparseable required fields are filtered out.
 /// </summary>
+[FlowthruStep]
 public static class PreprocessShuttlesStep
 {
   public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create()

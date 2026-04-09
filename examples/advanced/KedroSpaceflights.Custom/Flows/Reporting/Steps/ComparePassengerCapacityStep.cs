@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
@@ -28,6 +29,7 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 /// separation of concerns and reusable export pipelines.
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class ComparePassengerCapacityStep
 {
   public static Func<IEnumerable<ShuttleSchema>, Task<GenericChart>> Create(ILogger? logger = null)

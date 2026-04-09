@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Flowthru.Core.Abstractions;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 using KedroSpaceflights.Custom.Data._04_Models.Schemas;
@@ -12,6 +13,7 @@ namespace KedroSpaceflights.Custom.Flows.DataScience.Steps;
 /// Uses Math.NET Numerics MultipleRegression.QR() which matches sklearn's LinearRegression.
 /// Takes training features (x_train) and targets (y_train) as separate inputs.
 /// </summary>
+[FlowthruStep]
 public static class TrainModelStep
 {
   /// <summary>

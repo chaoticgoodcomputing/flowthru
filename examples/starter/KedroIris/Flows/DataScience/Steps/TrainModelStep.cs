@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroIris.Data._05_ModelInput.Schemas;
 using KedroIris.Data._06_Models.Schemas;
 
@@ -6,6 +7,7 @@ namespace KedroIris.Flows.DataScience.Steps;
 /// <summary>
 /// Trains a simple multi-class logistic regression model using gradient descent.
 /// </summary>
+[FlowthruStep]
 public static class TrainModelStep
 {
   /// <summary>

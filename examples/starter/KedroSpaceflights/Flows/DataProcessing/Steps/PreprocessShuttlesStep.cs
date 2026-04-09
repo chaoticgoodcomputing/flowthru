@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Data._01_Raw.Schemas;
 using KedroSpaceflights.Data._02_Intermediate.Schemas;
 
@@ -6,6 +7,7 @@ namespace KedroSpaceflights.Flows.DataProcessing.Steps;
 /// <summary>
 /// Preprocesses raw shuttle data by parsing numeric fields, boolean flags, and currency values.
 /// </summary>
+[FlowthruStep]
 public static class PreprocessShuttlesStep
 {
   /// <summary>

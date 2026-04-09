@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._01_Raw.Schemas;
 using KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 
@@ -7,6 +8,7 @@ namespace KedroSpaceflights.Custom.Flows.DataProcessing.Steps;
 /// Preprocesses raw company data by converting string values to proper types.
 /// Converts percentage strings to decimals and "t"/"f" to booleans.
 /// </summary>
+[FlowthruStep]
 public static class PreprocessCompaniesStep
 {
   /// <summary>

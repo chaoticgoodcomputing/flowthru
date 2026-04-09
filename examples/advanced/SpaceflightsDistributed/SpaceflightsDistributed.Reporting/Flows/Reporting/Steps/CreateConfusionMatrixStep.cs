@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using SpaceflightsDistributed.DataScience.Data._07_ModelOutput.Schemas;
@@ -9,6 +10,7 @@ namespace SpaceflightsDistributed.Reporting.Flows.Reporting.Steps;
 /// Creates a confusion matrix heatmap from model predictions by binning continuous values
 /// into percentile-based ranges.
 /// </summary>
+[FlowthruStep]
 public static class CreateConfusionMatrixStep
 {
   public record Options

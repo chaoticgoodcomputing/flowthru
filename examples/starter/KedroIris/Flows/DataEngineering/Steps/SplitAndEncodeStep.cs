@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroIris.Data._01_Raw.Schemas;
 using KedroIris.Data._04_Feature.Schemas;
 using KedroIris.Data._05_ModelInput.Schemas;
@@ -8,6 +9,7 @@ namespace KedroIris.Flows.DataEngineering.Steps;
 /// Splits the classical Iris dataset into training and test sets with one-hot encoding.
 /// Each split is separated into features (X) and labels (Y).
 /// </summary>
+[FlowthruStep]
 public static class SplitAndEncodeStep
 {
   /// <summary>

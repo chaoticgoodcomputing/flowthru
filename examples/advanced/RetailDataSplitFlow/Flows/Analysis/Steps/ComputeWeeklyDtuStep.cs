@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using RetailDataMultipipeline.Data._01_Raw.Schemas;
 using RetailDataMultipipeline.Data._02_Intermediate.Schemas;
 using RetailDataMultipipeline.Data._03_Primary.Schemas;
@@ -20,6 +21,7 @@ namespace RetailDataMultipipeline.Flows.Analysis.Steps;
 /// Negative quantities (returns) reduce <c>TotalGbp</c> via signed arithmetic.
 /// Weeks are ISO-style: Monday-aligned.
 /// </remarks>
+[FlowthruStep]
 public static class ComputeWeeklyDtuStep
 {
   /// <summary>Returns the Monday of the ISO week containing <paramref name="date"/>.</summary>

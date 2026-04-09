@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsPythonEFCore.Data._01_Raw.Schemas;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 
@@ -8,6 +9,7 @@ namespace SpaceflightsPythonEFCore.Flows.DataProcessing.Steps;
 /// Parses IATA flag, company rating percentage, and optional fleet count.
 /// Records with unparseable company_rating are filtered out.
 /// </summary>
+[FlowthruStep]
 public static class PreprocessCompaniesStep
 {
   public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()

@@ -20,6 +20,7 @@ namespace KedroSpaceflights.Custom.Flows.DataDiagnostics.Steps;
 /// but logs detailed comparison results for diagnostic purposes.
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class ValidateAgainstKedroStep
 {
   public static Func<

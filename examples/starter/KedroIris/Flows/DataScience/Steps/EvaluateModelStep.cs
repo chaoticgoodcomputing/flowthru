@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroIris.Data._05_ModelInput.Schemas;
 using KedroIris.Data._07_ModelOutput.Schemas;
 using KedroIris.Data._08_Reporting.Schemas;
@@ -7,6 +8,7 @@ namespace KedroIris.Flows.DataScience.Steps;
 /// <summary>
 /// Evaluates model predictions against true labels and computes metrics.
 /// </summary>
+[FlowthruStep]
 public static class EvaluateModelStep
 {
   /// <summary>

@@ -1,8 +1,10 @@
+using Flowthru.Core.Steps;
 using SpaceflightsDistributed.DataProcessing.Data._03_Primary.Schemas;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 
 namespace SpaceflightsDistributed.DataScience.Flows.DataScience.Steps;
 
+[FlowthruStep]
 public static class SplitDataStep
 {
   public record ModelOptions

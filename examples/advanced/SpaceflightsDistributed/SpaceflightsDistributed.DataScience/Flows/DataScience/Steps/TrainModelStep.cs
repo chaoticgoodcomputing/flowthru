@@ -1,9 +1,11 @@
+using Flowthru.Core.Steps;
 using MathNet.Numerics.LinearRegression;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 using SpaceflightsDistributed.DataScience.Data._06_Models.Schemas;
 
 namespace SpaceflightsDistributed.DataScience.Flows.DataScience.Steps;
 
+[FlowthruStep]
 public static class TrainModelStep
 {
   public static Func<IEnumerable<TrainingData>, LinearRegressionModel> Create()

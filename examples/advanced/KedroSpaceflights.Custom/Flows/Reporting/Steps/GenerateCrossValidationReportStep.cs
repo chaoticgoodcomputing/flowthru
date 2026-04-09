@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using System.Text;
 using KedroSpaceflights.Custom.Data._06_Reporting.Schemas;
 
@@ -19,6 +20,7 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 /// - Visual representation using ASCII charts
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class GenerateCrossValidationReportStep
 {
   public static Func<CrossValidationResults, Task<string>> Create()

@@ -1,9 +1,11 @@
+using Flowthru.Core.Steps;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 using SpaceflightsDistributed.DataScience.Data._06_Models.Schemas;
 using SpaceflightsDistributed.DataScience.Data._07_ModelOutput.Schemas;
 
 namespace SpaceflightsDistributed.DataScience.Flows.DataScience.Steps;
 
+[FlowthruStep]
 public static class EvaluateModelStep
 {
   public static Func<

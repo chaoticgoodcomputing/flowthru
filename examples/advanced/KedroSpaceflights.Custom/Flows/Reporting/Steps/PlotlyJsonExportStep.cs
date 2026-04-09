@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 
@@ -24,6 +25,7 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 /// (bar, scatter, heatmap, etc.) since it operates on the base GenericChart type.
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class PlotlyJsonExportStep
 {
   public static Func<GenericChart, Task<string>> Create(ILogger? logger = null)

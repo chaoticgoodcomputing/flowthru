@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Data._05_ModelInput.Schemas;
 using KedroSpaceflights.Data._06_Models.Schemas;
 using MathNet.Numerics.LinearRegression;
@@ -7,6 +8,7 @@ namespace KedroSpaceflights.Flows.DataScience.Steps;
 /// <summary>
 /// Trains a linear regression model to predict prices based on shuttle and company features.
 /// </summary>
+[FlowthruStep]
 public static class TrainModelStep
 {
   /// <summary>

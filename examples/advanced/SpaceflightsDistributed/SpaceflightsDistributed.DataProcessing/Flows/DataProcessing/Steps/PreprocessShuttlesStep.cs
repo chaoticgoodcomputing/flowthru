@@ -1,8 +1,10 @@
+using Flowthru.Core.Steps;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 
 namespace SpaceflightsDistributed.DataProcessing.Flows.DataProcessing.Steps;
 
+[FlowthruStep]
 public static class PreprocessShuttlesStep
 {
   public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create()

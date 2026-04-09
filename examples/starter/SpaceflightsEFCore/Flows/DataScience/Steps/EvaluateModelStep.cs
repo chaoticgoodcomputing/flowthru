@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
 using SpaceflightsEFCore.Data._06_Models.Schemas;
 using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
@@ -7,6 +8,7 @@ namespace SpaceflightsEFCore.Flows.DataScience.Steps;
 /// <summary>
 /// Evaluates a trained linear regression model using test data and computes performance metrics.
 /// </summary>
+[FlowthruStep]
 public static class EvaluateModelStep
 {
   /// <summary>
