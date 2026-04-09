@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Flowthru.Serialization;
+namespace Flowthru.Core.Serialization;
 
 /// <summary>
 /// Internal helper for converting enum values to/from their serialized string representations

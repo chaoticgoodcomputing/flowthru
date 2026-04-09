@@ -1,4 +1,4 @@
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using Flowthru.Misc.ML.UMAP;
 using Flowthru.Misc.ML.UMAP.Core;
 using UmapReferenceComparisons.Data;

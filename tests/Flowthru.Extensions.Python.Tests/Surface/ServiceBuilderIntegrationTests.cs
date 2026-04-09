@@ -1,7 +1,8 @@
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Services;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Services;
-using Flowthru.Flows;
-using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Extensions.Python.Tests.Surface;
@@ -65,5 +66,5 @@ public class ServiceBuilderIntegrationTests
   }
 
   // Minimal test catalog for integration tests
-  private class TestCatalog : Data.CatalogAbstract { }
+  private class TestCatalog : CatalogAbstract { }
 }

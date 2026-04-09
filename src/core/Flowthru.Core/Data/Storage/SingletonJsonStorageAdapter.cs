@@ -1,9 +1,9 @@
 using System.Text.Json;
-using Flowthru.Abstractions;
-using Flowthru.Data.Capabilities;
-using Flowthru.Effects;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Effects;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Direct JSON file storage for singleton objects (not collections).

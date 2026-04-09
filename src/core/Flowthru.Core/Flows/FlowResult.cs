@@ -1,4 +1,4 @@
-namespace Flowthru.Flows;
+namespace Flowthru.Core.Flows;
 
 /// <summary>
 /// Represents the result of a Flow execution.

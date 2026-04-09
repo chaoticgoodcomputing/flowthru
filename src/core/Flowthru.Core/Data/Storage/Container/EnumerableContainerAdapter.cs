@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Flowthru.Data.Storage.Container;
+namespace Flowthru.Core.Data.Storage.Container;
 
 /// <summary>
 /// Container adapter for IEnumerable&lt;T&gt; - standard .NET collection type.

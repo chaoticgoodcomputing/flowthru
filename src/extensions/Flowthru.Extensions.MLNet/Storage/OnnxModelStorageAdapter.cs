@@ -1,7 +1,7 @@
-using Flowthru.Data.Capabilities;
-using Flowthru.Data.Storage;
-using Flowthru.Data.Validation;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Effects;
 
 namespace Flowthru.Extensions.MLNet.Storage;
 

@@ -1,4 +1,4 @@
-using Flowthru.Data.Storage;
+using Flowthru.Core.Data.Storage;
 using Flowthru.Extensions.EFCore.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;

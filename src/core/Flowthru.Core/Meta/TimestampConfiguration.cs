@@ -1,4 +1,4 @@
-namespace Flowthru.Meta;
+namespace Flowthru.Core.Meta;
 
 /// <summary>
 /// Configuration for timestamp handling in metadata file exports.

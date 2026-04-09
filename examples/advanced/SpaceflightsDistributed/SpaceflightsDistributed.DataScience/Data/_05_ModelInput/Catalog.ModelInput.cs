@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 
 namespace SpaceflightsDistributed.DataScience.Data;

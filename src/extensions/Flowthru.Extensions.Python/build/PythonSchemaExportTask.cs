@@ -52,7 +52,7 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
       var assembly = Assembly.LoadFrom(AssemblyPath);
 
       // Find SchemaManifest type
-      var manifestType = assembly.GetType("Flowthru.Generated.SchemaManifest.SchemaManifest");
+      var manifestType = assembly.GetType("Flowthru.Core.Generated.SchemaManifest.SchemaManifest");
       if (manifestType == null)
       {
         Log.LogMessage(
@@ -85,8 +85,8 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
 
       // Generate Python files
       int exportedCount = 0;
-      var schemaInfoType = assembly.GetType("Flowthru.Generated.SchemaManifest.SchemaInfo");
-      var propertyInfoType = assembly.GetType("Flowthru.Generated.SchemaManifest.PropertyInfo");
+      var schemaInfoType = assembly.GetType("Flowthru.Core.Generated.SchemaManifest.SchemaInfo");
+      var propertyInfoType = assembly.GetType("Flowthru.Core.Generated.SchemaManifest.PropertyInfo");
 
       foreach (var schema in schemas)
       {

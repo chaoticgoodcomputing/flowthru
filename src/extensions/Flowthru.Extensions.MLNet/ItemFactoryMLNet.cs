@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using Flowthru.Extensions.MLNet.Storage;
 
 namespace Flowthru.Extensions.MLNet;
@@ -22,7 +22,7 @@ namespace Flowthru.Extensions.MLNet;
 /// <strong>Usage:</strong>
 /// </para>
 /// <code>
-/// using Flowthru.Data;
+/// using Flowthru.Core.Data;
 /// using Flowthru.Extensions.MLNet;
 ///
 /// // Core entries

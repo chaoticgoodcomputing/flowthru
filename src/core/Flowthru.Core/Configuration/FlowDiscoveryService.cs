@@ -1,9 +1,10 @@
 using System.Reflection;
-using Flowthru.Data;
-using Flowthru.Flows;
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
 using Microsoft.Extensions.Configuration;
+using Flowthru.Core.Graph.Validation;
 
-namespace Flowthru.Configuration;
+namespace Flowthru.Core.Configuration;
 
 /// <summary>
 /// Discovers and registers flows from configuration.

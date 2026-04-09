@@ -1,4 +1,4 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
 namespace UmapReferenceComparisons.Data._03_Reports.Schemas;
 

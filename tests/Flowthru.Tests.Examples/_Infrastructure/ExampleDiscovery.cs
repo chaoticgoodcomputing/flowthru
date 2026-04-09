@@ -1,5 +1,5 @@
 using System.Reflection;
-using Flowthru.Services;
+using Flowthru.Core.Services;
 
 namespace Flowthru.Tests.Examples.Infrastructure;
 

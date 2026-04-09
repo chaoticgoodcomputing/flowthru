@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Steps;
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using SpaceflightsPythonEFCore.Data;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 using SpaceflightsPythonEFCore.Data._07_ModelOutput.Schemas;

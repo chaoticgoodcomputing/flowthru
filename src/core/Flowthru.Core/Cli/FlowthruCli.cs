@@ -1,10 +1,10 @@
 using System.Reflection;
-using Flowthru.Flows;
-using Flowthru.Services;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Cli;
+namespace Flowthru.Core.Cli;
 
 /// <summary>
 /// Command-line interface wrapper for IFlowthruService.
@@ -51,7 +51,7 @@ public sealed class FlowthruCli
   /// </summary>
   /// <remarks>
   /// <para>
-  /// This is the recommended entry point for standalone console applications using Flowthru.
+  /// This is the recommended entry point for standalone console applications using Flowthru.Core.
   /// It manages the ServiceProvider lifecycle automatically, ensuring proper disposal of
   /// logging providers and other resources so the process exits cleanly after pipeline completion.
   /// </para>

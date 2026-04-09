@@ -1,6 +1,6 @@
-using Flowthru.Data.Storage;
+using Flowthru.Core.Data.Storage;
 
-namespace Flowthru.Data;
+namespace Flowthru.Core.Data;
 
 /// <summary>
 /// Static factory methods for creating catalog entries with common configurations.

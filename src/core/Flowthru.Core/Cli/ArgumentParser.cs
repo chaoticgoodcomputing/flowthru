@@ -1,7 +1,8 @@
-using Flowthru.Flows;
-using Flowthru.Services.Models;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Services.Models;
+using Flowthru.Core.Graph;
 
-namespace Flowthru.Cli;
+namespace Flowthru.Core.Cli;
 
 /// <summary>
 /// Parses command-line arguments into structured execution requests.

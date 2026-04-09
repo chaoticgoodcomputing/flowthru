@@ -1,4 +1,4 @@
-namespace Flowthru.Effects;
+namespace Flowthru.Core.Effects;
 
 /// <summary>
 /// Represents a void-like value for effect operations with no meaningful return value.

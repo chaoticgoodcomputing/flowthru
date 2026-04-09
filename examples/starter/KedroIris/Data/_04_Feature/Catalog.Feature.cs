@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using KedroIris.Data._04_Feature.Schemas;
 
 namespace KedroIris.Data;

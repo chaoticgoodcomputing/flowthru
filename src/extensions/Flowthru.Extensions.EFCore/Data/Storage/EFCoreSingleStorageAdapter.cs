@@ -1,8 +1,8 @@
-using Flowthru.Data.Capabilities;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Effects;
 using Microsoft.EntityFrameworkCore;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Storage adapter for single Entity Framework Core entities.

@@ -1,4 +1,4 @@
-namespace Flowthru.Services.Models;
+namespace Flowthru.Core.Services.Models;
 
 /// <summary>
 /// Metadata about a flow's structure and configuration.

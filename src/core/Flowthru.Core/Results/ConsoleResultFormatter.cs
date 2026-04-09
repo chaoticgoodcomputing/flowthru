@@ -1,7 +1,7 @@
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Results;
+namespace Flowthru.Core.Results;
 
 /// <summary>
 /// Formats pipeline results as human-readable console output.

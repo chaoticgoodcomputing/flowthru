@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using RetailDataMultipipeline.Data._03_Primary.Schemas;
 
 namespace RetailDataMultipipeline.Data;

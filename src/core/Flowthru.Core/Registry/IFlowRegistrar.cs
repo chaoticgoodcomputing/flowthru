@@ -1,7 +1,8 @@
-using Flowthru.Data;
-using Flowthru.Flows;
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph.Validation;
 
-namespace Flowthru.Registry;
+namespace Flowthru.Core.Registry;
 
 /// <summary>
 /// Fluent interface for registering flows in a type-safe manner.
@@ -103,5 +104,5 @@ public interface IFlowRegistrar<TCatalog>
   ///   });
   /// </code>
   /// </remarks>
-  IFlowRegistrar<TCatalog> WithValidation(Action<Flows.Validation.ValidationOptions> configure);
+  IFlowRegistrar<TCatalog> WithValidation(Action<ValidationOptions> configure);
 }

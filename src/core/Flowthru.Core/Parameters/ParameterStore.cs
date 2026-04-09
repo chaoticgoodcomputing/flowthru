@@ -1,4 +1,4 @@
-namespace Flowthru.Parameters;
+namespace Flowthru.Core.Parameters;
 
 /// <summary>
 /// Stores pipeline-specific parameters in a type-safe manner.

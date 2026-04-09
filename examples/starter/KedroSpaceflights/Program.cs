@@ -1,7 +1,7 @@
-using Flowthru.Cli;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
-using Flowthru.Services;
+using Flowthru.Core.Cli;
+using Flowthru.Core.Meta;
+using Flowthru.Core.Meta.Providers;
+using Flowthru.Core.Services;
 using KedroSpaceflights.Data;
 using KedroSpaceflights.Flows.DataProcessing;
 using KedroSpaceflights.Flows.DataScience;

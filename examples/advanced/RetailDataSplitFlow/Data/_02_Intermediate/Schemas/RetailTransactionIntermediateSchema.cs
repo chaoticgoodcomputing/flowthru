@@ -1,4 +1,4 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
 namespace RetailDataMultipipeline.Data._02_Intermediate.Schemas;
 

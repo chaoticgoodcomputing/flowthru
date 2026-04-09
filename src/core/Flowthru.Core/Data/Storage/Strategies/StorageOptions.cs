@@ -1,4 +1,4 @@
-namespace Flowthru.Data.Storage.Strategies;
+namespace Flowthru.Core.Data.Storage.Strategies;
 
 /// <summary>
 /// Options for configuring storage entry creation.

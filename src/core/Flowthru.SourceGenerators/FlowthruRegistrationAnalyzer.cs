@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace Flowthru.SourceGenerators;
+namespace Flowthru.Core.SourceGenerators;
 
 /// <summary>
 /// Roslyn analyzer that cross-references RegisterCatalog and RegisterFlow calls
@@ -48,7 +48,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       MissingCatalogId,
       "Missing catalog registration",
       "Flow '{0}' requires catalog '{1}' but no matching RegisterCatalog registration was found",
-      "Flowthru.Registration",
+      "Flowthru.Core.Registration",
       DiagnosticSeverity.Error,
       isEnabledByDefault: true,
       description: "Every DataCatalogBase-derived parameter in a RegisterFlow delegate must have a corresponding RegisterCatalog registration."
@@ -59,7 +59,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       UnusedCatalogId,
       "Unused catalog registration",
       "Catalog '{0}' is registered via RegisterCatalog but is not referenced by any flow",
-      "Flowthru.Registration",
+      "Flowthru.Core.Registration",
       DiagnosticSeverity.Warning,
       isEnabledByDefault: true,
       description: "A catalog was registered but no flow references it. This may indicate dead configuration."
@@ -70,7 +70,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       UnboundConcreteParamId,
       "Unbound concrete parameter",
       "Flow '{0}' has parameter '{1}' of type '{2}' that will be resolved from DI. If it is a configuration object, pass configurationSection to RegisterFlow.",
-      "Flowthru.Registration",
+      "Flowthru.Core.Registration",
       DiagnosticSeverity.Warning,
       isEnabledByDefault: true,
       description: "A concrete-class flow parameter that is not a catalog will be resolved from DI at flow-build time. If it is a configuration POCO, pass configurationSection to RegisterFlow to bind it from appsettings instead."
@@ -81,7 +81,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       MissingUseConfigurationId,
       "Missing UseConfiguration call",
       "Flow '{0}' specifies configurationSection '{1}' but UseConfiguration() has not been called",
-      "Flowthru.Registration",
+      "Flowthru.Core.Registration",
       DiagnosticSeverity.Error,
       isEnabledByDefault: true,
       description: "A RegisterFlow call references a configurationSection, but UseConfiguration() was never called on the builder. The flow will throw at pre-flight time."
@@ -119,7 +119,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
     // Within that lambda, we collect RegisterCatalog and RegisterFlow calls.
 
     var dataCatalogBaseType = context.Compilation.GetTypeByMetadataName(
-      "Flowthru.Data.DataCatalogBase"
+      "Flowthru.Core.Data.DataCatalogBase"
     );
     if (dataCatalogBaseType == null)
     {

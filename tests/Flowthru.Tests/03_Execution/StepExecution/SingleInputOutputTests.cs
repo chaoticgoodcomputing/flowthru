@@ -1,5 +1,5 @@
 using System.Linq;
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
 

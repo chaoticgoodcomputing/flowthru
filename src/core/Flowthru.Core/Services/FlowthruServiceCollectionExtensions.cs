@@ -1,4 +1,4 @@
-using Flowthru.Services;
+using Flowthru.Core.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

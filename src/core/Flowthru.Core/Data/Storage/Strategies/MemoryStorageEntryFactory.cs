@@ -1,6 +1,6 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
-namespace Flowthru.Data.Storage.Strategies;
+namespace Flowthru.Core.Data.Storage.Strategies;
 
 /// <summary>
 /// In-memory storage strategy for unit tests.

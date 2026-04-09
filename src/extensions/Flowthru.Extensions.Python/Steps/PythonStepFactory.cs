@@ -1,8 +1,9 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Validation;
-using Flowthru.Flows;
 
 namespace Flowthru.Extensions.Python.Steps;
 
@@ -93,8 +94,8 @@ public static partial class PythonStepFactory
     string label,
     string module,
     string function,
-    IItem<TInput> input,
-    IItem<TOutput> output,
+    INode<TInput> input,
+    INode<TOutput> output,
     IPythonExecutor executor,
     string description = ""
   )

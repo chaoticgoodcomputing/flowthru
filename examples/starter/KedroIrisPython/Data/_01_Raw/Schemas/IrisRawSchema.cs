@@ -1,4 +1,4 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
 namespace KedroIrisPython.Data._01_Raw.Schemas;
 

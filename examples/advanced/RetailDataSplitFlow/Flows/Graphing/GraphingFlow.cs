@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Steps;
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using RetailDataMultipipeline.Data;
 
 namespace RetailDataMultipipeline.Flows.Graphing;

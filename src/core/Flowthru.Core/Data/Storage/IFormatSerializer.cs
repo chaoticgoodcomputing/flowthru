@@ -1,6 +1,6 @@
-using Flowthru.Data.Capabilities;
+using Flowthru.Core.Data.Capabilities;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Interface for format serialization - handles row-based serialization/deserialization.

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace Flowthru.SourceGenerators.SchemaAnalysis;
+namespace Flowthru.Core.SourceGenerators.SchemaAnalysis;
 
 /// <summary>
 /// Classifies properties of a schema type to determine structural characteristics
@@ -100,7 +100,7 @@ internal static class SchemaPropertyClassifier
     // Tier 5: IScalar implementors
     // User-defined NewTypes and value-object wrappers that explicitly declare they serialize
     // to a single value. This is the extension point for domain primitives.
-    const string FlatScalarInterface = "Flowthru.Abstractions.IScalar";
+    const string FlatScalarInterface = "Flowthru.Core.Abstractions.IScalar";
     if (
       type is INamedTypeSymbol namedType
       && namedType.AllInterfaces.Any(i => i.ToDisplayString() == FlatScalarInterface)

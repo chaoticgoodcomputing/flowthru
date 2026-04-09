@@ -1,37 +1,31 @@
-using Flowthru.Data.Validation;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Effects;
+using Flowthru.Core.Graph;
 
-namespace Flowthru.Data;
+namespace Flowthru.Core.Data;
 
 /// <summary>
-/// Non-generic base interface for catalog items.
-/// Provides untyped operations for internal use by the Flow executor and mapping layer.
+/// Non-generic base interface for catalog items — a specialization of <see cref="INode"/>
+/// for data I/O nodes backed by storage adapters.
 /// </summary>
 /// <remarks>
-/// This interface enables the Flow to work with catalog items
-/// without knowing their specific type parameter at compile-time.
+/// <para>
+/// Extends <see cref="INode"/> with data-specific operations: existence checks,
+/// row counting, and two-level inspection (shallow/deep). The engine-level
+/// <see cref="INode.ProduceUntyped"/> and <see cref="INode.ConsumeUntyped"/> are
+/// bridged to <see cref="LoadUntyped"/> and <see cref="SaveUntyped"/> via default
+/// interface implementations.
+/// </para>
 /// </remarks>
-public interface IItem
+public interface IItem : INode
 {
-  /// <summary>
-  /// Unique label identifying this catalog item within the data catalog.
-  /// </summary>
-  string Label { get; }
-
-  /// <summary>
-  /// The runtime type of data stored in this catalog item.
-  /// For singletons: Returns typeof(T).
-  /// For collections: Returns typeof(IEnumerable&lt;T&gt;).
-  /// </summary>
-  Type DataType { get; }
-
   /// <summary>
   /// Gets the preferred inspection level for this catalog item.
   /// </summary>
   InspectionLevel? PreferredInspectionLevel { get; }
 
   /// <summary>
-  /// The label of the <see cref="Flowthru.Data.CatalogAbstract"/>-derived class that created
+  /// The label of the <see cref="Flowthru.Core.Data.CatalogAbstract"/>-derived class that created
   /// this item. Set automatically by <c>CreateItem</c>; null for items created outside
   /// a catalog or by custom <see cref="IItem"/> implementations.
   /// </summary>
@@ -81,11 +75,36 @@ public interface IItem
   /// </summary>
   /// <returns>Effect producing validation result</returns>
   FlowIO<ValidationResult> InspectDeep();
+
+  // ── INode default implementations ──
+
+  /// <inheritdoc/>
+  NodeTraits INode.Traits => new NodeTraits { CanInspect = true };
+
+  /// <inheritdoc/>
+  FlowIO<object> INode.ProduceUntyped() => LoadUntyped();
+
+  /// <inheritdoc/>
+  FlowIO<FlowUnit> INode.ConsumeUntyped(object data) => SaveUntyped(data);
+
+  /// <summary>
+  /// Validates this item by delegating to the appropriate inspection level.
+  /// If <see cref="PreferredInspectionLevel"/> is set, uses that; otherwise defaults to shallow.
+  /// </summary>
+  FlowIO<ValidationResult> INode.Validate()
+  {
+    var level = PreferredInspectionLevel ?? InspectionLevel.Shallow;
+    return level switch
+    {
+      InspectionLevel.None => FlowIO.Pure(ValidationResult.Success()),
+      InspectionLevel.Deep => InspectDeep(),
+      _ => InspectShallow(),
+    };
+  }
 }
 
 /// <summary>
-/// Unified catalog item with cardinality encoded in the type parameter.
-/// </summary>
+/// Typed catalog item — a specialization of <see cref="INode{T}"/> for data I/O.</summary>
 /// <typeparam name="T">
 /// The data type stored in this catalog item.
 /// Cardinality is determined by T itself:
@@ -94,22 +113,13 @@ public interface IItem
 /// </typeparam>
 /// <remarks>
 /// <para>
-/// <strong>Unified Design:</strong> This single interface replaces the previous dual-interface
-/// system (ICatalogObject/ICatalogDataset). Cardinality is now purely a type-level concern.
-/// </para>
-/// <para>
-/// <strong>Type Alignment:</strong> Step TInput/TOutput types should directly match catalog item
-/// T types, eliminating the need for wrapping/unwrapping ceremony.
-/// </para>
-/// <para>
-/// <strong>Effect Types:</strong> All operations return FlowIO&lt;T&gt; - an effect that represents
-/// an async computation that can fail. This provides:
-/// - Explicit error handling
-/// - Cancellation support
-/// - Functional composition
+/// <see cref="Load"/> and <see cref="Save"/> are the data-specific aliases for
+/// <see cref="INode{T}.Produce"/> and <see cref="INode{T}.Consume"/>.
+/// Default interface implementations bridge the two: the engine calls
+/// <c>Produce()</c>/<c>Consume()</c>, which delegate to <c>Load()</c>/<c>Save()</c>.
 /// </para>
 /// </remarks>
-public interface IItem<T> : IItem
+public interface IItem<T> : IItem, INode<T>
 {
   /// <summary>
   /// Load data as an effect (can fail, is async, can be cancelled).
@@ -122,4 +132,12 @@ public interface IItem<T> : IItem
   /// Accepts T directly, which may itself be an IEnumerable or Seq.
   /// </summary>
   FlowIO<FlowUnit> Save(T data);
+
+  // ── INode<T> default implementations ──
+
+  /// <inheritdoc/>
+  FlowIO<T> INode<T>.Produce() => Load();
+
+  /// <inheritdoc/>
+  FlowIO<FlowUnit> INode<T>.Consume(T data) => Save(data);
 }

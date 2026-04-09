@@ -1,4 +1,4 @@
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using ProjectName.Data;
 using ProjectName.Flows.FlowName.Steps;
 

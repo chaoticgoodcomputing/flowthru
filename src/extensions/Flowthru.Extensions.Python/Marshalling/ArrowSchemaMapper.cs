@@ -1,7 +1,7 @@
 using System.Reflection;
 using Apache.Arrow;
 using Apache.Arrow.Types;
-using Flowthru.Data.Storage.Format;
+using Flowthru.Core.Data.Storage.Format;
 
 namespace Flowthru.Extensions.Python.Marshalling;
 

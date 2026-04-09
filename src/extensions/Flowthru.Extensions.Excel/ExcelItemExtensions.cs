@@ -1,10 +1,10 @@
-using Flowthru.Abstractions;
-using Flowthru.Data.Storage;
-using Flowthru.Data.Storage.Container;
-using Flowthru.Data.Storage.Format;
-using Flowthru.Data.Storage.Medium;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Data.Storage.Container;
+using Flowthru.Core.Data.Storage.Format;
+using Flowthru.Core.Data.Storage.Medium;
 
-namespace Flowthru.Data;
+namespace Flowthru.Core.Data;
 
 /// <summary>
 /// Extension methods that add Excel support to <see cref="ItemFactory.Enumerable"/>.

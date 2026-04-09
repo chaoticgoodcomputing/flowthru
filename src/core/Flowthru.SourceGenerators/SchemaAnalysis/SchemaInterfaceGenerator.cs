@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Flowthru.SourceGenerators.SchemaAnalysis;
+namespace Flowthru.Core.SourceGenerators.SchemaAnalysis;
 
 /// <summary>
 /// Incremental source generator that analyzes types annotated with [FlowthruSchema]
@@ -18,7 +18,7 @@ namespace Flowthru.SourceGenerators.SchemaAnalysis;
 [Generator]
 public class SchemaInterfaceGenerator : IIncrementalGenerator
 {
-  private const string AttributeFullName = "Flowthru.Abstractions.FlowthruSchemaAttribute";
+  private const string AttributeFullName = "Flowthru.Core.Abstractions.FlowthruSchemaAttribute";
   private const string AttributeShortName = "FlowthruSchema";
 
   public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -130,11 +130,11 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
   {
     var markerNames = new[]
     {
-      "Flowthru.Abstractions.IFlatSchema",
-      "Flowthru.Abstractions.INestedSchema",
-      "Flowthru.Abstractions.ITextSerializable",
-      "Flowthru.Abstractions.IBinarySerializable",
-      "Flowthru.Abstractions.IStructuredSerializable",
+      "Flowthru.Core.Abstractions.IFlatSchema",
+      "Flowthru.Core.Abstractions.INestedSchema",
+      "Flowthru.Core.Abstractions.ITextSerializable",
+      "Flowthru.Core.Abstractions.IBinarySerializable",
+      "Flowthru.Core.Abstractions.IStructuredSerializable",
     };
 
     var builder = ImmutableArray.CreateBuilder<string>();
@@ -192,26 +192,26 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
 
     if (info.IsFlat)
     {
-      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IFlatSchema"))
-        interfaces.Add("Flowthru.Abstractions.IFlatSchema");
+      if (!info.ManualInterfaces.Contains("Flowthru.Core.Abstractions.IFlatSchema"))
+        interfaces.Add("Flowthru.Core.Abstractions.IFlatSchema");
 
-      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.ITextSerializable"))
-        interfaces.Add("Flowthru.Abstractions.ITextSerializable");
+      if (!info.ManualInterfaces.Contains("Flowthru.Core.Abstractions.ITextSerializable"))
+        interfaces.Add("Flowthru.Core.Abstractions.ITextSerializable");
 
-      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IBinarySerializable"))
-        interfaces.Add("Flowthru.Abstractions.IBinarySerializable");
+      if (!info.ManualInterfaces.Contains("Flowthru.Core.Abstractions.IBinarySerializable"))
+        interfaces.Add("Flowthru.Core.Abstractions.IBinarySerializable");
 
-      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IStructuredSerializable"))
-        interfaces.Add("Flowthru.Abstractions.IStructuredSerializable");
+      if (!info.ManualInterfaces.Contains("Flowthru.Core.Abstractions.IStructuredSerializable"))
+        interfaces.Add("Flowthru.Core.Abstractions.IStructuredSerializable");
     }
     else
     {
       // Nested
-      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.INestedSchema"))
-        interfaces.Add("Flowthru.Abstractions.INestedSchema");
+      if (!info.ManualInterfaces.Contains("Flowthru.Core.Abstractions.INestedSchema"))
+        interfaces.Add("Flowthru.Core.Abstractions.INestedSchema");
 
-      if (!info.ManualInterfaces.Contains("Flowthru.Abstractions.IStructuredSerializable"))
-        interfaces.Add("Flowthru.Abstractions.IStructuredSerializable");
+      if (!info.ManualInterfaces.Contains("Flowthru.Core.Abstractions.IStructuredSerializable"))
+        interfaces.Add("Flowthru.Core.Abstractions.IStructuredSerializable");
     }
 
     // If all interfaces were already manually applied, no source to emit (but warning was reported)
@@ -263,7 +263,7 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
     sb.AppendLine("// Phase 5: Schema manifest for Python schema generation");
     sb.AppendLine("#nullable enable");
     sb.AppendLine();
-    sb.AppendLine("namespace Flowthru.Generated.SchemaManifest;");
+    sb.AppendLine("namespace Flowthru.Core.Generated.SchemaManifest;");
     sb.AppendLine();
     sb.AppendLine("/// <summary>");
     sb.AppendLine("/// Manifest of all [FlowthruSchema] types for Python schema generation.");

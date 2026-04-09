@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Flowthru.Data;
+namespace Flowthru.Core.Data;
 
 /// <summary>
 /// Base class for strongly-typed catalog implementations with automatic property caching.

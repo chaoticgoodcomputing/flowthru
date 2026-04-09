@@ -1,4 +1,4 @@
-namespace Flowthru.Data.Validation;
+namespace Flowthru.Core.Data.Validation;
 
 /// <summary>
 /// Exception thrown when catalog entry validation fails.

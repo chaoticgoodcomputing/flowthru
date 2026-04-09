@@ -1,7 +1,7 @@
-using Flowthru.Meta.Providers;
+using Flowthru.Core.Meta.Providers;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Meta;
+namespace Flowthru.Core.Meta;
 
 /// <summary>
 /// Builder for configuring Mermaid diagram provider options.

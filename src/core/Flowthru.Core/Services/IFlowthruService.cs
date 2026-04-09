@@ -1,10 +1,11 @@
-using Flowthru.Data;
-using Flowthru.Data.Validation;
-using Flowthru.Flows;
-using Flowthru.Meta.Models;
-using Flowthru.Services.Models;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph.Meta.Models;
+using Flowthru.Core.Services.Models;
+using Flowthru.Core.Graph;
 
-namespace Flowthru.Services;
+namespace Flowthru.Core.Services;
 
 /// <summary>
 /// Core service for executing Flowthru flows programmatically.

@@ -1,13 +1,13 @@
 using Microsoft.CodeAnalysis;
 
-namespace Flowthru.SourceGenerators.SchemaAnalysis;
+namespace Flowthru.Core.SourceGenerators.SchemaAnalysis;
 
 /// <summary>
 /// Diagnostic descriptors for the schema interface source generator.
 /// </summary>
 internal static class SchemaGeneratorDiagnostics
 {
-  private const string Category = "Flowthru.Schema";
+  private const string Category = "Flowthru.Core.Schema";
 
   /// <summary>
   /// FT1001: [FlowthruSchema] requires a partial type declaration.

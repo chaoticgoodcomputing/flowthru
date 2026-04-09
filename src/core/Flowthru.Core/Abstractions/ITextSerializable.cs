@@ -1,4 +1,4 @@
-namespace Flowthru.Abstractions;
+namespace Flowthru.Core.Abstractions;
 
 /// <summary>
 /// Marker interface for schema types that can be serialized to text-based formats (CSV, TSV).

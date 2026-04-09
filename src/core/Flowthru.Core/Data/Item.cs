@@ -1,9 +1,10 @@
-using Flowthru.Data.Capabilities;
-using Flowthru.Data.Storage;
-using Flowthru.Data.Validation;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Effects;
+using Flowthru.Core.Graph;
 
-namespace Flowthru.Data;
+namespace Flowthru.Core.Data;
 
 /// <summary>
 /// Standard catalog item implementation that delegates to a storage adapter.
@@ -97,6 +98,15 @@ public sealed class Item<T> : IItem<T>
   /// </para>
   /// </remarks>
   public StorageTraits Traits => _effectiveTraits ?? _storage.Traits;
+
+  /// <inheritdoc/>
+  NodeTraits INode.Traits => Traits;
+
+  /// <inheritdoc/>
+  FlowIO<object> INode.ProduceUntyped() => LoadUntyped();
+
+  /// <inheritdoc/>
+  FlowIO<FlowUnit> INode.ConsumeUntyped(object data) => SaveUntyped(data);
 
   /// <inheritdoc/>
   public FlowIO<T> Load() => _storage.Load();

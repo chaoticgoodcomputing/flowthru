@@ -1,4 +1,4 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
 namespace SpaceflightsEFCore.Data._06_Models.Schemas;
 

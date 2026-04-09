@@ -1,4 +1,4 @@
-namespace Flowthru.Data.Validation;
+namespace Flowthru.Core.Data.Validation;
 
 /// <summary>
 /// Defines the level of inspection to perform on catalog entries before pipeline execution.

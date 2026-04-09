@@ -1,4 +1,4 @@
-namespace Flowthru.Abstractions;
+namespace Flowthru.Core.Abstractions;
 
 /// <summary>
 /// Specifies the external field name for a property when serialized to/from storage.

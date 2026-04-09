@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Flowthru.Meta.Models;
+using Flowthru.Core.Graph.Meta.Models;
 
-namespace Flowthru.Meta;
+namespace Flowthru.Core.Meta;
 
 /// <summary>
 /// Extension methods for serializing metadata to JSON.
@@ -39,7 +39,7 @@ public static class MetadataJsonExtensions
   /// <item>Enums serialized as strings</item>
   /// </list>
   /// <para>
-  /// This format is optimized for Flowthru.Viz consumption and human readability.
+  /// This format is optimized for Flowthru.Core.Viz consumption and human readability.
   /// </para>
   /// </remarks>
   public static string ToJson(this DagMetadata metadata)

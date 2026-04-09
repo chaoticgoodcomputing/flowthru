@@ -1,14 +1,14 @@
-using Flowthru.Configuration;
-using Flowthru.Data;
-using Flowthru.Data.Storage.Strategies;
-using Flowthru.Flows;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Core.Configuration;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Storage.Strategies;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Meta;
+using Flowthru.Core.Meta.Providers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetEscapades.Configuration.Yaml;
 
-namespace Flowthru.Services;
+namespace Flowthru.Core.Services;
 
 /// <summary>
 /// Fluent builder for configuring Flowthru service registration.

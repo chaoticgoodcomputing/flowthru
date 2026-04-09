@@ -1,7 +1,7 @@
-using Flowthru.Data.Capabilities;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Effects;
 
-namespace Flowthru.Data.Storage.Medium;
+namespace Flowthru.Core.Data.Storage.Medium;
 
 /// <summary>
 /// Storage medium for in-memory byte storage.

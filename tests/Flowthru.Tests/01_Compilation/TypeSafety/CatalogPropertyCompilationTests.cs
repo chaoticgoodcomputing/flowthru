@@ -20,7 +20,7 @@ public class CatalogPropertyCompilationTests
     // ===========
     var code =
       @"
-            using Flowthru.Data;
+            using Flowthru.Core.Data;
             using Flowthru.Tests.Fixtures.TestCatalogs;
             
             public class TestProgram
@@ -65,7 +65,7 @@ public class CatalogPropertyCompilationTests
     // ===========
     var code =
       @"
-            using Flowthru.Data;
+            using Flowthru.Core.Data;
             using Flowthru.Tests.Fixtures.TestCatalogs;
             
             public class TestProgram
@@ -110,7 +110,7 @@ public class CatalogPropertyCompilationTests
     // ===========
     var code =
       @"
-            using Flowthru.Data;
+            using Flowthru.Core.Data;
             using Flowthru.Tests.Fixtures.TestCatalogs;
             
             public class TestProgram

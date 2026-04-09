@@ -1,6 +1,6 @@
-using Flowthru.Meta.Models;
+using Flowthru.Core.Graph.Meta.Models;
 
-namespace Flowthru.Meta.Providers;
+namespace Flowthru.Core.Meta.Providers;
 
 /// <summary>
 /// Interface for metadata consumers.

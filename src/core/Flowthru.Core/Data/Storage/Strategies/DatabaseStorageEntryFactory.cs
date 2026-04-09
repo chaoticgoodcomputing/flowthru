@@ -1,7 +1,7 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 using Microsoft.Extensions.Configuration;
 
-namespace Flowthru.Data.Storage.Strategies;
+namespace Flowthru.Core.Data.Storage.Strategies;
 
 /// <summary>
 /// Database-backed storage strategy for production environments.

@@ -1,4 +1,4 @@
-namespace Flowthru.Abstractions;
+namespace Flowthru.Core.Abstractions;
 
 /// <summary>
 /// Marks a schema type for automatic interface generation. The source generator

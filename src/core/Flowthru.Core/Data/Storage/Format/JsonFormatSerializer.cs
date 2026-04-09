@@ -2,10 +2,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Flowthru.Abstractions;
-using Flowthru.Data.Capabilities;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Capabilities;
 
-namespace Flowthru.Data.Storage.Format;
+namespace Flowthru.Core.Data.Storage.Format;
 
 /// <summary>
 /// Format serializer for JSON (JavaScript Object Notation) files.

@@ -1,3 +1,4 @@
+using Flowthru.Core.Data;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -46,9 +47,7 @@ public static class CompilationTestHelper
     if (includeFlowthru)
     {
       // Add Flowthru assembly reference
-      references.Add(
-        MetadataReference.CreateFromFile(typeof(Data.CatalogAbstract).Assembly.Location)
-      );
+      references.Add(MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location));
 
       // Add LanguageExt for Flowthru dependencies
       references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.IO<>).Assembly.Location));

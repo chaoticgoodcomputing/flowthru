@@ -1,6 +1,6 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 
-namespace Flowthru.Configuration;
+namespace Flowthru.Core.Configuration;
 
 /// <summary>
 /// Factory interface for creating data catalog instances from configuration.

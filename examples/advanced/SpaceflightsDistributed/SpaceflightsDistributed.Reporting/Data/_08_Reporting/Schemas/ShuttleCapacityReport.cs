@@ -1,4 +1,4 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
 namespace SpaceflightsDistributed.Reporting.Data._08_Reporting.Schemas;
 

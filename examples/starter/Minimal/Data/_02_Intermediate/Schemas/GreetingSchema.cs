@@ -1,4 +1,4 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
 namespace Minimal.Data._02_Intermediate.Schemas;
 

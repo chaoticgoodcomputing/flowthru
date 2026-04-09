@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru</RootNamespace>
     <Description>A type-safe data engineering framework for .NET</Description>
     
     <!-- NuGet Package Configuration -->

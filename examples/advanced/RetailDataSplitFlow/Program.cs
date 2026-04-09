@@ -1,9 +1,9 @@
-using Flowthru.Cli;
+using Flowthru.Core.Cli;
 using Flowthru.Extensions.Python;
 using Flowthru.Extensions.Python.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
-using Flowthru.Services;
+using Flowthru.Core.Meta;
+using Flowthru.Core.Meta.Providers;
+using Flowthru.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -88,7 +88,7 @@ public class Program
       // Dynamic per-country analysis pipelines + fan-in consolidation
       flowthru.RegisterFlows(_ =>
       {
-        var pipelines = new Dictionary<string, Flowthru.Flows.Flow>();
+        var pipelines = new Dictionary<string, Flowthru.Core.Flows.Flow>();
         foreach (var shard in shardCatalogs)
         {
           pipelines[$"Analysis_{shard.Country.Replace(' ', '_')}"] = AnalysisFlow.Create(

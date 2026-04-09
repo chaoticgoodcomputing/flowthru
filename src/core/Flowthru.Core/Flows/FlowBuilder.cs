@@ -1,7 +1,8 @@
-using Flowthru.Data;
-using Flowthru.Steps;
+using Flowthru.Core.Data;
+using Flowthru.Core.Graph;
+using Flowthru.Core.Steps;
 
-namespace Flowthru.Flows;
+namespace Flowthru.Core.Flows;
 
 /// <summary>
 /// Fluent builder for constructing type-safe flows with function-based steps.
@@ -108,8 +109,8 @@ public partial class FlowBuilder
   public FlowBuilder AddStep<TInput, TOutput>(
     string label,
     Func<TInput, Task<TOutput>> transform,
-    IItem<TInput> input,
-    IItem<TOutput> output,
+    INode<TInput> input,
+    INode<TOutput> output,
     string description = ""
   )
   {
@@ -117,8 +118,8 @@ public partial class FlowBuilder
       label: label,
       description: description,
       step: transform,
-      inputs: new List<IItem> { input },
-      outputs: new List<IItem> { output }
+      inputs: new List<INode> { input },
+      outputs: new List<INode> { output }
     );
 
     _flow.AddStep(flowStep);
@@ -140,8 +141,8 @@ public partial class FlowBuilder
   public FlowBuilder AddStep<TInput, TOutput>(
     string label,
     Func<TInput, CancellationToken, Task<TOutput>> transform,
-    IItem<TInput> input,
-    IItem<TOutput> output,
+    INode<TInput> input,
+    INode<TOutput> output,
     string description = ""
   )
   {
@@ -149,8 +150,8 @@ public partial class FlowBuilder
       label: label,
       description: description,
       step: transform,
-      inputs: new List<IItem> { input },
-      outputs: new List<IItem> { output }
+      inputs: new List<INode> { input },
+      outputs: new List<INode> { output }
     );
 
     _flow.AddStep(flowStep);
@@ -172,8 +173,8 @@ public partial class FlowBuilder
   public FlowBuilder AddStep<TInput, TOutput>(
     string label,
     Func<TInput, TOutput> transform,
-    IItem<TInput> input,
-    IItem<TOutput> output,
+    INode<TInput> input,
+    INode<TOutput> output,
     string description = ""
   )
   {
@@ -181,8 +182,8 @@ public partial class FlowBuilder
       label: label,
       description: description,
       step: transform,
-      inputs: new List<IItem> { input },
-      outputs: new List<IItem> { output }
+      inputs: new List<INode> { input },
+      outputs: new List<INode> { output }
     );
 
     _flow.AddStep(flowStep);
@@ -190,7 +191,7 @@ public partial class FlowBuilder
   }
 
   // Additional overloads (2-8 inputs, 1-8 outputs) are auto-generated via source generator.
-  // See: Flowthru.SourceGenerators/FlowBuilderGenerator.cs
+  // See: Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs
 
   /// <summary>
   /// Adds a homogeneous fan-in step: N catalog entries of the same element type collapse
@@ -212,8 +213,8 @@ public partial class FlowBuilder
   /// </remarks>
   public FlowBuilder AddStep<TIn, TOut>(
     string label,
-    IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> output,
+    IReadOnlyList<INode<TIn>> inputs,
+    INode<TOut> output,
     Func<IReadOnlyList<TIn>, TOut> step,
     string description = ""
   )
@@ -237,8 +238,8 @@ public partial class FlowBuilder
       label: label,
       description: description,
       step: wrappedStep,
-      inputs: inputs.Cast<IItem>().ToList(),
-      outputs: new List<IItem> { output }
+      inputs: inputs.Cast<INode>().ToList(),
+      outputs: new List<INode> { output }
     );
 
     _flow.AddStep(flowStep);

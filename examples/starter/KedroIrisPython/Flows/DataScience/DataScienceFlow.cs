@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Steps;
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using KedroIrisPython.Data;
 using KedroIrisPython.Data._05_ModelInput.Schemas;
 using KedroIrisPython.Data._07_ModelOutput.Schemas;

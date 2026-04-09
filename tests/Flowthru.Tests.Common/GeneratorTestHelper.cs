@@ -1,4 +1,5 @@
-using Flowthru.SourceGenerators.SchemaAnalysis;
+using Flowthru.Core.Data;
+using Flowthru.Core.SourceGenerators.SchemaAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -34,9 +35,7 @@ public static class GeneratorTestHelper
     );
 
     // Flowthru assembly — so the marker interfaces resolve
-    references.Add(
-      MetadataReference.CreateFromFile(typeof(Data.CatalogAbstract).Assembly.Location)
-    );
+    references.Add(MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location));
 
     var compilation = CSharpCompilation.Create(
       "GeneratorTestAssembly",

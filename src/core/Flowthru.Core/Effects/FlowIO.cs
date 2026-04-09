@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Flowthru.Effects;
+namespace Flowthru.Core.Effects;
 
 /// <summary>
 /// Represents a cancellable asynchronous effect that produces a value of type <typeparamref name="A"/>.

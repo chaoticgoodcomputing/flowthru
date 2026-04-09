@@ -1,11 +1,13 @@
 using System.Diagnostics;
-using Flowthru.Data;
-using Flowthru.Effects;
-using Flowthru.Meta.Builders;
-using Flowthru.Meta.Models;
+using Flowthru.Core.Data;
+using Flowthru.Core.Effects;
+using Flowthru.Core.Graph;
+using Flowthru.Core.Graph.Meta;
+using Flowthru.Core.Graph.Meta.Models;
+using Flowthru.Core.Graph.Validation;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Flows;
+namespace Flowthru.Core.Flows;
 
 /// <summary>
 /// Represents a complete data Flow with steps, dependencies, and execution order.
@@ -104,8 +106,7 @@ public class Flow
   /// Configures how external data sources (Layer 0 inputs) are validated
   /// before Flow execution begins.
   /// </remarks>
-  public Validation.ValidationOptions ValidationOptions { get; internal set; } =
-    Validation.ValidationOptions.Default();
+  public ValidationOptions ValidationOptions { get; internal set; } = ValidationOptions.Default();
 
   /// <summary>
   /// Validation hooks that run during pre-flight checks.
@@ -130,7 +131,7 @@ public class Flow
   /// flow.ValidationHooks.Add(new PythonStepValidator(executor, runtime));
   /// </code>
   /// </remarks>
-  public List<Validation.IFlowValidationHook> ValidationHooks { get; } = new();
+  public List<IFlowValidationHook> ValidationHooks { get; } = new();
 
   /// <summary>
   /// Indicates whether the Flow has been built (dependencies analyzed and layers assigned).
@@ -294,7 +295,7 @@ public class Flow
   /// <para>
   /// This method extracts structural metadata from the built Flow , creating
   /// a complete representation of the DAG (Directed Acyclic Graph) that can be
-  /// serialized to JSON for visualization in Flowthru.Viz.
+  /// serialized to JSON for visualization in Flowthru.Core.Viz.
   /// </para>
   /// <para>
   /// <strong>Prerequisites:</strong> Flow must be built before calling this method.
@@ -472,14 +473,14 @@ public class Flow
       if (inspectionLevel == Data.Validation.InspectionLevel.None)
       {
         Logger?.LogDebug(
-          "Skipping inspection for '{CatalogKey}' (level: None)",
+          "Skipping validation for '{CatalogKey}' (level: None)",
           catalogEntry.Label
         );
         continue;
       }
 
       Logger?.LogInformation(
-        "Inspecting '{CatalogKey}' with {InspectionLevel} inspection",
+        "Validating '{CatalogKey}' with {InspectionLevel} level",
         catalogEntry.Label,
         inspectionLevel
       );
@@ -488,16 +489,18 @@ public class Flow
       {
         Data.Validation.ValidationResult inspectionResult;
 
-        // All catalog entries support inspection through their storage adapters
-        if (inspectionLevel == Data.Validation.InspectionLevel.Shallow)
+        // For IItem nodes, use the two-level inspection dispatch
+        if (catalogEntry is Data.IItem item)
         {
-          inspectionResult = await catalogEntry
-            .InspectShallow(sampleSize: 100)
-            .Run(cancellationToken);
+          inspectionResult =
+            inspectionLevel == Data.Validation.InspectionLevel.Shallow
+              ? await item.InspectShallow(sampleSize: 100).Run(cancellationToken)
+              : await item.InspectDeep().Run(cancellationToken);
         }
-        else // Deep
+        else
         {
-          inspectionResult = await catalogEntry.InspectDeep().Run(cancellationToken);
+          // For non-IItem nodes (effects, etc.), use the universal Validate()
+          inspectionResult = await catalogEntry.Validate().Run(cancellationToken);
         }
 
         result.Merge(inspectionResult);
@@ -513,7 +516,7 @@ public class Flow
         else
         {
           Logger?.LogInformation(
-            "'{CatalogKey}' passed {InspectionLevel} inspection",
+            "'{CatalogKey}' passed {InspectionLevel} validation",
             catalogEntry.Label,
             inspectionLevel
           );
@@ -721,7 +724,9 @@ public class Flow
     try
     {
       // Get input counts for diagnostics (before loading data)
-      var inputCountAffs = flowStep.Inputs.Select(entry => entry.GetCountAsync());
+      var inputCountAffs = flowStep
+        .Inputs.OfType<Data.IItem>()
+        .Select(entry => entry.GetCountAsync());
       var inputCountTasks = inputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputCountResults = await Task.WhenAll(inputCountTasks);
       var inputCounts = inputCountResults;
@@ -735,8 +740,8 @@ public class Flow
       );
 
       // Load inputs from catalog entries
-      // LoadUntyped() returns T directly (singleton or collection), no wrapping needed
-      var inputAffs = flowStep.Inputs.Select(entry => entry.LoadUntyped());
+      // ProduceUntyped() returns T directly (singleton or collection), no wrapping needed
+      var inputAffs = flowStep.Inputs.Select(entry => entry.ProduceUntyped());
       var inputLoadTasks = inputAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
@@ -816,11 +821,6 @@ public class Flow
       {
         result = transformFunc.DynamicInvoke(inputParameter);
       }
-      File.AppendAllText(
-        "/tmp/flowthru_diag.log",
-        $"[{DateTime.Now:HH:mm:ss.fff}] Flow: Transform invoked, result type={result?.GetType().Name ?? "null"}\n"
-      );
-
       if (result == null)
       {
         throw new InvalidOperationException(
@@ -843,14 +843,14 @@ public class Flow
       }
 
       // Save outputs to catalog entries
-      // SaveUntyped() accepts T directly (singleton or collection), no unwrapping needed
+      // ConsumeUntyped() accepts T directly (singleton or collection), no unwrapping needed
       if (output != null && flowStep.Outputs.Count > 0)
       {
         if (flowStep.Outputs.Count == 1)
         {
           // Single output: save directly
           var catalogEntry = flowStep.Outputs[0];
-          await catalogEntry.SaveUntyped(output).Run(cancellationToken);
+          await catalogEntry.ConsumeUntyped(output).Run(cancellationToken);
         }
         else
         {
@@ -879,7 +879,7 @@ public class Flow
             var field = tupleFields[i];
             var outputData = field.GetValue(output);
 
-            await catalogEntry.SaveUntyped(outputData!).Run(cancellationToken);
+            await catalogEntry.ConsumeUntyped(outputData!).Run(cancellationToken);
           }
         }
       }
@@ -887,7 +887,9 @@ public class Flow
       stopwatch.Stop();
 
       // Get output counts for diagnostics (after saving data)
-      var outputCountAffs = flowStep.Outputs.Select(entry => entry.GetCountAsync());
+      var outputCountAffs = flowStep
+        .Outputs.OfType<Data.IItem>()
+        .Select(entry => entry.GetCountAsync());
       var outputCountTasks = outputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var outputCountResults = await Task.WhenAll(outputCountTasks);
       var outputCounts = outputCountResults;
@@ -939,7 +941,7 @@ public class Flow
     try
     {
       // Load inputs from catalog entries
-      var inputAffs = flowStep.Inputs.Select(entry => entry.LoadUntyped());
+      var inputAffs = flowStep.Inputs.Select(entry => entry.ProduceUntyped());
       var inputLoadTasks = inputAffs.Select(aff => aff.Run(cancellationToken).AsTask());
       var inputResults = await Task.WhenAll(inputLoadTasks);
       var inputs = inputResults;
@@ -1008,7 +1010,7 @@ public class Flow
       {
         if (flowStep.Outputs.Count == 1)
         {
-          await flowStep.Outputs[0].SaveUntyped(output).Run(cancellationToken);
+          await flowStep.Outputs[0].ConsumeUntyped(output).Run(cancellationToken);
         }
         else
         {
@@ -1016,7 +1018,7 @@ public class Flow
           for (int i = 0; i < flowStep.Outputs.Count; i++)
           {
             var outputData = tupleFields[i].GetValue(output);
-            await flowStep.Outputs[i].SaveUntyped(outputData!).Run(cancellationToken);
+            await flowStep.Outputs[i].ConsumeUntyped(outputData!).Run(cancellationToken);
           }
         }
       }

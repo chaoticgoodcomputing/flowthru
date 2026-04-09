@@ -1,6 +1,6 @@
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Steps;
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using KedroSpaceflightsPython.Data;
 using KedroSpaceflightsPython.Data._03_Primary.Schemas;
 using KedroSpaceflightsPython.Data._05_ModelInput.Schemas;

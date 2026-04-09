@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Flowthru core reference: ProjectReference when building from source, PackageReference for templates -->
+  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+  </ItemGroup>
+
+  <!-- FUnit: step testing library + source generator (emits StepTestRegistry and FU001 warnings) -->
+  <ItemGroup Condition="Exists('../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <ProjectReference Include="../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
+    <ProjectReference Include="../../../src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <!-- NUnit: enables dotnet test to discover and run [StepTest] methods -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data/**/*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
