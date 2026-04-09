@@ -5,6 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
   <!-- Flowthru core reference: ProjectReference when building from source, PackageReference for templates -->
