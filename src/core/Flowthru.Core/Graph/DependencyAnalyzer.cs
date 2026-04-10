@@ -323,6 +323,11 @@ internal static class DependencyAnalyzer
   /// then falls back to finding the step that produces a catalog item with that label.
   /// Used for <c>To</c> and <c>Only</c> targets.
   /// </summary>
+  /// <remarks>
+  /// When <paramref name="label"/> contains glob metacharacters (<c>*</c> or <c>?</c>),
+  /// all step labels and catalog item labels are matched against the pattern and every
+  /// matching step (or its producer) is returned. Zero glob matches is still an error.
+  /// </remarks>
   private static IEnumerable<FlowStep> ResolveToProducers(
     string label,
     List<FlowStep> allSteps,
@@ -330,6 +335,33 @@ internal static class DependencyAnalyzer
     string contextName
   )
   {
+    if (GlobMatcher.IsPattern(label))
+    {
+      var regex = GlobMatcher.ToRegex(label);
+
+      // Try glob against step labels first
+      var matchedSteps = stepsByLabel
+        .Where(kv => regex.IsMatch(kv.Key))
+        .Select(kv => kv.Value)
+        .ToList();
+
+      if (matchedSteps.Count > 0)
+        return matchedSteps;
+
+      // Fall back: glob against catalog item labels in outputs
+      var matchedByOutput = allSteps
+        .Where(n => n.Outputs.Any(item => regex.IsMatch(item.Label)))
+        .ToList();
+
+      if (matchedByOutput.Count > 0)
+        return matchedByOutput;
+
+      throw new InvalidOperationException(
+        $"{contextName} pattern '{label}' did not match any step label "
+          + "or catalog item produced by any step in the flow."
+      );
+    }
+
     // Try as a step label first
     if (stepsByLabel.TryGetValue(label, out var step))
     {
@@ -357,6 +389,11 @@ internal static class DependencyAnalyzer
   /// then falls back to finding all steps that consume a catalog item with that label.
   /// Used for <c>From</c> targets.
   /// </summary>
+  /// <remarks>
+  /// When <paramref name="label"/> contains glob metacharacters (<c>*</c> or <c>?</c>),
+  /// all step labels and catalog item labels are matched against the pattern and every
+  /// matching step (or its consumers) is returned. Zero glob matches is still an error.
+  /// </remarks>
   private static IEnumerable<FlowStep> ResolveToConsumers(
     string label,
     List<FlowStep> allSteps,
@@ -364,6 +401,33 @@ internal static class DependencyAnalyzer
     string contextName
   )
   {
+    if (GlobMatcher.IsPattern(label))
+    {
+      var regex = GlobMatcher.ToRegex(label);
+
+      // Try glob against step labels first
+      var matchedSteps = stepsByLabel
+        .Where(kv => regex.IsMatch(kv.Key))
+        .Select(kv => kv.Value)
+        .ToList();
+
+      if (matchedSteps.Count > 0)
+        return matchedSteps;
+
+      // Fall back: glob against catalog item labels in inputs
+      var matchedByInput = allSteps
+        .Where(n => n.Inputs.Any(item => regex.IsMatch(item.Label)))
+        .ToList();
+
+      if (matchedByInput.Count > 0)
+        return matchedByInput;
+
+      throw new InvalidOperationException(
+        $"{contextName} pattern '{label}' did not match any step label "
+          + "or catalog item consumed by any step in the flow."
+      );
+    }
+
     // Try as a step label first
     if (stepsByLabel.TryGetValue(label, out var step))
     {

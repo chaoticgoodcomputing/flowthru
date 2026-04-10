@@ -1,7 +1,7 @@
 using Flowthru.Core.Flows;
+using Flowthru.Core.Graph;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
-using Flowthru.Core.Graph;
 
 namespace Flowthru.Tests.Execution;
 
@@ -281,6 +281,136 @@ public class SlicingTests
 
     Assert.Throws<InvalidOperationException>(
       () => flow.Build(new FlowSliceStrategy { Flows = new HashSet<string> { "NonExistentFlow" } })
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Glob — wildcard step matching
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public void To_GlobPattern_MatchesAllStepsWithSuffix()
+  {
+    // "Step*" matches StepA, StepB, StepC, StepD — To includes those + upstream.
+    // Since all are in a linear chain, the union of upstream sets is the full DAG.
+    var flow = BuildLinearFlow();
+
+    flow.Build(new FlowSliceStrategy { To = new HashSet<string> { "Step*" } });
+
+    Assert.That(
+      GetSlicedLabels(flow),
+      Is.EquivalentTo(new[] { "StepA", "StepB", "StepC", "StepD" })
+    );
+  }
+
+  [Test]
+  public void To_GlobPattern_SingleWildcard_MatchesSingleSegment()
+  {
+    // "Step?" matches StepA, StepB, StepC, StepD (single non-dot char).
+    var flow = BuildLinearFlow();
+
+    flow.Build(new FlowSliceStrategy { To = new HashSet<string> { "Step?" } });
+
+    Assert.That(
+      GetSlicedLabels(flow),
+      Is.EquivalentTo(new[] { "StepA", "StepB", "StepC", "StepD" })
+    );
+  }
+
+  [Test]
+  public void From_GlobPattern_MatchesSubsetAndExpandsDownstream()
+  {
+    // "StepB" starts from StepB → StepC, StepD; "Step[CD]" via glob "StepC" alone:
+    // Use "Step[AB]" isn't a supported glob. Use "StepA" literal instead.
+    // "Step*" matches all — From expands downstream from all, union is entire DAG.
+    var flow = BuildLinearFlow();
+
+    flow.Build(new FlowSliceStrategy { From = new HashSet<string> { "StepC*" } });
+
+    Assert.That(GetSlicedLabels(flow), Is.EquivalentTo(new[] { "StepC", "StepD" }));
+  }
+
+  [Test]
+  public void Only_GlobPattern_IncludesMatchesAndUpstreamDependencies()
+  {
+    // "StepC" only — pulls in StepA and StepB as upstream deps.
+    // Using glob "Step[CD]" not supported; use "*C" which matches StepC only.
+    var flow = BuildLinearFlow();
+
+    flow.Build(new FlowSliceStrategy { Only = new HashSet<string> { "*C" } });
+
+    Assert.That(GetSlicedLabels(flow), Is.EquivalentTo(new[] { "StepA", "StepB", "StepC" }));
+  }
+
+  [Test]
+  public void To_GlobPattern_InMergedFlow_MatchesAcrossFlowSegments()
+  {
+    // In a merged flow, steps are labeled "FlowAlpha.StepA", "FlowBeta.StepC", etc.
+    // "*.StepC" should match FlowBeta.StepC and include its upstream dependencies.
+    var catalog = new ComplexMultiLayerCatalog();
+
+    var flowAlpha = FlowBuilder.CreateFlow(b =>
+    {
+      b.AddStep("StepA", PassthroughStep.Create(), catalog.InputA, catalog.ProcessedA);
+      b.AddStep("StepB", PassthroughStep.Create(), catalog.ProcessedA, catalog.ProcessedB);
+    });
+
+    var flowBeta = FlowBuilder.CreateFlow(b =>
+    {
+      b.AddStep("StepC", PassthroughStep.Create(), catalog.ProcessedB, catalog.Merged);
+      b.AddStep("StepD", PassthroughStep.Create(), catalog.Merged, catalog.Final);
+    });
+
+    var merged = Flow.Merge(
+      new Dictionary<string, Flow> { { "FlowAlpha", flowAlpha }, { "FlowBeta", flowBeta } }
+    );
+
+    merged.Build(new FlowSliceStrategy { To = new HashSet<string> { "*.StepC" } });
+
+    Assert.That(
+      GetSlicedLabels(merged),
+      Is.EquivalentTo(new[] { "FlowAlpha.StepA", "FlowAlpha.StepB", "FlowBeta.StepC" })
+    );
+  }
+
+  [Test]
+  public void From_GlobPattern_InMergedFlow_MatchesAllStepsInOneFlow()
+  {
+    // "FlowBeta.*" matches FlowBeta.StepC and FlowBeta.StepD.
+    // From expands downstream from both — result is still those two steps.
+    var catalog = new ComplexMultiLayerCatalog();
+
+    var flowAlpha = FlowBuilder.CreateFlow(b =>
+    {
+      b.AddStep("StepA", PassthroughStep.Create(), catalog.InputA, catalog.ProcessedA);
+      b.AddStep("StepB", PassthroughStep.Create(), catalog.ProcessedA, catalog.ProcessedB);
+    });
+
+    var flowBeta = FlowBuilder.CreateFlow(b =>
+    {
+      b.AddStep("StepC", PassthroughStep.Create(), catalog.ProcessedB, catalog.Merged);
+      b.AddStep("StepD", PassthroughStep.Create(), catalog.Merged, catalog.Final);
+    });
+
+    var merged = Flow.Merge(
+      new Dictionary<string, Flow> { { "FlowAlpha", flowAlpha }, { "FlowBeta", flowBeta } }
+    );
+
+    merged.Build(new FlowSliceStrategy { From = new HashSet<string> { "FlowBeta.*" } });
+
+    Assert.That(
+      GetSlicedLabels(merged),
+      Is.EquivalentTo(new[] { "FlowBeta.StepC", "FlowBeta.StepD" })
+    );
+  }
+
+  [Test]
+  public void GlobPattern_NoMatches_ThrowsInvalidOperationException()
+  {
+    var flow = BuildLinearFlow();
+
+    Assert.Throws<InvalidOperationException>(
+      () => flow.Build(new FlowSliceStrategy { To = new HashSet<string> { "NoSuch*" } })
     );
   }
 }
