@@ -28,6 +28,7 @@
   <Folder Name="/examples/">
     <Project Path="examples\starter\SpaceflightsEFCore\SpaceflightsEFCore.csproj" />
     <Project Path="examples\starter\KedroSpaceflights\KedroSpaceflights.csproj" />
+    <Project Path="examples\starter\KedroSpaceflightsFUnit\KedroSpaceflightsFUnit.csproj" />
     <Project Path="examples\starter\KedroSpaceflightsPython\KedroSpaceflightsPython.csproj" />
     <Project Path="examples\starter\KedroIris\KedroIris.csproj" />
     <Project Path="examples\starter\KedroIrisFUnit\KedroIrisFUnit.csproj" />
