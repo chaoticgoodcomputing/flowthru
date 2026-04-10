@@ -90,8 +90,6 @@ public static class PredictStep
   /// <summary>
   /// FUnit tests for <see cref="PredictStep"/>.
   /// </summary>
-  [TestFixture]
-  [Category("FUnit")]
   public class Tests : FunitContext
   {
     private static ModelWeightsSchema ZeroModel() =>
@@ -104,7 +102,6 @@ public static class PredictStep
         NumClasses = 3,
       };
 
-    [Test]
     [StepTest(typeof(PredictStep))]
     public void ReturnsOnePredictionPerInputRow()
     {
@@ -124,7 +121,6 @@ public static class PredictStep
       Assert.That(predictions, Has.Count.EqualTo(5));
     }
 
-    [Test]
     [StepTest(typeof(PredictStep))]
     public void PredictedClass_IsAlwaysWithinValidRange()
     {

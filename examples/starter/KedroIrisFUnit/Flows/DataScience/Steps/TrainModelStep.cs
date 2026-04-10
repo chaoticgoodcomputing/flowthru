@@ -140,8 +140,6 @@ public static class TrainModelStep
   /// <summary>
   /// FUnit tests for <see cref="TrainModelStep"/>.
   /// </summary>
-  [TestFixture]
-  [Category("FUnit")]
   public class Tests : FunitContext
   {
     private static IEnumerable<FeatureVectorSchema> SampleFeatures(int count) =>
@@ -165,7 +163,6 @@ public static class TrainModelStep
           Virginica = i % 3 == 2 ? 1.0 : 0.0,
         });
 
-    [Test]
     [StepTest(typeof(TrainModelStep))]
     public void ReturnsWeightsWithCorrectShape()
     {
@@ -180,7 +177,6 @@ public static class TrainModelStep
       Assert.That(model.Weights.Length, Is.EqualTo((4 + 1) * 3));
     }
 
-    [Test]
     [StepTest(typeof(TrainModelStep))]
     public void WithMinimalIterations_DoesNotThrow()
     {

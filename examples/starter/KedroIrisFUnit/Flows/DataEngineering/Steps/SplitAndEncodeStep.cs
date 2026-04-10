@@ -96,11 +96,8 @@ public static class SplitAndEncodeStep
   /// <summary>
   /// FUnit tests for <see cref="SplitAndEncodeStep"/>.
   /// </summary>
-  [TestFixture]
-  [Category("FUnit")]
   public class Tests : FunitContext
   {
-    [Test]
     [StepTest(typeof(SplitAndEncodeStep))]
     public void With20PercentRatio_ProducesCorrectSplitSizes()
     {
@@ -130,7 +127,6 @@ public static class SplitAndEncodeStep
       Assert.That(testY.Count(), Is.EqualTo(testX.Count()));
     }
 
-    [Test]
     [StepTest(typeof(SplitAndEncodeStep))]
     public void SetosaRow_EncodesOneHotCorrectly()
     {
