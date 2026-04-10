@@ -106,6 +106,12 @@ public sealed class TemplateTestRunner
         Directory.CreateDirectory(parentDir);
       }
 
+      // Write NuGet.Config into parentDir BEFORE `dotnet new` so that the
+      // implicit restore during template instantiation resolves Flowthru*
+      // from the local dist/packages feed rather than nuget.org (where the
+      // current in-development version is not yet published).
+      WriteLocalNuGetConfig(parentDir);
+
       // Clean up any existing project directory
       if (Directory.Exists(_project.GeneratedPath))
       {

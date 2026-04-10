@@ -27,12 +27,18 @@ public class TemplateIntegrationTests
   [OneTimeSetUp]
   public static void InstallTemplate()
   {
-    // Find the repository root (navigate up from the test assembly location)
+    // Walk up from the assembly location looking for nx.json (workspace root marker).
+    // A fixed-depth traversal breaks when the output path depth changes (e.g. when
+    // a Configuration segment is added to BaseOutputPath in Directory.Build.props).
     var assemblyPath = typeof(TemplateIntegrationTests).Assembly.Location;
-    var testsDir = Path.GetDirectoryName(assemblyPath);
-    var repoRoot = Path.GetFullPath(Path.Combine(testsDir!, "..", "..", "..", ".."));
+    var dir = Path.GetDirectoryName(assemblyPath);
+    while (dir != null && !File.Exists(Path.Combine(dir, "nx.json")))
+      dir = Path.GetDirectoryName(dir);
 
-    _templateInstallPath = Path.Combine(repoRoot, "examples", "starter");
+    if (dir == null)
+      throw new DirectoryNotFoundException("Could not locate workspace root (nx.json not found).");
+
+    _templateInstallPath = Path.Combine(dir, "examples", "starter");
 
     if (!Directory.Exists(_templateInstallPath))
     {
