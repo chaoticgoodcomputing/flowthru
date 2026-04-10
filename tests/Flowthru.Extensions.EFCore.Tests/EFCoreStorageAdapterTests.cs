@@ -160,4 +160,20 @@ public class EFCoreStorageAdapterTests
     Assert.That(loaded, Has.Count.EqualTo(1));
     Assert.That(loaded[0].Name, Is.EqualTo("Alice"));
   }
+
+  [Test]
+  public void ArrayKeyEntity_ThrowsInvalidOperationException_OnConstruction()
+  {
+    var options = new DbContextOptionsBuilder<ArrayKeyDbContext>()
+      .UseSqlite("Data Source=:memory:")
+      .Options;
+
+    Assert.Throws<InvalidOperationException>(
+      () =>
+        EFCoreItemFactory.Enumerable.EFCore<ArrayKeyEntity>(
+          "test",
+          () => new ArrayKeyDbContext(options)
+        )
+    );
+  }
 }

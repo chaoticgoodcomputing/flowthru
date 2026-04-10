@@ -176,59 +176,33 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// </exception>
   private static void ValidateEntityConfiguration(DbContext context)
   {
-    try
-    {
-      var entityType = context.Model.FindEntityType(typeof(T));
-      if (entityType == null)
-      {
-        throw new InvalidOperationException(
-          $"Entity type '{typeof(T).Name}' is not configured in DbContext '{context.GetType().Name}'. "
-            + $"Ensure the entity is added to the DbContext model."
-        );
-      }
-
-      var primaryKey = entityType.FindPrimaryKey();
-      if (primaryKey == null)
-      {
-        throw new InvalidOperationException(
-          $"Entity type '{typeof(T).Name}' in DbContext '{context.GetType().Name}' does not have a primary key configured. "
-            + $"Configure a primary key using HasKey() in OnModelCreating."
-        );
-      }
-
-      // Force identity map factory creation to validate key comparers
-      if (primaryKey is Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeKey runtimeKey)
-      {
-        _ = runtimeKey.GetIdentityMapFactory();
-      }
-    }
-    catch (System.Reflection.TargetInvocationException ex)
-    {
-      // Unwrap nested TargetInvocationExceptions from reflection chain
-      var innerMost = ex;
-      while (innerMost.InnerException is System.Reflection.TargetInvocationException nested)
-      {
-        innerMost = nested;
-      }
-
-      if (innerMost.InnerException is InvalidCastException castEx)
-      {
-        throw new InvalidOperationException(
-          $"Invalid key configuration for '{typeof(T).Name}' in DbContext '{context.GetType().Name}': "
-            + $"{castEx.Message}. Arrays and certain collection types cannot be used as entity keys. "
-            + $"Consider using a primitive type (int, Guid, string) or composite key of primitives.",
-          castEx
-        );
-      }
-
-      throw;
-    }
-    catch (InvalidCastException castEx)
+    var entityType = context.Model.FindEntityType(typeof(T));
+    if (entityType == null)
     {
       throw new InvalidOperationException(
-        $"Invalid key configuration for '{typeof(T).Name}' in DbContext '{context.GetType().Name}': "
-          + $"{castEx.Message}. This typically indicates an unsupported key type configuration.",
-        castEx
+        $"Entity type '{typeof(T).Name}' is not configured in DbContext '{context.GetType().Name}'. "
+          + $"Ensure the entity is added to the DbContext model."
+      );
+    }
+
+    var primaryKey = entityType.FindPrimaryKey();
+    if (primaryKey == null)
+    {
+      throw new InvalidOperationException(
+        $"Entity type '{typeof(T).Name}' in DbContext '{context.GetType().Name}' does not have a primary key configured. "
+          + $"Configure a primary key using HasKey() in OnModelCreating."
+      );
+    }
+
+    // Array types use reference equality and cannot serve as EF Core identity map keys.
+    var arrayProperty = primaryKey.Properties.FirstOrDefault(p => p.ClrType.IsArray);
+    if (arrayProperty != null)
+    {
+      throw new InvalidOperationException(
+        $"Property '{arrayProperty.Name}' on entity '{typeof(T).Name}' uses array type '{arrayProperty.ClrType.Name}', "
+          + $"which cannot be used as an entity key. "
+          + $"Array types do not support value equality for EF Core change tracking. "
+          + $"Consider using a primitive type (int, Guid, string) or a composite key of primitives."
       );
     }
   }

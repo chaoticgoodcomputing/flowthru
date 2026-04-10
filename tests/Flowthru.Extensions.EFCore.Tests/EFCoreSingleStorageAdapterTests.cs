@@ -71,4 +71,20 @@ public class EFCoreSingleStorageAdapterTests
 
     Assert.That(result.IsValid, Is.True);
   }
+
+  [Test]
+  public void ArrayKeyEntity_ThrowsInvalidOperationException_OnConstruction()
+  {
+    var options = new DbContextOptionsBuilder<ArrayKeyDbContext>()
+      .UseSqlite("Data Source=:memory:")
+      .Options;
+
+    Assert.Throws<InvalidOperationException>(
+      () =>
+        EFCoreItemFactory.Single.EFCore<ArrayKeyEntity>(
+          "test",
+          () => new ArrayKeyDbContext(options)
+        )
+    );
+  }
 }

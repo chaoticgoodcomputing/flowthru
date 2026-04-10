@@ -84,4 +84,19 @@
           Visible="false" />
   </ItemGroup>
 
+  <!-- Package source generators in standard analyzer location -->
+  <ItemGroup>
+    <None Include="$(RepoRoot)dist/src/extensions/Flowthru.Extensions.Python.SourceGenerators/$(Configuration)/netstandard2.0/Flowthru.Extensions.Python.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+  </ItemGroup>
+
+  <!-- Ensure source generators are built before packing -->
+  <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
+    <MSBuild Projects="../Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+  </Target>
+
 </Project>

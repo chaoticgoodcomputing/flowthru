@@ -7,31 +7,11 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <NoWarn>RS2008;RS2007</NoWarn>
-    <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <IsPackable>true</IsPackable>
+    <!-- Not published standalone; DLL is bundled into Flowthru.Extensions.Python analyzers/dotnet/cs -->
+    <IsPackable>false</IsPackable>
     <RootNamespace>Flowthru.Extensions.Python.SourceGenerators</RootNamespace>
-    <Description>Source generators for Flowthru.Extensions.Python</Description>
-    
-    <!-- Pack in parent package's analyzers folder -->
-    <PackageId>Flowthru.Extensions.Python.SourceGenerators</PackageId>
-    <IncludeInSingleFile>true</IncludeInSingleFile>
   </PropertyGroup>
-  
-  <!-- Package the generator DLL in analyzers/dotnet/cs for parent package -->
-  <PropertyGroup>
-    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-  </PropertyGroup>
-
-  <Target Name="GetDependencyTargetPaths">
-    <ItemGroup>
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_CodeAnalysis_CSharp)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
-    </ItemGroup>
-  </Target>
-
-  <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
