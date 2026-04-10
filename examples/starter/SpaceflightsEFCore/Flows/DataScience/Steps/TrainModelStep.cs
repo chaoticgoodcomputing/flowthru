@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using MathNet.Numerics.LinearRegression;
 using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
 using SpaceflightsEFCore.Data._06_Models.Schemas;
@@ -7,6 +8,7 @@ namespace SpaceflightsEFCore.Flows.DataScience.Steps;
 /// <summary>
 /// Trains a linear regression model to predict prices based on shuttle and company features.
 /// </summary>
+[FlowthruStep]
 public static class TrainModelStep
 {
   /// <summary>

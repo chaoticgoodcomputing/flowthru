@@ -1,7 +1,7 @@
-using Flowthru.Meta.Models;
+using Flowthru.Core.Graph.Meta.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Meta.Providers;
+namespace Flowthru.Core.Meta.Providers;
 
 /// <summary>
 /// Exports DAG metadata as Mermaid flowchart diagrams.

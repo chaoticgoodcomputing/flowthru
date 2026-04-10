@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Factory for creating schema instances, supporting both traditional parameterless constructors

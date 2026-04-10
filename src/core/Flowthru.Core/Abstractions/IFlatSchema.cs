@@ -1,4 +1,4 @@
-namespace Flowthru.Abstractions;
+namespace Flowthru.Core.Abstractions;
 
 /// <summary>
 /// Marker interface for schema types with flat (non-nested) structure.

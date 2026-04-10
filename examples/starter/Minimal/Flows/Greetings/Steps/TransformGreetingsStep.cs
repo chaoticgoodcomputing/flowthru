@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Minimal.Data._02_Intermediate.Schemas;
 using Minimal.Data._03_Primary.Schemas;
 
@@ -7,6 +8,7 @@ namespace Minimal.Flows.Greetings.Steps;
 /// Transforms "Hello" greetings into two outputs: "Goodbye" and "So long" greetings.
 /// This demonstrates a 1→2 node transformation.
 /// </summary>
+[FlowthruStep]
 public static class TransformGreetingsStep
 {
   /// <summary>

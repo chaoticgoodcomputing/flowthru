@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using KedroSpaceflights.Custom.Data._06_Reporting.Schemas;
 using Plotly.NET;
 

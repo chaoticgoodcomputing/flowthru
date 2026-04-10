@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroIris.Data._05_ModelInput.Schemas;
 using KedroIris.Data._07_ModelOutput.Schemas;
 using KedroIris.Data._08_Reporting.Schemas;
@@ -7,6 +8,7 @@ namespace KedroIris.Flows.DataScience.Steps;
 /// <summary>
 /// Evaluates model predictions against true labels and computes metrics.
 /// </summary>
+[FlowthruStep]
 public static class EvaluateModelStep
 {
   /// <summary>
@@ -32,9 +34,15 @@ public static class EvaluateModelStep
         .Select(label =>
         {
           if (label.Setosa == 1.0)
+          {
             return 0;
+          }
+
           if (label.Versicolor == 1.0)
+          {
             return 1;
+          }
+
           return 2; // virginica
         })
         .ToList();

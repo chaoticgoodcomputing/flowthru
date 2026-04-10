@@ -1,10 +1,10 @@
 using System.Text;
 using ExcelDataReader;
-using Flowthru.Abstractions;
-using Flowthru.Data.Capabilities;
-using Flowthru.Data.Storage;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Storage;
 
-namespace Flowthru.Data.Storage.Format;
+namespace Flowthru.Core.Data.Storage.Format;
 
 /// <summary>
 /// Serializes flat schemas to/from Excel (.xlsx) files using ExcelDataReader.

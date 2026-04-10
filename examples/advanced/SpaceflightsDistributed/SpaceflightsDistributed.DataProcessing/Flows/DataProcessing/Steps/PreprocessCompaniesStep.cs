@@ -1,8 +1,10 @@
+using Flowthru.Core.Steps;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 
 namespace SpaceflightsDistributed.DataProcessing.Flows.DataProcessing.Steps;
 
+[FlowthruStep]
 public static class PreprocessCompaniesStep
 {
   public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()
@@ -16,7 +18,9 @@ public static class PreprocessCompaniesStep
     bool iataApproved = raw.IataApproved.Trim().ToLowerInvariant() == "t";
 
     if (!TryParsePercentage(raw.CompanyRating, out var rating))
+    {
       return null;
+    }
 
     return new PreprocessedCompanySchema
     {
@@ -31,11 +35,15 @@ public static class PreprocessCompaniesStep
   {
     result = 0;
     if (string.IsNullOrWhiteSpace(value))
+    {
       return false;
+    }
 
     var cleaned = value.Replace("%", "").Trim();
     if (!decimal.TryParse(cleaned, out var parsed))
+    {
       return false;
+    }
 
     result = parsed / 100m;
     return true;

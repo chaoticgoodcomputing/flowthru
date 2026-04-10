@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsEFCore.Data._01_Raw.Schemas;
 using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
 
@@ -6,6 +7,7 @@ namespace SpaceflightsEFCore.Flows.DataProcessing.Steps;
 /// <summary>
 /// Preprocesses raw company data by parsing rating percentages and IATA approval flags.
 /// </summary>
+[FlowthruStep]
 public static class PreprocessCompaniesStep
 {
   /// <summary>

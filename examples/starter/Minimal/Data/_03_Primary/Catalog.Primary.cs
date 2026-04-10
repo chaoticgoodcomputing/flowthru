@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using Minimal.Data._03_Primary.Schemas;
 
 namespace Minimal.Data;

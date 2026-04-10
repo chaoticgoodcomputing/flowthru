@@ -10,14 +10,21 @@
     distribution (NuGet package) scenarios.
   -->
   <ItemGroup>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj"
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer"
-                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Core' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj')" />
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Core' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj')" />
+
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Core' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj')" />
     
     <!-- For NuGet package consumption -->
-    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.SourceGenerators.dll" 
-              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.SourceGenerators.dll')" />
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.SourceGenerators.dll" 
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.SourceGenerators.dll')" />
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.CodeFixes.dll" 
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.CodeFixes.dll')" />
   </ItemGroup>
 
 </Project>

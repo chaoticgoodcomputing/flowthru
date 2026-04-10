@@ -121,11 +121,17 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private void EnsureStarted()
   {
     if (_started)
+    {
       return;
+    }
+
     lock (_lock)
     {
       if (_started)
+      {
         return;
+      }
+
       StartWorker();
       _started = true;
     }
@@ -137,10 +143,12 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     var workerScript = Path.Combine(AppContext.BaseDirectory, "flowthru_worker.py");
 
     if (!File.Exists(workerScript))
+    {
       throw new FileNotFoundException(
         $"flowthru_worker.py not found at '{workerScript}'. Ensure the package was built correctly.",
         workerScript
       );
+    }
 
     _logger.LogDebug("Starting Python worker: {Exe} {Script}", pyExe, workerScript);
 
@@ -183,9 +191,11 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
     var readyMsg = JsonNode.Parse(readyLine);
     if (readyMsg?["status"]?.GetValue<string>() != "ready")
+    {
       throw new InvalidOperationException(
         $"Python worker did not become ready. Response: {readyLine}"
       );
+    }
 
     var pyExePath = readyMsg?["python_executable"]?.GetValue<string>() ?? "(unknown)";
     var pyPrefix = readyMsg?["python_prefix"]?.GetValue<string>() ?? "(unknown)";
@@ -208,7 +218,9 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private JsonObject SendRequest(JsonObject request)
   {
     if (_stdin == null || _stdout == null)
+    {
       throw new InvalidOperationException("Python worker is not running.");
+    }
 
     lock (_lock)
     {
@@ -230,18 +242,30 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private static string ClassifyType(Type type)
   {
     if (IsValueTuple(type))
+    {
       return "multi";
+    }
+
     if (type == typeof(byte[]))
+    {
       return "bytes";
+    }
+
     if (IsEnumerableSchema(type))
+    {
       return "tabular";
+    }
+
     return "scalar";
   }
 
   private static bool IsValueTuple(Type type)
   {
     if (!type.IsValueType || !type.IsGenericType)
+    {
       return false;
+    }
+
     return type.GetGenericTypeDefinition()
         .FullName?.StartsWith("System.ValueTuple`", StringComparison.Ordinal) ?? false;
   }
@@ -249,9 +273,15 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private static bool IsEnumerableSchema(Type type)
   {
     if (type == typeof(string) || type == typeof(byte[]))
+    {
       return false;
+    }
+
     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+    {
       return true;
+    }
+
     return type.GetInterfaces()
       .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
   }
@@ -284,7 +314,10 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       var kind = ClassifyType(elemType);
       var spec = new JsonObject { ["kind"] = kind };
       if (kind == "tabular")
+      {
         spec["dtype_spec"] = BuildDtypeSpecJson(elemType);
+      }
+
       arr.Add(spec);
     }
     return arr;
@@ -315,9 +348,12 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private static string EncodeMulti(object tuple, Type tupleType)
   {
     if (tuple is not ITuple t)
+    {
       throw new InvalidOperationException(
         $"Expected ITuple for multi-I/O, got {tuple.GetType().Name}"
       );
+    }
+
     var elementTypes = tupleType.GetGenericArguments();
     var arr = new JsonArray();
     for (int i = 0; i < t.Length; i++)
@@ -386,7 +422,10 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   public void Dispose()
   {
     if (_disposed)
+    {
       return;
+    }
+
     _disposed = true;
 
     try
@@ -421,7 +460,9 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
         try
         {
           if (!_worker.HasExited)
+          {
             _worker.Kill();
+          }
         }
         catch { }
         _worker.Dispose();

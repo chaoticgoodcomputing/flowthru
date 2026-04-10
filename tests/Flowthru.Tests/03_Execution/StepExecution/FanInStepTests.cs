@@ -1,5 +1,5 @@
-using Flowthru.Data;
-using Flowthru.Flows;
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 
 namespace Flowthru.Tests.Execution.StepExecution;

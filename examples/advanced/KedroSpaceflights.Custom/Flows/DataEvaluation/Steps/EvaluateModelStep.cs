@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 using KedroSpaceflights.Custom.Data._04_Models.Schemas;
 using KedroSpaceflights.Custom.Data._05_ModelOutput.Schemas;
@@ -11,6 +12,7 @@ namespace KedroSpaceflights.Custom.Flows.DataEvaluation.Steps;
 /// Evaluates the trained OLS regression model on test data and logs metrics.
 /// Uses Math.NET Numerics GoodnessOfFit.RSquared() matching sklearn's r2_score.
 /// </summary>
+[FlowthruStep]
 public static class EvaluateModelStep
 {
   /// <summary>

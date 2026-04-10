@@ -1,8 +1,8 @@
 using System.Collections.Frozen;
 using System.Reflection;
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
-namespace Flowthru.Serialization;
+namespace Flowthru.Core.Serialization;
 
 /// <summary>
 /// Provides cached, high-performance bidirectional mapping between enum values and their

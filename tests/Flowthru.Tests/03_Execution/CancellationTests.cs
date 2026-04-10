@@ -1,10 +1,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Flowthru.Data;
-using Flowthru.Data.Storage;
-using Flowthru.Effects;
-using Flowthru.Flows;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Effects;
+using Flowthru.Core.Flows;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
 
@@ -341,7 +343,7 @@ public class CancellationTests
   {
     private T? _data;
 
-    public Data.Capabilities.StorageTraits Traits => new Data.Capabilities.StorageTraits();
+    public StorageTraits Traits => new StorageTraits();
 
     public void SetData(T data) => _data = data;
 
@@ -367,11 +369,10 @@ public class CancellationTests
 
     public FlowIO<bool> Exists() => FlowIO.Lift(() => _data != null);
 
-    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize) =>
-      FlowIO.Pure(Data.Validation.ValidationResult.Success());
+    public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
+      FlowIO.Pure(ValidationResult.Success());
 
-    public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
-      FlowIO.Pure(Data.Validation.ValidationResult.Success());
+    public FlowIO<ValidationResult> InspectDeep() => FlowIO.Pure(ValidationResult.Success());
   }
 
   /// <summary>
@@ -381,7 +382,7 @@ public class CancellationTests
   {
     private T? _data;
 
-    public Data.Capabilities.StorageTraits Traits => new Data.Capabilities.StorageTraits();
+    public StorageTraits Traits => new StorageTraits();
 
     public FlowIO<T> Load()
     {
@@ -402,10 +403,9 @@ public class CancellationTests
 
     public FlowIO<bool> Exists() => FlowIO.Lift(() => _data != null);
 
-    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize) =>
-      FlowIO.Pure(Data.Validation.ValidationResult.Success());
+    public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
+      FlowIO.Pure(ValidationResult.Success());
 
-    public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
-      FlowIO.Pure(Data.Validation.ValidationResult.Success());
+    public FlowIO<ValidationResult> InspectDeep() => FlowIO.Pure(ValidationResult.Success());
   }
 }

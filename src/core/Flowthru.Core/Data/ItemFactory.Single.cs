@@ -1,7 +1,7 @@
-using Flowthru.Abstractions;
-using Flowthru.Data.Storage;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Storage;
 
-namespace Flowthru.Data;
+namespace Flowthru.Core.Data;
 
 public static partial class ItemFactory
 {

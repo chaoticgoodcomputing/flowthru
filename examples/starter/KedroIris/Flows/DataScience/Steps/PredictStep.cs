@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroIris.Data._05_ModelInput.Schemas;
 using KedroIris.Data._06_Models.Schemas;
 using KedroIris.Data._07_ModelOutput.Schemas;
@@ -7,6 +8,7 @@ namespace KedroIris.Flows.DataScience.Steps;
 /// <summary>
 /// Makes predictions using a trained multi-class logistic regression model.
 /// </summary>
+[FlowthruStep]
 public static class PredictStep
 {
   /// <summary>

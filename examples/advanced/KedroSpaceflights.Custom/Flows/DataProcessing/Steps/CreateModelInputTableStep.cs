@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 
@@ -8,6 +9,7 @@ namespace KedroSpaceflights.Custom.Flows.DataProcessing.Steps;
 /// Performs inner joins on validated, non-nullable data.
 /// All null filtering is handled upstream in preprocessing nodes.
 /// </summary>
+[FlowthruStep]
 public static class CreateModelInputTableStep
 {
   /// <summary>

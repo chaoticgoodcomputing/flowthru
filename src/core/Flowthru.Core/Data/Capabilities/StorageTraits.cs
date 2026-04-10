@@ -1,4 +1,6 @@
-namespace Flowthru.Data.Capabilities;
+using Flowthru.Core.Graph;
+
+namespace Flowthru.Core.Data.Capabilities;
 
 /// <summary>
 /// Describes the structural constraints and capabilities of a storage implementation.
@@ -73,7 +75,7 @@ namespace Flowthru.Data.Capabilities;
 ///         .Constrain(t =&gt; t with { CanWrite = false }));
 /// </code>
 /// </remarks>
-public record StorageTraits
+public record StorageTraits : NodeTraits
 {
   // ── Constraints (narrow from baseline = filesystem file) ──
 
@@ -96,15 +98,6 @@ public record StorageTraits
   public bool CanWrite { get; init; } = true;
 
   /// <summary>
-  /// Can the source be inspected for pre-flight validation?
-  /// </summary>
-  /// <remarks>
-  /// Default: <c>true</c> (filesystem files can be sampled).
-  /// Set to <c>false</c> for sources that are expensive to validate (remote HTTP, distributed Spark).
-  /// </remarks>
-  public bool CanInspect { get; init; } = true;
-
-  /// <summary>
   /// Does data survive across pipeline runs?
   /// </summary>
   /// <remarks>
@@ -112,16 +105,6 @@ public record StorageTraits
   /// Set to <c>false</c> for in-memory caches, temporary buffers, or transient state.
   /// </remarks>
   public bool IsPersistent { get; init; } = true;
-
-  /// <summary>
-  /// Does this storage require network access?
-  /// </summary>
-  /// <remarks>
-  /// Default: <c>false</c> (filesystem files are local).
-  /// Set to <c>true</c> for remote databases, S3, HTTP endpoints.
-  /// Used for pre-flight validation in offline/CI environments.
-  /// </remarks>
-  public bool RequiresNetwork { get; init; } = false;
 
   // ── Capabilities (widen beyond baseline = filesystem file) ──
 

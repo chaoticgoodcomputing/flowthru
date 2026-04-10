@@ -1,5 +1,5 @@
 using System.Reflection;
-using Flowthru.Services;
+using Flowthru.Core.Services;
 
 namespace Flowthru.Tests.Examples.Infrastructure;
 
@@ -47,19 +47,27 @@ public static class ExampleDiscovery
       var name = Path.GetFileNameWithoutExtension(dllPath);
       var assembly = TryLoadAssembly(name, testOutputDir);
       if (assembly == null)
+      {
         continue;
+      }
 
       // Libraries have a null EntryPoint; only executables (OutputType=Exe) are runnable examples.
       if (assembly.EntryPoint == null)
+      {
         continue;
+      }
 
       var entryPointType = FindConfigureServicesType(assembly);
       if (entryPointType == null)
+      {
         continue;
+      }
 
       var (sourcePath, category) = FindSourceProject(name);
       if (sourcePath == null)
+      {
         continue;
+      }
 
       yield return new ExampleProject
       {
@@ -91,7 +99,9 @@ public static class ExampleDiscovery
       var segments = relative.Split(Path.DirectorySeparatorChar);
 
       if (segments[0].Equals("archived", StringComparison.OrdinalIgnoreCase))
+      {
         continue;
+      }
 
       return (Path.GetDirectoryName(csproj)!, segments[0]);
     }
@@ -112,11 +122,15 @@ public static class ExampleDiscovery
       .FirstOrDefault(a => !a.IsDynamic && a.GetName().Name == assemblyName);
 
     if (loaded != null)
+    {
       return loaded;
+    }
 
     var dllPath = System.IO.Path.Combine(searchDirectory, $"{assemblyName}.dll");
     if (!File.Exists(dllPath))
+    {
       return null;
+    }
 
     try
     {
@@ -169,7 +183,9 @@ public static class ExampleDiscovery
     while (dir != null)
     {
       if (File.Exists(System.IO.Path.Combine(dir, "nx.json")))
+      {
         return dir;
+      }
 
       dir = Directory.GetParent(dir)?.FullName;
     }

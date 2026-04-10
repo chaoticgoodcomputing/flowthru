@@ -1,9 +1,11 @@
-using Flowthru.Data;
-using Flowthru.Data.Validation;
-using Flowthru.Flows;
-using Flowthru.Meta.Models;
-using Flowthru.Services;
-using Flowthru.Services.Models;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph;
+using Flowthru.Core.Graph.Meta.Models;
+using Flowthru.Core.Graph.Validation;
+using Flowthru.Core.Services;
+using Flowthru.Core.Services.Models;
 using Flowthru.Tests.Common;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
@@ -481,7 +483,7 @@ public class FlowthruServiceTests
     });
 
     // Configure validation to check for Shallow inspection (existence check)
-    pipeline.ValidationOptions.Inspect(catalog.Input, Data.Validation.InspectionLevel.Shallow);
+    pipeline.ValidationOptions.Inspect(catalog.Input, InspectionLevel.Shallow);
 
     var pipelines = new Dictionary<string, Flow> { ["test_pipeline"] = pipeline };
 

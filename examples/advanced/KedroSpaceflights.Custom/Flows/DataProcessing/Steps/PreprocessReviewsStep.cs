@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._01_Raw.Schemas;
 using KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 
@@ -7,6 +8,7 @@ namespace KedroSpaceflights.Custom.Flows.DataProcessing.Steps;
 /// Preprocesses raw review data by converting string values to proper types and filtering out incomplete records.
 /// Converts string scores to decimals and drops rows with missing required fields.
 /// </summary>
+[FlowthruStep]
 public static class PreprocessReviewsStep
 {
   /// <summary>

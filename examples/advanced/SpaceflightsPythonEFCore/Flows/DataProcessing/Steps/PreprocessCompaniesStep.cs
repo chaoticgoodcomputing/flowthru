@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsPythonEFCore.Data._01_Raw.Schemas;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 
@@ -8,6 +9,7 @@ namespace SpaceflightsPythonEFCore.Flows.DataProcessing.Steps;
 /// Parses IATA flag, company rating percentage, and optional fleet count.
 /// Records with unparseable company_rating are filtered out.
 /// </summary>
+[FlowthruStep]
 public static class PreprocessCompaniesStep
 {
   public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()
@@ -19,10 +21,14 @@ public static class PreprocessCompaniesStep
   private static PreprocessedCompanySchema? Parse(CompanySchema raw)
   {
     if (!int.TryParse(raw.Id?.Trim(), out var id))
+    {
       return null;
+    }
 
     if (!TryParsePercentage(raw.CompanyRating, out var rating))
+    {
       return null;
+    }
 
     bool iataApproved = raw.IataApproved?.Trim().ToLowerInvariant() == "t";
 
@@ -49,11 +55,15 @@ public static class PreprocessCompaniesStep
   {
     result = 0;
     if (string.IsNullOrWhiteSpace(value))
+    {
       return false;
+    }
 
     var cleaned = value.Replace("%", "").Trim();
     if (!double.TryParse(cleaned, out var parsed))
+    {
       return false;
+    }
 
     result = parsed / 100.0;
     return true;

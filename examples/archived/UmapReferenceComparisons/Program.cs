@@ -1,5 +1,5 @@
-using Flowthru.Cli;
-using Flowthru.Services;
+using Flowthru.Core.Cli;
+using Flowthru.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UmapReferenceComparisons.Data;

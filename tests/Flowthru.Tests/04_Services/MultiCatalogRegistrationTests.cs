@@ -1,6 +1,6 @@
-using Flowthru.Data;
-using Flowthru.Flows;
-using Flowthru.Services;
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
 using Microsoft.Extensions.DependencyInjection;

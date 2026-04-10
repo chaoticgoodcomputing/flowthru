@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using System.Globalization;
 using RetailDataMultipipeline.Data._01_Raw.Schemas;
 using RetailDataMultipipeline.Data._02_Intermediate.Schemas;
@@ -21,6 +22,7 @@ namespace RetailDataMultipipeline.Flows.DataIngestion.Steps;
 /// <item><c>Description</c> — nullable; empty strings are stored as <c>null</c>.</item>
 /// </list>
 /// </remarks>
+[FlowthruStep]
 public static class ConsolidateDailyFilesStep
 {
   public static Func<

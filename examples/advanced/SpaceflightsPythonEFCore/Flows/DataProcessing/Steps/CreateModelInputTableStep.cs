@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsPythonEFCore.Data._01_Raw.Schemas;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 using SpaceflightsPythonEFCore.Data._03_Primary.Schemas;
@@ -9,6 +10,7 @@ namespace SpaceflightsPythonEFCore.Flows.DataProcessing.Steps;
 /// Mirrors the logic of the Python create_model_input_table node, including string-to-int
 /// coercion of review shuttle IDs for the join.
 /// </summary>
+[FlowthruStep]
 public static class CreateModelInputTableStep
 {
   public static Func<

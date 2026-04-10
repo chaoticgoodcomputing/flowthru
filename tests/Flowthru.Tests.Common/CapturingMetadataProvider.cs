@@ -1,5 +1,5 @@
-using Flowthru.Meta.Models;
-using Flowthru.Meta.Providers;
+using Flowthru.Core.Graph.Meta.Models;
+using Flowthru.Core.Meta.Providers;
 
 namespace Flowthru.Tests.Common;
 

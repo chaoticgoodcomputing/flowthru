@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using Flowthru.Extensions.EFCore.Data;
 using SpaceflightsEFCore.Data._06_Models.Schemas;
 

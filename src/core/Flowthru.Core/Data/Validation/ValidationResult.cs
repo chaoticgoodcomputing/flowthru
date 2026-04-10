@@ -1,4 +1,4 @@
-namespace Flowthru.Data.Validation;
+namespace Flowthru.Core.Data.Validation;
 
 /// <summary>
 /// Represents the result of inspecting one or more catalog entries.

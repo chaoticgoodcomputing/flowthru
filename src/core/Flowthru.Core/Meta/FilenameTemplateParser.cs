@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using Flowthru.Meta.Models;
+using Flowthru.Core.Graph.Meta.Models;
 
-namespace Flowthru.Meta;
+namespace Flowthru.Core.Meta;
 
 /// <summary>
 /// Renders filename templates with dynamic token replacement.

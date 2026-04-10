@@ -2,13 +2,13 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using Flowthru.Abstractions;
-using Flowthru.Data.Capabilities;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Capabilities;
 using Parquet;
 using Parquet.Schema;
 using Parquet.Serialization;
 
-namespace Flowthru.Data.Storage.Format;
+namespace Flowthru.Core.Data.Storage.Format;
 
 /// <summary>
 /// Format serializer for Parquet (columnar storage) files using adapter pattern.

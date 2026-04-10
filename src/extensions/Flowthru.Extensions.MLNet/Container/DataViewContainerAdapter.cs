@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using Flowthru.Data.Storage;
+using Flowthru.Core.Data.Storage;
 using Microsoft.ML;
 
 namespace Flowthru.Extensions.MLNet.Container;

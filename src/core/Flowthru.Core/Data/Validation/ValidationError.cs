@@ -1,4 +1,4 @@
-namespace Flowthru.Data.Validation;
+namespace Flowthru.Core.Data.Validation;
 
 /// <summary>
 /// Represents a single validation error discovered during catalog entry inspection.

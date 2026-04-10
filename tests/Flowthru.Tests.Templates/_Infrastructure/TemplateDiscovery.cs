@@ -44,7 +44,7 @@ public static class TemplateDiscovery
         );
       }
 
-      // Derive a short unique project name from the shortName (e.g. "Flowthru.Iris" → "IrisXXXX")
+      // Derive a short unique project name from the shortName (e.g. "Flowthru.Core.Iris" → "IrisXXXX")
       var slug = shortName.Contains('.')
         ? shortName[(shortName.LastIndexOf('.') + 1)..]
         : shortName;

@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 
@@ -29,6 +30,7 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 /// then strips the data URI prefix and decodes the base64 string to raw PNG bytes.
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class PlotlyImageExportStep
 {
   public static Func<GenericChart, Task<byte[]>> Create(ILogger? logger = null)

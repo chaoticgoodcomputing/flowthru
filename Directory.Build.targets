@@ -24,8 +24,11 @@
     <!-- Add Flowthru ProjectReferences -->
     <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
 
-    <!-- Add source generator references directly for local development -->
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj"
+    <!-- Add source generator and code fix references directly for local development -->
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
 
@@ -48,6 +51,29 @@
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'Flowthru.Tests.Common'">
     <PackageReference Remove="Flowthru" />
     <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
+  </ItemGroup>
+
+  <!--
+    For projects that explicitly depend on Flowthru.FUnit (opt-in, not universal):
+    remove any PackageReference and wire up the source + analyzer projects directly.
+    FUnit generators emit code that imports Flowthru.FUnit types, so this injection
+    must NOT be applied globally — only for projects that already reference FUnit.
+  -->
+  <ItemGroup Condition="($(MSBuildProjectDirRelativePath.StartsWith('examples')) OR $(MSBuildProjectDirRelativePath.StartsWith('tests'))) AND '$(MSBuildProjectName)' != 'Flowthru.FUnit'">
+    <PackageReference Remove="Flowthru.FUnit" />
+  </ItemGroup>
+
+  <ItemGroup Condition="($(MSBuildProjectDirRelativePath.StartsWith('examples')) OR $(MSBuildProjectDirRelativePath.StartsWith('tests'))) AND Exists('$(RepoRoot)src\core\Flowthru.FUnit\Flowthru.FUnit.csproj') AND '$(MSBuildProjectName)' != 'Flowthru.FUnit'">
+    <!-- Replace PackageReference to Flowthru.FUnit with in-repo sources where applicable.
+         The Exists() on the PackageReference Remove above gates whether any replacement is needed. -->
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' == 'KedroIrisFUnit' OR $(MSBuildProjectDirRelativePath.Contains('FUnit'))" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.CodeFixes\Flowthru.FUnit.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' == 'KedroIrisFUnit' OR $(MSBuildProjectDirRelativePath.Contains('FUnit'))" />
   </ItemGroup>
 
 </Project>

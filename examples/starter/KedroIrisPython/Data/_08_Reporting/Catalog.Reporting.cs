@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using KedroIrisPython.Data._08_Reporting.Schemas;
 
 namespace KedroIrisPython.Data;

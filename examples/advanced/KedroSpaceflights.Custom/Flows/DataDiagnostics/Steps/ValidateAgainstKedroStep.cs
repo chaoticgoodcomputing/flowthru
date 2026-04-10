@@ -1,5 +1,5 @@
 using System.Reflection;
-using Flowthru.Steps;
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._01_Raw.Schemas;
 using KedroSpaceflights.Custom.Data._03_Primary.Schemas;
 
@@ -20,6 +20,7 @@ namespace KedroSpaceflights.Custom.Flows.DataDiagnostics.Steps;
 /// but logs detailed comparison results for diagnostic purposes.
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class ValidateAgainstKedroStep
 {
   public static Func<

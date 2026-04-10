@@ -1,8 +1,10 @@
+using Flowthru.Core.Steps;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 
 namespace SpaceflightsDistributed.DataProcessing.Flows.DataProcessing.Steps;
 
+[FlowthruStep]
 public static class PreprocessShuttlesStep
 {
   public static Func<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>> Create()
@@ -17,13 +19,24 @@ public static class PreprocessShuttlesStep
     bool moonClearanceComplete = raw.MoonClearanceComplete.Trim().ToLowerInvariant() == "t";
 
     if (!int.TryParse(raw.Engines, out var engines))
+    {
       return null;
+    }
+
     if (!int.TryParse(raw.PassengerCapacity, out var passengerCapacity))
+    {
       return null;
+    }
+
     if (!int.TryParse(raw.Crew, out var crew))
+    {
       return null;
+    }
+
     if (!TryParseMoney(raw.Price, out var price))
+    {
       return null;
+    }
 
     return new PreprocessedShuttleSchema
     {
@@ -43,7 +56,9 @@ public static class PreprocessShuttlesStep
   {
     result = 0;
     if (string.IsNullOrWhiteSpace(value))
+    {
       return false;
+    }
 
     var cleaned = value.Replace("$", "").Replace(",", "").Trim();
     return decimal.TryParse(cleaned, out result);

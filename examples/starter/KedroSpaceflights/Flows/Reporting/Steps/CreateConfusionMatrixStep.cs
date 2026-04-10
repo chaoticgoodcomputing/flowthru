@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Data._07_ModelOutput.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
@@ -24,6 +25,7 @@ namespace KedroSpaceflights.Flows.Reporting.Steps;
 /// <strong>Output:</strong> GenericChart heatmap object stored in memory for downstream PNG export
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class CreateConfusionMatrixStep
 {
   /// <summary>

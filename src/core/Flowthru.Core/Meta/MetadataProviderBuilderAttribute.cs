@@ -1,4 +1,4 @@
-namespace Flowthru.Meta;
+namespace Flowthru.Core.Meta;
 
 /// <summary>
 /// Specifies the builder type for a metadata provider.

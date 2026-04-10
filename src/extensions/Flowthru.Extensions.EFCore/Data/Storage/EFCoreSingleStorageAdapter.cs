@@ -1,8 +1,8 @@
-using Flowthru.Data.Capabilities;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Effects;
 using Microsoft.EntityFrameworkCore;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Storage adapter for single Entity Framework Core entities.
@@ -286,7 +286,10 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
     var dbSet = context.Set<T>();
     var existing = await dbSet.ToListAsync(ct);
     if (existing.Count > 0)
+    {
       dbSet.RemoveRange(existing);
+    }
+
     await dbSet.AddAsync(data, ct);
     await context.SaveChangesAsync(ct);
   }

@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using SpaceflightsPythonEFCore.Data._06_Models.Schemas;
 
 namespace SpaceflightsPythonEFCore.Data;

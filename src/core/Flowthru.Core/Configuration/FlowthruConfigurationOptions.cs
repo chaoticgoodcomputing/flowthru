@@ -1,4 +1,4 @@
-namespace Flowthru.Configuration;
+namespace Flowthru.Core.Configuration;
 
 /// <summary>
 /// Options for configuring how Flowthru loads configuration files.

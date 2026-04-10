@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
 namespace UmapReferenceComparisons.Data;

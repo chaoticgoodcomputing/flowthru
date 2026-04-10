@@ -1,4 +1,4 @@
-namespace Flowthru.Meta;
+namespace Flowthru.Core.Meta;
 
 /// <summary>
 /// Configuration for Flowthru metadata collection and export.
@@ -7,7 +7,7 @@ namespace Flowthru.Meta;
 /// <para>
 /// This configuration controls whether and how pipeline metadata is collected
 /// and persisted. Metadata includes DAG structure (nodes, catalog entries, edges)
-/// that can be consumed by Flowthru.Viz for visualization.
+/// that can be consumed by Flowthru.Core.Viz for visualization.
 /// </para>
 /// <para>
 /// <strong>Usage:</strong>

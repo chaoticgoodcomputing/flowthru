@@ -1,0 +1,4 @@
+# This directory is reserved for intermediate data layer schemas.
+# Schemas would typically define typed representations of raw data,
+# where raw string fields have been parsed into proper types
+# (dates, numbers, enums) but no business logic has been applied.

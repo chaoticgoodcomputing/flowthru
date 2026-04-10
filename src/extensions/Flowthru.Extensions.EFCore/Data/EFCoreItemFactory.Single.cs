@@ -1,6 +1,6 @@
-using Flowthru.Abstractions;
-using Flowthru.Data;
-using Flowthru.Data.Storage;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Data;

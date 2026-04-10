@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 
 namespace Flowthru.Tests.Fixtures.TestCatalogs;
 

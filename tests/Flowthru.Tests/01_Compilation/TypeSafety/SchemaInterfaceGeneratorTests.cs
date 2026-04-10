@@ -20,7 +20,7 @@ public class SchemaInterfaceGeneratorTests
   public void FlatSchema_WithPrimitives_ImplementsAllInterfaces()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -51,7 +51,7 @@ public class SchemaInterfaceGeneratorTests
   public void FlatSchema_WithNullablePrimitives_IsClassifiedAsFlat()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
       using System;
 
       namespace TestProject;
@@ -78,7 +78,7 @@ public class SchemaInterfaceGeneratorTests
   public void FlatSchema_WithEnums_IsClassifiedAsFlat()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -105,7 +105,7 @@ public class SchemaInterfaceGeneratorTests
   public void FlatSchema_WithGuidAndDateTypes_IsClassifiedAsFlat()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
       using System;
 
       namespace TestProject;
@@ -134,7 +134,7 @@ public class SchemaInterfaceGeneratorTests
     // A user-defined NewType wrapping a string should be treated as a scalar column,
     // not a nested object — the IScalar interface is the opt-in declaration.
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -169,7 +169,7 @@ public class SchemaInterfaceGeneratorTests
     // An identical struct without IScalar has no declaration of scalar intent.
     // The generator must treat it conservatively as a nested object.
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -205,7 +205,7 @@ public class SchemaInterfaceGeneratorTests
   public void NestedSchema_WithList_IsClassifiedAsNested()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
       using System.Collections.Generic;
 
       namespace TestProject;
@@ -235,7 +235,7 @@ public class SchemaInterfaceGeneratorTests
   public void NestedSchema_WithArray_IsClassifiedAsNested()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -260,7 +260,7 @@ public class SchemaInterfaceGeneratorTests
   public void NestedSchema_WithNestedObject_IsClassifiedAsNested()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -289,7 +289,7 @@ public class SchemaInterfaceGeneratorTests
   public void NestedSchema_WithDictionary_IsClassifiedAsNested()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
       using System.Collections.Generic;
 
       namespace TestProject;
@@ -318,7 +318,7 @@ public class SchemaInterfaceGeneratorTests
   public void NonPartialType_EmitsFT1001Error()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -346,7 +346,7 @@ public class SchemaInterfaceGeneratorTests
   public void ManualInterfaces_EmitsFT1002Warning_ButStillCompiles()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -392,7 +392,7 @@ public class SchemaInterfaceGeneratorTests
   public void EmptySchema_IsClassifiedAsFlat()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 
@@ -412,7 +412,7 @@ public class SchemaInterfaceGeneratorTests
   public void PartialClass_WorksForNonRecordTypes()
   {
     var source = """
-      using Flowthru.Abstractions;
+      using Flowthru.Core.Abstractions;
 
       namespace TestProject;
 

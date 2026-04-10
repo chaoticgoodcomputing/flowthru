@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
 using SpaceflightsEFCore.Data._08_Reporting.Schemas;
 
@@ -6,6 +7,7 @@ namespace SpaceflightsEFCore.Flows.Reporting.Steps;
 /// <summary>
 /// Aggregates shuttle passenger capacity data by shuttle type.
 /// </summary>
+[FlowthruStep]
 public static class ComparePassengerCapacityStep
 {
   /// <summary>

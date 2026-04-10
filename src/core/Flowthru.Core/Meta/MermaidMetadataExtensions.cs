@@ -1,7 +1,7 @@
 using System.Text;
-using Flowthru.Meta.Models;
+using Flowthru.Core.Graph.Meta.Models;
 
-namespace Flowthru.Meta;
+namespace Flowthru.Core.Meta;
 
 /// <summary>
 /// Extension methods for generating Mermaid diagram representations of DAG metadata.

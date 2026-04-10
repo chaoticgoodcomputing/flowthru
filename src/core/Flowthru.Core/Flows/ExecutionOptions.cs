@@ -1,6 +1,7 @@
-using Flowthru.Results;
+using Flowthru.Core.Results;
+using Flowthru.Core.Graph;
 
-namespace Flowthru.Flows;
+namespace Flowthru.Core.Flows;
 
 /// <summary>
 /// Configuration options for pipeline execution.

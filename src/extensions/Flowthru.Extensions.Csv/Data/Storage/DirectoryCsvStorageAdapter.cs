@@ -1,10 +1,10 @@
-using Flowthru.Abstractions;
-using Flowthru.Data.Capabilities;
-using Flowthru.Data.Storage.Format;
-using Flowthru.Data.Validation;
-using Flowthru.Effects;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Storage.Format;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Effects;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Storage adapter that reads all CSV files in a directory and concatenates
@@ -38,10 +38,12 @@ public sealed class DirectoryCsvStorageAdapter<TRow> : IStorageAdapter<IEnumerab
   public DirectoryCsvStorageAdapter(string directoryPath)
   {
     if (string.IsNullOrWhiteSpace(directoryPath))
+    {
       throw new ArgumentException(
         "Directory path cannot be null or whitespace",
         nameof(directoryPath)
       );
+    }
 
     _directoryPath = directoryPath;
     _format = new CsvFormatSerializer<TRow>();
@@ -75,7 +77,9 @@ public sealed class DirectoryCsvStorageAdapter<TRow> : IStorageAdapter<IEnumerab
           var rows = _format.DeserializeRows(stream);
 
           await foreach (var row in rows.WithCancellation(ct))
+          {
             allRows.Add(row);
+          }
         }
 
         return (IEnumerable<TRow>)allRows;
@@ -132,7 +136,9 @@ public sealed class DirectoryCsvStorageAdapter<TRow> : IStorageAdapter<IEnumerab
           await foreach (var _ in _format.DeserializeRows(stream).WithCancellation(ct))
           {
             if (++sampled >= sampleSize)
+            {
               break;
+            }
           }
 
           return ValidationResult.Success();

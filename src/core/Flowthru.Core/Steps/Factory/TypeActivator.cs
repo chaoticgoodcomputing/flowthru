@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 
-namespace Flowthru.Steps.Factory;
+namespace Flowthru.Core.Steps.Factory;
 
 /// <summary>
 /// Factory for creating instances of types using compiled expression trees for performance.

@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using KedroSpaceflights.Data._05_ModelInput.Schemas;
 
 namespace KedroSpaceflights.Data;

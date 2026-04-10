@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace Flowthru.Serialization;
+namespace Flowthru.Core.Serialization;
 
 /// <summary>
 /// Global registry that provides cached <see cref="EnumMetadataCache{TEnum}"/> instances

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
-using Flowthru.Services;
+using Flowthru.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Tests.Examples.Infrastructure;

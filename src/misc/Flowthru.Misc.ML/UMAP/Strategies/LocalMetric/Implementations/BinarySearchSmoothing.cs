@@ -105,10 +105,14 @@ public sealed class BinarySearchSmoothing : ILocalMetricStrategy
     var nonZeroDists = distances.Where(d => d > 0.0f).ToArray();
 
     if (nonZeroDists.Length == 0)
+    {
       return 0.0f;
+    }
 
     if (nonZeroDists.Length < localConnectivity)
+    {
       return nonZeroDists.Max();
+    }
 
     // Interpolate based on local_connectivity
     int index = (int)MathF.Floor(localConnectivity);
@@ -200,7 +204,10 @@ public sealed class BinarySearchSmoothing : ILocalMetricStrategy
   private static float ComputeMean(float[] values)
   {
     if (values.Length == 0)
+    {
       return 0.0f;
+    }
+
     return values.Sum() / values.Length;
   }
 }

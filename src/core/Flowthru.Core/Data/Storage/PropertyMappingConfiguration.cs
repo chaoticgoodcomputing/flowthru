@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Describes how a format serializer handles property-to-field name mapping.

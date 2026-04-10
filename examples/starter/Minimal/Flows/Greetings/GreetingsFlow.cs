@@ -1,4 +1,4 @@
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using Minimal.Data;
 using Minimal.Flows.Greetings.Steps;
 

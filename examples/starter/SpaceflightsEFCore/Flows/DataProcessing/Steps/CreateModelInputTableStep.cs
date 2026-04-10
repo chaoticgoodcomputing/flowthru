@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using SpaceflightsEFCore.Data._01_Raw.Schemas;
 using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
 using SpaceflightsEFCore.Data._03_Primary.Schemas;
@@ -7,6 +8,7 @@ namespace SpaceflightsEFCore.Flows.DataProcessing.Steps;
 /// <summary>
 /// Joins preprocessed shuttle and company data with review scores to create a unified model input table.
 /// </summary>
+[FlowthruStep]
 public static class CreateModelInputTableStep
 {
   /// <summary>

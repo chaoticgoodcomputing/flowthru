@@ -1,3 +1,5 @@
+using Flowthru.Core.Steps;
+
 namespace KedroSpaceflights.Custom.Flows.DataDiagnostics.Steps;
 
 /// <summary>
@@ -8,6 +10,7 @@ namespace KedroSpaceflights.Custom.Flows.DataDiagnostics.Steps;
 /// This is a diagnostic node that simply passes data through while writing
 /// it to a CSV catalog entry. Useful for debugging pipeline data issues.
 /// </remarks>
+[FlowthruStep]
 public static class PassthroughInputToOutputStep<T>
 {
   public static Func<IEnumerable<T>, Task<IEnumerable<T>>> Create()

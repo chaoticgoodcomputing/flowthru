@@ -1,4 +1,4 @@
-namespace Flowthru.Steps;
+namespace Flowthru.Core.Steps;
 
 /// <summary>
 /// Marker type for nodes that don't require parameters.

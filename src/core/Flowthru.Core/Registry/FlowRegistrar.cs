@@ -1,8 +1,8 @@
-using Flowthru.Data;
-using Flowthru.Flows;
-using Flowthru.Flows.Validation;
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph.Validation;
 
-namespace Flowthru.Registry;
+namespace Flowthru.Core.Registry;
 
 /// <summary>
 /// Implementation of IFlowRegistrar that builds a dictionary of flows.

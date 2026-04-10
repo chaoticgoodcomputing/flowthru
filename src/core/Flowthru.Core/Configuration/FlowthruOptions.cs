@@ -1,6 +1,6 @@
-using Flowthru.Meta.Providers;
+using Flowthru.Core.Meta.Providers;
 
-namespace Flowthru.Configuration;
+namespace Flowthru.Core.Configuration;
 
 /// <summary>
 /// Root configuration options for Flowthru applications.

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Configuration;
 
-namespace Flowthru.Configuration;
+namespace Flowthru.Core.Configuration;
 
 /// <summary>
 /// Extension methods for configuration-related operations.

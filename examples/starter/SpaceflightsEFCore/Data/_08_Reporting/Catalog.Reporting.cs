@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using Plotly.NET;
 using SpaceflightsEFCore.Data._08_Reporting.Schemas;
 

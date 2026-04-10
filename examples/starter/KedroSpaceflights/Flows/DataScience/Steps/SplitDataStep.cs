@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Data._03_Primary.Schemas;
 using KedroSpaceflights.Data._05_ModelInput.Schemas;
 
@@ -6,6 +7,7 @@ namespace KedroSpaceflights.Flows.DataScience.Steps;
 /// <summary>
 /// Splits model input data into training and test sets for model evaluation.
 /// </summary>
+[FlowthruStep]
 public static class SplitDataStep
 {
   /// <summary>

@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
@@ -8,6 +9,7 @@ namespace SpaceflightsDistributed.Reporting.Flows.Reporting.Steps;
 /// <summary>
 /// Generates a bar chart comparing average passenger capacity by shuttle type.
 /// </summary>
+[FlowthruStep]
 public static class GeneratePassengerCapacityChartStep
 {
   public static Func<IEnumerable<PreprocessedShuttleSchema>, GenericChart> Create()

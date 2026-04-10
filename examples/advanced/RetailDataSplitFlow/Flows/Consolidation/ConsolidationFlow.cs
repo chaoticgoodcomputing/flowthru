@@ -1,4 +1,4 @@
-using Flowthru.Flows;
+using Flowthru.Core.Flows;
 using RetailDataMultipipeline.Data;
 
 namespace RetailDataMultipipeline.Flows.Consolidation;

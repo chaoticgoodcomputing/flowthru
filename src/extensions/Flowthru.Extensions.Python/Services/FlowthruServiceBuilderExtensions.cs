@@ -1,8 +1,9 @@
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Validation;
-using Flowthru.Services;
+using Flowthru.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Flowthru.Core.Graph.Validation;
 
 namespace Flowthru.Extensions.Python.Services;
 
@@ -124,7 +125,7 @@ public static class FlowthruServiceBuilderExtensions
       // Register pre-flight decorator + dry-run dtype validation (in-process only)
       builder
         .Services()
-        .AddSingleton<Flowthru.Flows.Validation.IFlowValidationHook, PythonStepValidator>();
+        .AddSingleton<Flowthru.Core.Graph.Validation.IFlowValidationHook, PythonStepValidator>();
     }
     else
     {

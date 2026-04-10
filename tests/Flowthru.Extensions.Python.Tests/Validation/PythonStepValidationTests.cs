@@ -1,11 +1,13 @@
-using Flowthru.Data.Validation;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph;
+using Flowthru.Core.Services;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Steps;
 using Flowthru.Extensions.Python.Tests.Schemas;
 using Flowthru.Extensions.Python.Validation;
-using Flowthru.Flows;
-using Flowthru.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -296,12 +298,12 @@ public class PythonStepValidationTests
     );
 
     // Create a FlowStep using the public constructor
-    var pipelineStep = new Flowthru.Flows.FlowStep(
+    var pipelineStep = new Flowthru.Core.Graph.FlowStep(
       label: "python_node",
       description: $"Test Python node: {moduleName}.{functionName}",
       step: wrapper.GetTransform(),
-      inputs: Array.Empty<Data.IItem>(),
-      outputs: Array.Empty<Data.IItem>()
+      inputs: Array.Empty<INode>(),
+      outputs: Array.Empty<INode>()
     );
 
     // Use reflection to access internal AddStep method for testing

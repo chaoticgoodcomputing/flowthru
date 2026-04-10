@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using RetailDataMultipipeline.Data._02_Intermediate.Schemas;
 using RetailDataMultipipeline.Data._08_Reporting.Schemas;
 
@@ -7,6 +8,7 @@ namespace RetailDataMultipipeline.Flows.Reporting.Steps;
 /// Groups all transactions by country and counts positive-quantity rows (debits)
 /// and negative-quantity rows (credits/returns) for each.
 /// </summary>
+[FlowthruStep]
 public static class SummarizeByCountryStep
 {
   public static Func<

@@ -1,9 +1,11 @@
+using Flowthru.Core.Steps;
 using MathNet.Numerics.LinearRegression;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 using SpaceflightsDistributed.DataScience.Data._06_Models.Schemas;
 
 namespace SpaceflightsDistributed.DataScience.Flows.DataScience.Steps;
 
+[FlowthruStep]
 public static class TrainModelStep
 {
   public static Func<IEnumerable<TrainingData>, LinearRegressionModel> Create()
@@ -13,7 +15,9 @@ public static class TrainModelStep
       var data = input.ToList();
 
       if (data.Count == 0)
+      {
         throw new InvalidOperationException("No training data available");
+      }
 
       var features = data.Select(d => d.Features).ToList();
       var labels = data.Select(d => (double)d.Label).ToArray();

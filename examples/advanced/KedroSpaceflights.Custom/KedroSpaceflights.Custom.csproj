@@ -9,7 +9,11 @@
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- Flowthru reference: ProjectReference when building from source, PackageReference for standalone use -->
+  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
     <PackageReference Include="Flowthru" Version="*" />
   </ItemGroup>
 

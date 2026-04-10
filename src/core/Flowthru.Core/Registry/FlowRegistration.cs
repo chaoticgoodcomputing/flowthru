@@ -1,6 +1,6 @@
-using Flowthru.Flows.Validation;
+using Flowthru.Core.Graph.Validation;
 
-namespace Flowthru.Registry;
+namespace Flowthru.Core.Registry;
 
 /// <summary>
 /// Metadata describing a registered flow.

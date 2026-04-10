@@ -3,10 +3,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Flowthru.Abstractions;
-using Flowthru.Data.Capabilities;
+using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Capabilities;
 
-namespace Flowthru.Data.Storage.Format;
+namespace Flowthru.Core.Data.Storage.Format;
 
 /// <summary>
 /// Format serializer for CSV (Comma-Separated Values) files.

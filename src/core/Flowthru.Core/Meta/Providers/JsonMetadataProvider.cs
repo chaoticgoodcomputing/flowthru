@@ -1,14 +1,14 @@
-using Flowthru.Meta.Models;
+using Flowthru.Core.Graph.Meta.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Meta.Providers;
+namespace Flowthru.Core.Meta.Providers;
 
 /// <summary>
 /// Exports DAG metadata as JSON files.
 /// </summary>
 /// <remarks>
 /// This provider creates timestamped JSON files containing the complete DAG structure
-/// (nodes, catalog entries, edges, schema information) for consumption by Flowthru.Viz
+/// (nodes, catalog entries, edges, schema information) for consumption by Flowthru.Core.Viz
 /// or other visualization tools.
 /// </remarks>
 [MetadataProviderBuilder(typeof(JsonMetadataProviderBuilder))]

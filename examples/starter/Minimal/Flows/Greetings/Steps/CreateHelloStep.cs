@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Minimal.Data._01_Raw.Schemas;
 using Minimal.Data._02_Intermediate.Schemas;
 
@@ -6,6 +7,7 @@ namespace Minimal.Flows.Greetings.Steps;
 /// <summary>
 /// Transforms names into greetings with "Hello" prefix.
 /// </summary>
+[FlowthruStep]
 public static class CreateHelloStep
 {
   /// <summary>

@@ -1,5 +1,5 @@
-using Flowthru.Data;
-using Flowthru.Data.Validation;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Validation;
 using Flowthru.Extensions.EFCore.Data;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 

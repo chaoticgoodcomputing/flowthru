@@ -1,7 +1,7 @@
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 using Microsoft.Extensions.Configuration;
 
-namespace Flowthru.Data.Storage.Strategies;
+namespace Flowthru.Core.Data.Storage.Strategies;
 
 /// <summary>
 /// CSV file-based storage strategy for local development.

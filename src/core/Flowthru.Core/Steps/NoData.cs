@@ -1,4 +1,4 @@
-namespace Flowthru.Steps;
+namespace Flowthru.Core.Steps;
 
 /// <summary>
 /// Marker type representing "no meaningful data" for nodes with side-effects or data generation.

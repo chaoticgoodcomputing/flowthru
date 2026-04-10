@@ -1,7 +1,7 @@
-using Flowthru.Data.Capabilities;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Effects;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Interface for high-level storage operations - abstracts Load/Save with any storage implementation.

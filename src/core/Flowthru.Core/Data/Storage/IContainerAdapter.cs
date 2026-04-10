@@ -1,4 +1,4 @@
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Interface for container adaptation - converts between streaming rows and in-memory containers.

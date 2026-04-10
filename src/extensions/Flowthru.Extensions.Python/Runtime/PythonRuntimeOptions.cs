@@ -28,7 +28,7 @@ public enum PythonExecutionMode
 /// <remarks>
 /// <para>
 /// Follows the .NET Options pattern for environment-specific configuration.
-/// Resolution order mirrors <see cref="Flowthru.Configuration.FlowthruConfigurationOptions"/>.
+/// Resolution order mirrors <see cref="Flowthru.Core.Configuration.FlowthruConfigurationOptions"/>.
 /// </para>
 /// <para>
 /// <strong>Developer workflow:</strong>
@@ -274,14 +274,18 @@ public sealed class PythonRuntimeOptions
     {
       var exe = FindPythonExeInVenv(VenvPath);
       if (exe != null)
+      {
         return exe;
+      }
 
       var uvVenvPath = EnsureVenvViaUv(VenvPath);
       if (uvVenvPath != null)
       {
         exe = FindPythonExeInVenv(uvVenvPath);
         if (exe != null)
+        {
           return exe;
+        }
       }
     }
 
@@ -291,7 +295,9 @@ public sealed class PythonRuntimeOptions
     {
       var exe = FindPythonExeInVenv(appBaseVenv);
       if (exe != null)
+      {
         return exe;
+      }
     }
 
     // 3. VIRTUAL_ENV environment variable
@@ -300,7 +306,9 @@ public sealed class PythonRuntimeOptions
     {
       var exe = FindPythonExeInVenv(virtualEnv);
       if (exe != null)
+      {
         return exe;
+      }
     }
 
     // Fallback: system interpreter on PATH

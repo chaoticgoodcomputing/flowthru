@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using SpaceflightsDistributed.DataProcessing.Data._03_Primary.Schemas;
 
 namespace SpaceflightsDistributed.DataProcessing.Data;

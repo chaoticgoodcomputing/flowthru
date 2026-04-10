@@ -1,8 +1,8 @@
-using Flowthru.Data.Capabilities;
-using Flowthru.Data.Validation;
-using Flowthru.Effects;
+using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Effects;
 
-namespace Flowthru.Data.Storage;
+namespace Flowthru.Core.Data.Storage;
 
 /// <summary>
 /// Composed storage adapter that delegates to medium, format, and container layers.

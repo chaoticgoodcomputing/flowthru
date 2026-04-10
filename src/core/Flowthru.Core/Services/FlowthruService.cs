@@ -1,15 +1,16 @@
 using System.Diagnostics;
-using Flowthru.Data;
-using Flowthru.Data.Validation;
-using Flowthru.Flows;
-using Flowthru.Flows.Validation;
-using Flowthru.Meta;
-using Flowthru.Meta.Models;
-using Flowthru.Services.Models;
+using Flowthru.Core.Data;
+using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph;
+using Flowthru.Core.Graph.Meta.Models;
+using Flowthru.Core.Graph.Validation;
+using Flowthru.Core.Meta;
+using Flowthru.Core.Services.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Services;
+namespace Flowthru.Core.Services;
 
 /// <summary>
 /// Default implementation of <see cref="IFlowthruService"/>.
@@ -304,11 +305,7 @@ internal sealed class FlowthruService : IFlowthruService
     await Task.Run(() => ExportMetadata(dag, pipelineName, outputDirectory));
   }
 
-  private void ExportMetadata(
-    Meta.Models.DagMetadata dag,
-    string pipelineName,
-    string? outputDirectory = null
-  )
+  private void ExportMetadata(DagMetadata dag, string pipelineName, string? outputDirectory = null)
   {
     if (_metadataBuilder == null)
     {

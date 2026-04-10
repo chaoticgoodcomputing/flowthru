@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using SpaceflightsEFCore.Data._01_Raw.Schemas;
 
 namespace SpaceflightsEFCore.Data;

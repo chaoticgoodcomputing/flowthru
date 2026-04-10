@@ -1,4 +1,4 @@
-namespace Flowthru.Abstractions;
+namespace Flowthru.Core.Abstractions;
 
 /// <summary>
 /// Marker interface for schema types that can be serialized to columnar binary formats (Parquet, Avro).

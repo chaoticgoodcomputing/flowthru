@@ -1,8 +1,8 @@
-using Flowthru.Data;
-using Flowthru.Flows;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
-using Flowthru.Services;
+using Flowthru.Core.Data;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Meta;
+using Flowthru.Core.Meta.Providers;
+using Flowthru.Core.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
 using Microsoft.Extensions.DependencyInjection;
@@ -177,7 +177,7 @@ public class ServiceCollectionExtensionsTests
     });
 
     var serviceProvider = services.BuildServiceProvider();
-    var metadataBuilder = serviceProvider.GetService<Meta.FlowthruMetadataBuilder>();
+    var metadataBuilder = serviceProvider.GetService<FlowthruMetadataBuilder>();
 
     // Assert
     Assert.That(metadataBuilder, Is.Not.Null);

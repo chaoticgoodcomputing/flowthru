@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using Plotly.NET;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 using UmapReferenceComparisons.Data._03_Reports.Schemas;

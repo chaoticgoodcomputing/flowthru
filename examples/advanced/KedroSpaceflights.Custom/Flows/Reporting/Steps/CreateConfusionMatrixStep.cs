@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using KedroSpaceflights.Custom.Data._02_Intermediate.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
@@ -28,6 +29,7 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 /// The same GenericChart can be exported to JSON, PNG, PDF, or other formats by downstream nodes.
 /// </para>
 /// </remarks>
+[FlowthruStep]
 public static class CreateConfusionMatrixStep
 {
   public static Func<IEnumerable<CompanySchema>, Task<GenericChart>> Create(ILogger? logger = null)

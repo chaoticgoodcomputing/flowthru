@@ -2,8 +2,8 @@ using System.Reflection;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
-using Flowthru.Data.Storage;
-using Flowthru.Data.Storage.Format;
+using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Data.Storage.Format;
 
 namespace Flowthru.Extensions.Python.Marshalling;
 
@@ -579,7 +579,10 @@ public static class ArrowMarshaller
     {
       var dto = timestampArray.GetTimestamp(index);
       if (dto == null)
+      {
         return null;
+      }
+
       return dto.Value.UtcDateTime;
     }
 

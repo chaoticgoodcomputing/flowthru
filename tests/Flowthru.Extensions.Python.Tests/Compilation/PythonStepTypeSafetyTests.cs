@@ -29,11 +29,11 @@ public class PythonStepTypeSafetyTests
     // Arrange: Code with correct type matching
     var code =
       @"
-            using Flowthru.Data;
+            using Flowthru.Core.Data;
             using Flowthru.Extensions.Python.Steps;
             using Flowthru.Extensions.Python.Execution;
             using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Flows;
+            using Flowthru.Core.Flows;
             
             public class TestProgram
             {
@@ -85,11 +85,11 @@ public class PythonStepTypeSafetyTests
     // Type mismatch should still be caught
     var code =
       @"
-            using Flowthru.Data;
+            using Flowthru.Core.Data;
             using Flowthru.Extensions.Python.Steps;
             using Flowthru.Extensions.Python.Execution;
             using Flowthru.Extensions.Python.Tests.Schemas;
-            using Flowthru.Flows;
+            using Flowthru.Core.Flows;
             
             public class TestProgram
             {

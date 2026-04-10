@@ -1,7 +1,7 @@
 using System.Reflection;
-using Flowthru.Abstractions;
+using Flowthru.Core.Abstractions;
 
-namespace Flowthru.Data.Storage.Format;
+namespace Flowthru.Core.Data.Storage.Format;
 
 /// <summary>
 /// Helper for mapping external field names to C# property names using SerializedLabel attribute.

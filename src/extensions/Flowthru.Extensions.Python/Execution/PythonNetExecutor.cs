@@ -45,12 +45,17 @@ public sealed class PythonNetExecutor : IPythonExecutor
   public TOutput Invoke<TInput, TOutput>(string moduleName, string functionName, TInput input)
   {
     if (string.IsNullOrWhiteSpace(moduleName))
+    {
       throw new ArgumentException("Module name cannot be null or whitespace.", nameof(moduleName));
+    }
+
     if (string.IsNullOrWhiteSpace(functionName))
+    {
       throw new ArgumentException(
         "Function name cannot be null or whitespace.",
         nameof(functionName)
       );
+    }
 
     using (_runtime.AcquireGil())
     {
@@ -63,16 +68,22 @@ public sealed class PythonNetExecutor : IPythonExecutor
         bool isOutputTuple = IsValueTuple(outputType);
 
         if (isInputTuple || isOutputTuple)
+        {
           return InvokeMulti<TInput, TOutput>(moduleName, functionName, input);
+        }
 
         bool isInputTabular = IsEnumerableSchema(inputType);
         bool isOutputTabular = IsEnumerableSchema(outputType);
 
         if (isInputTabular && isOutputTabular)
+        {
           return InvokeTabular<TInput, TOutput>(moduleName, functionName, input);
+        }
 
         if (!isInputTabular && !isOutputTabular)
+        {
           return InvokeScalar<TInput, TOutput>(moduleName, functionName, input);
+        }
 
         return InvokeMixed<TInput, TOutput>(
           moduleName,
@@ -173,7 +184,9 @@ public sealed class PythonNetExecutor : IPythonExecutor
     var pyResult = InvokeRaw(module, function, inputArgs);
 
     if (IsValueTuple(outputType))
+    {
       return ReconstructTuple<TOutput>(pyResult, outputType);
+    }
 
     return UnmarshalSingle<TOutput>(pyResult);
   }
@@ -185,9 +198,11 @@ public sealed class PythonNetExecutor : IPythonExecutor
     var module = GetOrImportModule(moduleName);
 
     if (!module.HasAttr(functionName))
+    {
       throw new InvalidOperationException(
         $"Function '{functionName}' not found in module '{moduleName}'"
       );
+    }
 
     dynamic function = module.GetAttr(functionName);
     _logger.LogDebug(
@@ -206,7 +221,9 @@ public sealed class PythonNetExecutor : IPythonExecutor
     lock (_cacheLock)
     {
       if (_moduleCache.TryGetValue(moduleName, out var cached))
+      {
         return cached;
+      }
     }
 
     _logger.LogDebug("Importing Python module: {ModuleName}", moduleName);
@@ -233,7 +250,10 @@ public sealed class PythonNetExecutor : IPythonExecutor
   private static bool IsValueTuple(Type type)
   {
     if (!type.IsValueType || !type.IsGenericType)
+    {
       return false;
+    }
+
     return type.GetGenericTypeDefinition()
         .FullName?.StartsWith("System.ValueTuple`", StringComparison.Ordinal) ?? false;
   }
@@ -241,9 +261,15 @@ public sealed class PythonNetExecutor : IPythonExecutor
   private static bool IsEnumerableSchema(Type type)
   {
     if (type == typeof(string) || type == typeof(byte[]))
+    {
       return false;
+    }
+
     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+    {
       return true;
+    }
+
     return type.GetInterfaces()
       .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
   }
@@ -251,10 +277,16 @@ public sealed class PythonNetExecutor : IPythonExecutor
   private static object[] DecomposeTuple(object tuple)
   {
     if (tuple is not ITuple t)
+    {
       throw new InvalidOperationException($"Expected ITuple but got {tuple.GetType().Name}");
+    }
+
     var elems = new object[t.Length];
     for (int i = 0; i < t.Length; i++)
+    {
       elems[i] = t[i]!;
+    }
+
     return elems;
   }
 
@@ -262,7 +294,10 @@ public sealed class PythonNetExecutor : IPythonExecutor
   {
     var result = new object[elements.Length];
     for (int i = 0; i < elements.Length; i++)
+    {
       result[i] = MarshalSingleArg(elements[i], elements[i].GetType());
+    }
+
     return result;
   }
 
@@ -321,7 +356,9 @@ public sealed class PythonNetExecutor : IPythonExecutor
 
     var elements = new object?[elementTypes.Length];
     for (int i = 0; i < elementTypes.Length; i++)
+    {
       elements[i] = UnmarshalElement(pyTuple.GetItem(new PyInt(i)), elementTypes[i]);
+    }
 
     return (TOutput)Activator.CreateInstance(tupleType, elements)!;
   }

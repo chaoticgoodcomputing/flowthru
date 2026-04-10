@@ -1,4 +1,4 @@
-namespace Flowthru.Steps.Factory;
+namespace Flowthru.Core.Steps.Factory;
 
 /// <summary>
 /// Factory for creating step instances using TypeActivator.

@@ -1,4 +1,4 @@
-using Flowthru.Data;
+using Flowthru.Core.Data;
 using KedroSpaceflightsPython.Data._02_Intermediate.Schemas;
 
 namespace KedroSpaceflightsPython.Data;
