@@ -1,6 +1,8 @@
-# KedroIris Starter
+# KedroIrisFUnit Starter
 
-A Flowthru starter project modeled off of the [Kedro Iris Starter](https://github.com/kedro-org/kedro-starters/tree/main/astro-airflow-iris). 
+A Flowthru starter project modeled off of the [Kedro Iris Starter](https://github.com/kedro-org/kedro-starters/tree/main/astro-airflow-iris).
+
+This specific version of the Iris pipeline has FUnit available, which is a Flowthru testing framework that enforces unit tests on Steps.
 
 ## Getting Started
 
@@ -11,6 +13,12 @@ dotnet run
 ```
 
 This will run both the Data Engineering and Data Science flows in sequence, generating the final [model metrics output.](./Data/_08_Reporting/Datasets/metrics.json)
+
+Additionally, with the inclusion of FUnit, tests are automatically discovered inside of step classes, allowing for each step to be unit tested. To confirm this, you can run:
+
+```bash
+dotnet test
+```
 
 Once you've confirmed your flow runs successfully, you can begin:
 
