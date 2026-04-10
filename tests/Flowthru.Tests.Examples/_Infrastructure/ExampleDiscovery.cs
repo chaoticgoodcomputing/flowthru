@@ -28,6 +28,12 @@ public static class ExampleDiscovery
   private static readonly string ExamplesDirectory = Path.Combine(WorkspaceRoot, "examples");
 
   /// <summary>
+  /// The build configuration (e.g. "Debug" or "Release") of the currently running test assembly,
+  /// derived from its output path. Used to locate the matching example output directories.
+  /// </summary>
+  private static readonly string BuildConfiguration = InferBuildConfiguration();
+
+  /// <summary>
   /// Discovers all runnable example projects.
   /// </summary>
   public static IEnumerable<ExampleProject> DiscoverExamples()
@@ -73,7 +79,7 @@ public static class ExampleDiscovery
       {
         Name = name,
         ProjectPath = sourcePath,
-        OutputPath = Path.Combine(WorkspaceRoot, "dist", "examples", category, name, "net10.0"),
+        OutputPath = Path.Combine(WorkspaceRoot, "dist", "examples", category, name, BuildConfiguration, "net10.0"),
         EntryPointType = entryPointType,
       };
     }
@@ -193,5 +199,26 @@ public static class ExampleDiscovery
     throw new InvalidOperationException(
       "Could not find workspace root. Ensure nx.json exists in an ancestor directory."
     );
+  }
+
+  /// <summary>
+  /// Infers the build configuration from the running test assembly's output path.
+  /// The output path convention is <c>dist/…/&lt;Configuration&gt;/net10.0/</c>, so the
+  /// segment immediately before the TFM folder is the configuration name.
+  /// Falls back to <c>"Debug"</c> if the path doesn't match the expected shape.
+  /// </summary>
+  private static string InferBuildConfiguration()
+  {
+    var assemblyDir = Path.GetDirectoryName(typeof(ExampleDiscovery).Assembly.Location);
+    if (assemblyDir == null)
+      return "Debug";
+
+    // assemblyDir ends with …/<Configuration>/net10.0 — parent is the configuration folder
+    var configDir = Path.GetDirectoryName(assemblyDir);
+    if (configDir == null)
+      return "Debug";
+
+    var config = Path.GetFileName(configDir);
+    return string.IsNullOrEmpty(config) ? "Debug" : config;
   }
 }
