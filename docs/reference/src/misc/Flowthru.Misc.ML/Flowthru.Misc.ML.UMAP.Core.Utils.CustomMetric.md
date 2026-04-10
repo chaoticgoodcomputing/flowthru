@@ -64,8 +64,7 @@ Whether angular RP forests benefit this metric
 
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CustomMetric_DisconnectionDistance"></a> DisconnectionDistance
 
-Maximum meaningful distance for bounded metrics, or null for unbounded metrics.
-Used to handle disconnected components in the k-NN graph.
+UMAP's optimization can be unstable for very large distances. Setting a disconnection distance allows the algorithm to treat points beyond this distance as effectively disconnected, which can improve convergence and embedding quality for certain datasets. If null, the metric is unbounded and all distances are treated as valid.
 
 ```csharp
 public float? DisconnectionDistance { get; }
@@ -75,23 +74,9 @@ public float? DisconnectionDistance { get; }
 
  [float](https://learn.microsoft.com/dotnet/api/system.single)?
 
-#### Remarks
-
-<p>
-Examples:
-- Euclidean: null (unbounded)
-- Cosine: 2.0 (ranges from 0 to 2)
-- Jaccard: 1.0 (ranges from 0 to 1)
-</p>
-<p>
-When set, distances at or beyond this value indicate maximally dissimilar points
-that should be treated as disconnected in the manifold approximation.
-</p>
-
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CustomMetric_Name"></a> Name
 
-Human-readable name of the metric (e.g., "euclidean", "cosine").
-Used for logging and serialization.
+Name of the metric, used for logging and strategy selection. This is a simple identifier and does not affect behavior, but should be unique among built-in metrics to allow strategies to recognize it. For custom metrics, this can be arbitrary but should ideally describe the metric's behavior for clarity in logs and strategy selection.
 
 ```csharp
 public string Name { get; }
@@ -103,8 +88,7 @@ public string Name { get; }
 
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CustomMetric_SupportsAngularProjection"></a> SupportsAngularProjection
 
-Whether this metric benefits from angular (cosine-based) random projection forests.
-Angular metrics (cosine, correlation) use different RP tree splits than Euclidean metrics.
+Indicates whether this metric benefits from angular random projection forests. This should be set to true for metrics where angular RPs can improve neighbor search performance and embedding quality (e.g., cosine), and false for metrics where they do not provide a benefit (e.g., Euclidean). This allows the UMAP implementation to optimize neighbor search appropriately based on the metric's characteristics.
 
 ```csharp
 public bool SupportsAngularProjection { get; }
@@ -118,7 +102,7 @@ public bool SupportsAngularProjection { get; }
 
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CustomMetric_Distance_System_ReadOnlySpan_System_Single__System_ReadOnlySpan_System_Single__"></a> Distance\(ReadOnlySpan<float\>, ReadOnlySpan<float\>\)
 
-Compute the distance between two points.
+Compute distance using the provided distance function.
 
 ```csharp
 public float Distance(ReadOnlySpan<float> x, ReadOnlySpan<float> y)
@@ -128,23 +112,9 @@ public float Distance(ReadOnlySpan<float> x, ReadOnlySpan<float> y)
 
 `x` [ReadOnlySpan](https://learn.microsoft.com/dotnet/api/system.readonlyspan\-1)<[float](https://learn.microsoft.com/dotnet/api/system.single)\>
 
-First point
-
 `y` [ReadOnlySpan](https://learn.microsoft.com/dotnet/api/system.readonlyspan\-1)<[float](https://learn.microsoft.com/dotnet/api/system.single)\>
-
-Second point
 
 #### Returns
 
  [float](https://learn.microsoft.com/dotnet/api/system.single)
-
-Distance value (non-negative)
-
-#### Remarks
-
-Must satisfy metric properties:
-- Non-negativity: Distance(x, y) ≥ 0
-- Identity: Distance(x, x) = 0
-- Symmetry: Distance(x, y) = Distance(y, x)
-- Triangle inequality: Distance(x, z) ≤ Distance(x, y) + Distance(y, z)
 

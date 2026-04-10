@@ -24,6 +24,8 @@ Contains the final embedding and all intermediate results.
 
  [UmapFlowBuilder](Flowthru.Misc.ML.UMAP.Core.UmapFlowBuilder.md)
 
+Builder for configuring and executing UMAP dimensionality reduction with flexible strategy selection.
+
  [UmapGraphResult](Flowthru.Misc.ML.UMAP.Core.UmapGraphResult.md)
 
 Result of computing the UMAP graph (phases 1-3).

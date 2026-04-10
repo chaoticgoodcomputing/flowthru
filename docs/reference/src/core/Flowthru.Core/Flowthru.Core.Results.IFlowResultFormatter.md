@@ -1,0 +1,45 @@
+# <a id="Flowthru_Core_Results_IFlowResultFormatter"></a> Interface IFlowResultFormatter
+
+Namespace: [Flowthru.Core.Results](Flowthru.Core.Results.md)  
+Assembly: Flowthru.Core.dll  
+
+Interface for formatting Flow execution results.
+
+```csharp
+public interface IFlowResultFormatter
+```
+
+## Remarks
+
+<p>
+Result formatters transform a FlowResult into human-readable or
+machine-readable output via logging.
+</p>
+<p>
+Built-in formatters:
+- <xref href="Flowthru.Core.Results.ConsoleResultFormatter" data-throw-if-not-resolved="false"></xref> - Human-readable console output (default)
+</p>
+<p>
+Future formatters: JSON, Markdown, compact CI/CD format.
+</p>
+
+## Methods
+
+### <a id="Flowthru_Core_Results_IFlowResultFormatter_Format_Flowthru_Core_Flows_FlowResult_Microsoft_Extensions_Logging_ILogger_"></a> Format\(FlowResult, ILogger\)
+
+Formats and outputs the Flow result.
+
+```csharp
+void Format(FlowResult result, ILogger logger)
+```
+
+#### Parameters
+
+`result` [FlowResult](Flowthru.Core.Flows.FlowResult.md)
+
+The Flow execution result
+
+`logger` [ILogger](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger)
+
+The logger to write output to
+

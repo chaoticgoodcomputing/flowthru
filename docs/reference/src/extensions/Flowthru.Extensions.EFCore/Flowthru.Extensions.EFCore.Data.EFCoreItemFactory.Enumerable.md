@@ -3,6 +3,8 @@
 Namespace: [Flowthru.Extensions.EFCore.Data](Flowthru.Extensions.EFCore.Data.md)  
 Assembly: Flowthru.Extensions.EFCore.dll  
 
+Factory methods for creating enumerable <xref href="Flowthru.Core.Data.Item%601" data-throw-if-not-resolved="false"></xref> instances with Entity Framework Core storage adapters.
+
 ```csharp
 public static class EFCoreItemFactory.Enumerable
 ```
@@ -47,6 +49,8 @@ DbContext instance (caller owns lifecycle)
 If true, empty tables pass validation (default: false)
 
 `queryCustomizer` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>, [IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>\>?
+
+Optional function to customize the query for the entity type
 
 `saveFunc` [Func](https://learn.microsoft.com/dotnet/api/system.func\-4)<[DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext), [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>, [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken), [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)\>?
 
@@ -121,6 +125,8 @@ Factory function to create DbContext instances per operation
 If true, empty tables pass validation (default: false)
 
 `queryCustomizer` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>, [IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>\>?
+
+Optional function to customize the query for the entity type
 
 `saveFunc` [Func](https://learn.microsoft.com/dotnet/api/system.func\-4)<[DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext), [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<T\>, [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken), [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)\>?
 

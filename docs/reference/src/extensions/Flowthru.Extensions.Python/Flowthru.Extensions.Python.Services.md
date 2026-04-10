@@ -4,5 +4,5 @@
 
  [FlowthruServiceBuilderExtensions](Flowthru.Extensions.Python.Services.FlowthruServiceBuilderExtensions.md)
 
-Extension methods for integrating Python support with <xref href="Flowthru.Services.FlowthruServiceBuilder" data-throw-if-not-resolved="false"></xref>.
+Extension methods for integrating Python support with <xref href="Flowthru.Core.Services.FlowthruServiceBuilder" data-throw-if-not-resolved="false"></xref>.
 

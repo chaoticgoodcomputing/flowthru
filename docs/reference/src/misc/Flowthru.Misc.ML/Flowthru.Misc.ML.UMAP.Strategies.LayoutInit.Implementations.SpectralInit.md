@@ -32,7 +32,9 @@ public sealed class SpectralInit : ILayoutInitStrategy
 
 ### <a id="Flowthru_Misc_ML_UMAP_Strategies_LayoutInit_Implementations_SpectralInit_InitializeLayout_MathNet_Numerics_LinearAlgebra_Matrix_System_Single__MathNet_Numerics_LinearAlgebra_Single_SparseMatrix_System_Int32_System_Random_"></a> InitializeLayout\(Matrix<float\>?, SparseMatrix, int, Random\)
 
-Initializes the low-dimensional embedding layout.
+Initializes the layout using spectral embedding. This involves computing the eigenvectors of the graph Laplacian and using them as the initial coordinates for the embedding. The resulting layout is then normalized and small noise is added to help with optimization convergence.
+Spectral initialization can provide a better starting point for UMAP optimization, especially for connected graphs, leading to faster convergence and improved embedding quality compared to random initialization. However, it can be computationally expensive for large datasets due to the eigendecomposition step, so it is typically recommended for small-to-medium datasets (e.g., up to a few thousand samples).
+If an exception occurs during spectral embedding (e.g., due to numerical issues), the method falls back to random initialization to ensure robustness.
 
 ```csharp
 public LayoutInitResult InitializeLayout(Matrix<float>? data, SparseMatrix graph, int nComponents, Random random)
@@ -42,42 +44,13 @@ public LayoutInitResult InitializeLayout(Matrix<float>? data, SparseMatrix graph
 
 `data` Matrix<[float](https://learn.microsoft.com/dotnet/api/system.single)\>?
 
-Original high-dimensional data matrix.
-Shape: (n_samples, n_features)
-May be null for precomputed distance-based initialization.
-
 `graph` SparseMatrix
-
-Refined fuzzy simplicial set graph after pruning.
-Shape: (n_samples, n_samples)
-Used by spectral and graph-based initialization methods.
 
 `nComponents` [int](https://learn.microsoft.com/dotnet/api/system.int32)
 
-Target dimensionality of the embedding.
-Typically 2 or 3 for visualization, or higher for downstream tasks.
-Must be at least 1 and less than n_samples.
-
 `random` [Random](https://learn.microsoft.com/dotnet/api/system.random)
-
-Random number generator for reproducible randomization.
-Used for noise injection and random initialization.
 
 #### Returns
 
  [LayoutInitResult](Flowthru.Misc.ML.UMAP.Strategies.LayoutInit.LayoutInitResult.md)
-
-Initial embedding matrix with coordinates normalized to [-10, 10] range.
-Shape: (n_samples, n_components)
-
-#### Remarks
-
-<p>
-<b>Implementation requirements:</b>
-</p>
-<ol><li>Generate or compute initial coordinates</li><li>Add small random noise to avoid degeneracies</li><li>Normalize to [-10, 10] range for numerical stability</li><li>Ensure output is C-contiguous (row-major) for optimization</li><li>Handle disconnected graph components gracefully</li></ol>
-<p>
-<b>Performance considerations:</b>
-</p>
-<ul><li>Spectral methods require eigenvalue decomposition: O(n²) to O(n³)</li><li>PCA methods require SVD: O(min(n,d) × n × d)</li><li>Random methods are O(n × k) where k is n_components</li></ul>
 

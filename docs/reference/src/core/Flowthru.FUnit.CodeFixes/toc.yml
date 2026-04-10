@@ -1,0 +1,9 @@
+### YamlMime:TableOfContent
+- name: Flowthru.FUnit.CodeFixes
+  href: Flowthru.FUnit.CodeFixes.md
+  items:
+  - name: Classes
+  - name: Fu001ScaffoldTestsClassFix
+    href: Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix.md
+  - name: Fu002WrapWithFunitEnabledFix
+    href: Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix.md

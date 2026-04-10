@@ -1,13 +1,13 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Data
-  href: Flowthru.Data.md
+- name: Flowthru.Core.Data
+  href: Flowthru.Core.Data.md
   items:
   - name: Classes
   - name: ParquetItemExtensions
-    href: Flowthru.Data.ParquetItemExtensions.md
-- name: Flowthru.Data.Storage.Format
-  href: Flowthru.Data.Storage.Format.md
+    href: Flowthru.Core.Data.ParquetItemExtensions.md
+- name: Flowthru.Core.Data.Storage.Format
+  href: Flowthru.Core.Data.Storage.Format.md
   items:
   - name: Classes
   - name: ParquetFormatSerializer<TRow>
-    href: Flowthru.Data.Storage.Format.ParquetFormatSerializer-1.md
+    href: Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer-1.md

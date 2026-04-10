@@ -39,8 +39,7 @@ Ignores magnitude, only considers direction.
 
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CosineMetric_DisconnectionDistance"></a> DisconnectionDistance
 
-Maximum meaningful distance for bounded metrics, or null for unbounded metrics.
-Used to handle disconnected components in the k-NN graph.
+UMAP's optimization can be unstable for very large distances. Setting a disconnection distance allows the algorithm to treat points beyond this distance as effectively disconnected, which can improve convergence and embedding quality for certain datasets. For cosine distance, a natural choice is 2.0, which corresponds to opposite direction.
 
 ```csharp
 public float? DisconnectionDistance { get; }
@@ -49,19 +48,6 @@ public float? DisconnectionDistance { get; }
 #### Property Value
 
  [float](https://learn.microsoft.com/dotnet/api/system.single)?
-
-#### Remarks
-
-<p>
-Examples:
-- Euclidean: null (unbounded)
-- Cosine: 2.0 (ranges from 0 to 2)
-- Jaccard: 1.0 (ranges from 0 to 1)
-</p>
-<p>
-When set, distances at or beyond this value indicate maximally dissimilar points
-that should be treated as disconnected in the manifold approximation.
-</p>
 
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CosineMetric_Instance"></a> Instance
 
@@ -78,8 +64,7 @@ public static CosineMetric Instance { get; }
 
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CosineMetric_Name"></a> Name
 
-Human-readable name of the metric (e.g., "euclidean", "cosine").
-Used for logging and serialization.
+Name of the metric, used for logging and strategy selection. This is a simple identifier and does not affect behavior.
 
 ```csharp
 public string Name { get; }
@@ -91,8 +76,7 @@ public string Name { get; }
 
 ### <a id="Flowthru_Misc_ML_UMAP_Core_Utils_CosineMetric_SupportsAngularProjection"></a> SupportsAngularProjection
 
-Whether this metric benefits from angular (cosine-based) random projection forests.
-Angular metrics (cosine, correlation) use different RP tree splits than Euclidean metrics.
+Indicates whether this metric benefits from angular random projection forests. Cosine distance benefits from angular RPs, so this returns true. This allows the use of angular RP forests for neighbor search, which can improve performance and embedding quality when using cosine distance.
 
 ```csharp
 public bool SupportsAngularProjection { get; }

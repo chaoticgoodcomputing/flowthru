@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Extensions.Python.Services](Flowthru.Extensions.Python.Services.md)  
 Assembly: Flowthru.Extensions.Python.dll  
 
-Extension methods for integrating Python support with <xref href="Flowthru.Services.FlowthruServiceBuilder" data-throw-if-not-resolved="false"></xref>.
+Extension methods for integrating Python support with <xref href="Flowthru.Core.Services.FlowthruServiceBuilder" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
 public static class FlowthruServiceBuilderExtensions
@@ -26,7 +26,7 @@ public static class FlowthruServiceBuilderExtensions
 
 ## Methods
 
-### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Services_FlowthruServiceBuilder_"></a> UsePython\(FlowthruServiceBuilder\)
+### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Core_Services_FlowthruServiceBuilder_"></a> UsePython\(FlowthruServiceBuilder\)
 
 Registers Python runtime and executor with default configuration.
 
@@ -62,7 +62,7 @@ Uses auto-detection for all configuration:
 });</code></pre>
 </p>
 
-### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Services_FlowthruServiceBuilder_System_Action_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions__"></a> UsePython\(FlowthruServiceBuilder, Action<PythonRuntimeOptions\>\)
+### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Core_Services_FlowthruServiceBuilder_System_Action_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions__"></a> UsePython\(FlowthruServiceBuilder, Action<PythonRuntimeOptions\>\)
 
 Registers Python runtime and executor with custom configuration.
 

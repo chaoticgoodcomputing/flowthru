@@ -26,7 +26,7 @@ public static class FlowthruServiceCollectionExtensions
 
 ## Methods
 
-### <a id="Microsoft_Extensions_DependencyInjection_FlowthruServiceCollectionExtensions_AddFlowthru_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Action_Flowthru_Services_FlowthruServiceBuilder__"></a> AddFlowthru\(IServiceCollection, Action<FlowthruServiceBuilder\>\)
+### <a id="Microsoft_Extensions_DependencyInjection_FlowthruServiceCollectionExtensions_AddFlowthru_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Action_Flowthru_Core_Services_FlowthruServiceBuilder__"></a> AddFlowthru\(IServiceCollection, Action<FlowthruServiceBuilder\>\)
 
 Registers Flowthru service with the DI container.
 
@@ -40,7 +40,7 @@ public static IServiceCollection AddFlowthru(this IServiceCollection services, A
 
 The service collection
 
-`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[FlowthruServiceBuilder](Flowthru.Services.FlowthruServiceBuilder.md)\>
+`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)\>
 
 Action to configure the Flowthru service
 

@@ -48,6 +48,9 @@ Thread-safety: GIL acquisition serialises all Python execution.
 
 ### <a id="Flowthru_Extensions_Python_Execution_PythonNetExecutor__ctor_Flowthru_Extensions_Python_Runtime_PythonRuntime_Microsoft_Extensions_Logging_ILogger_Flowthru_Extensions_Python_Execution_PythonNetExecutor__"></a> PythonNetExecutor\(PythonRuntime, ILogger<PythonNetExecutor\>\)
 
+Initializes a new instance of the <xref href="Flowthru.Extensions.Python.Execution.PythonNetExecutor" data-throw-if-not-resolved="false"></xref> class with the specified Python runtime and logger.
+The Python runtime is initialized upon construction.
+
 ```csharp
 public PythonNetExecutor(PythonRuntime runtime, ILogger<PythonNetExecutor> logger)
 ```
@@ -56,7 +59,15 @@ public PythonNetExecutor(PythonRuntime runtime, ILogger<PythonNetExecutor> logge
 
 `runtime` [PythonRuntime](Flowthru.Extensions.Python.Runtime.PythonRuntime.md)
 
+The Python runtime instance.
+
 `logger` [ILogger](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger\-1)<[PythonNetExecutor](Flowthru.Extensions.Python.Execution.PythonNetExecutor.md)\>
+
+The logger instance.
+
+#### Exceptions
+
+ [ArgumentNullException](https://learn.microsoft.com/dotnet/api/system.argumentnullexception)
 
 ## Methods
 

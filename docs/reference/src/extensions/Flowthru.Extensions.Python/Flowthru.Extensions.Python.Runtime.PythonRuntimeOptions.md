@@ -27,7 +27,7 @@ public sealed class PythonRuntimeOptions
 
 <p>
 Follows the .NET Options pattern for environment-specific configuration.
-Resolution order mirrors <xref href="Flowthru.Configuration.FlowthruConfigurationOptions" data-throw-if-not-resolved="false"></xref>.
+Resolution order mirrors <xref href="Flowthru.Core.Configuration.FlowthruConfigurationOptions" data-throw-if-not-resolved="false"></xref>.
 </p>
 <p>
 <strong>Developer workflow:</strong>

@@ -27,7 +27,7 @@ public static class ItemFactoryMLNet
 ## Remarks
 
 <p>
-<strong>Discovery Pattern:</strong> Import this class alongside <xref href="Flowthru.Data.ItemFactory" data-throw-if-not-resolved="false"></xref>
+<strong>Discovery Pattern:</strong> Import this class alongside <xref href="Flowthru.Core.Data.ItemFactory" data-throw-if-not-resolved="false"></xref>
 for ML.NET-specific catalog entry factory methods.
 </p>
 <p>
@@ -37,7 +37,7 @@ for ML.NET-specific catalog entry factory methods.
 <p>
 <strong>Usage:</strong>
 </p>
-<pre><code class="lang-csharp">using Flowthru.Data;
+<pre><code class="lang-csharp">using Flowthru.Core.Data;
 using Flowthru.Extensions.MLNet;
 
 // Core entries

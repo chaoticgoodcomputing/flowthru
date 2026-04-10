@@ -67,7 +67,7 @@ Python runtime for GIL management
 
 ## Methods
 
-### <a id="Flowthru_Extensions_Python_Validation_PythonStepValidator_ValidateAsync_Flowthru_Flows_Flow_System_Threading_CancellationToken_"></a> ValidateAsync\(Flow, CancellationToken\)
+### <a id="Flowthru_Extensions_Python_Validation_PythonStepValidator_ValidateAsync_Flowthru_Core_Flows_Flow_System_Threading_CancellationToken_"></a> ValidateAsync\(Flow, CancellationToken\)
 
 Validates Flow steps during pre-flight checks.
 

@@ -3,6 +3,8 @@
 Namespace: [Flowthru.Extensions.EFCore.Data](Flowthru.Extensions.EFCore.Data.md)  
 Assembly: Flowthru.Extensions.EFCore.dll  
 
+Factory methods for creating single-entity <xref href="Flowthru.Core.Data.Item%601" data-throw-if-not-resolved="false"></xref> instances with Entity Framework Core storage adapters.
+
 ```csharp
 public static class EFCoreItemFactory.Single
 ```
@@ -44,9 +46,15 @@ DbContext instance (caller owns lifecycle)
 
 `allowEmptyData` [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
 
+If true, empty tables pass validation (default: false)
+
 `queryCustomizer` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>, [IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>\>?
 
+Optional function to customize the query for the entity type
+
 `saveFunc` [Func](https://learn.microsoft.com/dotnet/api/system.func\-4)<[DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext), T, [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken), [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)\>?
+
+Optional function to customize the save operation
 
 #### Returns
 
@@ -112,9 +120,15 @@ Factory that creates DbContext instances (adapter owns lifecycle)
 
 `allowEmptyData` [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
 
+If true, empty tables pass validation (default: false)
+
 `queryCustomizer` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>, [IQueryable](https://learn.microsoft.com/dotnet/api/system.linq.iqueryable\-1)<T\>\>?
 
+Optional function to customize the query for the entity type
+
 `saveFunc` [Func](https://learn.microsoft.com/dotnet/api/system.func\-4)<[DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext), T, [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken), [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)\>?
+
+Optional function to customize the save operation
 
 #### Returns
 

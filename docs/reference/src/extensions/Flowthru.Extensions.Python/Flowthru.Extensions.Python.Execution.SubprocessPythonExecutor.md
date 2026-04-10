@@ -49,6 +49,9 @@ The worker script (<code>flowthru_worker.py</code>) must be present in
 
 ### <a id="Flowthru_Extensions_Python_Execution_SubprocessPythonExecutor__ctor_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_Microsoft_Extensions_Logging_ILogger_Flowthru_Extensions_Python_Execution_SubprocessPythonExecutor__"></a> SubprocessPythonExecutor\(PythonRuntimeOptions, ILogger<SubprocessPythonExecutor\>\)
 
+Initializes a new instance of the <xref href="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor" data-throw-if-not-resolved="false"></xref> class with the specified options and logger.
+The Python worker process is started lazily upon the first call to <xref href="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor.Invoke%60%602(System.String%2cSystem.String%2c%60%600)" data-throw-if-not-resolved="false"></xref> or <xref href="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor.ValidateStep(System.String%2cSystem.String)" data-throw-if-not-resolved="false"></xref>.
+
 ```csharp
 public SubprocessPythonExecutor(PythonRuntimeOptions options, ILogger<SubprocessPythonExecutor> logger)
 ```
@@ -57,7 +60,15 @@ public SubprocessPythonExecutor(PythonRuntimeOptions options, ILogger<Subprocess
 
 `options` [PythonRuntimeOptions](Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.md)
 
+The Python runtime options.
+
 `logger` [ILogger](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger\-1)<[SubprocessPythonExecutor](Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor.md)\>
+
+The logger instance.
+
+#### Exceptions
+
+ [ArgumentNullException](https://learn.microsoft.com/dotnet/api/system.argumentnullexception)
 
 ## Methods
 

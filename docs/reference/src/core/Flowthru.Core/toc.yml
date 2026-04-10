@@ -1,315 +1,333 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Abstractions
-  href: Flowthru.Abstractions.md
+- name: Flowthru.Core.Abstractions
+  href: Flowthru.Core.Abstractions.md
   items:
   - name: Classes
   - name: FlowthruSchemaAttribute
-    href: Flowthru.Abstractions.FlowthruSchemaAttribute.md
+    href: Flowthru.Core.Abstractions.FlowthruSchemaAttribute.md
   - name: SerializedEnumAttribute
-    href: Flowthru.Abstractions.SerializedEnumAttribute.md
+    href: Flowthru.Core.Abstractions.SerializedEnumAttribute.md
   - name: SerializedLabelAttribute
-    href: Flowthru.Abstractions.SerializedLabelAttribute.md
+    href: Flowthru.Core.Abstractions.SerializedLabelAttribute.md
   - name: Interfaces
   - name: IBinarySerializable
-    href: Flowthru.Abstractions.IBinarySerializable.md
+    href: Flowthru.Core.Abstractions.IBinarySerializable.md
   - name: IFlatSchema
-    href: Flowthru.Abstractions.IFlatSchema.md
+    href: Flowthru.Core.Abstractions.IFlatSchema.md
   - name: IFlatSerializable
-    href: Flowthru.Abstractions.IFlatSerializable.md
+    href: Flowthru.Core.Abstractions.IFlatSerializable.md
   - name: INestedSchema
-    href: Flowthru.Abstractions.INestedSchema.md
+    href: Flowthru.Core.Abstractions.INestedSchema.md
   - name: INestedSerializable
-    href: Flowthru.Abstractions.INestedSerializable.md
+    href: Flowthru.Core.Abstractions.INestedSerializable.md
   - name: IScalar
-    href: Flowthru.Abstractions.IScalar.md
+    href: Flowthru.Core.Abstractions.IScalar.md
   - name: IStructuredSerializable
-    href: Flowthru.Abstractions.IStructuredSerializable.md
+    href: Flowthru.Core.Abstractions.IStructuredSerializable.md
   - name: ITextSerializable
-    href: Flowthru.Abstractions.ITextSerializable.md
-- name: Flowthru.Cli
-  href: Flowthru.Cli.md
+    href: Flowthru.Core.Abstractions.ITextSerializable.md
+- name: Flowthru.Core.Cli
+  href: Flowthru.Core.Cli.md
   items:
   - name: Classes
   - name: FlowthruCli
-    href: Flowthru.Cli.FlowthruCli.md
-- name: Flowthru.Configuration
-  href: Flowthru.Configuration.md
+    href: Flowthru.Core.Cli.FlowthruCli.md
+- name: Flowthru.Core.Configuration
+  href: Flowthru.Core.Configuration.md
   items:
   - name: Classes
   - name: CatalogOptions
-    href: Flowthru.Configuration.CatalogOptions.md
+    href: Flowthru.Core.Configuration.CatalogOptions.md
   - name: ConfigurationExtensions
-    href: Flowthru.Configuration.ConfigurationExtensions.md
+    href: Flowthru.Core.Configuration.ConfigurationExtensions.md
   - name: FlowOptions
-    href: Flowthru.Configuration.FlowOptions.md
+    href: Flowthru.Core.Configuration.FlowOptions.md
   - name: FlowValidationOptions
-    href: Flowthru.Configuration.FlowValidationOptions.md
+    href: Flowthru.Core.Configuration.FlowValidationOptions.md
   - name: FlowthruConfigurationOptions
-    href: Flowthru.Configuration.FlowthruConfigurationOptions.md
+    href: Flowthru.Core.Configuration.FlowthruConfigurationOptions.md
   - name: FlowthruOptions
-    href: Flowthru.Configuration.FlowthruOptions.md
+    href: Flowthru.Core.Configuration.FlowthruOptions.md
   - name: JsonMetadataOptions
-    href: Flowthru.Configuration.JsonMetadataOptions.md
+    href: Flowthru.Core.Configuration.JsonMetadataOptions.md
   - name: LoggingOptions
-    href: Flowthru.Configuration.LoggingOptions.md
+    href: Flowthru.Core.Configuration.LoggingOptions.md
   - name: MermaidMetadataOptions
-    href: Flowthru.Configuration.MermaidMetadataOptions.md
+    href: Flowthru.Core.Configuration.MermaidMetadataOptions.md
   - name: MetadataOptions
-    href: Flowthru.Configuration.MetadataOptions.md
+    href: Flowthru.Core.Configuration.MetadataOptions.md
   - name: TimestampConfiguration
-    href: Flowthru.Configuration.TimestampConfiguration.md
+    href: Flowthru.Core.Configuration.TimestampConfiguration.md
   - name: Interfaces
   - name: ICatalogFactory
-    href: Flowthru.Configuration.ICatalogFactory.md
-- name: Flowthru.Data
-  href: Flowthru.Data.md
+    href: Flowthru.Core.Configuration.ICatalogFactory.md
+- name: Flowthru.Core.Data
+  href: Flowthru.Core.Data.md
   items:
   - name: Classes
   - name: CatalogAbstract
-    href: Flowthru.Data.CatalogAbstract.md
+    href: Flowthru.Core.Data.CatalogAbstract.md
   - name: EnumerableItemFactory
-    href: Flowthru.Data.EnumerableItemFactory.md
+    href: Flowthru.Core.Data.EnumerableItemFactory.md
   - name: Item<T>
-    href: Flowthru.Data.Item-1.md
+    href: Flowthru.Core.Data.Item-1.md
   - name: ItemFactory
-    href: Flowthru.Data.ItemFactory.md
+    href: Flowthru.Core.Data.ItemFactory.md
   - name: ItemFactory.Single
-    href: Flowthru.Data.ItemFactory.Single.md
+    href: Flowthru.Core.Data.ItemFactory.Single.md
   - name: Interfaces
   - name: IItem
-    href: Flowthru.Data.IItem.md
+    href: Flowthru.Core.Data.IItem.md
   - name: IItem<T>
-    href: Flowthru.Data.IItem-1.md
-- name: Flowthru.Data.Capabilities
-  href: Flowthru.Data.Capabilities.md
+    href: Flowthru.Core.Data.IItem-1.md
+- name: Flowthru.Core.Data.Capabilities
+  href: Flowthru.Core.Data.Capabilities.md
   items:
   - name: Classes
   - name: StorageTraits
-    href: Flowthru.Data.Capabilities.StorageTraits.md
-- name: Flowthru.Data.Storage
-  href: Flowthru.Data.Storage.md
+    href: Flowthru.Core.Data.Capabilities.StorageTraits.md
+- name: Flowthru.Core.Data.Storage
+  href: Flowthru.Core.Data.Storage.md
   items:
   - name: Classes
   - name: BinaryFileStorageAdapter
-    href: Flowthru.Data.Storage.BinaryFileStorageAdapter.md
+    href: Flowthru.Core.Data.Storage.BinaryFileStorageAdapter.md
   - name: ComposedStorageAdapter<TContainer, TRow>
-    href: Flowthru.Data.Storage.ComposedStorageAdapter-2.md
+    href: Flowthru.Core.Data.Storage.ComposedStorageAdapter-2.md
   - name: MemoryStorageAdapter<T>
-    href: Flowthru.Data.Storage.MemoryStorageAdapter-1.md
+    href: Flowthru.Core.Data.Storage.MemoryStorageAdapter-1.md
   - name: NullStorageAdapter<T>
-    href: Flowthru.Data.Storage.NullStorageAdapter-1.md
+    href: Flowthru.Core.Data.Storage.NullStorageAdapter-1.md
   - name: PropertyMappingConfiguration
-    href: Flowthru.Data.Storage.PropertyMappingConfiguration.md
+    href: Flowthru.Core.Data.Storage.PropertyMappingConfiguration.md
   - name: SchemaActivator
-    href: Flowthru.Data.Storage.SchemaActivator.md
+    href: Flowthru.Core.Data.Storage.SchemaActivator.md
   - name: SingletonJsonStorageAdapter<T>
-    href: Flowthru.Data.Storage.SingletonJsonStorageAdapter-1.md
+    href: Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter-1.md
   - name: TextFileStorageAdapter
-    href: Flowthru.Data.Storage.TextFileStorageAdapter.md
+    href: Flowthru.Core.Data.Storage.TextFileStorageAdapter.md
   - name: Interfaces
   - name: IContainerAdapter<TContainer, TRow>
-    href: Flowthru.Data.Storage.IContainerAdapter-2.md
+    href: Flowthru.Core.Data.Storage.IContainerAdapter-2.md
   - name: IFormatSerializer<TRow>
-    href: Flowthru.Data.Storage.IFormatSerializer-1.md
+    href: Flowthru.Core.Data.Storage.IFormatSerializer-1.md
   - name: IStorageAdapter<T>
-    href: Flowthru.Data.Storage.IStorageAdapter-1.md
+    href: Flowthru.Core.Data.Storage.IStorageAdapter-1.md
   - name: IStorageMedium
-    href: Flowthru.Data.Storage.IStorageMedium.md
+    href: Flowthru.Core.Data.Storage.IStorageMedium.md
   - name: Enums
   - name: PropertyMappingStrategy
-    href: Flowthru.Data.Storage.PropertyMappingStrategy.md
-- name: Flowthru.Data.Storage.Container
-  href: Flowthru.Data.Storage.Container.md
+    href: Flowthru.Core.Data.Storage.PropertyMappingStrategy.md
+- name: Flowthru.Core.Data.Storage.Container
+  href: Flowthru.Core.Data.Storage.Container.md
   items:
   - name: Classes
   - name: EnumerableContainerAdapter<T>
-    href: Flowthru.Data.Storage.Container.EnumerableContainerAdapter-1.md
-- name: Flowthru.Data.Storage.Format
-  href: Flowthru.Data.Storage.Format.md
+    href: Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter-1.md
+- name: Flowthru.Core.Data.Storage.Format
+  href: Flowthru.Core.Data.Storage.Format.md
   items:
   - name: Classes
   - name: JsonFormatSerializer<TRow>
-    href: Flowthru.Data.Storage.Format.JsonFormatSerializer-1.md
+    href: Flowthru.Core.Data.Storage.Format.JsonFormatSerializer-1.md
   - name: PropertyMappingHelper
-    href: Flowthru.Data.Storage.Format.PropertyMappingHelper.md
-- name: Flowthru.Data.Storage.Medium
-  href: Flowthru.Data.Storage.Medium.md
+    href: Flowthru.Core.Data.Storage.Format.PropertyMappingHelper.md
+- name: Flowthru.Core.Data.Storage.Medium
+  href: Flowthru.Core.Data.Storage.Medium.md
   items:
   - name: Classes
   - name: FileStorageMedium
-    href: Flowthru.Data.Storage.Medium.FileStorageMedium.md
+    href: Flowthru.Core.Data.Storage.Medium.FileStorageMedium.md
   - name: MemoryStorageMedium
-    href: Flowthru.Data.Storage.Medium.MemoryStorageMedium.md
-- name: Flowthru.Data.Storage.Strategies
-  href: Flowthru.Data.Storage.Strategies.md
+    href: Flowthru.Core.Data.Storage.Medium.MemoryStorageMedium.md
+- name: Flowthru.Core.Data.Storage.Strategies
+  href: Flowthru.Core.Data.Storage.Strategies.md
   items:
   - name: Classes
   - name: DatabaseStorageEntryFactory
-    href: Flowthru.Data.Storage.Strategies.DatabaseStorageEntryFactory.md
+    href: Flowthru.Core.Data.Storage.Strategies.DatabaseStorageEntryFactory.md
   - name: MemoryStorageEntryFactory
-    href: Flowthru.Data.Storage.Strategies.MemoryStorageEntryFactory.md
+    href: Flowthru.Core.Data.Storage.Strategies.MemoryStorageEntryFactory.md
   - name: StorageOptions
-    href: Flowthru.Data.Storage.Strategies.StorageOptions.md
+    href: Flowthru.Core.Data.Storage.Strategies.StorageOptions.md
   - name: Interfaces
   - name: IStorageEntryFactory
-    href: Flowthru.Data.Storage.Strategies.IStorageEntryFactory.md
-- name: Flowthru.Data.Validation
-  href: Flowthru.Data.Validation.md
+    href: Flowthru.Core.Data.Storage.Strategies.IStorageEntryFactory.md
+- name: Flowthru.Core.Data.Validation
+  href: Flowthru.Core.Data.Validation.md
   items:
   - name: Classes
   - name: ValidationError
-    href: Flowthru.Data.Validation.ValidationError.md
+    href: Flowthru.Core.Data.Validation.ValidationError.md
   - name: ValidationException
-    href: Flowthru.Data.Validation.ValidationException.md
+    href: Flowthru.Core.Data.Validation.ValidationException.md
   - name: ValidationResult
-    href: Flowthru.Data.Validation.ValidationResult.md
+    href: Flowthru.Core.Data.Validation.ValidationResult.md
   - name: Enums
   - name: InspectionLevel
-    href: Flowthru.Data.Validation.InspectionLevel.md
+    href: Flowthru.Core.Data.Validation.InspectionLevel.md
   - name: ValidationErrorType
-    href: Flowthru.Data.Validation.ValidationErrorType.md
-- name: Flowthru.Effects
-  href: Flowthru.Effects.md
+    href: Flowthru.Core.Data.Validation.ValidationErrorType.md
+- name: Flowthru.Core.Effects
+  href: Flowthru.Core.Effects.md
   items:
   - name: Classes
+  - name: EffectTraits
+    href: Flowthru.Core.Effects.EffectTraits.md
   - name: FlowIO
-    href: Flowthru.Effects.FlowIO.md
+    href: Flowthru.Core.Effects.FlowIO.md
   - name: Structs
   - name: FlowIO<A>
-    href: Flowthru.Effects.FlowIO-1.md
+    href: Flowthru.Core.Effects.FlowIO-1.md
   - name: FlowUnit
-    href: Flowthru.Effects.FlowUnit.md
-- name: Flowthru.Flows
-  href: Flowthru.Flows.md
+    href: Flowthru.Core.Effects.FlowUnit.md
+  - name: Interfaces
+  - name: IEffect<T>
+    href: Flowthru.Core.Effects.IEffect-1.md
+- name: Flowthru.Core.Flows
+  href: Flowthru.Core.Flows.md
   items:
   - name: Classes
   - name: ExecutionOptions
-    href: Flowthru.Flows.ExecutionOptions.md
+    href: Flowthru.Core.Flows.ExecutionOptions.md
   - name: Flow
-    href: Flowthru.Flows.Flow.md
+    href: Flowthru.Core.Flows.Flow.md
   - name: FlowBuilder
-    href: Flowthru.Flows.FlowBuilder.md
+    href: Flowthru.Core.Flows.FlowBuilder.md
   - name: FlowResult
-    href: Flowthru.Flows.FlowResult.md
-  - name: FlowSliceStrategy
-    href: Flowthru.Flows.FlowSliceStrategy.md
-  - name: FlowStep
-    href: Flowthru.Flows.FlowStep.md
+    href: Flowthru.Core.Flows.FlowResult.md
   - name: StepResult
-    href: Flowthru.Flows.StepResult.md
+    href: Flowthru.Core.Flows.StepResult.md
   - name: Structs
   - name: DryRunOption
-    href: Flowthru.Flows.DryRunOption.md
+    href: Flowthru.Core.Flows.DryRunOption.md
   - name: Enums
   - name: ValidationDepth
-    href: Flowthru.Flows.ValidationDepth.md
-- name: Flowthru.Flows.Validation
-  href: Flowthru.Flows.Validation.md
+    href: Flowthru.Core.Flows.ValidationDepth.md
+- name: Flowthru.Core.Graph
+  href: Flowthru.Core.Graph.md
   items:
   - name: Classes
-  - name: ValidationOptions
-    href: Flowthru.Flows.Validation.ValidationOptions.md
+  - name: FlowSliceStrategy
+    href: Flowthru.Core.Graph.FlowSliceStrategy.md
+  - name: FlowStep
+    href: Flowthru.Core.Graph.FlowStep.md
+  - name: NodeTraits
+    href: Flowthru.Core.Graph.NodeTraits.md
   - name: Interfaces
-  - name: IFlowValidationHook
-    href: Flowthru.Flows.Validation.IFlowValidationHook.md
-- name: Flowthru.Meta
-  href: Flowthru.Meta.md
-  items:
-  - name: Classes
-  - name: FlowthruMetadataBuilder
-    href: Flowthru.Meta.FlowthruMetadataBuilder.md
-  - name: FlowthruMetadataConfiguration
-    href: Flowthru.Meta.FlowthruMetadataConfiguration.md
-  - name: JsonMetadataProviderBuilder
-    href: Flowthru.Meta.JsonMetadataProviderBuilder.md
-  - name: MermaidMetadataExtensions
-    href: Flowthru.Meta.MermaidMetadataExtensions.md
-  - name: MermaidMetadataProviderBuilder
-    href: Flowthru.Meta.MermaidMetadataProviderBuilder.md
-  - name: MetadataJsonExtensions
-    href: Flowthru.Meta.MetadataJsonExtensions.md
-  - name: MetadataProviderBuilderAttribute
-    href: Flowthru.Meta.MetadataProviderBuilderAttribute.md
-  - name: TimestampConfiguration
-    href: Flowthru.Meta.TimestampConfiguration.md
-- name: Flowthru.Meta.Models
-  href: Flowthru.Meta.Models.md
+  - name: INode
+    href: Flowthru.Core.Graph.INode.md
+  - name: INode<T>
+    href: Flowthru.Core.Graph.INode-1.md
+- name: Flowthru.Core.Graph.Meta.Models
+  href: Flowthru.Core.Graph.Meta.Models.md
   items:
   - name: Classes
   - name: DagMetadata
-    href: Flowthru.Meta.Models.DagMetadata.md
+    href: Flowthru.Core.Graph.Meta.Models.DagMetadata.md
   - name: DagSliceMetadata
-    href: Flowthru.Meta.Models.DagSliceMetadata.md
+    href: Flowthru.Core.Graph.Meta.Models.DagSliceMetadata.md
   - name: EdgeMetadata
-    href: Flowthru.Meta.Models.EdgeMetadata.md
+    href: Flowthru.Core.Graph.Meta.Models.EdgeMetadata.md
   - name: ItemMetadata
-    href: Flowthru.Meta.Models.ItemMetadata.md
+    href: Flowthru.Core.Graph.Meta.Models.ItemMetadata.md
   - name: SchemaField
-    href: Flowthru.Meta.Models.SchemaField.md
+    href: Flowthru.Core.Graph.Meta.Models.SchemaField.md
   - name: SchemaMetadata
-    href: Flowthru.Meta.Models.SchemaMetadata.md
+    href: Flowthru.Core.Graph.Meta.Models.SchemaMetadata.md
   - name: StepMetadata
-    href: Flowthru.Meta.Models.StepMetadata.md
-- name: Flowthru.Meta.Providers
-  href: Flowthru.Meta.Providers.md
+    href: Flowthru.Core.Graph.Meta.Models.StepMetadata.md
+- name: Flowthru.Core.Graph.Validation
+  href: Flowthru.Core.Graph.Validation.md
+  items:
+  - name: Classes
+  - name: ValidationOptions
+    href: Flowthru.Core.Graph.Validation.ValidationOptions.md
+  - name: Interfaces
+  - name: IFlowValidationHook
+    href: Flowthru.Core.Graph.Validation.IFlowValidationHook.md
+- name: Flowthru.Core.Meta
+  href: Flowthru.Core.Meta.md
+  items:
+  - name: Classes
+  - name: FlowthruMetadataBuilder
+    href: Flowthru.Core.Meta.FlowthruMetadataBuilder.md
+  - name: FlowthruMetadataConfiguration
+    href: Flowthru.Core.Meta.FlowthruMetadataConfiguration.md
+  - name: JsonMetadataProviderBuilder
+    href: Flowthru.Core.Meta.JsonMetadataProviderBuilder.md
+  - name: MermaidMetadataExtensions
+    href: Flowthru.Core.Meta.MermaidMetadataExtensions.md
+  - name: MermaidMetadataProviderBuilder
+    href: Flowthru.Core.Meta.MermaidMetadataProviderBuilder.md
+  - name: MetadataJsonExtensions
+    href: Flowthru.Core.Meta.MetadataJsonExtensions.md
+  - name: MetadataProviderBuilderAttribute
+    href: Flowthru.Core.Meta.MetadataProviderBuilderAttribute.md
+  - name: TimestampConfiguration
+    href: Flowthru.Core.Meta.TimestampConfiguration.md
+- name: Flowthru.Core.Meta.Providers
+  href: Flowthru.Core.Meta.Providers.md
   items:
   - name: Classes
   - name: JsonMetadataProvider
-    href: Flowthru.Meta.Providers.JsonMetadataProvider.md
+    href: Flowthru.Core.Meta.Providers.JsonMetadataProvider.md
   - name: MermaidMetadataProvider
-    href: Flowthru.Meta.Providers.MermaidMetadataProvider.md
+    href: Flowthru.Core.Meta.Providers.MermaidMetadataProvider.md
   - name: Interfaces
   - name: IMetadataProvider
-    href: Flowthru.Meta.Providers.IMetadataProvider.md
+    href: Flowthru.Core.Meta.Providers.IMetadataProvider.md
   - name: Enums
   - name: MermaidMetadataProvider.MermaidFlowchartDirection
-    href: Flowthru.Meta.Providers.MermaidMetadataProvider.MermaidFlowchartDirection.md
-- name: Flowthru.Registry
-  href: Flowthru.Registry.md
+    href: Flowthru.Core.Meta.Providers.MermaidMetadataProvider.MermaidFlowchartDirection.md
+- name: Flowthru.Core.Registry
+  href: Flowthru.Core.Registry.md
   items:
   - name: Interfaces
   - name: IFlowRegistrar<TCatalog>
-    href: Flowthru.Registry.IFlowRegistrar-1.md
-- name: Flowthru.Results
-  href: Flowthru.Results.md
+    href: Flowthru.Core.Registry.IFlowRegistrar-1.md
+- name: Flowthru.Core.Results
+  href: Flowthru.Core.Results.md
   items:
   - name: Classes
   - name: ConsoleResultFormatter
-    href: Flowthru.Results.ConsoleResultFormatter.md
+    href: Flowthru.Core.Results.ConsoleResultFormatter.md
   - name: Interfaces
   - name: IFlowResultFormatter
-    href: Flowthru.Results.IFlowResultFormatter.md
-- name: Flowthru.Services
-  href: Flowthru.Services.md
+    href: Flowthru.Core.Results.IFlowResultFormatter.md
+- name: Flowthru.Core.Services
+  href: Flowthru.Core.Services.md
   items:
   - name: Classes
   - name: FlowthruServiceBuilder
-    href: Flowthru.Services.FlowthruServiceBuilder.md
+    href: Flowthru.Core.Services.FlowthruServiceBuilder.md
   - name: Interfaces
   - name: IFlowthruService
-    href: Flowthru.Services.IFlowthruService.md
-- name: Flowthru.Services.Models
-  href: Flowthru.Services.Models.md
+    href: Flowthru.Core.Services.IFlowthruService.md
+- name: Flowthru.Core.Services.Models
+  href: Flowthru.Core.Services.Models.md
   items:
   - name: Classes
   - name: FlowMetadata
-    href: Flowthru.Services.Models.FlowMetadata.md
-- name: Flowthru.Steps
-  href: Flowthru.Steps.md
+    href: Flowthru.Core.Services.Models.FlowMetadata.md
+- name: Flowthru.Core.Steps
+  href: Flowthru.Core.Steps.md
   items:
   - name: Classes
+  - name: FlowthruStepAttribute
+    href: Flowthru.Core.Steps.FlowthruStepAttribute.md
   - name: NoData
-    href: Flowthru.Steps.NoData.md
+    href: Flowthru.Core.Steps.NoData.md
   - name: NoParams
-    href: Flowthru.Steps.NoParams.md
-- name: Flowthru.Steps.Factory
-  href: Flowthru.Steps.Factory.md
+    href: Flowthru.Core.Steps.NoParams.md
+- name: Flowthru.Core.Steps.Factory
+  href: Flowthru.Core.Steps.Factory.md
   items:
   - name: Classes
   - name: StepFactory
-    href: Flowthru.Steps.Factory.StepFactory.md
+    href: Flowthru.Core.Steps.Factory.StepFactory.md
   - name: TypeActivator
-    href: Flowthru.Steps.Factory.TypeActivator.md
+    href: Flowthru.Core.Steps.Factory.TypeActivator.md
 - name: Microsoft.Extensions.DependencyInjection
   href: Microsoft.Extensions.DependencyInjection.md
   items:

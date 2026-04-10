@@ -4,13 +4,24 @@
   "projectType": "library",
   "sourceRoot": "./docs",
   "targets": {
-    "build:reference": {
+    "_build-reference": {
       "//": "Generates markdown API reference from C# docstrings into docs/reference/src/",
       "executor": "nx:run-commands",
       "dependsOn": [ "flowthru:restore" ],
       "options": {
         "commands": [
           "./scripts/docfx-metadata.sh --projects src"
+        ],
+        "parallel": false
+      }
+    },
+    "build": {
+      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "_build-reference" ],
+      "options": {
+        "commands": [
+          "echo 'Docs Build Complete!'"
         ],
         "parallel": false
       }

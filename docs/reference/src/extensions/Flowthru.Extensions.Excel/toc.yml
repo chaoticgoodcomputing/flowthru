@@ -1,13 +1,13 @@
 ### YamlMime:TableOfContent
-- name: Flowthru.Data
-  href: Flowthru.Data.md
+- name: Flowthru.Core.Data
+  href: Flowthru.Core.Data.md
   items:
   - name: Classes
   - name: ExcelItemExtensions
-    href: Flowthru.Data.ExcelItemExtensions.md
-- name: Flowthru.Data.Storage.Format
-  href: Flowthru.Data.Storage.Format.md
+    href: Flowthru.Core.Data.ExcelItemExtensions.md
+- name: Flowthru.Core.Data.Storage.Format
+  href: Flowthru.Core.Data.Storage.Format.md
   items:
   - name: Classes
   - name: ExcelFormatSerializer<TRow>
-    href: Flowthru.Data.Storage.Format.ExcelFormatSerializer-1.md
+    href: Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer-1.md
