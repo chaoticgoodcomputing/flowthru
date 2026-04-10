@@ -10,6 +10,11 @@
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
+  <!-- Define FUNIT_ENABLED so test classes can be conditionally compiled -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
+  </PropertyGroup>
+
   <!-- Flowthru core reference: ProjectReference when building from source, PackageReference for templates -->
   <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
     <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
@@ -26,15 +31,12 @@
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <!-- NUnit: enables dotnet test to discover and run [StepTest] methods -->
-  <ItemGroup>
+  <!-- NUnit: only included in Debug so Release builds carry zero test infrastructure -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 

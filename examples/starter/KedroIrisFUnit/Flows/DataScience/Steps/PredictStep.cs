@@ -87,6 +87,7 @@ public static class PredictStep
     return 1.0 / (1.0 + Math.Exp(-z));
   }
 
+  // #if FUNIT_ENABLED
   /// <summary>
   /// FUnit tests for <see cref="PredictStep"/>.
   /// </summary>
@@ -139,4 +140,5 @@ public static class PredictStep
       Assert.That(predictions[0].PredictedClass, Is.InRange(0, 2));
     }
   }
+  // #endif
 }

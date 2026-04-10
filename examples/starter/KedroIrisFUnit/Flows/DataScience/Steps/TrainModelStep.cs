@@ -137,6 +137,7 @@ public static class TrainModelStep
     return 1.0 / (1.0 + Math.Exp(-z));
   }
 
+#if FUNIT_ENABLED
   /// <summary>
   /// FUnit tests for <see cref="TrainModelStep"/>.
   /// </summary>
@@ -189,4 +190,5 @@ public static class TrainModelStep
       );
     }
   }
+#endif
 }

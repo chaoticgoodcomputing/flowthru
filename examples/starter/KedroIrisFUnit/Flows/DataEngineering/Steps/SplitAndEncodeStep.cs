@@ -93,6 +93,7 @@ public static class SplitAndEncodeStep
     };
   }
 
+#if FUNIT_ENABLED
   /// <summary>
   /// FUnit tests for <see cref="SplitAndEncodeStep"/>.
   /// </summary>
@@ -150,4 +151,5 @@ public static class SplitAndEncodeStep
       Assert.That(feature.Virginica, Is.EqualTo(0.0));
     }
   }
+#endif
 }
