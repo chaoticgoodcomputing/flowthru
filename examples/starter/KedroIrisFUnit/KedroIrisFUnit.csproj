@@ -23,12 +23,14 @@
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
   </ItemGroup>
 
-  <!-- FUnit: step testing library + source generator (emits StepTestRegistry and FU001 warnings) -->
+  <!-- FUnit: step testing library — source generator and code fixes are wired
+       automatically via Flowthru.FUnit.targets when referencing from source,
+       or via the NuGet analyzers/dotnet/cs layout when using the package. -->
   <ItemGroup Condition="Exists('../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
     <ProjectReference Include="../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
-    <ProjectReference Include="../../../src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
   </ItemGroup>
 
   <!-- NUnit: only included in Debug so Release builds carry zero test infrastructure -->

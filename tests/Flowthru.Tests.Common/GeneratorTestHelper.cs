@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using Flowthru.Core.Data;
 using Flowthru.Core.SourceGenerators.SchemaAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Flowthru.Tests.Common;
 
@@ -55,13 +57,24 @@ public static class GeneratorTestHelper
     var runResult = driver.GetRunResult();
     var allDiagnostics = outputCompilation.GetDiagnostics().Concat(generatorDiagnostics).ToList();
 
+    // Also run the schema analyzer so FT1001/FT1002 appear in GeneratorDiagnostics.
+    var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new FlowthruSchemaAnalyzer());
+    var analyzerDiagnostics = outputCompilation
+      .WithAnalyzers(analyzers)
+      .GetAnalyzerDiagnosticsAsync()
+      .GetAwaiter()
+      .GetResult();
+
+    var combinedGeneratorDiagnostics = generatorDiagnostics.Concat(analyzerDiagnostics).ToList();
+    allDiagnostics = allDiagnostics.Concat(analyzerDiagnostics).ToList();
+
     var errors = allDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 
     return new GeneratorTestResult
     {
       Success = !errors.Any(),
       Diagnostics = allDiagnostics,
-      GeneratorDiagnostics = generatorDiagnostics.ToList(),
+      GeneratorDiagnostics = combinedGeneratorDiagnostics,
       GeneratedSources = runResult.Results.SelectMany(r => r.GeneratedSources).ToList(),
       OutputCompilation = outputCompilation,
     };

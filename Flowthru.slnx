@@ -2,9 +2,11 @@
   <Folder Name="/src/">
     <Project Path="src\core\Flowthru\Flowthru.csproj" />
     <Project Path="src\core\Flowthru.Core\Flowthru.Core.csproj" />
-    <Project Path="src\core\Flowthru.SourceGenerators\Flowthru.SourceGenerators.csproj" />
+    <Project Path="src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj" />
     <Project Path="src\core\Flowthru.FUnit\Flowthru.FUnit.csproj" />
     <Project Path="src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj" />
+    <Project Path="src\core\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj" />
+    <Project Path="src\core\Flowthru.FUnit.CodeFixes\Flowthru.FUnit.CodeFixes.csproj" />
     <Project Path="src\extensions\Flowthru.Extensions.Csv\Flowthru.Extensions.Csv.csproj" />
     <Project Path="src\extensions\Flowthru.Extensions.Excel\Flowthru.Extensions.Excel.csproj" />
     <Project Path="src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />

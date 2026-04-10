@@ -44,7 +44,7 @@
 
   <!-- Reference own source generator for self-generation -->
   <ItemGroup>
-    <ProjectReference Include="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj"
+    <ProjectReference Include="../Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
   </ItemGroup>
@@ -57,17 +57,24 @@
     <None Include="build/Flowthru.Core.props" Pack="true" PackagePath="build/" />
   </ItemGroup>
 
-  <!-- Package source generators in standard analyzer location -->
+  <!-- Package source generators and code fixes in standard analyzer location -->
   <ItemGroup>
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.SourceGenerators/netstandard2.0/Flowthru.SourceGenerators.dll" 
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.SourceGenerators/netstandard2.0/Flowthru.Core.SourceGenerators.dll" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" />
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.CodeFixes/netstandard2.0/Flowthru.Core.CodeFixes.dll" 
           Pack="true" 
           PackagePath="analyzers/dotnet/cs" 
           Visible="false" />
   </ItemGroup>
 
-  <!-- Ensure source generators are built before packing -->
-  <Target Name="EnsureSourceGeneratorBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
-    <MSBuild Projects="../Flowthru.SourceGenerators/Flowthru.SourceGenerators.csproj" 
+  <!-- Ensure source generators and code fixes are built before packing -->
+  <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
+    <MSBuild Projects="../Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj" 
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+    <MSBuild Projects="../Flowthru.Core.CodeFixes/Flowthru.Core.CodeFixes.csproj" 
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
   </Target>

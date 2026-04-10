@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
 using Flowthru.FUnit.SourceGenerators;
 using Flowthru.FUnit.Tests.Fixtures;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Flowthru.FUnit.Tests;
@@ -144,7 +146,7 @@ public class StepTestRegistryGeneratorTests
     GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
     driver = driver.RunGeneratorsAndUpdateCompilation(
       compilation,
-      out _,
+      out var outputCompilation,
       out var generatorDiagnostics
     );
 
@@ -154,9 +156,18 @@ public class StepTestRegistryGeneratorTests
       .FirstOrDefault(s => s.HintName.Contains("StepTestRegistry"))
       .SourceText?.ToString();
 
+    // Also run the FUnit diagnostic analyzer so FU001/FU002 appear in Diagnostics.
+    var analyzerDiagnostics = outputCompilation
+      .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new FunitDiagnosticAnalyzer()))
+      .GetAnalyzerDiagnosticsAsync()
+      .GetAwaiter()
+      .GetResult();
+
+    var allDiagnostics = generatorDiagnostics.Concat(analyzerDiagnostics).ToList();
+
     return new GeneratorResult(
-      Success: !generatorDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error),
-      Diagnostics: generatorDiagnostics.ToList(),
+      Success: !allDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error),
+      Diagnostics: allDiagnostics,
       GeneratedSource: generatedSource
     );
   }

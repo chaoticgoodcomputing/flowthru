@@ -15,12 +15,14 @@ namespace Flowthru.FUnit.SourceGenerators;
 /// <item>Collects all methods annotated with <c>[StepTest(typeof(X))]</c> and maps them
 ///   to step types.</item>
 /// <item>Emits a <c>StepTestRegistry</c> class mapping step types to test counts.</item>
-/// <item>Emits a <c>FU001</c> warning for any <c>[FlowthruStep]</c> class with zero
-///   <c>[StepTest]</c> methods in the project.</item>
 /// <item>Detects which test framework (NUnit, xUnit, MSTest) is referenced and emits
 ///   framework-annotated runner classes so <c>dotnet test</c> can discover
 ///   <c>[StepTest]</c> methods without any framework attributes in user code.</item>
 /// </list>
+/// <para>
+/// Diagnostics (FU001, FU002) are emitted by <see cref="FunitDiagnosticAnalyzer"/>,
+/// not by this generator — generators should only generate code.
+/// </para>
 /// </summary>
 [Generator]
 public class StepTestRegistryGenerator : IIncrementalGenerator
@@ -43,27 +45,6 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
     string TestClassFqn,
     string TestClassNamespace,
     string BaseClassRef // type path relative to its containing namespace, e.g. "MySplitStep.Tests"
-  );
-
-  private const string FunitContextFullName = "Flowthru.FUnit.FunitContext";
-  private const string FunitEnabledGuard = "FUNIT_ENABLED";
-
-  private static readonly DiagnosticDescriptor Fu001 = new DiagnosticDescriptor(
-    id: "FU001",
-    title: "Step has no tests",
-    messageFormat: "'{0}' is annotated with [FlowthruStep] but has no [StepTest] methods in this project. Pure function nodes without tests are potential failure hotspots.",
-    category: "Flowthru.FUnit",
-    defaultSeverity: DiagnosticSeverity.Warning,
-    isEnabledByDefault: true
-  );
-
-  private static readonly DiagnosticDescriptor Fu002 = new DiagnosticDescriptor(
-    id: "FU002",
-    title: "FunitContext subclass not guarded by #if FUNIT_ENABLED",
-    messageFormat: "'{0}' inherits from FunitContext but is not inside a '#if FUNIT_ENABLED' block. Without this guard, the class cannot be excluded from Release builds.",
-    category: "Flowthru.FUnit",
-    defaultSeverity: DiagnosticSeverity.Warning,
-    isEnabledByDefault: true
   );
 
   public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -170,7 +151,7 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
       }
     );
 
-    // FU001 diagnostics + StepTestRegistry
+    // StepTestRegistry source
     context.RegisterSourceOutput(
       stepClasses.Combine(stepTestEntries),
       static (ctx, pair) => Execute(ctx, pair.Left!, pair.Right!)
@@ -180,44 +161,6 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
     context.RegisterSourceOutput(
       framework.Combine(stepTestEntries),
       static (ctx, pair) => EmitRunners(ctx, pair.Left, pair.Right!)
-    );
-
-    // FU002: detect FunitContext subclasses not guarded by #if FUNIT_ENABLED
-    var unguardedFunitContexts = context
-      .SyntaxProvider.CreateSyntaxProvider(
-        predicate: static (node, _) => node is ClassDeclarationSyntax c && c.BaseList is not null,
-        transform: static (ctx, _) =>
-        {
-          var classDecl = (ClassDeclarationSyntax)ctx.Node;
-          var symbol = ctx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
-          if (symbol is null)
-            return default;
-
-          // Check if this class inherits from FunitContext
-          var baseType = symbol.BaseType;
-          while (baseType is not null)
-          {
-            if (baseType.ToDisplayString() == FunitContextFullName)
-            {
-              // Found a FunitContext subclass — check if it's inside #if FUNIT_ENABLED
-              if (!IsInsidePreprocessorGuard(classDecl, FunitEnabledGuard))
-                return (Symbol: symbol, Location: classDecl.Identifier.GetLocation());
-              return default;
-            }
-            baseType = baseType.BaseType;
-          }
-
-          return default;
-        }
-      )
-      .Where(static pair => pair.Symbol is not null);
-
-    context.RegisterSourceOutput(
-      unguardedFunitContexts,
-      static (ctx, pair) =>
-      {
-        ctx.ReportDiagnostic(Diagnostic.Create(Fu002, pair.Location, pair.Symbol!.Name));
-      }
     );
   }
 
@@ -243,17 +186,6 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
 
     if (steps.Count == 0)
       return;
-
-    // Emit FU001 for each step with no tests
-    foreach (var step in steps)
-    {
-      var fqn = step.ToDisplayString();
-      if (!testCounts.TryGetValue(fqn, out var count) || count == 0)
-      {
-        var location = step.Locations.FirstOrDefault() ?? Location.None;
-        context.ReportDiagnostic(Diagnostic.Create(Fu001, location, step.Name));
-      }
-    }
 
     // Emit StepTestRegistry
     var sb = new StringBuilder();
@@ -380,48 +312,4 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
       TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethod",
       _ => "",
     };
-
-  /// <summary>
-  /// Checks whether a class declaration is enclosed inside a <c>#if</c> preprocessor
-  /// directive whose condition references the specified guard symbol.
-  /// </summary>
-  private static bool IsInsidePreprocessorGuard(ClassDeclarationSyntax classDecl, string guardName)
-  {
-    var root = classDecl.SyntaxTree.GetCompilationUnitRoot();
-    var classStart = classDecl.SpanStart;
-
-    // Collect all preprocessor directives BEFORE the class, in source order
-    var directivesBefore = root.DescendantTrivia()
-      .Where(t => t.IsDirective && t.SpanStart < classStart)
-      .OrderBy(t => t.SpanStart)
-      .Select(t => t.GetStructure())
-      .OfType<DirectiveTriviaSyntax>();
-
-    // Track nesting with a stack; each entry records whether that #if level
-    // is the guard we're looking for.
-    var stack = new Stack<bool>();
-
-    foreach (var directive in directivesBefore)
-    {
-      if (directive is IfDirectiveTriviaSyntax ifDir)
-      {
-        stack.Push(ifDir.Condition.ToString().Contains(guardName));
-      }
-      else if (directive is ElifDirectiveTriviaSyntax || directive is ElseDirectiveTriviaSyntax)
-      {
-        // Replace the current level — the else/elif branch is not the original guard
-        if (stack.Count > 0)
-          stack.Pop();
-        stack.Push(false);
-      }
-      else if (directive is EndIfDirectiveTriviaSyntax)
-      {
-        if (stack.Count > 0)
-          stack.Pop();
-      }
-    }
-
-    // If any remaining open #if level is our guard, the class is enclosed
-    return stack.Any(v => v);
-  }
 }

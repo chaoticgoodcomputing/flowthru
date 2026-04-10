@@ -5,7 +5,7 @@ namespace Flowthru.Core.SourceGenerators.SchemaAnalysis;
 /// <summary>
 /// Diagnostic descriptors for the schema interface source generator.
 /// </summary>
-internal static class SchemaGeneratorDiagnostics
+public static class SchemaGeneratorDiagnostics
 {
   private const string Category = "Flowthru.Core.Schema";
 

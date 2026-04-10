@@ -152,38 +152,15 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
   }
 
   /// <summary>
-  /// Emits the partial class/record with interface implementations and any diagnostics.
+  /// Emits the partial class/record with interface implementations.
+  /// Diagnostics (FT1001, FT1002) are emitted by <see cref="FlowthruSchemaAnalyzer"/>,
+  /// not here — generators should only generate code.
   /// </summary>
   private static void EmitSchemaInterfaces(SourceProductionContext ctx, SchemaGenerationInfo info)
   {
-    // Diagnostic: type must be partial
+    // Skip generation for non-partial types; FlowthruSchemaAnalyzer emits FT1001.
     if (!info.IsPartial)
-    {
-      ctx.ReportDiagnostic(
-        Diagnostic.Create(
-          SchemaGeneratorDiagnostics.TypeMustBePartial,
-          info.Location,
-          info.TypeName
-        )
-      );
       return;
-    }
-
-    // Diagnostic: conflicting manual interfaces
-    if (info.ManualInterfaces.Length > 0)
-    {
-      var expectedStructural = info.IsFlat ? "flat (IFlatSchema)" : "nested (INestedSchema)";
-      var conflicting = string.Join(", ", info.ManualInterfaces.Select(i => i.Split('.').Last()));
-      ctx.ReportDiagnostic(
-        Diagnostic.Create(
-          SchemaGeneratorDiagnostics.ConflictingManualInterface,
-          info.Location,
-          info.TypeName,
-          conflicting,
-          expectedStructural
-        )
-      );
-    }
 
     // Build the interface list based on classification.
     // Do NOT emit interfaces that the user already manually applied — that would cause

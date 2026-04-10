@@ -5,6 +5,7 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <IsRoslynComponent>true</IsRoslynComponent>
+    <PackageId>Flowthru.Core.SourceGenerators</PackageId>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <NoWarn>RS2008;RS2007</NoWarn>
     <DevelopmentDependency>true</DevelopmentDependency>
