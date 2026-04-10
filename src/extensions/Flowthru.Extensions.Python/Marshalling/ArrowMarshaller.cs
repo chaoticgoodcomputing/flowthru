@@ -579,7 +579,10 @@ public static class ArrowMarshaller
     {
       var dto = timestampArray.GetTimestamp(index);
       if (dto == null)
+      {
         return null;
+      }
+
       return dto.Value.UtcDateTime;
     }
 

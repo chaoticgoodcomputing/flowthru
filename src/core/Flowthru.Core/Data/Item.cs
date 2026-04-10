@@ -243,7 +243,9 @@ public sealed class Item<T> : IItem<T>
   public Item<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn)
   {
     if (constraintFn == null)
+    {
       throw new ArgumentNullException(nameof(constraintFn));
+    }
 
     var currentTraits = Traits;
     var proposedTraits = constraintFn(currentTraits);
@@ -262,44 +264,60 @@ public sealed class Item<T> : IItem<T>
   {
     // Check each boolean trait - proposed can only be more restrictive
     if (proposed.CanRead && !current.CanRead)
+    {
       throw new InvalidOperationException(
         "Cannot grant CanRead capability - the underlying adapter does not support reading."
       );
+    }
 
     if (proposed.CanWrite && !current.CanWrite)
+    {
       throw new InvalidOperationException(
         "Cannot grant CanWrite capability - the underlying adapter does not support writing."
       );
+    }
 
     if (proposed.CanInspect && !current.CanInspect)
+    {
       throw new InvalidOperationException(
         "Cannot grant CanInspect capability - the underlying adapter does not support inspection."
       );
+    }
 
     if (proposed.IsPersistent && !current.IsPersistent)
+    {
       throw new InvalidOperationException(
         "Cannot grant IsPersistent capability - the underlying adapter is not persistent."
       );
+    }
 
     if (!proposed.RequiresNetwork && current.RequiresNetwork)
+    {
       throw new InvalidOperationException(
         "Cannot remove RequiresNetwork constraint - the underlying adapter requires network access."
       );
+    }
 
     if (proposed.CanStream && !current.CanStream)
+    {
       throw new InvalidOperationException(
         "Cannot grant CanStream capability - the underlying adapter does not support streaming."
       );
+    }
 
     if (proposed.CanAppend && !current.CanAppend)
+    {
       throw new InvalidOperationException(
         "Cannot grant CanAppend capability - the underlying adapter does not support appending."
       );
+    }
 
     if (proposed.IsTransactional && !current.IsTransactional)
+    {
       throw new InvalidOperationException(
         "Cannot grant IsTransactional capability - the underlying adapter is not transactional."
       );
+    }
   }
 
   /// <inheritdoc/>

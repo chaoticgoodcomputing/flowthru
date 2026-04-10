@@ -305,10 +305,14 @@ public static class ScalarMarshaller
 
       // Look up corresponding property (case-insensitive)
       if (!propertyMap.TryGetValue(fieldName, out var prop))
+      {
         continue;
+      }
 
       if (!prop.CanWrite)
+      {
         continue;
+      }
 
       var pyValue = dict.GetItem(pyKey);
 

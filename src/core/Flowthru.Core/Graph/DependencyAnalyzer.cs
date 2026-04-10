@@ -248,7 +248,10 @@ internal static class DependencyAnalyzer
         {
           var dotIndex = n.Label.IndexOf('.');
           if (dotIndex <= 0)
+          {
             return false;
+          }
+
           var nodeFlowName = n.Label.Substring(0, dotIndex);
           return nodeFlowName.Equals(flowName, StringComparison.OrdinalIgnoreCase);
         });
@@ -346,7 +349,9 @@ internal static class DependencyAnalyzer
         .ToList();
 
       if (matchedSteps.Count > 0)
+      {
         return matchedSteps;
+      }
 
       // Fall back: glob against catalog item labels in outputs
       var matchedByOutput = allSteps
@@ -354,7 +359,9 @@ internal static class DependencyAnalyzer
         .ToList();
 
       if (matchedByOutput.Count > 0)
+      {
         return matchedByOutput;
+      }
 
       throw new InvalidOperationException(
         $"{contextName} pattern '{label}' did not match any step label "
@@ -412,7 +419,9 @@ internal static class DependencyAnalyzer
         .ToList();
 
       if (matchedSteps.Count > 0)
+      {
         return matchedSteps;
+      }
 
       // Fall back: glob against catalog item labels in inputs
       var matchedByInput = allSteps
@@ -420,7 +429,9 @@ internal static class DependencyAnalyzer
         .ToList();
 
       if (matchedByInput.Count > 0)
+      {
         return matchedByInput;
+      }
 
       throw new InvalidOperationException(
         $"{contextName} pattern '{label}' did not match any step label "

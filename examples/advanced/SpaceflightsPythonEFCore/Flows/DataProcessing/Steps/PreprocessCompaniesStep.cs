@@ -21,10 +21,14 @@ public static class PreprocessCompaniesStep
   private static PreprocessedCompanySchema? Parse(CompanySchema raw)
   {
     if (!int.TryParse(raw.Id?.Trim(), out var id))
+    {
       return null;
+    }
 
     if (!TryParsePercentage(raw.CompanyRating, out var rating))
+    {
       return null;
+    }
 
     bool iataApproved = raw.IataApproved?.Trim().ToLowerInvariant() == "t";
 
@@ -51,11 +55,15 @@ public static class PreprocessCompaniesStep
   {
     result = 0;
     if (string.IsNullOrWhiteSpace(value))
+    {
       return false;
+    }
 
     var cleaned = value.Replace("%", "").Trim();
     if (!double.TryParse(cleaned, out var parsed))
+    {
       return false;
+    }
 
     result = parsed / 100.0;
     return true;

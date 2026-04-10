@@ -286,7 +286,10 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
     var dbSet = context.Set<T>();
     var existing = await dbSet.ToListAsync(ct);
     if (existing.Count > 0)
+    {
       dbSet.RemoveRange(existing);
+    }
+
     await dbSet.AddAsync(data, ct);
     await context.SaveChangesAsync(ct);
   }

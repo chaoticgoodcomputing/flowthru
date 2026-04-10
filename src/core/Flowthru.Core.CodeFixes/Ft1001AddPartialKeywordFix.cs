@@ -30,7 +30,9 @@ public sealed class Ft1001AddPartialKeywordFix : CodeFixProvider
       .Document.GetSyntaxRootAsync(context.CancellationToken)
       .ConfigureAwait(false);
     if (root is null)
+    {
       return;
+    }
 
     var diagnostic = context.Diagnostics.First();
     var span = diagnostic.Location.SourceSpan;
@@ -40,7 +42,9 @@ public sealed class Ft1001AddPartialKeywordFix : CodeFixProvider
       .FirstOrDefault();
 
     if (typeDecl is null)
+    {
       return;
+    }
 
     context.RegisterCodeFix(
       CodeAction.Create(
@@ -60,7 +64,9 @@ public sealed class Ft1001AddPartialKeywordFix : CodeFixProvider
   {
     var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
     if (root is null)
+    {
       return document;
+    }
 
     // Insert 'partial' before the 'class'/'record'/'struct' keyword
     var partialToken = SyntaxFactory

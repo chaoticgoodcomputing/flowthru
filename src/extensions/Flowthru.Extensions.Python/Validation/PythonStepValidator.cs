@@ -1,14 +1,14 @@
 using System.IO;
 using System.Reflection;
 using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Flows;
+using Flowthru.Core.Graph;
+using Flowthru.Core.Graph.Validation;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Marshalling;
 using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Steps;
-using Flowthru.Core.Flows;
-using Flowthru.Core.Graph.Validation;
 using Python.Runtime;
-using Flowthru.Core.Graph;
 
 namespace Flowthru.Extensions.Python.Validation;
 
@@ -281,7 +281,9 @@ public class PythonStepValidator : IFlowValidationHook
   {
     // Fast path: declared as IEnumerable<T>
     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+    {
       return true;
+    }
 
     // Runtime path: List<T>, T[], HashSet<T>, etc. that implement IEnumerable<T>
     return type.GetInterfaces()
@@ -510,7 +512,9 @@ public class PythonStepValidator : IFlowValidationHook
   private bool IsValueTuple(Type type)
   {
     if (!type.IsValueType || !type.IsGenericType)
+    {
       return false;
+    }
 
     var genericTypeDef = type.GetGenericTypeDefinition();
     return genericTypeDef.FullName?.StartsWith("System.ValueTuple`", StringComparison.Ordinal)

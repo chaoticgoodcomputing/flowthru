@@ -103,9 +103,14 @@ public static class PredictStep
         NumClasses = 3,
       };
 
+    /// <summary>
+    /// The step must emit exactly one <see cref="PredictionSchema"/> per input
+    /// feature row — output length must equal input length.
+    /// </summary>
     [StepTest(typeof(PredictStep))]
     public void ReturnsOnePredictionPerInputRow()
     {
+      // Arrange
       var testX = Samples.Generate(
         5,
         i => new FeatureVectorSchema
@@ -117,14 +122,22 @@ public static class PredictStep
         }
       );
 
+      // Apply
       var predictions = Invoke(Create(), (ZeroModel(), testX)).ToList();
 
+      // Assert
       Assert.That(predictions, Has.Count.EqualTo(5));
     }
 
+    /// <summary>
+    /// The predicted class index must always fall in [0, numClasses-1].
+    /// With a zero-weight model, sigmoid(0) = 0.5 for every class and argmax
+    /// returns class 0 — still a valid, in-range index.
+    /// </summary>
     [StepTest(typeof(PredictStep))]
     public void PredictedClass_IsAlwaysWithinValidRange()
     {
+      // Arrange
       var testX = Samples.Of(
         new FeatureVectorSchema
         {
@@ -135,8 +148,10 @@ public static class PredictStep
         }
       );
 
+      // Apply
       var predictions = Invoke(Create(), (ZeroModel(), testX)).ToList();
 
+      // Assert — class indices must be in [0, 2] for a 3-class model
       Assert.That(predictions[0].PredictedClass, Is.InRange(0, 2));
     }
   }

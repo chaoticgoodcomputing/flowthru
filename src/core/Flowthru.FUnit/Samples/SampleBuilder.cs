@@ -60,7 +60,9 @@ public class SampleBuilder
     while ((line = reader.ReadLine()) != null)
     {
       if (string.IsNullOrWhiteSpace(line))
+      {
         continue;
+      }
 
       var values = line.Split(',');
       var instance = new T();
@@ -68,7 +70,9 @@ public class SampleBuilder
       for (int i = 0; i < Math.Min(columns.Length, values.Length); i++)
       {
         if (!props.TryGetValue(columns[i].Trim(), out var prop) || !prop.CanWrite)
+        {
           continue;
+        }
 
         var value = Convert.ChangeType(values[i].Trim(), prop.PropertyType);
         prop.SetValue(instance, value);

@@ -42,7 +42,9 @@ public sealed class Ft1002RemoveConflictingInterfaceFix : CodeFixProvider
       .Document.GetSyntaxRootAsync(context.CancellationToken)
       .ConfigureAwait(false);
     if (root is null)
+    {
       return;
+    }
 
     var diagnostic = context.Diagnostics.First();
     var span = diagnostic.Location.SourceSpan;
@@ -52,7 +54,9 @@ public sealed class Ft1002RemoveConflictingInterfaceFix : CodeFixProvider
       .FirstOrDefault();
 
     if (typeDecl?.BaseList is null)
+    {
       return;
+    }
 
     context.RegisterCodeFix(
       CodeAction.Create(
@@ -73,10 +77,14 @@ public sealed class Ft1002RemoveConflictingInterfaceFix : CodeFixProvider
   {
     var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
     if (root is null)
+    {
       return document;
+    }
 
     if (typeDecl.BaseList is null)
+    {
       return document;
+    }
 
     // Remove all base list entries whose unqualified name is a known marker interface
     var toRemove = typeDecl
@@ -90,17 +98,25 @@ public sealed class Ft1002RemoveConflictingInterfaceFix : CodeFixProvider
       .ToList();
 
     if (toRemove.Count == 0)
+    {
       return document;
+    }
 
     var newBaseTypes = typeDecl.BaseList.Types;
     foreach (var item in toRemove)
+    {
       newBaseTypes = newBaseTypes.Remove(item);
+    }
 
     TypeDeclarationSyntax newDecl;
     if (newBaseTypes.Count == 0)
+    {
       newDecl = typeDecl.WithBaseList(null);
+    }
     else
+    {
       newDecl = typeDecl.WithBaseList(typeDecl.BaseList.WithTypes(newBaseTypes));
+    }
 
     var newRoot = root.ReplaceNode(typeDecl, newDecl);
     return document.WithSyntaxRoot(newRoot);

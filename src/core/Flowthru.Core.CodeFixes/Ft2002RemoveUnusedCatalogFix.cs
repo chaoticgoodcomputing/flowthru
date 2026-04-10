@@ -29,7 +29,9 @@ public sealed class Ft2002RemoveUnusedCatalogFix : CodeFixProvider
       .Document.GetSyntaxRootAsync(context.CancellationToken)
       .ConfigureAwait(false);
     if (root is null)
+    {
       return;
+    }
 
     var diagnostic = context.Diagnostics.First();
     var span = diagnostic.Location.SourceSpan;
@@ -41,7 +43,9 @@ public sealed class Ft2002RemoveUnusedCatalogFix : CodeFixProvider
       .OfType<ExpressionStatementSyntax>()
       .FirstOrDefault();
     if (statement is null)
+    {
       return;
+    }
 
     context.RegisterCodeFix(
       CodeAction.Create(
@@ -61,11 +65,15 @@ public sealed class Ft2002RemoveUnusedCatalogFix : CodeFixProvider
   {
     var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
     if (root is null)
+    {
       return document;
+    }
 
     var newRoot = root.RemoveNode(statement, SyntaxRemoveOptions.KeepLeadingTrivia);
     if (newRoot is null)
+    {
       return document;
+    }
 
     return document.WithSyntaxRoot(newRoot);
   }

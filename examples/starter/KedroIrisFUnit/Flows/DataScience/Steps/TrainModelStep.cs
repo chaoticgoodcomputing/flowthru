@@ -164,29 +164,42 @@ public static class TrainModelStep
           Virginica = i % 3 == 2 ? 1.0 : 0.0,
         });
 
+    /// <summary>
+    /// After training, the returned <see cref="ModelWeightsSchema"/> must describe
+    /// a weight matrix of shape (NumFeatures + 1) × NumClasses — the +1 accounts
+    /// for the bias term prepended to each feature row.
+    /// </summary>
     [StepTest(typeof(TrainModelStep))]
     public void ReturnsWeightsWithCorrectShape()
     {
-      var model = Invoke(
-        Create(numIterations: 100, learningRate: 0.01),
-        (SampleFeatures(12), SampleLabels(12))
-      );
+      // Arrange — 12 samples cycling across 3 classes, 4 features each
+      var trainX = SampleFeatures(12);
+      var trainY = SampleLabels(12);
 
-      // Weight matrix shape: (NumFeatures + 1) × NumClasses
+      // Apply
+      var model = Invoke(Create(numIterations: 100, learningRate: 0.01), (trainX, trainY));
+
+      // Assert — weight matrix shape: (NumFeatures + 1) × NumClasses = 5 × 3 = 15
       Assert.That(model.NumFeatures, Is.EqualTo(4));
       Assert.That(model.NumClasses, Is.EqualTo(3));
       Assert.That(model.Weights.Length, Is.EqualTo((4 + 1) * 3));
     }
 
+    /// <summary>
+    /// The step must complete without throwing even when training for only a
+    /// single iteration — this guards against index-out-of-bounds or divide-by-zero
+    /// issues in the gradient descent loop at minimal iteration counts.
+    /// </summary>
     [StepTest(typeof(TrainModelStep))]
     public void WithMinimalIterations_DoesNotThrow()
     {
+      // Arrange — smallest viable training set (6 samples, 2 per class)
+      var trainX = SampleFeatures(6);
+      var trainY = SampleLabels(6);
+
+      // Apply + Assert
       Assert.DoesNotThrow(
-        () =>
-          Invoke(
-            Create(numIterations: 1, learningRate: 0.001),
-            (SampleFeatures(6), SampleLabels(6))
-          )
+        () => Invoke(Create(numIterations: 1, learningRate: 0.001), (trainX, trainY))
       );
     }
   }

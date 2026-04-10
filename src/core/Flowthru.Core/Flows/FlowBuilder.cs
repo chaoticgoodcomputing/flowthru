@@ -220,11 +220,19 @@ public partial class FlowBuilder
   )
   {
     if (inputs == null)
+    {
       throw new ArgumentNullException(nameof(inputs));
+    }
+
     if (output == null)
+    {
       throw new ArgumentNullException(nameof(output));
+    }
+
     if (step == null)
+    {
       throw new ArgumentNullException(nameof(step));
+    }
 
     var capturedStep = step;
     // Wrap into Func<object[], TOut>. The executor uses the parameter type as a signal:

@@ -99,10 +99,15 @@ public static class SplitAndEncodeStep
   /// </summary>
   public class Tests : FunitContext
   {
+    /// <summary>
+    /// With a 20% test ratio on 10 rows, the step should place 2 rows in the test
+    /// split and 8 in training. Feature count must equal the full input count, and
+    /// each X split must have a paired Y split of the same length.
+    /// </summary>
     [StepTest(typeof(SplitAndEncodeStep))]
     public void With20PercentRatio_ProducesCorrectSplitSizes()
     {
-      // 10 rows, 20% test → 2 test, 8 train
+      // Arrange — 10 rows cycling evenly across all three species
       var rawData = Samples.Generate(
         10,
         i => new IrisRawSchema
@@ -118,8 +123,10 @@ public static class SplitAndEncodeStep
         }
       );
 
+      // Apply
       var (features, trainX, trainY, testX, testY) = Invoke(Create(testDataRatio: 0.2), rawData);
 
+      // Assert
       Assert.That(features.Count(), Is.EqualTo(10));
       Assert.That(trainX.Count() + testX.Count(), Is.EqualTo(10));
       Assert.That(trainX.Count(), Is.EqualTo(8));
@@ -128,10 +135,14 @@ public static class SplitAndEncodeStep
       Assert.That(testY.Count(), Is.EqualTo(testX.Count()));
     }
 
+    /// <summary>
+    /// A setosa row should produce a one-hot encoding of [1, 0, 0] — only the
+    /// <c>Setosa</c> field set to 1.0, all others to 0.0.
+    /// </summary>
     [StepTest(typeof(SplitAndEncodeStep))]
     public void SetosaRow_EncodesOneHotCorrectly()
     {
-      // testDataRatio=0 keeps all rows in train; features reflects full one-hot encoding.
+      // Arrange — testDataRatio: 0.0 keeps all rows in train; features reflects full encoding
       var rawData = Samples.Of(
         new IrisRawSchema
         {
@@ -143,9 +154,11 @@ public static class SplitAndEncodeStep
         }
       );
 
+      // Apply
       var (features, _, _, _, _) = Invoke(Create(testDataRatio: 0.0), rawData);
       var feature = features.Single();
 
+      // Assert
       Assert.That(feature.Setosa, Is.EqualTo(1.0));
       Assert.That(feature.Versicolor, Is.EqualTo(0.0));
       Assert.That(feature.Virginica, Is.EqualTo(0.0));

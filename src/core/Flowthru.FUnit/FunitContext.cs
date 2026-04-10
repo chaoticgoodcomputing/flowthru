@@ -106,10 +106,14 @@ public class FunitContext : IDisposable
   protected virtual void Dispose(bool disposing)
   {
     if (_disposed)
+    {
       return;
+    }
 
     if (disposing && _serviceProvider is IDisposable disposable)
+    {
       disposable.Dispose();
+    }
 
     _disposed = true;
   }

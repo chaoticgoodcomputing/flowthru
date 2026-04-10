@@ -21,22 +21,34 @@ public static class PreprocessShuttlesStep
   private static PreprocessedShuttleSchema? Parse(ShuttleSchema raw)
   {
     if (!int.TryParse(raw.Id?.Trim(), out var id))
+    {
       return null;
+    }
 
     if (!int.TryParse(raw.CompanyId?.Trim(), out var companyId))
+    {
       return null;
+    }
 
     if (!int.TryParse(raw.Engines?.Trim(), out var engines))
+    {
       return null;
+    }
 
     if (!int.TryParse(raw.PassengerCapacity?.Trim(), out var passengerCapacity))
+    {
       return null;
+    }
 
     if (!int.TryParse(raw.Crew?.Trim(), out var crew))
+    {
       return null;
+    }
 
     if (!TryParseMoney(raw.Price, out var price))
+    {
       return null;
+    }
 
     bool dCheckComplete = raw.DCheckComplete?.Trim().ToLowerInvariant() == "t";
     bool moonClearanceComplete = raw.MoonClearanceComplete?.Trim().ToLowerInvariant() == "t";
@@ -60,7 +72,9 @@ public static class PreprocessShuttlesStep
   {
     result = 0;
     if (string.IsNullOrWhiteSpace(value))
+    {
       return false;
+    }
 
     var cleaned = value.Replace("$", "").Replace(",", "").Trim();
     return double.TryParse(cleaned, out result);

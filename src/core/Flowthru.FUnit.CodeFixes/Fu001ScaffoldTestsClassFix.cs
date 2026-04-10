@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -31,7 +32,9 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
       .Document.GetSyntaxRootAsync(context.CancellationToken)
       .ConfigureAwait(false);
     if (root is null)
+    {
       return;
+    }
 
     var diagnostic = context.Diagnostics.First();
     var span = diagnostic.Location.SourceSpan;
@@ -41,11 +44,13 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
       .FirstOrDefault();
 
     if (classDecl is null)
+    {
       return;
+    }
 
     context.RegisterCodeFix(
       CodeAction.Create(
-        title: "Scaffold Tests class with #if FUNIT_ENABLED",
+        title: $"Add nested 'Tests : FunitContext' class inside '{classDecl.Identifier.Text}'",
         createChangedDocument: ct => ScaffoldTestsClassAsync(context.Document, classDecl, ct),
         equivalenceKey: nameof(Fu001ScaffoldTestsClassFix)
       ),
@@ -61,7 +66,9 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
   {
     var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
     if (root is null)
+    {
       return document;
+    }
 
     var sourceText = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
 
@@ -76,22 +83,51 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
 
 #if FUNIT_ENABLED
 {{indent}}/// <summary>FUnit tests for <see cref="{{stepName}}"/>.</summary>
-{{indent}}public class Tests : global::Flowthru.FUnit.FunitContext
+{{indent}}public class Tests : FunitContext
 {{indent}}{
-{{indent}}    [global::Flowthru.FUnit.StepTest(typeof({{stepName}}))]
+{{indent}}    [StepTest(typeof({{stepName}}))]
 {{indent}}    public void TODO_WriteYourTestHere()
 {{indent}}    {
-{{indent}}        throw new global::System.NotImplementedException();
+{{indent}}        throw new System.NotImplementedException();
 {{indent}}    }
 {{indent}}}
 #endif
 
 """;
 
-    // Insert BEFORE the close brace token's leading whitespace so the closing
-    // brace stays properly indented after the inserted block.
+    // Collect both text edits against the ORIGINAL source positions, then apply
+    // in reverse order so earlier insertions don't shift later positions.
+    var edits = new List<(TextSpan Span, string Text)>();
+
+    // Edit 1 (earlier in file): add `using Flowthru.FUnit;` if not already present.
+    if (root is CompilationUnitSyntax compilationUnit)
+    {
+      const string funitNs = "Flowthru.FUnit";
+      bool hasUsing =
+        compilationUnit.Usings.Any(u => u.Name?.ToString() == funitNs)
+        || compilationUnit
+          .Members.OfType<BaseNamespaceDeclarationSyntax>()
+          .Any(ns => ns.Usings.Any(u => u.Name?.ToString() == funitNs));
+
+      if (!hasUsing)
+      {
+        // Insert after last top-level using, or at the start of the first member.
+        int insertPos =
+          compilationUnit.Usings.LastOrDefault()?.FullSpan.End
+          ?? compilationUnit.Members.FirstOrDefault()?.FullSpan.Start
+          ?? 0;
+        edits.Add((new TextSpan(insertPos, 0), "using Flowthru.FUnit;\n"));
+      }
+    }
+
+    // Edit 2 (later in file): insert stub before close brace.
     var closeBrace = classDecl.CloseBraceToken;
-    var newSourceText = sourceText.Replace(new TextSpan(closeBrace.FullSpan.Start, 0), stub);
+    edits.Add((new TextSpan(closeBrace.FullSpan.Start, 0), stub));
+
+    // Apply edits from the end of the file backwards so positions stay valid.
+    var newSourceText = sourceText;
+    foreach (var (span, text) in edits.OrderByDescending(e => e.Span.Start))
+      newSourceText = newSourceText.Replace(span, text);
 
     return document.WithText(newSourceText);
   }

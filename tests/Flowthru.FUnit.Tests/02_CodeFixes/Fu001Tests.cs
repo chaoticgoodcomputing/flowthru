@@ -54,7 +54,8 @@ public class Fu001Tests
     // The fix inserts the Tests class before the class's closing brace, inserting
     // before the brace's full span (to preserve indentation of the closing brace).
     var fixedSource =
-      Stubs
+      "using Flowthru.FUnit;\n"
+      + Stubs
       + """
 
         namespace TestProject
@@ -67,12 +68,12 @@ public class Fu001Tests
 
         #if FUNIT_ENABLED
               /// <summary>FUnit tests for <see cref="MyStep"/>.</summary>
-              public class Tests : global::Flowthru.FUnit.FunitContext
+              public class Tests : FunitContext
               {
-                  [global::Flowthru.FUnit.StepTest(typeof(MyStep))]
+                  [StepTest(typeof(MyStep))]
                   public void TODO_WriteYourTestHere()
                   {
-                      throw new global::System.NotImplementedException();
+                      throw new System.NotImplementedException();
                   }
               }
         #endif

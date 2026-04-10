@@ -51,7 +51,9 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
         {
           var content = file.GetText(ct)?.ToString();
           if (content == null)
+          {
             return null;
+          }
 
           return ParsePythonStep(file.Path, content);
         }
@@ -76,7 +78,9 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
 
         var validSteps = steps.Where(n => n != null).Select(n => n!).ToList();
         if (validSteps.Count == 0)
+        {
           return;
+        }
 
         var source = GeneratePythonStepFactories(validSteps);
         ctx.AddSource("PythonSteps.g.cs", SourceText.From(source, Encoding.UTF8));
@@ -94,12 +98,16 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
 
     var decoratorMatch = Regex.Match(content, decoratorPattern);
     if (!decoratorMatch.Success)
+    {
       return null;
+    }
 
     // Extract function name
     var functionMatch = Regex.Match(content.Substring(decoratorMatch.Index), functionPattern);
     if (!functionMatch.Success)
+    {
       return null;
+    }
 
     var functionName = functionMatch.Groups[1].Value;
 
@@ -257,7 +265,9 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
   {
     // Handle special case for non-tabular data
     if (schemaName == "object")
+    {
       return "object";
+    }
 
     // Remove "Schema" suffix if present and map to enumerable type
     var typeName = schemaName.EndsWith("Schema")

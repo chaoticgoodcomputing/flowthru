@@ -34,9 +34,15 @@ public static class EvaluateModelStep
         .Select(label =>
         {
           if (label.Setosa == 1.0)
+          {
             return 0;
+          }
+
           if (label.Versicolor == 1.0)
+          {
             return 1;
+          }
+
           return 2; // virginica
         })
         .ToList();

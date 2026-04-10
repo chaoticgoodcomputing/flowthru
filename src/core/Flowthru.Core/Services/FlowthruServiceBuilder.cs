@@ -140,7 +140,9 @@ public sealed class FlowthruServiceBuilder
   public FlowthruServiceBuilder RegisterCatalogs(IEnumerable<CatalogAbstract> catalogs)
   {
     if (catalogs == null)
+    {
       throw new ArgumentNullException(nameof(catalogs));
+    }
 
     var snapshot = catalogs.ToList();
     _dynamicCatalogFactories.Add(_ => snapshot);
@@ -158,7 +160,9 @@ public sealed class FlowthruServiceBuilder
   )
   {
     if (catalogsFactory == null)
+    {
       throw new ArgumentNullException(nameof(catalogsFactory));
+    }
 
     _dynamicCatalogFactories.Add(catalogsFactory);
     return this;
@@ -206,9 +210,14 @@ public sealed class FlowthruServiceBuilder
   )
   {
     if (string.IsNullOrWhiteSpace(label))
+    {
       throw new ArgumentException("Flow label cannot be null or empty.", nameof(label));
+    }
+
     if (flow == null)
+    {
       throw new ArgumentNullException(nameof(flow));
+    }
 
     var method = flow.Method;
     var parameters = method.GetParameters();
@@ -262,7 +271,10 @@ public sealed class FlowthruServiceBuilder
       {
         var args = new object?[resolvers.Length];
         for (int i = 0; i < resolvers.Length; i++)
+        {
           args[i] = resolvers[i](sp);
+        }
+
         return (Flow)capturedDelegate.DynamicInvoke(args)!;
       }
     );

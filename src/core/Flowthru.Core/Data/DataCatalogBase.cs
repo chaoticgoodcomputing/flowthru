@@ -120,7 +120,10 @@ public abstract class CatalogAbstract
   {
     var item = _propertyCache.GetOrAdd(propertyName, _ => factory());
     if (item is Item<T> concrete)
+    {
       concrete.SetOwningCatalog(CatalogLabel);
+    }
+
     return (IItem<T>)item;
   }
 
@@ -138,7 +141,10 @@ public abstract class CatalogAbstract
   {
     var item = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
     if (item is Item<T> concrete)
+    {
       concrete.SetOwningCatalog(CatalogLabel);
+    }
+
     return (IItem<T>)item;
   }
 

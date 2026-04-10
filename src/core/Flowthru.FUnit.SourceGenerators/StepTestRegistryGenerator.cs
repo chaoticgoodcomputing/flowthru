@@ -59,7 +59,9 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
           var classDecl = (ClassDeclarationSyntax)ctx.Node;
           var symbol = ctx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
           if (symbol is null)
+          {
             return null;
+          }
 
           var hasAttr = symbol
             .GetAttributes()
@@ -81,12 +83,16 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
           var method = (MethodDeclarationSyntax)ctx.Node;
           var symbol = ctx.SemanticModel.GetDeclaredSymbol(method) as IMethodSymbol;
           if (symbol is null)
+          {
             return null;
+          }
 
           foreach (var attr in symbol.GetAttributes())
           {
             if (attr.AttributeClass?.ToDisplayString() != StepTestAttributeFullName)
+            {
               continue;
+            }
 
             if (
               attr.ConstructorArguments.Length > 0
@@ -127,7 +133,10 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
             string.Equals(a.Name, "nunit.framework", System.StringComparison.OrdinalIgnoreCase)
           )
         )
+        {
           return TestFramework.NUnit;
+        }
+
         if (
           assemblyNames.Any(static a =>
             string.Equals(a.Name, "xunit.core", System.StringComparison.OrdinalIgnoreCase)
@@ -136,7 +145,10 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
             string.Equals(a.Name, "xunit.v3.core", System.StringComparison.OrdinalIgnoreCase)
           )
         )
+        {
           return TestFramework.XUnit;
+        }
+
         if (
           assemblyNames.Any(static a =>
             string.Equals(
@@ -146,7 +158,10 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
             )
           )
         )
+        {
           return TestFramework.MSTest;
+        }
+
         return TestFramework.None;
       }
     );
@@ -185,7 +200,9 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
       .ToList();
 
     if (steps.Count == 0)
+    {
       return;
+    }
 
     // Emit StepTestRegistry
     var sb = new StringBuilder();
@@ -228,7 +245,9 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
   )
   {
     if (framework == TestFramework.None)
+    {
       return;
+    }
 
     // Group methods by their containing test class, one runner file per class
     var groups = entries.Where(e => e is not null).GroupBy(e => e!.TestClassFqn).ToList();
@@ -280,7 +299,9 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
       sb.AppendLine($"{indent}}}");
 
       if (hasNamespace)
+      {
         sb.AppendLine("}");
+      }
 
       context.AddSource($"{runnerName}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }

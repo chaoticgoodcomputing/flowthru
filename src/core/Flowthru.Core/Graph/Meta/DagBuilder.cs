@@ -152,7 +152,9 @@ internal static class DagBuilder
   private static IReadOnlyDictionary<Type, int>? TryGetStepTestRegistry()
   {
     if (_stepTestRegistryResolved)
+    {
       return _stepTestRegistry;
+    }
 
     _stepTestRegistryResolved = true;
 
@@ -162,7 +164,9 @@ internal static class DagBuilder
     {
       var registryType = assembly.GetType("StepTestRegistry");
       if (registryType is null)
+      {
         continue;
+      }
 
       var prop = registryType.GetProperty(
         "TestCounts",

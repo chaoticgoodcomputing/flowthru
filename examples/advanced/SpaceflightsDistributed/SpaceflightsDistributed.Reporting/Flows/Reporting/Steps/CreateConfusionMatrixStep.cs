@@ -30,9 +30,11 @@ public static class CreateConfusionMatrixStep
       var predictions = input.ToList();
 
       if (!predictions.Any())
+      {
         throw new InvalidOperationException(
           "Cannot create confusion matrix from empty predictions"
         );
+      }
 
       var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
       var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
@@ -45,14 +47,19 @@ public static class CreateConfusionMatrixStep
 
       var matrix = new int[opts.NumBins, opts.NumBins];
       foreach (var (actual, predicted) in binnedPredictions)
+      {
         matrix[actual, predicted]++;
+      }
 
       var zData = new List<List<int>>();
       for (int i = 0; i < opts.NumBins; i++)
       {
         var row = new List<int>();
         for (int j = 0; j < opts.NumBins; j++)
+        {
           row.Add(matrix[i, j]);
+        }
+
         zData.Add(row);
       }
 
@@ -94,7 +101,9 @@ public static class CreateConfusionMatrixStep
     for (int i = 0; i < thresholds.Count; i++)
     {
       if (value < thresholds[i])
+      {
         return i;
+      }
     }
     return thresholds.Count;
   }

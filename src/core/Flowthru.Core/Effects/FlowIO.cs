@@ -72,9 +72,11 @@ public readonly struct FlowIO<A>
   public ValueTask<A> Run(CancellationToken token = default)
   {
     if (_thunk is null)
+    {
       return ValueTask.FromException<A>(
         new InvalidOperationException("Cannot run an uninitialized FlowIO effect.")
       );
+    }
 
     return _thunk(token);
   }
@@ -93,11 +95,13 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return new FlowIO<B>(_ =>
         ValueTask.FromException<B>(
           new InvalidOperationException("Cannot map over an uninitialized FlowIO effect.")
         )
       );
+    }
 
     return new FlowIO<B>(async ct =>
     {
@@ -116,11 +120,13 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return new FlowIO<B>(_ =>
         ValueTask.FromException<B>(
           new InvalidOperationException("Cannot map over an uninitialized FlowIO effect.")
         )
       );
+    }
 
     return new FlowIO<B>(async ct =>
     {
@@ -143,11 +149,13 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return new FlowIO<B>(_ =>
         ValueTask.FromException<B>(
           new InvalidOperationException("Cannot bind over an uninitialized FlowIO effect.")
         )
       );
+    }
 
     return new FlowIO<B>(async ct =>
     {
@@ -194,11 +202,13 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return new FlowIO<C>(_ =>
         ValueTask.FromException<C>(
           new InvalidOperationException("Cannot bind over an uninitialized FlowIO effect.")
         )
       );
+    }
 
     return new FlowIO<C>(async ct =>
     {
@@ -218,7 +228,9 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return this;
+    }
 
     return new FlowIO<A>(async ct =>
     {
@@ -245,7 +257,9 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return this;
+    }
 
     return new FlowIO<A>(async ct =>
     {
@@ -270,7 +284,9 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return FlowIO.Pure(defaultValue);
+    }
 
     return new FlowIO<A>(async ct =>
     {
@@ -294,7 +310,9 @@ public readonly struct FlowIO<A>
   {
     var thunk = _thunk; // Copy to avoid capturing 'this' in lambda
     if (thunk is null)
+    {
       return alternative;
+    }
 
     return new FlowIO<A>(async ct =>
     {

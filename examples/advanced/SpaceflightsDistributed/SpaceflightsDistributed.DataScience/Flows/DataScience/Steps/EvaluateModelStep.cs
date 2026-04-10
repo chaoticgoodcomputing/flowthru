@@ -72,7 +72,9 @@ public static class EvaluateModelStep
     };
 
     for (int i = 0; i < model.Coefficients.Length; i++)
+    {
       prediction += model.Coefficients[i] * featureValues[i];
+    }
 
     return prediction;
   }

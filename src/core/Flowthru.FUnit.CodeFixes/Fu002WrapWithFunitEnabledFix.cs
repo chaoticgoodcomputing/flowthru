@@ -30,7 +30,9 @@ public sealed class Fu002WrapWithFunitEnabledFix : CodeFixProvider
       .Document.GetSyntaxRootAsync(context.CancellationToken)
       .ConfigureAwait(false);
     if (root is null)
+    {
       return;
+    }
 
     var diagnostic = context.Diagnostics.First();
     var span = diagnostic.Location.SourceSpan;
@@ -40,7 +42,9 @@ public sealed class Fu002WrapWithFunitEnabledFix : CodeFixProvider
       .FirstOrDefault();
 
     if (classDecl is null)
+    {
       return;
+    }
 
     context.RegisterCodeFix(
       CodeAction.Create(

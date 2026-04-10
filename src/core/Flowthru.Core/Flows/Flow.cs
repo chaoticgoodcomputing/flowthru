@@ -757,9 +757,13 @@ public class Flow
         var singleFuncType = flowStep.TransformFunction.GetType();
         var singleParams = singleFuncType.GetMethod("Invoke")!.GetParameters();
         if (singleParams.Length == 1 && singleParams[0].ParameterType == typeof(object[]))
+        {
           inputParameter = (object)inputs; // fan-in wrapper with single shard
+        }
         else
+        {
           inputParameter = inputs[0];
+        }
       }
       else
       {
@@ -954,9 +958,13 @@ public class Flow
         var singleFuncType = flowStep.TransformFunction.GetType();
         var singleParams = singleFuncType.GetMethod("Invoke")!.GetParameters();
         if (singleParams.Length == 1 && singleParams[0].ParameterType == typeof(object[]))
+        {
           inputParameter = (object)inputs;
+        }
         else
+        {
           inputParameter = inputs[0];
+        }
       }
       else
       {

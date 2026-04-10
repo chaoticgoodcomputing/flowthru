@@ -15,7 +15,9 @@ public static class TrainModelStep
       var data = input.ToList();
 
       if (data.Count == 0)
+      {
         throw new InvalidOperationException("No training data available");
+      }
 
       var features = data.Select(d => d.Features).ToList();
       var labels = data.Select(d => (double)d.Label).ToArray();

@@ -47,9 +47,13 @@ public sealed class NUnit4Verifier : IVerifier
     var expectedList = expected.ToList();
     var actualList = actual.ToList();
     if (comparer is null)
+    {
       Assert.That(actualList, Is.EqualTo(expectedList), Msg(message));
+    }
     else
+    {
       Assert.That(actualList.SequenceEqual(expectedList, comparer), Is.True, Msg(message));
+    }
   }
 
   public void Equal<T>(T expected, T actual, string? message = null) =>
@@ -66,7 +70,9 @@ public sealed class NUnit4Verifier : IVerifier
   public void LanguageIsSupported(string language)
   {
     if (language != LanguageNames.CSharp)
+    {
       Assert.Fail(Msg($"Language '{language}' is not supported; only C# is."));
+    }
   }
 
   public IVerifier PushContext(string context) => new NUnit4Verifier(_context.Push(context));

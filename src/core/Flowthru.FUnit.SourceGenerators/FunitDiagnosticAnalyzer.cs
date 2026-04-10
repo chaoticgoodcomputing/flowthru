@@ -97,14 +97,20 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
     }
 
     if (!isFunitContextSubclass)
+    {
       return;
+    }
 
     var syntaxRef = typeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
     if (syntaxRef is null)
+    {
       return;
+    }
 
     if (syntaxRef.GetSyntax() is not ClassDeclarationSyntax classDecl)
+    {
       return;
+    }
 
     if (!FunitSyntaxHelpers.IsInsidePreprocessorGuard(classDecl, FunitEnabledGuard))
     {
@@ -122,11 +128,19 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
     foreach (var member in ns.GetMembers())
     {
       if (member is INamedTypeSymbol type)
+      {
         foreach (var t in GetAllTypes(type))
+        {
           yield return t;
+        }
+      }
       else if (member is INamespaceSymbol nested)
+      {
         foreach (var t in GetAllTypes(nested))
+        {
           yield return t;
+        }
+      }
     }
   }
 
@@ -136,7 +150,11 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
   {
     yield return type;
     foreach (var nested in type.GetTypeMembers())
-    foreach (var t in GetAllTypes(nested))
-      yield return t;
+    {
+      foreach (var t in GetAllTypes(nested))
+      {
+        yield return t;
+      }
+    }
   }
 }

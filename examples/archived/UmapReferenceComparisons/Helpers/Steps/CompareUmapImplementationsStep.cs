@@ -450,9 +450,14 @@ public static class CompareUmapImplementationsStep
 
     // Clamp for numerical safety
     if (signedConfidence > 1.0)
+    {
       signedConfidence = 1.0;
+    }
+
     if (signedConfidence < -1.0)
+    {
       signedConfidence = -1.0;
+    }
 
     return signedConfidence;
   }

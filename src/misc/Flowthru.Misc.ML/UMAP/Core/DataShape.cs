@@ -73,7 +73,10 @@ public sealed record DataShape
     get
     {
       if (Samples < 15)
+      {
         return Math.Max(2, Samples - 1);
+      }
+
       return 15;
     }
   }
@@ -87,7 +90,10 @@ public sealed record DataShape
     get
     {
       if (Samples <= 10000)
+      {
         return 500;
+      }
+
       return 200;
     }
   }

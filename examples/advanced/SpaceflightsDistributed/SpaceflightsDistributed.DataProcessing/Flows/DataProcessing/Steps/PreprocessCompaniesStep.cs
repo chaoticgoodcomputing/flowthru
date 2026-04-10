@@ -18,7 +18,9 @@ public static class PreprocessCompaniesStep
     bool iataApproved = raw.IataApproved.Trim().ToLowerInvariant() == "t";
 
     if (!TryParsePercentage(raw.CompanyRating, out var rating))
+    {
       return null;
+    }
 
     return new PreprocessedCompanySchema
     {
@@ -33,11 +35,15 @@ public static class PreprocessCompaniesStep
   {
     result = 0;
     if (string.IsNullOrWhiteSpace(value))
+    {
       return false;
+    }
 
     var cleaned = value.Replace("%", "").Trim();
     if (!decimal.TryParse(cleaned, out var parsed))
+    {
       return false;
+    }
 
     result = parsed / 100m;
     return true;

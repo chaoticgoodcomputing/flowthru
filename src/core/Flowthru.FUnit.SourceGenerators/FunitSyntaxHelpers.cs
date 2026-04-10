@@ -31,17 +31,24 @@ internal static class FunitSyntaxHelpers
     foreach (var directive in directivesBefore)
     {
       if (directive is IfDirectiveTriviaSyntax ifDir)
+      {
         stack.Push(ifDir.Condition.ToString().Contains(guardName));
+      }
       else if (directive is ElifDirectiveTriviaSyntax || directive is ElseDirectiveTriviaSyntax)
       {
         if (stack.Count > 0)
+        {
           stack.Pop();
+        }
+
         stack.Push(false);
       }
       else if (directive is EndIfDirectiveTriviaSyntax)
       {
         if (stack.Count > 0)
+        {
           stack.Pop();
+        }
       }
     }
 

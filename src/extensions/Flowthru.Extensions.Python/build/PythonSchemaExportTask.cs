@@ -86,12 +86,16 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
       // Generate Python files
       int exportedCount = 0;
       var schemaInfoType = assembly.GetType("Flowthru.Core.Generated.SchemaManifest.SchemaInfo");
-      var propertyInfoType = assembly.GetType("Flowthru.Core.Generated.SchemaManifest.PropertyInfo");
+      var propertyInfoType = assembly.GetType(
+        "Flowthru.Core.Generated.SchemaManifest.PropertyInfo"
+      );
 
       foreach (var schema in schemas)
       {
         if (schema == null)
+        {
           continue;
+        }
 
         var name = schemaInfoType!.GetProperty("Name")!.GetValue(schema) as string;
         var ns = schemaInfoType.GetProperty("Namespace")!.GetValue(schema) as string;
@@ -99,7 +103,9 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
         var properties = schemaInfoType.GetProperty("Properties")!.GetValue(schema) as Array;
 
         if (string.IsNullOrEmpty(name) || properties == null)
+        {
           continue;
+        }
 
         var pythonCode = GeneratePythonSchema(name, ns, isFlat, properties, propertyInfoType!);
         var outputPath = Path.Combine(OutputDirectory, $"{ToSnakeCase(name)}.py");
@@ -159,13 +165,17 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
       foreach (var prop in properties)
       {
         if (prop == null)
+        {
           continue;
+        }
 
         var propName = propertyInfoType.GetProperty("Name")!.GetValue(prop) as string;
         var propTypeName = propertyInfoType.GetProperty("TypeName")!.GetValue(prop) as string;
 
         if (string.IsNullOrEmpty(propName) || string.IsNullOrEmpty(propTypeName))
+        {
           continue;
+        }
 
         var pythonType = MapCSharpTypeToPython(propTypeName);
         sb.AppendLine($"    {ToSnakeCase(propName)}: {pythonType}");
@@ -180,13 +190,17 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
     foreach (var prop in properties)
     {
       if (prop == null)
+      {
         continue;
+      }
 
       var propName = propertyInfoType.GetProperty("Name")!.GetValue(prop) as string;
       var propTypeName = propertyInfoType.GetProperty("TypeName")!.GetValue(prop) as string;
 
       if (string.IsNullOrEmpty(propName) || string.IsNullOrEmpty(propTypeName))
+      {
         continue;
+      }
 
       var dtypeSpec = MapCSharpTypeToDtype(propTypeName);
       sb.AppendLine($"    '{ToSnakeCase(propName)}': '{dtypeSpec}',");
@@ -213,7 +227,9 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
     foreach (var schema in schemas)
     {
       if (schema == null)
+      {
         continue;
+      }
 
       var name = schemaInfoType.GetProperty("Name")!.GetValue(schema) as string;
       if (!string.IsNullOrEmpty(name))
@@ -311,7 +327,9 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
   private string ToSnakeCase(string pascalCase)
   {
     if (string.IsNullOrEmpty(pascalCase))
+    {
       return pascalCase;
+    }
 
     var sb = new StringBuilder();
     sb.Append(char.ToLowerInvariant(pascalCase[0]));
