@@ -95,11 +95,6 @@ public interface IFlowRegistrar<TCatalog>
   /// registrar.Register("data_processing", ProcessingFlow.Create)
   ///   .WithValidation(validation => {
   ///     validation.Inspect(catalog.Companies, InspectionLevel.Deep);
-  /// </para>
-  /// <code>
-  /// registrar.Register("data_processing", ProcessingFlow.Create)
-  ///   .WithValidation(validation => {
-  ///     validation.Inspect(catalog.Companies, InspectionLevel.Deep);
   ///     validation.Inspect(catalog.Shuttles, InspectionLevel.Deep);
   ///   });
   /// </code>

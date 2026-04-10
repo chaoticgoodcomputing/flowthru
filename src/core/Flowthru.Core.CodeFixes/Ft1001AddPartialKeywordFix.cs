@@ -19,11 +19,14 @@ namespace Flowthru.Core.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Ft1001AddPartialKeywordFix)), Shared]
 public sealed class Ft1001AddPartialKeywordFix : CodeFixProvider
 {
+  /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
     ImmutableArray.Create(SchemaGeneratorDiagnostics.TypeMustBePartial.Id);
 
+  /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
+  /// <inheritdoc/>
   public override async Task RegisterCodeFixesAsync(CodeFixContext context)
   {
     var root = await context

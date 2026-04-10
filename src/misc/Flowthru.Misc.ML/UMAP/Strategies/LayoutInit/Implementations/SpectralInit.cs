@@ -16,6 +16,17 @@ public sealed class SpectralInit : ILayoutInitStrategy
   private const float NoiseScaleFactor = 0.0001f;
   private const float MaxCoord = 10.0f;
 
+  /// <summary>
+  /// Initializes the layout using spectral embedding. This involves computing the eigenvectors of the graph Laplacian and using them as the initial coordinates for the embedding. The resulting layout is then normalized and small noise is added to help with optimization convergence.
+  /// Spectral initialization can provide a better starting point for UMAP optimization, especially for connected graphs, leading to faster convergence and improved embedding quality compared to random initialization. However, it can be computationally expensive for large datasets due to the eigendecomposition step, so it is typically recommended for small-to-medium datasets (e.g., up to a few thousand samples).
+  /// If an exception occurs during spectral embedding (e.g., due to numerical issues), the method falls back to random initialization to ensure robustness.
+  ///
+  /// </summary>
+  /// <param name="data"></param>
+  /// <param name="graph"></param>
+  /// <param name="nComponents"></param>
+  /// <param name="random"></param>
+  /// <returns></returns>
   public LayoutInitResult InitializeLayout(
     Matrix<float>? data,
     MathNet.Numerics.LinearAlgebra.Single.SparseMatrix graph,

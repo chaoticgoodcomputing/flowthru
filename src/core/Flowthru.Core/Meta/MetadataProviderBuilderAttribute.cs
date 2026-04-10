@@ -5,10 +5,6 @@ namespace Flowthru.Core.Meta;
 /// </summary>
 /// <remarks>
 /// <para>
-/// This attribute enables type-safe provider registration via the generic
-/// <see cref="FlowthruMetadataBuilder.AddProvider{TProvider}(Action{object}?)"/> method.
-/// </para>
-/// <para>
 /// The builder type must:
 /// </para>
 /// <list type="bullet">

@@ -22,7 +22,7 @@ namespace Flowthru.Core.CodeFixes;
 ]
 public sealed class Ft1002RemoveConflictingInterfaceFix : CodeFixProvider
 {
-  private static readonly string[] MarkerInterfaceShortNames =
+  private static readonly string[] _markerInterfaceShortNames =
   {
     "IFlatSchema",
     "INestedSchema",
@@ -31,11 +31,14 @@ public sealed class Ft1002RemoveConflictingInterfaceFix : CodeFixProvider
     "IStructuredSerializable",
   };
 
+  /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
     ImmutableArray.Create(SchemaGeneratorDiagnostics.ConflictingManualInterface.Id);
 
+  /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
+  /// <inheritdoc/>
   public override async Task RegisterCodeFixesAsync(CodeFixContext context)
   {
     var root = await context
@@ -93,7 +96,7 @@ public sealed class Ft1002RemoveConflictingInterfaceFix : CodeFixProvider
         var name =
           (t.Type as IdentifierNameSyntax)?.Identifier.Text
           ?? (t.Type as QualifiedNameSyntax)?.Right.Identifier.Text;
-        return name is not null && MarkerInterfaceShortNames.Contains(name);
+        return name is not null && _markerInterfaceShortNames.Contains(name);
       })
       .ToList();
 

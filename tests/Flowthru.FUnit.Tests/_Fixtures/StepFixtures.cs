@@ -12,9 +12,12 @@ public record StringRow(string Text);
 
 // ---------------------------------------------------------------------------
 // Step fixtures
+//
+// These steps receive FU001 suppressions, as this suite is where the actual FU001 detection occurs.
 // ---------------------------------------------------------------------------
 
 [FlowthruStep]
+#pragma warning disable FU001 // Step has no tests
 public static class DoubleStep
 {
   public static Func<IEnumerable<NumberRow>, IEnumerable<NumberRow>> Create() =>
@@ -49,3 +52,4 @@ public static class UntestedStep
 {
   public static Func<IEnumerable<NumberRow>, IEnumerable<NumberRow>> Create() => rows => rows;
 }
+#pragma warning restore FU001 // Step has no tests

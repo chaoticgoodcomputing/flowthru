@@ -47,6 +47,7 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
     string BaseClassRef // type path relative to its containing namespace, e.g. "MySplitStep.Tests"
   );
 
+  /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
     // Collect [FlowthruStep]-annotated class declarations
@@ -57,8 +58,7 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
         transform: static (ctx, _) =>
         {
           var classDecl = (ClassDeclarationSyntax)ctx.Node;
-          var symbol = ctx.SemanticModel.GetDeclaredSymbol(classDecl) as INamedTypeSymbol;
-          if (symbol is null)
+          if (ctx.SemanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol symbol)
           {
             return null;
           }
@@ -81,8 +81,7 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
         transform: static (ctx, _) =>
         {
           var method = (MethodDeclarationSyntax)ctx.Node;
-          var symbol = ctx.SemanticModel.GetDeclaredSymbol(method) as IMethodSymbol;
-          if (symbol is null)
+          if (ctx.SemanticModel.GetDeclaredSymbol(method) is not IMethodSymbol symbol)
           {
             return null;
           }

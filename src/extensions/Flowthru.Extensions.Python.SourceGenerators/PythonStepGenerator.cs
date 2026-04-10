@@ -25,6 +25,7 @@ public class PythonStepGenerator : IIncrementalGenerator
   private const int MaxInputs = 8;
   private const int MaxOutputs = 8;
 
+  /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
     // Run for any project that references Flowthru.Extensions.Python

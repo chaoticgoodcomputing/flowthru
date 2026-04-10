@@ -183,10 +183,6 @@ public interface IFormatSerializer<TRow>
   /// Return <see cref="PropertyMappingConfiguration.FromNativeAttributes(string)"/> with the attribute type name.
   /// </item>
   /// <item>
-  /// <strong>Library-Controlled:</strong> When the underlying library handles mapping internally
-  /// (e.g., Parquet.NET with no programmatic API). Return <see cref="PropertyMappingConfiguration.LibraryControlled()"/>.
-  /// </item>
-  /// <item>
   /// <strong>Adapter Pattern:</strong> Bridge between SerializedLabel and native attributes.
   /// Return <see cref="PropertyMappingConfiguration.FromAdapter{TAdapter}()"/>.
   /// </item>

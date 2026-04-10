@@ -44,6 +44,9 @@ namespace Flowthru.Core.Data.Storage.Format;
 public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   where TRow : notnull, IFlatSchema, IBinarySerializable
 {
+  /// <summary>
+  /// Initializes a new instance of the <see cref="ParquetFormatSerializer{TRow}"/> class.
+  /// </summary>
   public ParquetFormatSerializer() { }
 
   /// <inheritdoc/>
@@ -53,6 +56,7 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   /// </remarks>
   public StorageTraits Traits => new StorageTraits { CanStream = true };
 
+  /// <inheritdoc/>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
     // Read Parquet schema first to create schema-aware adapter
@@ -70,6 +74,7 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
     }
   }
 
+  /// <inheritdoc/>
   public async Task SerializeRows(Stream stream, IAsyncEnumerable<TRow> rows)
   {
     // For serialization, create adapter based on TRow schema (no file to read)
@@ -77,6 +82,7 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
     await adapter.SerializeToParquetAsync(stream, rows);
   }
 
+  /// <inheritdoc/>
   public PropertyMappingConfiguration GetPropertyMappingConfiguration()
   {
     return PropertyMappingConfiguration.LibraryControlled(

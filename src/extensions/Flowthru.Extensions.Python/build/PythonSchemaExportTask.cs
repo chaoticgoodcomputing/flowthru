@@ -36,6 +36,7 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
   [Required]
   public string OutputDirectory { get; set; } = string.Empty;
 
+  /// <inheritdoc/>
   public override bool Execute()
   {
     try
@@ -73,8 +74,7 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
         return true;
       }
 
-      var schemas = schemasField.GetValue(null) as Array;
-      if (schemas == null || schemas.Length == 0)
+      if (schemasField.GetValue(null) is not Array schemas || schemas.Length == 0)
       {
         Log.LogMessage(MessageImportance.Low, "No schemas to export.");
         return true;
@@ -100,9 +100,11 @@ public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
         var name = schemaInfoType!.GetProperty("Name")!.GetValue(schema) as string;
         var ns = schemaInfoType.GetProperty("Namespace")!.GetValue(schema) as string;
         var isFlat = (bool)schemaInfoType.GetProperty("IsFlat")!.GetValue(schema)!;
-        var properties = schemaInfoType.GetProperty("Properties")!.GetValue(schema) as Array;
 
-        if (string.IsNullOrEmpty(name) || properties == null)
+        if (
+          string.IsNullOrEmpty(name)
+          || schemaInfoType.GetProperty("Properties")!.GetValue(schema) is not Array properties
+        )
         {
           continue;
         }

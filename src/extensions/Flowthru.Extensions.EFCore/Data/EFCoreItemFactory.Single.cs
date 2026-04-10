@@ -5,8 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Data;
 
+/// <summary>
+/// Factory methods for creating <see cref="Item{T}"/> instances with Entity Framework Core storage adapters.
+/// This partial class focuses on single-entity storage; see <see cref="Enumerable"/> for
+/// collections of entities.
+/// </summary>
 public static partial class EFCoreItemFactory
 {
+  /// <summary>
+  /// Factory methods for creating single-entity <see cref="Item{T}"/> instances with Entity Framework Core storage adapters.
+  /// </summary>
   public static partial class Single
   {
     /// <summary>
@@ -15,6 +23,9 @@ public static partial class EFCoreItemFactory
     /// <typeparam name="T">Entity type (must be a class configured in DbContext)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="context">DbContext instance (caller owns lifecycle)</param>
+    /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
+    /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+    /// <param name="saveFunc">Optional function to customize the save operation</param>
     /// <returns>Catalog entry for EFCore single entity storage</returns>
     /// <remarks>
     /// <para>
@@ -73,6 +84,9 @@ public static partial class EFCoreItemFactory
     /// <typeparam name="T">Entity type (must be a class configured in DbContext)</typeparam>
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="contextFactory">Factory that creates DbContext instances (adapter owns lifecycle)</param>
+    /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
+    /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+    /// <param name="saveFunc">Optional function to customize the save operation</param>
     /// <returns>Catalog entry for EFCore single entity storage</returns>
     /// <remarks>
     /// <para>

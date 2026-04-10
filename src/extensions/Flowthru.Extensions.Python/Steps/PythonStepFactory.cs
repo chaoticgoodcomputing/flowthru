@@ -63,7 +63,6 @@ public static partial class PythonStepFactory
   /// <param name="input">Catalog item providing input data.</param>
   /// <param name="output">Catalog item to store output data.</param>
   /// <param name="executor">Python executor for invoking the function.</param>
-  /// <param name="runtime">Python runtime for GIL management.</param>
   /// <param name="description">Optional step description.</param>
   /// <returns>This builder for method chaining.</returns>
   /// <remarks>

@@ -37,6 +37,9 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   /// </summary>
   /// <param name="context">DbContext to use for operations</param>
   /// <param name="ownsContext">If true, adapter disposes context after operations</param>
+  /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
+  /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+  /// <param name="saveFunc">Optional function to customize the save operation</param>
   /// <remarks>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.
@@ -69,6 +72,9 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
   /// Creates an adapter with a DbContext factory.
   /// </summary>
   /// <param name="contextFactory">Factory to create DbContext instances</param>
+  /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
+  /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+  /// <param name="saveFunc">Optional function to customize the save operation</param>
   /// <remarks>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.

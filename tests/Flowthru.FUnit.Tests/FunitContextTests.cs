@@ -5,6 +5,7 @@ namespace Flowthru.FUnit.Tests;
 
 [TestFixture]
 [Category("FUnit")]
+#pragma warning disable FU002 // FU002 is suppressed here, as these are the actual unit tests for this error.
 public class FunitContextTests : FunitContext
 {
   // ===========================================================================
@@ -89,3 +90,4 @@ file sealed class FunitContextAccessor : FunitContext
 {
   public IServiceProvider Get() => ServiceProvider;
 }
+#pragma warning restore FU002 // FunitContext subclass not guarded by #if FUNIT_ENABLED

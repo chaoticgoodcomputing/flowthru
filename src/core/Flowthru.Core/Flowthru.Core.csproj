@@ -59,11 +59,11 @@
 
   <!-- Package source generators and code fixes in standard analyzer location -->
   <ItemGroup>
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.SourceGenerators/netstandard2.0/Flowthru.Core.SourceGenerators.dll" 
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.SourceGenerators/$(Configuration)/netstandard2.0/Flowthru.Core.SourceGenerators.dll" 
           Pack="true" 
           PackagePath="analyzers/dotnet/cs" 
           Visible="false" />
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.CodeFixes/netstandard2.0/Flowthru.Core.CodeFixes.dll" 
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.CodeFixes/$(Configuration)/netstandard2.0/Flowthru.Core.CodeFixes.dll" 
           Pack="true" 
           PackagePath="analyzers/dotnet/cs" 
           Visible="false" />

@@ -22,6 +22,9 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
   internal const string FunitContextFullName = "Flowthru.FUnit.FunitContext";
   internal const string FunitEnabledGuard = "FUNIT_ENABLED";
 
+  /// <summary>
+  /// FU001: a <c>[FlowthruStep]</c> class has no <c>[StepTest]</c> methods in the project.
+  /// </summary>
   public static readonly DiagnosticDescriptor Fu001 = new DiagnosticDescriptor(
     id: "FU001",
     title: "Step has no tests",
@@ -32,6 +35,9 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
     isEnabledByDefault: true
   );
 
+  /// <summary>
+  /// FU002: a <c>FunitContext</c> subclass is not wrapped in <c>#if FUNIT_ENABLED</c>.
+  /// </summary>
   public static readonly DiagnosticDescriptor Fu002 = new DiagnosticDescriptor(
     id: "FU002",
     title: "FunitContext subclass not guarded by #if FUNIT_ENABLED",
@@ -42,9 +48,11 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
     isEnabledByDefault: true
   );
 
+  /// <inheritdoc/>
   public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
     ImmutableArray.Create(Fu001, Fu002);
 
+  /// <inheritdoc/>
   public override void Initialize(AnalysisContext context)
   {
     context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);

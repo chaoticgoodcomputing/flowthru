@@ -18,11 +18,14 @@ namespace Flowthru.Core.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Ft2002RemoveUnusedCatalogFix)), Shared]
 public sealed class Ft2002RemoveUnusedCatalogFix : CodeFixProvider
 {
+  /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
     ImmutableArray.Create(FlowthruRegistrationAnalyzer.UnusedCatalogId);
 
+  /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
+  /// <inheritdoc/>
   public override async Task RegisterCodeFixesAsync(CodeFixContext context)
   {
     var root = await context

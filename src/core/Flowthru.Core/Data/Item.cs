@@ -237,7 +237,7 @@ public sealed class Item<T> : IItem<T>
   ///         .Constrain(t => t with { CanWrite = false }));
   /// </code>
   /// </remarks>
-  /// <exception cref=\"InvalidOperationException\">
+  /// <exception cref="InvalidOperationException">
   /// Thrown when attempting to loosen a constraint (grant a capability the adapter doesn't support)
   /// </exception>
   public Item<T> Constrain(Func<StorageTraits, StorageTraits> constraintFn)

@@ -19,11 +19,14 @@ namespace Flowthru.FUnit.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Fu002WrapWithFunitEnabledFix)), Shared]
 public sealed class Fu002WrapWithFunitEnabledFix : CodeFixProvider
 {
+  /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
     ImmutableArray.Create(FunitDiagnosticAnalyzer.Fu002.Id);
 
+  /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
+  /// <inheritdoc/>
   public override async Task RegisterCodeFixesAsync(CodeFixContext context)
   {
     var root = await context

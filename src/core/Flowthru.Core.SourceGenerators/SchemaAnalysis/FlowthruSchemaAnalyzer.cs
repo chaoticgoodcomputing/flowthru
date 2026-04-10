@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -75,11 +76,43 @@ public sealed class FlowthruSchemaAnalyzer : DiagnosticAnalyzer
       // Still check FT1002 even if not partial
     }
 
-    // FT1002 — manually-applied conflicting marker interfaces
-    var manual = typeSymbol
-      .Interfaces.Select(i => i.ToDisplayString())
-      .Where(n => _markerInterfaceNames.Contains(n))
-      .ToList();
+    // FT1002 — manually-applied conflicting marker interfaces.
+    // Walk only user-authored partial declarations via syntax; skip generator-emitted *.g.cs
+    // files so the generator's own output does not trigger a false-positive FT1002.
+    // We match on simple (unqualified) names from the base list, then resolve the full name
+    // from the already-computed typeSymbol.Interfaces — no GetSemanticModel() call needed.
+    var interfacesBySimpleName = typeSymbol
+      .Interfaces.Where(i => _markerInterfaceNames.Contains(i.ToDisplayString()))
+      .ToDictionary(i => i.Name, i => i.ToDisplayString());
+
+    var manual = new List<string>();
+    foreach (var syntaxRef in typeSymbol.DeclaringSyntaxReferences)
+    {
+      if (
+        syntaxRef.SyntaxTree.FilePath.EndsWith(".g.cs", System.StringComparison.OrdinalIgnoreCase)
+      )
+      {
+        continue;
+      }
+
+      if (syntaxRef.GetSyntax() is not TypeDeclarationSyntax typeDecl || typeDecl.BaseList is null)
+      {
+        continue;
+      }
+
+      foreach (var baseTypeSyntax in typeDecl.BaseList.Types)
+      {
+        var simpleName = GetSimpleName(baseTypeSyntax.Type);
+        if (
+          simpleName != null
+          && interfacesBySimpleName.TryGetValue(simpleName, out var fullName)
+          && !manual.Contains(fullName)
+        )
+        {
+          manual.Add(fullName);
+        }
+      }
+    }
 
     if (manual.Count > 0)
     {
@@ -123,4 +156,18 @@ public sealed class FlowthruSchemaAnalyzer : DiagnosticAnalyzer
 
     return false;
   }
+
+  /// <summary>
+  /// Returns the rightmost simple identifier of a <see cref="TypeSyntax"/> without resolving it
+  /// semantically (e.g., "IFlatSchema" from both <c>IFlatSchema</c> and
+  /// <c>Flowthru.Core.Abstractions.IFlatSchema</c>).
+  /// </summary>
+  private static string? GetSimpleName(TypeSyntax typeSyntax) =>
+    typeSyntax switch
+    {
+      IdentifierNameSyntax id => id.Identifier.Text,
+      QualifiedNameSyntax q => q.Right.Identifier.Text,
+      AliasQualifiedNameSyntax a => a.Name.Identifier.Text,
+      _ => null,
+    };
 }

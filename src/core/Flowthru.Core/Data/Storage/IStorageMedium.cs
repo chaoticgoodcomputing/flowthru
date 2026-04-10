@@ -32,7 +32,7 @@ namespace Flowthru.Core.Data.Storage;
 /// <strong>Effect Types:</strong>
 /// </para>
 /// <para>
-/// All operations return <see cref="IO{A}"/> effects to represent:
+/// All operations return <see cref="FlowIO{A}"/> effects to represent:
 /// - I/O operations that can fail
 /// - Async execution
 /// - Cancellation support

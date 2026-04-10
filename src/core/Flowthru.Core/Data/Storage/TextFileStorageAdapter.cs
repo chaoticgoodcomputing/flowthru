@@ -18,6 +18,10 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>
 {
   private readonly string _filePath;
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="TextFileStorageAdapter"/> class with the specified file path.
+  /// </summary>
+  /// <param name="filePath"></param>
   public TextFileStorageAdapter(string filePath)
   {
     _filePath = filePath;

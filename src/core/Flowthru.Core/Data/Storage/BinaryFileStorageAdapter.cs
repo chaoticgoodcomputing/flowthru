@@ -18,6 +18,10 @@ public sealed class BinaryFileStorageAdapter : IStorageAdapter<byte[]>
 {
   private readonly string _filePath;
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="BinaryFileStorageAdapter"/> class with the specified file path.
+  /// </summary>
+  /// <param name="filePath"></param>
   public BinaryFileStorageAdapter(string filePath)
   {
     _filePath = filePath;

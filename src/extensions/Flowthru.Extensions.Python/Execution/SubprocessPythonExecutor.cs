@@ -40,6 +40,13 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   private volatile bool _started;
   private bool _disposed;
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="SubprocessPythonExecutor"/> class with the specified options and logger.
+  /// The Python worker process is started lazily upon the first call to <see cref="Invoke{TInput, TOutput}"/> or <see cref="ValidateStep"/>.
+  /// </summary>
+  /// <param name="options">The Python runtime options.</param>
+  /// <param name="logger">The logger instance.</param>
+  /// <exception cref="ArgumentNullException"></exception>
   public SubprocessPythonExecutor(
     PythonRuntimeOptions options,
     ILogger<SubprocessPythonExecutor> logger
@@ -419,6 +426,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
   // ── Dispose ───────────────────────────────────────────────────────────────────────────
 
+  /// <inheritdoc/>
   public void Dispose()
   {
     if (_disposed)

@@ -48,9 +48,6 @@ public static class CompilationTestHelper
     {
       // Add Flowthru assembly reference
       references.Add(MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location));
-
-      // Add LanguageExt for Flowthru dependencies
-      references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.IO<>).Assembly.Location));
     }
 
     // Add any additional assemblies (e.g., test fixtures)
@@ -138,16 +135,6 @@ public static class CompilationTestHelper
         // Skip assemblies that can't be referenced
       }
     }
-
-    // Note: ML.Next references removed as that project doesn't exist in this repository
-    // Uncomment if/when ML.Next is added back:
-    // references.Add(MetadataReference.CreateFromFile(typeof(ML.Next.Core.Schema.DataView<>).Assembly.Location));
-
-    // Add LanguageExt for various functional dependencies
-    references.Add(MetadataReference.CreateFromFile(typeof(LanguageExt.Fin<>).Assembly.Location));
-    references.Add(
-      MetadataReference.CreateFromFile(typeof(LanguageExt.Common.Error).Assembly.Location)
-    );
 
     var compilation = CSharpCompilation.Create(
       "TestAssembly",

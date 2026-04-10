@@ -34,6 +34,13 @@ public sealed class PythonNetExecutor : IPythonExecutor
   private readonly Dictionary<string, PyObject> _moduleCache = new();
   private readonly object _cacheLock = new();
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="PythonNetExecutor"/> class with the specified Python runtime and logger.
+  /// The Python runtime is initialized upon construction.
+  /// </summary>
+  /// <param name="runtime">The Python runtime instance.</param>
+  /// <param name="logger">The logger instance.</param>
+  /// <exception cref="ArgumentNullException"></exception>
   public PythonNetExecutor(PythonRuntime runtime, ILogger<PythonNetExecutor> logger)
   {
     _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));

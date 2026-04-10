@@ -14,24 +14,35 @@
         "parallel": false
       }
     },
-    "build:release": {
-      "//": "Builds the solution in Release configuration",
+    "build:debug": {
+      "//": "Builds the solution in Debug configuration (includes FUnit test classes)",
       "executor": "nx:run-commands",
       "dependsOn": [ "restore" ],
       "options": {
         "commands": [
-          "dotnet build Flowthru.slnx --configuration Release --no-restore"
+          "dotnet build Flowthru.slnx --configuration Debug --no-restore -p:GeneratePackageOnBuild=false"
+        ],
+        "parallel": false
+      }
+    },
+    "build:release": {
+      "//": "Builds the solution in Release configuration, only after tests pass",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "test:coverage" ],
+      "options": {
+        "commands": [
+          "dotnet build Flowthru.slnx --configuration Release --no-restore -t:Pack"
         ],
         "parallel": false
       }
     },
     "test:coverage": {
-      "//": "Runs tests with coverage collection",
+      "//": "Runs tests with coverage collection against the Debug build",
       "executor": "nx:run-commands",
-      "dependsOn": [ "build:release" ],
+      "dependsOn": [ "build:debug" ],
       "options": {
         "commands": [
-          "dotnet test Flowthru.slnx --configuration Release --no-build --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
+          "dotnet test Flowthru.slnx --configuration Debug --no-build --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
         ],
         "parallel": false
       }
@@ -50,7 +61,7 @@
     "coverage:badges": {
       "//": "Generates coverage badges for release artifacts",
       "executor": "nx:run-commands",
-      "dependsOn": [ "test:coverage" ],
+      "dependsOn": [ "build:release" ],
       "options": {
         "commands": [
           "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:coverage-badges\" \"-reporttypes:Badges\" \"-verbosity:Warning\""

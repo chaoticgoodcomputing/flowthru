@@ -88,7 +88,7 @@ public class ValidationOptions
   /// <summary>
   /// Determines the effective inspection level for a catalog entry.
   /// </summary>
-  /// <param name="catalogEntry">The catalog entry to inspect</param>
+  /// <param name="node">The catalog entry to inspect</param>
   /// <returns>The inspection level to use (considering configuration and defaults)</returns>
   /// <remarks>
   /// <para>

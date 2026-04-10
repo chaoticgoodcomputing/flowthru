@@ -23,8 +23,8 @@ internal static class SchemaPropertyClassifier
   /// <item><c>byte[]</c> — structural exception: an array, but semantically an opaque blob
   ///   (e.g. a binary image column), not a traversable collection.</item>
   /// <item>Known BCL scalar structs (<c>Guid</c>, <c>TimeSpan</c>, etc.) — cannot self-declare
-  ///   <see cref="IScalar"/> because they are defined outside this library.</item>
-  /// <item><see cref="IScalar"/> implementors — user-defined NewTypes and value-object
+  ///   <c>IScalar</c> because they are defined outside this library.</item>
+  /// <item><c>IScalar</c> implementors — user-defined NewTypes and value-object
   ///   wrappers that explicitly opt in to scalar treatment.</item>
   /// </list>
   /// If a type does not match any tier it is treated as a nested object.

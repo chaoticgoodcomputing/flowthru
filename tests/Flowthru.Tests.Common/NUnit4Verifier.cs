@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
@@ -65,7 +66,9 @@ public sealed class NUnit4Verifier : IVerifier
   public void False(bool assert, string? message = null) =>
     Assert.That(assert, Is.False, Msg(message));
 
-  public void Fail(string message) => Assert.Fail(Msg(message));
+#pragma warning disable CS8770 // Configured because we know that NUnit Assert.Fail does return void, but the interface method does not have a [DoesNotReturn] annotation.
+  public void Fail(string? message = null) => Assert.Fail(Msg(message));
+#pragma warning restore CS8770 // Method lacks `[DoesNotReturn]` annotation to match implemented or overridden member.
 
   public void LanguageIsSupported(string language)
   {

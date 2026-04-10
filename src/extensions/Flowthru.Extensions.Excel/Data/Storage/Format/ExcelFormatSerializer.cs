@@ -24,6 +24,10 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
 {
   private readonly string _sheetName;
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="ExcelFormatSerializer{TRow}"/> class with the specified sheet name.
+  /// </summary>
+  /// <param name="sheetName">The name of the Excel sheet to read from.</param>
   public ExcelFormatSerializer(string sheetName)
   {
     _sheetName = sheetName;

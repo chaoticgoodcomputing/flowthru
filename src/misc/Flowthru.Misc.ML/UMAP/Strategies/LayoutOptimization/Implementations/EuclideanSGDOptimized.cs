@@ -70,6 +70,16 @@ public sealed class EuclideanSGDOptimized : ILayoutOptimizationStrategy
     _convergenceThreshold = convergenceThreshold;
   }
 
+  /// <summary>
+  /// Optimizes the embedding using stochastic gradient descent with Euclidean distance. This implementation uses direct array access to the underlying storage of the embedding matrix for improved performance. It also includes an early stopping mechanism that monitors the average movement of a random sample of vertices and terminates optimization when movement falls below a specified threshold, indicating convergence.
+  /// </summary>
+  /// <param name="initialEmbedding"></param>
+  /// <param name="graphEdges"></param>
+  /// <param name="samplingSchedule"></param>
+  /// <param name="nEpochs"></param>
+  /// <param name="parameters"></param>
+  /// <param name="random"></param>
+  /// <returns></returns>
   public LayoutOptimizationResult Optimize(
     Matrix<float> initialEmbedding,
     GraphEdge[] graphEdges,
@@ -85,8 +95,7 @@ public sealed class EuclideanSGDOptimized : ILayoutOptimizationStrategy
     var nComponents = initialEmbedding.ColumnCount;
 
     // Try to extract dense storage for optimized access
-    var storage = initialEmbedding.Storage as DenseColumnMajorMatrixStorage<float>;
-    if (storage == null)
+    if (initialEmbedding.Storage is not DenseColumnMajorMatrixStorage<float> storage)
     {
       // Fall back to standard indexing if not dense
       if (parameters.Verbosity >= 1)

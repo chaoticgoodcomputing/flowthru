@@ -21,8 +21,20 @@ public sealed class EuclideanMetric : IOutputMetric
 
   private EuclideanMetric() { }
 
+  /// <summary>
+  /// Name of the metric, used for logging and strategy selection. This is a simple identifier and does not affect behavior.
+  /// It should be unique among built-in metrics to allow strategies to recognize it, but can be arbitrary for custom metrics.
+  /// </summary>
   public string Name => "euclidean";
+
+  /// <summary>
+  /// UMAP's optimization can be unstable for very large distances. Setting a disconnection distance allows the algorithm to treat points beyond this distance as effectively disconnected, which can improve convergence and embedding quality for certain datasets.
+  /// </summary>
   public float? DisconnectionDistance => null; // Unbounded
+
+  /// <summary>
+  /// Indicates whether this metric benefits from angular random projection forests. Euclidean distance does not benefit from angular RPs, so this returns false. Metrics that do benefit (e.g., cosine) should return true to enable the use of angular RP forests for neighbor search, which can improve performance and embedding quality.
+  /// </summary>
   public bool SupportsAngularProjection => false;
 
   /// <summary>
@@ -87,8 +99,19 @@ public sealed class ManhattanMetric : IMetric
 
   private ManhattanMetric() { }
 
+  /// <summary>
+  /// Name of the metric, used for logging and strategy selection. This is a simple identifier and does not affect behavior.
+  /// </summary>
   public string Name => "manhattan";
+
+  /// <summary>
+  /// UMAP's optimization can be unstable for very large distances. Setting a disconnection distance allows the algorithm to treat points beyond this distance as effectively disconnected, which can improve convergence and embedding quality for certain datasets.
+  /// </summary>
   public float? DisconnectionDistance => null; // Unbounded
+
+  /// <summary>
+  /// Indicates whether this metric benefits from angular random projection forests. Manhattan distance does not benefit from angular RPs, so this returns false. Metrics that do benefit (e.g., cosine) should return true to enable the use of angular RP forests for neighbor search, which can improve performance and embedding quality.
+  /// </summary>
   public bool SupportsAngularProjection => false;
 
   /// <summary>
@@ -125,8 +148,19 @@ public sealed class CosineMetric : IMetric
 
   private CosineMetric() { }
 
+  /// <summary>
+  /// Name of the metric, used for logging and strategy selection. This is a simple identifier and does not affect behavior.
+  /// </summary>
   public string Name => "cosine";
+
+  /// <summary>
+  /// UMAP's optimization can be unstable for very large distances. Setting a disconnection distance allows the algorithm to treat points beyond this distance as effectively disconnected, which can improve convergence and embedding quality for certain datasets. For cosine distance, a natural choice is 2.0, which corresponds to opposite direction.
+  /// </summary>
   public float? DisconnectionDistance => 2.0f; // Maximum cosine distance
+
+  /// <summary>
+  /// Indicates whether this metric benefits from angular random projection forests. Cosine distance benefits from angular RPs, so this returns true. This allows the use of angular RP forests for neighbor search, which can improve performance and embedding quality when using cosine distance.
+  /// </summary>
   public bool SupportsAngularProjection => true;
 
   /// <summary>
@@ -189,9 +223,26 @@ public sealed class CustomMetric : IMetric
     SupportsAngularProjection = supportsAngularProjection;
   }
 
+  /// <summary>
+  /// Name of the metric, used for logging and strategy selection. This is a simple identifier and does not affect behavior, but should be unique among built-in metrics to allow strategies to recognize it. For custom metrics, this can be arbitrary but should ideally describe the metric's behavior for clarity in logs and strategy selection.
+  /// </summary>
   public string Name { get; }
+
+  /// <summary>
+  /// UMAP's optimization can be unstable for very large distances. Setting a disconnection distance allows the algorithm to treat points beyond this distance as effectively disconnected, which can improve convergence and embedding quality for certain datasets. If null, the metric is unbounded and all distances are treated as valid.
+  /// </summary>
   public float? DisconnectionDistance { get; }
+
+  /// <summary>
+  /// Indicates whether this metric benefits from angular random projection forests. This should be set to true for metrics where angular RPs can improve neighbor search performance and embedding quality (e.g., cosine), and false for metrics where they do not provide a benefit (e.g., Euclidean). This allows the UMAP implementation to optimize neighbor search appropriately based on the metric's characteristics.
+  /// </summary>
   public bool SupportsAngularProjection { get; }
 
+  /// <summary>
+  /// Compute distance using the provided distance function.
+  /// </summary>
+  /// <param name="x"></param>
+  /// <param name="y"></param>
+  /// <returns></returns>
   public float Distance(ReadOnlySpan<float> x, ReadOnlySpan<float> y) => _distanceFunc(x, y);
 }

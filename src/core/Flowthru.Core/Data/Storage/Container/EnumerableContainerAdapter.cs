@@ -29,8 +29,6 @@ namespace Flowthru.Core.Data.Storage.Container;
 /// <strong>Alternatives:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item><strong>Large datasets:</strong> Use <see cref="DataViewContainerAdapter{T}"/> for ML.NET IDataView</item>
-/// <item><strong>Lazy evaluation:</strong> Use <see cref="SeqContainerAdapter{T}"/> for LanguageExt Seq</item>
 /// </list>
 /// </remarks>
 /// <example>

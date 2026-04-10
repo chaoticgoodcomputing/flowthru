@@ -26,11 +26,11 @@
 
   <!-- Package analyzer DLLs in standard analyzer location -->
   <ItemGroup>
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.FUnit.SourceGenerators/netstandard2.0/Flowthru.FUnit.SourceGenerators.dll"
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.FUnit.SourceGenerators/$(Configuration)/netstandard2.0/Flowthru.FUnit.SourceGenerators.dll"
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
           Visible="false" />
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.FUnit.CodeFixes/netstandard2.0/Flowthru.FUnit.CodeFixes.dll"
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.FUnit.CodeFixes/$(Configuration)/netstandard2.0/Flowthru.FUnit.CodeFixes.dll"
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
           Visible="false" />

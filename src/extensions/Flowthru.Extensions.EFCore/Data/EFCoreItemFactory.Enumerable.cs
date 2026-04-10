@@ -7,6 +7,9 @@ namespace Flowthru.Extensions.EFCore.Data;
 
 public static partial class EFCoreItemFactory
 {
+  /// <summary>
+  /// Factory methods for creating enumerable <see cref="Item{T}"/> instances with Entity Framework Core storage adapters.
+  /// </summary>
   public static partial class Enumerable
   {
     /// <summary>
@@ -16,6 +19,8 @@ public static partial class EFCoreItemFactory
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="context">DbContext instance (caller owns lifecycle)</param>
     /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
+    /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+    /// <param name="saveFunc"></param>
     /// <returns>Catalog entry for EFCore database storage</returns>
     /// <remarks>
     /// <para>
@@ -73,6 +78,8 @@ public static partial class EFCoreItemFactory
     /// <param name="label">Unique catalog label for DAG resolution</param>
     /// <param name="contextFactory">Factory function to create DbContext instances per operation</param>
     /// <param name="allowEmptyData">If true, empty tables pass validation (default: false)</param>
+    /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+    /// <param name="saveFunc"></param>
     /// <returns>Catalog entry for EFCore database storage</returns>
     /// <remarks>
     /// <para>

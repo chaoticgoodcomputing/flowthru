@@ -9,6 +9,9 @@ namespace Flowthru.Extensions.EFCore.Tests;
 /// </summary>
 public class CompilationTest
 {
+  /// <summary>
+  /// Verifies that the partial class and extension method patterns compile correctly, allowing EFCoreItemFactory.Enumerable.EFCore to be used as intended.
+  /// </summary>
   public void PartialClassExtensionWorks()
   {
     // This code should compile if extension pattern is working
@@ -21,6 +24,9 @@ public class CompilationTest
     var _ = entry as IItem<IEnumerable<TestEntity>>;
   }
 
+  /// <summary>
+  /// Verifies that the typed context factory overloads compile correctly, allowing for type-safe DbContext factories without casts in delegates. This ensures that the generic type parameters flow through the factory and delegates as intended.
+  /// </summary>
   public void TypedContextFactoryOverloadsWork()
   {
     Func<TestDbContext> typedFactory = () => null!;
@@ -47,6 +53,9 @@ public class CompilationTest
     );
   }
 
+  /// <summary>
+  /// Verifies that the IDbContextFactory overloads compile correctly, allowing for the idiomatic EFCore pattern of using IDbContextFactory for per-operation context creation. This ensures that both the factory and the optional save delegate with typed context compile as intended.
+  /// </summary>
   public void DbContextFactoryOverloadsWork()
   {
     IDbContextFactory<TestDbContext> factory = new TestDbContextFactory();
@@ -66,6 +75,12 @@ public class CompilationTest
     );
   }
 
+  /// <summary>
+  /// Verifies that the single-entity EFCore item factory overloads compile correctly, allowing for both the typed context factory and IDbContextFactory patterns to be used with EFCoreSingleStorageAdapter. This ensures that the extension methods for single-entity storage compile and return the correct types as intended.
+  /// The single-entity storage adapter has similar overloads to the enumerable version, so this test ensures that both sets of overloads work correctly in parallel.
+  /// Note: This test focuses on compilation; runtime behavior (e.g. actual database operations) is not verified here.
+  ///
+  /// </summary>
   public void SingleTypedContextOverloadsWork()
   {
     Func<TestDbContext> typedFactory = () => null!;

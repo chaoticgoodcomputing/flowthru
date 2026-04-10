@@ -32,6 +32,16 @@ public sealed class EuclideanSGD : ILayoutOptimizationStrategy
   private const float MinGradientClip = -4.0f;
   private const float MaxGradientClip = 4.0f;
 
+  /// <summary>
+  /// Initializes the optimizer. No state is stored in this implementation, so this is a no-op. In more complex strategies, this could be used to set up data structures or precompute values based on the initial embedding and graph.
+  /// </summary>
+  /// <param name="initialEmbedding"></param>
+  /// <param name="graphEdges"></param>
+  /// <param name="samplingSchedule"></param>
+  /// <param name="nEpochs"></param>
+  /// <param name="parameters"></param>
+  /// <param name="random"></param>
+  /// <returns></returns>
   public LayoutOptimizationResult Optimize(
     Matrix<float> initialEmbedding,
     GraphEdge[] graphEdges,

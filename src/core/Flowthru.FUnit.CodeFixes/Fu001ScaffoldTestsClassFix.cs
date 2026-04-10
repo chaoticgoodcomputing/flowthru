@@ -21,11 +21,14 @@ namespace Flowthru.FUnit.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Fu001ScaffoldTestsClassFix)), Shared]
 public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
 {
+  /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
     ImmutableArray.Create(FunitDiagnosticAnalyzer.Fu001.Id);
 
+  /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
+  /// <inheritdoc/>
   public override async Task RegisterCodeFixesAsync(CodeFixContext context)
   {
     var root = await context
@@ -127,7 +130,9 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
     // Apply edits from the end of the file backwards so positions stay valid.
     var newSourceText = sourceText;
     foreach (var (span, text) in edits.OrderByDescending(e => e.Span.Start))
+    {
       newSourceText = newSourceText.Replace(span, text);
+    }
 
     return document.WithText(newSourceText);
   }

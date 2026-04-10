@@ -426,26 +426,17 @@ public sealed class PythonRuntimeOptions
   }
 
   /// <summary>
-  /// Ensures a virtual environment exists in the given directory via <c>uv sync --frozen</c>.
+  /// Ensures a virtual environment is materialized in the specified directory using <c>uv sync</c>.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Checks for <c>pyproject.toml</c> and <c>uv.lock</c> in <paramref name="directory"/>.
-  /// If both exist and <c>.venv/pyvenv.cfg</c> does not, runs:
-  /// <code>uv sync --frozen --python-preference only-managed</code>
-  /// </para>
-  /// <para>
-  /// <c>--frozen</c>: Ensure deterministic installs (lock file must match manifest).
-  /// <c>--python-preference only-managed</c>: Use uv-managed Python interpreters only.
-  /// </para>
-  /// <para>
-  /// Returns the <c>.venv/</c> path if successful, or <c>null</c> if files are missing or sync fails.
-  /// </para>
-  /// </remarks>
-  // One semaphore per directory prevents concurrent uv sync calls from racing on the same .venv.
   private static readonly ConcurrentDictionary<string, SemaphoreSlim> _uvSyncLocks =
     new(StringComparer.OrdinalIgnoreCase);
 
+  /// <summary>
+  /// If the specified directory contains a valid <c>pyproject.toml</c> and <c>uv.lock</c>, ensures that
+  /// a virtual environment is materialized using <c>uv sync</c>.
+  /// </summary>
+  /// <param name="directory">The directory containing the Python project.</param>
+  /// <returns>The path to the virtual environment if successful, or <c>null</c> if not.</returns>
   private string? EnsureVenvViaUv(string directory)
   {
     var pyprojectPath = Path.Combine(directory, "pyproject.toml");

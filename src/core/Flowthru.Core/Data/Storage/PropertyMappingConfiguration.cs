@@ -9,15 +9,6 @@ namespace Flowthru.Core.Data.Storage;
 /// <para>
 /// <strong>Purpose:</strong> Makes property mapping strategy explicit and discoverable for each serializer.
 /// </para>
-/// <para>
-/// <strong>Strategy Types:</strong>
-/// </para>
-/// <list type="bullet">
-/// <item><see cref="SerializedLabel"/> - Respects [SerializedLabel] attributes</item>
-/// <item><see cref="NativeAttributes"/> - Uses format-specific attributes (e.g., [LoadColumn])</item>
-/// <item><see cref="LibraryControlled"/> - Underlying library controls mapping</item>
-/// <item><see cref="Adapter"/> - Bridges SerializedLabel with native attributes</item>
-/// </list>
 /// </remarks>
 public sealed class PropertyMappingConfiguration
 {

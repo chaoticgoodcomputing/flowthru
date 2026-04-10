@@ -79,7 +79,7 @@ namespace Flowthru.Core.Data.Storage;
 ///   .Constrain(traits => traits with { CanWrite = false });
 ///
 /// // Allow empty tables during validation
-/// var adapter = new EFCoreStorageAdapter<Company>(dbContext, allowEmptyData: true);
+/// var adapter = new EFCoreStorageAdapter&lt;Company&gt;(dbContext, allowEmptyData: true);
 /// </code>
 /// </example>
 public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
@@ -97,6 +97,8 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// </summary>
   /// <param name="context">DbContext instance (caller owns lifecycle)</param>
   /// <param name="allowEmptyData">If true, empty tables are considered valid during validation</param>
+  /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+  /// <param name="saveFunc">Optional function to customize the save operation</param>
   /// <remarks>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.
@@ -131,6 +133,8 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// </summary>
   /// <param name="contextFactory">Factory function to create DbContext instances</param>
   /// <param name="allowEmptyData">If true, empty tables are considered valid during validation</param>
+  /// <param name="queryCustomizer">Optional function to customize the query for the entity type</param>
+  /// <param name="saveFunc">Optional function to customize the save operation</param>
   /// <remarks>
   /// To create a read-only catalog entry, use <c>.Constrain(traits => traits with { CanWrite = false })</c>
   /// on the catalog entry after construction.

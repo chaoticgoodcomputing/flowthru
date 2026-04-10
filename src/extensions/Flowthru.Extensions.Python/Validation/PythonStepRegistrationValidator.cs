@@ -35,7 +35,6 @@ internal static class PythonStepRegistrationValidator
   /// <summary>
   /// Validates that a Python step can be registered.
   /// </summary>
-  /// <param name="executor">Python executor for module/function inspection</param>
   /// <param name="runtime">Python runtime for GIL management</param>
   /// <param name="moduleName">Python module name (e.g., "flows.steps.transform")</param>
   /// <param name="functionName">Python function name (e.g., "encode_species")</param>
