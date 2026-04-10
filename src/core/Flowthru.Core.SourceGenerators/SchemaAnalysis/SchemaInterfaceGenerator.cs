@@ -21,6 +21,7 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
   private const string AttributeFullName = "Flowthru.Core.Abstractions.FlowthruSchemaAttribute";
   private const string AttributeShortName = "FlowthruSchema";
 
+  /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
     // Find all type declarations with [FlowthruSchema].

@@ -15,6 +15,7 @@ public class FlowBuilderGenerator : IIncrementalGenerator
   private const int MaxInputs = 8;
   private const int MaxOutputs = 8;
 
+  /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
     // Only run this generator for the Flowthru assembly itself, not consuming projects
@@ -25,7 +26,9 @@ public class FlowBuilderGenerator : IIncrementalGenerator
       (ctx, name) =>
       {
         if (name != "Flowthru.Core")
+        {
           return;
+        }
 
         GenerateAddStepOverloads(ctx);
       }

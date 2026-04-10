@@ -91,7 +91,7 @@ public sealed class Item<T> : IItem<T>
   /// <remarks>
   /// <para>
   /// This returns the adapter's traits merged with any user-specified constraints
-  /// applied via <see cref=\"Constrain\"/>.
+  /// applied via <see cref="Constrain"/>.
   /// </para>
   /// <para>
   /// Used by Flow validation to enforce read-only constraints, network requirements, etc.

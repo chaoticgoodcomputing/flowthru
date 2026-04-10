@@ -21,7 +21,7 @@ public sealed class FlowthruSchemaAnalyzer : DiagnosticAnalyzer
 {
   private const string AttributeFullName = "Flowthru.Core.Abstractions.FlowthruSchemaAttribute";
 
-  private static readonly string[] MarkerInterfaceNames =
+  private static readonly string[] _markerInterfaceNames =
   {
     "Flowthru.Core.Abstractions.IFlatSchema",
     "Flowthru.Core.Abstractions.INestedSchema",
@@ -30,12 +30,14 @@ public sealed class FlowthruSchemaAnalyzer : DiagnosticAnalyzer
     "Flowthru.Core.Abstractions.IStructuredSerializable",
   };
 
+  /// <inheritdoc/>
   public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
     ImmutableArray.Create(
       SchemaGeneratorDiagnostics.TypeMustBePartial,
       SchemaGeneratorDiagnostics.ConflictingManualInterface
     );
 
+  /// <inheritdoc/>
   public override void Initialize(AnalysisContext context)
   {
     context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -52,7 +54,9 @@ public sealed class FlowthruSchemaAnalyzer : DiagnosticAnalyzer
       .GetAttributes()
       .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == AttributeFullName);
     if (attr is null)
+    {
       return;
+    }
 
     // Location: use identifier token of first syntax declaration
     var location = typeSymbol.Locations.FirstOrDefault() ?? Location.None;
@@ -74,7 +78,7 @@ public sealed class FlowthruSchemaAnalyzer : DiagnosticAnalyzer
     // FT1002 — manually-applied conflicting marker interfaces
     var manual = typeSymbol
       .Interfaces.Select(i => i.ToDisplayString())
-      .Where(n => MarkerInterfaceNames.Contains(n))
+      .Where(n => _markerInterfaceNames.Contains(n))
       .ToList();
 
     if (manual.Count > 0)
@@ -104,14 +108,18 @@ public sealed class FlowthruSchemaAnalyzer : DiagnosticAnalyzer
   private static bool IsPrimitiveLike(ITypeSymbol type)
   {
     if (type.IsValueType || type.SpecialType == SpecialType.System_String)
+    {
       return true;
+    }
 
     // Nullable<T> where T is primitive
     if (
       type is INamedTypeSymbol named
       && named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
     )
+    {
       return IsPrimitiveLike(named.TypeArguments[0]);
+    }
 
     return false;
   }
