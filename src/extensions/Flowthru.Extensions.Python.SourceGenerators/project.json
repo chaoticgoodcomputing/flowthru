@@ -2,8 +2,7 @@
   "name": "Flowthru.Extensions.Python.SourceGenerators",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "Flowthru.Extensions.Python.SourceGenerators",
-  "tags": [ "extension", "python", "source-generator" ],
+  "tags": [ "extension", "python", "source-generator", "nuget" ],
   "targets": {
     "format": {
       "//": "Format C# code using CSharpier",

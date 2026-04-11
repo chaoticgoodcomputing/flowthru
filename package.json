@@ -4,8 +4,7 @@
   "description": "A type-safe data engineering framework for .NET",
   "main": "index.js",
   "scripts": {
-    "prepare": "husky",
-    "release": "commit-and-tag-version"
+    "prepare": "husky"
   },
   "keywords": [
     "data-engineering",
@@ -20,15 +19,12 @@
     "type": "git",
     "url": "https://github.com/chaoticgoodcomputing/flowthru.git"
   },
-  "dependencies": {
-    "nx": "^21.6.4"
-  },
   "devDependencies": {
-    "@nx-dotnet/core": "^3.0.2",
-    "@nx/js": "21.6.4",
-    "commit-and-tag-version": "^12.5.0",
+    "@nx/dotnet": "^22.6.5",
+    "@nx/js": "^22.6.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
-    "nx": "21.6.4"
+    "nx": "^22.6.5",
+    "typescript": "^6.0.2"
   }
 }

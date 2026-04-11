@@ -4,20 +4,6 @@
   "projectType": "library",
   "sourceRoot": "tests/Flowthru.Tests.Common",
   "targets": {
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "dotnet build",
-        "cwd": "tests/Flowthru.Tests.Common"
-      }
-    },
-    "clean": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "dotnet clean",
-        "cwd": "tests/Flowthru.Tests.Common"
-      }
-    },
     "format": {
       "executor": "nx:run-commands",
       "options": {

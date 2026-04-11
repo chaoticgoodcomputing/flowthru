@@ -1,23 +1,23 @@
 {
-  "name": "Flowthru.Extensions.Python",
+  "name": "Flowthru.FUnit.CodeFixes",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "tags": [ "extension", "python", "nuget" ],
+  "tags": [ "nuget" ],
   "targets": {
     "format": {
-      "//": "Format C# code using CSharpier",
       "executor": "nx:run-commands",
       "options": {
         "commands": [ "dotnet csharpier {projectRoot}" ],
-        "parallel": false
+        "parallel": false,
+        "cwd": "{workspaceRoot}"
       }
     },
     "format:check": {
-      "//": "Check C# code formatting without making changes",
       "executor": "nx:run-commands",
       "options": {
         "commands": [ "dotnet csharpier {projectRoot} --check" ],
-        "parallel": false
+        "parallel": false,
+        "cwd": "{workspaceRoot}"
       }
     }
   }

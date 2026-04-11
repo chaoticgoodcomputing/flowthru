@@ -3,40 +3,33 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "tests/Flowthru.Tests",
+  "tags": [ "type:test", "scope:flowthru" ],
   "targets": {
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "dotnet build",
-        "cwd": "tests/Flowthru.Tests"
-      }
-    },
-    "run": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "dotnet test",
-        "cwd": "tests/Flowthru.Tests"
-      }
-    },
     "compilation": {
+      "//": "Run only compile-time error surface tests",
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test --filter \"Category=Compilation\"",
-        "cwd": "tests/Flowthru.Tests"
+        "commands": [ "dotnet test --filter \"Category=Compilation\"" ],
+        "cwd": "tests/Flowthru.Tests",
+        "parallel": false
       }
     },
     "validation": {
+      "//": "Run only pre-flight validation tests",
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test --filter \"Category=Validation\"",
-        "cwd": "tests/Flowthru.Tests"
+        "commands": [ "dotnet test --filter \"Category=Validation\"" ],
+        "cwd": "tests/Flowthru.Tests",
+        "parallel": false
       }
     },
     "execution": {
+      "//": "Run only runtime execution tests",
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test --filter \"Category=Execution\"",
-        "cwd": "tests/Flowthru.Tests"
+        "commands": [ "dotnet test --filter \"Category=Execution\"" ],
+        "cwd": "tests/Flowthru.Tests",
+        "parallel": false
       }
     },
     "format": {
@@ -53,6 +46,5 @@
         "cwd": "{workspaceRoot}"
       }
     }
-  },
-  "tags": [ "type:test", "scope:flowthru" ]
+  }
 }

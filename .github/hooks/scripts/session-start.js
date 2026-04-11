@@ -21,13 +21,16 @@ try {
 }
 
 const output = {
-  systemMessage: [
-    'The following is CONTRIBUTING.md for this repository.',
-    'Read and internalize it before proceeding — pay particular attention to',
-    'the three error phases and where validations belong.',
-    '',
-    contributing,
-  ].join('\n'),
+  hookSpecificOutput: {
+    hookEventName: 'SessionStart',
+    additionalContext: [
+      'The following is CONTRIBUTING.md for this repository.',
+      'Read and internalize it before proceeding — pay particular attention to',
+      'the three error phases and where validations belong.',
+      '',
+      contributing,
+    ].join('\n'),
+  },
 };
 
 process.stdout.write(JSON.stringify(output));

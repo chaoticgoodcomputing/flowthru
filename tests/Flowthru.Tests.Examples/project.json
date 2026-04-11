@@ -3,27 +3,15 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "tests/Flowthru.Tests.Examples",
-  "tags": [ "nx-dotnet", "type:test", "scope:examples" ],
+  "tags": [ "type:test", "scope:examples" ],
   "targets": {
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "dotnet build",
-        "cwd": "tests/Flowthru.Tests.Examples"
-      }
-    },
-    "test": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "dotnet test --logger \"console;verbosity=normal\"",
-        "cwd": "tests/Flowthru.Tests.Examples"
-      }
-    },
     "test:discovery": {
+      "//": "Run only test discovery tests (smoke check for example project wiring)",
       "executor": "nx:run-commands",
       "options": {
-        "command": "dotnet test --filter \"FullyQualifiedName~Discovery\" --logger \"console;verbosity=normal\"",
-        "cwd": "tests/Flowthru.Tests.Examples"
+        "commands": [ "dotnet test --filter \"FullyQualifiedName~Discovery\" --logger \"console;verbosity=normal\"" ],
+        "cwd": "tests/Flowthru.Tests.Examples",
+        "parallel": false
       }
     },
     "format": {

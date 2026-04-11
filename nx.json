@@ -1,6 +1,70 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "plugins": [
-    "@nx-dotnet/core"
-  ]
+    "@nx/dotnet"
+  ],
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/**/*.Tests/**/*",
+      "!{projectRoot}/**/bin/**/*",
+      "!{projectRoot}/**/obj/**/*"
+    ]
+  },
+  "release": {
+    "//": "NX Release config — versions root package.json (via @nx/js), then release script syncs to Directory.Build.props. tag:nuget projects participate in pack only.",
+    "projects": [
+      "flowthru"
+    ],
+    "projectsRelationship": "fixed",
+    "version": {
+      "conventionalCommits": true
+    },
+    "conventionalCommits": {
+      "types": {
+        "feat": {
+          "semverBump": "minor",
+          "changelog": {
+            "hidden": false
+          }
+        },
+        "fix": {
+          "semverBump": "patch",
+          "changelog": {
+            "hidden": false
+          }
+        },
+        "perf": {
+          "semverBump": "patch",
+          "changelog": {
+            "hidden": false
+          }
+        },
+        "revert": {
+          "semverBump": "patch",
+          "changelog": {
+            "hidden": false
+          }
+        },
+        "docs": false,
+        "style": false,
+        "chore": false,
+        "refactor": false,
+        "test": false,
+        "build": false,
+        "ci": false
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "file": "CHANGELOG.md",
+        "createRelease": "github"
+      },
+      "projectChangelogs": false
+    }
+  },
+  "analytics": false
 }

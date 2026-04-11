@@ -4,64 +4,20 @@
   "projectType": "library",
   "sourceRoot": ".",
   "targets": {
-    "restore": {
-      "//": "Restores .NET dependencies for the solution",
+    "test": {
+      "//": "Run all tests across the solution with code coverage",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "dotnet restore Flowthru.slnx"
-        ],
-        "parallel": false
-      }
-    },
-    "build:debug": {
-      "//": "Builds the solution in Debug configuration (includes FUnit test classes)",
-      "executor": "nx:run-commands",
-      "dependsOn": [ "restore" ],
-      "options": {
-        "commands": [
-          "dotnet build Flowthru.slnx --configuration Debug --no-restore -p:GeneratePackageOnBuild=false"
-        ],
-        "parallel": false
-      }
-    },
-    "build:release": {
-      "//": "Builds the solution in Release configuration, only after tests pass",
-      "executor": "nx:run-commands",
-      "dependsOn": [ "test:coverage" ],
-      "options": {
-        "commands": [
-          "dotnet build Flowthru.slnx --configuration Release --no-restore -t:Pack"
-        ],
-        "parallel": false
-      }
-    },
-    "test:coverage": {
-      "//": "Runs tests with coverage collection against the Debug build",
-      "executor": "nx:run-commands",
-      "dependsOn": [ "build:debug" ],
-      "options": {
-        "commands": [
-          "dotnet test Flowthru.slnx --configuration Debug --no-build --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
-        ],
-        "parallel": false
-      }
-    },
-    "coverage:report": {
-      "//": "Generates HTML coverage report from test results",
-      "executor": "nx:run-commands",
-      "dependsOn": [ "test:coverage" ],
-      "options": {
-        "commands": [
-          "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" \"-verbosity:Info\""
+          "pnpm nx run-many -t test --projects=tag:type:test --output-style=stream"
         ],
         "parallel": false
       }
     },
     "coverage:badges": {
-      "//": "Generates coverage badges for release artifacts",
+      "//": "Generate coverage badges from the most recent test run results",
       "executor": "nx:run-commands",
-      "dependsOn": [ "build:release" ],
+      "dependsOn": [ "test" ],
       "options": {
         "commands": [
           "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:coverage-badges\" \"-reporttypes:Badges\" \"-verbosity:Warning\""
@@ -69,8 +25,19 @@
         "parallel": false
       }
     },
+    "coverage:report": {
+      "//": "Generate HTML coverage report from the most recent test run results",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "test" ],
+      "options": {
+        "commands": [
+          "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" \"-verbosity:Info\""
+        ],
+        "parallel": false
+      }
+    },
     "ci": {
-      "//": "Orchestrates full CI pipeline: restore, build, test, and coverage report",
+      "//": "Full local CI: run tests and generate HTML coverage report",
       "executor": "nx:run-commands",
       "dependsOn": [ "coverage:report" ],
       "options": {
@@ -80,47 +47,50 @@
         "parallel": false
       }
     },
-    "test": {
-      "//": "Runs tests with coverage collection (legacy target for compatibility)",
+    "pack": {
+      "//": "Build release config and pack all NuGet packages into dist/packages/",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "dotnet test Flowthru.slnx --collect:\"XPlat Code Coverage\" --settings coverlet.runsettings --logger \"console;verbosity=minimal\""
+          "echo 'Cleaning previous packages...'",
+          "rm -rf dist/packages 2>/dev/null || true",
+          "echo 'Building release configuration...'",
+          "pnpm nx run-many -t build:release --projects=tag:nuget --output-style=stream",
+          "echo 'Injecting version into templates...'",
+          "./scripts/inject-template-version.sh",
+          "echo 'Injecting AGENTS.md into starter templates...'",
+          "pnpm nx run flowthru:_inject_agents_md",
+          "echo 'Packing NuGet packages...'",
+          "pnpm nx run-many -t pack --projects=tag:nuget --output-style=stream",
+          "echo '\\u2713 NuGet packages created:'",
+          "ls -lh dist/packages/*.nupkg"
         ],
         "parallel": false
-      },
-      "configurations": {
-        "report": {
-          "options": {
-            "commands": [
-              "nx run purge:coverage",
-              "nx run test || true",
-              "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" && echo \"✓ Consolidated coverage report: CoverageReport/index.html\"' ",
-              "open CoverageReport/index.html"
-            ]
-          }
-        }
       }
     },
-    "purge": {
-      "//": "Purges non-essential files and folders",
+    "release": {
+      "//": "Determine next version via NX Release, sync to Directory.Build.props, generate changelog, create GitHub Release",
       "executor": "nx:run-commands",
       "options": {
-        "commands": [ ],
-        "cwd": "",
+        "commands": [
+          "node scripts/release.mjs"
+        ],
         "parallel": false
-      },
-      "configurations": {
-        "coverage": {
-          "//": "Purges previous coverage reports",
-          "options": {
-            "commands": [
-              "echo 'Purging previous coverage data...'",
-              "find tests -name TestResults -type d -exec rm -rf {} + 2>/dev/null || true",
-              "rm -rf CoverageReport"
-            ]
-          }
-        }
+      }
+    },
+    "_inject_agents_md": {
+      "//": "Copies the canonical AGENTS.md into each starter template before packing",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIris/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIrisPython/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflights/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsPython/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/Minimal/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/SpaceflightsEFCore/AGENTS.md"
+        ],
+        "parallel": false
       }
     },
     "format": {
@@ -143,47 +113,26 @@
         }
       }
     },
-    "publish": {
-      "//": "Prepares and packages all Flowthru NuGet packages for publication",
-      "executor": "nx:run-commands",
-      "dependsOn": [ "build:release", "_inject_agents_md" ],
-      "options": {
-        "commands": [
-          "echo 'Cleaning previous packages...'",
-          "rm -rf dist/packages 2>/dev/null || true",
-          "echo 'Injecting version into templates...'",
-          "./scripts/inject-template-version.sh",
-          "echo 'Packing NuGet packages...'",
-          "find src -name '*.csproj' | xargs -I{} dotnet pack {} --configuration Release --no-build",
-          "echo '✓ NuGet packages created:'",
-          "ls -lh dist/packages/*.nupkg"
-        ],
-        "parallel": false
-      }
-    },
-    "release": {
-      "//": "Calculates next semantic version and generates changelog based on conventional commits",
+    "purge": {
+      "//": "Purges non-essential files and folders",
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "commit-and-tag-version --skip.commit --skip.tag"
-        ],
+        "commands": [ ],
+        "cwd": "",
         "parallel": false
-      }
-    },
-    "_inject_agents_md": {
-      "//": "Copies the canonical AGENTS.md into each starter template before packing",
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIris/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIrisPython/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflights/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsPython/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/Minimal/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/SpaceflightsEFCore/AGENTS.md"
-        ],
-        "parallel": false
+      },
+      "configurations": {
+        "coverage": {
+          "//": "Purges previous coverage reports",
+          "options": {
+            "commands": [
+              "echo 'Purging previous coverage data...'",
+              "find tests -name TestResults -type d -exec rm -rf {} + 2>/dev/null || true",
+              "rm -rf CoverageReport"
+            ],
+            "parallel": false
+          }
+        }
       }
     }
   }
