@@ -1,5 +1,5 @@
 {
-  "name": "test/examples",
+  "name": "Flowthru:Tests:Examples",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "tests/Flowthru.Tests.Examples",
@@ -8,15 +8,15 @@
     "test": {
       "//": "Runs only affected example projects via scripts/run-tests.sh. Extra args (coverage flags etc.) are forwarded from the nx affected -t test invocation.",
       "executor": "nx:run-commands",
-      "dependsOn": ["build"],
+      "dependsOn": [ "build" ],
       "options": {
-        "commands": ["bash scripts/run-tests.sh"],
+        "commands": [ "bash scripts/run-tests.sh" ],
         "cwd": "tests/Flowthru.Tests.Examples",
         "parallel": false,
         "forwardAllArgs": true
       },
       "cache": true,
-      "inputs": ["default", "^production"]
+      "inputs": [ "default", "^production" ]
     },
     "test:discovery": {
       "//": "Run only test discovery tests (smoke check for example project wiring)",
