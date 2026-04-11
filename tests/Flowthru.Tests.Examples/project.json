@@ -1,0 +1,45 @@
+{
+  "name": "test/examples",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "tests/Flowthru.Tests.Examples",
+  "tags": [ "type:test", "scope:examples" ],
+  "targets": {
+    "test": {
+      "//": "Runs only affected example projects via scripts/run-tests.sh. Extra args (coverage flags etc.) are forwarded from the nx affected -t test invocation.",
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "commands": ["bash scripts/run-tests.sh"],
+        "cwd": "tests/Flowthru.Tests.Examples",
+        "parallel": false,
+        "forwardAllArgs": true
+      },
+      "cache": true,
+      "inputs": ["default", "^production"]
+    },
+    "test:discovery": {
+      "//": "Run only test discovery tests (smoke check for example project wiring)",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [ "dotnet test --filter \"FullyQualifiedName~Discovery\" --logger \"console;verbosity=normal\"" ],
+        "cwd": "tests/Flowthru.Tests.Examples",
+        "parallel": false
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet csharpier {projectRoot} --check",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

@@ -70,15 +70,29 @@ jobs:
       - name: Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
+      - name: Compute affected projects
+        id: affected
+        run: |
+          NX_BASE=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          echo "nx-base=${NX_BASE}" >> $GITHUB_OUTPUT
+          AFFECTED=$(pnpm nx show projects --affected --base="${NX_BASE}" --json 2>/dev/null \
+            | node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).join(' '))")
+          echo "NX_AFFECTED_PROJECTS=${AFFECTED}" >> $GITHUB_ENV
+          # Write JSON for debugging artifact
+          pnpm nx show projects --affected --base="${NX_BASE}" --json 2>/dev/null > dist/nx-affected.json || true
+          # Print to step summary for visibility
+          echo "## Affected Projects (base: \`${NX_BASE}\`)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${AFFECTED}" | tr ' ' '\n' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
       - name: Run tests and generate coverage badges
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
         run: |
-          # Run tests for everything changed since the last release tag.
-          # Falls back to the first commit if no tags exist yet.
-          NX_BASE=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
-          pnpm nx affected -t test --base="${NX_BASE}" --head=HEAD \
+          pnpm nx affected -t test \
+            --base="${{ steps.affected.outputs.nx-base }}" --head=HEAD \
             --output-style=stream \
             --collect:"XPlat Code Coverage" \
             --settings coverlet.runsettings \
