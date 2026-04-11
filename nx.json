@@ -3,6 +3,12 @@
   "plugins": [
     "@nx/dotnet"
   ],
+  "targetDefaults": {
+    "//": "@nx/dotnet infers build with --no-restore but does not add restore as a dependsOn. This default wires it in so restore always runs before build.",
+    "build": {
+      "dependsOn": ["restore", "^build"]
+    }
+  },
   "namedInputs": {
     "default": [
       "{projectRoot}/**/*"
