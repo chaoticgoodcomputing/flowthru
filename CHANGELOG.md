@@ -1,3 +1,21 @@
+## 0.1.38 (2026-04-11)
+
+### 🩹 Fixes
+
+- resolve warnings ([b9ccaa9](https://github.com/chaoticgoodcomputing/flowthru/commit/b9ccaa9))
+- unfuck template and example run process ([91df44d](https://github.com/chaoticgoodcomputing/flowthru/commit/91df44d))
+- nx full-hog ([bfbd416](https://github.com/chaoticgoodcomputing/flowthru/commit/bfbd416))
+- resolve issues with CI/CD process. ([46fbe0a](https://github.com/chaoticgoodcomputing/flowthru/commit/46fbe0a))
+- use affected for testing ([aff20bc](https://github.com/chaoticgoodcomputing/flowthru/commit/aff20bc))
+- maybe fix CI? ([29f6678](https://github.com/chaoticgoodcomputing/flowthru/commit/29f6678))
+- please fix CI/CD ([7f206ea](https://github.com/chaoticgoodcomputing/flowthru/commit/7f206ea))
+- **ci:** wire restore as build dependency via targetDefaults ([aa1eb22](https://github.com/chaoticgoodcomputing/flowthru/commit/aa1eb22))
+- **ci:** resolve examples project advanced test directive ([b692139](https://github.com/chaoticgoodcomputing/flowthru/commit/b692139))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
