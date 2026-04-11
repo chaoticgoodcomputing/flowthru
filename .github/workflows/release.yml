@@ -86,9 +86,8 @@ jobs:
           echo "${AFFECTED}" | tr ' ' '\n' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-      - name: Run tests and generate coverage badges
+      - name: Run tests
         env:
-          REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
         run: |
           pnpm nx affected -t test \
@@ -97,11 +96,22 @@ jobs:
             --collect:"XPlat Code Coverage" \
             --settings coverlet.runsettings \
             --logger "console;verbosity=minimal"
-          reportgenerator \
-            "-reports:tests/**/TestResults/**/coverage.cobertura.xml" \
-            "-targetdir:coverage-badges" \
-            "-reporttypes:Badges" \
-            "-verbosity:Warning"
+
+      - name: Generate coverage badges
+        if: ${{ secrets.REPORTGENERATOR_LICENSE != '' }}
+        env:
+          REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
+        run: |
+          COVERAGE_FILES=$(find tests -name "coverage.cobertura.xml" 2>/dev/null | head -1)
+          if [ -n "$COVERAGE_FILES" ]; then
+            reportgenerator \
+              "-reports:tests/**/TestResults/**/coverage.cobertura.xml" \
+              "-targetdir:coverage-badges" \
+              "-reporttypes:Badges" \
+              "-verbosity:Warning"
+          else
+            echo "No coverage files found — skipping badge generation."
+          fi
 
       - name: Configure Git
         run: |
