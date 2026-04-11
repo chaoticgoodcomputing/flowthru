@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.37](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.36...v0.1.37) (2026-04-10)
+
+
+### Features
+
+* FU002 for warnings on compiler exclusion ([bf5c943](https://github.com/chaoticgoodcomputing/flowthru/commit/bf5c94369230cfe60fdfab94d230c7412dcbcf23))
+* funit spaceflights example ([7eddee8](https://github.com/chaoticgoodcomputing/flowthru/commit/7eddee884e8240e231a53803bacb4e53ba025b9d))
+* funit test ([dd64001](https://github.com/chaoticgoodcomputing/flowthru/commit/dd64001da91cd02eecac787a9b079aefa41d36e2))
+* globs on flow slice ([18ac734](https://github.com/chaoticgoodcomputing/flowthru/commit/18ac734c787244e881160e083e680b1d9ffd3a78))
+
+
+### Bug Fixes
+
+* funit test discovery ([0dd37b4](https://github.com/chaoticgoodcomputing/flowthru/commit/0dd37b4991b0c6ada13ff92d6136367af6134220))
+* major overhaul for nodes, funit ([0a951e9](https://github.com/chaoticgoodcomputing/flowthru/commit/0a951e931afd0e3c7cc501fb3134cd5c5ef919a9))
+* resolve program file generation for unit tests ([15df750](https://github.com/chaoticgoodcomputing/flowthru/commit/15df7502a2f5718155336a42b223361f73e5f898))
+* resolve python test new directory issue ([fa9a28c](https://github.com/chaoticgoodcomputing/flowthru/commit/fa9a28c305412719fc9ccf6e8c1ae5899d1942e3))
+* resolve testing issues ([ba5d296](https://github.com/chaoticgoodcomputing/flowthru/commit/ba5d2963477a8f9ba51a523c9f3b1af8595defb3))
+* roslyn pattern-based funit and core codefix libraries ([614cd4d](https://github.com/chaoticgoodcomputing/flowthru/commit/614cd4dab39868ddae359ebfb5285877816c15ea))
+* warning issues ([a2b49ef](https://github.com/chaoticgoodcomputing/flowthru/commit/a2b49ef7fda52290043e551ae23056f9e9b1e4b0))
+
+
+### Documentation
+
+* bunit ([b4b02d1](https://github.com/chaoticgoodcomputing/flowthru/commit/b4b02d13375de5377e000f766d0675aef693f58b))
+* docs update ([19e41f7](https://github.com/chaoticgoodcomputing/flowthru/commit/19e41f79be85af6ad0a833fc93d442556fb1708d))
+* readme on FUnit example added ([825d53d](https://github.com/chaoticgoodcomputing/flowthru/commit/825d53dc71a23d6a381becc8a996b56edcaecc5c))
+
 ## [0.1.36](https://github.com/chaoticgoodcomputing/flowthru/compare/v0.1.35...v0.1.36) (2026-04-03)
 
 
