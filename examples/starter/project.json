@@ -1,0 +1,33 @@
+{
+  "name": "templates",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "examples/starter",
+  "targets": {
+    "_inject_template_version": {
+      "//": "Stamps the current Directory.Build.props version into all starter template.json files",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["bash scripts/inject-template-version.sh"],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_inject_agents_md": {
+      "//": "Copies the canonical AGENTS.md into each starter template before packing",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIris/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIrisPython/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflights/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsPython/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/Minimal/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/SpaceflightsEFCore/AGENTS.md"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    }
+  }
+}

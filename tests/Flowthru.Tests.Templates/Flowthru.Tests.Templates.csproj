@@ -20,49 +20,4 @@
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
-  <!--
-    Ensures dist/packages/ always contains freshly-packed Flowthru NuGet packages
-    at the current repository version before the test project builds.
-
-    This makes `dotnet test` at the repo root self-contained: no manual `nx run
-    flowthru:publish` step is required.
-
-    Set SkipTemplatePack=true to bypass when iterating quickly and packages are
-    already known-good:
-      dotnet test /p:SkipTemplatePack=true
-  -->
-  <Target Name="PackFlowthruForTemplateTests"
-          BeforeTargets="Build"
-          Condition="'$(SkipTemplatePack)' != 'true'">
-
-    <!-- Stamp the current Directory.Build.props version into every template.json -->
-    <Exec Command="bash &quot;$(RepoRoot)scripts/inject-template-version.sh&quot;"
-          WorkingDirectory="$(RepoRoot)"
-          ConsoleToMSBuild="true" />
-
-    <!--
-      Clear stale nupkgs so only the current version exists in the local feed.
-      Without this, a previously-packed older version satisfies transitive
-      dependency resolution before the freshly-built packages are considered.
-    -->
-    <RemoveDir Directories="$(RepoRoot)dist\packages" />
-    <MakeDir  Directories="$(RepoRoot)dist\packages" />
-
-    <!--
-      Pack every src/ project. Non-packable projects (IsPackable=false) are
-      no-ops, so the glob is safe to expand without a central list. This
-      automatically captures all transitive Flowthru* dependencies (Core, Csv,
-      Parquet, Excel, etc.) whenever the dependency tree changes.
-    -->
-    <ItemGroup>
-      <_PackableProject Include="$(RepoRoot)src\**\*.csproj" />
-    </ItemGroup>
-
-    <MSBuild Projects="@(_PackableProject)"
-             Targets="Pack"
-             Properties="Configuration=Release;PackageOutputPath=$(RepoRoot)dist\packages"
-             BuildInParallel="false" />
-
-  </Target>
-
 </Project>

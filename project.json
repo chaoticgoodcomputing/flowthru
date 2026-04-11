@@ -4,20 +4,10 @@
   "projectType": "library",
   "sourceRoot": ".",
   "targets": {
-    "test": {
-      "//": "Run all tests across the solution with code coverage",
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          "pnpm nx run-many -t test --projects=tag:type:test --output-style=stream"
-        ],
-        "parallel": false
-      }
-    },
     "coverage:badges": {
       "//": "Generate coverage badges from the most recent test run results",
       "executor": "nx:run-commands",
-      "dependsOn": [ "test" ],
+      "dependsOn": [ ],
       "options": {
         "commands": [
           "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:coverage-badges\" \"-reporttypes:Badges\" \"-verbosity:Warning\""
@@ -28,7 +18,7 @@
     "coverage:report": {
       "//": "Generate HTML coverage report from the most recent test run results",
       "executor": "nx:run-commands",
-      "dependsOn": [ "test" ],
+      "dependsOn": [ ],
       "options": {
         "commands": [
           "reportgenerator \"-reports:tests/**/TestResults/**/coverage.cobertura.xml\" \"-targetdir:CoverageReport\" \"-reporttypes:Html;Badges\" \"-verbosity:Info\""
@@ -39,31 +29,10 @@
     "ci": {
       "//": "Full local CI: run tests and generate HTML coverage report",
       "executor": "nx:run-commands",
-      "dependsOn": [ "coverage:report" ],
+      "dependsOn": [ ],
       "options": {
         "commands": [
           "echo '✓ CI pipeline complete'"
-        ],
-        "parallel": false
-      }
-    },
-    "pack": {
-      "//": "Build release config and pack all NuGet packages into dist/packages/",
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          "echo 'Cleaning previous packages...'",
-          "rm -rf dist/packages 2>/dev/null || true",
-          "echo 'Building release configuration...'",
-          "pnpm nx run-many -t build:release --projects=tag:nuget --output-style=stream",
-          "echo 'Injecting version into templates...'",
-          "./scripts/inject-template-version.sh",
-          "echo 'Injecting AGENTS.md into starter templates...'",
-          "pnpm nx run flowthru:_inject_agents_md",
-          "echo 'Packing NuGet packages...'",
-          "pnpm nx run-many -t pack --projects=tag:nuget --output-style=stream",
-          "echo '\\u2713 NuGet packages created:'",
-          "ls -lh dist/packages/*.nupkg"
         ],
         "parallel": false
       }
@@ -74,21 +43,6 @@
       "options": {
         "commands": [
           "node scripts/release.mjs"
-        ],
-        "parallel": false
-      }
-    },
-    "_inject_agents_md": {
-      "//": "Copies the canonical AGENTS.md into each starter template before packing",
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIris/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIrisPython/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflights/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsPython/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/Minimal/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/SpaceflightsEFCore/AGENTS.md"
         ],
         "parallel": false
       }

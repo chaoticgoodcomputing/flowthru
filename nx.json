@@ -6,6 +6,15 @@
   "targetDefaults": {
     "build": {
       "dependsOn": [ "restore", "^build" ]
+    },
+    "build:release": {
+      "dependsOn": [ "restore", "^build:release" ]
+    },
+    "test": {
+      "dependsOn": [ "build" ]
+    },
+    "pack": {
+      "dependsOn": [ "build:release", "templates:_inject_template_version", "templates:_inject_agents_md" ]
     }
   },
   "namedInputs": {
