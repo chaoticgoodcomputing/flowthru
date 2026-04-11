@@ -98,7 +98,7 @@ jobs:
             --logger "console;verbosity=minimal"
 
       - name: Generate coverage badges
-        if: ${{ secrets.REPORTGENERATOR_LICENSE != '' }}
+        continue-on-error: true
         env:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
         run: |

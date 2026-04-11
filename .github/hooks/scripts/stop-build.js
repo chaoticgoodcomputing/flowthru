@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Stop hook: runs `dotnet build` and reports only warnings/errors.
- * - No C# changes in working tree: skips the build entirely.
- * - Clean build: brief success message via systemMessage.
- * - Warnings present: systemMessage with filtered warning lines.
- * - Build failure / errors: blocks the agent via hookSpecificOutput so it can
- *   address errors before concluding.
+ * Stop hook: runs `nx affected -t test --base="HEAD"` and blocks on failures.
+ * - No affected projects: skips entirely.
+ * - All tests pass: brief success message via systemMessage.
+ * - Any test failures: blocks the agent via hookSpecificOutput so it can
+ *   address failures before concluding.
  *
  * Reads stdin to check stop_hook_active and avoid infinite loops.
  */
@@ -30,71 +29,65 @@ if (hookInput.stop_hook_active) {
 
 const repoRoot = path.resolve(__dirname, '../../..');
 
-// Short-circuit if no C#-related files are dirty (staged or unstaged vs HEAD).
-const CSHARP_PATTERN = /\.(cs|csproj|fsproj|slnx|sln|props|targets)$|^(global\.json|NuGet\.Config)$/i;
+// Determine which projects are affected by uncommitted working tree changes.
+const affectedResult = spawnSync(
+  'pnpm',
+  ['nx', 'show', 'projects', '--affected', '--base=HEAD', '--json'],
+  { cwd: repoRoot, encoding: 'utf-8', timeout: 30000 },
+);
 
-const gitStatus = spawnSync('git', ['status', '--porcelain'], {
-  cwd: repoRoot,
-  encoding: 'utf-8',
-});
-const dirtyFiles = (gitStatus.stdout || '').trim().split('\n').filter(Boolean);
-const hasCSharpChanges = dirtyFiles.some(line => {
-  // Each line is "XY filename" or "XY old -> new"; grab the last path segment.
-  const filePath = line.slice(3).trim().split(' -> ').pop();
-  return CSHARP_PATTERN.test(path.basename(filePath));
-});
+let affectedProjects = [];
+try {
+  affectedProjects = JSON.parse(affectedResult.stdout || '[]');
+} catch (_) {
+  // Parse failure — treat as no affected projects.
+}
 
-if (!hasCSharpChanges) {
+if (affectedProjects.length === 0) {
   process.stdout.write(JSON.stringify({
-    systemMessage: 'dotnet build: skipped (no C# changes detected in working tree).',
+    systemMessage: 'nx affected test: skipped (no affected projects in working tree).',
   }));
   process.exit(0);
 }
 
-const result = spawnSync('dotnet', ['build', 'Flowthru.slnx'], {
-  cwd: repoRoot,
-  encoding: 'utf-8',
-  timeout: 180000,
-});
+// Run tests for all affected projects.
+const result = spawnSync(
+  'pnpm',
+  [
+    'nx', 'affected', '-t', 'test',
+    '--base=HEAD',
+    '--output-style=stream',
+    '--logger', 'console;verbosity=minimal',
+  ],
+  { cwd: repoRoot, encoding: 'utf-8', timeout: 300000 },
+);
 
 const stdout = (result.stdout || '').trim();
 const stderr = (result.stderr || '').trim();
 const combined = [stdout, stderr].filter(Boolean).join('\n');
 
-// Extract compiler diagnostics: lines containing ': warning XXXX' or ': error XXXX'.
-const diagnosticLines = combined
-  .split('\n')
-  .filter(line => /:\s*(warning|error)\s+[A-Za-z]*\d+/i.test(line));
+if (result.status !== 0) {
+  // Extract failed test lines for a focused summary.
+  const failureLines = combined
+    .split('\n')
+    .filter(line => /failed|error|FAILED|ERROR/i.test(line))
+    .slice(0, 40); // cap at 40 lines to avoid overwhelming the agent
 
-const hasErrors = result.status !== 0 || diagnosticLines.some(l => /:\s*error\s+/i.test(l));
-const hasWarnings = diagnosticLines.some(l => /:\s*warning\s+/i.test(l));
+  const summary = failureLines.length > 0 ? failureLines.join('\n') : combined;
 
-if (hasErrors) {
-  // Block the agent so it addresses errors before concluding.
-  const diagnosticSummary = diagnosticLines.length > 0
-    ? diagnosticLines.join('\n')
-    : combined; // fall back to full output if pattern didn't match anything
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: 'Stop',
       decision: 'block',
       reason: [
-        'dotnet build FAILED — address these errors before concluding.',
+        `nx affected test FAILED (affected: ${affectedProjects.join(', ')}) — address these failures before concluding.`,
         '',
-        diagnosticSummary,
+        summary,
       ].join('\n'),
     },
   }));
-} else if (hasWarnings) {
-  process.stdout.write(JSON.stringify({
-    systemMessage: [
-      'dotnet build succeeded with warnings:',
-      '',
-      diagnosticLines.join('\n'),
-    ].join('\n'),
-  }));
 } else {
   process.stdout.write(JSON.stringify({
-    systemMessage: 'dotnet build: succeeded with no warnings or errors.',
+    systemMessage: `nx affected test: passed (${affectedProjects.length} project(s): ${affectedProjects.join(', ')}).`,
   }));
 }
