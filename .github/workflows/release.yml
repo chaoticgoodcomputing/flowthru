@@ -79,7 +79,7 @@ jobs:
           # Falls back to the first commit if no tags exist yet.
           NX_BASE=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
           pnpm nx affected -t test --base="${NX_BASE}" --head=HEAD \
-            --projects=tag:type:test --output-style=stream \
+            --output-style=stream \
             --collect:"XPlat Code Coverage" \
             --settings coverlet.runsettings \
             --logger "console;verbosity=minimal"
