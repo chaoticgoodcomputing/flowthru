@@ -14,15 +14,12 @@
     This prevents generators from running on projects that don't use Python.
   -->
   <ItemGroup Condition="'$(MSBuildProjectName)' != 'Flowthru.Extensions.Python'">
-    <!-- For local development with ProjectReference -->
+    <!-- For local development with ProjectReference (no-op in NuGet consumption: .csproj file won't exist) -->
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer"
                       Condition="Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj')" />
-    
-    <!-- For NuGet package consumption -->
-    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Extensions.Python.SourceGenerators.dll" 
-              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Extensions.Python.SourceGenerators.dll')" />
+    <!-- NuGet auto-registers DLLs from analyzers/dotnet/cs/ — no explicit <Analyzer> entry needed -->
   </ItemGroup>
   
   <!-- 

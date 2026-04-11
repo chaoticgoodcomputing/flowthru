@@ -28,12 +28,23 @@ public class PythonStepGenerator : IIncrementalGenerator
   /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
-    // Run for any project that references Flowthru.Extensions.Python
-    // (unlike FlowBuilderGenerator which only runs for the core Flowthru assembly)
-    context.RegisterPostInitializationOutput(ctx => GenerateAddPythonStep(ctx));
+    // These overloads are pre-compiled into Flowthru.Extensions.Python.dll, so they must
+    // only be generated during the extension's own build — not for consumer projects.
+    // Re-emitting them via the analyzer on consumers produces duplicate partial-class
+    // declarations that cause CS0121 (ambiguous call) at every AddPythonStep call site.
+    context.RegisterSourceOutput(
+      context.CompilationProvider,
+      (ctx, compilation) =>
+      {
+        if (compilation.AssemblyName != "Flowthru.Extensions.Python")
+          return;
+
+        GenerateAddPythonStep(ctx);
+      }
+    );
   }
 
-  private static void GenerateAddPythonStep(IncrementalGeneratorPostInitializationContext context)
+  private static void GenerateAddPythonStep(SourceProductionContext context)
   {
     var sb = new StringBuilder();
 

@@ -15,21 +15,8 @@
     <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
   </PropertyGroup>
 
-  <!-- Flowthru core reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+  <ItemGroup>
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-  </ItemGroup>
-
-  <!-- FUnit: step testing library — source generator and code fixes are wired
-       automatically via Flowthru.FUnit.targets when referencing from source,
-       or via the NuGet analyzers/dotnet/cs layout when using the package. -->
-  <ItemGroup Condition="Exists('../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
-    <ProjectReference Include="../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
     <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
   </ItemGroup>
 
