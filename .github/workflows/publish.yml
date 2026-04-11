@@ -1,0 +1,59 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+          dotnet-quality: "preview"
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+          DOTNET_NOLOGO: "true"
+          DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.3
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build and pack NuGet packages
+        run: pnpm nx run flowthru:pack
+
+      - name: Publish to NuGet
+        run: |
+          dotnet nuget push "dist/packages/*.nupkg" \
+            --api-key ${{ secrets.FLOWTHRU_NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

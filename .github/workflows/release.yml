@@ -1,4 +1,4 @@
-name: CI and Release
+name: CI
 
 on:
   push:
@@ -14,13 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release:
+  ci:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'chore(release)')"
 
     permissions:
       contents: write
-      packages: write
 
     steps:
       - name: Checkout code
@@ -76,7 +75,11 @@ jobs:
           REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
           CI: "true"
         run: |
-          pnpm nx run-many -t test --projects=tag:type:test --output-style=stream \
+          # Run tests for everything changed since the last release tag.
+          # Falls back to the first commit if no tags exist yet.
+          NX_BASE=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          pnpm nx affected -t test --base="${NX_BASE}" --head=HEAD \
+            --projects=tag:type:test --output-style=stream \
             --collect:"XPlat Code Coverage" \
             --settings coverlet.runsettings \
             --logger "console;verbosity=minimal"
@@ -91,50 +94,57 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Run NX Release (version + changelog + GitHub Release)
+      - name: Run NX Release (version + changelog + commit + tag)
         id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CI: "true"
         run: |
+          OLD_VERSION=$(node -p "require('./package.json').version")
           node scripts/release.mjs
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          if git diff --quiet HEAD package.json; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No version bump — skipping publish."
-          else
+          if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Version bumped to $NEW_VERSION"
+            echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No version bump — skipping release."
           fi
-
-      - name: Build release and pack NuGet packages
-        if: steps.release.outputs.changed == 'true'
-        run: pnpm nx run flowthru:pack
-
-      - name: Publish to NuGet
-        if: steps.release.outputs.changed == 'true'
-        run: |
-          dotnet nuget push "dist/packages/*.nupkg" \
-            --api-key ${{ secrets.FLOWTHRU_NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
 
       - name: Push release commit and tag
         if: steps.release.outputs.changed == 'true'
         run: git push --follow-tags
 
-      - name: Create GitHub Release
+      - name: Create draft GitHub Release
         if: steps.release.outputs.changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEW_VERSION="${{ steps.release.outputs.version }}"
-          # Extract the section for this version from CHANGELOG.md
-          NOTES=$(awk "/^## ${NEW_VERSION}/{found=1;next} /^## /{if(found)exit} found{print}" CHANGELOG.md)
-          gh release create "v${NEW_VERSION}" \
-            --title "v${NEW_VERSION}" \
-            --notes "${NOTES}"
+          VERSION="v${{ steps.release.outputs.version }}"
+          # Extract the changelog entry for this version
+          NOTES=$(awk "/^## ${{ steps.release.outputs.version }}/{found=1;next} /^## /{if(found)exit} found{print}" CHANGELOG.md)
+          gh release create "${VERSION}" \
+            --title "${VERSION}" \
+            --notes "${NOTES}" \
+            --draft
+
+      - name: Publish prerelease to NuGet
+        if: steps.release.outputs.changed == 'true'
+        env:
+          FLOWTHRU_NUGET_API_KEY: ${{ secrets.FLOWTHRU_NUGET_API_KEY }}
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
+          # Override version in Directory.Build.props for the prerelease pack only.
+          # This file was already committed and pushed — this mutation is ephemeral.
+          sed -i "s|<Version>.*</Version>|<Version>${PRERELEASE_VERSION}</Version>|" Directory.Build.props
+          pnpm nx run flowthru:pack
+          sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" Directory.Build.props
+          dotnet nuget push "dist/packages/*.nupkg" \
+            --api-key "${FLOWTHRU_NUGET_API_KEY}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
 
       - name: Upload coverage badges as artifact
         if: always()

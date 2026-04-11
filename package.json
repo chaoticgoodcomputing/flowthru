@@ -4,6 +4,7 @@
   "description": "A type-safe data engineering framework for .NET",
   "main": "index.js",
   "scripts": {
+    "postinstall": "dotnet restore",
     "prepare": "husky"
   },
   "keywords": [
@@ -12,7 +13,7 @@
     "kedro",
     "dotnet"
   ],
-  "author": "Spencer Elkington",
+  "author": "Chaotic Good Computing",
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.6.3",
   "repository": {

@@ -4,9 +4,8 @@
     "@nx/dotnet"
   ],
   "targetDefaults": {
-    "//": "@nx/dotnet infers build with --no-restore but does not add restore as a dependsOn. This default wires it in so restore always runs before build.",
     "build": {
-      "dependsOn": ["restore", "^build"]
+      "dependsOn": [ "restore", "^build" ]
     }
   },
   "namedInputs": {
@@ -21,7 +20,6 @@
     ]
   },
   "release": {
-    "//": "NX Release config — versions root package.json (via @nx/js), then release script syncs to Directory.Build.props. tag:nuget projects participate in pack only.",
     "projects": [
       "flowthru"
     ],
