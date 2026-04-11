@@ -98,6 +98,9 @@ bower_components
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
+# actionlint binary (downloaded by nx run github-actions:test)
+.github/.bin/
+
 # Dependency directories
 node_modules/
 jspm_packages/

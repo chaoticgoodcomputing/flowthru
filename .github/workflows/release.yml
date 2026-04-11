@@ -74,17 +74,19 @@ jobs:
         id: affected
         run: |
           NX_BASE=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
-          echo "nx-base=${NX_BASE}" >> $GITHUB_OUTPUT
+          echo "nx-base=${NX_BASE}" >> "$GITHUB_OUTPUT"
           AFFECTED=$(pnpm nx show projects --affected --base="${NX_BASE}" --json 2>/dev/null \
             | node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).join(' '))")
-          echo "NX_AFFECTED_PROJECTS=${AFFECTED}" >> $GITHUB_ENV
+          echo "NX_AFFECTED_PROJECTS=${AFFECTED}" >> "$GITHUB_ENV"
           # Write JSON for debugging artifact
           pnpm nx show projects --affected --base="${NX_BASE}" --json 2>/dev/null > dist/nx-affected.json || true
           # Print to step summary for visibility
-          echo "## Affected Projects (base: \`${NX_BASE}\`)" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "${AFFECTED}" | tr ' ' '\n' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Affected Projects (base: \`${NX_BASE}\`)"
+            echo '```'
+            echo "${AFFECTED}" | tr ' ' '\n'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Run tests
         env:
@@ -127,12 +129,12 @@ jobs:
           OLD_VERSION=$(node -p "require('./package.json').version")
           node scripts/release.mjs
           NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "Version bumped from $OLD_VERSION to $NEW_VERSION"
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No version bump — skipping release."
           fi
 
@@ -170,7 +172,7 @@ jobs:
             # Fallback: second-latest git tag if no published release exists
             BASE_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
           fi
-          echo "tag=${BASE_TAG}" >> $GITHUB_OUTPUT
+          echo "tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
           echo "Base tag for release summary: ${BASE_TAG}"
 
       - name: Generate release summary

@@ -1,0 +1,32 @@
+{
+  "name": "github-actions",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "./.github",
+  "targets": {
+    "_install_actionlint": {
+      "//": "Downloads the actionlint binary into .github/.bin/ if not already present",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "mkdir -p .github/.bin && [ -f .github/.bin/actionlint ] || (curl -sL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash -o /tmp/install-actionlint.bash && bash /tmp/install-actionlint.bash && mv actionlint .github/.bin/actionlint)"
+        ],
+        "parallel": false
+      }
+    },
+    "test": {
+      "//": "Lints all GitHub Actions workflow files using actionlint",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "_install_actionlint" ],
+      "inputs": [
+        "{projectRoot}/workflows/*.yml"
+      ],
+      "options": {
+        "commands": [
+          ".github/.bin/actionlint .github/workflows/*.yml"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}
