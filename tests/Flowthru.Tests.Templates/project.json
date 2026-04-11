@@ -6,9 +6,9 @@
   "tags": [ "type:test" ],
   "targets": {
     "test": {
-      "//": "Runs template tests. Requires all tag:nuget packs to be in dist/packages/ first.",
+      "//": "Runs template tests. Requires all packs to be in dist/packages/ first — src/ lands flat, others under subdirectories.",
       "executor": "nx:run-commands",
-      "dependsOn": [ "build", { "target": "pack" } ],
+      "dependsOn": [ "build", "templates:_pack_all" ],
       "options": {
         "commands": [ "dotnet test --no-build --no-restore" ],
         "cwd": "tests/Flowthru.Tests.Templates",

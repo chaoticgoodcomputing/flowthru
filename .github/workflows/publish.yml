@@ -49,7 +49,7 @@ jobs:
         run: pnpm install
 
       - name: Build and pack NuGet packages
-        run: pnpm nx run flowthru:pack
+        run: pnpm nx run-many -t pack
 
       - name: Publish to NuGet
         run: |

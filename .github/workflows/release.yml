@@ -143,6 +143,51 @@ jobs:
             --notes "${NOTES}" \
             --draft
 
+      - name: Install Copilot CLI
+        if: steps.release.outputs.changed == 'true'
+        run: npm install -g @github/copilot
+
+      - name: Generate release summary
+        if: steps.release.outputs.changed == 'true'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}
+        run: |
+          copilot -p "Generate a release summary for the latest release." \
+            --agent=dev-relations \
+            --available-tools='view,create,bash' \
+            --allow-tool='shell(git:*)' \
+            --allow-tool='create' \
+            --allow-tool='view' \
+            --deny-tool='shell(git push)' \
+            --deny-tool='shell(git reset)' \
+            --deny-tool='shell(git checkout)' \
+            --deny-tool='shell(git commit)' \
+            --deny-tool='shell(git merge)' \
+            --deny-tool='shell(git rebase)' \
+            --deny-tool='shell(git branch -d)' \
+            --deny-tool='shell(git tag -d)' \
+            --no-ask-user \
+            --silent
+
+      - name: Prepend summary to draft release
+        if: steps.release.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.release.outputs.version }}"
+          SUMMARY_FILE="docs/scratch/release-${{ steps.release.outputs.version }}.md"
+          if [ -f "$SUMMARY_FILE" ]; then
+            EXISTING_NOTES=$(gh release view "${VERSION}" --json body -q '.body')
+            {
+              cat "$SUMMARY_FILE"
+              echo ""
+              echo "---"
+              echo ""
+              echo "$EXISTING_NOTES"
+            } > /tmp/combined-notes.md
+            gh release edit "${VERSION}" --notes-file /tmp/combined-notes.md
+          fi
+
       - name: Publish prerelease to NuGet
         if: steps.release.outputs.changed == 'true'
         env:
@@ -153,7 +198,7 @@ jobs:
           # Override version in Directory.Build.props for the prerelease pack only.
           # This file was already committed and pushed — this mutation is ephemeral.
           sed -i "s|<Version>.*</Version>|<Version>${PRERELEASE_VERSION}</Version>|" Directory.Build.props
-          pnpm nx run flowthru:pack
+          pnpm nx run-many -t pack
           sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" Directory.Build.props
           dotnet nuget push "dist/packages/*.nupkg" \
             --api-key "${FLOWTHRU_NUGET_API_KEY}" \

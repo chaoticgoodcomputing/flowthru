@@ -9,8 +9,10 @@
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     
-    <!-- Consolidated NuGet package output -->
-    <PackageOutputPath>$(RepoRoot)dist/packages</PackageOutputPath>
+    <!-- src/ packages land flat in dist/packages/ for NuGet local feed compatibility -->
+    <!-- All other packages (examples, tests) are namespaced under their relative path -->
+    <PackageOutputPath Condition="$(ProjectRelativePath.StartsWith('src'))">$(RepoRoot)dist/packages</PackageOutputPath>
+    <PackageOutputPath Condition="!$(ProjectRelativePath.StartsWith('src'))">$(RepoRoot)dist/packages/$(ProjectRelativePath)</PackageOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
