@@ -147,12 +147,30 @@ jobs:
         if: steps.release.outputs.changed == 'true'
         run: npm install -g @github/copilot
 
+      - name: Determine last published release tag
+        if: steps.release.outputs.changed == 'true'
+        id: last-published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the most recent non-draft, non-prerelease published release tag
+          BASE_TAG=$(gh release list --limit 20 --json tagName,isDraft,isPrerelease \
+            --jq '[.[] | select(.isDraft == false and .isPrerelease == false)] | .[0].tagName // empty')
+          if [ -z "$BASE_TAG" ]; then
+            # Fallback: second-latest git tag if no published release exists
+            BASE_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
+          fi
+          echo "tag=${BASE_TAG}" >> $GITHUB_OUTPUT
+          echo "Base tag for release summary: ${BASE_TAG}"
+
       - name: Generate release summary
         if: steps.release.outputs.changed == 'true'
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}
         run: |
-          copilot -p "Generate a release summary for the latest release." \
+          HEAD_TAG="v${{ steps.release.outputs.version }}"
+          BASE_TAG="${{ steps.last-published.outputs.tag }}"
+          copilot -p "Generate a release summary. Base tag: ${BASE_TAG}, head tag: ${HEAD_TAG}. Summarize all changes between these two tags." \
             --agent=dev-relations \
             --available-tools='view,create,bash' \
             --allow-tool='shell(git:*)' \

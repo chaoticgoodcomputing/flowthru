@@ -21,9 +21,9 @@ These inform how you frame changes. A new analyzer is not just "a new analyzer" 
 <workflow>
 Follow these steps in order:
 
-1. **Identify the last two tags.** Run `git tag --sort=-v:refname | head -2`.
-2. **Gather raw changes.** Run `git log <old-tag>..<new-tag> --oneline` and read the corresponding section of `/CHANGELOG.md`.
-3. **Inspect changes by area.** Run `git diff <old-tag>..<new-tag> --stat` to see which files changed. When a commit message is unclear, read the actual diff or changed files to understand what happened.
+1. **Determine the tag range.** The prompt may specify a base tag and a head tag (e.g., "base: v0.1.35, head: v0.1.38"). If provided, use those directly. Otherwise, identify the latest tag with `git tag --sort=-v:refname | head -1` as the head, and the second-latest with `head -2 | tail -1` as the base.
+2. **Gather raw changes.** Run `git log <base-tag>..<head-tag> --oneline` and read all corresponding sections of `/CHANGELOG.md` that fall within the range — there may be multiple version entries if several releases occurred since the last published release.
+3. **Inspect changes by area.** Run `git diff <base-tag>..<head-tag> --stat` to see which files changed. When a commit message is unclear, read the actual diff or changed files to understand what happened.
 4. **Identify the topology.** Determine the single most impactful user-facing change — the headline. Everything else in the release either supports that headline (examples demonstrating it, docs explaining it) or is independent. This topology drives the structure of the summary.
 5. **Categorize changes** using these rules:
    - `src/` — Library changes. Frame as user-facing improvements: new capabilities, better error messages, stability gains. Connect to Flowthru's core promises where natural.
