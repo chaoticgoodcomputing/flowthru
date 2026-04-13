@@ -46,10 +46,10 @@ public partial class Catalog
         )
     );
 
-  // /// <summary>
-  // /// In-memory flag written by the Ingest flow after all mutations succeed.
-  // /// Downstream flows depend on this via the DAG.
-  // /// </summary>
+  /// <summary>
+  /// In-memory flag written by the Ingest flow after all mutations succeed.
+  /// Downstream flows depend on this via the DAG.
+  /// </summary>
   public IItem<bool> GqlDatabaseSeeded =>
     CreateItem(() => ItemFactory.Single.Memory<bool>("GqlDatabaseSeeded"));
 
