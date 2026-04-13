@@ -120,6 +120,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Determine last published release tag
+        id: last-published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the most recent non-draft, non-prerelease published release tag
+          BASE_TAG=$(gh release list --limit 20 --json tagName,isDraft,isPrerelease \
+            --jq '[.[] | select(.isDraft == false and .isPrerelease == false)] | .[0].tagName // empty')
+          if [ -z "$BASE_TAG" ]; then
+            # Fallback: most recent git tag (first release in the repo)
+            BASE_TAG=$(git tag --sort=-v:refname | head -1)
+          fi
+          echo "tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "Base tag for release: ${BASE_TAG}"
+
       - name: Run NX Release (version + changelog + commit + tag)
         id: release
         env:
@@ -127,7 +142,7 @@ jobs:
           CI: "true"
         run: |
           OLD_VERSION=$(node -p "require('./package.json').version")
-          node scripts/release.mjs
+          node scripts/release.mjs --from="${{ steps.last-published.outputs.tag }}"
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
@@ -158,22 +173,6 @@ jobs:
       - name: Install Copilot CLI
         if: steps.release.outputs.changed == 'true'
         run: npm install -g @github/copilot
-
-      - name: Determine last published release tag
-        if: steps.release.outputs.changed == 'true'
-        id: last-published
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Find the most recent non-draft, non-prerelease published release tag
-          BASE_TAG=$(gh release list --limit 20 --json tagName,isDraft,isPrerelease \
-            --jq '[.[] | select(.isDraft == false and .isPrerelease == false)] | .[0].tagName // empty')
-          if [ -z "$BASE_TAG" ]; then
-            # Fallback: second-latest git tag if no published release exists
-            BASE_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
-          fi
-          echo "tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
-          echo "Base tag for release summary: ${BASE_TAG}"
 
       - name: Generate release summary
         if: steps.release.outputs.changed == 'true'

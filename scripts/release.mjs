@@ -24,12 +24,15 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
+const FROM_ARG = process.argv.find(a => a.startsWith('--from='));
+const FROM_TAG = FROM_ARG ? FROM_ARG.slice('--from='.length) : undefined;
 
 // ── 1. Version determination via NX Release ──────────────────────────────────
 
 const { workspaceVersion, projectsVersionData } = await releaseVersion({
   dryRun: DRY_RUN,
   verbose: false,
+  ...(FROM_TAG ? { from: FROM_TAG } : {}),
 });
 
 if (workspaceVersion === null || workspaceVersion === undefined) {
@@ -70,6 +73,7 @@ await releaseChangelog({
   versionData: projectsVersionData,
   gitPush: false,
   createRelease: false,
+  ...(FROM_TAG ? { from: FROM_TAG } : {}),
 });
 
 console.log('\n✓ Release preparation complete.');
