@@ -170,6 +170,34 @@ jobs:
             --notes "${NOTES}" \
             --draft
 
+      - name: Pack NuGet packages (release version)
+        if: steps.release.outputs.changed == 'true'
+        run: pnpm nx run-many -t pack
+
+      - name: Upload packages to GitHub release
+        if: steps.release.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.release.outputs.version }}"
+          gh release upload "${VERSION}" dist/packages/*.nupkg
+
+      - name: Publish preview to NuGet
+        if: steps.release.outputs.changed == 'true'
+        env:
+          FLOWTHRU_NUGET_API_KEY: ${{ secrets.FLOWTHRU_NUGET_API_KEY }}
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
+          sed -i "s|<Version>.*</Version>|<Version>${PRERELEASE_VERSION}</Version>|" Directory.Build.props
+          rm dist/packages/*.nupkg
+          pnpm nx run-many -t pack
+          sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" Directory.Build.props
+          dotnet nuget push "dist/packages/*.nupkg" \
+            --api-key "${FLOWTHRU_NUGET_API_KEY}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
       - name: Install Copilot CLI
         if: steps.release.outputs.changed == 'true'
         run: npm install -g @github/copilot
@@ -217,23 +245,6 @@ jobs:
             } > /tmp/combined-notes.md
             gh release edit "${VERSION}" --notes-file /tmp/combined-notes.md
           fi
-
-      - name: Publish prerelease to NuGet
-        if: steps.release.outputs.changed == 'true'
-        env:
-          FLOWTHRU_NUGET_API_KEY: ${{ secrets.FLOWTHRU_NUGET_API_KEY }}
-        run: |
-          VERSION="${{ steps.release.outputs.version }}"
-          PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
-          # Override version in Directory.Build.props for the prerelease pack only.
-          # This file was already committed and pushed — this mutation is ephemeral.
-          sed -i "s|<Version>.*</Version>|<Version>${PRERELEASE_VERSION}</Version>|" Directory.Build.props
-          pnpm nx run-many -t pack
-          sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" Directory.Build.props
-          dotnet nuget push "dist/packages/*.nupkg" \
-            --api-key "${FLOWTHRU_NUGET_API_KEY}" \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
 
       - name: Upload coverage badges as artifact
         if: always()

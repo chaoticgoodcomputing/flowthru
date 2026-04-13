@@ -12,11 +12,6 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout release tag
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -27,36 +22,15 @@ jobs:
           DOTNET_NOLOGO: "true"
           DOTNET_CLI_TELEMETRY_OPTOUT: "true"
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.6.3
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Stamp release version into Directory.Build.props
+      - name: Download NuGet packages from release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#v}"
-          sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" Directory.Build.props
-          echo "Stamped version: ${VERSION}"
-
-      - name: Build and pack NuGet packages
-        run: pnpm nx run-many -t pack
+          mkdir -p dist/packages
+          gh release download "${{ github.ref_name }}" \
+            --pattern "*.nupkg" \
+            --dir dist/packages \
+            --repo "${{ github.repository }}"
 
       - name: Publish to NuGet
         run: |
