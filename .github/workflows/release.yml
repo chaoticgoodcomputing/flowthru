@@ -185,10 +185,11 @@ jobs:
           copilot -p "Generate a release summary. Base tag: ${BASE_TAG}, head tag: ${HEAD_TAG}. Summarize all changes between these two tags." \
             --agent=dev-relations \
             --model=claude-haiku-4.5 \
-            --available-tools='view,create,bash' \
+            --available-tools='view,create,edit,bash' \
             --allow-tool='shell(git:*)' \
-            --allow-tool='create' \
+            --allow-tool='write' \
             --allow-tool='view' \
+            --add-dir=. \
             --deny-tool='shell(git push)' \
             --deny-tool='shell(git reset)' \
             --deny-tool='shell(git checkout)' \

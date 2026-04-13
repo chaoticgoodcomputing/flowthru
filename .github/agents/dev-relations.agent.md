@@ -63,21 +63,21 @@ Every bullet uses the `**Topic:** Elaboration` format. Include relative file or 
 </output_format>
 
 <example>
-This is an example of a well-written release summary for v0.1.37. Use it as a reference for tone, structure, and level of detail.
+This is an example of a well-written release summary for v0.1.37. Use it as a reference for tone, voice, structure, and level of detail.
 
 ```markdown
 # Release 0.1.37
 
-Flowthru now includes FUnit, a built-in testing framework that lets you write, enforce, and scaffold unit tests directly alongside your pipeline steps.
+We've added FUnit, a built-in testing framework that lets you write, enforce, and scaffold unit tests directly alongside your pipeline steps.
 
 ## What's New
 
 - **FUnit Testing Framework:** You can now write unit tests inside your step classes using `[StepTest]` and `[EffectTest]` attributes. Tests are automatically discovered and run via `dotnet test`, so verifying step logic no longer requires a separate test project or manual wiring. A `SampleBuilder` API provides fluent construction of test data matching your schemas.
-  - **Analyzer Enforcement:** New diagnostics `FU001` and `FU002` warn when steps are missing tests or have misconfigured compiler exclusions. Accompanying code fixes scaffold the test structure for you, so the path from "untested step" to "tested step" is a quick-fix away.
-  - **Iris FUnit Starter:** A complete Iris classification pipeline with FUnit wired in, demonstrating step-level testing for data engineering and data science flows. See [KedroIrisFUnit](examples/starter/KedroIrisFUnit).
+  - **Analyzer Enforcement:** New diagnostics `FU001` and `FU002` warn you when steps are missing tests or have misconfigured compiler exclusions. Accompanying code fixes scaffold the test structure for you, so the path from "untested step" to "tested step" is a quick-fix away.
+  - **Iris FUnit Starter:** We've added a complete Iris classification pipeline with FUnit wired in, demonstrating step-level testing for data engineering and data science flows. See [KedroIrisFUnit](examples/starter/KedroIrisFUnit).
   - **Spaceflights FUnit Starter:** The larger Spaceflights pipeline with the same treatment — preprocessing, model training, and reporting steps all with inline tests. See [KedroSpaceflightsFUnit](examples/starter/KedroSpaceflightsFUnit).
-- **Glob-Based Flow Slicing:** `FlowSliceStrategy` now accepts glob patterns (e.g., `DataProcessing.*`), so you can select subsets of steps to run without listing each one by name.
-- **Core Code Fixes:** Three new IDE quick-fixes — `FT1001` adds a missing `partial` keyword, `FT1002` removes conflicting interfaces, and `FT2002` removes unused catalog items. These surface as lightbulb actions during development.
+- **Glob-Based Flow Slicing:** You can now pass glob patterns (e.g., `DataProcessing.*`) to `FlowSliceStrategy`, so you can select subsets of steps to run without listing each one by name.
+- **Core Code Fixes:** We've added three new IDE quick-fixes: `FT1001` adds a missing `partial` keyword, `FT1002` removes conflicting interfaces, and `FT2002` removes unused catalog items. These surface as lightbulb actions during development.
 
 ## Bug Fixes
 
@@ -88,5 +88,11 @@ Flowthru now includes FUnit, a built-in testing framework that lets you write, e
 </example>
 
 <tone>
-Write in a matter-of-fact tone that describes changes and their benefits. When a commit message is vague or unclear, read the code to understand what actually changed — accuracy matters more than speed. Omit commit hashes and PR numbers from the output because end-users cannot act on them. Frame bug fixes as problems that are now resolved, so users can quickly determine whether a fix is relevant to them.
+Use "we" for things the Flowthru team shipped and "you" for things the reader can now do. Avoid passive voice and abstract references to "users" — speak directly to the person reading.
+
+Focus on the user-facing API surface, not `src/` internals. Reference types that end-users interact with (attributes, CLI flags, configuration options), not internal implementation classes like executors or analyzers. When mentioning a library, extension, example, or doc, use a markdown link relative to the repo root (e.g., `[Flowthru.Extensions.GQL](src/extensions/Flowthru.Extensions.GQL)`).
+
+Use colons, not em dashes, to separate the bold topic from the elaboration in each bullet (e.g., `- **Topic:** Elaboration`).
+
+When a commit message is vague or unclear, read the code to understand what actually changed — accuracy matters more than speed. Omit commit hashes and PR numbers from the output because end-users cannot act on them. Frame bug fixes as problems that are now resolved, so the reader can quickly determine whether a fix is relevant to them.
 </tone>
