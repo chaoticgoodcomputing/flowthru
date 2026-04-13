@@ -184,6 +184,7 @@ jobs:
           BASE_TAG="${{ steps.last-published.outputs.tag }}"
           copilot -p "Generate a release summary. Base tag: ${BASE_TAG}, head tag: ${HEAD_TAG}. Summarize all changes between these two tags." \
             --agent=dev-relations \
+            --model=claude-haiku-4-5 \
             --available-tools='view,create,bash' \
             --allow-tool='shell(git:*)' \
             --allow-tool='create' \
@@ -196,8 +197,7 @@ jobs:
             --deny-tool='shell(git rebase)' \
             --deny-tool='shell(git branch -d)' \
             --deny-tool='shell(git tag -d)' \
-            --no-ask-user \
-            --silent
+            --no-ask-user
 
       - name: Prepend summary to draft release
         if: steps.release.outputs.changed == 'true'
