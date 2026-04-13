@@ -40,6 +40,40 @@ Use it to register catalogs, flows, and optional features.
 
 ## Methods
 
+### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_ConfigureExecution_System_Action_Flowthru_Core_Flows_ExecutionOptions__"></a> ConfigureExecution\(Action<ExecutionOptions\>\)
+
+Configures default execution behaviour for all pipelines run through this service.
+
+```csharp
+public FlowthruServiceBuilder ConfigureExecution(Action<ExecutionOptions> configure)
+```
+
+#### Parameters
+
+`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[ExecutionOptions](Flowthru.Core.Flows.ExecutionOptions.md)\>
+
+#### Returns
+
+ [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+
+#### Examples
+
+<pre><code class="lang-csharp">services.AddFlowthru(flowthru =&gt;
+{
+    flowthru.ConfigureExecution(opts =&gt;
+    {
+        opts.MaxDegreeOfParallelism = Environment.ProcessorCount;
+    });
+});</code></pre>
+
+#### Remarks
+
+Settings applied here act as the service-level default. They are overridden by any
+value explicitly supplied in the <xref href="Flowthru.Core.Flows.ExecutionOptions" data-throw-if-not-resolved="false"></xref> passed to
+<xref href="Flowthru.Core.Services.IFlowthruService.ExecuteFlowAsync(Flowthru.Core.Flows.ExecutionOptions%2cSystem.Boolean%2cSystem.String%2cSystem.Threading.CancellationToken)" data-throw-if-not-resolved="false"></xref> (e.g. from the CLI <code>--parallelism</code>
+flag). Properties left <code>null</code> or at their default in the per-call options fall
+back to these values.
+
 ### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_ConfigureMetadata_System_Action_Flowthru_Core_Meta_FlowthruMetadataBuilder__"></a> ConfigureMetadata\(Action<FlowthruMetadataBuilder\>\)
 
 Configures metadata export.

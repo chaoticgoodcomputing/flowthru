@@ -1,0 +1,35 @@
+### YamlMime:TableOfContent
+- name: Flowthru.Core.Data.Storage
+  href: Flowthru.Core.Data.Storage.md
+  items:
+  - name: Classes
+  - name: GqlEnumerableStorageAdapter<TResult, T>
+    href: Flowthru.Core.Data.Storage.GqlEnumerableStorageAdapter-2.md
+  - name: GqlStorageAdapter<TResult, T>
+    href: Flowthru.Core.Data.Storage.GqlStorageAdapter-2.md
+- name: Flowthru.Extensions.GQL.Data
+  href: Flowthru.Extensions.GQL.Data.md
+  items:
+  - name: Classes
+  - name: GqlItemFactory
+    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.md
+  - name: GqlItemFactory.Enumerable
+    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Enumerable.md
+  - name: GqlItemFactory.Single
+    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Single.md
+  - name: OffsetPaginationStrategy<TResult, T>
+    href: Flowthru.Extensions.GQL.Data.OffsetPaginationStrategy-2.md
+  - name: PageInfo
+    href: Flowthru.Extensions.GQL.Data.PageInfo.md
+  - name: Pagination
+    href: Flowthru.Extensions.GQL.Data.Pagination.md
+  - name: PaginationStrategy<TResult, T>
+    href: Flowthru.Extensions.GQL.Data.PaginationStrategy-2.md
+  - name: RelayPaginationStrategy<TResult, T>
+    href: Flowthru.Extensions.GQL.Data.RelayPaginationStrategy-2.md
+- name: Flowthru.Extensions.GQL.Tests
+  href: Flowthru.Extensions.GQL.Tests.md
+  items:
+  - name: Classes
+  - name: CompilationTest
+    href: Flowthru.Extensions.GQL.Tests.CompilationTest.md

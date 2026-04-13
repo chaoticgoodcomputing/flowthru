@@ -51,22 +51,28 @@ checks run — for example, <xref href="Flowthru.Core.Flows.ValidationDepth.Stru
 the pipeline graph and runs extension hooks without probing any data sources.
 Assign <code>false</code> (default) to run normally without a dry-run stop.
 
-### <a id="Flowthru_Core_Flows_ExecutionOptions_EnableParallelExecution"></a> EnableParallelExecution
+### <a id="Flowthru_Core_Flows_ExecutionOptions_MaxDegreeOfParallelism"></a> MaxDegreeOfParallelism
 
-Whether to enable parallel execution of nodes within the same layer.
+Maximum number of steps that may execute concurrently.
 
 ```csharp
-public bool EnableParallelExecution { get; set; }
+public int? MaxDegreeOfParallelism { get; set; }
 ```
 
 #### Property Value
 
- [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
+ [int](https://learn.microsoft.com/dotnet/api/system.int32)?
 
 #### Remarks
 
-Phase 2 feature - currently not implemented.
-When true, nodes in the same execution layer run concurrently.
+<p>
+Controls the degree of parallelism in the task-graph scheduler. Steps whose
+dependencies are all satisfied are dispatched immediately, up to this limit.
+</p>
+<p>
+<ul><li><code>null</code> (default) — not specified at this layer; defers to the service-level
+default set via <code>flowthru.ConfigureExecution()</code>, or 1 if that is also unset.</li><li><code>1</code> — sequential execution; one step at a time in topological order.</li><li><code>N &gt; 1</code> — up to N independent steps run concurrently.</li></ul>
+</p>
 
 ### <a id="Flowthru_Core_Flows_ExecutionOptions_ResultFormatter"></a> ResultFormatter
 

@@ -208,7 +208,7 @@ Thrown if:
 
 ### <a id="Flowthru_Core_Flows_Flow_ExecuteAsync_System_Threading_CancellationToken_"></a> ExecuteAsync\(CancellationToken\)
 
-Executes the Flow sequentially, layer by layer.
+Executes the flow in topological order, throwing on the first step failure.
 
 ```csharp
 public Task ExecuteAsync(CancellationToken cancellationToken)
@@ -224,30 +224,17 @@ Cancellation token to signal graceful shutdown
 
  [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)
 
-Task representing the Flow execution
+Task representing the flow execution
 
 #### Remarks
 
-<p>
-This method executes Flow in topological order:
-1. Execute all Flow in layer 0 sequentially
-2. Execute all Flow in layer 1 sequentially
-3. Continue until all layers are complete
-</p>
-<p>
-<strong>Note:</strong> This method throws exceptions on failure. For result-based
-execution with error handling, use RunAsync() instead.
-</p>
-<p>
-In Phase 2, this will be replaced with a parallel executor that can run
-steps within the same layer concurrently.
-</p>
+For structured result-based execution (including parallel), use <xref href="Flowthru.Core.Flows.Flow.RunAsync(System.Threading.CancellationToken)" data-throw-if-not-resolved="false"></xref>.
 
 #### Exceptions
 
  [InvalidOperationException](https://learn.microsoft.com/dotnet/api/system.invalidoperationexception)
 
-Thrown if Flow has not been built
+Thrown if the flow has not been built
 
 ### <a id="Flowthru_Core_Flows_Flow_ExportDag"></a> ExportDag\(\)
 
@@ -329,7 +316,7 @@ attempt to write to the same catalog entry, Build() will throw an InvalidOperati
 
 ### <a id="Flowthru_Core_Flows_Flow_RunAsync_System_Threading_CancellationToken_"></a> RunAsync\(CancellationToken\)
 
-/// Builds and executes the flow, returning comprehensive execution results.
+Builds and executes the flow, returning comprehensive execution results.
 
 ```csharp
 public Task<FlowResult> RunAsync(CancellationToken cancellationToken)
@@ -345,13 +332,47 @@ Cancellation token to signal graceful shutdown
 
  [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[FlowResult](Flowthru.Core.Flows.FlowResult.md)\>
 
-FlowResult containing execution status, timing, and Flow results
+FlowResult containing execution status, timing, and step results
+
+#### Remarks
+
+This is the primary high-level API for executing flows. It automatically
+calls Build() if the Flow hasn't been built yet, then executes via the
+task-graph scheduler with default options (sequential, stop on first error).
+
+### <a id="Flowthru_Core_Flows_Flow_RunAsync_Flowthru_Core_Flows_ExecutionOptions_System_Threading_CancellationToken_"></a> RunAsync\(ExecutionOptions, CancellationToken\)
+
+Builds and executes the flow with the supplied execution options.
+
+```csharp
+public Task<FlowResult> RunAsync(ExecutionOptions options, CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+`options` [ExecutionOptions](Flowthru.Core.Flows.ExecutionOptions.md)
+
+Controls parallelism, error policy, and other execution behaviour.
+
+`cancellationToken` [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken)
+
+Cancellation token to signal graceful shutdown
+
+#### Returns
+
+ [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[FlowResult](Flowthru.Core.Flows.FlowResult.md)\>
+
+FlowResult containing execution status, timing, and step results
 
 #### Remarks
 
 <p>
-This is the primary high-level API for executing flows. It automatically
-calls Build() if the Flow hasn't been built yet, then executes and tracks results.
+Steps are dispatched by the task-graph scheduler as soon as all their dependencies
+complete, up to <xref href="Flowthru.Core.Flows.ExecutionOptions.MaxDegreeOfParallelism" data-throw-if-not-resolved="false"></xref> concurrent steps.
+</p>
+<p>
+With <code>MaxDegreeOfParallelism = 1</code> (default) execution is sequential and
+behaviourally equivalent to the previous layer-by-layer loop.
 </p>
 
 ### <a id="Flowthru_Core_Flows_Flow_ValidateExternalInputsAsync_System_Threading_CancellationToken_"></a> ValidateExternalInputsAsync\(CancellationToken\)
