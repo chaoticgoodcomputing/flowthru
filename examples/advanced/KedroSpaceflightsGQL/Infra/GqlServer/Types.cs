@@ -5,8 +5,8 @@ namespace KedroSpaceflightsGQL.Infra.GqlServer.Types;
 /// <summary>Raw string fields matching the CSV source schema.</summary>
 public record CompanyRecord(
   string Id,
-  string CompanyRating,
-  string IataApproved,
+  decimal CompanyRating,
+  bool IataApproved,
   string CompanyLocation
 );
 
@@ -15,24 +15,24 @@ public record ShuttleRecord(
   string Id,
   string ShuttleType,
   string CompanyId,
-  string Engines,
-  string PassengerCapacity,
-  string Crew,
-  string Price,
-  string DCheckComplete,
-  string MoonClearanceComplete
+  int Engines,
+  int PassengerCapacity,
+  int Crew,
+  decimal Price,
+  bool DCheckComplete,
+  bool MoonClearanceComplete
 );
 
 /// <summary>Raw string fields matching the CSV source schema.</summary>
-public record ReviewRecord(string ShuttleId, string ReviewScoresRating);
+public record ReviewRecord(string ShuttleId, decimal ReviewScoresRating);
 
 // ── GQL input types ────────────────────────────────────────────────────────
 
 /// <summary>Input for the <c>addCompany</c> mutation.</summary>
 public record AddCompanyInput(
   string Id,
-  string CompanyRating,
-  string IataApproved,
+  decimal CompanyRating,
+  bool IataApproved,
   string CompanyLocation
 );
 
@@ -41,13 +41,13 @@ public record AddShuttleInput(
   string Id,
   string ShuttleType,
   string CompanyId,
-  string Engines,
-  string PassengerCapacity,
-  string Crew,
-  string Price,
-  string DCheckComplete,
-  string MoonClearanceComplete
+  int Engines,
+  int PassengerCapacity,
+  int Crew,
+  decimal Price,
+  bool DCheckComplete,
+  bool MoonClearanceComplete
 );
 
 /// <summary>Input for the <c>addReview</c> mutation.</summary>
-public record AddReviewInput(string ShuttleId, string ReviewScoresRating);
+public record AddReviewInput(string ShuttleId, decimal ReviewScoresRating);

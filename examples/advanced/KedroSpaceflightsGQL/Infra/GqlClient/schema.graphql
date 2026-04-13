@@ -1,7 +1,9 @@
+scalar Decimal
+
 type CompanyRecord {
   id: String!
-  companyRating: String!
-  iataApproved: String!
+  companyRating: Decimal!
+  iataApproved: Boolean!
   companyLocation: String!
 }
 
@@ -9,23 +11,23 @@ type ShuttleRecord {
   id: String!
   shuttleType: String!
   companyId: String!
-  engines: String!
-  passengerCapacity: String!
-  crew: String!
-  price: String!
-  dCheckComplete: String!
-  moonClearanceComplete: String!
+  engines: Int!
+  passengerCapacity: Int!
+  crew: Int!
+  price: Decimal!
+  dCheckComplete: Boolean!
+  moonClearanceComplete: Boolean!
 }
 
 type ReviewRecord {
   shuttleId: String!
-  reviewScoresRating: String!
+  reviewScoresRating: Decimal!
 }
 
 input AddCompanyInput {
   id: String!
-  companyRating: String!
-  iataApproved: String!
+  companyRating: Decimal!
+  iataApproved: Boolean!
   companyLocation: String!
 }
 
@@ -33,17 +35,17 @@ input AddShuttleInput {
   id: String!
   shuttleType: String!
   companyId: String!
-  engines: String!
-  passengerCapacity: String!
-  crew: String!
-  price: String!
-  dCheckComplete: String!
-  moonClearanceComplete: String!
+  engines: Int!
+  passengerCapacity: Int!
+  crew: Int!
+  price: Decimal!
+  dCheckComplete: Boolean!
+  moonClearanceComplete: Boolean!
 }
 
 input AddReviewInput {
   shuttleId: String!
-  reviewScoresRating: String!
+  reviewScoresRating: Decimal!
 }
 
 type Query {
