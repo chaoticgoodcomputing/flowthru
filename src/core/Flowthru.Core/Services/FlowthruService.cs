@@ -103,9 +103,7 @@ internal sealed class FlowthruService : IFlowthruService
 
     // Resolve MaxDegreeOfParallelism: CLI/caller value wins; service default is fallback; 1 is the floor.
     options.MaxDegreeOfParallelism =
-      options.MaxDegreeOfParallelism
-      ?? _executionDefaults.MaxDegreeOfParallelism
-      ?? 1;
+      options.MaxDegreeOfParallelism ?? _executionDefaults.MaxDegreeOfParallelism ?? 1;
 
     // ════════════════════════════════════════
     // PRE-FLIGHT CHECKS

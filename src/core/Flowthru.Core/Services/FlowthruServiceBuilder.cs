@@ -651,10 +651,9 @@ public sealed class FlowthruServiceBuilder
   {
     // Register the service-level default parallelism so FlowthruService can consume it.
     var defaultParallelism = _defaultMaxDegreeOfParallelism;
-    _services.AddSingleton(new FlowthruExecutionDefaults
-    {
-      MaxDegreeOfParallelism = defaultParallelism,
-    });
+    _services.AddSingleton(
+      new FlowthruExecutionDefaults { MaxDegreeOfParallelism = defaultParallelism }
+    );
 
     // Always register the catalog collection so FlowthruService can inject all catalogs.
     // Merges both type-registered catalogs (RegisterCatalog) and dynamically constructed

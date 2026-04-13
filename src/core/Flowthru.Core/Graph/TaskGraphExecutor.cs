@@ -131,6 +131,11 @@ internal sealed class TaskGraphExecutor
     var inFlight = new List<Task>();
     var totalSteps = _steps.Count;
 
+    // Pre-populate worker slot IDs (1..N). The semaphore guarantees at most N concurrent
+    // tasks hold the semaphore — so a slot is always available on a successful WaitAsync.
+    var slotCount = Math.Max(1, Math.Min(_maxDegreeOfParallelism, totalSteps));
+    var workerSlots = new ConcurrentQueue<int>(Enumerable.Range(1, slotCount));
+
     while (results.Count + skipped.Count < totalSteps)
     {
       // Drain all currently runnable steps into in-flight tasks.
@@ -144,20 +149,22 @@ internal sealed class TaskGraphExecutor
 
         await semaphore.WaitAsync(dispatchToken).ConfigureAwait(false);
 
+        // Slot dequeue is safe here: semaphore ensures at most slotCount concurrent holders.
+        workerSlots.TryDequeue(out var workerId);
         var capturedStep = step;
         var task = Task.Run(
           async () =>
           {
             try
             {
-              var threadId = Environment.CurrentManagedThreadId;
               var startOrdinal = Interlocked.Increment(ref dispatchedCount);
               _logger?.LogInformation(
-                "  → {StepName} executing... ({StartOrdinal} of {Total} steps, thread {ThreadId})",
+                "  → {StepName} executing... ({StartOrdinal} of {Total} steps, worker {WorkerId}/{TotalWorkers})",
                 capturedStep.Label,
                 startOrdinal,
                 totalSteps,
-                threadId
+                workerId,
+                slotCount
               );
 
               var result = await _executeStep(capturedStep, dispatchToken).ConfigureAwait(false);
@@ -167,11 +174,12 @@ internal sealed class TaskGraphExecutor
               if (!result.Success)
               {
                 _logger?.LogWarning(
-                  "  ✗ {StepName} failed ({CompletedCount} of {Total} steps, thread {ThreadId})",
+                  "  ✗ {StepName} failed ({CompletedCount} of {Total} steps, worker {WorkerId}/{TotalWorkers})",
                   capturedStep.Label,
                   completedCount,
                   totalSteps,
-                  threadId
+                  workerId,
+                  slotCount
                 );
 
                 if (stopOnFirstError)
@@ -188,14 +196,15 @@ internal sealed class TaskGraphExecutor
               else
               {
                 _logger?.LogInformation(
-                  "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)   ({CompletedCount} of {Total} steps, thread {ThreadId})",
+                  "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)   ({CompletedCount} of {Total} steps, worker {WorkerId}/{TotalWorkers})",
                   capturedStep.Label,
                   result.ExecutionTime.TotalSeconds,
                   result.InputCount,
                   result.OutputCount,
                   completedCount,
                   totalSteps,
-                  threadId
+                  workerId,
+                  slotCount
                 );
 
                 // Notify dependents — decrement their pending count.
@@ -204,6 +213,7 @@ internal sealed class TaskGraphExecutor
             }
             finally
             {
+              workerSlots.Enqueue(workerId);
               semaphore.Release();
             }
           },
