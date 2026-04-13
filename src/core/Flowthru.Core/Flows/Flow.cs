@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using Flowthru.Core.Data;
 using Flowthru.Core.Effects;
@@ -383,6 +384,7 @@ public class Flow
   /// </code>
   /// </remarks>
   public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync(
+    int maxDegreeOfParallelism = 1,
     CancellationToken cancellationToken = default
   )
   {
@@ -465,75 +467,98 @@ public class Flow
       externalInputs.Count
     );
 
-    // Inspect each external input based on configured or default level
-    foreach (var catalogEntry in externalInputs)
+    // Inspect each external input based on configured or default level.
+    // Each inspection is independent and I/O-bound, so we fan them out up to
+    // maxDegreeOfParallelism. Each task writes to its own local ValidationResult
+    // to avoid shared-state contention; results are merged sequentially afterward.
+    var inspectionResults = new ConcurrentBag<Data.Validation.ValidationResult>();
+
+    await Parallel.ForEachAsync(
+      externalInputs,
+      new ParallelOptions
+      {
+        MaxDegreeOfParallelism = maxDegreeOfParallelism,
+        CancellationToken = cancellationToken,
+      },
+      async (catalogEntry, token) =>
+      {
+        var entryResult = Data.Validation.ValidationResult.Success();
+        var inspectionLevel = ValidationOptions.GetEffectiveInspectionLevel(catalogEntry);
+
+        if (inspectionLevel == Data.Validation.InspectionLevel.None)
+        {
+          Logger?.LogDebug(
+            "Skipping validation for '{CatalogKey}' (level: None)",
+            catalogEntry.Label
+          );
+          inspectionResults.Add(entryResult);
+          return;
+        }
+
+        Logger?.LogInformation(
+          "Validating '{CatalogKey}' with {InspectionLevel} level",
+          catalogEntry.Label,
+          inspectionLevel
+        );
+
+        try
+        {
+          Data.Validation.ValidationResult inspectionResult;
+
+          // For IItem nodes, use the two-level inspection dispatch
+          if (catalogEntry is Data.IItem item)
+          {
+            inspectionResult =
+              inspectionLevel == Data.Validation.InspectionLevel.Shallow
+                ? await item.InspectShallow(sampleSize: 100).Run(token)
+                : await item.InspectDeep().Run(token);
+          }
+          else
+          {
+            // For non-IItem nodes (effects, etc.), use the universal Validate()
+            inspectionResult = await catalogEntry.Validate().Run(token);
+          }
+
+          entryResult.Merge(inspectionResult);
+
+          if (!inspectionResult.IsValid)
+          {
+            Logger?.LogWarning(
+              "Validation failed for '{CatalogKey}': {ErrorCount} error(s)",
+              catalogEntry.Label,
+              inspectionResult.Errors.Count
+            );
+          }
+          else
+          {
+            Logger?.LogInformation(
+              "'{CatalogKey}' passed {InspectionLevel} validation",
+              catalogEntry.Label,
+              inspectionLevel
+            );
+          }
+        }
+        catch (Exception ex)
+        {
+          Logger?.LogError(ex, "Exception during inspection of '{CatalogKey}'", catalogEntry.Label);
+          entryResult.AddError(
+            new Data.Validation.ValidationError(
+              catalogEntry.Label,
+              Data.Validation.ValidationErrorType.InspectionFailure,
+              $"Inspection threw exception: {ex.Message}",
+              ex.ToString()
+            )
+          );
+        }
+
+        inspectionResults.Add(entryResult);
+      }
+    );
+
+    // Merge all per-entry results sequentially (ValidationResult is not thread-safe)
+    foreach (var entryResult in inspectionResults)
     {
-      var inspectionLevel = ValidationOptions.GetEffectiveInspectionLevel(catalogEntry);
-
-      if (inspectionLevel == Data.Validation.InspectionLevel.None)
-      {
-        Logger?.LogDebug(
-          "Skipping validation for '{CatalogKey}' (level: None)",
-          catalogEntry.Label
-        );
-        continue;
-      }
-
-      Logger?.LogInformation(
-        "Validating '{CatalogKey}' with {InspectionLevel} level",
-        catalogEntry.Label,
-        inspectionLevel
-      );
-
-      try
-      {
-        Data.Validation.ValidationResult inspectionResult;
-
-        // For IItem nodes, use the two-level inspection dispatch
-        if (catalogEntry is Data.IItem item)
-        {
-          inspectionResult =
-            inspectionLevel == Data.Validation.InspectionLevel.Shallow
-              ? await item.InspectShallow(sampleSize: 100).Run(cancellationToken)
-              : await item.InspectDeep().Run(cancellationToken);
-        }
-        else
-        {
-          // For non-IItem nodes (effects, etc.), use the universal Validate()
-          inspectionResult = await catalogEntry.Validate().Run(cancellationToken);
-        }
-
-        result.Merge(inspectionResult);
-
-        if (!inspectionResult.IsValid)
-        {
-          Logger?.LogWarning(
-            "Validation failed for '{CatalogKey}': {ErrorCount} error(s)",
-            catalogEntry.Label,
-            inspectionResult.Errors.Count
-          );
-        }
-        else
-        {
-          Logger?.LogInformation(
-            "'{CatalogKey}' passed {InspectionLevel} validation",
-            catalogEntry.Label,
-            inspectionLevel
-          );
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger?.LogError(ex, "Exception during inspection of '{CatalogKey}'", catalogEntry.Label);
-        result.AddError(
-          new Data.Validation.ValidationError(
-            catalogEntry.Label,
-            Data.Validation.ValidationErrorType.InspectionFailure,
-            $"Inspection threw exception: {ex.Message}",
-            ex.ToString()
-          )
-        );
-      }
+      result.Merge(entryResult);
     }
 
     if (result.IsValid)
