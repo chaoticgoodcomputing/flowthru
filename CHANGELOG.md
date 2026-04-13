@@ -1,3 +1,23 @@
+## 0.3.0 (2026-04-13)
+
+### 🚀 Features
+
+- multithreading implementation ([934adee](https://github.com/chaoticgoodcomputing/flowthru/commit/934adee))
+- multithreaded flows ([e0331e5](https://github.com/chaoticgoodcomputing/flowthru/commit/e0331e5))
+
+### 🩹 Fixes
+
+- agent hook ([98c1cad](https://github.com/chaoticgoodcomputing/flowthru/commit/98c1cad))
+- programmatic defaults for core counts ([67a1065](https://github.com/chaoticgoodcomputing/flowthru/commit/67a1065))
+- corrected log output ([107ceea](https://github.com/chaoticgoodcomputing/flowthru/commit/107ceea))
+- correct test assertion on CLI incoming ([780386d](https://github.com/chaoticgoodcomputing/flowthru/commit/780386d))
+- add multithread to split pipeline example ([4b7f4af](https://github.com/chaoticgoodcomputing/flowthru/commit/4b7f4af))
+- refactor gql to better fit ([c32837b](https://github.com/chaoticgoodcomputing/flowthru/commit/c32837b))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.2.0 (2026-04-13)
 
 ### 🚀 Features
