@@ -270,7 +270,6 @@ tags
 
 # Temp directories
 tmp/
-scratch/
 .obsidian/app.json
 .obsidian/appearance.json
 .obsidian/core-plugins.json
