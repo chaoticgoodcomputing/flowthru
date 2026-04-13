@@ -43,14 +43,14 @@ public class ExecutionOptions
   /// </para>
   /// <para>
   /// <list type="bullet">
-  /// <item><c>1</c> (default) — sequential execution; one step at a time in topological order.</item>
+  /// <item><c>null</c> (default) — not specified at this layer; defers to the service-level
+  /// default set via <c>flowthru.ConfigureExecution()</c>, or 1 if that is also unset.</item>
+  /// <item><c>1</c> — sequential execution; one step at a time in topological order.</item>
   /// <item><c>N &gt; 1</c> — up to N independent steps run concurrently.</item>
-  /// <item><c>-1</c> or <see cref="int.MaxValue"/> — unbounded parallelism; all ready steps
-  /// are dispatched immediately.</item>
   /// </list>
   /// </para>
   /// </remarks>
-  public int MaxDegreeOfParallelism { get; set; } = 1;
+  public int? MaxDegreeOfParallelism { get; set; } = null;
 
   /// <summary>
   /// The result formatter to use for displaying execution results.

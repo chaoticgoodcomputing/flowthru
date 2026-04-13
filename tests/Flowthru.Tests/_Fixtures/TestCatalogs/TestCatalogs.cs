@@ -116,6 +116,38 @@ public class DownstreamCatalog : CatalogAbstract
 }
 
 /// <summary>
+/// Diamond-topology catalog: a shared external input feeds two independent branches
+/// that are later merged into a single output.
+/// </summary>
+/// <remarks>
+/// Topology:
+/// <code>
+///   (external) Input ──→ BranchA ──┐
+///                    └──→ BranchB ──┴──→ Merged
+/// </code>
+/// StepA and StepB are independent — ideal for verifying parallel dispatch.
+/// </remarks>
+public class ParallelBranchCatalog : CatalogAbstract
+{
+  public ParallelBranchCatalog()
+  {
+    InitializeCatalogProperties();
+  }
+
+  public IItem<IEnumerable<TestData>> Input =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_input"));
+
+  public IItem<IEnumerable<TestData>> BranchA =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_branch_a"));
+
+  public IItem<IEnumerable<TestData>> BranchB =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_branch_b"));
+
+  public IItem<IEnumerable<TestData>> Merged =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_merged"));
+}
+
+/// <summary>
 /// Third catalog for 3-arity pipeline tests.
 /// </summary>
 public class ThirdCatalog : CatalogAbstract

@@ -62,7 +62,7 @@ public partial class Catalog
     CreateItem(
       () =>
         GqlItemFactory.Enumerable.Query<IGetCompaniesResult, IGetCompanies_Companies>(
-          label: "Companies",
+          label: "GQLCompanies",
           queryFunc: ct => _client.GetCompanies.ExecuteAsync(ct),
           selectData: r => r.Companies,
           allowEmptyData: true
@@ -76,7 +76,7 @@ public partial class Catalog
     CreateItem(
       () =>
         GqlItemFactory.Enumerable.Query<IGetShuttlesResult, IGetShuttles_Shuttles>(
-          label: "Shuttles",
+          label: "GQLShuttles",
           queryFunc: ct => _client.GetShuttles.ExecuteAsync(ct),
           selectData: r => r.Shuttles,
           allowEmptyData: true
@@ -90,7 +90,7 @@ public partial class Catalog
     CreateItem(
       () =>
         GqlItemFactory.Enumerable.Query<IGetReviewsResult, IGetReviews_Reviews>(
-          label: "Reviews",
+          label: "GQLReviews",
           queryFunc: ct => _client.GetReviews.ExecuteAsync(ct),
           selectData: r => r.Reviews,
           allowEmptyData: true

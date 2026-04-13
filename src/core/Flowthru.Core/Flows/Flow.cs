@@ -599,15 +599,18 @@ public class Flow
 
       var stepList = (IReadOnlyList<FlowStep>)(_slicedSteps ?? _steps);
 
+      // Resolve MaxDegreeOfParallelism: null means "not specified", default to 1 (sequential).
+      var parallelism = options.MaxDegreeOfParallelism ?? 1;
+
       Logger?.LogInformation(
         "Starting flow execution via RunAsync() ({StepCount} steps, parallelism={Parallelism})",
         stepList.Count,
-        options.MaxDegreeOfParallelism
+        parallelism
       );
 
       var executor = new Graph.TaskGraphExecutor(
         stepList,
-        options.MaxDegreeOfParallelism,
+        parallelism,
         ExecuteStepWithTrackingAsync,
         Logger
       );

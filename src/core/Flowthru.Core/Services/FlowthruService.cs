@@ -27,6 +27,7 @@ internal sealed class FlowthruService : IFlowthruService
   private readonly IServiceProvider _services;
   private readonly ILogger<FlowthruService> _logger;
   private readonly FlowthruMetadataBuilder? _metadataBuilder;
+  private readonly FlowthruExecutionDefaults _executionDefaults;
 
   /// <summary>
   /// Initializes a new instance of FlowthruService.
@@ -36,6 +37,7 @@ internal sealed class FlowthruService : IFlowthruService
     Dictionary<string, Flow> pipelines,
     IServiceProvider services,
     ILogger<FlowthruService> logger,
+    FlowthruExecutionDefaults executionDefaults,
     FlowthruMetadataBuilder? metadataBuilder = null
   )
   {
@@ -43,6 +45,7 @@ internal sealed class FlowthruService : IFlowthruService
     _pipelines = pipelines ?? throw new ArgumentNullException(nameof(pipelines));
     _services = services ?? throw new ArgumentNullException(nameof(services));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    _executionDefaults = executionDefaults ?? new FlowthruExecutionDefaults();
     _metadataBuilder = metadataBuilder;
 
     // Inject services into all registered catalogs
@@ -97,6 +100,12 @@ internal sealed class FlowthruService : IFlowthruService
     mergedPipeline.ServiceProvider = _services;
 
     options ??= new ExecutionOptions();
+
+    // Resolve MaxDegreeOfParallelism: CLI/caller value wins; service default is fallback; 1 is the floor.
+    options.MaxDegreeOfParallelism =
+      options.MaxDegreeOfParallelism
+      ?? _executionDefaults.MaxDegreeOfParallelism
+      ?? 1;
 
     // ════════════════════════════════════════
     // PRE-FLIGHT CHECKS

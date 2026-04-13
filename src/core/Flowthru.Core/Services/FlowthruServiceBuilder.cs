@@ -40,10 +40,40 @@ public sealed class FlowthruServiceBuilder
   private Func<IServiceProvider, Dictionary<string, Flow>>? _flowFactory;
   private FlowRegistrationEntry? _lastRegistration;
   private IConfiguration? _configuration;
+  private int? _defaultMaxDegreeOfParallelism;
 
   internal FlowthruServiceBuilder(IServiceCollection services)
   {
     _services = services ?? throw new ArgumentNullException(nameof(services));
+  }
+
+  /// <summary>
+  /// Configures default execution behaviour for all pipelines run through this service.
+  /// </summary>
+  /// <remarks>
+  /// Settings applied here act as the service-level default. They are overridden by any
+  /// value explicitly supplied in the <see cref="ExecutionOptions"/> passed to
+  /// <see cref="IFlowthruService.ExecuteFlowAsync"/> (e.g. from the CLI <c>--parallelism</c>
+  /// flag). Properties left <c>null</c> or at their default in the per-call options fall
+  /// back to these values.
+  /// </remarks>
+  /// <example>
+  /// <code>
+  /// services.AddFlowthru(flowthru =>
+  /// {
+  ///     flowthru.ConfigureExecution(opts =>
+  ///     {
+  ///         opts.MaxDegreeOfParallelism = Environment.ProcessorCount;
+  ///     });
+  /// });
+  /// </code>
+  /// </example>
+  public FlowthruServiceBuilder ConfigureExecution(Action<ExecutionOptions> configure)
+  {
+    var defaults = new ExecutionOptions();
+    configure(defaults);
+    _defaultMaxDegreeOfParallelism = defaults.MaxDegreeOfParallelism;
+    return this;
   }
 
   /// <summary>
@@ -619,6 +649,13 @@ public sealed class FlowthruServiceBuilder
   /// </summary>
   internal void RegisterFlowDictionary()
   {
+    // Register the service-level default parallelism so FlowthruService can consume it.
+    var defaultParallelism = _defaultMaxDegreeOfParallelism;
+    _services.AddSingleton(new FlowthruExecutionDefaults
+    {
+      MaxDegreeOfParallelism = defaultParallelism,
+    });
+
     // Always register the catalog collection so FlowthruService can inject all catalogs.
     // Merges both type-registered catalogs (RegisterCatalog) and dynamically constructed
     // catalog collections (RegisterCatalogs).

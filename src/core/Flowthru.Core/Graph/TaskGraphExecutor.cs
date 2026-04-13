@@ -82,6 +82,12 @@ internal sealed class TaskGraphExecutor
     CancellationToken cancellationToken
   )
   {
+    // Fast-path: surface external cancellation before any work begins.
+    // ThrowIfCancellationRequested throws OperationCanceledException (base type), which
+    // is what callers expect — not the TaskCanceledException that semaphore.WaitAsync
+    // would throw if we let it reach the dispatch loop with an already-cancelled token.
+    cancellationToken.ThrowIfCancellationRequested();
+
     // --- Build scheduling state ---------------------------------------------------
 
     // How many unfinished dependencies each step is still waiting on.
@@ -113,6 +119,7 @@ internal sealed class TaskGraphExecutor
 
     var results = new ConcurrentDictionary<string, StepResult>();
     var semaphore = new SemaphoreSlim(_maxDegreeOfParallelism, _maxDegreeOfParallelism);
+    var dispatchedCount = 0; // incremented atomically before each step starts
 
     // Linked source: either the external token or our own stop-on-error cancellation.
     using var internalCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -143,13 +150,29 @@ internal sealed class TaskGraphExecutor
           {
             try
             {
-              _logger?.LogDebug("Dispatching step: {StepName}", capturedStep.Label);
+              var threadId = Environment.CurrentManagedThreadId;
+              var startOrdinal = Interlocked.Increment(ref dispatchedCount);
+              _logger?.LogInformation(
+                "  → {StepName} executing... ({StartOrdinal} of {Total} steps, thread {ThreadId})",
+                capturedStep.Label,
+                startOrdinal,
+                totalSteps,
+                threadId
+              );
+
               var result = await _executeStep(capturedStep, dispatchToken).ConfigureAwait(false);
               results[capturedStep.Label] = result;
+              var completedCount = results.Count;
 
               if (!result.Success)
               {
-                _logger?.LogWarning("Step failed: {StepName}", capturedStep.Label);
+                _logger?.LogWarning(
+                  "  ✗ {StepName} failed ({CompletedCount} of {Total} steps, thread {ThreadId})",
+                  capturedStep.Label,
+                  completedCount,
+                  totalSteps,
+                  threadId
+                );
 
                 if (stopOnFirstError)
                 {
@@ -164,6 +187,17 @@ internal sealed class TaskGraphExecutor
               }
               else
               {
+                _logger?.LogInformation(
+                  "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)   ({CompletedCount} of {Total} steps, thread {ThreadId})",
+                  capturedStep.Label,
+                  result.ExecutionTime.TotalSeconds,
+                  result.InputCount,
+                  result.OutputCount,
+                  completedCount,
+                  totalSteps,
+                  threadId
+                );
+
                 // Notify dependents — decrement their pending count.
                 EnqueueReadyDependents(capturedStep, pendingDeps, dependents, skipped, readyQueue);
               }
@@ -212,13 +246,17 @@ internal sealed class TaskGraphExecutor
 
       inFlight.Remove(completed);
 
-      // If the dispatch token was cancelled (stop-on-first-error), drain remaining
-      // in-flight tasks before surfacing.
-      if (dispatchToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+      // External cancellation — break immediately; ThrowIfCancellationRequested below
+      // will surface the OperationCanceledException to the caller.
+      if (cancellationToken.IsCancellationRequested)
       {
-        // Wait for any tasks that are already running to finish (they may still complete
-        // normally since they hold the semaphore slot — they only check the token at I/O
-        // boundaries within ExecuteStepWithTrackingAsync).
+        break;
+      }
+
+      // Internal stop-on-first-error cancellation — drain remaining in-flight tasks
+      // (they may still be running; let them finish before we return) then break.
+      if (dispatchToken.IsCancellationRequested)
+      {
         try
         {
           await Task.WhenAll(inFlight).ConfigureAwait(false);
