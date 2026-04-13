@@ -1,3 +1,14 @@
+## 0.3.1 (2026-04-13)
+
+### 🩹 Fixes
+
+- minor release notes changes ([b9a407a](https://github.com/chaoticgoodcomputing/flowthru/commit/b9a407a))
+- resolve publish blocker ([372a28d](https://github.com/chaoticgoodcomputing/flowthru/commit/372a28d))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.3.0 (2026-04-13)
 
 ### 🚀 Features
