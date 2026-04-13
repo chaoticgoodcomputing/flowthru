@@ -1,9 +1,9 @@
 using Flowthru.Core.Cli;
-using Flowthru.Extensions.Python;
-using Flowthru.Extensions.Python.Services;
 using Flowthru.Core.Meta;
 using Flowthru.Core.Meta.Providers;
 using Flowthru.Core.Services;
+using Flowthru.Extensions.Python;
+using Flowthru.Extensions.Python.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -111,6 +111,8 @@ public class Program
             mermaid.WithOutputDirectory(metadataPath)
           );
       });
+
+      flowthru.ConfigureExecution(opts => opts.MaxDegreeOfParallelism = 8);
     });
 
     services.AddLogging(logging =>

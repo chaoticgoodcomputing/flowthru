@@ -1,6 +1,6 @@
 using Flowthru.Core.Flows;
-using Flowthru.Core.Services.Models;
 using Flowthru.Core.Graph;
+using Flowthru.Core.Services.Models;
 
 namespace Flowthru.Core.Cli;
 
@@ -105,6 +105,31 @@ internal static class ArgumentParser
             throw new ArgumentException(
               "--only requires a comma-separated list of step or catalog item labels"
             );
+          }
+          break;
+
+        case "--parallelism":
+          if (i + 1 < args.Length)
+          {
+            var value = args[++i];
+            if (value.Equals("auto", StringComparison.OrdinalIgnoreCase))
+            {
+              options.MaxDegreeOfParallelism = Environment.ProcessorCount;
+            }
+            else if (int.TryParse(value, out var n) && n >= 1)
+            {
+              options.MaxDegreeOfParallelism = n;
+            }
+            else
+            {
+              throw new ArgumentException(
+                $"--parallelism requires a positive integer or 'auto', got: '{value}'"
+              );
+            }
+          }
+          else
+          {
+            throw new ArgumentException("--parallelism requires a value");
           }
           break;
 

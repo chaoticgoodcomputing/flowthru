@@ -28,4 +28,16 @@ public partial class Catalog
           filePath: $"{_basePath}/_02_Intermediate/Datasets/preprocessed_shuttles.parquet"
         )
     );
+
+  /// <summary>
+  /// Preprocessed review data with parsed decimal rating scores.
+  /// </summary>
+  public IItem<IEnumerable<PreprocessedReviewSchema>> PreprocessedReviews =>
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.Parquet<PreprocessedReviewSchema>(
+          label: "PreprocessedReviews",
+          filePath: $"{_basePath}/_02_Intermediate/Datasets/preprocessed_reviews.parquet"
+        )
+    );
 }

@@ -169,6 +169,8 @@ public sealed class FlowthruCli
     _output.WriteLine();
     _output.WriteLine("Options:");
     _output.WriteLine("  --dry-run              Validate without executing steps");
+    _output.WriteLine("  --parallelism N|auto   Max concurrent steps (default: 1 sequential).");
+    _output.WriteLine("                         'auto' uses Environment.ProcessorCount.");
     _output.WriteLine("  --no-metadata          Disable metadata export");
     _output.WriteLine("  --metadata-output DIR  Specify metadata output directory");
     _output.WriteLine("  -h, --help             Show this help message");

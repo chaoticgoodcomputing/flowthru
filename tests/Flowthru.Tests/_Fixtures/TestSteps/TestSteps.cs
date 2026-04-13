@@ -115,3 +115,28 @@ public static class SplitStep
     };
   }
 }
+
+/// <summary>
+/// Step that records its execution window (start/end timestamp) to a shared log,
+/// then applies an optional delay. Used to verify concurrent vs. sequential dispatch.
+/// </summary>
+public static class RecordingStep
+{
+  /// <param name="log">Shared bag that captures execution windows across steps.</param>
+  /// <param name="label">Identifier written into the log entry.</param>
+  /// <param name="delay">How long the step blocks before completing.</param>
+  public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create(
+    System.Collections.Concurrent.ConcurrentBag<(string Label, DateTime Start, DateTime End)> log,
+    string label,
+    TimeSpan delay
+  )
+  {
+    return async (input) =>
+    {
+      var start = DateTime.UtcNow;
+      await Task.Delay(delay);
+      log.Add((label, start, DateTime.UtcNow));
+      return input;
+    };
+  }
+}

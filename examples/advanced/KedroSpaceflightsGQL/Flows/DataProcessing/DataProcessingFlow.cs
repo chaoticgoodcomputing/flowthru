@@ -1,49 +1,28 @@
 using Flowthru.Core.Flows;
 using KedroSpaceflightsGQL.Data;
 using KedroSpaceflightsGQL.Flows.DataProcessing.Steps;
-using KedroSpaceflightsGQL.Infra.GqlClient;
 
 namespace KedroSpaceflightsGQL.Flows.DataProcessing;
 
 /// <summary>
-/// Creates the data processing pipeline that preprocesses raw company and shuttle data
-/// and joins it with reviews to create a model input table.
+/// Data processing pipeline. Reads typed data from the GQL server and joins it into a
+/// model input table. Depends on Ingest completing first via the GqlDatabaseSeeded gate.
 /// </summary>
 public static class DataProcessingFlow
 {
-  /// <summary>
-  /// Creates the data processing pipeline.
-  /// </summary>
-  /// <param name="catalog">The data catalog containing input and output entries.</param>
-  /// <returns>A configured pipeline that produces a model input table from raw data sources.</returns>
   public static Flow Create(Catalog catalog)
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddStep(
-        label: "PreprocessCompanies",
-        description: "Cleans and preprocesses raw company data.",
-        transform: PreprocessCompaniesStep.Create(),
-        input: catalog.Companies,
-        output: catalog.PreprocessedCompanies
-      );
-
-      pipeline.AddStep(
-        label: "PreprocessShuttles",
-        description: "Cleans and preprocesses raw shuttle data.",
-        transform: PreprocessShuttlesStep.Create(),
-        input: catalog.Shuttles,
-        output: catalog.PreprocessedShuttles
-      );
-
-      pipeline.AddStep(
         label: "CreateModelInputTable",
         description: """
-          Joins preprocessed shuttle and company data with review scores to create a
-          unified model input table.
+          Joins typed shuttle, company, and review data queried from the GQL server
+          into a unified model input table. GqlDatabaseSeeded is consumed as an explicit
+          DAG gate ensuring Ingest has completed before this step executes.
         """,
         transform: CreateModelInputTableStep.Create(),
-        input: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),
+        input: (catalog.GqlDatabaseSeeded, catalog.Shuttles, catalog.Companies, catalog.Reviews),
         output: catalog.ModelInputTable
       );
     });

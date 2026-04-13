@@ -104,9 +104,9 @@ This doesn't mean *ignoring* these concerns — it just means extending the API 
 The project uses NX for task orchestration. Common commands:
 
 ```bash
-nx run flowthru:build                   # Build the solution
-nx run flowthru:test                    # Run all tests with coverage
-nx run flowthru:format:csharp           # Format code with CSharpier
+dotnet build # Confirm solution builds fully
+nx run affected -t test # Run all test projects affected by current changes
+dotnet test # Run all tests for the project.
 ```
 
 To run a subset of tests by category:

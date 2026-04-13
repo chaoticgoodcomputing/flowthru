@@ -1,27 +1,23 @@
 using Flowthru.Core.Steps;
-using KedroSpaceflightsGQL.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsGQL.Data._03_Primary.Schemas;
 using KedroSpaceflightsGQL.Infra.GqlClient;
 
 namespace KedroSpaceflightsGQL.Flows.DataProcessing.Steps;
 
 /// <summary>
-/// Joins preprocessed shuttle and company data with review scores to create a unified model input table.
+/// Joins typed shuttle, company, and review data from the GQL server into a unified model
+/// input table. All fields are already strongly-typed — no parsing required.
+/// The <c>bool</c> first input is the GqlDatabaseSeeded gate; it is consumed only to
+/// express the DAG dependency on Ingest and is otherwise unused.
 /// </summary>
 [FlowthruStep]
 public static class CreateModelInputTableStep
 {
-  /// <summary>
-  /// Creates a join function that combines shuttle, company, and review data into a single table for modeling.
-  /// </summary>
-  /// <returns>
-  /// A function that performs inner joins to produce <see cref="ModelInputTableSchema"/> records.
-  /// Records are filtered to include only reviews with valid numeric scores.
-  /// </returns>
   public static Func<
     (
-      IEnumerable<PreprocessedShuttleSchema>,
-      IEnumerable<PreprocessedCompanySchema>,
+      bool,
+      IEnumerable<IGetShuttles_Shuttles>,
+      IEnumerable<IGetCompanies_Companies>,
       IEnumerable<IGetReviews_Reviews>
     ),
     IEnumerable<ModelInputTableSchema>
@@ -29,25 +25,15 @@ public static class CreateModelInputTableStep
   {
     return (input) =>
     {
-      var (shuttles, companies, reviews) = input;
-
-      // Parse reviews to have decimal scores
-      var parsedReviews = reviews
-        .Select(r => new
-        {
-          r.ShuttleId,
-          Score = decimal.TryParse(r.ReviewScoresRating, out var score) ? score : (decimal?)null,
-        })
-        .Where(r => r.Score.HasValue)
-        .ToList();
+      var (_, shuttles, companies, reviews) = input;
 
       // Join reviews to shuttles
-      var ratedShuttles = parsedReviews
+      var ratedShuttles = reviews
         .Join(
           shuttles,
           r => r.ShuttleId,
           s => s.Id,
-          (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
+          (r, s) => new { Shuttle = s, ReviewScore = r.ReviewScoresRating }
         )
         .ToList();
 
@@ -74,7 +60,7 @@ public static class CreateModelInputTableStep
               ReviewScoresRating = rs.ReviewScore,
             }
         )
-        .ToList(); // Materialize query to ensure LINQ execution completes
+        .ToList();
 
       return modelInputTable;
     };

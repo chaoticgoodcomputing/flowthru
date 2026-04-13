@@ -553,20 +553,40 @@ public class Flow
   }
 
   /// <summary>
-  /// /// Builds and executes the flow, returning comprehensive execution results.
+  /// Builds and executes the flow, returning comprehensive execution results.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
-  /// <returns>FlowResult containing execution status, timing, and Flow results</returns>
+  /// <returns>FlowResult containing execution status, timing, and step results</returns>
+  /// <remarks>
+  /// This is the primary high-level API for executing flows. It automatically
+  /// calls Build() if the Flow hasn't been built yet, then executes via the
+  /// task-graph scheduler with default options (sequential, stop on first error).
+  /// </remarks>
+  public Task<FlowResult> RunAsync(CancellationToken cancellationToken) =>
+    RunAsync(new ExecutionOptions(), cancellationToken);
+
+  /// <summary>
+  /// Builds and executes the flow with the supplied execution options.
+  /// </summary>
+  /// <param name="options">Controls parallelism, error policy, and other execution behaviour.</param>
+  /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
+  /// <returns>FlowResult containing execution status, timing, and step results</returns>
   /// <remarks>
   /// <para>
-  /// This is the primary high-level API for executing flows. It automatically
-  /// calls Build() if the Flow hasn't been built yet, then executes and tracks results.
+  /// Steps are dispatched by the task-graph scheduler as soon as all their dependencies
+  /// complete, up to <see cref="ExecutionOptions.MaxDegreeOfParallelism"/> concurrent steps.
+  /// </para>
+  /// <para>
+  /// With <c>MaxDegreeOfParallelism = 1</c> (default) execution is sequential and
+  /// behaviourally equivalent to the previous layer-by-layer loop.
   /// </para>
   /// </remarks>
-  public async Task<FlowResult> RunAsync(CancellationToken cancellationToken)
+  public async Task<FlowResult> RunAsync(
+    ExecutionOptions options,
+    CancellationToken cancellationToken
+  )
   {
     var stopwatch = Stopwatch.StartNew();
-    var stepResults = new Dictionary<string, StepResult>();
 
     try
     {
@@ -577,33 +597,37 @@ public class Flow
         Build();
       }
 
-      Logger?.LogInformation("Starting flow execution via RunAsync()");
+      var stepList = (IReadOnlyList<FlowStep>)(_slicedSteps ?? _steps);
 
-      // Execute all layers
-      foreach (var layer in ExecutionLayers!)
+      // Resolve MaxDegreeOfParallelism: null means "not specified", default to 1 (sequential).
+      var parallelism = options.MaxDegreeOfParallelism ?? 1;
+
+      Logger?.LogInformation(
+        "Starting flow execution via RunAsync() ({StepCount} steps, parallelism={Parallelism})",
+        stepList.Count,
+        parallelism
+      );
+
+      var executor = new Graph.TaskGraphExecutor(
+        stepList,
+        parallelism,
+        ExecuteStepWithTrackingAsync,
+        Logger
+      );
+
+      var stepResults = await executor.RunAsync(options.StopOnFirstError, cancellationToken);
+
+      // Surface the first failure when StopOnFirstError is true.
+      var firstFailure = stepResults.Values.FirstOrDefault(r => !r.Success);
+      if (firstFailure != null)
       {
-        Logger?.LogInformation("Executing layer with {StepCount} steps", layer.Count);
-
-        foreach (var flowStep in layer)
-        {
-          // Check for cancellation before starting each step
-          cancellationToken.ThrowIfCancellationRequested();
-
-          var stepResult = await ExecuteStepWithTrackingAsync(flowStep, cancellationToken);
-          stepResults[flowStep.Label] = stepResult;
-
-          // If step failed, stop execution
-          if (!stepResult.Success)
-          {
-            stopwatch.Stop();
-            return FlowResult.CreateFailure(
-              stopwatch.Elapsed,
-              stepResult.Exception!,
-              stepResults,
-              Name
-            );
-          }
-        }
+        stopwatch.Stop();
+        return FlowResult.CreateFailure(
+          stopwatch.Elapsed,
+          firstFailure.Exception!,
+          stepResults,
+          Name
+        );
       }
 
       stopwatch.Stop();
@@ -616,8 +640,7 @@ public class Flow
     }
     catch (OperationCanceledException)
     {
-      // Re-throw cancellation exceptions so they propagate to the caller
-      // Cancellation is not a failure but a requested abort
+      // Re-throw — cancellation is not a failure but a requested abort.
       stopwatch.Stop();
       throw;
     }
@@ -625,31 +648,23 @@ public class Flow
     {
       stopwatch.Stop();
       Logger?.LogError(ex, "Flow execution failed: {ErrorMessage}", ex.Message);
-      return FlowResult.CreateFailure(stopwatch.Elapsed, ex, stepResults, Name);
+      return FlowResult.CreateFailure(
+        stopwatch.Elapsed,
+        ex,
+        new Dictionary<string, StepResult>(),
+        Name
+      );
     }
   }
 
   /// <summary>
-  /// Executes the Flow sequentially, layer by layer.
+  /// Executes the flow in topological order, throwing on the first step failure.
   /// </summary>
   /// <param name="cancellationToken">Cancellation token to signal graceful shutdown</param>
-  /// <returns>Task representing the Flow execution</returns>
-  /// <exception cref="InvalidOperationException">Thrown if Flow has not been built</exception>
+  /// <returns>Task representing the flow execution</returns>
+  /// <exception cref="InvalidOperationException">Thrown if the flow has not been built</exception>
   /// <remarks>
-  /// <para>
-  /// This method executes Flow in topological order:
-  /// 1. Execute all Flow in layer 0 sequentially
-  /// 2. Execute all Flow in layer 1 sequentially
-  /// 3. Continue until all layers are complete
-  /// </para>
-  /// <para>
-  /// <strong>Note:</strong> This method throws exceptions on failure. For result-based
-  /// execution with error handling, use RunAsync() instead.
-  /// </para>
-  /// <para>
-  /// In Phase 2, this will be replaced with a parallel executor that can run
-  /// steps within the same layer concurrently.
-  /// </para>
+  /// For structured result-based execution (including parallel), use <see cref="RunAsync(CancellationToken)"/>.
   /// </remarks>
   public async Task ExecuteAsync(CancellationToken cancellationToken)
   {
@@ -664,22 +679,17 @@ public class Flow
 
     try
     {
-      foreach (var layer in ExecutionLayers!)
+      var result = await RunAsync(cancellationToken);
+
+      if (!result.Success)
       {
-        Logger?.LogInformation("Executing layer with {StepCount} steps", layer.Count);
-
-        foreach (var flowStep in layer)
-        {
-          // Check for cancellation before starting each step
-          cancellationToken.ThrowIfCancellationRequested();
-
-          await ExecuteStepAsync(flowStep, cancellationToken);
-        }
+        throw result.Exception
+          ?? new InvalidOperationException("Flow execution failed with no exception details.");
       }
 
       Logger?.LogInformation("Flow execution completed successfully");
     }
-    catch (Exception ex)
+    catch (Exception ex) when (ex is not OperationCanceledException)
     {
       Logger?.LogError(ex, "Flow execution failed: {ErrorMessage}", ex.Message);
       throw;
