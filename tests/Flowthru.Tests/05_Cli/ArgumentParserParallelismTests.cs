@@ -53,11 +53,13 @@ public class ArgumentParserParallelismTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  public void Parse_NoParallelismFlag_DefaultsToOne()
+  public void Parse_NoParallelismFlag_LeavesNull()
   {
     var parsed = ArgumentParser.Parse([], NoFlows);
 
-    Assert.That(parsed.Options!.MaxDegreeOfParallelism, Is.EqualTo(1));
+    // Null means "unspecified" — the priority chain in FlowthruService resolves it
+    // to the service-level default, or 1 if none is configured.
+    Assert.That(parsed.Options!.MaxDegreeOfParallelism, Is.Null);
   }
 
   // ─────────────────────────────────────────────────────────────────────────

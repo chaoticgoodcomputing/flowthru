@@ -94,6 +94,8 @@ public class Program
       flowthru
         .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
         .WithDescription("Generates reports and visualizations");
+
+      flowthru.ConfigureExecution(opts => opts.MaxDegreeOfParallelism = 8);
     });
 
     services.AddLogging(logging =>
