@@ -1,3 +1,19 @@
+## 0.2.0 (2026-04-13)
+
+### 🚀 Features
+
+- GQL catalog entry extension ([10e2711](https://github.com/chaoticgoodcomputing/flowthru/commit/10e2711))
+- GQL example ([eea4da3](https://github.com/chaoticgoodcomputing/flowthru/commit/eea4da3))
+
+### 🩹 Fixes
+
+- improved workflow for actions linting ([7370446](https://github.com/chaoticgoodcomputing/flowthru/commit/7370446))
+- lighter-weight initial release test ([e453bce](https://github.com/chaoticgoodcomputing/flowthru/commit/e453bce))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.1.39 (2026-04-11)
 
 ### 🩹 Fixes
