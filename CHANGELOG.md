@@ -1,3 +1,14 @@
+## 0.3.2 (2026-04-13)
+
+### 🩹 Fixes
+
+- include unreleased conventional commits on new releases ([f92f512](https://github.com/chaoticgoodcomputing/flowthru/commit/f92f512))
+- further CI/CD enhancements for nuget flow ([cf0bb18](https://github.com/chaoticgoodcomputing/flowthru/commit/cf0bb18))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.3.1 (2026-04-13)
 
 ### 🩹 Fixes
