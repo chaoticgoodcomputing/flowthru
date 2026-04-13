@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Flowthru.Core.Graph.Meta.Models;
 
-namespace Flowthru.Core.Meta;
+namespace Flowthru.Meta;
 
 /// <summary>
 /// Extension methods for serializing metadata to JSON.
@@ -28,20 +28,6 @@ public static class MetadataJsonExtensions
   /// </summary>
   /// <param name="metadata">The DAG metadata to serialize</param>
   /// <returns>JSON string representation</returns>
-  /// <remarks>
-  /// <para>
-  /// Output format uses:
-  /// </para>
-  /// <list type="bullet">
-  /// <item>camelCase property names (pipelineName, not FlowName)</item>
-  /// <item>Indented formatting for readability</item>
-  /// <item>Null properties omitted</item>
-  /// <item>Enums serialized as strings</item>
-  /// </list>
-  /// <para>
-  /// This format is optimized for Flowthru.Core.Viz consumption and human readability.
-  /// </para>
-  /// </remarks>
   public static string ToJson(this DagMetadata metadata)
   {
     if (metadata == null)
@@ -50,6 +36,23 @@ public static class MetadataJsonExtensions
     }
 
     return JsonSerializer.Serialize(metadata, _jsonOptions);
+  }
+
+  /// <summary>
+  /// Serializes DagMetadata to compact JSON string (no indentation).
+  /// </summary>
+  /// <param name="metadata">The DAG metadata to serialize</param>
+  /// <returns>Compact JSON string representation</returns>
+  public static string ToCompactJson(this DagMetadata metadata)
+  {
+    if (metadata == null)
+    {
+      throw new ArgumentNullException(nameof(metadata));
+    }
+
+    var compactOptions = new JsonSerializerOptions(_jsonOptions) { WriteIndented = false };
+
+    return JsonSerializer.Serialize(metadata, compactOptions);
   }
 
   /// <summary>
@@ -73,26 +76,5 @@ public static class MetadataJsonExtensions
     }
 
     return metadata;
-  }
-
-  /// <summary>
-  /// Serializes DagMetadata to compact JSON string (no indentation).
-  /// </summary>
-  /// <param name="metadata">The DAG metadata to serialize</param>
-  /// <returns>Compact JSON string representation</returns>
-  /// <remarks>
-  /// Use this for minimizing file size when human readability is not a concern,
-  /// such as API responses or embedded metadata.
-  /// </remarks>
-  public static string ToCompactJson(this DagMetadata metadata)
-  {
-    if (metadata == null)
-    {
-      throw new ArgumentNullException(nameof(metadata));
-    }
-
-    var compactOptions = new JsonSerializerOptions(_jsonOptions) { WriteIndented = false };
-
-    return JsonSerializer.Serialize(metadata, compactOptions);
   }
 }

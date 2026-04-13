@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru</RootNamespace>
+    <Description>JSON metadata provider for Flowthru pipelines</Description>
+
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Extensions.Metadata.Json</PackageId>
+    <PackageTags>data-engineering;pipeline;metadata;json</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

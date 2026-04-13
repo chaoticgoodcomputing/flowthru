@@ -1,7 +1,7 @@
 using Flowthru.Core.Cli;
-using Flowthru.Core.Meta;
-using Flowthru.Core.Meta.Providers;
 using Flowthru.Core.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SpaceflightsDistributed.DataProcessing.Data;

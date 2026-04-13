@@ -14,8 +14,8 @@ namespace Flowthru.Core.Meta.Providers;
 /// <strong>Built-in Providers:</strong>
 /// </para>
 /// <list type="bullet">
-/// <item><see cref="JsonMetadataProvider"/> - Exports JSON files</item>
-/// <item><see cref="MermaidMetadataProvider"/> - Exports Mermaid diagrams</item>
+/// <item>Flowthru.Extensions.Metadata.Json - Exports JSON files</item>
+/// <item>Flowthru.Extensions.Metadata.Mermaid - Exports Mermaid diagrams</item>
 /// </list>
 /// <para>
 /// <strong>Custom Provider Example:</strong>

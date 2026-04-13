@@ -1,24 +1,23 @@
-using Flowthru.Core.Meta.Providers;
+using Flowthru.Meta.Providers;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Core.Meta;
+namespace Flowthru.Meta;
 
 /// <summary>
-/// Builder for configuring JSON metadata provider options.
+/// Builder for configuring <see cref="JsonMetadataProvider"/> options.
 /// </summary>
 public class JsonMetadataProviderBuilder
 {
   private string _outputDirectory = "metadata";
-  private string _filenameTemplate = "dag-{FlowName}-{Timestamp}-{SliceType}";
-  private TimestampConfiguration _timestampConfig = new();
+  private string _dagFilenameTemplate = "dag-{FlowName}-{Timestamp}-{SliceType}";
+  private string _runFilenameTemplate = "run-{FlowName}-{Timestamp}-{SliceType}";
+  private Core.Meta.TimestampConfiguration _timestampConfig = new();
   private bool _useCompactFormat = false;
   private ILogger? _logger;
 
   /// <summary>
   /// Sets the output directory for metadata files.
   /// </summary>
-  /// <param name="directory">Directory path (relative or absolute)</param>
-  /// <returns>This builder for fluent chaining</returns>
   public JsonMetadataProviderBuilder WithOutputDirectory(string directory)
   {
     _outputDirectory = directory ?? throw new ArgumentNullException(nameof(directory));
@@ -26,13 +25,22 @@ public class JsonMetadataProviderBuilder
   }
 
   /// <summary>
-  /// Sets the filename template for metadata files.
+  /// Sets the filename template for pre-run DAG export files.
   /// </summary>
   /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
-  /// <returns>This builder for fluent chaining</returns>
   public JsonMetadataProviderBuilder WithFilenameTemplate(string template)
   {
-    _filenameTemplate = template ?? throw new ArgumentNullException(nameof(template));
+    _dagFilenameTemplate = template ?? throw new ArgumentNullException(nameof(template));
+    return this;
+  }
+
+  /// <summary>
+  /// Sets the filename template for post-run result export files.
+  /// </summary>
+  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
+  public JsonMetadataProviderBuilder WithRunFilenameTemplate(string template)
+  {
+    _runFilenameTemplate = template ?? throw new ArgumentNullException(nameof(template));
     return this;
   }
 
@@ -40,17 +48,16 @@ public class JsonMetadataProviderBuilder
   /// Sets the timestamp format for filename generation.
   /// </summary>
   /// <param name="format">Timestamp format string (e.g., "yyyy-MM-dd_HH-mm-ss")</param>
-  /// <returns>This builder for fluent chaining</returns>
   public JsonMetadataProviderBuilder WithTimestamp(string? format = null)
   {
-    _timestampConfig = format == null ? new() : new() { Format = format };
+    _timestampConfig =
+      format == null ? new() : new Core.Meta.TimestampConfiguration { Format = format };
     return this;
   }
 
   /// <summary>
   /// Enables compact JSON format (no indentation).
   /// </summary>
-  /// <returns>This builder for fluent chaining</returns>
   public JsonMetadataProviderBuilder UseCompactFormat()
   {
     _useCompactFormat = true;
@@ -60,7 +67,6 @@ public class JsonMetadataProviderBuilder
   /// <summary>
   /// Enables indented JSON format (default).
   /// </summary>
-  /// <returns>This builder for fluent chaining</returns>
   public JsonMetadataProviderBuilder UseIndentedFormat()
   {
     _useCompactFormat = false;
@@ -70,8 +76,6 @@ public class JsonMetadataProviderBuilder
   /// <summary>
   /// Sets a custom logger for this provider.
   /// </summary>
-  /// <param name="logger">Logger instance</param>
-  /// <returns>This builder for fluent chaining</returns>
   public JsonMetadataProviderBuilder WithLogger(ILogger logger)
   {
     _logger = logger;
@@ -81,12 +85,12 @@ public class JsonMetadataProviderBuilder
   /// <summary>
   /// Builds the JSON metadata provider with the configured options.
   /// </summary>
-  /// <returns>A configured <see cref="JsonMetadataProvider"/> instance</returns>
   public JsonMetadataProvider Build()
   {
     return new JsonMetadataProvider(
       _outputDirectory,
-      _filenameTemplate,
+      _dagFilenameTemplate,
+      _runFilenameTemplate,
       _timestampConfig,
       _useCompactFormat,
       _logger

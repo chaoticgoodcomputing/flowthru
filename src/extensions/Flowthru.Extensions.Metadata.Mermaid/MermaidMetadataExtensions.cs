@@ -1,7 +1,7 @@
 using System.Text;
 using Flowthru.Core.Graph.Meta.Models;
 
-namespace Flowthru.Core.Meta;
+namespace Flowthru.Meta;
 
 /// <summary>
 /// Extension methods for generating Mermaid diagram representations of DAG metadata.
@@ -30,28 +30,6 @@ public static class MermaidMetadataExtensions
   /// <param name="activeStepColor">Hex color for active (sliced) steps. Defaults to #2E7D32.</param>
   /// <param name="activeItemColor">Hex color for active (sliced) catalog items. Defaults to #2E7D32.</param>
   /// <returns>Complete Markdown document with Mermaid code fence</returns>
-  /// <remarks>
-  /// <para>
-  /// The output is a valid Markdown document that can be saved as a .md file
-  /// and rendered by any Mermaid-compatible viewer.
-  /// </para>
-  /// <para>
-  /// <strong>Example output:</strong>
-  /// </para>
-  /// <code>
-  /// ```mermaid
-  /// flowchart TB
-  ///     RawCompanies[("Raw Companies")]
-  ///
-  ///     subgraph DataProcessing["DataProcessing"]
-  ///         PreprocessCompanies["Preprocess Companies"]
-  ///         CleanedCompanies[("Cleaned Companies")]
-  ///         RawCompanies --> PreprocessCompanies
-  ///         PreprocessCompanies --> CleanedCompanies
-  ///     end
-  /// ```
-  /// </code>
-  /// </remarks>
   public static string ToMermaidDiagram(
     this DagMetadata dag,
     string direction = "TB",
@@ -61,17 +39,13 @@ public static class MermaidMetadataExtensions
   {
     var sb = new StringBuilder();
 
-    // Start Mermaid code fence with flowchart and specified direction
     sb.AppendLine("```mermaid");
     sb.AppendLine($"flowchart {direction}");
     sb.AppendLine();
 
-    // Classify catalog items into external and produced
     var externalItems = dag.CatalogItems.Where(e => string.IsNullOrEmpty(e.Producer)).ToList();
-
     var producedItems = dag.CatalogItems.Where(e => !string.IsNullOrEmpty(e.Producer)).ToList();
 
-    // Define all external data inputs first (cylindrical database shape)
     if (externalItems.Any())
     {
       sb.AppendLine("    %% External Data Inputs");
@@ -82,7 +56,6 @@ public static class MermaidMetadataExtensions
       sb.AppendLine();
     }
 
-    // Group steps by flow
     var flowGroups = dag.Steps.GroupBy(n => n.FlowName).OrderBy(g => g.Key);
 
     foreach (var flowGroup in flowGroups)
@@ -92,28 +65,21 @@ public static class MermaidMetadataExtensions
 
       sb.AppendLine($"    subgraph {SanitizeId(flowName)}[\"{EscapeLabel(flowName)}\"]");
 
-      // Find produced catalog items that belong to this flow
       var flowItems = producedItems.Where(e => flowSteps.Any(n => n.Id == e.Producer)).ToList();
 
-      // Define steps (rectangles) with styling for steps in the slice
       foreach (var step in flowSteps)
       {
         var stepId = SanitizeId(step.Id);
         var stepLabel = EscapeLabel(step.Label);
 
-        // Apply color fill to steps in the execution slice
+        sb.AppendLine($"        {stepId}[\"{stepLabel}\"]");
+
         if (dag.SlicedStepIds != null && dag.SlicedStepIds.Contains(step.Id))
         {
-          sb.AppendLine($"        {stepId}[\"{stepLabel}\"]");
           sb.AppendLine($"        style {stepId} fill:{activeStepColor}");
-        }
-        else
-        {
-          sb.AppendLine($"        {stepId}[\"{stepLabel}\"]");
         }
       }
 
-      // Define catalog items produced by this Flow (cylindrical database shape)
       foreach (var item in flowItems)
       {
         var itemId = SanitizeId(item.Key);
@@ -121,7 +87,6 @@ public static class MermaidMetadataExtensions
 
         sb.AppendLine($"        {itemId}[(\"{itemLabel}\")]");
 
-        // Apply color fill to catalog items in the execution slice
         if (dag.SlicedCatalogItemIds != null && dag.SlicedCatalogItemIds.Contains(item.Key))
         {
           sb.AppendLine($"        style {itemId} fill:{activeItemColor}");
@@ -130,18 +95,14 @@ public static class MermaidMetadataExtensions
 
       sb.AppendLine();
 
-      // Generate edges for this flow
       foreach (var step in flowSteps)
       {
-        // Input edges - only include if the input is produced by this Flow (not external!)
         foreach (var input in step.Inputs)
         {
           var inputItem = dag.CatalogItems.FirstOrDefault(e => e.Key == input);
           if (inputItem != null)
           {
             var isProducedByThisFlow = flowItems.Any(e => e.Key == input);
-
-            // Only include edges from data produced within this flow
             if (isProducedByThisFlow)
             {
               sb.AppendLine($"        {SanitizeId(input)} --> {SanitizeId(step.Id)}");
@@ -149,7 +110,6 @@ public static class MermaidMetadataExtensions
           }
         }
 
-        // Output edges - step to its produced catalog items
         foreach (var output in step.Outputs)
         {
           var catalogItem = flowItems.FirstOrDefault(e => e.Key == output);
@@ -164,7 +124,6 @@ public static class MermaidMetadataExtensions
       sb.AppendLine();
     }
 
-    // Generate external data to step edges (outside subgraphs)
     sb.AppendLine("    %% External Data to Flow Edges");
     foreach (var item in externalItems)
     {
@@ -179,7 +138,6 @@ public static class MermaidMetadataExtensions
     }
     sb.AppendLine();
 
-    // Generate cross-flow edges (catalog items that connect different flows)
     var crossFlowEdges = new List<(string source, string target)>();
 
     foreach (var item in producedItems)
@@ -195,7 +153,6 @@ public static class MermaidMetadataExtensions
         var consumerStep = dag.Steps.FirstOrDefault(n => n.Id == consumer);
         if (consumerStep != null && consumerStep.FlowName != producerStep.FlowName)
         {
-          // This catalog item connects two different flows
           crossFlowEdges.Add((item.Key, consumer));
         }
       }
@@ -210,7 +167,6 @@ public static class MermaidMetadataExtensions
       }
     }
 
-    // Close Mermaid code fence
     sb.AppendLine("```");
 
     return sb.ToString();
@@ -219,15 +175,8 @@ public static class MermaidMetadataExtensions
   /// <summary>
   /// Sanitizes an identifier for use in Mermaid diagrams.
   /// </summary>
-  /// <param name="id">The identifier to sanitize</param>
-  /// <returns>Sanitized identifier safe for Mermaid</returns>
-  /// <remarks>
-  /// Mermaid has specific requirements for identifiers. This method ensures
-  /// the ID is compatible by replacing problematic characters.
-  /// </remarks>
-  private static string SanitizeId(string id)
+  internal static string SanitizeId(string id)
   {
-    // Replace spaces and special characters with underscores
     return id.Replace(" ", "_")
       .Replace("-", "_")
       .Replace(".", "_")
@@ -240,11 +189,8 @@ public static class MermaidMetadataExtensions
   /// <summary>
   /// Escapes a label for safe use in Mermaid diagrams.
   /// </summary>
-  /// <param name="label">The label to escape</param>
-  /// <returns>Escaped label safe for Mermaid</returns>
-  private static string EscapeLabel(string label)
+  internal static string EscapeLabel(string label)
   {
-    // Escape special characters that might break Mermaid syntax
     return label.Replace("\"", "\\\"");
   }
 }

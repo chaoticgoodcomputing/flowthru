@@ -1,7 +1,7 @@
 using Flowthru.Core.Cli;
-using Flowthru.Core.Meta;
-using Flowthru.Core.Meta.Providers;
 using Flowthru.Core.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using KedroIris.Data;
 using KedroIris.Flows.DataEngineering;
 using KedroIris.Flows.DataScience;

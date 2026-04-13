@@ -6,6 +6,7 @@ using Flowthru.Core.Graph;
 using Flowthru.Core.Graph.Meta.Models;
 using Flowthru.Core.Graph.Validation;
 using Flowthru.Core.Meta;
+using Flowthru.Core.Meta.Providers;
 using Flowthru.Core.Services.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -161,12 +162,13 @@ internal sealed class FlowthruService : IFlowthruService
     }
 
     // Export DAG metadata if requested — runs after all pre-flight checks, before any execution
+    DagMetadata? dag = null;
     if (exportMetadata && _metadataBuilder != null && _metadataBuilder.AutoExport)
     {
       try
       {
         _logger.LogInformation("→ Exporting DAG metadata...");
-        var dag = mergedPipeline.ExportDag();
+        dag = mergedPipeline.ExportDag();
         ExportMetadata(dag, "Pipeline", metadataOutputDirectory);
         _logger.LogInformation("  ✓ Metadata exported successfully");
       }
@@ -222,6 +224,28 @@ internal sealed class FlowthruService : IFlowthruService
 
     // Execute merged pipeline
     var result = await mergedPipeline.RunAsync(options, cancellationToken);
+
+    // Export post-run metadata — fires only after real executions (dry run returns above)
+    if (_metadataBuilder != null)
+    {
+      var postRunProviders = _metadataBuilder.Providers.OfType<IPostRunMetadataProvider>().ToList();
+
+      if (postRunProviders.Count > 0)
+      {
+        try
+        {
+          _logger.LogInformation("→ Exporting post-run metadata...");
+          dag ??= mergedPipeline.ExportDag();
+          var runMetadata = new RunMetadata { Dag = dag, Result = result };
+          ExportRunMetadata(runMetadata);
+          _logger.LogInformation("  ✓ Post-run metadata exported successfully");
+        }
+        catch (Exception ex)
+        {
+          _logger.LogWarning(ex, "  ⚠ Failed to export post-run metadata: {Message}", ex.Message);
+        }
+      }
+    }
 
     // Format results
     var formatter = options.GetFormatter();
@@ -353,6 +377,34 @@ internal sealed class FlowthruService : IFlowthruService
           ex,
           "Error during {Provider} export: {Message}",
           provider.Name,
+          ex.Message
+        );
+      }
+    }
+  }
+
+  private void ExportRunMetadata(RunMetadata run)
+  {
+    if (_metadataBuilder == null)
+    {
+      return;
+    }
+
+    foreach (var provider in _metadataBuilder.Providers.OfType<IPostRunMetadataProvider>())
+    {
+      var name = (provider as IMetadataProvider)?.Name ?? provider.GetType().Name;
+      try
+      {
+        _logger.LogInformation("Exporting post-run metadata using {Provider}", name);
+        provider.Consume(run);
+        _logger.LogInformation("{Provider} post-run export completed successfully", name);
+      }
+      catch (Exception ex)
+      {
+        _logger.LogWarning(
+          ex,
+          "Error during {Provider} post-run export: {Message}",
+          name,
           ex.Message
         );
       }

@@ -35,7 +35,7 @@ namespace Flowthru.Core.Meta;
 /// Sliced:   "dag-DataProcessing-20260304-153045-FromNodes"
 /// </code>
 /// </remarks>
-internal static class FilenameTemplateParser
+public static class FilenameTemplateParser
 {
   private static readonly Regex _tokenPattern = new(@"\{(\w+)\}", RegexOptions.Compiled);
 

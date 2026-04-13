@@ -1,8 +1,9 @@
 using Flowthru.Core.Data;
 using Flowthru.Core.Flows;
 using Flowthru.Core.Meta;
-using Flowthru.Core.Meta.Providers;
 using Flowthru.Core.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
 using Microsoft.Extensions.DependencyInjection;

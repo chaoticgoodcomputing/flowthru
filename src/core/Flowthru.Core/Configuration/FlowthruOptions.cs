@@ -1,5 +1,3 @@
-using Flowthru.Core.Meta.Providers;
-
 namespace Flowthru.Core.Configuration;
 
 /// <summary>
@@ -53,11 +51,6 @@ public class MetadataOptions
   public string OutputDirectory { get; set; } = "metadata";
 
   /// <summary>
-  /// List of metadata providers to enable (e.g., "Json", "Mermaid", "Csv").
-  /// </summary>
-  public List<string> Providers { get; set; } = new() { "Json", "Mermaid" };
-
-  /// <summary>
   /// Filename template for metadata exports.
   /// </summary>
   /// <remarks>
@@ -68,11 +61,6 @@ public class MetadataOptions
   /// <item><c>{FlowName}</c> - Sanitized Flow name</item>
   /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled in Timestamp.IncludeTimestamp)</item>
   /// <item><c>{SliceType}</c> - "FromNodes", "Tags", "Mixed", or empty if unsliced</item>
-  /// <item><c>{FromNodes}</c> - Comma-separated list of from-nodes</item>
-  /// <item><c>{ToNodes}</c> - Comma-separated list of to-nodes</item>
-  /// <item><c>{FromInputs}</c> - Comma-separated list of from-inputs</item>
-  /// <item><c>{OnlyNodes}</c> - Comma-separated list of only-nodes</item>
-  /// <item><c>{Tags}</c> - Comma-separated list of tags</item>
   /// </list>
   /// <para>
   /// Empty tokens are automatically collapsed to prevent double-separators.
@@ -81,13 +69,6 @@ public class MetadataOptions
   /// <para>
   /// <strong>Default:</strong> <c>"dag-{FlowName}-{Timestamp}-{SliceType}"</c>
   /// </para>
-  /// <para>
-  /// <strong>Examples:</strong>
-  /// </para>
-  /// <list type="bullet">
-  /// <item>Unsliced: <c>dag-DataProcessing-20260304-153045.json</c></item>
-  /// <item>Sliced: <c>dag-DataProcessing-20260304-153045-FromNodes.json</c></item>
-  /// </list>
   /// </remarks>
   public string FilenameTemplate { get; set; } = "dag-{FlowName}-{Timestamp}-{SliceType}";
 
@@ -95,71 +76,6 @@ public class MetadataOptions
   /// Configuration for timestamp generation in metadata filenames.
   /// </summary>
   public TimestampConfiguration Timestamp { get; set; } = new();
-
-  /// <summary>
-  /// Configuration specific to the JSON metadata provider.
-  /// </summary>
-  public JsonMetadataOptions? Json { get; set; }
-
-  /// <summary>
-  /// Configuration specific to the Mermaid metadata provider.
-  /// </summary>
-  public MermaidMetadataOptions? Mermaid { get; set; }
-}
-
-/// <summary>
-/// Configuration options for JSON metadata export.
-/// </summary>
-public class JsonMetadataOptions
-{
-  /// <summary>
-  /// Whether to use compact (minified) JSON format.
-  /// </summary>
-  public bool UseCompactFormat { get; set; } = false;
-
-  /// <summary>
-  /// Whether to include full type information in the export.
-  /// </summary>
-  public bool IncludeTypeInfo { get; set; } = true;
-}
-
-/// <summary>
-/// Configuration options for Mermaid diagram export.
-/// </summary>
-public class MermaidMetadataOptions
-{
-  /// <summary>
-  /// Flowchart direction (TopToBottom, LeftToRight, etc.).
-  /// </summary>
-  public string Direction { get; set; } = "LeftToRight";
-
-  /// <summary>
-  /// Hex color code for active (sliced) nodes.
-  /// </summary>
-  /// <remarks>
-  /// Color applied to nodes that are in the execution slice.
-  /// Default: #2E7D32 (Material Design green-800).
-  /// </remarks>
-  public string ActiveStepColor { get; set; } = "#2E7D32";
-
-  /// <summary>
-  /// Hex color code for active (sliced) catalog entries.
-  /// </summary>
-  /// <remarks>
-  /// Color applied to data catalog entries produced by sliced nodes.
-  /// Default: #2E7D32 (Material Design green-800).
-  /// </remarks>
-  public string ActiveDataColor { get; set; } = "#2E7D32";
-
-  /// <summary>
-  /// Whether to include dataset details in nodes.
-  /// </summary>
-  public bool ShowDatasetDetails { get; set; } = true;
-
-  /// <summary>
-  /// Whether to include parameter information in nodes.
-  /// </summary>
-  public bool ShowParameters { get; set; } = true;
 }
 
 /// <summary>

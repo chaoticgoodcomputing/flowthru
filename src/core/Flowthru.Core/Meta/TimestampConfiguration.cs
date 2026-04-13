@@ -81,7 +81,7 @@ public class TimestampConfiguration
   /// Generates a timestamp string based on current configuration.
   /// </summary>
   /// <returns>Formatted timestamp string, or null if timestamps are disabled</returns>
-  internal string? GenerateTimestamp()
+  public string? GenerateTimestamp()
   {
     return IncludeTimestamp ? DateTime.Now.ToString(Format) : null;
   }

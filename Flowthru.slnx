@@ -17,6 +17,8 @@
     <Project Path="src\extensions\Flowthru.Extensions.MLNet\Flowthru.Extensions.MLNet.csproj" />
     <Project Path="src\extensions\Flowthru.Extensions.Parquet\Flowthru.Extensions.Parquet.csproj" />
     <Project Path="src\extensions\Flowthru.Extensions.Python\Flowthru.Extensions.Python.csproj" />
+    <Project Path="src\extensions\Flowthru.Extensions.Metadata.Json\Flowthru.Extensions.Metadata.Json.csproj" />
+    <Project Path="src\extensions\Flowthru.Extensions.Metadata.Mermaid\Flowthru.Extensions.Metadata.Mermaid.csproj" />
     <Project Path="src\extensions\Flowthru.Extensions.Python.SourceGenerators\Flowthru.Extensions.Python.SourceGenerators.csproj" />
     <Project Path="src\misc\Flowthru.Misc.ML\Flowthru.Misc.ML.csproj" />
   </Folder>
