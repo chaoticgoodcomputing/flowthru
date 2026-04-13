@@ -1,3 +1,16 @@
+## 0.1.39 (2026-04-11)
+
+### 🩹 Fixes
+
+- resolve issue with packing for nuget ([6543b77](https://github.com/chaoticgoodcomputing/flowthru/commit/6543b77))
+- encapsulate draft releases into public updates ([e3fa635](https://github.com/chaoticgoodcomputing/flowthru/commit/e3fa635))
+- missing report gen license ([c1fca92](https://github.com/chaoticgoodcomputing/flowthru/commit/c1fca92))
+- actions ([a35c026](https://github.com/chaoticgoodcomputing/flowthru/commit/a35c026))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.1.38 (2026-04-11)
 
 ### 🩹 Fixes
