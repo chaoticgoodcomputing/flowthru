@@ -189,10 +189,11 @@ jobs:
         run: |
           VERSION="${{ steps.release.outputs.version }}"
           PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
-          sed -i "s|<Version>.*</Version>|<Version>${PRERELEASE_VERSION}</Version>|" Directory.Build.props
           rm dist/packages/*.nupkg
-          pnpm nx run-many -t pack
-          sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" Directory.Build.props
+          dotnet pack Flowthru.slnx \
+            --no-build \
+            -c Release \
+            /p:Version="${PRERELEASE_VERSION}"
           dotnet nuget push "dist/packages/*.nupkg" \
             --api-key "${FLOWTHRU_NUGET_API_KEY}" \
             --source https://api.nuget.org/v3/index.json \
