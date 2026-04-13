@@ -17,6 +17,7 @@
 
 import { releaseVersion, releaseChangelog } from 'nx/release/index.js';
 import { readFileSync, writeFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -51,6 +52,7 @@ if (updatedBuildProps === buildPropsContent) {
   console.warn('Warning: <Version> tag not found in Directory.Build.props — skipping sync.');
 } else if (!DRY_RUN) {
   writeFileSync(buildPropsPath, updatedBuildProps, 'utf8');
+  execSync(`git add "${buildPropsPath}"`);
   console.log(`✓ Updated Directory.Build.props to ${workspaceVersion}`);
 } else {
   console.log(`[dry-run] Would update Directory.Build.props to ${workspaceVersion}`);

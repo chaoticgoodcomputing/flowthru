@@ -48,6 +48,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Stamp release version into Directory.Build.props
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          sed -i "s|<Version>.*</Version>|<Version>${VERSION}</Version>|" Directory.Build.props
+          echo "Stamped version: ${VERSION}"
+
       - name: Build and pack NuGet packages
         run: pnpm nx run-many -t pack
 
