@@ -20,6 +20,7 @@
     <PackageReference Remove="Flowthru" />
     <PackageReference Remove="Flowthru.Extensions.Python" />
     <PackageReference Remove="Flowthru.Extensions.EFCore" />
+    <PackageReference Remove="Flowthru.Extensions.GQL" />
     <PackageReference Remove="Flowthru.Misc.ML" />
 
     <!-- Add Flowthru ProjectReferences -->
