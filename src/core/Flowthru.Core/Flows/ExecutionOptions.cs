@@ -1,4 +1,5 @@
 using Flowthru.Core.Graph;
+using Flowthru.Core.Graph.Scheduling;
 using Flowthru.Core.Results;
 
 namespace Flowthru.Core.Flows;
@@ -68,6 +69,23 @@ public class ExecutionOptions
   /// Used when slicing flags are provided without a specific pipeline name.
   /// </remarks>
   public FlowSliceStrategy? SliceStrategy { get; set; }
+
+  /// <summary>
+  /// Priority strategy used to order ready steps on each dispatch cycle.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// When <c>null</c> (default), the executor selects a strategy automatically:
+  /// <see cref="Graph.Scheduling.FifoSchedulingStrategy"/> for sequential execution
+  /// (<see cref="MaxDegreeOfParallelism"/> = 1), and
+  /// <see cref="Graph.Scheduling.CriticalPathSchedulingStrategy"/> for parallel execution.
+  /// </para>
+  /// <para>
+  /// Provide an explicit value to override this default — for example, to force FIFO
+  /// ordering even under parallelism, or to supply a custom strategy.
+  /// </para>
+  /// </remarks>
+  public ISchedulingStrategy? SchedulingStrategy { get; set; }
 
   /// <summary>
   /// Gets the configured formatter or creates a default one.

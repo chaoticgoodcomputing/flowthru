@@ -101,6 +101,17 @@ public class FlowStep
   public int Layer { get; set; } = -1; // -1 indicates not yet assigned
 
   /// <summary>
+  /// Height in the DAG: the length of the longest path from this step to any sink (leaf).
+  /// Sinks have height 0. Used by critical-path scheduling to prioritise steps that unblock
+  /// the most downstream work.
+  /// </summary>
+  /// <remarks>
+  /// Populated by <see cref="DependencyAnalyzer.ComputeHeights"/> after the dependency
+  /// graph has been built. A value of -1 indicates heights have not yet been computed.
+  /// </remarks>
+  public int Height { get; set; } = -1; // -1 indicates not yet computed
+
+  /// <summary>
   /// Creates a new Flow step with a transformation function.
   /// </summary>
   /// <param name="label">Unique identifier for this step</param>

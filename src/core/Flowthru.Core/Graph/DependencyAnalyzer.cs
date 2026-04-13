@@ -517,6 +517,51 @@ internal static class DependencyAnalyzer
   }
 
   /// <summary>
+  /// Computes the height of every node in the DAG: the length of the longest path
+  /// from that node to any sink (a node with no dependents).
+  /// </summary>
+  /// <param name="nodes">Steps whose heights should be computed (must already have
+  /// dependencies resolved via <see cref="BuildDependencyGraph"/>).</param>
+  /// <remarks>
+  /// <para>
+  /// Height is defined recursively:
+  /// <code>
+  ///   height(sink) = 0
+  ///   height(n)    = 1 + max(height(d) for d in dependents(n))
+  /// </code>
+  /// This is computed iteratively in reverse-topological order (sinks first) in O(V+E).
+  /// </para>
+  /// <para>
+  /// Used by <see cref="Scheduling.CriticalPathSchedulingStrategy"/> to prioritise ready
+  /// steps that gate the most downstream work.
+  /// </para>
+  /// </remarks>
+  public static void ComputeHeights(List<FlowStep> nodes)
+  {
+    // Build reverse adjacency: step → steps that depend on it.
+    var dependents = nodes.ToDictionary(n => n, _ => new List<FlowStep>());
+    foreach (var node in nodes)
+    {
+      foreach (var dep in node.Dependencies)
+      {
+        if (dependents.TryGetValue(dep, out var list))
+        {
+          list.Add(node);
+        }
+      }
+    }
+
+    // Process nodes in reverse topological order (sinks first).
+    // Re-derive topological order from Layer assignments: highest Layer = processed first.
+    var ordered = nodes.OrderByDescending(n => n.Layer);
+    foreach (var node in ordered)
+    {
+      var deps = dependents[node];
+      node.Height = deps.Count == 0 ? 0 : 1 + deps.Max(d => d.Height);
+    }
+  }
+
+  /// <summary>
   /// Builds a reverse dependency map (node → nodes that depend on it).
   /// </summary>
   private static Dictionary<FlowStep, List<FlowStep>> BuildDependencyMap(List<FlowStep> allSteps)

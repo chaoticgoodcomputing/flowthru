@@ -5,6 +5,7 @@ using Flowthru.Core.Effects;
 using Flowthru.Core.Graph;
 using Flowthru.Core.Graph.Meta;
 using Flowthru.Core.Graph.Meta.Models;
+using Flowthru.Core.Graph.Scheduling;
 using Flowthru.Core.Graph.Validation;
 using Microsoft.Extensions.Logging;
 
@@ -266,7 +267,11 @@ public class Flow
     var stepsToExecute = _slicedSteps ?? _steps;
     DependencyAnalyzer.AssignLayers(stepsToExecute);
 
-    // Step 4: Group steps by layer for execution
+    // Step 4: Compute heights for critical-path scheduling
+    // Height = longest path to a sink; used by CriticalPathSchedulingStrategy.
+    DependencyAnalyzer.ComputeHeights(stepsToExecute);
+
+    // Step 5: Group steps by layer for execution
     ExecutionLayers = DependencyAnalyzer.GroupByLayer(stepsToExecute).ToList();
 
     Logger?.LogInformation(
@@ -642,6 +647,10 @@ public class Flow
         stepList,
         parallelism,
         ExecuteStepWithTrackingAsync,
+        options.SchedulingStrategy
+          ?? (
+            parallelism == 1 ? new FifoSchedulingStrategy() : new CriticalPathSchedulingStrategy()
+          ),
         Logger
       );
 

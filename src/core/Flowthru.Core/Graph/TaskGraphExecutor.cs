@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Flowthru.Core.Flows;
+using Flowthru.Core.Graph.Scheduling;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Core.Graph;
@@ -29,6 +30,7 @@ internal sealed class TaskGraphExecutor
 {
   private readonly IReadOnlyList<FlowStep> _steps;
   private readonly int _maxDegreeOfParallelism;
+  private readonly ISchedulingStrategy _strategy;
   private readonly ILogger? _logger;
   private readonly Func<FlowStep, CancellationToken, Task<StepResult>> _executeStep;
 
@@ -42,11 +44,13 @@ internal sealed class TaskGraphExecutor
   /// Pass <see cref="int.MaxValue"/> for unbounded parallelism.
   /// </param>
   /// <param name="executeStep">Per-step execution delegate (matches <c>ExecuteStepWithTrackingAsync</c>).</param>
+  /// <param name="strategy">Priority strategy used to order ready steps on each dispatch cycle.</param>
   /// <param name="logger">Optional logger.</param>
   internal TaskGraphExecutor(
     IReadOnlyList<FlowStep> steps,
     int maxDegreeOfParallelism,
     Func<FlowStep, CancellationToken, Task<StepResult>> executeStep,
+    ISchedulingStrategy strategy,
     ILogger? logger = null
   )
   {
@@ -61,6 +65,7 @@ internal sealed class TaskGraphExecutor
     _steps = steps;
     _maxDegreeOfParallelism = maxDegreeOfParallelism == -1 ? int.MaxValue : maxDegreeOfParallelism;
     _executeStep = executeStep;
+    _strategy = strategy;
     _logger = logger;
   }
 
@@ -96,7 +101,10 @@ internal sealed class TaskGraphExecutor
     );
 
     // Reverse adjacency: for each step, which steps depend on it?
-    var dependents = _steps.ToDictionary(s => s, _ => new List<FlowStep>());
+    var dependents = _steps.ToDictionary(
+      s => s,
+      s => (IReadOnlyList<FlowStep>)new List<FlowStep>()
+    );
     foreach (var step in _steps)
     {
       foreach (var dep in step.Dependencies)
@@ -105,14 +113,17 @@ internal sealed class TaskGraphExecutor
         // steps that are in _steps (sliced or full set).
         if (dependents.TryGetValue(dep, out var list))
         {
-          list.Add(step);
+          ((List<FlowStep>)list).Add(step);
         }
       }
     }
 
-    // Steps whose upstream is fully satisfied (or has no dependencies).
-    // Channel is unbounded write / bounded dispatch (controlled by the semaphore).
-    var readyQueue = new ConcurrentQueue<FlowStep>(_steps.Where(s => s.Dependencies.Count == 0));
+    var schedulingContext = new SchedulingContext(dependents);
+
+    // Newly-ready steps are added here by concurrent task completions; a ConcurrentBag
+    // is safe for multi-producer, single-consumer access. On each dispatch cycle the
+    // main loop drains it into a List and passes it to the strategy for ordering.
+    var readyBag = new ConcurrentBag<FlowStep>(_steps.Where(s => s.Dependencies.Count == 0));
 
     // Tracks which steps were skipped because an upstream dependency failed.
     var skipped = new HashSet<FlowStep>();
@@ -139,7 +150,16 @@ internal sealed class TaskGraphExecutor
     while (results.Count + skipped.Count < totalSteps)
     {
       // Drain all currently runnable steps into in-flight tasks.
-      while (readyQueue.TryDequeue(out var step))
+      // Collect from the concurrent bag into a snapshot, then ask the strategy to order them.
+      var readySnapshot = new List<FlowStep>();
+      while (readyBag.TryTake(out var taken))
+      {
+        readySnapshot.Add(taken);
+      }
+
+      var prioritised = _strategy.Prioritize(readySnapshot, schedulingContext);
+
+      foreach (var step in prioritised)
       {
         if (skipped.Contains(step))
         {
@@ -208,7 +228,7 @@ internal sealed class TaskGraphExecutor
                 );
 
                 // Notify dependents — decrement their pending count.
-                EnqueueReadyDependents(capturedStep, pendingDeps, dependents, skipped, readyQueue);
+                EnqueueReadyDependents(capturedStep, pendingDeps, dependents, skipped, readyBag);
               }
             }
             finally
@@ -223,7 +243,7 @@ internal sealed class TaskGraphExecutor
         inFlight.Add(task);
       }
 
-      if (inFlight.Count == 0)
+      if (inFlight.Count == 0 && readyBag.IsEmpty)
       {
         // Nothing dispatched and nothing running. If not all steps accounted for,
         // the dependency graph has a cycle that AssignLayers should have caught.
@@ -290,9 +310,9 @@ internal sealed class TaskGraphExecutor
   private static void EnqueueReadyDependents(
     FlowStep completedStep,
     ConcurrentDictionary<FlowStep, int> pendingDeps,
-    Dictionary<FlowStep, List<FlowStep>> dependents,
+    IReadOnlyDictionary<FlowStep, IReadOnlyList<FlowStep>> dependents,
     HashSet<FlowStep> skipped,
-    ConcurrentQueue<FlowStep> readyQueue
+    ConcurrentBag<FlowStep> readyBag
   )
   {
     foreach (var dependent in dependents[completedStep])
@@ -305,7 +325,7 @@ internal sealed class TaskGraphExecutor
       var remaining = pendingDeps.AddOrUpdate(dependent, 0, (_, current) => current - 1);
       if (remaining == 0)
       {
-        readyQueue.Enqueue(dependent);
+        readyBag.Add(dependent);
       }
     }
   }
@@ -313,7 +333,7 @@ internal sealed class TaskGraphExecutor
   private static void SkipDownstream(
     FlowStep failedStep,
     HashSet<FlowStep> skipped,
-    Dictionary<FlowStep, List<FlowStep>> dependents
+    IReadOnlyDictionary<FlowStep, IReadOnlyList<FlowStep>> dependents
   )
   {
     // BFS over the dependents graph.
