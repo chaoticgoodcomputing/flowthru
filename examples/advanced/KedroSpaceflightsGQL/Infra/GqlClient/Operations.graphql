@@ -1,0 +1,47 @@
+query GetCompanies {
+  companies {
+    id
+    companyRating
+    iataApproved
+    companyLocation
+  }
+}
+
+query GetShuttles {
+  shuttles {
+    id
+    shuttleType
+    companyId
+    engines
+    passengerCapacity
+    crew
+    price
+    dCheckComplete
+    moonClearanceComplete
+  }
+}
+
+query GetReviews {
+  reviews {
+    shuttleId
+    reviewScoresRating
+  }
+}
+
+mutation AddCompany($input: AddCompanyInput!) {
+  addCompany(input: $input) {
+    id
+  }
+}
+
+mutation AddShuttle($input: AddShuttleInput!) {
+  addShuttle(input: $input) {
+    id
+  }
+}
+
+mutation AddReview($input: AddReviewInput!) {
+  addReview(input: $input) {
+    shuttleId
+  }
+}

@@ -1,0 +1,59 @@
+type CompanyRecord {
+  id: String!
+  companyRating: String!
+  iataApproved: String!
+  companyLocation: String!
+}
+
+type ShuttleRecord {
+  id: String!
+  shuttleType: String!
+  companyId: String!
+  engines: String!
+  passengerCapacity: String!
+  crew: String!
+  price: String!
+  dCheckComplete: String!
+  moonClearanceComplete: String!
+}
+
+type ReviewRecord {
+  shuttleId: String!
+  reviewScoresRating: String!
+}
+
+input AddCompanyInput {
+  id: String!
+  companyRating: String!
+  iataApproved: String!
+  companyLocation: String!
+}
+
+input AddShuttleInput {
+  id: String!
+  shuttleType: String!
+  companyId: String!
+  engines: String!
+  passengerCapacity: String!
+  crew: String!
+  price: String!
+  dCheckComplete: String!
+  moonClearanceComplete: String!
+}
+
+input AddReviewInput {
+  shuttleId: String!
+  reviewScoresRating: String!
+}
+
+type Query {
+  companies: [CompanyRecord!]!
+  shuttles: [ShuttleRecord!]!
+  reviews: [ReviewRecord!]!
+}
+
+type Mutation {
+  addCompany(input: AddCompanyInput!): CompanyRecord!
+  addShuttle(input: AddShuttleInput!): ShuttleRecord!
+  addReview(input: AddReviewInput!): ReviewRecord!
+}

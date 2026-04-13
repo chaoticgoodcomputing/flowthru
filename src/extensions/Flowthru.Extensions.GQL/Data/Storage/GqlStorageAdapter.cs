@@ -70,177 +70,181 @@ namespace Flowthru.Core.Data.Storage;
 /// </code>
 /// </example>
 public sealed class GqlStorageAdapter<TResult, T> : IStorageAdapter<T>
-    where TResult : class
-    where T : class
+  where TResult : class
+  where T : class
 {
-    private readonly string _label;
-    private readonly Func<CancellationToken, Task<IOperationResult<TResult>>> _queryFunc;
-    private readonly Func<TResult, T> _selectData;
-    private readonly Func<T, CancellationToken, Task<IOperationResult>>? _mutationFunc;
-    private readonly bool _allowEmptyData;
+  private readonly string _label;
+  private readonly Func<CancellationToken, Task<IOperationResult<TResult>>> _queryFunc;
+  private readonly Func<TResult, T> _selectData;
+  private readonly Func<T, CancellationToken, Task<IOperationResult>>? _mutationFunc;
+  private readonly bool _allowEmptyData;
 
-    /// <summary>
-    /// Creates a read-only single-item GQL adapter.
-    /// </summary>
-    /// <param name="label">The catalog entry label, used in validation error messages.</param>
-    /// <param name="queryFunc">Delegate that executes the StrawberryShake query operation.</param>
-    /// <param name="selectData">Projects the result data type to the target type <typeparamref name="T"/>.</param>
-    /// <param name="allowEmptyData">
-    /// If <c>true</c>, a <c>null</c> <see cref="IOperationResult{TResultData}.Data"/> is treated
-    /// as valid during inspection. Defaults to <c>false</c>.
-    /// </param>
-    public GqlStorageAdapter(
-        string label,
-        Func<CancellationToken, Task<IOperationResult<TResult>>> queryFunc,
-        Func<TResult, T> selectData,
-        bool allowEmptyData = false
-    )
-        : this(label, queryFunc, selectData, mutationFunc: null, allowEmptyData) { }
+  /// <summary>
+  /// Creates a read-only single-item GQL adapter.
+  /// </summary>
+  /// <param name="label">The catalog entry label, used in validation error messages.</param>
+  /// <param name="queryFunc">Delegate that executes the StrawberryShake query operation.</param>
+  /// <param name="selectData">Projects the result data type to the target type <typeparamref name="T"/>.</param>
+  /// <param name="allowEmptyData">
+  /// If <c>true</c>, a <c>null</c> <see cref="IOperationResult{TResultData}.Data"/> is treated
+  /// as valid during inspection. Defaults to <c>false</c>.
+  /// </param>
+  public GqlStorageAdapter(
+    string label,
+    Func<CancellationToken, Task<IOperationResult<TResult>>> queryFunc,
+    Func<TResult, T> selectData,
+    bool allowEmptyData = false
+  )
+    : this(label, queryFunc, selectData, mutationFunc: null, allowEmptyData) { }
 
-    /// <summary>
-    /// Creates a read-write single-item GQL adapter.
-    /// </summary>
-    /// <param name="label">The catalog entry label, used in validation error messages.</param>
-    /// <param name="queryFunc">Delegate that executes the StrawberryShake query operation.</param>
-    /// <param name="selectData">Projects the result data type to the target type <typeparamref name="T"/>.</param>
-    /// <param name="mutationFunc">
-    /// Delegate that executes the StrawberryShake mutation operation for <see cref="Save"/>.
-    /// When provided, <c>StorageTraits.CanWrite</c> is set to <c>true</c>.
-    /// </param>
-    /// <param name="allowEmptyData">
-    /// If <c>true</c>, a <c>null</c> <see cref="IOperationResult{TResultData}.Data"/> is treated
-    /// as valid during inspection. Defaults to <c>false</c>.
-    /// </param>
-    public GqlStorageAdapter(
-        string label,
-        Func<CancellationToken, Task<IOperationResult<TResult>>> queryFunc,
-        Func<TResult, T> selectData,
-        Func<T, CancellationToken, Task<IOperationResult>>? mutationFunc,
-        bool allowEmptyData = false
-    )
-    {
-        _label = label ?? throw new ArgumentNullException(nameof(label));
-        _queryFunc = queryFunc ?? throw new ArgumentNullException(nameof(queryFunc));
-        _selectData = selectData ?? throw new ArgumentNullException(nameof(selectData));
-        _mutationFunc = mutationFunc;
-        _allowEmptyData = allowEmptyData;
+  /// <summary>
+  /// Creates a read-write single-item GQL adapter.
+  /// </summary>
+  /// <param name="label">The catalog entry label, used in validation error messages.</param>
+  /// <param name="queryFunc">Delegate that executes the StrawberryShake query operation.</param>
+  /// <param name="selectData">Projects the result data type to the target type <typeparamref name="T"/>.</param>
+  /// <param name="mutationFunc">
+  /// Delegate that executes the StrawberryShake mutation operation for <see cref="Save"/>.
+  /// When provided, <c>StorageTraits.CanWrite</c> is set to <c>true</c>.
+  /// </param>
+  /// <param name="allowEmptyData">
+  /// If <c>true</c>, a <c>null</c> <see cref="IOperationResult{TResultData}.Data"/> is treated
+  /// as valid during inspection. Defaults to <c>false</c>.
+  /// </param>
+  public GqlStorageAdapter(
+    string label,
+    Func<CancellationToken, Task<IOperationResult<TResult>>> queryFunc,
+    Func<TResult, T> selectData,
+    Func<T, CancellationToken, Task<IOperationResult>>? mutationFunc,
+    bool allowEmptyData = false
+  )
+  {
+    _label = label ?? throw new ArgumentNullException(nameof(label));
+    _queryFunc = queryFunc ?? throw new ArgumentNullException(nameof(queryFunc));
+    _selectData = selectData ?? throw new ArgumentNullException(nameof(selectData));
+    _mutationFunc = mutationFunc;
+    _allowEmptyData = allowEmptyData;
 
-        Traits = new StorageTraits
+    Traits = new StorageTraits { RequiresNetwork = true, CanWrite = mutationFunc != null };
+  }
+
+  /// <inheritdoc/>
+  public StorageTraits Traits { get; }
+
+  /// <inheritdoc/>
+  public FlowIO<T> Load() =>
+    FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        var result = await _queryFunc(ct);
+        result.EnsureNoErrors();
+
+        if (result.Data is null)
         {
-            RequiresNetwork = true,
-            CanWrite = mutationFunc != null,
-        };
-    }
-
-    /// <inheritdoc/>
-    public StorageTraits Traits { get; }
-
-    /// <inheritdoc/>
-    public FlowIO<T> Load() =>
-        FlowIO.LiftAsync(async (ct) =>
-        {
-            var result = await _queryFunc(ct);
-            result.EnsureNoErrors();
-
-            if (result.Data is null)
-            {
-                throw new InvalidOperationException(
-                    $"GraphQL query for '{_label}' returned null data with no errors. "
-                        + "Verify the query returns a non-null field, or set allowEmptyData: true."
-                );
-            }
-
-            return _selectData(result.Data);
-        });
-
-    /// <inheritdoc/>
-    public FlowIO<FlowUnit> Save(T data)
-    {
-        if (_mutationFunc is null)
-        {
-            return FlowIO.Fail<FlowUnit>(
-                new InvalidOperationException(
-                    $"Cannot write to GQL adapter '{_label}': no mutation delegate was provided. "
-                        + "Supply a mutationFunc when creating the catalog entry, or constrain the entry with CanWrite = false."
-                )
-            );
+          throw new InvalidOperationException(
+            $"GraphQL query for '{_label}' returned null data with no errors. "
+              + "Verify the query returns a non-null field, or set allowEmptyData: true."
+          );
         }
 
-        return FlowIO.LiftAsync(async (ct) =>
-        {
-            var result = await _mutationFunc(data, ct);
-            result.EnsureNoErrors();
-            return FlowUnit.Default;
-        });
+        return _selectData(result.Data);
+      }
+    );
+
+  /// <inheritdoc/>
+  public FlowIO<FlowUnit> Save(T data)
+  {
+    if (_mutationFunc is null)
+    {
+      return FlowIO.Fail<FlowUnit>(
+        new InvalidOperationException(
+          $"Cannot write to GQL adapter '{_label}': no mutation delegate was provided. "
+            + "Supply a mutationFunc when creating the catalog entry, or constrain the entry with CanWrite = false."
+        )
+      );
     }
 
-    /// <inheritdoc/>
-    public FlowIO<bool> Exists() =>
-        FlowIO.LiftAsync(async (ct) =>
+    return FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        var result = await _mutationFunc(data, ct);
+        result.EnsureNoErrors();
+        return FlowUnit.Default;
+      }
+    );
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<bool> Exists() =>
+    FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        try
         {
-            try
-            {
-                var result = await _queryFunc(ct);
-                return !result.Errors.Any() && result.Data is not null;
-            }
-            catch
-            {
-                return false;
-            }
-        });
-
-    /// <inheritdoc/>
-    /// <remarks>
-    /// Executes the full query against the live endpoint. For single-item queries the
-    /// query itself is the minimal viable probe — it validates endpoint reachability,
-    /// authentication, and that the server accepts the query shape.
-    /// </remarks>
-    public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
-        FlowIO.LiftAsync(async (ct) =>
+          var result = await _queryFunc(ct);
+          return !result.Errors.Any() && result.Data is not null;
+        }
+        catch
         {
-            IOperationResult<TResult> result;
-            try
-            {
-                result = await _queryFunc(ct);
-            }
-            catch (Exception ex)
-            {
-                return ValidationResult.Failure(
-                    catalogKey: _label,
-                    errorType: ValidationErrorType.NotFound,
-                    message: $"GraphQL endpoint for '{_label}' is unreachable.",
-                    details: ex.Message
-                );
-            }
+          return false;
+        }
+      }
+    );
 
-            if (result.Errors.Any())
-            {
-                var details = string.Join("; ", result.Errors.Select(e => e.Message));
-                return ValidationResult.Failure(
-                    catalogKey: _label,
-                    errorType: ValidationErrorType.InspectionFailure,
-                    message: $"GraphQL query for '{_label}' returned errors.",
-                    details: details
-                );
-            }
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Executes the full query against the live endpoint. For single-item queries the
+  /// query itself is the minimal viable probe — it validates endpoint reachability,
+  /// authentication, and that the server accepts the query shape.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
+    FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        IOperationResult<TResult> result;
+        try
+        {
+          result = await _queryFunc(ct);
+        }
+        catch (Exception ex)
+        {
+          return ValidationResult.Failure(
+            catalogKey: _label,
+            errorType: ValidationErrorType.NotFound,
+            message: $"GraphQL endpoint for '{_label}' is unreachable.",
+            details: ex.Message
+          );
+        }
 
-            if (result.Data is null && !_allowEmptyData)
-            {
-                return ValidationResult.Failure(
-                    catalogKey: _label,
-                    errorType: ValidationErrorType.EmptyDataset,
-                    message: $"GraphQL query for '{_label}' returned null data.",
-                    details: "Set allowEmptyData: true when creating the catalog entry if null data is valid for this query."
-                );
-            }
+        if (result.Errors.Any())
+        {
+          var details = string.Join("; ", result.Errors.Select(e => e.Message));
+          return ValidationResult.Failure(
+            catalogKey: _label,
+            errorType: ValidationErrorType.InspectionFailure,
+            message: $"GraphQL query for '{_label}' returned errors.",
+            details: details
+          );
+        }
 
-            return ValidationResult.Success();
-        });
+        if (result.Data is null && !_allowEmptyData)
+        {
+          return ValidationResult.Failure(
+            catalogKey: _label,
+            errorType: ValidationErrorType.EmptyDataset,
+            message: $"GraphQL query for '{_label}' returned null data.",
+            details: "Set allowEmptyData: true when creating the catalog entry if null data is valid for this query."
+          );
+        }
 
-    /// <inheritdoc/>
-    /// <remarks>
-    /// For single-item queries, deep inspection is equivalent to shallow inspection —
-    /// there is only one result to validate.
-    /// </remarks>
-    public FlowIO<ValidationResult> InspectDeep() => InspectShallow(sampleSize: 0);
+        return ValidationResult.Success();
+      }
+    );
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// For single-item queries, deep inspection is equivalent to shallow inspection —
+  /// there is only one result to validate.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectDeep() => InspectShallow(sampleSize: 0);
 }

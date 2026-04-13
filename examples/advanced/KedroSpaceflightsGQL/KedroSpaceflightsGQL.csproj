@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Required so the Web SDK doesn't generate a second entry point -->
+    <GenerateProgramFile>false</GenerateProgramFile>
+  </PropertyGroup>
+
+  <!-- Flowthru: use project reference when building from source, otherwise NuGet -->
+  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+    <PackageReference Include="Flowthru" Version="*" />
+  </ItemGroup>
+
+  <!-- Flowthru GQL extension -->
+  <ItemGroup Condition="Exists('../../../src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
+    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
+    <PackageReference Include="Flowthru.Extensions.GQL" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- GQL server (in-process demo) -->
+    <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.14" />
+
+    <!-- In-process TestServer for hosting the GQL demo server without binding a port.
+         Remove this together with SpaceflightsGqlServer when using a real endpoint. -->
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.5" />
+
+    <!-- StrawberryShake client: Server metapackage bundles Transport.Http, Core,
+         and the MSBuild-driven codegen tool (no separate analyzer needed in v15) -->
+    <PackageReference Include="StrawberryShake.Server" Version="15.1.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="Plotly.NET" Version="5.1.0" />
+    <PackageReference Include="Plotly.NET.CSharp" Version="0.13.0" />
+    <PackageReference Include="Plotly.NET.ImageExport" Version="6.1.0" />
+  </ItemGroup>
+
+</Project>
