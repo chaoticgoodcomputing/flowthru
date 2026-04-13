@@ -136,8 +136,17 @@ internal sealed class FlowthruService : IFlowthruService
         validationResult.ThrowIfInvalid();
       }
 
-      var layer0Steps = mergedPipeline.ExecutionLayers![0];
-      validatedInputCount = layer0Steps.SelectMany(node => node.Inputs).Distinct().Count();
+      var allMergedSteps = mergedPipeline.Steps.ToList();
+      var mergedProducedLabels = new HashSet<string>(
+        allMergedSteps.SelectMany(s => s.Outputs.Select(o => o.Label)),
+        StringComparer.OrdinalIgnoreCase
+      );
+      validatedInputCount = allMergedSteps
+        .SelectMany(s => s.Inputs)
+        .Where(i => !mergedProducedLabels.Contains(i.Label))
+        .Select(i => i.Label)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .Count();
       _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
     }
 
@@ -202,7 +211,7 @@ internal sealed class FlowthruService : IFlowthruService
     _logger.LogInformation("");
 
     // Execute merged pipeline
-    var result = await mergedPipeline.RunAsync(cancellationToken);
+    var result = await mergedPipeline.RunAsync(options, cancellationToken);
 
     // Format results
     var formatter = options.GetFormatter();
@@ -222,12 +231,17 @@ internal sealed class FlowthruService : IFlowthruService
       );
     }
 
-    var externalInputs =
-      pipeline
-        .ExecutionLayers?[0].SelectMany(node => node.Inputs)
-        .Select(e => e.Label)
-        .Distinct()
-        .ToList() ?? new List<string>();
+    var allSteps = pipeline.Steps.ToList();
+    var producedLabels = new HashSet<string>(
+      allSteps.SelectMany(s => s.Outputs.Select(o => o.Label)),
+      StringComparer.OrdinalIgnoreCase
+    );
+    var externalInputs = allSteps
+      .SelectMany(s => s.Inputs)
+      .Where(i => !producedLabels.Contains(i.Label))
+      .Select(i => i.Label)
+      .Distinct(StringComparer.OrdinalIgnoreCase)
+      .ToList();
 
     return new FlowMetadata
     {

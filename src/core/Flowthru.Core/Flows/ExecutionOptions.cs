@@ -1,5 +1,5 @@
-using Flowthru.Core.Results;
 using Flowthru.Core.Graph;
+using Flowthru.Core.Results;
 
 namespace Flowthru.Core.Flows;
 
@@ -34,13 +34,23 @@ public class ExecutionOptions
   public bool StopOnFirstError { get; set; } = true;
 
   /// <summary>
-  /// Whether to enable parallel execution of nodes within the same layer.
+  /// Maximum number of steps that may execute concurrently.
   /// </summary>
   /// <remarks>
-  /// Phase 2 feature - currently not implemented.
-  /// When true, nodes in the same execution layer run concurrently.
+  /// <para>
+  /// Controls the degree of parallelism in the task-graph scheduler. Steps whose
+  /// dependencies are all satisfied are dispatched immediately, up to this limit.
+  /// </para>
+  /// <para>
+  /// <list type="bullet">
+  /// <item><c>1</c> (default) — sequential execution; one step at a time in topological order.</item>
+  /// <item><c>N &gt; 1</c> — up to N independent steps run concurrently.</item>
+  /// <item><c>-1</c> or <see cref="int.MaxValue"/> — unbounded parallelism; all ready steps
+  /// are dispatched immediately.</item>
+  /// </list>
+  /// </para>
   /// </remarks>
-  public bool EnableParallelExecution { get; set; } = false;
+  public int MaxDegreeOfParallelism { get; set; } = 1;
 
   /// <summary>
   /// The result formatter to use for displaying execution results.
