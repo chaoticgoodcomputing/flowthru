@@ -1,7 +1,7 @@
 ---
 description: "Use when: writing release summaries, drafting changelogs for end-users, summarizing what changed between tagged releases."
 tools: [read, search, execute, edit]
-model: claude-haiku-4-5
+model: claude-haiku-4.5
 ---
 
 <role>
