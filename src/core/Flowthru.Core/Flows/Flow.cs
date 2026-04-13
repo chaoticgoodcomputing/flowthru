@@ -335,7 +335,6 @@ public class Flow
   /// <summary>
   /// Validates all external inputs before Flow execution.
   /// </summary>
-  /// <param name="cancellationToken">Cancellation token for validation I/O operations</param>
   /// <returns>ValidationResult containing any errors found</returns>
   /// <exception cref="InvalidOperationException">Thrown if Flow has not been built</exception>
   /// <remarks>
@@ -383,6 +382,12 @@ public class Flow
   /// await flow.RunAsync();
   /// </code>
   /// </remarks>
+  /// <param name="maxDegreeOfParallelism">
+  /// Maximum number of external inputs inspected concurrently. Defaults to 1 (sequential).
+  /// Pass the resolved <c>ExecutionOptions.MaxDegreeOfParallelism</c> to fan out I/O-bound
+  /// inspections in parallel.
+  /// </param>
+  /// <param name="cancellationToken">Cancellation token for async operations.</param>
   public async Task<Data.Validation.ValidationResult> ValidateExternalInputsAsync(
     int maxDegreeOfParallelism = 1,
     CancellationToken cancellationToken = default
