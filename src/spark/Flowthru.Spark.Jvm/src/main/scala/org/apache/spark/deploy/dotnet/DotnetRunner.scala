@@ -26,9 +26,9 @@ import org.apache.spark.internal.config.dotnet.Dotnet.{
 }
 import org.apache.spark.util.dotnet.{Utils => DotnetUtils}
 import org.apache.spark.util.{CircularBuffer, RedirectThread, Utils}
-import org.apache.spark.{SecurityManager, SparkConf, SparkUserAppException}
+import org.apache.spark.{SparkConf, SparkUserAppException}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.io.StdIn
 import scala.util.Try
 
@@ -39,8 +39,8 @@ import scala.util.Try
  */
 object DotnetRunner extends Logging {
   private val DEBUG_PORT = 5567
-  private val supportedSparkMajorMinorVersionPrefix = "3.5"
-  private val supportedSparkVersions = Set[String]("3.5.0", "3.5.1", "3.5.2", "3.5.3")
+  private val supportedSparkMajorMinorVersionPrefix = "4.1"
+  private val supportedSparkVersions = Set[String]("4.1.0", "4.1.1")
 
   val SPARK_VERSION = DotnetUtils.normalizeSparkVersion(spark.SPARK_VERSION)
 

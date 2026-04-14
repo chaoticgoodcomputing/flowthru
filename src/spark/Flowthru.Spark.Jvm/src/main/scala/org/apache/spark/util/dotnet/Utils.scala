@@ -12,7 +12,6 @@ import java.nio.file.attribute.PosixFilePermission._
 import java.nio.file.{FileSystems, Files}
 import java.util.{Timer, TimerTask}
 import org.apache.spark.SparkConf
-import org.apache.spark.SecurityManager
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.util.Utils
 import java.io.File
@@ -20,11 +19,10 @@ import java.lang.NoSuchMethodException
 import java.lang.reflect.InvocationTargetException
 import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipArchiveOutputStream, ZipFile}
 import org.apache.commons.io.{FileUtils, IOUtils}
-import org.apache.spark.SparkConf
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.dotnet.Dotnet.DOTNET_IGNORE_SPARK_PATCH_VERSION_CHECK
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.Set
 
 /**
@@ -80,57 +78,15 @@ object Utils extends Logging {
                                       useCache: Boolean,
                                       shouldUntar: Boolean = true): File = {
 
-        val signatureWithSecurityManager = Array(
-            classOf[String],
-            classOf[File],
-            classOf[SparkConf],
-            classOf[SecurityManager],
-            classOf[Configuration],
-            java.lang.Long.TYPE,
-            java.lang.Boolean.TYPE,
-            java.lang.Boolean.TYPE
-        )
-
-        val signatureWithoutSecurityManager = Array(
-            classOf[String],
-            classOf[File],
-            classOf[SparkConf],
-            classOf[Configuration],
-            classOf[Long],
-            classOf[Boolean],
-            classOf[Boolean]
-        )
-
-        val utilsClass = Class.forName("org.apache.spark.util.Utils$")
-        val utilsObject = utilsClass.getField("MODULE$").get(null)
-
-        val (needSecurityManagerArg, method) = {
-            try {
-                (true, utilsClass.getMethod("fetchFile", signatureWithSecurityManager: _*))
-            } catch {
-                case _: NoSuchMethodException =>
-                    (false, utilsClass.getMethod("fetchFile", signatureWithoutSecurityManager: _*))
-            }
-        }
-
-        val args: Seq[Any] =
-            Seq(
-                url,
-                targetDir,
-                conf
-            ) ++ (if (needSecurityManagerArg) Seq(null) else Nil) ++ Seq(
-                hadoopConf,
-                timestamp,
-                useCache,
-                shouldUntar)
-
-        // Unwrap InvocationTargetException to preserve exception in case of errors:
-        try {
-            method.invoke(utilsObject, args.map(_.asInstanceOf[Object]): _*).asInstanceOf[File]
-        } catch {
-            case e: InvocationTargetException =>
-                throw e.getCause()
-        }
+        // Spark 4.x removed SecurityManager from Utils.fetchFile — call directly without reflection.
+        org.apache.spark.util.Utils.fetchFile(
+            url,
+            targetDir,
+            conf,
+            hadoopConf,
+            timestamp,
+            useCache,
+            shouldUntar)
     }
 
   /**

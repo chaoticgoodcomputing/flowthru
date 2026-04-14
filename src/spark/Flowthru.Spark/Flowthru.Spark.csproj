@@ -33,12 +33,15 @@
     <None Include="../../../THIRD-PARTY-NOTICES" Pack="true" PackagePath="/" />
   </ItemGroup>
 
-  <!-- JVM bridge JAR: staged by NX _stage-jvm-jar before build. Copied to output dir and packed as contentFiles. -->
+  <!-- JVM bridge JAR: built by Flowthru.Spark.Jvm NX target, lives in dist/.
+       PackageCopyToOutput=true ensures it flows through transitive ProjectReferences
+       into consuming project output directories (tests, examples, etc.). -->
   <ItemGroup>
-    <Content Include="../../../dist/src/spark/Flowthru.Spark.Jvm/microsoft-spark-3-5_2.12-2.3.1.jar"
+    <Content Include="../../../dist/src/spark/Flowthru.Spark.Jvm/flowthru-spark-4-1_2.13-2.3.1.jar"
              CopyToOutputDirectory="PreserveNewest"
+             PackageCopyToOutput="true"
              Pack="true"
-             PackagePath="contentFiles/any/any/microsoft-spark-3-5_2.12-2.3.1.jar" />
+             PackagePath="contentFiles/any/any/flowthru-spark-4-1_2.13-2.3.1.jar" />
   </ItemGroup>
 
 </Project>

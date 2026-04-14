@@ -1,11 +1,13 @@
+using Flowthru.Extensions.Spark.Runtime;
 using Flowthru.Spark.Sql;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Flowthru.Extensions.Spark.Tests.CompatTests;
 
 /// <summary>
-/// Smoke tests validating Microsoft.Spark compatibility with the current target framework.
+/// Smoke tests validating Flowthru.Spark compatibility with the current target framework.
 /// Layer 1 tests verify assembly loading (no JVM required).
-/// Layer 2 tests verify JVM bridge functionality (requires Java, Spark, and Microsoft.Spark.Worker).
+/// Layer 2 tests verify JVM bridge functionality (requires SPARK_HOME and Java).
 /// </summary>
 [TestFixture]
 [Category("SparkSession")]
@@ -65,59 +67,92 @@ public class SparkSessionSmokeTests
   }
 
   // =================================================================
-  //  Layer 2 — JVM Bridge (requires Java + Spark + Worker)
+  //  Layer 2 — JVM Bridge (requires SPARK_HOME + Java)
   //
-  //  These tests are ignored by default. Remove the [Ignore] attribute
-  //  when running with a full Spark environment configured:
-  //    - Java 1.8+
-  //    - SPARK_HOME set to a Spark distribution
-  //    - DOTNET_WORKER_DIR set to extracted Microsoft.Spark.Worker
+  //  Nested fixture so OneTimeSetUp/TearDown only affect Layer 2 tests.
+  //  Automatically skipped (Inconclusive) when SPARK_HOME is not set.
+  //
+  //  To run locally:
+  //    brew install apache-spark
+  //    export SPARK_HOME=$(brew --prefix apache-spark)/libexec
+  //    dotnet test --filter "Category=SparkSession.JvmBridge"
   // =================================================================
 
-  [Test]
-  [Ignore("Requires JVM + Spark + Microsoft.Spark.Worker runtime environment")]
+  [TestFixture]
   [Category("SparkSession.JvmBridge")]
-  public void SparkSession_GetOrCreate_EstablishesJvmBridge()
+  public class JvmBridgeTests
   {
-    SparkSession? spark = null;
-    try
-    {
-      spark = SparkSession
-        .Builder()
-        .AppName("net10-jvm-bridge-test")
-        .Master("local[*]")
-        .GetOrCreate();
+    private SparkRuntime? _sparkRuntime;
 
-      Assert.That(spark, Is.Not.Null);
+    [OneTimeSetUp]
+    public void StartSparkBackend()
+    {
+      Assume.That(
+        Environment.GetEnvironmentVariable("SPARK_HOME"),
+        Is.Not.Null.And.Not.Empty,
+        "SPARK_HOME is not set — skipping JVM bridge tests."
+      );
+
+      try
+      {
+        var options = new SparkRuntimeOptions();
+        _sparkRuntime = new SparkRuntime(options, NullLogger<SparkRuntime>.Instance);
+        _sparkRuntime.Initialize();
+      }
+      catch (Exception ex)
+      {
+        Assert.Inconclusive($"Spark JVM backend failed to start — skipping JVM bridge tests. ({ex.Message})");
+      }
     }
-    finally
+
+    [OneTimeTearDown]
+    public void StopSparkBackend()
     {
-      spark?.Stop();
+      _sparkRuntime?.Dispose();
+      _sparkRuntime = null;
     }
-  }
 
-  [Test]
-  [Ignore("Requires JVM + Spark + Microsoft.Spark.Worker runtime environment")]
-  [Category("SparkSession.JvmBridge")]
-  public void SparkSession_Range_ExecutesTrivialDataFrameOperation()
-  {
-    SparkSession? spark = null;
-    try
+    [Test]
+    public void SparkSession_GetOrCreate_EstablishesJvmBridge()
     {
-      spark = SparkSession
-        .Builder()
-        .AppName("net10-dataframe-test")
-        .Master("local[*]")
-        .GetOrCreate();
+      SparkSession? spark = null;
+      try
+      {
+        spark = SparkSession
+          .Builder()
+          .AppName("net10-jvm-bridge-test")
+          .Master("local[*]")
+          .GetOrCreate();
 
-      var df = spark.Range(10);
-      var count = df.Count();
-
-      Assert.That(count, Is.EqualTo(10));
+        Assert.That(spark, Is.Not.Null);
+      }
+      finally
+      {
+        spark?.Stop();
+      }
     }
-    finally
+
+    [Test]
+    public void SparkSession_Range_ExecutesTrivialDataFrameOperation()
     {
-      spark?.Stop();
+      SparkSession? spark = null;
+      try
+      {
+        spark = SparkSession
+          .Builder()
+          .AppName("net10-dataframe-test")
+          .Master("local[*]")
+          .GetOrCreate();
+
+        var df = spark.Range(10);
+        var count = df.Count();
+
+        Assert.That(count, Is.EqualTo(10));
+      }
+      finally
+      {
+        spark?.Stop();
+      }
     }
   }
 }

@@ -274,7 +274,7 @@ class SerDeTest {
   def shouldWriteNull(): Unit = {
     val in = whenOutput(out => {
       serDe.writeObject(out, null)
-      serDe.writeObject(out, Unit)
+      serDe.writeObject(out, scala.runtime.BoxedUnit.UNIT)
     })
 
     assertEquals(in.readByte(), 'n')

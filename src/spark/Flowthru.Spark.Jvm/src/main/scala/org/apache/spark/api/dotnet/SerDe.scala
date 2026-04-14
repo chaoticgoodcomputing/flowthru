@@ -217,7 +217,7 @@ class SerDe(val tracker: JVMObjectTracker) {
   }
 
   def writeObject(dos: DataOutputStream, value: Object): Unit = {
-    if (value == null || value == Unit) {
+    if (value == null || value.isInstanceOf[Unit]) {
       writeType(dos, "void")
     } else {
       value.getClass.getName match {

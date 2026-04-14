@@ -12,7 +12,7 @@
         "commands": [
           "mkdir -p ../../../dist/src/spark/Flowthru.Spark.Jvm",
           "mvn package -DskipTests -q --no-transfer-progress",
-          "mv ./target/microsoft-spark-3-5_2.12-2.3.1.jar ../../../dist/src/spark/Flowthru.Spark.Jvm/",
+          "mv ./target/flowthru-spark-4-1_2.13-2.3.1.jar ../../../dist/src/spark/Flowthru.Spark.Jvm/",
           "mv ./target ../../../dist/src/spark/Flowthru.Spark.Jvm/target"
         ],
         "cwd": "src/spark/Flowthru.Spark.Jvm",
