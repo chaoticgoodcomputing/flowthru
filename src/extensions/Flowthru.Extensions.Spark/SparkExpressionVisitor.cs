@@ -224,39 +224,73 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   {
     // args[0] = GroupBy expression (produces RelationalGroupedDataset)
     // args[1] = quoted result selector: AggregationContext<TKey,TSource> → TResult
+
+    // Extract the key column name from the GroupBy sub-expression so that ctx.Key
+    // projections in the result selector can be resolved to the correct column reference.
+    string? keyColumnName = null;
+    if (
+      node.Arguments[0] is MethodCallExpression groupByCall
+      && groupByCall.Method.Name == "GroupBy"
+      && Unquote(groupByCall.Arguments[1]) is { Body: MemberExpression keyMember }
+    )
+    {
+      keyColumnName = ResolveColumnName(keyMember.Member);
+    }
+
     var grouped = (RelationalGroupedDataset)CompileExpression(node.Arguments[0]);
     var resultLambda = Unquote(node.Arguments[1]);
 
-    // The result selector's body is a projection over AggregationContext methods.
-    // We walk it to collect the aggregate Column expressions.
-    var aggColumns = TranslateAggregateProjection(resultLambda.Body, resultLambda.Parameters[0]);
-    var first = aggColumns[0];
-    var rest = aggColumns.Skip(1).ToArray();
-    return grouped.Agg(first, rest);
+    // Build two separate lists:
+    //   aggCols   – passed to Agg(); contains only aggregate function calls (Avg, Sum, …).
+    //               ctx.Key columns are intentionally excluded: Spark already includes
+    //               every GroupBy key column in the Agg() output schema, so adding them
+    //               again would produce a duplicate-column error.
+    //   selectCols – passed to a final Select() that reassembles all output columns in
+    //               the correct order and with the target schema aliases.
+    var (aggCols, selectCols) = TranslateAggregateProjection(
+      resultLambda.Body, resultLambda.Parameters[0], keyColumnName
+    );
+
+    if (aggCols.Length == 0)
+      throw new NotSupportedException(
+        "Aggregate result selector must contain at least one aggregate function call "
+          + "(Avg, Sum, Count, Min, Max)."
+      );
+
+    var df = grouped.Agg(aggCols[0], aggCols.Skip(1).ToArray());
+    return df.Select(selectCols);
   }
 
   /// <summary>
-  /// Translates the body of an Aggregate result selector into an array of aggregate
-  /// <see cref="Column"/> expressions.
+  /// Translates the body of an Aggregate result selector into two column arrays:
+  /// the aggregate columns for the <c>Agg()</c> call and the select columns
+  /// for the final <c>Select()</c> reordering projection.
   /// </summary>
-  private Column[] TranslateAggregateProjection(Expression body, ParameterExpression contextParam)
+  private (Column[] aggCols, Column[] selectCols) TranslateAggregateProjection(
+    Expression body,
+    ParameterExpression contextParam,
+    string? keyColumnName = null
+  )
   {
     return body switch
     {
-      MemberInitExpression mie => TranslateAggregateMemberInit(mie, contextParam),
-      NewExpression ne => TranslateAggregateNewExpression(ne, contextParam),
+      MemberInitExpression mie => TranslateAggregateMemberInit(mie, contextParam, keyColumnName),
+      NewExpression ne => TranslateAggregateNewExpression(ne, contextParam, keyColumnName),
       _ => throw new NotSupportedException(
         "Aggregate result selector must be a member initializer or positional constructor."
       ),
     };
   }
 
-  private Column[] TranslateAggregateMemberInit(
+  private (Column[] aggCols, Column[] selectCols) TranslateAggregateMemberInit(
     MemberInitExpression mie,
-    ParameterExpression contextParam
+    ParameterExpression contextParam,
+    string? keyColumnName = null
   )
   {
-    var columns = new Column[mie.Bindings.Count];
+    var aggCols = new List<Column>();
+    var selectCols = new Column[mie.Bindings.Count];
+
     for (var i = 0; i < mie.Bindings.Count; i++)
     {
       if (mie.Bindings[i] is not MemberAssignment assignment)
@@ -265,16 +299,35 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
             + $"Got {mie.Bindings[i].BindingType} for '{mie.Bindings[i].Member.Name}'."
         );
 
-      var col = TranslateAggregateExpression(assignment.Expression, contextParam);
       var targetName = ResolveColumnName(assignment.Member);
-      columns[i] = col.As(targetName);
+
+      if (IsKeyExpression(assignment.Expression, contextParam))
+      {
+        // ctx.Key: the GroupBy key column is already present in the Agg() output.
+        // Add it to selectCols with the correct target alias, but do NOT add it to
+        // aggCols — passing it to Agg() would create a duplicate column.
+        if (keyColumnName == null)
+          throw new NotSupportedException(
+            "ctx.Key projection requires a simple property-access GroupBy key selector "
+              + "(e.g. GroupBy(x => x.ShuttleType))."
+          );
+        selectCols[i] = SparkFunctions.Col(keyColumnName).As(targetName);
+      }
+      else
+      {
+        var aggCol = TranslateAggregateExpression(assignment.Expression, contextParam, keyColumnName);
+        aggCols.Add(aggCol.As(targetName));
+        selectCols[i] = SparkFunctions.Col(targetName);
+      }
     }
-    return columns;
+
+    return (aggCols.ToArray(), selectCols);
   }
 
-  private Column[] TranslateAggregateNewExpression(
+  private (Column[] aggCols, Column[] selectCols) TranslateAggregateNewExpression(
     NewExpression ne,
-    ParameterExpression contextParam
+    ParameterExpression contextParam,
+    string? keyColumnName = null
   )
   {
     if (ne.Members is null || ne.Members.Count == 0)
@@ -282,21 +335,48 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
         "Positional constructor projections require member metadata in aggregate selectors."
       );
 
-    var columns = new Column[ne.Arguments.Count];
+    var aggCols = new List<Column>();
+    var selectCols = new Column[ne.Arguments.Count];
+
     for (var i = 0; i < ne.Arguments.Count; i++)
     {
-      var col = TranslateAggregateExpression(ne.Arguments[i], contextParam);
       var targetName = ResolveColumnName(ne.Members[i]);
-      columns[i] = col.As(targetName);
+
+      if (IsKeyExpression(ne.Arguments[i], contextParam))
+      {
+        if (keyColumnName == null)
+          throw new NotSupportedException(
+            "ctx.Key projection requires a simple property-access GroupBy key selector "
+              + "(e.g. GroupBy(x => x.ShuttleType))."
+          );
+        selectCols[i] = SparkFunctions.Col(keyColumnName).As(targetName);
+      }
+      else
+      {
+        var aggCol = TranslateAggregateExpression(ne.Arguments[i], contextParam, keyColumnName);
+        aggCols.Add(aggCol.As(targetName));
+        selectCols[i] = SparkFunctions.Col(targetName);
+      }
     }
-    return columns;
+
+    return (aggCols.ToArray(), selectCols);
   }
+
+  /// <summary>Returns true when <paramref name="expr"/> is a <c>ctx.Key</c> member access.</summary>
+  private static bool IsKeyExpression(Expression expr, ParameterExpression contextParam) =>
+    expr is MemberExpression { Member.Name: "Key" } me
+    && me.Expression is ParameterExpression kpe
+    && kpe == contextParam;
 
   /// <summary>
   /// Translates a single expression inside an aggregate result selector into a Spark Column.
   /// Handles AggregationContext method calls (Avg, Sum, Count, Min, Max) and Key access.
   /// </summary>
-  private Column TranslateAggregateExpression(Expression expr, ParameterExpression contextParam)
+  private Column TranslateAggregateExpression(
+    Expression expr,
+    ParameterExpression contextParam,
+    string? keyColumnName = null
+  )
   {
     // ctx.Avg(x => x.Price), ctx.Sum(x => x.Quantity), etc.
     if (
@@ -320,26 +400,26 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
       };
     }
 
-    // ctx.Key — pass through as a column reference; the group-by key is already part of
-    // the grouped dataset's output.
+    // ctx.Key — the group-by key column is already part of the grouped dataset's output;
+    // emit a plain column reference using the name extracted from the GroupBy selector.
     if (
       expr is MemberExpression { Member.Name: "Key" } me
       && me.Expression is ParameterExpression kpe
       && kpe == contextParam
     )
     {
-      // Key is not an aggregate — return a column reference via Lit placeholder.
-      // The actual column name is unknown here without schema reflection; providers
-      // can override this method to handle Key projection explicitly.
-      throw new NotSupportedException(
-        "Key projection in Aggregate is not yet supported directly. "
-          + "Include the key column in the groupBy selector instead."
-      );
+      if (keyColumnName == null)
+        throw new NotSupportedException(
+          "ctx.Key projection requires a simple property-access GroupBy key selector "
+            + "(e.g. GroupBy(x => x.ShuttleType)). Composite or computed keys are not supported."
+        );
+
+      return SparkFunctions.Col(keyColumnName);
     }
 
     throw new NotSupportedException(
       $"Expression '{expr}' in aggregate result selector is not supported. "
-        + "Only AggregationContext method calls (Avg, Sum, Count, Min, Max) are valid."
+        + "Only AggregationContext method calls (Avg, Sum, Count, Min, Max) and ctx.Key are valid."
     );
   }
 
@@ -353,11 +433,17 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
       ? (LambdaExpression)q.Operand
       : (LambdaExpression)lambdaExpr;
 
-    if (lambda.Body is MemberExpression me)
+    // Unwrap any numeric conversion cast, e.g. (double)x.PassengerCapacity
+    var body = lambda.Body is UnaryExpression { NodeType: ExpressionType.Convert } conv
+      ? conv.Operand
+      : lambda.Body;
+
+    if (body is MemberExpression me)
       return ResolveColumnName(me.Member);
 
     throw new NotSupportedException(
-      "Aggregate column selectors must be simple property access expressions (x => x.Property)."
+      "Aggregate column selectors must be simple property access expressions (x => x.Property) "
+        + "or a numeric cast of one (x => (double)x.Property)."
     );
   }
 

@@ -28,6 +28,7 @@ public static class ComparePassengerCapacityStep
           ShuttleType = ctx.Key,
           AvgPassengerCapacity = ctx.Avg(s => (double)s.PassengerCapacity),
         })
+        .OrderBy(r => r.ShuttleType)
         .ToList();
   }
 }
