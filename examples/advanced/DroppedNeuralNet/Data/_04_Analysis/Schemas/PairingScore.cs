@@ -14,5 +14,5 @@ public partial record PairingScore
   public int OutPieceIndex { get; init; }
 
   /// <summary>||W_out @ W_inp||_F. Lower = stronger residual coupling between these two layers.</summary>
-  public float ProductNorm { get; init; }
+  public float CoherenceScore { get; init; }
 }

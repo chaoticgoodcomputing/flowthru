@@ -18,6 +18,7 @@ TOLERANCE = 1e-4   # max acceptable per-sample absolute error
 
 
 class Block(nn.Module):
+    """Mirrors the original Block architecture: Linear(48 → 96) + ReLU + Linear(96 → 48) with a residual connection."""
     def __init__(self, in_dim: int, hidden_dim: int):
         super().__init__()
         self.inp = nn.Linear(in_dim, hidden_dim)
@@ -33,6 +34,7 @@ class Block(nn.Module):
 
 
 class LastLayer(nn.Module):
+    """Mirrors the original LastLayer architecture: Linear(48 → 1) regression head."""
     def __init__(self, in_dim: int, out_dim: int):
         super().__init__()
         self.layer = nn.Linear(in_dim, out_dim)
@@ -42,6 +44,7 @@ class LastLayer(nn.Module):
 
 
 def _load_linear(raw_bytes: bytes) -> nn.Linear:
+    """Deserialize raw .pth bytes into a nn.Linear layer with weights and bias."""
     state_dict = torch.load(
         io.BytesIO(raw_bytes),
         weights_only=True,

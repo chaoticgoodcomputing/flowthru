@@ -1,7 +1,17 @@
-"""Compute ||W_out @ W_inp||_F for every legal (inp, out) Block pairing.
+"""Compute a normalized coherence score for every legal (inp, out) Block pairing.
 
-Lower values indicate that the out layer approximates the inverse of the inp layer —
-the residual coupling signal left in the weights by the training objective.
+The score measures structural alignment between the two weight matrices, independent of
+their individual magnitudes:
+
+    CoherenceScore(inp, out) = ||W_out @ W_inp||_F / (||W_out||_F * ||W_inp||_F)
+
+This is the Frobenius norm of the product normalized by the product of the individual
+norms — analogous to cosine similarity but in matrix space.  A low score means
+W_out approximately inverts W_inp (the residual coupling signal left by training).
+
+Using the raw ||W_out @ W_inp||_F directly contaminates the cost matrix with weight
+magnitude: a piece whose weights happen to be 2× larger will score high in every row
+regardless of structural compatibility, drowning the signal the Hungarian solver needs.
 """
 import io
 import logging
@@ -29,7 +39,7 @@ def compute_pairing_scores(
         legal_pairings: Dimension-valid (InpPieceIndex, OutPieceIndex) candidates.
 
     Returns:
-        DataFrame with [InpPieceIndex, OutPieceIndex, ProductNorm].
+        DataFrame with [InpPieceIndex, OutPieceIndex, CoherenceScore].
     """
     blob_by_index: dict[int, bytes] = {
         int(r["PieceIndex"]): r["Data"] for _, r in pieces.iterrows()
@@ -71,6 +81,10 @@ def compute_pairing_scores(
     inp_weights = {idx: load_weight(idx) for idx in inp_indices}  # each (96, 48)
     out_weights = {idx: load_weight(idx) for idx in out_indices}  # each (48, 96)
 
+    # Pre-compute per-piece Frobenius norms for the denominator
+    inp_norms = {idx: float(torch.norm(w, p="fro")) for idx, w in inp_weights.items()}
+    out_norms = {idx: float(torch.norm(w, p="fro")) for idx, w in out_weights.items()}
+
     rows = []
     with torch.no_grad():
         for inp_idx in inp_indices:
@@ -79,13 +93,14 @@ def compute_pairing_scores(
                 if (inp_idx, out_idx) not in legal_set:
                     continue
                 W_out = out_weights[out_idx]  # (48, 96)
-                product = W_out @ W_inp      # (48, 48)
-                norm = float(torch.norm(product, p="fro"))
+                product_norm = float(torch.norm(W_out @ W_inp, p="fro"))
+                denom = inp_norms[inp_idx] * out_norms[out_idx]
+                coherence = product_norm / denom if denom > 0 else product_norm
                 rows.append({
                     "InpPieceIndex": inp_idx,
                     "OutPieceIndex": out_idx,
-                    "ProductNorm": norm,
+                    "CoherenceScore": coherence,
                 })
 
     logger.info(f"[compute_pairing_scores] Computed {len(rows)} scores")
-    return pd.DataFrame(rows, columns=["InpPieceIndex", "OutPieceIndex", "ProductNorm"])
+    return pd.DataFrame(rows, columns=["InpPieceIndex", "OutPieceIndex", "CoherenceScore"])

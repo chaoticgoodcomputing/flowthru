@@ -4,7 +4,7 @@ namespace DroppedNeuralNet.Data._04_Analysis.Schemas;
 
 /// <summary>
 /// A single Block pairing selected by the Hungarian algorithm: the globally optimal
-/// assignment of inp pieces to out pieces under the minimum total ProductNorm objective.
+/// assignment of inp pieces to out pieces under the minimum total CoherenceScore objective.
 /// </summary>
 [FlowthruSchema]
 public partial record BlockAssignment
@@ -15,6 +15,6 @@ public partial record BlockAssignment
   public int InpPieceIndex { get; init; }
   public int OutPieceIndex { get; init; }
 
-  /// <summary>ProductNorm score for this pairing — the cost the solver minimized.</summary>
-  public float AssignmentScore { get; init; }
+  /// <summary>Sinkhorn-normalized coherence score for this pairing — the cost the solver minimized.</summary>
+  public float CoherenceScore { get; init; }
 }

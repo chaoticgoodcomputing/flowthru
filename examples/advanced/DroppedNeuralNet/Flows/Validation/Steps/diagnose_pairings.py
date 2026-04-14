@@ -10,7 +10,7 @@ Probe 1 — FixedOrdering
   small the pairings are correct and only the beam search range needs widening.
 
 Probe 2 — PairingSignal
-  Summarises the distribution of ProductNorm scores that fed into the Hungarian solver.
+  Summarises the distribution of CoherenceScore values that fed into the Hungarian solver.
   A flat distribution (near-zero std) means the cost matrix has no discriminating power
   and the assignment is essentially random.
 
@@ -107,7 +107,7 @@ def diagnose_pairings(
 
     Args:
         block_assignments: Hungarian-optimal (BlockIndex, InpPieceIndex, OutPieceIndex,
-            AssignmentScore) — 48 rows.
+            CoherenceScore) — 48 rows.
         pieces: Raw byte blobs indexed by PieceIndex.
         historical_data: Sensor measurements; the ``pred`` column is the validation target.
         candidate_permutations: Ranked int[97] candidates from rank_orderings.
@@ -167,18 +167,18 @@ def diagnose_pairings(
     print(f"[diagnose_pairings] FixedOrdering max_err={max_err:.6f} ({pairing_verdict})", flush=True)
 
     # ------------------------------------------------------------------
-    # Probe 2 — ProductNorm signal statistics
+    # Probe 2 — CoherenceScore signal statistics
     # ------------------------------------------------------------------
-    logger.info("[diagnose_pairings] Probe 2: ProductNorm score distribution")
+    logger.info("[diagnose_pairings] Probe 2: CoherenceScore distribution")
 
-    scores = block_assignments["AssignmentScore"].astype(float).values
+    scores = block_assignments["CoherenceScore"].astype(float).values
     score_mean  = float(np.mean(scores))
     score_std   = float(np.std(scores))
     score_range = float(np.max(scores) - np.min(scores))
 
-    rows.append({"Category": "PairingSignal", "Metric": "ScoreMean",  "Value": score_mean,  "Notes": "mean ProductNorm of Hungarian-assigned pairs"})
+    rows.append({"Category": "PairingSignal", "Metric": "ScoreMean",  "Value": score_mean,  "Notes": "mean CoherenceScore of Hungarian-assigned pairs"})
     rows.append({"Category": "PairingSignal", "Metric": "ScoreStd",   "Value": score_std,   "Notes": "near-zero => cost matrix is flat => Hungarian is guessing"})
-    rows.append({"Category": "PairingSignal", "Metric": "ScoreRange", "Value": score_range, "Notes": "max - min ProductNorm across 48 assigned pairs"})
+    rows.append({"Category": "PairingSignal", "Metric": "ScoreRange", "Value": score_range, "Notes": "max - min CoherenceScore across 48 assigned pairs"})
 
     logger.info(
         f"[diagnose_pairings] PairingSignal mean={score_mean:.6f} std={score_std:.6f} range={score_range:.6f}"
