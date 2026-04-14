@@ -2,6 +2,7 @@ using System.Reflection;
 using Apache.Arrow;
 using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
+using Flowthru.Core.Abstractions;
 using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Data.Storage.Format;
 
@@ -404,6 +405,10 @@ public static class ArrowMarshaller
 
   private static IArrowArray BuildEnumArray<T>(PropertyInfo property, List<T> rows, int rowCount)
   {
+    // Resolve [SerializedEnum] attribute values for the enum type, matching all other format serializers.
+    var enumType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+    var serializedValues = GetSerializedEnumMap(enumType);
+
     var builder = new StringArray.Builder();
     foreach (var row in rows)
     {
@@ -414,7 +419,7 @@ public static class ArrowMarshaller
       }
       else
       {
-        builder.Append(value.ToString());
+        builder.Append(serializedValues[value]);
       }
     }
     return builder.Build();
@@ -647,7 +652,7 @@ public static class ArrowMarshaller
       };
     }
 
-    // Enum types: deserialized from their string name
+    // Enum types: deserialized from their [SerializedEnum] string value
     if (underlyingType.IsEnum)
     {
       var enumString = array switch
@@ -664,7 +669,14 @@ public static class ArrowMarshaller
         return null;
       }
 
-      return Enum.Parse(underlyingType, enumString);
+      var reverseMap = GetReverseSerializedEnumMap(underlyingType);
+      if (!reverseMap.TryGetValue(enumString, out var enumValue))
+      {
+        throw new InvalidOperationException(
+          $"Arrow value '{enumString}' does not match any [SerializedEnum] value on enum type '{underlyingType.Name}'."
+        );
+      }
+      return enumValue;
     }
 
     // Numeric type coercion (pandas compatibility)
@@ -696,5 +708,49 @@ public static class ArrowMarshaller
     throw new NotSupportedException(
       $"Cannot convert Arrow array of type '{array.Data.DataType.Name}' to C# type '{targetType.Name}'."
     );
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // Enum Helpers ([SerializedEnum] attribute-driven, matching all other format serializers)
+  // ──────────────────────────────────────────────────────────────
+
+  private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<object, string>> _enumToStringCache = new();
+  private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<string, object>> _stringToEnumCache = new();
+
+  /// <summary>
+  /// Builds a forward map (enum value → serialized string) from [SerializedEnum] attributes.
+  /// Results are cached per enum type.
+  /// </summary>
+  private static Dictionary<object, string> GetSerializedEnumMap(Type enumType)
+  {
+    return _enumToStringCache.GetOrAdd(enumType, t =>
+    {
+      var map = new Dictionary<object, string>();
+      foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Static))
+      {
+        var attr = field.GetCustomAttribute<SerializedEnumAttribute>();
+        if (attr == null)
+        {
+          throw new InvalidOperationException(
+            $"Enum member '{t.Name}.{field.Name}' is missing the required [SerializedEnum] attribute."
+          );
+        }
+        map[field.GetValue(null)!] = attr.Value;
+      }
+      return map;
+    });
+  }
+
+  /// <summary>
+  /// Builds a reverse map (serialized string → enum value) from [SerializedEnum] attributes.
+  /// Results are cached per enum type.
+  /// </summary>
+  private static Dictionary<string, object> GetReverseSerializedEnumMap(Type enumType)
+  {
+    return _stringToEnumCache.GetOrAdd(enumType, t =>
+    {
+      var forward = GetSerializedEnumMap(t);
+      return forward.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+    });
   }
 }

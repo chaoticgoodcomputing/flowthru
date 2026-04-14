@@ -8,12 +8,15 @@ namespace DroppedNeuralNet.Data._02_Intermediate.Schemas;
 public enum LayerType
 {
   /// <summary>Block.inp: Linear(48 → 96). Expands input into hidden dimension.</summary>
+  [SerializedEnum("BlockInp")]
   BlockInp,
 
   /// <summary>Block.out: Linear(96 → 48). Projects back to residual dimension.</summary>
+  [SerializedEnum("BlockOut")]
   BlockOut,
 
   /// <summary>LastLayer: Linear(48 → 1). Final regression head.</summary>
+  [SerializedEnum("Last")]
   Last,
 }
 
