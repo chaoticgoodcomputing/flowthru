@@ -33,4 +33,12 @@
     <None Include="../../../THIRD-PARTY-NOTICES" Pack="true" PackagePath="/" />
   </ItemGroup>
 
+  <!-- JVM bridge JAR: staged by NX _stage-jvm-jar before build. Copied to output dir and packed as contentFiles. -->
+  <ItemGroup>
+    <Content Include="../../../dist/src/spark/Flowthru.Spark.Jvm/microsoft-spark-3-5_2.12-2.3.1.jar"
+             CopyToOutputDirectory="PreserveNewest"
+             Pack="true"
+             PackagePath="contentFiles/any/any/microsoft-spark-3-5_2.12-2.3.1.jar" />
+  </ItemGroup>
+
 </Project>
