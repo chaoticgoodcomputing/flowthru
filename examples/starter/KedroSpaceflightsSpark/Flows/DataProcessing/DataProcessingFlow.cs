@@ -13,7 +13,7 @@ public static class DataProcessingFlow
       pipeline.AddStep(
         label: "PreprocessCompanies",
         description: "Parses raw company strings into a typed Spark DataFrame.",
-        transform: PreprocessCompaniesStep.Create(catalog.Provider, catalog.Session),
+        transform: PreprocessCompaniesStep.Create(catalog._provider),
         input: catalog.Companies,
         output: catalog.PreprocessedCompanies
       );
@@ -21,7 +21,7 @@ public static class DataProcessingFlow
       pipeline.AddStep(
         label: "PreprocessShuttles",
         description: "Parses raw shuttle strings into a typed Spark DataFrame.",
-        transform: PreprocessShuttlesStep.Create(catalog.Provider, catalog.Session),
+        transform: PreprocessShuttlesStep.Create(catalog._provider),
         input: catalog.Shuttles,
         output: catalog.PreprocessedShuttles
       );
@@ -29,7 +29,7 @@ public static class DataProcessingFlow
       pipeline.AddStep(
         label: "PreprocessReviews",
         description: "Filters reviews to valid numeric scores and loads them into a Spark DataFrame.",
-        transform: PreprocessReviewsStep.Create(catalog.Provider, catalog.Session),
+        transform: PreprocessReviewsStep.Create(catalog._provider),
         input: catalog.Reviews,
         output: catalog.ParsedReviews
       );

@@ -13,6 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Flowthru.Extensions.Spark.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
     <ProjectReference Include="../../misc/Flowthru.Misc.DataFrames/Flowthru.Misc.DataFrames.csproj" />
     <ProjectReference Include="../../spark/Flowthru.Spark/Flowthru.Spark.csproj" />

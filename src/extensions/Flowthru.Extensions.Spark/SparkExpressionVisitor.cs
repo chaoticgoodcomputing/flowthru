@@ -1,9 +1,8 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Flowthru.DataFrames;
-using Flowthru.Spark.Sql;
-using Flowthru.Spark.Sql.Expressions;
-using SparkFunctions = Flowthru.Spark.Sql.Functions;
+using Microsoft.Spark.Sql;
+using SparkFunctions = Microsoft.Spark.Sql.Functions;
 
 namespace Flowthru.Extensions.Spark;
 
@@ -35,11 +34,6 @@ namespace Flowthru.Extensions.Spark;
 internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
 {
   private readonly SparkFrameProvider _provider;
-
-  // Transient state active only during SelectOver projection traversal.
-  // Set in TranslateSelectOver, cleared in its finally block.
-  private ParameterExpression? _windowContextParam;
-  private DataFrame? _windowSourceDf;
 
   internal SparkExpressionVisitor(SparkFrameProvider provider)
   {
@@ -116,27 +110,6 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   {
     var sourceDf = (DataFrame)CompileExpression(node.Arguments[0]);
     return sourceDf.Count();
-  }
-
-  // ──────────────────────────────────────────────
-  //  Easy: Distinct (deduplication)
-  // ──────────────────────────────────────────────
-
-  protected override object TranslateDistinct(MethodCallExpression node)
-  {
-    var sourceDf = (DataFrame)CompileExpression(node.Arguments[0]);
-    return sourceDf.Distinct();
-  }
-
-  // ──────────────────────────────────────────────
-  //  Easy: Union (row-wise concatenation)
-  // ──────────────────────────────────────────────
-
-  protected override object TranslateUnion(MethodCallExpression node)
-  {
-    var leftDf = (DataFrame)CompileExpression(node.Arguments[0]);
-    var rightDf = (DataFrame)CompileExpression(node.Arguments[1]);
-    return leftDf.Union(rightDf);
   }
 
   // ──────────────────────────────────────────────
@@ -224,73 +197,39 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   {
     // args[0] = GroupBy expression (produces RelationalGroupedDataset)
     // args[1] = quoted result selector: AggregationContext<TKey,TSource> → TResult
-
-    // Extract the key column name from the GroupBy sub-expression so that ctx.Key
-    // projections in the result selector can be resolved to the correct column reference.
-    string? keyColumnName = null;
-    if (
-      node.Arguments[0] is MethodCallExpression groupByCall
-      && groupByCall.Method.Name == "GroupBy"
-      && Unquote(groupByCall.Arguments[1]) is { Body: MemberExpression keyMember }
-    )
-    {
-      keyColumnName = ResolveColumnName(keyMember.Member);
-    }
-
     var grouped = (RelationalGroupedDataset)CompileExpression(node.Arguments[0]);
     var resultLambda = Unquote(node.Arguments[1]);
 
-    // Build two separate lists:
-    //   aggCols   – passed to Agg(); contains only aggregate function calls (Avg, Sum, …).
-    //               ctx.Key columns are intentionally excluded: Spark already includes
-    //               every GroupBy key column in the Agg() output schema, so adding them
-    //               again would produce a duplicate-column error.
-    //   selectCols – passed to a final Select() that reassembles all output columns in
-    //               the correct order and with the target schema aliases.
-    var (aggCols, selectCols) = TranslateAggregateProjection(
-      resultLambda.Body, resultLambda.Parameters[0], keyColumnName
-    );
-
-    if (aggCols.Length == 0)
-      throw new NotSupportedException(
-        "Aggregate result selector must contain at least one aggregate function call "
-          + "(Avg, Sum, Count, Min, Max)."
-      );
-
-    var df = grouped.Agg(aggCols[0], aggCols.Skip(1).ToArray());
-    return df.Select(selectCols);
+    // The result selector's body is a projection over AggregationContext methods.
+    // We walk it to collect the aggregate Column expressions.
+    var aggColumns = TranslateAggregateProjection(resultLambda.Body, resultLambda.Parameters[0]);
+    var first = aggColumns[0];
+    var rest = aggColumns.Skip(1).ToArray();
+    return grouped.Agg(first, rest);
   }
 
   /// <summary>
-  /// Translates the body of an Aggregate result selector into two column arrays:
-  /// the aggregate columns for the <c>Agg()</c> call and the select columns
-  /// for the final <c>Select()</c> reordering projection.
+  /// Translates the body of an Aggregate result selector into an array of aggregate
+  /// <see cref="Column"/> expressions.
   /// </summary>
-  private (Column[] aggCols, Column[] selectCols) TranslateAggregateProjection(
-    Expression body,
-    ParameterExpression contextParam,
-    string? keyColumnName = null
-  )
+  private Column[] TranslateAggregateProjection(Expression body, ParameterExpression contextParam)
   {
     return body switch
     {
-      MemberInitExpression mie => TranslateAggregateMemberInit(mie, contextParam, keyColumnName),
-      NewExpression ne => TranslateAggregateNewExpression(ne, contextParam, keyColumnName),
+      MemberInitExpression mie => TranslateAggregateMemberInit(mie, contextParam),
+      NewExpression ne => TranslateAggregateNewExpression(ne, contextParam),
       _ => throw new NotSupportedException(
         "Aggregate result selector must be a member initializer or positional constructor."
       ),
     };
   }
 
-  private (Column[] aggCols, Column[] selectCols) TranslateAggregateMemberInit(
+  private Column[] TranslateAggregateMemberInit(
     MemberInitExpression mie,
-    ParameterExpression contextParam,
-    string? keyColumnName = null
+    ParameterExpression contextParam
   )
   {
-    var aggCols = new List<Column>();
-    var selectCols = new Column[mie.Bindings.Count];
-
+    var columns = new Column[mie.Bindings.Count];
     for (var i = 0; i < mie.Bindings.Count; i++)
     {
       if (mie.Bindings[i] is not MemberAssignment assignment)
@@ -299,35 +238,16 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
             + $"Got {mie.Bindings[i].BindingType} for '{mie.Bindings[i].Member.Name}'."
         );
 
+      var col = TranslateAggregateExpression(assignment.Expression, contextParam);
       var targetName = ResolveColumnName(assignment.Member);
-
-      if (IsKeyExpression(assignment.Expression, contextParam))
-      {
-        // ctx.Key: the GroupBy key column is already present in the Agg() output.
-        // Add it to selectCols with the correct target alias, but do NOT add it to
-        // aggCols — passing it to Agg() would create a duplicate column.
-        if (keyColumnName == null)
-          throw new NotSupportedException(
-            "ctx.Key projection requires a simple property-access GroupBy key selector "
-              + "(e.g. GroupBy(x => x.ShuttleType))."
-          );
-        selectCols[i] = SparkFunctions.Col(keyColumnName).As(targetName);
-      }
-      else
-      {
-        var aggCol = TranslateAggregateExpression(assignment.Expression, contextParam, keyColumnName);
-        aggCols.Add(aggCol.As(targetName));
-        selectCols[i] = SparkFunctions.Col(targetName);
-      }
+      columns[i] = col.As(targetName);
     }
-
-    return (aggCols.ToArray(), selectCols);
+    return columns;
   }
 
-  private (Column[] aggCols, Column[] selectCols) TranslateAggregateNewExpression(
+  private Column[] TranslateAggregateNewExpression(
     NewExpression ne,
-    ParameterExpression contextParam,
-    string? keyColumnName = null
+    ParameterExpression contextParam
   )
   {
     if (ne.Members is null || ne.Members.Count == 0)
@@ -335,48 +255,21 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
         "Positional constructor projections require member metadata in aggregate selectors."
       );
 
-    var aggCols = new List<Column>();
-    var selectCols = new Column[ne.Arguments.Count];
-
+    var columns = new Column[ne.Arguments.Count];
     for (var i = 0; i < ne.Arguments.Count; i++)
     {
+      var col = TranslateAggregateExpression(ne.Arguments[i], contextParam);
       var targetName = ResolveColumnName(ne.Members[i]);
-
-      if (IsKeyExpression(ne.Arguments[i], contextParam))
-      {
-        if (keyColumnName == null)
-          throw new NotSupportedException(
-            "ctx.Key projection requires a simple property-access GroupBy key selector "
-              + "(e.g. GroupBy(x => x.ShuttleType))."
-          );
-        selectCols[i] = SparkFunctions.Col(keyColumnName).As(targetName);
-      }
-      else
-      {
-        var aggCol = TranslateAggregateExpression(ne.Arguments[i], contextParam, keyColumnName);
-        aggCols.Add(aggCol.As(targetName));
-        selectCols[i] = SparkFunctions.Col(targetName);
-      }
+      columns[i] = col.As(targetName);
     }
-
-    return (aggCols.ToArray(), selectCols);
+    return columns;
   }
-
-  /// <summary>Returns true when <paramref name="expr"/> is a <c>ctx.Key</c> member access.</summary>
-  private static bool IsKeyExpression(Expression expr, ParameterExpression contextParam) =>
-    expr is MemberExpression { Member.Name: "Key" } me
-    && me.Expression is ParameterExpression kpe
-    && kpe == contextParam;
 
   /// <summary>
   /// Translates a single expression inside an aggregate result selector into a Spark Column.
   /// Handles AggregationContext method calls (Avg, Sum, Count, Min, Max) and Key access.
   /// </summary>
-  private Column TranslateAggregateExpression(
-    Expression expr,
-    ParameterExpression contextParam,
-    string? keyColumnName = null
-  )
+  private Column TranslateAggregateExpression(Expression expr, ParameterExpression contextParam)
   {
     // ctx.Avg(x => x.Price), ctx.Sum(x => x.Quantity), etc.
     if (
@@ -400,26 +293,26 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
       };
     }
 
-    // ctx.Key — the group-by key column is already part of the grouped dataset's output;
-    // emit a plain column reference using the name extracted from the GroupBy selector.
+    // ctx.Key — pass through as a column reference; the group-by key is already part of
+    // the grouped dataset's output.
     if (
       expr is MemberExpression { Member.Name: "Key" } me
       && me.Expression is ParameterExpression kpe
       && kpe == contextParam
     )
     {
-      if (keyColumnName == null)
-        throw new NotSupportedException(
-          "ctx.Key projection requires a simple property-access GroupBy key selector "
-            + "(e.g. GroupBy(x => x.ShuttleType)). Composite or computed keys are not supported."
-        );
-
-      return SparkFunctions.Col(keyColumnName);
+      // Key is not an aggregate — return a column reference via Lit placeholder.
+      // The actual column name is unknown here without schema reflection; providers
+      // can override this method to handle Key projection explicitly.
+      throw new NotSupportedException(
+        "Key projection in Aggregate is not yet supported directly. "
+          + "Include the key column in the groupBy selector instead."
+      );
     }
 
     throw new NotSupportedException(
       $"Expression '{expr}' in aggregate result selector is not supported. "
-        + "Only AggregationContext method calls (Avg, Sum, Count, Min, Max) and ctx.Key are valid."
+        + "Only AggregationContext method calls (Avg, Sum, Count, Min, Max) are valid."
     );
   }
 
@@ -433,149 +326,11 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
       ? (LambdaExpression)q.Operand
       : (LambdaExpression)lambdaExpr;
 
-    // Unwrap any numeric conversion cast, e.g. (double)x.PassengerCapacity
-    var body = lambda.Body is UnaryExpression { NodeType: ExpressionType.Convert } conv
-      ? conv.Operand
-      : lambda.Body;
-
-    if (body is MemberExpression me)
-      return ResolveColumnName(me.Member);
-
-    throw new NotSupportedException(
-      "Aggregate column selectors must be simple property access expressions (x => x.Property) "
-        + "or a numeric cast of one (x => (double)x.Property)."
-    );
-  }
-
-  // ──────────────────────────────────────────────
-  //  Hard: SelectOver (windowed projection)
-  // ──────────────────────────────────────────────
-
-  protected override object TranslateSelectOver(MethodCallExpression node)
-  {
-    // args[0] = source, args[1] = quoted (TSource, WindowContext<TSource>) => TResult
-    var sourceDf = (DataFrame)CompileExpression(node.Arguments[0]);
-    var selector = Unquote(node.Arguments[1]); // 2-parameter lambda
-
-    // selector.Parameters[0] = row (TSource)  → maps to sourceDf
-    // selector.Parameters[1] = win (WindowContext<TSource>) → intercepted via _windowContextParam
-    _windowContextParam = selector.Parameters[1];
-    _windowSourceDf = sourceDf;
-
-    try
-    {
-      var paramMap = new Dictionary<ParameterExpression, DataFrame>
-      {
-        [selector.Parameters[0]] = sourceDf,
-      };
-      var columns = TranslateProjection(selector.Body, paramMap);
-      return sourceDf.Select(columns);
-    }
-    finally
-    {
-      _windowContextParam = null;
-      _windowSourceDf = null;
-    }
-  }
-
-  /// <summary>
-  /// Translates a <see cref="WindowContext{TSource}"/> method call into a Spark window
-  /// <see cref="Column"/> expression (<c>function().Over(windowSpec)</c>).
-  /// </summary>
-  private Column TranslateWindowFunction(MethodCallExpression mce)
-  {
-    // FrameWindowSpec is always the last argument in every WindowContext method.
-    var spec = (IFrameWindowSpec)EvaluateConstant(mce.Arguments[^1])!;
-    var windowSpec = BuildSparkWindowSpec(spec);
-
-    return mce.Method.Name switch
-    {
-      // Ranking — no column selector
-      "RowNumber"   => SparkFunctions.RowNumber().Over(windowSpec),
-      "Rank"        => SparkFunctions.Rank().Over(windowSpec),
-      "DenseRank"   => SparkFunctions.DenseRank().Over(windowSpec),
-      "CumeDist"    => SparkFunctions.CumeDist().Over(windowSpec),
-      "PercentRank" => SparkFunctions.PercentRank().Over(windowSpec),
-      "Count"       => SparkFunctions.Count(SparkFunctions.Lit(1)).Over(windowSpec),
-
-      // Aggregate over window — column selector is arg[0]
-      "Sum" => SparkFunctions.Sum(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
-      "Avg" => SparkFunctions.Avg(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
-      "Max" => SparkFunctions.Max(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
-      "Min" => SparkFunctions.Min(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
-
-      // Offset functions — column selector is arg[0], offset is arg[1]
-      "Lag" => SparkFunctions
-        .Lag(
-          ExtractWindowColumnName(mce.Arguments[0]),
-          (int)((ConstantExpression)mce.Arguments[1]).Value!
-        )
-        .Over(windowSpec),
-
-      "Lead" => SparkFunctions
-        .Lead(
-          ExtractWindowColumnName(mce.Arguments[0]),
-          (int)((ConstantExpression)mce.Arguments[1]).Value!
-        )
-        .Over(windowSpec),
-
-      _ => throw new NotSupportedException(
-        $"Window function '{mce.Method.Name}' is not supported in Spark window expressions."
-      ),
-    };
-  }
-
-  /// <summary>
-  /// Builds a Spark <see cref="WindowSpec"/> from a framework-agnostic
-  /// <see cref="IFrameWindowSpec"/>.
-  /// </summary>
-  private WindowSpec BuildSparkWindowSpec(IFrameWindowSpec spec)
-  {
-    var sourceDf = _windowSourceDf!;
-
-    Column TranslateSpecColumn(LambdaExpression lambda, bool descending)
-    {
-      var specParamMap = new Dictionary<ParameterExpression, DataFrame>
-      {
-        [lambda.Parameters[0]] = sourceDf,
-      };
-      var col = TranslateSubExpression(lambda.Body, specParamMap);
-      return descending ? col.Desc() : col;
-    }
-
-    var partitionCols = spec.PartitionByExpressions
-      .Select(lambda => TranslateSpecColumn(lambda, false))
-      .ToArray();
-
-    var orderCols = spec.OrderByExpressions
-      .Select(t => TranslateSpecColumn(t.KeySelector, t.Descending))
-      .ToArray();
-
-    return (partitionCols.Length, orderCols.Length) switch
-    {
-      (> 0, > 0) => Window.PartitionBy(partitionCols).OrderBy(orderCols),
-      (> 0, _  ) => Window.PartitionBy(partitionCols),
-      (_,   > 0) => Window.OrderBy(orderCols),
-      _          => Window.PartitionBy(), // truly global: no partition, no order
-    };
-  }
-
-  /// <summary>
-  /// Extracts the column name string from the selector lambda argument of a window
-  /// aggregate or offset function (e.g., the <c>x =&gt; x.Salary</c> in
-  /// <c>win.Sum(x =&gt; x.Salary, spec)</c>).
-  /// </summary>
-  private static string ExtractWindowColumnName(Expression lambdaExpr)
-  {
-    var lambda = lambdaExpr is UnaryExpression { NodeType: ExpressionType.Quote } q
-      ? (LambdaExpression)q.Operand
-      : (LambdaExpression)lambdaExpr;
-
     if (lambda.Body is MemberExpression me)
       return ResolveColumnName(me.Member);
 
     throw new NotSupportedException(
-      "Window column selectors must be simple property access expressions (x => x.Property)."
+      "Aggregate column selectors must be simple property access expressions (x => x.Property)."
     );
   }
 
@@ -663,17 +418,6 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     nameof(string.ToUpper),
     nameof(string.ToLower),
     nameof(string.Trim),
-    nameof(string.TrimStart),
-    nameof(string.TrimEnd),
-    nameof(string.Substring),
-  ];
-
-  private static readonly HashSet<string> MathMethodNames =
-  [
-    nameof(Math.Round),
-    nameof(Math.Abs),
-    nameof(Math.Floor),
-    nameof(Math.Ceiling),
   ];
 
   /// <summary>
@@ -684,27 +428,18 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     Dictionary<ParameterExpression, DataFrame> paramMap
   )
   {
-    // Window context method calls — only active during SelectOver projection traversal.
-    if (
-      _windowContextParam is not null
-      && mce.Object is ParameterExpression wpe
-      && wpe == _windowContextParam
-    )
+    if (mce.Method.DeclaringType == typeof(string) && StringMethodNames.Contains(mce.Method.Name))
     {
-      return TranslateWindowFunction(mce);
+      return TranslateStringMethod(mce, paramMap);
     }
 
-    if (mce.Method.DeclaringType == typeof(string) && StringMethodNames.Contains(mce.Method.Name))
-      return TranslateStringMethod(mce, paramMap);
-
-    if (mce.Method.DeclaringType == typeof(Math) && MathMethodNames.Contains(mce.Method.Name))
-      return TranslateMathMethod(mce, paramMap);
-
+    // Check string.Length via MemberExpression — handled above,
+    // but for thoroughness reject unknown method calls clearly.
     throw new NotSupportedException(
       $"Method '{mce.Method.DeclaringType?.Name}.{mce.Method.Name}' "
         + "is not supported in Spark sub-expressions. "
-        + "Supported: string (Replace, Contains, StartsWith, EndsWith, ToUpper, ToLower, "
-        + "Trim, TrimStart, TrimEnd, Substring) and Math (Round, Abs, Floor, Ceiling)."
+        + "Supported string methods: Replace, Contains, StartsWith, EndsWith, "
+        + "ToUpper, ToLower, Trim."
     );
   }
 
@@ -729,20 +464,6 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
 
       // s.Trim() → Trim(col)
       nameof(string.Trim) => SparkFunctions.Trim(col),
-
-      // s.TrimStart() → Ltrim(col)
-      nameof(string.TrimStart) => SparkFunctions.Ltrim(col),
-
-      // s.TrimEnd() → Rtrim(col)
-      nameof(string.TrimEnd) => SparkFunctions.Rtrim(col),
-
-      // s.Substring(startIndex, length) → Substring(col, startIndex + 1, length)
-      // Note: C# Substring uses 0-based indexing; Spark Substring uses 1-based.
-      nameof(string.Substring) when mce.Arguments.Count == 2 => SparkFunctions.Substring(
-        col,
-        (int)((ConstantExpression)mce.Arguments[0]).Value! + 1,
-        (int)((ConstantExpression)mce.Arguments[1]).Value!
-      ),
 
       // s.Contains(x) → col.Contains(x)
       nameof(string.Contains) => col.Contains(TranslateSubExpression(mce.Arguments[0], paramMap)),
@@ -774,50 +495,7 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   }
 
   // ──────────────────────────────────────────────
-  //  Math method translation
-  // ──────────────────────────────────────────────
-
-  /// <summary>
-  /// Translates <c>System.Math</c> static methods to their Spark <c>Column</c> equivalents.
-  /// </summary>
-  private Column TranslateMathMethod(
-    MethodCallExpression mce,
-    Dictionary<ParameterExpression, DataFrame> paramMap
-  )
-  {
-    // Math methods are static; the column is always the first argument.
-    var col = TranslateSubExpression(mce.Arguments[0], paramMap);
-
-    return mce.Method.Name switch
-    {
-      // Math.Abs(x) → Abs(col)
-      nameof(Math.Abs) => SparkFunctions.Abs(col),
-
-      // Math.Floor(x) → Floor(col)
-      nameof(Math.Floor) => SparkFunctions.Floor(col),
-
-      // Math.Ceiling(x) → Ceil(col)
-      nameof(Math.Ceiling) => SparkFunctions.Ceil(col),
-
-      // Math.Round(x) → Round(col, 0)
-      // Math.Round(x, digits) → Round(col, digits)
-      // Math.Round with MidpointRounding is not supported — Spark has no equivalent.
-      nameof(Math.Round) when mce.Arguments.Count == 1 => SparkFunctions.Round(col),
-      nameof(Math.Round) when mce.Arguments.Count == 2
-        && mce.Arguments[1].Type == typeof(int) => SparkFunctions.Round(
-          col,
-          (int)((ConstantExpression)mce.Arguments[1]).Value!
-        ),
-
-      _ => throw new NotSupportedException(
-        $"Math.{mce.Method.Name} overload (arg count: {mce.Arguments.Count}) "
-          + "has no Spark translation."
-      ),
-    };
-  }
-
-  // ──────────────────────────────────────────────
-  //  Member access translation (columns + string.Length + DateTime parts)
+  //  Member access translation (columns + string.Length)
   // ──────────────────────────────────────────────
 
   /// <summary>
@@ -838,31 +516,6 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     {
       var inner = TranslateSubExpression(me.Expression, paramMap);
       return SparkFunctions.Length(inner);
-    }
-
-    // DateTime property access on a column → Spark date/time functions.
-    // The column is the inner expression (x.CreatedAt.Year → col = x.CreatedAt).
-    if (
-      me.Member is PropertyInfo
-      && me.Member.DeclaringType == typeof(DateTime)
-      && me.Expression is not null
-    )
-    {
-      var innerCol = TranslateSubExpression(me.Expression, paramMap);
-      return me.Member.Name switch
-      {
-        nameof(DateTime.Year) => SparkFunctions.Year(innerCol),
-        nameof(DateTime.Month) => SparkFunctions.Month(innerCol),
-        nameof(DateTime.Day) => SparkFunctions.DayOfMonth(innerCol),
-        nameof(DateTime.Hour) => SparkFunctions.Hour(innerCol),
-        nameof(DateTime.Minute) => SparkFunctions.Minute(innerCol),
-        nameof(DateTime.Second) => SparkFunctions.Second(innerCol),
-        nameof(DateTime.DayOfWeek) => SparkFunctions.DayOfWeek(innerCol),
-        nameof(DateTime.DayOfYear) => SparkFunctions.DayOfYear(innerCol),
-        _ => throw new NotSupportedException(
-          $"DateTime property '{me.Member.Name}' has no Spark translation."
-        ),
-      };
     }
 
     // Direct property on a lambda parameter: x.Age → df["Age"]
@@ -886,20 +539,6 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     Dictionary<ParameterExpression, DataFrame> paramMap
   )
   {
-    // Null-check special cases: x.Prop == null / x.Prop != null.
-    // Spark's == operator emits `col = NULL` (always false); IsNull/IsNotNull is correct.
-    if (be.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
-    {
-      var isRightNull = be.Right is ConstantExpression { Value: null };
-      var isLeftNull = be.Left is ConstantExpression { Value: null };
-      if (isRightNull || isLeftNull)
-      {
-        var colExpr = isRightNull ? be.Left : be.Right;
-        var col = TranslateSubExpression(colExpr, paramMap);
-        return be.NodeType == ExpressionType.Equal ? col.IsNull() : col.IsNotNull();
-      }
-    }
-
     var left = TranslateSubExpression(be.Left, paramMap);
     var right = TranslateSubExpression(be.Right, paramMap);
 

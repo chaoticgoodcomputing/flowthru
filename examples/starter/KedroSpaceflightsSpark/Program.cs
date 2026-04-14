@@ -1,7 +1,6 @@
 using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Spark;
-using Flowthru.Extensions.Spark.Runtime;
 using Flowthru.Extensions.Spark.Services;
 using Flowthru.Meta;
 using Flowthru.Meta.Providers;
@@ -37,8 +36,7 @@ public class Program
 
       flowthru.RegisterCatalog<Catalog>(sp => new Catalog(
         Path.Combine(basePath, "Data"),
-        sp.GetRequiredService<SparkFrameProvider>(),
-        sp.GetRequiredService<SparkRuntime>()
+        sp.GetRequiredService<SparkFrameProvider>()
       ));
 
       flowthru.ConfigureMetadata(meta =>

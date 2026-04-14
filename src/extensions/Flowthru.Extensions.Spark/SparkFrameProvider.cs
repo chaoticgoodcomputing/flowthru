@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using Flowthru.Core.Abstractions;
 using Flowthru.DataFrames;
+using Flowthru.Extensions.Spark.Runtime;
 using Flowthru.Spark.Sql;
 
 namespace Flowthru.Extensions.Spark;
@@ -25,12 +27,30 @@ public sealed class SparkFrameProvider : IFrameQueryProvider
 {
   private readonly ConditionalWeakTable<object, DataFrame> _nativeFrames = new();
   private readonly SparkExpressionVisitor _visitor;
+  private readonly SparkSession _session;
 
   /// <summary>
   /// Initializes a new <see cref="SparkFrameProvider"/>.
   /// </summary>
-  public SparkFrameProvider()
+  /// <remarks>
+  /// Calls <see cref="SparkRuntime.Initialize"/> to ensure the JVM backend is running before
+  /// creating the Spark session. Consuming code (catalogs, flows, steps) does not need to
+  /// interact with <see cref="SparkRuntime"/> or <see cref="SparkSession"/> directly.
+  /// </remarks>
+  public SparkFrameProvider(SparkRuntime runtime)
   {
+    runtime.Initialize();
+    _session = SparkSession.Builder().GetOrCreate();
+    _visitor = new SparkExpressionVisitor(this);
+  }
+
+  /// <summary>
+  /// Initializes a <see cref="SparkFrameProvider"/> without starting the JVM backend.
+  /// For use in unit tests that validate schema logic without a live Spark session.
+  /// </summary>
+  internal SparkFrameProvider()
+  {
+    _session = null!;
     _visitor = new SparkExpressionVisitor(this);
   }
 
@@ -45,6 +65,35 @@ public sealed class SparkFrameProvider : IFrameQueryProvider
     var frame = new TypedFrame<T>(this);
     _nativeFrames.AddOrUpdate(frame, dataFrame);
     return frame;
+  }
+
+  /// <summary>
+  /// Creates a root <see cref="TypedFrame{T}"/> by ingesting an <see cref="IEnumerable{T}"/>
+  /// into Spark via the managed session.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The <see cref="StructType"/> is derived automatically from <typeparamref name="T"/>'s
+  /// property metadata using <see cref="SparkSchemaInference" />, so no manual schema
+  /// declaration is required in the calling code.
+  /// </para>
+  /// <para>
+  /// This is the standard entry point for preprocessing steps that produce typed data from
+  /// raw <see cref="IEnumerable{T}"/> sources. Steps calling this method do not need to
+  /// reference <see cref="SparkSession"/>, <see cref="Flowthru.Spark.Sql.Types.StructType"/>,
+  /// or <see cref="Flowthru.Spark.Sql.GenericRow"/> directly.
+  /// </para>
+  /// </remarks>
+  /// <typeparam name="T">A flat schema type whose properties define the Spark column layout.</typeparam>
+  /// <param name="source">The rows to ingest. Enumerated once.</param>
+  /// <returns>A typed frame backed by the ingested DataFrame.</returns>
+  public TypedFrame<T> CreateFromEnumerable<T>(IEnumerable<T> source)
+    where T : notnull, IFlatSchema
+  {
+    var schema = SparkSchemaInference.InferStructType<T>();
+    var rows = SparkSchemaInference.ToGenericRows(source);
+    var df = _session.CreateDataFrame(rows, schema);
+    return CreateFromNative<T>(df);
   }
 
   /// <summary>

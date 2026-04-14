@@ -1,8 +1,6 @@
 using Flowthru.Core.Steps;
 using Flowthru.DataFrames;
 using Flowthru.Extensions.Spark;
-using Flowthru.Spark.Sql;
-using Flowthru.Spark.Sql.Types;
 using KedroSpaceflightsSpark.Data._01_Raw.Schemas;
 using KedroSpaceflightsSpark.Data._02_Intermediate.Schemas;
 
@@ -15,8 +13,7 @@ namespace KedroSpaceflightsSpark.Flows.DataProcessing.Steps;
 public static class PreprocessShuttlesStep
 {
   public static Func<IEnumerable<ShuttleSchema>, TypedFrame<PreprocessedShuttleSchema>> Create(
-    SparkFrameProvider provider,
-    SparkSession session
+    SparkFrameProvider provider
   )
   {
     return (input) =>
@@ -24,29 +21,9 @@ public static class PreprocessShuttlesStep
       var parsed = input
         .Select(Parse)
         .Where(item => item != null)
-        .Cast<PreprocessedShuttleSchema>()
-        .ToList();
+        .Cast<PreprocessedShuttleSchema>();
 
-      var schema = new StructType([
-        new StructField("id", new StringType()),
-        new StructField("shuttle_type", new StringType()),
-        new StructField("company_id", new StringType()),
-        new StructField("engines", new IntegerType()),
-        new StructField("passenger_capacity", new IntegerType()),
-        new StructField("crew", new IntegerType()),
-        new StructField("price", new DoubleType()),
-        new StructField("d_check_complete", new BooleanType()),
-        new StructField("moon_clearance_complete", new BooleanType()),
-      ]);
-
-      var rows = parsed.Select(r => new GenericRow([
-        r.Id, r.ShuttleType, r.CompanyId,
-        r.Engines, r.PassengerCapacity, r.Crew,
-        r.Price, r.DCheckComplete, r.MoonClearanceComplete,
-      ]));
-
-      var df = session.CreateDataFrame(rows, schema);
-      return provider.CreateFromNative<PreprocessedShuttleSchema>(df);
+      return provider.CreateFromEnumerable<PreprocessedShuttleSchema>(parsed);
     };
   }
 

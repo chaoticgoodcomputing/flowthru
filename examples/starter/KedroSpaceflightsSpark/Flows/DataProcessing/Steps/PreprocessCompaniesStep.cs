@@ -1,8 +1,6 @@
 using Flowthru.Core.Steps;
 using Flowthru.DataFrames;
 using Flowthru.Extensions.Spark;
-using Flowthru.Spark.Sql;
-using Flowthru.Spark.Sql.Types;
 using KedroSpaceflightsSpark.Data._01_Raw.Schemas;
 using KedroSpaceflightsSpark.Data._02_Intermediate.Schemas;
 
@@ -18,8 +16,7 @@ namespace KedroSpaceflightsSpark.Flows.DataProcessing.Steps;
 public static class PreprocessCompaniesStep
 {
   public static Func<IEnumerable<CompanySchema>, TypedFrame<PreprocessedCompanySchema>> Create(
-    SparkFrameProvider provider,
-    SparkSession session
+    SparkFrameProvider provider
   )
   {
     return (input) =>
@@ -27,19 +24,9 @@ public static class PreprocessCompaniesStep
       var parsed = input
         .Select(Parse)
         .Where(item => item != null)
-        .Cast<PreprocessedCompanySchema>()
-        .ToList();
+        .Cast<PreprocessedCompanySchema>();
 
-      var schema = new StructType([
-        new StructField("id", new StringType()),
-        new StructField("company_rating", new DoubleType()),
-        new StructField("iata_approved", new BooleanType()),
-        new StructField("company_location", new StringType()),
-      ]);
-
-      var rows = parsed.Select(r => new GenericRow([r.Id, r.CompanyRating, r.IataApproved, r.CompanyLocation]));
-      var df = session.CreateDataFrame(rows, schema);
-      return provider.CreateFromNative<PreprocessedCompanySchema>(df);
+      return provider.CreateFromEnumerable<PreprocessedCompanySchema>(parsed);
     };
   }
 
