@@ -5,7 +5,7 @@ namespace Flowthru.Extensions.Spark.Tests;
 /// <summary>
 /// Simple flat schema for testing basic Where and Select operations.
 /// </summary>
-public record PersonSchema
+public record PersonSchema : IFlatSchema
 {
   public required string Name { get; init; }
   public required int Age { get; init; }

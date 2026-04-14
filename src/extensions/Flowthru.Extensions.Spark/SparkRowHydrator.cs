@@ -66,24 +66,24 @@ public sealed class SparkRowHydrator<T>
     // ──────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Validates that the <see cref="DataFrame"/>'s schema covers every property on
+    /// Validates that a <see cref="StructType"/> covers every property on
     /// <typeparamref name="T"/> with a compatible type.
     /// </summary>
     /// <remarks>
-    /// Call this before <see cref="Collect"/> to surface schema drift as a structured
-    /// pre-flight error rather than a runtime exception deep inside <c>GetAs&lt;T&gt;</c>.
+    /// This overload works without a live JVM and is the testable core of schema validation.
+    /// Use it in pre-flight checks or unit tests where a <see cref="DataFrame"/> is not available.
     /// </remarks>
-    /// <param name="dataFrame">The compiled native DataFrame to inspect.</param>
+    /// <param name="schema">The Spark struct schema to validate against <typeparamref name="T"/>.</param>
     /// <returns>
     /// An empty list when the schema is compatible; otherwise, one entry per problem column.
     /// </returns>
-    public IReadOnlyList<SchemaValidationError> ValidateSchema(DataFrame dataFrame)
+    public IReadOnlyList<SchemaValidationError> ValidateSchema(StructType schema)
     {
-        if (dataFrame == null)
-            throw new ArgumentNullException(nameof(dataFrame));
+        if (schema == null)
+            throw new ArgumentNullException(nameof(schema));
 
         var errors = new List<SchemaValidationError>();
-        var schemaFieldsByName = dataFrame.Schema().Fields.ToDictionary(
+        var schemaFieldsByName = schema.Fields.ToDictionary(
             f => f.Name,
             StringComparer.OrdinalIgnoreCase
         );
@@ -116,6 +116,27 @@ public sealed class SparkRowHydrator<T>
         }
 
         return errors;
+    }
+
+    /// <summary>
+    /// Validates that the <see cref="DataFrame"/>'s schema covers every property on
+    /// <typeparamref name="T"/> with a compatible type.
+    /// </summary>
+    /// <remarks>
+    /// Delegates to <see cref="ValidateSchema(StructType)"/> after extracting the live schema.
+    /// Call this before <see cref="Collect"/> to surface schema drift as a structured
+    /// pre-flight error rather than a runtime exception deep inside <c>GetAs&lt;T&gt;</c>.
+    /// </remarks>
+    /// <param name="dataFrame">The compiled native DataFrame to inspect.</param>
+    /// <returns>
+    /// An empty list when the schema is compatible; otherwise, one entry per problem column.
+    /// </returns>
+    public IReadOnlyList<SchemaValidationError> ValidateSchema(DataFrame dataFrame)
+    {
+        if (dataFrame == null)
+            throw new ArgumentNullException(nameof(dataFrame));
+
+        return ValidateSchema(dataFrame.Schema());
     }
 
     // ──────────────────────────────────────────────────────────────────
