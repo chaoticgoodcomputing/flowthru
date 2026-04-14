@@ -9,9 +9,9 @@ using System.Net;
 using Flowthru.Spark.Interop.Ipc;
 using Flowthru.Spark.Network;
 using Flowthru.Spark.Utils;
-using static Microsoft.Spark.Utils.CommandSerDe;
+using static Flowthru.Spark.Utils.CommandSerDe;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// A Resilient Distributed Dataset(RDD), the basic abstraction in Spark,

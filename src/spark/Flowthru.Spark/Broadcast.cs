@@ -11,7 +11,7 @@ using Flowthru.Spark.Network;
 using Flowthru.Spark.Services;
 using Flowthru.Spark.Utils;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// A broadcast variable. Broadcast variables allow the programmer to keep a read-only variable

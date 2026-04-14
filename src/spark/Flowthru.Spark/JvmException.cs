@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// Contains the message returned from the <see cref="Interop.Ipc.JvmBridge"/> on an error.

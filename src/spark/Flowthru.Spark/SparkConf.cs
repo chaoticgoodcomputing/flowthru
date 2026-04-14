@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Flowthru.Spark.Interop;
 using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// Configuration for a Spark application. Used to set various Spark parameters as key-value

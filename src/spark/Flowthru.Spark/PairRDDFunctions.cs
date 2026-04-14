@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// Extra functions available on RDDs of (key, value) pairs through extension methods.

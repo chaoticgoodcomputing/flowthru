@@ -7,7 +7,7 @@ using System.IO;
 using Flowthru.Spark.Interop;
 using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// Resolves paths to files added through <see cref="SparkContext.AddFile(string, bool)"/>.

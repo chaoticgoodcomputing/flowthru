@@ -1,7 +1,7 @@
 ﻿using System;
 ﻿using System.IO;
 using System.Linq;
-using Flowthru.Spark.UnitTest.TestUtils;
+using Flowthru.Tests.Spark.TestUtils;
 using Flowthru.Spark.Utils;
 using Xunit;
 

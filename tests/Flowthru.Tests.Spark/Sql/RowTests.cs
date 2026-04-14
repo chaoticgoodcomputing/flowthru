@@ -10,7 +10,7 @@ using Flowthru.Spark.Interop.Ipc;
 using Flowthru.Spark.Network;
 using Flowthru.Spark.Sql;
 using Flowthru.Spark.Sql.Types;
-using Flowthru.Spark.UnitTest.TestUtils;
+using Flowthru.Tests.Spark.TestUtils;
 using Flowthru.Spark.Utils;
 using Moq;
 using Razorvine.Pickle;

@@ -4,7 +4,7 @@
 
 using System;
 using System.IO;
-using static Microsoft.Spark.Utils.CommandSerDe;
+using static Flowthru.Spark.Utils.CommandSerDe;
 
 namespace Flowthru.Spark.Utils
 {

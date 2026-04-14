@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// Base class for custom attributes that involve the Spark version.

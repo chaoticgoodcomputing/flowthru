@@ -8,9 +8,9 @@ using Flowthru.Spark.Hadoop.Conf;
 using Flowthru.Spark.Interop.Internal.Scala;
 using Flowthru.Spark.Interop.Ipc;
 using Flowthru.Spark.Utils;
-using static Microsoft.Spark.Utils.CommandSerDe;
+using static Flowthru.Spark.Utils.CommandSerDe;
 
-namespace Microsoft.Spark
+namespace Flowthru.Spark
 {
     /// <summary>
     /// Main entry point for Spark functionality. A SparkContext represents the connection

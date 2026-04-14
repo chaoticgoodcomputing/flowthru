@@ -5,7 +5,7 @@
 using System;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
-using static Microsoft.Spark.Sql.ArrowArrayHelpers;
+using static Flowthru.Spark.Sql.ArrowArrayHelpers;
 
 namespace Flowthru.Spark.Sql
 {

@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
-using static Microsoft.Spark.Utils.CommandSerDe;
+using static Flowthru.Spark.Utils.CommandSerDe;
 
 namespace Flowthru.Spark.Utils
 {

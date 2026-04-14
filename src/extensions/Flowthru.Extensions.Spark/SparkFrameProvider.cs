@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Flowthru.DataFrames;
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Sql;
 
 namespace Flowthru.Extensions.Spark;
 

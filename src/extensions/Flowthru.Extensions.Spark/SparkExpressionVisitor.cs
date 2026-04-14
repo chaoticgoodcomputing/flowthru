@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Flowthru.DataFrames;
-using Microsoft.Spark.Sql;
-using SparkFunctions = Microsoft.Spark.Sql.Functions;
+using Flowthru.Spark.Sql;
+using SparkFunctions = Flowthru.Spark.Sql.Functions;
 
 namespace Flowthru.Extensions.Spark;
 

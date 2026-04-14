@@ -9,7 +9,7 @@ using System.Linq;
 using Flowthru.Spark.Interop.Ipc;
 using Flowthru.Spark.Sql;
 using Flowthru.Spark.Utils;
-using static Microsoft.Spark.Utils.CommandSerDe;
+using static Flowthru.Spark.Utils.CommandSerDe;
 
 namespace Flowthru.Spark.RDD
 {

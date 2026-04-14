@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using static Microsoft.Spark.Utils.TypeConverter;
+using static Flowthru.Spark.Utils.TypeConverter;
 
 namespace Flowthru.Spark.Sql
 {

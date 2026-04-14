@@ -1,4 +1,4 @@
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Sql;
 
 namespace Flowthru.Extensions.Spark.Tests.CompatTests;
 
@@ -28,7 +28,7 @@ public class SparkSessionSmokeTests
     var sessionType = typeof(SparkSession);
 
     Assert.That(sessionType, Is.Not.Null);
-    Assert.That(sessionType.AssemblyQualifiedName, Does.Contain("Microsoft.Spark"));
+    Assert.That(sessionType.AssemblyQualifiedName, Does.Contain("Flowthru.Spark"));
   }
 
   [Test]
@@ -39,7 +39,7 @@ public class SparkSessionSmokeTests
     var builderType = typeof(Builder);
 
     Assert.That(builderType, Is.Not.Null);
-    Assert.That(builderType.AssemblyQualifiedName, Does.Contain("Microsoft.Spark"));
+    Assert.That(builderType.AssemblyQualifiedName, Does.Contain("Flowthru.Spark"));
   }
 
   [Test]
@@ -49,7 +49,7 @@ public class SparkSessionSmokeTests
     var dfType = typeof(DataFrame);
 
     Assert.That(dfType, Is.Not.Null);
-    Assert.That(dfType.AssemblyQualifiedName, Does.Contain("Microsoft.Spark"));
+    Assert.That(dfType.AssemblyQualifiedName, Does.Contain("Flowthru.Spark"));
   }
 
   [Test]
