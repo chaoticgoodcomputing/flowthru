@@ -1,7 +1,9 @@
 using System.Reflection;
 using DroppedNeuralNet.Data;
 using DroppedNeuralNet.Flows.DataPrep;
+using DroppedNeuralNet.Flows.Exploration;
 using DroppedNeuralNet.Flows.Solver;
+using DroppedNeuralNet.Flows.Validation;
 using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Python;
@@ -35,13 +37,18 @@ internal static class FlowthruServiceBuilderExtensions
 /// permutation that reproduces a recorded set of predictions.
 ///
 /// Flows:
-///   DataPrep  — Python: ingest .pth blobs and classify by tensor dimensions
-///   Solver    — C# constraint enumeration + Python forward-pass validation
+///   DataPrep    — Python: ingest .pth blobs and classify each piece by tensor dimensions.
+///   Exploration — C# + Python: enumerate legal pairings, score via Frobenius norms,
+///                 run Hungarian assignment, rank orderings via activation chaining.
+///   Validation  — Python: diagnostic probes for pairing and ordering quality.
+///   Solver      — Python: forward-pass validate ranked candidates; emit the solution.
 ///
 /// Usage:
-///   dotnet run                                   # run both flows in order
-///   dotnet run -- --pipelines DataPrep           # ingest + classify only
-///   dotnet run -- --pipelines Solver             # solve (requires DataPrep output)
+///   dotnet run                                       # run all four flows in order
+///   dotnet run -- --flows DataPrep                   # ingest + classify only
+///   dotnet run -- --flows Exploration                # pairing analysis (requires DataPrep)
+///   dotnet run -- --flows Validation                 # diagnostics (requires Exploration)
+///   dotnet run -- --flows Solver                     # validate (requires Exploration)
 ///
 /// The pieces directory defaults to ~/Downloads/dropped-a-neural-net/pieces.
 /// Override with the PIECES_DIR environment variable.
@@ -118,9 +125,21 @@ public class Program
         .WithDescription("Ingest .pth blobs and classify each piece by tensor dimensions (Python)");
 
       flowthru
+        .RegisterFlow(label: "Exploration", flow: ExplorationFlow.Create)
+        .WithDescription(
+          "Enumerate legal pairings (C#), score via Frobenius norms, run Hungarian assignment, rank orderings via activation chaining (C# + Python)"
+        );
+
+      flowthru
+        .RegisterFlow(label: "Validation", flow: ValidationFlow.Create)
+        .WithDescription(
+          "Diagnostic probes: fixed-order baseline, ProductNorm signal stats, per-candidate errors (Python)"
+        );
+
+      flowthru
         .RegisterFlow(label: "Solver", flow: SolverFlow.Create)
         .WithDescription(
-          "Enumerate legal block pairings (C#) then search for the matching permutation (Python)"
+          "Forward-pass validate ranked candidate permutations; emit the solution (Python)"
         );
     });
   }

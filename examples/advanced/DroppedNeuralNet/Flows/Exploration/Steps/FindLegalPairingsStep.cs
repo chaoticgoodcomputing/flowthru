@@ -2,7 +2,7 @@ using DroppedNeuralNet.Data._02_Intermediate.Schemas;
 using DroppedNeuralNet.Data._03_Primary.Schemas;
 using Flowthru.Core.Steps;
 
-namespace DroppedNeuralNet.Flows.Solver.Steps;
+namespace DroppedNeuralNet.Flows.Exploration.Steps;
 
 /// <summary>
 /// Enumerates all structurally legal (inp, out) Block pairings from piece metadata.

@@ -36,10 +36,16 @@ public partial class Catalog
 
   /// <summary>
   /// Raw layer blobs loaded from the pieces directory.
-  /// Produced by the load_pieces Python step; held in memory throughout the pipeline.
-  /// The pieces directory path is passed as configuration — Flowthru is not responsible
-  /// for managing the individual .pth files.
+  /// Produced by the load_pieces Python step; persisted as JSON (base64-encoded Data field)
+  /// so downstream flows (Exploration, Validation, Solver) can run independently without
+  /// re-executing DataPrep from scratch.
   /// </summary>
   public IItem<IEnumerable<PieceBlob>> Pieces =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<PieceBlob>(label: "Pieces"));
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.Json<PieceBlob>(
+          label: "Pieces",
+          filePath: $"{_basePath}/_01_Raw/Datasets/pieces.json"
+        )
+    );
 }
