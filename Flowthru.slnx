@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/examples/advanced/">
+    <Project Path="examples/advanced/DroppedNeuralNet/DroppedNeuralNet.csproj" />
     <Project Path="examples/advanced/KedroSpaceflightsGQL/KedroSpaceflightsGQL.csproj" />
   </Folder>
   <Folder Name="/src/">

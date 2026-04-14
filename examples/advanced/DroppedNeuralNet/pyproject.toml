@@ -1,0 +1,10 @@
+[project]
+name = "dropped-neural-net"
+version = "0.1.0"
+description = "Flowthru advanced example: recover a scrambled neural network's layer permutation"
+requires-python = ">=3.10"
+dependencies = ["pandas>=2.0.0", "pyarrow>=18.0.0", "torch>=2.0.0"]
+
+[tool.uv]
+dev-dependencies = []
+package = false

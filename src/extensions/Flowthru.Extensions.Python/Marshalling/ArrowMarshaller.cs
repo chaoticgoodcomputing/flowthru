@@ -284,6 +284,11 @@ public static class ArrowMarshaller
       return BuildBinaryArray(property, rows, rowCount);
     }
 
+    if (underlyingType.IsEnum)
+    {
+      return BuildEnumArray(property, rows, rowCount);
+    }
+
     throw new NotSupportedException(
       $"Property '{property.Name}' has type '{propertyType.Name}' which is not supported for Arrow marshalling."
     );
@@ -392,6 +397,24 @@ public static class ArrowMarshaller
       else
       {
         builder.Append((string)value);
+      }
+    }
+    return builder.Build();
+  }
+
+  private static IArrowArray BuildEnumArray<T>(PropertyInfo property, List<T> rows, int rowCount)
+  {
+    var builder = new StringArray.Builder();
+    foreach (var row in rows)
+    {
+      var value = property.GetValue(row);
+      if (value == null)
+      {
+        builder.AppendNull();
+      }
+      else
+      {
+        builder.Append(value.ToString());
       }
     }
     return builder.Build();
@@ -622,6 +645,26 @@ public static class ArrowMarshaller
         LargeBinaryArray largeBinaryArray => largeBinaryArray.GetBytes(index).ToArray(),
         _ => null,
       };
+    }
+
+    // Enum types: deserialized from their string name
+    if (underlyingType.IsEnum)
+    {
+      var enumString = array switch
+      {
+        StringArray stringArray => stringArray.GetString(index),
+        LargeStringArray largeStringArray => largeStringArray.GetString(index),
+        _ => throw new NotSupportedException(
+          $"Cannot convert Arrow array of type '{array.Data.DataType.Name}' to enum type '{underlyingType.Name}'."
+        ),
+      };
+
+      if (enumString == null)
+      {
+        return null;
+      }
+
+      return Enum.Parse(underlyingType, enumString);
     }
 
     // Numeric type coercion (pandas compatibility)

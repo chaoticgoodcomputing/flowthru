@@ -1,0 +1,13 @@
+# Python virtual environment (materialized by uv sync at runtime)
+.venv/
+
+# Build outputs
+bin/
+obj/
+
+# Runtime data: historical dataset (large CSV — obtain from puzzle source)
+Data/_01_Raw/Datasets/historical_data.csv
+
+# Runtime outputs
+Data/_07_ModelOutput/solution.json
+Metadata/

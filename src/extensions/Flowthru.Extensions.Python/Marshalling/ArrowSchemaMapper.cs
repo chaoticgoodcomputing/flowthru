@@ -182,11 +182,17 @@ public static class ArrowSchemaMapper
       return BinaryType.Default;
     }
 
+    // Enum types: serialize as string (name), matching the Python-side string representation
+    if (type.IsEnum)
+    {
+      return StringType.Default;
+    }
+
     // Unsupported type
     throw new NotSupportedException(
       $"Type '{type.FullName}' cannot be mapped to Apache Arrow. "
         + "Supported types: int, long, float, double, bool, string, DateTime, "
-        + "DateTimeOffset, TimeSpan, Guid, byte[], and their nullable variants."
+        + "DateTimeOffset, TimeSpan, Guid, byte[], enum, and their nullable variants."
     );
   }
 
