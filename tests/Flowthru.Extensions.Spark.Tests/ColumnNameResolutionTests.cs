@@ -91,6 +91,12 @@ public class ColumnNameResolutionTests
     protected override object TranslateCount(System.Linq.Expressions.MethodCallExpression node) =>
       throw new NotImplementedException();
 
+    protected override object TranslateDistinct(System.Linq.Expressions.MethodCallExpression node) =>
+      throw new NotImplementedException();
+
+    protected override object TranslateUnion(System.Linq.Expressions.MethodCallExpression node) =>
+      throw new NotImplementedException();
+
     protected override object TranslateGroupBy(System.Linq.Expressions.MethodCallExpression node) =>
       throw new NotImplementedException();
 

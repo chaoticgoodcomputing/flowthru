@@ -113,6 +113,27 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   }
 
   // ──────────────────────────────────────────────
+  //  Easy: Distinct (deduplication)
+  // ──────────────────────────────────────────────
+
+  protected override object TranslateDistinct(MethodCallExpression node)
+  {
+    var sourceDf = (DataFrame)CompileExpression(node.Arguments[0]);
+    return sourceDf.Distinct();
+  }
+
+  // ──────────────────────────────────────────────
+  //  Easy: Union (row-wise concatenation)
+  // ──────────────────────────────────────────────
+
+  protected override object TranslateUnion(MethodCallExpression node)
+  {
+    var leftDf = (DataFrame)CompileExpression(node.Arguments[0]);
+    var rightDf = (DataFrame)CompileExpression(node.Arguments[1]);
+    return leftDf.Union(rightDf);
+  }
+
+  // ──────────────────────────────────────────────
   //  Intermediate: Select (type-projecting)
   // ──────────────────────────────────────────────
 
@@ -418,6 +439,17 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     nameof(string.ToUpper),
     nameof(string.ToLower),
     nameof(string.Trim),
+    nameof(string.TrimStart),
+    nameof(string.TrimEnd),
+    nameof(string.Substring),
+  ];
+
+  private static readonly HashSet<string> MathMethodNames =
+  [
+    nameof(Math.Round),
+    nameof(Math.Abs),
+    nameof(Math.Floor),
+    nameof(Math.Ceiling),
   ];
 
   /// <summary>
@@ -429,17 +461,16 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   )
   {
     if (mce.Method.DeclaringType == typeof(string) && StringMethodNames.Contains(mce.Method.Name))
-    {
       return TranslateStringMethod(mce, paramMap);
-    }
 
-    // Check string.Length via MemberExpression — handled above,
-    // but for thoroughness reject unknown method calls clearly.
+    if (mce.Method.DeclaringType == typeof(Math) && MathMethodNames.Contains(mce.Method.Name))
+      return TranslateMathMethod(mce, paramMap);
+
     throw new NotSupportedException(
       $"Method '{mce.Method.DeclaringType?.Name}.{mce.Method.Name}' "
         + "is not supported in Spark sub-expressions. "
-        + "Supported string methods: Replace, Contains, StartsWith, EndsWith, "
-        + "ToUpper, ToLower, Trim."
+        + "Supported: string (Replace, Contains, StartsWith, EndsWith, ToUpper, ToLower, "
+        + "Trim, TrimStart, TrimEnd, Substring) and Math (Round, Abs, Floor, Ceiling)."
     );
   }
 
@@ -464,6 +495,20 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
 
       // s.Trim() → Trim(col)
       nameof(string.Trim) => SparkFunctions.Trim(col),
+
+      // s.TrimStart() → Ltrim(col)
+      nameof(string.TrimStart) => SparkFunctions.Ltrim(col),
+
+      // s.TrimEnd() → Rtrim(col)
+      nameof(string.TrimEnd) => SparkFunctions.Rtrim(col),
+
+      // s.Substring(startIndex, length) → Substring(col, startIndex + 1, length)
+      // Note: C# Substring uses 0-based indexing; Spark Substring uses 1-based.
+      nameof(string.Substring) when mce.Arguments.Count == 2 => SparkFunctions.Substring(
+        col,
+        (int)((ConstantExpression)mce.Arguments[0]).Value! + 1,
+        (int)((ConstantExpression)mce.Arguments[1]).Value!
+      ),
 
       // s.Contains(x) → col.Contains(x)
       nameof(string.Contains) => col.Contains(TranslateSubExpression(mce.Arguments[0], paramMap)),
@@ -495,7 +540,50 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   }
 
   // ──────────────────────────────────────────────
-  //  Member access translation (columns + string.Length)
+  //  Math method translation
+  // ──────────────────────────────────────────────
+
+  /// <summary>
+  /// Translates <c>System.Math</c> static methods to their Spark <c>Column</c> equivalents.
+  /// </summary>
+  private Column TranslateMathMethod(
+    MethodCallExpression mce,
+    Dictionary<ParameterExpression, DataFrame> paramMap
+  )
+  {
+    // Math methods are static; the column is always the first argument.
+    var col = TranslateSubExpression(mce.Arguments[0], paramMap);
+
+    return mce.Method.Name switch
+    {
+      // Math.Abs(x) → Abs(col)
+      nameof(Math.Abs) => SparkFunctions.Abs(col),
+
+      // Math.Floor(x) → Floor(col)
+      nameof(Math.Floor) => SparkFunctions.Floor(col),
+
+      // Math.Ceiling(x) → Ceil(col)
+      nameof(Math.Ceiling) => SparkFunctions.Ceil(col),
+
+      // Math.Round(x) → Round(col, 0)
+      // Math.Round(x, digits) → Round(col, digits)
+      // Math.Round with MidpointRounding is not supported — Spark has no equivalent.
+      nameof(Math.Round) when mce.Arguments.Count == 1 => SparkFunctions.Round(col),
+      nameof(Math.Round) when mce.Arguments.Count == 2
+        && mce.Arguments[1].Type == typeof(int) => SparkFunctions.Round(
+          col,
+          (int)((ConstantExpression)mce.Arguments[1]).Value!
+        ),
+
+      _ => throw new NotSupportedException(
+        $"Math.{mce.Method.Name} overload (arg count: {mce.Arguments.Count}) "
+          + "has no Spark translation."
+      ),
+    };
+  }
+
+  // ──────────────────────────────────────────────
+  //  Member access translation (columns + string.Length + DateTime parts)
   // ──────────────────────────────────────────────
 
   /// <summary>
@@ -516,6 +604,31 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     {
       var inner = TranslateSubExpression(me.Expression, paramMap);
       return SparkFunctions.Length(inner);
+    }
+
+    // DateTime property access on a column → Spark date/time functions.
+    // The column is the inner expression (x.CreatedAt.Year → col = x.CreatedAt).
+    if (
+      me.Member is PropertyInfo
+      && me.Member.DeclaringType == typeof(DateTime)
+      && me.Expression is not null
+    )
+    {
+      var innerCol = TranslateSubExpression(me.Expression, paramMap);
+      return me.Member.Name switch
+      {
+        nameof(DateTime.Year) => SparkFunctions.Year(innerCol),
+        nameof(DateTime.Month) => SparkFunctions.Month(innerCol),
+        nameof(DateTime.Day) => SparkFunctions.DayOfMonth(innerCol),
+        nameof(DateTime.Hour) => SparkFunctions.Hour(innerCol),
+        nameof(DateTime.Minute) => SparkFunctions.Minute(innerCol),
+        nameof(DateTime.Second) => SparkFunctions.Second(innerCol),
+        nameof(DateTime.DayOfWeek) => SparkFunctions.DayOfWeek(innerCol),
+        nameof(DateTime.DayOfYear) => SparkFunctions.DayOfYear(innerCol),
+        _ => throw new NotSupportedException(
+          $"DateTime property '{me.Member.Name}' has no Spark translation."
+        ),
+      };
     }
 
     // Direct property on a lambda parameter: x.Age → df["Age"]
@@ -539,6 +652,20 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     Dictionary<ParameterExpression, DataFrame> paramMap
   )
   {
+    // Null-check special cases: x.Prop == null / x.Prop != null.
+    // Spark's == operator emits `col = NULL` (always false); IsNull/IsNotNull is correct.
+    if (be.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
+    {
+      var isRightNull = be.Right is ConstantExpression { Value: null };
+      var isLeftNull = be.Left is ConstantExpression { Value: null };
+      if (isRightNull || isLeftNull)
+      {
+        var colExpr = isRightNull ? be.Left : be.Right;
+        var col = TranslateSubExpression(colExpr, paramMap);
+        return be.NodeType == ExpressionType.Equal ? col.IsNull() : col.IsNotNull();
+      }
+    }
+
     var left = TranslateSubExpression(be.Left, paramMap);
     var right = TranslateSubExpression(be.Right, paramMap);
 

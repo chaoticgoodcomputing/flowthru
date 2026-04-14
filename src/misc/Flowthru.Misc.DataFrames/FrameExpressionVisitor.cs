@@ -59,6 +59,8 @@ public abstract class FrameExpressionVisitor
         nameof(TypedFrameExtensions.Take) => TranslateTake(node),
         nameof(TypedFrameExtensions.Count) => TranslateCount(node),
         nameof(TypedFrameExtensions.GroupBy) => TranslateGroupBy(node),
+        nameof(TypedFrameExtensions.Distinct) => TranslateDistinct(node),
+        nameof(TypedFrameExtensions.Union) => TranslateUnion(node),
         _ => throw new NotSupportedException(
           $"TypedFrame operation '{node.Method.Name}' is not yet supported."
         ),
@@ -131,6 +133,18 @@ public abstract class FrameExpressionVisitor
   /// </summary>
   /// <param name="node">Method call with arguments: [0] source.</param>
   protected abstract object TranslateCount(MethodCallExpression node);
+
+  /// <summary>
+  /// Translates a <c>Distinct</c> operation into a native deduplication.
+  /// </summary>
+  /// <param name="node">Method call with arguments: [0] source.</param>
+  protected abstract object TranslateDistinct(MethodCallExpression node);
+
+  /// <summary>
+  /// Translates a <c>Union</c> operation into a native row-wise concatenation.
+  /// </summary>
+  /// <param name="node">Method call with arguments: [0] source, [1] other source.</param>
+  protected abstract object TranslateUnion(MethodCallExpression node);
 
   /// <summary>
   /// Translates a <c>GroupBy</c> operation into a native grouped dataset.

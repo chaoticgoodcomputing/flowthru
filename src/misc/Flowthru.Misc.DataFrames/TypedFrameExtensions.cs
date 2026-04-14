@@ -191,6 +191,51 @@ public static class TypedFrameExtensions
   }
 
   // ──────────────────────────────────────────────
+  //  Distinct — deduplicate rows
+  // ──────────────────────────────────────────────
+
+  /// <summary>
+  /// Returns a frame with duplicate rows removed.
+  /// </summary>
+  public static TypedFrame<TSource> Distinct<TSource>(this TypedFrame<TSource> source)
+  {
+    ArgumentNullException.ThrowIfNull(source);
+
+    return (TypedFrame<TSource>)
+      source.Provider.CreateQuery<TSource>(
+        Expression.Call(null, CaptureMethod(Distinct, source), source.Expression)
+      );
+  }
+
+  // ──────────────────────────────────────────────
+  //  Union — row-wise concatenation
+  // ──────────────────────────────────────────────
+
+  /// <summary>
+  /// Concatenates two frames of the same schema, preserving all rows (including duplicates).
+  /// Equivalent to SQL <c>UNION ALL</c>; use <see cref="Distinct{TSource}"/> after to get
+  /// distinct-row semantics.
+  /// </summary>
+  public static TypedFrame<TSource> Union<TSource>(
+    this TypedFrame<TSource> source,
+    TypedFrame<TSource> other
+  )
+  {
+    ArgumentNullException.ThrowIfNull(source);
+    ArgumentNullException.ThrowIfNull(other);
+
+    return (TypedFrame<TSource>)
+      source.Provider.CreateQuery<TSource>(
+        Expression.Call(
+          null,
+          CaptureMethod(Union, source, other),
+          source.Expression,
+          other.Expression
+        )
+      );
+  }
+
+  // ──────────────────────────────────────────────
   //  GroupBy — intermediate grouped frame
   // ──────────────────────────────────────────────
 

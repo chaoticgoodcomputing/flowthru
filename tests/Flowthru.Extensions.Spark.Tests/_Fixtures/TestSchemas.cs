@@ -89,3 +89,23 @@ public record SalesSummarySchema
   public required double TotalAmount { get; init; }
   public required long TotalCount { get; init; }
 }
+
+/// <summary>
+/// Schema with a nullable reference property for null-check translation tests.
+/// </summary>
+public record OrderSchema
+{
+  public required string OrderId { get; init; }
+  public required string? Region { get; init; }
+  public required double Amount { get; init; }
+  public required DateTime OrderDate { get; init; }
+}
+
+/// <summary>
+/// Schema with numeric columns for Math method translation tests.
+/// </summary>
+public record MeasurementSchema
+{
+  public required double Value { get; init; }
+  public required double Temperature { get; init; }
+}
