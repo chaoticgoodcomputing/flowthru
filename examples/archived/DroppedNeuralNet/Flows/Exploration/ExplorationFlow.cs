@@ -29,9 +29,13 @@ namespace DroppedNeuralNet.Flows.Exploration;
 ///   compute_pairing_scores (Frobenius of W_out @ W_inp, v1). Both are retained but
 ///   commented out for reference.
 ///
-/// Step 3 (Python) — run_hungarian:
-///   Applies the Hungarian algorithm to the 48×48 score matrix (with Sinkhorn normalization).
-///   Produces the globally optimal assignment of inp ↔ out pieces in O(n³).
+/// Step 3 (Python) — run_gumbel_sinkhorn:
+///   Runs K=500 Gumbel-perturbed Sinkhorn solves over a temperature-annealed log-score
+///   matrix (τ: 2.0 → 0.05), accumulates per-pair vote counts, and returns the consensus
+///   perfect matching. More robust than a single Hungarian solve against a flat cost matrix.
+///
+///   Supersedes run_hungarian (single deterministic solve + linear Sinkhorn), which is
+///   retained but commented out.
 ///
 /// Step 4 (Python) — rank_orderings:
 ///   Uses activation chaining on historical data to score Block execution orderings.
@@ -108,6 +112,18 @@ public static class ExplorationFlow
       */
 
       pipeline.AddPythonStep<IEnumerable<PairingScore>, IEnumerable<BlockAssignment>>(
+        label: "RunGumbelSinkhorn",
+        description: "Consensus inp↔out assignment via K Gumbel-Sinkhorn perturbation samples with temperature annealing (Python).",
+        module: "Flows.Exploration.Steps.run_gumbel_sinkhorn",
+        function: "run_gumbel_sinkhorn",
+        input: catalog.PairingScores,
+        output: catalog.BlockAssignments,
+        executor: executor
+      );
+
+      /* SUPERSEDED — single deterministic Hungarian solve + linear-space Sinkhorn normalization.
+         Fragile at low signal std (~0.07); replaced by Gumbel-Sinkhorn consensus.
+      pipeline.AddPythonStep<IEnumerable<PairingScore>, IEnumerable<BlockAssignment>>(
         label: "RunHungarian",
         description: "Globally optimal inp↔out assignment via Hungarian algorithm on the 48×48 score matrix (Python).",
         module: "Flows.Exploration.Steps.run_hungarian",
@@ -116,6 +132,7 @@ public static class ExplorationFlow
         output: catalog.BlockAssignments,
         executor: executor
       );
+      */
 
       pipeline.AddPythonStep<
         IEnumerable<BlockAssignment>,
