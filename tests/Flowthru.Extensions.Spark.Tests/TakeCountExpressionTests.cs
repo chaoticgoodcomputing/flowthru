@@ -153,6 +153,8 @@ public class TakeCountExpressionTests
 
     public object Compile(Expression expression) => throw new NotSupportedException();
 
+    public IEnumerable<T> Materialize<T>(Expression expression) => throw new NotSupportedException();
+
     public TResult Execute<TResult>(Expression expression)
     {
       CapturedExpression = expression;

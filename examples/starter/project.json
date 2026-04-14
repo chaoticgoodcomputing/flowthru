@@ -8,7 +8,7 @@
       "//": "Packs all packable projects in the workspace. src/ lands in dist/packages/ (flat); others go under dist/packages/<relative-path>/",
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["pnpm nx run-many -t pack"],
+        "commands": [ "pnpm nx run-many -t pack" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }
@@ -17,7 +17,7 @@
       "//": "Stamps the current Directory.Build.props version into all starter template.json files",
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["bash scripts/inject-template-version.sh"],
+        "commands": [ "bash scripts/inject-template-version.sh" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }
@@ -31,6 +31,7 @@
           "cp docs/guides/misc/AGENTS.md examples/starter/KedroIrisPython/AGENTS.md",
           "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflights/AGENTS.md",
           "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsPython/AGENTS.md",
+          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsSpark/AGENTS.md",
           "cp docs/guides/misc/AGENTS.md examples/starter/Minimal/AGENTS.md",
           "cp docs/guides/misc/AGENTS.md examples/starter/SpaceflightsEFCore/AGENTS.md"
         ],

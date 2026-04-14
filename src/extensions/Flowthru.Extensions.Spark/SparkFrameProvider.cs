@@ -92,6 +92,30 @@ public sealed class SparkFrameProvider : IFrameQueryProvider
     return _visitor.CompileExpression(expression);
   }
 
+  /// <inheritdoc />
+  /// <remarks>
+  /// <para>
+  /// <see cref="SparkRowHydrator{T}"/> carries an <c>IFlatSchema</c> constraint that cannot
+  /// be expressed on this method. The constraint is already enforced at catalog construction
+  /// via <see cref="FrameItemFactory.Memory{TRow}"/>, so every <see cref="TypedFrame{T}"/>
+  /// in the system is guaranteed to carry a flat schema at runtime.
+  /// </para>
+  /// <para>
+  /// The hydrator is instantiated via reflection to bypass the compile-time constraint.
+  /// </para>
+  /// </remarks>
+  public IEnumerable<T> Materialize<T>(Expression expression)
+  {
+    var df = CompileToNative(expression);
+    var hydratorType = typeof(SparkRowHydrator<>).MakeGenericType(typeof(T));
+    var hydrator = Activator.CreateInstance(hydratorType, this)!;
+    var collectRows = hydratorType.GetMethod(
+      "CollectRows",
+      System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+    )!;
+    return (IEnumerable<T>)collectRows.Invoke(hydrator, [df])!;
+  }
+
   // ──────────────────────────────────────────────
   //  IQueryProvider
   // ──────────────────────────────────────────────

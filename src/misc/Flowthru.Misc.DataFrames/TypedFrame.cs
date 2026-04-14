@@ -60,14 +60,17 @@ public class TypedFrame<T> : IQueryable<T>, IOrderedQueryable<T>
   public IQueryProvider Provider => _provider;
 
   /// <summary>
-  /// Not supported. TypedFrame represents a distributed dataset that cannot be enumerated locally.
+  /// Materializes this frame by delegating to the provider's
+  /// <see cref="IFrameQueryProvider.Materialize{T}"/> method.
   /// </summary>
-  /// <exception cref="NotSupportedException">Always thrown.</exception>
+  /// <remarks>
+  /// This enables transparent TypedFrame → IEnumerable conversion at catalog item
+  /// boundaries: a step returning <c>TypedFrame&lt;T&gt;</c> can be wired to a
+  /// catalog item typed as <c>IEnumerable&lt;T&gt;</c> without any explicit
+  /// materialization call in step code.
+  /// </remarks>
   public IEnumerator<T> GetEnumerator() =>
-    throw new NotSupportedException(
-      "TypedFrame<T> represents a distributed dataset and cannot be enumerated directly. "
-        + "Use the provider's Compile() method to produce a native frame."
-    );
+    _provider.Materialize<T>(_expression).GetEnumerator();
 
   /// <inheritdoc cref="GetEnumerator"/>
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

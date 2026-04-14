@@ -23,4 +23,14 @@ public interface IFrameQueryProvider : IQueryProvider
   /// </param>
   /// <returns>The native frame object (e.g., Spark <c>DataFrame</c>).</returns>
   object Compile(Expression expression);
+
+  /// <summary>
+  /// Materializes the accumulated expression tree into an enumerable sequence of rows.
+  /// Called by <see cref="TypedFrame{T}.GetEnumerator"/> to enable transparent
+  /// TypedFrame → IEnumerable conversion at catalog item boundaries.
+  /// </summary>
+  /// <typeparam name="T">The row schema type.</typeparam>
+  /// <param name="expression">The accumulated expression tree.</param>
+  /// <returns>The materialized rows.</returns>
+  IEnumerable<T> Materialize<T>(Expression expression);
 }

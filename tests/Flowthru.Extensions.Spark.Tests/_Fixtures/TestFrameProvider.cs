@@ -22,6 +22,12 @@ internal sealed class TestFrameProvider : IFrameQueryProvider
         + "inspect the Expression property directly."
     );
 
+  public IEnumerable<T> Materialize<T>(Expression expression) =>
+    throw new NotSupportedException(
+      "TestFrameProvider does not support materialization. Expression tree tests should "
+        + "inspect the Expression property directly."
+    );
+
   public TResult Execute<TResult>(Expression expression) => throw new NotSupportedException();
 
   public object? Execute(Expression expression) => throw new NotSupportedException();

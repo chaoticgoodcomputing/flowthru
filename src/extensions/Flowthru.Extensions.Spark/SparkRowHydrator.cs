@@ -177,6 +177,38 @@ public sealed class SparkRowHydrator<T>
         return dataFrame.Collect().Select(HydrateRow);
     }
 
+    /// <summary>
+    /// Validates the schema of an already-compiled <see cref="DataFrame"/>, collects
+    /// all rows, and hydrates them into <typeparamref name="T"/> instances.
+    /// </summary>
+    /// <remarks>
+    /// Called by <see cref="SparkFrameProvider.Materialize{T}"/> to support transparent
+    /// TypedFrame → IEnumerable conversion at catalog item boundaries.
+    /// </remarks>
+    /// <param name="dataFrame">The compiled native DataFrame.</param>
+    /// <returns>The materialized rows as an <see cref="IEnumerable{T}"/>.</returns>
+    internal IEnumerable<T> CollectRows(DataFrame dataFrame)
+    {
+        if (dataFrame == null)
+            throw new ArgumentNullException(nameof(dataFrame));
+
+        var errors = ValidateSchema(dataFrame);
+        if (errors.Count > 0)
+        {
+            var details = string.Join(
+                Environment.NewLine,
+                errors.Select(e => $"  • {e.ColumnName}: {e.Reason}")
+            );
+            throw new InvalidOperationException(
+                $"DataFrame schema is incompatible with '{typeof(T).Name}':"
+                    + Environment.NewLine
+                    + details
+            );
+        }
+
+        return dataFrame.Collect().Select(HydrateRow);
+    }
+
     // ──────────────────────────────────────────────────────────────────
     //  Row → T hydration
     // ──────────────────────────────────────────────────────────────────
