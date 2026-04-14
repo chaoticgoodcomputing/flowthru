@@ -164,7 +164,38 @@ def diagnose_pairings(
     logger.info(
         f"[diagnose_pairings] FixedOrdering max_err={max_err:.6f} mean_err={mean_err:.6f} — {pairing_verdict}"
     )
-    print(f"[diagnose_pairings] FixedOrdering max_err={max_err:.6f} ({pairing_verdict})", flush=True)
+
+    # ------------------------------------------------------------------
+    # Probe 4 — per-block residual magnitude (blame attribution)
+    # Blocks with the largest mean correction magnitude are most suspect:
+    # a correctly-paired block applies a small learned residual; a wrong pair
+    # applies an arbitrary transformation whose magnitude stands out.
+    # ------------------------------------------------------------------
+    logger.info("[diagnose_pairings] Probe 4: per-block residual magnitude (blame attribution)")
+    x = X.clone()
+    block_modules = list(fixed_net.children())  # [Block × 48, LastLayer]
+    blame: list[tuple[int, float]] = []
+    with torch.no_grad():
+        for k, mod in enumerate(block_modules[:-1]):  # skip LastLayer
+            x_in = x.clone()
+            x = mod(x)
+            correction = x - x_in  # residual this block adds
+            mean_mag = float(correction.norm(dim=1).mean())
+            blame.append((k, mean_mag))
+
+    blame_ranked = sorted(blame, key=lambda t: t[1], reverse=True)
+    logger.info(
+        "[diagnose_pairings] BlockBlame top-3: "
+        + ", ".join(f"Block_{k:02d}({mag:.4f})" for k, mag in blame_ranked[:3])
+    )
+    for rank, (block_k, mag) in enumerate(blame_ranked):
+        assignment = sorted_assignments[block_k]
+        rows.append({
+            "Category": "BlockBlame",
+            "Metric": f"Block_{block_k:02d}",
+            "Value": mag,
+            "Notes": f"rank {rank + 1}/48 inp={assignment['InpPieceIndex']} out={assignment['OutPieceIndex']}",
+        })
 
     # ------------------------------------------------------------------
     # Probe 2 — CoherenceScore signal statistics
@@ -183,10 +214,6 @@ def diagnose_pairings(
     logger.info(
         f"[diagnose_pairings] PairingSignal mean={score_mean:.6f} std={score_std:.6f} range={score_range:.6f}"
     )
-    print(
-        f"[diagnose_pairings] PairingSignal std={score_std:.6f} range={score_range:.6f}",
-        flush=True,
-    )
 
     # ------------------------------------------------------------------
     # Probe 3 — Per-candidate errors
@@ -202,10 +229,7 @@ def diagnose_pairings(
         category = f"Candidate_{candidate_idx}"
         rows.append({"Category": category, "Metric": "MaxErr",  "Value": c_max_err,  "Notes": ""})
         rows.append({"Category": category, "Metric": "MeanErr", "Value": c_mean_err, "Notes": ""})
-        print(
-            f"[diagnose_pairings] {category}: max_err={c_max_err:.6f} mean_err={c_mean_err:.6f}",
-            flush=True,
-        )
+        logger.info(f"[diagnose_pairings] {category}: max_err={c_max_err:.6f} mean_err={c_mean_err:.6f}")
 
     best_candidate_err = min(
         r["Value"] for r in rows if r["Metric"] == "MaxErr" and r["Category"].startswith("Candidate_")
@@ -218,6 +242,5 @@ def diagnose_pairings(
     })
 
     logger.info(f"[diagnose_pairings] Done. Best candidate max_err={best_candidate_err:.6f}")
-    print(f"[diagnose_pairings] Best candidate max_err={best_candidate_err:.6f}", flush=True)
 
     return pd.DataFrame(rows, columns=["Category", "Metric", "Value", "Notes"])

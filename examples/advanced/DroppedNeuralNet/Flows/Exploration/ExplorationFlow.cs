@@ -18,12 +18,19 @@ namespace DroppedNeuralNet.Flows.Exploration;
 ///   Sieves PieceMetadata to enumerate every structurally valid (inp, out) Block candidate.
 ///   Pure dimension arithmetic; no blobs.
 ///
-/// Step 2 (Python) — compute_pairing_scores:
-///   For every legal (inp, out) candidate, computes ||W_out @ W_inp||_F.
-///   Lower scores indicate residual coupling — the signal left by training.
+/// Step 2 (Python) — compute_svd_activation_scores:
+///   Scores each legal (inp, out) candidate by SVD subspace alignment. The top-R left
+///   singular vectors of W_inp (principal hidden directions written to) are compared against
+///   the top-R right singular vectors of W_out (principal hidden directions read from).
+///   High overlap → trained pair; orthogonal subspaces → mismatch.
+///   No historical data required — purely geometric.
+///
+///   Supersedes compute_activation_scores (Pearson correlation on data pass, v2) and
+///   compute_pairing_scores (Frobenius of W_out @ W_inp, v1). Both are retained but
+///   commented out for reference.
 ///
 /// Step 3 (Python) — run_hungarian:
-///   Applies the Hungarian algorithm to the 48×48 score matrix.
+///   Applies the Hungarian algorithm to the 48×48 score matrix (with Sinkhorn normalization).
 ///   Produces the globally optimal assignment of inp ↔ out pieces in O(n³).
 ///
 /// Step 4 (Python) — rank_orderings:
@@ -44,6 +51,7 @@ public static class ExplorationFlow
         output: catalog.LegalPairings
       );
 
+      /* SUPERSEDED — weight-space Frobenius signal collapses under normalization.
       pipeline.AddPythonStep<
         IEnumerable<PieceMetadata>,
         IEnumerable<PieceBlob>,
@@ -58,6 +66,46 @@ public static class ExplorationFlow
         output: catalog.PairingScores,
         executor: executor
       );
+      */
+
+      pipeline.AddPythonStep<
+        IEnumerable<PieceMetadata>,
+        IEnumerable<PieceBlob>,
+        IEnumerable<BlockCandidate>,
+        IEnumerable<PairingScore>
+      >(
+        label: "ComputeSvdActivationScores",
+        description: "Score each (inp, out) candidate by SVD subspace alignment between inp write-directions and out read-directions. Pure weight geometry, no data pass required (Python).",
+        module: "Flows.Exploration.Steps.compute_svd_activation_scores",
+        function: "compute_svd_activation_scores",
+        input: (catalog.PieceMetadata, catalog.Pieces, catalog.LegalPairings),
+        output: catalog.PairingScores,
+        executor: executor
+      );
+
+      /* SUPERSEDED — Pearson correlation between mean activation and column attention norms.
+         Required a full data pass; SVD subspace alignment captures the same signal geometrically.
+      pipeline.AddPythonStep<
+        IEnumerable<PieceMetadata>,
+        IEnumerable<PieceBlob>,
+        IEnumerable<BlockCandidate>,
+        IEnumerable<MeasurementSchema>,
+        IEnumerable<PairingScore>
+      >(
+        label: "ComputeActivationScores",
+        description: "Run historical data through each inp piece; score each out piece by residual response magnitude. Lower = trained pair (Python).",
+        module: "Flows.Exploration.Steps.compute_activation_scores",
+        function: "compute_activation_scores",
+        input: (
+          catalog.PieceMetadata,
+          catalog.Pieces,
+          catalog.LegalPairings,
+          catalog.HistoricalData
+        ),
+        output: catalog.PairingScores,
+        executor: executor
+      );
+      */
 
       pipeline.AddPythonStep<IEnumerable<PairingScore>, IEnumerable<BlockAssignment>>(
         label: "RunHungarian",
