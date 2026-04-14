@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru.DataFrames</RootNamespace>
+    <Description>Framework-agnostic typed DataFrame abstraction for Flowthru, based on the IQueryable provider pattern</Description>
+    <PackageTags>flowthru;dataframe;typed;queryable</PackageTags>
+
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Misc.DataFrames</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
