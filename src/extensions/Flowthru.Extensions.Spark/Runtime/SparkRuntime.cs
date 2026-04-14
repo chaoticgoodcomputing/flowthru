@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using Flowthru.Spark.Interop;
+using Flowthru.Spark.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Extensions.Spark.Runtime;
@@ -28,6 +29,7 @@ public sealed class SparkRuntime : IDisposable
 
     private readonly SparkRuntimeOptions _options;
     private readonly ILogger<SparkRuntime> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private Process? _backendProcess;
     private int _backendPort;
     private bool _initialized;
@@ -36,10 +38,14 @@ public sealed class SparkRuntime : IDisposable
     /// <summary>
     /// Initializes a new instance of <see cref="SparkRuntime"/>.
     /// </summary>
-    public SparkRuntime(SparkRuntimeOptions options, ILogger<SparkRuntime> logger)
+    public SparkRuntime(
+        SparkRuntimeOptions options,
+        ILogger<SparkRuntime> logger,
+        ILoggerFactory loggerFactory)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     /// <summary>
@@ -66,6 +72,11 @@ public sealed class SparkRuntime : IDisposable
         {
             if (_initialized)
                 return;
+
+            // Route all Spark library internal logs through the MEL pipeline so they
+            // respect the application's configured log levels and sinks instead of
+            // writing directly to stdout via ConsoleLoggerService.
+            LoggerServiceFactory.SetLoggerService(new MelLoggerService(_loggerFactory));
 
             var sparkHome = _options.GetResolvedSparkHome();
             var jarPath = _options.GetResolvedJarPath();
@@ -138,10 +149,13 @@ public sealed class SparkRuntime : IDisposable
             {
                 _logger.LogInformation("Stopping Spark JVM backend (pid {Pid})", _backendProcess.Id);
 
-                // Best-effort: call stop on the JVM bridge before killing the process
-                try { SparkEnvironment.JvmBridge.CallStaticJavaMethod("SparkContext", "stopActiveSparkContext"); }
-                catch { /* ignore — JVM may already be shutting down */ }
-
+                // Kill the process directly. In local[*] debug mode the .NET side does not
+                // hold a SparkContext reference, so stopActiveSparkContext would reliably
+                // fail. The session teardown responsibility belongs to whoever holds the
+                // SparkSession (e.g., the user's Catalog). In a future cluster-aware refactor
+                // SparkRuntime should accept an optional SparkSession and call session.Stop()
+                // here before killing when running locally, and skip the Kill() entirely
+                // when connected to an external cluster.
                 _backendProcess.Kill(entireProcessTree: true);
                 _backendProcess.WaitForExit(5000);
             }

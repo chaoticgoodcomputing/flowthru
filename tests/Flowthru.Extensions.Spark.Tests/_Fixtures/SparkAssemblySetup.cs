@@ -44,7 +44,7 @@ public static class SparkAssemblySetup
         try
         {
             var options = new SparkRuntimeOptions { BackendStartupTimeoutSeconds = 30 };
-            _runtime = new SparkRuntime(options, NullLogger<SparkRuntime>.Instance);
+            _runtime = new SparkRuntime(options, NullLogger<SparkRuntime>.Instance, NullLoggerFactory.Instance);
             _runtime.Initialize();
             IsAvailable = true;
         }
