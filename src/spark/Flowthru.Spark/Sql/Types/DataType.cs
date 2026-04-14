@@ -7,11 +7,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.Spark.Sql.Types
+namespace Flowthru.Spark.Sql.Types
 {
     /// <summary>
     /// The base type of all Spark SQL data types.

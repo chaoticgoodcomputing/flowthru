@@ -5,10 +5,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 using System.Collections.Generic;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// Provides general helper functions related to JVM objects.

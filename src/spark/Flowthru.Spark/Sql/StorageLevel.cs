@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Flags for controlling the storage of an RDD. Each StorageLevel records whether to use

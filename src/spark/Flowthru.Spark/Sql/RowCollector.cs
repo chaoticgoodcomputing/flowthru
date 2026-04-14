@@ -6,11 +6,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Network;
+using Flowthru.Spark.Utils;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// RowCollector collects Row objects from a socket.

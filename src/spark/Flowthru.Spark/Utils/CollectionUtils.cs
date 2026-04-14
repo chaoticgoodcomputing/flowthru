@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     internal static class CollectionUtils
     {

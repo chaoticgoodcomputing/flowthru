@@ -6,7 +6,7 @@ using System;
 using Apache.Arrow;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Wraps the given Func object, which represents a Grouped Map UDF.

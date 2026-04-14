@@ -6,13 +6,13 @@ using System;
 using System.Buffers;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Types;
 using Razorvine.Pickle;
 using Razorvine.Pickle.Objects;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// Used for SerDe of Python objects.

@@ -5,10 +5,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Utils;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class TypeConverterTests
     {

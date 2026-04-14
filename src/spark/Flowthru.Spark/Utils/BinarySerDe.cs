@@ -6,9 +6,9 @@ using System;
 using System.IO;
 using MessagePack;
 using MessagePack.Resolvers;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Utils;
+namespace Flowthru.Spark.Utils;
 
 // If deserialization of untrusted data is required, extend this functionality to
 // incorporate techniques such as using a Message Authentication Code (MAC)

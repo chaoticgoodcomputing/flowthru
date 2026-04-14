@@ -4,13 +4,13 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Expressions;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Expressions;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     [Collection("Spark Unit Tests")]
     public class ColumnTests

@@ -4,10 +4,10 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
 
-namespace Microsoft.Spark.ML.Feature
+namespace Flowthru.Spark.ML.Feature
 {
     /// <summary>
     /// Class for utility classes that can load ML instances.

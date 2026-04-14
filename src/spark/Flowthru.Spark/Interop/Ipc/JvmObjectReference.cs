@@ -5,9 +5,9 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Microsoft.Spark.Services;
+using Flowthru.Spark.Services;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// JvmObjectId represents the unique owner for a JVM object.

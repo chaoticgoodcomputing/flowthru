@@ -7,11 +7,11 @@ using System.IO;
 using System.Linq;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Sql;
 using Xunit;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     [Collection("Spark Unit Tests")]
     public class CommandSerDeTests

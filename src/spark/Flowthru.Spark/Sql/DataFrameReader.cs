@@ -4,11 +4,11 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Interop.Internal.Java.Util;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Interop.Internal.Java.Util;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql.Types;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// DataFrameReader provides functionality to load a <see cref="DataFrame"/>

@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql.Types;
 
-namespace Microsoft.Spark.Sql.Streaming
+namespace Flowthru.Spark.Sql.Streaming
 {
     /// <summary>
     /// DataStreamReader provides functionality to load a streaming <see cref="DataFrame"/>

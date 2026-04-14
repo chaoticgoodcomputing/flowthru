@@ -9,7 +9,7 @@ using Apache.Arrow.Types;
 using Microsoft.Data.Analysis;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest.TestUtils
+namespace Flowthru.Tests.Spark.TestUtils
 {
     public static class ArrowTestUtils
     {

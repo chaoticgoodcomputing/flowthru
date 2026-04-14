@@ -4,11 +4,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
 
-namespace Microsoft.Spark.ML.Feature
+namespace Flowthru.Spark.ML.Feature
 {
     /// <summary>
     /// <see cref="Bucketizer"/> maps a column of continuous features to a column of feature

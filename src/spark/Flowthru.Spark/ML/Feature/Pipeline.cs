@@ -3,13 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Utils;
 using System.Collections.Generic;
 
-namespace Microsoft.Spark.ML.Feature
+namespace Flowthru.Spark.ML.Feature
 {
     /// <summary>
     /// <see cref="Pipeline"/> A simple pipeline, which acts as an estimator. 

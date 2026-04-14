@@ -6,7 +6,7 @@ using System;
 using Microsoft.Data.Analysis;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Function that will be executed in the worker using a <see cref="Microsoft.Data.Analysis.DataFrame"/> that supports the Apache Arrow format.

@@ -4,10 +4,10 @@
 
 using System;
 using System.IO;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Streaming;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Streaming;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// <see cref="DataStreamWriter.ForeachBatch(Action{DataFrame, long})"/> callback handler.

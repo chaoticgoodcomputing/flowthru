@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// Interface of the bridge between JVM and CLR.

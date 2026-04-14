@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Network;
+using Flowthru.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
 namespace Microsoft.Spark

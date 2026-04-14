@@ -5,10 +5,10 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Utils;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     [Collection("Spark Unit Tests")]
     public class UdfSerDeTests

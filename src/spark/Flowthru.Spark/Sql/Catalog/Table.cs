@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Sql.Catalog
+namespace Flowthru.Spark.Sql.Catalog
 {
     /// <summary>
     /// A table in Spark, as returned by the `ListTables` method in `Catalog`.

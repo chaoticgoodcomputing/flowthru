@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Internal.Java.Util;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Internal.Java.Util;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Types;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     using ArrowDelegate = ArrowWorkerFunction.ExecuteDelegate;
     using PicklingDelegate = PicklingWorkerFunction.ExecuteDelegate;

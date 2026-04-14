@@ -5,7 +5,7 @@
 using System;
 using static Microsoft.Spark.Utils.TypeConverter;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Wraps the given Func object, which represents a UDF.

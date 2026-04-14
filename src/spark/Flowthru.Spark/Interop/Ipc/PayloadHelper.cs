@@ -8,10 +8,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Types;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// Helper to build the IPC payload for JVM calls from CLR.

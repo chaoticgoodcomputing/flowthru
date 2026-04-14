@@ -6,9 +6,9 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using static System.Environment;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Utils;
 
-namespace Microsoft.Spark.Services
+namespace Flowthru.Spark.Services
 {
     /// <summary>
     /// Implementation of configuration service that helps getting config settings

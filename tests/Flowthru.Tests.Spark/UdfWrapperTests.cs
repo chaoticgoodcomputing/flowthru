@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.UnitTest.TestUtils;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.UnitTest.TestUtils;
 using Xunit;
 using static Microsoft.Spark.UnitTest.TestUtils.ArrowTestUtils;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class UdfWrapperTests
     {

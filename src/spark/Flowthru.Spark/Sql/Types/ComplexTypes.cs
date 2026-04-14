@@ -5,10 +5,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.Spark.Sql.Types
+namespace Flowthru.Spark.Sql.Types
 {
     /// <summary>
     /// An array type containing multiple values of a type.

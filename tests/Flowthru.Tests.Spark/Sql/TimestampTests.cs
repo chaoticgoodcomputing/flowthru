@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Sql.Types;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class TimestampTests
     {

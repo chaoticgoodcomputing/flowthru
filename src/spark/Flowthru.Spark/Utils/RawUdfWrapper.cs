@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// RawUdfWrapper wraps a raw UDF function that operates directly on streams.

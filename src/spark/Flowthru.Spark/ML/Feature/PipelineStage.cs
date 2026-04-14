@@ -2,11 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Types;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.ML.Feature
+namespace Flowthru.Spark.ML.Feature
 {
     /// <summary>
     /// <see cref="JavaPipelineStage"/> A stage in a pipeline, either an Estimator or a Transformer.

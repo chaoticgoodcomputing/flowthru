@@ -4,10 +4,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Sql.Avro
+namespace Flowthru.Spark.Sql.Avro
 {
     /// <summary>
     /// Functions for serialization and deserialization of data in Avro format.

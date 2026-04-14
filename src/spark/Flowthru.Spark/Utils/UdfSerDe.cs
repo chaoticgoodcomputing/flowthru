@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// UdfSerDe is responsible for serializing/deserializing an UDF.

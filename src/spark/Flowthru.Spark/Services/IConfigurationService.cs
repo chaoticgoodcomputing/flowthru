@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark.Services
+namespace Flowthru.Spark.Services
 {
     /// <summary>
     /// Helps getting config settings to be used in .NET runtime

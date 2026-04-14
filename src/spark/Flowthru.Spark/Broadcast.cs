@@ -5,11 +5,11 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using MessagePack;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
-using Microsoft.Spark.Services;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Network;
+using Flowthru.Spark.Services;
+using Flowthru.Spark.Utils;
 
 namespace Microsoft.Spark
 {

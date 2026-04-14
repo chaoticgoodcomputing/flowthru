@@ -5,13 +5,13 @@
 using System;
 using System.Collections.Generic;
 using Apache.Arrow;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Expressions;
-using Microsoft.Spark.Sql.Types;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql.Expressions;
+using Flowthru.Spark.Sql.Types;
+using Flowthru.Spark.Utils;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Functions available for DataFrame operations.

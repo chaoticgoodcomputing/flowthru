@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using Xunit.Abstractions;
 
-namespace Microsoft.Spark.UnitTest.TestUtils
+namespace Flowthru.Tests.Spark.TestUtils
 {
     // Tests can subclass this to get Console output to display when using
     // xUnit testing framework.

@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Spark.RDD
+namespace Flowthru.Spark.RDD
 {
     /// <summary>
     /// WorkerFunction provides the delegate type that is used for unifying

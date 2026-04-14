@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <RootNamespace>Microsoft.Spark.UnitTest</RootNamespace>
+    <RootNamespace>Flowthru.Tests.Spark</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

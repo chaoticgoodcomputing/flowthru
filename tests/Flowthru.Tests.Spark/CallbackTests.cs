@@ -10,12 +10,12 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Network;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     [Collection("Spark Unit Tests")]
     public class CallbackTests

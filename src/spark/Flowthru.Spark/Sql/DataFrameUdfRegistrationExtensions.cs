@@ -4,9 +4,9 @@
 
 using System;
 using Microsoft.Data.Analysis;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Utils;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Extension methods for <see cref="UdfRegistration"/>.

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// Provides the <see cref="AssemblyInfo"/> for the "Microsoft.Spark" and
@@ -16,7 +16,7 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal static class AssemblyInfoProvider
     {
-        private const string MicrosoftSparkAssemblyName = "Microsoft.Spark";
+        private const string MicrosoftSparkAssemblyName = "Flowthru.Spark";
         private const string MicrosoftSparkWorkerAssemblyName = "Microsoft.Spark.Worker";
 
         private static readonly Lazy<AssemblyInfo> s_microsoftSparkAssemblyInfo =

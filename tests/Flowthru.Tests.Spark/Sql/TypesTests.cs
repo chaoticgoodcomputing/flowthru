@@ -5,11 +5,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Sql.Types;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class TypesTests
     {

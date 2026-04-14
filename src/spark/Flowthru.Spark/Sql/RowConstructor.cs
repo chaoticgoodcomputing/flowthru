@@ -5,10 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Sql.Types;
 using Razorvine.Pickle;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// RowConstructor is a custom unpickler for GenericRowWithSchema in Spark.

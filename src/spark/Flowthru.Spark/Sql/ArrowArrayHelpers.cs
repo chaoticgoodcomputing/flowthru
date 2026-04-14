@@ -8,7 +8,7 @@ using Apache.Arrow;
 using Apache.Arrow.Types;
 using Microsoft.Data.Analysis;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Helper methods to work with Apache Arrow arrays.

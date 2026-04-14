@@ -4,10 +4,10 @@
 
 using System;
 using System.IO;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class SerDeTests
     {

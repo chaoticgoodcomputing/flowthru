@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Expressions;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql.Expressions;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Column class represents a column that will be computed based on the data in a DataFrame.

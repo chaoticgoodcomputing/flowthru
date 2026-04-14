@@ -4,9 +4,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Interop.Internal.Scala
+namespace Flowthru.Spark.Interop.Internal.Scala
 {
     /// <summary>
     /// Limited read-only implementation of Scala Seq[T] so that Seq objects can be read

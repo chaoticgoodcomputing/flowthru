@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     internal class DependencyProviderUtils
     {

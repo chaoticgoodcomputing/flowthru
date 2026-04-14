@@ -11,10 +11,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using Microsoft.Spark.Network;
-using Microsoft.Spark.Services;
+using Flowthru.Spark.Network;
+using Flowthru.Spark.Services;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// Implementation of thread safe IPC bridge between JVM and CLR

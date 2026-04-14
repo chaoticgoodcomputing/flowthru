@@ -5,7 +5,7 @@
 using System.IO;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// RawWorkerFunction provides direct access to input/output streams for UDF execution.

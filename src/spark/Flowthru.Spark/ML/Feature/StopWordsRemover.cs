@@ -3,12 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Types;
 
-namespace Microsoft.Spark.ML.Feature
+namespace Flowthru.Spark.ML.Feature
 {
     /// <summary>
     /// A <see cref="StopWordsRemover"/> feature transformer that filters out stop words from input.

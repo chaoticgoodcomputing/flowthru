@@ -4,10 +4,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// The entry point to programming Spark with the Dataset and DataFrame API.

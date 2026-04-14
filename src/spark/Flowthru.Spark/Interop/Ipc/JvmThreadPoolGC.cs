@@ -7,9 +7,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Microsoft.Spark.Services;
+using Flowthru.Spark.Services;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// In .NET for Apache Spark, we maintain a 1-to-1 mapping between .NET application threads

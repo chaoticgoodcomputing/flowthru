@@ -6,13 +6,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Internal.Scala;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Streaming;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Internal.Scala;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql.Streaming;
+using Flowthru.Spark.Sql.Types;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// The entry point to programming Spark with the Dataset and DataFrame API.

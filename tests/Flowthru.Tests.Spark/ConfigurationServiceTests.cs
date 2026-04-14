@@ -4,11 +4,11 @@
 
 using System;
 using System.IO;
-using Microsoft.Spark.Services;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Services;
+using Flowthru.Spark.Utils;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class ConfigurationServiceTests : IDisposable
     {

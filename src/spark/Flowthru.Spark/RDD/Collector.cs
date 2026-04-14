@@ -6,12 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
-namespace Microsoft.Spark.RDD
+namespace Flowthru.Spark.RDD
 {
     /// <summary>
     /// Collector collects objects from a socket.

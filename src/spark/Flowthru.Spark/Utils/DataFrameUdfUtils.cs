@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using Apache.Arrow;
 using Microsoft.Data.Analysis;
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Sql;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     using DataFrameDelegate = DataFrameWorkerFunction.ExecuteDelegate;
 

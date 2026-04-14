@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using System.Net;
 
-namespace Microsoft.Spark.Network
+namespace Flowthru.Spark.Network
 {
     /// <summary>
     /// ISocketWrapper interface defines the common methods to operate a socket.

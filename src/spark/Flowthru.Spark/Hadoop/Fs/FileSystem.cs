@@ -3,11 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Hadoop.Conf;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Hadoop.Conf;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Hadoop.Fs
+namespace Flowthru.Spark.Hadoop.Fs
 {
     /// <summary>
     /// A fairly generic filesystem. It may be implemented as a distributed filesystem, or as a "local" one

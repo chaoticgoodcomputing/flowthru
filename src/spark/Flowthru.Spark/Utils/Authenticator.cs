@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Network;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// Authenticator provides functionalities to authenticate between

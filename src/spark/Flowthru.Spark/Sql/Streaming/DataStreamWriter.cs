@@ -4,12 +4,12 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Types;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql.Types;
+using Flowthru.Spark.Utils;
 
-namespace Microsoft.Spark.Sql.Streaming
+namespace Flowthru.Spark.Sql.Streaming
 {
     /// <summary>
     /// DataStreamWriter provides functionality to write a streaming <see cref="DataFrame"/>

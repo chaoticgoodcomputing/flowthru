@@ -8,9 +8,9 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Microsoft.Spark.Services;
+using Flowthru.Spark.Services;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     internal static class AssemblySearchPathResolver
     {

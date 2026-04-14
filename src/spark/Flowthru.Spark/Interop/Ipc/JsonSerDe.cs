@@ -5,7 +5,7 @@
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// Json.NET Serialization/Deserialization helper class.

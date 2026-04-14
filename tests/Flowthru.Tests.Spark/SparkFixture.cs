@@ -3,12 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public sealed class SparkFixture : IDisposable
     {

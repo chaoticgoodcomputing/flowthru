@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MessagePack;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Utils;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest;
+namespace Flowthru.Tests.Spark;
 
 [Collection("Spark Unit Tests")]
 public class BinarySerDeTests

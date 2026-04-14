@@ -5,12 +5,12 @@
 using System;
 using System.IO;
 using System.Text;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Types;
 using Razorvine.Pickle;
 
-namespace Microsoft.Spark.UnitTest.TestUtils
+namespace Flowthru.Tests.Spark.TestUtils
 {
     /// <summary>
     /// Custom pickler for StructType objects.

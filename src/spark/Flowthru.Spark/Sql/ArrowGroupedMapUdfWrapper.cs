@@ -5,7 +5,7 @@
 using System;
 using Apache.Arrow;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Wraps the given Func object, which represents a Grouped Map UDF.

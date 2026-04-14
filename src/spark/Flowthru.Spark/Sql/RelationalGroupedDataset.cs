@@ -5,13 +5,13 @@
 using System;
 using System.Collections.Generic;
 using Apache.Arrow;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql.Expressions;
-using Microsoft.Spark.Sql.Types;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql.Expressions;
+using Flowthru.Spark.Sql.Types;
+using Flowthru.Spark.Utils;
 using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// A set of methods for aggregations on a DataFrame.

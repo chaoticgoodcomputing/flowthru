@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark.Services
+namespace Flowthru.Spark.Services
 {
     /// <summary>
     /// This logger service will be used if the .NET driver app did not configure a logger.

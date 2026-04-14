@@ -4,10 +4,10 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.ML.Feature
+namespace Flowthru.Spark.ML.Feature
 {
     /// <summary>
     /// Params is used for components that take parameters. This also provides

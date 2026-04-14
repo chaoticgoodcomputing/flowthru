@@ -20,6 +20,7 @@
     <Project Path="src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Spark/Flowthru.Extensions.Spark.csproj" />
+    <Project Path="src/spark/Flowthru.Spark/Flowthru.Spark.csproj" />
     <Project Path="src/misc/Flowthru.Misc.DataFrames/Flowthru.Misc.DataFrames.csproj" />
     <Project Path="src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj" />
   </Folder>
@@ -35,6 +36,7 @@
     <Project Path="tests/Flowthru.Extensions.EFCore.Tests/Flowthru.Extensions.EFCore.Tests.csproj" />
     <Project Path="tests/Flowthru.Extensions.GQL.Tests/Flowthru.Extensions.GQL.Tests.csproj" />
     <Project Path="tests/Flowthru.Extensions.Spark.Tests/Flowthru.Extensions.Spark.Tests.csproj" />
+    <Project Path="tests/Flowthru.Tests.Spark/Flowthru.Tests.Spark.csproj" />
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/starter/SpaceflightsEFCore/SpaceflightsEFCore.csproj" />

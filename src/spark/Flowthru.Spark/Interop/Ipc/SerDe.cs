@@ -7,7 +7,7 @@ using System.Buffers.Binary;
 using System.IO;
 using System.Text;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// Enums with which Worker communicates with Spark.

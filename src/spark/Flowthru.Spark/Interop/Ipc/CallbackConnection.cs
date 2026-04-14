@@ -7,10 +7,10 @@ using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
-using Microsoft.Spark.Network;
-using Microsoft.Spark.Services;
+using Flowthru.Spark.Network;
+using Flowthru.Spark.Services;
 
-namespace Microsoft.Spark.Interop.Ipc
+namespace Flowthru.Spark.Interop.Ipc
 {
     /// <summary>
     /// CallbackConnection is used to process the callback communication between

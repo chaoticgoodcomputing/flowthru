@@ -6,10 +6,10 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using Microsoft.Spark.Services;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Services;
+using Flowthru.Spark.Utils;
 
-namespace Microsoft.Spark.Network
+namespace Flowthru.Spark.Network
 {
     /// <summary>
     /// A simple wrapper of System.Net.Sockets.Socket class.

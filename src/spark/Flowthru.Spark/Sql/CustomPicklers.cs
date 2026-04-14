@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
-using Microsoft.Spark.Sql.Types;
+using Flowthru.Spark.Sql.Types;
 using Razorvine.Pickle;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Custom pickler for Row objects.

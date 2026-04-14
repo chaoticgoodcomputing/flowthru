@@ -3,9 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Interop.Internal.Java.Util
+namespace Flowthru.Spark.Interop.Internal.Java.Util
 {
     /// <summary>
     /// Properties class represents a <c>java.util.Properties</c> object.

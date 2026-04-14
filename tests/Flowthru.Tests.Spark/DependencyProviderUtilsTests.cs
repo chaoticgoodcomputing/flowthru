@@ -1,11 +1,11 @@
 ﻿using System;
 ﻿using System.IO;
 using System.Linq;
-using Microsoft.Spark.UnitTest.TestUtils;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.UnitTest.TestUtils;
+using Flowthru.Spark.Utils;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class DependencyProviderUtilsTests
     {

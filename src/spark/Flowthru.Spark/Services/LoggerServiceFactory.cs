@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark.Services
+namespace Flowthru.Spark.Services
 {
     /// <summary>
     /// Used to get logger service instances for different types

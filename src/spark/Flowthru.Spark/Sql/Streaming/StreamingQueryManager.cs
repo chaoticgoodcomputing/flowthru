@@ -4,9 +4,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Sql.Streaming
+namespace Flowthru.Spark.Sql.Streaming
 {
     /// <summary>
     /// A class to manage all the <see cref="StreamingQuery"/> active

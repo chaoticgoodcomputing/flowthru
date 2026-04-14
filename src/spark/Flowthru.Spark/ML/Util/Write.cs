@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
 
-namespace Microsoft.Spark.ML.Feature
+namespace Flowthru.Spark.ML.Feature
 {
     /// <summary>
     /// Class for utility classes that can save ML instances in Spark's internal format.

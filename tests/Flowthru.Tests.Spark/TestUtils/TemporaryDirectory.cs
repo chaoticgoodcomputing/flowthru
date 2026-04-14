@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 
-namespace Microsoft.Spark.UnitTest.TestUtils
+namespace Flowthru.Tests.Spark.TestUtils
 {
     /// <summary>
     /// Creates a temporary folder that is automatically cleaned up when disposed.

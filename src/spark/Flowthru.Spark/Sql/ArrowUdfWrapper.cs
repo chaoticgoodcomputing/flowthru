@@ -6,7 +6,7 @@ using System;
 using Apache.Arrow;
 using static Microsoft.Spark.Sql.ArrowArrayHelpers;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Wraps the given Func object, which represents a UDF.

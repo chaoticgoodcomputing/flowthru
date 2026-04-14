@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark.Services
+namespace Flowthru.Spark.Services
 {
     /// <summary>
     /// Defines a logger what be used in service

@@ -7,7 +7,7 @@ using Apache.Arrow;
 using Microsoft.Data.Analysis;
 using static Microsoft.Spark.Sql.ArrowArrayHelpers;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// An abstract class to detect DataFrameUdfWrapper derivatives at runtime

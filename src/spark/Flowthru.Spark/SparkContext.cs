@@ -4,10 +4,10 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Spark.Hadoop.Conf;
-using Microsoft.Spark.Interop.Internal.Scala;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Hadoop.Conf;
+using Flowthru.Spark.Interop.Internal.Scala;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Utils;
 using static Microsoft.Spark.Utils.CommandSerDe;
 
 namespace Microsoft.Spark

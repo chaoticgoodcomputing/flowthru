@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// Various environment utility methods.

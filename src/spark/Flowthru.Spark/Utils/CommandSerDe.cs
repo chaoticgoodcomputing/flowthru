@@ -9,10 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Sql;
 
-namespace Microsoft.Spark.Utils
+namespace Flowthru.Spark.Utils
 {
     /// <summary>
     /// CommandSerDe provides functionality to serialize/deserialize WorkerFunction

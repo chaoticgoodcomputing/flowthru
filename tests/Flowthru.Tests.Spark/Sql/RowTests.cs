@@ -6,17 +6,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Network;
-using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
-using Microsoft.Spark.UnitTest.TestUtils;
-using Microsoft.Spark.Utils;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Network;
+using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Types;
+using Flowthru.Spark.UnitTest.TestUtils;
+using Flowthru.Spark.Utils;
 using Moq;
 using Razorvine.Pickle;
 using Xunit;
 
-namespace Microsoft.Spark.UnitTest
+namespace Flowthru.Tests.Spark
 {
     public class RowTests
     {

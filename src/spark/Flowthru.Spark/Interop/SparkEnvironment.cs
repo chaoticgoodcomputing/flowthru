@@ -3,10 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Services;
+using Flowthru.Spark.Interop.Ipc;
+using Flowthru.Spark.Services;
 
-namespace Microsoft.Spark.Interop
+namespace Flowthru.Spark.Interop
 {
     /// <summary>
     /// Contains everything needed to setup an environment for using .NET with Spark.

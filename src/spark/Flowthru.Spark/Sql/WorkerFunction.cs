@@ -5,7 +5,7 @@
 using System;
 using Apache.Arrow;
 
-namespace Microsoft.Spark.Sql
+namespace Flowthru.Spark.Sql
 {
     /// <summary>
     /// Function that will be executed in the worker.

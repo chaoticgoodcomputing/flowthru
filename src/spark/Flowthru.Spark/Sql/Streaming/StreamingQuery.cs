@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.Spark.Interop.Internal.Scala;
-using Microsoft.Spark.Interop.Ipc;
+using Flowthru.Spark.Interop.Internal.Scala;
+using Flowthru.Spark.Interop.Ipc;
 
-namespace Microsoft.Spark.Sql.Streaming
+namespace Flowthru.Spark.Sql.Streaming
 {
     /// <summary>
     /// A handle to a query that is executing continuously in the background as new data arrives.
