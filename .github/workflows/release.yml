@@ -67,9 +67,6 @@ jobs:
       - name: Install Node dependencies
         run: pnpm install
 
-      - name: Install ReportGenerator
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
-
       - name: Compute affected projects
         id: affected
         run: |
@@ -99,21 +96,86 @@ jobs:
             --settings coverlet.runsettings \
             --logger "console;verbosity=minimal"
 
-      - name: Generate coverage badges
-        continue-on-error: true
-        env:
-          REPORTGENERATOR_LICENSE: ${{ secrets.REPORTGENERATOR_LICENSE }}
-        run: |
-          COVERAGE_FILES=$(find tests -name "coverage.cobertura.xml" 2>/dev/null | head -1)
-          if [ -n "$COVERAGE_FILES" ]; then
-            reportgenerator \
-              "-reports:tests/**/TestResults/**/coverage.cobertura.xml" \
-              "-targetdir:coverage-badges" \
-              "-reporttypes:Badges" \
-              "-verbosity:Warning"
-          else
-            echo "No coverage files found — skipping badge generation."
-          fi
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: core
+          files: tests/Flowthru.Tests/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (funit)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: funit
+          files: tests/Flowthru.FUnit.Tests/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (examples)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: examples
+          files: tests/Flowthru.Tests.Examples/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (templates)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: templates
+          files: tests/Flowthru.Tests.Templates/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (spark)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: spark
+          files: tests/Flowthru.Tests.Spark/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (ext-efcore)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ext-efcore
+          files: tests/Flowthru.Extensions.EFCore.Tests/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (ext-gql)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ext-gql
+          files: tests/Flowthru.Extensions.GQL.Tests/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (ext-python)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ext-python
+          files: tests/Flowthru.Extensions.Python.Tests/**/coverage.cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload coverage (ext-spark)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ext-spark
+          files: tests/Flowthru.Extensions.Spark.Tests/**/coverage.cobertura.xml
+          fail_ci_if_error: false
 
       - name: Configure Git
         run: |
@@ -246,11 +308,3 @@ jobs:
             } > /tmp/combined-notes.md
             gh release edit "${VERSION}" --notes-file /tmp/combined-notes.md
           fi
-
-      - name: Upload coverage badges as artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-badges
-          path: coverage-badges/
-          retention-days: 7

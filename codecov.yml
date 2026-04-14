@@ -1,0 +1,46 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: 80%
+
+flags:
+  core:
+    paths: []
+    carryforward: true
+  funit:
+    paths: []
+    carryforward: true
+  examples:
+    paths: []
+    carryforward: true
+  templates:
+    paths: []
+    carryforward: true
+  spark:
+    paths: []
+    carryforward: true
+  ext-efcore:
+    paths: []
+    carryforward: true
+  ext-gql:
+    paths: []
+    carryforward: true
+  ext-python:
+    paths: []
+    carryforward: true
+  ext-spark:
+    paths: []
+    carryforward: true
+
+comment:
+  layout: "reach,diff,flags,components"
+  behavior: default
+  require_changes: false
