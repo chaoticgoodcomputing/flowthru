@@ -1,4 +1,5 @@
 ---
+description: Guidelines for routing Flowthru sessions based on development focus.
 applyTo: "**"
 ---
 

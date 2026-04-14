@@ -262,6 +262,39 @@ public static class TypedFrameExtensions
   }
 
   // ──────────────────────────────────────────────
+  //  SelectOver — windowed projection
+  // ──────────────────────────────────────────────
+
+  /// <summary>
+  /// Projects each row into a new schema type, with access to windowed aggregate and
+  /// ranking functions via the <see cref="WindowContext{TSource}"/> parameter.
+  /// </summary>
+  /// <remarks>
+  /// Each window function call in the selector must pass a
+  /// <see cref="FrameWindowSpec{TSource}"/> as its last argument, which defines the
+  /// partition and ordering for that specific function. Multiple specs may appear in
+  /// the same projection, enabling multi-window queries in a single call.
+  /// </remarks>
+  public static TypedFrame<TResult> SelectOver<TSource, TResult>(
+    this TypedFrame<TSource> source,
+    Expression<Func<TSource, WindowContext<TSource>, TResult>> selector
+  )
+  {
+    ArgumentNullException.ThrowIfNull(source);
+    ArgumentNullException.ThrowIfNull(selector);
+
+    return (TypedFrame<TResult>)
+      source.Provider.CreateQuery<TResult>(
+        Expression.Call(
+          null,
+          CaptureMethod(SelectOver, source, selector),
+          source.Expression,
+          Expression.Quote(selector)
+        )
+      );
+  }
+
+  // ──────────────────────────────────────────────
   //  MethodInfo capture helpers
   // ──────────────────────────────────────────────
   //  These follow the same pattern as System.Linq.Queryable's GetMethodInfo:

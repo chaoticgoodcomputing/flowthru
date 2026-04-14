@@ -61,6 +61,7 @@ public abstract class FrameExpressionVisitor
         nameof(TypedFrameExtensions.GroupBy) => TranslateGroupBy(node),
         nameof(TypedFrameExtensions.Distinct) => TranslateDistinct(node),
         nameof(TypedFrameExtensions.Union) => TranslateUnion(node),
+        nameof(TypedFrameExtensions.SelectOver) => TranslateSelectOver(node),
         _ => throw new NotSupportedException(
           $"TypedFrame operation '{node.Method.Name}' is not yet supported."
         ),
@@ -161,6 +162,17 @@ public abstract class FrameExpressionVisitor
   /// whose bindings reference <see cref="AggregationContext{TKey,TSource}"/> methods.
   /// </param>
   protected abstract object TranslateAggregate(MethodCallExpression node);
+
+  /// <summary>
+  /// Translates a <c>SelectOver</c> operation into a native windowed projection.
+  /// </summary>
+  /// <param name="node">
+  /// Method call with arguments: [0] source expression,
+  /// [1] quoted two-parameter selector <c>(TSource, WindowContext&lt;TSource&gt;) =&gt; TResult</c>.
+  /// Bindings referencing the <c>WindowContext</c> parameter carry
+  /// <see cref="FrameWindowSpec{TSource}"/> arguments that describe the window.
+  /// </param>
+  protected abstract object TranslateSelectOver(MethodCallExpression node);
 
   // ──────────────────────────────────────────────
   //  Shared helpers

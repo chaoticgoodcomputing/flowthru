@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Spark.Runtime;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,18 +75,12 @@ public static class FlowthruServiceBuilderExtensions
         var options = new SparkRuntimeOptions();
         configure(options);
 
-        builder.Services().AddSingleton(options);
-        builder.Services().AddSingleton<SparkRuntime>();
-
-        return builder;
-    }
-
-    private static IServiceCollection Services(this FlowthruServiceBuilder builder)
-    {
-        var field = typeof(FlowthruServiceBuilder).GetField(
-            "_services",
-            BindingFlags.NonPublic | BindingFlags.Instance
-        );
-        return (IServiceCollection)field!.GetValue(builder)!;
+        return builder.ConfigureServices(services =>
+        {
+            services.AddSingleton(options);
+            services.AddSingleton<SparkRuntime>();
+            services.AddSingleton<SparkFrameProvider>();
+        });
     }
 }
+

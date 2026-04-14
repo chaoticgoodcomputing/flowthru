@@ -103,5 +103,9 @@ public class ColumnNameResolutionTests
     protected override object TranslateAggregate(
       System.Linq.Expressions.MethodCallExpression node
     ) => throw new NotImplementedException();
+
+    protected override object TranslateSelectOver(
+      System.Linq.Expressions.MethodCallExpression node
+    ) => throw new NotImplementedException();
   }
 }

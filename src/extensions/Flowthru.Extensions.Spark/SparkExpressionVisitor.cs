@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Flowthru.DataFrames;
 using Flowthru.Spark.Sql;
+using Flowthru.Spark.Sql.Expressions;
 using SparkFunctions = Flowthru.Spark.Sql.Functions;
 
 namespace Flowthru.Extensions.Spark;
@@ -34,6 +35,11 @@ namespace Flowthru.Extensions.Spark;
 internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
 {
   private readonly SparkFrameProvider _provider;
+
+  // Transient state active only during SelectOver projection traversal.
+  // Set in TranslateSelectOver, cleared in its finally block.
+  private ParameterExpression? _windowContextParam;
+  private DataFrame? _windowSourceDf;
 
   internal SparkExpressionVisitor(SparkFrameProvider provider)
   {
@@ -356,6 +362,138 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   }
 
   // ──────────────────────────────────────────────
+  //  Hard: SelectOver (windowed projection)
+  // ──────────────────────────────────────────────
+
+  protected override object TranslateSelectOver(MethodCallExpression node)
+  {
+    // args[0] = source, args[1] = quoted (TSource, WindowContext<TSource>) => TResult
+    var sourceDf = (DataFrame)CompileExpression(node.Arguments[0]);
+    var selector = Unquote(node.Arguments[1]); // 2-parameter lambda
+
+    // selector.Parameters[0] = row (TSource)  → maps to sourceDf
+    // selector.Parameters[1] = win (WindowContext<TSource>) → intercepted via _windowContextParam
+    _windowContextParam = selector.Parameters[1];
+    _windowSourceDf = sourceDf;
+
+    try
+    {
+      var paramMap = new Dictionary<ParameterExpression, DataFrame>
+      {
+        [selector.Parameters[0]] = sourceDf,
+      };
+      var columns = TranslateProjection(selector.Body, paramMap);
+      return sourceDf.Select(columns);
+    }
+    finally
+    {
+      _windowContextParam = null;
+      _windowSourceDf = null;
+    }
+  }
+
+  /// <summary>
+  /// Translates a <see cref="WindowContext{TSource}"/> method call into a Spark window
+  /// <see cref="Column"/> expression (<c>function().Over(windowSpec)</c>).
+  /// </summary>
+  private Column TranslateWindowFunction(MethodCallExpression mce)
+  {
+    // FrameWindowSpec is always the last argument in every WindowContext method.
+    var spec = (IFrameWindowSpec)EvaluateConstant(mce.Arguments[^1])!;
+    var windowSpec = BuildSparkWindowSpec(spec);
+
+    return mce.Method.Name switch
+    {
+      // Ranking — no column selector
+      "RowNumber"   => SparkFunctions.RowNumber().Over(windowSpec),
+      "Rank"        => SparkFunctions.Rank().Over(windowSpec),
+      "DenseRank"   => SparkFunctions.DenseRank().Over(windowSpec),
+      "CumeDist"    => SparkFunctions.CumeDist().Over(windowSpec),
+      "PercentRank" => SparkFunctions.PercentRank().Over(windowSpec),
+      "Count"       => SparkFunctions.Count(SparkFunctions.Lit(1)).Over(windowSpec),
+
+      // Aggregate over window — column selector is arg[0]
+      "Sum" => SparkFunctions.Sum(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
+      "Avg" => SparkFunctions.Avg(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
+      "Max" => SparkFunctions.Max(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
+      "Min" => SparkFunctions.Min(ExtractWindowColumnName(mce.Arguments[0])).Over(windowSpec),
+
+      // Offset functions — column selector is arg[0], offset is arg[1]
+      "Lag" => SparkFunctions
+        .Lag(
+          ExtractWindowColumnName(mce.Arguments[0]),
+          (int)((ConstantExpression)mce.Arguments[1]).Value!
+        )
+        .Over(windowSpec),
+
+      "Lead" => SparkFunctions
+        .Lead(
+          ExtractWindowColumnName(mce.Arguments[0]),
+          (int)((ConstantExpression)mce.Arguments[1]).Value!
+        )
+        .Over(windowSpec),
+
+      _ => throw new NotSupportedException(
+        $"Window function '{mce.Method.Name}' is not supported in Spark window expressions."
+      ),
+    };
+  }
+
+  /// <summary>
+  /// Builds a Spark <see cref="WindowSpec"/> from a framework-agnostic
+  /// <see cref="IFrameWindowSpec"/>.
+  /// </summary>
+  private WindowSpec BuildSparkWindowSpec(IFrameWindowSpec spec)
+  {
+    var sourceDf = _windowSourceDf!;
+
+    Column TranslateSpecColumn(LambdaExpression lambda, bool descending)
+    {
+      var specParamMap = new Dictionary<ParameterExpression, DataFrame>
+      {
+        [lambda.Parameters[0]] = sourceDf,
+      };
+      var col = TranslateSubExpression(lambda.Body, specParamMap);
+      return descending ? col.Desc() : col;
+    }
+
+    var partitionCols = spec.PartitionByExpressions
+      .Select(lambda => TranslateSpecColumn(lambda, false))
+      .ToArray();
+
+    var orderCols = spec.OrderByExpressions
+      .Select(t => TranslateSpecColumn(t.KeySelector, t.Descending))
+      .ToArray();
+
+    return (partitionCols.Length, orderCols.Length) switch
+    {
+      (> 0, > 0) => Window.PartitionBy(partitionCols).OrderBy(orderCols),
+      (> 0, _  ) => Window.PartitionBy(partitionCols),
+      (_,   > 0) => Window.OrderBy(orderCols),
+      _          => Window.PartitionBy(), // truly global: no partition, no order
+    };
+  }
+
+  /// <summary>
+  /// Extracts the column name string from the selector lambda argument of a window
+  /// aggregate or offset function (e.g., the <c>x =&gt; x.Salary</c> in
+  /// <c>win.Sum(x =&gt; x.Salary, spec)</c>).
+  /// </summary>
+  private static string ExtractWindowColumnName(Expression lambdaExpr)
+  {
+    var lambda = lambdaExpr is UnaryExpression { NodeType: ExpressionType.Quote } q
+      ? (LambdaExpression)q.Operand
+      : (LambdaExpression)lambdaExpr;
+
+    if (lambda.Body is MemberExpression me)
+      return ResolveColumnName(me.Member);
+
+    throw new NotSupportedException(
+      "Window column selectors must be simple property access expressions (x => x.Property)."
+    );
+  }
+
+  // ──────────────────────────────────────────────
   //  Sub-expression translation → Column
   // ──────────────────────────────────────────────
 
@@ -460,6 +598,16 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     Dictionary<ParameterExpression, DataFrame> paramMap
   )
   {
+    // Window context method calls — only active during SelectOver projection traversal.
+    if (
+      _windowContextParam is not null
+      && mce.Object is ParameterExpression wpe
+      && wpe == _windowContextParam
+    )
+    {
+      return TranslateWindowFunction(mce);
+    }
+
     if (mce.Method.DeclaringType == typeof(string) && StringMethodNames.Contains(mce.Method.Name))
       return TranslateStringMethod(mce, paramMap);
 

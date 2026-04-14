@@ -109,3 +109,37 @@ public record MeasurementSchema
   public required double Value { get; init; }
   public required double Temperature { get; init; }
 }
+
+/// <summary>
+/// Source schema for window function expression tests.
+/// </summary>
+public record StaffSchema
+{
+  public required string Name { get; init; }
+  public required string Department { get; init; }
+  public required double Salary { get; init; }
+  public required DateTime HireDate { get; init; }
+}
+
+/// <summary>
+/// Projection target for single-window SelectOver tests.
+/// </summary>
+public record StaffRankedSchema
+{
+  public required string Name { get; init; }
+  public required string Department { get; init; }
+  public required double Salary { get; init; }
+  public required long DeptRank { get; init; }
+  public required double RunningTotal { get; init; }
+  public required double? PrevSalary { get; init; }
+}
+
+/// <summary>
+/// Projection target for multi-window SelectOver tests.
+/// </summary>
+public record StaffMultiWindowSchema
+{
+  public required string Name { get; init; }
+  public required long DeptRank { get; init; }
+  public required long HireOrder { get; init; }
+}
