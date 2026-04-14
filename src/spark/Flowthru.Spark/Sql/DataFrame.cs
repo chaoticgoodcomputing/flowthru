@@ -828,6 +828,7 @@ namespace Flowthru.Spark.Sql
             {
                 2 => GetRows("toPythonIterator"),
                 3 => ToLocalIterator(false),
+                4 => ToLocalIterator(false),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }
@@ -1106,6 +1107,7 @@ namespace Flowthru.Spark.Sql
                 // number and the second is the secret string to use for the authentication.
                 (2, 4) => ParseConnectionInfo(result, false),
                 (3, _) => ParseConnectionInfo(result, false),
+                (4, _) => ParseConnectionInfo(result, false),
                 _ => throw new NotSupportedException($"Spark {version} not supported.")
             };
         }

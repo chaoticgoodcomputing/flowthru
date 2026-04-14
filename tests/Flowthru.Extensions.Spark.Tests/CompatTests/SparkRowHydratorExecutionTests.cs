@@ -1,9 +1,7 @@
 using Flowthru.Core.Abstractions;
 using Flowthru.DataFrames;
-using Flowthru.Extensions.Spark.Runtime;
 using Flowthru.Spark.Sql;
 using Flowthru.Spark.Sql.Types;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Flowthru.Extensions.Spark.Tests.CompatTests;
 
@@ -24,7 +22,6 @@ namespace Flowthru.Extensions.Spark.Tests.CompatTests;
 [Category("SparkRowHydrator.Execution")]
 public class SparkRowHydratorExecutionTests
 {
-    private SparkRuntime? _runtime;
     // SparkSession is stopped via .Stop() rather than IDisposable; NUnit1032 suppressed.
 #pragma warning disable NUnit1032
     private SparkSession? _spark;
@@ -35,17 +32,13 @@ public class SparkRowHydratorExecutionTests
     public void StartSpark()
     {
         Assume.That(
-            Environment.GetEnvironmentVariable("SPARK_HOME"),
-            Is.Not.Null.And.Not.Empty,
-            "SPARK_HOME is not set — skipping hydrator execution tests."
+            SparkAssemblySetup.IsAvailable,
+            Is.True,
+            SparkAssemblySetup.UnavailableReason ?? "Spark JVM backend unavailable."
         );
 
         try
         {
-            var options = new SparkRuntimeOptions { BackendStartupTimeoutSeconds = 15 };
-            _runtime = new SparkRuntime(options, NullLogger<SparkRuntime>.Instance);
-            _runtime.Initialize();
-
             _spark = SparkSession
                 .Builder()
                 .AppName("flowthru-hydrator-tests")
@@ -66,7 +59,6 @@ public class SparkRowHydratorExecutionTests
     public void StopSpark()
     {
         _spark?.Stop();
-        _runtime?.Dispose();
     }
 
     // Convenience: build a DataFrame with PersonSchema-compatible columns

@@ -1,6 +1,4 @@
-using Flowthru.Extensions.Spark.Runtime;
 using Flowthru.Spark.Sql;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Flowthru.Extensions.Spark.Tests.CompatTests;
 
@@ -82,34 +80,14 @@ public class SparkSessionSmokeTests
   [Category("SparkSession.JvmBridge")]
   public class JvmBridgeTests
   {
-    private SparkRuntime? _sparkRuntime;
-
     [OneTimeSetUp]
-    public void StartSparkBackend()
+    public void RequireSparkBackend()
     {
       Assume.That(
-        Environment.GetEnvironmentVariable("SPARK_HOME"),
-        Is.Not.Null.And.Not.Empty,
-        "SPARK_HOME is not set — skipping JVM bridge tests."
+        SparkAssemblySetup.IsAvailable,
+        Is.True,
+        SparkAssemblySetup.UnavailableReason ?? "Spark JVM backend unavailable."
       );
-
-      try
-      {
-        var options = new SparkRuntimeOptions { BackendStartupTimeoutSeconds = 15 };
-        _sparkRuntime = new SparkRuntime(options, NullLogger<SparkRuntime>.Instance);
-        _sparkRuntime.Initialize();
-      }
-      catch (Exception ex)
-      {
-        Assert.Inconclusive($"Spark JVM backend failed to start — skipping JVM bridge tests. ({ex.Message})");
-      }
-    }
-
-    [OneTimeTearDown]
-    public void StopSparkBackend()
-    {
-      _sparkRuntime?.Dispose();
-      _sparkRuntime = null;
     }
 
     [Test]

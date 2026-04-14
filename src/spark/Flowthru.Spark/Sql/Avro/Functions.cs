@@ -23,6 +23,7 @@ namespace Flowthru.Spark.Sql.Avro
                 {
                     2 => "org.apache.spark.sql.avro.package",
                     3 => "org.apache.spark.sql.avro.functions",
+                    4 => "org.apache.spark.sql.avro.functions",
                     _ => throw new NotSupportedException($"Spark {sparkVersion} not supported.")
                 };
             });
