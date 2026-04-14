@@ -714,8 +714,14 @@ public static class ArrowMarshaller
   // Enum Helpers ([SerializedEnum] attribute-driven, matching all other format serializers)
   // ──────────────────────────────────────────────────────────────
 
-  private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<object, string>> _enumToStringCache = new();
-  private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<string, object>> _stringToEnumCache = new();
+  private static readonly System.Collections.Concurrent.ConcurrentDictionary<
+    Type,
+    Dictionary<object, string>
+  > _enumToStringCache = new();
+  private static readonly System.Collections.Concurrent.ConcurrentDictionary<
+    Type,
+    Dictionary<string, object>
+  > _stringToEnumCache = new();
 
   /// <summary>
   /// Builds a forward map (enum value → serialized string) from [SerializedEnum] attributes.
@@ -723,22 +729,25 @@ public static class ArrowMarshaller
   /// </summary>
   private static Dictionary<object, string> GetSerializedEnumMap(Type enumType)
   {
-    return _enumToStringCache.GetOrAdd(enumType, t =>
-    {
-      var map = new Dictionary<object, string>();
-      foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Static))
+    return _enumToStringCache.GetOrAdd(
+      enumType,
+      t =>
       {
-        var attr = field.GetCustomAttribute<SerializedEnumAttribute>();
-        if (attr == null)
+        var map = new Dictionary<object, string>();
+        foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Static))
         {
-          throw new InvalidOperationException(
-            $"Enum member '{t.Name}.{field.Name}' is missing the required [SerializedEnum] attribute."
-          );
+          var attr = field.GetCustomAttribute<SerializedEnumAttribute>();
+          if (attr == null)
+          {
+            throw new InvalidOperationException(
+              $"Enum member '{t.Name}.{field.Name}' is missing the required [SerializedEnum] attribute."
+            );
+          }
+          map[field.GetValue(null)!] = attr.Value;
         }
-        map[field.GetValue(null)!] = attr.Value;
+        return map;
       }
-      return map;
-    });
+    );
   }
 
   /// <summary>
@@ -747,10 +756,13 @@ public static class ArrowMarshaller
   /// </summary>
   private static Dictionary<string, object> GetReverseSerializedEnumMap(Type enumType)
   {
-    return _stringToEnumCache.GetOrAdd(enumType, t =>
-    {
-      var forward = GetSerializedEnumMap(t);
-      return forward.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
-    });
+    return _stringToEnumCache.GetOrAdd(
+      enumType,
+      t =>
+      {
+        var forward = GetSerializedEnumMap(t);
+        return forward.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+      }
+    );
   }
 }
