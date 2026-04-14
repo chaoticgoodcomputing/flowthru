@@ -54,6 +54,13 @@ public sealed class SparkRuntimeOptions
     public string Master { get; set; } = "local[*]";
 
     /// <summary>
+    /// Maximum seconds to wait for the JVM backend to accept connections after launch.
+    /// Defaults to 60s for production use. Set lower (e.g. 10s) in test fixtures to
+    /// fail fast when the backend is unavailable.
+    /// </summary>
+    public int BackendStartupTimeoutSeconds { get; set; } = 60;
+
+    /// <summary>
     /// Resolves the Spark home directory using the auto-detection hierarchy.
     /// </summary>
     /// <exception cref="InvalidOperationException">

@@ -82,7 +82,7 @@ public sealed class SparkRuntime : IDisposable
             var sparkSubmit = Path.Combine(sparkHome, "bin", "spark-submit");
             var args = $"--class org.apache.spark.deploy.dotnet.DotnetRunner "
                 + $"--master {master} "
-                + $"\"{jarPath}\" debug";
+                + $"\"{jarPath}\" debug {_backendPort}";
 
             _logger.LogDebug("Launching: {SparkSubmit} {Args}", sparkSubmit, args);
 
@@ -117,7 +117,7 @@ public sealed class SparkRuntime : IDisposable
             _backendProcess.BeginOutputReadLine();
             _backendProcess.BeginErrorReadLine();
 
-            WaitForPort(_backendPort, timeoutSeconds: 60);
+            WaitForPort(_backendPort, timeoutSeconds: _options.BackendStartupTimeoutSeconds);
 
             _initialized = true;
             _logger.LogInformation("Spark JVM backend ready on port {Port}", _backendPort);

@@ -95,7 +95,7 @@ public class SparkSessionSmokeTests
 
       try
       {
-        var options = new SparkRuntimeOptions();
+        var options = new SparkRuntimeOptions { BackendStartupTimeoutSeconds = 15 };
         _sparkRuntime = new SparkRuntime(options, NullLogger<SparkRuntime>.Instance);
         _sparkRuntime.Initialize();
       }
