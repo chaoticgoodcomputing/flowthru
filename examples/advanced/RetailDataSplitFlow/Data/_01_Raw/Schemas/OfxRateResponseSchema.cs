@@ -14,8 +14,8 @@ namespace RetailDataMultipipeline.Data._01_Raw.Schemas;
 [FlowthruSchema]
 public partial record OfxRateResponseSchema
 {
-  public required string Currency { get; init; }
-  public required decimal ofxRate { get; init; }
-  public required decimal inverseOfxRate { get; init; }
-  public required decimal convertedAmount { get; init; }
+    public required string Currency { get; init; }
+    public required decimal ofxRate { get; init; }
+    public required decimal inverseOfxRate { get; init; }
+    public required decimal convertedAmount { get; init; }
 }

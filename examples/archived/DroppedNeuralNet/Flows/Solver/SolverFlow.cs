@@ -27,32 +27,32 @@ namespace DroppedNeuralNet.Flows.Solver;
 /// </summary>
 public static class SolverFlow
 {
-  public static Flow Create(Catalog catalog, IPythonExecutor executor)
-  {
-    return FlowBuilder.CreateFlow(pipeline =>
+    public static Flow Create(Catalog catalog, IPythonExecutor executor)
     {
-      pipeline.AddPythonStep<
-        IEnumerable<CandidatePermutation>,
-        IEnumerable<PieceBlob>,
-        IEnumerable<MeasurementSchema>,
-        IEnumerable<CandidateEvaluation>
-      >(
-        label: "ValidatePermutations",
-        description: "Forward-pass each ranked candidate permutation; emit a CandidateEvaluation row per candidate — no tolerance gating (Python).",
-        module: "Flows.Solver.Steps.validate_permutations",
-        function: "validate_permutations",
-        input: (catalog.CandidatePermutations, catalog.Pieces, catalog.HistoricalData),
-        output: catalog.CandidateEvaluations,
-        executor: executor
-      );
+        return FlowBuilder.CreateFlow(pipeline =>
+        {
+            pipeline.AddPythonStep<
+          IEnumerable<CandidatePermutation>,
+          IEnumerable<PieceBlob>,
+          IEnumerable<MeasurementSchema>,
+          IEnumerable<CandidateEvaluation>
+        >(
+          label: "ValidatePermutations",
+          description: "Forward-pass each ranked candidate permutation; emit a CandidateEvaluation row per candidate — no tolerance gating (Python).",
+          module: "Flows.Solver.Steps.validate_permutations",
+          function: "validate_permutations",
+          input: (catalog.CandidatePermutations, catalog.Pieces, catalog.HistoricalData),
+          output: catalog.CandidateEvaluations,
+          executor: executor
+        );
 
-      pipeline.AddStep(
-        label: "SelectSolution",
-        description: "Pick the best-scoring evaluated permutation as the solution (C#).",
-        transform: SelectSolutionStep.Create(),
-        input: catalog.CandidateEvaluations,
-        output: catalog.Solution
-      );
-    });
-  }
+            pipeline.AddStep(
+          label: "SelectSolution",
+          description: "Pick the best-scoring evaluated permutation as the solution (C#).",
+          transform: SelectSolutionStep.Create(),
+          input: catalog.CandidateEvaluations,
+          output: catalog.Solution
+        );
+        });
+    }
 }

@@ -8,11 +8,11 @@ namespace SpaceflightsDistributed.Reporting.Data;
 /// </summary>
 public partial class ReportingCatalog : CatalogAbstract
 {
-  private readonly string _basePath;
+    private readonly string _basePath;
 
-  public ReportingCatalog(string basePath)
-  {
-    _basePath = basePath;
-    InitializeCatalogProperties();
-  }
+    public ReportingCatalog(string basePath)
+    {
+        _basePath = basePath;
+        InitializeCatalogProperties();
+    }
 }

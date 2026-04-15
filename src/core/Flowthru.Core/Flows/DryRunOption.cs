@@ -11,31 +11,31 @@ namespace Flowthru.Core.Flows;
 /// </remarks>
 public readonly struct DryRunOption
 {
-  /// <summary>
-  /// Whether dry-run mode is enabled.
-  /// </summary>
-  public bool Enabled { get; }
+    /// <summary>
+    /// Whether dry-run mode is enabled.
+    /// </summary>
+    public bool Enabled { get; }
 
-  /// <summary>
-  /// The validation depth applied when dry-run is enabled.
-  /// </summary>
-  public ValidationDepth Depth { get; }
+    /// <summary>
+    /// The validation depth applied when dry-run is enabled.
+    /// </summary>
+    public ValidationDepth Depth { get; }
 
-  private DryRunOption(bool enabled, ValidationDepth depth)
-  {
-    Enabled = enabled;
-    Depth = depth;
-  }
+    private DryRunOption(bool enabled, ValidationDepth depth)
+    {
+        Enabled = enabled;
+        Depth = depth;
+    }
 
-  /// <summary>
-  /// Implicitly converts a <see cref="bool"/> to a <see cref="DryRunOption"/>.
-  /// <c>true</c> enables full dry-run; <c>false</c> disables it.
-  /// </summary>
-  public static implicit operator DryRunOption(bool value) => new(value, ValidationDepth.Full);
+    /// <summary>
+    /// Implicitly converts a <see cref="bool"/> to a <see cref="DryRunOption"/>.
+    /// <c>true</c> enables full dry-run; <c>false</c> disables it.
+    /// </summary>
+    public static implicit operator DryRunOption(bool value) => new(value, ValidationDepth.Full);
 
-  /// <summary>
-  /// Implicitly converts a <see cref="ValidationDepth"/> to a <see cref="DryRunOption"/>,
-  /// enabling dry-run at the specified depth.
-  /// </summary>
-  public static implicit operator DryRunOption(ValidationDepth depth) => new(true, depth);
+    /// <summary>
+    /// Implicitly converts a <see cref="ValidationDepth"/> to a <see cref="DryRunOption"/>,
+    /// enabling dry-run at the specified depth.
+    /// </summary>
+    public static implicit operator DryRunOption(ValidationDepth depth) => new(true, depth);
 }

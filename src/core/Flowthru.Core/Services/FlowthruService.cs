@@ -23,391 +23,391 @@ namespace Flowthru.Core.Services;
 /// </remarks>
 internal sealed class FlowthruService : IFlowthruService
 {
-  private readonly IReadOnlyList<CatalogAbstract> _catalogs;
-  private readonly Dictionary<string, Flow> _pipelines;
-  private readonly IServiceProvider _services;
-  private readonly ILogger<FlowthruService> _logger;
-  private readonly FlowthruMetadataBuilder? _metadataBuilder;
-  private readonly FlowthruExecutionDefaults _executionDefaults;
+    private readonly IReadOnlyList<CatalogAbstract> _catalogs;
+    private readonly Dictionary<string, Flow> _pipelines;
+    private readonly IServiceProvider _services;
+    private readonly ILogger<FlowthruService> _logger;
+    private readonly FlowthruMetadataBuilder? _metadataBuilder;
+    private readonly FlowthruExecutionDefaults _executionDefaults;
 
-  /// <summary>
-  /// Initializes a new instance of FlowthruService.
-  /// </summary>
-  public FlowthruService(
-    IReadOnlyList<CatalogAbstract> catalogs,
-    Dictionary<string, Flow> pipelines,
-    IServiceProvider services,
-    ILogger<FlowthruService> logger,
-    FlowthruExecutionDefaults executionDefaults,
-    FlowthruMetadataBuilder? metadataBuilder = null
-  )
-  {
-    _catalogs = catalogs ?? throw new ArgumentNullException(nameof(catalogs));
-    _pipelines = pipelines ?? throw new ArgumentNullException(nameof(pipelines));
-    _services = services ?? throw new ArgumentNullException(nameof(services));
-    _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    _executionDefaults = executionDefaults ?? new FlowthruExecutionDefaults();
-    _metadataBuilder = metadataBuilder;
-
-    // Inject services into all registered catalogs
-    foreach (var catalog in _catalogs)
+    /// <summary>
+    /// Initializes a new instance of FlowthruService.
+    /// </summary>
+    public FlowthruService(
+      IReadOnlyList<CatalogAbstract> catalogs,
+      Dictionary<string, Flow> pipelines,
+      IServiceProvider services,
+      ILogger<FlowthruService> logger,
+      FlowthruExecutionDefaults executionDefaults,
+      FlowthruMetadataBuilder? metadataBuilder = null
+    )
     {
-      catalog.Services = _services;
-    }
+        _catalogs = catalogs ?? throw new ArgumentNullException(nameof(catalogs));
+        _pipelines = pipelines ?? throw new ArgumentNullException(nameof(pipelines));
+        _services = services ?? throw new ArgumentNullException(nameof(services));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _executionDefaults = executionDefaults ?? new FlowthruExecutionDefaults();
+        _metadataBuilder = metadataBuilder;
 
-    // Resolve validation hooks from DI (Phase 4: extensions can register hooks)
-    var validationHooks = _services.GetServices<IFlowValidationHook>().ToList();
-
-    // Inject services into each pipeline and build
-    foreach (var pipeline in _pipelines.Values)
-    {
-      pipeline.Logger = _logger;
-      pipeline.ServiceProvider = _services;
-
-      // Register validation hooks (e.g., PythonStepValidator from Python extension)
-      foreach (var hook in validationHooks)
-      {
-        pipeline.ValidationHooks.Add(hook);
-      }
-
-      pipeline.Build();
-    }
-  }
-
-  /// <inheritdoc />
-  public IReadOnlyCollection<string> FlowNames => _pipelines.Keys;
-
-  /// <inheritdoc />
-  public IReadOnlyList<CatalogAbstract> Catalogs => _catalogs;
-
-  /// <inheritdoc />
-  public async Task<FlowResult> ExecuteFlowAsync(
-    ExecutionOptions? options = null,
-    bool exportMetadata = true,
-    string? metadataOutputDirectory = null,
-    CancellationToken cancellationToken = default
-  )
-  {
-    var totalStopwatch = Stopwatch.StartNew();
-
-    _logger.LogInformation("Merging all pipelines into unified DAG.");
-    _logger.LogInformation("Available pipelines: {Pipelines}", string.Join(", ", FlowNames));
-
-    // Merge all pipelines into a single DAG
-    var mergedPipeline = Flow.Merge(_pipelines);
-
-    // Inject services and logger
-    mergedPipeline.Logger = _logger;
-    mergedPipeline.ServiceProvider = _services;
-
-    options ??= new ExecutionOptions();
-
-    // Resolve MaxDegreeOfParallelism: CLI/caller value wins; service default is fallback; 1 is the floor.
-    options.MaxDegreeOfParallelism =
-      options.MaxDegreeOfParallelism ?? _executionDefaults.MaxDegreeOfParallelism ?? 1;
-
-    // ════════════════════════════════════════
-    // PRE-FLIGHT CHECKS
-    // ════════════════════════════════════════
-    _logger.LogInformation("════════════════════════════════════════");
-    _logger.LogInformation("PRE-FLIGHT CHECKS");
-    _logger.LogInformation("════════════════════════════════════════");
-    _logger.LogInformation("");
-
-    var preFlightStopwatch = Stopwatch.StartNew();
-
-    // Build merged pipeline with optional slice strategy
-    _logger.LogInformation("→ Building pipeline and analyzing dependencies...");
-    mergedPipeline.Build(options.SliceStrategy);
-    _logger.LogInformation(
-      "  ✓ {StepCount} nodes organized into {LayerCount} execution layers",
-      mergedPipeline.Steps.Count,
-      mergedPipeline.ExecutionLayers!.Count
-    );
-
-    // Validate external inputs — skipped for StructureOnly dry runs (no data source access)
-    var validatedInputCount = 0;
-    var skipDataValidation =
-      options.DryRun.Enabled && options.DryRun.Depth == ValidationDepth.StructureOnly;
-
-    if (skipDataValidation)
-    {
-      _logger.LogInformation("→ Skipping data source validation (StructureOnly dry run)");
-    }
-    else
-    {
-      _logger.LogInformation("→ Validating external data sources...");
-      var validationResult = await mergedPipeline.ValidateExternalInputsAsync(
-        options.MaxDegreeOfParallelism!.Value,
-        cancellationToken
-      );
-      if (!validationResult.IsValid)
-      {
-        _logger.LogError("  ✗ Validation failed");
-        validationResult.ThrowIfInvalid();
-      }
-
-      var allMergedSteps = mergedPipeline.Steps.ToList();
-      var mergedProducedLabels = new HashSet<string>(
-        allMergedSteps.SelectMany(s => s.Outputs.Select(o => o.Label)),
-        StringComparer.OrdinalIgnoreCase
-      );
-      validatedInputCount = allMergedSteps
-        .SelectMany(s => s.Inputs)
-        .Where(i => !mergedProducedLabels.Contains(i.Label))
-        .Select(i => i.Label)
-        .Distinct(StringComparer.OrdinalIgnoreCase)
-        .Count();
-      _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
-    }
-
-    // Export DAG metadata if requested — runs after all pre-flight checks, before any execution
-    DagMetadata? dag = null;
-    if (exportMetadata && _metadataBuilder != null && _metadataBuilder.AutoExport)
-    {
-      try
-      {
-        _logger.LogInformation("→ Exporting DAG metadata...");
-        dag = mergedPipeline.ExportDag();
-        ExportMetadata(dag, "Pipeline", metadataOutputDirectory);
-        _logger.LogInformation("  ✓ Metadata exported successfully");
-      }
-      catch (Exception ex)
-      {
-        _logger.LogWarning(ex, "  ⚠ Failed to export DAG metadata: {Message}", ex.Message);
-      }
-    }
-
-    preFlightStopwatch.Stop();
-    _logger.LogInformation("");
-    _logger.LogInformation(
-      "✅ Pre-flight completed in {Ms}ms",
-      preFlightStopwatch.ElapsedMilliseconds
-    );
-    _logger.LogInformation("");
-
-    // Check if dry run
-    if (options.DryRun.Enabled)
-    {
-      _logger.LogInformation("════════════════════════════════════════");
-      _logger.LogInformation("DRY RUN SUCCESSFUL");
-      _logger.LogInformation("════════════════════════════════════════");
-      _logger.LogInformation("");
-      _logger.LogInformation(
-        "Steps: {Count} nodes across {Layers} layers",
-        mergedPipeline.Steps.Count,
-        mergedPipeline.ExecutionLayers!.Count
-      );
-      _logger.LogInformation("External Inputs: {Count} validated", validatedInputCount);
-      _logger.LogInformation("Total Time: {Ms}ms", totalStopwatch.ElapsedMilliseconds);
-      _logger.LogInformation("");
-      _logger.LogInformation("✅ Pipeline is ready to execute");
-      _logger.LogInformation("");
-
-      totalStopwatch.Stop();
-      return FlowResult.CreateDryRunSuccess(
-        totalStopwatch.Elapsed,
-        mergedPipeline.Steps.Count,
-        mergedPipeline.ExecutionLayers!.Count,
-        validatedInputCount,
-        "Pipeline"
-      );
-    }
-
-    // ════════════════════════════════════════
-    // PIPELINE EXECUTION
-    // ════════════════════════════════════════
-    _logger.LogInformation("════════════════════════════════════════");
-    _logger.LogInformation("PIPELINE EXECUTION");
-    _logger.LogInformation("════════════════════════════════════════");
-    _logger.LogInformation("");
-
-    // Execute merged pipeline
-    var result = await mergedPipeline.RunAsync(options, cancellationToken);
-
-    // Export post-run metadata — fires only after real executions (dry run returns above)
-    if (_metadataBuilder != null)
-    {
-      var postRunProviders = _metadataBuilder.Providers.OfType<IPostRunMetadataProvider>().ToList();
-
-      if (postRunProviders.Count > 0)
-      {
-        try
+        // Inject services into all registered catalogs
+        foreach (var catalog in _catalogs)
         {
-          _logger.LogInformation("→ Exporting post-run metadata...");
-          dag ??= mergedPipeline.ExportDag();
-          var runMetadata = new RunMetadata { Dag = dag, Result = result };
-          ExportRunMetadata(runMetadata);
-          _logger.LogInformation("  ✓ Post-run metadata exported successfully");
+            catalog.Services = _services;
         }
-        catch (Exception ex)
+
+        // Resolve validation hooks from DI (Phase 4: extensions can register hooks)
+        var validationHooks = _services.GetServices<IFlowValidationHook>().ToList();
+
+        // Inject services into each pipeline and build
+        foreach (var pipeline in _pipelines.Values)
         {
-          _logger.LogWarning(ex, "  ⚠ Failed to export post-run metadata: {Message}", ex.Message);
+            pipeline.Logger = _logger;
+            pipeline.ServiceProvider = _services;
+
+            // Register validation hooks (e.g., PythonStepValidator from Python extension)
+            foreach (var hook in validationHooks)
+            {
+                pipeline.ValidationHooks.Add(hook);
+            }
+
+            pipeline.Build();
         }
-      }
     }
 
-    // Format results
-    var formatter = options.GetFormatter();
-    formatter.Format(result, _logger);
+    /// <inheritdoc />
+    public IReadOnlyCollection<string> FlowNames => _pipelines.Keys;
 
-    totalStopwatch.Stop();
-    return result;
-  }
+    /// <inheritdoc />
+    public IReadOnlyList<CatalogAbstract> Catalogs => _catalogs;
 
-  /// <inheritdoc />
-  public FlowMetadata GetFlowMetadata(string pipelineName)
-  {
-    if (!_pipelines.TryGetValue(pipelineName, out var pipeline))
+    /// <inheritdoc />
+    public async Task<FlowResult> ExecuteFlowAsync(
+      ExecutionOptions? options = null,
+      bool exportMetadata = true,
+      string? metadataOutputDirectory = null,
+      CancellationToken cancellationToken = default
+    )
     {
-      throw new KeyNotFoundException(
-        $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
-      );
-    }
+        var totalStopwatch = Stopwatch.StartNew();
 
-    var allSteps = pipeline.Steps.ToList();
-    var producedLabels = new HashSet<string>(
-      allSteps.SelectMany(s => s.Outputs.Select(o => o.Label)),
-      StringComparer.OrdinalIgnoreCase
-    );
-    var externalInputs = allSteps
-      .SelectMany(s => s.Inputs)
-      .Where(i => !producedLabels.Contains(i.Label))
-      .Select(i => i.Label)
-      .Distinct(StringComparer.OrdinalIgnoreCase)
-      .ToList();
+        _logger.LogInformation("Merging all pipelines into unified DAG.");
+        _logger.LogInformation("Available pipelines: {Pipelines}", string.Join(", ", FlowNames));
 
-    return new FlowMetadata
-    {
-      Name = pipeline.Name ?? pipelineName,
-      Description = pipeline.Description,
-      StepCount = pipeline.Steps.Count,
-      LayerCount = pipeline.ExecutionLayers?.Count ?? 0,
-      ExternalInputs = externalInputs,
-      IsBuilt = pipeline.IsBuilt,
-    };
-  }
+        // Merge all pipelines into a single DAG
+        var mergedPipeline = Flow.Merge(_pipelines);
 
-  /// <inheritdoc />
-  public DagMetadata GetDagMetadata(
-    string? pipelineName = null,
-    FlowSliceStrategy? sliceStrategy = null
-  )
-  {
-    Dictionary<string, Flow> toMerge;
+        // Inject services and logger
+        mergedPipeline.Logger = _logger;
+        mergedPipeline.ServiceProvider = _services;
 
-    if (pipelineName is not null)
-    {
-      if (!_pipelines.TryGetValue(pipelineName, out var namedPipeline))
-      {
-        throw new KeyNotFoundException(
-          $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
+        options ??= new ExecutionOptions();
+
+        // Resolve MaxDegreeOfParallelism: CLI/caller value wins; service default is fallback; 1 is the floor.
+        options.MaxDegreeOfParallelism =
+          options.MaxDegreeOfParallelism ?? _executionDefaults.MaxDegreeOfParallelism ?? 1;
+
+        // ════════════════════════════════════════
+        // PRE-FLIGHT CHECKS
+        // ════════════════════════════════════════
+        _logger.LogInformation("════════════════════════════════════════");
+        _logger.LogInformation("PRE-FLIGHT CHECKS");
+        _logger.LogInformation("════════════════════════════════════════");
+        _logger.LogInformation("");
+
+        var preFlightStopwatch = Stopwatch.StartNew();
+
+        // Build merged pipeline with optional slice strategy
+        _logger.LogInformation("→ Building pipeline and analyzing dependencies...");
+        mergedPipeline.Build(options.SliceStrategy);
+        _logger.LogInformation(
+          "  ✓ {StepCount} nodes organized into {LayerCount} execution layers",
+          mergedPipeline.Steps.Count,
+          mergedPipeline.ExecutionLayers!.Count
         );
-      }
 
-      toMerge = new Dictionary<string, Flow> { [pipelineName] = namedPipeline };
-    }
-    else
-    {
-      toMerge = _pipelines;
-    }
+        // Validate external inputs — skipped for StructureOnly dry runs (no data source access)
+        var validatedInputCount = 0;
+        var skipDataValidation =
+          options.DryRun.Enabled && options.DryRun.Depth == ValidationDepth.StructureOnly;
 
-    // Always merge to produce a fresh pipeline instance — avoids mutating
-    // the registered pipelines' Build/Slice state as a side effect.
-    var pipeline = Flow.Merge(toMerge);
-    pipeline.Logger = _logger;
-    pipeline.ServiceProvider = _services;
-    pipeline.Build(sliceStrategy);
+        if (skipDataValidation)
+        {
+            _logger.LogInformation("→ Skipping data source validation (StructureOnly dry run)");
+        }
+        else
+        {
+            _logger.LogInformation("→ Validating external data sources...");
+            var validationResult = await mergedPipeline.ValidateExternalInputsAsync(
+              options.MaxDegreeOfParallelism!.Value,
+              cancellationToken
+            );
+            if (!validationResult.IsValid)
+            {
+                _logger.LogError("  ✗ Validation failed");
+                validationResult.ThrowIfInvalid();
+            }
 
-    return pipeline.ExportDag();
-  }
+            var allMergedSteps = mergedPipeline.Steps.ToList();
+            var mergedProducedLabels = new HashSet<string>(
+              allMergedSteps.SelectMany(s => s.Outputs.Select(o => o.Label)),
+              StringComparer.OrdinalIgnoreCase
+            );
+            validatedInputCount = allMergedSteps
+              .SelectMany(s => s.Inputs)
+              .Where(i => !mergedProducedLabels.Contains(i.Label))
+              .Select(i => i.Label)
+              .Distinct(StringComparer.OrdinalIgnoreCase)
+              .Count();
+            _logger.LogInformation("  ✓ {Count} external data sources validated", validatedInputCount);
+        }
 
-  /// <inheritdoc />
-  public async Task<ValidationResult> ValidateFlowAsync(
-    string pipelineName,
-    CancellationToken cancellationToken = default
-  )
-  {
-    if (!_pipelines.TryGetValue(pipelineName, out var pipeline))
-    {
-      throw new KeyNotFoundException(
-        $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
-      );
-    }
+        // Export DAG metadata if requested — runs after all pre-flight checks, before any execution
+        DagMetadata? dag = null;
+        if (exportMetadata && _metadataBuilder != null && _metadataBuilder.AutoExport)
+        {
+            try
+            {
+                _logger.LogInformation("→ Exporting DAG metadata...");
+                dag = mergedPipeline.ExportDag();
+                ExportMetadata(dag, "Pipeline", metadataOutputDirectory);
+                _logger.LogInformation("  ✓ Metadata exported successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "  ⚠ Failed to export DAG metadata: {Message}", ex.Message);
+            }
+        }
 
-    return await pipeline.ValidateExternalInputsAsync(maxDegreeOfParallelism: 1, cancellationToken);
-  }
-
-  private async Task ExportPipelineMetadataAsync(
-    Flow pipeline,
-    string pipelineName,
-    string? outputDirectory
-  )
-  {
-    if (_metadataBuilder == null)
-    {
-      return;
-    }
-
-    var dag = pipeline.ExportDag();
-    await Task.Run(() => ExportMetadata(dag, pipelineName, outputDirectory));
-  }
-
-  private void ExportMetadata(DagMetadata dag, string pipelineName, string? outputDirectory = null)
-  {
-    if (_metadataBuilder == null)
-    {
-      return;
-    }
-
-    // Execute each provider
-    foreach (var provider in _metadataBuilder.Providers)
-    {
-      try
-      {
-        _logger.LogInformation("Exporting DAG metadata using {Provider}", provider.Name);
-
-        provider.Consume(dag);
-
-        _logger.LogInformation("{Provider} export completed successfully", provider.Name);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogWarning(
-          ex,
-          "Error during {Provider} export: {Message}",
-          provider.Name,
-          ex.Message
+        preFlightStopwatch.Stop();
+        _logger.LogInformation("");
+        _logger.LogInformation(
+          "✅ Pre-flight completed in {Ms}ms",
+          preFlightStopwatch.ElapsedMilliseconds
         );
-      }
-    }
-  }
+        _logger.LogInformation("");
 
-  private void ExportRunMetadata(RunMetadata run)
-  {
-    if (_metadataBuilder == null)
-    {
-      return;
+        // Check if dry run
+        if (options.DryRun.Enabled)
+        {
+            _logger.LogInformation("════════════════════════════════════════");
+            _logger.LogInformation("DRY RUN SUCCESSFUL");
+            _logger.LogInformation("════════════════════════════════════════");
+            _logger.LogInformation("");
+            _logger.LogInformation(
+              "Steps: {Count} nodes across {Layers} layers",
+              mergedPipeline.Steps.Count,
+              mergedPipeline.ExecutionLayers!.Count
+            );
+            _logger.LogInformation("External Inputs: {Count} validated", validatedInputCount);
+            _logger.LogInformation("Total Time: {Ms}ms", totalStopwatch.ElapsedMilliseconds);
+            _logger.LogInformation("");
+            _logger.LogInformation("✅ Pipeline is ready to execute");
+            _logger.LogInformation("");
+
+            totalStopwatch.Stop();
+            return FlowResult.CreateDryRunSuccess(
+              totalStopwatch.Elapsed,
+              mergedPipeline.Steps.Count,
+              mergedPipeline.ExecutionLayers!.Count,
+              validatedInputCount,
+              "Pipeline"
+            );
+        }
+
+        // ════════════════════════════════════════
+        // PIPELINE EXECUTION
+        // ════════════════════════════════════════
+        _logger.LogInformation("════════════════════════════════════════");
+        _logger.LogInformation("PIPELINE EXECUTION");
+        _logger.LogInformation("════════════════════════════════════════");
+        _logger.LogInformation("");
+
+        // Execute merged pipeline
+        var result = await mergedPipeline.RunAsync(options, cancellationToken);
+
+        // Export post-run metadata — fires only after real executions (dry run returns above)
+        if (_metadataBuilder != null)
+        {
+            var postRunProviders = _metadataBuilder.Providers.OfType<IPostRunMetadataProvider>().ToList();
+
+            if (postRunProviders.Count > 0)
+            {
+                try
+                {
+                    _logger.LogInformation("→ Exporting post-run metadata...");
+                    dag ??= mergedPipeline.ExportDag();
+                    var runMetadata = new RunMetadata { Dag = dag, Result = result };
+                    ExportRunMetadata(runMetadata);
+                    _logger.LogInformation("  ✓ Post-run metadata exported successfully");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "  ⚠ Failed to export post-run metadata: {Message}", ex.Message);
+                }
+            }
+        }
+
+        // Format results
+        var formatter = options.GetFormatter();
+        formatter.Format(result, _logger);
+
+        totalStopwatch.Stop();
+        return result;
     }
 
-    foreach (var provider in _metadataBuilder.Providers.OfType<IPostRunMetadataProvider>())
+    /// <inheritdoc />
+    public FlowMetadata GetFlowMetadata(string pipelineName)
     {
-      var name = (provider as IMetadataProvider)?.Name ?? provider.GetType().Name;
-      try
-      {
-        _logger.LogInformation("Exporting post-run metadata using {Provider}", name);
-        provider.Consume(run);
-        _logger.LogInformation("{Provider} post-run export completed successfully", name);
-      }
-      catch (Exception ex)
-      {
-        _logger.LogWarning(
-          ex,
-          "Error during {Provider} post-run export: {Message}",
-          name,
-          ex.Message
+        if (!_pipelines.TryGetValue(pipelineName, out var pipeline))
+        {
+            throw new KeyNotFoundException(
+              $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
+            );
+        }
+
+        var allSteps = pipeline.Steps.ToList();
+        var producedLabels = new HashSet<string>(
+          allSteps.SelectMany(s => s.Outputs.Select(o => o.Label)),
+          StringComparer.OrdinalIgnoreCase
         );
-      }
+        var externalInputs = allSteps
+          .SelectMany(s => s.Inputs)
+          .Where(i => !producedLabels.Contains(i.Label))
+          .Select(i => i.Label)
+          .Distinct(StringComparer.OrdinalIgnoreCase)
+          .ToList();
+
+        return new FlowMetadata
+        {
+            Name = pipeline.Name ?? pipelineName,
+            Description = pipeline.Description,
+            StepCount = pipeline.Steps.Count,
+            LayerCount = pipeline.ExecutionLayers?.Count ?? 0,
+            ExternalInputs = externalInputs,
+            IsBuilt = pipeline.IsBuilt,
+        };
     }
-  }
+
+    /// <inheritdoc />
+    public DagMetadata GetDagMetadata(
+      string? pipelineName = null,
+      FlowSliceStrategy? sliceStrategy = null
+    )
+    {
+        Dictionary<string, Flow> toMerge;
+
+        if (pipelineName is not null)
+        {
+            if (!_pipelines.TryGetValue(pipelineName, out var namedPipeline))
+            {
+                throw new KeyNotFoundException(
+                  $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
+                );
+            }
+
+            toMerge = new Dictionary<string, Flow> { [pipelineName] = namedPipeline };
+        }
+        else
+        {
+            toMerge = _pipelines;
+        }
+
+        // Always merge to produce a fresh pipeline instance — avoids mutating
+        // the registered pipelines' Build/Slice state as a side effect.
+        var pipeline = Flow.Merge(toMerge);
+        pipeline.Logger = _logger;
+        pipeline.ServiceProvider = _services;
+        pipeline.Build(sliceStrategy);
+
+        return pipeline.ExportDag();
+    }
+
+    /// <inheritdoc />
+    public async Task<ValidationResult> ValidateFlowAsync(
+      string pipelineName,
+      CancellationToken cancellationToken = default
+    )
+    {
+        if (!_pipelines.TryGetValue(pipelineName, out var pipeline))
+        {
+            throw new KeyNotFoundException(
+              $"Pipeline '{pipelineName}' not found. " + $"Available: {string.Join(", ", FlowNames)}"
+            );
+        }
+
+        return await pipeline.ValidateExternalInputsAsync(maxDegreeOfParallelism: 1, cancellationToken);
+    }
+
+    private async Task ExportPipelineMetadataAsync(
+      Flow pipeline,
+      string pipelineName,
+      string? outputDirectory
+    )
+    {
+        if (_metadataBuilder == null)
+        {
+            return;
+        }
+
+        var dag = pipeline.ExportDag();
+        await Task.Run(() => ExportMetadata(dag, pipelineName, outputDirectory));
+    }
+
+    private void ExportMetadata(DagMetadata dag, string pipelineName, string? outputDirectory = null)
+    {
+        if (_metadataBuilder == null)
+        {
+            return;
+        }
+
+        // Execute each provider
+        foreach (var provider in _metadataBuilder.Providers)
+        {
+            try
+            {
+                _logger.LogInformation("Exporting DAG metadata using {Provider}", provider.Name);
+
+                provider.Consume(dag);
+
+                _logger.LogInformation("{Provider} export completed successfully", provider.Name);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                  ex,
+                  "Error during {Provider} export: {Message}",
+                  provider.Name,
+                  ex.Message
+                );
+            }
+        }
+    }
+
+    private void ExportRunMetadata(RunMetadata run)
+    {
+        if (_metadataBuilder == null)
+        {
+            return;
+        }
+
+        foreach (var provider in _metadataBuilder.Providers.OfType<IPostRunMetadataProvider>())
+        {
+            var name = (provider as IMetadataProvider)?.Name ?? provider.GetType().Name;
+            try
+            {
+                _logger.LogInformation("Exporting post-run metadata using {Provider}", name);
+                provider.Consume(run);
+                _logger.LogInformation("{Provider} post-run export completed successfully", name);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                  ex,
+                  "Error during {Provider} post-run export: {Message}",
+                  name,
+                  ex.Message
+                );
+            }
+        }
+    }
 }

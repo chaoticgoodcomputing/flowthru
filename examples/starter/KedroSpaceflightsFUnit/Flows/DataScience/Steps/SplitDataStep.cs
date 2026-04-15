@@ -11,164 +11,164 @@ namespace KedroSpaceflightsFUnit.Flows.DataScience.Steps;
 [FlowthruStep]
 public static class SplitDataStep
 {
-  /// <summary>
-  /// Configuration options for data splitting.
-  /// </summary>
-  public record ModelOptions
-  {
     /// <summary>
-    /// The proportion of data to use for testing. Default is 0.2 (20%).
+    /// Configuration options for data splitting.
     /// </summary>
-    public double TestSize { get; init; } = 0.2;
-
-    /// <summary>
-    /// Random seed for reproducible shuffling. Default is 3.
-    /// </summary>
-    public int RandomState { get; init; } = 3;
-
-    /// <summary>
-    /// Feature names to include in the model (currently unused).
-    /// </summary>
-    public string[] Features { get; init; } = Array.Empty<string>();
-  }
-
-  /// <summary>
-  /// Creates a data splitting function that partitions input data into training and test sets.
-  /// </summary>
-  /// <param name="options">Configuration options controlling the split behavior.</param>
-  /// <returns>
-  /// A function that randomly shuffles input data and splits it into training and test sets
-  /// based on the configured test size.
-  /// </returns>
-  public static Func<
-    IEnumerable<ModelInputTableSchema>,
-    (IEnumerable<TrainingData>, IEnumerable<TestData>)
-  > Create(ModelOptions options)
-  {
-    return (input) =>
+    public record ModelOptions
     {
-      var data = input.ToList();
+        /// <summary>
+        /// The proportion of data to use for testing. Default is 0.2 (20%).
+        /// </summary>
+        public double TestSize { get; init; } = 0.2;
 
-      // Use random state for reproducibility
-      var random = new Random(options.RandomState);
-      var shuffled = data.OrderBy(_ => random.Next()).ToList();
+        /// <summary>
+        /// Random seed for reproducible shuffling. Default is 3.
+        /// </summary>
+        public int RandomState { get; init; } = 3;
 
-      var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
+        /// <summary>
+        /// Feature names to include in the model (currently unused).
+        /// </summary>
+        public string[] Features { get; init; } = Array.Empty<string>();
+    }
 
-      var trainData = shuffled
-        .Take(splitIndex)
-        .Select(row => new TrainingData
+    /// <summary>
+    /// Creates a data splitting function that partitions input data into training and test sets.
+    /// </summary>
+    /// <param name="options">Configuration options controlling the split behavior.</param>
+    /// <returns>
+    /// A function that randomly shuffles input data and splits it into training and test sets
+    /// based on the configured test size.
+    /// </returns>
+    public static Func<
+      IEnumerable<ModelInputTableSchema>,
+      (IEnumerable<TrainingData>, IEnumerable<TestData>)
+    > Create(ModelOptions options)
+    {
+        return (input) =>
         {
-          Features = new FeatureVector
-          {
-            Engines = row.Engines,
-            PassengerCapacity = row.PassengerCapacity,
-            Crew = row.Crew,
-            DCheckComplete = row.DCheckComplete,
-            MoonClearanceComplete = row.MoonClearanceComplete,
-            IataApproved = row.IataApproved,
-            CompanyRating = row.CompanyRating,
-            ReviewScoresRating = row.ReviewScoresRating,
-          },
-          Label = row.Price,
-        });
+            var data = input.ToList();
 
-      var testData = shuffled
-        .Skip(splitIndex)
-        .Select(row => new TestData
-        {
-          Features = new FeatureVector
-          {
-            Engines = row.Engines,
-            PassengerCapacity = row.PassengerCapacity,
-            Crew = row.Crew,
-            DCheckComplete = row.DCheckComplete,
-            MoonClearanceComplete = row.MoonClearanceComplete,
-            IataApproved = row.IataApproved,
-            CompanyRating = row.CompanyRating,
-            ReviewScoresRating = row.ReviewScoresRating,
-          },
-          Label = row.Price,
-        });
+            // Use random state for reproducibility
+            var random = new Random(options.RandomState);
+            var shuffled = data.OrderBy(_ => random.Next()).ToList();
 
-      return (trainData, testData);
-    };
-  }
+            var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
+
+            var trainData = shuffled
+          .Take(splitIndex)
+          .Select(row => new TrainingData
+            {
+                Features = new FeatureVector
+                {
+                    Engines = row.Engines,
+                    PassengerCapacity = row.PassengerCapacity,
+                    Crew = row.Crew,
+                    DCheckComplete = row.DCheckComplete,
+                    MoonClearanceComplete = row.MoonClearanceComplete,
+                    IataApproved = row.IataApproved,
+                    CompanyRating = row.CompanyRating,
+                    ReviewScoresRating = row.ReviewScoresRating,
+                },
+                Label = row.Price,
+            });
+
+            var testData = shuffled
+          .Skip(splitIndex)
+          .Select(row => new TestData
+            {
+                Features = new FeatureVector
+                {
+                    Engines = row.Engines,
+                    PassengerCapacity = row.PassengerCapacity,
+                    Crew = row.Crew,
+                    DCheckComplete = row.DCheckComplete,
+                    MoonClearanceComplete = row.MoonClearanceComplete,
+                    IataApproved = row.IataApproved,
+                    CompanyRating = row.CompanyRating,
+                    ReviewScoresRating = row.ReviewScoresRating,
+                },
+                Label = row.Price,
+            });
+
+            return (trainData, testData);
+        };
+    }
 
 #if FUNIT_ENABLED
-  /// <summary>FUnit tests for <see cref="SplitDataStep"/>.</summary>
-  public class Tests : FunitContext
-  {
-    private static ModelInputTableSchema Row(string id) =>
-      new()
-      {
-        ShuttleId = id,
-        ShuttleType = "Type A",
-        CompanyId = "C1",
-        Engines = 4,
-        PassengerCapacity = 100,
-        Crew = 8,
-        DCheckComplete = true,
-        MoonClearanceComplete = false,
-        Price = 1000m,
-        IataApproved = true,
-        CompanyRating = 0.9m,
-        ReviewScoresRating = 80m,
-      };
-
-    private static readonly ModelOptions DefaultOptions = new() { TestSize = 0.2, RandomState = 3 };
-
-    /// <summary>
-    /// With 10 inputs and a 20% test split, train should have 8 rows and test 2.
-    /// </summary>
-    [StepTest(typeof(SplitDataStep))]
-    public void TenRows_SplitsCorrectly()
+    /// <summary>FUnit tests for <see cref="SplitDataStep"/>.</summary>
+    public class Tests : FunitContext
     {
-      // Arrange
-      var input = Samples.Generate(10, i => Row($"S{i}"));
+        private static ModelInputTableSchema Row(string id) =>
+          new()
+          {
+              ShuttleId = id,
+              ShuttleType = "Type A",
+              CompanyId = "C1",
+              Engines = 4,
+              PassengerCapacity = 100,
+              Crew = 8,
+              DCheckComplete = true,
+              MoonClearanceComplete = false,
+              Price = 1000m,
+              IataApproved = true,
+              CompanyRating = 0.9m,
+              ReviewScoresRating = 80m,
+          };
 
-      // Apply
-      var (train, test) = Invoke(Create(DefaultOptions), input);
+        private static readonly ModelOptions DefaultOptions = new() { TestSize = 0.2, RandomState = 3 };
 
-      // Assert
-      Assert.That(train.Count(), Is.EqualTo(8));
-      Assert.That(test.Count(), Is.EqualTo(2));
+        /// <summary>
+        /// With 10 inputs and a 20% test split, train should have 8 rows and test 2.
+        /// </summary>
+        [StepTest(typeof(SplitDataStep))]
+        public void TenRows_SplitsCorrectly()
+        {
+            // Arrange
+            var input = Samples.Generate(10, i => Row($"S{i}"));
+
+            // Apply
+            var (train, test) = Invoke(Create(DefaultOptions), input);
+
+            // Assert
+            Assert.That(train.Count(), Is.EqualTo(8));
+            Assert.That(test.Count(), Is.EqualTo(2));
+        }
+
+        /// <summary>
+        /// Train count + test count must equal the total input count.
+        /// </summary>
+        [StepTest(typeof(SplitDataStep))]
+        public void TrainPlusTest_EqualsTotal()
+        {
+            // Arrange
+            var input = Samples.Generate(15, i => Row($"S{i}")).ToList();
+
+            // Apply
+            var (train, test) = Invoke(Create(DefaultOptions), input);
+
+            // Assert
+            Assert.That(train.Count() + test.Count(), Is.EqualTo(15));
+        }
+
+        /// <summary>
+        /// Same seed with same data must produce identical train/test order each call.
+        /// </summary>
+        [StepTest(typeof(SplitDataStep))]
+        public void SameSeed_IsDeterministic()
+        {
+            // Arrange
+            var input = Samples.Generate(10, i => Row($"S{i}"));
+
+            // Apply
+            var (train1, _) = Invoke(Create(DefaultOptions), input);
+            var (train2, _) = Invoke(Create(DefaultOptions), input);
+
+            // Assert
+            var ids1 = train1.Select(r => r.Features.Engines).ToList();
+            var ids2 = train2.Select(r => r.Features.Engines).ToList();
+            Assert.That(ids1, Is.EqualTo(ids2));
+        }
     }
-
-    /// <summary>
-    /// Train count + test count must equal the total input count.
-    /// </summary>
-    [StepTest(typeof(SplitDataStep))]
-    public void TrainPlusTest_EqualsTotal()
-    {
-      // Arrange
-      var input = Samples.Generate(15, i => Row($"S{i}")).ToList();
-
-      // Apply
-      var (train, test) = Invoke(Create(DefaultOptions), input);
-
-      // Assert
-      Assert.That(train.Count() + test.Count(), Is.EqualTo(15));
-    }
-
-    /// <summary>
-    /// Same seed with same data must produce identical train/test order each call.
-    /// </summary>
-    [StepTest(typeof(SplitDataStep))]
-    public void SameSeed_IsDeterministic()
-    {
-      // Arrange
-      var input = Samples.Generate(10, i => Row($"S{i}"));
-
-      // Apply
-      var (train1, _) = Invoke(Create(DefaultOptions), input);
-      var (train2, _) = Invoke(Create(DefaultOptions), input);
-
-      // Assert
-      var ids1 = train1.Select(r => r.Features.Engines).ToList();
-      var ids2 = train2.Select(r => r.Features.Engines).ToList();
-      Assert.That(ids1, Is.EqualTo(ids2));
-    }
-  }
 #endif
 }

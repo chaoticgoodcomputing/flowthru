@@ -30,50 +30,50 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.LocalMetric;
 /// </remarks>
 public interface ILocalMetricStrategy
 {
-  /// <summary>
-  /// Computes smooth local metric parameters (bandwidths and local connectivity distances).
-  /// </summary>
-  /// <param name="knnDistances">
-  /// Distance to k-nearest neighbors for each point.
-  /// Array shape: (n_samples, n_neighbors)
-  /// Each row should be sorted in ascending order.
-  /// </param>
-  /// <param name="k">
-  /// Target number of effective neighbors (typically the same as n_neighbors).
-  /// Used to calibrate the bandwidth parameter.
-  /// </param>
-  /// <param name="localConnectivity">
-  /// Number of nearest neighbors that should be assumed to be connected at a local level.
-  /// Typically 1.0, meaning the nearest neighbor is always assumed connected (distance weight = 1.0).
-  /// Higher values (e.g., 2.0-5.0) increase local connectivity.
-  /// Range: [1.0, k]
-  /// </param>
-  /// <param name="bandwidth">
-  /// Target bandwidth multiplier for the exponential kernel.
-  /// Default: 1.0. Affects the target cardinality (target = log₂(k) × bandwidth).
-  /// </param>
-  /// <returns>
-  /// A result containing:
-  /// - <b>Sigmas</b>: Bandwidth parameter for each point (length n_samples)
-  /// - <b>Rhos</b>: Distance to nearest connected neighbor for each point (length n_samples)
-  /// </returns>
-  /// <remarks>
-  /// <para>
-  /// <b>Implementation requirements:</b>
-  /// </para>
-  /// <list type="number">
-  ///   <item><description>Handle the case where points have fewer than k non-zero distances</description></item>
-  ///   <item><description>Apply minimum distance scaling to prevent numerical instability</description></item>
-  ///   <item><description>Ensure rho ≤ distance to k-th neighbor for all points</description></item>
-  ///   <item><description>Thread-safe for parallel processing of points</description></item>
-  /// </list>
-  /// </remarks>
-  LocalMetricResult ComputeLocalMetrics(
-    float[][] knnDistances,
-    float k,
-    float localConnectivity = 1.0f,
-    float bandwidth = 1.0f
-  );
+    /// <summary>
+    /// Computes smooth local metric parameters (bandwidths and local connectivity distances).
+    /// </summary>
+    /// <param name="knnDistances">
+    /// Distance to k-nearest neighbors for each point.
+    /// Array shape: (n_samples, n_neighbors)
+    /// Each row should be sorted in ascending order.
+    /// </param>
+    /// <param name="k">
+    /// Target number of effective neighbors (typically the same as n_neighbors).
+    /// Used to calibrate the bandwidth parameter.
+    /// </param>
+    /// <param name="localConnectivity">
+    /// Number of nearest neighbors that should be assumed to be connected at a local level.
+    /// Typically 1.0, meaning the nearest neighbor is always assumed connected (distance weight = 1.0).
+    /// Higher values (e.g., 2.0-5.0) increase local connectivity.
+    /// Range: [1.0, k]
+    /// </param>
+    /// <param name="bandwidth">
+    /// Target bandwidth multiplier for the exponential kernel.
+    /// Default: 1.0. Affects the target cardinality (target = log₂(k) × bandwidth).
+    /// </param>
+    /// <returns>
+    /// A result containing:
+    /// - <b>Sigmas</b>: Bandwidth parameter for each point (length n_samples)
+    /// - <b>Rhos</b>: Distance to nearest connected neighbor for each point (length n_samples)
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <b>Implementation requirements:</b>
+    /// </para>
+    /// <list type="number">
+    ///   <item><description>Handle the case where points have fewer than k non-zero distances</description></item>
+    ///   <item><description>Apply minimum distance scaling to prevent numerical instability</description></item>
+    ///   <item><description>Ensure rho ≤ distance to k-th neighbor for all points</description></item>
+    ///   <item><description>Thread-safe for parallel processing of points</description></item>
+    /// </list>
+    /// </remarks>
+    LocalMetricResult ComputeLocalMetrics(
+      float[][] knnDistances,
+      float k,
+      float localConnectivity = 1.0f,
+      float bandwidth = 1.0f
+    );
 }
 
 /// <summary>

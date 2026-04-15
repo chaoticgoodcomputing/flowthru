@@ -11,20 +11,20 @@ namespace RetailDataMultipipeline.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class SummarizeByCountryStep
 {
-  public static Func<
-    IEnumerable<RetailTransactionIntermediateSchema>,
-    IEnumerable<CountryTransactionSummarySchema>
-  > Create()
-  {
-    return transactions =>
-      transactions
-        .GroupBy(t => t.Country)
-        .Select(g => new CountryTransactionSummarySchema
-        {
-          Country = g.Key,
-          Debits = g.Count(t => t.Quantity > 0),
-          Credits = g.Count(t => t.Quantity < 0),
-        })
-        .OrderByDescending(s => s.Debits);
-  }
+    public static Func<
+      IEnumerable<RetailTransactionIntermediateSchema>,
+      IEnumerable<CountryTransactionSummarySchema>
+    > Create()
+    {
+        return transactions =>
+          transactions
+            .GroupBy(t => t.Country)
+            .Select(g => new CountryTransactionSummarySchema
+            {
+                Country = g.Key,
+                Debits = g.Count(t => t.Quantity > 0),
+                Credits = g.Count(t => t.Quantity < 0),
+            })
+            .OrderByDescending(s => s.Debits);
+    }
 }

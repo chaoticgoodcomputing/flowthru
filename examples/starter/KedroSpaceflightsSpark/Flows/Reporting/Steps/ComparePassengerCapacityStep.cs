@@ -15,20 +15,20 @@ namespace KedroSpaceflightsSpark.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class ComparePassengerCapacityStep
 {
-  public static Func<
-    TypedFrame<PreprocessedShuttleSchema>,
-    IEnumerable<ShuttleCapacityReport>
-  > Create()
-  {
-    return (input) =>
-      input
-        .GroupBy(s => s.ShuttleType)
-        .Aggregate(ctx => new ShuttleCapacityReport
-        {
-          ShuttleType = ctx.Key,
-          AvgPassengerCapacity = ctx.Avg(s => (double)s.PassengerCapacity),
-        })
-        .OrderBy(r => r.ShuttleType)
-        .ToList();
-  }
+    public static Func<
+      TypedFrame<PreprocessedShuttleSchema>,
+      IEnumerable<ShuttleCapacityReport>
+    > Create()
+    {
+        return (input) =>
+          input
+            .GroupBy(s => s.ShuttleType)
+            .Aggregate(ctx => new ShuttleCapacityReport
+            {
+                ShuttleType = ctx.Key,
+                AvgPassengerCapacity = ctx.Avg(s => (double)s.PassengerCapacity),
+            })
+            .OrderBy(r => r.ShuttleType)
+            .ToList();
+    }
 }

@@ -28,296 +28,296 @@ namespace Flowthru.FUnit.SourceGenerators;
 [Generator]
 public class StepTestRegistryGenerator : IIncrementalGenerator
 {
-  private const string FlowthruStepAttributeFullName = "Flowthru.Core.Steps.FlowthruStepAttribute";
-  private const string StepTestAttributeFullName = "Flowthru.FUnit.StepTestAttribute";
+    private const string FlowthruStepAttributeFullName = "Flowthru.Core.Steps.FlowthruStepAttribute";
+    private const string StepTestAttributeFullName = "Flowthru.FUnit.StepTestAttribute";
 
-  private enum TestFramework
-  {
-    None,
-    NUnit,
-    XUnit,
-    MSTest,
-  }
-
-  // All information needed to emit a test runner for one [StepTest] method.
-  private sealed record StepTestEntry(
-    string MethodName,
-    string StepTypeFqn,
-    string TestClassFqn,
-    string TestClassNamespace,
-    string BaseClassRef // type path relative to its containing namespace, e.g. "MySplitStep.Tests"
-  );
-
-  /// <inheritdoc/>
-  public void Initialize(IncrementalGeneratorInitializationContext context)
-  {
-    // Collect [FlowthruStep]-annotated class declarations
-    var stepClasses = context
-      .SyntaxProvider.CreateSyntaxProvider(
-        predicate: static (node, _) =>
-          node is ClassDeclarationSyntax c && c.AttributeLists.Count > 0,
-        transform: static (ctx, _) =>
-        {
-          var classDecl = (ClassDeclarationSyntax)ctx.Node;
-          if (ctx.SemanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol symbol)
-          {
-            return null;
-          }
-
-          var hasAttr = symbol
-            .GetAttributes()
-            .Any(a => a.AttributeClass?.ToDisplayString() == FlowthruStepAttributeFullName);
-
-          return hasAttr ? symbol : null;
-        }
-      )
-      .Where(s => s is not null)
-      .Collect();
-
-    // Collect [StepTest]-annotated methods with full class context for runner emission
-    var stepTestEntries = context
-      .SyntaxProvider.CreateSyntaxProvider(
-        predicate: static (node, _) =>
-          node is MethodDeclarationSyntax m && m.AttributeLists.Count > 0,
-        transform: static (ctx, _) =>
-        {
-          var method = (MethodDeclarationSyntax)ctx.Node;
-          if (ctx.SemanticModel.GetDeclaredSymbol(method) is not IMethodSymbol symbol)
-          {
-            return null;
-          }
-
-          foreach (var attr in symbol.GetAttributes())
-          {
-            if (attr.AttributeClass?.ToDisplayString() != StepTestAttributeFullName)
-            {
-              continue;
-            }
-
-            if (
-              attr.ConstructorArguments.Length > 0
-              && attr.ConstructorArguments[0].Value is INamedTypeSymbol stepType
-            )
-            {
-              var testClass = symbol.ContainingType;
-              var ns = testClass.ContainingNamespace is { IsGlobalNamespace: false }
-                ? testClass.ContainingNamespace.ToDisplayString()
-                : "";
-              var fqn = testClass.ToDisplayString();
-              var baseRef =
-                ns.Length > 0 && fqn.StartsWith(ns + ".") ? fqn.Substring(ns.Length + 1) : fqn;
-
-              return new StepTestEntry(
-                MethodName: symbol.Name,
-                StepTypeFqn: stepType.ToDisplayString(),
-                TestClassFqn: fqn,
-                TestClassNamespace: ns,
-                BaseClassRef: baseRef
-              );
-            }
-          }
-
-          return null;
-        }
-      )
-      .Where(e => e is not null)
-      .Collect();
-
-    // Detect which test framework (if any) is referenced in this compilation
-    var framework = context.CompilationProvider.Select(
-      static (compilation, _) =>
-      {
-        var assemblyNames = compilation.ReferencedAssemblyNames;
-        if (
-          assemblyNames.Any(static a =>
-            string.Equals(a.Name, "nunit.framework", System.StringComparison.OrdinalIgnoreCase)
-          )
-        )
-        {
-          return TestFramework.NUnit;
-        }
-
-        if (
-          assemblyNames.Any(static a =>
-            string.Equals(a.Name, "xunit.core", System.StringComparison.OrdinalIgnoreCase)
-          )
-          || assemblyNames.Any(static a =>
-            string.Equals(a.Name, "xunit.v3.core", System.StringComparison.OrdinalIgnoreCase)
-          )
-        )
-        {
-          return TestFramework.XUnit;
-        }
-
-        if (
-          assemblyNames.Any(static a =>
-            string.Equals(
-              a.Name,
-              "Microsoft.VisualStudio.TestPlatform.TestFramework",
-              System.StringComparison.OrdinalIgnoreCase
-            )
-          )
-        )
-        {
-          return TestFramework.MSTest;
-        }
-
-        return TestFramework.None;
-      }
-    );
-
-    // Read the FUnitAggregate MSBuild property (exposed via CompilerVisibleProperty)
-    var isAggregate = context.AnalyzerConfigOptionsProvider.Select(
-      static (options, _) =>
-        options.GlobalOptions.TryGetValue("build_property.FUnitAggregate", out var value)
-        && string.Equals(value, "true", System.StringComparison.OrdinalIgnoreCase)
-    );
-
-    // When FUnitAggregate=true, collect [StepTest] entries from referenced assembly metadata
-    var externalStepTestEntries = context
-      .CompilationProvider.Combine(isAggregate)
-      .Select(
-        static (pair, _) =>
-        {
-          var (compilation, aggregate) = pair;
-          if (!aggregate)
-          {
-            return System.Collections.Immutable.ImmutableArray<StepTestEntry>.Empty;
-          }
-
-          var results = new System.Collections.Generic.List<StepTestEntry>();
-
-          foreach (var referencedAssembly in compilation.SourceModule.ReferencedAssemblySymbols)
-          {
-            CollectStepTestEntriesFromNamespace(referencedAssembly.GlobalNamespace, results);
-          }
-
-          return results.ToImmutableArray();
-        }
-      );
-
-    // StepTestRegistry source
-    context.RegisterSourceOutput(
-      stepClasses.Combine(stepTestEntries),
-      static (ctx, pair) => Execute(ctx, pair.Left!, pair.Right!)
-    );
-
-    // Per-framework test runner classes enabling dotnet test discovery.
-    // Combine source-defined entries with any cross-assembly entries collected above.
-    var allStepTestEntries = stepTestEntries
-      .Combine(externalStepTestEntries)
-      .Select(
-        static (pair, _) =>
-        {
-          var combined = new System.Collections.Generic.List<StepTestEntry?>();
-          combined.AddRange(pair.Left!.Cast<StepTestEntry?>());
-          combined.AddRange(pair.Right.Cast<StepTestEntry?>());
-          return (IReadOnlyList<StepTestEntry?>)combined;
-        }
-      );
-
-    context.RegisterSourceOutput(
-      framework.Combine(allStepTestEntries),
-      static (ctx, pair) => EmitRunners(ctx, pair.Left, pair.Right)
-    );
-  }
-
-  private static void CollectStepTestEntriesFromNamespace(
-    INamespaceSymbol ns,
-    System.Collections.Generic.List<StepTestEntry> results
-  )
-  {
-    foreach (var type in ns.GetTypeMembers())
+    private enum TestFramework
     {
-      CollectStepTestEntriesFromType(type, results);
+        None,
+        NUnit,
+        XUnit,
+        MSTest,
     }
 
-    foreach (var childNs in ns.GetNamespaceMembers())
+    // All information needed to emit a test runner for one [StepTest] method.
+    private sealed record StepTestEntry(
+      string MethodName,
+      string StepTypeFqn,
+      string TestClassFqn,
+      string TestClassNamespace,
+      string BaseClassRef // type path relative to its containing namespace, e.g. "MySplitStep.Tests"
+    );
+
+    /// <inheritdoc/>
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-      CollectStepTestEntriesFromNamespace(childNs, results);
-    }
-  }
+        // Collect [FlowthruStep]-annotated class declarations
+        var stepClasses = context
+          .SyntaxProvider.CreateSyntaxProvider(
+            predicate: static (node, _) =>
+              node is ClassDeclarationSyntax c && c.AttributeLists.Count > 0,
+            transform: static (ctx, _) =>
+            {
+                var classDecl = (ClassDeclarationSyntax)ctx.Node;
+                if (ctx.SemanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol symbol)
+                {
+                    return null;
+                }
 
-  private static void CollectStepTestEntriesFromType(
-    INamedTypeSymbol type,
-    System.Collections.Generic.List<StepTestEntry> results
-  )
-  {
-    foreach (var member in type.GetMembers())
-    {
-      if (member is not IMethodSymbol method)
-      {
-        continue;
-      }
+                var hasAttr = symbol
+              .GetAttributes()
+              .Any(a => a.AttributeClass?.ToDisplayString() == FlowthruStepAttributeFullName);
 
-      foreach (var attr in method.GetAttributes())
-      {
-        if (attr.AttributeClass?.ToDisplayString() != StepTestAttributeFullName)
-        {
-          continue;
-        }
+                return hasAttr ? symbol : null;
+            }
+          )
+          .Where(s => s is not null)
+          .Collect();
 
-        if (
-          attr.ConstructorArguments.Length > 0
-          && attr.ConstructorArguments[0].Value is INamedTypeSymbol stepType
-        )
-        {
-          var ns2 = type.ContainingNamespace is { IsGlobalNamespace: false }
-            ? type.ContainingNamespace.ToDisplayString()
-            : "";
-          var fqn = type.ToDisplayString();
-          var baseRef =
-            ns2.Length > 0 && fqn.StartsWith(ns2 + ".") ? fqn.Substring(ns2.Length + 1) : fqn;
+        // Collect [StepTest]-annotated methods with full class context for runner emission
+        var stepTestEntries = context
+          .SyntaxProvider.CreateSyntaxProvider(
+            predicate: static (node, _) =>
+              node is MethodDeclarationSyntax m && m.AttributeLists.Count > 0,
+            transform: static (ctx, _) =>
+            {
+                var method = (MethodDeclarationSyntax)ctx.Node;
+                if (ctx.SemanticModel.GetDeclaredSymbol(method) is not IMethodSymbol symbol)
+                {
+                    return null;
+                }
 
-          results.Add(
-            new StepTestEntry(
-              MethodName: method.Name,
-              StepTypeFqn: stepType.ToDisplayString(),
-              TestClassFqn: fqn,
-              TestClassNamespace: ns2,
-              BaseClassRef: baseRef
+                foreach (var attr in symbol.GetAttributes())
+                {
+                    if (attr.AttributeClass?.ToDisplayString() != StepTestAttributeFullName)
+                    {
+                        continue;
+                    }
+
+                    if (
+                  attr.ConstructorArguments.Length > 0
+                  && attr.ConstructorArguments[0].Value is INamedTypeSymbol stepType
+                )
+                    {
+                        var testClass = symbol.ContainingType;
+                        var ns = testClass.ContainingNamespace is { IsGlobalNamespace: false }
+                      ? testClass.ContainingNamespace.ToDisplayString()
+                      : "";
+                        var fqn = testClass.ToDisplayString();
+                        var baseRef =
+                      ns.Length > 0 && fqn.StartsWith(ns + ".") ? fqn.Substring(ns.Length + 1) : fqn;
+
+                        return new StepTestEntry(
+                      MethodName: symbol.Name,
+                      StepTypeFqn: stepType.ToDisplayString(),
+                      TestClassFqn: fqn,
+                      TestClassNamespace: ns,
+                      BaseClassRef: baseRef
+                    );
+                    }
+                }
+
+                return null;
+            }
+          )
+          .Where(e => e is not null)
+          .Collect();
+
+        // Detect which test framework (if any) is referenced in this compilation
+        var framework = context.CompilationProvider.Select(
+          static (compilation, _) =>
+          {
+              var assemblyNames = compilation.ReferencedAssemblyNames;
+              if (
+            assemblyNames.Any(static a =>
+              string.Equals(a.Name, "nunit.framework", System.StringComparison.OrdinalIgnoreCase)
             )
+          )
+              {
+                  return TestFramework.NUnit;
+              }
+
+              if (
+            assemblyNames.Any(static a =>
+              string.Equals(a.Name, "xunit.core", System.StringComparison.OrdinalIgnoreCase)
+            )
+            || assemblyNames.Any(static a =>
+              string.Equals(a.Name, "xunit.v3.core", System.StringComparison.OrdinalIgnoreCase)
+            )
+          )
+              {
+                  return TestFramework.XUnit;
+              }
+
+              if (
+            assemblyNames.Any(static a =>
+              string.Equals(
+                a.Name,
+                "Microsoft.VisualStudio.TestPlatform.TestFramework",
+                System.StringComparison.OrdinalIgnoreCase
+              )
+            )
+          )
+              {
+                  return TestFramework.MSTest;
+              }
+
+              return TestFramework.None;
+          }
+        );
+
+        // Read the FUnitAggregate MSBuild property (exposed via CompilerVisibleProperty)
+        var isAggregate = context.AnalyzerConfigOptionsProvider.Select(
+          static (options, _) =>
+            options.GlobalOptions.TryGetValue("build_property.FUnitAggregate", out var value)
+            && string.Equals(value, "true", System.StringComparison.OrdinalIgnoreCase)
+        );
+
+        // When FUnitAggregate=true, collect [StepTest] entries from referenced assembly metadata
+        var externalStepTestEntries = context
+          .CompilationProvider.Combine(isAggregate)
+          .Select(
+            static (pair, _) =>
+            {
+                var (compilation, aggregate) = pair;
+                if (!aggregate)
+                {
+                    return System.Collections.Immutable.ImmutableArray<StepTestEntry>.Empty;
+                }
+
+                var results = new System.Collections.Generic.List<StepTestEntry>();
+
+                foreach (var referencedAssembly in compilation.SourceModule.ReferencedAssemblySymbols)
+                {
+                    CollectStepTestEntriesFromNamespace(referencedAssembly.GlobalNamespace, results);
+                }
+
+                return results.ToImmutableArray();
+            }
           );
+
+        // StepTestRegistry source
+        context.RegisterSourceOutput(
+          stepClasses.Combine(stepTestEntries),
+          static (ctx, pair) => Execute(ctx, pair.Left!, pair.Right!)
+        );
+
+        // Per-framework test runner classes enabling dotnet test discovery.
+        // Combine source-defined entries with any cross-assembly entries collected above.
+        var allStepTestEntries = stepTestEntries
+          .Combine(externalStepTestEntries)
+          .Select(
+            static (pair, _) =>
+            {
+                var combined = new System.Collections.Generic.List<StepTestEntry?>();
+                combined.AddRange(pair.Left!.Cast<StepTestEntry?>());
+                combined.AddRange(pair.Right.Cast<StepTestEntry?>());
+                return (IReadOnlyList<StepTestEntry?>)combined;
+            }
+          );
+
+        context.RegisterSourceOutput(
+          framework.Combine(allStepTestEntries),
+          static (ctx, pair) => EmitRunners(ctx, pair.Left, pair.Right)
+        );
+    }
+
+    private static void CollectStepTestEntriesFromNamespace(
+      INamespaceSymbol ns,
+      System.Collections.Generic.List<StepTestEntry> results
+    )
+    {
+        foreach (var type in ns.GetTypeMembers())
+        {
+            CollectStepTestEntriesFromType(type, results);
         }
-      }
+
+        foreach (var childNs in ns.GetNamespaceMembers())
+        {
+            CollectStepTestEntriesFromNamespace(childNs, results);
+        }
     }
 
-    // Walk nested types (FUnit tests are typically nested classes)
-    foreach (var nested in type.GetTypeMembers())
+    private static void CollectStepTestEntriesFromType(
+      INamedTypeSymbol type,
+      System.Collections.Generic.List<StepTestEntry> results
+    )
     {
-      CollectStepTestEntriesFromType(nested, results);
+        foreach (var member in type.GetMembers())
+        {
+            if (member is not IMethodSymbol method)
+            {
+                continue;
+            }
+
+            foreach (var attr in method.GetAttributes())
+            {
+                if (attr.AttributeClass?.ToDisplayString() != StepTestAttributeFullName)
+                {
+                    continue;
+                }
+
+                if (
+                  attr.ConstructorArguments.Length > 0
+                  && attr.ConstructorArguments[0].Value is INamedTypeSymbol stepType
+                )
+                {
+                    var ns2 = type.ContainingNamespace is { IsGlobalNamespace: false }
+                      ? type.ContainingNamespace.ToDisplayString()
+                      : "";
+                    var fqn = type.ToDisplayString();
+                    var baseRef =
+                      ns2.Length > 0 && fqn.StartsWith(ns2 + ".") ? fqn.Substring(ns2.Length + 1) : fqn;
+
+                    results.Add(
+                      new StepTestEntry(
+                        MethodName: method.Name,
+                        StepTypeFqn: stepType.ToDisplayString(),
+                        TestClassFqn: fqn,
+                        TestClassNamespace: ns2,
+                        BaseClassRef: baseRef
+                      )
+                    );
+                }
+            }
+        }
+
+        // Walk nested types (FUnit tests are typically nested classes)
+        foreach (var nested in type.GetTypeMembers())
+        {
+            CollectStepTestEntriesFromType(nested, results);
+        }
     }
-  }
 
-  private static void Execute(
-    SourceProductionContext context,
-    IReadOnlyList<INamedTypeSymbol?> stepSymbols,
-    IReadOnlyList<StepTestEntry?> entries
-  )
-  {
-    // Build map: fully-qualified step name → test count
-    var testCounts = entries
-      .Where(e => e is not null)
-      .GroupBy(e => e!.StepTypeFqn)
-      .ToDictionary(g => g.Key, g => g.Count());
-
-    // Deduplicate step symbols (incremental pipelines may yield duplicates)
-    var steps = stepSymbols
-      .Where(s => s is not null)
-      .Select(s => s!)
-      .GroupBy(s => s.ToDisplayString())
-      .Select(g => g.First())
-      .ToList();
-
-    if (steps.Count == 0)
+    private static void Execute(
+      SourceProductionContext context,
+      IReadOnlyList<INamedTypeSymbol?> stepSymbols,
+      IReadOnlyList<StepTestEntry?> entries
+    )
     {
-      return;
-    }
+        // Build map: fully-qualified step name → test count
+        var testCounts = entries
+          .Where(e => e is not null)
+          .GroupBy(e => e!.StepTypeFqn)
+          .ToDictionary(g => g.Key, g => g.Count());
 
-    // Emit StepTestRegistry
-    var sb = new StringBuilder();
-    sb.AppendLine(
-      """
+        // Deduplicate step symbols (incremental pipelines may yield duplicates)
+        var steps = stepSymbols
+          .Where(s => s is not null)
+          .Select(s => s!)
+          .GroupBy(s => s.ToDisplayString())
+          .Select(g => g.First())
+          .ToList();
+
+        if (steps.Count == 0)
+        {
+            return;
+        }
+
+        // Emit StepTestRegistry
+        var sb = new StringBuilder();
+        sb.AppendLine(
+          """
       // <auto-generated/>
       #nullable enable
       using System;
@@ -329,118 +329,118 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
               new Dictionary<Type, int>
               {
       """
-    );
+        );
 
-    foreach (var step in steps)
-    {
-      var fqn = step.ToDisplayString();
-      var count = testCounts.TryGetValue(fqn, out var c) ? c : 0;
-      sb.AppendLine($"          [typeof({fqn})] = {count},");
-    }
+        foreach (var step in steps)
+        {
+            var fqn = step.ToDisplayString();
+            var count = testCounts.TryGetValue(fqn, out var c) ? c : 0;
+            sb.AppendLine($"          [typeof({fqn})] = {count},");
+        }
 
-    sb.AppendLine(
-      """
+        sb.AppendLine(
+          """
               };
       }
       """
-    );
+        );
 
-    context.AddSource("StepTestRegistry.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
-  }
-
-  private static void EmitRunners(
-    SourceProductionContext context,
-    TestFramework framework,
-    IReadOnlyList<StepTestEntry?> entries
-  )
-  {
-    if (framework == TestFramework.None)
-    {
-      return;
+        context.AddSource("StepTestRegistry.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
-    // Group methods by their containing test class, one runner file per class
-    var groups = entries.Where(e => e is not null).GroupBy(e => e!.TestClassFqn).ToList();
-
-    foreach (var group in groups)
+    private static void EmitRunners(
+      SourceProductionContext context,
+      TestFramework framework,
+      IReadOnlyList<StepTestEntry?> entries
+    )
     {
-      var first = group.First()!;
-      var methods = group.Select(e => e!.MethodName).Distinct().ToList();
-      var runnerName =
-        first.BaseClassRef.Replace(".", "_") + "_" + FrameworkRunnerSuffix(framework);
-      var hasNamespace = first.TestClassNamespace.Length > 0;
-      var indent = hasNamespace ? "    " : "";
+        if (framework == TestFramework.None)
+        {
+            return;
+        }
 
-      var sb = new StringBuilder();
-      sb.AppendLine("// <auto-generated/>");
-      sb.AppendLine(
-        "// FUnit test runner — generated by Flowthru.FUnit.SourceGenerators. Do not edit manually."
-      );
-      sb.AppendLine("#nullable enable");
-      sb.AppendLine();
-      sb.AppendLine(FrameworkUsing(framework));
+        // Group methods by their containing test class, one runner file per class
+        var groups = entries.Where(e => e is not null).GroupBy(e => e!.TestClassFqn).ToList();
 
-      if (hasNamespace)
-      {
-        sb.AppendLine($"namespace {first.TestClassNamespace}");
-        sb.AppendLine("{");
-      }
+        foreach (var group in groups)
+        {
+            var first = group.First()!;
+            var methods = group.Select(e => e!.MethodName).Distinct().ToList();
+            var runnerName =
+              first.BaseClassRef.Replace(".", "_") + "_" + FrameworkRunnerSuffix(framework);
+            var hasNamespace = first.TestClassNamespace.Length > 0;
+            var indent = hasNamespace ? "    " : "";
 
-      if (framework is TestFramework.NUnit)
-      {
-        sb.AppendLine($"{indent}[NUnit.Framework.TestFixture]");
-        sb.AppendLine($"{indent}[NUnit.Framework.Category(\"FUnit\")]");
-      }
-      else if (framework is TestFramework.MSTest)
-      {
-        sb.AppendLine($"{indent}[Microsoft.VisualStudio.TestTools.UnitTesting.TestClass]");
-      }
+            var sb = new StringBuilder();
+            sb.AppendLine("// <auto-generated/>");
+            sb.AppendLine(
+              "// FUnit test runner — generated by Flowthru.FUnit.SourceGenerators. Do not edit manually."
+            );
+            sb.AppendLine("#nullable enable");
+            sb.AppendLine();
+            sb.AppendLine(FrameworkUsing(framework));
 
-      sb.AppendLine($"{indent}public sealed class {runnerName} : {first.BaseClassRef}");
-      sb.AppendLine($"{indent}{{");
+            if (hasNamespace)
+            {
+                sb.AppendLine($"namespace {first.TestClassNamespace}");
+                sb.AppendLine("{");
+            }
 
-      foreach (var method in methods)
-      {
-        sb.AppendLine($"{indent}    [{MethodAttribute(framework)}]");
-        sb.AppendLine($"{indent}    public new void {method}() => base.{method}();");
-        sb.AppendLine();
-      }
+            if (framework is TestFramework.NUnit)
+            {
+                sb.AppendLine($"{indent}[NUnit.Framework.TestFixture]");
+                sb.AppendLine($"{indent}[NUnit.Framework.Category(\"FUnit\")]");
+            }
+            else if (framework is TestFramework.MSTest)
+            {
+                sb.AppendLine($"{indent}[Microsoft.VisualStudio.TestTools.UnitTesting.TestClass]");
+            }
 
-      sb.AppendLine($"{indent}}}");
+            sb.AppendLine($"{indent}public sealed class {runnerName} : {first.BaseClassRef}");
+            sb.AppendLine($"{indent}{{");
 
-      if (hasNamespace)
-      {
-        sb.AppendLine("}");
-      }
+            foreach (var method in methods)
+            {
+                sb.AppendLine($"{indent}    [{MethodAttribute(framework)}]");
+                sb.AppendLine($"{indent}    public new void {method}() => base.{method}();");
+                sb.AppendLine();
+            }
 
-      context.AddSource($"{runnerName}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+            sb.AppendLine($"{indent}}}");
+
+            if (hasNamespace)
+            {
+                sb.AppendLine("}");
+            }
+
+            context.AddSource($"{runnerName}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+        }
     }
-  }
 
-  private static string FrameworkRunnerSuffix(TestFramework framework) =>
-    framework switch
-    {
-      TestFramework.NUnit => "NUnitRunner",
-      TestFramework.XUnit => "XUnitRunner",
-      TestFramework.MSTest => "MSTestRunner",
-      _ => "Runner",
-    };
+    private static string FrameworkRunnerSuffix(TestFramework framework) =>
+      framework switch
+      {
+          TestFramework.NUnit => "NUnitRunner",
+          TestFramework.XUnit => "XUnitRunner",
+          TestFramework.MSTest => "MSTestRunner",
+          _ => "Runner",
+      };
 
-  private static string FrameworkUsing(TestFramework framework) =>
-    framework switch
-    {
-      TestFramework.NUnit => "using NUnit.Framework;",
-      TestFramework.XUnit => "using Xunit;",
-      TestFramework.MSTest => "using Microsoft.VisualStudio.TestTools.UnitTesting;",
-      _ => "",
-    };
+    private static string FrameworkUsing(TestFramework framework) =>
+      framework switch
+      {
+          TestFramework.NUnit => "using NUnit.Framework;",
+          TestFramework.XUnit => "using Xunit;",
+          TestFramework.MSTest => "using Microsoft.VisualStudio.TestTools.UnitTesting;",
+          _ => "",
+      };
 
-  private static string MethodAttribute(TestFramework framework) =>
-    framework switch
-    {
-      TestFramework.NUnit => "NUnit.Framework.Test",
-      TestFramework.XUnit => "Xunit.Fact",
-      TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethod",
-      _ => "",
-    };
+    private static string MethodAttribute(TestFramework framework) =>
+      framework switch
+      {
+          TestFramework.NUnit => "NUnit.Framework.Test",
+          TestFramework.XUnit => "Xunit.Fact",
+          TestFramework.MSTest => "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethod",
+          _ => "",
+      };
 }

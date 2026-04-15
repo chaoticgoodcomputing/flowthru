@@ -46,12 +46,12 @@ namespace Flowthru.Core.Meta.Providers;
 /// </remarks>
 public interface IPostRunMetadataProvider
 {
-  /// <summary>
-  /// Consumes composite post-run metadata combining the DAG snapshot and execution results.
-  /// </summary>
-  /// <param name="run">
-  /// The combined run metadata, containing both the pre-run DAG structure and
-  /// the execution outcome for all steps.
-  /// </param>
-  void Consume(RunMetadata run);
+    /// <summary>
+    /// Consumes composite post-run metadata combining the DAG snapshot and execution results.
+    /// </summary>
+    /// <param name="run">
+    /// The combined run metadata, containing both the pre-run DAG structure and
+    /// the execution outcome for all steps.
+    /// </param>
+    void Consume(RunMetadata run);
 }

@@ -13,27 +13,27 @@ namespace KedroSpaceflightsGQL.Data._02_Intermediate.Schemas;
 [FlowthruSchema]
 public partial record PreprocessedCompanySchema
 {
-  /// <summary>
-  /// Unique identifier for the company.
-  /// </summary>
-  [SerializedLabel("id")]
-  public required string Id { get; init; }
+    /// <summary>
+    /// Unique identifier for the company.
+    /// </summary>
+    [SerializedLabel("id")]
+    public required string Id { get; init; }
 
-  /// <summary>
-  /// Company rating as a decimal ratio (0.0 to 1.0).
-  /// </summary>
-  [SerializedLabel("company_rating")]
-  public required decimal CompanyRating { get; init; }
+    /// <summary>
+    /// Company rating as a decimal ratio (0.0 to 1.0).
+    /// </summary>
+    [SerializedLabel("company_rating")]
+    public required decimal CompanyRating { get; init; }
 
-  /// <summary>
-  /// IATA approval status.
-  /// </summary>
-  [SerializedLabel("iata_approved")]
-  public required bool IataApproved { get; init; }
+    /// <summary>
+    /// IATA approval status.
+    /// </summary>
+    [SerializedLabel("iata_approved")]
+    public required bool IataApproved { get; init; }
 
-  /// <summary>
-  /// Geographic location of the company.
-  /// </summary>
-  [SerializedLabel("company_location")]
-  public required string CompanyLocation { get; init; }
+    /// <summary>
+    /// Geographic location of the company.
+    /// </summary>
+    [SerializedLabel("company_location")]
+    public required string CompanyLocation { get; init; }
 }

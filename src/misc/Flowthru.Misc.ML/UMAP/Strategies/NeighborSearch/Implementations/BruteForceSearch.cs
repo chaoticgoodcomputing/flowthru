@@ -35,49 +35,49 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch.Implementations;
 /// </remarks>
 public sealed class BruteForceSearch : INeighborSearchStrategy
 {
-  /// <inheritdoc />
-  public NeighborSearchResult Search(float[][] data, int nNeighbors, IMetric metric, Random random)
-  {
-    int nSamples = data.Length;
-
-    if (nNeighbors > nSamples)
+    /// <inheritdoc />
+    public NeighborSearchResult Search(float[][] data, int nNeighbors, IMetric metric, Random random)
     {
-      throw new ArgumentException(
-        $"Cannot find {nNeighbors} neighbors with only {nSamples} samples",
-        nameof(nNeighbors)
-      );
+        int nSamples = data.Length;
+
+        if (nNeighbors > nSamples)
+        {
+            throw new ArgumentException(
+              $"Cannot find {nNeighbors} neighbors with only {nSamples} samples",
+              nameof(nNeighbors)
+            );
+        }
+
+        var indices = new int[nSamples][];
+        var distances = new float[nSamples][];
+
+        // Data is already in row format (jagged array), no conversion needed
+        // Compute k-NN for each point using brute-force
+        for (int i = 0; i < nSamples; i++)
+        {
+            // Compute distances to all other points
+            var distList = new List<(int index, float distance)>(nSamples);
+
+            for (int j = 0; j < nSamples; j++)
+            {
+                float dist = metric.Distance(data[i].AsSpan(), data[j].AsSpan());
+                distList.Add((j, dist));
+            }
+
+            // Sort by distance and take top k
+            distList.Sort((a, b) => a.distance.CompareTo(b.distance));
+
+            indices[i] = new int[nNeighbors];
+            distances[i] = new float[nNeighbors];
+
+            for (int k = 0; k < nNeighbors; k++)
+            {
+                indices[i][k] = distList[k].index;
+                distances[i][k] = distList[k].distance;
+            }
+        }
+
+        // Brute-force search doesn't produce a reusable index
+        return new NeighborSearchResult(indices, distances, SearchIndex: null);
     }
-
-    var indices = new int[nSamples][];
-    var distances = new float[nSamples][];
-
-    // Data is already in row format (jagged array), no conversion needed
-    // Compute k-NN for each point using brute-force
-    for (int i = 0; i < nSamples; i++)
-    {
-      // Compute distances to all other points
-      var distList = new List<(int index, float distance)>(nSamples);
-
-      for (int j = 0; j < nSamples; j++)
-      {
-        float dist = metric.Distance(data[i].AsSpan(), data[j].AsSpan());
-        distList.Add((j, dist));
-      }
-
-      // Sort by distance and take top k
-      distList.Sort((a, b) => a.distance.CompareTo(b.distance));
-
-      indices[i] = new int[nNeighbors];
-      distances[i] = new float[nNeighbors];
-
-      for (int k = 0; k < nNeighbors; k++)
-      {
-        indices[i][k] = distList[k].index;
-        distances[i][k] = distList[k].distance;
-      }
-    }
-
-    // Brute-force search doesn't produce a reusable index
-    return new NeighborSearchResult(indices, distances, SearchIndex: null);
-  }
 }

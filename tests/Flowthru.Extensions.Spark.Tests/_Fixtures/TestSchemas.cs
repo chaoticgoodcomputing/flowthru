@@ -7,9 +7,9 @@ namespace Flowthru.Extensions.Spark.Tests;
 /// </summary>
 public record PersonSchema : IFlatSchema
 {
-  public required string Name { get; init; }
-  public required int Age { get; init; }
-  public required bool IsActive { get; init; }
+    public required string Name { get; init; }
+    public required int Age { get; init; }
+    public required bool IsActive { get; init; }
 }
 
 /// <summary>
@@ -17,13 +17,13 @@ public record PersonSchema : IFlatSchema
 /// </summary>
 public record LabeledSchema
 {
-  [SerializedLabel("full_name")]
-  public required string FullName { get; init; }
+    [SerializedLabel("full_name")]
+    public required string FullName { get; init; }
 
-  [SerializedLabel("employee_id")]
-  public required int EmployeeId { get; init; }
+    [SerializedLabel("employee_id")]
+    public required int EmployeeId { get; init; }
 
-  public required string Department { get; init; }
+    public required string Department { get; init; }
 }
 
 /// <summary>
@@ -31,7 +31,7 @@ public record LabeledSchema
 /// </summary>
 public record NameOnlySchema
 {
-  public required string Name { get; init; }
+    public required string Name { get; init; }
 }
 
 /// <summary>
@@ -39,8 +39,8 @@ public record NameOnlySchema
 /// </summary>
 public record PersonSummarySchema
 {
-  public required string Name { get; init; }
-  public required int Age { get; init; }
+    public required string Name { get; init; }
+    public required int Age { get; init; }
 }
 
 /// <summary>
@@ -48,8 +48,8 @@ public record PersonSummarySchema
 /// </summary>
 public record DepartmentSchema
 {
-  public required string Name { get; init; }
-  public required int DeptId { get; init; }
+    public required string Name { get; init; }
+    public required int DeptId { get; init; }
 }
 
 /// <summary>
@@ -57,8 +57,8 @@ public record DepartmentSchema
 /// </summary>
 public record EmployeeSchema
 {
-  public required string Name { get; init; }
-  public required int DeptId { get; init; }
+    public required string Name { get; init; }
+    public required int DeptId { get; init; }
 }
 
 /// <summary>
@@ -66,8 +66,8 @@ public record EmployeeSchema
 /// </summary>
 public record EmployeeDeptSchema
 {
-  public required string EmployeeName { get; init; }
-  public required string DepartmentName { get; init; }
+    public required string EmployeeName { get; init; }
+    public required string DepartmentName { get; init; }
 }
 
 /// <summary>
@@ -75,9 +75,9 @@ public record EmployeeDeptSchema
 /// </summary>
 public record SalesSchema
 {
-  public required string Category { get; init; }
-  public required double Amount { get; init; }
-  public required int Quantity { get; init; }
+    public required string Category { get; init; }
+    public required double Amount { get; init; }
+    public required int Quantity { get; init; }
 }
 
 /// <summary>
@@ -85,9 +85,9 @@ public record SalesSchema
 /// </summary>
 public record SalesSummarySchema
 {
-  public required string Category { get; init; }
-  public required double TotalAmount { get; init; }
-  public required long TotalCount { get; init; }
+    public required string Category { get; init; }
+    public required double TotalAmount { get; init; }
+    public required long TotalCount { get; init; }
 }
 
 /// <summary>
@@ -95,10 +95,10 @@ public record SalesSummarySchema
 /// </summary>
 public record OrderSchema
 {
-  public required string OrderId { get; init; }
-  public required string? Region { get; init; }
-  public required double Amount { get; init; }
-  public required DateTime OrderDate { get; init; }
+    public required string OrderId { get; init; }
+    public required string? Region { get; init; }
+    public required double Amount { get; init; }
+    public required DateTime OrderDate { get; init; }
 }
 
 /// <summary>
@@ -106,8 +106,8 @@ public record OrderSchema
 /// </summary>
 public record MeasurementSchema
 {
-  public required double Value { get; init; }
-  public required double Temperature { get; init; }
+    public required double Value { get; init; }
+    public required double Temperature { get; init; }
 }
 
 /// <summary>
@@ -115,10 +115,10 @@ public record MeasurementSchema
 /// </summary>
 public record StaffSchema
 {
-  public required string Name { get; init; }
-  public required string Department { get; init; }
-  public required double Salary { get; init; }
-  public required DateTime HireDate { get; init; }
+    public required string Name { get; init; }
+    public required string Department { get; init; }
+    public required double Salary { get; init; }
+    public required DateTime HireDate { get; init; }
 }
 
 /// <summary>
@@ -126,12 +126,12 @@ public record StaffSchema
 /// </summary>
 public record StaffRankedSchema
 {
-  public required string Name { get; init; }
-  public required string Department { get; init; }
-  public required double Salary { get; init; }
-  public required long DeptRank { get; init; }
-  public required double RunningTotal { get; init; }
-  public required double? PrevSalary { get; init; }
+    public required string Name { get; init; }
+    public required string Department { get; init; }
+    public required double Salary { get; init; }
+    public required long DeptRank { get; init; }
+    public required double RunningTotal { get; init; }
+    public required double? PrevSalary { get; init; }
 }
 
 /// <summary>
@@ -139,7 +139,7 @@ public record StaffRankedSchema
 /// </summary>
 public record StaffMultiWindowSchema
 {
-  public required string Name { get; init; }
-  public required long DeptRank { get; init; }
-  public required long HireOrder { get; init; }
+    public required string Name { get; init; }
+    public required long DeptRank { get; init; }
+    public required long HireOrder { get; init; }
 }

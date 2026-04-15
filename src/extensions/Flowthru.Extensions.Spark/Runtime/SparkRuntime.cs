@@ -63,15 +63,21 @@ public sealed class SparkRuntime : IDisposable
     public void Initialize()
     {
         if (_initialized)
+        {
             return;
+        }
 
         if (_disposed)
+        {
             throw new ObjectDisposedException(nameof(SparkRuntime));
+        }
 
         lock (_lock)
         {
             if (_initialized)
+            {
                 return;
+            }
 
             // Route all Spark library internal logs through the MEL pipeline so they
             // respect the application's configured log levels and sinks instead of
@@ -116,12 +122,16 @@ public sealed class SparkRuntime : IDisposable
             _backendProcess.OutputDataReceived += (_, e) =>
             {
                 if (e.Data != null)
+                {
                     _logger.LogDebug("[Spark JVM] {Line}", e.Data);
+                }
             };
             _backendProcess.ErrorDataReceived += (_, e) =>
             {
                 if (e.Data != null)
+                {
                     _logger.LogDebug("[Spark JVM stderr] {Line}", e.Data);
+                }
             };
 
             _backendProcess.Start();
@@ -139,7 +149,9 @@ public sealed class SparkRuntime : IDisposable
     public void Dispose()
     {
         if (_disposed)
+        {
             return;
+        }
 
         _disposed = true;
 
@@ -177,7 +189,9 @@ public sealed class SparkRuntime : IDisposable
         // There is a small TOCTOU window, but it's negligible for local dev use.
         var envPort = Environment.GetEnvironmentVariable("DOTNETBACKEND_PORT");
         if (!string.IsNullOrWhiteSpace(envPort) && int.TryParse(envPort, out var configured))
+        {
             return configured;
+        }
 
         using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
         listener.Start();
@@ -200,10 +214,12 @@ public sealed class SparkRuntime : IDisposable
             catch (SocketException)
             {
                 if (_backendProcess is { HasExited: true })
+                {
                     throw new InvalidOperationException(
                         $"Spark JVM backend process exited unexpectedly (exit code {_backendProcess.ExitCode}). "
                             + "Check that SPARK_HOME is set correctly and the bridge JAR is valid."
                     );
+                }
 
                 Thread.Sleep(500);
             }

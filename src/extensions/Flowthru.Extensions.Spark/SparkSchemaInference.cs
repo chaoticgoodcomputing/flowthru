@@ -64,12 +64,14 @@ public static class SparkSchemaInference
                 var nullable = underlying != propertyType;
 
                 if (!s_clrToSpark.TryGetValue(underlying, out var factory))
+                {
                     throw new NotSupportedException(
                         $"Property '{kvp.Value.Name}' on '{typeof(T).Name}' has type "
                             + $"'{underlying.Name}' which has no known Spark counterpart. "
                             + "Use a supported CLR type (string, bool, int, long, float, "
                             + "double, decimal, byte[], DateTime, DateOnly)."
                     );
+                }
 
                 return new StructField(columnName, factory(), nullable);
             })
@@ -100,7 +102,9 @@ public static class SparkSchemaInference
         {
             var values = new object?[orderedGetters.Length];
             for (var i = 0; i < orderedGetters.Length; i++)
+            {
                 values[i] = orderedGetters[i].Invoke(item, null);
+            }
 
             yield return new GenericRow(values);
         }

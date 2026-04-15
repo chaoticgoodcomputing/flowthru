@@ -31,51 +31,51 @@ namespace Flowthru.Core.Data.Storage.Strategies;
 /// </remarks>
 public sealed class CsvStorageEntryFactory : IStorageEntryFactory
 {
-  private readonly string _basePath;
+    private readonly string _basePath;
 
-  /// <summary>
-  /// Initializes a new CSV storage factory.
-  /// </summary>
-  /// <param name="configuration">Configuration containing optional DataPath setting</param>
-  public CsvStorageEntryFactory(IConfiguration configuration)
-  {
-    _basePath = configuration["Flowthru:DataPath"] ?? "Data";
-  }
-
-  /// <summary>
-  /// Initializes a new CSV storage factory with explicit base path.
-  /// </summary>
-  /// <param name="basePath">Base directory for all CSV files</param>
-  public CsvStorageEntryFactory(string basePath)
-  {
-    _basePath = basePath ?? throw new ArgumentNullException(nameof(basePath));
-  }
-
-  /// <inheritdoc />
-  public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
-    where T : notnull, IFlatSchema, ITextSerializable
-  {
-    var path = ResolvePath(label, options, ".csv");
-    return ItemFactory.Enumerable.Csv<T>(label, path);
-  }
-
-  /// <inheritdoc />
-  public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
-    where T : IStructuredSerializable
-  {
-    var path = ResolvePath(label, options, ".json");
-    return ItemFactory.Single.Json<T>(label, path);
-  }
-
-  private string ResolvePath(string label, StorageOptions? options, string defaultExtension)
-  {
-    if (options?.Path != null)
+    /// <summary>
+    /// Initializes a new CSV storage factory.
+    /// </summary>
+    /// <param name="configuration">Configuration containing optional DataPath setting</param>
+    public CsvStorageEntryFactory(IConfiguration configuration)
     {
-      // Use explicit path (relative to base path)
-      return Path.Combine(_basePath, options.Path);
+        _basePath = configuration["Flowthru:DataPath"] ?? "Data";
     }
 
-    // Generate default path from label
-    return Path.Combine(_basePath, $"{label}{defaultExtension}");
-  }
+    /// <summary>
+    /// Initializes a new CSV storage factory with explicit base path.
+    /// </summary>
+    /// <param name="basePath">Base directory for all CSV files</param>
+    public CsvStorageEntryFactory(string basePath)
+    {
+        _basePath = basePath ?? throw new ArgumentNullException(nameof(basePath));
+    }
+
+    /// <inheritdoc />
+    public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
+      where T : notnull, IFlatSchema, ITextSerializable
+    {
+        var path = ResolvePath(label, options, ".csv");
+        return ItemFactory.Enumerable.Csv<T>(label, path);
+    }
+
+    /// <inheritdoc />
+    public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
+      where T : IStructuredSerializable
+    {
+        var path = ResolvePath(label, options, ".json");
+        return ItemFactory.Single.Json<T>(label, path);
+    }
+
+    private string ResolvePath(string label, StorageOptions? options, string defaultExtension)
+    {
+        if (options?.Path != null)
+        {
+            // Use explicit path (relative to base path)
+            return Path.Combine(_basePath, options.Path);
+        }
+
+        // Generate default path from label
+        return Path.Combine(_basePath, $"{label}{defaultExtension}");
+    }
 }

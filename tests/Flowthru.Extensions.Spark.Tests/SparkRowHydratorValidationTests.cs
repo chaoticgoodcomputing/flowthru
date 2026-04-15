@@ -80,7 +80,7 @@ public class SparkRowHydratorValidationTests
         var schema = Schema(
             ("Name", new StringType()),
             ("Age", new IntegerType())
-            // IsActive intentionally missing
+        // IsActive intentionally missing
         );
 
         var errors = hydrator.ValidateSchema(schema);
@@ -95,7 +95,7 @@ public class SparkRowHydratorValidationTests
         var hydrator = HydratorFor<PersonSchema>();
         var schema = Schema(
             ("Name", new StringType())
-            // Age and IsActive missing
+        // Age and IsActive missing
         );
 
         var errors = hydrator.ValidateSchema(schema);
@@ -187,7 +187,7 @@ public class SparkRowHydratorValidationTests
         var schema = Schema(
             ("full_name", new StringType()),
             ("employee_id", new IntegerType())
-            // "Department" is missing
+        // "Department" is missing
         );
 
         var errors = hydrator.ValidateSchema(schema);

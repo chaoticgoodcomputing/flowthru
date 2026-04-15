@@ -8,9 +8,9 @@ namespace Minimal.Data._02_Intermediate.Schemas;
 [FlowthruSchema]
 public partial record GreetingSchema
 {
-  /// <summary>
-  /// A greeting in the format "Hello, {name}!"
-  /// </summary>
-  [SerializedLabel("greeting")]
-  public required string Greeting { get; init; }
+    /// <summary>
+    /// A greeting in the format "Hello, {name}!"
+    /// </summary>
+    [SerializedLabel("greeting")]
+    public required string Greeting { get; init; }
 }

@@ -1,8 +1,8 @@
-﻿using System;
-﻿using System.IO;
+using System;
+using System.IO;
 using System.Linq;
-using Flowthru.Tests.Spark.TestUtils;
 using Flowthru.Spark.Utils;
+using Flowthru.Tests.Spark.TestUtils;
 using Xunit;
 
 namespace Flowthru.Tests.Spark
@@ -140,7 +140,7 @@ namespace Flowthru.Tests.Spark
                 File.Create(filePath).Dispose();
             }
 
-            var expectedFiles = new string[] 
+            var expectedFiles = new string[]
             {
                 $"dependencyProviderMetadata_{runId.ToString("N").Substring(0, 8)}00000000001",
                 $"dependencyProviderMetadata_{runId.ToString("N").Substring(0, 8)}00000000010",

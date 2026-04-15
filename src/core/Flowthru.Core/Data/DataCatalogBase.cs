@@ -49,165 +49,165 @@ namespace Flowthru.Core.Data;
 /// </remarks>
 public abstract class CatalogAbstract
 {
-  /// <summary>
-  /// Cache of property values to ensure object identity for DAG resolution.
-  /// Key: Property name, Value: Cached IItem instance
-  /// </summary>
-  private readonly ConcurrentDictionary<string, IItem> _propertyCache = new();
+    /// <summary>
+    /// Cache of property values to ensure object identity for DAG resolution.
+    /// Key: Property name, Value: Cached IItem instance
+    /// </summary>
+    private readonly ConcurrentDictionary<string, IItem> _propertyCache = new();
 
-  /// <summary>
-  /// The display label used to identify this catalog instance in Flow metadata.
-  /// Defaults to the concrete class name when not specified.
-  /// </summary>
-  /// <remarks>
-  /// Pass an explicit label when constructing multiple instances of the same catalog type
-  /// in a single Flow (e.g., per-partition or per-shard catalogs) so their items
-  /// receive distinct qualified identifiers in the DAG: <c>CatalogLabel.ItemLabel</c>.
-  /// </remarks>
-  public string CatalogLabel { get; }
+    /// <summary>
+    /// The display label used to identify this catalog instance in Flow metadata.
+    /// Defaults to the concrete class name when not specified.
+    /// </summary>
+    /// <remarks>
+    /// Pass an explicit label when constructing multiple instances of the same catalog type
+    /// in a single Flow (e.g., per-partition or per-shard catalogs) so their items
+    /// receive distinct qualified identifiers in the DAG: <c>CatalogLabel.ItemLabel</c>.
+    /// </remarks>
+    public string CatalogLabel { get; }
 
-  /// <param name="catalogLabel">
-  /// Optional display label for this catalog instance. When omitted, defaults to the
-  /// concrete class name via <c>GetType().Name</c>.
-  /// </param>
-  protected CatalogAbstract(string? catalogLabel = null)
-  {
-    CatalogLabel = catalogLabel ?? GetType().Name;
-  }
-
-  /// <summary>
-  /// Optional service provider for dependency injection into catalog items.
-  /// </summary>
-  /// <remarks>
-  /// Set by the service layer before Flow execution to enable catalog
-  /// items to resolve services (e.g., database connections, HTTP clients).
-  /// </remarks>
-  public IServiceProvider? Services { get; set; }
-
-  /// <summary>
-  /// Gets or creates a unified catalog item, caching it for subsequent accesses.
-  /// </summary>
-  /// <typeparam name="T">
-  /// The data type stored in this catalog item.
-  /// For singletons: Use T directly (e.g., LinearRegressionModel)
-  /// For collections: Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;FeatureRow&gt;)
-  /// </typeparam>
-  /// <param name="factory">Factory function to create the item on first access</param>
-  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog item instance</returns>
-  /// <remarks>
-  /// <para>
-  /// <strong>Unified API (v0.5.0):</strong> This single method replaces CreateObject
-  /// and CreateDataset. Cardinality is determined by the type parameter T.
-  /// </para>
-  /// <para>
-  /// <strong>Usage Examples:</strong>
-  /// <code>
-  /// // Singleton object
-  /// public IItem&lt;LinearRegressionModel&gt; Model =>
-  ///     CreateItem(() =&gt; ItemFactory.Single.Memory&lt;LinearRegressionModel&gt;("model"));
-  ///
-  /// // Collection
-  /// public IItem&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
-  ///     CreateItem(() =&gt; ItemFactory.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));
-  /// </code>
-  /// </para>
-  /// </remarks>
-  protected IItem<T> CreateItem<T>(
-    Func<IItem<T>> factory,
-    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
-  )
-  {
-    var item = _propertyCache.GetOrAdd(propertyName, _ => factory());
-    if (item is Item<T> concrete)
+    /// <param name="catalogLabel">
+    /// Optional display label for this catalog instance. When omitted, defaults to the
+    /// concrete class name via <c>GetType().Name</c>.
+    /// </param>
+    protected CatalogAbstract(string? catalogLabel = null)
     {
-      concrete.SetOwningCatalog(CatalogLabel);
+        CatalogLabel = catalogLabel ?? GetType().Name;
     }
 
-    return (IItem<T>)item;
-  }
+    /// <summary>
+    /// Optional service provider for dependency injection into catalog items.
+    /// </summary>
+    /// <remarks>
+    /// Set by the service layer before Flow execution to enable catalog
+    /// items to resolve services (e.g., database connections, HTTP clients).
+    /// </remarks>
+    public IServiceProvider? Services { get; set; }
 
-  /// <summary>
-  /// Gets or creates a unified catalog item with service provider access.
-  /// </summary>
-  /// <typeparam name="T">The data type (singleton or collection)</typeparam>
-  /// <param name="factory">Factory function that receives service provider</param>
-  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog item instance</returns>
-  protected IItem<T> CreateItem<T>(
-    Func<IServiceProvider?, IItem<T>> factory,
-    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
-  )
-  {
-    var item = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
-    if (item is Item<T> concrete)
+    /// <summary>
+    /// Gets or creates a unified catalog item, caching it for subsequent accesses.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The data type stored in this catalog item.
+    /// For singletons: Use T directly (e.g., LinearRegressionModel)
+    /// For collections: Use IEnumerable&lt;T&gt; (e.g., IEnumerable&lt;FeatureRow&gt;)
+    /// </typeparam>
+    /// <param name="factory">Factory function to create the item on first access</param>
+    /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
+    /// <returns>Cached catalog item instance</returns>
+    /// <remarks>
+    /// <para>
+    /// <strong>Unified API (v0.5.0):</strong> This single method replaces CreateObject
+    /// and CreateDataset. Cardinality is determined by the type parameter T.
+    /// </para>
+    /// <para>
+    /// <strong>Usage Examples:</strong>
+    /// <code>
+    /// // Singleton object
+    /// public IItem&lt;LinearRegressionModel&gt; Model =>
+    ///     CreateItem(() =&gt; ItemFactory.Single.Memory&lt;LinearRegressionModel&gt;("model"));
+    ///
+    /// // Collection
+    /// public IItem&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
+    ///     CreateItem(() =&gt; ItemFactory.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));
+    /// </code>
+    /// </para>
+    /// </remarks>
+    protected IItem<T> CreateItem<T>(
+      Func<IItem<T>> factory,
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
+    )
     {
-      concrete.SetOwningCatalog(CatalogLabel);
+        var item = _propertyCache.GetOrAdd(propertyName, _ => factory());
+        if (item is Item<T> concrete)
+        {
+            concrete.SetOwningCatalog(CatalogLabel);
+        }
+
+        return (IItem<T>)item;
     }
 
-    return (IItem<T>)item;
-  }
-
-  /// <summary>
-  /// Initializes all catalog item properties by invoking their getters once.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// <strong>Purpose:</strong> Eager initialization ensures all items are cached
-  /// before Flow construction begins, preventing any potential race conditions
-  /// or unexpected lazy initialization behavior.
-  /// </para>
-  /// <para>
-  /// <strong>When to Call:</strong> At the end of the derived catalog's constructor,
-  /// after all configuration properties (like BasePath) are set.
-  /// </para>
-  /// <para>
-  /// <strong>How It Works:</strong>
-  /// Uses reflection to find all public instance properties that return IItem,
-  /// then invokes each getter once to populate the cache.
-  /// </para>
-  /// </remarks>
-  protected void InitializeCatalogProperties()
-  {
-    var catalogProperties = GetType()
-      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-      .Where(p => typeof(IItem).IsAssignableFrom(p.PropertyType));
-
-    foreach (var property in catalogProperties)
+    /// <summary>
+    /// Gets or creates a unified catalog item with service provider access.
+    /// </summary>
+    /// <typeparam name="T">The data type (singleton or collection)</typeparam>
+    /// <param name="factory">Factory function that receives service provider</param>
+    /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
+    /// <returns>Cached catalog item instance</returns>
+    protected IItem<T> CreateItem<T>(
+      Func<IServiceProvider?, IItem<T>> factory,
+      [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
+    )
     {
-      // Invoke getter to populate cache
-      _ = property.GetValue(this);
+        var item = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
+        if (item is Item<T> concrete)
+        {
+            concrete.SetOwningCatalog(CatalogLabel);
+        }
+
+        return (IItem<T>)item;
     }
-  }
 
-  /// <summary>
-  /// Gets all cached catalog items.
-  /// </summary>
-  /// <returns>Enumerable of all initialized catalog items</returns>
-  /// <remarks>
-  /// Useful for diagnostic purposes or when you need to iterate over all items
-  /// (e.g., for validation, cleanup, or reporting).
-  /// </remarks>
-  protected IEnumerable<IItem> GetAllItemFactory()
-  {
-    return _propertyCache.Values;
-  }
+    /// <summary>
+    /// Initializes all catalog item properties by invoking their getters once.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>Purpose:</strong> Eager initialization ensures all items are cached
+    /// before Flow construction begins, preventing any potential race conditions
+    /// or unexpected lazy initialization behavior.
+    /// </para>
+    /// <para>
+    /// <strong>When to Call:</strong> At the end of the derived catalog's constructor,
+    /// after all configuration properties (like BasePath) are set.
+    /// </para>
+    /// <para>
+    /// <strong>How It Works:</strong>
+    /// Uses reflection to find all public instance properties that return IItem,
+    /// then invokes each getter once to populate the cache.
+    /// </para>
+    /// </remarks>
+    protected void InitializeCatalogProperties()
+    {
+        var catalogProperties = GetType()
+          .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+          .Where(p => typeof(IItem).IsAssignableFrom(p.PropertyType));
 
-  /// <summary>
-  /// Clears the property cache. Use with caution!
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// <strong>Warning:</strong> Clearing the cache after Flow construction will break
-  /// DAG dependencies since new instances will be created on next access.
-  /// </para>
-  /// <para>
-  /// <strong>Use Case:</strong> Primarily for testing scenarios where you need to reset
-  /// catalog state between test runs.
-  /// </para>
-  /// </remarks>
-  protected void ClearCache()
-  {
-    _propertyCache.Clear();
-  }
+        foreach (var property in catalogProperties)
+        {
+            // Invoke getter to populate cache
+            _ = property.GetValue(this);
+        }
+    }
+
+    /// <summary>
+    /// Gets all cached catalog items.
+    /// </summary>
+    /// <returns>Enumerable of all initialized catalog items</returns>
+    /// <remarks>
+    /// Useful for diagnostic purposes or when you need to iterate over all items
+    /// (e.g., for validation, cleanup, or reporting).
+    /// </remarks>
+    protected IEnumerable<IItem> GetAllItemFactory()
+    {
+        return _propertyCache.Values;
+    }
+
+    /// <summary>
+    /// Clears the property cache. Use with caution!
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>Warning:</strong> Clearing the cache after Flow construction will break
+    /// DAG dependencies since new instances will be created on next access.
+    /// </para>
+    /// <para>
+    /// <strong>Use Case:</strong> Primarily for testing scenarios where you need to reset
+    /// catalog state between test runs.
+    /// </para>
+    /// </remarks>
+    protected void ClearCache()
+    {
+        _propertyCache.Clear();
+    }
 }

@@ -15,8 +15,8 @@ namespace Flowthru.FUnit.Tests.CodeFixes;
 [Category("CodeFixes")]
 public class Fu001Tests
 {
-  // Minimal stubs so the test compilation resolves the referenced types.
-  private const string Stubs = """
+    // Minimal stubs so the test compilation resolves the referenced types.
+    private const string Stubs = """
     namespace Flowthru.Core.Steps
     {
         [System.AttributeUsage(System.AttributeTargets.Class)]
@@ -33,12 +33,12 @@ public class Fu001Tests
     }
     """;
 
-  [Test]
-  public async Task StepWithNoTests_ScaffoldsTestsClass()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task StepWithNoTests_ScaffoldsTestsClass()
+    {
+        var source =
+          Stubs
+          + """
 
         namespace TestProject
         {
@@ -51,12 +51,12 @@ public class Fu001Tests
         }
         """;
 
-    // The fix inserts the Tests class before the class's closing brace, inserting
-    // before the brace's full span (to preserve indentation of the closing brace).
-    var fixedSource =
-      "using Flowthru.FUnit;\n"
-      + Stubs
-      + """
+        // The fix inserts the Tests class before the class's closing brace, inserting
+        // before the brace's full span (to preserve indentation of the closing brace).
+        var fixedSource =
+          "using Flowthru.FUnit;\n"
+          + Stubs
+          + """
 
         namespace TestProject
         {
@@ -81,39 +81,39 @@ public class Fu001Tests
         }
         """;
 
-    // FUNIT_ENABLED must be defined in the test compilation so the fix converges:
-    // after the fix the Tests class is inside #if FUNIT_ENABLED and becomes visible,
-    // meaning FU001 no longer fires and the verifier can confirm convergence.
-    var test = new CSharpCodeFixTest<
-      FunitDiagnosticAnalyzer,
-      Fu001ScaffoldTestsClassFix,
-      NUnit4Verifier
-    >
-    {
-      TestCode = source,
-      FixedCode = fixedSource,
-    };
-    test.SolutionTransforms.Add(
-      (solution, projectId) =>
-      {
-        var project = solution.GetProject(projectId)!;
-        var parseOptions = (CSharpParseOptions)project.ParseOptions!;
-        parseOptions = parseOptions.WithPreprocessorSymbols(
-          parseOptions.PreprocessorSymbolNames.Concat(["FUNIT_ENABLED"])
+        // FUNIT_ENABLED must be defined in the test compilation so the fix converges:
+        // after the fix the Tests class is inside #if FUNIT_ENABLED and becomes visible,
+        // meaning FU001 no longer fires and the verifier can confirm convergence.
+        var test = new CSharpCodeFixTest<
+          FunitDiagnosticAnalyzer,
+          Fu001ScaffoldTestsClassFix,
+          NUnit4Verifier
+        >
+        {
+            TestCode = source,
+            FixedCode = fixedSource,
+        };
+        test.SolutionTransforms.Add(
+          (solution, projectId) =>
+          {
+              var project = solution.GetProject(projectId)!;
+              var parseOptions = (CSharpParseOptions)project.ParseOptions!;
+              parseOptions = parseOptions.WithPreprocessorSymbols(
+            parseOptions.PreprocessorSymbolNames.Concat(["FUNIT_ENABLED"])
+          );
+              return solution.WithProjectParseOptions(projectId, parseOptions);
+          }
         );
-        return solution.WithProjectParseOptions(projectId, parseOptions);
-      }
-    );
-    await test.RunAsync();
-  }
+        await test.RunAsync();
+    }
 
-  [Test]
-  public async Task StepWithTests_NoDiagnostic()
-  {
-    // A step that already has a [StepTest] in the file → no FU001.
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task StepWithTests_NoDiagnostic()
+    {
+        // A step that already has a [StepTest] in the file → no FU001.
+        var source =
+          Stubs
+          + """
 
         namespace TestProject
         {
@@ -134,21 +134,21 @@ public class Fu001Tests
         }
         """;
 
-    var analyzerTest = new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    };
-    analyzerTest.SolutionTransforms.Add(
-      (solution, projectId) =>
-      {
-        var project = solution.GetProject(projectId)!;
-        var parseOptions = (CSharpParseOptions)project.ParseOptions!;
-        parseOptions = parseOptions.WithPreprocessorSymbols(
-          parseOptions.PreprocessorSymbolNames.Concat(["FUNIT_ENABLED"])
+        var analyzerTest = new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        };
+        analyzerTest.SolutionTransforms.Add(
+          (solution, projectId) =>
+          {
+              var project = solution.GetProject(projectId)!;
+              var parseOptions = (CSharpParseOptions)project.ParseOptions!;
+              parseOptions = parseOptions.WithPreprocessorSymbols(
+            parseOptions.PreprocessorSymbolNames.Concat(["FUNIT_ENABLED"])
+          );
+              return solution.WithProjectParseOptions(projectId, parseOptions);
+          }
         );
-        return solution.WithProjectParseOptions(projectId, parseOptions);
-      }
-    );
-    await analyzerTest.RunAsync();
-  }
+        await analyzerTest.RunAsync();
+    }
 }

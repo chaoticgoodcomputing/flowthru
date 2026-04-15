@@ -3,5 +3,5 @@
 // include it, so we define it here as an internal implementation detail.
 namespace System.Runtime.CompilerServices
 {
-  internal sealed class IsExternalInit { }
+    internal sealed class IsExternalInit { }
 }

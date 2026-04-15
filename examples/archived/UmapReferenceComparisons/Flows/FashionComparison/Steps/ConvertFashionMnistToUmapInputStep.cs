@@ -9,31 +9,31 @@ namespace UmapReferenceComparisons.Flows.FashionComparison.Steps;
 /// </summary>
 public static class ConvertFashionMnistToUmapInputStep
 {
-  public static Func<IEnumerable<MnistInputRow>, Task<IEnumerable<UmapInput>>> Create()
-  {
-    return async (inputRows) =>
+    public static Func<IEnumerable<MnistInputRow>, Task<IEnumerable<UmapInput>>> Create()
     {
-      var result = new List<UmapInput>();
-      foreach (var row in inputRows)
-      {
-        var features = new float[784];
-        for (int i = 0; i < 784; i++)
+        return async (inputRows) =>
         {
-          var prop = row.GetType().GetProperty($"Pixel{i}");
-          var valueObj = prop?.GetValue(row);
-          long pixelValue = valueObj is long l ? l : 0L;
-          features[i] = pixelValue;
-        }
-        result.Add(
-          new UmapInput
-          {
-            Id = row.Id,
-            Label = row.Label.ToString(),
-            Features = features,
-          }
-        );
-      }
-      return await Task.FromResult(result);
-    };
-  }
+            var result = new List<UmapInput>();
+            foreach (var row in inputRows)
+            {
+                var features = new float[784];
+                for (int i = 0; i < 784; i++)
+                {
+                    var prop = row.GetType().GetProperty($"Pixel{i}");
+                    var valueObj = prop?.GetValue(row);
+                    long pixelValue = valueObj is long l ? l : 0L;
+                    features[i] = pixelValue;
+                }
+                result.Add(
+              new UmapInput
+              {
+                  Id = row.Id,
+                  Label = row.Label.ToString(),
+                  Features = features,
+              }
+            );
+            }
+            return await Task.FromResult(result);
+        };
+    }
 }

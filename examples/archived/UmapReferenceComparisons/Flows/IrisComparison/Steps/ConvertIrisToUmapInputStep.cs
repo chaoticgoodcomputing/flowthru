@@ -7,18 +7,18 @@ namespace UmapReferenceComparisons.Flows.IrisComparison.Steps;
 /// </summary>
 public static class ConvertIrisToUmapInputStep
 {
-  public static Func<IEnumerable<IrisInputRow>, Task<IEnumerable<UmapInput>>> Create()
-  {
-    return async (input) =>
+    public static Func<IEnumerable<IrisInputRow>, Task<IEnumerable<UmapInput>>> Create()
     {
-      var result = input.Select(row => new UmapInput
-      {
-        Id = row.Id,
-        Label = row.Label.ToString(),
-        Features = new float[] { row.SepalLength, row.SepalWidth, row.PetalLength, row.PetalWidth },
-      });
+        return async (input) =>
+        {
+            var result = input.Select(row => new UmapInput
+            {
+                Id = row.Id,
+                Label = row.Label.ToString(),
+                Features = new float[] { row.SepalLength, row.SepalWidth, row.PetalLength, row.PetalWidth },
+            });
 
-      return await Task.FromResult(result);
-    };
-  }
+            return await Task.FromResult(result);
+        };
+    }
 }

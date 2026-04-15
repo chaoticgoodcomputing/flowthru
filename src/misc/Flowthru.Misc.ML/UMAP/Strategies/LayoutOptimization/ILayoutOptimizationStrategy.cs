@@ -27,60 +27,60 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.LayoutOptimization;
 /// </remarks>
 public interface ILayoutOptimizationStrategy
 {
-  /// <summary>
-  /// Optimizes the embedding layout using stochastic gradient descent.
-  /// </summary>
-  /// <param name="initialEmbedding">
-  /// Initial embedding from layout initialization strategy.
-  /// Shape: (n_samples, n_components)
-  /// This matrix will be modified in-place during optimization.
-  /// </param>
-  /// <param name="graphEdges">
-  /// Edges in the fuzzy simplicial set to optimize.
-  /// Contains (head_index, tail_index, weight) tuples.
-  /// </param>
-  /// <param name="samplingSchedule">
-  /// Sampling schedule that determines how often each edge is sampled.
-  /// Array length matches number of edges.
-  /// </param>
-  /// <param name="nEpochs">
-  /// Number of optimization epochs to run.
-  /// Must match the value used to compute the sampling schedule.
-  /// </param>
-  /// <param name="parameters">
-  /// Optimization parameters including learning rate, repulsion strength, etc.
-  /// </param>
-  /// <param name="random">
-  /// Random number generator for negative sampling and reproducibility.
-  /// </param>
-  /// <returns>
-  /// The optimized embedding (same matrix as initialEmbedding, modified in-place).
-  /// </returns>
-  /// <remarks>
-  /// <para>
-  /// <b>Implementation requirements:</b>
-  /// </para>
-  /// <list type="number">
-  ///   <item><description>Initialize epoch-tracking arrays for sampling schedule</description></item>
-  ///   <item><description>For each epoch:</description>
-  ///     <list type="bullet">
-  ///       <item><description>Sample edges based on their schedule</description></item>
-  ///       <item><description>Apply attractive gradient for sampled edges</description></item>
-  ///       <item><description>Apply repulsive gradient via negative sampling</description></item>
-  ///       <item><description>Decay learning rate linearly</description></item>
-  ///     </list>
-  ///   </item>
-  ///   <item><description>Report progress if verbosity enabled</description></item>
-  /// </list>
-  /// </remarks>
-  LayoutOptimizationResult Optimize(
-    Matrix<float> initialEmbedding,
-    GraphEdge[] graphEdges,
-    float[] samplingSchedule,
-    int nEpochs,
-    OptimizationParameters parameters,
-    Random random
-  );
+    /// <summary>
+    /// Optimizes the embedding layout using stochastic gradient descent.
+    /// </summary>
+    /// <param name="initialEmbedding">
+    /// Initial embedding from layout initialization strategy.
+    /// Shape: (n_samples, n_components)
+    /// This matrix will be modified in-place during optimization.
+    /// </param>
+    /// <param name="graphEdges">
+    /// Edges in the fuzzy simplicial set to optimize.
+    /// Contains (head_index, tail_index, weight) tuples.
+    /// </param>
+    /// <param name="samplingSchedule">
+    /// Sampling schedule that determines how often each edge is sampled.
+    /// Array length matches number of edges.
+    /// </param>
+    /// <param name="nEpochs">
+    /// Number of optimization epochs to run.
+    /// Must match the value used to compute the sampling schedule.
+    /// </param>
+    /// <param name="parameters">
+    /// Optimization parameters including learning rate, repulsion strength, etc.
+    /// </param>
+    /// <param name="random">
+    /// Random number generator for negative sampling and reproducibility.
+    /// </param>
+    /// <returns>
+    /// The optimized embedding (same matrix as initialEmbedding, modified in-place).
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <b>Implementation requirements:</b>
+    /// </para>
+    /// <list type="number">
+    ///   <item><description>Initialize epoch-tracking arrays for sampling schedule</description></item>
+    ///   <item><description>For each epoch:</description>
+    ///     <list type="bullet">
+    ///       <item><description>Sample edges based on their schedule</description></item>
+    ///       <item><description>Apply attractive gradient for sampled edges</description></item>
+    ///       <item><description>Apply repulsive gradient via negative sampling</description></item>
+    ///       <item><description>Decay learning rate linearly</description></item>
+    ///     </list>
+    ///   </item>
+    ///   <item><description>Report progress if verbosity enabled</description></item>
+    /// </list>
+    /// </remarks>
+    LayoutOptimizationResult Optimize(
+      Matrix<float> initialEmbedding,
+      GraphEdge[] graphEdges,
+      float[] samplingSchedule,
+      int nEpochs,
+      OptimizationParameters parameters,
+      Random random
+    );
 }
 
 /// <summary>
@@ -96,40 +96,40 @@ public readonly record struct GraphEdge(int Head, int Tail, float Weight);
 /// </summary>
 public sealed record OptimizationParameters
 {
-  /// <summary>
-  /// Curve parameter 'a' for attractive force.
-  /// </summary>
-  public required float A { get; init; }
+    /// <summary>
+    /// Curve parameter 'a' for attractive force.
+    /// </summary>
+    public required float A { get; init; }
 
-  /// <summary>
-  /// Curve parameter 'b' for attractive force.
-  /// </summary>
-  public required float B { get; init; }
+    /// <summary>
+    /// Curve parameter 'b' for attractive force.
+    /// </summary>
+    public required float B { get; init; }
 
-  /// <summary>
-  /// Initial learning rate (decays linearly to 0).
-  /// </summary>
-  public required float InitialAlpha { get; init; }
+    /// <summary>
+    /// Initial learning rate (decays linearly to 0).
+    /// </summary>
+    public required float InitialAlpha { get; init; }
 
-  /// <summary>
-  /// Weight applied to negative (repulsive) samples.
-  /// </summary>
-  public required float Gamma { get; init; }
+    /// <summary>
+    /// Weight applied to negative (repulsive) samples.
+    /// </summary>
+    public required float Gamma { get; init; }
 
-  /// <summary>
-  /// Number of negative samples per positive sample.
-  /// </summary>
-  public required int NegativeSampleRate { get; init; }
+    /// <summary>
+    /// Number of negative samples per positive sample.
+    /// </summary>
+    public required int NegativeSampleRate { get; init; }
 
-  /// <summary>
-  /// Verbosity level for progress reporting.
-  /// </summary>
-  public int Verbosity { get; init; } = 0;
+    /// <summary>
+    /// Verbosity level for progress reporting.
+    /// </summary>
+    public int Verbosity { get; init; } = 0;
 
-  /// <summary>
-  /// Progress reporter for programmatic tracking.
-  /// </summary>
-  public IProgress<UmapProgress>? ProgressReporter { get; init; }
+    /// <summary>
+    /// Progress reporter for programmatic tracking.
+    /// </summary>
+    public IProgress<UmapProgress>? ProgressReporter { get; init; }
 }
 
 /// <summary>
@@ -145,15 +145,15 @@ public sealed record OptimizationParameters
 /// </param>
 public sealed record LayoutOptimizationResult(Matrix<float> OptimizedEmbedding, float? FinalLoss)
 {
-  /// <summary>
-  /// Actual number of epochs completed before termination.
-  /// May be less than requested epochs if early stopping was triggered.
-  /// </summary>
-  public int? ActualEpochs { get; init; }
+    /// <summary>
+    /// Actual number of epochs completed before termination.
+    /// May be less than requested epochs if early stopping was triggered.
+    /// </summary>
+    public int? ActualEpochs { get; init; }
 
-  /// <summary>
-  /// Number of epochs saved by early stopping.
-  /// Zero if optimization ran to completion or early stopping was disabled.
-  /// </summary>
-  public int? EarlyStoppingSaved { get; init; }
+    /// <summary>
+    /// Number of epochs saved by early stopping.
+    /// Zero if optimization ran to completion or early stopping was disabled.
+    /// </summary>
+    public int? EarlyStoppingSaved { get; init; }
 }

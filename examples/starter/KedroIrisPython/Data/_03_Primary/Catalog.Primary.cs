@@ -6,7 +6,7 @@ namespace KedroIrisPython.Data;
 /// </summary>
 public partial class Catalog
 {
-  // No entries defined for this layer in the Iris example.
-  // This layer would typically contain core business entities with
-  // transformations applied (derived columns, aggregations, etc.).
+    // No entries defined for this layer in the Iris example.
+    // This layer would typically contain core business entities with
+    // transformations applied (derived columns, aggregations, etc.).
 }

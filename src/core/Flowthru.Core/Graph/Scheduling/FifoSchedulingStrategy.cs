@@ -10,9 +10,9 @@ namespace Flowthru.Core.Graph.Scheduling;
 /// </remarks>
 public sealed class FifoSchedulingStrategy : ISchedulingStrategy
 {
-  /// <inheritdoc/>
-  public IReadOnlyList<FlowStep> Prioritize(
-    IReadOnlyList<FlowStep> readySteps,
-    SchedulingContext context
-  ) => readySteps;
+    /// <inheritdoc/>
+    public IReadOnlyList<FlowStep> Prioritize(
+      IReadOnlyList<FlowStep> readySteps,
+      SchedulingContext context
+    ) => readySteps;
 }

@@ -32,93 +32,93 @@ namespace Flowthru.Extensions.Python.Validation;
 /// </remarks>
 internal static class PythonStepRegistrationValidator
 {
-  /// <summary>
-  /// Validates that a Python step can be registered.
-  /// </summary>
-  /// <param name="runtime">Python runtime for GIL management</param>
-  /// <param name="moduleName">Python module name (e.g., "flows.steps.transform")</param>
-  /// <param name="functionName">Python function name (e.g., "encode_species")</param>
-  /// <exception cref="InvalidOperationException">
-  /// Thrown if module, function, or decorator is missing or invalid
-  /// </exception>
-  public static void ValidateRegistration(
-    PythonRuntime runtime,
-    string moduleName,
-    string functionName
-  )
-  {
-    using (runtime.AcquireGil())
+    /// <summary>
+    /// Validates that a Python step can be registered.
+    /// </summary>
+    /// <param name="runtime">Python runtime for GIL management</param>
+    /// <param name="moduleName">Python module name (e.g., "flows.steps.transform")</param>
+    /// <param name="functionName">Python function name (e.g., "encode_species")</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if module, function, or decorator is missing or invalid
+    /// </exception>
+    public static void ValidateRegistration(
+      PythonRuntime runtime,
+      string moduleName,
+      string functionName
+    )
     {
-      // Check 1: Module is importable
-      PyObject module;
-      try
-      {
-        using (Py.GIL())
+        using (runtime.AcquireGil())
         {
-          module = Py.Import(moduleName);
-        }
-      }
-      catch (PythonException ex)
-      {
-        throw new InvalidOperationException(
-          $"Python step registration failed: Module '{moduleName}' not found in sys.path\n\n"
-            + $"Error: {ex.Message}\n\n"
-            + "Check:\n"
-            + "  - Module name spelling\n"
-            + "  - sys.path configuration in PythonRuntimeOptions\n"
-            + "  - File exists and has no syntax errors",
-          ex
-        );
-      }
-
-      // Check 2: Function exists in module
-      if (!module.HasAttr(functionName))
-      {
-        using (Py.GIL())
-        {
-          // Get available functions for helpful error message
-          var dir = module.Dir();
-          var availableFunctions = new List<string>();
-          foreach (PyObject item in dir)
-          {
-            var name = item.ToString();
-            if (name != null && !name.StartsWith("_"))
+            // Check 1: Module is importable
+            PyObject module;
+            try
             {
-              availableFunctions.Add(name);
+                using (Py.GIL())
+                {
+                    module = Py.Import(moduleName);
+                }
             }
-          }
+            catch (PythonException ex)
+            {
+                throw new InvalidOperationException(
+                  $"Python step registration failed: Module '{moduleName}' not found in sys.path\n\n"
+                    + $"Error: {ex.Message}\n\n"
+                    + "Check:\n"
+                    + "  - Module name spelling\n"
+                    + "  - sys.path configuration in PythonRuntimeOptions\n"
+                    + "  - File exists and has no syntax errors",
+                  ex
+                );
+            }
 
-          throw new InvalidOperationException(
-            $"Python step registration failed: Function '{functionName}' not found in module '{moduleName}'\n\n"
-              + $"Available functions: {string.Join(", ", availableFunctions)}\n\n"
-              + "Check:\n"
-              + "  - Function name spelling\n"
-              + "  - Function is defined at module level (not inside a class)"
-          );
+            // Check 2: Function exists in module
+            if (!module.HasAttr(functionName))
+            {
+                using (Py.GIL())
+                {
+                    // Get available functions for helpful error message
+                    var dir = module.Dir();
+                    var availableFunctions = new List<string>();
+                    foreach (PyObject item in dir)
+                    {
+                        var name = item.ToString();
+                        if (name != null && !name.StartsWith("_"))
+                        {
+                            availableFunctions.Add(name);
+                        }
+                    }
+
+                    throw new InvalidOperationException(
+                      $"Python step registration failed: Function '{functionName}' not found in module '{moduleName}'\n\n"
+                        + $"Available functions: {string.Join(", ", availableFunctions)}\n\n"
+                        + "Check:\n"
+                        + "  - Function name spelling\n"
+                        + "  - Function is defined at module level (not inside a class)"
+                    );
+                }
+            }
+
+            PyObject function = module.GetAttr(functionName);
+
+            // Check 3: @step decorator is present
+            if (!function.HasAttr("__flowthru_inputs__") || !function.HasAttr("__flowthru_outputs__"))
+            {
+                throw new InvalidOperationException(
+                  $"Python step registration failed: Function '{functionName}' in module '{moduleName}' "
+                    + "is missing required @step decorator.\n\n"
+                    + "Add decorator to declare schema contract:\n\n"
+                    + "  from flowthru import step\n"
+                    + "  from flowthru_schemas import InputSchema, OutputSchema\n"
+                    + "  \n"
+                    + $"  @step(inputs=[InputSchema], outputs=[OutputSchema])\n"
+                    + $"  def {functionName}(...):\n"
+                    + "      ...\n\n"
+                    + "The @step decorator is required for all Python steps in Flows."
+                );
+            }
+
+            // If we got here, basic registration requirements are met
+            // More thorough validation happens during pre-flight
         }
-      }
-
-      PyObject function = module.GetAttr(functionName);
-
-      // Check 3: @step decorator is present
-      if (!function.HasAttr("__flowthru_inputs__") || !function.HasAttr("__flowthru_outputs__"))
-      {
-        throw new InvalidOperationException(
-          $"Python step registration failed: Function '{functionName}' in module '{moduleName}' "
-            + "is missing required @step decorator.\n\n"
-            + "Add decorator to declare schema contract:\n\n"
-            + "  from flowthru import step\n"
-            + "  from flowthru_schemas import InputSchema, OutputSchema\n"
-            + "  \n"
-            + $"  @step(inputs=[InputSchema], outputs=[OutputSchema])\n"
-            + $"  def {functionName}(...):\n"
-            + "      ...\n\n"
-            + "The @step decorator is required for all Python steps in Flows."
-        );
-      }
-
-      // If we got here, basic registration requirements are met
-      // More thorough validation happens during pre-flight
     }
-  }
 }

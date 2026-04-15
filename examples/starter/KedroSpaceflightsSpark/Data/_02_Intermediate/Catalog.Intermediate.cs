@@ -12,16 +12,16 @@ namespace KedroSpaceflightsSpark.Data;
 /// </summary>
 public partial class Catalog
 {
-  public IItem<TypedFrame<PreprocessedCompanySchema>> PreprocessedCompanies =>
-    CreateItem(
-      () => SparkFactory.Frame.Memory<PreprocessedCompanySchema>(label: "PreprocessedCompanies")
-    );
+    public IItem<TypedFrame<PreprocessedCompanySchema>> PreprocessedCompanies =>
+      CreateItem(
+        () => SparkFactory.Frame.Memory<PreprocessedCompanySchema>(label: "PreprocessedCompanies")
+      );
 
-  public IItem<TypedFrame<PreprocessedShuttleSchema>> PreprocessedShuttles =>
-    CreateItem(
-      () => SparkFactory.Frame.Memory<PreprocessedShuttleSchema>(label: "PreprocessedShuttles")
-    );
+    public IItem<TypedFrame<PreprocessedShuttleSchema>> PreprocessedShuttles =>
+      CreateItem(
+        () => SparkFactory.Frame.Memory<PreprocessedShuttleSchema>(label: "PreprocessedShuttles")
+      );
 
-  public IItem<TypedFrame<ParsedReviewSchema>> ParsedReviews =>
-    CreateItem(() => SparkFactory.Frame.Memory<ParsedReviewSchema>(label: "ParsedReviews"));
+    public IItem<TypedFrame<ParsedReviewSchema>> ParsedReviews =>
+      CreateItem(() => SparkFactory.Frame.Memory<ParsedReviewSchema>(label: "ParsedReviews"));
 }

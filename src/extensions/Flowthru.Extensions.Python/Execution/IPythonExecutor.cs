@@ -30,37 +30,37 @@ namespace Flowthru.Extensions.Python.Execution;
 /// </remarks>
 public interface IPythonExecutor
 {
-  /// <summary>
-  /// Invokes a Python function, marshalling input and output to/from C# types.
-  /// </summary>
-  /// <typeparam name="TInput">
-  /// C# input type. May be a scalar, <c>IEnumerable&lt;TSchema&gt;</c> (tabular),
-  /// <c>byte[]</c> (raw bytes), or a <c>ValueTuple</c> of any of those (multi-input).
-  /// </typeparam>
-  /// <typeparam name="TOutput">
-  /// C# output type. Same range as <typeparamref name="TInput"/>.
-  /// </typeparam>
-  /// <param name="moduleName">
-  /// Dotted module name (e.g., <c>"Flows.DataScience.train_model"</c>).
-  /// Must be resolvable via the executor's configured <c>sys.path</c>.
-  /// </param>
-  /// <param name="functionName">Python function name within the module.</param>
-  /// <param name="input">Typed input value.</param>
-  /// <returns>Typed output value returned by the Python function.</returns>
-  /// <exception cref="InvalidOperationException">
-  /// Thrown if the module cannot be imported, the function cannot be resolved,
-  /// or marshalling fails.
-  /// </exception>
-  TOutput Invoke<TInput, TOutput>(string moduleName, string functionName, TInput input);
+    /// <summary>
+    /// Invokes a Python function, marshalling input and output to/from C# types.
+    /// </summary>
+    /// <typeparam name="TInput">
+    /// C# input type. May be a scalar, <c>IEnumerable&lt;TSchema&gt;</c> (tabular),
+    /// <c>byte[]</c> (raw bytes), or a <c>ValueTuple</c> of any of those (multi-input).
+    /// </typeparam>
+    /// <typeparam name="TOutput">
+    /// C# output type. Same range as <typeparamref name="TInput"/>.
+    /// </typeparam>
+    /// <param name="moduleName">
+    /// Dotted module name (e.g., <c>"Flows.DataScience.train_model"</c>).
+    /// Must be resolvable via the executor's configured <c>sys.path</c>.
+    /// </param>
+    /// <param name="functionName">Python function name within the module.</param>
+    /// <param name="input">Typed input value.</param>
+    /// <returns>Typed output value returned by the Python function.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the module cannot be imported, the function cannot be resolved,
+    /// or marshalling fails.
+    /// </exception>
+    TOutput Invoke<TInput, TOutput>(string moduleName, string functionName, TInput input);
 
-  /// <summary>
-  /// Validates that a Python step exists and satisfies Flowthru's <c>@step</c> contract.
-  /// </summary>
-  /// <param name="moduleName">Dotted Python module name.</param>
-  /// <param name="functionName">Python function name within the module.</param>
-  /// <exception cref="InvalidOperationException">
-  /// Thrown if the module is not importable, the function is missing, or the
-  /// <c>@step</c> decorator is absent.
-  /// </exception>
-  void ValidateStep(string moduleName, string functionName);
+    /// <summary>
+    /// Validates that a Python step exists and satisfies Flowthru's <c>@step</c> contract.
+    /// </summary>
+    /// <param name="moduleName">Dotted Python module name.</param>
+    /// <param name="functionName">Python function name within the module.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the module is not importable, the function is missing, or the
+    /// <c>@step</c> decorator is absent.
+    /// </exception>
+    void ValidateStep(string moduleName, string functionName);
 }

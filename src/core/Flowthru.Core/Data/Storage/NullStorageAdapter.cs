@@ -22,32 +22,32 @@ namespace Flowthru.Core.Data.Storage;
 /// </remarks>
 public sealed class NullStorageAdapter<T> : IStorageAdapter<T>
 {
-  /// <inheritdoc/>
-  public StorageTraits Traits => new StorageTraits { CanWrite = false, CanRead = false };
+    /// <inheritdoc/>
+    public StorageTraits Traits => new StorageTraits { CanWrite = false, CanRead = false };
 
-  /// <inheritdoc/>
-  public FlowIO<T> Load() =>
-    FlowIO.Lift<T>(() =>
-    {
-      throw new NotSupportedException("NullStorageAdapter does not support Load operations");
-    });
+    /// <inheritdoc/>
+    public FlowIO<T> Load() =>
+      FlowIO.Lift<T>(() =>
+      {
+          throw new NotSupportedException("NullStorageAdapter does not support Load operations");
+      });
 
-  /// <inheritdoc/>
-  public FlowIO<FlowUnit> Save(T data) =>
-    FlowIO.Lift(() =>
-    {
-      // No-op: side-effect-only nodes don't save data
-      return FlowUnit.Default;
-    });
+    /// <inheritdoc/>
+    public FlowIO<FlowUnit> Save(T data) =>
+      FlowIO.Lift(() =>
+      {
+          // No-op: side-effect-only nodes don't save data
+          return FlowUnit.Default;
+      });
 
-  /// <inheritdoc/>
-  public FlowIO<bool> Exists() => FlowIO.Lift(() => false); // Null entries never exist as seedable data
+    /// <inheritdoc/>
+    public FlowIO<bool> Exists() => FlowIO.Lift(() => false); // Null entries never exist as seedable data
 
-  /// <inheritdoc/>
-  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize) =>
-    FlowIO.Pure(Data.Validation.ValidationResult.Success()); // No data required, inherently available
+    /// <inheritdoc/>
+    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize) =>
+      FlowIO.Pure(Data.Validation.ValidationResult.Success()); // No data required, inherently available
 
-  /// <inheritdoc/>
-  public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
-    FlowIO.Pure(Data.Validation.ValidationResult.Success()); // No data required, inherently available
+    /// <inheritdoc/>
+    public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
+      FlowIO.Pure(Data.Validation.ValidationResult.Success()); // No data required, inherently available
 }

@@ -10,19 +10,19 @@ namespace SpaceflightsEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Master table of features and labels prepared for model training.
-  /// Combines preprocessed company and shuttle data into a single feature matrix.
-  /// </summary>
-  public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-    CreateItem(
-      () =>
-        EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
-          label: "ModelInputTable",
-          contextFactory: _contextFactory,
-          // Demonstrates query customization: order by shuttle ID for deterministic output.
-          // Remove or replace with an .Include() or .Where() as needed.
-          queryCustomizer: q => q.OrderBy(r => r.ShuttleId)
-        )
-    );
+    /// <summary>
+    /// Master table of features and labels prepared for model training.
+    /// Combines preprocessed company and shuttle data into a single feature matrix.
+    /// </summary>
+    public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
+      CreateItem(
+        () =>
+          EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
+            label: "ModelInputTable",
+            contextFactory: _contextFactory,
+            // Demonstrates query customization: order by shuttle ID for deterministic output.
+            // Remove or replace with an .Include() or .Where() as needed.
+            queryCustomizer: q => q.OrderBy(r => r.ShuttleId)
+          )
+      );
 }

@@ -9,9 +9,9 @@ namespace DroppedNeuralNet.Data._03_Primary.Schemas;
 [FlowthruSchema]
 public partial record BlockCandidate
 {
-  /// <summary>PieceIndex of the Block.inp layer (Linear 48 → 96).</summary>
-  public int InpPieceIndex { get; init; }
+    /// <summary>PieceIndex of the Block.inp layer (Linear 48 → 96).</summary>
+    public int InpPieceIndex { get; init; }
 
-  /// <summary>PieceIndex of the Block.out layer (Linear 96 → 48).</summary>
-  public int OutPieceIndex { get; init; }
+    /// <summary>PieceIndex of the Block.out layer (Linear 96 → 48).</summary>
+    public int OutPieceIndex { get; init; }
 }

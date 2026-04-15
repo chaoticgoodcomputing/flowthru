@@ -8,15 +8,15 @@ namespace KedroIrisPython.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Predicted class indices for test data.
-  /// </summary>
-  public IItem<IEnumerable<PredictionSchema>> Predictions =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<PredictionSchema>(
-          label: "Predictions",
-          filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.parquet"
-        )
-    );
+    /// <summary>
+    /// Predicted class indices for test data.
+    /// </summary>
+    public IItem<IEnumerable<PredictionSchema>> Predictions =>
+      CreateItem(
+        () =>
+          ItemFactory.Enumerable.Parquet<PredictionSchema>(
+            label: "Predictions",
+            filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.parquet"
+          )
+      );
 }

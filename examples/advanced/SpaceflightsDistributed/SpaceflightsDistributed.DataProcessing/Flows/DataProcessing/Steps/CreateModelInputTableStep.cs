@@ -2,66 +2,79 @@ using Flowthru.Core.Steps;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._03_Primary.Schemas;
+using Flowthru.FUnit;
 
 namespace SpaceflightsDistributed.DataProcessing.Flows.DataProcessing.Steps;
 
 [FlowthruStep]
 public static class CreateModelInputTableStep
 {
-  public static Func<
-    (
-      IEnumerable<PreprocessedShuttleSchema>,
-      IEnumerable<PreprocessedCompanySchema>,
-      IEnumerable<ReviewSchema>
-    ),
-    IEnumerable<ModelInputTableSchema>
-  > Create()
-  {
-    return (input) =>
+    public static Func<
+      (
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedCompanySchema>,
+        IEnumerable<ReviewSchema>
+      ),
+      IEnumerable<ModelInputTableSchema>
+    > Create()
     {
-      var (shuttles, companies, reviews) = input;
-
-      var parsedReviews = reviews
-        .Select(r => new
+        return (input) =>
         {
-          r.ShuttleId,
-          Score = decimal.TryParse(r.ReviewScoresRating, out var score) ? score : (decimal?)null,
-        })
-        .Where(r => r.Score.HasValue)
-        .ToList();
+            var (shuttles, companies, reviews) = input;
 
-      var ratedShuttles = parsedReviews
-        .Join(
-          shuttles,
-          r => r.ShuttleId,
-          s => s.Id,
-          (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
-        )
-        .ToList();
-
-      return ratedShuttles
-        .Join(
-          companies,
-          rs => rs.Shuttle.CompanyId,
-          c => c.Id,
-          (rs, c) =>
-            new ModelInputTableSchema
+            var parsedReviews = reviews
+          .Select(r => new
             {
-              ShuttleId = rs.Shuttle.Id,
-              ShuttleType = rs.Shuttle.ShuttleType,
-              CompanyId = rs.Shuttle.CompanyId,
-              Engines = rs.Shuttle.Engines,
-              PassengerCapacity = rs.Shuttle.PassengerCapacity,
-              Crew = rs.Shuttle.Crew,
-              DCheckComplete = rs.Shuttle.DCheckComplete,
-              MoonClearanceComplete = rs.Shuttle.MoonClearanceComplete,
-              Price = rs.Shuttle.Price,
-              IataApproved = c.IataApproved,
-              CompanyRating = c.CompanyRating,
-              ReviewScoresRating = rs.ReviewScore,
-            }
-        )
-        .ToList();
-    };
+                r.ShuttleId,
+                Score = decimal.TryParse(r.ReviewScoresRating, out var score) ? score : (decimal?)null,
+            })
+          .Where(r => r.Score.HasValue)
+          .ToList();
+
+            var ratedShuttles = parsedReviews
+          .Join(
+            shuttles,
+            r => r.ShuttleId,
+            s => s.Id,
+            (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
+          )
+          .ToList();
+
+            return ratedShuttles
+          .Join(
+            companies,
+            rs => rs.Shuttle.CompanyId,
+            c => c.Id,
+            (rs, c) =>
+              new ModelInputTableSchema
+                {
+                    ShuttleId = rs.Shuttle.Id,
+                    ShuttleType = rs.Shuttle.ShuttleType,
+                    CompanyId = rs.Shuttle.CompanyId,
+                    Engines = rs.Shuttle.Engines,
+                    PassengerCapacity = rs.Shuttle.PassengerCapacity,
+                    Crew = rs.Shuttle.Crew,
+                    DCheckComplete = rs.Shuttle.DCheckComplete,
+                    MoonClearanceComplete = rs.Shuttle.MoonClearanceComplete,
+                    Price = rs.Shuttle.Price,
+                    IataApproved = c.IataApproved,
+                    CompanyRating = c.CompanyRating,
+                    ReviewScoresRating = rs.ReviewScore,
+                }
+          )
+          .ToList();
+        };
+    }
+
+#if FUNIT_ENABLED
+  /// <summary>FUnit tests for <see cref="CreateModelInputTableStep"/>.</summary>
+  public class Tests : FunitContext
+  {
+      [StepTest(typeof(CreateModelInputTableStep))]
+      public void TODO_WriteYourTestHere()
+      {
+          throw new System.NotImplementedException();
+      }
   }
+#endif
 }

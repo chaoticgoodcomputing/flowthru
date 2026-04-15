@@ -11,72 +11,72 @@ namespace SpaceflightsEFCore.Flows.DataProcessing.Steps;
 [FlowthruStep]
 public static class CreateModelInputTableStep
 {
-  /// <summary>
-  /// Creates a join function that combines shuttle, company, and review data into a single table for modeling.
-  /// </summary>
-  /// <returns>
-  /// A function that performs inner joins to produce <see cref="ModelInputTableSchema"/> records.
-  /// Records are filtered to include only reviews with valid numeric scores.
-  /// </returns>
-  public static Func<
-    (
-      IEnumerable<PreprocessedShuttleSchema>,
-      IEnumerable<PreprocessedCompanySchema>,
-      IEnumerable<ReviewSchema>
-    ),
-    IEnumerable<ModelInputTableSchema>
-  > Create()
-  {
-    return (input) =>
+    /// <summary>
+    /// Creates a join function that combines shuttle, company, and review data into a single table for modeling.
+    /// </summary>
+    /// <returns>
+    /// A function that performs inner joins to produce <see cref="ModelInputTableSchema"/> records.
+    /// Records are filtered to include only reviews with valid numeric scores.
+    /// </returns>
+    public static Func<
+      (
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedCompanySchema>,
+        IEnumerable<ReviewSchema>
+      ),
+      IEnumerable<ModelInputTableSchema>
+    > Create()
     {
-      var (shuttles, companies, reviews) = input;
-
-      // Parse reviews to have decimal scores
-      var parsedReviews = reviews
-        .Select(r => new
+        return (input) =>
         {
-          r.ShuttleId,
-          Score = decimal.TryParse(r.ReviewScoresRating, out var score) ? score : (decimal?)null,
-        })
-        .Where(r => r.Score.HasValue)
-        .ToList();
+            var (shuttles, companies, reviews) = input;
 
-      // Join reviews to shuttles
-      var ratedShuttles = parsedReviews
-        .Join(
-          shuttles,
-          r => r.ShuttleId,
-          s => s.Id,
-          (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
-        )
-        .ToList();
-
-      // Join with companies
-      var modelInputTable = ratedShuttles
-        .Join(
-          companies,
-          rs => rs.Shuttle.CompanyId,
-          c => c.Id,
-          (rs, c) =>
-            new ModelInputTableSchema
+            // Parse reviews to have decimal scores
+            var parsedReviews = reviews
+          .Select(r => new
             {
-              ShuttleId = rs.Shuttle.Id,
-              ShuttleType = rs.Shuttle.ShuttleType,
-              CompanyId = rs.Shuttle.CompanyId,
-              Engines = rs.Shuttle.Engines,
-              PassengerCapacity = rs.Shuttle.PassengerCapacity,
-              Crew = rs.Shuttle.Crew,
-              DCheckComplete = rs.Shuttle.DCheckComplete,
-              MoonClearanceComplete = rs.Shuttle.MoonClearanceComplete,
-              Price = rs.Shuttle.Price,
-              IataApproved = c.IataApproved,
-              CompanyRating = c.CompanyRating,
-              ReviewScoresRating = rs.ReviewScore,
-            }
-        )
-        .ToList(); // Materialize query to ensure LINQ execution completes
+                r.ShuttleId,
+                Score = decimal.TryParse(r.ReviewScoresRating, out var score) ? score : (decimal?)null,
+            })
+          .Where(r => r.Score.HasValue)
+          .ToList();
 
-      return modelInputTable;
-    };
-  }
+            // Join reviews to shuttles
+            var ratedShuttles = parsedReviews
+          .Join(
+            shuttles,
+            r => r.ShuttleId,
+            s => s.Id,
+            (r, s) => new { Shuttle = s, ReviewScore = r.Score!.Value }
+          )
+          .ToList();
+
+            // Join with companies
+            var modelInputTable = ratedShuttles
+          .Join(
+            companies,
+            rs => rs.Shuttle.CompanyId,
+            c => c.Id,
+            (rs, c) =>
+              new ModelInputTableSchema
+                {
+                    ShuttleId = rs.Shuttle.Id,
+                    ShuttleType = rs.Shuttle.ShuttleType,
+                    CompanyId = rs.Shuttle.CompanyId,
+                    Engines = rs.Shuttle.Engines,
+                    PassengerCapacity = rs.Shuttle.PassengerCapacity,
+                    Crew = rs.Shuttle.Crew,
+                    DCheckComplete = rs.Shuttle.DCheckComplete,
+                    MoonClearanceComplete = rs.Shuttle.MoonClearanceComplete,
+                    Price = rs.Shuttle.Price,
+                    IataApproved = c.IataApproved,
+                    CompanyRating = c.CompanyRating,
+                    ReviewScoresRating = rs.ReviewScore,
+                }
+          )
+          .ToList(); // Materialize query to ensure LINQ execution completes
+
+            return modelInputTable;
+        };
+    }
 }

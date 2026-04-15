@@ -9,9 +9,9 @@ namespace KedroSpaceflightsSpark.Data._02_Intermediate.Schemas;
 [FlowthruSchema]
 public partial record ParsedReviewSchema
 {
-  [SerializedLabel("shuttle_id")]
-  public required string ShuttleId { get; init; }
+    [SerializedLabel("shuttle_id")]
+    public required string ShuttleId { get; init; }
 
-  [SerializedLabel("review_scores_rating")]
-  public required double ReviewScoresRating { get; init; }
+    [SerializedLabel("review_scores_rating")]
+    public required double ReviewScoresRating { get; init; }
 }

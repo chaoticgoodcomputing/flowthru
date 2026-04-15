@@ -23,45 +23,45 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.NeighborSearch;
 /// </remarks>
 public interface INeighborSearchStrategy
 {
-  /// <summary>
-  /// Computes k-nearest neighbors for all points in the dataset.
-  /// </summary>
-  /// <param name="data">
-  /// Input data as jagged array where each row represents a data point (n_samples × n_features).
-  /// data[i] is a float array of length n_features containing the feature values for sample i.
-  /// All rows must have the same length.
-  /// </param>
-  /// <param name="nNeighbors">
-  /// Number of nearest neighbors to find for each point.
-  /// Must be at least 2 and at most n_samples - 1.
-  /// </param>
-  /// <param name="metric">
-  /// Distance metric for computing pairwise distances between points.
-  /// </param>
-  /// <param name="random">
-  /// Random number generator for any randomized algorithms (e.g., approximate search).
-  /// Ensures reproducibility when a seed is provided.
-  /// </param>
-  /// <returns>
-  /// A result containing:
-  /// - <b>Indices</b>: n_samples × n_neighbors array where Indices[i][j] is the index of the j-th nearest neighbor of point i
-  /// - <b>Distances</b>: n_samples × n_neighbors array where Distances[i][j] is the distance to that neighbor
-  /// - <b>SearchIndex</b>: Optional search index structure for future queries (e.g., for transform), or null if not applicable
-  ///
-  /// Note: Indices[i][0] should always be i (each point is its own nearest neighbor with distance 0).
-  /// </returns>
-  /// <remarks>
-  /// <para>
-  /// <b>Implementation requirements:</b>
-  /// </para>
-  /// <list type="number">
-  ///   <item><description>Results must be sorted by distance (ascending) for each point</description></item>
-  ///   <item><description>First neighbor of each point should typically be itself (distance 0)</description></item>
-  ///   <item><description>For precomputed distances with disconnected components, use index -1 and distance ∞</description></item>
-  ///   <item><description>Thread-safe if marked as such in implementation</description></item>
-  /// </list>
-  /// </remarks>
-  NeighborSearchResult Search(float[][] data, int nNeighbors, IMetric metric, Random random);
+    /// <summary>
+    /// Computes k-nearest neighbors for all points in the dataset.
+    /// </summary>
+    /// <param name="data">
+    /// Input data as jagged array where each row represents a data point (n_samples × n_features).
+    /// data[i] is a float array of length n_features containing the feature values for sample i.
+    /// All rows must have the same length.
+    /// </param>
+    /// <param name="nNeighbors">
+    /// Number of nearest neighbors to find for each point.
+    /// Must be at least 2 and at most n_samples - 1.
+    /// </param>
+    /// <param name="metric">
+    /// Distance metric for computing pairwise distances between points.
+    /// </param>
+    /// <param name="random">
+    /// Random number generator for any randomized algorithms (e.g., approximate search).
+    /// Ensures reproducibility when a seed is provided.
+    /// </param>
+    /// <returns>
+    /// A result containing:
+    /// - <b>Indices</b>: n_samples × n_neighbors array where Indices[i][j] is the index of the j-th nearest neighbor of point i
+    /// - <b>Distances</b>: n_samples × n_neighbors array where Distances[i][j] is the distance to that neighbor
+    /// - <b>SearchIndex</b>: Optional search index structure for future queries (e.g., for transform), or null if not applicable
+    ///
+    /// Note: Indices[i][0] should always be i (each point is its own nearest neighbor with distance 0).
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// <b>Implementation requirements:</b>
+    /// </para>
+    /// <list type="number">
+    ///   <item><description>Results must be sorted by distance (ascending) for each point</description></item>
+    ///   <item><description>First neighbor of each point should typically be itself (distance 0)</description></item>
+    ///   <item><description>For precomputed distances with disconnected components, use index -1 and distance ∞</description></item>
+    ///   <item><description>Thread-safe if marked as such in implementation</description></item>
+    /// </list>
+    /// </remarks>
+    NeighborSearchResult Search(float[][] data, int nNeighbors, IMetric metric, Random random);
 }
 
 /// <summary>

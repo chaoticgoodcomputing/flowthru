@@ -37,80 +37,80 @@ namespace Flowthru.Core.Meta;
 /// </remarks>
 public static class FilenameTemplateParser
 {
-  private static readonly Regex _tokenPattern = new(@"\{(\w+)\}", RegexOptions.Compiled);
+    private static readonly Regex _tokenPattern = new(@"\{(\w+)\}", RegexOptions.Compiled);
 
-  /// <summary>
-  /// Renders a filename template by replacing tokens with values from the DAG metadata.
-  /// </summary>
-  /// <param name="template">Template string with {Token} placeholders</param>
-  /// <param name="dag">DAG metadata containing pipeline and slice information</param>
-  /// <param name="timestamp">Optional timestamp string (empty if timestamp disabled)</param>
-  /// <returns>Rendered filename with tokens replaced and empty segments collapsed</returns>
-  public static string Render(DagMetadata dag, string template, string? timestamp)
-  {
-    var result = _tokenPattern.Replace(
-      template,
-      match =>
-      {
-        var token = match.Groups[1].Value;
-        return token switch
-        {
-          "FlowName" => SanitizeFilename(dag.FlowName),
-          "Timestamp" => timestamp ?? string.Empty,
-          "SliceType" => dag.AppliedSlice?.GetSliceTypeDescriptor() ?? string.Empty,
-          "Flows" => FormatList(dag.AppliedSlice?.Flows),
-          "From" => FormatList(dag.AppliedSlice?.From),
-          "To" => FormatList(dag.AppliedSlice?.To),
-          "Only" => FormatList(dag.AppliedSlice?.Only),
-          _ => match.Value, // Unknown tokens left as-is
-        };
-      }
-    );
-
-    // Collapse consecutive separators and trim leading/trailing separators
-    return CollapseEmptySeparators(result);
-  }
-
-  /// <summary>
-  /// Formats an array as a comma-separated string, or empty string if null/empty.
-  /// </summary>
-  private static string FormatList(string[]? items)
-  {
-    return items?.Length > 0 ? string.Join(",", items) : string.Empty;
-  }
-
-  /// <summary>
-  /// Collapses consecutive separator characters (-, _) and trims leading/trailing separators.
-  /// </summary>
-  /// <remarks>
-  /// Prevents patterns like "file--name" or "file-" when tokens are empty.
-  /// Preserves extension separators (dots) for proper file extensions.
-  /// </remarks>
-  private static string CollapseEmptySeparators(string input)
-  {
-    // Replace multiple consecutive hyphens/underscores with a single instance
-    var collapsed = Regex.Replace(input, @"[-_]{2,}", m => m.Value[0].ToString());
-
-    // Remove separators immediately before file extensions
-    collapsed = Regex.Replace(collapsed, @"[-_]+(\.[^.]+)$", "$1");
-
-    // Trim leading/trailing separators
-    return collapsed.Trim('-', '_');
-  }
-
-  /// <summary>
-  /// Sanitizes a filename by replacing invalid characters with underscores.
-  /// </summary>
-  private static string SanitizeFilename(string filename)
-  {
-    var invalid = Path.GetInvalidFileNameChars();
-    var sanitized = new StringBuilder(filename.Length);
-
-    foreach (var c in filename)
+    /// <summary>
+    /// Renders a filename template by replacing tokens with values from the DAG metadata.
+    /// </summary>
+    /// <param name="template">Template string with {Token} placeholders</param>
+    /// <param name="dag">DAG metadata containing pipeline and slice information</param>
+    /// <param name="timestamp">Optional timestamp string (empty if timestamp disabled)</param>
+    /// <returns>Rendered filename with tokens replaced and empty segments collapsed</returns>
+    public static string Render(DagMetadata dag, string template, string? timestamp)
     {
-      sanitized.Append(Array.IndexOf(invalid, c) >= 0 ? '_' : c);
+        var result = _tokenPattern.Replace(
+          template,
+          match =>
+          {
+              var token = match.Groups[1].Value;
+              return token switch
+              {
+                  "FlowName" => SanitizeFilename(dag.FlowName),
+                  "Timestamp" => timestamp ?? string.Empty,
+                  "SliceType" => dag.AppliedSlice?.GetSliceTypeDescriptor() ?? string.Empty,
+                  "Flows" => FormatList(dag.AppliedSlice?.Flows),
+                  "From" => FormatList(dag.AppliedSlice?.From),
+                  "To" => FormatList(dag.AppliedSlice?.To),
+                  "Only" => FormatList(dag.AppliedSlice?.Only),
+                  _ => match.Value, // Unknown tokens left as-is
+              };
+          }
+        );
+
+        // Collapse consecutive separators and trim leading/trailing separators
+        return CollapseEmptySeparators(result);
     }
 
-    return sanitized.ToString();
-  }
+    /// <summary>
+    /// Formats an array as a comma-separated string, or empty string if null/empty.
+    /// </summary>
+    private static string FormatList(string[]? items)
+    {
+        return items?.Length > 0 ? string.Join(",", items) : string.Empty;
+    }
+
+    /// <summary>
+    /// Collapses consecutive separator characters (-, _) and trims leading/trailing separators.
+    /// </summary>
+    /// <remarks>
+    /// Prevents patterns like "file--name" or "file-" when tokens are empty.
+    /// Preserves extension separators (dots) for proper file extensions.
+    /// </remarks>
+    private static string CollapseEmptySeparators(string input)
+    {
+        // Replace multiple consecutive hyphens/underscores with a single instance
+        var collapsed = Regex.Replace(input, @"[-_]{2,}", m => m.Value[0].ToString());
+
+        // Remove separators immediately before file extensions
+        collapsed = Regex.Replace(collapsed, @"[-_]+(\.[^.]+)$", "$1");
+
+        // Trim leading/trailing separators
+        return collapsed.Trim('-', '_');
+    }
+
+    /// <summary>
+    /// Sanitizes a filename by replacing invalid characters with underscores.
+    /// </summary>
+    private static string SanitizeFilename(string filename)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var sanitized = new StringBuilder(filename.Length);
+
+        foreach (var c in filename)
+        {
+            sanitized.Append(Array.IndexOf(invalid, c) >= 0 ? '_' : c);
+        }
+
+        return sanitized.ToString();
+    }
 }

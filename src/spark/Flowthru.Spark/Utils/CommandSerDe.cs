@@ -253,7 +253,7 @@ namespace Flowthru.Spark.Utils
                         ref nodeIndex,
                         ref udfIndex);
             }
-            else 
+            else
             {
                 udf = (ArrowWorkerFunction.ExecuteDelegate)
                     DeserializeUdfs<ArrowWorkerFunction.ExecuteDelegate>(

@@ -9,12 +9,12 @@ namespace DroppedNeuralNet.Data._04_Analysis.Schemas;
 [FlowthruSchema]
 public partial record BlockAssignment
 {
-  /// <summary>Sequential Block position assigned by the Hungarian solver (0–47). Not the execution order.</summary>
-  public int BlockIndex { get; init; }
+    /// <summary>Sequential Block position assigned by the Hungarian solver (0–47). Not the execution order.</summary>
+    public int BlockIndex { get; init; }
 
-  public int InpPieceIndex { get; init; }
-  public int OutPieceIndex { get; init; }
+    public int InpPieceIndex { get; init; }
+    public int OutPieceIndex { get; init; }
 
-  /// <summary>Sinkhorn-normalized coherence score for this pairing — the cost the solver minimized.</summary>
-  public float CoherenceScore { get; init; }
+    /// <summary>Sinkhorn-normalized coherence score for this pairing — the cost the solver minimized.</summary>
+    public float CoherenceScore { get; init; }
 }

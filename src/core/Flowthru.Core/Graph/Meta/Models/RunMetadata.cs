@@ -26,15 +26,15 @@ namespace Flowthru.Core.Graph.Meta.Models;
 /// </remarks>
 public class RunMetadata
 {
-  /// <summary>
-  /// The structural DAG snapshot built during pre-flight, before any steps executed.
-  /// </summary>
-  [JsonPropertyName("dag")]
-  public required DagMetadata Dag { get; init; }
+    /// <summary>
+    /// The structural DAG snapshot built during pre-flight, before any steps executed.
+    /// </summary>
+    [JsonPropertyName("dag")]
+    public required DagMetadata Dag { get; init; }
 
-  /// <summary>
-  /// The outcome of the pipeline run, including per-step results and timing.
-  /// </summary>
-  [JsonPropertyName("result")]
-  public required FlowResult Result { get; init; }
+    /// <summary>
+    /// The outcome of the pipeline run, including per-step results and timing.
+    /// </summary>
+    [JsonPropertyName("result")]
+    public required FlowResult Result { get; init; }
 }

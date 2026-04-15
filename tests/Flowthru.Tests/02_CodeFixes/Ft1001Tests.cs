@@ -14,8 +14,8 @@ namespace Flowthru.Tests.CodeFixes;
 [Category("CodeFixes")]
 public class Ft1001Tests
 {
-  // Minimal stub so the compiler resolves [FlowthruSchema] without a real assembly reference.
-  private const string AttributeStub = """
+    // Minimal stub so the compiler resolves [FlowthruSchema] without a real assembly reference.
+    private const string AttributeStub = """
     namespace Flowthru.Core.Abstractions
     {
         [System.AttributeUsage(System.AttributeTargets.All)]
@@ -23,12 +23,12 @@ public class Ft1001Tests
     }
     """;
 
-  [Test]
-  public async Task NonPartialRecord_AddsMissingPartialKeyword()
-  {
-    var source =
-      AttributeStub
-      + """
+    [Test]
+    public async Task NonPartialRecord_AddsMissingPartialKeyword()
+    {
+        var source =
+          AttributeStub
+          + """
 
         namespace TestProject
         {
@@ -39,9 +39,9 @@ public class Ft1001Tests
         }
         """;
 
-    var fixedSource =
-      AttributeStub
-      + """
+        var fixedSource =
+          AttributeStub
+          + """
 
         namespace TestProject
         {
@@ -52,19 +52,19 @@ public class Ft1001Tests
         }
         """;
 
-    await new CSharpCodeFixTest<FlowthruSchemaAnalyzer, Ft1001AddPartialKeywordFix, NUnit4Verifier>
-    {
-      TestCode = source,
-      FixedCode = fixedSource,
-    }.RunAsync();
-  }
+        await new CSharpCodeFixTest<FlowthruSchemaAnalyzer, Ft1001AddPartialKeywordFix, NUnit4Verifier>
+        {
+            TestCode = source,
+            FixedCode = fixedSource,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task NonPartialClass_AddsMissingPartialKeyword()
-  {
-    var source =
-      AttributeStub
-      + """
+    [Test]
+    public async Task NonPartialClass_AddsMissingPartialKeyword()
+    {
+        var source =
+          AttributeStub
+          + """
 
         namespace TestProject
         {
@@ -75,9 +75,9 @@ public class Ft1001Tests
         }
         """;
 
-    var fixedSource =
-      AttributeStub
-      + """
+        var fixedSource =
+          AttributeStub
+          + """
 
         namespace TestProject
         {
@@ -88,19 +88,19 @@ public class Ft1001Tests
         }
         """;
 
-    await new CSharpCodeFixTest<FlowthruSchemaAnalyzer, Ft1001AddPartialKeywordFix, NUnit4Verifier>
-    {
-      TestCode = source,
-      FixedCode = fixedSource,
-    }.RunAsync();
-  }
+        await new CSharpCodeFixTest<FlowthruSchemaAnalyzer, Ft1001AddPartialKeywordFix, NUnit4Verifier>
+        {
+            TestCode = source,
+            FixedCode = fixedSource,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task PartialRecord_NoDiagnostic()
-  {
-    var source =
-      AttributeStub
-      + """
+    [Test]
+    public async Task PartialRecord_NoDiagnostic()
+    {
+        var source =
+          AttributeStub
+          + """
 
         namespace TestProject
         {
@@ -111,9 +111,9 @@ public class Ft1001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<FlowthruSchemaAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<FlowthruSchemaAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 }

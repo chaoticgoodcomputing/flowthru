@@ -11,6 +11,6 @@ namespace Flowthru.FUnit;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public sealed class StepTestAttribute(Type stepType) : Attribute
 {
-  /// <summary>The step type this test exercises.</summary>
-  public Type StepType { get; } = stepType;
+    /// <summary>The step type this test exercises.</summary>
+    public Type StepType { get; } = stepType;
 }

@@ -4,5 +4,5 @@ namespace KedroSpaceflightsSpark.Data;
 
 public partial class Catalog
 {
-  // Feature datasets added here as the pipeline evolves.
+    // Feature datasets added here as the pipeline evolves.
 }

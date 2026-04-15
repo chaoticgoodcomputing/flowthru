@@ -41,67 +41,67 @@ namespace Flowthru.Core.Data.Validation;
 /// </remarks>
 public enum InspectionLevel
 {
-  /// <summary>
-  /// Skip inspection entirely.
-  /// </summary>
-  /// <remarks>
-  /// Use when:
-  /// - Data source is trusted and validated externally
-  /// - Validation overhead is prohibitive for large datasets
-  /// - You're explicitly opting out of safety checks
-  /// </remarks>
-  None = 0,
+    /// <summary>
+    /// Skip inspection entirely.
+    /// </summary>
+    /// <remarks>
+    /// Use when:
+    /// - Data source is trusted and validated externally
+    /// - Validation overhead is prohibitive for large datasets
+    /// - You're explicitly opting out of safety checks
+    /// </remarks>
+    None = 0,
 
-  /// <summary>
-  /// Perform shallow inspection: existence, format, headers, and sample rows.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// <strong>What Shallow Inspection Checks:</strong>
-  /// </para>
-  /// <list type="bullet">
-  /// <item>File/resource exists</item>
-  /// <item>Format is valid (parseable as CSV/Excel/Parquet/etc.)</item>
-  /// <item>Headers match expected schema (column names, property mappings)</item>
-  /// <item>First N rows (default: 100) deserialize successfully</item>
-  /// <item>Data types are compatible with schema</item>
-  /// </list>
-  /// <para>
-  /// Performance: Minimal overhead (~10-100ms for typical files)
-  /// </para>
-  /// <para>
-  /// <strong>This is the default for all Layer 0 inputs.</strong>
-  /// </para>
-  /// </remarks>
-  Shallow = 1,
+    /// <summary>
+    /// Perform shallow inspection: existence, format, headers, and sample rows.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>What Shallow Inspection Checks:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>File/resource exists</item>
+    /// <item>Format is valid (parseable as CSV/Excel/Parquet/etc.)</item>
+    /// <item>Headers match expected schema (column names, property mappings)</item>
+    /// <item>First N rows (default: 100) deserialize successfully</item>
+    /// <item>Data types are compatible with schema</item>
+    /// </list>
+    /// <para>
+    /// Performance: Minimal overhead (~10-100ms for typical files)
+    /// </para>
+    /// <para>
+    /// <strong>This is the default for all Layer 0 inputs.</strong>
+    /// </para>
+    /// </remarks>
+    Shallow = 1,
 
-  /// <summary>
-  /// Perform deep inspection: all checks from Shallow plus validation of ALL rows.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// <strong>What Deep Inspection Adds:</strong>
-  /// </para>
-  /// <list type="bullet">
-  /// <item>All checks from Shallow inspection</item>
-  /// <item>Validates EVERY row deserializes successfully</item>
-  /// <item>Checks for data quality issues throughout entire dataset</item>
-  /// </list>
-  /// <para>
-  /// Performance: Potentially significant overhead (seconds to minutes for large datasets)
-  /// </para>
-  /// <para>
-  /// <strong>Use Cases:</strong>
-  /// </para>
-  /// <list type="bullet">
-  /// <item>Critical production deployments</item>
-  /// <item>After external data updates</item>
-  /// <item>CI/CD regression testing</item>
-  /// <item>When data corruption is suspected</item>
-  /// </list>
-  /// <para>
-  /// <strong>Must be explicitly opted-in by the pipeline creator.</strong>
-  /// </para>
-  /// </remarks>
-  Deep = 2,
+    /// <summary>
+    /// Perform deep inspection: all checks from Shallow plus validation of ALL rows.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>What Deep Inspection Adds:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>All checks from Shallow inspection</item>
+    /// <item>Validates EVERY row deserializes successfully</item>
+    /// <item>Checks for data quality issues throughout entire dataset</item>
+    /// </list>
+    /// <para>
+    /// Performance: Potentially significant overhead (seconds to minutes for large datasets)
+    /// </para>
+    /// <para>
+    /// <strong>Use Cases:</strong>
+    /// </para>
+    /// <list type="bullet">
+    /// <item>Critical production deployments</item>
+    /// <item>After external data updates</item>
+    /// <item>CI/CD regression testing</item>
+    /// <item>When data corruption is suspected</item>
+    /// </list>
+    /// <para>
+    /// <strong>Must be explicitly opted-in by the pipeline creator.</strong>
+    /// </para>
+    /// </remarks>
+    Deep = 2,
 }

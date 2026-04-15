@@ -11,64 +11,64 @@ namespace KedroIris.Flows.DataScience.Steps;
 [FlowthruStep]
 public static class EvaluateModelStep
 {
-  /// <summary>
-  /// Creates an evaluation function that compares predictions with actual labels.
-  /// </summary>
-  /// <returns>
-  /// A function that takes predictions and true labels to produce evaluation metrics.
-  /// </returns>
-  public static Func<
-    (IEnumerable<PredictionSchema> Predictions, IEnumerable<TargetLabelSchema> TestY),
-    MetricsSchema
-  > Create()
-  {
-    return (input) =>
+    /// <summary>
+    /// Creates an evaluation function that compares predictions with actual labels.
+    /// </summary>
+    /// <returns>
+    /// A function that takes predictions and true labels to produce evaluation metrics.
+    /// </returns>
+    public static Func<
+      (IEnumerable<PredictionSchema> Predictions, IEnumerable<TargetLabelSchema> TestY),
+      MetricsSchema
+    > Create()
     {
-      var (predictions, testY) = input;
-
-      var predList = predictions.ToList();
-      var yList = testY.ToList();
-
-      // Extract true class indices from one-hot encoded labels
-      var trueClasses = yList
-        .Select(label =>
+        return (input) =>
         {
-          if (label.Setosa == 1.0)
+            var (predictions, testY) = input;
+
+            var predList = predictions.ToList();
+            var yList = testY.ToList();
+
+            // Extract true class indices from one-hot encoded labels
+            var trueClasses = yList
+          .Select(label =>
           {
-            return 0;
-          }
+                if (label.Setosa == 1.0)
+                {
+                    return 0;
+                }
 
-          if (label.Versicolor == 1.0)
-          {
-            return 1;
-          }
+                if (label.Versicolor == 1.0)
+                {
+                    return 1;
+                }
 
-          return 2; // virginica
-        })
-        .ToList();
+                return 2; // virginica
+            })
+          .ToList();
 
-      // Compare predictions with true labels
-      int numCorrect = 0;
-      for (int i = 0; i < predList.Count; i++)
-      {
-        if (predList[i].PredictedClass == trueClasses[i])
-        {
-          numCorrect++;
-        }
-      }
+            // Compare predictions with true labels
+            int numCorrect = 0;
+            for (int i = 0; i < predList.Count; i++)
+            {
+                if (predList[i].PredictedClass == trueClasses[i])
+                {
+                    numCorrect++;
+                }
+            }
 
-      var numTotal = predList.Count;
-      var accuracy = (double)numCorrect / numTotal;
+            var numTotal = predList.Count;
+            var accuracy = (double)numCorrect / numTotal;
 
-      // Log accuracy to console
-      Console.WriteLine($"Model accuracy on test set: {accuracy:P2} ({numCorrect}/{numTotal})");
+            // Log accuracy to console
+            Console.WriteLine($"Model accuracy on test set: {accuracy:P2} ({numCorrect}/{numTotal})");
 
-      return new MetricsSchema
-      {
-        Accuracy = accuracy,
-        NumCorrect = numCorrect,
-        NumTotal = numTotal,
-      };
-    };
-  }
+            return new MetricsSchema
+            {
+                Accuracy = accuracy,
+                NumCorrect = numCorrect,
+                NumTotal = numTotal,
+            };
+        };
+    }
 }

@@ -11,25 +11,25 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
-    CreateItem(
-      () =>
-        EFCoreItemFactory
-          .Enumerable.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
-            label: "PreprocessedCompanies",
-            contextFactory: _contextFactory
-          )
-          .WithInspectionLevel(InspectionLevel.Shallow)
-    );
+    public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
+      CreateItem(
+        () =>
+          EFCoreItemFactory
+            .Enumerable.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
+              label: "PreprocessedCompanies",
+              contextFactory: _contextFactory
+            )
+            .WithInspectionLevel(InspectionLevel.Shallow)
+      );
 
-  public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
-    CreateItem(
-      () =>
-        EFCoreItemFactory
-          .Enumerable.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(
-            label: "PreprocessedShuttles",
-            contextFactory: _contextFactory
-          )
-          .WithInspectionLevel(InspectionLevel.Shallow)
-    );
+    public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
+      CreateItem(
+        () =>
+          EFCoreItemFactory
+            .Enumerable.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(
+              label: "PreprocessedShuttles",
+              contextFactory: _contextFactory
+            )
+            .WithInspectionLevel(InspectionLevel.Shallow)
+      );
 }

@@ -23,42 +23,42 @@ namespace Flowthru.Core.Graph;
 /// </remarks>
 internal static class GlobMatcher
 {
-  /// <summary>
-  /// Returns true if the value contains any glob metacharacters (<c>*</c> or <c>?</c>).
-  /// </summary>
-  public static bool IsPattern(string value) => value.Contains('*') || value.Contains('?');
+    /// <summary>
+    /// Returns true if the value contains any glob metacharacters (<c>*</c> or <c>?</c>).
+    /// </summary>
+    public static bool IsPattern(string value) => value.Contains('*') || value.Contains('?');
 
-  /// <summary>
-  /// Converts a glob pattern to a compiled, case-insensitive <see cref="Regex"/>.
-  /// </summary>
-  public static Regex ToRegex(string pattern)
-  {
-    var sb = new StringBuilder("^");
-    int i = 0;
-    while (i < pattern.Length)
+    /// <summary>
+    /// Converts a glob pattern to a compiled, case-insensitive <see cref="Regex"/>.
+    /// </summary>
+    public static Regex ToRegex(string pattern)
     {
-      if (i + 1 < pattern.Length && pattern[i] == '*' && pattern[i + 1] == '*')
-      {
-        sb.Append(".*");
-        i += 2;
-      }
-      else if (pattern[i] == '*')
-      {
-        sb.Append("[^.]*");
-        i++;
-      }
-      else if (pattern[i] == '?')
-      {
-        sb.Append("[^.]");
-        i++;
-      }
-      else
-      {
-        sb.Append(Regex.Escape(pattern[i].ToString()));
-        i++;
-      }
+        var sb = new StringBuilder("^");
+        int i = 0;
+        while (i < pattern.Length)
+        {
+            if (i + 1 < pattern.Length && pattern[i] == '*' && pattern[i + 1] == '*')
+            {
+                sb.Append(".*");
+                i += 2;
+            }
+            else if (pattern[i] == '*')
+            {
+                sb.Append("[^.]*");
+                i++;
+            }
+            else if (pattern[i] == '?')
+            {
+                sb.Append("[^.]");
+                i++;
+            }
+            else
+            {
+                sb.Append(Regex.Escape(pattern[i].ToString()));
+                i++;
+            }
+        }
+        sb.Append('$');
+        return new Regex(sb.ToString(), RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
-    sb.Append('$');
-    return new Regex(sb.ToString(), RegexOptions.IgnoreCase | RegexOptions.Compiled);
-  }
 }

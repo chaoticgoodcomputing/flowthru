@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MessagePack;
 using Flowthru.Spark.Utils;
+using MessagePack;
 using Xunit;
 
 namespace Flowthru.Tests.Spark;

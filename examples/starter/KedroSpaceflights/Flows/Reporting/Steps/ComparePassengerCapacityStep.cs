@@ -10,29 +10,29 @@ namespace KedroSpaceflights.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class ComparePassengerCapacityStep
 {
-  /// <summary>
-  /// Creates a function that computes average passenger capacity grouped by shuttle type.
-  /// </summary>
-  /// <returns>
-  /// A function that produces <see cref="ShuttleCapacityReport"/> records showing
-  /// average capacity for each shuttle type.
-  /// </returns>
-  public static Func<
-    IEnumerable<PreprocessedShuttleSchema>,
-    IEnumerable<ShuttleCapacityReport>
-  > Create()
-  {
-    return (input) =>
+    /// <summary>
+    /// Creates a function that computes average passenger capacity grouped by shuttle type.
+    /// </summary>
+    /// <returns>
+    /// A function that produces <see cref="ShuttleCapacityReport"/> records showing
+    /// average capacity for each shuttle type.
+    /// </returns>
+    public static Func<
+      IEnumerable<PreprocessedShuttleSchema>,
+      IEnumerable<ShuttleCapacityReport>
+    > Create()
     {
-      var report = input
-        .GroupBy(s => s.ShuttleType)
-        .Select(g => new ShuttleCapacityReport
+        return (input) =>
         {
-          ShuttleType = g.Key,
-          AvgPassengerCapacity = (decimal)g.Average(s => s.PassengerCapacity),
-        });
+            var report = input
+          .GroupBy(s => s.ShuttleType)
+          .Select(g => new ShuttleCapacityReport
+            {
+                ShuttleType = g.Key,
+                AvgPassengerCapacity = (decimal)g.Average(s => s.PassengerCapacity),
+            });
 
-      return report;
-    };
-  }
+            return report;
+        };
+    }
 }

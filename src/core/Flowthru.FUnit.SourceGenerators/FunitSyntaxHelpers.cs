@@ -11,47 +11,47 @@ namespace Flowthru.FUnit.SourceGenerators;
 /// </summary>
 internal static class FunitSyntaxHelpers
 {
-  /// <summary>
-  /// Checks whether a class declaration is enclosed inside a <c>#if</c> preprocessor
-  /// directive whose condition text contains <paramref name="guardName"/>.
-  /// </summary>
-  internal static bool IsInsidePreprocessorGuard(ClassDeclarationSyntax classDecl, string guardName)
-  {
-    var root = classDecl.SyntaxTree.GetCompilationUnitRoot();
-    var classStart = classDecl.SpanStart;
-
-    var directivesBefore = root.DescendantTrivia()
-      .Where(t => t.IsDirective && t.SpanStart < classStart)
-      .OrderBy(t => t.SpanStart)
-      .Select(t => t.GetStructure())
-      .OfType<DirectiveTriviaSyntax>();
-
-    var stack = new Stack<bool>();
-
-    foreach (var directive in directivesBefore)
+    /// <summary>
+    /// Checks whether a class declaration is enclosed inside a <c>#if</c> preprocessor
+    /// directive whose condition text contains <paramref name="guardName"/>.
+    /// </summary>
+    internal static bool IsInsidePreprocessorGuard(ClassDeclarationSyntax classDecl, string guardName)
     {
-      if (directive is IfDirectiveTriviaSyntax ifDir)
-      {
-        stack.Push(ifDir.Condition.ToString().Contains(guardName));
-      }
-      else if (directive is ElifDirectiveTriviaSyntax || directive is ElseDirectiveTriviaSyntax)
-      {
-        if (stack.Count > 0)
+        var root = classDecl.SyntaxTree.GetCompilationUnitRoot();
+        var classStart = classDecl.SpanStart;
+
+        var directivesBefore = root.DescendantTrivia()
+          .Where(t => t.IsDirective && t.SpanStart < classStart)
+          .OrderBy(t => t.SpanStart)
+          .Select(t => t.GetStructure())
+          .OfType<DirectiveTriviaSyntax>();
+
+        var stack = new Stack<bool>();
+
+        foreach (var directive in directivesBefore)
         {
-          stack.Pop();
+            if (directive is IfDirectiveTriviaSyntax ifDir)
+            {
+                stack.Push(ifDir.Condition.ToString().Contains(guardName));
+            }
+            else if (directive is ElifDirectiveTriviaSyntax || directive is ElseDirectiveTriviaSyntax)
+            {
+                if (stack.Count > 0)
+                {
+                    stack.Pop();
+                }
+
+                stack.Push(false);
+            }
+            else if (directive is EndIfDirectiveTriviaSyntax)
+            {
+                if (stack.Count > 0)
+                {
+                    stack.Pop();
+                }
+            }
         }
 
-        stack.Push(false);
-      }
-      else if (directive is EndIfDirectiveTriviaSyntax)
-      {
-        if (stack.Count > 0)
-        {
-          stack.Pop();
-        }
-      }
+        return stack.Any(v => v);
     }
-
-    return stack.Any(v => v);
-  }
 }

@@ -12,52 +12,67 @@ namespace KedroSpaceflightsGQL.Infra.GqlServer;
 /// </remarks>
 public class SpaceflightsRepository
 {
-  private readonly List<CompanyRecord> _companies = [];
-  private readonly List<ShuttleRecord> _shuttles = [];
-  private readonly List<ReviewRecord> _reviews = [];
+    private readonly List<CompanyRecord> _companies = [];
+    private readonly List<ShuttleRecord> _shuttles = [];
+    private readonly List<ReviewRecord> _reviews = [];
 
-  private readonly Lock _lock = new();
+    private readonly Lock _lock = new();
 
-  // ── Queries ─────────────────────────────────────────────────────────────
+    // ── Queries ─────────────────────────────────────────────────────────────
 
-  public IReadOnlyList<CompanyRecord> GetCompanies()
-  {
-    lock (_lock)
-      return _companies.ToList();
-  }
+    public IReadOnlyList<CompanyRecord> GetCompanies()
+    {
+        lock (_lock)
+        {
+            return _companies.ToList();
+        }
+    }
 
-  public IReadOnlyList<ShuttleRecord> GetShuttles()
-  {
-    lock (_lock)
-      return _shuttles.ToList();
-  }
+    public IReadOnlyList<ShuttleRecord> GetShuttles()
+    {
+        lock (_lock)
+        {
+            return _shuttles.ToList();
+        }
+    }
 
-  public IReadOnlyList<ReviewRecord> GetReviews()
-  {
-    lock (_lock)
-      return _reviews.ToList();
-  }
+    public IReadOnlyList<ReviewRecord> GetReviews()
+    {
+        lock (_lock)
+        {
+            return _reviews.ToList();
+        }
+    }
 
-  // ── Mutations ────────────────────────────────────────────────────────────
+    // ── Mutations ────────────────────────────────────────────────────────────
 
-  public CompanyRecord AddCompany(CompanyRecord company)
-  {
-    lock (_lock)
-      _companies.Add(company);
-    return company;
-  }
+    public CompanyRecord AddCompany(CompanyRecord company)
+    {
+        lock (_lock)
+        {
+            _companies.Add(company);
+        }
 
-  public ShuttleRecord AddShuttle(ShuttleRecord shuttle)
-  {
-    lock (_lock)
-      _shuttles.Add(shuttle);
-    return shuttle;
-  }
+        return company;
+    }
 
-  public ReviewRecord AddReview(ReviewRecord review)
-  {
-    lock (_lock)
-      _reviews.Add(review);
-    return review;
-  }
+    public ShuttleRecord AddShuttle(ShuttleRecord shuttle)
+    {
+        lock (_lock)
+        {
+            _shuttles.Add(shuttle);
+        }
+
+        return shuttle;
+    }
+
+    public ReviewRecord AddReview(ReviewRecord review)
+    {
+        lock (_lock)
+        {
+            _reviews.Add(review);
+        }
+
+        return review;
+    }
 }

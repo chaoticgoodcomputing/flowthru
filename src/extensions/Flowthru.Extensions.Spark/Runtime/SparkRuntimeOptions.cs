@@ -69,11 +69,15 @@ public sealed class SparkRuntimeOptions
     public string GetResolvedSparkHome()
     {
         if (!string.IsNullOrWhiteSpace(SparkHome))
+        {
             return SparkHome!;
+        }
 
         var envSparkHome = Environment.GetEnvironmentVariable("SPARK_HOME");
         if (!string.IsNullOrWhiteSpace(envSparkHome) && Directory.Exists(envSparkHome))
+        {
             return envSparkHome!;
+        }
 
         // Common Homebrew path on Apple Silicon and Intel macOS
         var homebrewPaths = new[]
@@ -85,7 +89,9 @@ public sealed class SparkRuntimeOptions
         foreach (var candidate in homebrewPaths)
         {
             if (Directory.Exists(candidate))
+            {
                 return candidate;
+            }
         }
 
         throw new InvalidOperationException(
@@ -105,7 +111,10 @@ public sealed class SparkRuntimeOptions
         if (!string.IsNullOrWhiteSpace(JarPath))
         {
             if (!File.Exists(JarPath))
+            {
                 throw new InvalidOperationException($"Spark bridge JAR not found at explicitly configured path: {JarPath}");
+            }
+
             return JarPath!;
         }
 
@@ -113,7 +122,10 @@ public sealed class SparkRuntimeOptions
         if (!string.IsNullOrWhiteSpace(envJar))
         {
             if (!File.Exists(envJar))
+            {
                 throw new InvalidOperationException($"Spark bridge JAR not found at FLOWTHRU_SPARK_JAR path: {envJar}");
+            }
+
             return envJar!;
         }
 
@@ -123,11 +135,13 @@ public sealed class SparkRuntimeOptions
         var jarPath = Path.Combine(assemblyDir, JarFileName);
 
         if (!File.Exists(jarPath))
+        {
             throw new InvalidOperationException(
                 $"Spark bridge JAR '{JarFileName}' not found in assembly output directory '{assemblyDir}'. "
                     + "Ensure Flowthru.Extensions.Spark was built with its NX 'build' target so the JAR is staged, "
                     + "or set the FLOWTHRU_SPARK_JAR environment variable explicitly."
             );
+        }
 
         return jarPath;
     }

@@ -6,7 +6,7 @@ namespace KedroIrisPython.Data;
 /// </summary>
 public partial class Catalog
 {
-  // No entries defined for this layer in the Iris example.
-  // This layer would typically contain engineered features such as
-  // polynomial terms, embeddings, or domain-specific transformations.
+    // No entries defined for this layer in the Iris example.
+    // This layer would typically contain engineered features such as
+    // polynomial terms, embeddings, or domain-specific transformations.
 }

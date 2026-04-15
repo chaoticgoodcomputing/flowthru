@@ -57,73 +57,73 @@ namespace Flowthru.Core.Steps;
 /// </remarks>
 public sealed class NoData
 {
-  private static int _uniqueIdCounter = 0;
+    private static int _uniqueIdCounter = 0;
 
-  /// <summary>
-  /// Singleton instance of NoData.
-  /// Use this value when returning NoData from step transformations.
-  /// </summary>
-  public static readonly NoData Value = new();
+    /// <summary>
+    /// Singleton instance of NoData.
+    /// Use this value when returning NoData from step transformations.
+    /// </summary>
+    public static readonly NoData Value = new();
 
-  /// <summary>
-  /// Creates a unique null catalog entry for use as a step input (no-input nodes).
-  /// Each call generates a new instance with a unique key to avoid DAG conflicts.
-  /// </summary>
-  /// <remarks>
-  /// Alias for readability in pipeline declarations where nodes don't consume external inputs.
-  /// </remarks>
-  public static Data.IItem<NoData> Input =>
-    Data.ItemFactory.Null<NoData>($"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    /// <summary>
+    /// Creates a unique null catalog entry for use as a step input (no-input nodes).
+    /// Each call generates a new instance with a unique key to avoid DAG conflicts.
+    /// </summary>
+    /// <remarks>
+    /// Alias for readability in pipeline declarations where nodes don't consume external inputs.
+    /// </remarks>
+    public static Data.IItem<NoData> Input =>
+      Data.ItemFactory.Null<NoData>($"_nodata_input_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
-  /// <summary>
-  /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
-  /// Each call generates a new instance with a unique key to avoid DAG conflicts.
-  /// </summary>
-  /// <remarks>
-  /// Alias for readability in pipeline declarations where nodes produce no meaningful output.
-  /// </remarks>
-  public static Data.IItem<NoData> Output =>
-    Data.ItemFactory.Null<NoData>($"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    /// <summary>
+    /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
+    /// Each call generates a new instance with a unique key to avoid DAG conflicts.
+    /// </summary>
+    /// <remarks>
+    /// Alias for readability in pipeline declarations where nodes produce no meaningful output.
+    /// </remarks>
+    public static Data.IItem<NoData> Output =>
+      Data.ItemFactory.Null<NoData>($"_nodata_output_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
-  /// <summary>
-  /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
-  /// Semantic alias for Output - use whichever reads better in context.
-  /// </summary>
-  public static Data.IItem<NoData> Discard =>
-    Data.ItemFactory.Null<NoData>($"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    /// <summary>
+    /// Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
+    /// Semantic alias for Output - use whichever reads better in context.
+    /// </summary>
+    public static Data.IItem<NoData> Discard =>
+      Data.ItemFactory.Null<NoData>($"_nodata_discard_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
-  /// <summary>
-  /// Creates a unique null catalog entry for use as a step input (no-input nodes).
-  /// Semantic alias for Input - use whichever reads better in context.
-  /// </summary>
-  public static Data.IItem<NoData> None =>
-    Data.ItemFactory.Null<NoData>($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
+    /// <summary>
+    /// Creates a unique null catalog entry for use as a step input (no-input nodes).
+    /// Semantic alias for Input - use whichever reads better in context.
+    /// </summary>
+    public static Data.IItem<NoData> None =>
+      Data.ItemFactory.Null<NoData>($"_nodata_none_{Interlocked.Increment(ref _uniqueIdCounter)}");
 
-  /// <summary>
-  /// Returns the standard NoData result for side-effect-only nodes.
-  /// Use this at the end of Transform() methods that return NoData.
-  /// </summary>
-  /// <returns>Singleton collection containing NoData.Value</returns>
-  /// <remarks>
-  /// <para>
-  /// This helper eliminates the verbose <c>Task.FromResult(Enumerable.Repeat(NoData.Value, 1))</c>
-  /// boilerplate. Simply return <c>NoData.Result()</c>.
-  /// </para>
-  /// <example>
-  /// <code>
-  /// // Instead of:
-  /// return Task.FromResult(Enumerable.Repeat(NoData.Value, 1));
-  ///
-  /// // Use:
-  /// return NoData.Result();
-  /// </code>
-  /// </example>
-  /// </remarks>
-  public static System.Threading.Tasks.Task<IEnumerable<NoData>> Result()
-  {
-    return System.Threading.Tasks.Task.FromResult(Enumerable.Repeat(Value, 1));
-  }
+    /// <summary>
+    /// Returns the standard NoData result for side-effect-only nodes.
+    /// Use this at the end of Transform() methods that return NoData.
+    /// </summary>
+    /// <returns>Singleton collection containing NoData.Value</returns>
+    /// <remarks>
+    /// <para>
+    /// This helper eliminates the verbose <c>Task.FromResult(Enumerable.Repeat(NoData.Value, 1))</c>
+    /// boilerplate. Simply return <c>NoData.Result()</c>.
+    /// </para>
+    /// <example>
+    /// <code>
+    /// // Instead of:
+    /// return Task.FromResult(Enumerable.Repeat(NoData.Value, 1));
+    ///
+    /// // Use:
+    /// return NoData.Result();
+    /// </code>
+    /// </example>
+    /// </remarks>
+    public static System.Threading.Tasks.Task<IEnumerable<NoData>> Result()
+    {
+        return System.Threading.Tasks.Task.FromResult(Enumerable.Repeat(Value, 1));
+    }
 
-  // Private constructor ensures only the singleton instance can exist
-  private NoData() { }
+    // Private constructor ensures only the singleton instance can exist
+    private NoData() { }
 }

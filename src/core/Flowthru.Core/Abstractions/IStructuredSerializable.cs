@@ -73,5 +73,5 @@ namespace Flowthru.Core.Abstractions;
 /// </example>
 public interface IStructuredSerializable
 {
-  // Marker interface - no members required
+    // Marker interface - no members required
 }

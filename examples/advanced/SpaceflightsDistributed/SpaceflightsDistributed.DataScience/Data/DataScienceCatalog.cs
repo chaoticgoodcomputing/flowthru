@@ -8,11 +8,11 @@ namespace SpaceflightsDistributed.DataScience.Data;
 /// </summary>
 public partial class DataScienceCatalog : CatalogAbstract
 {
-  private readonly string _basePath;
+    private readonly string _basePath;
 
-  public DataScienceCatalog(string basePath)
-  {
-    _basePath = basePath;
-    InitializeCatalogProperties();
-  }
+    public DataScienceCatalog(string basePath)
+    {
+        _basePath = basePath;
+        InitializeCatalogProperties();
+    }
 }

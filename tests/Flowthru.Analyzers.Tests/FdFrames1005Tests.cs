@@ -12,7 +12,7 @@ namespace Flowthru.Analyzers.Tests;
 [TestFixture]
 public class FDFRAMES1005Tests
 {
-  private const string Stubs = """
+    private const string Stubs = """
     using System;
     using System.Linq.Expressions;
     using Flowthru.Misc.DataFrames;
@@ -48,17 +48,17 @@ public class FDFRAMES1005Tests
     }
     """;
 
-  private static DiagnosticResult FDFRAMES1005(int marker) =>
-    new DiagnosticResult(DataFrameDiagnostics.InvalidAggregateBinding).WithLocation(marker);
+    private static DiagnosticResult FDFRAMES1005(int marker) =>
+      new DiagnosticResult(DataFrameDiagnostics.InvalidAggregateBinding).WithLocation(marker);
 
-  // ─── Negative cases: valid ctx.Key / ctx.Method() bindings → no diagnostic ──
+    // ─── Negative cases: valid ctx.Key / ctx.Method() bindings → no diagnostic ──
 
-  [Test]
-  public async Task KeyAndAvg_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task KeyAndAvg_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -74,18 +74,18 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task AnonymousType_ValidBindings_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task AnonymousType_ValidBindings_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -96,19 +96,19 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task AnonymousType_ShorthandKeyAccess_DoesNotReport()
-  {
-    // new { ctx.Key } is shorthand — d.Expression is ctx.Key, a MemberAccessExpression on ctx.
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task AnonymousType_ShorthandKeyAccess_DoesNotReport()
+    {
+        // new { ctx.Key } is shorthand — d.Expression is ctx.Key, a MemberAccessExpression on ctx.
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -119,20 +119,20 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
+
+    // ─── Positive cases: non-ctx bindings → FDFRAMES1005 fires ───────────────────
+
+    [Test]
+    public async Task LiteralBinding_Reports_FDFRAMES1005()
     {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  // ─── Positive cases: non-ctx bindings → FDFRAMES1005 fires ───────────────────
-
-  [Test]
-  public async Task LiteralBinding_Reports_FDFRAMES1005()
-  {
-    var source =
-      Stubs
-      + """
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -143,19 +143,19 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("42.0") },
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("42.0") },
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task StringConstantBinding_Reports_FDFRAMES1005()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task StringConstantBinding_Reports_FDFRAMES1005()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -166,20 +166,20 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("\"hardcoded\"") },
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("\"hardcoded\"") },
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task BinaryExpressionOnKey_Reports_FDFRAMES1005()
-  {
-    // ctx.Key + "_suffix" is a BinaryExpression, not a direct member access on ctx.
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task BinaryExpressionOnKey_Reports_FDFRAMES1005()
+    {
+        // ctx.Key + "_suffix" is a BinaryExpression, not a direct member access on ctx.
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -190,20 +190,20 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("ctx.Key + \"_suffix\"") },
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("ctx.Key + \"_suffix\"") },
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task ChainedMemberAccess_Reports_FDFRAMES1005()
-  {
-    // ctx.Key.Length accesses a member on the result of ctx.Key, not on ctx directly.
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task ChainedMemberAccess_Reports_FDFRAMES1005()
+    {
+        // ctx.Key.Length accesses a member on the result of ctx.Key, not on ctx directly.
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -214,19 +214,19 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("ctx.Key.Length") },
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("ctx.Key.Length") },
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task MixedBindings_ReportsOnlyInvalid()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task MixedBindings_ReportsOnlyInvalid()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -242,11 +242,11 @@ public class FDFRAMES1005Tests
         }
         """;
 
-    // (long)ctx.Count() is a CastExpression — not a direct ctx.Method() call.
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("(long)ctx.Count()") },
-    }.RunAsync();
-  }
+        // (long)ctx.Count() is a CastExpression — not a direct ctx.Method() call.
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("(long)ctx.Count()") },
+        }.RunAsync();
+    }
 }

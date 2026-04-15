@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -173,7 +173,8 @@ namespace Flowthru.Spark.Interop.Ipc
                 // - CallbackFlags.CLOSE
                 // - CallbackFlags.CALLBACK
                 int requestFlag = BinaryPrimitives.ReadInt32BigEndian(requestFlagBytes);
-                if (requestFlag == (int)CallbackFlags.CLOSE) {
+                if (requestFlag == (int)CallbackFlags.CLOSE)
+                {
                     return ConnectionStatus.REQUEST_CLOSE;
                 }
                 else if (requestFlag != (int)CallbackFlags.CALLBACK)

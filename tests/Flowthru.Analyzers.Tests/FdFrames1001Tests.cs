@@ -12,9 +12,9 @@ namespace Flowthru.Analyzers.Tests;
 [TestFixture]
 public class FDFRAMES1001Tests
 {
-  // Minimal stubs that satisfy the analyzer's type-name check without requiring the
-  // full runtime library (which in turn requires the Spark JVM at runtime).
-  private const string Stubs = """
+    // Minimal stubs that satisfy the analyzer's type-name check without requiring the
+    // full runtime library (which in turn requires the Spark JVM at runtime).
+    private const string Stubs = """
     using System;
     using System.Linq.Expressions;
     using Flowthru.Misc.DataFrames;
@@ -47,17 +47,17 @@ public class FDFRAMES1001Tests
     public record OutputRecord(string Name, int Age);
     """;
 
-  private static DiagnosticResult FDFRAMES1001(int line, int col) =>
-    new DiagnosticResult(DataFrameDiagnostics.InvalidProjectionBody).WithLocation(line, col);
+    private static DiagnosticResult FDFRAMES1001(int line, int col) =>
+      new DiagnosticResult(DataFrameDiagnostics.InvalidProjectionBody).WithLocation(line, col);
 
-  // ─── Negative cases: valid projection bodies → no diagnostic ────────────────
+    // ─── Negative cases: valid projection bodies → no diagnostic ────────────────
 
-  [Test]
-  public async Task ObjectInitializer_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task ObjectInitializer_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -68,20 +68,20 @@ public class FDFRAMES1001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task RecordPositionalConstructor_DoesNotReport()
-  {
-    // Uses an actual record so FDFRAMES1003 (positional ctor on non-record) does not fire
-    // — this test specifically verifies FDFRAMES1001 is silent for valid positional forms.
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task RecordPositionalConstructor_DoesNotReport()
+    {
+        // Uses an actual record so FDFRAMES1003 (positional ctor on non-record) does not fire
+        // — this test specifically verifies FDFRAMES1001 is silent for valid positional forms.
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -92,18 +92,18 @@ public class FDFRAMES1001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task AnonymousTypeCreation_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task AnonymousTypeCreation_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -114,18 +114,18 @@ public class FDFRAMES1001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task SingleMemberAccess_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task SingleMemberAccess_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -136,20 +136,20 @@ public class FDFRAMES1001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
+
+    // ─── Positive cases: invalid projection bodies → FDFRAMES1001 fires ──────────
+
+    [Test]
+    public async Task TupleCreate_Reports_FDFRAMES1001()
     {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  // ─── Positive cases: invalid projection bodies → FDFRAMES1001 fires ──────────
-
-  [Test]
-  public async Task TupleCreate_Reports_FDFRAMES1001()
-  {
-    var source =
-      Stubs
-      + """
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -160,24 +160,24 @@ public class FDFRAMES1001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics =
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics =
       {
         new DiagnosticResult(DataFrameDiagnostics.InvalidProjectionBody)
           .WithLocation(0)
           .WithArguments("Tuple.Create(x.Name, x.Age)"),
       },
-    }.RunAsync();
-  }
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task ArbitraryMethodCall_Reports_FDFRAMES1001()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task ArbitraryMethodCall_Reports_FDFRAMES1001()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -190,15 +190,15 @@ public class FDFRAMES1001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics =
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics =
       {
         new DiagnosticResult(DataFrameDiagnostics.InvalidProjectionBody)
           .WithLocation(0)
           .WithArguments("Map(x)"),
       },
-    }.RunAsync();
-  }
+        }.RunAsync();
+    }
 }

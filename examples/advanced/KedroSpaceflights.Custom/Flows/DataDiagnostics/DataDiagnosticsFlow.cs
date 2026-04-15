@@ -31,49 +31,49 @@ namespace KedroSpaceflights.Custom.Flows.DataDiagnostics;
 /// </summary>
 public static class DataDiagnosticsFlow
 {
-  public static Flow Create(Catalog catalog)
-  {
-    return FlowBuilder.CreateFlow(pipeline =>
+    public static Flow Create(Catalog catalog)
     {
-      // Step 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
-      pipeline.AddStep(
-        label: "ValidateModelInputTableAgainstKedroSource",
-        transform: ValidateAgainstKedroStep.Create(),
-        input: (catalog.ModelInputTable, catalog.KedroModelInputTable),
-        output: NoData.Discard
-      );
+        return FlowBuilder.CreateFlow(pipeline =>
+        {
+            // Step 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
+            pipeline.AddStep(
+          label: "ValidateModelInputTableAgainstKedroSource",
+          transform: ValidateAgainstKedroStep.Create(),
+          input: (catalog.ModelInputTable, catalog.KedroModelInputTable),
+          output: NoData.Discard
+        );
 
-      // Step 2: Export cleaned companies to CSV for manual inspection
-      pipeline.AddStep(
-        label: "ExportCompaniesToDiagnosticCsv",
-        transform: PassthroughInputToOutputStep<CompanySchema>.Create(),
-        input: catalog.CleanedCompanies,
-        output: catalog.CleanedCompaniesCsv
-      );
+            // Step 2: Export cleaned companies to CSV for manual inspection
+            pipeline.AddStep(
+          label: "ExportCompaniesToDiagnosticCsv",
+          transform: PassthroughInputToOutputStep<CompanySchema>.Create(),
+          input: catalog.CleanedCompanies,
+          output: catalog.CleanedCompaniesCsv
+        );
 
-      // Step 3: Export cleaned shuttles to CSV for manual inspection
-      pipeline.AddStep(
-        label: "ExportShuttlesToDiagnosticCsv",
-        transform: PassthroughInputToOutputStep<ShuttleSchema>.Create(),
-        input: catalog.CleanedShuttles,
-        output: catalog.CleanedShuttlesCsv
-      );
+            // Step 3: Export cleaned shuttles to CSV for manual inspection
+            pipeline.AddStep(
+          label: "ExportShuttlesToDiagnosticCsv",
+          transform: PassthroughInputToOutputStep<ShuttleSchema>.Create(),
+          input: catalog.CleanedShuttles,
+          output: catalog.CleanedShuttlesCsv
+        );
 
-      // Step 4: Export model input table to CSV for manual inspection
-      pipeline.AddStep(
-        label: "ExportModelInputTableToDiagnosticCsv",
-        transform: PassthroughInputToOutputStep<ModelInputSchema>.Create(),
-        input: catalog.ModelInputTable,
-        output: catalog.ModelInputTableCsv
-      );
+            // Step 4: Export model input table to CSV for manual inspection
+            pipeline.AddStep(
+          label: "ExportModelInputTableToDiagnosticCsv",
+          transform: PassthroughInputToOutputStep<ModelInputSchema>.Create(),
+          input: catalog.ModelInputTable,
+          output: catalog.ModelInputTableCsv
+        );
 
-      // Step 5: Export model input table to minified JSON for production/compact storage
-      pipeline.AddStep(
-        label: "ExportModelInputTableToMinifiedJson",
-        transform: PassthroughInputToOutputStep<ModelInputSchema>.Create(),
-        input: catalog.ModelInputTable,
-        output: catalog.ModelInputTableJsonMinified
-      );
-    });
-  }
+            // Step 5: Export model input table to minified JSON for production/compact storage
+            pipeline.AddStep(
+          label: "ExportModelInputTableToMinifiedJson",
+          transform: PassthroughInputToOutputStep<ModelInputSchema>.Create(),
+          input: catalog.ModelInputTable,
+          output: catalog.ModelInputTableJsonMinified
+        );
+        });
+    }
 }

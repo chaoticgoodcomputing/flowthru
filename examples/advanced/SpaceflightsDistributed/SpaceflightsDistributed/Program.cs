@@ -28,79 +28,79 @@ namespace SpaceflightsDistributed;
 /// </summary>
 public class Program
 {
-  public static Task<int> Main(string[] args) =>
-    FlowthruCli.RunStandaloneAsync(
-      args,
-      services => ConfigureServices(services, Directory.GetCurrentDirectory())
-    );
+    public static Task<int> Main(string[] args) =>
+      FlowthruCli.RunStandaloneAsync(
+        args,
+        services => ConfigureServices(services, Directory.GetCurrentDirectory())
+      );
 
-  /// <summary>
-  /// Configures services for the application.
-  /// </summary>
-  public static IServiceProvider ConfigureServices(string? basePath = null)
-  {
-    var services = new ServiceCollection();
-    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
-    return services.BuildServiceProvider();
-  }
-
-  private static void ConfigureServices(IServiceCollection services, string basePath)
-  {
-    var dataPath = Path.Combine(basePath, "Data");
-
-    services.AddFlowthru(flowthru =>
+    /// <summary>
+    /// Configures services for the application.
+    /// </summary>
+    public static IServiceProvider ConfigureServices(string? basePath = null)
     {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
+        var services = new ServiceCollection();
+        ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+        return services.BuildServiceProvider();
+    }
 
-      // ─── Catalog Registration ──────────────────────────────────────────────
-      // Each library owns its own catalog.
+    private static void ConfigureServices(IServiceCollection services, string basePath)
+    {
+        var dataPath = Path.Combine(basePath, "Data");
 
-      flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
-      flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
-      flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
+        services.AddFlowthru(flowthru =>
+        {
+            flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
 
-      // ─── Flow Registration ─────────────────────────────────────────────
+            // ─── Catalog Registration ──────────────────────────────────────────────
+            // Each library owns its own catalog.
 
-      flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-        .WithDescription("Preprocesses companies and shuttles data into a model input table");
+            flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
+            flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
+            flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
 
-      flowthru
-        .RegisterFlow(
-          label: "DataScience",
-          flow: DataScienceFlow.Create,
-          configurationSection: "Flowthru:Flows:DataScience"
-        )
-        .WithDescription("Trains linear regression model for shuttle price prediction");
+            // ─── Flow Registration ─────────────────────────────────────────────
 
-      flowthru
-        .RegisterFlow(
-          label: "Reporting",
-          flow: ReportingFlow.Create,
-          configurationSection: "Flowthru:Flows:Reporting"
-        )
-        .WithDescription(
-          "Generates passenger capacity reports and confusion matrix visualizations"
-        );
+            flowthru
+          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
+          .WithDescription("Preprocesses companies and shuttles data into a model input table");
 
-      // ─── Metadata Providers ───────────────────────────────────────────────
-
-      flowthru.ConfigureMetadata(meta =>
-      {
-        var metadataPath = Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
+            flowthru
+          .RegisterFlow(
+            label: "DataScience",
+            flow: DataScienceFlow.Create,
+            configurationSection: "Flowthru:Flows:DataScience"
           )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
-          );
-      });
-    });
+          .WithDescription("Trains linear regression model for shuttle price prediction");
 
-    services.AddLogging(logging =>
-    {
-      logging.AddConsole();
-      logging.SetMinimumLevel(LogLevel.Information);
-    });
-  }
+            flowthru
+          .RegisterFlow(
+            label: "Reporting",
+            flow: ReportingFlow.Create,
+            configurationSection: "Flowthru:Flows:Reporting"
+          )
+          .WithDescription(
+            "Generates passenger capacity reports and confusion matrix visualizations"
+          );
+
+            // ─── Metadata Providers ───────────────────────────────────────────────
+
+            flowthru.ConfigureMetadata(meta =>
+        {
+              var metadataPath = Path.Combine(basePath, "Metadata");
+              meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+          });
+        });
+
+        services.AddLogging(logging =>
+        {
+            logging.AddConsole();
+            logging.SetMinimumLevel(LogLevel.Information);
+        });
+    }
 }

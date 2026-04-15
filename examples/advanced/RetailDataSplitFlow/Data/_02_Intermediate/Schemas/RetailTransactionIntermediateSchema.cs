@@ -19,12 +19,12 @@ namespace RetailDataMultipipeline.Data._02_Intermediate.Schemas;
 [FlowthruSchema]
 public partial record RetailTransactionIntermediateSchema
 {
-  public required string InvoiceNo { get; init; }
-  public required string StockCode { get; init; }
-  public string? Description { get; init; }
-  public int Quantity { get; init; }
-  public DateTime InvoiceDate { get; init; }
-  public decimal UnitPrice { get; init; }
-  public int? CustomerId { get; init; }
-  public required string Country { get; init; }
+    public required string InvoiceNo { get; init; }
+    public required string StockCode { get; init; }
+    public string? Description { get; init; }
+    public int Quantity { get; init; }
+    public DateTime InvoiceDate { get; init; }
+    public decimal UnitPrice { get; init; }
+    public int? CustomerId { get; init; }
+    public required string Country { get; init; }
 }

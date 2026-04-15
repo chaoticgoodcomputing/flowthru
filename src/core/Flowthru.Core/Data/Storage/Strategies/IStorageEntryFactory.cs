@@ -36,42 +36,42 @@ namespace Flowthru.Core.Data.Storage.Strategies;
 /// </remarks>
 public interface IStorageEntryFactory
 {
-  /// <summary>
-  /// Creates a catalog entry for an enumerable dataset.
-  /// </summary>
-  /// <typeparam name="T">Schema type (must implement IFlatSchema and ITextSerializable)</typeparam>
-  /// <param name="label">Catalog label for the entry</param>
-  /// <param name="options">Optional storage options</param>
-  /// <returns>Configured catalog entry</returns>
-  /// <remarks>
-  /// <para>
-  /// Type constraints ensure compatibility with CSV and Parquet serialization.
-  /// Memory storage also works since it has no serialization requirements.
-  /// </para>
-  /// <para>
-  /// If options.Path is null, the label is used to derive a default path
-  /// (e.g., "Companies" → "Companies.csv" or "dbo.Companies").
-  /// </para>
-  /// </remarks>
-  IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
-    where T : notnull, IFlatSchema, ITextSerializable;
+    /// <summary>
+    /// Creates a catalog entry for an enumerable dataset.
+    /// </summary>
+    /// <typeparam name="T">Schema type (must implement IFlatSchema and ITextSerializable)</typeparam>
+    /// <param name="label">Catalog label for the entry</param>
+    /// <param name="options">Optional storage options</param>
+    /// <returns>Configured catalog entry</returns>
+    /// <remarks>
+    /// <para>
+    /// Type constraints ensure compatibility with CSV and Parquet serialization.
+    /// Memory storage also works since it has no serialization requirements.
+    /// </para>
+    /// <para>
+    /// If options.Path is null, the label is used to derive a default path
+    /// (e.g., "Companies" → "Companies.csv" or "dbo.Companies").
+    /// </para>
+    /// </remarks>
+    IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
+      where T : notnull, IFlatSchema, ITextSerializable;
 
-  /// <summary>
-  /// Creates a catalog entry for a singleton object.
-  /// </summary>
-  /// <typeparam name="T">Object type (must implement IStructuredSerializable)</typeparam>
-  /// <param name="label">Catalog label for the entry</param>
-  /// <param name="options">Optional storage options</param>
-  /// <returns>Configured catalog entry</returns>
-  /// <remarks>
-  /// <para>
-  /// Type constraint ensures compatibility with JSON serialization.
-  /// Memory storage also works since it has no serialization requirements.
-  /// </para>
-  /// <para>
-  /// Typically uses structured formats (JSON, MessagePack) for singletons.
-  /// </para>
-  /// </remarks>
-  IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
-    where T : IStructuredSerializable;
+    /// <summary>
+    /// Creates a catalog entry for a singleton object.
+    /// </summary>
+    /// <typeparam name="T">Object type (must implement IStructuredSerializable)</typeparam>
+    /// <param name="label">Catalog label for the entry</param>
+    /// <param name="options">Optional storage options</param>
+    /// <returns>Configured catalog entry</returns>
+    /// <remarks>
+    /// <para>
+    /// Type constraint ensures compatibility with JSON serialization.
+    /// Memory storage also works since it has no serialization requirements.
+    /// </para>
+    /// <para>
+    /// Typically uses structured formats (JSON, MessagePack) for singletons.
+    /// </para>
+    /// </remarks>
+    IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
+      where T : IStructuredSerializable;
 }

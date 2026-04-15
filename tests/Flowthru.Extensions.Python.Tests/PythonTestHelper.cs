@@ -27,31 +27,31 @@ namespace Flowthru.Extensions.Python.Tests;
 /// </remarks>
 public static class PythonTestHelper
 {
-  /// <summary>
-  /// Creates PythonRuntimeOptions configured for test execution.
-  /// </summary>
-  /// <remarks>
-  /// Includes paths needed by test modules:
-  /// <list type="bullet">
-  /// <item>Test output directory (for _flowthru_arrow.py)</item>
-  /// <item>_Fixtures subdirectory (for test Python modules)</item>
-  /// </list>
-  /// Site-packages from .venv is auto-discovered by <see cref="PythonRuntime.Initialize"/>.
-  /// </remarks>
-  public static PythonRuntimeOptions CreateDefaultOptions()
-  {
-    var options = new PythonRuntimeOptions();
-
-    // Add test output directory (contains _flowthru_arrow.py)
-    options.ModuleSearchPaths.Add(AppContext.BaseDirectory);
-
-    // Add _Fixtures subdirectory (contains test modules: scalar_steps.py, tabular_steps.py, test_module.py)
-    var fixturesPath = Path.Combine(AppContext.BaseDirectory, "_Fixtures");
-    if (Directory.Exists(fixturesPath))
+    /// <summary>
+    /// Creates PythonRuntimeOptions configured for test execution.
+    /// </summary>
+    /// <remarks>
+    /// Includes paths needed by test modules:
+    /// <list type="bullet">
+    /// <item>Test output directory (for _flowthru_arrow.py)</item>
+    /// <item>_Fixtures subdirectory (for test Python modules)</item>
+    /// </list>
+    /// Site-packages from .venv is auto-discovered by <see cref="PythonRuntime.Initialize"/>.
+    /// </remarks>
+    public static PythonRuntimeOptions CreateDefaultOptions()
     {
-      options.ModuleSearchPaths.Add(fixturesPath);
-    }
+        var options = new PythonRuntimeOptions();
 
-    return options;
-  }
+        // Add test output directory (contains _flowthru_arrow.py)
+        options.ModuleSearchPaths.Add(AppContext.BaseDirectory);
+
+        // Add _Fixtures subdirectory (contains test modules: scalar_steps.py, tabular_steps.py, test_module.py)
+        var fixturesPath = Path.Combine(AppContext.BaseDirectory, "_Fixtures");
+        if (Directory.Exists(fixturesPath))
+        {
+            options.ModuleSearchPaths.Add(fixturesPath);
+        }
+
+        return options;
+    }
 }

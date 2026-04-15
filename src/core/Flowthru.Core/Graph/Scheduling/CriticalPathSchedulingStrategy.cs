@@ -29,13 +29,13 @@ namespace Flowthru.Core.Graph.Scheduling;
 /// </remarks>
 public sealed class CriticalPathSchedulingStrategy : ISchedulingStrategy
 {
-  /// <inheritdoc/>
-  public IReadOnlyList<FlowStep> Prioritize(
-    IReadOnlyList<FlowStep> readySteps,
-    SchedulingContext context
-  )
-  {
-    // OrderByDescending is a stable sort — equal-height steps keep arrival order.
-    return readySteps.OrderByDescending(s => s.Height >= 0 ? s.Height : 0).ToList();
-  }
+    /// <inheritdoc/>
+    public IReadOnlyList<FlowStep> Prioritize(
+      IReadOnlyList<FlowStep> readySteps,
+      SchedulingContext context
+    )
+    {
+        // OrderByDescending is a stable sort — equal-height steps keep arrival order.
+        return readySteps.OrderByDescending(s => s.Height >= 0 ? s.Height : 0).ToList();
+    }
 }

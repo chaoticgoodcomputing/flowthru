@@ -17,38 +17,38 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public class SpaceflightsDbContext : DbContext
 {
-  public SpaceflightsDbContext(DbContextOptions<SpaceflightsDbContext> options)
-    : base(options) { }
+    public SpaceflightsDbContext(DbContextOptions<SpaceflightsDbContext> options)
+      : base(options) { }
 
-  public DbSet<PreprocessedCompanySchema> PreprocessedCompanies => Set<PreprocessedCompanySchema>();
-  public DbSet<PreprocessedShuttleSchema> PreprocessedShuttles => Set<PreprocessedShuttleSchema>();
-  public DbSet<ModelInputTableSchema> ModelInputTable => Set<ModelInputTableSchema>();
-  public DbSet<ModelPredictions> ModelPredictions => Set<ModelPredictions>();
+    public DbSet<PreprocessedCompanySchema> PreprocessedCompanies => Set<PreprocessedCompanySchema>();
+    public DbSet<PreprocessedShuttleSchema> PreprocessedShuttles => Set<PreprocessedShuttleSchema>();
+    public DbSet<ModelInputTableSchema> ModelInputTable => Set<ModelInputTableSchema>();
+    public DbSet<ModelPredictions> ModelPredictions => Set<ModelPredictions>();
 
-  protected override void OnModelCreating(ModelBuilder modelBuilder)
-  {
-    base.OnModelCreating(modelBuilder);
-
-    modelBuilder.Entity<PreprocessedCompanySchema>(entity =>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      entity.HasKey(e => e.Id);
-    });
+        base.OnModelCreating(modelBuilder);
 
-    modelBuilder.Entity<PreprocessedShuttleSchema>(entity =>
-    {
-      entity.HasKey(e => e.Id);
-    });
+        modelBuilder.Entity<PreprocessedCompanySchema>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+        });
 
-    modelBuilder.Entity<ModelInputTableSchema>(entity =>
-    {
-      entity.HasKey(e => e.ShuttleId);
-    });
+        modelBuilder.Entity<PreprocessedShuttleSchema>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+        });
 
-    // ModelPredictions has no natural key; use a shadow integer property.
-    modelBuilder.Entity<ModelPredictions>(entity =>
-    {
-      entity.Property<int>("Id");
-      entity.HasKey("Id");
-    });
-  }
+        modelBuilder.Entity<ModelInputTableSchema>(entity =>
+        {
+            entity.HasKey(e => e.ShuttleId);
+        });
+
+        // ModelPredictions has no natural key; use a shadow integer property.
+        modelBuilder.Entity<ModelPredictions>(entity =>
+        {
+            entity.Property<int>("Id");
+            entity.HasKey("Id");
+        });
+    }
 }

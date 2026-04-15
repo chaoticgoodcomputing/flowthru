@@ -48,41 +48,41 @@ namespace Flowthru.Core.Data.Storage.Container;
 /// </example>
 public sealed class EnumerableContainerAdapter<T> : IContainerAdapter<IEnumerable<T>, T>
 {
-  /// <summary>
-  /// Creates a new enumerable container adapter.
-  /// </summary>
-  public EnumerableContainerAdapter() { }
+    /// <summary>
+    /// Creates a new enumerable container adapter.
+    /// </summary>
+    public EnumerableContainerAdapter() { }
 
-  /// <inheritdoc/>
-  public async Task<IEnumerable<T>> FromRows(IAsyncEnumerable<T> rows)
-  {
-    if (rows == null)
+    /// <inheritdoc/>
+    public async Task<IEnumerable<T>> FromRows(IAsyncEnumerable<T> rows)
     {
-      throw new ArgumentNullException(nameof(rows));
+        if (rows == null)
+        {
+            throw new ArgumentNullException(nameof(rows));
+        }
+
+        // Eagerly materialize to List
+        var list = new List<T>();
+        await foreach (var row in rows)
+        {
+            list.Add(row);
+        }
+
+        return list;
     }
 
-    // Eagerly materialize to List
-    var list = new List<T>();
-    await foreach (var row in rows)
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<T> ToRows(IEnumerable<T> container)
     {
-      list.Add(row);
-    }
+        if (container == null)
+        {
+            throw new ArgumentNullException(nameof(container));
+        }
 
-    return list;
-  }
-
-  /// <inheritdoc/>
-  public async IAsyncEnumerable<T> ToRows(IEnumerable<T> container)
-  {
-    if (container == null)
-    {
-      throw new ArgumentNullException(nameof(container));
+        // Stream back to rows
+        foreach (var row in container)
+        {
+            yield return row;
+        }
     }
-
-    // Stream back to rows
-    foreach (var row in container)
-    {
-      yield return row;
-    }
-  }
 }

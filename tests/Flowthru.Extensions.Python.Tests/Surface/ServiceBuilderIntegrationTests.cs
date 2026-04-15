@@ -16,55 +16,55 @@ namespace Flowthru.Extensions.Python.Tests.Surface;
 [Category("Surface")]
 public class ServiceBuilderIntegrationTests
 {
-  [Test]
-  public void UsePython_WithDefaultConfiguration_RegistersServices()
-  {
-    // Arrange
-    var services = new ServiceCollection();
-    services.AddLogging();
-
-    // Act
-    services.AddFlowthru(flowthru =>
+    [Test]
+    public void UsePython_WithDefaultConfiguration_RegistersServices()
     {
-      flowthru.RegisterCatalog(new TestCatalog());
-      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
-      flowthru.UsePython();
-    });
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
 
-    var provider = services.BuildServiceProvider();
+        // Act
+        services.AddFlowthru(flowthru =>
+        {
+            flowthru.RegisterCatalog(new TestCatalog());
+            flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
+            flowthru.UsePython();
+        });
 
-    // Assert
-    var executor = provider.GetService<IPythonExecutor>();
-    Assert.That(executor, Is.Not.Null);
-    Assert.That(executor, Is.InstanceOf<SubprocessPythonExecutor>());
-  }
+        var provider = services.BuildServiceProvider();
 
-  [Test]
-  public void UsePython_WithCustomConfiguration_AppliesOptions()
-  {
-    // Arrange
-    var services = new ServiceCollection();
-    services.AddLogging();
+        // Assert
+        var executor = provider.GetService<IPythonExecutor>();
+        Assert.That(executor, Is.Not.Null);
+        Assert.That(executor, Is.InstanceOf<SubprocessPythonExecutor>());
+    }
 
-    // Act
-    services.AddFlowthru(flowthru =>
+    [Test]
+    public void UsePython_WithCustomConfiguration_AppliesOptions()
     {
-      flowthru.RegisterCatalog(new TestCatalog());
-      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
-      flowthru.UsePython(python =>
-      {
-        python.ModuleSearchPaths.Add("/custom/path");
-      });
-    });
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
 
-    var provider = services.BuildServiceProvider();
+        // Act
+        services.AddFlowthru(flowthru =>
+        {
+            flowthru.RegisterCatalog(new TestCatalog());
+            flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
+            flowthru.UsePython(python =>
+        {
+              python.ModuleSearchPaths.Add("/custom/path");
+          });
+        });
 
-    // Assert
-    var options = provider.GetService<Runtime.PythonRuntimeOptions>();
-    Assert.That(options, Is.Not.Null);
-    Assert.That(options!.ModuleSearchPaths, Does.Contain("/custom/path"));
-  }
+        var provider = services.BuildServiceProvider();
 
-  // Minimal test catalog for integration tests
-  private class TestCatalog : CatalogAbstract { }
+        // Assert
+        var options = provider.GetService<Runtime.PythonRuntimeOptions>();
+        Assert.That(options, Is.Not.Null);
+        Assert.That(options!.ModuleSearchPaths, Does.Contain("/custom/path"));
+    }
+
+    // Minimal test catalog for integration tests
+    private class TestCatalog : CatalogAbstract { }
 }

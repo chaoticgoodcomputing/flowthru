@@ -6,7 +6,7 @@ namespace KedroIris.Data;
 /// </summary>
 public partial class Catalog
 {
-  // No entries defined for this layer in the Iris example.
-  // This layer would typically contain cleaned, validated data structured
-  // according to domain models (e.g., Customer, Product, Transaction entities).
+    // No entries defined for this layer in the Iris example.
+    // This layer would typically contain cleaned, validated data structured
+    // according to domain models (e.g., Customer, Product, Transaction entities).
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -14,7 +14,7 @@ namespace Flowthru.Spark.Sql.Streaming
     public sealed class Trigger : IJvmObjectReferenceProvider
     {
         private static IJvmBridge Jvm { get; } = SparkEnvironment.JvmBridge;
-        private static readonly string s_triggerClassName = 
+        private static readonly string s_triggerClassName =
             "org.apache.spark.sql.streaming.Trigger";
 
         internal Trigger(JvmObjectReference jvmObject) => Reference = jvmObject;

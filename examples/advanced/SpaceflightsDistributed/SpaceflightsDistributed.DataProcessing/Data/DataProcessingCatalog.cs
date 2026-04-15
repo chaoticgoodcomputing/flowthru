@@ -8,15 +8,15 @@ namespace SpaceflightsDistributed.DataProcessing.Data;
 /// </summary>
 public partial class DataProcessingCatalog : CatalogAbstract
 {
-  private readonly string _basePath;
+    private readonly string _basePath;
 
-  /// <summary>
-  /// Initializes a new DataProcessingCatalog.
-  /// </summary>
-  /// <param name="basePath">Base path for data file resolution.</param>
-  public DataProcessingCatalog(string basePath)
-  {
-    _basePath = basePath;
-    InitializeCatalogProperties();
-  }
+    /// <summary>
+    /// Initializes a new DataProcessingCatalog.
+    /// </summary>
+    /// <param name="basePath">Base path for data file resolution.</param>
+    public DataProcessingCatalog(string basePath)
+    {
+        _basePath = basePath;
+        InitializeCatalogProperties();
+    }
 }

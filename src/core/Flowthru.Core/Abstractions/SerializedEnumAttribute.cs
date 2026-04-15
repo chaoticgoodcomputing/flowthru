@@ -78,32 +78,32 @@ namespace Flowthru.Core.Abstractions;
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
 public sealed class SerializedEnumAttribute : Attribute
 {
-  /// <summary>
-  /// Gets the serialized string value for this enum member.
-  /// </summary>
-  public string Value { get; }
+    /// <summary>
+    /// Gets the serialized string value for this enum member.
+    /// </summary>
+    public string Value { get; }
 
-  /// <summary>
-  /// Initializes a new instance of the <see cref="SerializedEnumAttribute"/> class.
-  /// </summary>
-  /// <param name="value">The string value to use when serializing this enum member.</param>
-  /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
-  /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or whitespace.</exception>
-  public SerializedEnumAttribute(string value)
-  {
-    if (value == null)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SerializedEnumAttribute"/> class.
+    /// </summary>
+    /// <param name="value">The string value to use when serializing this enum member.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or whitespace.</exception>
+    public SerializedEnumAttribute(string value)
     {
-      throw new ArgumentNullException(nameof(value));
-    }
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
 
-    if (string.IsNullOrWhiteSpace(value))
-    {
-      throw new ArgumentException(
-        "Serialized enum value cannot be empty or whitespace.",
-        nameof(value)
-      );
-    }
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(
+              "Serialized enum value cannot be empty or whitespace.",
+              nameof(value)
+            );
+        }
 
-    Value = value;
-  }
+        Value = value;
+    }
 }

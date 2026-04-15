@@ -10,17 +10,17 @@ namespace RetailDataMultipipeline.Flows.Analysis;
 /// </summary>
 public static class AnalysisFlow
 {
-  public static Flow Create(CoreCatalog core, CountryShardCatalog shard)
-  {
-    return FlowBuilder.CreateFlow(pipeline =>
+    public static Flow Create(CoreCatalog core, CountryShardCatalog shard)
     {
-      pipeline.AddStep(
-        label: "ComputeWeeklyDtu",
-        description: $"Converts currency and aggregates weekly DTU metrics for {shard.Country}.",
-        transform: ComputeWeeklyDtuStep.Create(shard.Country),
-        input: (core.AllRetailTransactions, core.CountryCurrencies, core.OfxRates),
-        output: shard.WeeklyDtu
-      );
-    });
-  }
+        return FlowBuilder.CreateFlow(pipeline =>
+        {
+            pipeline.AddStep(
+          label: "ComputeWeeklyDtu",
+          description: $"Converts currency and aggregates weekly DTU metrics for {shard.Country}.",
+          transform: ComputeWeeklyDtuStep.Create(shard.Country),
+          input: (core.AllRetailTransactions, core.CountryCurrencies, core.OfxRates),
+          output: shard.WeeklyDtu
+        );
+        });
+    }
 }

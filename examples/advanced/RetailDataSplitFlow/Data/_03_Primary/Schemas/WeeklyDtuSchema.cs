@@ -15,9 +15,9 @@ namespace RetailDataMultipipeline.Data._03_Primary.Schemas;
 [FlowthruSchema]
 public partial record WeeklyDtuSchema
 {
-  public required string Country { get; init; }
-  public DateTime WeekStartDate { get; init; }
-  public double TotalGbp { get; init; }
-  public int TransactionCount { get; init; }
-  public int UniqueCustomers { get; init; }
+    public required string Country { get; init; }
+    public DateTime WeekStartDate { get; init; }
+    public double TotalGbp { get; init; }
+    public int TransactionCount { get; init; }
+    public int UniqueCustomers { get; init; }
 }

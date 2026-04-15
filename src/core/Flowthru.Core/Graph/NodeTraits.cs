@@ -15,13 +15,13 @@ namespace Flowthru.Core.Graph;
 /// </remarks>
 public record NodeTraits
 {
-  /// <summary>
-  /// Whether this node requires network access to operate.
-  /// </summary>
-  public bool RequiresNetwork { get; init; } = false;
+    /// <summary>
+    /// Whether this node requires network access to operate.
+    /// </summary>
+    public bool RequiresNetwork { get; init; } = false;
 
-  /// <summary>
-  /// Whether this node supports pre-flight inspection / validation.
-  /// </summary>
-  public bool CanInspect { get; init; } = true;
+    /// <summary>
+    /// Whether this node supports pre-flight inspection / validation.
+    /// </summary>
+    public bool CanInspect { get; init; } = true;
 }

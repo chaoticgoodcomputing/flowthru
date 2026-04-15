@@ -9,9 +9,9 @@ namespace KedroSpaceflightsSpark.Data._08_Reporting.Schemas;
 [FlowthruSchema]
 public partial record ShuttleCapacityReport
 {
-  [SerializedLabel("shuttle_type")]
-  public required string ShuttleType { get; init; }
+    [SerializedLabel("shuttle_type")]
+    public required string ShuttleType { get; init; }
 
-  [SerializedLabel("avg_passenger_capacity")]
-  public required double AvgPassengerCapacity { get; init; }
+    [SerializedLabel("avg_passenger_capacity")]
+    public required double AvgPassengerCapacity { get; init; }
 }

@@ -13,23 +13,25 @@ namespace KedroSpaceflightsSpark.Flows.DataProcessing.Steps;
 [FlowthruStep]
 public static class PreprocessReviewsStep
 {
-  public static Func<IEnumerable<ReviewSchema>, TypedFrame<ParsedReviewSchema>> Create(
-    SparkFrameProvider frameProvider
-  )
-  {
-    return (input) =>
+    public static Func<IEnumerable<ReviewSchema>, TypedFrame<ParsedReviewSchema>> Create(
+      SparkFrameProvider frameProvider
+    )
     {
-      var parsed = input.Select(Parse).Where(r => r != null).Cast<ParsedReviewSchema>();
+        return (input) =>
+        {
+            var parsed = input.Select(Parse).Where(r => r != null).Cast<ParsedReviewSchema>();
 
-      return frameProvider.CreateFromEnumerable(parsed);
-    };
-  }
+            return frameProvider.CreateFromEnumerable(parsed);
+        };
+    }
 
-  private static ParsedReviewSchema? Parse(ReviewSchema raw)
-  {
-    if (!double.TryParse(raw.ReviewScoresRating, out var score))
-      return null;
+    private static ParsedReviewSchema? Parse(ReviewSchema raw)
+    {
+        if (!double.TryParse(raw.ReviewScoresRating, out var score))
+        {
+            return null;
+        }
 
-    return new ParsedReviewSchema { ShuttleId = raw.ShuttleId, ReviewScoresRating = score };
-  }
+        return new ParsedReviewSchema { ShuttleId = raw.ShuttleId, ReviewScoresRating = score };
+    }
 }

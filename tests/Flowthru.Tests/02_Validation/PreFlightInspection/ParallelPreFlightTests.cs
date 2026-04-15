@@ -42,269 +42,269 @@ namespace Flowthru.Tests.Validation.PreFlightInspection;
 [Category("PreFlight")]
 public class ParallelPreFlightTests
 {
-  private static readonly TimeSpan InspectionDelay = TimeSpan.FromMilliseconds(200);
+    private static readonly TimeSpan InspectionDelay = TimeSpan.FromMilliseconds(200);
 
-  /// <summary>Returns true when two inspection windows overlap in time.</summary>
-  private static bool Overlaps(
-    (string Label, DateTime Start, DateTime End) a,
-    (string Label, DateTime Start, DateTime End) b
-  ) => a.Start < b.End && b.Start < a.End;
+    /// <summary>Returns true when two inspection windows overlap in time.</summary>
+    private static bool Overlaps(
+      (string Label, DateTime Start, DateTime End) a,
+      (string Label, DateTime Start, DateTime End) b
+    ) => a.Start < b.End && b.Start < a.End;
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Error aggregation
-  // ─────────────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Error aggregation
+    // ─────────────────────────────────────────────────────────────────────────
 
-  [Test]
-  public async Task ValidateExternalInputsAsync_WithParallelism_AggregatesAllErrors()
-  {
-    // Arrange: 3 independent external inputs, each backed by a failing adapter.
-    // All 3 errors must survive the ConcurrentBag → sequential-merge path.
-    var input1 = new Item<IEnumerable<TestData>>(
-      "input_1",
-      new FailingInspectionAdapter("input_1")
-    );
-    var input2 = new Item<IEnumerable<TestData>>(
-      "input_2",
-      new FailingInspectionAdapter("input_2")
-    );
-    var input3 = new Item<IEnumerable<TestData>>(
-      "input_3",
-      new FailingInspectionAdapter("input_3")
-    );
-
-    var output1 = ItemFactory.Enumerable.Memory<TestData>("output_1");
-    var output2 = ItemFactory.Enumerable.Memory<TestData>("output_2");
-    var output3 = ItemFactory.Enumerable.Memory<TestData>("output_3");
-
-    var flow = FlowBuilder.CreateFlow(builder =>
+    [Test]
+    public async Task ValidateExternalInputsAsync_WithParallelism_AggregatesAllErrors()
     {
-      builder.AddStep("Step1", PassthroughStep.Create(), input1, output1);
-      builder.AddStep("Step2", PassthroughStep.Create(), input2, output2);
-      builder.AddStep("Step3", PassthroughStep.Create(), input3, output3);
-    });
+        // Arrange: 3 independent external inputs, each backed by a failing adapter.
+        // All 3 errors must survive the ConcurrentBag → sequential-merge path.
+        var input1 = new Item<IEnumerable<TestData>>(
+          "input_1",
+          new FailingInspectionAdapter("input_1")
+        );
+        var input2 = new Item<IEnumerable<TestData>>(
+          "input_2",
+          new FailingInspectionAdapter("input_2")
+        );
+        var input3 = new Item<IEnumerable<TestData>>(
+          "input_3",
+          new FailingInspectionAdapter("input_3")
+        );
 
-    flow.Build();
+        var output1 = ItemFactory.Enumerable.Memory<TestData>("output_1");
+        var output2 = ItemFactory.Enumerable.Memory<TestData>("output_2");
+        var output3 = ItemFactory.Enumerable.Memory<TestData>("output_3");
 
-    flow.ValidationOptions.Inspect(input1, InspectionLevel.Shallow);
-    flow.ValidationOptions.Inspect(input2, InspectionLevel.Shallow);
-    flow.ValidationOptions.Inspect(input3, InspectionLevel.Shallow);
+        var flow = FlowBuilder.CreateFlow(builder =>
+        {
+            builder.AddStep("Step1", PassthroughStep.Create(), input1, output1);
+            builder.AddStep("Step2", PassthroughStep.Create(), input2, output2);
+            builder.AddStep("Step3", PassthroughStep.Create(), input3, output3);
+        });
 
-    // Act
-    var result = await flow.ValidateExternalInputsAsync(
-      maxDegreeOfParallelism: 3,
-      cancellationToken: CancellationToken.None
-    );
+        flow.Build();
 
-    // Assert
-    Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors, Has.Count.EqualTo(3), "All 3 per-entry errors must be aggregated");
-  }
+        flow.ValidationOptions.Inspect(input1, InspectionLevel.Shallow);
+        flow.ValidationOptions.Inspect(input2, InspectionLevel.Shallow);
+        flow.ValidationOptions.Inspect(input3, InspectionLevel.Shallow);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Concurrency — independent inputs overlap when parallelism > 1
-  // ─────────────────────────────────────────────────────────────────────────
+        // Act
+        var result = await flow.ValidateExternalInputsAsync(
+          maxDegreeOfParallelism: 3,
+          cancellationToken: CancellationToken.None
+        );
 
-  [Test]
-  public async Task ValidateExternalInputsAsync_WithParallelism_IndependentInputsOverlapInTime()
-  {
-    // Arrange
-    var log = new ConcurrentBag<(string Label, DateTime Start, DateTime End)>();
+        // Assert
+        Assert.That(result.IsValid, Is.False);
+        Assert.That(result.Errors, Has.Count.EqualTo(3), "All 3 per-entry errors must be aggregated");
+    }
 
-    var input1 = new Item<IEnumerable<TestData>>(
-      "input_1",
-      new RecordingInspectionAdapter(log, "input_1", InspectionDelay)
-    );
-    var input2 = new Item<IEnumerable<TestData>>(
-      "input_2",
-      new RecordingInspectionAdapter(log, "input_2", InspectionDelay)
-    );
-    var input3 = new Item<IEnumerable<TestData>>(
-      "input_3",
-      new RecordingInspectionAdapter(log, "input_3", InspectionDelay)
-    );
+    // ─────────────────────────────────────────────────────────────────────────
+    // Concurrency — independent inputs overlap when parallelism > 1
+    // ─────────────────────────────────────────────────────────────────────────
 
-    var output1 = ItemFactory.Enumerable.Memory<TestData>("output_1");
-    var output2 = ItemFactory.Enumerable.Memory<TestData>("output_2");
-    var output3 = ItemFactory.Enumerable.Memory<TestData>("output_3");
-
-    var flow = FlowBuilder.CreateFlow(builder =>
+    [Test]
+    public async Task ValidateExternalInputsAsync_WithParallelism_IndependentInputsOverlapInTime()
     {
-      builder.AddStep("Step1", PassthroughStep.Create(), input1, output1);
-      builder.AddStep("Step2", PassthroughStep.Create(), input2, output2);
-      builder.AddStep("Step3", PassthroughStep.Create(), input3, output3);
-    });
+        // Arrange
+        var log = new ConcurrentBag<(string Label, DateTime Start, DateTime End)>();
 
-    flow.Build();
+        var input1 = new Item<IEnumerable<TestData>>(
+          "input_1",
+          new RecordingInspectionAdapter(log, "input_1", InspectionDelay)
+        );
+        var input2 = new Item<IEnumerable<TestData>>(
+          "input_2",
+          new RecordingInspectionAdapter(log, "input_2", InspectionDelay)
+        );
+        var input3 = new Item<IEnumerable<TestData>>(
+          "input_3",
+          new RecordingInspectionAdapter(log, "input_3", InspectionDelay)
+        );
 
-    flow.ValidationOptions.Inspect(input1, InspectionLevel.Shallow);
-    flow.ValidationOptions.Inspect(input2, InspectionLevel.Shallow);
-    flow.ValidationOptions.Inspect(input3, InspectionLevel.Shallow);
+        var output1 = ItemFactory.Enumerable.Memory<TestData>("output_1");
+        var output2 = ItemFactory.Enumerable.Memory<TestData>("output_2");
+        var output3 = ItemFactory.Enumerable.Memory<TestData>("output_3");
 
-    // Act
-    await flow.ValidateExternalInputsAsync(
-      maxDegreeOfParallelism: 3,
-      cancellationToken: CancellationToken.None
-    );
+        var flow = FlowBuilder.CreateFlow(builder =>
+        {
+            builder.AddStep("Step1", PassthroughStep.Create(), input1, output1);
+            builder.AddStep("Step2", PassthroughStep.Create(), input2, output2);
+            builder.AddStep("Step3", PassthroughStep.Create(), input3, output3);
+        });
 
-    // Assert: at least two inspection windows must overlap
-    var entries = log.ToList();
-    Assert.That(entries, Has.Count.EqualTo(3));
+        flow.Build();
 
-    var anyOverlap = entries
-      .SelectMany(a => entries, (a, b) => (a, b))
-      .Where(pair => pair.a.Label != pair.b.Label)
-      .Any(pair => Overlaps(pair.a, pair.b));
+        flow.ValidationOptions.Inspect(input1, InspectionLevel.Shallow);
+        flow.ValidationOptions.Inspect(input2, InspectionLevel.Shallow);
+        flow.ValidationOptions.Inspect(input3, InspectionLevel.Shallow);
 
-    Assert.That(
-      anyOverlap,
-      Is.True,
-      "With maxDegreeOfParallelism = 3, at least two inspection windows should overlap"
-    );
-  }
+        // Act
+        await flow.ValidateExternalInputsAsync(
+          maxDegreeOfParallelism: 3,
+          cancellationToken: CancellationToken.None
+        );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Sequential default — no overlap with maxDegreeOfParallelism = 1
-  // ─────────────────────────────────────────────────────────────────────────
+        // Assert: at least two inspection windows must overlap
+        var entries = log.ToList();
+        Assert.That(entries, Has.Count.EqualTo(3));
 
-  [Test]
-  public async Task ValidateExternalInputsAsync_WithSequential_InspectionsDoNotOverlap()
-  {
-    // Arrange: same topology, but maxDegreeOfParallelism = 1 (default/sequential).
-    var log = new ConcurrentBag<(string Label, DateTime Start, DateTime End)>();
+        var anyOverlap = entries
+          .SelectMany(a => entries, (a, b) => (a, b))
+          .Where(pair => pair.a.Label != pair.b.Label)
+          .Any(pair => Overlaps(pair.a, pair.b));
 
-    var input1 = new Item<IEnumerable<TestData>>(
-      "input_1",
-      new RecordingInspectionAdapter(log, "input_1", InspectionDelay)
-    );
-    var input2 = new Item<IEnumerable<TestData>>(
-      "input_2",
-      new RecordingInspectionAdapter(log, "input_2", InspectionDelay)
-    );
-    var input3 = new Item<IEnumerable<TestData>>(
-      "input_3",
-      new RecordingInspectionAdapter(log, "input_3", InspectionDelay)
-    );
+        Assert.That(
+          anyOverlap,
+          Is.True,
+          "With maxDegreeOfParallelism = 3, at least two inspection windows should overlap"
+        );
+    }
 
-    var output1 = ItemFactory.Enumerable.Memory<TestData>("output_1");
-    var output2 = ItemFactory.Enumerable.Memory<TestData>("output_2");
-    var output3 = ItemFactory.Enumerable.Memory<TestData>("output_3");
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sequential default — no overlap with maxDegreeOfParallelism = 1
+    // ─────────────────────────────────────────────────────────────────────────
 
-    var flow = FlowBuilder.CreateFlow(builder =>
+    [Test]
+    public async Task ValidateExternalInputsAsync_WithSequential_InspectionsDoNotOverlap()
     {
-      builder.AddStep("Step1", PassthroughStep.Create(), input1, output1);
-      builder.AddStep("Step2", PassthroughStep.Create(), input2, output2);
-      builder.AddStep("Step3", PassthroughStep.Create(), input3, output3);
-    });
+        // Arrange: same topology, but maxDegreeOfParallelism = 1 (default/sequential).
+        var log = new ConcurrentBag<(string Label, DateTime Start, DateTime End)>();
 
-    flow.Build();
+        var input1 = new Item<IEnumerable<TestData>>(
+          "input_1",
+          new RecordingInspectionAdapter(log, "input_1", InspectionDelay)
+        );
+        var input2 = new Item<IEnumerable<TestData>>(
+          "input_2",
+          new RecordingInspectionAdapter(log, "input_2", InspectionDelay)
+        );
+        var input3 = new Item<IEnumerable<TestData>>(
+          "input_3",
+          new RecordingInspectionAdapter(log, "input_3", InspectionDelay)
+        );
 
-    flow.ValidationOptions.Inspect(input1, InspectionLevel.Shallow);
-    flow.ValidationOptions.Inspect(input2, InspectionLevel.Shallow);
-    flow.ValidationOptions.Inspect(input3, InspectionLevel.Shallow);
+        var output1 = ItemFactory.Enumerable.Memory<TestData>("output_1");
+        var output2 = ItemFactory.Enumerable.Memory<TestData>("output_2");
+        var output3 = ItemFactory.Enumerable.Memory<TestData>("output_3");
 
-    // Act
-    await flow.ValidateExternalInputsAsync(
-      maxDegreeOfParallelism: 1,
-      cancellationToken: CancellationToken.None
-    );
+        var flow = FlowBuilder.CreateFlow(builder =>
+        {
+            builder.AddStep("Step1", PassthroughStep.Create(), input1, output1);
+            builder.AddStep("Step2", PassthroughStep.Create(), input2, output2);
+            builder.AddStep("Step3", PassthroughStep.Create(), input3, output3);
+        });
 
-    // Assert: no windows should overlap when running sequentially
-    var entries = log.ToList();
-    Assert.That(entries, Has.Count.EqualTo(3));
+        flow.Build();
 
-    var anyOverlap = entries
-      .SelectMany(a => entries, (a, b) => (a, b))
-      .Where(pair => pair.a.Label != pair.b.Label)
-      .Any(pair => Overlaps(pair.a, pair.b));
+        flow.ValidationOptions.Inspect(input1, InspectionLevel.Shallow);
+        flow.ValidationOptions.Inspect(input2, InspectionLevel.Shallow);
+        flow.ValidationOptions.Inspect(input3, InspectionLevel.Shallow);
 
-    Assert.That(
-      anyOverlap,
-      Is.False,
-      "With maxDegreeOfParallelism = 1, inspection windows should never overlap"
-    );
-  }
+        // Act
+        await flow.ValidateExternalInputsAsync(
+          maxDegreeOfParallelism: 1,
+          cancellationToken: CancellationToken.None
+        );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Test doubles
-  // ─────────────────────────────────────────────────────────────────────────
+        // Assert: no windows should overlap when running sequentially
+        var entries = log.ToList();
+        Assert.That(entries, Has.Count.EqualTo(3));
 
-  /// <summary>
-  /// Storage adapter whose <see cref="InspectShallow"/> always returns a failing
-  /// <see cref="ValidationResult"/> — used to verify error aggregation.
-  /// </summary>
-  private sealed class FailingInspectionAdapter : IStorageAdapter<IEnumerable<TestData>>
-  {
-    private readonly string _label;
+        var anyOverlap = entries
+          .SelectMany(a => entries, (a, b) => (a, b))
+          .Where(pair => pair.a.Label != pair.b.Label)
+          .Any(pair => Overlaps(pair.a, pair.b));
 
-    public FailingInspectionAdapter(string label) => _label = label;
+        Assert.That(
+          anyOverlap,
+          Is.False,
+          "With maxDegreeOfParallelism = 1, inspection windows should never overlap"
+        );
+    }
 
-    public StorageTraits Traits => new StorageTraits();
+    // ─────────────────────────────────────────────────────────────────────────
+    // Test doubles
+    // ─────────────────────────────────────────────────────────────────────────
 
-    public FlowIO<IEnumerable<TestData>> Load() => FlowIO.Lift(() => Enumerable.Empty<TestData>());
+    /// <summary>
+    /// Storage adapter whose <see cref="InspectShallow"/> always returns a failing
+    /// <see cref="ValidationResult"/> — used to verify error aggregation.
+    /// </summary>
+    private sealed class FailingInspectionAdapter : IStorageAdapter<IEnumerable<TestData>>
+    {
+        private readonly string _label;
 
-    public FlowIO<FlowUnit> Save(IEnumerable<TestData> data) => FlowIO.Pure(FlowUnit.Default);
+        public FailingInspectionAdapter(string label) => _label = label;
 
-    public FlowIO<bool> Exists() => FlowIO.Pure(true);
+        public StorageTraits Traits => new StorageTraits();
 
-    public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
-      FlowIO.Pure(
-        new ValidationResult(
-          new[]
-          {
+        public FlowIO<IEnumerable<TestData>> Load() => FlowIO.Lift(() => Enumerable.Empty<TestData>());
+
+        public FlowIO<FlowUnit> Save(IEnumerable<TestData> data) => FlowIO.Pure(FlowUnit.Default);
+
+        public FlowIO<bool> Exists() => FlowIO.Pure(true);
+
+        public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
+          FlowIO.Pure(
+            new ValidationResult(
+              new[]
+              {
             new ValidationError(
               _label,
               ValidationErrorType.InspectionFailure,
               $"Simulated inspection failure for '{_label}'",
               null
             ),
-          }
+              }
+            )
+          );
+
+        public FlowIO<ValidationResult> InspectDeep() => InspectShallow(0);
+    }
+
+    /// <summary>
+    /// Storage adapter whose <see cref="InspectShallow"/> records a timestamped execution
+    /// window to a shared log and then delays — used to verify concurrent vs. serial dispatch.
+    /// </summary>
+    private sealed class RecordingInspectionAdapter : IStorageAdapter<IEnumerable<TestData>>
+    {
+        private readonly ConcurrentBag<(string Label, DateTime Start, DateTime End)> _log;
+        private readonly string _label;
+        private readonly TimeSpan _delay;
+
+        public RecordingInspectionAdapter(
+          ConcurrentBag<(string Label, DateTime Start, DateTime End)> log,
+          string label,
+          TimeSpan delay
         )
-      );
+        {
+            _log = log;
+            _label = label;
+            _delay = delay;
+        }
 
-    public FlowIO<ValidationResult> InspectDeep() => InspectShallow(0);
-  }
+        public StorageTraits Traits => new StorageTraits();
 
-  /// <summary>
-  /// Storage adapter whose <see cref="InspectShallow"/> records a timestamped execution
-  /// window to a shared log and then delays — used to verify concurrent vs. serial dispatch.
-  /// </summary>
-  private sealed class RecordingInspectionAdapter : IStorageAdapter<IEnumerable<TestData>>
-  {
-    private readonly ConcurrentBag<(string Label, DateTime Start, DateTime End)> _log;
-    private readonly string _label;
-    private readonly TimeSpan _delay;
+        public FlowIO<IEnumerable<TestData>> Load() => FlowIO.Lift(() => Enumerable.Empty<TestData>());
 
-    public RecordingInspectionAdapter(
-      ConcurrentBag<(string Label, DateTime Start, DateTime End)> log,
-      string label,
-      TimeSpan delay
-    )
-    {
-      _log = log;
-      _label = label;
-      _delay = delay;
+        public FlowIO<FlowUnit> Save(IEnumerable<TestData> data) => FlowIO.Pure(FlowUnit.Default);
+
+        public FlowIO<bool> Exists() => FlowIO.Pure(true);
+
+        public FlowIO<ValidationResult> InspectShallow(int sampleSize)
+        {
+            Func<CancellationToken, ValueTask<ValidationResult>> inspector = async (ct) =>
+            {
+                var start = DateTime.UtcNow;
+                await Task.Delay(_delay, ct);
+                _log.Add((_label, start, DateTime.UtcNow));
+                return ValidationResult.Success();
+            };
+            return FlowIO.LiftAsync(inspector);
+        }
+
+        public FlowIO<ValidationResult> InspectDeep() => InspectShallow(0);
     }
-
-    public StorageTraits Traits => new StorageTraits();
-
-    public FlowIO<IEnumerable<TestData>> Load() => FlowIO.Lift(() => Enumerable.Empty<TestData>());
-
-    public FlowIO<FlowUnit> Save(IEnumerable<TestData> data) => FlowIO.Pure(FlowUnit.Default);
-
-    public FlowIO<bool> Exists() => FlowIO.Pure(true);
-
-    public FlowIO<ValidationResult> InspectShallow(int sampleSize)
-    {
-      Func<CancellationToken, ValueTask<ValidationResult>> inspector = async (ct) =>
-      {
-        var start = DateTime.UtcNow;
-        await Task.Delay(_delay, ct);
-        _log.Add((_label, start, DateTime.UtcNow));
-        return ValidationResult.Success();
-      };
-      return FlowIO.LiftAsync(inspector);
-    }
-
-    public FlowIO<ValidationResult> InspectDeep() => InspectShallow(0);
-  }
 }

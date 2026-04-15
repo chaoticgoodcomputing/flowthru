@@ -8,21 +8,21 @@ namespace KedroIris.Data._08_Reporting.Schemas;
 [FlowthruSchema]
 public partial record MetricsSchema
 {
-  /// <summary>
-  /// Model accuracy on the test set (proportion of correct predictions).
-  /// </summary>
-  [SerializedLabel("accuracy")]
-  public required double Accuracy { get; init; }
+    /// <summary>
+    /// Model accuracy on the test set (proportion of correct predictions).
+    /// </summary>
+    [SerializedLabel("accuracy")]
+    public required double Accuracy { get; init; }
 
-  /// <summary>
-  /// Number of correct predictions.
-  /// </summary>
-  [SerializedLabel("num_correct")]
-  public required int NumCorrect { get; init; }
+    /// <summary>
+    /// Number of correct predictions.
+    /// </summary>
+    [SerializedLabel("num_correct")]
+    public required int NumCorrect { get; init; }
 
-  /// <summary>
-  /// Total number of test samples.
-  /// </summary>
-  [SerializedLabel("num_total")]
-  public required int NumTotal { get; init; }
+    /// <summary>
+    /// Total number of test samples.
+    /// </summary>
+    [SerializedLabel("num_total")]
+    public required int NumTotal { get; init; }
 }

@@ -33,36 +33,36 @@ namespace KedroSpaceflights.Custom.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  /// <summary>
-  /// Parameters for the data science pipeline nodes.
-  /// </summary>
-  public record Params
-  {
     /// <summary>
-    /// Options for model training.
+    /// Parameters for the data science pipeline nodes.
     /// </summary>
-    public CreateTestTrainSplitStep.TestTrainSplitParams ModelParams { get; init; } = new();
-  }
-
-  public static Flow Create(Catalog catalog, Params parameters)
-  {
-    return FlowBuilder.CreateFlow(pipeline =>
+    public record Params
     {
-      // Step 1: Split data into train/test sets (single input → multi-output)
-      pipeline.AddStep(
-        label: "CreateTestTrainSplitDatasets",
-        transform: CreateTestTrainSplitStep.Create(parameters: parameters.ModelParams),
-        input: catalog.ModelInputTable,
-        output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
-      );
+        /// <summary>
+        /// Options for model training.
+        /// </summary>
+        public CreateTestTrainSplitStep.TestTrainSplitParams ModelParams { get; init; } = new();
+    }
 
-      // Step 2: Train OLS regression model (multi-input → single output)
-      pipeline.AddStep(
-        label: "TrainOLSModel",
-        transform: TrainModelStep.Create(),
-        input: (catalog.XTrain, catalog.YTrain),
-        output: catalog.Regressor
-      );
-    });
-  }
+    public static Flow Create(Catalog catalog, Params parameters)
+    {
+        return FlowBuilder.CreateFlow(pipeline =>
+        {
+            // Step 1: Split data into train/test sets (single input → multi-output)
+            pipeline.AddStep(
+          label: "CreateTestTrainSplitDatasets",
+          transform: CreateTestTrainSplitStep.Create(parameters: parameters.ModelParams),
+          input: catalog.ModelInputTable,
+          output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
+        );
+
+            // Step 2: Train OLS regression model (multi-input → single output)
+            pipeline.AddStep(
+          label: "TrainOLSModel",
+          transform: TrainModelStep.Create(),
+          input: (catalog.XTrain, catalog.YTrain),
+          output: catalog.Regressor
+        );
+        });
+    }
 }

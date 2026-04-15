@@ -35,9 +35,7 @@ namespace Flowthru.Tests.Spark
 
             public override bool Equals(object obj)
             {
-                var that = obj as TestClass;
-
-                if (that == null)
+                if (obj is not TestClass that)
                 {
                     return false;
                 }

@@ -9,51 +9,51 @@ namespace KedroIrisPython.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Training feature vectors (X).
-  /// </summary>
-  public IItem<IEnumerable<FeatureVectorSchema>> TrainX =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
-          label: "TrainX",
-          filePath: $"{_basePath}/_05_ModelInput/Datasets/train_x.parquet"
-        )
-    );
+    /// <summary>
+    /// Training feature vectors (X).
+    /// </summary>
+    public IItem<IEnumerable<FeatureVectorSchema>> TrainX =>
+      CreateItem(
+        () =>
+          ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
+            label: "TrainX",
+            filePath: $"{_basePath}/_05_ModelInput/Datasets/train_x.parquet"
+          )
+      );
 
-  /// <summary>
-  /// Training target labels (Y) with one-hot encoding.
-  /// </summary>
-  public IItem<IEnumerable<TargetLabelSchema>> TrainY =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
-          label: "TrainY",
-          filePath: $"{_basePath}/_05_ModelInput/Datasets/train_y.parquet"
-        )
-    );
+    /// <summary>
+    /// Training target labels (Y) with one-hot encoding.
+    /// </summary>
+    public IItem<IEnumerable<TargetLabelSchema>> TrainY =>
+      CreateItem(
+        () =>
+          ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
+            label: "TrainY",
+            filePath: $"{_basePath}/_05_ModelInput/Datasets/train_y.parquet"
+          )
+      );
 
-  /// <summary>
-  /// Test feature vectors (X).
-  /// </summary>
-  public IItem<IEnumerable<FeatureVectorSchema>> TestX =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
-          label: "TestX",
-          filePath: $"{_basePath}/_05_ModelInput/Datasets/test_x.parquet"
-        )
-    );
+    /// <summary>
+    /// Test feature vectors (X).
+    /// </summary>
+    public IItem<IEnumerable<FeatureVectorSchema>> TestX =>
+      CreateItem(
+        () =>
+          ItemFactory.Enumerable.Parquet<FeatureVectorSchema>(
+            label: "TestX",
+            filePath: $"{_basePath}/_05_ModelInput/Datasets/test_x.parquet"
+          )
+      );
 
-  /// <summary>
-  /// Test target labels (Y) with one-hot encoding.
-  /// </summary>
-  public IItem<IEnumerable<TargetLabelSchema>> TestY =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
-          label: "TestY",
-          filePath: $"{_basePath}/_05_ModelInput/Datasets/test_y.parquet"
-        )
-    );
+    /// <summary>
+    /// Test target labels (Y) with one-hot encoding.
+    /// </summary>
+    public IItem<IEnumerable<TargetLabelSchema>> TestY =>
+      CreateItem(
+        () =>
+          ItemFactory.Enumerable.Parquet<TargetLabelSchema>(
+            label: "TestY",
+            filePath: $"{_basePath}/_05_ModelInput/Datasets/test_y.parquet"
+          )
+      );
 }

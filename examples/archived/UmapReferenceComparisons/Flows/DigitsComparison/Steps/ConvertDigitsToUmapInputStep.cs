@@ -7,16 +7,16 @@ namespace UmapReferenceComparisons.Flows.DigitsComparison.Steps;
 /// </summary>
 public static class ConvertDigitsToUmapInputStep
 {
-  public static Func<IEnumerable<DigitsInputRow>, Task<IEnumerable<UmapInput>>> Create()
-  {
-    return async (input) =>
+    public static Func<IEnumerable<DigitsInputRow>, Task<IEnumerable<UmapInput>>> Create()
     {
-      var result = input.Select(row => new UmapInput
-      {
-        Id = row.Id,
-        Label = row.Label.ToString(),
-        Features = new float[]
+        return async (input) =>
         {
+            var result = input.Select(row => new UmapInput
+            {
+                Id = row.Id,
+                Label = row.Label.ToString(),
+                Features = new float[]
+          {
           (float)row.Pixel0,
           (float)row.Pixel1,
           (float)row.Pixel2,
@@ -81,10 +81,10 @@ public static class ConvertDigitsToUmapInputStep
           (float)row.Pixel61,
           (float)row.Pixel62,
           (float)row.Pixel63,
-        },
-      });
+            },
+            });
 
-      return await Task.FromResult(result);
-    };
-  }
+            return await Task.FromResult(result);
+        };
+    }
 }

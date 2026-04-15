@@ -23,135 +23,135 @@ namespace Flowthru.Extensions.Spark.Tests;
 [TestFixture]
 public class SparkTranslatableOperationSyncTests
 {
-  // ─── String method sync ───────────────────────────────────────────────────────
+    // ─── String method sync ───────────────────────────────────────────────────────
 
-  /// <summary>
-  /// Every name in <c>SupportedStringMethods</c> must have a corresponding case in the
-  /// <c>TranslateStringMethod</c> switch inside <c>SparkExpressionVisitor</c>.
-  /// </summary>
-  /// <remarks>
-  /// We detect switch arms by reflecting over the private method and checking for the
-  /// presence of the method name as a constant used in a <c>SwitchExpression</c>. Since
-  /// we cannot inspect IL switch arms at compile time, we use a proxy: we call the
-  /// method via a controlled expression tree in <see cref="SparkTranslatableOperationsCoverageTests"/>
-  /// (the runtime-facing sibling). Here we confirm the whitelist is *non-empty* and
-  /// internally consistent (no duplicates, no null entries).
-  /// </remarks>
-  [Test]
-  public void SupportedStringMethods_ContainsNoNullOrEmptyEntries()
-  {
-    foreach (var name in SparkTranslatableOperations.SupportedStringMethods)
+    /// <summary>
+    /// Every name in <c>SupportedStringMethods</c> must have a corresponding case in the
+    /// <c>TranslateStringMethod</c> switch inside <c>SparkExpressionVisitor</c>.
+    /// </summary>
+    /// <remarks>
+    /// We detect switch arms by reflecting over the private method and checking for the
+    /// presence of the method name as a constant used in a <c>SwitchExpression</c>. Since
+    /// we cannot inspect IL switch arms at compile time, we use a proxy: we call the
+    /// method via a controlled expression tree in <see cref="SparkTranslatableOperationsCoverageTests"/>
+    /// (the runtime-facing sibling). Here we confirm the whitelist is *non-empty* and
+    /// internally consistent (no duplicates, no null entries).
+    /// </remarks>
+    [Test]
+    public void SupportedStringMethods_ContainsNoNullOrEmptyEntries()
     {
-      Assert.That(
-        name,
-        Is.Not.Null.And.Not.Empty,
-        "SupportedStringMethods contains a null or empty entry."
-      );
+        foreach (var name in SparkTranslatableOperations.SupportedStringMethods)
+        {
+            Assert.That(
+              name,
+              Is.Not.Null.And.Not.Empty,
+              "SupportedStringMethods contains a null or empty entry."
+            );
+        }
     }
-  }
 
-  [Test]
-  public void SupportedStringMethods_HasNoduplicates()
-  {
-    var list = SparkTranslatableOperations.SupportedStringMethods.ToList();
-    var distinct = list.Distinct(StringComparer.Ordinal).ToList();
-    Assert.That(
-      list.Count,
-      Is.EqualTo(distinct.Count),
-      "SupportedStringMethods contains duplicate entries."
-    );
-  }
-
-  [Test]
-  public void SupportedStringMethods_AllExistOnSystemString()
-  {
-    foreach (var name in SparkTranslatableOperations.SupportedStringMethods)
+    [Test]
+    public void SupportedStringMethods_HasNoduplicates()
     {
-      var methods = typeof(string)
-        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-        .Where(m => m.Name == name)
-        .ToList();
-
-      Assert.That(
-        methods,
-        Is.Not.Empty,
-        $"'{name}' in SupportedStringMethods does not correspond to any public instance method on System.String."
-      );
+        var list = SparkTranslatableOperations.SupportedStringMethods.ToList();
+        var distinct = list.Distinct(StringComparer.Ordinal).ToList();
+        Assert.That(
+          list.Count,
+          Is.EqualTo(distinct.Count),
+          "SupportedStringMethods contains duplicate entries."
+        );
     }
-  }
 
-  // ─── Math method sync ─────────────────────────────────────────────────────────
-
-  [Test]
-  public void SupportedMathMethods_ContainsNoNullOrEmptyEntries()
-  {
-    foreach (var name in SparkTranslatableOperations.SupportedMathMethods)
+    [Test]
+    public void SupportedStringMethods_AllExistOnSystemString()
     {
-      Assert.That(
-        name,
-        Is.Not.Null.And.Not.Empty,
-        "SupportedMathMethods contains a null or empty entry."
-      );
+        foreach (var name in SparkTranslatableOperations.SupportedStringMethods)
+        {
+            var methods = typeof(string)
+              .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+              .Where(m => m.Name == name)
+              .ToList();
+
+            Assert.That(
+              methods,
+              Is.Not.Empty,
+              $"'{name}' in SupportedStringMethods does not correspond to any public instance method on System.String."
+            );
+        }
     }
-  }
 
-  [Test]
-  public void SupportedMathMethods_HasNoDuplicates()
-  {
-    var list = SparkTranslatableOperations.SupportedMathMethods.ToList();
-    var distinct = list.Distinct(StringComparer.Ordinal).ToList();
-    Assert.That(
-      list.Count,
-      Is.EqualTo(distinct.Count),
-      "SupportedMathMethods contains duplicate entries."
-    );
-  }
+    // ─── Math method sync ─────────────────────────────────────────────────────────
 
-  [Test]
-  public void SupportedMathMethods_AllExistOnSystemMath()
-  {
-    foreach (var name in SparkTranslatableOperations.SupportedMathMethods)
+    [Test]
+    public void SupportedMathMethods_ContainsNoNullOrEmptyEntries()
     {
-      var methods = typeof(Math)
-        .GetMethods(BindingFlags.Public | BindingFlags.Static)
-        .Where(m => m.Name == name)
-        .ToList();
-
-      Assert.That(
-        methods,
-        Is.Not.Empty,
-        $"'{name}' in SupportedMathMethods does not correspond to any public static method on System.Math."
-      );
+        foreach (var name in SparkTranslatableOperations.SupportedMathMethods)
+        {
+            Assert.That(
+              name,
+              Is.Not.Null.And.Not.Empty,
+              "SupportedMathMethods contains a null or empty entry."
+            );
+        }
     }
-  }
 
-  // ─── DateTime property sync ───────────────────────────────────────────────────
-
-  [Test]
-  public void SupportedDateTimeProperties_ContainsNoNullOrEmptyEntries()
-  {
-    foreach (var name in SparkTranslatableOperations.SupportedDateTimeProperties)
+    [Test]
+    public void SupportedMathMethods_HasNoDuplicates()
     {
-      Assert.That(
-        name,
-        Is.Not.Null.And.Not.Empty,
-        "SupportedDateTimeProperties contains a null or empty entry."
-      );
+        var list = SparkTranslatableOperations.SupportedMathMethods.ToList();
+        var distinct = list.Distinct(StringComparer.Ordinal).ToList();
+        Assert.That(
+          list.Count,
+          Is.EqualTo(distinct.Count),
+          "SupportedMathMethods contains duplicate entries."
+        );
     }
-  }
 
-  [Test]
-  public void SupportedDateTimeProperties_AllExistOnSystemDateTime()
-  {
-    foreach (var name in SparkTranslatableOperations.SupportedDateTimeProperties)
+    [Test]
+    public void SupportedMathMethods_AllExistOnSystemMath()
     {
-      var prop = typeof(DateTime).GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+        foreach (var name in SparkTranslatableOperations.SupportedMathMethods)
+        {
+            var methods = typeof(Math)
+              .GetMethods(BindingFlags.Public | BindingFlags.Static)
+              .Where(m => m.Name == name)
+              .ToList();
 
-      Assert.That(
-        prop,
-        Is.Not.Null,
-        $"'{name}' in SupportedDateTimeProperties does not correspond to any public instance property on System.DateTime."
-      );
+            Assert.That(
+              methods,
+              Is.Not.Empty,
+              $"'{name}' in SupportedMathMethods does not correspond to any public static method on System.Math."
+            );
+        }
     }
-  }
+
+    // ─── DateTime property sync ───────────────────────────────────────────────────
+
+    [Test]
+    public void SupportedDateTimeProperties_ContainsNoNullOrEmptyEntries()
+    {
+        foreach (var name in SparkTranslatableOperations.SupportedDateTimeProperties)
+        {
+            Assert.That(
+              name,
+              Is.Not.Null.And.Not.Empty,
+              "SupportedDateTimeProperties contains a null or empty entry."
+            );
+        }
+    }
+
+    [Test]
+    public void SupportedDateTimeProperties_AllExistOnSystemDateTime()
+    {
+        foreach (var name in SparkTranslatableOperations.SupportedDateTimeProperties)
+        {
+            var prop = typeof(DateTime).GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+
+            Assert.That(
+              prop,
+              Is.Not.Null,
+              $"'{name}' in SupportedDateTimeProperties does not correspond to any public instance property on System.DateTime."
+            );
+        }
+    }
 }

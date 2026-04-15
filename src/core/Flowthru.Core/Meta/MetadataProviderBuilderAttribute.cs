@@ -25,17 +25,17 @@ namespace Flowthru.Core.Meta;
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class MetadataProviderBuilderAttribute : Attribute
 {
-  /// <summary>
-  /// Gets the builder type for this metadata provider.
-  /// </summary>
-  public Type BuilderType { get; }
+    /// <summary>
+    /// Gets the builder type for this metadata provider.
+    /// </summary>
+    public Type BuilderType { get; }
 
-  /// <summary>
-  /// Initializes a new instance of the <see cref="MetadataProviderBuilderAttribute"/> class.
-  /// </summary>
-  /// <param name="builderType">The type of the provider's builder class</param>
-  public MetadataProviderBuilderAttribute(Type builderType)
-  {
-    BuilderType = builderType ?? throw new ArgumentNullException(nameof(builderType));
-  }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MetadataProviderBuilderAttribute"/> class.
+    /// </summary>
+    /// <param name="builderType">The type of the provider's builder class</param>
+    public MetadataProviderBuilderAttribute(Type builderType)
+    {
+        BuilderType = builderType ?? throw new ArgumentNullException(nameof(builderType));
+    }
 }

@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using Apache.Arrow;
-using Microsoft.Data.Analysis;
 using Flowthru.Spark.Sql;
+using Microsoft.Data.Analysis;
 
 namespace Flowthru.Spark.Utils
 {

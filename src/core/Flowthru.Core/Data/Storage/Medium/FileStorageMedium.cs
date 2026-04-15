@@ -48,125 +48,125 @@ namespace Flowthru.Core.Data.Storage.Medium;
 /// </example>
 public sealed class FileStorageMedium : IStorageMedium
 {
-  private readonly string _filePath;
+    private readonly string _filePath;
 
-  /// <summary>
-  /// Creates a new file storage medium.
-  /// </summary>
-  /// <param name="filePath">Path to the file (absolute or relative)</param>
-  /// <exception cref="ArgumentNullException">Thrown if filePath is null</exception>
-  /// <exception cref="ArgumentException">Thrown if filePath is empty or whitespace</exception>
-  public FileStorageMedium(string filePath)
-  {
-    if (string.IsNullOrWhiteSpace(filePath))
+    /// <summary>
+    /// Creates a new file storage medium.
+    /// </summary>
+    /// <param name="filePath">Path to the file (absolute or relative)</param>
+    /// <exception cref="ArgumentNullException">Thrown if filePath is null</exception>
+    /// <exception cref="ArgumentException">Thrown if filePath is empty or whitespace</exception>
+    public FileStorageMedium(string filePath)
     {
-      throw new ArgumentException("File path cannot be null or whitespace", nameof(filePath));
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            throw new ArgumentException("File path cannot be null or whitespace", nameof(filePath));
+        }
+
+        _filePath = filePath;
     }
 
-    _filePath = filePath;
-  }
+    /// <summary>
+    /// Gets the file path for this storage medium.
+    /// </summary>
+    public string FilePath => _filePath;
 
-  /// <summary>
-  /// Gets the file path for this storage medium.
-  /// </summary>
-  public string FilePath => _filePath;
+    /// <inheritdoc/>
+    public StorageTraits Traits => new StorageTraits();
 
-  /// <inheritdoc/>
-  public StorageTraits Traits => new StorageTraits();
+    /// <inheritdoc/>
+    public FlowIO<Stream> ReadStream()
+    {
+        return FlowIO.LiftAsync(
+          async (CancellationToken ct) =>
+          {
+              if (!File.Exists(_filePath))
+              {
+                  throw new FileNotFoundException($"File not found at path: {_filePath}", _filePath);
+              }
 
-  /// <inheritdoc/>
-  public FlowIO<Stream> ReadStream()
-  {
-    return FlowIO.LiftAsync(
-      async (CancellationToken ct) =>
-      {
-        if (!File.Exists(_filePath))
-        {
-          throw new FileNotFoundException($"File not found at path: {_filePath}", _filePath);
-        }
+              // Open file for reading with shared read access
+              var stream = new FileStream(
+            _filePath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            bufferSize: 4096,
+            useAsync: true
+          );
 
-        // Open file for reading with shared read access
-        var stream = new FileStream(
-          _filePath,
-          FileMode.Open,
-          FileAccess.Read,
-          FileShare.Read,
-          bufferSize: 4096,
-          useAsync: true
+              return (Stream)stream;
+          }
         );
+    }
 
-        return (Stream)stream;
-      }
-    );
-  }
-
-  /// <inheritdoc/>
-  public FlowIO<FlowUnit> WriteStream(Stream stream)
-  {
-    return FlowIO.LiftAsync(
-      async (CancellationToken ct) =>
-      {
-        if (stream == null)
-        {
-          throw new ArgumentNullException(nameof(stream));
-        }
-
-        // Ensure parent directory exists
-        var directory = Path.GetDirectoryName(_filePath);
-        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-        {
-          Directory.CreateDirectory(directory);
-        }
-
-        // Write to temp file first for atomic operation
-        var tempPath = $"{_filePath}.tmp.{Guid.NewGuid():N}";
-
-        try
-        {
-          // Write to temp file
-          using (
-            var fileStream = new FileStream(
-              tempPath,
-              FileMode.Create,
-              FileAccess.Write,
-              FileShare.None,
-              bufferSize: 4096,
-              useAsync: true
-            )
-          )
+    /// <inheritdoc/>
+    public FlowIO<FlowUnit> WriteStream(Stream stream)
+    {
+        return FlowIO.LiftAsync(
+          async (CancellationToken ct) =>
           {
-            await stream.CopyToAsync(fileStream, ct);
-            await fileStream.FlushAsync(ct);
+              if (stream == null)
+              {
+                  throw new ArgumentNullException(nameof(stream));
+              }
+
+              // Ensure parent directory exists
+              var directory = Path.GetDirectoryName(_filePath);
+              if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+              {
+                  Directory.CreateDirectory(directory);
+              }
+
+              // Write to temp file first for atomic operation
+              var tempPath = $"{_filePath}.tmp.{Guid.NewGuid():N}";
+
+              try
+              {
+                  // Write to temp file
+                  using (
+                var fileStream = new FileStream(
+                  tempPath,
+                  FileMode.Create,
+                  FileAccess.Write,
+                  FileShare.None,
+                  bufferSize: 4096,
+                  useAsync: true
+                )
+              )
+                  {
+                      await stream.CopyToAsync(fileStream, ct);
+                      await fileStream.FlushAsync(ct);
+                  }
+
+                  // Atomic rename: replace old file with new one
+                  File.Move(tempPath, _filePath, overwrite: true);
+
+                  return FlowUnit.Default;
+              }
+              catch
+              {
+                  // Clean up temp file on failure
+                  if (File.Exists(tempPath))
+                  {
+                      try
+                      {
+                          File.Delete(tempPath);
+                      }
+                      catch
+                      {
+                          // Ignore cleanup errors
+                      }
+                  }
+                  throw;
+              }
           }
+        );
+    }
 
-          // Atomic rename: replace old file with new one
-          File.Move(tempPath, _filePath, overwrite: true);
-
-          return FlowUnit.Default;
-        }
-        catch
-        {
-          // Clean up temp file on failure
-          if (File.Exists(tempPath))
-          {
-            try
-            {
-              File.Delete(tempPath);
-            }
-            catch
-            {
-              // Ignore cleanup errors
-            }
-          }
-          throw;
-        }
-      }
-    );
-  }
-
-  /// <inheritdoc/>
-  public FlowIO<bool> Exists()
-  {
-    return FlowIO.Lift(() => File.Exists(_filePath));
-  }
+    /// <inheritdoc/>
+    public FlowIO<bool> Exists()
+    {
+        return FlowIO.Lift(() => File.Exists(_filePath));
+    }
 }

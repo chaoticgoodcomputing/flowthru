@@ -11,133 +11,133 @@ namespace Flowthru.Core.Registry;
 internal class FlowRegistrar<TCatalog> : IFlowRegistrar<TCatalog>
   where TCatalog : CatalogAbstract
 {
-  private readonly TCatalog _catalog;
-  private readonly Dictionary<string, Func<Flow>> _factories = new();
-  private readonly Dictionary<string, FlowRegistration> _metadata = new();
-  private string? _lastRegisteredFlow;
+    private readonly TCatalog _catalog;
+    private readonly Dictionary<string, Func<Flow>> _factories = new();
+    private readonly Dictionary<string, FlowRegistration> _metadata = new();
+    private string? _lastRegisteredFlow;
 
-  /// <summary>
-  /// Initializes a new instance of FlowRegistrar.
-  /// </summary>
-  /// <param name="catalog">The catalog instance to pass to Flow factories</param>
-  internal FlowRegistrar(TCatalog catalog)
-  {
-    _catalog = catalog;
-  }
-
-  /// <inheritdoc />
-  public IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Flow> flowFactory)
-  {
-    if (string.IsNullOrWhiteSpace(name))
+    /// <summary>
+    /// Initializes a new instance of FlowRegistrar.
+    /// </summary>
+    /// <param name="catalog">The catalog instance to pass to Flow factories</param>
+    internal FlowRegistrar(TCatalog catalog)
     {
-      throw new ArgumentException("Flow name cannot be null or empty", nameof(name));
+        _catalog = catalog;
     }
 
-    if (_factories.ContainsKey(name))
+    /// <inheritdoc />
+    public IFlowRegistrar<TCatalog> Register(string name, Func<TCatalog, Flow> flowFactory)
     {
-      throw new InvalidOperationException($"Flow '{name}' is already registered");
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Flow name cannot be null or empty", nameof(name));
+        }
+
+        if (_factories.ContainsKey(name))
+        {
+            throw new InvalidOperationException($"Flow '{name}' is already registered");
+        }
+
+        // Wrap factory to capture catalog
+        _factories[name] = () => flowFactory(_catalog);
+
+        // Initialize metadata
+        _metadata[name] = new FlowRegistration { Name = name };
+        _lastRegisteredFlow = name;
+
+        return this;
     }
 
-    // Wrap factory to capture catalog
-    _factories[name] = () => flowFactory(_catalog);
-
-    // Initialize metadata
-    _metadata[name] = new FlowRegistration { Name = name };
-    _lastRegisteredFlow = name;
-
-    return this;
-  }
-
-  /// <inheritdoc />
-  public IFlowRegistrar<TCatalog> Register<TParams>(
-    string name,
-    Func<TCatalog, TParams, Flow> flowFactory,
-    TParams parameters
-  )
-  {
-    if (string.IsNullOrWhiteSpace(name))
+    /// <inheritdoc />
+    public IFlowRegistrar<TCatalog> Register<TParams>(
+      string name,
+      Func<TCatalog, TParams, Flow> flowFactory,
+      TParams parameters
+    )
     {
-      throw new ArgumentException("Flow name cannot be null or empty", nameof(name));
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentException("Flow name cannot be null or empty", nameof(name));
+        }
+
+        if (_factories.ContainsKey(name))
+        {
+            throw new InvalidOperationException($"Flow '{name}' is already registered");
+        }
+
+        // Wrap factory to capture catalog and parameters
+        _factories[name] = () => flowFactory(_catalog, parameters);
+
+        // Initialize metadata
+        _metadata[name] = new FlowRegistration { Name = name };
+        _lastRegisteredFlow = name;
+
+        return this;
     }
 
-    if (_factories.ContainsKey(name))
+    /// <inheritdoc />
+    public IFlowRegistrar<TCatalog> WithDescription(string description)
     {
-      throw new InvalidOperationException($"Flow '{name}' is already registered");
+        if (_lastRegisteredFlow == null)
+        {
+            throw new InvalidOperationException(
+              "No flow has been registered yet. Call Register() first."
+            );
+        }
+
+        if (!_metadata.ContainsKey(_lastRegisteredFlow))
+        {
+            throw new InvalidOperationException($"Flow '{_lastRegisteredFlow}' has not been registered");
+        }
+
+        _metadata[_lastRegisteredFlow].Description = description;
+        return this;
     }
 
-    // Wrap factory to capture catalog and parameters
-    _factories[name] = () => flowFactory(_catalog, parameters);
-
-    // Initialize metadata
-    _metadata[name] = new FlowRegistration { Name = name };
-    _lastRegisteredFlow = name;
-
-    return this;
-  }
-
-  /// <inheritdoc />
-  public IFlowRegistrar<TCatalog> WithDescription(string description)
-  {
-    if (_lastRegisteredFlow == null)
+    /// <inheritdoc />
+    public IFlowRegistrar<TCatalog> WithValidation(Action<ValidationOptions> configure)
     {
-      throw new InvalidOperationException(
-        "No flow has been registered yet. Call Register() first."
-      );
+        if (_lastRegisteredFlow == null)
+        {
+            throw new InvalidOperationException(
+              "No Flow has been registered yet. Call Register() first."
+            );
+        }
+
+        if (!_metadata.ContainsKey(_lastRegisteredFlow))
+        {
+            throw new InvalidOperationException($"Flow '{_lastRegisteredFlow}' has not been registered");
+        }
+
+        configure(_metadata[_lastRegisteredFlow].ValidationOptions);
+        return this;
     }
 
-    if (!_metadata.ContainsKey(_lastRegisteredFlow))
+    /// <summary>
+    /// Builds and returns all registered flows with their metadata applied.
+    /// </summary>
+    /// <returns>Dictionary of flow names to Flow instances</returns>
+    internal Dictionary<string, Flow> Build()
     {
-      throw new InvalidOperationException($"Flow '{_lastRegisteredFlow}' has not been registered");
+        var flows = new Dictionary<string, Flow>();
+
+        foreach (var (name, factory) in _factories)
+        {
+            // Invoke factory to create flow
+            var flow = factory();
+
+            // Apply metadata
+            flow.Name = name;
+
+            if (_metadata.TryGetValue(name, out var metadata))
+            {
+                flow.Description = metadata.Description;
+                flow.ValidationOptions = metadata.ValidationOptions;
+            }
+
+            flows[name] = flow;
+        }
+
+        return flows;
     }
-
-    _metadata[_lastRegisteredFlow].Description = description;
-    return this;
-  }
-
-  /// <inheritdoc />
-  public IFlowRegistrar<TCatalog> WithValidation(Action<ValidationOptions> configure)
-  {
-    if (_lastRegisteredFlow == null)
-    {
-      throw new InvalidOperationException(
-        "No Flow has been registered yet. Call Register() first."
-      );
-    }
-
-    if (!_metadata.ContainsKey(_lastRegisteredFlow))
-    {
-      throw new InvalidOperationException($"Flow '{_lastRegisteredFlow}' has not been registered");
-    }
-
-    configure(_metadata[_lastRegisteredFlow].ValidationOptions);
-    return this;
-  }
-
-  /// <summary>
-  /// Builds and returns all registered flows with their metadata applied.
-  /// </summary>
-  /// <returns>Dictionary of flow names to Flow instances</returns>
-  internal Dictionary<string, Flow> Build()
-  {
-    var flows = new Dictionary<string, Flow>();
-
-    foreach (var (name, factory) in _factories)
-    {
-      // Invoke factory to create flow
-      var flow = factory();
-
-      // Apply metadata
-      flow.Name = name;
-
-      if (_metadata.TryGetValue(name, out var metadata))
-      {
-        flow.Description = metadata.Description;
-        flow.ValidationOptions = metadata.ValidationOptions;
-      }
-
-      flows[name] = flow;
-    }
-
-    return flows;
-  }
 }

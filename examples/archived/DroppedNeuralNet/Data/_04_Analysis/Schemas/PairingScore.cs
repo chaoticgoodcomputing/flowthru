@@ -10,9 +10,9 @@ namespace DroppedNeuralNet.Data._04_Analysis.Schemas;
 [FlowthruSchema]
 public partial record PairingScore
 {
-  public int InpPieceIndex { get; init; }
-  public int OutPieceIndex { get; init; }
+    public int InpPieceIndex { get; init; }
+    public int OutPieceIndex { get; init; }
 
-  /// <summary>||W_out @ W_inp||_F. Lower = stronger residual coupling between these two layers.</summary>
-  public float CoherenceScore { get; init; }
+    /// <summary>||W_out @ W_inp||_F. Lower = stronger residual coupling between these two layers.</summary>
+    public float CoherenceScore { get; init; }
 }

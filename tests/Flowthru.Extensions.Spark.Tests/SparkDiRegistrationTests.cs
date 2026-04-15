@@ -20,9 +20,13 @@ public class SparkDiRegistrationTests
             flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
 
             if (configure is null)
+            {
                 flowthru.UseSpark();
+            }
             else
+            {
                 flowthru.UseSpark(configure);
+            }
         });
         return services.BuildServiceProvider();
     }

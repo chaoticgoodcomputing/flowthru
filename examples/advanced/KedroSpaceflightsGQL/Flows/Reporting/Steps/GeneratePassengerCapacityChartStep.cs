@@ -27,52 +27,52 @@ namespace KedroSpaceflightsGQL.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class GeneratePassengerCapacityChartStep
 {
-  public static Func<IEnumerable<PreprocessedShuttleSchema>, GenericChart> Create(
-    ILogger? logger = null
-  )
-  {
-    return (input) =>
+    public static Func<IEnumerable<PreprocessedShuttleSchema>, GenericChart> Create(
+      ILogger? logger = null
+    )
     {
-      var shuttles = input.ToList();
-
-      logger?.LogInformation(
-        "Generating passenger capacity chart from {Count} shuttle records",
-        shuttles.Count
-      );
-
-      // Group by shuttle type and calculate average passenger capacity
-      // Sort by capacity descending to show ranking from highest to lowest
-      var aggregated = shuttles
-        .GroupBy(s => s.ShuttleType)
-        .Select(g => new
+        return (input) =>
         {
-          ShuttleType = g.Key,
-          AvgPassengerCapacity = g.Average(s => s.PassengerCapacity),
-        })
-        .OrderByDescending(x => x.AvgPassengerCapacity)
-        .ToList();
+            var shuttles = input.ToList();
 
-      logger?.LogInformation(
-        "Aggregated {Count} shuttle types, sorted by capacity (highest to lowest)",
-        aggregated.Count
-      );
+            logger?.LogInformation(
+          "Generating passenger capacity chart from {Count} shuttle records",
+          shuttles.Count
+        );
 
-      // Extract data for chart
-      var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
-      var capacities = aggregated.Select(x => x.AvgPassengerCapacity).ToList();
+            // Group by shuttle type and calculate average passenger capacity
+            // Sort by capacity descending to show ranking from highest to lowest
+            var aggregated = shuttles
+          .GroupBy(s => s.ShuttleType)
+          .Select(g => new
+            {
+                ShuttleType = g.Key,
+                AvgPassengerCapacity = g.Average(s => s.PassengerCapacity),
+            })
+          .OrderByDescending(x => x.AvgPassengerCapacity)
+          .ToList();
 
-      // Create column chart using Plotly.NET.CSharp API
-      // Note: Both test and examples projects produce similar rendering with this API
-      var chart = CSharpChart
-        .Column<string, double, double>(shuttleTypes, capacities)
-        .WithXAxisStyle(Title.init("Shuttle Type (Ranked by Capacity)"))
-        .WithYAxisStyle(Title.init("Average Passenger Capacity"))
-        .WithTitle("Shuttle Passenger Capacity Rankings")
-        .WithSize(1000, 600);
+            logger?.LogInformation(
+          "Aggregated {Count} shuttle types, sorted by capacity (highest to lowest)",
+          aggregated.Count
+        );
 
-      logger?.LogInformation("Generated sorted passenger capacity bar chart");
+            // Extract data for chart
+            var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
+            var capacities = aggregated.Select(x => x.AvgPassengerCapacity).ToList();
 
-      return chart;
-    };
-  }
+            // Create column chart using Plotly.NET.CSharp API
+            // Note: Both test and examples projects produce similar rendering with this API
+            var chart = CSharpChart
+          .Column<string, double, double>(shuttleTypes, capacities)
+          .WithXAxisStyle(Title.init("Shuttle Type (Ranked by Capacity)"))
+          .WithYAxisStyle(Title.init("Average Passenger Capacity"))
+          .WithTitle("Shuttle Passenger Capacity Rankings")
+          .WithSize(1000, 600);
+
+            logger?.LogInformation("Generated sorted passenger capacity bar chart");
+
+            return chart;
+        };
+    }
 }

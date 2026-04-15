@@ -14,17 +14,17 @@ namespace RetailDataMultipipeline.Flows.Consolidation;
 /// </remarks>
 public static class ConsolidationFlow
 {
-  public static Flow Create(CoreCatalog core, List<CountryShardCatalog> shards)
-  {
-    return FlowBuilder.CreateFlow(pipeline =>
+    public static Flow Create(CoreCatalog core, List<CountryShardCatalog> shards)
     {
-      pipeline.AddStep(
-        label: "ConsolidateShards",
-        description: "Concatenates all per-country weekly DTU shards into a single Parquet dataset.",
-        inputs: shards.Select(s => s.WeeklyDtu).ToList(),
-        output: core.AllCountriesWeeklyDtu,
-        step: batches => batches.SelectMany(b => b)
-      );
-    });
-  }
+        return FlowBuilder.CreateFlow(pipeline =>
+        {
+            pipeline.AddStep(
+          label: "ConsolidateShards",
+          description: "Concatenates all per-country weekly DTU shards into a single Parquet dataset.",
+          inputs: shards.Select(s => s.WeeklyDtu).ToList(),
+          output: core.AllCountriesWeeklyDtu,
+          step: batches => batches.SelectMany(b => b)
+        );
+        });
+    }
 }

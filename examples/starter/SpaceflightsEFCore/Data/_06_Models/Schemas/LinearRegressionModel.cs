@@ -8,18 +8,18 @@ namespace SpaceflightsEFCore.Data._06_Models.Schemas;
 [FlowthruSchema]
 public partial record LinearRegressionModel
 {
-  /// <summary>
-  /// Regression coefficients for each feature (excluding intercept).
-  /// </summary>
-  public double[] Coefficients { get; init; } = Array.Empty<double>();
+    /// <summary>
+    /// Regression coefficients for each feature (excluding intercept).
+    /// </summary>
+    public double[] Coefficients { get; init; } = Array.Empty<double>();
 
-  /// <summary>
-  /// Intercept term (bias) of the regression model.
-  /// </summary>
-  public double Intercept { get; init; }
+    /// <summary>
+    /// Intercept term (bias) of the regression model.
+    /// </summary>
+    public double Intercept { get; init; }
 
-  /// <summary>
-  /// Names of features corresponding to each coefficient.
-  /// </summary>
-  public string[] FeatureNames { get; init; } = Array.Empty<string>();
+    /// <summary>
+    /// Names of features corresponding to each coefficient.
+    /// </summary>
+    public string[] FeatureNames { get; init; } = Array.Empty<string>();
 }

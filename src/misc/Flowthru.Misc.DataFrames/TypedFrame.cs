@@ -27,50 +27,50 @@ namespace Flowthru.Misc.DataFrames;
 /// </typeparam>
 public class TypedFrame<T> : IQueryable<T>, IOrderedQueryable<T>
 {
-  private readonly IFrameQueryProvider _provider;
-  private readonly Expression _expression;
+    private readonly IFrameQueryProvider _provider;
+    private readonly Expression _expression;
 
-  /// <summary>
-  /// Creates a root frame node backed by a native DataFrame.
-  /// The provider associates the native frame externally.
-  /// </summary>
-  public TypedFrame(IFrameQueryProvider provider)
-  {
-    _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-    _expression = Expression.Constant(this);
-  }
+    /// <summary>
+    /// Creates a root frame node backed by a native DataFrame.
+    /// The provider associates the native frame externally.
+    /// </summary>
+    public TypedFrame(IFrameQueryProvider provider)
+    {
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _expression = Expression.Constant(this);
+    }
 
-  /// <summary>
-  /// Creates an intermediate frame node representing an accumulated operation.
-  /// Used by the provider's <see cref="IQueryProvider.CreateQuery{TElement}"/>.
-  /// </summary>
-  public TypedFrame(IFrameQueryProvider provider, Expression expression)
-  {
-    _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-    _expression = expression ?? throw new ArgumentNullException(nameof(expression));
-  }
+    /// <summary>
+    /// Creates an intermediate frame node representing an accumulated operation.
+    /// Used by the provider's <see cref="IQueryProvider.CreateQuery{TElement}"/>.
+    /// </summary>
+    public TypedFrame(IFrameQueryProvider provider, Expression expression)
+    {
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _expression = expression ?? throw new ArgumentNullException(nameof(expression));
+    }
 
-  /// <inheritdoc />
-  public Expression Expression => _expression;
+    /// <inheritdoc />
+    public Expression Expression => _expression;
 
-  /// <inheritdoc />
-  public Type ElementType => typeof(T);
+    /// <inheritdoc />
+    public Type ElementType => typeof(T);
 
-  /// <inheritdoc />
-  public IQueryProvider Provider => _provider;
+    /// <inheritdoc />
+    public IQueryProvider Provider => _provider;
 
-  /// <summary>
-  /// Materializes this frame by delegating to the provider's
-  /// <see cref="IFrameQueryProvider.Materialize{T}"/> method.
-  /// </summary>
-  /// <remarks>
-  /// This enables transparent TypedFrame → IEnumerable conversion at catalog item
-  /// boundaries: a step returning <c>TypedFrame&lt;T&gt;</c> can be wired to a
-  /// catalog item typed as <c>IEnumerable&lt;T&gt;</c> without any explicit
-  /// materialization call in step code.
-  /// </remarks>
-  public IEnumerator<T> GetEnumerator() => _provider.Materialize<T>(_expression).GetEnumerator();
+    /// <summary>
+    /// Materializes this frame by delegating to the provider's
+    /// <see cref="IFrameQueryProvider.Materialize{T}"/> method.
+    /// </summary>
+    /// <remarks>
+    /// This enables transparent TypedFrame → IEnumerable conversion at catalog item
+    /// boundaries: a step returning <c>TypedFrame&lt;T&gt;</c> can be wired to a
+    /// catalog item typed as <c>IEnumerable&lt;T&gt;</c> without any explicit
+    /// materialization call in step code.
+    /// </remarks>
+    public IEnumerator<T> GetEnumerator() => _provider.Materialize<T>(_expression).GetEnumerator();
 
-  /// <inheritdoc cref="GetEnumerator"/>
-  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    /// <inheritdoc cref="GetEnumerator"/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

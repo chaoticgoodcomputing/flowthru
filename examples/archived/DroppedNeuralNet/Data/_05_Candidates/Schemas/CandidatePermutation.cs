@@ -10,13 +10,13 @@ namespace DroppedNeuralNet.Data._05_Candidates.Schemas;
 [FlowthruSchema]
 public partial record CandidatePermutation
 {
-  public int CandidateIndex { get; init; }
+    public int CandidateIndex { get; init; }
 
-  /// <summary>
-  /// JSON-encoded int array of length 97.
-  /// Positions 2k and 2k+1 are the inp/out pieces for Block k (k = 0..47).
-  /// Position 96 is the LastLayer piece index.
-  /// Example: "[12, 45, 3, 67, ...]"
-  /// </summary>
-  public string Permutation { get; init; } = "[]";
+    /// <summary>
+    /// JSON-encoded int array of length 97.
+    /// Positions 2k and 2k+1 are the inp/out pieces for Block k (k = 0..47).
+    /// Position 96 is the LastLayer piece index.
+    /// Example: "[12, 45, 3, 67, ...]"
+    /// </summary>
+    public string Permutation { get; init; } = "[]";
 }

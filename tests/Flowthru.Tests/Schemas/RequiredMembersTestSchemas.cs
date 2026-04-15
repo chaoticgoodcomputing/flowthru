@@ -13,35 +13,35 @@ namespace Flowthru.Tests.Schemas;
 [FlowthruSchema]
 public partial record RequiredMembersSchema
 {
-  /// <summary>
-  /// Unique identifier for this record - must be set during construction.
-  /// </summary>
-  [SerializedLabel("id")]
-  public required Guid Id { get; init; }
+    /// <summary>
+    /// Unique identifier for this record - must be set during construction.
+    /// </summary>
+    [SerializedLabel("id")]
+    public required Guid Id { get; init; }
 
-  /// <summary>
-  /// Name field - required, cannot be null.
-  /// </summary>
-  [SerializedLabel("name")]
-  public required string Name { get; init; }
+    /// <summary>
+    /// Name field - required, cannot be null.
+    /// </summary>
+    [SerializedLabel("name")]
+    public required string Name { get; init; }
 
-  /// <summary>
-  /// Value field - required, always has a value.
-  /// </summary>
-  [SerializedLabel("value")]
-  public required int Value { get; init; }
+    /// <summary>
+    /// Value field - required, always has a value.
+    /// </summary>
+    [SerializedLabel("value")]
+    public required int Value { get; init; }
 
-  /// <summary>
-  /// Optional timestamp - can be null.
-  /// </summary>
-  [SerializedLabel("timestamp")]
-  public DateTime? Timestamp { get; init; }
+    /// <summary>
+    /// Optional timestamp - can be null.
+    /// </summary>
+    [SerializedLabel("timestamp")]
+    public DateTime? Timestamp { get; init; }
 
-  /// <summary>
-  /// Optional description - can be null.
-  /// </summary>
-  [SerializedLabel("description")]
-  public string? Description { get; init; }
+    /// <summary>
+    /// Optional description - can be null.
+    /// </summary>
+    [SerializedLabel("description")]
+    public string? Description { get; init; }
 }
 
 /// <summary>
@@ -68,22 +68,22 @@ public record PositionalRecordSchema(
 [FlowthruSchema]
 public partial record MixedRequirementsSchema
 {
-  // Required - critical identity fields
-  [SerializedLabel("record_id")]
-  public required Guid RecordId { get; init; }
+    // Required - critical identity fields
+    [SerializedLabel("record_id")]
+    public required Guid RecordId { get; init; }
 
-  [SerializedLabel("category")]
-  public required string Category { get; init; }
+    [SerializedLabel("category")]
+    public required string Category { get; init; }
 
-  // Optional - metadata fields
-  [SerializedLabel("tags")]
-  public string? Tags { get; init; }
+    // Optional - metadata fields
+    [SerializedLabel("tags")]
+    public string? Tags { get; init; }
 
-  [SerializedLabel("priority")]
-  public int? Priority { get; init; }
+    [SerializedLabel("priority")]
+    public int? Priority { get; init; }
 
-  [SerializedLabel("is_active")]
-  public bool IsActive { get; init; } // Not required, defaults to false
+    [SerializedLabel("is_active")]
+    public bool IsActive { get; init; } // Not required, defaults to false
 }
 
 /// <summary>
@@ -96,12 +96,12 @@ public partial record MixedRequirementsSchema
 [FlowthruSchema]
 public partial record TraditionalSchema
 {
-  [SerializedLabel("id")]
-  public Guid Id { get; init; }
+    [SerializedLabel("id")]
+    public Guid Id { get; init; }
 
-  [SerializedLabel("name")]
-  public string? Name { get; init; }
+    [SerializedLabel("name")]
+    public string? Name { get; init; }
 
-  [SerializedLabel("value")]
-  public int Value { get; init; }
+    [SerializedLabel("value")]
+    public int Value { get; init; }
 }

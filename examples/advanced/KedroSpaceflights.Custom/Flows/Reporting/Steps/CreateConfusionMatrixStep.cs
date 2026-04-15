@@ -32,30 +32,30 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class CreateConfusionMatrixStep
 {
-  public static Func<IEnumerable<CompanySchema>, Task<GenericChart>> Create(ILogger? logger = null)
-  {
-    return async (input) =>
+    public static Func<IEnumerable<CompanySchema>, Task<GenericChart>> Create(ILogger? logger = null)
     {
-      // Dummy confusion matrix data (matches Kedro spaceflights example)
-      // In production, this would come from actual model predictions
-      int[] actuals = [0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1];
-      int[] predicted = [1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1];
+        return async (input) =>
+        {
+            // Dummy confusion matrix data (matches Kedro spaceflights example)
+            // In production, this would come from actual model predictions
+            int[] actuals = [0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1];
+            int[] predicted = [1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1];
 
-      logger?.LogInformation(
-        "Generating confusion matrix from {Count} predictions",
-        actuals.Length
-      );
+            logger?.LogInformation(
+          "Generating confusion matrix from {Count} predictions",
+          actuals.Length
+        );
 
-      // Build 2x2 confusion matrix
-      var matrix = new int[2, 2];
-      for (int i = 0; i < actuals.Length; i++)
-      {
-        matrix[actuals[i], predicted[i]]++;
-      }
+            // Build 2x2 confusion matrix
+            var matrix = new int[2, 2];
+            for (int i = 0; i < actuals.Length; i++)
+            {
+                matrix[actuals[i], predicted[i]]++;
+            }
 
-      // Convert to format for Plotly heatmap (list of lists)
-      var zData = new List<List<int>>
-      {
+            // Convert to format for Plotly heatmap (list of lists)
+            var zData = new List<List<int>>
+          {
         new() { matrix[0, 0], matrix[0, 1] }, // Actual 0: [TN, FP]
         new()
         {
@@ -63,27 +63,27 @@ public static class CreateConfusionMatrixStep
           matrix[1, 1],
         } // Actual 1: [FN, TP]
         ,
-      };
+          };
 
-      var xLabels = new[] { "Predicted 0", "Predicted 1" };
-      var yLabels = new[] { "Actual 0", "Actual 1" };
+            var xLabels = new[] { "Predicted 0", "Predicted 1" };
+            var yLabels = new[] { "Actual 0", "Actual 1" };
 
-      logger?.LogInformation(
-        "Confusion Matrix: TN={TN}, FP={FP}, FN={FN}, TP={TP}",
-        matrix[0, 0],
-        matrix[0, 1],
-        matrix[1, 0],
-        matrix[1, 1]
-      );
+            logger?.LogInformation(
+          "Confusion Matrix: TN={TN}, FP={FP}, FN={FN}, TP={TP}",
+          matrix[0, 0],
+          matrix[0, 1],
+          matrix[1, 0],
+          matrix[1, 1]
+        );
 
-      // Create heatmap using Plotly.NET.CSharp API
-      var chart = CSharpChart
-        .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
-        .WithTitle("Confusion Matrix");
+            // Create heatmap using Plotly.NET.CSharp API
+            var chart = CSharpChart
+          .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
+          .WithTitle("Confusion Matrix");
 
-      logger?.LogInformation("Generated GenericChart heatmap for confusion matrix");
+            logger?.LogInformation("Generated GenericChart heatmap for confusion matrix");
 
-      return chart;
-    };
-  }
+            return chart;
+        };
+    }
 }

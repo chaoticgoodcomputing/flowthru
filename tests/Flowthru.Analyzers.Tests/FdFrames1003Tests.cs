@@ -12,9 +12,9 @@ namespace Flowthru.Analyzers.Tests;
 [TestFixture]
 public class FDFRAMES1003Tests
 {
-  // Records require System.Runtime.CompilerServices.IsExternalInit, which the analyzer
-  // test framework doesn't inject automatically. This shim satisfies the requirement.
-  private const string Stubs = """
+    // Records require System.Runtime.CompilerServices.IsExternalInit, which the analyzer
+    // test framework doesn't inject automatically. This shim satisfies the requirement.
+    private const string Stubs = """
     using System;
     using System.Linq.Expressions;
     using Flowthru.Misc.DataFrames;
@@ -48,17 +48,17 @@ public class FDFRAMES1003Tests
     public record PersonRecord(string Name, int Age);
     """;
 
-  private static DiagnosticResult FDFRAMES1003(int marker) =>
-    new DiagnosticResult(DataFrameDiagnostics.PositionalConstructorNonRecord).WithLocation(marker);
+    private static DiagnosticResult FDFRAMES1003(int marker) =>
+      new DiagnosticResult(DataFrameDiagnostics.PositionalConstructorNonRecord).WithLocation(marker);
 
-  // ─── Negative cases: record and anonymous types → no diagnostic ─────────────
+    // ─── Negative cases: record and anonymous types → no diagnostic ─────────────
 
-  [Test]
-  public async Task RecordPositionalConstructor_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task RecordPositionalConstructor_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -69,18 +69,18 @@ public class FDFRAMES1003Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task AnonymousType_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task AnonymousType_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -91,20 +91,20 @@ public class FDFRAMES1003Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task ObjectInitializer_PlainClass_DoesNotReport()
-  {
-    // FDFRAMES1003 only fires for positional constructors (args, no initializer).
-    // An object initializer on a plain class is valid.
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task ObjectInitializer_PlainClass_DoesNotReport()
+    {
+        // FDFRAMES1003 only fires for positional constructors (args, no initializer).
+        // An object initializer on a plain class is valid.
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -115,20 +115,20 @@ public class FDFRAMES1003Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
+
+    // ─── Positive case: positional constructor on a plain class → FDFRAMES1003 ───
+
+    [Test]
+    public async Task PlainClassPositionalConstructor_Reports_FDFRAMES1003()
     {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  // ─── Positive case: positional constructor on a plain class → FDFRAMES1003 ───
-
-  [Test]
-  public async Task PlainClassPositionalConstructor_Reports_FDFRAMES1003()
-  {
-    var source =
-      Stubs
-      + """
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -139,10 +139,10 @@ public class FDFRAMES1003Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1003(0).WithArguments("PlainClass") },
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1003(0).WithArguments("PlainClass") },
+        }.RunAsync();
+    }
 }

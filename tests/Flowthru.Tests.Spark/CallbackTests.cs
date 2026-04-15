@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -138,15 +138,15 @@ namespace Flowthru.Tests.Spark
                 Assert.Empty(callbackHandler.Inputs);
             }
         }
-        
+
         [Fact]
         public void TestJvmCallbackClientProperty()
         {
             var server = new CallbackServer(_mockJvm.Object, run: false);
             Assert.Throws<InvalidOperationException>(() => server.JvmCallbackClient);
-            
+
             using ISocketWrapper callbackSocket = SocketFactory.CreateSocket();
-            server.Run(callbackSocket); 
+            server.Run(callbackSocket);
             Assert.NotNull(server.JvmCallbackClient);
         }
 

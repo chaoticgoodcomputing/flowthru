@@ -12,36 +12,36 @@ namespace Flowthru.Extensions.Python.Tests;
 /// </remarks>
 internal static class PythonTestModuleInitializer
 {
-  [ModuleInitializer]
-  public static void Initialize()
-  {
-    var logPath = Path.Combine(Path.GetTempPath(), "flowthru-python-test-init.log");
-    try
+    [ModuleInitializer]
+    public static void Initialize()
     {
-      File.AppendAllText(logPath, $"[{DateTime.Now:O}] Module initializer started\n");
-      File.AppendAllText(
-        logPath,
-        $"[{DateTime.Now:O}] Current directory: {Directory.GetCurrentDirectory()}\n"
-      );
+        var logPath = Path.Combine(Path.GetTempPath(), "flowthru-python-test-init.log");
+        try
+        {
+            File.AppendAllText(logPath, $"[{DateTime.Now:O}] Module initializer started\n");
+            File.AppendAllText(
+              logPath,
+              $"[{DateTime.Now:O}] Current directory: {Directory.GetCurrentDirectory()}\n"
+            );
 
-      var options = new PythonRuntimeOptions();
-      var pythonDll = options.GetResolvedPythonDll();
+            var options = new PythonRuntimeOptions();
+            var pythonDll = options.GetResolvedPythonDll();
 
-      File.AppendAllText(logPath, $"[{DateTime.Now:O}] Resolved Python DLL: {pythonDll}\n");
-      File.AppendAllText(logPath, $"[{DateTime.Now:O}] DLL Exists: {File.Exists(pythonDll)}\n");
+            File.AppendAllText(logPath, $"[{DateTime.Now:O}] Resolved Python DLL: {pythonDll}\n");
+            File.AppendAllText(logPath, $"[{DateTime.Now:O}] DLL Exists: {File.Exists(pythonDll)}\n");
 
-      Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonDll);
+            Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonDll);
 
-      var envCheck = Environment.GetEnvironmentVariable("PYTHONNET_PYDLL");
-      File.AppendAllText(logPath, $"[{DateTime.Now:O}] PYTHONNET_PYDLL set to: {envCheck}\n");
+            var envCheck = Environment.GetEnvironmentVariable("PYTHONNET_PYDLL");
+            File.AppendAllText(logPath, $"[{DateTime.Now:O}] PYTHONNET_PYDLL set to: {envCheck}\n");
 
-      Console.WriteLine($"[ModuleInitializer] Set PYTHONNET_PYDLL={pythonDll}");
+            Console.WriteLine($"[ModuleInitializer] Set PYTHONNET_PYDLL={pythonDll}");
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText(logPath, $"[{DateTime.Now:O}] Exception: {ex}\n");
+            Console.WriteLine($"[ModuleInitializer] Failed to resolve Python DLL: {ex.Message}");
+            // Don't throw here - let individual tests fail with clearer messages
+        }
     }
-    catch (Exception ex)
-    {
-      File.AppendAllText(logPath, $"[{DateTime.Now:O}] Exception: {ex}\n");
-      Console.WriteLine($"[ModuleInitializer] Failed to resolve Python DLL: {ex.Message}");
-      // Don't throw here - let individual tests fail with clearer messages
-    }
-  }
 }

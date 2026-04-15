@@ -28,12 +28,12 @@ namespace Flowthru.Extensions.Spark.Shared;
 /// </remarks>
 public static class SparkTranslatableOperations
 {
-  /// <summary>
-  /// <c>string</c> instance methods that have Spark <c>Column</c> translations.
-  /// </summary>
-  public static readonly IReadOnlyCollection<string> SupportedStringMethods = new HashSet<string>(
-    StringComparer.Ordinal
-  )
+    /// <summary>
+    /// <c>string</c> instance methods that have Spark <c>Column</c> translations.
+    /// </summary>
+    public static readonly IReadOnlyCollection<string> SupportedStringMethods = new HashSet<string>(
+      StringComparer.Ordinal
+    )
   {
     nameof(string.Replace),
     nameof(string.Contains),
@@ -47,12 +47,12 @@ public static class SparkTranslatableOperations
     nameof(string.Substring),
   };
 
-  /// <summary>
-  /// <c>System.Math</c> static methods that have Spark <c>Column</c> translations.
-  /// </summary>
-  public static readonly IReadOnlyCollection<string> SupportedMathMethods = new HashSet<string>(
-    StringComparer.Ordinal
-  )
+    /// <summary>
+    /// <c>System.Math</c> static methods that have Spark <c>Column</c> translations.
+    /// </summary>
+    public static readonly IReadOnlyCollection<string> SupportedMathMethods = new HashSet<string>(
+      StringComparer.Ordinal
+    )
   {
     nameof(Math.Round),
     nameof(Math.Abs),
@@ -60,17 +60,17 @@ public static class SparkTranslatableOperations
     nameof(Math.Ceiling),
   };
 
-  /// <summary>
-  /// <c>System.DateTime</c> instance properties that have Spark date/time function translations.
-  /// </summary>
-  public static readonly IReadOnlyCollection<string> SupportedDateTimeProperties =
-    new HashSet<string>(StringComparer.Ordinal)
-    {
+    /// <summary>
+    /// <c>System.DateTime</c> instance properties that have Spark date/time function translations.
+    /// </summary>
+    public static readonly IReadOnlyCollection<string> SupportedDateTimeProperties =
+      new HashSet<string>(StringComparer.Ordinal)
+      {
       nameof(DateTime.Year),
       nameof(DateTime.Month),
       nameof(DateTime.Day),
       nameof(DateTime.Hour),
       nameof(DateTime.Minute),
       nameof(DateTime.Second),
-    };
+      };
 }

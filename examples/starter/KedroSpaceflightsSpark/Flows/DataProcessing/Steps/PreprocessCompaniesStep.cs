@@ -15,48 +15,54 @@ namespace KedroSpaceflightsSpark.Flows.DataProcessing.Steps;
 [FlowthruStep]
 public static class PreprocessCompaniesStep
 {
-  public static Func<IEnumerable<CompanySchema>, TypedFrame<PreprocessedCompanySchema>> Create(
-    SparkFrameProvider frameProvider
-  )
-  {
-    return (input) =>
+    public static Func<IEnumerable<CompanySchema>, TypedFrame<PreprocessedCompanySchema>> Create(
+      SparkFrameProvider frameProvider
+    )
     {
-      var parsed = input
-        .Select(Parse)
-        .Where(item => item != null)
-        .Cast<PreprocessedCompanySchema>();
+        return (input) =>
+        {
+            var parsed = input
+          .Select(Parse)
+          .Where(item => item != null)
+          .Cast<PreprocessedCompanySchema>();
 
-      return frameProvider.CreateFromEnumerable<PreprocessedCompanySchema>(parsed);
-    };
-  }
+            return frameProvider.CreateFromEnumerable<PreprocessedCompanySchema>(parsed);
+        };
+    }
 
-  private static PreprocessedCompanySchema? Parse(CompanySchema raw)
-  {
-    bool iataApproved = raw.IataApproved.Trim().ToLowerInvariant() == "t";
-
-    if (!TryParsePercentage(raw.CompanyRating, out var rating))
-      return null;
-
-    return new PreprocessedCompanySchema
+    private static PreprocessedCompanySchema? Parse(CompanySchema raw)
     {
-      Id = raw.Id,
-      CompanyRating = rating,
-      IataApproved = iataApproved,
-      CompanyLocation = raw.CompanyLocation,
-    };
-  }
+        bool iataApproved = raw.IataApproved.Trim().ToLowerInvariant() == "t";
 
-  private static bool TryParsePercentage(string value, out double result)
-  {
-    result = 0;
-    if (string.IsNullOrWhiteSpace(value))
-      return false;
+        if (!TryParsePercentage(raw.CompanyRating, out var rating))
+        {
+            return null;
+        }
 
-    var cleaned = value.Replace("%", "").Trim();
-    if (!double.TryParse(cleaned, out var parsed))
-      return false;
+        return new PreprocessedCompanySchema
+        {
+            Id = raw.Id,
+            CompanyRating = rating,
+            IataApproved = iataApproved,
+            CompanyLocation = raw.CompanyLocation,
+        };
+    }
 
-    result = parsed / 100.0;
-    return true;
-  }
+    private static bool TryParsePercentage(string value, out double result)
+    {
+        result = 0;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        var cleaned = value.Replace("%", "").Trim();
+        if (!double.TryParse(cleaned, out var parsed))
+        {
+            return false;
+        }
+
+        result = parsed / 100.0;
+        return true;
+    }
 }

@@ -67,10 +67,14 @@ public static class FlowthruServiceBuilderExtensions
     )
     {
         if (builder == null)
+        {
             throw new ArgumentNullException(nameof(builder));
+        }
 
         if (configure == null)
+        {
             throw new ArgumentNullException(nameof(configure));
+        }
 
         var options = new SparkRuntimeOptions();
         configure(options);

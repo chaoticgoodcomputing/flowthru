@@ -34,22 +34,22 @@ namespace Flowthru.Extensions.MLNet;
 /// </remarks>
 public static class ItemFactoryMLNet
 {
-  /// <summary>
-  /// Creates a catalog entry for an ONNX model file.
-  /// </summary>
-  /// <param name="label">Human-readable label for the catalog entry</param>
-  /// <param name="filePath">Path to the .onnx model file</param>
-  /// <returns>A catalog entry wrapping an ONNX model storage adapter</returns>
-  /// <example>
-  /// <code>
-  /// var entry = ItemFactoryMLNet.OnnxModel(
-  ///     label: "BertModel",
-  ///     filePath: "models/bert-base.onnx"
-  /// );
-  /// </code>
-  /// </example>
-  public static IItem<byte[]> OnnxModel(string label, string filePath)
-  {
-    return new Item<byte[]>(label, new OnnxModelStorageAdapter(filePath));
-  }
+    /// <summary>
+    /// Creates a catalog entry for an ONNX model file.
+    /// </summary>
+    /// <param name="label">Human-readable label for the catalog entry</param>
+    /// <param name="filePath">Path to the .onnx model file</param>
+    /// <returns>A catalog entry wrapping an ONNX model storage adapter</returns>
+    /// <example>
+    /// <code>
+    /// var entry = ItemFactoryMLNet.OnnxModel(
+    ///     label: "BertModel",
+    ///     filePath: "models/bert-base.onnx"
+    /// );
+    /// </code>
+    /// </example>
+    public static IItem<byte[]> OnnxModel(string label, string filePath)
+    {
+        return new Item<byte[]>(label, new OnnxModelStorageAdapter(filePath));
+    }
 }

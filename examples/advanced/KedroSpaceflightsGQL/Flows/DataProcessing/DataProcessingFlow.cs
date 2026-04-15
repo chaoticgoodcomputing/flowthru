@@ -10,21 +10,21 @@ namespace KedroSpaceflightsGQL.Flows.DataProcessing;
 /// </summary>
 public static class DataProcessingFlow
 {
-  public static Flow Create(Catalog catalog)
-  {
-    return FlowBuilder.CreateFlow(pipeline =>
+    public static Flow Create(Catalog catalog)
     {
-      pipeline.AddStep(
-        label: "CreateModelInputTable",
-        description: """
+        return FlowBuilder.CreateFlow(pipeline =>
+        {
+            pipeline.AddStep(
+          label: "CreateModelInputTable",
+          description: """
           Joins typed shuttle, company, and review data queried from the GQL server
           into a unified model input table. GqlDatabaseSeeded is consumed as an explicit
           DAG gate ensuring Ingest has completed before this step executes.
         """,
-        transform: CreateModelInputTableStep.Create(),
-        input: (catalog.GqlDatabaseSeeded, catalog.Shuttles, catalog.Companies, catalog.Reviews),
-        output: catalog.ModelInputTable
-      );
-    });
-  }
+          transform: CreateModelInputTableStep.Create(),
+          input: (catalog.GqlDatabaseSeeded, catalog.Shuttles, catalog.Companies, catalog.Reviews),
+          output: catalog.ModelInputTable
+        );
+        });
+    }
 }

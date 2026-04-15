@@ -18,41 +18,41 @@ namespace Flowthru.Core.Graph;
 /// </remarks>
 public interface INode
 {
-  /// <summary>
-  /// Unique label identifying this node within the DAG.
-  /// Used for dependency resolution and wiring.
-  /// </summary>
-  string Label { get; }
+    /// <summary>
+    /// Unique label identifying this node within the DAG.
+    /// Used for dependency resolution and wiring.
+    /// </summary>
+    string Label { get; }
 
-  /// <summary>
-  /// The runtime type of the value this node produces.
-  /// For singletons: typeof(T). For collections: typeof(IEnumerable&lt;T&gt;).
-  /// </summary>
-  Type DataType { get; }
+    /// <summary>
+    /// The runtime type of the value this node produces.
+    /// For singletons: typeof(T). For collections: typeof(IEnumerable&lt;T&gt;).
+    /// </summary>
+    Type DataType { get; }
 
-  /// <summary>
-  /// Capability metadata describing this node's properties and constraints.
-  /// </summary>
-  NodeTraits Traits { get; }
+    /// <summary>
+    /// Capability metadata describing this node's properties and constraints.
+    /// </summary>
+    NodeTraits Traits { get; }
 
-  /// <summary>
-  /// Pre-flight validation. Semantics vary by archetype:
-  /// data items check existence and schema, effects perform healthchecks,
-  /// steps return success (correctness validated via tests).
-  /// </summary>
-  FlowIO<ValidationResult> Validate();
+    /// <summary>
+    /// Pre-flight validation. Semantics vary by archetype:
+    /// data items check existence and schema, effects perform healthchecks,
+    /// steps return success (correctness validated via tests).
+    /// </summary>
+    FlowIO<ValidationResult> Validate();
 
-  /// <summary>
-  /// Produces this node's value as an untyped object.
-  /// The engine calls this to load input data for downstream steps.
-  /// </summary>
-  FlowIO<object> ProduceUntyped();
+    /// <summary>
+    /// Produces this node's value as an untyped object.
+    /// The engine calls this to load input data for downstream steps.
+    /// </summary>
+    FlowIO<object> ProduceUntyped();
 
-  /// <summary>
-  /// Consumes an untyped value into this node.
-  /// The engine calls this to save output data from upstream steps.
-  /// </summary>
-  FlowIO<FlowUnit> ConsumeUntyped(object data);
+    /// <summary>
+    /// Consumes an untyped value into this node.
+    /// The engine calls this to save output data from upstream steps.
+    /// </summary>
+    FlowIO<FlowUnit> ConsumeUntyped(object data);
 }
 
 /// <summary>
@@ -72,19 +72,19 @@ public interface INode
 /// </remarks>
 public interface INode<T> : INode
 {
-  /// <summary>
-  /// Produces this node's value as a typed effect.
-  /// </summary>
-  FlowIO<T> Produce();
+    /// <summary>
+    /// Produces this node's value as a typed effect.
+    /// </summary>
+    FlowIO<T> Produce();
 
-  /// <summary>
-  /// Consumes a typed value into this node.
-  /// </summary>
-  FlowIO<FlowUnit> Consume(T data);
+    /// <summary>
+    /// Consumes a typed value into this node.
+    /// </summary>
+    FlowIO<FlowUnit> Consume(T data);
 
-  /// <inheritdoc/>
-  FlowIO<object> INode.ProduceUntyped() => Produce().Map(value => (object)value!);
+    /// <inheritdoc/>
+    FlowIO<object> INode.ProduceUntyped() => Produce().Map(value => (object)value!);
 
-  /// <inheritdoc/>
-  FlowIO<FlowUnit> INode.ConsumeUntyped(object data) => Consume((T)data);
+    /// <inheritdoc/>
+    FlowIO<FlowUnit> INode.ConsumeUntyped(object data) => Consume((T)data);
 }

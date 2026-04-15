@@ -12,131 +12,131 @@ namespace Flowthru.Core.Results;
 /// </remarks>
 public class ConsoleResultFormatter : IFlowResultFormatter
 {
-  /// <inheritdoc />
-  public void Format(FlowResult result, ILogger logger)
-  {
-    if (result.Success)
+    /// <inheritdoc />
+    public void Format(FlowResult result, ILogger logger)
     {
-      FormatSuccess(result, logger);
-    }
-    else
-    {
-      FormatFailure(result, logger);
-    }
-  }
-
-  private void FormatSuccess(FlowResult result, ILogger logger)
-  {
-    logger.LogInformation("================================================================");
-    logger.LogInformation("Pipeline: {FlowName}", result.FlowName ?? "Unknown");
-    logger.LogInformation("Status: ✓ SUCCESS");
-    logger.LogInformation("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
-    logger.LogInformation("================================================================");
-    logger.LogInformation("");
-
-    if (result.StepResults.Count > 0)
-    {
-      logger.LogInformation("Steps Executed ({Count}):", result.StepResults.Count);
-
-      foreach (var (nodeName, nodeResult) in result.StepResults)
-      {
-        if (nodeResult.Success)
+        if (result.Success)
         {
-          logger.LogInformation(
-            "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)",
-            nodeResult.StepName,
-            nodeResult.ExecutionTime.TotalSeconds,
-            nodeResult.InputCount,
-            nodeResult.OutputCount
-          );
+            FormatSuccess(result, logger);
         }
         else
         {
-          // This shouldn't happen in a successful pipeline, but handle it anyway
-          logger.LogWarning(
-            "  ✗ {StepName,-40} {Duration,6:F2}s   FAILED",
-            nodeResult.StepName,
-            nodeResult.ExecutionTime.TotalSeconds
-          );
+            FormatFailure(result, logger);
         }
-      }
-
-      logger.LogInformation("");
     }
 
-    logger.LogInformation("================================================================");
-  }
-
-  private void FormatFailure(FlowResult result, ILogger logger)
-  {
-    logger.LogError("================================================================");
-    logger.LogError("Pipeline: {FlowName}", result.FlowName ?? "Unknown");
-    logger.LogError("Status: ✗ FAILED");
-    logger.LogError("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
-    logger.LogError("================================================================");
-    logger.LogError("");
-
-    // Show which nodes succeeded before failure
-    var succeededSteps = result.StepResults.Values.Where(n => n.Success).ToList();
-    var failedStep = result.StepResults.Values.FirstOrDefault(n => !n.Success);
-
-    if (succeededSteps.Any())
+    private void FormatSuccess(FlowResult result, ILogger logger)
     {
-      logger.LogInformation("Steps Completed Before Failure ({Count}):", succeededSteps.Count);
-      foreach (var nodeResult in succeededSteps)
-      {
-        logger.LogInformation(
-          "  ✓ {StepName,-40} {Duration,6:F2}s",
-          nodeResult.StepName,
-          nodeResult.ExecutionTime.TotalSeconds
-        );
-      }
-      logger.LogError("");
+        logger.LogInformation("================================================================");
+        logger.LogInformation("Pipeline: {FlowName}", result.FlowName ?? "Unknown");
+        logger.LogInformation("Status: ✓ SUCCESS");
+        logger.LogInformation("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
+        logger.LogInformation("================================================================");
+        logger.LogInformation("");
+
+        if (result.StepResults.Count > 0)
+        {
+            logger.LogInformation("Steps Executed ({Count}):", result.StepResults.Count);
+
+            foreach (var (nodeName, nodeResult) in result.StepResults)
+            {
+                if (nodeResult.Success)
+                {
+                    logger.LogInformation(
+                      "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)",
+                      nodeResult.StepName,
+                      nodeResult.ExecutionTime.TotalSeconds,
+                      nodeResult.InputCount,
+                      nodeResult.OutputCount
+                    );
+                }
+                else
+                {
+                    // This shouldn't happen in a successful pipeline, but handle it anyway
+                    logger.LogWarning(
+                      "  ✗ {StepName,-40} {Duration,6:F2}s   FAILED",
+                      nodeResult.StepName,
+                      nodeResult.ExecutionTime.TotalSeconds
+                    );
+                }
+            }
+
+            logger.LogInformation("");
+        }
+
+        logger.LogInformation("================================================================");
     }
 
-    // Show failed node
-    if (failedStep != null)
+    private void FormatFailure(FlowResult result, ILogger logger)
     {
-      logger.LogError("Failed Step:");
-      logger.LogError("  ✗ {StepName}", failedStep.StepName);
-      logger.LogError("  Duration: {Duration:F2}s", failedStep.ExecutionTime.TotalSeconds);
+        logger.LogError("================================================================");
+        logger.LogError("Pipeline: {FlowName}", result.FlowName ?? "Unknown");
+        logger.LogError("Status: ✗ FAILED");
+        logger.LogError("Duration: {Duration:F2}s", result.ExecutionTime.TotalSeconds);
+        logger.LogError("================================================================");
+        logger.LogError("");
 
-      if (failedStep.Exception != null)
-      {
-        logger.LogError("  Error: {ErrorMessage}", failedStep.Exception.Message);
-        logger.LogError("  Stack Trace:");
+        // Show which nodes succeeded before failure
+        var succeededSteps = result.StepResults.Values.Where(n => n.Success).ToList();
+        var failedStep = result.StepResults.Values.FirstOrDefault(n => !n.Success);
 
-        // Format stack trace with indentation
-        var stackLines = failedStep.Exception.StackTrace?.Split('\n') ?? Array.Empty<string>();
-        foreach (var line in stackLines.Take(10)) // Limit to first 10 lines
+        if (succeededSteps.Any())
         {
-          logger.LogError("    {StackLine}", line.TrimEnd());
+            logger.LogInformation("Steps Completed Before Failure ({Count}):", succeededSteps.Count);
+            foreach (var nodeResult in succeededSteps)
+            {
+                logger.LogInformation(
+                  "  ✓ {StepName,-40} {Duration,6:F2}s",
+                  nodeResult.StepName,
+                  nodeResult.ExecutionTime.TotalSeconds
+                );
+            }
+            logger.LogError("");
         }
 
-        if (stackLines.Length > 10)
+        // Show failed node
+        if (failedStep != null)
         {
-          logger.LogError("    ... ({MoreLines} more lines)", stackLines.Length - 10);
+            logger.LogError("Failed Step:");
+            logger.LogError("  ✗ {StepName}", failedStep.StepName);
+            logger.LogError("  Duration: {Duration:F2}s", failedStep.ExecutionTime.TotalSeconds);
+
+            if (failedStep.Exception != null)
+            {
+                logger.LogError("  Error: {ErrorMessage}", failedStep.Exception.Message);
+                logger.LogError("  Stack Trace:");
+
+                // Format stack trace with indentation
+                var stackLines = failedStep.Exception.StackTrace?.Split('\n') ?? Array.Empty<string>();
+                foreach (var line in stackLines.Take(10)) // Limit to first 10 lines
+                {
+                    logger.LogError("    {StackLine}", line.TrimEnd());
+                }
+
+                if (stackLines.Length > 10)
+                {
+                    logger.LogError("    ... ({MoreLines} more lines)", stackLines.Length - 10);
+                }
+            }
         }
-      }
+        else if (result.Exception != null)
+        {
+            // Pipeline-level exception (not from a specific node)
+            logger.LogError("Pipeline Error:");
+            logger.LogError("  {ErrorMessage}", result.Exception.Message);
+
+            if (result.Exception.StackTrace != null)
+            {
+                logger.LogError("  Stack Trace:");
+                var stackLines = result.Exception.StackTrace.Split('\n');
+                foreach (var line in stackLines.Take(10))
+                {
+                    logger.LogError("    {StackLine}", line.TrimEnd());
+                }
+            }
+        }
+
+        logger.LogError("");
+        logger.LogError("================================================================");
     }
-    else if (result.Exception != null)
-    {
-      // Pipeline-level exception (not from a specific node)
-      logger.LogError("Pipeline Error:");
-      logger.LogError("  {ErrorMessage}", result.Exception.Message);
-
-      if (result.Exception.StackTrace != null)
-      {
-        logger.LogError("  Stack Trace:");
-        var stackLines = result.Exception.StackTrace.Split('\n');
-        foreach (var line in stackLines.Take(10))
-        {
-          logger.LogError("    {StackLine}", line.TrimEnd());
-        }
-      }
-    }
-
-    logger.LogError("");
-    logger.LogError("================================================================");
-  }
 }

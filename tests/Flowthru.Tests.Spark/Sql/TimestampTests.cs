@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -17,7 +17,7 @@ namespace Flowthru.Tests.Spark
                 var testDate =
                     new DateTime(2020, 1, 1, 8, 30, 30, DateTimeKind.Utc).AddTicks(1230);
                 var timestamp = new Timestamp(testDate);
-                
+
                 // Validate values.
                 Assert.Equal(2020, timestamp.Year);
                 Assert.Equal(1, timestamp.Month);

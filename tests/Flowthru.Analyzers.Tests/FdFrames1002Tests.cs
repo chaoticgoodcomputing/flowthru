@@ -18,9 +18,9 @@ namespace Flowthru.Analyzers.Tests;
 [TestFixture]
 public class FDFRAMES1002Tests
 {
-  // Stub Select takes Func<> so that the lambda body compiles without C# expression-tree
-  // restrictions while still triggering the TypedFrameExtensions name-match in the analyzer.
-  private const string Stubs = """
+    // Stub Select takes Func<> so that the lambda body compiles without C# expression-tree
+    // restrictions while still triggering the TypedFrameExtensions name-match in the analyzer.
+    private const string Stubs = """
     using System;
     using System.Collections.Generic;
     using Flowthru.Misc.DataFrames;
@@ -49,17 +49,17 @@ public class FDFRAMES1002Tests
     public class NestedSchema { public string Prop { get; set; } = ""; }
     """;
 
-  private static DiagnosticResult FDFRAMES1002(int marker) =>
-    new DiagnosticResult(DataFrameDiagnostics.NonAssignmentBinding).WithLocation(marker);
+    private static DiagnosticResult FDFRAMES1002(int marker) =>
+      new DiagnosticResult(DataFrameDiagnostics.NonAssignmentBinding).WithLocation(marker);
 
-  // ─── Negative cases: valid assignment bindings → no diagnostic ──────────────
+    // ─── Negative cases: valid assignment bindings → no diagnostic ──────────────
 
-  [Test]
-  public async Task AllAssignmentBindings_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task AllAssignmentBindings_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -70,18 +70,18 @@ public class FDFRAMES1002Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task AnonymousType_DoesNotReport()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task AnonymousType_DoesNotReport()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -92,21 +92,21 @@ public class FDFRAMES1002Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+        }.RunAsync();
+    }
+
+    // ─── Positive cases: non-assignment bindings → FDFRAMES1002 fires ─────────────
+
+    [Test]
+    public async Task CollectionBinding_Reports_FDFRAMES1002()
     {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  // ─── Positive cases: non-assignment bindings → FDFRAMES1002 fires ─────────────
-
-  [Test]
-  public async Task CollectionBinding_Reports_FDFRAMES1002()
-  {
-    // Tags = { x.Name } is a MemberListBinding — RHS is a CollectionInitializerExpression.
-    var source =
-      Stubs
-      + """
+        // Tags = { x.Name } is a MemberListBinding — RHS is a CollectionInitializerExpression.
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -117,20 +117,20 @@ public class FDFRAMES1002Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1002(0).WithArguments("Tags") },
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1002(0).WithArguments("Tags") },
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task NestedObjectBinding_Reports_FDFRAMES1002()
-  {
-    // Nested = { Prop = x.Name } is a MemberMemberBinding — RHS is an ObjectInitializerExpression.
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task NestedObjectBinding_Reports_FDFRAMES1002()
+    {
+        // Nested = { Prop = x.Name } is a MemberMemberBinding — RHS is an ObjectInitializerExpression.
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -141,19 +141,19 @@ public class FDFRAMES1002Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics = { FDFRAMES1002(0).WithArguments("Nested") },
-    }.RunAsync();
-  }
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics = { FDFRAMES1002(0).WithArguments("Nested") },
+        }.RunAsync();
+    }
 
-  [Test]
-  public async Task MultipleNonAssignmentBindings_ReportsEach()
-  {
-    var source =
-      Stubs
-      + """
+    [Test]
+    public async Task MultipleNonAssignmentBindings_ReportsEach()
+    {
+        var source =
+          Stubs
+          + """
 
         class Tests
         {
@@ -169,14 +169,14 @@ public class FDFRAMES1002Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-      ExpectedDiagnostics =
+        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+        {
+            TestCode = source,
+            ExpectedDiagnostics =
       {
         FDFRAMES1002(0).WithArguments("Tags"),
         FDFRAMES1002(1).WithArguments("Nested"),
       },
-    }.RunAsync();
-  }
+        }.RunAsync();
+    }
 }

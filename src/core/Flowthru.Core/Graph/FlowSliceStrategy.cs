@@ -37,56 +37,56 @@ namespace Flowthru.Core.Graph;
 /// </remarks>
 public sealed class FlowSliceStrategy
 {
-  /// <summary>
-  /// Filter to nodes from these named flows (applies to merged flows).
-  /// </summary>
-  /// <remarks>
-  /// In merged flows, steps are prefixed with their Flow name (e.g., "DataScience.TrainModel").
-  /// This filter includes only steps from the specified flows.
-  /// Flow names are case-insensitive.
-  /// </remarks>
-  public IReadOnlySet<string>? Flows { get; init; }
+    /// <summary>
+    /// Filter to nodes from these named flows (applies to merged flows).
+    /// </summary>
+    /// <remarks>
+    /// In merged flows, steps are prefixed with their Flow name (e.g., "DataScience.TrainModel").
+    /// This filter includes only steps from the specified flows.
+    /// Flow names are case-insensitive.
+    /// </remarks>
+    public IReadOnlySet<string>? Flows { get; init; }
 
-  /// <summary>
-  /// Start from these nodes, including all downstream dependents.
-  /// </summary>
-  /// <remarks>
-  /// Each label is resolved against the step index first. If no step matches, the label is
-  /// treated as a catalog item and resolved to all steps that consume it.
-  /// Expands to include all transitively dependent steps.
-  /// Useful for impact analysis: "what is affected if I change this step or item?"
-  /// </remarks>
-  public IReadOnlySet<string>? From { get; init; }
+    /// <summary>
+    /// Start from these nodes, including all downstream dependents.
+    /// </summary>
+    /// <remarks>
+    /// Each label is resolved against the step index first. If no step matches, the label is
+    /// treated as a catalog item and resolved to all steps that consume it.
+    /// Expands to include all transitively dependent steps.
+    /// Useful for impact analysis: "what is affected if I change this step or item?"
+    /// </remarks>
+    public IReadOnlySet<string>? From { get; init; }
 
-  /// <summary>
-  /// End at these nodes, including all upstream dependencies needed to produce them.
-  /// </summary>
-  /// <remarks>
-  /// Each label is resolved against the step index first. If no step matches, the label is
-  /// treated as a catalog item and resolved to the step that produces it.
-  /// Expands to include all transitive dependencies.
-  /// Equivalent to "run everything up to and including these nodes".
-  /// Useful for targeted execution: "run everything needed to produce this step or item".
-  /// </remarks>
-  public IReadOnlySet<string>? To { get; init; }
+    /// <summary>
+    /// End at these nodes, including all upstream dependencies needed to produce them.
+    /// </summary>
+    /// <remarks>
+    /// Each label is resolved against the step index first. If no step matches, the label is
+    /// treated as a catalog item and resolved to the step that produces it.
+    /// Expands to include all transitive dependencies.
+    /// Equivalent to "run everything up to and including these nodes".
+    /// Useful for targeted execution: "run everything needed to produce this step or item".
+    /// </remarks>
+    public IReadOnlySet<string>? To { get; init; }
 
-  /// <summary>
-  /// Explicit allowlist of nodes (dependencies auto-included).
-  /// </summary>
-  /// <remarks>
-  /// Each label is resolved against the step index first. If no step matches, the label is
-  /// treated as a catalog item and resolved to the step that produces it.
-  /// Automatically includes all transitive upstream dependencies to maintain DAG validity.
-  /// </remarks>
-  public IReadOnlySet<string>? Only { get; init; }
+    /// <summary>
+    /// Explicit allowlist of nodes (dependencies auto-included).
+    /// </summary>
+    /// <remarks>
+    /// Each label is resolved against the step index first. If no step matches, the label is
+    /// treated as a catalog item and resolved to the step that produces it.
+    /// Automatically includes all transitive upstream dependencies to maintain DAG validity.
+    /// </remarks>
+    public IReadOnlySet<string>? Only { get; init; }
 
-  /// <summary>
-  /// Whether any slicing is configured.
-  /// </summary>
-  public bool IsSliced => Flows != null || From != null || To != null || Only != null;
+    /// <summary>
+    /// Whether any slicing is configured.
+    /// </summary>
+    public bool IsSliced => Flows != null || From != null || To != null || Only != null;
 
-  /// <summary>
-  /// No filtering - execute entire flow.
-  /// </summary>
-  public static FlowSliceStrategy All() => new();
+    /// <summary>
+    /// No filtering - execute entire flow.
+    /// </summary>
+    public static FlowSliceStrategy All() => new();
 }

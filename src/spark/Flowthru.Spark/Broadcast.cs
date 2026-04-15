@@ -1,15 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
-using MessagePack;
 using Flowthru.Spark.Interop;
 using Flowthru.Spark.Interop.Ipc;
 using Flowthru.Spark.Network;
 using Flowthru.Spark.Services;
 using Flowthru.Spark.Utils;
+using MessagePack;
 
 namespace Flowthru.Spark
 {
@@ -290,7 +290,7 @@ namespace Flowthru.Spark
     /// </summary>
     internal static class JvmBroadcastRegistry
     {
-        private static ThreadLocal<List<JvmObjectReference>> s_jvmBroadcastVariables = 
+        private static readonly ThreadLocal<List<JvmObjectReference>> s_jvmBroadcastVariables =
             new ThreadLocal<List<JvmObjectReference>>(() => new List<JvmObjectReference>());
 
         /// <summary>

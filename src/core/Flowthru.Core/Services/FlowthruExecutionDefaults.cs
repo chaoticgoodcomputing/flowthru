@@ -7,9 +7,9 @@ namespace Flowthru.Core.Services;
 /// </summary>
 internal sealed class FlowthruExecutionDefaults
 {
-  /// <summary>
-  /// Service-level default for <see cref="Flowthru.Core.Flows.ExecutionOptions.MaxDegreeOfParallelism"/>.
-  /// <c>null</c> means "not configured at this layer; fall back to 1".
-  /// </summary>
-  public int? MaxDegreeOfParallelism { get; init; }
+    /// <summary>
+    /// Service-level default for <see cref="Flowthru.Core.Flows.ExecutionOptions.MaxDegreeOfParallelism"/>.
+    /// <c>null</c> means "not configured at this layer; fall back to 1".
+    /// </summary>
+    public int? MaxDegreeOfParallelism { get; init; }
 }
