@@ -62,84 +62,29 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: core
-          files: tests/Flowthru.Tests/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (funit)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: funit
-          files: tests/Flowthru.FUnit.Tests/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (examples)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: examples
-          files: tests/Flowthru.Tests.Examples/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (templates)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: templates
-          files: tests/Flowthru.Tests.Templates/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (spark)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: spark
-          files: tests/Flowthru.Tests.Spark/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (ext-efcore)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: ext-efcore
-          files: tests/Flowthru.Extensions.EFCore.Tests/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (ext-gql)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: ext-gql
-          files: tests/Flowthru.Extensions.GQL.Tests/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (ext-python)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: ext-python
-          files: tests/Flowthru.Extensions.Python.Tests/**/coverage.cobertura.xml
-          fail_ci_if_error: false
-
-      - name: Upload coverage (ext-spark)
-        if: always()
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: ext-spark
-          files: tests/Flowthru.Extensions.Spark.Tests/**/coverage.cobertura.xml
-          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          pip install codecov-cli --quiet
+          # For each test project root, find all coverage files and upload them
+          # together under one flag named after the project directory.
+          while IFS= read -r -d '' coverage_file; do
+            dir=$(dirname "$coverage_file")
+            # Walk up until we find a directory containing a *.csproj or project.json
+            while [[ "$dir" != "." && "$dir" != "/" ]]; do
+              if compgen -G "${dir}/*.csproj" > /dev/null 2>&1 || [[ -f "${dir}/project.json" ]]; then
+                break
+              fi
+              dir=$(dirname "$dir")
+            done
+            flag=$(basename "$dir")
+            echo "Uploading $coverage_file as flag: $flag"
+            codecovcli upload-coverage \
+              --flag "$flag" \
+              --file "$coverage_file" \
+              --handle-no-reports-found \
+              || true
+          done < <(find tests/ -name "coverage.cobertura.xml" -print0)
 
       - name: Configure Git
         run: |
@@ -160,6 +105,9 @@ jobs:
           fi
           echo "tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
           echo "Base tag for release: ${BASE_TAG}"
+
+      - name: Sync Codecov flags
+        run: node scripts/sync-codecov-flags.mjs
 
       - name: Run NX Release (version + changelog + commit + tag)
         id: release

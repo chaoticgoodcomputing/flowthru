@@ -1,6 +1,5 @@
 codecov:
   require_ci_to_pass: true
-
 coverage:
   status:
     project:
@@ -10,37 +9,36 @@ coverage:
     patch:
       default:
         target: 80%
-
-flags:
-  core:
-    paths: []
-    carryforward: true
-  funit:
-    paths: []
-    carryforward: true
-  examples:
-    paths: []
-    carryforward: true
-  templates:
-    paths: []
-    carryforward: true
-  spark:
-    paths: []
-    carryforward: true
-  ext-efcore:
-    paths: []
-    carryforward: true
-  ext-gql:
-    paths: []
-    carryforward: true
-  ext-python:
-    paths: []
-    carryforward: true
-  ext-spark:
-    paths: []
-    carryforward: true
-
 comment:
-  layout: "reach,diff,flags,components"
+  layout: 'reach,diff,flags,components'
   behavior: default
   require_changes: false
+flags:
+  Flowthru.Analyzers.Tests:
+    carryforward: true
+  Flowthru.Extensions.EFCore.Tests:
+    carryforward: true
+  Flowthru.Extensions.GQL.Tests:
+    carryforward: true
+  Flowthru.Extensions.Python.Tests:
+    carryforward: true
+  Flowthru.Extensions.Spark.Tests:
+    carryforward: true
+  Flowthru.FUnit.Tests:
+    carryforward: true
+  Flowthru.Tests:
+    carryforward: true
+  Flowthru.Tests.Examples:
+    carryforward: true
+  Flowthru.Tests.Spark:
+    carryforward: true
+  Flowthru.Tests.Templates:
+    carryforward: true
+  KedroIrisFUnit:
+    carryforward: true
+  KedroSpaceflights.Custom:
+    carryforward: true
+  KedroSpaceflightsFUnit:
+    carryforward: true
+  SpaceflightsDistributed:
+    carryforward: true
