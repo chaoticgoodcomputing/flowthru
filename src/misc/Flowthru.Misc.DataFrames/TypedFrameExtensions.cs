@@ -241,7 +241,7 @@ public static class TypedFrameExtensions
 
   /// <summary>
   /// Groups rows by a key selector, producing a <see cref="GroupedFrame{TKey,TSource}"/>
-  /// that can be aggregated.
+  /// that can be aggregated via <see cref="GroupedFrameExtensions.Aggregate{TKey,TSource,TResult}"/>.
   /// </summary>
   public static GroupedFrame<TKey, TSource> GroupBy<TSource, TKey>(
     this TypedFrame<TSource> source,

@@ -189,15 +189,17 @@ public sealed class SparkFrameProvider : IFrameQueryProvider
     return (IQueryable)Activator.CreateInstance(frameType, this, expression)!;
   }
 
-  /// <summary>Not supported — TypedFrame does not support scalar execution.</summary>
-  public TResult Execute<TResult>(Expression expression) =>
-    throw new NotSupportedException(
-      "TypedFrame<T> does not support scalar execution. Use Compile() to produce a native DataFrame."
-    );
+  /// <summary>
+  /// Executes a scalar terminal operation (e.g., <c>Count()</c>) by compiling the
+  /// expression tree and returning the result.
+  /// </summary>
+  public TResult Execute<TResult>(Expression expression)
+  {
+    var result = _visitor.CompileExpression(expression);
+    return (TResult)result;
+  }
 
-  /// <summary>Not supported — TypedFrame does not support scalar execution.</summary>
+  /// <summary>Not supported — use the generic overload.</summary>
   public object? Execute(Expression expression) =>
-    throw new NotSupportedException(
-      "TypedFrame<T> does not support scalar execution. Use Compile() to produce a native DataFrame."
-    );
+    throw new NotSupportedException("Use Execute<TResult> for scalar terminal operations.");
 }
