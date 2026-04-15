@@ -13,7 +13,7 @@ namespace KedroSpaceflightsSpark.Flows.DataProcessing.Steps;
 public static class PreprocessShuttlesStep
 {
   public static Func<IEnumerable<ShuttleSchema>, TypedFrame<PreprocessedShuttleSchema>> Create(
-    SparkFrameProvider provider
+    SparkFrameProvider frameProvider
   )
   {
     return (input) =>
@@ -23,7 +23,7 @@ public static class PreprocessShuttlesStep
         .Where(item => item != null)
         .Cast<PreprocessedShuttleSchema>();
 
-      return provider.CreateFromEnumerable<PreprocessedShuttleSchema>(parsed);
+      return frameProvider.CreateFromEnumerable(parsed);
     };
   }
 

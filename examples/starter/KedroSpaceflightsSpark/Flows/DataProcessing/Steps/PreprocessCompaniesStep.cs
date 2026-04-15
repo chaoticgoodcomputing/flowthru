@@ -16,7 +16,7 @@ namespace KedroSpaceflightsSpark.Flows.DataProcessing.Steps;
 public static class PreprocessCompaniesStep
 {
   public static Func<IEnumerable<CompanySchema>, TypedFrame<PreprocessedCompanySchema>> Create(
-    SparkFrameProvider provider
+    SparkFrameProvider frameProvider
   )
   {
     return (input) =>
@@ -26,7 +26,7 @@ public static class PreprocessCompaniesStep
         .Where(item => item != null)
         .Cast<PreprocessedCompanySchema>();
 
-      return provider.CreateFromEnumerable<PreprocessedCompanySchema>(parsed);
+      return frameProvider.CreateFromEnumerable<PreprocessedCompanySchema>(parsed);
     };
   }
 

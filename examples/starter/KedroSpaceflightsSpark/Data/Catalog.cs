@@ -6,12 +6,12 @@ namespace KedroSpaceflightsSpark.Data;
 public partial class Catalog : CatalogAbstract
 {
   private readonly string _basePath;
-  internal readonly SparkFrameProvider _provider;
+  internal readonly SparkFrameProvider frameProvider;
 
-  public Catalog(string basePath, SparkFrameProvider provider)
+  public Catalog(string basePath, SparkFrameProvider frameProvider)
   {
     _basePath = basePath;
-    _provider = provider;
+    this.frameProvider = frameProvider;
     InitializeCatalogProperties();
   }
 }
