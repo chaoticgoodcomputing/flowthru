@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru.DataFrames</RootNamespace>
+    <RootNamespace>Flowthru.Misc.DataFrames</RootNamespace>
     <Description>Framework-agnostic typed DataFrame abstraction for Flowthru, based on the IQueryable provider pattern</Description>
     <PackageTags>flowthru;dataframe;typed;queryable</PackageTags>
 

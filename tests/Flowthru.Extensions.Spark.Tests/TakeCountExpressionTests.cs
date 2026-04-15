@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Flowthru.DataFrames;
+using Flowthru.Misc.DataFrames;
 
 namespace Flowthru.Extensions.Spark.Tests;
 
@@ -153,7 +153,8 @@ public class TakeCountExpressionTests
 
     public object Compile(Expression expression) => throw new NotSupportedException();
 
-    public IEnumerable<T> Materialize<T>(Expression expression) => throw new NotSupportedException();
+    public IEnumerable<T> Materialize<T>(Expression expression) =>
+      throw new NotSupportedException();
 
     public TResult Execute<TResult>(Expression expression)
     {

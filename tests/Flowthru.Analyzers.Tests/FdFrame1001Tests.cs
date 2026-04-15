@@ -1,4 +1,4 @@
-using Flowthru.DataFrames.Analyzers;
+using Flowthru.Misc.DataFrames.Analyzers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 
@@ -17,9 +17,9 @@ public class FdFrame1001Tests
   private const string Stubs = """
     using System;
     using System.Linq.Expressions;
-    using Flowthru.DataFrames;
+    using Flowthru.Misc.DataFrames;
 
-    namespace Flowthru.DataFrames
+    namespace Flowthru.Misc.DataFrames
     {
         public class TypedFrame<T> { }
 
@@ -55,7 +55,7 @@ public class FdFrame1001Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<InputSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<InputSchema> frame)
             {
                 frame.Select(x => new OutputSchema { Name = x.Name, Age = x.Age });
             }
@@ -77,7 +77,7 @@ public class FdFrame1001Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<InputSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<InputSchema> frame)
             {
                 frame.Select(x => new OutputSchema(x.Name, x.Age));
             }
@@ -99,7 +99,7 @@ public class FdFrame1001Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<InputSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<InputSchema> frame)
             {
                 frame.Select(x => new { x.Name, x.Age });
             }
@@ -121,7 +121,7 @@ public class FdFrame1001Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<InputSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<InputSchema> frame)
             {
                 frame.Select(x => x.Name);
             }
@@ -145,7 +145,7 @@ public class FdFrame1001Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<InputSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<InputSchema> frame)
             {
                 frame.Select(x => {|#0:Tuple.Create(x.Name, x.Age)|});
             }
@@ -175,7 +175,7 @@ public class FdFrame1001Tests
         {
             static OutputSchema Map(InputSchema x) => new OutputSchema();
 
-            void M(Flowthru.DataFrames.TypedFrame<InputSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<InputSchema> frame)
             {
                 frame.Select(x => {|#0:Map(x)|});
             }

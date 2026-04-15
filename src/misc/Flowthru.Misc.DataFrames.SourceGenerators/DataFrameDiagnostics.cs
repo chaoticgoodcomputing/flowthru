@@ -1,13 +1,13 @@
 using Microsoft.CodeAnalysis;
 
-namespace Flowthru.DataFrames.Analyzers;
+namespace Flowthru.Misc.DataFrames.Analyzers;
 
 /// <summary>
 /// Diagnostic descriptors for the DataFrame expression analyzer.
 /// </summary>
 public static class DataFrameDiagnostics
 {
-  private const string Category = "Flowthru.DataFrames";
+  private const string Category = "Flowthru.Misc.DataFrames";
 
   /// <summary>
   /// FDFRAME1001: The lambda body passed to <c>TypedFrame.Select()</c> must be an

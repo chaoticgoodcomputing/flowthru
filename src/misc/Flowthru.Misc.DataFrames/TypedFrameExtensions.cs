@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Flowthru.DataFrames;
+namespace Flowthru.Misc.DataFrames;
 
 /// <summary>
 /// LINQ-style extension methods for <see cref="TypedFrame{T}"/> that build expression trees.

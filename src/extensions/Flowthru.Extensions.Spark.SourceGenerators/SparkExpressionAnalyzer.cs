@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Linq;
-using Flowthru.DataFrames.Analyzers;
 using Flowthru.Extensions.Spark.Shared;
+using Flowthru.Misc.DataFrames.Analyzers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

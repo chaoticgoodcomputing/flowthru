@@ -1,5 +1,5 @@
 using Flowthru.Core.Abstractions;
-using Flowthru.DataFrames;
+using Flowthru.Misc.DataFrames;
 using Flowthru.Spark.Sql;
 using Flowthru.Spark.Sql.Types;
 
@@ -22,205 +22,185 @@ namespace Flowthru.Extensions.Spark.Tests.CompatTests;
 [Category("SparkRowHydrator.Execution")]
 public class SparkRowHydratorExecutionTests
 {
-    // SparkSession is stopped via .Stop() rather than IDisposable; NUnit1032 suppressed.
+  // SparkSession is stopped via .Stop() rather than IDisposable; NUnit1032 suppressed.
 #pragma warning disable NUnit1032
-    private SparkSession? _spark;
+  private SparkSession? _spark;
 #pragma warning restore NUnit1032
-    private SparkFrameProvider? _provider;
+  private SparkFrameProvider? _provider;
 
-    [OneTimeSetUp]
-    public void StartSpark()
+  [OneTimeSetUp]
+  public void StartSpark()
+  {
+    Assume.That(
+      SparkAssemblySetup.IsAvailable,
+      Is.True,
+      SparkAssemblySetup.UnavailableReason ?? "Spark JVM backend unavailable."
+    );
+
+    try
     {
-        Assume.That(
-            SparkAssemblySetup.IsAvailable,
-            Is.True,
-            SparkAssemblySetup.UnavailableReason ?? "Spark JVM backend unavailable."
-        );
+      _spark = SparkSession
+        .Builder()
+        .AppName("flowthru-hydrator-tests")
+        .Master("local[*]")
+        .GetOrCreate();
 
-        try
-        {
-            _spark = SparkSession
-                .Builder()
-                .AppName("flowthru-hydrator-tests")
-                .Master("local[*]")
-                .GetOrCreate();
-
-            _provider = new SparkFrameProvider();
-        }
-        catch (Exception ex)
-        {
-            Assert.Inconclusive(
-                $"Spark JVM backend failed to start — skipping hydrator execution tests. ({ex.Message})"
-            );
-        }
+      _provider = new SparkFrameProvider();
     }
-
-    [OneTimeTearDown]
-    public void StopSpark()
+    catch (Exception ex)
     {
-        _spark?.Stop();
+      Assert.Inconclusive(
+        $"Spark JVM backend failed to start — skipping hydrator execution tests. ({ex.Message})"
+      );
     }
+  }
 
-    // Convenience: build a DataFrame with PersonSchema-compatible columns
-    private DataFrame PersonDataFrame(params (string name, int age, bool isActive)[] rows)
-    {
-        var schema = new StructType(
-            [
-                new StructField("Name", new StringType()),
-                new StructField("Age", new IntegerType()),
-                new StructField("IsActive", new BooleanType()),
-            ]
-        );
+  [OneTimeTearDown]
+  public void StopSpark()
+  {
+    _spark?.Stop();
+  }
 
-        var genericRows = rows.Select(r => new GenericRow([r.name, r.age, r.isActive]));
-        return _spark!.CreateDataFrame(genericRows, schema);
-    }
+  // Convenience: build a DataFrame with PersonSchema-compatible columns
+  private DataFrame PersonDataFrame(params (string name, int age, bool isActive)[] rows)
+  {
+    var schema = new StructType(
+      [
+        new StructField("Name", new StringType()),
+        new StructField("Age", new IntegerType()),
+        new StructField("IsActive", new BooleanType()),
+      ]
+    );
 
-    // ===================================================================
-    //  ValidateSchema(DataFrame) — outer overload with live JVM
-    // ===================================================================
+    var genericRows = rows.Select(r => new GenericRow([r.name, r.age, r.isActive]));
+    return _spark!.CreateDataFrame(genericRows, schema);
+  }
 
-    [Test]
-    public void ValidateSchema_DataFrame_CompatibleSchema_ReturnsEmpty()
-    {
-        var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
-        var df = PersonDataFrame(("Alice", 30, true));
+  // ===================================================================
+  //  ValidateSchema(DataFrame) — outer overload with live JVM
+  // ===================================================================
 
-        var errors = hydrator.ValidateSchema(df);
+  [Test]
+  public void ValidateSchema_DataFrame_CompatibleSchema_ReturnsEmpty()
+  {
+    var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
+    var df = PersonDataFrame(("Alice", 30, true));
 
-        Assert.That(errors, Is.Empty);
-    }
+    var errors = hydrator.ValidateSchema(df);
 
-    [Test]
-    public void ValidateSchema_DataFrame_MissingColumn_ReturnsError()
-    {
-        var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
+    Assert.That(errors, Is.Empty);
+  }
 
-        // DataFrame has only Name and Age — IsActive is missing
-        var schema = new StructType(
-            [
-                new StructField("Name", new StringType()),
-                new StructField("Age", new IntegerType()),
-            ]
-        );
-        var df = _spark!.CreateDataFrame(
-            [new GenericRow(["Alice", 30])],
-            schema
-        );
+  [Test]
+  public void ValidateSchema_DataFrame_MissingColumn_ReturnsError()
+  {
+    var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
 
-        var errors = hydrator.ValidateSchema(df);
+    // DataFrame has only Name and Age — IsActive is missing
+    var schema = new StructType(
+      [new StructField("Name", new StringType()), new StructField("Age", new IntegerType())]
+    );
+    var df = _spark!.CreateDataFrame([new GenericRow(["Alice", 30])], schema);
 
-        Assert.That(errors, Has.Count.EqualTo(1));
-        Assert.That(errors[0].ColumnName, Is.EqualTo("IsActive"));
-    }
+    var errors = hydrator.ValidateSchema(df);
 
-    // ===================================================================
-    //  Collect — full round-trip
-    // ===================================================================
+    Assert.That(errors, Has.Count.EqualTo(1));
+    Assert.That(errors[0].ColumnName, Is.EqualTo("IsActive"));
+  }
 
-    [Test]
-    public void Collect_ReturnsAllRows()
-    {
-        var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
-        var df = PersonDataFrame(
-            ("Alice", 30, true),
-            ("Bob", 25, false),
-            ("Carol", 40, true)
-        );
-        var frame = _provider!.CreateFromNative<PersonSchema>(df);
+  // ===================================================================
+  //  Collect — full round-trip
+  // ===================================================================
 
-        var rows = hydrator.Collect(frame).ToList();
+  [Test]
+  public void Collect_ReturnsAllRows()
+  {
+    var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
+    var df = PersonDataFrame(("Alice", 30, true), ("Bob", 25, false), ("Carol", 40, true));
+    var frame = _provider!.CreateFromNative<PersonSchema>(df);
 
-        Assert.That(rows, Has.Count.EqualTo(3));
-    }
+    var rows = hydrator.Collect(frame).ToList();
 
-    [Test]
-    public void Collect_HydratesPropertyValues()
-    {
-        var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
-        var df = PersonDataFrame(("Alice", 30, true));
-        var frame = _provider!.CreateFromNative<PersonSchema>(df);
+    Assert.That(rows, Has.Count.EqualTo(3));
+  }
 
-        var rows = hydrator.Collect(frame).ToList();
-        var alice = rows.Single();
+  [Test]
+  public void Collect_HydratesPropertyValues()
+  {
+    var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
+    var df = PersonDataFrame(("Alice", 30, true));
+    var frame = _provider!.CreateFromNative<PersonSchema>(df);
 
-        Assert.That(alice.Name, Is.EqualTo("Alice"));
-        Assert.That(alice.Age, Is.EqualTo(30));
-        Assert.That(alice.IsActive, Is.True);
-    }
+    var rows = hydrator.Collect(frame).ToList();
+    var alice = rows.Single();
 
-    [Test]
-    public void Collect_AfterWhere_FiltersRows()
-    {
-        var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
-        var df = PersonDataFrame(
-            ("Alice", 30, true),
-            ("Bob", 17, false),
-            ("Carol", 40, true)
-        );
-        var frame = (TypedFrame<PersonSchema>)_provider!
-            .CreateFromNative<PersonSchema>(df)
-            .Where(x => x.Age > 18);
+    Assert.That(alice.Name, Is.EqualTo("Alice"));
+    Assert.That(alice.Age, Is.EqualTo(30));
+    Assert.That(alice.IsActive, Is.True);
+  }
 
-        var rows = hydrator.Collect(frame).ToList();
+  [Test]
+  public void Collect_AfterWhere_FiltersRows()
+  {
+    var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
+    var df = PersonDataFrame(("Alice", 30, true), ("Bob", 17, false), ("Carol", 40, true));
+    var frame =
+      (TypedFrame<PersonSchema>)
+        _provider!.CreateFromNative<PersonSchema>(df).Where(x => x.Age > 18);
 
-        Assert.That(rows, Has.Count.EqualTo(2));
-        Assert.That(rows.Select(r => r.Name), Is.EquivalentTo(new[] { "Alice", "Carol" }));
-    }
+    var rows = hydrator.Collect(frame).ToList();
 
-    [Test]
-    public void Collect_SchemaMismatch_ThrowsBeforeCollect()
-    {
-        var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
+    Assert.That(rows, Has.Count.EqualTo(2));
+    Assert.That(rows.Select(r => r.Name), Is.EquivalentTo(new[] { "Alice", "Carol" }));
+  }
 
-        // DataFrame has Age as StringType — incompatible with int property
-        var schema = new StructType(
-            [
-                new StructField("Name", new StringType()),
-                new StructField("Age", new StringType()),     // wrong type
-                new StructField("IsActive", new BooleanType()),
-            ]
-        );
-        var df = _spark!.CreateDataFrame(
-            [new GenericRow(["Alice", "thirty", true])],
-            schema
-        );
-        var frame = _provider!.CreateFromNative<PersonSchema>(df);
+  [Test]
+  public void Collect_SchemaMismatch_ThrowsBeforeCollect()
+  {
+    var hydrator = new SparkRowHydrator<PersonSchema>(_provider!);
 
-        Assert.That(
-            () => hydrator.Collect(frame).ToList(),
-            Throws.TypeOf<InvalidOperationException>().With.Message.Contains("Age")
-        );
-    }
+    // DataFrame has Age as StringType — incompatible with int property
+    var schema = new StructType(
+      [
+        new StructField("Name", new StringType()),
+        new StructField("Age", new StringType()), // wrong type
+        new StructField("IsActive", new BooleanType()),
+      ]
+    );
+    var df = _spark!.CreateDataFrame([new GenericRow(["Alice", "thirty", true])], schema);
+    var frame = _provider!.CreateFromNative<PersonSchema>(df);
 
-    // ===================================================================
-    //  [SerializedLabel] round-trip
-    // ===================================================================
+    Assert.That(
+      () => hydrator.Collect(frame).ToList(),
+      Throws.TypeOf<InvalidOperationException>().With.Message.Contains("Age")
+    );
+  }
 
-    [Test]
-    public void Collect_HonoursSerializedLabel_InColumnLookup()
-    {
-        var hydrator = new SparkRowHydrator<HydratorLabeledSchema>(_provider!);
+  // ===================================================================
+  //  [SerializedLabel] round-trip
+  // ===================================================================
 
-        // Columns use the serialized names (snake_case), not C# property names
-        var schema = new StructType(
-            [
-                new StructField("full_name", new StringType()),
-                new StructField("employee_id", new IntegerType()),
-                new StructField("Department", new StringType()),
-            ]
-        );
-        var df = _spark!.CreateDataFrame(
-            [new GenericRow(["Alice Smith", 42, "Engineering"])],
-            schema
-        );
-        var frame = _provider!.CreateFromNative<HydratorLabeledSchema>(df);
+  [Test]
+  public void Collect_HonoursSerializedLabel_InColumnLookup()
+  {
+    var hydrator = new SparkRowHydrator<HydratorLabeledSchema>(_provider!);
 
-        var rows = hydrator.Collect(frame).ToList();
-        var row = rows.Single();
+    // Columns use the serialized names (snake_case), not C# property names
+    var schema = new StructType(
+      [
+        new StructField("full_name", new StringType()),
+        new StructField("employee_id", new IntegerType()),
+        new StructField("Department", new StringType()),
+      ]
+    );
+    var df = _spark!.CreateDataFrame([new GenericRow(["Alice Smith", 42, "Engineering"])], schema);
+    var frame = _provider!.CreateFromNative<HydratorLabeledSchema>(df);
 
-        Assert.That(row.FullName, Is.EqualTo("Alice Smith"));
-        Assert.That(row.EmployeeId, Is.EqualTo(42));
-        Assert.That(row.Department, Is.EqualTo("Engineering"));
-    }
+    var rows = hydrator.Collect(frame).ToList();
+    var row = rows.Single();
+
+    Assert.That(row.FullName, Is.EqualTo("Alice Smith"));
+    Assert.That(row.EmployeeId, Is.EqualTo(42));
+    Assert.That(row.Department, Is.EqualTo("Engineering"));
+  }
 }

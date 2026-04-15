@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Flowthru.DataFrames.Analyzers;
+namespace Flowthru.Misc.DataFrames.Analyzers;
 
 /// <summary>
 /// Validates that lambda expressions passed to <c>TypedFrameExtensions</c> methods have

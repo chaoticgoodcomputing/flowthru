@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Flowthru.DataFrames;
+namespace Flowthru.Misc.DataFrames;
 
 /// <summary>
 /// Translates .NET member access (property or field) into a native column expression.

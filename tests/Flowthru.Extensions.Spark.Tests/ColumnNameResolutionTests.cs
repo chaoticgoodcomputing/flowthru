@@ -1,5 +1,5 @@
 using System.Reflection;
-using Flowthru.DataFrames;
+using Flowthru.Misc.DataFrames;
 
 namespace Flowthru.Extensions.Spark.Tests;
 
@@ -91,8 +91,9 @@ public class ColumnNameResolutionTests
     protected override object TranslateCount(System.Linq.Expressions.MethodCallExpression node) =>
       throw new NotImplementedException();
 
-    protected override object TranslateDistinct(System.Linq.Expressions.MethodCallExpression node) =>
-      throw new NotImplementedException();
+    protected override object TranslateDistinct(
+      System.Linq.Expressions.MethodCallExpression node
+    ) => throw new NotImplementedException();
 
     protected override object TranslateUnion(System.Linq.Expressions.MethodCallExpression node) =>
       throw new NotImplementedException();

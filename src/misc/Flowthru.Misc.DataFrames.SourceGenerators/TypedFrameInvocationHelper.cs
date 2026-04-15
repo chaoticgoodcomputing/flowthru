@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Flowthru.DataFrames.Analyzers;
+namespace Flowthru.Misc.DataFrames.Analyzers;
 
 /// <summary>
 /// Sentinel returned when an invocation is identified as targeting

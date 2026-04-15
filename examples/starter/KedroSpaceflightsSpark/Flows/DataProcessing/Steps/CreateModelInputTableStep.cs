@@ -1,5 +1,5 @@
 using Flowthru.Core.Steps;
-using Flowthru.DataFrames;
+using Flowthru.Misc.DataFrames;
 using KedroSpaceflightsSpark.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsSpark.Data._03_Primary.Schemas;
 
@@ -39,19 +39,20 @@ public static class CreateModelInputTableStep
         reviews,
         s => s.Id,
         r => r.ShuttleId,
-        (s, r) => new ShuttleReviewSchema
-        {
-          ShuttleId = s.Id,
-          ShuttleType = s.ShuttleType,
-          CompanyId = s.CompanyId,
-          Engines = s.Engines,
-          PassengerCapacity = s.PassengerCapacity,
-          Crew = s.Crew,
-          Price = s.Price,
-          DCheckComplete = s.DCheckComplete,
-          MoonClearanceComplete = s.MoonClearanceComplete,
-          ReviewScoresRating = r.ReviewScoresRating,
-        }
+        (s, r) =>
+          new ShuttleReviewSchema
+          {
+            ShuttleId = s.Id,
+            ShuttleType = s.ShuttleType,
+            CompanyId = s.CompanyId,
+            Engines = s.Engines,
+            PassengerCapacity = s.PassengerCapacity,
+            Crew = s.Crew,
+            Price = s.Price,
+            DCheckComplete = s.DCheckComplete,
+            MoonClearanceComplete = s.MoonClearanceComplete,
+            ReviewScoresRating = r.ReviewScoresRating,
+          }
       );
 
       // Step 2: Join with companies on shuttleReview.CompanyId = company.Id
@@ -59,21 +60,22 @@ public static class CreateModelInputTableStep
         companies,
         sr => sr.CompanyId,
         c => c.Id,
-        (sr, c) => new ModelInputTableSchema
-        {
-          ShuttleId = sr.ShuttleId,
-          ShuttleType = sr.ShuttleType,
-          CompanyId = sr.CompanyId,
-          Engines = sr.Engines,
-          PassengerCapacity = sr.PassengerCapacity,
-          Crew = sr.Crew,
-          DCheckComplete = sr.DCheckComplete,
-          MoonClearanceComplete = sr.MoonClearanceComplete,
-          Price = sr.Price,
-          IataApproved = c.IataApproved,
-          CompanyRating = c.CompanyRating,
-          ReviewScoresRating = sr.ReviewScoresRating,
-        }
+        (sr, c) =>
+          new ModelInputTableSchema
+          {
+            ShuttleId = sr.ShuttleId,
+            ShuttleType = sr.ShuttleType,
+            CompanyId = sr.CompanyId,
+            Engines = sr.Engines,
+            PassengerCapacity = sr.PassengerCapacity,
+            Crew = sr.Crew,
+            DCheckComplete = sr.DCheckComplete,
+            MoonClearanceComplete = sr.MoonClearanceComplete,
+            Price = sr.Price,
+            IataApproved = c.IataApproved,
+            CompanyRating = c.CompanyRating,
+            ReviewScoresRating = sr.ReviewScoresRating,
+          }
       );
     };
   }

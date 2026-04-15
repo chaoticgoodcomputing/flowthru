@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Flowthru.Core.Abstractions;
-using Flowthru.DataFrames;
 using Flowthru.Extensions.Spark.Runtime;
+using Flowthru.Misc.DataFrames;
 using Flowthru.Spark.Sql;
 
 namespace Flowthru.Extensions.Spark;

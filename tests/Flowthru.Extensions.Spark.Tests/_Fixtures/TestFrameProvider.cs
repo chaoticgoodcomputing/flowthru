@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Flowthru.DataFrames;
+using Flowthru.Misc.DataFrames;
 
 namespace Flowthru.Extensions.Spark.Tests;
 

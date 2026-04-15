@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Flowthru.DataFrames;
+namespace Flowthru.Misc.DataFrames;
 
 /// <summary>
 /// An intermediate representation of a grouped <see cref="TypedFrame{T}"/>, produced by

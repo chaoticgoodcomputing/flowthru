@@ -17,9 +17,9 @@ public class FSpark1002Tests
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Flowthru.DataFrames;
+    using Flowthru.Misc.DataFrames;
 
-    namespace Flowthru.DataFrames
+    namespace Flowthru.Misc.DataFrames
     {
         public class TypedFrame<T> { }
 
@@ -49,7 +49,7 @@ public class FSpark1002Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<PersonSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<PersonSchema> frame)
             {
                 frame.Where(x => x.Name.ToUpper() == "ALICE");
             }
@@ -71,7 +71,7 @@ public class FSpark1002Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<PersonSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<PersonSchema> frame)
             {
                 frame.Where(x => x.Name.Contains("Alice"));
             }
@@ -93,7 +93,7 @@ public class FSpark1002Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<PersonSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<PersonSchema> frame)
             {
                 frame.Select(x => new { Rounded = Math.Round(x.Score, 2) });
             }
@@ -117,7 +117,7 @@ public class FSpark1002Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<PersonSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<PersonSchema> frame)
             {
                 frame.Where(x => {|#0:x.Name.PadLeft(10)|} == "     Alice");
             }
@@ -150,7 +150,7 @@ public class FSpark1002Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<PersonSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<PersonSchema> frame)
             {
                 frame.Select(x => new { Idx = {|#0:x.Name.IndexOf("needle")|} });
             }
@@ -183,7 +183,7 @@ public class FSpark1002Tests
 
         class Tests
         {
-            void M(Flowthru.DataFrames.TypedFrame<PersonSchema> frame)
+            void M(Flowthru.Misc.DataFrames.TypedFrame<PersonSchema> frame)
             {
                 frame.Select(x => new { Sq = {|#0:Math.Pow(x.Score, 2)|} });
             }

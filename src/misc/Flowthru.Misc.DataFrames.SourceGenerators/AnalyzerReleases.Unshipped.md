@@ -3,6 +3,6 @@
 
 ### New Rules
 
-| Rule ID     | Category            | Severity | Notes                                                           |
-| ----------- | ------------------- | -------- | --------------------------------------------------------------- |
-| FDFRAME1001 | Flowthru.DataFrames | Error    | TypedFrame Select projection body must be an object initializer |
+| Rule ID     | Category                 | Severity | Notes                                                           |
+| ----------- | ------------------------ | -------- | --------------------------------------------------------------- |
+| FDFRAME1001 | Flowthru.Misc.DataFrames | Error    | TypedFrame Select projection body must be an object initializer |

@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace Flowthru.DataFrames;
+namespace Flowthru.Misc.DataFrames;
 
 /// <summary>
 /// A query provider that creates <see cref="TypedFrame{T}"/> instances and compiles

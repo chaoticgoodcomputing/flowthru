@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Flowthru.Core.Abstractions;
 
-namespace Flowthru.DataFrames;
+namespace Flowthru.Misc.DataFrames;
 
 /// <summary>
 /// Base class for translating <see cref="TypedFrame{T}"/> expression trees into native

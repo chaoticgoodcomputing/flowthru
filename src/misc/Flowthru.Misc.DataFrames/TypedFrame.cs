@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Linq.Expressions;
 
-namespace Flowthru.DataFrames;
+namespace Flowthru.Misc.DataFrames;
 
 /// <summary>
 /// A phantom-typed wrapper around an untyped DataFrame-like object.
@@ -69,8 +69,7 @@ public class TypedFrame<T> : IQueryable<T>, IOrderedQueryable<T>
   /// catalog item typed as <c>IEnumerable&lt;T&gt;</c> without any explicit
   /// materialization call in step code.
   /// </remarks>
-  public IEnumerator<T> GetEnumerator() =>
-    _provider.Materialize<T>(_expression).GetEnumerator();
+  public IEnumerator<T> GetEnumerator() => _provider.Materialize<T>(_expression).GetEnumerator();
 
   /// <inheritdoc cref="GetEnumerator"/>
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

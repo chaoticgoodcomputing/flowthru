@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace Flowthru.DataFrames;
+namespace Flowthru.Misc.DataFrames;
 
 /// <summary>
 /// Non-generic contract for a window specification, used by visitors to translate
@@ -79,12 +79,13 @@ public sealed class FrameWindowSpec<TSource> : IFrameWindowSpec
   // ──────────────────────────────────────────────
 
   /// <summary>Adds an additional partition key to this spec.</summary>
-  public FrameWindowSpec<TSource> ThenPartitionBy<TKey>(
-    Expression<Func<TSource, TKey>> keySelector
-  )
+  public FrameWindowSpec<TSource> ThenPartitionBy<TKey>(Expression<Func<TSource, TKey>> keySelector)
   {
     ArgumentNullException.ThrowIfNull(keySelector);
-    return new FrameWindowSpec<TSource>([..PartitionByExpressions, keySelector], OrderByExpressions);
+    return new FrameWindowSpec<TSource>(
+      [.. PartitionByExpressions, keySelector],
+      OrderByExpressions
+    );
   }
 
   /// <summary>Adds an ascending sort key to this spec.</summary>
@@ -93,7 +94,7 @@ public sealed class FrameWindowSpec<TSource> : IFrameWindowSpec
     ArgumentNullException.ThrowIfNull(keySelector);
     return new FrameWindowSpec<TSource>(
       PartitionByExpressions,
-      [..OrderByExpressions, (keySelector, false)]
+      [.. OrderByExpressions, (keySelector, false)]
     );
   }
 
@@ -105,7 +106,7 @@ public sealed class FrameWindowSpec<TSource> : IFrameWindowSpec
     ArgumentNullException.ThrowIfNull(keySelector);
     return new FrameWindowSpec<TSource>(
       PartitionByExpressions,
-      [..OrderByExpressions, (keySelector, true)]
+      [.. OrderByExpressions, (keySelector, true)]
     );
   }
 }

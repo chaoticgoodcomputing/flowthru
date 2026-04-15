@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Flowthru.DataFrames;
+using Flowthru.Misc.DataFrames;
 
 namespace Flowthru.Extensions.Spark.Tests;
 
@@ -10,8 +10,9 @@ public class WindowExpressionTests
   private TestFrameProvider _provider = null!;
 
   // Window specs shared across tests
-  private static readonly FrameWindowSpec<StaffSchema> DeptWindow =
-    FrameWindowSpec<StaffSchema>.PartitionBy(x => x.Department).OrderByDescending(x => x.Salary);
+  private static readonly FrameWindowSpec<StaffSchema> DeptWindow = FrameWindowSpec<StaffSchema>
+    .PartitionBy(x => x.Department)
+    .OrderByDescending(x => x.Salary);
 
   private static readonly FrameWindowSpec<StaffSchema> HireWindow =
     FrameWindowSpec<StaffSchema>.Global.OrderBy(x => x.HireDate);
@@ -31,15 +32,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = win.Sum(s => s.Salary, DeptWindow),
-      PrevSalary = win.Lag(s => s.Salary, 1, DeptWindow),
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = win.Sum(s => s.Salary, DeptWindow),
+          PrevSalary = win.Lag(s => s.Salary, 1, DeptWindow),
+        }
+    );
 
     var mce = result.Expression as MethodCallExpression;
     Assert.That(mce, Is.Not.Null);
@@ -51,15 +55,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = win.Sum(s => s.Salary, DeptWindow),
-      PrevSalary = win.Lag(s => s.Salary, 1, DeptWindow),
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = win.Sum(s => s.Salary, DeptWindow),
+          PrevSalary = win.Lag(s => s.Salary, 1, DeptWindow),
+        }
+    );
 
     Assert.That(result.ElementType, Is.EqualTo(typeof(StaffRankedSchema)));
   }
@@ -69,15 +76,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.DenseRank(DeptWindow),
-      RunningTotal = x.Salary,
-      PrevSalary = null,
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.DenseRank(DeptWindow),
+          RunningTotal = x.Salary,
+          PrevSalary = null,
+        }
+    );
 
     var mce = (MethodCallExpression)result.Expression;
     Assert.That(mce.Arguments, Has.Count.EqualTo(2));
@@ -88,15 +98,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.RowNumber(DeptWindow),
-      RunningTotal = x.Salary,
-      PrevSalary = null,
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.RowNumber(DeptWindow),
+          RunningTotal = x.Salary,
+          PrevSalary = null,
+        }
+    );
 
     var mce = (MethodCallExpression)result.Expression;
     var quoted = mce.Arguments[1] as UnaryExpression;
@@ -110,15 +123,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = x.Salary,
-      PrevSalary = null,
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = x.Salary,
+          PrevSalary = null,
+        }
+    );
 
     var mce = (MethodCallExpression)result.Expression;
     var lambda = (LambdaExpression)((UnaryExpression)mce.Arguments[1]).Operand;
@@ -130,22 +146,22 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = x.Salary,
-      PrevSalary = null,
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = x.Salary,
+          PrevSalary = null,
+        }
+    );
 
     var mce = (MethodCallExpression)result.Expression;
     var lambda = (LambdaExpression)((UnaryExpression)mce.Arguments[1]).Operand;
-    Assert.That(
-      lambda.Parameters[1].Type,
-      Is.EqualTo(typeof(WindowContext<StaffSchema>))
-    );
+    Assert.That(lambda.Parameters[1].Type, Is.EqualTo(typeof(WindowContext<StaffSchema>)));
   }
 
   // ===================================================================
@@ -201,15 +217,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = win.Sum(s => s.Salary, DeptWindow),
-      PrevSalary = null,
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = win.Sum(s => s.Salary, DeptWindow),
+          PrevSalary = null,
+        }
+    );
 
     var windowCall = ExtractWindowCall(result, nameof(StaffRankedSchema.RunningTotal));
     Assert.That(windowCall, Is.Not.Null);
@@ -223,15 +242,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = win.Sum(s => s.Salary, DeptWindow),
-      PrevSalary = null,
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = win.Sum(s => s.Salary, DeptWindow),
+          PrevSalary = null,
+        }
+    );
 
     var windowCall = ExtractWindowCall(result, nameof(StaffRankedSchema.RunningTotal));
     var selectorLambda = ExtractLambdaFromArg(windowCall!.Arguments[0]);
@@ -250,15 +272,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = x.Salary,
-      PrevSalary = win.Lag(s => s.Salary, 1, DeptWindow),
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = x.Salary,
+          PrevSalary = win.Lag(s => s.Salary, 1, DeptWindow),
+        }
+    );
 
     var windowCall = ExtractWindowCall(result, nameof(StaffRankedSchema.PrevSalary));
     Assert.That(windowCall, Is.Not.Null);
@@ -271,15 +296,18 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffRankedSchema
-    {
-      Name = x.Name,
-      Department = x.Department,
-      Salary = x.Salary,
-      DeptRank = win.Rank(DeptWindow),
-      RunningTotal = x.Salary,
-      PrevSalary = win.Lag(s => s.Salary, 2, DeptWindow),
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffRankedSchema
+        {
+          Name = x.Name,
+          Department = x.Department,
+          Salary = x.Salary,
+          DeptRank = win.Rank(DeptWindow),
+          RunningTotal = x.Salary,
+          PrevSalary = win.Lag(s => s.Salary, 2, DeptWindow),
+        }
+    );
 
     var windowCall = ExtractWindowCall(result, nameof(StaffRankedSchema.PrevSalary));
     var offsetArg = windowCall!.Arguments[1] as ConstantExpression;
@@ -296,12 +324,15 @@ public class WindowExpressionTests
   {
     var frame = new TypedFrame<StaffSchema>(_provider);
 
-    var result = frame.SelectOver((x, win) => new StaffMultiWindowSchema
-    {
-      Name = x.Name,
-      DeptRank = win.Rank(DeptWindow),
-      HireOrder = win.RowNumber(HireWindow),
-    });
+    var result = frame.SelectOver(
+      (x, win) =>
+        new StaffMultiWindowSchema
+        {
+          Name = x.Name,
+          DeptRank = win.Rank(DeptWindow),
+          HireOrder = win.RowNumber(HireWindow),
+        }
+    );
 
     var mce = (MethodCallExpression)result.Expression;
     var lambda = (LambdaExpression)((UnaryExpression)mce.Arguments[1]).Operand;
@@ -327,18 +358,22 @@ public class WindowExpressionTests
   [Test]
   public void SelectOver_MultiWindow_DeptSpec_HasPartitionByExpressions()
   {
-    var spec = (FrameWindowSpec<StaffSchema>)EvaluateCapture(
-      GetWindowCallFromField(
-        new TypedFrame<StaffSchema>(_provider)
-          .SelectOver((x, win) => new StaffMultiWindowSchema
-          {
-            Name = x.Name,
-            DeptRank = win.Rank(DeptWindow),
-            HireOrder = win.RowNumber(HireWindow),
-          }),
-        nameof(StaffMultiWindowSchema.DeptRank)
-      ).Arguments[^1]
-    );
+    var spec =
+      (FrameWindowSpec<StaffSchema>)
+        EvaluateCapture(
+          GetWindowCallFromField(
+            new TypedFrame<StaffSchema>(_provider).SelectOver(
+              (x, win) =>
+                new StaffMultiWindowSchema
+                {
+                  Name = x.Name,
+                  DeptRank = win.Rank(DeptWindow),
+                  HireOrder = win.RowNumber(HireWindow),
+                }
+            ),
+            nameof(StaffMultiWindowSchema.DeptRank)
+          ).Arguments[^1]
+        );
 
     Assert.That(spec.PartitionByExpressions, Has.Count.EqualTo(1));
     Assert.That(spec.OrderByExpressions, Has.Count.EqualTo(1));
@@ -348,18 +383,22 @@ public class WindowExpressionTests
   [Test]
   public void SelectOver_MultiWindow_HireSpec_HasNoPartitionByExpressions()
   {
-    var spec = (FrameWindowSpec<StaffSchema>)EvaluateCapture(
-      GetWindowCallFromField(
-        new TypedFrame<StaffSchema>(_provider)
-          .SelectOver((x, win) => new StaffMultiWindowSchema
-          {
-            Name = x.Name,
-            DeptRank = win.Rank(DeptWindow),
-            HireOrder = win.RowNumber(HireWindow),
-          }),
-        nameof(StaffMultiWindowSchema.HireOrder)
-      ).Arguments[^1]
-    );
+    var spec =
+      (FrameWindowSpec<StaffSchema>)
+        EvaluateCapture(
+          GetWindowCallFromField(
+            new TypedFrame<StaffSchema>(_provider).SelectOver(
+              (x, win) =>
+                new StaffMultiWindowSchema
+                {
+                  Name = x.Name,
+                  DeptRank = win.Rank(DeptWindow),
+                  HireOrder = win.RowNumber(HireWindow),
+                }
+            ),
+            nameof(StaffMultiWindowSchema.HireOrder)
+          ).Arguments[^1]
+        );
 
     Assert.That(spec.PartitionByExpressions, Has.Count.EqualTo(0));
     Assert.That(spec.OrderByExpressions, Has.Count.EqualTo(1));
@@ -443,69 +482,83 @@ public class WindowExpressionTests
     // Use Rank as default for all test variants — the method name itself is what we vary
     TypedFrame<StaffRankedSchema> result = methodName switch
     {
-      "Rank" => frame.SelectOver((x, win) => new StaffRankedSchema
-      {
-        Name = x.Name,
-        Department = x.Department,
-        Salary = x.Salary,
-        DeptRank = win.Rank(DeptWindow),
-        RunningTotal = x.Salary,
-        PrevSalary = null,
-      }),
-      "DenseRank" => frame.SelectOver((x, win) => new StaffRankedSchema
-      {
-        Name = x.Name,
-        Department = x.Department,
-        Salary = x.Salary,
-        DeptRank = win.DenseRank(DeptWindow),
-        RunningTotal = x.Salary,
-        PrevSalary = null,
-      }),
-      "RowNumber" => frame.SelectOver((x, win) => new StaffRankedSchema
-      {
-        Name = x.Name,
-        Department = x.Department,
-        Salary = x.Salary,
-        DeptRank = win.RowNumber(DeptWindow),
-        RunningTotal = x.Salary,
-        PrevSalary = null,
-      }),
-      "PercentRank" => frame.SelectOver((x, win) => new StaffRankedSchema
-      {
-        Name = x.Name,
-        Department = x.Department,
-        Salary = x.Salary,
-        DeptRank = (long)win.PercentRank(DeptWindow),
-        RunningTotal = x.Salary,
-        PrevSalary = null,
-      }),
-      _ /* CumeDist */ => frame.SelectOver((x, win) => new StaffRankedSchema
-      {
-        Name = x.Name,
-        Department = x.Department,
-        Salary = x.Salary,
-        DeptRank = (long)win.CumeDist(DeptWindow),
-        RunningTotal = x.Salary,
-        PrevSalary = null,
-      }),
+      "Rank" => frame.SelectOver(
+        (x, win) =>
+          new StaffRankedSchema
+          {
+            Name = x.Name,
+            Department = x.Department,
+            Salary = x.Salary,
+            DeptRank = win.Rank(DeptWindow),
+            RunningTotal = x.Salary,
+            PrevSalary = null,
+          }
+      ),
+      "DenseRank" => frame.SelectOver(
+        (x, win) =>
+          new StaffRankedSchema
+          {
+            Name = x.Name,
+            Department = x.Department,
+            Salary = x.Salary,
+            DeptRank = win.DenseRank(DeptWindow),
+            RunningTotal = x.Salary,
+            PrevSalary = null,
+          }
+      ),
+      "RowNumber" => frame.SelectOver(
+        (x, win) =>
+          new StaffRankedSchema
+          {
+            Name = x.Name,
+            Department = x.Department,
+            Salary = x.Salary,
+            DeptRank = win.RowNumber(DeptWindow),
+            RunningTotal = x.Salary,
+            PrevSalary = null,
+          }
+      ),
+      "PercentRank" => frame.SelectOver(
+        (x, win) =>
+          new StaffRankedSchema
+          {
+            Name = x.Name,
+            Department = x.Department,
+            Salary = x.Salary,
+            DeptRank = (long)win.PercentRank(DeptWindow),
+            RunningTotal = x.Salary,
+            PrevSalary = null,
+          }
+      ),
+      _ /* CumeDist */
+      => frame.SelectOver(
+        (x, win) =>
+          new StaffRankedSchema
+          {
+            Name = x.Name,
+            Department = x.Department,
+            Salary = x.Salary,
+            DeptRank = (long)win.CumeDist(DeptWindow),
+            RunningTotal = x.Salary,
+            PrevSalary = null,
+          }
+      ),
     };
 
-    windowCall = ExtractWindowCall(result, nameof(StaffRankedSchema.DeptRank))
+    windowCall =
+      ExtractWindowCall(result, nameof(StaffRankedSchema.DeptRank))
       ?? ExtractWindowCall(result, nameof(StaffRankedSchema.RunningTotal));
     return (MethodCallExpression)result.Expression;
   }
 
-  private static MethodCallExpression? ExtractWindowCall<T>(
-    TypedFrame<T> frame,
-    string memberName
-  )
+  private static MethodCallExpression? ExtractWindowCall<T>(TypedFrame<T> frame, string memberName)
   {
     var mce = (MethodCallExpression)frame.Expression;
     var lambda = (LambdaExpression)((UnaryExpression)mce.Arguments[1]).Operand;
     var mie = (MemberInitExpression)lambda.Body;
-    var binding = mie.Bindings.OfType<MemberAssignment>().FirstOrDefault(b =>
-      b.Member.Name == memberName
-    );
+    var binding = mie
+      .Bindings.OfType<MemberAssignment>()
+      .FirstOrDefault(b => b.Member.Name == memberName);
     if (binding is null)
       return null;
 
@@ -517,14 +570,9 @@ public class WindowExpressionTests
     return expr as MethodCallExpression;
   }
 
-  private static MethodCallExpression GetBindingCall(
-    MemberInitExpression mie,
-    string memberName
-  )
+  private static MethodCallExpression GetBindingCall(MemberInitExpression mie, string memberName)
   {
-    var binding = mie.Bindings
-      .OfType<MemberAssignment>()
-      .Single(b => b.Member.Name == memberName);
+    var binding = mie.Bindings.OfType<MemberAssignment>().Single(b => b.Member.Name == memberName);
     return (MethodCallExpression)binding.Expression;
   }
 
