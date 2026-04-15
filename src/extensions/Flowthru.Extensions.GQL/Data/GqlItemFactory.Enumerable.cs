@@ -53,6 +53,56 @@ public static partial class GqlItemFactory
     }
 
     /// <summary>
+    /// Creates a non-paginated collection catalog entry whose query is parameterized by a
+    /// runtime value resolved from <paramref name="parameterSource"/> at load time.
+    /// </summary>
+    /// <typeparam name="TParam">
+    /// The type of the runtime parameter resolved from <paramref name="parameterSource"/>.
+    /// </typeparam>
+    /// <typeparam name="TResult">
+    /// The StrawberryShake-generated result data type.
+    /// </typeparam>
+    /// <typeparam name="T">
+    /// The target element type.
+    /// </typeparam>
+    /// <param name="label">Catalog entry label used in the pipeline DAG and validation messages.</param>
+    /// <param name="parameterSource">
+    /// The catalog item whose value is resolved at load time and passed to
+    /// <paramref name="queryFunc"/>. The dependency analyzer uses this to schedule the
+    /// current item's consuming step after the step that produces
+    /// <paramref name="parameterSource"/>.
+    /// </param>
+    /// <param name="queryFunc">
+    /// Delegate accepting the resolved parameter and a <see cref="CancellationToken"/>.
+    /// </param>
+    /// <param name="selectData">
+    /// Projects the result data envelope to the collection of <typeparamref name="T"/>.
+    /// </param>
+    /// <param name="allowEmptyData">
+    /// If <c>true</c>, an empty or null result collection is valid. Defaults to <c>false</c>.
+    /// </param>
+    public static Item<IEnumerable<T>> Query<TParam, TResult, T>(
+      string label,
+      Core.Data.IItem<TParam> parameterSource,
+      Func<TParam, CancellationToken, Task<IOperationResult<TResult>>> queryFunc,
+      Func<TResult, IEnumerable<T>?> selectData,
+      bool allowEmptyData = false
+    )
+      where TResult : class
+      where T : class
+    {
+      var adapter = new GqlEnumerableStorageAdapter<TResult, T>(
+        label,
+        paramLoader: ct => parameterSource.LoadUntyped().Run(ct),
+        paramQueryFunc: async (param, ct) => await queryFunc((TParam)param, ct),
+        selectData,
+        allowEmptyData,
+        itemDependencies: [parameterSource]
+      );
+      return new Item<IEnumerable<T>>(label, adapter);
+    }
+
+    /// <summary>
     /// Creates a Relay cursor-paginated collection catalog entry.
     /// The adapter iterates pages until <c>HasNextPage</c> is <c>false</c>, yielding
     /// a flat <c>IEnumerable&lt;T&gt;</c> to the pipeline.
@@ -97,6 +147,52 @@ public static partial class GqlItemFactory
     }
 
     /// <summary>
+    /// Creates a Relay cursor-paginated collection catalog entry whose query is parameterized
+    /// by a runtime value resolved from <paramref name="parameterSource"/> at load time.
+    /// </summary>
+    /// <typeparam name="TParam">The type of the runtime parameter.</typeparam>
+    /// <typeparam name="TResult">The StrawberryShake-generated result data type.</typeparam>
+    /// <typeparam name="T">The target element type.</typeparam>
+    /// <param name="label">Catalog entry label used in the pipeline DAG and validation messages.</param>
+    /// <param name="parameterSource">
+    /// The catalog item whose value is resolved at load time and passed to
+    /// <paramref name="pagedQueryFunc"/>.
+    /// </param>
+    /// <param name="pagedQueryFunc">
+    /// Delegate accepting <c>(param, cursor, pageSize, cancellationToken)</c>.
+    /// </param>
+    /// <param name="pagination">
+    /// Relay pagination strategy created via <see cref="Pagination.Relay{TResult,T}"/>.
+    /// </param>
+    /// <param name="pageSize">Items to fetch per page. Defaults to 100.</param>
+    /// <param name="allowEmptyData">
+    /// If <c>true</c>, an empty result set is valid. Defaults to <c>false</c>.
+    /// </param>
+    public static Item<IEnumerable<T>> PagedQuery<TParam, TResult, T>(
+      string label,
+      Core.Data.IItem<TParam> parameterSource,
+      Func<TParam, string?, int, CancellationToken, Task<IOperationResult<TResult>>> pagedQueryFunc,
+      RelayPaginationStrategy<TResult, T> pagination,
+      int pageSize = 100,
+      bool allowEmptyData = false
+    )
+      where TResult : class
+      where T : class
+    {
+      var adapter = new GqlEnumerableStorageAdapter<TResult, T>(
+        label,
+        paramLoader: ct => parameterSource.LoadUntyped().Run(ct),
+        paramRelayQueryFunc: async (param, cursor, size, ct) =>
+          await pagedQueryFunc((TParam)param, cursor, size, ct),
+        pagination,
+        pageSize,
+        allowEmptyData,
+        itemDependencies: [parameterSource]
+      );
+      return new Item<IEnumerable<T>>(label, adapter);
+    }
+
+    /// <summary>
     /// Creates an offset-paginated collection catalog entry.
     /// The adapter advances the offset until all items (per <c>getTotal</c>) are fetched
     /// or a page returns no items, yielding a flat <c>IEnumerable&lt;T&gt;</c> to the pipeline.
@@ -136,6 +232,52 @@ public static partial class GqlItemFactory
         pagination,
         pageSize,
         allowEmptyData
+      );
+      return new Item<IEnumerable<T>>(label, adapter);
+    }
+
+    /// <summary>
+    /// Creates an offset-paginated collection catalog entry whose query is parameterized by a
+    /// runtime value resolved from <paramref name="parameterSource"/> at load time.
+    /// </summary>
+    /// <typeparam name="TParam">The type of the runtime parameter.</typeparam>
+    /// <typeparam name="TResult">The StrawberryShake-generated result data type.</typeparam>
+    /// <typeparam name="T">The target element type.</typeparam>
+    /// <param name="label">Catalog entry label used in the pipeline DAG and validation messages.</param>
+    /// <param name="parameterSource">
+    /// The catalog item whose value is resolved at load time and passed to
+    /// <paramref name="pagedQueryFunc"/>.
+    /// </param>
+    /// <param name="pagedQueryFunc">
+    /// Delegate accepting <c>(param, offset, limit, cancellationToken)</c>.
+    /// </param>
+    /// <param name="pagination">
+    /// Offset pagination strategy created via <see cref="Pagination.Offset{TResult,T}"/>.
+    /// </param>
+    /// <param name="pageSize">Items to fetch per page. Defaults to 100.</param>
+    /// <param name="allowEmptyData">
+    /// If <c>true</c>, an empty result set is valid. Defaults to <c>false</c>.
+    /// </param>
+    public static Item<IEnumerable<T>> PagedQuery<TParam, TResult, T>(
+      string label,
+      Core.Data.IItem<TParam> parameterSource,
+      Func<TParam, int, int, CancellationToken, Task<IOperationResult<TResult>>> pagedQueryFunc,
+      OffsetPaginationStrategy<TResult, T> pagination,
+      int pageSize = 100,
+      bool allowEmptyData = false
+    )
+      where TResult : class
+      where T : class
+    {
+      var adapter = new GqlEnumerableStorageAdapter<TResult, T>(
+        label,
+        paramLoader: ct => parameterSource.LoadUntyped().Run(ct),
+        paramOffsetQueryFunc: async (param, offset, limit, ct) =>
+          await pagedQueryFunc((TParam)param, offset, limit, ct),
+        pagination,
+        pageSize,
+        allowEmptyData,
+        itemDependencies: [parameterSource]
       );
       return new Item<IEnumerable<T>>(label, adapter);
     }

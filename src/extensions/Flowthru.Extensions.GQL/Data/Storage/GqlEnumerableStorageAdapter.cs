@@ -66,7 +66,9 @@ namespace Flowthru.Core.Data.Storage;
 /// );
 /// </code>
 /// </example>
-public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IEnumerable<T>>
+public sealed class GqlEnumerableStorageAdapter<TResult, T>
+  : IStorageAdapter<IEnumerable<T>>,
+    IHasItemDependencies
   where TResult : class
   where T : class
 {
@@ -92,9 +94,37 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
   >? _offsetQueryFunc;
   private readonly OffsetPaginationStrategy<TResult, T>? _offsetPagination;
 
+  // Parameterized (type-erased): resolved from a dependency item at Load() time.
+  // These are set only by the parameterized constructors; all three variants are supported.
+  private readonly Func<CancellationToken, ValueTask<object>>? _paramLoader;
+  private readonly Func<
+    object,
+    CancellationToken,
+    Task<IOperationResult<TResult>>
+  >? _paramQueryFunc;
+  private readonly Func<
+    object,
+    string?,
+    int,
+    CancellationToken,
+    Task<IOperationResult<TResult>>
+  >? _paramRelayQueryFunc;
+  private readonly Func<
+    object,
+    int,
+    int,
+    CancellationToken,
+    Task<IOperationResult<TResult>>
+  >? _paramOffsetQueryFunc;
+  private readonly IReadOnlyList<Core.Graph.INode>? _itemDependencies;
+
   private readonly string _label;
   private readonly int _pageSize;
   private readonly bool _allowEmptyData;
+
+  /// <inheritdoc/>
+  public IReadOnlyList<Core.Graph.INode> ItemDependencies =>
+    _itemDependencies ?? Array.Empty<Core.Graph.INode>();
 
   /// <summary>
   /// Creates a non-paginated collection adapter.
@@ -183,6 +213,93 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
     Traits = new StorageTraits { RequiresNetwork = true, CanWrite = false };
   }
 
+  // ── Parameterized constructors ──────────────────────────────────────────
+  // These accept a type-erased parameter loader (built by GqlItemFactory from a
+  // strongly-typed IItem<TParam>) so that TParam does not appear as a generic
+  // argument on this class. Type safety is enforced in the factory overloads.
+
+  /// <summary>
+  /// Creates a non-paginated collection adapter whose query is parameterized by a runtime
+  /// value resolved from <paramref name="itemDependencies"/> at load time.
+  /// </summary>
+  internal GqlEnumerableStorageAdapter(
+    string label,
+    Func<CancellationToken, ValueTask<object>> paramLoader,
+    Func<object, CancellationToken, Task<IOperationResult<TResult>>> paramQueryFunc,
+    Func<TResult, IEnumerable<T>?> selectData,
+    bool allowEmptyData,
+    IReadOnlyList<Core.Graph.INode> itemDependencies
+  )
+  {
+    _label = label ?? throw new ArgumentNullException(nameof(label));
+    _paramLoader = paramLoader ?? throw new ArgumentNullException(nameof(paramLoader));
+    _paramQueryFunc = paramQueryFunc ?? throw new ArgumentNullException(nameof(paramQueryFunc));
+    _selectData = selectData ?? throw new ArgumentNullException(nameof(selectData));
+    _allowEmptyData = allowEmptyData;
+    _pageSize = 0;
+    _itemDependencies = itemDependencies;
+
+    Traits = new StorageTraits { RequiresNetwork = true, CanWrite = false };
+  }
+
+  /// <summary>
+  /// Creates a Relay cursor-paginated collection adapter whose query is parameterized by a
+  /// runtime value resolved from <paramref name="itemDependencies"/> at load time.
+  /// </summary>
+  internal GqlEnumerableStorageAdapter(
+    string label,
+    Func<CancellationToken, ValueTask<object>> paramLoader,
+    Func<
+      object,
+      string?,
+      int,
+      CancellationToken,
+      Task<IOperationResult<TResult>>
+    > paramRelayQueryFunc,
+    RelayPaginationStrategy<TResult, T> pagination,
+    int pageSize,
+    bool allowEmptyData,
+    IReadOnlyList<Core.Graph.INode> itemDependencies
+  )
+  {
+    _label = label ?? throw new ArgumentNullException(nameof(label));
+    _paramLoader = paramLoader ?? throw new ArgumentNullException(nameof(paramLoader));
+    _paramRelayQueryFunc =
+      paramRelayQueryFunc ?? throw new ArgumentNullException(nameof(paramRelayQueryFunc));
+    _relayPagination = pagination ?? throw new ArgumentNullException(nameof(pagination));
+    _allowEmptyData = allowEmptyData;
+    _pageSize = pageSize;
+    _itemDependencies = itemDependencies;
+
+    Traits = new StorageTraits { RequiresNetwork = true, CanWrite = false };
+  }
+
+  /// <summary>
+  /// Creates an offset-paginated collection adapter whose query is parameterized by a
+  /// runtime value resolved from <paramref name="itemDependencies"/> at load time.
+  /// </summary>
+  internal GqlEnumerableStorageAdapter(
+    string label,
+    Func<CancellationToken, ValueTask<object>> paramLoader,
+    Func<object, int, int, CancellationToken, Task<IOperationResult<TResult>>> paramOffsetQueryFunc,
+    OffsetPaginationStrategy<TResult, T> pagination,
+    int pageSize,
+    bool allowEmptyData,
+    IReadOnlyList<Core.Graph.INode> itemDependencies
+  )
+  {
+    _label = label ?? throw new ArgumentNullException(nameof(label));
+    _paramLoader = paramLoader ?? throw new ArgumentNullException(nameof(paramLoader));
+    _paramOffsetQueryFunc =
+      paramOffsetQueryFunc ?? throw new ArgumentNullException(nameof(paramOffsetQueryFunc));
+    _offsetPagination = pagination ?? throw new ArgumentNullException(nameof(pagination));
+    _allowEmptyData = allowEmptyData;
+    _pageSize = pageSize;
+    _itemDependencies = itemDependencies;
+
+    Traits = new StorageTraits { RequiresNetwork = true, CanWrite = false };
+  }
+
   /// <inheritdoc/>
   public StorageTraits Traits { get; }
 
@@ -204,6 +321,21 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
         if (_offsetQueryFunc is not null && _offsetPagination is not null)
         {
           return await LoadOffsetPaged(ct);
+        }
+
+        // Parameterized variants — resolve the dependency item first
+        if (_paramLoader is not null)
+        {
+          var param = await _paramLoader(ct);
+
+          if (_paramQueryFunc is not null && _selectData is not null)
+            return await LoadParamNonPaged(param, ct);
+
+          if (_paramRelayQueryFunc is not null && _relayPagination is not null)
+            return await LoadParamRelayPaged(param, ct);
+
+          if (_paramOffsetQueryFunc is not null && _offsetPagination is not null)
+            return await LoadParamOffsetPaged(param, ct);
         }
 
         throw new InvalidOperationException(
@@ -369,6 +501,144 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
       )
     );
 
+  // ── Parameterized load methods ───────────────────────────────────────
+  // The erased `param` object is cast-safe: GqlItemFactory guarantees
+  // it matches the TParam used to construct the delegate.
+
+  private async Task<IEnumerable<T>> LoadParamNonPaged(object param, CancellationToken ct)
+  {
+    var result = await _paramQueryFunc!(param, ct);
+    result.EnsureNoErrors();
+
+    var items = result.Data is not null ? _selectData!(result.Data) : null;
+
+    if ((items is null || !items.Any()) && !_allowEmptyData)
+    {
+      throw new InvalidOperationException(
+        $"Parameterized GraphQL query for '{_label}' returned an empty collection. "
+          + "Set allowEmptyData: true if this is a valid state."
+      );
+    }
+
+    return items ?? Enumerable.Empty<T>();
+  }
+
+  private async Task<IEnumerable<T>> LoadParamRelayPaged(object param, CancellationToken ct)
+  {
+    var all = new List<T>();
+    string? cursor = null;
+    int pageNumber = 0;
+
+    while (true)
+    {
+      pageNumber++;
+      IOperationResult<TResult> result;
+      try
+      {
+        result = await _paramRelayQueryFunc!(param, cursor, _pageSize, ct);
+      }
+      catch (Exception ex)
+      {
+        throw new InvalidOperationException(
+          $"Parameterized GraphQL query for '{_label}' failed on page {pageNumber} (cursor: {cursor ?? "null"}).",
+          ex
+        );
+      }
+
+      if (result.Errors.Any())
+      {
+        var details = string.Join("; ", result.Errors.Select(e => e.Message));
+        throw new InvalidOperationException(
+          $"Parameterized GraphQL query for '{_label}' returned errors on page {pageNumber} "
+            + $"(cursor: {cursor ?? "null"}): {details}"
+        );
+      }
+
+      if (result.Data is null)
+        break;
+
+      var pageInfo = _relayPagination!.GetPageInfo(result.Data);
+      var nodes = _relayPagination.GetNodes(result.Data);
+
+      if (nodes is not null)
+        all.AddRange(nodes);
+
+      if (pageInfo is null || !pageInfo.HasNextPage)
+        break;
+
+      cursor = pageInfo.EndCursor;
+    }
+
+    if (all.Count == 0 && !_allowEmptyData)
+    {
+      throw new InvalidOperationException(
+        $"Parameterized GraphQL query for '{_label}' returned an empty collection across all pages. "
+          + "Set allowEmptyData: true if this is a valid state."
+      );
+    }
+
+    return all;
+  }
+
+  private async Task<IEnumerable<T>> LoadParamOffsetPaged(object param, CancellationToken ct)
+  {
+    var all = new List<T>();
+    int offset = 0;
+    int? total = null;
+    int pageNumber = 0;
+
+    while (true)
+    {
+      pageNumber++;
+      IOperationResult<TResult> result;
+      try
+      {
+        result = await _paramOffsetQueryFunc!(param, offset, _pageSize, ct);
+      }
+      catch (Exception ex)
+      {
+        throw new InvalidOperationException(
+          $"Parameterized GraphQL query for '{_label}' failed on page {pageNumber} (offset: {offset}).",
+          ex
+        );
+      }
+
+      if (result.Errors.Any())
+      {
+        var details = string.Join("; ", result.Errors.Select(e => e.Message));
+        throw new InvalidOperationException(
+          $"Parameterized GraphQL query for '{_label}' returned errors on page {pageNumber} "
+            + $"(offset: {offset}): {details}"
+        );
+      }
+
+      if (result.Data is null)
+        break;
+
+      total ??= _offsetPagination!.GetTotal(result.Data);
+      var items = _offsetPagination!.GetItems(result.Data);
+
+      if (items is null || !items.Any())
+        break;
+
+      all.AddRange(items);
+      offset += _pageSize;
+
+      if (total.HasValue && all.Count >= total.Value)
+        break;
+    }
+
+    if (all.Count == 0 && !_allowEmptyData)
+    {
+      throw new InvalidOperationException(
+        $"Parameterized GraphQL query for '{_label}' returned an empty collection across all pages. "
+          + "Set allowEmptyData: true if this is a valid state."
+      );
+    }
+
+    return all;
+  }
+
   /// <inheritdoc/>
   public FlowIO<bool> Exists() =>
     FlowIO.LiftAsync(
@@ -376,6 +646,11 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
       {
         try
         {
+          // Parameterized adapters depend on step outputs; treat as always existing
+          // (the dependency item's availability was validated separately).
+          if (_paramLoader is not null)
+            return true;
+
           if (_queryFunc is not null)
           {
             var result = await _queryFunc(ct);
@@ -409,11 +684,19 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
   /// Executes a minimal one-item probe against the live endpoint to validate reachability,
   /// authentication, and schema compatibility. For paginated modes this uses
   /// <c>pageSize=1</c> to minimise data transfer during pre-flight.
+  /// Parameterized adapters (those with adapter-level item dependencies) skip the probe:
+  /// their dependency item is not yet materialized during pre-flight, and they are never
+  /// external inputs, so validation is deferred to load time.
   /// </remarks>
   public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
     FlowIO.LiftAsync(
       async (ct) =>
       {
+        // Parameterized adapters depend on step outputs that do not exist yet at pre-flight.
+        // Skip the network probe and return success; the engine will catch real errors at load time.
+        if (_paramLoader is not null)
+          return ValidationResult.Success();
+
         try
         {
           return await ProbeEndpoint(probeSize: Math.Max(sampleSize, 1), ct);

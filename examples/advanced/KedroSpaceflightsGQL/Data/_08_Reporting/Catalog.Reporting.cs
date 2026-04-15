@@ -23,6 +23,20 @@ public partial class Catalog
     );
 
   /// <summary>
+  /// Fleet summary for the top-rated company, produced by the Analytics flow.
+  /// Demonstrates that the consuming step receives plain materialized data and has
+  /// no awareness of the parameterized GQL query that fetched it.
+  /// </summary>
+  public IItem<TopRatedCompanyReport> TopRatedCompanyReport =>
+    CreateItem(
+      () =>
+        ItemFactory.Single.Json<TopRatedCompanyReport>(
+          label: "TopRatedCompanyReport",
+          filePath: $"{_basePath}/_08_Reporting/Datasets/top_rated_company_report.json"
+        )
+    );
+
+  /// <summary>
   /// Shuttle passenger capacity bar chart (in-memory GenericChart).
   /// Intermediate chart object stored in memory for downstream export to PNG.
   /// </summary>

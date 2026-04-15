@@ -85,6 +85,10 @@ public sealed class Item<T> : IItem<T>
   /// <summary>Sets the owning catalog label. First-write-wins; subsequent calls are no-ops.</summary>
   internal void SetOwningCatalog(string label) => _owningCatalogLabel ??= label;
 
+  /// <inheritdoc/>
+  public IReadOnlyList<INode>? AdapterDependencies =>
+    _storage is Storage.IHasItemDependencies deps ? deps.ItemDependencies : null;
+
   /// <summary>
   /// Gets the effective storage traits for this catalog item.
   /// </summary>

@@ -125,6 +125,24 @@ internal static class DependencyAnalyzer
           }
         }
         // If input not in producer map, it's an external prerequisite (already in catalog)
+
+        // Inspect adapter-level dependencies (e.g. parameterized GQL or EFCore items).
+        // If the item's storage adapter implements IHasItemDependencies, the items it
+        // declares must also be produced before this node can run.
+        if (input is Data.IItem item && item.AdapterDependencies is { Count: > 0 } adapterDeps)
+        {
+          foreach (var dep in adapterDeps)
+          {
+            if (
+              producerMap.TryGetValue(dep.Label, out var depProducer)
+              && depProducer != node
+              && !node.Dependencies.Contains(depProducer)
+            )
+            {
+              node.Dependencies.Add(depProducer);
+            }
+          }
+        }
       }
     }
   }

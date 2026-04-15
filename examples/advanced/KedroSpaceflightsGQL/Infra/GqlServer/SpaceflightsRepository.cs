@@ -36,6 +36,14 @@ public class SpaceflightsRepository
     }
   }
 
+  public IReadOnlyList<ShuttleRecord> GetShuttlesByCompanyId(string companyId)
+  {
+    lock (_lock)
+    {
+      return _shuttles.Where(s => s.CompanyId == companyId).ToList();
+    }
+  }
+
   public IReadOnlyList<ReviewRecord> GetReviews()
   {
     lock (_lock)

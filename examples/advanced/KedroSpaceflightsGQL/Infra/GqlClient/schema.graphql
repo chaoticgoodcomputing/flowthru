@@ -50,7 +50,7 @@ input AddReviewInput {
 
 type Query {
   companies: [CompanyRecord!]!
-  shuttles: [ShuttleRecord!]!
+  shuttles(companyId: String): [ShuttleRecord!]!
   reviews: [ReviewRecord!]!
 }
 
