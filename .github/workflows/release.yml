@@ -78,7 +78,7 @@ jobs:
         if: always()
         continue-on-error: true
         env:
-          CODECOV_TOKEN: ${{ secrets.FLOWTHRU_CODECOV_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           # For each coverage file, walk up to the nearest project root and
           # upload under a flag named after that directory.
@@ -200,12 +200,14 @@ jobs:
         run: |
           HEAD_TAG="v${{ steps.release.outputs.version }}"
           BASE_TAG="${{ steps.last-published.outputs.tag }}"
-          mkdir -p docs/scratch
           copilot -p "Generate a release summary. Base tag: ${BASE_TAG}, head tag: ${HEAD_TAG}. Summarize all changes between these two tags." \
             --agent=dev-relations \
             --model=claude-haiku-4.5 \
+            --available-tools='view,create,edit,bash' \
             --allow-tool='shell(git:*)' \
             --allow-tool='write' \
+            --allow-tool='view' \
+            --add-dir=. \
             --deny-tool='shell(git push)' \
             --deny-tool='shell(git reset)' \
             --deny-tool='shell(git checkout)' \
