@@ -18,8 +18,34 @@
     <ProjectReference Include="../SpaceflightsDistributed.DataProcessing/SpaceflightsDistributed.DataProcessing.csproj" />
   </ItemGroup>
 
+  <!-- Flowthru.FUnit reference: ProjectReference when building from source, PackageReference for templates -->
+  <ItemGroup Condition="Exists('../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <ProjectReference Include="../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
+  </ItemGroup>
+
+  <!-- Define FUNIT_ENABLED so step test inner classes can be conditionally compiled -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
+  </PropertyGroup>
+
+  <!-- NUnit: only included in Debug. Microsoft.NET.Test.Sdk is intentionally excluded
+       because this is a class library — test discovery is handled by the harness. -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
   </ItemGroup>
+
+  <!-- Source-tree: explicitly import FUnit targets to register the source generator as an Analyzer.
+       NuGet package consumers get this automatically via build/Flowthru.FUnit.targets auto-import. -->
+  <Import Project="../../../../src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
+          Condition="Exists('../../../../src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
 
 </Project>

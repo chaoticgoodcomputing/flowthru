@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -165,17 +166,127 @@ public class StepTestRegistryGenerator : IIncrementalGenerator
       }
     );
 
+    // Read the FUnitAggregate MSBuild property (exposed via CompilerVisibleProperty)
+    var isAggregate = context.AnalyzerConfigOptionsProvider.Select(
+      static (options, _) =>
+        options.GlobalOptions.TryGetValue("build_property.FUnitAggregate", out var value)
+        && string.Equals(value, "true", System.StringComparison.OrdinalIgnoreCase)
+    );
+
+    // When FUnitAggregate=true, collect [StepTest] entries from referenced assembly metadata
+    var externalStepTestEntries = context
+      .CompilationProvider.Combine(isAggregate)
+      .Select(
+        static (pair, _) =>
+        {
+          var (compilation, aggregate) = pair;
+          if (!aggregate)
+          {
+            return System.Collections.Immutable.ImmutableArray<StepTestEntry>.Empty;
+          }
+
+          var results = new System.Collections.Generic.List<StepTestEntry>();
+
+          foreach (var referencedAssembly in compilation.SourceModule.ReferencedAssemblySymbols)
+          {
+            CollectStepTestEntriesFromNamespace(referencedAssembly.GlobalNamespace, results);
+          }
+
+          return results.ToImmutableArray();
+        }
+      );
+
     // StepTestRegistry source
     context.RegisterSourceOutput(
       stepClasses.Combine(stepTestEntries),
       static (ctx, pair) => Execute(ctx, pair.Left!, pair.Right!)
     );
 
-    // Per-framework test runner classes enabling dotnet test discovery
+    // Per-framework test runner classes enabling dotnet test discovery.
+    // Combine source-defined entries with any cross-assembly entries collected above.
+    var allStepTestEntries = stepTestEntries
+      .Combine(externalStepTestEntries)
+      .Select(
+        static (pair, _) =>
+        {
+          var combined = new System.Collections.Generic.List<StepTestEntry?>();
+          combined.AddRange(pair.Left!.Cast<StepTestEntry?>());
+          combined.AddRange(pair.Right.Cast<StepTestEntry?>());
+          return (IReadOnlyList<StepTestEntry?>)combined;
+        }
+      );
+
     context.RegisterSourceOutput(
-      framework.Combine(stepTestEntries),
-      static (ctx, pair) => EmitRunners(ctx, pair.Left, pair.Right!)
+      framework.Combine(allStepTestEntries),
+      static (ctx, pair) => EmitRunners(ctx, pair.Left, pair.Right)
     );
+  }
+
+  private static void CollectStepTestEntriesFromNamespace(
+    INamespaceSymbol ns,
+    System.Collections.Generic.List<StepTestEntry> results
+  )
+  {
+    foreach (var type in ns.GetTypeMembers())
+    {
+      CollectStepTestEntriesFromType(type, results);
+    }
+
+    foreach (var childNs in ns.GetNamespaceMembers())
+    {
+      CollectStepTestEntriesFromNamespace(childNs, results);
+    }
+  }
+
+  private static void CollectStepTestEntriesFromType(
+    INamedTypeSymbol type,
+    System.Collections.Generic.List<StepTestEntry> results
+  )
+  {
+    foreach (var member in type.GetMembers())
+    {
+      if (member is not IMethodSymbol method)
+      {
+        continue;
+      }
+
+      foreach (var attr in method.GetAttributes())
+      {
+        if (attr.AttributeClass?.ToDisplayString() != StepTestAttributeFullName)
+        {
+          continue;
+        }
+
+        if (
+          attr.ConstructorArguments.Length > 0
+          && attr.ConstructorArguments[0].Value is INamedTypeSymbol stepType
+        )
+        {
+          var ns2 = type.ContainingNamespace is { IsGlobalNamespace: false }
+            ? type.ContainingNamespace.ToDisplayString()
+            : "";
+          var fqn = type.ToDisplayString();
+          var baseRef =
+            ns2.Length > 0 && fqn.StartsWith(ns2 + ".") ? fqn.Substring(ns2.Length + 1) : fqn;
+
+          results.Add(
+            new StepTestEntry(
+              MethodName: method.Name,
+              StepTypeFqn: stepType.ToDisplayString(),
+              TestClassFqn: fqn,
+              TestClassNamespace: ns2,
+              BaseClassRef: baseRef
+            )
+          );
+        }
+      }
+    }
+
+    // Walk nested types (FUnit tests are typically nested classes)
+    foreach (var nested in type.GetTypeMembers())
+    {
+      CollectStepTestEntriesFromType(nested, results);
+    }
   }
 
   private static void Execute(

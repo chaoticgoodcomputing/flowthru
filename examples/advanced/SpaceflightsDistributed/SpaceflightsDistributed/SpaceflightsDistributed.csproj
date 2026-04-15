@@ -7,6 +7,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- FUnitAggregate: collect [StepTest] methods from all referenced sub-libraries
+       and emit NUnit runner classes in this project. Microsoft.NET.Test.Sdk's
+       OutputType=Exe override is harmless here because this is already an Exe.
+       GenerateProgramFile=false prevents the SDK from injecting a competing Main. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <FUnitAggregate>true</FUnitAggregate>
+    <GenerateProgramFile>false</GenerateProgramFile>
+  </PropertyGroup>
+
   <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
   <ItemGroup Condition="Exists('../../../../src/core/Flowthru/Flowthru.csproj')">
     <ProjectReference Include="../../../../src/core/Flowthru/Flowthru.csproj" />
@@ -21,10 +30,33 @@
     <ProjectReference Include="../SpaceflightsDistributed.Reporting/SpaceflightsDistributed.Reporting.csproj" />
   </ItemGroup>
 
+  <!-- Test packages: only in Debug so Release builds carry zero test infrastructure -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <!-- Flowthru.FUnit: only in Debug. Provides the source generator (StepTestRegistryGenerator)
+       that aggregates [StepTest] methods from referenced sub-libraries via FUnitAggregate=true. -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' AND Exists('../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <ProjectReference Include="../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' AND !Exists('../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- Source-tree: explicitly import FUnit targets to register the source generator as an Analyzer.
+       NuGet package consumers get this automatically via build/Flowthru.FUnit.targets auto-import. -->
+  <Import Project="../../../../src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
+          Condition="Exists('../../../../src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
 
 </Project>

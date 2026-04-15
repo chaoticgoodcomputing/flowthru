@@ -3,6 +3,17 @@
     Auto-imported MSBuild targets for Flowthru.FUnit.
     Registers FUnit source generators and code fixes for consuming projects.
   -->
+
+  <!--
+    FUnitAggregate — set to 'true' in an executable project to have the source
+    generator walk referenced assembly metadata and emit test runner classes for
+    [StepTest] methods defined in those assemblies. Required when step tests
+    live in class libraries that cannot themselves carry Microsoft.NET.Test.Sdk.
+  -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="FUnitAggregate" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
