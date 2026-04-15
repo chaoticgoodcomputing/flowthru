@@ -55,7 +55,7 @@ runs:
         HADOOP_VERSION=3
         INSTALL_DIR=/opt/spark
         TARBALL="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
-        URL="https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${TARBALL}"
+        URL="https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/${TARBALL}"
 
         echo "Downloading Spark ${SPARK_VERSION} from ${URL}"
         curl --retry 3 --retry-delay 10 --retry-connrefused \
