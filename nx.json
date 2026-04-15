@@ -19,7 +19,9 @@
   },
   "namedInputs": {
     "default": [
-      "{projectRoot}/**/*"
+      "{projectRoot}/**/*",
+      "{workspaceRoot}/Directory.Build.props",
+      "{workspaceRoot}/Directory.Build.targets"
     ],
     "production": [
       "default",
