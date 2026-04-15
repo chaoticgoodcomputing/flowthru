@@ -1,3 +1,31 @@
+## 0.5.0 (2026-04-15)
+
+### 🚀 Features
+
+- parallelized pre-flight checks ([90dba94](https://github.com/chaoticgoodcomputing/flowthru/commit/90dba94))
+- scheduling strategy system ([42040ef](https://github.com/chaoticgoodcomputing/flowthru/commit/42040ef))
+- post-run metadata provider ([a2efd01](https://github.com/chaoticgoodcomputing/flowthru/commit/a2efd01))
+- starter on dropped neural net example, fix for enums in arrow ([125d8d6](https://github.com/chaoticgoodcomputing/flowthru/commit/125d8d6))
+- spark extension ([#4](https://github.com/chaoticgoodcomputing/flowthru/pull/4))
+- funit test aggregation for distributed projects ([066e12b](https://github.com/chaoticgoodcomputing/flowthru/commit/066e12b))
+
+### 🩹 Fixes
+
+- include unreleased conventional commits on new releases ([f92f512](https://github.com/chaoticgoodcomputing/flowthru/commit/f92f512))
+- further CI/CD enhancements for nuget flow ([cf0bb18](https://github.com/chaoticgoodcomputing/flowthru/commit/cf0bb18))
+- prerelease pack issues resolved ([7825d13](https://github.com/chaoticgoodcomputing/flowthru/commit/7825d13))
+- testing for parallelized pre-flight checks ([ee7d58c](https://github.com/chaoticgoodcomputing/flowthru/commit/ee7d58c))
+- resolve enum issues with arrow marshalling ([b9d2677](https://github.com/chaoticgoodcomputing/flowthru/commit/b9d2677))
+- attempt hungarian solver on dropped neural ([bfa64e0](https://github.com/chaoticgoodcomputing/flowthru/commit/bfa64e0))
+- end hungarian attempt ([3231e33](https://github.com/chaoticgoodcomputing/flowthru/commit/3231e33))
+- much more spaghetti against the wall. ([7feb39a](https://github.com/chaoticgoodcomputing/flowthru/commit/7feb39a))
+- archive dropped neural net because it has eaten enough of my time ([851f8a4](https://github.com/chaoticgoodcomputing/flowthru/commit/851f8a4))
+- simplify codecov calls ([5aefd5a](https://github.com/chaoticgoodcomputing/flowthru/commit/5aefd5a))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.4.0 (2026-04-14)
 
 ### 🚀 Features
