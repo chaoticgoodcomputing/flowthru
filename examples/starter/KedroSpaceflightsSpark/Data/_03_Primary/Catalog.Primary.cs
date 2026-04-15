@@ -1,22 +1,18 @@
 using Flowthru.Core.Data;
+using Flowthru.Misc.DataFrames;
 using KedroSpaceflightsSpark.Data._03_Primary.Schemas;
+using SparkFactory = Flowthru.Extensions.Spark.ItemFactory;
 
 namespace KedroSpaceflightsSpark.Data;
 
 public partial class Catalog
 {
   /// <summary>
-  /// Unified model input table. Persisted to Parquet at this layer so the DataScience
-  /// flow can consume it as a materialized IEnumerable without requiring Spark.
-  /// The TypedFrame produced by CreateModelInputTableStep materializes implicitly
-  /// when the Parquet serializer enumerates it.
+  /// Unified model input table. Held as an in-memory TypedFrame so the DataScience
+  /// and Reporting flows can continue to apply Spark operations (filter, window functions)
+  /// before materialization. The deferred execution plan from CreateModelInputTableStep
+  /// is passed through as-is; no Spark action is triggered at this catalog boundary.
   /// </summary>
-  public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<ModelInputTableSchema>(
-          label: "ModelInputTable",
-          filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
-        )
-    );
+  public IItem<TypedFrame<ModelInputTableSchema>> ModelInputTable =>
+    CreateItem(() => SparkFactory.Frame.Memory<ModelInputTableSchema>(label: "ModelInputTable"));
 }

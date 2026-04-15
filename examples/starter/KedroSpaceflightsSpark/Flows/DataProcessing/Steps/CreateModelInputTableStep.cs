@@ -13,10 +13,10 @@ namespace KedroSpaceflightsSpark.Flows.DataProcessing.Steps;
 ///   1. Shuttles ⋈ ParsedReviews   (on shuttle.Id = review.ShuttleId)
 ///   2. Result   ⋈ Companies        (on shuttleReview.CompanyId = company.Id)
 ///
-/// The result is a TypedFrame&lt;ModelInputTableSchema&gt;. The output catalog item is
-/// IItem&lt;IEnumerable&lt;ModelInputTableSchema&gt;&gt; backed by Parquet. Materialization
-/// (TypedFrame → IEnumerable) happens implicitly when the Parquet serializer enumerates
-/// the frame — no explicit Collect() call required.
+/// The result is a TypedFrame<ModelInputTableSchema> stored in a memory catalog item.
+/// The execution plan remains deferred — no Spark action is triggered here.
+/// Downstream steps (SplitDataStep, RankShuttlesByPriceStep) can continue to apply
+/// Spark operations before any materialization occurs.
 /// </summary>
 [FlowthruStep]
 public static class CreateModelInputTableStep

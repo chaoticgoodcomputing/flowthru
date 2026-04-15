@@ -38,6 +38,17 @@ public static class ReportingFlow
         input: catalog.ModelPredictions,
         output: catalog.ConfusionMatrixChart
       );
+
+      pipeline.AddStep(
+        label: "RankShuttlesByPrice",
+        description: """
+          Annotates each shuttle with its dense price rank and average price within its shuttle
+          type using Spark window functions (SelectOver + FrameWindowSpec).
+        """,
+        transform: RankShuttlesByPriceStep.Create(),
+        input: catalog.ModelInputTable,
+        output: catalog.ShuttlePriceRanks
+      );
     });
   }
 }

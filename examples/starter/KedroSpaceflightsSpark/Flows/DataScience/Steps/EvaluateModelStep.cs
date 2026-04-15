@@ -21,7 +21,12 @@ public static class EvaluateModelStep
       if (data.Count == 0)
       {
         return (
-          new ModelMetrics { R2Score = 0, MeanAbsoluteError = 0, MaxError = 0 },
+          new ModelMetrics
+          {
+            R2Score = 0,
+            MeanAbsoluteError = 0,
+            MaxError = 0,
+          },
           Enumerable.Empty<ModelPredictions>()
         );
       }
@@ -30,7 +35,10 @@ public static class EvaluateModelStep
       var actuals = data.Select(d => d.Label).ToList();
 
       var predictionPairs = actuals
-        .Zip(predictions, (actual, predicted) => new ModelPredictions { Actual = actual, Predicted = predicted })
+        .Zip(
+          predictions,
+          (actual, predicted) => new ModelPredictions { Actual = actual, Predicted = predicted }
+        )
         .ToList();
 
       return (

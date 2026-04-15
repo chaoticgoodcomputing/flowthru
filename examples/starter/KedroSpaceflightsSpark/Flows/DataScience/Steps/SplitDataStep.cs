@@ -1,4 +1,5 @@
 using Flowthru.Core.Steps;
+using Flowthru.Misc.DataFrames;
 using KedroSpaceflightsSpark.Data._03_Primary.Schemas;
 using KedroSpaceflightsSpark.Data._05_ModelInput.Schemas;
 
@@ -15,13 +16,17 @@ public static class SplitDataStep
   }
 
   public static Func<
-    IEnumerable<ModelInputTableSchema>,
+    TypedFrame<ModelInputTableSchema>,
     (IEnumerable<TrainingData>, IEnumerable<TestData>)
   > Create(ModelOptions options)
   {
     return (input) =>
     {
-      var data = input.ToList();
+      // Filter out rows with non-positive prices in Spark before materializing.
+      // This is the last point where Spark operations can be applied — the shuffle
+      // below requires the full dataset in memory.
+      var data = input.Where(r => r.Price > 0).ToList();
+
       var random = new Random(options.RandomState);
       var shuffled = data.OrderBy(_ => random.Next()).ToList();
       var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));

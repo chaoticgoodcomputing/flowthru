@@ -1,6 +1,7 @@
 using Flowthru.Core.Steps;
 using Flowthru.Misc.DataFrames;
 using KedroSpaceflightsSpark.Data._02_Intermediate.Schemas;
+using KedroSpaceflightsSpark.Data._08_Reporting.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
@@ -10,8 +11,10 @@ namespace KedroSpaceflightsSpark.Flows.Reporting.Steps;
 
 /// <summary>
 /// Generates a bar chart comparing average passenger capacity by shuttle type.
-/// Receives a TypedFrame and enumerates it (triggering Spark materialization) to
-/// produce the aggregated data needed by Plotly.NET.
+///
+/// The aggregation runs entirely in Spark: the 15k-row TypedFrame is filtered,
+/// grouped, and aggregated before materialization. Only the small per-type summary
+/// (~31 rows) is collected into .NET memory to feed Plotly.NET.
 /// </summary>
 [FlowthruStep]
 public static class GeneratePassengerCapacityChartStep
@@ -22,22 +25,21 @@ public static class GeneratePassengerCapacityChartStep
   {
     return (input) =>
     {
-      var shuttles = input.ToList();
+      var aggregated = input
+        .Where(s => s.PassengerCapacity > 0)
+        .GroupBy(s => s.ShuttleType)
+        .Aggregate(ctx => new ShuttleCapacityReport
+        {
+          ShuttleType = ctx.Key,
+          AvgPassengerCapacity = ctx.Avg(s => (double)s.PassengerCapacity),
+        })
+        .OrderByDescending(r => r.AvgPassengerCapacity)
+        .ToList();
 
       logger?.LogInformation(
-        "Generating passenger capacity chart from {Count} shuttle records",
-        shuttles.Count
+        "Generating passenger capacity chart from {Count} shuttle types",
+        aggregated.Count
       );
-
-      var aggregated = shuttles
-        .GroupBy(s => s.ShuttleType)
-        .Select(g => new
-        {
-          ShuttleType = g.Key,
-          AvgPassengerCapacity = g.Average(s => s.PassengerCapacity),
-        })
-        .OrderByDescending(x => x.AvgPassengerCapacity)
-        .ToList();
 
       var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
       var capacities = aggregated.Select(x => x.AvgPassengerCapacity).ToList();
