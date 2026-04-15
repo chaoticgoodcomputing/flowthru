@@ -19,6 +19,11 @@ public class FdFrame1001Tests
     using System.Linq.Expressions;
     using Flowthru.Misc.DataFrames;
 
+    namespace System.Runtime.CompilerServices
+    {
+        internal sealed class IsExternalInit { }
+    }
+
     namespace Flowthru.Misc.DataFrames
     {
         public class TypedFrame<T> { }
@@ -39,6 +44,7 @@ public class FdFrame1001Tests
         public string Name { get; set; } = "";
         public int Age { get; set; }
     }
+    public record OutputRecord(string Name, int Age);
     """;
 
   private static DiagnosticResult FDFRAME1001(int line, int col) =>
@@ -71,6 +77,8 @@ public class FdFrame1001Tests
   [Test]
   public async Task RecordPositionalConstructor_DoesNotReport()
   {
+    // Uses an actual record so FDFRAME1003 (positional ctor on non-record) does not fire
+    // — this test specifically verifies FDFRAME1001 is silent for valid positional forms.
     var source =
       Stubs
       + """
@@ -79,7 +87,7 @@ public class FdFrame1001Tests
         {
             void M(Flowthru.Misc.DataFrames.TypedFrame<InputSchema> frame)
             {
-                frame.Select(x => new OutputSchema(x.Name, x.Age));
+                frame.Select(x => new OutputRecord(x.Name, x.Age));
             }
         }
         """;
