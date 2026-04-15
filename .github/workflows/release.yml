@@ -164,10 +164,15 @@ jobs:
           VERSION="${{ steps.release.outputs.version }}"
           PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
           rm dist/packages/*.nupkg
-          dotnet pack Flowthru.slnx \
-            --no-build \
-            -c Release \
-            /p:Version="${PRERELEASE_VERSION}"
+          # Scope to src/ only — examples and tests are not NuGet artifacts.
+          # Directory.Build.props already restricts Version and PackageOutputPath
+          # to src/ projects; this find mirrors that boundary explicitly.
+          find src/ -name "*.csproj" -print0 | while IFS= read -r -d '' csproj; do
+            dotnet pack "$csproj" \
+              --no-build \
+              -c Release \
+              /p:Version="${PRERELEASE_VERSION}"
+          done
           dotnet nuget push "dist/packages/*.nupkg" \
             --api-key "${FLOWTHRU_NUGET_API_KEY}" \
             --source https://api.nuget.org/v3/index.json \
