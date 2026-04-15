@@ -6,14 +6,12 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.Sql.Streaming
 {
-    /// <summary>
-    /// Exception that stopped a <see cref="StreamingQuery"/>.
-    /// </summary>
-    public class StreamingQueryException : JvmException
-    {
-        public StreamingQueryException(string message)
-            : base(message)
-        {
-        }
-    }
+  /// <summary>
+  /// Exception that stopped a <see cref="StreamingQuery"/>.
+  /// </summary>
+  public class StreamingQueryException : JvmException
+  {
+    public StreamingQueryException(string message)
+      : base(message) { }
+  }
 }

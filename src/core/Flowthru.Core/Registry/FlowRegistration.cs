@@ -11,18 +11,18 @@ namespace Flowthru.Core.Registry;
 /// </remarks>
 internal class FlowRegistration
 {
-    /// <summary>
-    /// Flow name (unique identifier).
-    /// </summary>
-    public required string Name { get; init; }
+  /// <summary>
+  /// Flow name (unique identifier).
+  /// </summary>
+  public required string Name { get; init; }
 
-    /// <summary>
-    /// Optional human-readable description of what the Flow does.
-    /// </summary>
-    public string? Description { get; set; }
+  /// <summary>
+  /// Optional human-readable description of what the Flow does.
+  /// </summary>
+  public string? Description { get; set; }
 
-    /// <summary>
-    /// Validation configuration for this flow.
-    /// </summary>
-    public ValidationOptions ValidationOptions { get; set; } = ValidationOptions.Default();
+  /// <summary>
+  /// Validation configuration for this flow.
+  /// </summary>
+  public ValidationOptions ValidationOptions { get; set; } = ValidationOptions.Default();
 }

@@ -4,12 +4,12 @@
 
 namespace Flowthru.Spark.ML.Feature
 {
-    public interface Identifiable
-    {
-        /// <summary>
-        /// The UID of the object.
-        /// </summary>
-        /// <returns>string UID identifying the object</returns>
-        string Uid();
-    }
+  public interface Identifiable
+  {
+    /// <summary>
+    /// The UID of the object.
+    /// </summary>
+    /// <returns>string UID identifying the object</returns>
+    string Uid();
+  }
 }

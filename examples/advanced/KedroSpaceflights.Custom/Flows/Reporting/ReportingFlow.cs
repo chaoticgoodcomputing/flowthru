@@ -42,125 +42,125 @@ namespace KedroSpaceflights.Custom.Flows.Reporting;
 /// </remarks>
 public static class ReportingFlow
 {
-    public static Flow Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
+  {
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            // ===== Shuttle Passenger Capacity Visualization =====
+      // ===== Shuttle Passenger Capacity Visualization =====
 
-            // Step 1: Generate chart from processed shuttle data
-            pipeline.AddStep(
-          label: "GeneratePassengerCapacityChart",
-          transform: ComparePassengerCapacityStep.Create(),
-          input: catalog.CleanedShuttles,
-          output: catalog.ShuttlePassengerCapacityChart
-        );
+      // Step 1: Generate chart from processed shuttle data
+      pipeline.AddStep(
+        label: "GeneratePassengerCapacityChart",
+        transform: ComparePassengerCapacityStep.Create(),
+        input: catalog.CleanedShuttles,
+        output: catalog.ShuttlePassengerCapacityChart
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddStep(
-          label: "ExportPassengerCapacityJson",
-          transform: PlotlyJsonExportStep.Create(),
-          input: catalog.ShuttlePassengerCapacityChart,
-          output: catalog.ShuttlePassengerCapacityPlot
-        );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddStep(
+        label: "ExportPassengerCapacityJson",
+        transform: PlotlyJsonExportStep.Create(),
+        input: catalog.ShuttlePassengerCapacityChart,
+        output: catalog.ShuttlePassengerCapacityPlot
+      );
 
-            // Removed to cut down Chromium dependency for test runs.
-            // // Step 3: Export chart to base64-encoded PNG for static reports
-            // pipeline.AddStep(
-            //   label: "ExportPassengerCapacityPng",
-            //   transform: PlotlyImageExportStep.Create(),
-            //   input: catalog.ShuttlePassengerCapacityChart,
-            //   output: catalog.ShuttlePassengerCapacityPlotPng
-            // );
+      // Removed to cut down Chromium dependency for test runs.
+      // // Step 3: Export chart to base64-encoded PNG for static reports
+      // pipeline.AddStep(
+      //   label: "ExportPassengerCapacityPng",
+      //   transform: PlotlyImageExportStep.Create(),
+      //   input: catalog.ShuttlePassengerCapacityChart,
+      //   output: catalog.ShuttlePassengerCapacityPlotPng
+      // );
 
-            // ===== Confusion Matrix Visualization =====
+      // ===== Confusion Matrix Visualization =====
 
-            // Step 1: Generate confusion matrix heatmap from company data
-            pipeline.AddStep(
-          label: "GenerateConfusionMatrixChart",
-          transform: CreateConfusionMatrixStep.Create(),
-          input: catalog.CleanedCompanies,
-          output: catalog.ConfusionMatrixChart
-        );
+      // Step 1: Generate confusion matrix heatmap from company data
+      pipeline.AddStep(
+        label: "GenerateConfusionMatrixChart",
+        transform: CreateConfusionMatrixStep.Create(),
+        input: catalog.CleanedCompanies,
+        output: catalog.ConfusionMatrixChart
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddStep(
-          label: "ExportConfusionMatrixJson",
-          transform: PlotlyJsonExportStep.Create(),
-          input: catalog.ConfusionMatrixChart,
-          output: catalog.ConfusionMatrixPlot
-        );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddStep(
+        label: "ExportConfusionMatrixJson",
+        transform: PlotlyJsonExportStep.Create(),
+        input: catalog.ConfusionMatrixChart,
+        output: catalog.ConfusionMatrixPlot
+      );
 
-            // Removed to cut down Chromium dependency for test runs.
-            // // Step 3: Export chart to base64-encoded PNG for static reports
-            // pipeline.AddStep(
-            //   label: "ExportConfusionMatrixPng",
-            //   transform: PlotlyImageExportStep.Create(),
-            //   input: catalog.ConfusionMatrixChart,
-            //   output: catalog.ConfusionMatrixPlotPng
-            // );
+      // Removed to cut down Chromium dependency for test runs.
+      // // Step 3: Export chart to base64-encoded PNG for static reports
+      // pipeline.AddStep(
+      //   label: "ExportConfusionMatrixPng",
+      //   transform: PlotlyImageExportStep.Create(),
+      //   input: catalog.ConfusionMatrixChart,
+      //   output: catalog.ConfusionMatrixPlotPng
+      // );
 
-            // ===== Cross-Validation Results Visualization =====
+      // ===== Cross-Validation Results Visualization =====
 
-            // Step 1: Generate comprehensive cross-validation chart
-            pipeline.AddStep(
-          label: "GenerateCrossValidationChart",
-          transform: VisualizeCrossValidationStep.Create(),
-          input: catalog.CrossValidationResults,
-          output: catalog.CrossValidationChart
-        );
+      // Step 1: Generate comprehensive cross-validation chart
+      pipeline.AddStep(
+        label: "GenerateCrossValidationChart",
+        transform: VisualizeCrossValidationStep.Create(),
+        input: catalog.CrossValidationResults,
+        output: catalog.CrossValidationChart
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddStep(
-          label: "ExportCrossValidationJson",
-          transform: PlotlyJsonExportStep.Create(),
-          input: catalog.CrossValidationChart,
-          output: catalog.CrossValidationPlot
-        );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddStep(
+        label: "ExportCrossValidationJson",
+        transform: PlotlyJsonExportStep.Create(),
+        input: catalog.CrossValidationChart,
+        output: catalog.CrossValidationPlot
+      );
 
-            // Removed to cut down Chromium dependency for test runs.
-            // Step 3: Export chart to base64-encoded PNG for static reports
-            // pipeline.AddStep(
-            //   label: "ExportCrossValidationPng",
-            //   transform: PlotlyImageExportStep.Create(),
-            //   input: catalog.CrossValidationChart,
-            //   output: catalog.CrossValidationPlotPng
-            // );
+      // Removed to cut down Chromium dependency for test runs.
+      // Step 3: Export chart to base64-encoded PNG for static reports
+      // pipeline.AddStep(
+      //   label: "ExportCrossValidationPng",
+      //   transform: PlotlyImageExportStep.Create(),
+      //   input: catalog.CrossValidationChart,
+      //   output: catalog.CrossValidationPlotPng
+      // );
 
-            // Step 6: Generate human-readable Markdown report from cross-validation results
-            pipeline.AddStep(
-          label: "GenerateCrossValidationReport",
-          transform: GenerateCrossValidationReportStep.Create(),
-          input: catalog.CrossValidationResults,
-          output: catalog.CrossValidationReport
-        );
+      // Step 6: Generate human-readable Markdown report from cross-validation results
+      pipeline.AddStep(
+        label: "GenerateCrossValidationReport",
+        transform: GenerateCrossValidationReportStep.Create(),
+        input: catalog.CrossValidationResults,
+        output: catalog.CrossValidationReport
+      );
 
-            // ===== Prediction Scatter Plot Visualization =====
+      // ===== Prediction Scatter Plot Visualization =====
 
-            // Step 1: Generate scatter plot from model metrics and predictions
-            pipeline.AddStep(
-          label: "GeneratePredictionScatterChart",
-          transform: GeneratePredictionScatterStep.Create(),
-          input: (catalog.ModelMetrics, catalog.ModelPredictions),
-          output: catalog.PredictionScatterChart
-        );
+      // Step 1: Generate scatter plot from model metrics and predictions
+      pipeline.AddStep(
+        label: "GeneratePredictionScatterChart",
+        transform: GeneratePredictionScatterStep.Create(),
+        input: (catalog.ModelMetrics, catalog.ModelPredictions),
+        output: catalog.PredictionScatterChart
+      );
 
-            // Step 2: Export chart to JSON for interactive visualization
-            pipeline.AddStep(
-          label: "ExportPredictionScatterJson",
-          transform: PlotlyJsonExportStep.Create(),
-          input: catalog.PredictionScatterChart,
-          output: catalog.PredictionScatterPlot
-        );
+      // Step 2: Export chart to JSON for interactive visualization
+      pipeline.AddStep(
+        label: "ExportPredictionScatterJson",
+        transform: PlotlyJsonExportStep.Create(),
+        input: catalog.PredictionScatterChart,
+        output: catalog.PredictionScatterPlot
+      );
 
-            // Removed to cut down Chromium dependency for test runs.
-            // // Step 3: Export chart to PNG for static reports
-            // pipeline.AddStep(
-            //   label: "ExportPredictionScatterPng",
-            //   transform: PlotlyImageExportStep.Create(),
-            //   input: catalog.PredictionScatterChart,
-            //   output: catalog.PredictionScatterPlotPng
-            // );
-        });
-    }
+      // Removed to cut down Chromium dependency for test runs.
+      // // Step 3: Export chart to PNG for static reports
+      // pipeline.AddStep(
+      //   label: "ExportPredictionScatterPng",
+      //   transform: PlotlyImageExportStep.Create(),
+      //   input: catalog.PredictionScatterChart,
+      //   output: catalog.PredictionScatterPlotPng
+      // );
+    });
+  }
 }

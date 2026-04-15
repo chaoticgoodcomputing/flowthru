@@ -11,7 +11,7 @@ namespace Flowthru.Analyzers.Tests;
 [TestFixture]
 public class FDFRAMES1004Tests
 {
-    private const string Stubs = """
+  private const string Stubs = """
     using System;
     using System.Linq.Expressions;
     using Flowthru.Misc.DataFrames;
@@ -48,17 +48,17 @@ public class FDFRAMES1004Tests
     public record AggResultRecord(string Category, double AvgPrice);
     """;
 
-    private static DiagnosticResult FDFRAMES1004(int marker) =>
-      new DiagnosticResult(DataFrameDiagnostics.InvalidAggregateResultBody).WithLocation(marker);
+  private static DiagnosticResult FDFRAMES1004(int marker) =>
+    new DiagnosticResult(DataFrameDiagnostics.InvalidAggregateResultBody).WithLocation(marker);
 
-    // ─── Negative cases: object-creation forms → no diagnostic ──────────────────
+  // ─── Negative cases: object-creation forms → no diagnostic ──────────────────
 
-    [Test]
-    public async Task ObjectInitializer_DoesNotReport()
-    {
-        var source =
-          Stubs
-          + """
+  [Test]
+  public async Task ObjectInitializer_DoesNotReport()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -69,18 +69,18 @@ public class FDFRAMES1004Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
-
-    [Test]
-    public async Task AnonymousType_DoesNotReport()
+    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+    }.RunAsync();
+  }
+
+  [Test]
+  public async Task AnonymousType_DoesNotReport()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -91,18 +91,18 @@ public class FDFRAMES1004Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
-
-    [Test]
-    public async Task RecordPositionalConstructor_DoesNotReport()
+    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+    }.RunAsync();
+  }
+
+  [Test]
+  public async Task RecordPositionalConstructor_DoesNotReport()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -113,21 +113,21 @@ public class FDFRAMES1004Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
-
-    // ─── Positive cases: non-object-creation bodies → FDFRAMES1004 fires ─────────
-
-    [Test]
-    public async Task MemberAccessBody_Reports_FDFRAMES1004()
+    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
-        // ctx.Key is a member access, not an object-creation expression.
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+    }.RunAsync();
+  }
+
+  // ─── Positive cases: non-object-creation bodies → FDFRAMES1004 fires ─────────
+
+  [Test]
+  public async Task MemberAccessBody_Reports_FDFRAMES1004()
+  {
+    // ctx.Key is a member access, not an object-creation expression.
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -138,20 +138,20 @@ public class FDFRAMES1004Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-            ExpectedDiagnostics = { FDFRAMES1004(0).WithArguments("ctx.Key") },
-        }.RunAsync();
-    }
-
-    [Test]
-    public async Task InvocationBody_Reports_FDFRAMES1004()
+    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
-        // ctx.Count() is a method call, not an object-creation expression.
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+      ExpectedDiagnostics = { FDFRAMES1004(0).WithArguments("ctx.Key") },
+    }.RunAsync();
+  }
+
+  [Test]
+  public async Task InvocationBody_Reports_FDFRAMES1004()
+  {
+    // ctx.Count() is a method call, not an object-creation expression.
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -162,10 +162,10 @@ public class FDFRAMES1004Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-            ExpectedDiagnostics = { FDFRAMES1004(0).WithArguments("ctx.Count()") },
-        }.RunAsync();
-    }
+    await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+      ExpectedDiagnostics = { FDFRAMES1004(0).WithArguments("ctx.Count()") },
+    }.RunAsync();
+  }
 }

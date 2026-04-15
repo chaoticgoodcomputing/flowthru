@@ -11,11 +11,11 @@ namespace DroppedNeuralNet.Data._01_Raw.Schemas;
 [FlowthruSchema]
 public partial record PieceBlob
 {
-    public int PieceIndex { get; init; }
+  public int PieceIndex { get; init; }
 
-    /// <summary>
-    /// Serialized PyTorch state dict bytes.
-    /// Treated as an opaque binary payload by C# steps — only Python steps inspect tensor values.
-    /// </summary>
-    public byte[] Data { get; init; } = Array.Empty<byte>();
+  /// <summary>
+  /// Serialized PyTorch state dict bytes.
+  /// Treated as an opaque binary payload by C# steps — only Python steps inspect tensor values.
+  /// </summary>
+  public byte[] Data { get; init; } = Array.Empty<byte>();
 }

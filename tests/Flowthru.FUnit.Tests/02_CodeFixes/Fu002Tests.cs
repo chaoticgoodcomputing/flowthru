@@ -14,19 +14,19 @@ namespace Flowthru.FUnit.Tests.CodeFixes;
 [Category("CodeFixes")]
 public class Fu002Tests
 {
-    private const string Stubs = """
+  private const string Stubs = """
     namespace Flowthru.FUnit
     {
         public abstract class FunitContext { }
     }
     """;
 
-    [Test]
-    public async Task UnguardedTests_WrapsWithPreprocessorDirective()
-    {
-        var source =
-          Stubs
-          + """
+  [Test]
+  public async Task UnguardedTests_WrapsWithPreprocessorDirective()
+  {
+    var source =
+      Stubs
+      + """
 
         namespace TestProject
         {
@@ -36,9 +36,9 @@ public class Fu002Tests
         }
         """;
 
-        var fixedSource =
-          Stubs
-          + """
+    var fixedSource =
+      Stubs
+      + """
 
         namespace TestProject
         {
@@ -50,23 +50,23 @@ public class Fu002Tests
         }
         """;
 
-        await new CSharpCodeFixTest<
-          FunitDiagnosticAnalyzer,
-          Fu002WrapWithFunitEnabledFix,
-          NUnit4Verifier
-        >
-        {
-            TestCode = source,
-            FixedCode = fixedSource,
-        }.RunAsync();
-    }
-
-    [Test]
-    public async Task GuardedTests_NoDiagnostic()
+    await new CSharpCodeFixTest<
+      FunitDiagnosticAnalyzer,
+      Fu002WrapWithFunitEnabledFix,
+      NUnit4Verifier
+    >
     {
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+      FixedCode = fixedSource,
+    }.RunAsync();
+  }
+
+  [Test]
+  public async Task GuardedTests_NoDiagnostic()
+  {
+    var source =
+      Stubs
+      + """
 
         namespace TestProject
         {
@@ -78,9 +78,9 @@ public class Fu002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
+    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+    }.RunAsync();
+  }
 }

@@ -28,17 +28,17 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class PlotlyJsonExportStep
 {
-    public static Func<GenericChart, Task<string>> Create(ILogger? logger = null)
+  public static Func<GenericChart, Task<string>> Create(ILogger? logger = null)
+  {
+    return async (input) =>
     {
-        return async (input) =>
-        {
-            // Serialize to Plotly JSON using GenericChart.toJson()
-            // This produces a JSON specification compatible with plotly.js
-            var plotlyJson = GenericChart.toJson(input);
+      // Serialize to Plotly JSON using GenericChart.toJson()
+      // This produces a JSON specification compatible with plotly.js
+      var plotlyJson = GenericChart.toJson(input);
 
-            logger?.LogInformation("Exported chart to JSON ({Length} characters)", plotlyJson.Length);
+      logger?.LogInformation("Exported chart to JSON ({Length} characters)", plotlyJson.Length);
 
-            return plotlyJson;
-        };
-    }
+      return plotlyJson;
+    };
+  }
 }

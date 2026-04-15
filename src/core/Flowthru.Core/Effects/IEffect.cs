@@ -24,20 +24,20 @@ namespace Flowthru.Core.Effects;
 /// </remarks>
 public interface IEffect<T> : INode<T>
 {
-    /// <summary>
-    /// Executes the side effect and returns a typed result.
-    /// This is the domain alias for <see cref="INode{T}.Produce"/>.
-    /// </summary>
-    FlowIO<T> Execute();
+  /// <summary>
+  /// Executes the side effect and returns a typed result.
+  /// This is the domain alias for <see cref="INode{T}.Produce"/>.
+  /// </summary>
+  FlowIO<T> Execute();
 
-    /// <summary>
-    /// Effect-specific capability metadata.
-    /// </summary>
-    EffectTraits EffectTraits { get; }
+  /// <summary>
+  /// Effect-specific capability metadata.
+  /// </summary>
+  EffectTraits EffectTraits { get; }
 
-    /// <inheritdoc/>
-    FlowIO<T> INode<T>.Produce() => Execute();
+  /// <inheritdoc/>
+  FlowIO<T> INode<T>.Produce() => Execute();
 
-    /// <inheritdoc/>
-    NodeTraits INode.Traits => EffectTraits;
+  /// <inheritdoc/>
+  NodeTraits INode.Traits => EffectTraits;
 }

@@ -9,7 +9,7 @@ namespace SpaceflightsPythonEFCore.Data._07_ModelOutput.Schemas;
 [FlowthruSchema]
 public partial record ModelMetrics
 {
-    public required double R2Score { get; init; }
-    public required double MeanAbsoluteError { get; init; }
-    public required double MaxError { get; init; }
+  public required double R2Score { get; init; }
+  public required double MeanAbsoluteError { get; init; }
+  public required double MaxError { get; init; }
 }

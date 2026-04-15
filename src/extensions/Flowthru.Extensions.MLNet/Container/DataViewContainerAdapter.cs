@@ -67,62 +67,62 @@ namespace Flowthru.Extensions.MLNet.Container;
 public sealed class DataViewContainerAdapter<T> : IContainerAdapter<IDataView, T>
   where T : class, new()
 {
-    private readonly MLContext _mlContext;
+  private readonly MLContext _mlContext;
 
-    /// <summary>
-    /// Creates a new IDataView container adapter.
-    /// </summary>
-    /// <param name="mlContext">The ML.NET context for data operations</param>
-    /// <exception cref="ArgumentNullException">Thrown if mlContext is null</exception>
-    public DataViewContainerAdapter(MLContext mlContext)
+  /// <summary>
+  /// Creates a new IDataView container adapter.
+  /// </summary>
+  /// <param name="mlContext">The ML.NET context for data operations</param>
+  /// <exception cref="ArgumentNullException">Thrown if mlContext is null</exception>
+  public DataViewContainerAdapter(MLContext mlContext)
+  {
+    _mlContext = mlContext ?? throw new ArgumentNullException(nameof(mlContext));
+  }
+
+  /// <summary>
+  /// Gets the ML.NET context used by this adapter.
+  /// </summary>
+  public MLContext MLContext => _mlContext;
+
+  /// <inheritdoc/>
+  public async Task<IDataView> FromRows(IAsyncEnumerable<T> rows)
+  {
+    if (rows == null)
     {
-        _mlContext = mlContext ?? throw new ArgumentNullException(nameof(mlContext));
+      throw new ArgumentNullException(nameof(rows));
     }
 
-    /// <summary>
-    /// Gets the ML.NET context used by this adapter.
-    /// </summary>
-    public MLContext MLContext => _mlContext;
-
-    /// <inheritdoc/>
-    public async Task<IDataView> FromRows(IAsyncEnumerable<T> rows)
+    // Materialize rows to enumerable first
+    // ML.NET's LoadFromEnumerable requires IEnumerable
+    var list = new List<T>();
+    await foreach (var row in rows)
     {
-        if (rows == null)
-        {
-            throw new ArgumentNullException(nameof(rows));
-        }
-
-        // Materialize rows to enumerable first
-        // ML.NET's LoadFromEnumerable requires IEnumerable
-        var list = new List<T>();
-        await foreach (var row in rows)
-        {
-            list.Add(row);
-        }
-
-        // Convert to IDataView using ML.NET
-        var dataView = _mlContext.Data.LoadFromEnumerable(list);
-
-        return dataView;
+      list.Add(row);
     }
 
-    /// <inheritdoc/>
-    public async IAsyncEnumerable<T> ToRows(IDataView container)
+    // Convert to IDataView using ML.NET
+    var dataView = _mlContext.Data.LoadFromEnumerable(list);
+
+    return dataView;
+  }
+
+  /// <inheritdoc/>
+  public async IAsyncEnumerable<T> ToRows(IDataView container)
+  {
+    if (container == null)
     {
-        if (container == null)
-        {
-            throw new ArgumentNullException(nameof(container));
-        }
-
-        // Convert IDataView back to strongly-typed rows
-        var enumerable = _mlContext.Data.CreateEnumerable<T>(
-          container,
-          reuseRowObject: false // Create new object for each row for safety
-        );
-
-        foreach (var row in enumerable)
-        {
-            yield return row;
-        }
+      throw new ArgumentNullException(nameof(container));
     }
+
+    // Convert IDataView back to strongly-typed rows
+    var enumerable = _mlContext.Data.CreateEnumerable<T>(
+      container,
+      reuseRowObject: false // Create new object for each row for safety
+    );
+
+    foreach (var row in enumerable)
+    {
+      yield return row;
+    }
+  }
 }

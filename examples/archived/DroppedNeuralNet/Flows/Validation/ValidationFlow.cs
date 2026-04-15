@@ -35,30 +35,30 @@ namespace DroppedNeuralNet.Flows.Validation;
 /// </summary>
 public static class ValidationFlow
 {
-    public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  {
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            pipeline.AddPythonStep<
-          IEnumerable<BlockAssignment>,
-          IEnumerable<PieceBlob>,
-          IEnumerable<MeasurementSchema>,
-          IEnumerable<CandidatePermutation>,
-          IEnumerable<DiagnosticEntry>
-        >(
-          label: "DiagnosePairings",
-          description: "Probe pairing quality: fixed-order baseline, ProductNorm signal stats, per-candidate errors (Python).",
-          module: "Flows.Validation.Steps.diagnose_pairings",
-          function: "diagnose_pairings",
-          input: (
-            catalog.BlockAssignments,
-            catalog.Pieces,
-            catalog.HistoricalData,
-            catalog.CandidatePermutations
-          ),
-          output: catalog.Diagnostics,
-          executor: executor
-        );
-        });
-    }
+      pipeline.AddPythonStep<
+        IEnumerable<BlockAssignment>,
+        IEnumerable<PieceBlob>,
+        IEnumerable<MeasurementSchema>,
+        IEnumerable<CandidatePermutation>,
+        IEnumerable<DiagnosticEntry>
+      >(
+        label: "DiagnosePairings",
+        description: "Probe pairing quality: fixed-order baseline, ProductNorm signal stats, per-candidate errors (Python).",
+        module: "Flows.Validation.Steps.diagnose_pairings",
+        function: "diagnose_pairings",
+        input: (
+          catalog.BlockAssignments,
+          catalog.Pieces,
+          catalog.HistoricalData,
+          catalog.CandidatePermutations
+        ),
+        output: catalog.Diagnostics,
+        executor: executor
+      );
+    });
+  }
 }

@@ -9,7 +9,7 @@ namespace RetailDataMultipipeline.Data._08_Reporting.Schemas;
 [FlowthruSchema]
 public partial record CountryTransactionSummarySchema
 {
-    public required string Country { get; init; }
-    public required int Debits { get; init; }
-    public required int Credits { get; init; }
+  public required string Country { get; init; }
+  public required int Debits { get; init; }
+  public required int Credits { get; init; }
 }

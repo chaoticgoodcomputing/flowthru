@@ -11,13 +11,13 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-    public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-      CreateItem(
-        () =>
-          EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
-            label: "ModelInputTable",
-            contextFactory: _contextFactory,
-            queryCustomizer: q => q.OrderBy(r => r.ShuttleId)
-          )
-      );
+  public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
+    CreateItem(
+      () =>
+        EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
+          label: "ModelInputTable",
+          contextFactory: _contextFactory,
+          queryCustomizer: q => q.OrderBy(r => r.ShuttleId)
+        )
+    );
 }

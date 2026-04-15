@@ -15,27 +15,27 @@ public record UmapOutputRow
     IStructuredSerializable,
     ITextSerializable
 {
-    /// <summary>
-    /// Unique observation identifier (GUID) matching the input data.
-    /// </summary>
-    [SerializedLabel("id")]
-    public string Id { get; init; } = null!;
+  /// <summary>
+  /// Unique observation identifier (GUID) matching the input data.
+  /// </summary>
+  [SerializedLabel("id")]
+  public string Id { get; init; } = null!;
 
-    /// <summary>
-    /// First UMAP embedding component.
-    /// </summary>
-    [SerializedLabel("component_0")]
-    public float Component0 { get; init; }
+  /// <summary>
+  /// First UMAP embedding component.
+  /// </summary>
+  [SerializedLabel("component_0")]
+  public float Component0 { get; init; }
 
-    /// <summary>
-    /// Second UMAP embedding component.
-    /// </summary>
-    [SerializedLabel("component_1")]
-    public float Component1 { get; init; }
+  /// <summary>
+  /// Second UMAP embedding component.
+  /// </summary>
+  [SerializedLabel("component_1")]
+  public float Component1 { get; init; }
 
-    /// <summary>
-    /// Original class label for validation.
-    /// </summary>
-    [SerializedLabel("label")]
-    public int Label { get; init; }
+  /// <summary>
+  /// Original class label for validation.
+  /// </summary>
+  [SerializedLabel("label")]
+  public int Label { get; init; }
 }

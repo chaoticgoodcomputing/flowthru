@@ -33,69 +33,69 @@ namespace KedroSpaceflights.Custom.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class PlotlyImageExportStep
 {
-    public static Func<GenericChart, Task<byte[]>> Create(ILogger? logger = null)
+  public static Func<GenericChart, Task<byte[]>> Create(ILogger? logger = null)
+  {
+    // Configure PuppeteerSharp for CI environment
+    if (Environment.GetEnvironmentVariable("CI") == "true")
     {
-        // Configure PuppeteerSharp for CI environment
-        if (Environment.GetEnvironmentVariable("CI") == "true")
-        {
-            // Use pre-installed Chrome to avoid concurrent downloads
-            var chromePath =
-              Environment.GetEnvironmentVariable("CHROME_PATH")
-              ?? Environment.GetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH");
+      // Use pre-installed Chrome to avoid concurrent downloads
+      var chromePath =
+        Environment.GetEnvironmentVariable("CHROME_PATH")
+        ?? Environment.GetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH");
 
-            if (!string.IsNullOrEmpty(chromePath))
-            {
-                logger?.LogInformation("Using pre-installed Chrome at: {ChromePath}", chromePath);
-                Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.localBrowserExecutablePath =
-                  Microsoft.FSharp.Core.FSharpOption<string>.Some(chromePath);
-            }
-            else
-            {
-                logger?.LogWarning(
-                  "CI environment detected but CHROME_PATH not set - PuppeteerSharp will download Chromium"
-                );
-            }
+      if (!string.IsNullOrEmpty(chromePath))
+      {
+        logger?.LogInformation("Using pre-installed Chrome at: {ChromePath}", chromePath);
+        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.localBrowserExecutablePath =
+          Microsoft.FSharp.Core.FSharpOption<string>.Some(chromePath);
+      }
+      else
+      {
+        logger?.LogWarning(
+          "CI environment detected but CHROME_PATH not set - PuppeteerSharp will download Chromium"
+        );
+      }
 
-            // Disable sandbox for CI environments
-            var currentArgs =
-              Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args
-              ?? Array.Empty<string>();
-            if (!currentArgs.Contains("--no-sandbox"))
-            {
-                Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args = currentArgs
-                  .Concat(new[] { "--no-sandbox" })
-                  .ToArray();
-            }
-        }
+      // Disable sandbox for CI environments
+      var currentArgs =
+        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args
+        ?? Array.Empty<string>();
+      if (!currentArgs.Contains("--no-sandbox"))
+      {
+        Plotly.NET.ImageExport.PuppeteerSharpRendererOptions.launchOptions.Args = currentArgs
+          .Concat(new[] { "--no-sandbox" })
+          .ToArray();
+      }
+    }
 
-        return async (input) =>
-        {
-            logger?.LogInformation("Converting chart to PNG binary data");
+    return async (input) =>
+    {
+      logger?.LogInformation("Converting chart to PNG binary data");
 
-            // Use Plotly.NET.ImageExport to convert the chart to a base64 PNG string
-            // This uses a headless browser (Chromium via PuppeteerSharp) to render the chart
-            var base64DataUri =
-          await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
-            input,
-            Width: 600,
-            Height: 600
-          );
-
-            // Strip the data URI prefix "data:image/png;base64," to get pure base64
-            const string dataUriPrefix = "data:image/png;base64,";
-            var base64String = base64DataUri.StartsWith(dataUriPrefix)
-          ? base64DataUri.Substring(dataUriPrefix.Length)
-          : base64DataUri;
-
-            // Decode base64 to raw PNG bytes
-            var pngBytes = Convert.FromBase64String(base64String);
-
-            logger?.LogInformation(
-          "Successfully converted chart to PNG ({Size:N0} bytes)",
-          pngBytes.Length
+      // Use Plotly.NET.ImageExport to convert the chart to a base64 PNG string
+      // This uses a headless browser (Chromium via PuppeteerSharp) to render the chart
+      var base64DataUri =
+        await Plotly.NET.ImageExport.GenericChartExtensions.ToBase64PNGStringAsync(
+          input,
+          Width: 600,
+          Height: 600
         );
 
-            return pngBytes;
-        };
-    }
+      // Strip the data URI prefix "data:image/png;base64," to get pure base64
+      const string dataUriPrefix = "data:image/png;base64,";
+      var base64String = base64DataUri.StartsWith(dataUriPrefix)
+        ? base64DataUri.Substring(dataUriPrefix.Length)
+        : base64DataUri;
+
+      // Decode base64 to raw PNG bytes
+      var pngBytes = Convert.FromBase64String(base64String);
+
+      logger?.LogInformation(
+        "Successfully converted chart to PNG ({Size:N0} bytes)",
+        pngBytes.Length
+      );
+
+      return pngBytes;
+    };
+  }
 }

@@ -8,54 +8,54 @@ using Flowthru.Spark.Network;
 
 namespace Flowthru.Spark.Utils
 {
+  /// <summary>
+  /// Authenticator provides functionalities to authenticate between
+  /// Spark and .NET worker.
+  /// </summary>
+  internal static class Authenticator
+  {
+    private static readonly string s_validResponseCode = "ok";
+    private static readonly string s_invalidResponseCode = "err";
+
     /// <summary>
-    /// Authenticator provides functionalities to authenticate between
-    /// Spark and .NET worker.
+    /// Authenticates by writing secret to stream and validate the response.
     /// </summary>
-    internal static class Authenticator
+    /// <param name="stream">Valid stream.</param>
+    /// <param name="secret">Secret string to authenticate against.</param>
+    /// <returns>True if authentication succeeds.</returns>
+    public static bool AuthenticateAsClient(Stream stream, string secret)
     {
-        private static readonly string s_validResponseCode = "ok";
-        private static readonly string s_invalidResponseCode = "err";
+      SerDe.Write(stream, secret);
+      stream.Flush();
 
-        /// <summary>
-        /// Authenticates by writing secret to stream and validate the response.
-        /// </summary>
-        /// <param name="stream">Valid stream.</param>
-        /// <param name="secret">Secret string to authenticate against.</param>
-        /// <returns>True if authentication succeeds.</returns>
-        public static bool AuthenticateAsClient(Stream stream, string secret)
-        {
-            SerDe.Write(stream, secret);
-            stream.Flush();
-
-            return SerDe.ReadString(stream) == s_validResponseCode;
-        }
-
-        /// <summary>
-        /// Authenticates by reading secret from stream and writes the response code
-        /// back to the stream.
-        /// </summary>
-        /// <param name="socket">Valid socket.</param>
-        /// <param name="secret">Secret string to authenticate against.</param>
-        /// <returns>True if authentication succeeds.</returns>
-        public static bool AuthenticateAsServer(ISocketWrapper socket, string secret)
-        {
-            string clientSecret = SerDe.ReadString(socket.InputStream);
-
-            bool result;
-            if (clientSecret == secret)
-            {
-                SerDe.Write(socket.OutputStream, s_validResponseCode);
-                result = true;
-            }
-            else
-            {
-                SerDe.Write(socket.OutputStream, s_invalidResponseCode);
-                result = false;
-            }
-
-            socket.OutputStream.Flush();
-            return result;
-        }
+      return SerDe.ReadString(stream) == s_validResponseCode;
     }
+
+    /// <summary>
+    /// Authenticates by reading secret from stream and writes the response code
+    /// back to the stream.
+    /// </summary>
+    /// <param name="socket">Valid socket.</param>
+    /// <param name="secret">Secret string to authenticate against.</param>
+    /// <returns>True if authentication succeeds.</returns>
+    public static bool AuthenticateAsServer(ISocketWrapper socket, string secret)
+    {
+      string clientSecret = SerDe.ReadString(socket.InputStream);
+
+      bool result;
+      if (clientSecret == secret)
+      {
+        SerDe.Write(socket.OutputStream, s_validResponseCode);
+        result = true;
+      }
+      else
+      {
+        SerDe.Write(socket.OutputStream, s_invalidResponseCode);
+        result = false;
+      }
+
+      socket.OutputStream.Flush();
+      return result;
+    }
+  }
 }

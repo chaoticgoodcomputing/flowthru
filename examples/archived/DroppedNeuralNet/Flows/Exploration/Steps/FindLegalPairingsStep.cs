@@ -18,21 +18,21 @@ namespace DroppedNeuralNet.Flows.Exploration.Steps;
 [FlowthruStep]
 public static class FindLegalPairingsStep
 {
-    public static Func<IEnumerable<PieceMetadata>, IEnumerable<BlockCandidate>> Create()
+  public static Func<IEnumerable<PieceMetadata>, IEnumerable<BlockCandidate>> Create()
+  {
+    return (pieces) =>
     {
-        return (pieces) =>
-        {
-            var materializedPieces = pieces.ToList();
+      var materializedPieces = pieces.ToList();
 
-            var inpPieces = materializedPieces.Where(p => p.LayerType == LayerType.BlockInp).ToList();
+      var inpPieces = materializedPieces.Where(p => p.LayerType == LayerType.BlockInp).ToList();
 
-            var outPieces = materializedPieces.Where(p => p.LayerType == LayerType.BlockOut).ToList();
+      var outPieces = materializedPieces.Where(p => p.LayerType == LayerType.BlockOut).ToList();
 
-            return inpPieces.SelectMany(
-          inp => outPieces,
-          (inp, @out) =>
-            new BlockCandidate { InpPieceIndex = inp.PieceIndex, OutPieceIndex = @out.PieceIndex }
-        );
-        };
-    }
+      return inpPieces.SelectMany(
+        inp => outPieces,
+        (inp, @out) =>
+          new BlockCandidate { InpPieceIndex = inp.PieceIndex, OutPieceIndex = @out.PieceIndex }
+      );
+    };
+  }
 }

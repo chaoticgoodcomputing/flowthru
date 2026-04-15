@@ -15,39 +15,39 @@ public record IrisInputRow
     IStructuredSerializable,
     ITextSerializable
 {
-    /// <summary>
-    /// Unique observation identifier (GUID).
-    /// </summary>
-    [SerializedLabel("id")]
-    public string Id { get; init; } = null!;
+  /// <summary>
+  /// Unique observation identifier (GUID).
+  /// </summary>
+  [SerializedLabel("id")]
+  public string Id { get; init; } = null!;
 
-    /// <summary>
-    /// Sepal length in centimeters.
-    /// </summary>
-    [SerializedLabel("sepal_length")]
-    public float SepalLength { get; init; }
+  /// <summary>
+  /// Sepal length in centimeters.
+  /// </summary>
+  [SerializedLabel("sepal_length")]
+  public float SepalLength { get; init; }
 
-    /// <summary>
-    /// Sepal width in centimeters.
-    /// </summary>
-    [SerializedLabel("sepal_width")]
-    public float SepalWidth { get; init; }
+  /// <summary>
+  /// Sepal width in centimeters.
+  /// </summary>
+  [SerializedLabel("sepal_width")]
+  public float SepalWidth { get; init; }
 
-    /// <summary>
-    /// Petal length in centimeters.
-    /// </summary>
-    [SerializedLabel("petal_length")]
-    public float PetalLength { get; init; }
+  /// <summary>
+  /// Petal length in centimeters.
+  /// </summary>
+  [SerializedLabel("petal_length")]
+  public float PetalLength { get; init; }
 
-    /// <summary>
-    /// Petal width in centimeters.
-    /// </summary>
-    [SerializedLabel("petal_width")]
-    public float PetalWidth { get; init; }
+  /// <summary>
+  /// Petal width in centimeters.
+  /// </summary>
+  [SerializedLabel("petal_width")]
+  public float PetalWidth { get; init; }
 
-    /// <summary>
-    /// Class label (0=setosa, 1=versicolor, 2=virginica).
-    /// </summary>
-    [SerializedLabel("label")]
-    public int Label { get; init; }
+  /// <summary>
+  /// Class label (0=setosa, 1=versicolor, 2=virginica).
+  /// </summary>
+  [SerializedLabel("label")]
+  public int Label { get; init; }
 }

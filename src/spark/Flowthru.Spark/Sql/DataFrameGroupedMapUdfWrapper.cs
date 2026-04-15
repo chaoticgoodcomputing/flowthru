@@ -8,25 +8,25 @@ using FxDataFrame = Microsoft.Data.Analysis.DataFrame;
 
 namespace Flowthru.Spark.Sql
 {
-    /// <summary>
-    /// Wraps the given Func object, which represents a Grouped Map UDF.
-    /// </summary>
-    /// <remarks>
-    /// UDF serialization requires a "wrapper" object in order to serialize/deserialize.
-    /// </remarks>
-    [UdfWrapper]
-    internal sealed class DataFrameGroupedMapUdfWrapper
+  /// <summary>
+  /// Wraps the given Func object, which represents a Grouped Map UDF.
+  /// </summary>
+  /// <remarks>
+  /// UDF serialization requires a "wrapper" object in order to serialize/deserialize.
+  /// </remarks>
+  [UdfWrapper]
+  internal sealed class DataFrameGroupedMapUdfWrapper
+  {
+    private readonly Func<FxDataFrame, FxDataFrame> _func;
+
+    internal DataFrameGroupedMapUdfWrapper(Func<FxDataFrame, FxDataFrame> func)
     {
-        private readonly Func<FxDataFrame, FxDataFrame> _func;
-
-        internal DataFrameGroupedMapUdfWrapper(Func<FxDataFrame, FxDataFrame> func)
-        {
-            _func = func;
-        }
-
-        internal FxDataFrame Execute(FxDataFrame input)
-        {
-            return _func(input);
-        }
+      _func = func;
     }
+
+    internal FxDataFrame Execute(FxDataFrame input)
+    {
+      return _func(input);
+    }
+  }
 }

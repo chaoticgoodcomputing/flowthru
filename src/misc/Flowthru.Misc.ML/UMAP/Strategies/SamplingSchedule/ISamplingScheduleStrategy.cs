@@ -31,37 +31,37 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.SamplingSchedule;
 /// </remarks>
 public interface ISamplingScheduleStrategy
 {
-    /// <summary>
-    /// Computes the sampling schedule for edges during SGD optimization.
-    /// </summary>
-    /// <param name="edgeWeights">
-    /// Array of edge weights from the fuzzy simplicial set.
-    /// These are the membership strengths after fuzzy set operations.
-    /// Length: number of edges in the graph
-    /// </param>
-    /// <param name="nEpochs">
-    /// Total number of optimization epochs to run.
-    /// Must be positive.
-    /// </param>
-    /// <returns>
-    /// Array of epochs-per-sample for each edge.
-    /// Value of <c>epochs_per_sample[i]</c> means edge <c>i</c> should be sampled
-    /// every <c>epochs_per_sample[i]</c> epochs (on average).
-    /// Edges with weight too small to be sampled are marked with -1.
-    /// Length: same as edgeWeights
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <b>Implementation requirements:</b>
-    /// </para>
-    /// <list type="number">
-    ///   <item><description>Find maximum weight across all edges</description></item>
-    ///   <item><description>Compute expected number of samples per edge: n_epochs * (weight / max_weight)</description></item>
-    ///   <item><description>Invert to get epochs per sample: n_epochs / expected_samples</description></item>
-    ///   <item><description>Mark edges with expected_samples ≤ 0 as -1 (never sampled)</description></item>
-    /// </list>
-    /// </remarks>
-    SamplingScheduleResult ComputeSchedule(float[] edgeWeights, int nEpochs);
+  /// <summary>
+  /// Computes the sampling schedule for edges during SGD optimization.
+  /// </summary>
+  /// <param name="edgeWeights">
+  /// Array of edge weights from the fuzzy simplicial set.
+  /// These are the membership strengths after fuzzy set operations.
+  /// Length: number of edges in the graph
+  /// </param>
+  /// <param name="nEpochs">
+  /// Total number of optimization epochs to run.
+  /// Must be positive.
+  /// </param>
+  /// <returns>
+  /// Array of epochs-per-sample for each edge.
+  /// Value of <c>epochs_per_sample[i]</c> means edge <c>i</c> should be sampled
+  /// every <c>epochs_per_sample[i]</c> epochs (on average).
+  /// Edges with weight too small to be sampled are marked with -1.
+  /// Length: same as edgeWeights
+  /// </returns>
+  /// <remarks>
+  /// <para>
+  /// <b>Implementation requirements:</b>
+  /// </para>
+  /// <list type="number">
+  ///   <item><description>Find maximum weight across all edges</description></item>
+  ///   <item><description>Compute expected number of samples per edge: n_epochs * (weight / max_weight)</description></item>
+  ///   <item><description>Invert to get epochs per sample: n_epochs / expected_samples</description></item>
+  ///   <item><description>Mark edges with expected_samples ≤ 0 as -1 (never sampled)</description></item>
+  /// </list>
+  /// </remarks>
+  SamplingScheduleResult ComputeSchedule(float[] edgeWeights, int nEpochs);
 }
 
 /// <summary>

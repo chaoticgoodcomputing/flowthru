@@ -41,21 +41,21 @@ namespace Flowthru.Core.Meta.Providers;
 /// </remarks>
 public interface IMetadataProvider
 {
-    /// <summary>
-    /// Gets the unique name of this provider.
-    /// </summary>
-    string Name { get; }
+  /// <summary>
+  /// Gets the unique name of this provider.
+  /// </summary>
+  string Name { get; }
 
-    /// <summary>
-    /// Consumes DAG metadata.
-    /// </summary>
-    /// <param name="dag">The DAG metadata to consume</param>
-    /// <remarks>
-    /// This method is called after pipeline builds. Providers can process
-    /// the metadata in any way: write files, send to APIs, store in memory, etc.
-    ///
-    /// Implementations should handle their own error recovery - exceptions thrown
-    /// from this method will be logged but will not fail the pipeline execution.
-    /// </remarks>
-    void Consume(DagMetadata dag);
+  /// <summary>
+  /// Consumes DAG metadata.
+  /// </summary>
+  /// <param name="dag">The DAG metadata to consume</param>
+  /// <remarks>
+  /// This method is called after pipeline builds. Providers can process
+  /// the metadata in any way: write files, send to APIs, store in memory, etc.
+  ///
+  /// Implementations should handle their own error recovery - exceptions thrown
+  /// from this method will be logged but will not fail the pipeline execution.
+  /// </remarks>
+  void Consume(DagMetadata dag);
 }

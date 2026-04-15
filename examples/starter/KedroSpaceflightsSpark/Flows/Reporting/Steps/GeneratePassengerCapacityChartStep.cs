@@ -19,37 +19,37 @@ namespace KedroSpaceflightsSpark.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class GeneratePassengerCapacityChartStep
 {
-    public static Func<TypedFrame<PreprocessedShuttleSchema>, GenericChart> Create(
-      ILogger? logger = null
-    )
+  public static Func<TypedFrame<PreprocessedShuttleSchema>, GenericChart> Create(
+    ILogger? logger = null
+  )
+  {
+    return (input) =>
     {
-        return (input) =>
+      var aggregated = input
+        .Where(s => s.PassengerCapacity > 0)
+        .GroupBy(s => s.ShuttleType)
+        .Aggregate(ctx => new ShuttleCapacityReport
         {
-            var aggregated = input
-          .Where(s => s.PassengerCapacity > 0)
-          .GroupBy(s => s.ShuttleType)
-          .Aggregate(ctx => new ShuttleCapacityReport
-          {
-              ShuttleType = ctx.Key,
-              AvgPassengerCapacity = ctx.Avg(s => (double)s.PassengerCapacity),
-          })
-          .OrderByDescending(r => r.AvgPassengerCapacity)
-          .ToList();
+          ShuttleType = ctx.Key,
+          AvgPassengerCapacity = ctx.Avg(s => (double)s.PassengerCapacity),
+        })
+        .OrderByDescending(r => r.AvgPassengerCapacity)
+        .ToList();
 
-            logger?.LogInformation(
-          "Generating passenger capacity chart from {Count} shuttle types",
-          aggregated.Count
-        );
+      logger?.LogInformation(
+        "Generating passenger capacity chart from {Count} shuttle types",
+        aggregated.Count
+      );
 
-            var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
-            var capacities = aggregated.Select(x => x.AvgPassengerCapacity).ToList();
+      var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
+      var capacities = aggregated.Select(x => x.AvgPassengerCapacity).ToList();
 
-            return CSharpChart
-          .Column<string, double, double>(shuttleTypes, capacities)
-          .WithXAxisStyle(Title.init("Shuttle Type (Ranked by Capacity)"))
-          .WithYAxisStyle(Title.init("Average Passenger Capacity"))
-          .WithTitle("Shuttle Passenger Capacity Rankings")
-          .WithSize(1000, 600);
-        };
-    }
+      return CSharpChart
+        .Column<string, double, double>(shuttleTypes, capacities)
+        .WithXAxisStyle(Title.init("Shuttle Type (Ranked by Capacity)"))
+        .WithYAxisStyle(Title.init("Average Passenger Capacity"))
+        .WithTitle("Shuttle Passenger Capacity Rankings")
+        .WithSize(1000, 600);
+    };
+  }
 }

@@ -69,5 +69,5 @@ namespace Flowthru.Core.Abstractions;
 /// </example>
 public interface ITextSerializable
 {
-    // Marker interface - no members required
+  // Marker interface - no members required
 }

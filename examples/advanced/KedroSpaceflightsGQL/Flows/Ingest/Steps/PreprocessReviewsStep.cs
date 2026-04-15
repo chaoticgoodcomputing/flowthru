@@ -11,26 +11,20 @@ namespace KedroSpaceflightsGQL.Flows.Ingest.Steps;
 [FlowthruStep]
 public static class PreprocessReviewsStep
 {
-    /// <summary>
-    /// Creates a preprocessing function that transforms raw review records into strongly-typed records.
-    /// </summary>
-    public static Func<
-      IEnumerable<ReviewSchema>,
-      IEnumerable<PreprocessedReviewSchema>
-    > Create() =>
-      input =>
-        input
-          .Select(raw => Parse(raw))
-          .Where(item => item != null)
-          .Cast<PreprocessedReviewSchema>();
+  /// <summary>
+  /// Creates a preprocessing function that transforms raw review records into strongly-typed records.
+  /// </summary>
+  public static Func<IEnumerable<ReviewSchema>, IEnumerable<PreprocessedReviewSchema>> Create() =>
+    input =>
+      input.Select(raw => Parse(raw)).Where(item => item != null).Cast<PreprocessedReviewSchema>();
 
-    private static PreprocessedReviewSchema? Parse(ReviewSchema raw)
+  private static PreprocessedReviewSchema? Parse(ReviewSchema raw)
+  {
+    if (!decimal.TryParse(raw.ReviewScoresRating, out var score))
     {
-        if (!decimal.TryParse(raw.ReviewScoresRating, out var score))
-        {
-            return null;
-        }
-
-        return new PreprocessedReviewSchema { ShuttleId = raw.ShuttleId, ReviewScoresRating = score };
+      return null;
     }
+
+    return new PreprocessedReviewSchema { ShuttleId = raw.ShuttleId, ReviewScoresRating = score };
+  }
 }

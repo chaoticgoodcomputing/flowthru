@@ -12,15 +12,15 @@ namespace KedroSpaceflightsGQL.Data._08_Reporting.Schemas;
 [FlowthruSchema]
 public partial record ShuttleCapacityReport
 {
-    /// <summary>
-    /// Type or model of the shuttle.
-    /// </summary>
-    [SerializedLabel("shuttle_type")]
-    public required string ShuttleType { get; init; }
+  /// <summary>
+  /// Type or model of the shuttle.
+  /// </summary>
+  [SerializedLabel("shuttle_type")]
+  public required string ShuttleType { get; init; }
 
-    /// <summary>
-    /// Average passenger capacity for this shuttle type.
-    /// </summary>
-    [SerializedLabel("avg_passenger_capacity")]
-    public required decimal AvgPassengerCapacity { get; init; }
+  /// <summary>
+  /// Average passenger capacity for this shuttle type.
+  /// </summary>
+  [SerializedLabel("avg_passenger_capacity")]
+  public required decimal AvgPassengerCapacity { get; init; }
 }

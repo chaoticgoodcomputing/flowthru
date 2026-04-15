@@ -7,22 +7,22 @@ namespace Flowthru.Tests.Fixtures.TestCatalogs;
 /// </summary>
 public class SimpleThreeStepCatalog : CatalogAbstract
 {
-    public SimpleThreeStepCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public SimpleThreeStepCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 
-    public IItem<IEnumerable<TestData>> Input =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input"));
+  public IItem<IEnumerable<TestData>> Input =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input"));
 
-    public IItem<IEnumerable<TestData>> StepOne =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "step_one"));
+  public IItem<IEnumerable<TestData>> StepOne =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "step_one"));
 
-    public IItem<IEnumerable<TestData>> StepTwo =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "step_two"));
+  public IItem<IEnumerable<TestData>> StepTwo =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "step_two"));
 
-    public IItem<IEnumerable<TestData>> Output =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "output"));
+  public IItem<IEnumerable<TestData>> Output =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "output"));
 }
 
 /// <summary>
@@ -30,10 +30,10 @@ public class SimpleThreeStepCatalog : CatalogAbstract
 /// </summary>
 public class EmptyCatalog : CatalogAbstract
 {
-    public EmptyCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public EmptyCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 }
 
 /// <summary>
@@ -41,35 +41,35 @@ public class EmptyCatalog : CatalogAbstract
 /// </summary>
 public class ComplexMultiLayerCatalog : CatalogAbstract
 {
-    public ComplexMultiLayerCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public ComplexMultiLayerCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 
-    // Layer 0 inputs
-    public IItem<IEnumerable<TestData>> InputA =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_a"));
+  // Layer 0 inputs
+  public IItem<IEnumerable<TestData>> InputA =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_a"));
 
-    public IItem<IEnumerable<TestData>> InputB =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_b"));
+  public IItem<IEnumerable<TestData>> InputB =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_b"));
 
-    public IItem<IEnumerable<TestData>> InputC =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_c"));
+  public IItem<IEnumerable<TestData>> InputC =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "input_c"));
 
-    // Layer 1 intermediates
-    public IItem<IEnumerable<TestData>> ProcessedA =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "processed_a"));
+  // Layer 1 intermediates
+  public IItem<IEnumerable<TestData>> ProcessedA =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "processed_a"));
 
-    public IItem<IEnumerable<TestData>> ProcessedB =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "processed_b"));
+  public IItem<IEnumerable<TestData>> ProcessedB =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "processed_b"));
 
-    // Layer 2 merged
-    public IItem<IEnumerable<TestData>> Merged =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "merged"));
+  // Layer 2 merged
+  public IItem<IEnumerable<TestData>> Merged =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "merged"));
 
-    // Layer 3 final
-    public IItem<IEnumerable<TestData>> Final =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "final"));
+  // Layer 3 final
+  public IItem<IEnumerable<TestData>> Final =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "final"));
 }
 
 /// <summary>
@@ -77,9 +77,9 @@ public class ComplexMultiLayerCatalog : CatalogAbstract
 /// </summary>
 public record TestData
 {
-    public int Id { get; init; }
-    public string Name { get; init; } = string.Empty;
-    public double Value { get; init; }
+  public int Id { get; init; }
+  public string Name { get; init; } = string.Empty;
+  public double Value { get; init; }
 }
 
 /// <summary>
@@ -88,16 +88,16 @@ public record TestData
 /// </summary>
 public class UpstreamCatalog : CatalogAbstract
 {
-    public UpstreamCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public UpstreamCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 
-    public IItem<IEnumerable<TestData>> UpstreamInput =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "upstream_input"));
+  public IItem<IEnumerable<TestData>> UpstreamInput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "upstream_input"));
 
-    public IItem<IEnumerable<TestData>> UpstreamOutput =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "upstream_output"));
+  public IItem<IEnumerable<TestData>> UpstreamOutput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "upstream_output"));
 }
 
 /// <summary>
@@ -106,13 +106,13 @@ public class UpstreamCatalog : CatalogAbstract
 /// </summary>
 public class DownstreamCatalog : CatalogAbstract
 {
-    public DownstreamCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public DownstreamCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 
-    public IItem<IEnumerable<TestData>> DownstreamOutput =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "downstream_output"));
+  public IItem<IEnumerable<TestData>> DownstreamOutput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "downstream_output"));
 }
 
 /// <summary>
@@ -129,22 +129,22 @@ public class DownstreamCatalog : CatalogAbstract
 /// </remarks>
 public class ParallelBranchCatalog : CatalogAbstract
 {
-    public ParallelBranchCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public ParallelBranchCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 
-    public IItem<IEnumerable<TestData>> Input =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_input"));
+  public IItem<IEnumerable<TestData>> Input =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_input"));
 
-    public IItem<IEnumerable<TestData>> BranchA =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_branch_a"));
+  public IItem<IEnumerable<TestData>> BranchA =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_branch_a"));
 
-    public IItem<IEnumerable<TestData>> BranchB =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_branch_b"));
+  public IItem<IEnumerable<TestData>> BranchB =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_branch_b"));
 
-    public IItem<IEnumerable<TestData>> Merged =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_merged"));
+  public IItem<IEnumerable<TestData>> Merged =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "pb_merged"));
 }
 
 /// <summary>
@@ -152,13 +152,13 @@ public class ParallelBranchCatalog : CatalogAbstract
 /// </summary>
 public class ThirdCatalog : CatalogAbstract
 {
-    public ThirdCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public ThirdCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 
-    public IItem<IEnumerable<TestData>> FinalOutput =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "final_output"));
+  public IItem<IEnumerable<TestData>> FinalOutput =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "final_output"));
 }
 
 /// <summary>
@@ -167,16 +167,16 @@ public class ThirdCatalog : CatalogAbstract
 /// </summary>
 public class ShardCatalog : CatalogAbstract
 {
-    private readonly string _shardKey;
+  private readonly string _shardKey;
 
-    public ShardCatalog(string shardKey)
-    {
-        _shardKey = shardKey;
-        InitializeCatalogProperties();
-    }
+  public ShardCatalog(string shardKey)
+  {
+    _shardKey = shardKey;
+    InitializeCatalogProperties();
+  }
 
-    public IItem<IEnumerable<TestData>> ShardData =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: $"shard_data_{_shardKey}"));
+  public IItem<IEnumerable<TestData>> ShardData =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: $"shard_data_{_shardKey}"));
 }
 
 /// <summary>
@@ -184,11 +184,11 @@ public class ShardCatalog : CatalogAbstract
 /// </summary>
 public class MasterCatalog : CatalogAbstract
 {
-    public MasterCatalog()
-    {
-        InitializeCatalogProperties();
-    }
+  public MasterCatalog()
+  {
+    InitializeCatalogProperties();
+  }
 
-    public IItem<IEnumerable<TestData>> AllData =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "all_data"));
+  public IItem<IEnumerable<TestData>> AllData =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "all_data"));
 }

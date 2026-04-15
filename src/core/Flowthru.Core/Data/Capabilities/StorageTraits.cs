@@ -77,62 +77,62 @@ namespace Flowthru.Core.Data.Capabilities;
 /// </remarks>
 public record StorageTraits : NodeTraits
 {
-    // ── Constraints (narrow from baseline = filesystem file) ──
+  // ── Constraints (narrow from baseline = filesystem file) ──
 
-    /// <summary>
-    /// Can data be read from this source?
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>true</c> (filesystem files are readable).
-    /// Set to <c>false</c> for write-only sinks (logging endpoints, audit tables).
-    /// </remarks>
-    public bool CanRead { get; init; } = true;
+  /// <summary>
+  /// Can data be read from this source?
+  /// </summary>
+  /// <remarks>
+  /// Default: <c>true</c> (filesystem files are readable).
+  /// Set to <c>false</c> for write-only sinks (logging endpoints, audit tables).
+  /// </remarks>
+  public bool CanRead { get; init; } = true;
 
-    /// <summary>
-    /// Can data be written to this source?
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>true</c> (filesystem files are writable).
-    /// Set to <c>false</c> for read-only sources (HTTP GET, Excel files, database views).
-    /// </remarks>
-    public bool CanWrite { get; init; } = true;
+  /// <summary>
+  /// Can data be written to this source?
+  /// </summary>
+  /// <remarks>
+  /// Default: <c>true</c> (filesystem files are writable).
+  /// Set to <c>false</c> for read-only sources (HTTP GET, Excel files, database views).
+  /// </remarks>
+  public bool CanWrite { get; init; } = true;
 
-    /// <summary>
-    /// Does data survive across pipeline runs?
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>true</c> (filesystem files persist).
-    /// Set to <c>false</c> for in-memory caches, temporary buffers, or transient state.
-    /// </remarks>
-    public bool IsPersistent { get; init; } = true;
+  /// <summary>
+  /// Does data survive across pipeline runs?
+  /// </summary>
+  /// <remarks>
+  /// Default: <c>true</c> (filesystem files persist).
+  /// Set to <c>false</c> for in-memory caches, temporary buffers, or transient state.
+  /// </remarks>
+  public bool IsPersistent { get; init; } = true;
 
-    // ── Capabilities (widen beyond baseline = filesystem file) ──
+  // ── Capabilities (widen beyond baseline = filesystem file) ──
 
-    /// <summary>
-    /// Can data be lazily streamed without full materialization?
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>false</c> (filesystem file I/O typically buffers).
-    /// Set to <c>true</c> for CSV streaming, database cursors, Parquet row groups.
-    /// Enables memory-efficient processing of large datasets.
-    /// </remarks>
-    public bool CanStream { get; init; } = false;
+  /// <summary>
+  /// Can data be lazily streamed without full materialization?
+  /// </summary>
+  /// <remarks>
+  /// Default: <c>false</c> (filesystem file I/O typically buffers).
+  /// Set to <c>true</c> for CSV streaming, database cursors, Parquet row groups.
+  /// Enables memory-efficient processing of large datasets.
+  /// </remarks>
+  public bool CanStream { get; init; } = false;
 
-    /// <summary>
-    /// Can data be appended without replacing existing data?
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>false</c> (filesystem file writes typically overwrite).
-    /// Set to <c>true</c> for append-only logs, Spark SaveMode.Append, incremental tables.
-    /// </remarks>
-    public bool CanAppend { get; init; } = false;
+  /// <summary>
+  /// Can data be appended without replacing existing data?
+  /// </summary>
+  /// <remarks>
+  /// Default: <c>false</c> (filesystem file writes typically overwrite).
+  /// Set to <c>true</c> for append-only logs, Spark SaveMode.Append, incremental tables.
+  /// </remarks>
+  public bool CanAppend { get; init; } = false;
 
-    /// <summary>
-    /// Are writes atomic (all-or-nothing)?
-    /// </summary>
-    /// <remarks>
-    /// Default: <c>false</c> (filesystem file writes are not ACID).
-    /// Set to <c>true</c> for database transactions, ACID-compliant stores.
-    /// </remarks>
-    public bool IsTransactional { get; init; } = false;
+  /// <summary>
+  /// Are writes atomic (all-or-nothing)?
+  /// </summary>
+  /// <remarks>
+  /// Default: <c>false</c> (filesystem file writes are not ACID).
+  /// Set to <c>true</c> for database transactions, ACID-compliant stores.
+  /// </remarks>
+  public bool IsTransactional { get; init; } = false;
 }

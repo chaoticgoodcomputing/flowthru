@@ -6,32 +6,32 @@ using System;
 
 namespace Flowthru.Spark.Utils
 {
-    /// <summary>
-    /// Various environment utility methods.
-    /// </summary>
-    internal static class EnvironmentUtils
+  /// <summary>
+  /// Various environment utility methods.
+  /// </summary>
+  internal static class EnvironmentUtils
+  {
+    internal static bool GetEnvironmentVariableAsBool(string name)
     {
-        internal static bool GetEnvironmentVariableAsBool(string name)
-        {
-            string str = Environment.GetEnvironmentVariable(name);
-            if (string.IsNullOrEmpty(str))
-            {
-                return false;
-            }
+      string str = Environment.GetEnvironmentVariable(name);
+      if (string.IsNullOrEmpty(str))
+      {
+        return false;
+      }
 
-            switch (str.ToLowerInvariant())
-            {
-                case "true":
-                case "1":
-                case "yes":
-                    return true;
-                case "false":
-                case "0":
-                case "no":
-                    return false;
-                default:
-                    return false;
-            }
-        }
+      switch (str.ToLowerInvariant())
+      {
+        case "true":
+        case "1":
+        case "yes":
+          return true;
+        case "false":
+        case "0":
+        case "no":
+          return false;
+        default:
+          return false;
+      }
     }
+  }
 }

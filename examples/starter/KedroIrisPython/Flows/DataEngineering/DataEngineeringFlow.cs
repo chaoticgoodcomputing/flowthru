@@ -12,28 +12,28 @@ namespace KedroIrisPython.Flows.DataEngineering;
 /// </summary>
 public static class DataEngineeringFlow
 {
-    /// <summary>
-    /// Creates the data engineering pipeline.
-    /// </summary>
-    public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  /// <summary>
+  /// Creates the data engineering pipeline.
+  /// </summary>
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  {
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            pipeline.AddPythonStep<
-          IEnumerable<IrisRawSchema>,
-          IEnumerable<FeatureVectorSchema>,
-          IEnumerable<TargetLabelSchema>,
-          IEnumerable<FeatureVectorSchema>,
-          IEnumerable<TargetLabelSchema>
-        >(
-          label: "SplitData",
-          description: "Split iris data into train/test sets (Python 1×4 node)",
-          module: "Flows.DataEngineering.Steps.split_data",
-          function: "split_data",
-          input: catalog.IrisRaw,
-          output: (catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY),
-          executor: executor
-        );
-        });
-    }
+      pipeline.AddPythonStep<
+        IEnumerable<IrisRawSchema>,
+        IEnumerable<FeatureVectorSchema>,
+        IEnumerable<TargetLabelSchema>,
+        IEnumerable<FeatureVectorSchema>,
+        IEnumerable<TargetLabelSchema>
+      >(
+        label: "SplitData",
+        description: "Split iris data into train/test sets (Python 1×4 node)",
+        module: "Flows.DataEngineering.Steps.split_data",
+        function: "split_data",
+        input: catalog.IrisRaw,
+        output: (catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY),
+        executor: executor
+      );
+    });
+  }
 }

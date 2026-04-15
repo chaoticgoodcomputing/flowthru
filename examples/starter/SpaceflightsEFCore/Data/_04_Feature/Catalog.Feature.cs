@@ -8,14 +8,14 @@ namespace SpaceflightsEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-    // TODO: Add feature datasets here as they are created
-    // Example:
-    // public IItem<IEnumerable<FeatureSchema>> Features =>
-    //   CreateEntry(
-    //     () =>
-    //       ItemFactory.Enumerable.Csv<FeatureSchema>(
-    //         label: "Features",
-    //         filePath: $"{_basePath}/_04_Feature/Datasets/features.csv"
-    //       )
-    //   );
+  // TODO: Add feature datasets here as they are created
+  // Example:
+  // public IItem<IEnumerable<FeatureSchema>> Features =>
+  //   CreateEntry(
+  //     () =>
+  //       ItemFactory.Enumerable.Csv<FeatureSchema>(
+  //         label: "Features",
+  //         filePath: $"{_basePath}/_04_Feature/Datasets/features.csv"
+  //       )
+  //   );
 }

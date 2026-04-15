@@ -36,178 +36,178 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.LocalMetric.Implementations;
 /// </remarks>
 public sealed class BinarySearchSmoothing : ILocalMetricStrategy
 {
-    private const float SmoothKTolerance = 1e-5f;
-    private const float MinKDistScale = 1e-3f;
-    private const float NpyInfinity = float.PositiveInfinity;
+  private const float SmoothKTolerance = 1e-5f;
+  private const float MinKDistScale = 1e-3f;
+  private const float NpyInfinity = float.PositiveInfinity;
 
-    /// <summary>
-    /// Maximum number of binary search iterations per point.
-    /// Typically converges much faster, but this provides a safety limit.
-    /// </summary>
-    public int MaxIterations { get; init; } = 64;
+  /// <summary>
+  /// Maximum number of binary search iterations per point.
+  /// Typically converges much faster, but this provides a safety limit.
+  /// </summary>
+  public int MaxIterations { get; init; } = 64;
 
-    /// <inheritdoc />
-    public LocalMetricResult ComputeLocalMetrics(
-      float[][] knnDistances,
-      float k,
-      float localConnectivity = 1.0f,
-      float bandwidth = 1.0f
-    )
+  /// <inheritdoc />
+  public LocalMetricResult ComputeLocalMetrics(
+    float[][] knnDistances,
+    float k,
+    float localConnectivity = 1.0f,
+    float bandwidth = 1.0f
+  )
+  {
+    int nSamples = knnDistances.Length;
+    float target = MathF.Log2(k) * bandwidth;
+
+    var rhos = new float[nSamples];
+    var sigmas = new float[nSamples];
+
+    // Compute mean distance for fallback scaling
+    float meanDistances = ComputeMeanDistance(knnDistances);
+
+    // Process each point independently (parallelizable)
+    for (int i = 0; i < nSamples; i++)
     {
-        int nSamples = knnDistances.Length;
-        float target = MathF.Log2(k) * bandwidth;
+      var distances = knnDistances[i];
 
-        var rhos = new float[nSamples];
-        var sigmas = new float[nSamples];
+      // Compute rho: distance to nearest connected neighbor
+      // Based on local_connectivity parameter
+      rhos[i] = ComputeRho(distances, localConnectivity);
 
-        // Compute mean distance for fallback scaling
-        float meanDistances = ComputeMeanDistance(knnDistances);
+      // Binary search for sigma
+      sigmas[i] = BinarySearchForSigma(distances, rhos[i], target);
 
-        // Process each point independently (parallelizable)
-        for (int i = 0; i < nSamples; i++)
+      // Apply minimum distance scaling to prevent numerical issues
+      float meanIthDistances = ComputeMean(distances);
+      if (rhos[i] > 0.0f)
+      {
+        if (sigmas[i] < MinKDistScale * meanIthDistances)
         {
-            var distances = knnDistances[i];
-
-            // Compute rho: distance to nearest connected neighbor
-            // Based on local_connectivity parameter
-            rhos[i] = ComputeRho(distances, localConnectivity);
-
-            // Binary search for sigma
-            sigmas[i] = BinarySearchForSigma(distances, rhos[i], target);
-
-            // Apply minimum distance scaling to prevent numerical issues
-            float meanIthDistances = ComputeMean(distances);
-            if (rhos[i] > 0.0f)
-            {
-                if (sigmas[i] < MinKDistScale * meanIthDistances)
-                {
-                    sigmas[i] = MinKDistScale * meanIthDistances;
-                }
-            }
-            else
-            {
-                if (sigmas[i] < MinKDistScale * meanDistances)
-                {
-                    sigmas[i] = MinKDistScale * meanDistances;
-                }
-            }
+          sigmas[i] = MinKDistScale * meanIthDistances;
         }
-
-        return new LocalMetricResult(sigmas, rhos);
+      }
+      else
+      {
+        if (sigmas[i] < MinKDistScale * meanDistances)
+        {
+          sigmas[i] = MinKDistScale * meanDistances;
+        }
+      }
     }
 
-    /// <summary>
-    /// Computes rho (distance to nearest connected neighbor) based on local connectivity.
-    /// </summary>
-    private static float ComputeRho(float[] distances, float localConnectivity)
+    return new LocalMetricResult(sigmas, rhos);
+  }
+
+  /// <summary>
+  /// Computes rho (distance to nearest connected neighbor) based on local connectivity.
+  /// </summary>
+  private static float ComputeRho(float[] distances, float localConnectivity)
+  {
+    // Get non-zero distances (exclude self-distance at index 0)
+    var nonZeroDists = distances.Where(d => d > 0.0f).ToArray();
+
+    if (nonZeroDists.Length == 0)
     {
-        // Get non-zero distances (exclude self-distance at index 0)
-        var nonZeroDists = distances.Where(d => d > 0.0f).ToArray();
-
-        if (nonZeroDists.Length == 0)
-        {
-            return 0.0f;
-        }
-
-        if (nonZeroDists.Length < localConnectivity)
-        {
-            return nonZeroDists.Max();
-        }
-
-        // Interpolate based on local_connectivity
-        int index = (int)MathF.Floor(localConnectivity);
-        float interpolation = localConnectivity - index;
-
-        if (index > 0 && index <= nonZeroDists.Length)
-        {
-            float rho = nonZeroDists[index - 1];
-            if (interpolation > SmoothKTolerance && index < nonZeroDists.Length)
-            {
-                rho += interpolation * (nonZeroDists[index] - nonZeroDists[index - 1]);
-            }
-            return rho;
-        }
-
-        return interpolation * nonZeroDists[0];
+      return 0.0f;
     }
 
-    /// <summary>
-    /// Binary search to find sigma such that the fuzzy cardinality equals the target.
-    /// </summary>
-    private float BinarySearchForSigma(float[] distances, float rho, float target)
+    if (nonZeroDists.Length < localConnectivity)
     {
-        float lo = 0.0f;
-        float hi = NpyInfinity;
-        float mid = 1.0f;
-
-        for (int iteration = 0; iteration < MaxIterations; iteration++)
-        {
-            // Compute current cardinality with this sigma
-            float psum = 0.0f;
-            for (int j = 1; j < distances.Length; j++) // Skip self (j=0)
-            {
-                float d = distances[j] - rho;
-                if (d > 0)
-                {
-                    psum += MathF.Exp(-(d / mid));
-                }
-                else
-                {
-                    psum += 1.0f;
-                }
-            }
-
-            // Check convergence
-            if (MathF.Abs(psum - target) < SmoothKTolerance)
-            {
-                break;
-            }
-
-            // Binary search update
-            if (psum > target)
-            {
-                hi = mid;
-                mid = (lo + hi) / 2.0f;
-            }
-            else
-            {
-                lo = mid;
-                if (hi == NpyInfinity)
-                {
-                    mid *= 2.0f;
-                }
-                else
-                {
-                    mid = (lo + hi) / 2.0f;
-                }
-            }
-        }
-
-        return mid;
+      return nonZeroDists.Max();
     }
 
-    private static float ComputeMeanDistance(float[][] distances)
+    // Interpolate based on local_connectivity
+    int index = (int)MathF.Floor(localConnectivity);
+    float interpolation = localConnectivity - index;
+
+    if (index > 0 && index <= nonZeroDists.Length)
     {
-        float sum = 0.0f;
-        int count = 0;
-        foreach (var dists in distances)
-        {
-            foreach (var d in dists)
-            {
-                sum += d;
-                count++;
-            }
-        }
-        return count > 0 ? sum / count : 0.0f;
+      float rho = nonZeroDists[index - 1];
+      if (interpolation > SmoothKTolerance && index < nonZeroDists.Length)
+      {
+        rho += interpolation * (nonZeroDists[index] - nonZeroDists[index - 1]);
+      }
+      return rho;
     }
 
-    private static float ComputeMean(float[] values)
-    {
-        if (values.Length == 0)
-        {
-            return 0.0f;
-        }
+    return interpolation * nonZeroDists[0];
+  }
 
-        return values.Sum() / values.Length;
+  /// <summary>
+  /// Binary search to find sigma such that the fuzzy cardinality equals the target.
+  /// </summary>
+  private float BinarySearchForSigma(float[] distances, float rho, float target)
+  {
+    float lo = 0.0f;
+    float hi = NpyInfinity;
+    float mid = 1.0f;
+
+    for (int iteration = 0; iteration < MaxIterations; iteration++)
+    {
+      // Compute current cardinality with this sigma
+      float psum = 0.0f;
+      for (int j = 1; j < distances.Length; j++) // Skip self (j=0)
+      {
+        float d = distances[j] - rho;
+        if (d > 0)
+        {
+          psum += MathF.Exp(-(d / mid));
+        }
+        else
+        {
+          psum += 1.0f;
+        }
+      }
+
+      // Check convergence
+      if (MathF.Abs(psum - target) < SmoothKTolerance)
+      {
+        break;
+      }
+
+      // Binary search update
+      if (psum > target)
+      {
+        hi = mid;
+        mid = (lo + hi) / 2.0f;
+      }
+      else
+      {
+        lo = mid;
+        if (hi == NpyInfinity)
+        {
+          mid *= 2.0f;
+        }
+        else
+        {
+          mid = (lo + hi) / 2.0f;
+        }
+      }
     }
+
+    return mid;
+  }
+
+  private static float ComputeMeanDistance(float[][] distances)
+  {
+    float sum = 0.0f;
+    int count = 0;
+    foreach (var dists in distances)
+    {
+      foreach (var d in dists)
+      {
+        sum += d;
+        count++;
+      }
+    }
+    return count > 0 ? sum / count : 0.0f;
+  }
+
+  private static float ComputeMean(float[] values)
+  {
+    if (values.Length == 0)
+    {
+      return 0.0f;
+    }
+
+    return values.Sum() / values.Length;
+  }
 }

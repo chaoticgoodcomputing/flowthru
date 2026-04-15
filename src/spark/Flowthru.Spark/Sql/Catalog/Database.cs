@@ -6,34 +6,34 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.Sql.Catalog
 {
-    /// <summary>
-    /// A database in Spark, as returned by the `ListDatabases` method defined in `Catalog`.
-    /// </summary>
-    public sealed class Database : IJvmObjectReferenceProvider
+  /// <summary>
+  /// A database in Spark, as returned by the `ListDatabases` method defined in `Catalog`.
+  /// </summary>
+  public sealed class Database : IJvmObjectReferenceProvider
+  {
+    internal Database(JvmObjectReference jvmObject)
     {
-        internal Database(JvmObjectReference jvmObject)
-        {
-            Reference = jvmObject;
-        }
-
-        public JvmObjectReference Reference { get; private set; }
-
-        /// <summary>
-        /// Description of the database.
-        /// </summary>
-        /// <returns>string, the description of the database.</returns>
-        public string Description => (string)Reference.Invoke("description");
-
-        /// <summary>
-        /// Path (in the form of a uri) to data files
-        /// </summary>
-        /// <returns>string, the location of the database.</returns>
-        public string LocationUri => (string)Reference.Invoke("locationUri");
-
-        /// <summary>
-        /// Name of the database.
-        /// </summary>
-        /// <returns>string, the name of the database.</returns>
-        public string Name => (string)Reference.Invoke("name");
+      Reference = jvmObject;
     }
+
+    public JvmObjectReference Reference { get; private set; }
+
+    /// <summary>
+    /// Description of the database.
+    /// </summary>
+    /// <returns>string, the description of the database.</returns>
+    public string Description => (string)Reference.Invoke("description");
+
+    /// <summary>
+    /// Path (in the form of a uri) to data files
+    /// </summary>
+    /// <returns>string, the location of the database.</returns>
+    public string LocationUri => (string)Reference.Invoke("locationUri");
+
+    /// <summary>
+    /// Name of the database.
+    /// </summary>
+    /// <returns>string, the name of the database.</returns>
+    public string Name => (string)Reference.Invoke("name");
+  }
 }

@@ -16,120 +16,120 @@ namespace Flowthru.Core.Data.Storage;
 /// </remarks>
 public sealed class TextFileStorageAdapter : IStorageAdapter<string>
 {
-    private readonly string _filePath;
+  private readonly string _filePath;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TextFileStorageAdapter"/> class with the specified file path.
-    /// </summary>
-    /// <param name="filePath"></param>
-    public TextFileStorageAdapter(string filePath)
-    {
-        _filePath = filePath;
-    }
+  /// <summary>
+  /// Initializes a new instance of the <see cref="TextFileStorageAdapter"/> class with the specified file path.
+  /// </summary>
+  /// <param name="filePath"></param>
+  public TextFileStorageAdapter(string filePath)
+  {
+    _filePath = filePath;
+  }
 
-    /// <inheritdoc/>
-    public StorageTraits Traits => new StorageTraits();
+  /// <inheritdoc/>
+  public StorageTraits Traits => new StorageTraits();
 
-    /// <inheritdoc/>
-    public FlowIO<string> Load() =>
-      FlowIO.LiftAsync(
-        async (CancellationToken ct) =>
+  /// <inheritdoc/>
+  public FlowIO<string> Load() =>
+    FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        if (!File.Exists(_filePath))
         {
-            if (!File.Exists(_filePath))
-            {
-                throw new FileNotFoundException($"Text file not found: {_filePath}");
-            }
-
-            return await File.ReadAllTextAsync(_filePath, ct);
+          throw new FileNotFoundException($"Text file not found: {_filePath}");
         }
-      );
 
-    /// <inheritdoc/>
-    public FlowIO<FlowUnit> Save(string data) =>
-      FlowIO.LiftAsync(
-        async (CancellationToken ct) =>
+        return await File.ReadAllTextAsync(_filePath, ct);
+      }
+    );
+
+  /// <inheritdoc/>
+  public FlowIO<FlowUnit> Save(string data) =>
+    FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        var directory = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrEmpty(directory))
         {
-            var directory = Path.GetDirectoryName(_filePath);
-            if (!string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            await File.WriteAllTextAsync(_filePath, data, ct);
-            return FlowUnit.Default;
+          Directory.CreateDirectory(directory);
         }
-      );
 
-    /// <inheritdoc/>
-    public FlowIO<bool> Exists() => FlowIO.Lift(() => File.Exists(_filePath));
+        await File.WriteAllTextAsync(_filePath, data, ct);
+        return FlowUnit.Default;
+      }
+    );
 
-    /// <inheritdoc/>
-    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
-    {
-        return FlowIO.LiftAsync(
-          async (CancellationToken ct) =>
-          {
-              if (!File.Exists(_filePath))
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: Path.GetFileName(_filePath),
-                errorType: Data.Validation.ValidationErrorType.NotFound,
-                message: $"Text file not found: {_filePath}",
-                details: "File does not exist or is not accessible"
-              );
-              }
+  /// <inheritdoc/>
+  public FlowIO<bool> Exists() => FlowIO.Lift(() => File.Exists(_filePath));
 
-              try
-              {
-                  // Attempt to read the file to verify it's accessible
-                  await using var stream = File.OpenRead(_filePath);
-                  return Data.Validation.ValidationResult.Success();
-              }
-              catch (Exception ex)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: Path.GetFileName(_filePath),
-                errorType: Data.Validation.ValidationErrorType.NotFound,
-                message: $"Text file is not accessible: {_filePath}",
-                details: ex.Message
-              );
-              }
-          }
-        );
-    }
+  /// <inheritdoc/>
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        if (!File.Exists(_filePath))
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: Path.GetFileName(_filePath),
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Text file not found: {_filePath}",
+            details: "File does not exist or is not accessible"
+          );
+        }
 
-    /// <inheritdoc/>
-    public FlowIO<Data.Validation.ValidationResult> InspectDeep()
-    {
-        return FlowIO.LiftAsync(
-          async (CancellationToken ct) =>
-          {
-              if (!File.Exists(_filePath))
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: Path.GetFileName(_filePath),
-                errorType: Data.Validation.ValidationErrorType.NotFound,
-                message: $"Text file not found: {_filePath}",
-                details: "File does not exist or is not accessible"
-              );
-              }
+        try
+        {
+          // Attempt to read the file to verify it's accessible
+          await using var stream = File.OpenRead(_filePath);
+          return Data.Validation.ValidationResult.Success();
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: Path.GetFileName(_filePath),
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Text file is not accessible: {_filePath}",
+            details: ex.Message
+          );
+        }
+      }
+    );
+  }
 
-              try
-              {
-                  // Read the entire file to validate it's fully readable
-                  await File.ReadAllTextAsync(_filePath, ct);
-                  return Data.Validation.ValidationResult.Success();
-              }
-              catch (Exception ex)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: Path.GetFileName(_filePath),
-                errorType: Data.Validation.ValidationErrorType.DeserializationError,
-                message: $"Failed to read text file: {_filePath}",
-                details: ex.Message
-              );
-              }
-          }
-        );
-    }
+  /// <inheritdoc/>
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep()
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        if (!File.Exists(_filePath))
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: Path.GetFileName(_filePath),
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Text file not found: {_filePath}",
+            details: "File does not exist or is not accessible"
+          );
+        }
+
+        try
+        {
+          // Read the entire file to validate it's fully readable
+          await File.ReadAllTextAsync(_filePath, ct);
+          return Data.Validation.ValidationResult.Success();
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: Path.GetFileName(_filePath),
+            errorType: Data.Validation.ValidationErrorType.DeserializationError,
+            message: $"Failed to read text file: {_filePath}",
+            details: ex.Message
+          );
+        }
+      }
+    );
+  }
 }

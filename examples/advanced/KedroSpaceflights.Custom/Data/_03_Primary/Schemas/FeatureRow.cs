@@ -18,31 +18,31 @@ public class FeatureRow
     IBinarySerializable,
     IStructuredSerializable
 {
-    public float Engines { get; set; }
-    public float PassengerCapacity { get; set; }
-    public float Crew { get; set; }
-    public bool DCheckComplete { get; set; }
-    public bool IataApproved { get; set; }
-    public float CompanyRating { get; set; }
-    public float ReviewScoresRating { get; set; }
+  public float Engines { get; set; }
+  public float PassengerCapacity { get; set; }
+  public float Crew { get; set; }
+  public bool DCheckComplete { get; set; }
+  public bool IataApproved { get; set; }
+  public float CompanyRating { get; set; }
+  public float ReviewScoresRating { get; set; }
 
-    /// <summary>
-    /// Target variable (price) for training
-    /// </summary>
-    public float Price { get; set; }
+  /// <summary>
+  /// Target variable (price) for training
+  /// </summary>
+  public float Price { get; set; }
 
-    /// <summary>
-    /// Converts this feature row to a double array for model training/prediction.
-    /// Centralizes feature extraction logic to ensure consistency across training,
-    /// evaluation, and cross-validation.
-    /// </summary>
-    /// <returns>
-    /// Array of features in the order expected by the linear regression model:
-    /// [Engines, PassengerCapacity, Crew, DCheckComplete, IataApproved, CompanyRating, ReviewScoresRating]
-    /// </returns>
-    public double[] ToFeatureArray() =>
-      new[]
-      {
+  /// <summary>
+  /// Converts this feature row to a double array for model training/prediction.
+  /// Centralizes feature extraction logic to ensure consistency across training,
+  /// evaluation, and cross-validation.
+  /// </summary>
+  /// <returns>
+  /// Array of features in the order expected by the linear regression model:
+  /// [Engines, PassengerCapacity, Crew, DCheckComplete, IataApproved, CompanyRating, ReviewScoresRating]
+  /// </returns>
+  public double[] ToFeatureArray() =>
+    new[]
+    {
       (double)Engines,
       (double)PassengerCapacity,
       (double)Crew,
@@ -50,14 +50,14 @@ public class FeatureRow
       IataApproved ? 1.0 : 0.0,
       (double)CompanyRating,
       (double)ReviewScoresRating,
-      };
+    };
 
-    /// <summary>
-    /// Gets the feature names in the same order as ToFeatureArray().
-    /// </summary>
-    public static string[] FeatureNames =>
-      new[]
-      {
+  /// <summary>
+  /// Gets the feature names in the same order as ToFeatureArray().
+  /// </summary>
+  public static string[] FeatureNames =>
+    new[]
+    {
       "Engines",
       "PassengerCapacity",
       "Crew",
@@ -65,5 +65,5 @@ public class FeatureRow
       "IataApproved",
       "CompanyRating",
       "ReviewScoresRating",
-      };
+    };
 }

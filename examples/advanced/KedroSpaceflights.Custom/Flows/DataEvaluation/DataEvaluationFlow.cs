@@ -32,36 +32,36 @@ namespace KedroSpaceflights.Custom.Flows.DataEvaluation;
 /// </summary>
 public static class DataEvaluationFlow
 {
+  /// <summary>
+  /// Parameters for the data evaluation pipeline.
+  /// </summary>
+  public class Params
+  {
     /// <summary>
-    /// Parameters for the data evaluation pipeline.
+    /// Options for cross-validation.
     /// </summary>
-    public class Params
-    {
-        /// <summary>
-        /// Options for cross-validation.
-        /// </summary>
-        public CrossValidateModelStep.Params CrossValidationParams { get; init; } = new();
-    }
+    public CrossValidateModelStep.Params CrossValidationParams { get; init; } = new();
+  }
 
-    public static Flow Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, Params parameters)
+  {
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            // Step 1: Evaluate OLS model (multi-input → multi-output)
-            pipeline.AddStep(
-          label: "EvaluateOLSModel",
-          transform: EvaluateModelStep.Create(),
-          input: (catalog.Regressor, catalog.XTest, catalog.YTest),
-          output: (catalog.ModelMetrics, catalog.ModelPredictions)
-        );
+      // Step 1: Evaluate OLS model (multi-input → multi-output)
+      pipeline.AddStep(
+        label: "EvaluateOLSModel",
+        transform: EvaluateModelStep.Create(),
+        input: (catalog.Regressor, catalog.XTest, catalog.YTest),
+        output: (catalog.ModelMetrics, catalog.ModelPredictions)
+      );
 
-            // Step 2: Cross-validation for R² distribution analysis and comparison to Kedro
-            pipeline.AddStep(
-          label: "PerformCrossValidatedOLSRegressionTest",
-          transform: CrossValidateModelStep.Create(parameters.CrossValidationParams),
-          input: catalog.ModelInputTable,
-          output: catalog.CrossValidationResults
-        );
-        });
-    }
+      // Step 2: Cross-validation for R² distribution analysis and comparison to Kedro
+      pipeline.AddStep(
+        label: "PerformCrossValidatedOLSRegressionTest",
+        transform: CrossValidateModelStep.Create(parameters.CrossValidationParams),
+        input: catalog.ModelInputTable,
+        output: catalog.CrossValidationResults
+      );
+    });
+  }
 }

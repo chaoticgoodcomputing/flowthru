@@ -7,25 +7,25 @@ using Apache.Arrow;
 
 namespace Flowthru.Spark.Sql
 {
-    /// <summary>
-    /// Wraps the given Func object, which represents a Grouped Map UDF.
-    /// </summary>
-    /// <remarks>
-    /// UDF serialization requires a "wrapper" object in order to serialize/deserialize.
-    /// </remarks>
-    [UdfWrapper]
-    internal sealed class ArrowGroupedMapUdfWrapper
+  /// <summary>
+  /// Wraps the given Func object, which represents a Grouped Map UDF.
+  /// </summary>
+  /// <remarks>
+  /// UDF serialization requires a "wrapper" object in order to serialize/deserialize.
+  /// </remarks>
+  [UdfWrapper]
+  internal sealed class ArrowGroupedMapUdfWrapper
+  {
+    private readonly Func<RecordBatch, RecordBatch> _func;
+
+    internal ArrowGroupedMapUdfWrapper(Func<RecordBatch, RecordBatch> func)
     {
-        private readonly Func<RecordBatch, RecordBatch> _func;
-
-        internal ArrowGroupedMapUdfWrapper(Func<RecordBatch, RecordBatch> func)
-        {
-            _func = func;
-        }
-
-        internal RecordBatch Execute(RecordBatch input)
-        {
-            return _func(input);
-        }
+      _func = func;
     }
+
+    internal RecordBatch Execute(RecordBatch input)
+    {
+      return _func(input);
+    }
+  }
 }

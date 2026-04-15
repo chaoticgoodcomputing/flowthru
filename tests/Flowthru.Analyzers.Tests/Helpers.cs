@@ -8,13 +8,13 @@ namespace Flowthru.Analyzers.Tests;
 /// </summary>
 internal static class Helpers
 {
-    public static readonly string SupportedStringList = string.Join(
-      ", ",
-      SparkTranslatableOperations.SupportedStringMethods
-    );
+  public static readonly string SupportedStringList = string.Join(
+    ", ",
+    SparkTranslatableOperations.SupportedStringMethods
+  );
 
-    public static readonly string SupportedMathList = string.Join(
-      ", ",
-      SparkTranslatableOperations.SupportedMathMethods
-    );
+  public static readonly string SupportedMathList = string.Join(
+    ", ",
+    SparkTranslatableOperations.SupportedMathMethods
+  );
 }

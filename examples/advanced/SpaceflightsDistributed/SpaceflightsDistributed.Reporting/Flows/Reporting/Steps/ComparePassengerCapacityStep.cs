@@ -11,71 +11,71 @@ namespace SpaceflightsDistributed.Reporting.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class ComparePassengerCapacityStep
 {
-    public static Func<
-      IEnumerable<PreprocessedShuttleSchema>,
-      IEnumerable<ShuttleCapacityReport>
-    > Create()
+  public static Func<
+    IEnumerable<PreprocessedShuttleSchema>,
+    IEnumerable<ShuttleCapacityReport>
+  > Create()
+  {
+    return (input) =>
     {
-        return (input) =>
+      return input
+        .GroupBy(s => s.ShuttleType)
+        .Select(g => new ShuttleCapacityReport
         {
-            return input
-          .GroupBy(s => s.ShuttleType)
-          .Select(g => new ShuttleCapacityReport
-            {
-                ShuttleType = g.Key,
-                AvgPassengerCapacity = (decimal)g.Average(s => s.PassengerCapacity),
-            });
-        };
-    }
+          ShuttleType = g.Key,
+          AvgPassengerCapacity = (decimal)g.Average(s => s.PassengerCapacity),
+        });
+    };
+  }
 
 #if FUNIT_ENABLED
-    /// <summary>FUnit tests for <see cref="ComparePassengerCapacityStep"/>.</summary>
-    public class Tests : Flowthru.FUnit.FunitContext
-    {
-        private static PreprocessedShuttleSchema MakeShuttle(string type, int capacity) =>
-          new()
-          {
-              Id = System.Guid.NewGuid().ToString(),
-              ShuttleType = type,
-              CompanyId = "c1",
-              Engines = 2,
-              PassengerCapacity = capacity,
-              Crew = 4,
-              Price = 500m,
-              DCheckComplete = true,
-              MoonClearanceComplete = false,
-          };
+  /// <summary>FUnit tests for <see cref="ComparePassengerCapacityStep"/>.</summary>
+  public class Tests : Flowthru.FUnit.FunitContext
+  {
+    private static PreprocessedShuttleSchema MakeShuttle(string type, int capacity) =>
+      new()
+      {
+        Id = System.Guid.NewGuid().ToString(),
+        ShuttleType = type,
+        CompanyId = "c1",
+        Engines = 2,
+        PassengerCapacity = capacity,
+        Crew = 4,
+        Price = 500m,
+        DCheckComplete = true,
+        MoonClearanceComplete = false,
+      };
 
-        [StepTest(typeof(ComparePassengerCapacityStep))]
-        public void GroupsByShuttleType()
-        {
-            var input = new[]
-            {
+    [StepTest(typeof(ComparePassengerCapacityStep))]
+    public void GroupsByShuttleType()
+    {
+      var input = new[]
+      {
         MakeShuttle("TypeA", 100),
         MakeShuttle("TypeA", 200),
         MakeShuttle("TypeB", 50),
       };
 
-            var result = Invoke(Create(), input).ToList();
+      var result = Invoke(Create(), input).ToList();
 
-            Assert.That(result, Has.Count.EqualTo(2));
-            Assert.That(
-              result.Single(r => r.ShuttleType == "TypeA").AvgPassengerCapacity,
-              Is.EqualTo(150m)
-            );
-            Assert.That(
-              result.Single(r => r.ShuttleType == "TypeB").AvgPassengerCapacity,
-              Is.EqualTo(50m)
-            );
-        }
-
-        [StepTest(typeof(ComparePassengerCapacityStep))]
-        public void EmptyInput_ReturnsEmpty()
-        {
-            var result = Invoke(Create(), Enumerable.Empty<PreprocessedShuttleSchema>()).ToList();
-
-            Assert.That(result, Is.Empty);
-        }
+      Assert.That(result, Has.Count.EqualTo(2));
+      Assert.That(
+        result.Single(r => r.ShuttleType == "TypeA").AvgPassengerCapacity,
+        Is.EqualTo(150m)
+      );
+      Assert.That(
+        result.Single(r => r.ShuttleType == "TypeB").AvgPassengerCapacity,
+        Is.EqualTo(50m)
+      );
     }
+
+    [StepTest(typeof(ComparePassengerCapacityStep))]
+    public void EmptyInput_ReturnsEmpty()
+    {
+      var result = Invoke(Create(), Enumerable.Empty<PreprocessedShuttleSchema>()).ToList();
+
+      Assert.That(result, Is.Empty);
+    }
+  }
 #endif
 }

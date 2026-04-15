@@ -14,7 +14,7 @@ namespace Flowthru.Tests.CodeFixes;
 [Category("CodeFixes")]
 public class Ft1002Tests
 {
-    private const string Stubs = """
+  private const string Stubs = """
     namespace Flowthru.Core.Abstractions
     {
         [System.AttributeUsage(System.AttributeTargets.All)]
@@ -28,12 +28,12 @@ public class Ft1002Tests
     }
     """;
 
-    [Test]
-    public async Task ManualIFlatSchema_IsRemoved()
-    {
-        var source =
-          Stubs
-          + """
+  [Test]
+  public async Task ManualIFlatSchema_IsRemoved()
+  {
+    var source =
+      Stubs
+      + """
 
         namespace TestProject
         {
@@ -44,9 +44,9 @@ public class Ft1002Tests
         }
         """;
 
-        var fixedSource =
-          Stubs
-          + """
+    var fixedSource =
+      Stubs
+      + """
 
         namespace TestProject
         {
@@ -57,23 +57,23 @@ public class Ft1002Tests
         }
         """;
 
-        await new CSharpCodeFixTest<
-          FlowthruSchemaAnalyzer,
-          Ft1002RemoveConflictingInterfaceFix,
-          NUnit4Verifier
-        >
-        {
-            TestCode = source,
-            FixedCode = fixedSource,
-        }.RunAsync();
-    }
-
-    [Test]
-    public async Task NoManualInterface_NoDiagnostic()
+    await new CSharpCodeFixTest<
+      FlowthruSchemaAnalyzer,
+      Ft1002RemoveConflictingInterfaceFix,
+      NUnit4Verifier
+    >
     {
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+      FixedCode = fixedSource,
+    }.RunAsync();
+  }
+
+  [Test]
+  public async Task NoManualInterface_NoDiagnostic()
+  {
+    var source =
+      Stubs
+      + """
 
         namespace TestProject
         {
@@ -84,9 +84,9 @@ public class Ft1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<FlowthruSchemaAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
+    await new CSharpAnalyzerTest<FlowthruSchemaAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+    }.RunAsync();
+  }
 }

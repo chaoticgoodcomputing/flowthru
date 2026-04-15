@@ -26,63 +26,63 @@ namespace Flowthru.Core.Meta;
 /// </remarks>
 public class TimestampConfiguration
 {
-    /// <summary>
-    /// Gets or sets whether to include timestamps in metadata filenames.
-    /// </summary>
-    /// <remarks>
-    /// Default: true
-    /// When false, files will be named without timestamps and will overwrite on each export.
-    /// </remarks>
-    public bool IncludeTimestamp { get; set; } = false;
+  /// <summary>
+  /// Gets or sets whether to include timestamps in metadata filenames.
+  /// </summary>
+  /// <remarks>
+  /// Default: true
+  /// When false, files will be named without timestamps and will overwrite on each export.
+  /// </remarks>
+  public bool IncludeTimestamp { get; set; } = false;
 
-    /// <summary>
-    /// Gets or sets the timestamp format string.
-    /// </summary>
-    /// <remarks>
-    /// Default: "yyyyMMdd-HHmmss" (e.g., "20251024-143052")
-    /// Must be a valid DateTime format string compatible with DateTime.ToString().
-    /// Only used when IncludeTimestamp is true.
-    /// </remarks>
-    public string Format { get; set; } = "yyyy-MM-dd-HH-mm-ss";
+  /// <summary>
+  /// Gets or sets the timestamp format string.
+  /// </summary>
+  /// <remarks>
+  /// Default: "yyyyMMdd-HHmmss" (e.g., "20251024-143052")
+  /// Must be a valid DateTime format string compatible with DateTime.ToString().
+  /// Only used when IncludeTimestamp is true.
+  /// </remarks>
+  public string Format { get; set; } = "yyyy-MM-dd-HH-mm-ss";
 
-    /// <summary>
-    /// Validates the timestamp configuration.
-    /// </summary>
-    /// <exception cref="ArgumentException">Thrown if format string is invalid</exception>
-    internal void Validate()
+  /// <summary>
+  /// Validates the timestamp configuration.
+  /// </summary>
+  /// <exception cref="ArgumentException">Thrown if format string is invalid</exception>
+  internal void Validate()
+  {
+    if (IncludeTimestamp && string.IsNullOrWhiteSpace(Format))
     {
-        if (IncludeTimestamp && string.IsNullOrWhiteSpace(Format))
-        {
-            throw new ArgumentException(
-              "Timestamp format cannot be null or empty when IncludeTimestamp is true",
-              nameof(Format)
-            );
-        }
-
-        // Validate format string by attempting to format current time
-        if (IncludeTimestamp)
-        {
-            try
-            {
-                _ = DateTime.Now.ToString(Format);
-            }
-            catch (FormatException ex)
-            {
-                throw new ArgumentException(
-                  $"Invalid timestamp format string: '{Format}'",
-                  nameof(Format),
-                  ex
-                );
-            }
-        }
+      throw new ArgumentException(
+        "Timestamp format cannot be null or empty when IncludeTimestamp is true",
+        nameof(Format)
+      );
     }
 
-    /// <summary>
-    /// Generates a timestamp string based on current configuration.
-    /// </summary>
-    /// <returns>Formatted timestamp string, or null if timestamps are disabled</returns>
-    public string? GenerateTimestamp()
+    // Validate format string by attempting to format current time
+    if (IncludeTimestamp)
     {
-        return IncludeTimestamp ? DateTime.Now.ToString(Format) : null;
+      try
+      {
+        _ = DateTime.Now.ToString(Format);
+      }
+      catch (FormatException ex)
+      {
+        throw new ArgumentException(
+          $"Invalid timestamp format string: '{Format}'",
+          nameof(Format),
+          ex
+        );
+      }
     }
+  }
+
+  /// <summary>
+  /// Generates a timestamp string based on current configuration.
+  /// </summary>
+  /// <returns>Formatted timestamp string, or null if timestamps are disabled</returns>
+  public string? GenerateTimestamp()
+  {
+    return IncludeTimestamp ? DateTime.Now.ToString(Format) : null;
+  }
 }

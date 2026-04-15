@@ -43,111 +43,111 @@ namespace DroppedNeuralNet.Flows.Exploration;
 /// </summary>
 public static class ExplorationFlow
 {
-    public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  {
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            pipeline.AddStep(
-          label: "FindLegalPairings",
-          description: "Sieve PieceMetadata to all dimension-valid (inp, out) Block candidates (C#).",
-          transform: FindLegalPairingsStep.Create(),
-          input: catalog.PieceMetadata,
-          output: catalog.LegalPairings
-        );
+      pipeline.AddStep(
+        label: "FindLegalPairings",
+        description: "Sieve PieceMetadata to all dimension-valid (inp, out) Block candidates (C#).",
+        transform: FindLegalPairingsStep.Create(),
+        input: catalog.PieceMetadata,
+        output: catalog.LegalPairings
+      );
 
-            /* SUPERSEDED — weight-space Frobenius signal collapses under normalization.
-            pipeline.AddPythonStep<
-              IEnumerable<PieceMetadata>,
-              IEnumerable<PieceBlob>,
-              IEnumerable<BlockCandidate>,
-              IEnumerable<PairingScore>
-            >(
-              label: "ComputePairingScores",
-              description: "Compute ||W_out @ W_inp||_F for every legal pairing. Lower = stronger residual coupling (Python).",
-              module: "Flows.Exploration.Steps.compute_pairing_scores",
-              function: "compute_pairing_scores",
-              input: (catalog.PieceMetadata, catalog.Pieces, catalog.LegalPairings),
-              output: catalog.PairingScores,
-              executor: executor
-            );
-            */
+      /* SUPERSEDED — weight-space Frobenius signal collapses under normalization.
+      pipeline.AddPythonStep<
+        IEnumerable<PieceMetadata>,
+        IEnumerable<PieceBlob>,
+        IEnumerable<BlockCandidate>,
+        IEnumerable<PairingScore>
+      >(
+        label: "ComputePairingScores",
+        description: "Compute ||W_out @ W_inp||_F for every legal pairing. Lower = stronger residual coupling (Python).",
+        module: "Flows.Exploration.Steps.compute_pairing_scores",
+        function: "compute_pairing_scores",
+        input: (catalog.PieceMetadata, catalog.Pieces, catalog.LegalPairings),
+        output: catalog.PairingScores,
+        executor: executor
+      );
+      */
 
-            pipeline.AddPythonStep<
-          IEnumerable<PieceMetadata>,
-          IEnumerable<PieceBlob>,
-          IEnumerable<BlockCandidate>,
-          IEnumerable<PairingScore>
-        >(
-          label: "ComputeSvdActivationScores",
-          description: "Score each (inp, out) candidate by SVD subspace alignment between inp write-directions and out read-directions. Pure weight geometry, no data pass required (Python).",
-          module: "Flows.Exploration.Steps.compute_svd_activation_scores",
-          function: "compute_svd_activation_scores",
-          input: (catalog.PieceMetadata, catalog.Pieces, catalog.LegalPairings),
-          output: catalog.PairingScores,
-          executor: executor
-        );
+      pipeline.AddPythonStep<
+        IEnumerable<PieceMetadata>,
+        IEnumerable<PieceBlob>,
+        IEnumerable<BlockCandidate>,
+        IEnumerable<PairingScore>
+      >(
+        label: "ComputeSvdActivationScores",
+        description: "Score each (inp, out) candidate by SVD subspace alignment between inp write-directions and out read-directions. Pure weight geometry, no data pass required (Python).",
+        module: "Flows.Exploration.Steps.compute_svd_activation_scores",
+        function: "compute_svd_activation_scores",
+        input: (catalog.PieceMetadata, catalog.Pieces, catalog.LegalPairings),
+        output: catalog.PairingScores,
+        executor: executor
+      );
 
-            /* SUPERSEDED — Pearson correlation between mean activation and column attention norms.
-               Required a full data pass; SVD subspace alignment captures the same signal geometrically.
-            pipeline.AddPythonStep<
-              IEnumerable<PieceMetadata>,
-              IEnumerable<PieceBlob>,
-              IEnumerable<BlockCandidate>,
-              IEnumerable<MeasurementSchema>,
-              IEnumerable<PairingScore>
-            >(
-              label: "ComputeActivationScores",
-              description: "Run historical data through each inp piece; score each out piece by residual response magnitude. Lower = trained pair (Python).",
-              module: "Flows.Exploration.Steps.compute_activation_scores",
-              function: "compute_activation_scores",
-              input: (
-                catalog.PieceMetadata,
-                catalog.Pieces,
-                catalog.LegalPairings,
-                catalog.HistoricalData
-              ),
-              output: catalog.PairingScores,
-              executor: executor
-            );
-            */
+      /* SUPERSEDED — Pearson correlation between mean activation and column attention norms.
+         Required a full data pass; SVD subspace alignment captures the same signal geometrically.
+      pipeline.AddPythonStep<
+        IEnumerable<PieceMetadata>,
+        IEnumerable<PieceBlob>,
+        IEnumerable<BlockCandidate>,
+        IEnumerable<MeasurementSchema>,
+        IEnumerable<PairingScore>
+      >(
+        label: "ComputeActivationScores",
+        description: "Run historical data through each inp piece; score each out piece by residual response magnitude. Lower = trained pair (Python).",
+        module: "Flows.Exploration.Steps.compute_activation_scores",
+        function: "compute_activation_scores",
+        input: (
+          catalog.PieceMetadata,
+          catalog.Pieces,
+          catalog.LegalPairings,
+          catalog.HistoricalData
+        ),
+        output: catalog.PairingScores,
+        executor: executor
+      );
+      */
 
-            pipeline.AddPythonStep<IEnumerable<PairingScore>, IEnumerable<BlockAssignment>>(
-          label: "RunGumbelSinkhorn",
-          description: "Consensus inp↔out assignment via K Gumbel-Sinkhorn perturbation samples with temperature annealing (Python).",
-          module: "Flows.Exploration.Steps.run_gumbel_sinkhorn",
-          function: "run_gumbel_sinkhorn",
-          input: catalog.PairingScores,
-          output: catalog.BlockAssignments,
-          executor: executor
-        );
+      pipeline.AddPythonStep<IEnumerable<PairingScore>, IEnumerable<BlockAssignment>>(
+        label: "RunGumbelSinkhorn",
+        description: "Consensus inp↔out assignment via K Gumbel-Sinkhorn perturbation samples with temperature annealing (Python).",
+        module: "Flows.Exploration.Steps.run_gumbel_sinkhorn",
+        function: "run_gumbel_sinkhorn",
+        input: catalog.PairingScores,
+        output: catalog.BlockAssignments,
+        executor: executor
+      );
 
-            /* SUPERSEDED — single deterministic Hungarian solve + linear-space Sinkhorn normalization.
-               Fragile at low signal std (~0.07); replaced by Gumbel-Sinkhorn consensus.
-            pipeline.AddPythonStep<IEnumerable<PairingScore>, IEnumerable<BlockAssignment>>(
-              label: "RunHungarian",
-              description: "Globally optimal inp↔out assignment via Hungarian algorithm on the 48×48 score matrix (Python).",
-              module: "Flows.Exploration.Steps.run_hungarian",
-              function: "run_hungarian",
-              input: catalog.PairingScores,
-              output: catalog.BlockAssignments,
-              executor: executor
-            );
-            */
+      /* SUPERSEDED — single deterministic Hungarian solve + linear-space Sinkhorn normalization.
+         Fragile at low signal std (~0.07); replaced by Gumbel-Sinkhorn consensus.
+      pipeline.AddPythonStep<IEnumerable<PairingScore>, IEnumerable<BlockAssignment>>(
+        label: "RunHungarian",
+        description: "Globally optimal inp↔out assignment via Hungarian algorithm on the 48×48 score matrix (Python).",
+        module: "Flows.Exploration.Steps.run_hungarian",
+        function: "run_hungarian",
+        input: catalog.PairingScores,
+        output: catalog.BlockAssignments,
+        executor: executor
+      );
+      */
 
-            pipeline.AddPythonStep<
-          IEnumerable<BlockAssignment>,
-          IEnumerable<PieceBlob>,
-          IEnumerable<MeasurementSchema>,
-          IEnumerable<CandidatePermutation>
-        >(
-          label: "RankOrderings",
-          description: "Score Block execution orderings via activation chaining; emit top-N candidate permutations (Python).",
-          module: "Flows.Exploration.Steps.rank_orderings",
-          function: "rank_orderings",
-          input: (catalog.BlockAssignments, catalog.Pieces, catalog.HistoricalData),
-          output: catalog.CandidatePermutations,
-          executor: executor
-        );
-        });
-    }
+      pipeline.AddPythonStep<
+        IEnumerable<BlockAssignment>,
+        IEnumerable<PieceBlob>,
+        IEnumerable<MeasurementSchema>,
+        IEnumerable<CandidatePermutation>
+      >(
+        label: "RankOrderings",
+        description: "Score Block execution orderings via activation chaining; emit top-N candidate permutations (Python).",
+        module: "Flows.Exploration.Steps.rank_orderings",
+        function: "rank_orderings",
+        input: (catalog.BlockAssignments, catalog.Pieces, catalog.HistoricalData),
+        output: catalog.CandidatePermutations,
+        executor: executor
+      );
+    });
+  }
 }

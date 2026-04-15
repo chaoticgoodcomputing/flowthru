@@ -8,9 +8,9 @@ namespace Minimal.Data._03_Primary.Schemas;
 [FlowthruSchema]
 public partial record GoodbyeSchema
 {
-    /// <summary>
-    /// A farewell greeting in the format "Goodbye, {name}!"
-    /// </summary>
-    [SerializedLabel("greeting")]
-    public required string Greeting { get; init; }
+  /// <summary>
+  /// A farewell greeting in the format "Goodbye, {name}!"
+  /// </summary>
+  [SerializedLabel("greeting")]
+  public required string Greeting { get; init; }
 }

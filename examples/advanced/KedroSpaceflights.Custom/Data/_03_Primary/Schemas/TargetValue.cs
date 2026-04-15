@@ -12,8 +12,8 @@ public record TargetValue
     IBinarySerializable,
     IStructuredSerializable
 {
-    /// <summary>
-    /// The target price value
-    /// </summary>
-    public decimal Price { get; init; }
+  /// <summary>
+  /// The target price value
+  /// </summary>
+  public decimal Price { get; init; }
 }

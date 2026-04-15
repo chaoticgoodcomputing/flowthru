@@ -18,26 +18,25 @@ namespace DroppedNeuralNet.Flows.Solver.Steps;
 [FlowthruStep]
 public static class SelectSolutionStep
 {
-    public static Func<IEnumerable<CandidateEvaluation>, PermutationSolution> Create()
+  public static Func<IEnumerable<CandidateEvaluation>, PermutationSolution> Create()
+  {
+    return (evaluations) =>
     {
-        return (evaluations) =>
-        {
-            var ordered = evaluations.OrderBy(e => e.CandidateIndex).ToList();
-            if (ordered.Count == 0)
-            {
-                throw new InvalidOperationException(
-              "CandidateEvaluations is empty — run Exploration before Solver."
-            );
-            }
+      var ordered = evaluations.OrderBy(e => e.CandidateIndex).ToList();
+      if (ordered.Count == 0)
+      {
+        throw new InvalidOperationException(
+          "CandidateEvaluations is empty — run Exploration before Solver."
+        );
+      }
 
-            var best =
-          ordered.FirstOrDefault(e => e.PassesTolerance == 1)
-          ?? ordered.MinBy(e => e.MaxErr)!;
+      var best =
+        ordered.FirstOrDefault(e => e.PassesTolerance == 1) ?? ordered.MinBy(e => e.MaxErr)!;
 
-            return new PermutationSolution
-            {
-                Permutation = JsonSerializer.Deserialize<int[]>(best.Permutation) ?? Array.Empty<int>(),
-            };
-        };
-    }
+      return new PermutationSolution
+      {
+        Permutation = JsonSerializer.Deserialize<int[]>(best.Permutation) ?? Array.Empty<int>(),
+      };
+    };
+  }
 }

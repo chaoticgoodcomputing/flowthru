@@ -49,99 +49,99 @@ namespace Flowthru.Core.Data.Storage;
 /// </example>
 public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
 {
-    private T? _data;
-    private bool _hasData;
-    private readonly object _lock = new();
+  private T? _data;
+  private bool _hasData;
+  private readonly object _lock = new();
 
-    /// <summary>
-    /// Creates a new in-memory storage adapter.
-    /// </summary>
-    public MemoryStorageAdapter() { }
+  /// <summary>
+  /// Creates a new in-memory storage adapter.
+  /// </summary>
+  public MemoryStorageAdapter() { }
 
-    /// <summary>
-    /// Creates a new in-memory storage adapter with initial data.
-    /// </summary>
-    /// <param name="initialData">Initial data to store</param>
-    public MemoryStorageAdapter(T initialData)
+  /// <summary>
+  /// Creates a new in-memory storage adapter with initial data.
+  /// </summary>
+  /// <param name="initialData">Initial data to store</param>
+  public MemoryStorageAdapter(T initialData)
+  {
+    _data = initialData;
+    _hasData = true;
+  }
+
+  /// <inheritdoc />
+  public StorageTraits Traits => new StorageTraits { IsPersistent = false };
+
+  /// <inheritdoc />
+  public FlowIO<T> Load()
+  {
+    return FlowIO.Lift(() =>
     {
-        _data = initialData;
+      lock (_lock)
+      {
+        if (!_hasData)
+        {
+          throw new InvalidOperationException(
+            "Cannot load from memory storage - no data has been saved yet"
+          );
+        }
+        return _data!;
+      }
+    });
+  }
+
+  /// <inheritdoc />
+  public FlowIO<FlowUnit> Save(T data)
+  {
+    return FlowIO.Lift(() =>
+    {
+      lock (_lock)
+      {
+        _data = data;
         _hasData = true;
-    }
+        return FlowUnit.Default;
+      }
+    });
+  }
 
-    /// <inheritdoc />
-    public StorageTraits Traits => new StorageTraits { IsPersistent = false };
-
-    /// <inheritdoc />
-    public FlowIO<T> Load()
+  /// <inheritdoc />
+  public FlowIO<bool> Exists()
+  {
+    return FlowIO.Lift(() =>
     {
-        return FlowIO.Lift(() =>
+      lock (_lock)
+      {
+        return _hasData;
+      }
+    });
+  }
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.Lift(() =>
+    {
+      lock (_lock)
+      {
+        if (!_hasData)
         {
-            lock (_lock)
-            {
-                if (!_hasData)
-                {
-                    throw new InvalidOperationException(
-                  "Cannot load from memory storage - no data has been saved yet"
-                );
-                }
-                return _data!;
-            }
-        });
-    }
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(T).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Memory storage for '{typeof(T).Name}' has no data",
+            details: "Data must be saved before it can be loaded"
+          );
+        }
 
-    /// <inheritdoc />
-    public FlowIO<FlowUnit> Save(T data)
-    {
-        return FlowIO.Lift(() =>
-        {
-            lock (_lock)
-            {
-                _data = data;
-                _hasData = true;
-                return FlowUnit.Default;
-            }
-        });
-    }
+        return Data.Validation.ValidationResult.Success();
+      }
+    });
+  }
 
-    /// <inheritdoc />
-    public FlowIO<bool> Exists()
-    {
-        return FlowIO.Lift(() =>
-        {
-            lock (_lock)
-            {
-                return _hasData;
-            }
-        });
-    }
-
-    /// <inheritdoc />
-    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
-    {
-        return FlowIO.Lift(() =>
-        {
-            lock (_lock)
-            {
-                if (!_hasData)
-                {
-                    return Data.Validation.ValidationResult.Failure(
-                  catalogKey: typeof(T).Name,
-                  errorType: Data.Validation.ValidationErrorType.NotFound,
-                  message: $"Memory storage for '{typeof(T).Name}' has no data",
-                  details: "Data must be saved before it can be loaded"
-                );
-                }
-
-                return Data.Validation.ValidationResult.Success();
-            }
-        });
-    }
-
-    /// <inheritdoc />
-    public FlowIO<Data.Validation.ValidationResult> InspectDeep()
-    {
-        // For memory storage, deep inspection is equivalent to shallow
-        // since all data is already in memory
-        return InspectShallow(sampleSize: 0);
-    }
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep()
+  {
+    // For memory storage, deep inspection is equivalent to shallow
+    // since all data is already in memory
+    return InspectShallow(sampleSize: 0);
+  }
 }

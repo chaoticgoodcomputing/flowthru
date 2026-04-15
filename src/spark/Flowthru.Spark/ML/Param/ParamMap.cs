@@ -7,40 +7,37 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.ML.Feature.Param
 {
+  /// <summary>
+  /// A param to value map.
+  /// </summary>
+  public class ParamMap : IJvmObjectReferenceProvider
+  {
+    private static readonly string s_ParamMapClassName = "org.apache.spark.ml.param.ParamMap";
+
     /// <summary>
-    /// A param to value map.
+    /// Creates a new instance of a <see cref="ParamMap"/>
     /// </summary>
-    public class ParamMap : IJvmObjectReferenceProvider
-    {
-        private static readonly string s_ParamMapClassName = "org.apache.spark.ml.param.ParamMap";
+    public ParamMap()
+      : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamMapClassName)) { }
 
-        /// <summary>
-        /// Creates a new instance of a <see cref="ParamMap"/>
-        /// </summary>
-        public ParamMap() : this(SparkEnvironment.JvmBridge.CallConstructor(s_ParamMapClassName))
-        {
-        }
+    internal ParamMap(JvmObjectReference jvmObject) => Reference = jvmObject;
 
-        internal ParamMap(JvmObjectReference jvmObject) => Reference = jvmObject;
+    public JvmObjectReference Reference { get; private set; }
 
-        public JvmObjectReference Reference { get; private set; }
+    /// <summary>
+    /// Puts a (param, value) pair (overwrites if the input param exists).
+    /// </summary>
+    /// <param name="param">The param to be add</param>
+    /// <param name="value">The param value to be add</param>
+    public ParamMap Put<T>(Param param, T value) =>
+      WrapAsParamMap((JvmObjectReference)Reference.Invoke("put", param, value));
 
-        /// <summary>
-        /// Puts a (param, value) pair (overwrites if the input param exists).
-        /// </summary>
-        /// <param name="param">The param to be add</param>
-        /// <param name="value">The param value to be add</param>
-        public ParamMap Put<T>(Param param, T value) =>
-            WrapAsParamMap((JvmObjectReference)Reference.Invoke("put", param, value));
+    /// <summary>
+    /// Returns the string representation of this ParamMap.
+    /// </summary>
+    /// <returns>representation as string value.</returns>
+    public override string ToString() => (string)Reference.Invoke("toString");
 
-        /// <summary>
-        /// Returns the string representation of this ParamMap.
-        /// </summary>
-        /// <returns>representation as string value.</returns>
-        public override string ToString() =>
-            (string)Reference.Invoke("toString");
-
-        private static ParamMap WrapAsParamMap(object obj) =>
-            new ParamMap((JvmObjectReference)obj);
-    }
+    private static ParamMap WrapAsParamMap(object obj) => new ParamMap((JvmObjectReference)obj);
+  }
 }

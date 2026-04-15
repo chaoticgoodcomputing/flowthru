@@ -8,73 +8,73 @@ namespace Flowthru.Meta;
 /// </summary>
 public static class MetadataJsonExtensions
 {
-    /// <summary>
-    /// Shared JSON serialization options for all metadata.
-    /// </summary>
-    private static readonly JsonSerializerOptions _jsonOptions =
-      new()
+  /// <summary>
+  /// Shared JSON serialization options for all metadata.
+  /// </summary>
+  private static readonly JsonSerializerOptions _jsonOptions =
+    new()
+    {
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+      WriteIndented = true,
+      DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+      Converters =
       {
-          PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-          WriteIndented = true,
-          DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-          Converters =
-        {
         new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
-        },
-      };
+      },
+    };
 
-    /// <summary>
-    /// Serializes DagMetadata to pretty-printed JSON string.
-    /// </summary>
-    /// <param name="metadata">The DAG metadata to serialize</param>
-    /// <returns>JSON string representation</returns>
-    public static string ToJson(this DagMetadata metadata)
+  /// <summary>
+  /// Serializes DagMetadata to pretty-printed JSON string.
+  /// </summary>
+  /// <param name="metadata">The DAG metadata to serialize</param>
+  /// <returns>JSON string representation</returns>
+  public static string ToJson(this DagMetadata metadata)
+  {
+    if (metadata == null)
     {
-        if (metadata == null)
-        {
-            throw new ArgumentNullException(nameof(metadata));
-        }
-
-        return JsonSerializer.Serialize(metadata, _jsonOptions);
+      throw new ArgumentNullException(nameof(metadata));
     }
 
-    /// <summary>
-    /// Serializes DagMetadata to compact JSON string (no indentation).
-    /// </summary>
-    /// <param name="metadata">The DAG metadata to serialize</param>
-    /// <returns>Compact JSON string representation</returns>
-    public static string ToCompactJson(this DagMetadata metadata)
+    return JsonSerializer.Serialize(metadata, _jsonOptions);
+  }
+
+  /// <summary>
+  /// Serializes DagMetadata to compact JSON string (no indentation).
+  /// </summary>
+  /// <param name="metadata">The DAG metadata to serialize</param>
+  /// <returns>Compact JSON string representation</returns>
+  public static string ToCompactJson(this DagMetadata metadata)
+  {
+    if (metadata == null)
     {
-        if (metadata == null)
-        {
-            throw new ArgumentNullException(nameof(metadata));
-        }
-
-        var compactOptions = new JsonSerializerOptions(_jsonOptions) { WriteIndented = false };
-
-        return JsonSerializer.Serialize(metadata, compactOptions);
+      throw new ArgumentNullException(nameof(metadata));
     }
 
-    /// <summary>
-    /// Deserializes DagMetadata from JSON string.
-    /// </summary>
-    /// <param name="json">JSON string to deserialize</param>
-    /// <returns>Deserialized DagMetadata object</returns>
-    /// <exception cref="JsonException">Thrown if JSON is invalid or doesn't match schema</exception>
-    public static DagMetadata FromJson(string json)
+    var compactOptions = new JsonSerializerOptions(_jsonOptions) { WriteIndented = false };
+
+    return JsonSerializer.Serialize(metadata, compactOptions);
+  }
+
+  /// <summary>
+  /// Deserializes DagMetadata from JSON string.
+  /// </summary>
+  /// <param name="json">JSON string to deserialize</param>
+  /// <returns>Deserialized DagMetadata object</returns>
+  /// <exception cref="JsonException">Thrown if JSON is invalid or doesn't match schema</exception>
+  public static DagMetadata FromJson(string json)
+  {
+    if (string.IsNullOrWhiteSpace(json))
     {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            throw new ArgumentException("JSON string cannot be null or empty", nameof(json));
-        }
-
-        var metadata = JsonSerializer.Deserialize<DagMetadata>(json, _jsonOptions);
-
-        if (metadata == null)
-        {
-            throw new JsonException("Failed to deserialize DagMetadata from JSON");
-        }
-
-        return metadata;
+      throw new ArgumentException("JSON string cannot be null or empty", nameof(json));
     }
+
+    var metadata = JsonSerializer.Deserialize<DagMetadata>(json, _jsonOptions);
+
+    if (metadata == null)
+    {
+      throw new JsonException("Failed to deserialize DagMetadata from JSON");
+    }
+
+    return metadata;
+  }
 }

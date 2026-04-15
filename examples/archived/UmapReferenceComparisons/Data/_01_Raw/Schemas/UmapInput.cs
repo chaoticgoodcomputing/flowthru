@@ -13,25 +13,25 @@ namespace UmapReferenceComparisons.Data._01_Raw.Schemas;
 [FlowthruSchema]
 public partial record UmapInput
 {
-    /// <summary>
-    /// Unique observation identifier.
-    /// </summary>
-    [SerializedLabel("id")]
-    public string Id { get; init; } = null!;
+  /// <summary>
+  /// Unique observation identifier.
+  /// </summary>
+  [SerializedLabel("id")]
+  public string Id { get; init; } = null!;
 
-    /// <summary>
-    /// Class label or category (for visualization/validation).
-    /// </summary>
-    [SerializedLabel("label")]
-    public string Label { get; init; } = null!;
+  /// <summary>
+  /// Class label or category (for visualization/validation).
+  /// </summary>
+  [SerializedLabel("label")]
+  public string Label { get; init; } = null!;
 
-    /// <summary>
-    /// Feature vector as array of floats.
-    /// </summary>
-    /// <remarks>
-    /// This is the raw feature data that UMAP will transform.
-    /// Dimensionality depends on the source dataset.
-    /// </remarks>
-    [SerializedLabel("features")]
-    public float[] Features { get; init; } = null!;
+  /// <summary>
+  /// Feature vector as array of floats.
+  /// </summary>
+  /// <remarks>
+  /// This is the raw feature data that UMAP will transform.
+  /// Dimensionality depends on the source dataset.
+  /// </remarks>
+  [SerializedLabel("features")]
+  public float[] Features { get; init; } = null!;
 }

@@ -7,57 +7,57 @@ using System.IO;
 
 namespace Flowthru.Tests.Spark.TestUtils
 {
+  /// <summary>
+  /// Creates a temporary folder that is automatically cleaned up when disposed.
+  /// </summary>
+  internal sealed class TemporaryDirectory : IDisposable
+  {
+    private bool _disposed = false;
+
     /// <summary>
-    /// Creates a temporary folder that is automatically cleaned up when disposed.
+    /// Path to temporary folder.
     /// </summary>
-    internal sealed class TemporaryDirectory : IDisposable
+    public string Path { get; }
+
+    public TemporaryDirectory()
     {
-        private bool _disposed = false;
-
-        /// <summary>
-        /// Path to temporary folder.
-        /// </summary>
-        public string Path { get; }
-
-        public TemporaryDirectory()
-        {
-            Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString());
-            Cleanup();
-            Directory.CreateDirectory(Path);
-            Path = $"{Path}{System.IO.Path.DirectorySeparatorChar}";
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Cleanup()
-        {
-            if (File.Exists(Path))
-            {
-                File.Delete(Path);
-            }
-            else if (Directory.Exists(Path))
-            {
-                Directory.Delete(Path, true);
-            }
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                Cleanup();
-            }
-
-            _disposed = true;
-        }
+      Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString());
+      Cleanup();
+      Directory.CreateDirectory(Path);
+      Path = $"{Path}{System.IO.Path.DirectorySeparatorChar}";
     }
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    private void Cleanup()
+    {
+      if (File.Exists(Path))
+      {
+        File.Delete(Path);
+      }
+      else if (Directory.Exists(Path))
+      {
+        Directory.Delete(Path, true);
+      }
+    }
+
+    private void Dispose(bool disposing)
+    {
+      if (_disposed)
+      {
+        return;
+      }
+
+      if (disposing)
+      {
+        Cleanup();
+      }
+
+      _disposed = true;
+    }
+  }
 }

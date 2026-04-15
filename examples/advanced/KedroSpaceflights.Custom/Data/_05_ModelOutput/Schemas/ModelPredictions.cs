@@ -11,13 +11,13 @@ public record ModelPredictions
     IBinarySerializable,
     IStructuredSerializable
 {
-    /// <summary>
-    /// Actual value from test set
-    /// </summary>
-    public double Actual { get; init; }
+  /// <summary>
+  /// Actual value from test set
+  /// </summary>
+  public double Actual { get; init; }
 
-    /// <summary>
-    /// Predicted value from the model
-    /// </summary>
-    public double Predicted { get; init; }
+  /// <summary>
+  /// Predicted value from the model
+  /// </summary>
+  public double Predicted { get; init; }
 }

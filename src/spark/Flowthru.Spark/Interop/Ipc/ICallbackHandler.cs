@@ -6,11 +6,11 @@ using System.IO;
 
 namespace Flowthru.Spark.Interop.Ipc
 {
-    /// <summary>
-    /// Interface for handling callbacks between the JVM and Dotnet.
-    /// </summary>
-    internal interface ICallbackHandler
-    {
-        void Run(Stream inputStream);
-    }
+  /// <summary>
+  /// Interface for handling callbacks between the JVM and Dotnet.
+  /// </summary>
+  internal interface ICallbackHandler
+  {
+    void Run(Stream inputStream);
+  }
 }

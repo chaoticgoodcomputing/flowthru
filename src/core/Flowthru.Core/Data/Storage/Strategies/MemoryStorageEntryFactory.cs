@@ -32,17 +32,17 @@ namespace Flowthru.Core.Data.Storage.Strategies;
 /// </remarks>
 public sealed class MemoryStorageEntryFactory : IStorageEntryFactory
 {
-    /// <inheritdoc />
-    public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
-      where T : notnull, IFlatSchema, ITextSerializable
-    {
-        return ItemFactory.Enumerable.Memory<T>(label);
-    }
+  /// <inheritdoc />
+  public IItem<IEnumerable<T>> CreateEnumerable<T>(string label, StorageOptions? options = null)
+    where T : notnull, IFlatSchema, ITextSerializable
+  {
+    return ItemFactory.Enumerable.Memory<T>(label);
+  }
 
-    /// <inheritdoc />
-    public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
-      where T : IStructuredSerializable
-    {
-        return ItemFactory.Single.Memory<T>(label);
-    }
+  /// <inheritdoc />
+  public IItem<T> CreateSingle<T>(string label, StorageOptions? options = null)
+    where T : IStructuredSerializable
+  {
+    return ItemFactory.Single.Memory<T>(label);
+  }
 }

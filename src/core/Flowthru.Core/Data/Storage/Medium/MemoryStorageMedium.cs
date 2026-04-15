@@ -58,113 +58,113 @@ namespace Flowthru.Core.Data.Storage.Medium;
 /// </example>
 public sealed class MemoryStorageMedium : IStorageMedium
 {
-    private readonly object _lock = new();
-    private byte[]? _buffer;
+  private readonly object _lock = new();
+  private byte[]? _buffer;
 
-    /// <summary>
-    /// Creates a new memory storage medium with no initial data.
-    /// </summary>
-    public MemoryStorageMedium()
+  /// <summary>
+  /// Creates a new memory storage medium with no initial data.
+  /// </summary>
+  public MemoryStorageMedium()
+  {
+    _buffer = null;
+  }
+
+  /// <summary>
+  /// Creates a new memory storage medium with initial data.
+  /// </summary>
+  /// <param name="initialData">Initial byte buffer</param>
+  /// <exception cref="ArgumentNullException">Thrown if initialData is null</exception>
+  public MemoryStorageMedium(byte[] initialData)
+  {
+    _buffer = initialData ?? throw new ArgumentNullException(nameof(initialData));
+  }
+
+  /// <inheritdoc/>
+  public StorageTraits Traits => new StorageTraits { IsPersistent = false };
+
+  /// <inheritdoc/>
+  public FlowIO<Stream> ReadStream()
+  {
+    return FlowIO.Lift(() =>
     {
-        _buffer = null;
-    }
-
-    /// <summary>
-    /// Creates a new memory storage medium with initial data.
-    /// </summary>
-    /// <param name="initialData">Initial byte buffer</param>
-    /// <exception cref="ArgumentNullException">Thrown if initialData is null</exception>
-    public MemoryStorageMedium(byte[] initialData)
-    {
-        _buffer = initialData ?? throw new ArgumentNullException(nameof(initialData));
-    }
-
-    /// <inheritdoc/>
-    public StorageTraits Traits => new StorageTraits { IsPersistent = false };
-
-    /// <inheritdoc/>
-    public FlowIO<Stream> ReadStream()
-    {
-        return FlowIO.Lift(() =>
+      lock (_lock)
+      {
+        if (_buffer == null)
         {
-            lock (_lock)
-            {
-                if (_buffer == null)
-                {
-                    throw new InvalidOperationException(
-                  "No data available in memory storage. " + "Data must be written before it can be read."
-                );
-                }
-
-                // Create a new MemoryStream with a copy of the buffer
-                // This ensures the caller can dispose the stream without affecting our buffer
-                var bufferCopy = new byte[_buffer.Length];
-                System.Array.Copy(_buffer, bufferCopy, _buffer.Length);
-
-                return (Stream)new MemoryStream(bufferCopy, writable: false);
-            }
-        });
-    }
-
-    /// <inheritdoc/>
-    public FlowIO<FlowUnit> WriteStream(Stream stream)
-    {
-        return FlowIO.LiftAsync(
-          async (CancellationToken ct) =>
-          {
-              if (stream == null)
-              {
-                  throw new ArgumentNullException(nameof(stream));
-              }
-
-              // Read stream into memory buffer
-              using var memoryStream = new MemoryStream();
-              await stream.CopyToAsync(memoryStream, ct);
-
-              lock (_lock)
-              {
-                  _buffer = memoryStream.ToArray();
-              }
-
-              return FlowUnit.Default;
-          }
-        );
-    }
-
-    /// <inheritdoc/>
-    public FlowIO<bool> Exists()
-    {
-        return FlowIO.Lift(() =>
-        {
-            lock (_lock)
-            {
-                return _buffer != null;
-            }
-        });
-    }
-
-    /// <summary>
-    /// Gets the current buffer size in bytes, or null if no data is stored.
-    /// </summary>
-    public int? BufferSize
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _buffer?.Length;
-            }
+          throw new InvalidOperationException(
+            "No data available in memory storage. " + "Data must be written before it can be read."
+          );
         }
-    }
 
-    /// <summary>
-    /// Clears the internal buffer, freeing memory.
-    /// </summary>
-    public void Clear()
-    {
+        // Create a new MemoryStream with a copy of the buffer
+        // This ensures the caller can dispose the stream without affecting our buffer
+        var bufferCopy = new byte[_buffer.Length];
+        System.Array.Copy(_buffer, bufferCopy, _buffer.Length);
+
+        return (Stream)new MemoryStream(bufferCopy, writable: false);
+      }
+    });
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<FlowUnit> WriteStream(Stream stream)
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        if (stream == null)
+        {
+          throw new ArgumentNullException(nameof(stream));
+        }
+
+        // Read stream into memory buffer
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream, ct);
+
         lock (_lock)
         {
-            _buffer = null;
+          _buffer = memoryStream.ToArray();
         }
+
+        return FlowUnit.Default;
+      }
+    );
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<bool> Exists()
+  {
+    return FlowIO.Lift(() =>
+    {
+      lock (_lock)
+      {
+        return _buffer != null;
+      }
+    });
+  }
+
+  /// <summary>
+  /// Gets the current buffer size in bytes, or null if no data is stored.
+  /// </summary>
+  public int? BufferSize
+  {
+    get
+    {
+      lock (_lock)
+      {
+        return _buffer?.Length;
+      }
     }
+  }
+
+  /// <summary>
+  /// Clears the internal buffer, freeing memory.
+  /// </summary>
+  public void Clear()
+  {
+    lock (_lock)
+    {
+      _buffer = null;
+    }
+  }
 }

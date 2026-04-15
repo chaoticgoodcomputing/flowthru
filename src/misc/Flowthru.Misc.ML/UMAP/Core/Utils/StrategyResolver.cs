@@ -22,154 +22,154 @@ namespace Flowthru.Misc.ML.UMAP.Core.Utils;
 /// </summary>
 internal static class StrategyResolver
 {
-    /// <summary>
-    /// Auto-selects neighbor search strategy based on data size.
-    /// </summary>
-    /// <param name="shape">Data characteristics for selection</param>
-    /// <param name="verbosity">Verbosity level for logging</param>
-    /// <returns>Appropriate neighbor search strategy</returns>
-    public static INeighborSearchStrategy ResolveNeighborSearch(DataShape shape, int verbosity)
+  /// <summary>
+  /// Auto-selects neighbor search strategy based on data size.
+  /// </summary>
+  /// <param name="shape">Data characteristics for selection</param>
+  /// <param name="verbosity">Verbosity level for logging</param>
+  /// <returns>Appropriate neighbor search strategy</returns>
+  public static INeighborSearchStrategy ResolveNeighborSearch(DataShape shape, int verbosity)
+  {
+    // Use NN-Descent for larger datasets, brute force for smaller
+    var strategy =
+      shape.Samples < 4096
+        ? (INeighborSearchStrategy)new BruteForceSearch()
+        : new NNDescentSearch { Verbose = verbosity >= 2 };
+
+    if (verbosity >= 1)
     {
-        // Use NN-Descent for larger datasets, brute force for smaller
-        var strategy =
-          shape.Samples < 4096
-            ? (INeighborSearchStrategy)new BruteForceSearch()
-            : new NNDescentSearch { Verbose = verbosity >= 2 };
-
-        if (verbosity >= 1)
-        {
-            var strategyName = shape.Samples < 4096 ? "BruteForceSearch" : "NNDescentSearch";
-            Console.WriteLine(
-              $"[UMAP] Auto-selected {strategyName} for {shape.Samples} samples (threshold: 4096)"
-            );
-        }
-
-        return strategy;
+      var strategyName = shape.Samples < 4096 ? "BruteForceSearch" : "NNDescentSearch";
+      Console.WriteLine(
+        $"[UMAP] Auto-selected {strategyName} for {shape.Samples} samples (threshold: 4096)"
+      );
     }
 
-    /// <summary>
-    /// Auto-selects local metric strategy.
-    /// Currently always returns BinarySearchSmoothing (Python UMAP default).
-    /// </summary>
-    public static ILocalMetricStrategy ResolveLocalMetric(int verbosity)
-    {
-        if (verbosity >= 2)
-        {
-            Console.WriteLine("[UMAP] Using BinarySearchSmoothing for local metric");
-        }
+    return strategy;
+  }
 
-        return new BinarySearchSmoothing();
+  /// <summary>
+  /// Auto-selects local metric strategy.
+  /// Currently always returns BinarySearchSmoothing (Python UMAP default).
+  /// </summary>
+  public static ILocalMetricStrategy ResolveLocalMetric(int verbosity)
+  {
+    if (verbosity >= 2)
+    {
+      Console.WriteLine("[UMAP] Using BinarySearchSmoothing for local metric");
     }
 
-    /// <summary>
-    /// Auto-selects membership strength strategy.
-    /// Currently always returns ExponentialKernel (Python UMAP default).
-    /// </summary>
-    public static IMembershipStrengthStrategy ResolveMembershipStrength(int verbosity)
-    {
-        if (verbosity >= 2)
-        {
-            Console.WriteLine("[UMAP] Using ExponentialKernel for membership strength");
-        }
+    return new BinarySearchSmoothing();
+  }
 
-        return new ExponentialKernel();
+  /// <summary>
+  /// Auto-selects membership strength strategy.
+  /// Currently always returns ExponentialKernel (Python UMAP default).
+  /// </summary>
+  public static IMembershipStrengthStrategy ResolveMembershipStrength(int verbosity)
+  {
+    if (verbosity >= 2)
+    {
+      Console.WriteLine("[UMAP] Using ExponentialKernel for membership strength");
     }
 
-    /// <summary>
-    /// Auto-selects graph refinement strategy.
-    /// Uses CSR-optimized AdaptiveThresholding (Python UMAP default).
-    /// </summary>
-    /// <param name="shape">Data characteristics (unused, kept for API compatibility)</param>
-    /// <param name="verbosity">Verbosity level for logging</param>
-    /// <returns>Graph refinement strategy</returns>
-    public static IGraphRefinementStrategy ResolveGraphRefinement(DataShape shape, int verbosity)
-    {
-        if (verbosity >= 2)
-        {
-            Console.WriteLine("[UMAP] Using AdaptiveThresholding for graph refinement");
-        }
+    return new ExponentialKernel();
+  }
 
-        return new AdaptiveThresholding();
+  /// <summary>
+  /// Auto-selects graph refinement strategy.
+  /// Uses CSR-optimized AdaptiveThresholding (Python UMAP default).
+  /// </summary>
+  /// <param name="shape">Data characteristics (unused, kept for API compatibility)</param>
+  /// <param name="verbosity">Verbosity level for logging</param>
+  /// <returns>Graph refinement strategy</returns>
+  public static IGraphRefinementStrategy ResolveGraphRefinement(DataShape shape, int verbosity)
+  {
+    if (verbosity >= 2)
+    {
+      Console.WriteLine("[UMAP] Using AdaptiveThresholding for graph refinement");
     }
 
-    /// <summary>
-    /// Auto-selects layout initialization strategy.
-    /// Defaults to spectral initialization.
-    /// </summary>
-    /// <param name="verbosity">Verbosity level for logging</param>
-    /// <returns>Appropriate layout initialization strategy</returns>
-    public static ILayoutInitStrategy ResolveLayoutInit(int verbosity)
-    {
-        if (verbosity >= 1)
-        {
-            Console.WriteLine("[UMAP] Using SpectralInit for layout initialization");
-        }
+    return new AdaptiveThresholding();
+  }
 
-        return new SpectralInit();
+  /// <summary>
+  /// Auto-selects layout initialization strategy.
+  /// Defaults to spectral initialization.
+  /// </summary>
+  /// <param name="verbosity">Verbosity level for logging</param>
+  /// <returns>Appropriate layout initialization strategy</returns>
+  public static ILayoutInitStrategy ResolveLayoutInit(int verbosity)
+  {
+    if (verbosity >= 1)
+    {
+      Console.WriteLine("[UMAP] Using SpectralInit for layout initialization");
     }
 
-    /// <summary>
-    /// Auto-selects sampling schedule strategy.
-    /// Currently always returns ProportionalSampling (Python UMAP default).
-    /// </summary>
-    public static ISamplingScheduleStrategy ResolveSamplingSchedule(int verbosity)
-    {
-        if (verbosity >= 2)
-        {
-            Console.WriteLine("[UMAP] Using ProportionalSampling for sampling schedule");
-        }
+    return new SpectralInit();
+  }
 
-        return new ProportionalSampling();
+  /// <summary>
+  /// Auto-selects sampling schedule strategy.
+  /// Currently always returns ProportionalSampling (Python UMAP default).
+  /// </summary>
+  public static ISamplingScheduleStrategy ResolveSamplingSchedule(int verbosity)
+  {
+    if (verbosity >= 2)
+    {
+      Console.WriteLine("[UMAP] Using ProportionalSampling for sampling schedule");
     }
 
-    /// <summary>
-    /// Auto-selects layout optimization strategy.
-    /// Uses optimized SGD with direct array access and early stopping as the default.
-    /// </summary>
-    /// <param name="shape">Data characteristics for selection</param>
-    /// <param name="verbosity">Verbosity level for logging</param>
-    /// <returns>Optimized layout optimization strategy</returns>
-    /// <remarks>
-    /// The optimized implementation is now the default for all dataset sizes as it provides:
-    /// - 1.5-2x speedup from direct array access (bypasses matrix indexing overhead)
-    /// - 10-30% additional speedup from early stopping convergence detection
-    /// - Identical embedding quality (validated via neighborhood preservation metrics)
-    /// The standard <see cref="EuclideanSGD"/> is retained for testing and historical purposes.
-    /// </remarks>
-    public static ILayoutOptimizationStrategy ResolveLayoutOptimization(
-      DataShape shape,
-      int verbosity
-    )
-    {
-        if (verbosity >= 1)
-        {
-            Console.WriteLine(
-              $"[UMAP] Using EuclideanSGDOptimized for layout optimization ({shape.Samples} samples)"
-            );
-            if (verbosity >= 2)
-            {
-                Console.WriteLine(
-                  "[UMAP] Optimized SGD features: direct array access, early stopping enabled"
-                );
-            }
-        }
+    return new ProportionalSampling();
+  }
 
-        return new EuclideanSGDOptimized(convergenceThreshold: 0.001f);
+  /// <summary>
+  /// Auto-selects layout optimization strategy.
+  /// Uses optimized SGD with direct array access and early stopping as the default.
+  /// </summary>
+  /// <param name="shape">Data characteristics for selection</param>
+  /// <param name="verbosity">Verbosity level for logging</param>
+  /// <returns>Optimized layout optimization strategy</returns>
+  /// <remarks>
+  /// The optimized implementation is now the default for all dataset sizes as it provides:
+  /// - 1.5-2x speedup from direct array access (bypasses matrix indexing overhead)
+  /// - 10-30% additional speedup from early stopping convergence detection
+  /// - Identical embedding quality (validated via neighborhood preservation metrics)
+  /// The standard <see cref="EuclideanSGD"/> is retained for testing and historical purposes.
+  /// </remarks>
+  public static ILayoutOptimizationStrategy ResolveLayoutOptimization(
+    DataShape shape,
+    int verbosity
+  )
+  {
+    if (verbosity >= 1)
+    {
+      Console.WriteLine(
+        $"[UMAP] Using EuclideanSGDOptimized for layout optimization ({shape.Samples} samples)"
+      );
+      if (verbosity >= 2)
+      {
+        Console.WriteLine(
+          "[UMAP] Optimized SGD features: direct array access, early stopping enabled"
+        );
+      }
     }
 
-    /// <summary>
-    /// Auto-selects layout optimization strategy (legacy overload without data shape).
-    /// Uses optimized SGD as the default.
-    /// </summary>
-    /// <param name="verbosity">Verbosity level for logging</param>
-    /// <returns>Optimized layout optimization strategy</returns>
-    public static ILayoutOptimizationStrategy ResolveLayoutOptimization(int verbosity)
-    {
-        if (verbosity >= 1)
-        {
-            Console.WriteLine("[UMAP] Using EuclideanSGDOptimized for layout optimization");
-        }
+    return new EuclideanSGDOptimized(convergenceThreshold: 0.001f);
+  }
 
-        return new EuclideanSGDOptimized(convergenceThreshold: 0.001f);
+  /// <summary>
+  /// Auto-selects layout optimization strategy (legacy overload without data shape).
+  /// Uses optimized SGD as the default.
+  /// </summary>
+  /// <param name="verbosity">Verbosity level for logging</param>
+  /// <returns>Optimized layout optimization strategy</returns>
+  public static ILayoutOptimizationStrategy ResolveLayoutOptimization(int verbosity)
+  {
+    if (verbosity >= 1)
+    {
+      Console.WriteLine("[UMAP] Using EuclideanSGDOptimized for layout optimization");
     }
+
+    return new EuclideanSGDOptimized(convergenceThreshold: 0.001f);
+  }
 }

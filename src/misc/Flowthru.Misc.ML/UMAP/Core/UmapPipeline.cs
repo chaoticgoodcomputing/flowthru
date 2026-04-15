@@ -47,18 +47,18 @@ namespace Flowthru.Misc.ML.UMAP.Core;
 /// </remarks>
 public static class UmapPipeline
 {
-    /// <summary>
-    /// Creates a new UMAP pipeline with default settings.
-    /// Euclidean metric is used by default, and strategies will be auto-selected based on data shape.
-    /// </summary>
-    /// <param name="parameters">
-    /// UMAP hyperparameters (n_neighbors, min_dist, etc.).
-    /// If null, uses defaults appropriate for the data.
-    /// </param>
-    public static UmapFlowBuilder Create(UmapParameters? parameters = null)
-    {
-        return new UmapFlowBuilder(parameters ?? new UmapParameters());
-    }
+  /// <summary>
+  /// Creates a new UMAP pipeline with default settings.
+  /// Euclidean metric is used by default, and strategies will be auto-selected based on data shape.
+  /// </summary>
+  /// <param name="parameters">
+  /// UMAP hyperparameters (n_neighbors, min_dist, etc.).
+  /// If null, uses defaults appropriate for the data.
+  /// </param>
+  public static UmapFlowBuilder Create(UmapParameters? parameters = null)
+  {
+    return new UmapFlowBuilder(parameters ?? new UmapParameters());
+  }
 }
 
 /// <summary>
@@ -66,363 +66,363 @@ public static class UmapPipeline
 /// </summary>
 internal sealed class UmapPipelineExecutor
 {
-    private readonly UmapParameters _parameters;
-    private readonly IMetric _inputMetric;
-    private readonly INeighborSearchStrategy _neighborSearch;
-    private readonly ILocalMetricStrategy _localMetric;
-    private readonly IMembershipStrengthStrategy _membershipStrength;
-    private readonly IGraphRefinementStrategy? _graphRefinement;
-    private readonly ILayoutInitStrategy? _layoutInit;
-    private readonly ISamplingScheduleStrategy? _samplingSchedule;
-    private readonly ILayoutOptimizationStrategy? _layoutOptimization;
-    private readonly Dictionary<string, int> _timings = new();
+  private readonly UmapParameters _parameters;
+  private readonly IMetric _inputMetric;
+  private readonly INeighborSearchStrategy _neighborSearch;
+  private readonly ILocalMetricStrategy _localMetric;
+  private readonly IMembershipStrengthStrategy _membershipStrength;
+  private readonly IGraphRefinementStrategy? _graphRefinement;
+  private readonly ILayoutInitStrategy? _layoutInit;
+  private readonly ISamplingScheduleStrategy? _samplingSchedule;
+  private readonly ILayoutOptimizationStrategy? _layoutOptimization;
+  private readonly Dictionary<string, int> _timings = new();
 
-    internal UmapPipelineExecutor(
-      UmapParameters parameters,
-      IMetric inputMetric,
-      INeighborSearchStrategy neighborSearch,
-      ILocalMetricStrategy localMetric,
-      IMembershipStrengthStrategy membershipStrength,
-      IGraphRefinementStrategy? graphRefinement = null,
-      ILayoutInitStrategy? layoutInit = null,
-      ISamplingScheduleStrategy? samplingSchedule = null,
-      ILayoutOptimizationStrategy? layoutOptimization = null
-    )
+  internal UmapPipelineExecutor(
+    UmapParameters parameters,
+    IMetric inputMetric,
+    INeighborSearchStrategy neighborSearch,
+    ILocalMetricStrategy localMetric,
+    IMembershipStrengthStrategy membershipStrength,
+    IGraphRefinementStrategy? graphRefinement = null,
+    ILayoutInitStrategy? layoutInit = null,
+    ISamplingScheduleStrategy? samplingSchedule = null,
+    ILayoutOptimizationStrategy? layoutOptimization = null
+  )
+  {
+    _parameters = parameters;
+    _inputMetric = inputMetric;
+    _neighborSearch = neighborSearch;
+    _localMetric = localMetric;
+    _membershipStrength = membershipStrength;
+    _graphRefinement = graphRefinement;
+    _layoutInit = layoutInit;
+    _samplingSchedule = samplingSchedule;
+    _layoutOptimization = layoutOptimization;
+  }
+
+  /// <summary>
+  /// Computes the fuzzy simplicial set graph from input data.
+  /// This executes phases 1-3 of the UMAP algorithm.
+  /// </summary>
+  /// <param name="data">
+  /// Input data matrix where rows are samples and columns are features.
+  /// Shape: (n_samples, n_features)
+  /// </param>
+  /// <returns>
+  /// A result containing the fuzzy simplicial set graph and intermediate data structures.
+  /// </returns>
+  public UmapGraphResult ComputeGraph(Matrix<float> data)
+  {
+    var random = _parameters.RandomSeed.HasValue
+      ? new Random(_parameters.RandomSeed.Value)
+      : new Random();
+
+    // Convert Matrix<float> to float[][] for neighbor search
+    int nSamples = data.RowCount;
+    int nFeatures = data.ColumnCount;
+    var dataArray = new float[nSamples][];
+    for (int i = 0; i < nSamples; i++)
     {
-        _parameters = parameters;
-        _inputMetric = inputMetric;
-        _neighborSearch = neighborSearch;
-        _localMetric = localMetric;
-        _membershipStrength = membershipStrength;
-        _graphRefinement = graphRefinement;
-        _layoutInit = layoutInit;
-        _samplingSchedule = samplingSchedule;
-        _layoutOptimization = layoutOptimization;
+      dataArray[i] = data.Row(i).ToArray();
     }
 
-    /// <summary>
-    /// Computes the fuzzy simplicial set graph from input data.
-    /// This executes phases 1-3 of the UMAP algorithm.
-    /// </summary>
-    /// <param name="data">
-    /// Input data matrix where rows are samples and columns are features.
-    /// Shape: (n_samples, n_features)
-    /// </param>
-    /// <returns>
-    /// A result containing the fuzzy simplicial set graph and intermediate data structures.
-    /// </returns>
-    public UmapGraphResult ComputeGraph(Matrix<float> data)
+    // Phase 1: Nearest Neighbor Search
+    ReportProgress("Neighbor Search", 0.0f, "Finding k-nearest neighbors");
+    var sw = Stopwatch.StartNew();
+
+    var neighborResult = _neighborSearch.Search(
+      dataArray,
+      _parameters.NumberOfNeighbors,
+      _inputMetric,
+      random
+    );
+
+    sw.Stop();
+    _timings["NeighborSearch"] = (int)sw.ElapsedMilliseconds;
+    ReportProgress("Neighbor Search", 1.0f, $"Found neighbors for {nSamples} points");
+
+    // Phase 2: Local Metric Computation
+    ReportProgress("Local Metric", 0.0f, "Computing local metric parameters");
+    sw.Restart();
+
+    var localMetricResult = _localMetric.ComputeLocalMetrics(
+      neighborResult.Distances,
+      _parameters.NumberOfNeighbors,
+      _parameters.LocalConnectivity
+    );
+
+    sw.Stop();
+    _timings["LocalMetric"] = (int)sw.ElapsedMilliseconds;
+    ReportProgress("Local Metric", 1.0f, "Local metrics computed");
+
+    // Phase 3: Membership Strength Computation
+    ReportProgress("Graph Construction", 0.0f, "Building fuzzy simplicial set");
+    sw.Restart();
+
+    var graph = _membershipStrength.ComputeMembershipStrengths(
+      neighborResult.Indices,
+      neighborResult.Distances,
+      localMetricResult.Sigmas,
+      localMetricResult.Rhos,
+      _parameters.SetOpMixRatio
+    );
+
+    sw.Stop();
+    _timings["GraphConstruction"] = (int)sw.ElapsedMilliseconds;
+    ReportProgress(
+      "Graph Construction",
+      1.0f,
+      $"Graph constructed with {graph.NonZerosCount} edges"
+    );
+
+    // Phase 4: Optional Graph Refinement
+    if (_graphRefinement != null)
     {
-        var random = _parameters.RandomSeed.HasValue
-          ? new Random(_parameters.RandomSeed.Value)
-          : new Random();
+      ReportProgress("Graph Refinement", 0.0f, "Refining graph (pruning weak edges)");
+      sw.Restart();
 
-        // Convert Matrix<float> to float[][] for neighbor search
-        int nSamples = data.RowCount;
-        int nFeatures = data.ColumnCount;
-        var dataArray = new float[nSamples][];
-        for (int i = 0; i < nSamples; i++)
-        {
-            dataArray[i] = data.Row(i).ToArray();
-        }
+      var nEpochs = _parameters.NumberOfEpochs ?? (graph.RowCount <= 10000 ? 500 : 200);
 
-        // Phase 1: Nearest Neighbor Search
-        ReportProgress("Neighbor Search", 0.0f, "Finding k-nearest neighbors");
-        var sw = Stopwatch.StartNew();
+      if (_parameters.Verbosity >= 2)
+      {
+        Console.WriteLine($"[Graph Refinement] About to call RefineGraph (nEpochs={nEpochs})");
+      }
 
-        var neighborResult = _neighborSearch.Search(
-          dataArray,
-          _parameters.NumberOfNeighbors,
-          _inputMetric,
-          random
-        );
+      var refinementResult = _graphRefinement.RefineGraph(graph, nEpochs);
 
-        sw.Stop();
-        _timings["NeighborSearch"] = (int)sw.ElapsedMilliseconds;
-        ReportProgress("Neighbor Search", 1.0f, $"Found neighbors for {nSamples} points");
+      if (_parameters.Verbosity >= 2)
+      {
+        Console.WriteLine($"[Graph Refinement] RefineGraph returned, processing result");
+      }
 
-        // Phase 2: Local Metric Computation
-        ReportProgress("Local Metric", 0.0f, "Computing local metric parameters");
-        sw.Restart();
+      graph = refinementResult.RefinedGraph;
 
-        var localMetricResult = _localMetric.ComputeLocalMetrics(
-          neighborResult.Distances,
-          _parameters.NumberOfNeighbors,
-          _parameters.LocalConnectivity
-        );
-
-        sw.Stop();
-        _timings["LocalMetric"] = (int)sw.ElapsedMilliseconds;
-        ReportProgress("Local Metric", 1.0f, "Local metrics computed");
-
-        // Phase 3: Membership Strength Computation
-        ReportProgress("Graph Construction", 0.0f, "Building fuzzy simplicial set");
-        sw.Restart();
-
-        var graph = _membershipStrength.ComputeMembershipStrengths(
-          neighborResult.Indices,
-          neighborResult.Distances,
-          localMetricResult.Sigmas,
-          localMetricResult.Rhos,
-          _parameters.SetOpMixRatio
-        );
-
-        sw.Stop();
-        _timings["GraphConstruction"] = (int)sw.ElapsedMilliseconds;
-        ReportProgress(
-          "Graph Construction",
-          1.0f,
-          $"Graph constructed with {graph.NonZerosCount} edges"
-        );
-
-        // Phase 4: Optional Graph Refinement
-        if (_graphRefinement != null)
-        {
-            ReportProgress("Graph Refinement", 0.0f, "Refining graph (pruning weak edges)");
-            sw.Restart();
-
-            var nEpochs = _parameters.NumberOfEpochs ?? (graph.RowCount <= 10000 ? 500 : 200);
-
-            if (_parameters.Verbosity >= 2)
-            {
-                Console.WriteLine($"[Graph Refinement] About to call RefineGraph (nEpochs={nEpochs})");
-            }
-
-            var refinementResult = _graphRefinement.RefineGraph(graph, nEpochs);
-
-            if (_parameters.Verbosity >= 2)
-            {
-                Console.WriteLine($"[Graph Refinement] RefineGraph returned, processing result");
-            }
-
-            graph = refinementResult.RefinedGraph;
-
-            sw.Stop();
-            _timings["GraphRefinement"] = (int)sw.ElapsedMilliseconds;
-            ReportProgress(
-              "Graph Refinement",
-              1.0f,
-              $"Refined graph; removed {refinementResult.EdgesRemoved} edges (threshold {refinementResult.MinEdgeWeight})"
-            );
-        }
-
-        if (_parameters.Verbosity >= 2)
-        {
-            Console.WriteLine($"[ComputeGraph] Returning graph result (edges={graph.NonZerosCount})");
-        }
-
-        return new UmapGraphResult(
-          Graph: graph,
-          KnnIndices: neighborResult.Indices,
-          KnnDistances: neighborResult.Distances,
-          Sigmas: localMetricResult.Sigmas,
-          Rhos: localMetricResult.Rhos,
-          SearchIndex: neighborResult.SearchIndex
-        );
+      sw.Stop();
+      _timings["GraphRefinement"] = (int)sw.ElapsedMilliseconds;
+      ReportProgress(
+        "Graph Refinement",
+        1.0f,
+        $"Refined graph; removed {refinementResult.EdgesRemoved} edges (threshold {refinementResult.MinEdgeWeight})"
+      );
     }
 
-    /// <summary>
-    /// Initializes low-dimensional layout using the configured layout initialization strategy.
-    /// Falls back to a simple random initialization if none is configured.
-    /// </summary>
-    public LayoutInitResult InitializeLayout(Matrix<float>? data, SparseMatrix graph)
+    if (_parameters.Verbosity >= 2)
     {
-        var random = _parameters.RandomSeed.HasValue
-          ? new Random(_parameters.RandomSeed.Value)
-          : new Random();
-
-        var nComponents = _parameters.NumberOfComponents;
-
-        if (_layoutInit != null)
-        {
-            return _layoutInit.InitializeLayout(data, graph, nComponents, random);
-        }
-
-        // Default fallback: random initialization
-        var fallback = new Strategies.LayoutInit.Implementations.RandomInit();
-        return fallback.InitializeLayout(data, graph, nComponents, random);
+      Console.WriteLine($"[ComputeGraph] Returning graph result (edges={graph.NonZerosCount})");
     }
 
-    private void ReportProgress(string stage, float progress, string? details = null)
-    {
-        if (_parameters.Verbosity >= 1 && progress >= 1.0f)
-        {
-            Console.WriteLine($"[{stage}] {details ?? "Complete"}");
-        }
+    return new UmapGraphResult(
+      Graph: graph,
+      KnnIndices: neighborResult.Indices,
+      KnnDistances: neighborResult.Distances,
+      Sigmas: localMetricResult.Sigmas,
+      Rhos: localMetricResult.Rhos,
+      SearchIndex: neighborResult.SearchIndex
+    );
+  }
 
-        _parameters.ProgressReporter?.Report(
-          new UmapProgress
-          {
-              Stage = stage,
-              Progress = progress,
-              Details = details,
-          }
-        );
+  /// <summary>
+  /// Initializes low-dimensional layout using the configured layout initialization strategy.
+  /// Falls back to a simple random initialization if none is configured.
+  /// </summary>
+  public LayoutInitResult InitializeLayout(Matrix<float>? data, SparseMatrix graph)
+  {
+    var random = _parameters.RandomSeed.HasValue
+      ? new Random(_parameters.RandomSeed.Value)
+      : new Random();
+
+    var nComponents = _parameters.NumberOfComponents;
+
+    if (_layoutInit != null)
+    {
+      return _layoutInit.InitializeLayout(data, graph, nComponents, random);
     }
 
-    /// <summary>
-    /// Executes the complete UMAP algorithm: graph construction, refinement,
-    /// layout initialization, and optimization.
-    /// </summary>
-    /// <param name="data">Input data matrix where rows are samples and columns are features.</param>
-    /// <returns>A result containing the final embedding and intermediate artifacts.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if required strategies are not configured.</exception>
-    public UmapFitResult FitTransform(Matrix<float> data)
+    // Default fallback: random initialization
+    var fallback = new Strategies.LayoutInit.Implementations.RandomInit();
+    return fallback.InitializeLayout(data, graph, nComponents, random);
+  }
+
+  private void ReportProgress(string stage, float progress, string? details = null)
+  {
+    if (_parameters.Verbosity >= 1 && progress >= 1.0f)
     {
-        var totalSw = Stopwatch.StartNew();
-
-        if (_parameters.Verbosity >= 2)
-        {
-            Console.WriteLine(
-              $"[FitTransform] Starting (samples={data.RowCount}, features={data.ColumnCount})"
-            );
-        }
-
-        // Phase 1-4: Compute and refine graph
-        if (_parameters.Verbosity >= 2)
-        {
-            Console.WriteLine($"[FitTransform] Calling ComputeGraph...");
-        }
-
-        var graphResult = ComputeGraph(data);
-
-        if (_parameters.Verbosity >= 2)
-        {
-            Console.WriteLine(
-              $"[FitTransform] ComputeGraph returned (graph edges={graphResult.Graph.NonZerosCount})"
-            );
-        }
-
-        // Phase 5: Initialize layout
-        if (_layoutInit == null)
-        {
-            throw new InvalidOperationException(
-              "Layout initialization strategy is required for FitTransform. Call WithLayoutInit() on the builder."
-            );
-        }
-
-        if (_parameters.Verbosity >= 2)
-        {
-            Console.WriteLine($"[FitTransform] Starting layout initialization...");
-        }
-
-        var sw = Stopwatch.StartNew();
-        var layoutResult = InitializeLayout(data, graphResult.Graph);
-
-        if (_parameters.Verbosity >= 2)
-        {
-            Console.WriteLine($"[FitTransform] Layout initialization completed");
-        }
-        sw.Stop();
-        _timings["LayoutInit"] = (int)sw.ElapsedMilliseconds;
-
-        // Determine number of epochs using Python UMAP heuristic if not specified
-        var nEpochs = _parameters.NumberOfEpochs ?? (data.RowCount <= 10000 ? 500 : 200);
-
-        if (_parameters.Verbosity >= 1)
-        {
-            Console.WriteLine($"[UMAP] Using {nEpochs} epochs for {data.RowCount} samples");
-        }
-
-        // Phase 6: Compute sampling schedule
-        if (_samplingSchedule == null)
-        {
-            throw new InvalidOperationException(
-              "Sampling schedule strategy is required for FitTransform. Call WithSamplingSchedule() on the builder."
-            );
-        }
-
-        var edges = ConvertGraphToEdges(graphResult.Graph);
-        var edgeWeights = edges.Select(e => e.Weight).ToArray();
-
-        sw.Restart();
-        var scheduleResult = _samplingSchedule.ComputeSchedule(edgeWeights, nEpochs);
-        sw.Stop();
-        _timings["SamplingSchedule"] = (int)sw.ElapsedMilliseconds;
-
-        // Phase 7: Optimize layout
-        if (_layoutOptimization == null)
-        {
-            throw new InvalidOperationException(
-              "Layout optimization strategy is required for FitTransform. Call WithLayoutOptimization() on the builder."
-            );
-        }
-
-        var optimizationParams = new OptimizationParameters
-        {
-            A = _parameters.GetA(),
-            B = _parameters.GetB(),
-            InitialAlpha = _parameters.LearningRate,
-            Gamma = _parameters.RepulsionStrength,
-            NegativeSampleRate = _parameters.NegativeSampleRate,
-            Verbosity = _parameters.Verbosity,
-            ProgressReporter = _parameters.ProgressReporter,
-        };
-
-        if (_parameters.Verbosity >= 1)
-        {
-            Console.WriteLine(
-              $"[UMAP] Optimization parameters: A={optimizationParams.A:F4}, B={optimizationParams.B:F4}, "
-                + $"LearningRate={optimizationParams.InitialAlpha:F3}, Gamma={optimizationParams.Gamma:F2}, "
-                + $"NegativeSampleRate={optimizationParams.NegativeSampleRate}"
-            );
-            Console.WriteLine(
-              $"[UMAP] Source parameters: MinDist={_parameters.MinDist:F4}, Spread={_parameters.Spread:F2}"
-            );
-        }
-
-        var random = _parameters.RandomSeed.HasValue
-          ? new Random(_parameters.RandomSeed.Value)
-          : new Random();
-
-        sw.Restart();
-        var optimizationResult = _layoutOptimization.Optimize(
-          initialEmbedding: layoutResult.Embedding,
-          graphEdges: edges,
-          samplingSchedule: scheduleResult.EpochsPerSample,
-          nEpochs: nEpochs,
-          parameters: optimizationParams,
-          random: random
-        );
-        sw.Stop();
-        _timings["LayoutOptimization"] = (int)sw.ElapsedMilliseconds;
-
-        totalSw.Stop();
-
-        var runtimeReport = new UmapRuntimeReport
-        {
-            Timings = new Dictionary<string, int>(_timings),
-            TotalTimeMs = (int)totalSw.ElapsedMilliseconds,
-        };
-
-        return new UmapFitResult(
-          Embedding: optimizationResult.OptimizedEmbedding,
-          GraphResult: graphResult,
-          LayoutInitResult: layoutResult,
-          SamplingScheduleResult: scheduleResult,
-          OptimizationResult: optimizationResult,
-          RuntimeReport: runtimeReport
-        );
+      Console.WriteLine($"[{stage}] {details ?? "Complete"}");
     }
 
-    /// <summary>
-    /// Converts a sparse graph matrix to an array of edges for optimization.
-    /// </summary>
-    private static GraphEdge[] ConvertGraphToEdges(SparseMatrix graph)
+    _parameters.ProgressReporter?.Report(
+      new UmapProgress
+      {
+        Stage = stage,
+        Progress = progress,
+        Details = details,
+      }
+    );
+  }
+
+  /// <summary>
+  /// Executes the complete UMAP algorithm: graph construction, refinement,
+  /// layout initialization, and optimization.
+  /// </summary>
+  /// <param name="data">Input data matrix where rows are samples and columns are features.</param>
+  /// <returns>A result containing the final embedding and intermediate artifacts.</returns>
+  /// <exception cref="InvalidOperationException">Thrown if required strategies are not configured.</exception>
+  public UmapFitResult FitTransform(Matrix<float> data)
+  {
+    var totalSw = Stopwatch.StartNew();
+
+    if (_parameters.Verbosity >= 2)
     {
-        var edges = new List<GraphEdge>();
-        var enumerator = graph.EnumerateIndexed(Zeros.AllowSkip);
-
-        foreach (var (row, col, weight) in enumerator)
-        {
-            if (row < col && weight > 0.0f)
-            {
-                edges.Add(new GraphEdge(Head: row, Tail: col, Weight: weight));
-            }
-        }
-
-        return edges.ToArray();
+      Console.WriteLine(
+        $"[FitTransform] Starting (samples={data.RowCount}, features={data.ColumnCount})"
+      );
     }
+
+    // Phase 1-4: Compute and refine graph
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine($"[FitTransform] Calling ComputeGraph...");
+    }
+
+    var graphResult = ComputeGraph(data);
+
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine(
+        $"[FitTransform] ComputeGraph returned (graph edges={graphResult.Graph.NonZerosCount})"
+      );
+    }
+
+    // Phase 5: Initialize layout
+    if (_layoutInit == null)
+    {
+      throw new InvalidOperationException(
+        "Layout initialization strategy is required for FitTransform. Call WithLayoutInit() on the builder."
+      );
+    }
+
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine($"[FitTransform] Starting layout initialization...");
+    }
+
+    var sw = Stopwatch.StartNew();
+    var layoutResult = InitializeLayout(data, graphResult.Graph);
+
+    if (_parameters.Verbosity >= 2)
+    {
+      Console.WriteLine($"[FitTransform] Layout initialization completed");
+    }
+    sw.Stop();
+    _timings["LayoutInit"] = (int)sw.ElapsedMilliseconds;
+
+    // Determine number of epochs using Python UMAP heuristic if not specified
+    var nEpochs = _parameters.NumberOfEpochs ?? (data.RowCount <= 10000 ? 500 : 200);
+
+    if (_parameters.Verbosity >= 1)
+    {
+      Console.WriteLine($"[UMAP] Using {nEpochs} epochs for {data.RowCount} samples");
+    }
+
+    // Phase 6: Compute sampling schedule
+    if (_samplingSchedule == null)
+    {
+      throw new InvalidOperationException(
+        "Sampling schedule strategy is required for FitTransform. Call WithSamplingSchedule() on the builder."
+      );
+    }
+
+    var edges = ConvertGraphToEdges(graphResult.Graph);
+    var edgeWeights = edges.Select(e => e.Weight).ToArray();
+
+    sw.Restart();
+    var scheduleResult = _samplingSchedule.ComputeSchedule(edgeWeights, nEpochs);
+    sw.Stop();
+    _timings["SamplingSchedule"] = (int)sw.ElapsedMilliseconds;
+
+    // Phase 7: Optimize layout
+    if (_layoutOptimization == null)
+    {
+      throw new InvalidOperationException(
+        "Layout optimization strategy is required for FitTransform. Call WithLayoutOptimization() on the builder."
+      );
+    }
+
+    var optimizationParams = new OptimizationParameters
+    {
+      A = _parameters.GetA(),
+      B = _parameters.GetB(),
+      InitialAlpha = _parameters.LearningRate,
+      Gamma = _parameters.RepulsionStrength,
+      NegativeSampleRate = _parameters.NegativeSampleRate,
+      Verbosity = _parameters.Verbosity,
+      ProgressReporter = _parameters.ProgressReporter,
+    };
+
+    if (_parameters.Verbosity >= 1)
+    {
+      Console.WriteLine(
+        $"[UMAP] Optimization parameters: A={optimizationParams.A:F4}, B={optimizationParams.B:F4}, "
+          + $"LearningRate={optimizationParams.InitialAlpha:F3}, Gamma={optimizationParams.Gamma:F2}, "
+          + $"NegativeSampleRate={optimizationParams.NegativeSampleRate}"
+      );
+      Console.WriteLine(
+        $"[UMAP] Source parameters: MinDist={_parameters.MinDist:F4}, Spread={_parameters.Spread:F2}"
+      );
+    }
+
+    var random = _parameters.RandomSeed.HasValue
+      ? new Random(_parameters.RandomSeed.Value)
+      : new Random();
+
+    sw.Restart();
+    var optimizationResult = _layoutOptimization.Optimize(
+      initialEmbedding: layoutResult.Embedding,
+      graphEdges: edges,
+      samplingSchedule: scheduleResult.EpochsPerSample,
+      nEpochs: nEpochs,
+      parameters: optimizationParams,
+      random: random
+    );
+    sw.Stop();
+    _timings["LayoutOptimization"] = (int)sw.ElapsedMilliseconds;
+
+    totalSw.Stop();
+
+    var runtimeReport = new UmapRuntimeReport
+    {
+      Timings = new Dictionary<string, int>(_timings),
+      TotalTimeMs = (int)totalSw.ElapsedMilliseconds,
+    };
+
+    return new UmapFitResult(
+      Embedding: optimizationResult.OptimizedEmbedding,
+      GraphResult: graphResult,
+      LayoutInitResult: layoutResult,
+      SamplingScheduleResult: scheduleResult,
+      OptimizationResult: optimizationResult,
+      RuntimeReport: runtimeReport
+    );
+  }
+
+  /// <summary>
+  /// Converts a sparse graph matrix to an array of edges for optimization.
+  /// </summary>
+  private static GraphEdge[] ConvertGraphToEdges(SparseMatrix graph)
+  {
+    var edges = new List<GraphEdge>();
+    var enumerator = graph.EnumerateIndexed(Zeros.AllowSkip);
+
+    foreach (var (row, col, weight) in enumerator)
+    {
+      if (row < col && weight > 0.0f)
+      {
+        edges.Add(new GraphEdge(Head: row, Tail: col, Weight: weight));
+      }
+    }
+
+    return edges.ToArray();
+  }
 }
 
 /// <summary>

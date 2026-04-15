@@ -6,34 +6,34 @@ using System;
 
 namespace Flowthru.Spark.Services
 {
+  /// <summary>
+  /// Helps getting config settings to be used in .NET runtime
+  /// </summary>
+  internal interface IConfigurationService
+  {
     /// <summary>
-    /// Helps getting config settings to be used in .NET runtime
+    /// How often to run GC on JVM ThreadPool threads.
     /// </summary>
-    internal interface IConfigurationService
-    {
-        /// <summary>
-        /// How often to run GC on JVM ThreadPool threads.
-        /// </summary>
-        TimeSpan JvmThreadGCInterval { get; }
+    TimeSpan JvmThreadGCInterval { get; }
 
-        /// <summary>
-        /// The port number used for communicating with the .NET backend process.
-        /// </summary>
-        int GetBackendPortNumber();
+    /// <summary>
+    /// The port number used for communicating with the .NET backend process.
+    /// </summary>
+    int GetBackendPortNumber();
 
-        /// <summary>
-        /// Returns the max number of threads for socket communication between JVM and CLR.
-        /// </summary>
-        int GetNumBackendThreads();
+    /// <summary>
+    /// Returns the max number of threads for socket communication between JVM and CLR.
+    /// </summary>
+    int GetNumBackendThreads();
 
-        /// <summary>
-        /// The full path to the .NET worker executable.
-        /// </summary>
-        string GetWorkerExePath();
+    /// <summary>
+    /// The full path to the .NET worker executable.
+    /// </summary>
+    string GetWorkerExePath();
 
-        /// <summary>
-        /// Flag indicating whether running in REPL.
-        /// </summary>
-        bool IsRunningRepl();
-    }
+    /// <summary>
+    /// Flag indicating whether running in REPL.
+    /// </summary>
+    bool IsRunningRepl();
+  }
 }

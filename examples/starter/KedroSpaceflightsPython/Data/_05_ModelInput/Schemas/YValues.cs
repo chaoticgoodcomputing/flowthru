@@ -13,6 +13,6 @@ namespace KedroSpaceflightsPython.Data._05_ModelInput.Schemas;
 [FlowthruSchema]
 public partial record YValues
 {
-    [SerializedLabel("price")]
-    public double Label { get; init; } // Price
+  [SerializedLabel("price")]
+  public double Label { get; init; } // Price
 }

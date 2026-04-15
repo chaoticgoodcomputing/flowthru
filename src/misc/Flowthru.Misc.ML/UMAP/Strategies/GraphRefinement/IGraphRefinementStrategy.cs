@@ -28,44 +28,44 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.GraphRefinement;
 /// </remarks>
 public interface IGraphRefinementStrategy
 {
-    /// <summary>
-    /// Refines the fuzzy simplicial set by pruning weak edges and normalizing edge weights.
-    /// </summary>
-    /// <param name="graph">
-    /// Input fuzzy simplicial set as a sparse symmetric matrix.
-    /// Shape: (n_samples, n_samples)
-    /// This matrix may be modified in-place for efficiency.
-    /// </param>
-    /// <param name="nEpochs">
-    /// Number of optimization epochs planned for layout optimization.
-    /// Used to determine the minimum edge weight threshold - edges sampled less than
-    /// once during optimization can be safely removed.
-    /// Must be positive.
-    /// </param>
-    /// <returns>
-    /// A refined sparse graph with weak edges removed and remaining edges normalized.
-    /// May return the same instance as input if modified in-place.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <b>Implementation requirements:</b>
-    /// </para>
-    /// <list type="number">
-    ///   <item><description>Determine edge weight threshold based on n_epochs</description></item>
-    ///   <item><description>Remove edges below threshold</description></item>
-    ///   <item><description>Eliminate zero entries from sparse matrix</description></item>
-    ///   <item><description>Preserve matrix symmetry</description></item>
-    ///   <item><description>Thread-safe for concurrent refinement operations</description></item>
-    /// </list>
-    /// <para>
-    /// <b>Performance considerations:</b>
-    /// </para>
-    /// <list type="bullet">
-    ///   <item><description>In-place modification is preferred to reduce memory allocation</description></item>
-    ///   <item><description>Sparse matrix operations should preserve CSR/CSC format efficiency</description></item>
-    /// </list>
-    /// </remarks>
-    GraphRefinementResult RefineGraph(SparseMatrix graph, int nEpochs);
+  /// <summary>
+  /// Refines the fuzzy simplicial set by pruning weak edges and normalizing edge weights.
+  /// </summary>
+  /// <param name="graph">
+  /// Input fuzzy simplicial set as a sparse symmetric matrix.
+  /// Shape: (n_samples, n_samples)
+  /// This matrix may be modified in-place for efficiency.
+  /// </param>
+  /// <param name="nEpochs">
+  /// Number of optimization epochs planned for layout optimization.
+  /// Used to determine the minimum edge weight threshold - edges sampled less than
+  /// once during optimization can be safely removed.
+  /// Must be positive.
+  /// </param>
+  /// <returns>
+  /// A refined sparse graph with weak edges removed and remaining edges normalized.
+  /// May return the same instance as input if modified in-place.
+  /// </returns>
+  /// <remarks>
+  /// <para>
+  /// <b>Implementation requirements:</b>
+  /// </para>
+  /// <list type="number">
+  ///   <item><description>Determine edge weight threshold based on n_epochs</description></item>
+  ///   <item><description>Remove edges below threshold</description></item>
+  ///   <item><description>Eliminate zero entries from sparse matrix</description></item>
+  ///   <item><description>Preserve matrix symmetry</description></item>
+  ///   <item><description>Thread-safe for concurrent refinement operations</description></item>
+  /// </list>
+  /// <para>
+  /// <b>Performance considerations:</b>
+  /// </para>
+  /// <list type="bullet">
+  ///   <item><description>In-place modification is preferred to reduce memory allocation</description></item>
+  ///   <item><description>Sparse matrix operations should preserve CSR/CSC format efficiency</description></item>
+  /// </list>
+  /// </remarks>
+  GraphRefinementResult RefineGraph(SparseMatrix graph, int nEpochs);
 }
 
 /// <summary>

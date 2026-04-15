@@ -6,7 +6,7 @@ namespace KedroIris.Data;
 /// </summary>
 public partial class Catalog
 {
-    // No entries defined for this layer in the Iris example.
-    // This layer would typically contain data where raw string fields have been
-    // parsed into proper types (dates, numbers, enums) but no business logic applied.
+  // No entries defined for this layer in the Iris example.
+  // This layer would typically contain data where raw string fields have been
+  // parsed into proper types (dates, numbers, enums) but no business logic applied.
 }

@@ -24,75 +24,75 @@ namespace SpaceflightsEFCore.Flows.Reporting;
 /// </remarks>
 public static class ReportingFlow
 {
+  /// <summary>
+  /// Configuration parameters for the reporting pipeline.
+  /// </summary>
+  public record Params
+  {
     /// <summary>
-    /// Configuration parameters for the reporting pipeline.
+    /// Configuration options for confusion matrix generation.
     /// </summary>
-    public record Params
+    public CreateConfusionMatrixStep.Options ConfusionMatrixOptions { get; init; } = new();
+  }
+
+  /// <summary>
+  /// Creates the reporting pipeline.
+  /// </summary>
+  /// <param name="catalog">The data catalog containing input and output entries.</param>
+  /// <param name="parameters">Configuration parameters for the pipeline (optional).</param>
+  /// <returns>A configured pipeline that produces visualizations and reports.</returns>
+  public static Flow Create(Catalog catalog, Params? parameters = null)
+  {
+    var p = parameters ?? new Params();
+
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        /// <summary>
-        /// Configuration options for confusion matrix generation.
-        /// </summary>
-        public CreateConfusionMatrixStep.Options ConfusionMatrixOptions { get; init; } = new();
-    }
+      // ===== Shuttle Passenger Capacity Report (JSON) =====
 
-    /// <summary>
-    /// Creates the reporting pipeline.
-    /// </summary>
-    /// <param name="catalog">The data catalog containing input and output entries.</param>
-    /// <param name="parameters">Configuration parameters for the pipeline (optional).</param>
-    /// <returns>A configured pipeline that produces visualizations and reports.</returns>
-    public static Flow Create(Catalog catalog, Params? parameters = null)
-    {
-        var p = parameters ?? new Params();
+      pipeline.AddStep(
+        label: "ComparePassengerCapacity",
+        transform: ComparePassengerCapacityStep.Create(),
+        input: catalog.PreprocessedShuttles,
+        output: catalog.ShuttleCapacityReport
+      );
 
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            // ===== Shuttle Passenger Capacity Report (JSON) =====
+      // ===== Shuttle Passenger Capacity Visualization =====
 
-            pipeline.AddStep(
-          label: "ComparePassengerCapacity",
-          transform: ComparePassengerCapacityStep.Create(),
-          input: catalog.PreprocessedShuttles,
-          output: catalog.ShuttleCapacityReport
-        );
+      // Step 1: Generate chart from preprocessed shuttle data
+      pipeline.AddStep(
+        label: "GeneratePassengerCapacityChart",
+        transform: GeneratePassengerCapacityChartStep.Create(),
+        input: catalog.PreprocessedShuttles,
+        output: catalog.ShuttlePassengerCapacityChart
+      );
 
-            // ===== Shuttle Passenger Capacity Visualization =====
+      // NOTE: Commented out due to performance issues with Plotly.NET
+      // // Step 2: Export chart to PNG for static reports
+      // pipeline.AddStep(
+      //   label: "ExportPassengerCapacityPng",
+      //   transform: PlotlyImageExportStep.Create(),
+      //   input: catalog.ShuttlePassengerCapacityChart,
+      //   output: catalog.ShuttlePassengerCapacityPlotPng
+      // );
 
-            // Step 1: Generate chart from preprocessed shuttle data
-            pipeline.AddStep(
-          label: "GeneratePassengerCapacityChart",
-          transform: GeneratePassengerCapacityChartStep.Create(),
-          input: catalog.PreprocessedShuttles,
-          output: catalog.ShuttlePassengerCapacityChart
-        );
+      // ===== Confusion Matrix Visualization =====
 
-            // NOTE: Commented out due to performance issues with Plotly.NET
-            // // Step 2: Export chart to PNG for static reports
-            // pipeline.AddStep(
-            //   label: "ExportPassengerCapacityPng",
-            //   transform: PlotlyImageExportStep.Create(),
-            //   input: catalog.ShuttlePassengerCapacityChart,
-            //   output: catalog.ShuttlePassengerCapacityPlotPng
-            // );
+      // Step 1: Generate confusion matrix heatmap from model predictions
+      pipeline.AddStep(
+        label: "GenerateConfusionMatrixChart",
+        transform: CreateConfusionMatrixStep.Create(p.ConfusionMatrixOptions),
+        input: catalog.ModelPredictions,
+        output: catalog.ConfusionMatrixChart
+      );
 
-            // ===== Confusion Matrix Visualization =====
-
-            // Step 1: Generate confusion matrix heatmap from model predictions
-            pipeline.AddStep(
-          label: "GenerateConfusionMatrixChart",
-          transform: CreateConfusionMatrixStep.Create(p.ConfusionMatrixOptions),
-          input: catalog.ModelPredictions,
-          output: catalog.ConfusionMatrixChart
-        );
-
-            // NOTE: Commented out due to performance issues with Plotly.NET
-            // // Step 2: Export chart to PNG for static reports
-            // pipeline.AddStep(
-            //   label: "ExportConfusionMatrixPng",
-            //   transform: PlotlyImageExportStep.Create(),
-            //   input: catalog.ConfusionMatrixChart,
-            //   output: catalog.ConfusionMatrixPlotPng
-            // );
-        });
-    }
+      // NOTE: Commented out due to performance issues with Plotly.NET
+      // // Step 2: Export chart to PNG for static reports
+      // pipeline.AddStep(
+      //   label: "ExportConfusionMatrixPng",
+      //   transform: PlotlyImageExportStep.Create(),
+      //   input: catalog.ConfusionMatrixChart,
+      //   output: catalog.ConfusionMatrixPlotPng
+      // );
+    });
+  }
 }

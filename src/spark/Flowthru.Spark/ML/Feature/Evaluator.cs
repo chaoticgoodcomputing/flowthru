@@ -7,39 +7,35 @@ using Flowthru.Spark.Sql;
 
 namespace Flowthru.Spark.ML.Feature
 {
+  /// <summary>
+  /// <see cref="JavaEvaluator"/> Abstract Class for evaluators that compute metrics from predictions.
+  /// </summary>
+  public abstract class JavaEvaluator : Params
+  {
+    internal JavaEvaluator(string className)
+      : base(className) { }
+
+    internal JavaEvaluator(string className, string uid)
+      : base(className, uid) { }
+
+    internal JavaEvaluator(JvmObjectReference jvmObject)
+      : base(jvmObject) { }
+
     /// <summary>
-    /// <see cref="JavaEvaluator"/> Abstract Class for evaluators that compute metrics from predictions.
+    /// Evaluates model output and returns a scalar metric.
+    /// The value of isLargerBetter specifies whether larger values are better.
     /// </summary>
-    public abstract class JavaEvaluator : Params
-    {
-        internal JavaEvaluator(string className) : base(className)
-        {
-        }
+    /// <param name="dataset">a dataset that contains labels/observations and predictions.</param>
+    /// <returns>metric</returns>
+    public virtual double Evaluate(DataFrame dataset) =>
+      (double)Reference.Invoke("evaluate", dataset);
 
-        internal JavaEvaluator(string className, string uid) : base(className, uid)
-        {
-        }
-
-        internal JavaEvaluator(JvmObjectReference jvmObject) : base(jvmObject)
-        {
-        }
-
-        /// <summary>
-        /// Evaluates model output and returns a scalar metric.
-        /// The value of isLargerBetter specifies whether larger values are better.
-        /// </summary>
-        /// <param name="dataset">a dataset that contains labels/observations and predictions.</param>
-        /// <returns>metric</returns>
-        public virtual double Evaluate(DataFrame dataset) =>
-            (double)Reference.Invoke("evaluate", dataset);
-
-        /// <summary>
-        /// Indicates whether the metric returned by evaluate should be maximized 
-        /// (true, default) or minimized (false).
-        /// A given evaluator may support multiple metrics which may be maximized or minimized.
-        /// </summary>
-        /// <returns>bool</returns>
-        public bool IsLargerBetter =>
-            (bool)Reference.Invoke("isLargerBetter");
-    }
+    /// <summary>
+    /// Indicates whether the metric returned by evaluate should be maximized
+    /// (true, default) or minimized (false).
+    /// A given evaluator may support multiple metrics which may be maximized or minimized.
+    /// </summary>
+    /// <returns>bool</returns>
+    public bool IsLargerBetter => (bool)Reference.Invoke("isLargerBetter");
+  }
 }

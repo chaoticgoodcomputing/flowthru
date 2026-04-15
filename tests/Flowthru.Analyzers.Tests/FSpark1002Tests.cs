@@ -12,7 +12,7 @@ namespace Flowthru.Analyzers.Tests;
 [TestFixture]
 public class FSpark1002Tests
 {
-    private const string Stubs = """
+  private const string Stubs = """
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -38,14 +38,14 @@ public class FSpark1002Tests
     public class PersonSchema { public string Name { get; set; } = ""; public double Score { get; set; } }
     """;
 
-    // ─── Negative cases: supported methods → no diagnostic ──────────────────────
+  // ─── Negative cases: supported methods → no diagnostic ──────────────────────
 
-    [Test]
-    public async Task SupportedStringMethod_ToUpper_DoesNotReport()
-    {
-        var source =
-          Stubs
-          + """
+  [Test]
+  public async Task SupportedStringMethod_ToUpper_DoesNotReport()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -56,18 +56,18 @@ public class FSpark1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
-
-    [Test]
-    public async Task SupportedStringMethod_Contains_DoesNotReport()
+    await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
     {
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+    }.RunAsync();
+  }
+
+  [Test]
+  public async Task SupportedStringMethod_Contains_DoesNotReport()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -78,18 +78,18 @@ public class FSpark1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
-
-    [Test]
-    public async Task SupportedMathMethod_Round_DoesNotReport()
+    await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
     {
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+    }.RunAsync();
+  }
+
+  [Test]
+  public async Task SupportedMathMethod_Round_DoesNotReport()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -100,20 +100,20 @@ public class FSpark1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
-
-    // ─── Positive cases: unsupported methods → FSPARK1002 fires ─────────────────
-
-    [Test]
-    public async Task UnsupportedStringMethod_PadLeft_Reports_FSPARK1002()
+    await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
     {
-        var source =
-          Stubs
-          + """
+      TestCode = source,
+    }.RunAsync();
+  }
+
+  // ─── Positive cases: unsupported methods → FSPARK1002 fires ─────────────────
+
+  [Test]
+  public async Task UnsupportedStringMethod_PadLeft_Reports_FSPARK1002()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -124,10 +124,10 @@ public class FSpark1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-            ExpectedDiagnostics =
+    await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+      ExpectedDiagnostics =
       {
         new DiagnosticResult(SparkDiagnostics.UnsupportedMethodCall)
           .WithLocation(0)
@@ -138,15 +138,15 @@ public class FSpark1002Tests
             Helpers.SupportedMathList
           ),
       },
-        }.RunAsync();
-    }
+    }.RunAsync();
+  }
 
-    [Test]
-    public async Task UnsupportedStringMethod_IndexOf_Reports_FSPARK1002()
-    {
-        var source =
-          Stubs
-          + """
+  [Test]
+  public async Task UnsupportedStringMethod_IndexOf_Reports_FSPARK1002()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -157,10 +157,10 @@ public class FSpark1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-            ExpectedDiagnostics =
+    await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+      ExpectedDiagnostics =
       {
         new DiagnosticResult(SparkDiagnostics.UnsupportedMethodCall)
           .WithLocation(0)
@@ -171,15 +171,15 @@ public class FSpark1002Tests
             Helpers.SupportedMathList
           ),
       },
-        }.RunAsync();
-    }
+    }.RunAsync();
+  }
 
-    [Test]
-    public async Task UnsupportedMathMethod_Pow_Reports_FSPARK1002()
-    {
-        var source =
-          Stubs
-          + """
+  [Test]
+  public async Task UnsupportedMathMethod_Pow_Reports_FSPARK1002()
+  {
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -190,26 +190,26 @@ public class FSpark1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-            ExpectedDiagnostics =
+    await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+      ExpectedDiagnostics =
       {
         new DiagnosticResult(SparkDiagnostics.UnsupportedMethodCall)
           .WithLocation(0)
           .WithArguments("Math", "Pow", Helpers.SupportedStringList, Helpers.SupportedMathList),
       },
-        }.RunAsync();
-    }
+    }.RunAsync();
+  }
 
-    [Test]
-    public async Task NonFrameLambda_UnsupportedMethod_DoesNotReport()
-    {
-        // FSPARK1002 must not fire outside a TypedFrameExtensions call — same lambda shape
-        // but invoked on a plain List<T> should be silent.
-        var source =
-          Stubs
-          + """
+  [Test]
+  public async Task NonFrameLambda_UnsupportedMethod_DoesNotReport()
+  {
+    // FSPARK1002 must not fire outside a TypedFrameExtensions call — same lambda shape
+    // but invoked on a plain List<T> should be silent.
+    var source =
+      Stubs
+      + """
 
         class Tests
         {
@@ -220,9 +220,9 @@ public class FSpark1002Tests
         }
         """;
 
-        await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
-        {
-            TestCode = source,
-        }.RunAsync();
-    }
+    await new CSharpAnalyzerTest<SparkExpressionAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+    }.RunAsync();
+  }
 }

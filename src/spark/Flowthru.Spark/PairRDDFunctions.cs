@@ -8,46 +8,47 @@ using System.Linq;
 
 namespace Flowthru.Spark
 {
+  /// <summary>
+  /// Extra functions available on RDDs of (key, value) pairs through extension methods.
+  /// </summary>
+  internal static class PairRDDFunctions
+  {
     /// <summary>
-    /// Extra functions available on RDDs of (key, value) pairs through extension methods.
+    /// Returns the key-value pairs in this RDD as a dictionary.
     /// </summary>
-    internal static class PairRDDFunctions
+    /// <typeparam name="TKey">Type of the key</typeparam>
+    /// <typeparam name="TValue">Type of the value</typeparam>
+    /// <param name="self">RDD object to apply</param>
+    /// <returns>Dictionary of RDD content</returns>
+    public static IDictionary<TKey, TValue> CollectAsMap<TKey, TValue>(
+      this RDD<Tuple<TKey, TValue>> self
+    )
     {
-        /// <summary>
-        /// Returns the key-value pairs in this RDD as a dictionary.
-        /// </summary>
-        /// <typeparam name="TKey">Type of the key</typeparam>
-        /// <typeparam name="TValue">Type of the value</typeparam>
-        /// <param name="self">RDD object to apply</param>
-        /// <returns>Dictionary of RDD content</returns>
-        public static IDictionary<TKey, TValue> CollectAsMap<TKey, TValue>(
-            this RDD<Tuple<TKey, TValue>> self)
-        {
-            return self.Collect().ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2);
-        }
-
-        /// <summary>
-        /// Return an RDD with the keys of each tuple.
-        /// </summary>
-        /// <typeparam name="TKey">Type of the key</typeparam>
-        /// <typeparam name="TValue">Type of the value</typeparam>
-        /// <param name="self">RDD object to apply</param>
-        /// <returns>RDD with the keys of each tuple</returns>
-        public static RDD<TKey> Keys<TKey, TValue>(this RDD<Tuple<TKey, TValue>> self)
-        {
-            return self.Map(tuple => tuple.Item1);
-        }
-
-        /// <summary>
-        /// Return an RDD with the values of each tuple.
-        /// </summary>
-        /// <typeparam name="TKey">Type of the key</typeparam>
-        /// <typeparam name="TValue">Type of the value</typeparam>
-        /// <param name="self">RDD object to apply</param>
-        /// <returns>RDD with the values of each tuple</returns>
-        public static RDD<TValue> Values<TKey, TValue>(this RDD<Tuple<TKey, TValue>> self)
-        {
-            return self.Map(tuple => tuple.Item2);
-        }
+      return self.Collect().ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2);
     }
+
+    /// <summary>
+    /// Return an RDD with the keys of each tuple.
+    /// </summary>
+    /// <typeparam name="TKey">Type of the key</typeparam>
+    /// <typeparam name="TValue">Type of the value</typeparam>
+    /// <param name="self">RDD object to apply</param>
+    /// <returns>RDD with the keys of each tuple</returns>
+    public static RDD<TKey> Keys<TKey, TValue>(this RDD<Tuple<TKey, TValue>> self)
+    {
+      return self.Map(tuple => tuple.Item1);
+    }
+
+    /// <summary>
+    /// Return an RDD with the values of each tuple.
+    /// </summary>
+    /// <typeparam name="TKey">Type of the key</typeparam>
+    /// <typeparam name="TValue">Type of the value</typeparam>
+    /// <param name="self">RDD object to apply</param>
+    /// <returns>RDD with the values of each tuple</returns>
+    public static RDD<TValue> Values<TKey, TValue>(this RDD<Tuple<TKey, TValue>> self)
+    {
+      return self.Map(tuple => tuple.Item2);
+    }
+  }
 }

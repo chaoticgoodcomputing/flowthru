@@ -13,12 +13,12 @@ namespace KedroSpaceflights.Custom.Flows.DataDiagnostics.Steps;
 [FlowthruStep]
 public static class PassthroughInputToOutputStep<T>
 {
-    public static Func<IEnumerable<T>, Task<IEnumerable<T>>> Create()
+  public static Func<IEnumerable<T>, Task<IEnumerable<T>>> Create()
+  {
+    return async (input) =>
     {
-        return async (input) =>
-        {
-            // Pass-through: return input unchanged
-            return input;
-        };
-    }
+      // Pass-through: return input unchanged
+      return input;
+    };
+  }
 }

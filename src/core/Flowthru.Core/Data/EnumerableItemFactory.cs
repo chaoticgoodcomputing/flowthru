@@ -39,66 +39,66 @@ namespace Flowthru.Core.Data;
 /// </remarks>
 public sealed class EnumerableItemFactory
 {
-    internal EnumerableItemFactory() { }
+  internal EnumerableItemFactory() { }
 
-    /// <summary>
-    /// Creates a JSON file catalog item with IEnumerable container for collections.
-    /// </summary>
-    /// <typeparam name="TRow">Row schema type (must be structured-serializable)</typeparam>
-    /// <param name="label">Unique catalog label for DAG resolution</param>
-    /// <param name="filePath">Path to JSON file</param>
-    /// <returns>Catalog item with file + JSON + IEnumerable composition</returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Requirements:</strong>
-    /// </para>
-    /// <list type="bullet">
-    /// <item>TRow must implement IStructuredSerializable</item>
-    /// <item>TRow supports both flat and nested schemas</item>
-    /// </list>
-    /// <para>
-    /// <strong>Supports:</strong>
-    /// </para>
-    /// <list type="bullet">
-    /// <item>Traditional schemas with parameterless constructors</item>
-    /// <item>Modern schemas with required properties (C# 11+)</item>
-    /// <item>Positional records with primary constructors</item>
-    /// </list>
-    /// <para>
-    /// <strong>Serialization:</strong> JSON array format for collections
-    /// </para>
-    /// </remarks>
-    public Item<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
-      where TRow : notnull, IStructuredSerializable
-    {
-        var medium = new FileStorageMedium(filePath);
-        var format = new JsonFormatSerializer<TRow>();
-        var container = new EnumerableContainerAdapter<TRow>();
-        var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
+  /// <summary>
+  /// Creates a JSON file catalog item with IEnumerable container for collections.
+  /// </summary>
+  /// <typeparam name="TRow">Row schema type (must be structured-serializable)</typeparam>
+  /// <param name="label">Unique catalog label for DAG resolution</param>
+  /// <param name="filePath">Path to JSON file</param>
+  /// <returns>Catalog item with file + JSON + IEnumerable composition</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Requirements:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>TRow must implement IStructuredSerializable</item>
+  /// <item>TRow supports both flat and nested schemas</item>
+  /// </list>
+  /// <para>
+  /// <strong>Supports:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>Traditional schemas with parameterless constructors</item>
+  /// <item>Modern schemas with required properties (C# 11+)</item>
+  /// <item>Positional records with primary constructors</item>
+  /// </list>
+  /// <para>
+  /// <strong>Serialization:</strong> JSON array format for collections
+  /// </para>
+  /// </remarks>
+  public Item<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
+    where TRow : notnull, IStructuredSerializable
+  {
+    var medium = new FileStorageMedium(filePath);
+    var format = new JsonFormatSerializer<TRow>();
+    var container = new EnumerableContainerAdapter<TRow>();
+    var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
 
-        return new Item<IEnumerable<TRow>>(label, storage);
-    }
+    return new Item<IEnumerable<TRow>>(label, storage);
+  }
 
-    /// <summary>
-    /// Creates an in-memory transient catalog item with IEnumerable container.
-    /// </summary>
-    /// <typeparam name="TRow">Row schema type</typeparam>
-    /// <param name="label">Unique catalog label for DAG resolution</param>
-    /// <returns>Catalog item with memory storage (no serialization)</returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Use Case:</strong> Intermediate Flow data that doesn't need persistence
-    /// </para>
-    /// <para>
-    /// <strong>Storage Traits:</strong>
-    /// </para>
-    /// <list type="bullet">
-    /// <item>IsPersistent: false (data lost when process ends)</item>
-    /// </list>
-    /// </remarks>
-    public Item<IEnumerable<TRow>> Memory<TRow>(string label)
-    {
-        var storage = new MemoryStorageAdapter<IEnumerable<TRow>>();
-        return new Item<IEnumerable<TRow>>(label, storage);
-    }
+  /// <summary>
+  /// Creates an in-memory transient catalog item with IEnumerable container.
+  /// </summary>
+  /// <typeparam name="TRow">Row schema type</typeparam>
+  /// <param name="label">Unique catalog label for DAG resolution</param>
+  /// <returns>Catalog item with memory storage (no serialization)</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Use Case:</strong> Intermediate Flow data that doesn't need persistence
+  /// </para>
+  /// <para>
+  /// <strong>Storage Traits:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>IsPersistent: false (data lost when process ends)</item>
+  /// </list>
+  /// </remarks>
+  public Item<IEnumerable<TRow>> Memory<TRow>(string label)
+  {
+    var storage = new MemoryStorageAdapter<IEnumerable<TRow>>();
+    return new Item<IEnumerable<TRow>>(label, storage);
+  }
 }

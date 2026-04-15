@@ -12,13 +12,13 @@ namespace Flowthru.Core.Effects;
 /// </remarks>
 public record EffectTraits : NodeTraits
 {
-    /// <summary>
-    /// Whether the effect is safe to retry without changing the outcome.
-    /// </summary>
-    public bool IsIdempotent { get; init; }
+  /// <summary>
+  /// Whether the effect is safe to retry without changing the outcome.
+  /// </summary>
+  public bool IsIdempotent { get; init; }
 
-    /// <summary>
-    /// Whether the effect modifies external state when executed.
-    /// </summary>
-    public bool HasSideEffects { get; init; } = true;
+  /// <summary>
+  /// Whether the effect modifies external state when executed.
+  /// </summary>
+  public bool HasSideEffects { get; init; } = true;
 }

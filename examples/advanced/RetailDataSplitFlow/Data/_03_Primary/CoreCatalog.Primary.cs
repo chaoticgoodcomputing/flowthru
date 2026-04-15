@@ -8,16 +8,16 @@ namespace RetailDataMultipipeline.Data;
 /// </summary>
 public partial class CoreCatalog
 {
-    /// <summary>
-    /// All per-country weekly DTU shards concatenated into a single Parquet dataset.
-    /// Produced by the Consolidation pipeline as the fan-in of all shard outputs.
-    /// </summary>
-    public IItem<IEnumerable<WeeklyDtuSchema>> AllCountriesWeeklyDtu =>
-      CreateItem(
-        () =>
-          ItemFactory.Enumerable.Parquet<WeeklyDtuSchema>(
-            label: "AllCountriesWeeklyDtu",
-            filePath: $"{_basePath}/_03_Primary/Datasets/all_countries_weekly_dtu.parquet"
-          )
-      );
+  /// <summary>
+  /// All per-country weekly DTU shards concatenated into a single Parquet dataset.
+  /// Produced by the Consolidation pipeline as the fan-in of all shard outputs.
+  /// </summary>
+  public IItem<IEnumerable<WeeklyDtuSchema>> AllCountriesWeeklyDtu =>
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.Parquet<WeeklyDtuSchema>(
+          label: "AllCountriesWeeklyDtu",
+          filePath: $"{_basePath}/_03_Primary/Datasets/all_countries_weekly_dtu.parquet"
+        )
+    );
 }

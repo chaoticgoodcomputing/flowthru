@@ -8,32 +8,33 @@ using static Flowthru.Spark.Utils.CommandSerDe;
 
 namespace Flowthru.Spark.Utils
 {
-    /// <summary>
-    /// RawUdfWrapper wraps a raw UDF function that operates directly on streams.
-    /// This wrapper is used for serialization/deserialization of raw UDFs that need
-    /// direct access to input/output streams for high-performance data processing.
-    ///
-    /// Unlike standard UDFs that process data row-by-row, raw UDFs receive the entire
-    /// input stream and have full control over how data is read and written.
-    /// </summary>
-    [UdfWrapper]
-    internal sealed class RawUdfWrapper
+  /// <summary>
+  /// RawUdfWrapper wraps a raw UDF function that operates directly on streams.
+  /// This wrapper is used for serialization/deserialization of raw UDFs that need
+  /// direct access to input/output streams for high-performance data processing.
+  ///
+  /// Unlike standard UDFs that process data row-by-row, raw UDFs receive the entire
+  /// input stream and have full control over how data is read and written.
+  /// </summary>
+  [UdfWrapper]
+  internal sealed class RawUdfWrapper
+  {
+    private readonly Func<int, Stream, Stream, SerializedMode, SerializedMode, int> _func;
+
+    internal RawUdfWrapper(Func<int, Stream, Stream, SerializedMode, SerializedMode, int> func)
     {
-        private readonly Func<int, Stream, Stream, SerializedMode, SerializedMode, int> _func;
-
-        internal RawUdfWrapper(Func<int, Stream, Stream, SerializedMode, SerializedMode, int> func)
-        {
-            _func = func;
-        }
-
-        internal int Execute(
-            int pid,
-            Stream inputStream,
-            Stream outputStream,
-            SerializedMode serializedMode,
-            SerializedMode deserializedMode)
-        {
-            return _func(pid, inputStream, outputStream, serializedMode, deserializedMode);
-        }
+      _func = func;
     }
+
+    internal int Execute(
+      int pid,
+      Stream inputStream,
+      Stream outputStream,
+      SerializedMode serializedMode,
+      SerializedMode deserializedMode
+    )
+    {
+      return _func(pid, inputStream, outputStream, serializedMode, deserializedMode);
+    }
+  }
 }

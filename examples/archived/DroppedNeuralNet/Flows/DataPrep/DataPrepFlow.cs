@@ -21,29 +21,29 @@ namespace DroppedNeuralNet.Flows.DataPrep;
 /// </summary>
 public static class DataPrepFlow
 {
-    public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  {
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            pipeline.AddPythonStep<string, IEnumerable<PieceBlob>>(
-          label: "LoadPieces",
-          description: "Read all piece_*.pth files from the pieces directory into raw blobs.",
-          module: "Flows.DataPrep.Steps.load_pieces",
-          function: "load_pieces",
-          input: catalog.PiecesDirectory,
-          output: catalog.Pieces,
-          executor: executor
-        );
+      pipeline.AddPythonStep<string, IEnumerable<PieceBlob>>(
+        label: "LoadPieces",
+        description: "Read all piece_*.pth files from the pieces directory into raw blobs.",
+        module: "Flows.DataPrep.Steps.load_pieces",
+        function: "load_pieces",
+        input: catalog.PiecesDirectory,
+        output: catalog.Pieces,
+        executor: executor
+      );
 
-            pipeline.AddPythonStep<IEnumerable<PieceBlob>, IEnumerable<PieceMetadata>>(
-          label: "ClassifyPieces",
-          description: "Inspect tensor shapes and assign LayerType to each piece. Emits structural metadata only — no blob data.",
-          module: "Flows.DataPrep.Steps.classify_pieces",
-          function: "classify_pieces",
-          input: catalog.Pieces,
-          output: catalog.PieceMetadata,
-          executor: executor
-        );
-        });
-    }
+      pipeline.AddPythonStep<IEnumerable<PieceBlob>, IEnumerable<PieceMetadata>>(
+        label: "ClassifyPieces",
+        description: "Inspect tensor shapes and assign LayerType to each piece. Emits structural metadata only — no blob data.",
+        module: "Flows.DataPrep.Steps.classify_pieces",
+        function: "classify_pieces",
+        input: catalog.Pieces,
+        output: catalog.PieceMetadata,
+        executor: executor
+      );
+    });
+  }
 }

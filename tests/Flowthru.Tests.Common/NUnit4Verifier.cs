@@ -20,63 +20,63 @@ namespace Flowthru.Tests.Common;
 /// </remarks>
 public sealed class NUnit4Verifier : IVerifier
 {
-    private readonly ImmutableStack<string> _context;
+  private readonly ImmutableStack<string> _context;
 
-    public NUnit4Verifier()
-      : this(ImmutableStack<string>.Empty) { }
+  public NUnit4Verifier()
+    : this(ImmutableStack<string>.Empty) { }
 
-    private NUnit4Verifier(ImmutableStack<string> context) => _context = context;
+  private NUnit4Verifier(ImmutableStack<string> context) => _context = context;
 
-    private string Msg(string? extra) =>
-      _context.IsEmpty
-        ? extra ?? string.Empty
-        : $"[{string.Join(" > ", _context.Reverse())}] {extra}";
+  private string Msg(string? extra) =>
+    _context.IsEmpty
+      ? extra ?? string.Empty
+      : $"[{string.Join(" > ", _context.Reverse())}] {extra}";
 
-    public void Empty<T>(string collectionName, IEnumerable<T> collection) =>
-      Assert.That(collection, Is.Empty, Msg($"`{collectionName}` should be empty"));
+  public void Empty<T>(string collectionName, IEnumerable<T> collection) =>
+    Assert.That(collection, Is.Empty, Msg($"`{collectionName}` should be empty"));
 
-    public void NotEmpty<T>(string collectionName, IEnumerable<T> collection) =>
-      Assert.That(collection.Any(), Is.True, Msg($"`{collectionName}` should not be empty"));
+  public void NotEmpty<T>(string collectionName, IEnumerable<T> collection) =>
+    Assert.That(collection.Any(), Is.True, Msg($"`{collectionName}` should not be empty"));
 
-    public void SequenceEqual<T>(
-      IEnumerable<T> expected,
-      IEnumerable<T> actual,
-      IEqualityComparer<T>? comparer = null,
-      string? message = null
-    )
+  public void SequenceEqual<T>(
+    IEnumerable<T> expected,
+    IEnumerable<T> actual,
+    IEqualityComparer<T>? comparer = null,
+    string? message = null
+  )
+  {
+    var expectedList = expected.ToList();
+    var actualList = actual.ToList();
+    if (comparer is null)
     {
-        var expectedList = expected.ToList();
-        var actualList = actual.ToList();
-        if (comparer is null)
-        {
-            Assert.That(actualList, Is.EqualTo(expectedList), Msg(message));
-        }
-        else
-        {
-            Assert.That(actualList.SequenceEqual(expectedList, comparer), Is.True, Msg(message));
-        }
+      Assert.That(actualList, Is.EqualTo(expectedList), Msg(message));
     }
+    else
+    {
+      Assert.That(actualList.SequenceEqual(expectedList, comparer), Is.True, Msg(message));
+    }
+  }
 
-    public void Equal<T>(T expected, T actual, string? message = null) =>
-      Assert.That(actual, Is.EqualTo(expected), Msg(message));
+  public void Equal<T>(T expected, T actual, string? message = null) =>
+    Assert.That(actual, Is.EqualTo(expected), Msg(message));
 
-    public void True(bool assert, string? message = null) =>
-      Assert.That(assert, Is.True, Msg(message));
+  public void True(bool assert, string? message = null) =>
+    Assert.That(assert, Is.True, Msg(message));
 
-    public void False(bool assert, string? message = null) =>
-      Assert.That(assert, Is.False, Msg(message));
+  public void False(bool assert, string? message = null) =>
+    Assert.That(assert, Is.False, Msg(message));
 
 #pragma warning disable CS8770 // Configured because we know that NUnit Assert.Fail does return void, but the interface method does not have a [DoesNotReturn] annotation.
-    public void Fail(string? message = null) => Assert.Fail(Msg(message));
+  public void Fail(string? message = null) => Assert.Fail(Msg(message));
 #pragma warning restore CS8770 // Method lacks `[DoesNotReturn]` annotation to match implemented or overridden member.
 
-    public void LanguageIsSupported(string language)
+  public void LanguageIsSupported(string language)
+  {
+    if (language != LanguageNames.CSharp)
     {
-        if (language != LanguageNames.CSharp)
-        {
-            Assert.Fail(Msg($"Language '{language}' is not supported; only C# is."));
-        }
+      Assert.Fail(Msg($"Language '{language}' is not supported; only C# is."));
     }
+  }
 
-    public IVerifier PushContext(string context) => new NUnit4Verifier(_context.Push(context));
+  public IVerifier PushContext(string context) => new NUnit4Verifier(_context.Push(context));
 }

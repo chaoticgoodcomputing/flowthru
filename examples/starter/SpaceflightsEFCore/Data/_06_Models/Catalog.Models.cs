@@ -10,15 +10,15 @@ namespace SpaceflightsEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-    /// <summary>
-    /// Trained linear regression model for price prediction.
-    /// </summary>
-    public IItem<LinearRegressionModel> Regressor =>
-      CreateItem(
-        () =>
-          EFCoreItemFactory.Single.EFCore<LinearRegressionModel, SpaceflightsDbContext>(
-            label: "Regressor",
-            contextFactory: _contextFactory
-          )
-      );
+  /// <summary>
+  /// Trained linear regression model for price prediction.
+  /// </summary>
+  public IItem<LinearRegressionModel> Regressor =>
+    CreateItem(
+      () =>
+        EFCoreItemFactory.Single.EFCore<LinearRegressionModel, SpaceflightsDbContext>(
+          label: "Regressor",
+          contextFactory: _contextFactory
+        )
+    );
 }

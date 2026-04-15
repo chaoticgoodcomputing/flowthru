@@ -50,29 +50,29 @@ namespace Flowthru.Core.Abstractions;
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
 public sealed class SerializedLabelAttribute : Attribute
 {
-    /// <summary>
-    /// Gets the external field name for serialization.
-    /// </summary>
-    public string Label { get; }
+  /// <summary>
+  /// Gets the external field name for serialization.
+  /// </summary>
+  public string Label { get; }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SerializedLabelAttribute"/> class.
-    /// </summary>
-    /// <param name="label">The external field name in the serialized data</param>
-    /// <exception cref="ArgumentNullException">Thrown when label is null</exception>
-    /// <exception cref="ArgumentException">Thrown when label is empty or whitespace</exception>
-    public SerializedLabelAttribute(string label)
+  /// <summary>
+  /// Initializes a new instance of the <see cref="SerializedLabelAttribute"/> class.
+  /// </summary>
+  /// <param name="label">The external field name in the serialized data</param>
+  /// <exception cref="ArgumentNullException">Thrown when label is null</exception>
+  /// <exception cref="ArgumentException">Thrown when label is empty or whitespace</exception>
+  public SerializedLabelAttribute(string label)
+  {
+    if (label == null)
     {
-        if (label == null)
-        {
-            throw new ArgumentNullException(nameof(label));
-        }
-
-        if (string.IsNullOrWhiteSpace(label))
-        {
-            throw new ArgumentException("Label cannot be empty or whitespace.", nameof(label));
-        }
-
-        Label = label;
+      throw new ArgumentNullException(nameof(label));
     }
+
+    if (string.IsNullOrWhiteSpace(label))
+    {
+      throw new ArgumentException("Label cannot be empty or whitespace.", nameof(label));
+    }
+
+    Label = label;
+  }
 }

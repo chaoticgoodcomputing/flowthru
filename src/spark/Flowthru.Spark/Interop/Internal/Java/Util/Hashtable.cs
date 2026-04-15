@@ -6,27 +6,25 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.Interop.Internal.Java.Util
 {
+  /// <summary>
+  /// Hashtable class represents a <c>java.util.Hashtable</c> object.
+  /// </summary>
+  internal sealed class Hashtable : IJvmObjectReferenceProvider
+  {
     /// <summary>
-    /// Hashtable class represents a <c>java.util.Hashtable</c> object.
+    /// Create a <c>java.util.Hashtable</c> JVM object
     /// </summary>
-    internal sealed class Hashtable : IJvmObjectReferenceProvider
-    {
-        /// <summary>
-        /// Create a <c>java.util.Hashtable</c> JVM object
-        /// </summary>
-        /// <param name="jvm">JVM bridge to use</param>
-        internal Hashtable(IJvmBridge jvm) =>
-            Reference = jvm.CallConstructor("java.util.Hashtable");
+    /// <param name="jvm">JVM bridge to use</param>
+    internal Hashtable(IJvmBridge jvm) => Reference = jvm.CallConstructor("java.util.Hashtable");
 
-        public JvmObjectReference Reference { get; private set; }
+    public JvmObjectReference Reference { get; private set; }
 
-        /// <summary>
-        /// Maps the specified key to the specified value in this Hashtable.
-        /// Neither the key nor the value can be null.
-        /// </summary>
-        /// <param name="key">The Hashtable key</param>
-        /// <param name="value">The value</param>
-        internal void Put(object key, object value) =>
-            Reference.Invoke("put", key, value);
-    }
+    /// <summary>
+    /// Maps the specified key to the specified value in this Hashtable.
+    /// Neither the key nor the value can be null.
+    /// </summary>
+    /// <param name="key">The Hashtable key</param>
+    /// <param name="value">The value</param>
+    internal void Put(object key, object value) => Reference.Invoke("put", key, value);
+  }
 }

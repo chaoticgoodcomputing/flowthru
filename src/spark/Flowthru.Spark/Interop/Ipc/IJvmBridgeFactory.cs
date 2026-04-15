@@ -4,8 +4,8 @@
 
 namespace Flowthru.Spark.Interop.Ipc
 {
-    internal interface IJvmBridgeFactory
-    {
-        IJvmBridge Create(int portNumber);
-    }
+  internal interface IJvmBridgeFactory
+  {
+    IJvmBridge Create(int portNumber);
+  }
 }

@@ -9,27 +9,27 @@ namespace KedroSpaceflightsFUnit.Data._01_Raw.Schemas;
 [FlowthruSchema]
 public partial record CompanySchema
 {
-    /// <summary>
-    /// Unique identifier for the company.
-    /// </summary>
-    [SerializedLabel("id")]
-    public string Id { get; init; } = null!;
+  /// <summary>
+  /// Unique identifier for the company.
+  /// </summary>
+  [SerializedLabel("id")]
+  public string Id { get; init; } = null!;
 
-    /// <summary>
-    /// Company rating as a percentage string (e.g., "90%").
-    /// </summary>
-    [SerializedLabel("company_rating")]
-    public string CompanyRating { get; init; } = null!;
+  /// <summary>
+  /// Company rating as a percentage string (e.g., "90%").
+  /// </summary>
+  [SerializedLabel("company_rating")]
+  public string CompanyRating { get; init; } = null!;
 
-    /// <summary>
-    /// IATA approval status as a string flag ("t" for true, "f" for false).
-    /// </summary>
-    [SerializedLabel("iata_approved")]
-    public string IataApproved { get; init; } = null!;
+  /// <summary>
+  /// IATA approval status as a string flag ("t" for true, "f" for false).
+  /// </summary>
+  [SerializedLabel("iata_approved")]
+  public string IataApproved { get; init; } = null!;
 
-    /// <summary>
-    /// Geographic location of the company.
-    /// </summary>
-    [SerializedLabel("company_location")]
-    public string CompanyLocation { get; init; } = null!;
+  /// <summary>
+  /// Geographic location of the company.
+  /// </summary>
+  [SerializedLabel("company_location")]
+  public string CompanyLocation { get; init; } = null!;
 }

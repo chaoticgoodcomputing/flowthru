@@ -7,12 +7,12 @@ using System.Linq;
 
 namespace Flowthru.Spark.Utils
 {
-    internal static class CollectionUtils
+  internal static class CollectionUtils
+  {
+    internal static bool ArrayEquals<T>(T[] array1, T[] array2)
     {
-        internal static bool ArrayEquals<T>(T[] array1, T[] array2)
-        {
-            return (array1?.Length == array2?.Length) &&
-                ((array1 == null) || array1.SequenceEqual(array2));
-        }
+      return (array1?.Length == array2?.Length)
+        && ((array1 == null) || array1.SequenceEqual(array2));
     }
+  }
 }

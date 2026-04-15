@@ -8,47 +8,47 @@ using Razorvine.Pickle;
 
 namespace Flowthru.Spark.Sql
 {
-    /// <summary>
-    /// Custom pickler for Row objects.
-    /// </summary>
-    internal class RowPickler : IObjectPickler
+  /// <summary>
+  /// Custom pickler for Row objects.
+  /// </summary>
+  internal class RowPickler : IObjectPickler
+  {
+    public void pickle(object o, Stream outs, Pickler currentPickler)
     {
-        public void pickle(object o, Stream outs, Pickler currentPickler)
-        {
-            currentPickler.save(((Row)o).Values);
-        }
+      currentPickler.save(((Row)o).Values);
     }
+  }
 
-    /// <summary>
-    /// Custom pickler for GenericRow objects.
-    /// </summary>
-    internal class GenericRowPickler : IObjectPickler
+  /// <summary>
+  /// Custom pickler for GenericRow objects.
+  /// </summary>
+  internal class GenericRowPickler : IObjectPickler
+  {
+    public void pickle(object o, Stream outs, Pickler currentPickler)
     {
-        public void pickle(object o, Stream outs, Pickler currentPickler)
-        {
-            currentPickler.save(((GenericRow)o).Values);
-        }
+      currentPickler.save(((GenericRow)o).Values);
     }
+  }
 
-    /// <summary>
-    /// Custom pickler for Date objects.
-    /// </summary>
-    internal class DatePickler : IObjectPickler
+  /// <summary>
+  /// Custom pickler for Date objects.
+  /// </summary>
+  internal class DatePickler : IObjectPickler
+  {
+    public void pickle(object o, Stream outs, Pickler currentPickler)
     {
-        public void pickle(object o, Stream outs, Pickler currentPickler)
-        {
-            currentPickler.save(((Date)o).GetInterval());
-        }
+      currentPickler.save(((Date)o).GetInterval());
     }
+  }
 
-    /// <summary>
-    /// Custom pickler for Timestamp objects.
-    /// </summary>
-    internal class TimestampPickler : IObjectPickler
+  /// <summary>
+  /// Custom pickler for Timestamp objects.
+  /// </summary>
+  internal class TimestampPickler : IObjectPickler
+  {
+    public void pickle(object o, Stream outs, Pickler currentPickler)
     {
-        public void pickle(object o, Stream outs, Pickler currentPickler)
-        {
-            currentPickler.save(((Timestamp)o).GetIntervalInMicroseconds());
-        }
+      currentPickler.save(((Timestamp)o).GetIntervalInMicroseconds());
     }
+  }
 }

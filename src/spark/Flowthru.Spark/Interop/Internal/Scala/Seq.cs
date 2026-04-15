@@ -8,32 +8,32 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.Interop.Internal.Scala
 {
-    /// <summary>
-    /// Limited read-only implementation of Scala Seq[T] so that Seq objects can be read
-    /// into POCO collection types such as List.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal sealed class Seq<T> : IJvmObjectReferenceProvider, IEnumerable<T>
+  /// <summary>
+  /// Limited read-only implementation of Scala Seq[T] so that Seq objects can be read
+  /// into POCO collection types such as List.
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
+  internal sealed class Seq<T> : IJvmObjectReferenceProvider, IEnumerable<T>
+  {
+    internal Seq(JvmObjectReference jvmObject)
     {
-        internal Seq(JvmObjectReference jvmObject)
-        {
-            Reference = jvmObject;
-        }
-
-        public JvmObjectReference Reference { get; private set; }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public int Size => (int)Reference.Invoke("size");
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            for (int i = 0; i < Size; ++i)
-            {
-                yield return Apply(i);
-            }
-        }
-
-        public T Apply(int index) => (T)Reference.Invoke("apply", index);
+      Reference = jvmObject;
     }
+
+    public JvmObjectReference Reference { get; private set; }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public int Size => (int)Reference.Invoke("size");
+
+    public IEnumerator<T> GetEnumerator()
+    {
+      for (int i = 0; i < Size; ++i)
+      {
+        yield return Apply(i);
+      }
+    }
+
+    public T Apply(int index) => (T)Reference.Invoke("apply", index);
+  }
 }

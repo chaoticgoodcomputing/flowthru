@@ -20,26 +20,26 @@ namespace KedroSpaceflightsSpark.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class RankShuttlesByPriceStep
 {
-    public static Func<TypedFrame<ModelInputTableSchema>, TypedFrame<ShuttlePriceRankSchema>> Create()
+  public static Func<TypedFrame<ModelInputTableSchema>, TypedFrame<ShuttlePriceRankSchema>> Create()
+  {
+    return (input) =>
     {
-        return (input) =>
-        {
-            var byTypeByPrice = FrameWindowSpec<ModelInputTableSchema>
-          .PartitionBy(r => r.ShuttleType)
-          .OrderBy(r => r.Price);
+      var byTypeByPrice = FrameWindowSpec<ModelInputTableSchema>
+        .PartitionBy(r => r.ShuttleType)
+        .OrderBy(r => r.Price);
 
-            return input.SelectOver(
-          (row, win) =>
-            new ShuttlePriceRankSchema
-            {
-                ShuttleId = row.ShuttleId,
-                ShuttleType = row.ShuttleType,
-                CompanyId = row.CompanyId,
-                Price = row.Price,
-                PriceRank = win.DenseRank(byTypeByPrice),
-                AvgPriceForType = win.Avg(r => r.Price, byTypeByPrice),
-            }
-        );
-        };
-    }
+      return input.SelectOver(
+        (row, win) =>
+          new ShuttlePriceRankSchema
+          {
+            ShuttleId = row.ShuttleId,
+            ShuttleType = row.ShuttleType,
+            CompanyId = row.CompanyId,
+            Price = row.Price,
+            PriceRank = win.DenseRank(byTypeByPrice),
+            AvgPriceForType = win.Avg(r => r.Price, byTypeByPrice),
+          }
+      );
+    };
+  }
 }

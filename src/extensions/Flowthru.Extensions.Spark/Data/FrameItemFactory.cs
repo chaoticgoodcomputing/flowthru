@@ -25,24 +25,24 @@ namespace Flowthru.Extensions.Spark.Data;
 /// </remarks>
 public sealed class FrameItemFactory
 {
-    internal FrameItemFactory() { }
+  internal FrameItemFactory() { }
 
-    /// <summary>
-    /// Creates an in-memory catalog item holding a <see cref="TypedFrame{T}"/>.
-    /// </summary>
-    /// <typeparam name="TRow">
-    /// The schema type for the frame's rows. Must be a flat schema — non-flat types
-    /// contain nested or collection properties incompatible with scalar Spark columns.
-    /// </typeparam>
-    /// <param name="label">Unique catalog label for DAG resolution.</param>
-    /// <returns>
-    /// A catalog item with memory storage. No serialization occurs; the frame reference
-    /// is passed between steps as-is.
-    /// </returns>
-    public Item<TypedFrame<TRow>> Memory<TRow>(string label)
-      where TRow : notnull, IFlatSchema
-    {
-        var storage = new MemoryStorageAdapter<TypedFrame<TRow>>();
-        return new Item<TypedFrame<TRow>>(label, storage);
-    }
+  /// <summary>
+  /// Creates an in-memory catalog item holding a <see cref="TypedFrame{T}"/>.
+  /// </summary>
+  /// <typeparam name="TRow">
+  /// The schema type for the frame's rows. Must be a flat schema — non-flat types
+  /// contain nested or collection properties incompatible with scalar Spark columns.
+  /// </typeparam>
+  /// <param name="label">Unique catalog label for DAG resolution.</param>
+  /// <returns>
+  /// A catalog item with memory storage. No serialization occurs; the frame reference
+  /// is passed between steps as-is.
+  /// </returns>
+  public Item<TypedFrame<TRow>> Memory<TRow>(string label)
+    where TRow : notnull, IFlatSchema
+  {
+    var storage = new MemoryStorageAdapter<TypedFrame<TRow>>();
+    return new Item<TypedFrame<TRow>>(label, storage);
+  }
 }

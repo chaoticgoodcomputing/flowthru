@@ -7,34 +7,33 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.Interop.Internal.Java.Util
 {
+  /// <summary>
+  /// ArrayList class represents a <c>java.util.ArrayList</c> object.
+  /// </summary>
+  internal sealed class ArrayList : IJvmObjectReferenceProvider
+  {
     /// <summary>
-    /// ArrayList class represents a <c>java.util.ArrayList</c> object.
+    /// Create a <c>java.util.ArrayList</c> JVM object
     /// </summary>
-    internal sealed class ArrayList : IJvmObjectReferenceProvider
+    /// <param name="jvm">JVM bridge to use</param>
+    internal ArrayList(IJvmBridge jvm)
     {
-
-        /// <summary>
-        /// Create a <c>java.util.ArrayList</c> JVM object
-        /// </summary>
-        /// <param name="jvm">JVM bridge to use</param>
-        internal ArrayList(IJvmBridge jvm)
-        {
-            Reference = jvm.CallConstructor("java.util.ArrayList");
-        }
-
-        public JvmObjectReference Reference { get; private set; }
-
-        internal void Add(object element)
-        {
-            Reference.Invoke("add", element);
-        }
-
-        internal void AddAll(IEnumerable<object> collection)
-        {
-            foreach (object elem in collection)
-            {
-                Add(elem);
-            }
-        }
+      Reference = jvm.CallConstructor("java.util.ArrayList");
     }
+
+    public JvmObjectReference Reference { get; private set; }
+
+    internal void Add(object element)
+    {
+      Reference.Invoke("add", element);
+    }
+
+    internal void AddAll(IEnumerable<object> collection)
+    {
+      foreach (object elem in collection)
+      {
+        Add(elem);
+      }
+    }
+  }
 }

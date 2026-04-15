@@ -9,15 +9,15 @@ namespace KedroSpaceflights.Data;
 /// </summary>
 public partial class Catalog
 {
-    /// <summary>
-    /// Training dataset split from the model input table. Transient (memory only).
-    /// </summary>
-    public IItem<IEnumerable<TrainingData>> TrainSplit =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TrainingData>(label: "XTrain"));
+  /// <summary>
+  /// Training dataset split from the model input table. Transient (memory only).
+  /// </summary>
+  public IItem<IEnumerable<TrainingData>> TrainSplit =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TrainingData>(label: "XTrain"));
 
-    /// <summary>
-    /// Test dataset split from the model input table. Transient (memory only).
-    /// </summary>
-    public IItem<IEnumerable<TestData>> TestSplit =>
-      CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "XTest"));
+  /// <summary>
+  /// Test dataset split from the model input table. Transient (memory only).
+  /// </summary>
+  public IItem<IEnumerable<TestData>> TestSplit =>
+    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "XTest"));
 }

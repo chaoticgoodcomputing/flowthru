@@ -22,14 +22,14 @@ namespace Flowthru.Core.Graph.Scheduling;
 /// </remarks>
 public interface ISchedulingStrategy
 {
-    /// <summary>
-    /// Returns <paramref name="readySteps"/> sorted in dispatch-priority order,
-    /// highest priority first.
-    /// </summary>
-    /// <param name="readySteps">Steps whose dependencies have all completed and that
-    /// are eligible for immediate dispatch.</param>
-    /// <param name="context">Read-only graph context available to inform ordering decisions.</param>
-    /// <returns>The same steps in priority order. Must contain exactly the same elements
-    /// as <paramref name="readySteps"/>.</returns>
-    IReadOnlyList<FlowStep> Prioritize(IReadOnlyList<FlowStep> readySteps, SchedulingContext context);
+  /// <summary>
+  /// Returns <paramref name="readySteps"/> sorted in dispatch-priority order,
+  /// highest priority first.
+  /// </summary>
+  /// <param name="readySteps">Steps whose dependencies have all completed and that
+  /// are eligible for immediate dispatch.</param>
+  /// <param name="context">Read-only graph context available to inform ordering decisions.</param>
+  /// <returns>The same steps in priority order. Must contain exactly the same elements
+  /// as <paramref name="readySteps"/>.</returns>
+  IReadOnlyList<FlowStep> Prioritize(IReadOnlyList<FlowStep> readySteps, SchedulingContext context);
 }

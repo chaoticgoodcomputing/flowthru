@@ -9,17 +9,17 @@ namespace SpaceflightsPythonEFCore.Data;
 /// </summary>
 public partial class Catalog : CatalogAbstract
 {
-    private readonly string _basePath;
-    private readonly IDbContextFactory<SpaceflightsDbContext> _contextFactory;
+  private readonly string _basePath;
+  private readonly IDbContextFactory<SpaceflightsDbContext> _contextFactory;
 
-    public Catalog(string basePath, IDbContextFactory<SpaceflightsDbContext> contextFactory)
-    {
-        _basePath = basePath;
-        _contextFactory = contextFactory;
+  public Catalog(string basePath, IDbContextFactory<SpaceflightsDbContext> contextFactory)
+  {
+    _basePath = basePath;
+    _contextFactory = contextFactory;
 
-        using var ctx = contextFactory.CreateDbContext();
-        ctx.Database.EnsureCreated();
+    using var ctx = contextFactory.CreateDbContext();
+    ctx.Database.EnsureCreated();
 
-        InitializeCatalogProperties();
-    }
+    InitializeCatalogProperties();
+  }
 }

@@ -4,8 +4,8 @@
 
 namespace Flowthru.Spark
 {
-    internal class Constants
-    {
-        internal const string RunningREPLEnvVar = "DOTNET_SPARK_RUNNING_REPL";
-    }
+  internal class Constants
+  {
+    internal const string RunningREPLEnvVar = "DOTNET_SPARK_RUNNING_REPL";
+  }
 }

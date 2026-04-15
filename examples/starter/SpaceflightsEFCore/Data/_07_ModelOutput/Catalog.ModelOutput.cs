@@ -10,27 +10,27 @@ namespace SpaceflightsEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-    /// <summary>
-    /// Evaluation metrics for the trained model (R², MAE, etc).
-    /// </summary>
-    public IItem<ModelMetrics> ModelMetrics =>
-      CreateItem(
-        () =>
-          EFCoreItemFactory.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
-            label: "ModelMetrics",
-            contextFactory: _contextFactory
-          )
-      );
+  /// <summary>
+  /// Evaluation metrics for the trained model (R², MAE, etc).
+  /// </summary>
+  public IItem<ModelMetrics> ModelMetrics =>
+    CreateItem(
+      () =>
+        EFCoreItemFactory.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
+          label: "ModelMetrics",
+          contextFactory: _contextFactory
+        )
+    );
 
-    /// <summary>
-    /// Model predictions on the test set with actual vs predicted prices.
-    /// </summary>
-    public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
-      CreateItem(
-        () =>
-          EFCoreItemFactory.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
-            label: "ModelPredictions",
-            contextFactory: _contextFactory
-          )
-      );
+  /// <summary>
+  /// Model predictions on the test set with actual vs predicted prices.
+  /// </summary>
+  public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
+    CreateItem(
+      () =>
+        EFCoreItemFactory.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
+          label: "ModelPredictions",
+          contextFactory: _contextFactory
+        )
+    );
 }

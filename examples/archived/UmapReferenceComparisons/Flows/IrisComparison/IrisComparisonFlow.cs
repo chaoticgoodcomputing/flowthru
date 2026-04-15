@@ -23,35 +23,35 @@ namespace UmapReferenceComparisons.Flows.IrisComparison;
 /// </remarks>
 public static class IrisComparisonFlow
 {
-    public static Flow Create(Catalog catalog)
+  public static Flow Create(Catalog catalog)
+  {
+    var umapParameters = new UmapParameters
     {
-        var umapParameters = new UmapParameters
-        {
-            NumberOfNeighbors = 50,
-            LearningRate = 0.5f,
-            MinDist = 0.001f,
-            NumberOfComponents = 2,
-            RandomSeed = 42,
-            NumberOfEpochs = null,
-            Verbosity = 2,
-        };
+      NumberOfNeighbors = 50,
+      LearningRate = 0.5f,
+      MinDist = 0.001f,
+      NumberOfComponents = 2,
+      RandomSeed = 42,
+      NumberOfEpochs = null,
+      Verbosity = 2,
+    };
 
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            pipeline.AddStep(
-          label: "ConvertIrisToUmapInput",
-          description: """
+    return FlowBuilder.CreateFlow(pipeline =>
+    {
+      pipeline.AddStep(
+        label: "ConvertIrisToUmapInput",
+        description: """
           Converts Iris-specific schema to universal UmapInput format.
           Extracts the 4 Iris features (sepal/petal length/width) into a float array.
         """,
-          transform: ConvertIrisToUmapInputStep.Create(),
-          input: catalog.IrisInput,
-          output: catalog.IrisUmapInput
-        );
+        transform: ConvertIrisToUmapInputStep.Create(),
+        input: catalog.IrisInput,
+        output: catalog.IrisUmapInput
+      );
 
-            pipeline.AddStep(
-          label: "TransformIrisWithCSharpUmap",
-          description: """
+      pipeline.AddStep(
+        label: "TransformIrisWithCSharpUmap",
+        description: """
           Applies C# UMAP to Iris input features using the same parameters
           as the Python reference implementation.
           
@@ -63,21 +63,21 @@ public static class IrisComparisonFlow
           
           Outputs both the embedding and runtime performance metrics.
         """,
-          transform: TransformWithUmapStep.Create(
-            new TransformWithUmapStep.Params
-              {
-                  DatasetName = "Iris",
-                  UmapParameters = umapParameters,
-                  InitStrategy = "random", // Match Python's init="random"
-              }
-          ),
-          input: catalog.IrisUmapInput,
-          output: (catalog.IrisCSharpOutput, catalog.IrisRuntimeReport)
-        );
+        transform: TransformWithUmapStep.Create(
+          new TransformWithUmapStep.Params
+          {
+            DatasetName = "Iris",
+            UmapParameters = umapParameters,
+            InitStrategy = "random", // Match Python's init="random"
+          }
+        ),
+        input: catalog.IrisUmapInput,
+        output: (catalog.IrisCSharpOutput, catalog.IrisRuntimeReport)
+      );
 
-            pipeline.AddStep(
-          label: "CompareIrisOutputs",
-          description: """
+      pipeline.AddStep(
+        label: "CompareIrisOutputs",
+        description: """
           Compares C# UMAP output against Python reference output using neighborhood preservation validation.
           
           Metrics:
@@ -86,25 +86,25 @@ public static class IrisComparisonFlow
           
           Multi-trial approach accounts for random initialization variance.
         """,
-          transform: CompareUmapImplementationsStep.Create(
-            new CompareUmapImplementationsStep.Params
-              {
-                  DatasetName = "iris",
-                  UmapParameters = umapParameters,
-                  KNeighbors = 15,
-                  MaxPreservationDifference = 0.1,
-                  MinimumConfidence = 0.68,
-                  NumTrials = 50,
-                  InitStrategy = "random", // Match Python's init="random"
-              }
-          ),
-          input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisUmapInput),
-          output: catalog.IrisComparison
-        );
+        transform: CompareUmapImplementationsStep.Create(
+          new CompareUmapImplementationsStep.Params
+          {
+            DatasetName = "iris",
+            UmapParameters = umapParameters,
+            KNeighbors = 15,
+            MaxPreservationDifference = 0.1,
+            MinimumConfidence = 0.68,
+            NumTrials = 50,
+            InitStrategy = "random", // Match Python's init="random"
+          }
+        ),
+        input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisUmapInput),
+        output: catalog.IrisComparison
+      );
 
-            pipeline.AddStep(
-          label: "VisualizeComparison",
-          description: """
+      pipeline.AddStep(
+        label: "VisualizeComparison",
+        description: """
           Creates a side-by-side scatter plot comparing Python and C# UMAP embeddings.
           Points are colored by iris species (setosa, versicolor, virginica).
           
@@ -113,36 +113,36 @@ public static class IrisComparisonFlow
           - Similar separation between species
           - Similar relative positioning of clusters
         """,
-          transform: VisualizeUmapComparisonStep.Create(
-            new VisualizeUmapComparisonStep.Params
+        transform: VisualizeUmapComparisonStep.Create(
+          new VisualizeUmapComparisonStep.Params
+          {
+            DatasetName = "Iris",
+            LabelFormatter = label =>
+              label switch
               {
-                  DatasetName = "Iris",
-                  LabelFormatter = label =>
-                label switch
-                {
-                      "0" => "Setosa",
-                      "1" => "Versicolor",
-                      "2" => "Virginica",
-                      _ => $"Class {label}",
-                  },
-              }
-          ),
-          input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisCSharpOutput),
-          output: catalog.IrisVisualization
-        );
+                "0" => "Setosa",
+                "1" => "Versicolor",
+                "2" => "Virginica",
+                _ => $"Class {label}",
+              },
+          }
+        ),
+        input: (catalog.IrisUmapInput, catalog.IrisPythonOutput, catalog.IrisCSharpOutput),
+        output: catalog.IrisVisualization
+      );
 
-            // NOTE: Commented out due to performance issues with Plotly.NET
-            // pipeline.AddStep(
-            //   label: "ExportVisualizationToPng",
-            //   description: """
-            //     Exports the side-by-side comparison chart to a PNG file.
-            //     Uses Plotly.NET.ImageExport with PuppeteerSharp (headless Chromium)
-            //     to render the interactive chart as a static image.
-            //   """,
-            //   transform: PlotlyImageExportStep.Create(),
-            //   input: catalog.IrisVisualization,
-            //   output: catalog.IrisVisualizationPng
-            // );
-        });
-    }
+      // NOTE: Commented out due to performance issues with Plotly.NET
+      // pipeline.AddStep(
+      //   label: "ExportVisualizationToPng",
+      //   description: """
+      //     Exports the side-by-side comparison chart to a PNG file.
+      //     Uses Plotly.NET.ImageExport with PuppeteerSharp (headless Chromium)
+      //     to render the interactive chart as a static image.
+      //   """,
+      //   transform: PlotlyImageExportStep.Create(),
+      //   input: catalog.IrisVisualization,
+      //   output: catalog.IrisVisualizationPng
+      // );
+    });
+  }
 }

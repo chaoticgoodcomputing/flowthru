@@ -37,58 +37,58 @@ namespace Flowthru.Misc.ML.UMAP.Strategies.LayoutInit;
 /// </remarks>
 public interface ILayoutInitStrategy
 {
-    /// <summary>
-    /// Initializes the low-dimensional embedding layout.
-    /// </summary>
-    /// <param name="data">
-    /// Original high-dimensional data matrix.
-    /// Shape: (n_samples, n_features)
-    /// May be null for precomputed distance-based initialization.
-    /// </param>
-    /// <param name="graph">
-    /// Refined fuzzy simplicial set graph after pruning.
-    /// Shape: (n_samples, n_samples)
-    /// Used by spectral and graph-based initialization methods.
-    /// </param>
-    /// <param name="nComponents">
-    /// Target dimensionality of the embedding.
-    /// Typically 2 or 3 for visualization, or higher for downstream tasks.
-    /// Must be at least 1 and less than n_samples.
-    /// </param>
-    /// <param name="random">
-    /// Random number generator for reproducible randomization.
-    /// Used for noise injection and random initialization.
-    /// </param>
-    /// <returns>
-    /// Initial embedding matrix with coordinates normalized to [-10, 10] range.
-    /// Shape: (n_samples, n_components)
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// <b>Implementation requirements:</b>
-    /// </para>
-    /// <list type="number">
-    ///   <item><description>Generate or compute initial coordinates</description></item>
-    ///   <item><description>Add small random noise to avoid degeneracies</description></item>
-    ///   <item><description>Normalize to [-10, 10] range for numerical stability</description></item>
-    ///   <item><description>Ensure output is C-contiguous (row-major) for optimization</description></item>
-    ///   <item><description>Handle disconnected graph components gracefully</description></item>
-    /// </list>
-    /// <para>
-    /// <b>Performance considerations:</b>
-    /// </para>
-    /// <list type="bullet">
-    ///   <item><description>Spectral methods require eigenvalue decomposition: O(n²) to O(n³)</description></item>
-    ///   <item><description>PCA methods require SVD: O(min(n,d) × n × d)</description></item>
-    ///   <item><description>Random methods are O(n × k) where k is n_components</description></item>
-    /// </list>
-    /// </remarks>
-    LayoutInitResult InitializeLayout(
-      Matrix<float>? data,
-      SparseMatrix graph,
-      int nComponents,
-      Random random
-    );
+  /// <summary>
+  /// Initializes the low-dimensional embedding layout.
+  /// </summary>
+  /// <param name="data">
+  /// Original high-dimensional data matrix.
+  /// Shape: (n_samples, n_features)
+  /// May be null for precomputed distance-based initialization.
+  /// </param>
+  /// <param name="graph">
+  /// Refined fuzzy simplicial set graph after pruning.
+  /// Shape: (n_samples, n_samples)
+  /// Used by spectral and graph-based initialization methods.
+  /// </param>
+  /// <param name="nComponents">
+  /// Target dimensionality of the embedding.
+  /// Typically 2 or 3 for visualization, or higher for downstream tasks.
+  /// Must be at least 1 and less than n_samples.
+  /// </param>
+  /// <param name="random">
+  /// Random number generator for reproducible randomization.
+  /// Used for noise injection and random initialization.
+  /// </param>
+  /// <returns>
+  /// Initial embedding matrix with coordinates normalized to [-10, 10] range.
+  /// Shape: (n_samples, n_components)
+  /// </returns>
+  /// <remarks>
+  /// <para>
+  /// <b>Implementation requirements:</b>
+  /// </para>
+  /// <list type="number">
+  ///   <item><description>Generate or compute initial coordinates</description></item>
+  ///   <item><description>Add small random noise to avoid degeneracies</description></item>
+  ///   <item><description>Normalize to [-10, 10] range for numerical stability</description></item>
+  ///   <item><description>Ensure output is C-contiguous (row-major) for optimization</description></item>
+  ///   <item><description>Handle disconnected graph components gracefully</description></item>
+  /// </list>
+  /// <para>
+  /// <b>Performance considerations:</b>
+  /// </para>
+  /// <list type="bullet">
+  ///   <item><description>Spectral methods require eigenvalue decomposition: O(n²) to O(n³)</description></item>
+  ///   <item><description>PCA methods require SVD: O(min(n,d) × n × d)</description></item>
+  ///   <item><description>Random methods are O(n × k) where k is n_components</description></item>
+  /// </list>
+  /// </remarks>
+  LayoutInitResult InitializeLayout(
+    Matrix<float>? data,
+    SparseMatrix graph,
+    int nComponents,
+    Random random
+  );
 }
 
 /// <summary>

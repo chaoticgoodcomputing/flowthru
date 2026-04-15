@@ -9,15 +9,15 @@ namespace KedroSpaceflightsPython.Data;
 /// </summary>
 public partial class Catalog
 {
-    /// <summary>
-    /// Trained linear regression model with coefficients and feature names.
-    /// </summary>
-    public IItem<LinearRegressionModel> Regressor =>
-      CreateItem(
-        () =>
-          ItemFactory.Single.Json<LinearRegressionModel>(
-            label: "Regressor",
-            filePath: $"{_basePath}/_06_Models/Datasets/regressor.json"
-          )
-      );
+  /// <summary>
+  /// Trained linear regression model with coefficients and feature names.
+  /// </summary>
+  public IItem<LinearRegressionModel> Regressor =>
+    CreateItem(
+      () =>
+        ItemFactory.Single.Json<LinearRegressionModel>(
+          label: "Regressor",
+          filePath: $"{_basePath}/_06_Models/Datasets/regressor.json"
+        )
+    );
 }

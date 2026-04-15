@@ -28,88 +28,88 @@ namespace KedroSpaceflightsFUnit.Flows.Reporting.Steps;
 [FlowthruStep]
 public static class GeneratePassengerCapacityChartStep
 {
-    public static Func<IEnumerable<PreprocessedShuttleSchema>, GenericChart> Create(
-      ILogger? logger = null
-    )
+  public static Func<IEnumerable<PreprocessedShuttleSchema>, GenericChart> Create(
+    ILogger? logger = null
+  )
+  {
+    return (input) =>
     {
-        return (input) =>
+      var shuttles = input.ToList();
+
+      logger?.LogInformation(
+        "Generating passenger capacity chart from {Count} shuttle records",
+        shuttles.Count
+      );
+
+      // Group by shuttle type and calculate average passenger capacity
+      // Sort by capacity descending to show ranking from highest to lowest
+      var aggregated = shuttles
+        .GroupBy(s => s.ShuttleType)
+        .Select(g => new
         {
-            var shuttles = input.ToList();
+          ShuttleType = g.Key,
+          AvgPassengerCapacity = g.Average(s => s.PassengerCapacity),
+        })
+        .OrderByDescending(x => x.AvgPassengerCapacity)
+        .ToList();
 
-            logger?.LogInformation(
-          "Generating passenger capacity chart from {Count} shuttle records",
-          shuttles.Count
-        );
+      logger?.LogInformation(
+        "Aggregated {Count} shuttle types, sorted by capacity (highest to lowest)",
+        aggregated.Count
+      );
 
-            // Group by shuttle type and calculate average passenger capacity
-            // Sort by capacity descending to show ranking from highest to lowest
-            var aggregated = shuttles
-          .GroupBy(s => s.ShuttleType)
-          .Select(g => new
-            {
-                ShuttleType = g.Key,
-                AvgPassengerCapacity = g.Average(s => s.PassengerCapacity),
-            })
-          .OrderByDescending(x => x.AvgPassengerCapacity)
-          .ToList();
+      // Extract data for chart
+      var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
+      var capacities = aggregated.Select(x => x.AvgPassengerCapacity).ToList();
 
-            logger?.LogInformation(
-          "Aggregated {Count} shuttle types, sorted by capacity (highest to lowest)",
-          aggregated.Count
-        );
+      // Create column chart using Plotly.NET.CSharp API
+      // Note: Both test and examples projects produce similar rendering with this API
+      var chart = CSharpChart
+        .Column<string, double, double>(shuttleTypes, capacities)
+        .WithXAxisStyle(Title.init("Shuttle Type (Ranked by Capacity)"))
+        .WithYAxisStyle(Title.init("Average Passenger Capacity"))
+        .WithTitle("Shuttle Passenger Capacity Rankings")
+        .WithSize(1000, 600);
 
-            // Extract data for chart
-            var shuttleTypes = aggregated.Select(x => x.ShuttleType).ToList();
-            var capacities = aggregated.Select(x => x.AvgPassengerCapacity).ToList();
+      logger?.LogInformation("Generated sorted passenger capacity bar chart");
 
-            // Create column chart using Plotly.NET.CSharp API
-            // Note: Both test and examples projects produce similar rendering with this API
-            var chart = CSharpChart
-          .Column<string, double, double>(shuttleTypes, capacities)
-          .WithXAxisStyle(Title.init("Shuttle Type (Ranked by Capacity)"))
-          .WithYAxisStyle(Title.init("Average Passenger Capacity"))
-          .WithTitle("Shuttle Passenger Capacity Rankings")
-          .WithSize(1000, 600);
-
-            logger?.LogInformation("Generated sorted passenger capacity bar chart");
-
-            return chart;
-        };
-    }
+      return chart;
+    };
+  }
 
 #if FUNIT_ENABLED
-    /// <summary>FUnit tests for <see cref="GeneratePassengerCapacityChartStep"/>.</summary>
-    public class Tests : FunitContext
+  /// <summary>FUnit tests for <see cref="GeneratePassengerCapacityChartStep"/>.</summary>
+  public class Tests : FunitContext
+  {
+    private static PreprocessedShuttleSchema Shuttle(string type, int capacity) =>
+      new()
+      {
+        Id = Guid.NewGuid().ToString(),
+        ShuttleType = type,
+        CompanyId = "C1",
+        Engines = 2,
+        PassengerCapacity = capacity,
+        Crew = 4,
+        Price = 500m,
+        DCheckComplete = true,
+        MoonClearanceComplete = false,
+      };
+
+    /// <summary>
+    /// Valid shuttle data should produce a non-null GenericChart without throwing.
+    /// </summary>
+    [StepTest(typeof(GeneratePassengerCapacityChartStep))]
+    public void ValidInput_ReturnsNonNullChart()
     {
-        private static PreprocessedShuttleSchema Shuttle(string type, int capacity) =>
-          new()
-          {
-              Id = Guid.NewGuid().ToString(),
-              ShuttleType = type,
-              CompanyId = "C1",
-              Engines = 2,
-              PassengerCapacity = capacity,
-              Crew = 4,
-              Price = 500m,
-              DCheckComplete = true,
-              MoonClearanceComplete = false,
-          };
+      // Arrange
+      var input = Samples.Of(Shuttle("Type A", 100), Shuttle("Type B", 200));
 
-        /// <summary>
-        /// Valid shuttle data should produce a non-null GenericChart without throwing.
-        /// </summary>
-        [StepTest(typeof(GeneratePassengerCapacityChartStep))]
-        public void ValidInput_ReturnsNonNullChart()
-        {
-            // Arrange
-            var input = Samples.Of(Shuttle("Type A", 100), Shuttle("Type B", 200));
+      // Apply
+      var chart = Invoke(Create(), input);
 
-            // Apply
-            var chart = Invoke(Create(), input);
-
-            // Assert
-            Assert.That(chart, Is.Not.Null);
-        }
+      // Assert
+      Assert.That(chart, Is.Not.Null);
     }
+  }
 #endif
 }

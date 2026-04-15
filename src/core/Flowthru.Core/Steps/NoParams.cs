@@ -30,5 +30,5 @@ namespace Flowthru.Core.Steps;
 /// </remarks>
 public sealed class NoParams
 {
-    // Empty marker class - no properties or methods needed
+  // Empty marker class - no properties or methods needed
 }

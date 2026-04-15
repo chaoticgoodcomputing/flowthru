@@ -21,10 +21,10 @@ namespace Flowthru.Core.Results;
 /// </remarks>
 public interface IFlowResultFormatter
 {
-    /// <summary>
-    /// Formats and outputs the Flow result.
-    /// </summary>
-    /// <param name="result">The Flow execution result</param>
-    /// <param name="logger">The logger to write output to</param>
-    void Format(FlowResult result, ILogger logger);
+  /// <summary>
+  /// Formats and outputs the Flow result.
+  /// </summary>
+  /// <param name="result">The Flow execution result</param>
+  /// <param name="logger">The logger to write output to</param>
+  void Format(FlowResult result, ILogger logger);
 }

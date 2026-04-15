@@ -12,15 +12,15 @@ namespace Flowthru.Misc.DataFrames;
 /// </remarks>
 public interface IFrameMemberTranslator
 {
-    /// <summary>
-    /// Attempts to translate a member access into a native expression.
-    /// </summary>
-    /// <param name="member">The property or field being accessed.</param>
-    /// <param name="instance">
-    /// The translated native expression for the instance, or <c>null</c> for static members.
-    /// </param>
-    /// <returns>A native expression, or <c>null</c> if this translator does not handle the member.</returns>
-    object? Translate(MemberInfo member, object? instance);
+  /// <summary>
+  /// Attempts to translate a member access into a native expression.
+  /// </summary>
+  /// <param name="member">The property or field being accessed.</param>
+  /// <param name="instance">
+  /// The translated native expression for the instance, or <c>null</c> for static members.
+  /// </param>
+  /// <returns>A native expression, or <c>null</c> if this translator does not handle the member.</returns>
+  object? Translate(MemberInfo member, object? instance);
 }
 
 /// <summary>
@@ -33,14 +33,14 @@ public interface IFrameMemberTranslator
 /// </remarks>
 public interface IFrameMethodTranslator
 {
-    /// <summary>
-    /// Attempts to translate a method call into a native expression.
-    /// </summary>
-    /// <param name="method">The method being called.</param>
-    /// <param name="instance">
-    /// The translated native expression for the instance, or <c>null</c> for static methods.
-    /// </param>
-    /// <param name="arguments">The translated native expressions for each argument.</param>
-    /// <returns>A native expression, or <c>null</c> if this translator does not handle the method.</returns>
-    object? Translate(MethodInfo method, object? instance, IReadOnlyList<object?> arguments);
+  /// <summary>
+  /// Attempts to translate a method call into a native expression.
+  /// </summary>
+  /// <param name="method">The method being called.</param>
+  /// <param name="instance">
+  /// The translated native expression for the instance, or <c>null</c> for static methods.
+  /// </param>
+  /// <param name="arguments">The translated native expressions for each argument.</param>
+  /// <returns>A native expression, or <c>null</c> if this translator does not handle the method.</returns>
+  object? Translate(MethodInfo method, object? instance, IReadOnlyList<object?> arguments);
 }

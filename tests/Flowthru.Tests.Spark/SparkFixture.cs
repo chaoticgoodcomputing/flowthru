@@ -10,99 +10,97 @@ using Xunit;
 
 namespace Flowthru.Tests.Spark
 {
-    public sealed class SparkFixture : IDisposable
+  public sealed class SparkFixture : IDisposable
+  {
+    internal Mock<IJvmBridge> MockJvm { get; private set; }
+
+    public SparkFixture()
     {
-        internal Mock<IJvmBridge> MockJvm { get; private set; }
+      SetupBasicMockJvm();
 
-        public SparkFixture()
-        {
-            SetupBasicMockJvm();
+      // Unit tests may contain calls that hit the AssemblyLoader.
+      // One of the AssemblyLoader assembly search paths is populated
+      // using SparkFiles. Unless we are running in an E2E scenario and
+      // on the Worker, SparkFiles will attempt to call the JVM. Because
+      // this is a (non E2E) Unit test, it is necessary to mock this call.
+      SetupSparkFiles();
 
-            // Unit tests may contain calls that hit the AssemblyLoader.
-            // One of the AssemblyLoader assembly search paths is populated
-            // using SparkFiles. Unless we are running in an E2E scenario and
-            // on the Worker, SparkFiles will attempt to call the JVM. Because
-            // this is a (non E2E) Unit test, it is necessary to mock this call.
-            SetupSparkFiles();
+      var mockJvmBridgeFactory = new Mock<IJvmBridgeFactory>();
+      mockJvmBridgeFactory.Setup(m => m.Create(It.IsAny<int>())).Returns(MockJvm.Object);
 
-            var mockJvmBridgeFactory = new Mock<IJvmBridgeFactory>();
-            mockJvmBridgeFactory
-                .Setup(m => m.Create(It.IsAny<int>()))
-                .Returns(MockJvm.Object);
-
-            SparkEnvironment.JvmBridgeFactory = mockJvmBridgeFactory.Object;
-        }
-
-        public void Dispose()
-        {
-        }
-
-        private void SetupBasicMockJvm()
-        {
-            MockJvm = new Mock<IJvmBridge>();
-
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object[]>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object>(),
-                    It.IsAny<object>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-            MockJvm
-                .Setup(m => m.CallNonStaticJavaMethod(
-                    It.IsAny<JvmObjectReference>(),
-                    It.IsAny<string>(),
-                    It.IsAny<object[]>()))
-                .Returns(
-                    new JvmObjectReference("result", MockJvm.Object));
-        }
-
-        private void SetupSparkFiles()
-        {
-            MockJvm
-                .Setup(m => m.CallStaticJavaMethod(
-                    "org.apache.spark.SparkFiles",
-                    "getRootDirectory"))
-                .Returns("SparkFilesRootDirectory");
-        }
+      SparkEnvironment.JvmBridgeFactory = mockJvmBridgeFactory.Object;
     }
 
-    [CollectionDefinition("Spark Unit Tests")]
-    public class SparkCollection : ICollectionFixture<SparkFixture>
+    public void Dispose() { }
+
+    private void SetupBasicMockJvm()
     {
-        // This class has no code, and is never created. Its purpose is simply
-        // to be the place to apply [CollectionDefinition] and all the
-        // ICollectionFixture<> interfaces.
+      MockJvm = new Mock<IJvmBridge>();
+
+      MockJvm
+        .Setup(m =>
+          m.CallStaticJavaMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>())
+        )
+        .Returns(new JvmObjectReference("result", MockJvm.Object));
+      MockJvm
+        .Setup(m =>
+          m.CallStaticJavaMethod(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<object>(),
+            It.IsAny<object>()
+          )
+        )
+        .Returns(new JvmObjectReference("result", MockJvm.Object));
+      MockJvm
+        .Setup(m =>
+          m.CallStaticJavaMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object[]>())
+        )
+        .Returns(new JvmObjectReference("result", MockJvm.Object));
+
+      MockJvm
+        .Setup(m =>
+          m.CallNonStaticJavaMethod(
+            It.IsAny<JvmObjectReference>(),
+            It.IsAny<string>(),
+            It.IsAny<object>()
+          )
+        )
+        .Returns(new JvmObjectReference("result", MockJvm.Object));
+      MockJvm
+        .Setup(m =>
+          m.CallNonStaticJavaMethod(
+            It.IsAny<JvmObjectReference>(),
+            It.IsAny<string>(),
+            It.IsAny<object>(),
+            It.IsAny<object>()
+          )
+        )
+        .Returns(new JvmObjectReference("result", MockJvm.Object));
+      MockJvm
+        .Setup(m =>
+          m.CallNonStaticJavaMethod(
+            It.IsAny<JvmObjectReference>(),
+            It.IsAny<string>(),
+            It.IsAny<object[]>()
+          )
+        )
+        .Returns(new JvmObjectReference("result", MockJvm.Object));
     }
+
+    private void SetupSparkFiles()
+    {
+      MockJvm
+        .Setup(m => m.CallStaticJavaMethod("org.apache.spark.SparkFiles", "getRootDirectory"))
+        .Returns("SparkFilesRootDirectory");
+    }
+  }
+
+  [CollectionDefinition("Spark Unit Tests")]
+  public class SparkCollection : ICollectionFixture<SparkFixture>
+  {
+    // This class has no code, and is never created. Its purpose is simply
+    // to be the place to apply [CollectionDefinition] and all the
+    // ICollectionFixture<> interfaces.
+  }
 }

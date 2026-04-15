@@ -6,16 +6,16 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.Hadoop.Conf
 {
-    /// <summary>
-    /// Provides access to configuration parameters.
-    /// </summary>
-    public class Configuration : IJvmObjectReferenceProvider
+  /// <summary>
+  /// Provides access to configuration parameters.
+  /// </summary>
+  public class Configuration : IJvmObjectReferenceProvider
+  {
+    internal Configuration(JvmObjectReference jvmObject)
     {
-        internal Configuration(JvmObjectReference jvmObject)
-        {
-            Reference = jvmObject;
-        }
-
-        public JvmObjectReference Reference { get; private set; }
+      Reference = jvmObject;
     }
+
+    public JvmObjectReference Reference { get; private set; }
+  }
 }

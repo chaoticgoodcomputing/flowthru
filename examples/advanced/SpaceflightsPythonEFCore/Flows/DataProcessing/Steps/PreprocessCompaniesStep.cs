@@ -12,60 +12,60 @@ namespace SpaceflightsPythonEFCore.Flows.DataProcessing.Steps;
 [FlowthruStep]
 public static class PreprocessCompaniesStep
 {
-    public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()
+  public static Func<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>> Create()
+  {
+    return (input) =>
+      input.Select(Parse).Where(item => item != null).Cast<PreprocessedCompanySchema>();
+  }
+
+  private static PreprocessedCompanySchema? Parse(CompanySchema raw)
+  {
+    if (!int.TryParse(raw.Id?.Trim(), out var id))
     {
-        return (input) =>
-          input.Select(Parse).Where(item => item != null).Cast<PreprocessedCompanySchema>();
+      return null;
     }
 
-    private static PreprocessedCompanySchema? Parse(CompanySchema raw)
+    if (!TryParsePercentage(raw.CompanyRating, out var rating))
     {
-        if (!int.TryParse(raw.Id?.Trim(), out var id))
-        {
-            return null;
-        }
-
-        if (!TryParsePercentage(raw.CompanyRating, out var rating))
-        {
-            return null;
-        }
-
-        bool iataApproved = raw.IataApproved?.Trim().ToLowerInvariant() == "t";
-
-        double? totalFleetCount = null;
-        if (
-          !string.IsNullOrWhiteSpace(raw.TotalFleetCount)
-          && double.TryParse(raw.TotalFleetCount.Trim(), out var fleetCount)
-        )
-        {
-            totalFleetCount = fleetCount;
-        }
-
-        return new PreprocessedCompanySchema
-        {
-            Id = id,
-            CompanyRating = rating,
-            IataApproved = iataApproved,
-            CompanyLocation = raw.CompanyLocation ?? string.Empty,
-            TotalFleetCount = totalFleetCount,
-        };
+      return null;
     }
 
-    private static bool TryParsePercentage(string? value, out double result)
+    bool iataApproved = raw.IataApproved?.Trim().ToLowerInvariant() == "t";
+
+    double? totalFleetCount = null;
+    if (
+      !string.IsNullOrWhiteSpace(raw.TotalFleetCount)
+      && double.TryParse(raw.TotalFleetCount.Trim(), out var fleetCount)
+    )
     {
-        result = 0;
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return false;
-        }
-
-        var cleaned = value.Replace("%", "").Trim();
-        if (!double.TryParse(cleaned, out var parsed))
-        {
-            return false;
-        }
-
-        result = parsed / 100.0;
-        return true;
+      totalFleetCount = fleetCount;
     }
+
+    return new PreprocessedCompanySchema
+    {
+      Id = id,
+      CompanyRating = rating,
+      IataApproved = iataApproved,
+      CompanyLocation = raw.CompanyLocation ?? string.Empty,
+      TotalFleetCount = totalFleetCount,
+    };
+  }
+
+  private static bool TryParsePercentage(string? value, out double result)
+  {
+    result = 0;
+    if (string.IsNullOrWhiteSpace(value))
+    {
+      return false;
+    }
+
+    var cleaned = value.Replace("%", "").Trim();
+    if (!double.TryParse(cleaned, out var parsed))
+    {
+      return false;
+    }
+
+    result = parsed / 100.0;
+    return true;
+  }
 }

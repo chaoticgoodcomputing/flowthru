@@ -12,39 +12,39 @@ namespace RetailDataMultipipeline.Flows.Graphing;
 /// </summary>
 public static class GraphingFlow
 {
-    public static Flow Create(CoreCatalog catalog, IPythonExecutor executor)
+  public static Flow Create(CoreCatalog catalog, IPythonExecutor executor)
+  {
+    return FlowBuilder.CreateFlow(pipeline =>
     {
-        return FlowBuilder.CreateFlow(pipeline =>
-        {
-            pipeline.AddPythonStep(
-          label: "PlotDollarsChart",
-          description: "Line chart of weekly GBP revenue per country (Plotly PNG).",
-          module: "Flows.Graphing.Steps.plot_dtu_charts",
-          function: "plot_dollars_chart",
-          input: catalog.AllCountriesWeeklyDtu,
-          output: catalog.DollarsChart,
-          executor: executor
-        );
+      pipeline.AddPythonStep(
+        label: "PlotDollarsChart",
+        description: "Line chart of weekly GBP revenue per country (Plotly PNG).",
+        module: "Flows.Graphing.Steps.plot_dtu_charts",
+        function: "plot_dollars_chart",
+        input: catalog.AllCountriesWeeklyDtu,
+        output: catalog.DollarsChart,
+        executor: executor
+      );
 
-            pipeline.AddPythonStep(
-          label: "PlotTransactionsChart",
-          description: "Line chart of weekly transaction count per country (Plotly PNG).",
-          module: "Flows.Graphing.Steps.plot_dtu_charts",
-          function: "plot_transactions_chart",
-          input: catalog.AllCountriesWeeklyDtu,
-          output: catalog.TransactionsChart,
-          executor: executor
-        );
+      pipeline.AddPythonStep(
+        label: "PlotTransactionsChart",
+        description: "Line chart of weekly transaction count per country (Plotly PNG).",
+        module: "Flows.Graphing.Steps.plot_dtu_charts",
+        function: "plot_transactions_chart",
+        input: catalog.AllCountriesWeeklyDtu,
+        output: catalog.TransactionsChart,
+        executor: executor
+      );
 
-            pipeline.AddPythonStep(
-          label: "PlotUsersChart",
-          description: "Line chart of weekly unique customers per country (Plotly PNG).",
-          module: "Flows.Graphing.Steps.plot_dtu_charts",
-          function: "plot_users_chart",
-          input: catalog.AllCountriesWeeklyDtu,
-          output: catalog.UsersChart,
-          executor: executor
-        );
-        });
-    }
+      pipeline.AddPythonStep(
+        label: "PlotUsersChart",
+        description: "Line chart of weekly unique customers per country (Plotly PNG).",
+        module: "Flows.Graphing.Steps.plot_dtu_charts",
+        function: "plot_users_chart",
+        input: catalog.AllCountriesWeeklyDtu,
+        output: catalog.UsersChart,
+        executor: executor
+      );
+    });
+  }
 }

@@ -7,38 +7,38 @@ using Flowthru.Spark.Interop.Internal.Java.Util;
 
 namespace System.Collections.Generic
 {
-    public static class Dictionary
+  public static class Dictionary
+  {
+    /// <summary>
+    /// A custom extension method that helps transform from dotnet
+    /// Dictionary&lt;string, string&gt; to java.util.HashMap.
+    /// </summary>
+    /// <param name="dictionary">a Dictionary instance</param>
+    /// <returns><see cref="HashMap"/></returns>
+    internal static HashMap ToJavaHashMap(this Dictionary<string, string> dictionary)
     {
-        /// <summary>
-        /// A custom extension method that helps transform from dotnet
-        /// Dictionary&lt;string, string&gt; to java.util.HashMap.
-        /// </summary>
-        /// <param name="dictionary">a Dictionary instance</param>
-        /// <returns><see cref="HashMap"/></returns>
-        internal static HashMap ToJavaHashMap(this Dictionary<string, string> dictionary)
-        {
-            var hashMap = new HashMap(SparkEnvironment.JvmBridge);
-            foreach (KeyValuePair<string, string> item in dictionary)
-            {
-                hashMap.Put(item.Key, item.Value);
-            }
-            return hashMap;
-        }
-
-        /// <summary>
-        /// A custom extension method that helps transform from dotnet
-        /// Dictionary&lt;string, object&gt; to java.util.HashMap.
-        /// </summary>
-        /// <param name="dictionary">a Dictionary instance</param>
-        /// <returns><see cref="HashMap"/></returns>
-        internal static HashMap ToJavaHashMap(this Dictionary<string, object> dictionary)
-        {
-            var hashMap = new HashMap(SparkEnvironment.JvmBridge);
-            foreach (KeyValuePair<string, object> item in dictionary)
-            {
-                hashMap.Put(item.Key, item.Value);
-            }
-            return hashMap;
-        }
+      var hashMap = new HashMap(SparkEnvironment.JvmBridge);
+      foreach (KeyValuePair<string, string> item in dictionary)
+      {
+        hashMap.Put(item.Key, item.Value);
+      }
+      return hashMap;
     }
+
+    /// <summary>
+    /// A custom extension method that helps transform from dotnet
+    /// Dictionary&lt;string, object&gt; to java.util.HashMap.
+    /// </summary>
+    /// <param name="dictionary">a Dictionary instance</param>
+    /// <returns><see cref="HashMap"/></returns>
+    internal static HashMap ToJavaHashMap(this Dictionary<string, object> dictionary)
+    {
+      var hashMap = new HashMap(SparkEnvironment.JvmBridge);
+      foreach (KeyValuePair<string, object> item in dictionary)
+      {
+        hashMap.Put(item.Key, item.Value);
+      }
+      return hashMap;
+    }
+  }
 }

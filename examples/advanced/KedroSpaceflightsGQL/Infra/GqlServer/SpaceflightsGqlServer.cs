@@ -9,14 +9,14 @@ namespace KedroSpaceflightsGQL.Infra.GqlServer;
 /// </summary>
 public class Query
 {
-    public IReadOnlyList<CompanyRecord> GetCompanies([Service] SpaceflightsRepository repo) =>
-      repo.GetCompanies();
+  public IReadOnlyList<CompanyRecord> GetCompanies([Service] SpaceflightsRepository repo) =>
+    repo.GetCompanies();
 
-    public IReadOnlyList<ShuttleRecord> GetShuttles([Service] SpaceflightsRepository repo) =>
-      repo.GetShuttles();
+  public IReadOnlyList<ShuttleRecord> GetShuttles([Service] SpaceflightsRepository repo) =>
+    repo.GetShuttles();
 
-    public IReadOnlyList<ReviewRecord> GetReviews([Service] SpaceflightsRepository repo) =>
-      repo.GetReviews();
+  public IReadOnlyList<ReviewRecord> GetReviews([Service] SpaceflightsRepository repo) =>
+    repo.GetReviews();
 }
 
 // ── Mutation root ──────────────────────────────────────────────────────────
@@ -26,28 +26,28 @@ public class Query
 /// </summary>
 public class Mutation
 {
-    public CompanyRecord AddCompany(AddCompanyInput input, [Service] SpaceflightsRepository repo) =>
-      repo.AddCompany(
-        new CompanyRecord(input.Id, input.CompanyRating, input.IataApproved, input.CompanyLocation)
-      );
+  public CompanyRecord AddCompany(AddCompanyInput input, [Service] SpaceflightsRepository repo) =>
+    repo.AddCompany(
+      new CompanyRecord(input.Id, input.CompanyRating, input.IataApproved, input.CompanyLocation)
+    );
 
-    public ShuttleRecord AddShuttle(AddShuttleInput input, [Service] SpaceflightsRepository repo) =>
-      repo.AddShuttle(
-        new ShuttleRecord(
-          input.Id,
-          input.ShuttleType,
-          input.CompanyId,
-          input.Engines,
-          input.PassengerCapacity,
-          input.Crew,
-          input.Price,
-          input.DCheckComplete,
-          input.MoonClearanceComplete
-        )
-      );
+  public ShuttleRecord AddShuttle(AddShuttleInput input, [Service] SpaceflightsRepository repo) =>
+    repo.AddShuttle(
+      new ShuttleRecord(
+        input.Id,
+        input.ShuttleType,
+        input.CompanyId,
+        input.Engines,
+        input.PassengerCapacity,
+        input.Crew,
+        input.Price,
+        input.DCheckComplete,
+        input.MoonClearanceComplete
+      )
+    );
 
-    public ReviewRecord AddReview(AddReviewInput input, [Service] SpaceflightsRepository repo) =>
-      repo.AddReview(new ReviewRecord(input.ShuttleId, input.ReviewScoresRating));
+  public ReviewRecord AddReview(AddReviewInput input, [Service] SpaceflightsRepository repo) =>
+    repo.AddReview(new ReviewRecord(input.ShuttleId, input.ReviewScoresRating));
 }
 
 // ── Server factory ─────────────────────────────────────────────────────────
@@ -63,39 +63,39 @@ public class Mutation
 /// </remarks>
 public static class SpaceflightsGqlServer
 {
-    /// <summary>
-    /// Registers all services required by the Spaceflights GQL server.
-    /// Shared between the standalone <see cref="Build"/> path and the in-process
-    /// <see cref="TestServer"/> path so both stay in sync.
-    /// </summary>
-    public static void ConfigureServices(IServiceCollection services)
-    {
-        services
-          .AddSingleton<SpaceflightsRepository>()
-          .AddGraphQLServer()
-          .AddQueryType<Query>()
-          .AddMutationType<Mutation>();
-        services.AddRouting();
-    }
+  /// <summary>
+  /// Registers all services required by the Spaceflights GQL server.
+  /// Shared between the standalone <see cref="Build"/> path and the in-process
+  /// <see cref="TestServer"/> path so both stay in sync.
+  /// </summary>
+  public static void ConfigureServices(IServiceCollection services)
+  {
+    services
+      .AddSingleton<SpaceflightsRepository>()
+      .AddGraphQLServer()
+      .AddQueryType<Query>()
+      .AddMutationType<Mutation>();
+    services.AddRouting();
+  }
 
-    /// <summary>
-    /// Wires up the GQL middleware on an <see cref="IApplicationBuilder"/>.
-    /// </summary>
-    public static void Configure(IApplicationBuilder app)
-    {
-        app.UseRouting();
-        app.UseEndpoints(endpoints => endpoints.MapGraphQL());
-    }
+  /// <summary>
+  /// Wires up the GQL middleware on an <see cref="IApplicationBuilder"/>.
+  /// </summary>
+  public static void Configure(IApplicationBuilder app)
+  {
+    app.UseRouting();
+    app.UseEndpoints(endpoints => endpoints.MapGraphQL());
+  }
 
-    /// <summary>
-    /// Builds a standalone <see cref="WebApplication"/> bound to a real port (Kestrel).
-    /// </summary>
-    public static WebApplication Build(string[] args)
-    {
-        var builder = WebApplication.CreateSlimBuilder(args);
-        ConfigureServices(builder.Services);
-        var app = builder.Build();
-        app.MapGraphQL();
-        return app;
-    }
+  /// <summary>
+  /// Builds a standalone <see cref="WebApplication"/> bound to a real port (Kestrel).
+  /// </summary>
+  public static WebApplication Build(string[] args)
+  {
+    var builder = WebApplication.CreateSlimBuilder(args);
+    ConfigureServices(builder.Services);
+    var app = builder.Build();
+    app.MapGraphQL();
+    return app;
+  }
 }

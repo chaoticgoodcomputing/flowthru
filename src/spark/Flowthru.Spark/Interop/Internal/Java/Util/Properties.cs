@@ -7,39 +7,36 @@ using Flowthru.Spark.Interop.Ipc;
 
 namespace Flowthru.Spark.Interop.Internal.Java.Util
 {
+  /// <summary>
+  /// Properties class represents a <c>java.util.Properties</c> object.
+  /// </summary>
+  internal class Properties : IJvmObjectReferenceProvider
+  {
     /// <summary>
-    /// Properties class represents a <c>java.util.Properties</c> object.
+    /// Create a <c>java.util.Properties</c> JVM object
     /// </summary>
-    internal class Properties : IJvmObjectReferenceProvider
+    /// <param name="jvm">JVM bridge to use</param>
+    internal Properties(IJvmBridge jvm) => Reference = jvm.CallConstructor("java.util.Properties");
+
+    /// <summary>
+    /// Create a <c>java.util.Properties</c> JVM object and populate the entries
+    /// using <paramref name="properties"/>
+    /// </summary>
+    /// <param name="jvm">JVM bridge to use</param>
+    /// <param name="properties">Dictionary used to populate the
+    /// <c>java.util.Properties</c> JVM object</param>
+    internal Properties(IJvmBridge jvm, Dictionary<string, string> properties)
+      : this(jvm)
     {
-        /// <summary>
-        /// Create a <c>java.util.Properties</c> JVM object
-        /// </summary>
-        /// <param name="jvm">JVM bridge to use</param>
-        internal Properties(IJvmBridge jvm) =>
-            Reference = jvm.CallConstructor("java.util.Properties");
-
-        /// <summary>
-        /// Create a <c>java.util.Properties</c> JVM object and populate the entries
-        /// using <paramref name="properties"/>
-        /// </summary>
-        /// <param name="jvm">JVM bridge to use</param>
-        /// <param name="properties">Dictionary used to populate the
-        /// <c>java.util.Properties</c> JVM object</param>
-        internal Properties(IJvmBridge jvm, Dictionary<string, string> properties) : this(jvm)
+      if (Reference != null)
+      {
+        foreach (KeyValuePair<string, string> property in properties)
         {
-            if (Reference != null)
-            {
-                foreach (KeyValuePair<string, string> property in properties)
-                {
-                    Reference.Invoke(
-                        "setProperty",
-                        property.Key,
-                        property.Value);
-                }
-            }
+          Reference.Invoke("setProperty", property.Key, property.Value);
         }
-
-        public JvmObjectReference Reference { get; private set; }
+      }
     }
+
+    public JvmObjectReference Reference { get; private set; }
+  }
 }

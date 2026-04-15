@@ -4,20 +4,20 @@
 
 namespace Flowthru.Spark.Network
 {
+  /// <summary>
+  /// SocketFactory is used to create ISocketWrapper instance.
+  /// </summary>
+  internal static class SocketFactory
+  {
     /// <summary>
-    /// SocketFactory is used to create ISocketWrapper instance.
+    /// Creates an ISocket instance based on the socket type set.
     /// </summary>
-    internal static class SocketFactory
+    /// <returns>
+    /// ISocketWrapper instance.
+    /// </returns>
+    public static ISocketWrapper CreateSocket()
     {
-        /// <summary>
-        /// Creates an ISocket instance based on the socket type set.
-        /// </summary>
-        /// <returns>
-        /// ISocketWrapper instance.
-        /// </returns>
-        public static ISocketWrapper CreateSocket()
-        {
-            return new DefaultSocketWrapper();
-        }
+      return new DefaultSocketWrapper();
     }
+  }
 }

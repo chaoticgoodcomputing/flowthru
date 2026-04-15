@@ -8,9 +8,9 @@ namespace Minimal.Data._01_Raw.Schemas;
 [FlowthruSchema]
 public partial record NameSchema
 {
-    /// <summary>
-    /// A person's name.
-    /// </summary>
-    [SerializedLabel("name")]
-    public required string Name { get; init; }
+  /// <summary>
+  /// A person's name.
+  /// </summary>
+  [SerializedLabel("name")]
+  public required string Name { get; init; }
 }

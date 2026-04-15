@@ -8,21 +8,21 @@ namespace Flowthru.Extensions.GQL.Tests;
 
 internal class TestUser
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+  public int Id { get; set; }
+  public string Name { get; set; } = string.Empty;
 }
 
 internal class TestPagedResult
 {
-    public IReadOnlyList<TestUser>? Nodes { get; set; }
-    public StubPageInfo? PageInfo { get; set; }
-    public int? Total { get; set; }
+  public IReadOnlyList<TestUser>? Nodes { get; set; }
+  public StubPageInfo? PageInfo { get; set; }
+  public int? Total { get; set; }
 }
 
 internal class StubPageInfo
 {
-    public bool HasNextPage { get; set; }
-    public string? EndCursor { get; set; }
+  public bool HasNextPage { get; set; }
+  public string? EndCursor { get; set; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -32,64 +32,64 @@ internal class StubPageInfo
 internal class StubOperationResult<T> : IOperationResult<T>
   where T : class
 {
-    public T? Data { get; init; }
-    public IReadOnlyList<IClientError> Errors { get; init; } = Array.Empty<IClientError>();
-    public IReadOnlyDictionary<string, object?> Extensions { get; init; } =
-      new Dictionary<string, object?>();
-    public IReadOnlyDictionary<string, object?> ContextData { get; init; } =
-      new Dictionary<string, object?>();
+  public T? Data { get; init; }
+  public IReadOnlyList<IClientError> Errors { get; init; } = Array.Empty<IClientError>();
+  public IReadOnlyDictionary<string, object?> Extensions { get; init; } =
+    new Dictionary<string, object?>();
+  public IReadOnlyDictionary<string, object?> ContextData { get; init; } =
+    new Dictionary<string, object?>();
 
-    // Explicit IOperationResult members
-    object? IOperationResult.Data => Data;
-    Type IOperationResult.DataType => typeof(T);
-    IOperationResultDataInfo? IOperationResult.DataInfo => null;
-    object IOperationResult.DataFactory => NullDataFactory.Instance;
-    IOperationResultDataFactory<T> IOperationResult<T>.DataFactory => NullDataFactory<T>.Instance;
+  // Explicit IOperationResult members
+  object? IOperationResult.Data => Data;
+  Type IOperationResult.DataType => typeof(T);
+  IOperationResultDataInfo? IOperationResult.DataInfo => null;
+  object IOperationResult.DataFactory => NullDataFactory.Instance;
+  IOperationResultDataFactory<T> IOperationResult<T>.DataFactory => NullDataFactory<T>.Instance;
 
-    IOperationResult<T> IOperationResult<T>.WithData(T data, IOperationResultDataInfo dataInfo) =>
-      new StubOperationResult<T> { Data = data };
+  IOperationResult<T> IOperationResult<T>.WithData(T data, IOperationResultDataInfo dataInfo) =>
+    new StubOperationResult<T> { Data = data };
 
-    public static StubOperationResult<T> Success(T data) => new() { Data = data };
+  public static StubOperationResult<T> Success(T data) => new() { Data = data };
 
-    public static StubOperationResult<T> WithErrors(params string[] messages) =>
-      new() { Errors = messages.Select(m => (IClientError)new StubClientError(m)).ToArray() };
+  public static StubOperationResult<T> WithErrors(params string[] messages) =>
+    new() { Errors = messages.Select(m => (IClientError)new StubClientError(m)).ToArray() };
 }
 
 internal class StubClientError : IClientError
 {
-    public StubClientError(string message) => Message = message;
+  public StubClientError(string message) => Message = message;
 
-    public string Message { get; }
-    public string? Code => null;
-    public IReadOnlyList<object>? Path => null;
-    public IReadOnlyList<Location>? Locations => null;
-    public Exception? Exception => null;
-    public IReadOnlyDictionary<string, object?>? Extensions => null;
+  public string Message { get; }
+  public string? Code => null;
+  public IReadOnlyList<object>? Path => null;
+  public IReadOnlyList<Location>? Locations => null;
+  public Exception? Exception => null;
+  public IReadOnlyDictionary<string, object?>? Extensions => null;
 }
 
 // Minimal no-op IOperationResultDataFactory implementations required by the interface
 internal class NullDataFactory : IOperationResultDataFactory
 {
-    public static readonly NullDataFactory Instance = new();
+  public static readonly NullDataFactory Instance = new();
 
-    public Type ResultType => typeof(object);
+  public Type ResultType => typeof(object);
 
-    public object Create(IOperationResultDataInfo dataInfo, IEntityStoreSnapshot? snapshot = null) =>
-      null!;
+  public object Create(IOperationResultDataInfo dataInfo, IEntityStoreSnapshot? snapshot = null) =>
+    null!;
 }
 
 internal class NullDataFactory<T> : IOperationResultDataFactory<T>
   where T : class
 {
-    public static readonly NullDataFactory<T> Instance = new();
+  public static readonly NullDataFactory<T> Instance = new();
 
-    public Type ResultType => typeof(T);
+  public Type ResultType => typeof(T);
 
-    public T Create(IOperationResultDataInfo dataInfo, IEntityStoreSnapshot? snapshot = null) =>
-      null!;
+  public T Create(IOperationResultDataInfo dataInfo, IEntityStoreSnapshot? snapshot = null) =>
+    null!;
 
-    object IOperationResultDataFactory.Create(
-      IOperationResultDataInfo dataInfo,
-      IEntityStoreSnapshot? snapshot
-    ) => null!;
+  object IOperationResultDataFactory.Create(
+    IOperationResultDataInfo dataInfo,
+    IEntityStoreSnapshot? snapshot
+  ) => null!;
 }

@@ -25,28 +25,28 @@ namespace RetailDataMultipipeline.Flows.DataIngestion.Steps;
 [FlowthruStep]
 public static class ConsolidateDailyFilesStep
 {
-    public static Func<
-      IEnumerable<RetailTransactionSchema>,
-      IEnumerable<RetailTransactionIntermediateSchema>
-    > Create()
-    {
-        return transactions => transactions.Select(Parse);
-    }
+  public static Func<
+    IEnumerable<RetailTransactionSchema>,
+    IEnumerable<RetailTransactionIntermediateSchema>
+  > Create()
+  {
+    return transactions => transactions.Select(Parse);
+  }
 
-    private static RetailTransactionIntermediateSchema Parse(RetailTransactionSchema raw)
+  private static RetailTransactionIntermediateSchema Parse(RetailTransactionSchema raw)
+  {
+    return new RetailTransactionIntermediateSchema
     {
-        return new RetailTransactionIntermediateSchema
-        {
-            InvoiceNo = raw.InvoiceNo,
-            StockCode = raw.StockCode,
-            Description = string.IsNullOrWhiteSpace(raw.Description) ? null : raw.Description,
-            Quantity = int.Parse(raw.Quantity, CultureInfo.InvariantCulture),
-            InvoiceDate = DateTime.Parse(raw.InvoiceDate, CultureInfo.InvariantCulture),
-            UnitPrice = decimal.Parse(raw.UnitPrice, CultureInfo.InvariantCulture),
-            CustomerId = string.IsNullOrWhiteSpace(raw.CustomerID)
-            ? null
-            : (int)double.Parse(raw.CustomerID, CultureInfo.InvariantCulture),
-            Country = raw.Country,
-        };
-    }
+      InvoiceNo = raw.InvoiceNo,
+      StockCode = raw.StockCode,
+      Description = string.IsNullOrWhiteSpace(raw.Description) ? null : raw.Description,
+      Quantity = int.Parse(raw.Quantity, CultureInfo.InvariantCulture),
+      InvoiceDate = DateTime.Parse(raw.InvoiceDate, CultureInfo.InvariantCulture),
+      UnitPrice = decimal.Parse(raw.UnitPrice, CultureInfo.InvariantCulture),
+      CustomerId = string.IsNullOrWhiteSpace(raw.CustomerID)
+        ? null
+        : (int)double.Parse(raw.CustomerID, CultureInfo.InvariantCulture),
+      Country = raw.Country,
+    };
+  }
 }

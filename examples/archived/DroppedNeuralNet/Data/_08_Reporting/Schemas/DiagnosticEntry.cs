@@ -13,15 +13,15 @@ namespace DroppedNeuralNet.Data._08_Reporting.Schemas;
 [FlowthruSchema]
 public partial record DiagnosticEntry
 {
-    /// <summary>Logical grouping, e.g. "FixedOrdering", "Candidate_7", "PairingSignal".</summary>
-    public string Category { get; init; } = "";
+  /// <summary>Logical grouping, e.g. "FixedOrdering", "Candidate_7", "PairingSignal".</summary>
+  public string Category { get; init; } = "";
 
-    /// <summary>Name of the measured quantity, e.g. "MaxErr", "MeanErr", "ScoreStd".</summary>
-    public string Metric { get; init; } = "";
+  /// <summary>Name of the measured quantity, e.g. "MaxErr", "MeanErr", "ScoreStd".</summary>
+  public string Metric { get; init; } = "";
 
-    /// <summary>Numeric value of the measurement.</summary>
-    public float Value { get; init; }
+  /// <summary>Numeric value of the measurement.</summary>
+  public float Value { get; init; }
 
-    /// <summary>Optional human-readable context emitted alongside the value.</summary>
-    public string Notes { get; init; } = "";
+  /// <summary>Optional human-readable context emitted alongside the value.</summary>
+  public string Notes { get; init; } = "";
 }

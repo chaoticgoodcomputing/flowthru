@@ -10,6 +10,6 @@ namespace RetailDataMultipipeline.Data._01_Raw.Schemas;
 [FlowthruSchema]
 public partial record CountryCurrencySchema
 {
-    public required string Country { get; init; }
-    public required string Currency { get; init; }
+  public required string Country { get; init; }
+  public required string Currency { get; init; }
 }

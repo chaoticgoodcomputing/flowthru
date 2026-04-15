@@ -66,252 +66,252 @@ namespace Flowthru.Core.Data.Storage;
 public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<TContainer>
   where TRow : notnull
 {
-    private readonly IStorageMedium _medium;
-    private readonly IFormatSerializer<TRow> _format;
-    private readonly IContainerAdapter<TContainer, TRow> _container;
+  private readonly IStorageMedium _medium;
+  private readonly IFormatSerializer<TRow> _format;
+  private readonly IContainerAdapter<TContainer, TRow> _container;
 
-    /// <summary>
-    /// Creates a new composed storage adapter.
-    /// </summary>
-    /// <param name="medium">The storage medium (file, memory, etc.)</param>
-    /// <param name="format">The format serializer (CSV, JSON, etc.)</param>
-    /// <param name="container">The container adapter (IEnumerable, IDataView, etc.)</param>
-    public ComposedStorageAdapter(
-      IStorageMedium medium,
-      IFormatSerializer<TRow> format,
-      IContainerAdapter<TContainer, TRow> container
-    )
+  /// <summary>
+  /// Creates a new composed storage adapter.
+  /// </summary>
+  /// <param name="medium">The storage medium (file, memory, etc.)</param>
+  /// <param name="format">The format serializer (CSV, JSON, etc.)</param>
+  /// <param name="container">The container adapter (IEnumerable, IDataView, etc.)</param>
+  public ComposedStorageAdapter(
+    IStorageMedium medium,
+    IFormatSerializer<TRow> format,
+    IContainerAdapter<TContainer, TRow> container
+  )
+  {
+    _medium = medium ?? throw new ArgumentNullException(nameof(medium));
+    _format = format ?? throw new ArgumentNullException(nameof(format));
+    _container = container ?? throw new ArgumentNullException(nameof(container));
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// <para>
+  /// Merges traits from all three composition layers:
+  /// </para>
+  /// <list type="bullet">
+  /// <item><strong>Medium:</strong> Provides constraints (CanWrite, RequiresNetwork, IsPersistent)</item>
+  /// <item><strong>Format:</strong> Provides streaming capability (CanStream)</item>
+  /// <item><strong>Container:</strong> Currently no traits (in-memory projection)</item>
+  /// </list>
+  /// <para>
+  /// Constraints use AND logic (most restrictive wins).
+  /// Capabilities use AND logic (all layers must support it).
+  /// </para>
+  /// </remarks>
+  public StorageTraits Traits =>
+    new StorageTraits
     {
-        _medium = medium ?? throw new ArgumentNullException(nameof(medium));
-        _format = format ?? throw new ArgumentNullException(nameof(format));
-        _container = container ?? throw new ArgumentNullException(nameof(container));
-    }
+      // Medium determines storage-level constraints
+      CanRead = _medium.Traits.CanRead,
+      CanWrite = _medium.Traits.CanWrite && _format.Traits.CanWrite,
+      CanInspect = _medium.Traits.CanInspect,
+      IsPersistent = _medium.Traits.IsPersistent,
+      RequiresNetwork = _medium.Traits.RequiresNetwork,
+      // Format determines streaming capability (medium must support it too)
+      CanStream = _medium.Traits.CanStream && _format.Traits.CanStream,
+      // Medium determines append/transactional capabilities
+      CanAppend = _medium.Traits.CanAppend,
+      IsTransactional = _medium.Traits.IsTransactional,
+    };
 
-    /// <inheritdoc/>
-    /// <remarks>
-    /// <para>
-    /// Merges traits from all three composition layers:
-    /// </para>
-    /// <list type="bullet">
-    /// <item><strong>Medium:</strong> Provides constraints (CanWrite, RequiresNetwork, IsPersistent)</item>
-    /// <item><strong>Format:</strong> Provides streaming capability (CanStream)</item>
-    /// <item><strong>Container:</strong> Currently no traits (in-memory projection)</item>
-    /// </list>
-    /// <para>
-    /// Constraints use AND logic (most restrictive wins).
-    /// Capabilities use AND logic (all layers must support it).
-    /// </para>
-    /// </remarks>
-    public StorageTraits Traits =>
-      new StorageTraits
-      {
-          // Medium determines storage-level constraints
-          CanRead = _medium.Traits.CanRead,
-          CanWrite = _medium.Traits.CanWrite && _format.Traits.CanWrite,
-          CanInspect = _medium.Traits.CanInspect,
-          IsPersistent = _medium.Traits.IsPersistent,
-          RequiresNetwork = _medium.Traits.RequiresNetwork,
-          // Format determines streaming capability (medium must support it too)
-          CanStream = _medium.Traits.CanStream && _format.Traits.CanStream,
-          // Medium determines append/transactional capabilities
-          CanAppend = _medium.Traits.CanAppend,
-          IsTransactional = _medium.Traits.IsTransactional,
-      };
-
-    /// <inheritdoc/>
-    public FlowIO<TContainer> Load()
-    {
-        // Compose IO operations functionally using LINQ comprehension syntax
-        return from stream in _medium.ReadStream()
-               from container in FlowIO.LiftAsync(
-                 async (CancellationToken ct) =>
-                 {
-                     try
-                     {
-                         // 2. Format: Deserialize bytes to rows
-                         var rows = _format.DeserializeRows(stream);
-
-                         // 3. Container: Materialize rows into container
-                         var result = await _container.FromRows(rows);
-
-                         return result;
-                     }
-                     finally
-                     {
-                         stream.Dispose();
-                     }
-                 }
-               )
-               select container;
-    }
-
-    /// <inheritdoc/>
-    public FlowIO<FlowUnit> Save(TContainer data)
-    {
-        // Check if read-only before attempting write
-        if (!Traits.CanWrite)
+  /// <inheritdoc/>
+  public FlowIO<TContainer> Load()
+  {
+    // Compose IO operations functionally using LINQ comprehension syntax
+    return from stream in _medium.ReadStream()
+      from container in FlowIO.LiftAsync(
+        async (CancellationToken ct) =>
         {
-            return FlowIO.Fail<FlowUnit>(
-              new InvalidOperationException(
-                "Cannot write to read-only storage adapter. "
-                  + "Check StorageTraits.CanWrite before attempting Save()."
-              )
-            );
+          try
+          {
+            // 2. Format: Deserialize bytes to rows
+            var rows = _format.DeserializeRows(stream);
+
+            // 3. Container: Materialize rows into container
+            var result = await _container.FromRows(rows);
+
+            return result;
+          }
+          finally
+          {
+            stream.Dispose();
+          }
+        }
+      )
+      select container;
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<FlowUnit> Save(TContainer data)
+  {
+    // Check if read-only before attempting write
+    if (!Traits.CanWrite)
+    {
+      return FlowIO.Fail<FlowUnit>(
+        new InvalidOperationException(
+          "Cannot write to read-only storage adapter. "
+            + "Check StorageTraits.CanWrite before attempting Save()."
+        )
+      );
+    }
+
+    // Compose IO operations functionally
+    return from memStream in FlowIO.LiftAsync(
+        async (CancellationToken ct) =>
+        {
+          var stream = new MemoryStream();
+
+          // 1. Container: Convert container to rows
+          var rows = _container.ToRows(data);
+
+          // 2. Format: Serialize rows to bytes
+          await _format.SerializeRows(stream, rows);
+
+          stream.Position = 0;
+          return stream;
+        }
+      )
+      from result in _medium.WriteStream(memStream)
+      select result;
+  }
+
+  /// <inheritdoc/>
+  public FlowIO<bool> Exists()
+  {
+    return _medium.Exists();
+  }
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        // Check if medium exists
+        bool exists;
+        try
+        {
+          exists = await Exists().Run(ct);
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Failed to check if data source exists for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
         }
 
-        // Compose IO operations functionally
-        return from memStream in FlowIO.LiftAsync(
-            async (CancellationToken ct) =>
+        if (!exists)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Data source for '{typeof(TRow).Name}' does not exist",
+            details: "Medium exists check returned false"
+          );
+        }
+
+        // Attempt to read and deserialize a sample
+        try
+        {
+          var stream = await _medium.ReadStream().Run(ct);
+          await using var _ = stream;
+
+          // Deserialize sample rows
+          var rows = _format.DeserializeRows(stream);
+          var sample = new List<TRow>();
+          var count = 0;
+
+          await foreach (var row in rows.WithCancellation(ct))
+          {
+            sample.Add(row);
+            count++;
+            if (count >= sampleSize && sampleSize > 0)
             {
-                var stream = new MemoryStream();
-
-                // 1. Container: Convert container to rows
-                var rows = _container.ToRows(data);
-
-                // 2. Format: Serialize rows to bytes
-                await _format.SerializeRows(stream, rows);
-
-                stream.Position = 0;
-                return stream;
+              break;
             }
-          )
-               from result in _medium.WriteStream(memStream)
-               select result;
-    }
-
-    /// <inheritdoc/>
-    public FlowIO<bool> Exists()
-    {
-        return _medium.Exists();
-    }
-
-    /// <inheritdoc />
-    public FlowIO<Data.Validation.ValidationResult> InspectShallow(int sampleSize)
-    {
-        return FlowIO.LiftAsync(
-          async (CancellationToken ct) =>
-          {
-              // Check if medium exists
-              bool exists;
-              try
-              {
-                  exists = await Exists().Run(ct);
-              }
-              catch (Exception ex)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: typeof(TRow).Name,
-                errorType: Data.Validation.ValidationErrorType.NotFound,
-                message: $"Failed to check if data source exists for '{typeof(TRow).Name}'",
-                details: ex.Message
-              );
-              }
-
-              if (!exists)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: typeof(TRow).Name,
-                errorType: Data.Validation.ValidationErrorType.NotFound,
-                message: $"Data source for '{typeof(TRow).Name}' does not exist",
-                details: "Medium exists check returned false"
-              );
-              }
-
-              // Attempt to read and deserialize a sample
-              try
-              {
-                  var stream = await _medium.ReadStream().Run(ct);
-                  await using var _ = stream;
-
-                  // Deserialize sample rows
-                  var rows = _format.DeserializeRows(stream);
-                  var sample = new List<TRow>();
-                  var count = 0;
-
-                  await foreach (var row in rows.WithCancellation(ct))
-                  {
-                      sample.Add(row);
-                      count++;
-                      if (count >= sampleSize && sampleSize > 0)
-                      {
-                          break;
-                      }
-                  }
-
-                  return Data.Validation.ValidationResult.Success();
-              }
-              catch (Exception ex)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: typeof(TRow).Name,
-                errorType: Data.Validation.ValidationErrorType.DeserializationError,
-                message: $"Failed to deserialize sample data for '{typeof(TRow).Name}'",
-                details: ex.Message
-              );
-              }
           }
-        );
-    }
 
-    /// <inheritdoc />
-    public FlowIO<Data.Validation.ValidationResult> InspectDeep()
-    {
-        return FlowIO.LiftAsync(
-          async (CancellationToken ct) =>
+          return Data.Validation.ValidationResult.Success();
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.DeserializationError,
+            message: $"Failed to deserialize sample data for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
+        }
+      }
+    );
+  }
+
+  /// <inheritdoc />
+  public FlowIO<Data.Validation.ValidationResult> InspectDeep()
+  {
+    return FlowIO.LiftAsync(
+      async (CancellationToken ct) =>
+      {
+        // Check if medium exists
+        bool exists;
+        try
+        {
+          exists = await Exists().Run(ct);
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Failed to check if data source exists for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
+        }
+
+        if (!exists)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.NotFound,
+            message: $"Data source for '{typeof(TRow).Name}' does not exist",
+            details: "Medium exists check returned false"
+          );
+        }
+
+        // Attempt to read and deserialize all data
+        try
+        {
+          var stream = await _medium.ReadStream().Run(ct);
+          await using var _ = stream;
+
+          // Deserialize all rows to validate entire dataset
+          var rows = _format.DeserializeRows(stream);
+          var count = 0;
+
+          await foreach (var row in rows.WithCancellation(ct))
           {
-              // Check if medium exists
-              bool exists;
-              try
-              {
-                  exists = await Exists().Run(ct);
-              }
-              catch (Exception ex)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: typeof(TRow).Name,
-                errorType: Data.Validation.ValidationErrorType.NotFound,
-                message: $"Failed to check if data source exists for '{typeof(TRow).Name}'",
-                details: ex.Message
-              );
-              }
-
-              if (!exists)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: typeof(TRow).Name,
-                errorType: Data.Validation.ValidationErrorType.NotFound,
-                message: $"Data source for '{typeof(TRow).Name}' does not exist",
-                details: "Medium exists check returned false"
-              );
-              }
-
-              // Attempt to read and deserialize all data
-              try
-              {
-                  var stream = await _medium.ReadStream().Run(ct);
-                  await using var _ = stream;
-
-                  // Deserialize all rows to validate entire dataset
-                  var rows = _format.DeserializeRows(stream);
-                  var count = 0;
-
-                  await foreach (var row in rows.WithCancellation(ct))
-                  {
-                      count++;
-                  }
-
-                  return Data.Validation.ValidationResult.Success();
-              }
-              catch (Exception ex)
-              {
-                  return Data.Validation.ValidationResult.Failure(
-                catalogKey: typeof(TRow).Name,
-                errorType: Data.Validation.ValidationErrorType.DeserializationError,
-                message: $"Failed to deserialize all data for '{typeof(TRow).Name}'",
-                details: ex.Message
-              );
-              }
+            count++;
           }
-        );
-    }
+
+          return Data.Validation.ValidationResult.Success();
+        }
+        catch (Exception ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.DeserializationError,
+            message: $"Failed to deserialize all data for '{typeof(TRow).Name}'",
+            details: ex.Message
+          );
+        }
+      }
+    );
+  }
 }
