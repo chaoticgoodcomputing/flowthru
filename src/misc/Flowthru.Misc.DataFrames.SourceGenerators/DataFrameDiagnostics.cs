@@ -10,14 +10,14 @@ public static class DataFrameDiagnostics
   private const string Category = "Flowthru.Misc.DataFrames";
 
   /// <summary>
-  /// FDFRAME1001: The lambda body passed to <c>TypedFrame.Select()</c> must be an
+  /// FDFRAMES1001: The lambda body passed to <c>TypedFrame.Select()</c> must be an
   /// object-creation expression with an initializer, a record/anonymous-type positional
   /// constructor call, or a single member access. Arbitrary expression bodies cannot be
   /// decomposed into named column operations by any DataFrame provider.
   /// </summary>
   public static readonly DiagnosticDescriptor InvalidProjectionBody =
     new(
-      id: "FDFRAME1001",
+      id: "FDFRAMES1001",
       title: "TypedFrame Select projection must be an object initializer or record constructor",
       messageFormat: "The Select lambda body '{0}' cannot be translated to named column "
         + "operations. Use an object initializer (new OutputSchema {{ Prop = x.Prop }}), "
@@ -32,13 +32,13 @@ public static class DataFrameDiagnostics
     );
 
   /// <summary>
-  /// FDFRAME1002: An object-initializer binding inside <c>TypedFrame.Select()</c> uses a
+  /// FDFRAMES1002: An object-initializer binding inside <c>TypedFrame.Select()</c> uses a
   /// collection or nested-object form that cannot be decomposed into a single named column
   /// operation. Only plain property-assignment bindings (<c>Prop = expr</c>) are translatable.
   /// </summary>
   public static readonly DiagnosticDescriptor NonAssignmentBinding =
     new(
-      id: "FDFRAME1002",
+      id: "FDFRAMES1002",
       title: "TypedFrame Select initializer must use property-assignment bindings",
       messageFormat: "The binding '{0}' in the Select initializer uses a collection or "
         + "nested-object form. Only property-assignment bindings (Prop = expr) can be "
@@ -53,13 +53,13 @@ public static class DataFrameDiagnostics
     );
 
   /// <summary>
-  /// FDFRAME1003: A positional constructor call inside <c>TypedFrame.Select()</c> targets a
+  /// FDFRAMES1003: A positional constructor call inside <c>TypedFrame.Select()</c> targets a
   /// type that is not a record or anonymous type. Column names cannot be derived from
   /// constructor parameter position for plain classes.
   /// </summary>
   public static readonly DiagnosticDescriptor PositionalConstructorNonRecord =
     new(
-      id: "FDFRAME1003",
+      id: "FDFRAMES1003",
       title: "TypedFrame Select positional constructor requires a record or anonymous type",
       messageFormat: "'{0}' is not a record or anonymous type. Positional constructors cannot "
         + "be decomposed into named column operations unless the type exposes member metadata "
@@ -73,13 +73,13 @@ public static class DataFrameDiagnostics
     );
 
   /// <summary>
-  /// FDFRAME1004: The result selector body passed to <c>GroupedFrame.Aggregate()</c> is not
+  /// FDFRAMES1004: The result selector body passed to <c>GroupedFrame.Aggregate()</c> is not
   /// an object-creation expression. Aggregate projections must name each output column
   /// explicitly via an object initializer, record constructor, or anonymous type.
   /// </summary>
   public static readonly DiagnosticDescriptor InvalidAggregateResultBody =
     new(
-      id: "FDFRAME1004",
+      id: "FDFRAMES1004",
       title: "TypedFrame Aggregate result selector must be an object initializer",
       messageFormat: "The Aggregate result selector body '{0}' cannot be translated. Use an "
         + "object initializer (new TResult {{ Prop = ctx.Key }}), a positional record "
@@ -94,13 +94,13 @@ public static class DataFrameDiagnostics
     );
 
   /// <summary>
-  /// FDFRAME1005: A binding inside a <c>GroupedFrame.Aggregate()</c> result selector is
+  /// FDFRAMES1005: A binding inside a <c>GroupedFrame.Aggregate()</c> result selector is
   /// neither a key access (<c>ctx.Key</c>) nor an aggregation method call
   /// (<c>ctx.Avg(...)</c>, <c>ctx.Sum(...)</c>, etc.).
   /// </summary>
   public static readonly DiagnosticDescriptor InvalidAggregateBinding =
     new(
-      id: "FDFRAME1005",
+      id: "FDFRAMES1005",
       title: "TypedFrame Aggregate binding must be ctx.Key or an aggregation method call",
       messageFormat: "The expression '{0}' cannot be translated as an aggregate output. Each "
         + "property in an Aggregate result selector must be ctx.Key or a call to an "

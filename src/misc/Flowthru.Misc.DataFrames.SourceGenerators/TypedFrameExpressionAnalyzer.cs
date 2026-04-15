@@ -50,7 +50,7 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
     }
   }
 
-  // ─── Select checks (FDFRAME1001, FDFRAME1002, FDFRAME1003) ──────────────────
+  // ─── Select checks (FDFRAMES1001, FDFRAMES1002, FDFRAMES1003) ──────────────────
 
   private static void CheckSelectLambda(
     SyntaxNodeAnalysisContext context,
@@ -65,7 +65,7 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
     if (body is null)
       return;
 
-    // FDFRAME1001: body must be a recognised projection form.
+    // FDFRAMES1001: body must be a recognised projection form.
     if (!IsValidProjectionBody(body))
     {
       context.ReportDiagnostic(
@@ -78,17 +78,17 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
       return;
     }
 
-    // FDFRAME1002: every binding in an object initializer must be a plain assignment.
+    // FDFRAMES1002: every binding in an object initializer must be a plain assignment.
     var initializer = GetObjectInitializer(body);
     if (initializer is not null)
       CheckInitializerBindings(context, initializer);
 
-    // FDFRAME1003: positional constructor (no initializer) requires a record or anonymous type.
+    // FDFRAMES1003: positional constructor (no initializer) requires a record or anonymous type.
     if (HasPositionalConstructorWithoutInitializer(body))
       CheckPositionalConstructorType(context, body);
   }
 
-  // ─── Aggregate checks (FDFRAME1004, FDFRAME1005) ────────────────────────────
+  // ─── Aggregate checks (FDFRAMES1004, FDFRAMES1005) ────────────────────────────
 
   private static void CheckAggregateLambda(
     SyntaxNodeAnalysisContext context,
@@ -103,7 +103,7 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
     if (body is null)
       return;
 
-    // FDFRAME1004: result selector body must be an object-creation expression.
+    // FDFRAMES1004: result selector body must be an object-creation expression.
     if (!IsValidAggregateResultBody(body))
     {
       context.ReportDiagnostic(
@@ -116,7 +116,7 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
       return;
     }
 
-    // FDFRAME1005: every binding value must be ctx.Key or ctx.Method(...).
+    // FDFRAMES1005: every binding value must be ctx.Key or ctx.Method(...).
     CheckAggregateBindings(context, body, resultSelector);
   }
 
@@ -181,7 +181,7 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
       _ => false,
     };
 
-  // ─── FDFRAME1002 ─────────────────────────────────────────────────────────────
+  // ─── FDFRAMES1002 ─────────────────────────────────────────────────────────────
 
   private static void CheckInitializerBindings(
     SyntaxNodeAnalysisContext context,
@@ -206,7 +206,7 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
     }
   }
 
-  // ─── FDFRAME1003 ─────────────────────────────────────────────────────────────
+  // ─── FDFRAMES1003 ─────────────────────────────────────────────────────────────
 
   private static void CheckPositionalConstructorType(
     SyntaxNodeAnalysisContext context,
@@ -226,7 +226,7 @@ public sealed class TypedFrameExpressionAnalyzer : DiagnosticAnalyzer
     }
   }
 
-  // ─── FDFRAME1005 ─────────────────────────────────────────────────────────────
+  // ─── FDFRAMES1005 ─────────────────────────────────────────────────────────────
 
   private static void CheckAggregateBindings(
     SyntaxNodeAnalysisContext context,

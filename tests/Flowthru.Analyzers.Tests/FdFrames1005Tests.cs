@@ -5,12 +5,12 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.Analyzers.Tests;
 
 /// <summary>
-/// Verifies that FDFRAME1005 fires when an <c>Aggregate</c> result selector binding is
+/// Verifies that FDFRAMES1005 fires when an <c>Aggregate</c> result selector binding is
 /// neither <c>ctx.Key</c> nor a call to an aggregation method on the context, and does not
 /// fire for valid bindings.
 /// </summary>
 [TestFixture]
-public class FdFrame1005Tests
+public class FDFRAMES1005Tests
 {
   private const string Stubs = """
     using System;
@@ -48,7 +48,7 @@ public class FdFrame1005Tests
     }
     """;
 
-  private static DiagnosticResult FDFRAME1005(int marker) =>
+  private static DiagnosticResult FDFRAMES1005(int marker) =>
     new DiagnosticResult(DataFrameDiagnostics.InvalidAggregateBinding).WithLocation(marker);
 
   // ─── Negative cases: valid ctx.Key / ctx.Method() bindings → no diagnostic ──
@@ -125,10 +125,10 @@ public class FdFrame1005Tests
     }.RunAsync();
   }
 
-  // ─── Positive cases: non-ctx bindings → FDFRAME1005 fires ───────────────────
+  // ─── Positive cases: non-ctx bindings → FDFRAMES1005 fires ───────────────────
 
   [Test]
-  public async Task LiteralBinding_Reports_FDFRAME1005()
+  public async Task LiteralBinding_Reports_FDFRAMES1005()
   {
     var source =
       Stubs
@@ -146,12 +146,12 @@ public class FdFrame1005Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1005(0).WithArguments("42.0") },
+      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("42.0") },
     }.RunAsync();
   }
 
   [Test]
-  public async Task StringConstantBinding_Reports_FDFRAME1005()
+  public async Task StringConstantBinding_Reports_FDFRAMES1005()
   {
     var source =
       Stubs
@@ -169,12 +169,12 @@ public class FdFrame1005Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1005(0).WithArguments("\"hardcoded\"") },
+      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("\"hardcoded\"") },
     }.RunAsync();
   }
 
   [Test]
-  public async Task BinaryExpressionOnKey_Reports_FDFRAME1005()
+  public async Task BinaryExpressionOnKey_Reports_FDFRAMES1005()
   {
     // ctx.Key + "_suffix" is a BinaryExpression, not a direct member access on ctx.
     var source =
@@ -193,12 +193,12 @@ public class FdFrame1005Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1005(0).WithArguments("ctx.Key + \"_suffix\"") },
+      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("ctx.Key + \"_suffix\"") },
     }.RunAsync();
   }
 
   [Test]
-  public async Task ChainedMemberAccess_Reports_FDFRAME1005()
+  public async Task ChainedMemberAccess_Reports_FDFRAMES1005()
   {
     // ctx.Key.Length accesses a member on the result of ctx.Key, not on ctx directly.
     var source =
@@ -217,7 +217,7 @@ public class FdFrame1005Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1005(0).WithArguments("ctx.Key.Length") },
+      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("ctx.Key.Length") },
     }.RunAsync();
   }
 
@@ -246,7 +246,7 @@ public class FdFrame1005Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1005(0).WithArguments("(long)ctx.Count()") },
+      ExpectedDiagnostics = { FDFRAMES1005(0).WithArguments("(long)ctx.Count()") },
     }.RunAsync();
   }
 }

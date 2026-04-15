@@ -5,12 +5,12 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.Analyzers.Tests;
 
 /// <summary>
-/// Verifies that FDFRAME1001 fires when a <c>Select</c> lambda body is not an object
+/// Verifies that FDFRAMES1001 fires when a <c>Select</c> lambda body is not an object
 /// initializer, positional record constructor, anonymous type, or member access — and
 /// does not fire for those valid forms.
 /// </summary>
 [TestFixture]
-public class FdFrame1001Tests
+public class FDFRAMES1001Tests
 {
   // Minimal stubs that satisfy the analyzer's type-name check without requiring the
   // full runtime library (which in turn requires the Spark JVM at runtime).
@@ -47,7 +47,7 @@ public class FdFrame1001Tests
     public record OutputRecord(string Name, int Age);
     """;
 
-  private static DiagnosticResult FDFRAME1001(int line, int col) =>
+  private static DiagnosticResult FDFRAMES1001(int line, int col) =>
     new DiagnosticResult(DataFrameDiagnostics.InvalidProjectionBody).WithLocation(line, col);
 
   // ─── Negative cases: valid projection bodies → no diagnostic ────────────────
@@ -77,8 +77,8 @@ public class FdFrame1001Tests
   [Test]
   public async Task RecordPositionalConstructor_DoesNotReport()
   {
-    // Uses an actual record so FDFRAME1003 (positional ctor on non-record) does not fire
-    // — this test specifically verifies FDFRAME1001 is silent for valid positional forms.
+    // Uses an actual record so FDFRAMES1003 (positional ctor on non-record) does not fire
+    // — this test specifically verifies FDFRAMES1001 is silent for valid positional forms.
     var source =
       Stubs
       + """
@@ -142,10 +142,10 @@ public class FdFrame1001Tests
     }.RunAsync();
   }
 
-  // ─── Positive cases: invalid projection bodies → FDFRAME1001 fires ──────────
+  // ─── Positive cases: invalid projection bodies → FDFRAMES1001 fires ──────────
 
   [Test]
-  public async Task TupleCreate_Reports_FDFRAME1001()
+  public async Task TupleCreate_Reports_FDFRAMES1001()
   {
     var source =
       Stubs
@@ -173,7 +173,7 @@ public class FdFrame1001Tests
   }
 
   [Test]
-  public async Task ArbitraryMethodCall_Reports_FDFRAME1001()
+  public async Task ArbitraryMethodCall_Reports_FDFRAMES1001()
   {
     var source =
       Stubs

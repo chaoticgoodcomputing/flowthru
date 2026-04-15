@@ -5,12 +5,12 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.Analyzers.Tests;
 
 /// <summary>
-/// Verifies that FDFRAME1003 fires when a <c>Select</c> lambda uses a positional constructor
+/// Verifies that FDFRAMES1003 fires when a <c>Select</c> lambda uses a positional constructor
 /// call on a plain class (not a record or anonymous type), and does not fire for records or
 /// anonymous types.
 /// </summary>
 [TestFixture]
-public class FdFrame1003Tests
+public class FDFRAMES1003Tests
 {
   // Records require System.Runtime.CompilerServices.IsExternalInit, which the analyzer
   // test framework doesn't inject automatically. This shim satisfies the requirement.
@@ -48,7 +48,7 @@ public class FdFrame1003Tests
     public record PersonRecord(string Name, int Age);
     """;
 
-  private static DiagnosticResult FDFRAME1003(int marker) =>
+  private static DiagnosticResult FDFRAMES1003(int marker) =>
     new DiagnosticResult(DataFrameDiagnostics.PositionalConstructorNonRecord).WithLocation(marker);
 
   // ─── Negative cases: record and anonymous types → no diagnostic ─────────────
@@ -100,7 +100,7 @@ public class FdFrame1003Tests
   [Test]
   public async Task ObjectInitializer_PlainClass_DoesNotReport()
   {
-    // FDFRAME1003 only fires for positional constructors (args, no initializer).
+    // FDFRAMES1003 only fires for positional constructors (args, no initializer).
     // An object initializer on a plain class is valid.
     var source =
       Stubs
@@ -121,10 +121,10 @@ public class FdFrame1003Tests
     }.RunAsync();
   }
 
-  // ─── Positive case: positional constructor on a plain class → FDFRAME1003 ───
+  // ─── Positive case: positional constructor on a plain class → FDFRAMES1003 ───
 
   [Test]
-  public async Task PlainClassPositionalConstructor_Reports_FDFRAME1003()
+  public async Task PlainClassPositionalConstructor_Reports_FDFRAMES1003()
   {
     var source =
       Stubs
@@ -142,7 +142,7 @@ public class FdFrame1003Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1003(0).WithArguments("PlainClass") },
+      ExpectedDiagnostics = { FDFRAMES1003(0).WithArguments("PlainClass") },
     }.RunAsync();
   }
 }

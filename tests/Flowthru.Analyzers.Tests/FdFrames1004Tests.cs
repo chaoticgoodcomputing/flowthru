@@ -5,11 +5,11 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.Analyzers.Tests;
 
 /// <summary>
-/// Verifies that FDFRAME1004 fires when the <c>Aggregate</c> result selector body is not an
+/// Verifies that FDFRAMES1004 fires when the <c>Aggregate</c> result selector body is not an
 /// object-creation expression, and does not fire for valid object-creation forms.
 /// </summary>
 [TestFixture]
-public class FdFrame1004Tests
+public class FDFRAMES1004Tests
 {
   private const string Stubs = """
     using System;
@@ -48,7 +48,7 @@ public class FdFrame1004Tests
     public record AggResultRecord(string Category, double AvgPrice);
     """;
 
-  private static DiagnosticResult FDFRAME1004(int marker) =>
+  private static DiagnosticResult FDFRAMES1004(int marker) =>
     new DiagnosticResult(DataFrameDiagnostics.InvalidAggregateResultBody).WithLocation(marker);
 
   // ─── Negative cases: object-creation forms → no diagnostic ──────────────────
@@ -119,10 +119,10 @@ public class FdFrame1004Tests
     }.RunAsync();
   }
 
-  // ─── Positive cases: non-object-creation bodies → FDFRAME1004 fires ─────────
+  // ─── Positive cases: non-object-creation bodies → FDFRAMES1004 fires ─────────
 
   [Test]
-  public async Task MemberAccessBody_Reports_FDFRAME1004()
+  public async Task MemberAccessBody_Reports_FDFRAMES1004()
   {
     // ctx.Key is a member access, not an object-creation expression.
     var source =
@@ -141,12 +141,12 @@ public class FdFrame1004Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1004(0).WithArguments("ctx.Key") },
+      ExpectedDiagnostics = { FDFRAMES1004(0).WithArguments("ctx.Key") },
     }.RunAsync();
   }
 
   [Test]
-  public async Task InvocationBody_Reports_FDFRAME1004()
+  public async Task InvocationBody_Reports_FDFRAMES1004()
   {
     // ctx.Count() is a method call, not an object-creation expression.
     var source =
@@ -165,7 +165,7 @@ public class FdFrame1004Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1004(0).WithArguments("ctx.Count()") },
+      ExpectedDiagnostics = { FDFRAMES1004(0).WithArguments("ctx.Count()") },
     }.RunAsync();
   }
 }

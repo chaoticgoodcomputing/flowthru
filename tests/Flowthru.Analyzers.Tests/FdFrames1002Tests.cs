@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.Analyzers.Tests;
 
 /// <summary>
-/// Verifies that FDFRAME1002 fires when an object initializer inside a <c>Select</c> lambda
+/// Verifies that FDFRAMES1002 fires when an object initializer inside a <c>Select</c> lambda
 /// uses a collection binding (<c>Items = { x }</c>) or nested-object binding
 /// (<c>Nested = { Prop = val }</c>) rather than a plain property assignment.
 /// </summary>
@@ -16,7 +16,7 @@ namespace Flowthru.Analyzers.Tests;
 /// the method's containing type name (<c>TypedFrameExtensions</c>), not the parameter type.
 /// </remarks>
 [TestFixture]
-public class FdFrame1002Tests
+public class FDFRAMES1002Tests
 {
   // Stub Select takes Func<> so that the lambda body compiles without C# expression-tree
   // restrictions while still triggering the TypedFrameExtensions name-match in the analyzer.
@@ -49,7 +49,7 @@ public class FdFrame1002Tests
     public class NestedSchema { public string Prop { get; set; } = ""; }
     """;
 
-  private static DiagnosticResult FDFRAME1002(int marker) =>
+  private static DiagnosticResult FDFRAMES1002(int marker) =>
     new DiagnosticResult(DataFrameDiagnostics.NonAssignmentBinding).WithLocation(marker);
 
   // ─── Negative cases: valid assignment bindings → no diagnostic ──────────────
@@ -98,10 +98,10 @@ public class FdFrame1002Tests
     }.RunAsync();
   }
 
-  // ─── Positive cases: non-assignment bindings → FDFRAME1002 fires ─────────────
+  // ─── Positive cases: non-assignment bindings → FDFRAMES1002 fires ─────────────
 
   [Test]
-  public async Task CollectionBinding_Reports_FDFRAME1002()
+  public async Task CollectionBinding_Reports_FDFRAMES1002()
   {
     // Tags = { x.Name } is a MemberListBinding — RHS is a CollectionInitializerExpression.
     var source =
@@ -120,12 +120,12 @@ public class FdFrame1002Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1002(0).WithArguments("Tags") },
+      ExpectedDiagnostics = { FDFRAMES1002(0).WithArguments("Tags") },
     }.RunAsync();
   }
 
   [Test]
-  public async Task NestedObjectBinding_Reports_FDFRAME1002()
+  public async Task NestedObjectBinding_Reports_FDFRAMES1002()
   {
     // Nested = { Prop = x.Name } is a MemberMemberBinding — RHS is an ObjectInitializerExpression.
     var source =
@@ -144,7 +144,7 @@ public class FdFrame1002Tests
     await new CSharpAnalyzerTest<TypedFrameExpressionAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
-      ExpectedDiagnostics = { FDFRAME1002(0).WithArguments("Nested") },
+      ExpectedDiagnostics = { FDFRAMES1002(0).WithArguments("Nested") },
     }.RunAsync();
   }
 
@@ -174,8 +174,8 @@ public class FdFrame1002Tests
       TestCode = source,
       ExpectedDiagnostics =
       {
-        FDFRAME1002(0).WithArguments("Tags"),
-        FDFRAME1002(1).WithArguments("Nested"),
+        FDFRAMES1002(0).WithArguments("Tags"),
+        FDFRAMES1002(1).WithArguments("Nested"),
       },
     }.RunAsync();
   }
