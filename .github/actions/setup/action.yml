@@ -59,9 +59,16 @@ runs:
 
         echo "Downloading Spark ${SPARK_VERSION} from ${URL}"
         curl --retry 3 --retry-delay 10 --retry-connrefused \
-          --progress-bar \
+          --no-progress-meter \
           -L -o "/tmp/${TARBALL}" \
-          "${URL}"
+          "${URL}" &
+        CURL_PID=$!
+        while kill -0 $CURL_PID 2>/dev/null; do
+          sleep 30
+          SIZE=$(stat -c%s "/tmp/${TARBALL}" 2>/dev/null || echo 0)
+          echo "  ... $((SIZE / 1024 / 1024)) MB downloaded"
+        done
+        wait $CURL_PID
 
         echo "Download complete. Extracting..."
         tar -xz -C /tmp -f "/tmp/${TARBALL}"
