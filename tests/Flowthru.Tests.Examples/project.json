@@ -17,7 +17,7 @@
         "forwardAllArgs": true
       },
       "cache": true,
-      "inputs": [ "default", "^production", "{workspaceRoot}/examples/**" ]
+      "inputs": [ "default", "{workspaceRoot}/src/**", "{workspaceRoot}/examples/**" ]
     },
     "test:discovery": {
       "//": "Run only test discovery tests (smoke check for example project wiring)",
