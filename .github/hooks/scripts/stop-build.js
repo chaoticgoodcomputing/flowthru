@@ -13,6 +13,72 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 
+/**
+ * Parse dotnet test output to extract test counts.
+ * Aggregates counts across all test runs.
+ * Returns: { passed, failed, skipped, inconclusive, total }
+ */
+function parseTestCounts(output) {
+  // Match patterns like: "Failed:     6, Passed:   156, Skipped:     0, Total:   162"
+  const regex = /Failed:\s*(\d+),\s*Passed:\s*(\d+),\s*Skipped:\s*(\d+),\s*Total:\s*(\d+)/g;
+  const counts = { passed: 0, failed: 0, skipped: 0, total: 0 };
+
+  let match;
+  while ((match = regex.exec(output)) !== null) {
+    counts.failed += parseInt(match[1], 10);
+    counts.passed += parseInt(match[2], 10);
+    counts.skipped += parseInt(match[3], 10);
+    counts.total += parseInt(match[4], 10);
+  }
+
+  // Inconclusive = Total - Passed - Failed - Skipped
+  counts.inconclusive = counts.total - counts.passed - counts.failed - counts.skipped;
+
+  return counts;
+}
+
+/**
+ * Format test counts for display.
+ */
+function formatTestCounts(counts) {
+  return [
+    `Passed:       ${counts.passed}`,
+    `Failed:       ${counts.failed}`,
+    `Skipped:      ${counts.skipped}`,
+    `Inconclusive: ${counts.inconclusive}`,
+    `Total:        ${counts.total}`,
+  ].join('\n');
+}
+
+/**
+ * Extract full failure blocks from dotnet test output.
+ * A block starts with an indented "Failed <TestName>" line and continues
+ * until the next dotnet test summary line or end of output.
+ */
+function extractFailureBlocks(output) {
+  const lines = output.split('\n');
+  const resultLines = [];
+  let capturing = false;
+
+  for (const line of lines) {
+    if (/^\s+Failed\s+\S/.test(line)) {
+      // Start of a new failure block — blank separator between blocks.
+      if (resultLines.length > 0) resultLines.push('');
+      capturing = true;
+      resultLines.push(line);
+    } else if (capturing) {
+      // Stop at the dotnet test run summary line (e.g. "Failed!  - Failed: 6, Passed: ...")
+      if (/^(Failed!|Passed!)\s+-\s+Failed:/.test(line.trim())) {
+        capturing = false;
+      } else {
+        resultLines.push(line);
+      }
+    }
+  }
+
+  return resultLines.join('\n').trim();
+}
+
 // Read and parse stdin to detect re-entry.
 let hookInput = {};
 try {
@@ -66,14 +132,14 @@ const stdout = (result.stdout || '').trim();
 const stderr = (result.stderr || '').trim();
 const combined = [stdout, stderr].filter(Boolean).join('\n');
 
-if (result.status !== 0) {
-  // Extract failed test lines for a focused summary.
-  const failureLines = combined
-    .split('\n')
-    .filter(line => /failed|error|FAILED|ERROR/i.test(line))
-    .slice(0, 40); // cap at 40 lines to avoid overwhelming the agent
+// Parse test counts from output.
+const testCounts = parseTestCounts(combined);
+const countsDisplay = formatTestCounts(testCounts);
 
-  const summary = failureLines.length > 0 ? failureLines.join('\n') : combined;
+// NX does not always propagate the dotnet exit code — fall back to parsed counts.
+if (result.status !== 0 || testCounts.failed > 0) {
+  const failureBlocks = extractFailureBlocks(combined);
+  const summary = failureBlocks.length > 0 ? failureBlocks : combined;
 
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
@@ -82,12 +148,21 @@ if (result.status !== 0) {
       reason: [
         `nx affected test FAILED (affected: ${affectedProjects.join(', ')}) — address these failures before concluding.`,
         '',
+        'Test Summary:',
+        countsDisplay,
+        '',
         summary,
       ].join('\n'),
     },
   }));
+  process.exit(1);
 } else {
   process.stdout.write(JSON.stringify({
-    systemMessage: `nx affected test: passed (${affectedProjects.length} project(s): ${affectedProjects.join(', ')}).`,
+    systemMessage: [
+      `nx affected test: passed (${affectedProjects.length} project(s): ${affectedProjects.join(', ')}).`,
+      '',
+      'Test Summary:',
+      countsDisplay,
+    ].join('\n'),
   }));
 }

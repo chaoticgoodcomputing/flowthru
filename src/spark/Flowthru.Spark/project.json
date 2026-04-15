@@ -1,0 +1,8 @@
+{
+  "name": "Flowthru.Spark",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "src/spark/Flowthru.Spark",
+  "tags": [ "lang:csharp", "scope:spark" ],
+  "implicitDependencies": [ "Flowthru.Spark.Jvm" ]
+}

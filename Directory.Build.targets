@@ -53,6 +53,11 @@
     <ProjectReference Include="$(RepoRoot)src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(MSBuildProjectDirRelativePath.Contains('KedroSpaceflightsSpark'))">
+    <PackageReference Remove="Flowthru.Extensions.Spark" />
+    <ProjectReference Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Spark\Flowthru.Extensions.Spark.csproj" />
+  </ItemGroup>
+
   <!-- Special case for Flowthru.Tests.Common: also convert PackageReference but keep existing SourceGenerators ProjectReference -->
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'Flowthru.Tests.Common'">
     <PackageReference Remove="Flowthru" />

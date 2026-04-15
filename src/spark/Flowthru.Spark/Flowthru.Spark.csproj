@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Flowthru.Spark</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- NU5104: stable release with prerelease dependency (MessagePack 3.x prerelease) -->
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
+    <Description>Flowthru fork of .NET for Apache Spark — driver-only JVM bridge and DataFrame API</Description>
+    <PackageTags>flowthru;spark;apache-spark;dataframe</PackageTags>
+    <PackageId>Flowthru.Spark</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Tests.Spark" />
+    <InternalsVisibleTo Include="Flowthru.Extensions.Spark" />
+    <!-- Moq dynamic proxy assembly needs access for mocking internals in tests (no key: Flowthru.Spark is not strong-named) -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Apache.Arrow" Version="14.0.2" />
+    <PackageReference Include="MessagePack" Version="3.0.214-rc.1" />
+    <PackageReference Include="Microsoft.Data.Analysis" Version="0.21.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Razorvine.Pickle" Version="1.5.0" />
+    <PackageReference Include="Razorvine.Pyrolite" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="LICENSE-DOTNET-SPARK" Pack="true" PackagePath="/" />
+    <None Include="../../../THIRD-PARTY-NOTICES" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <!-- JVM bridge JAR: built by Flowthru.Spark.Jvm NX target, lives in dist/.
+       PackageCopyToOutput=true ensures it flows through transitive ProjectReferences
+       into consuming project output directories (tests, examples, etc.). -->
+  <ItemGroup>
+    <Content Include="../../../dist/src/spark/Flowthru.Spark.Jvm/flowthru-spark-4-1_2.13-2.3.1.jar"
+             CopyToOutputDirectory="PreserveNewest"
+             PackageCopyToOutput="true"
+             Pack="true"
+             PackagePath="contentFiles/any/any/flowthru-spark-4-1_2.13-2.3.1.jar" />
+  </ItemGroup>
+
+</Project>

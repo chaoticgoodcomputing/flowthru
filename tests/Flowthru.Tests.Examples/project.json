@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "tests/Flowthru.Tests.Examples",
-  "implicitDependencies": [ "examples" ],
+  "implicitDependencies": [ ],
   "tags": [ "type:test", "scope:examples" ],
   "targets": {
     "test": {
@@ -17,7 +17,7 @@
         "forwardAllArgs": true
       },
       "cache": true,
-      "inputs": [ "default", "^production" ]
+      "inputs": [ "default", "{workspaceRoot}/src/**", "{workspaceRoot}/examples/**" ]
     },
     "test:discovery": {
       "//": "Run only test discovery tests (smoke check for example project wiring)",

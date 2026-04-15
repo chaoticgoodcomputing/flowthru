@@ -76,6 +76,21 @@ public sealed class FlowthruServiceBuilder
   }
 
   /// <summary>
+  /// Escape hatch for extension packages that need to register additional services
+  /// with the underlying <see cref="IServiceCollection"/>.
+  /// </summary>
+  /// <param name="configure">Action that receives the service collection.</param>
+  /// <returns>This builder for method chaining.</returns>
+  public FlowthruServiceBuilder ConfigureServices(Action<IServiceCollection> configure)
+  {
+    if (configure == null)
+      throw new ArgumentNullException(nameof(configure));
+
+    configure(_services);
+    return this;
+  }
+
+  /// <summary>
   /// Internal entry type that carries a Flow factory and its associated metadata.
   /// Replaces the FlowRegistrar indirection for cleaner multi-catalog support.
   /// </summary>

@@ -110,35 +110,12 @@ nx run test/examples:test
 
 ### Coverage Collection
 
-Run tests with coverage collection:
+Tests are run with coverage collection enabled in CI via `coverlet.runsettings`. Coverage reports are aggregated and tracked by [Codecov](https://codecov.io/gh/chaoticgoodcomputing/flowthru), with per-flag carryforward so partial `nx affected` runs don't erase unaffected projects.
+
+To force a clean test run by removing previous `TestResults` artifacts:
 ```bash
-nx run flowthru:test:coverage
+nx run tests:purge
 ```
-
-Generate HTML coverage report from collected data:
-```bash
-nx run flowthru:coverage:report
-```
-
-The report is written to `CoverageReport/index.html`.
-
-Run the full CI pipeline (restore → build → test → report):
-```bash
-nx run flowthru:ci
-```
-
-### Convenience Target
-
-For local development, use the legacy test target with report configuration:
-```bash
-nx run flowthru:test --configuration=report
-```
-
-This target:
-1. Purges previous coverage data
-2. Runs all tests with coverage collection
-3. Generates an HTML report
-4. Opens the report in your browser
 
 ### What Gets Measured
 

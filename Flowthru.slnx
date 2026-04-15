@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/examples/advanced/">
   </Folder>
+  <Folder Name="/examples/starter/">
+    <Project Path="examples/starter/KedroSpaceflightsSpark/KedroSpaceflightsSpark.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/core/Flowthru/Flowthru.csproj" />
     <Project Path="src/core/Flowthru.Core/Flowthru.Core.csproj" />
@@ -19,6 +22,13 @@
     <Project Path="src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj" />
+    <Project Path="src/extensions/Flowthru.Extensions.Spark/Flowthru.Extensions.Spark.csproj" />
+    <Project Path="src/extensions/Flowthru.Extensions.Spark.SourceGenerators/Flowthru.Extensions.Spark.SourceGenerators.csproj" />
+    <Project Path="src/extensions/Flowthru.Extensions.Spark.CodeFixes/Flowthru.Extensions.Spark.CodeFixes.csproj" />
+    <Project Path="src/spark/Flowthru.Spark/Flowthru.Spark.csproj" />
+    <Project Path="src/misc/Flowthru.Misc.DataFrames/Flowthru.Misc.DataFrames.csproj" />
+    <Project Path="src/misc/Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj" />
+    <Project Path="src/misc/Flowthru.Misc.DataFrames.CodeFixes/Flowthru.Misc.DataFrames.CodeFixes.csproj" />
     <Project Path="src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj" />
   </Folder>
   <Folder Name="/src/core/" />
@@ -32,6 +42,9 @@
     <Project Path="tests/Flowthru.Extensions.Python.Tests/Flowthru.Extensions.Python.Tests.csproj" />
     <Project Path="tests/Flowthru.Extensions.EFCore.Tests/Flowthru.Extensions.EFCore.Tests.csproj" />
     <Project Path="tests/Flowthru.Extensions.GQL.Tests/Flowthru.Extensions.GQL.Tests.csproj" />
+    <Project Path="tests/Flowthru.Extensions.Spark.Tests/Flowthru.Extensions.Spark.Tests.csproj" />
+    <Project Path="tests/Flowthru.Tests.Spark/Flowthru.Tests.Spark.csproj" />
+    <Project Path="tests/Flowthru.Analyzers.Tests/Flowthru.Analyzers.Tests.csproj" />
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/starter/SpaceflightsEFCore/SpaceflightsEFCore.csproj" />

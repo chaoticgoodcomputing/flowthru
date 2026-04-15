@@ -1,0 +1,19 @@
+{
+  "name": "tests",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "tests",
+  "targets": {
+    "purge": {
+      "//": "Remove all TestResults directories to force a clean test run",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "find tests -name TestResults -type d -exec rm -rf {} + 2>/dev/null || true"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    }
+  }
+}

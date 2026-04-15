@@ -4,7 +4,7 @@
   "description": "A type-safe data engineering framework for .NET",
   "main": "index.js",
   "scripts": {
-    "postinstall": "dotnet restore",
+    "postinstall": "bash scripts/post-pnpm-install-hook.sh",
     "prepare": "husky"
   },
   "keywords": [

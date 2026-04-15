@@ -285,3 +285,4 @@ coverage-badges/
 __pycache__/
 *.py[cod]
 *$py.class
+Flowthru.sln.DotSettings.user
