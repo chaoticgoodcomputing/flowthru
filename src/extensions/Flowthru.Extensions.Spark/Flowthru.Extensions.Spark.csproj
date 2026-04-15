@@ -28,4 +28,10 @@
     <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../Flowthru.Extensions.Spark.SourceGenerators/Flowthru.Extensions.Spark.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+  </ItemGroup>
+
 </Project>

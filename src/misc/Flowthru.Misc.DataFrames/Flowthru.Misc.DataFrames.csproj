@@ -17,6 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 

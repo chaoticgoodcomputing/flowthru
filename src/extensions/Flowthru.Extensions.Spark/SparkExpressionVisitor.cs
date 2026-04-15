@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Flowthru.DataFrames;
+using Flowthru.Extensions.Spark.Shared;
 using Flowthru.Spark.Sql;
 using SparkFunctions = Flowthru.Spark.Sql.Functions;
 
@@ -464,27 +465,8 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
   //  Method call translation (string, Math, etc.)
   // ──────────────────────────────────────────────
 
-  private static readonly HashSet<string> StringMethodNames =
-  [
-    nameof(string.Replace),
-    nameof(string.Contains),
-    nameof(string.StartsWith),
-    nameof(string.EndsWith),
-    nameof(string.ToUpper),
-    nameof(string.ToLower),
-    nameof(string.Trim),
-    nameof(string.TrimStart),
-    nameof(string.TrimEnd),
-    nameof(string.Substring),
-  ];
-
-  private static readonly HashSet<string> MathMethodNames =
-  [
-    nameof(Math.Round),
-    nameof(Math.Abs),
-    nameof(Math.Floor),
-    nameof(Math.Ceiling),
-  ];
+  // Method name whitelists are defined in SparkTranslatableOperations (shared with the analyzer).
+  // Update that file when adding new translations — do not add sets here.
 
   /// <summary>
   /// Routes a method call in a sub-expression to the appropriate translator.
@@ -494,10 +476,16 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
     Dictionary<ParameterExpression, DataFrame> paramMap
   )
   {
-    if (mce.Method.DeclaringType == typeof(string) && StringMethodNames.Contains(mce.Method.Name))
+    if (
+      mce.Method.DeclaringType == typeof(string)
+      && SparkTranslatableOperations.SupportedStringMethods.Contains(mce.Method.Name)
+    )
       return TranslateStringMethod(mce, paramMap);
 
-    if (mce.Method.DeclaringType == typeof(Math) && MathMethodNames.Contains(mce.Method.Name))
+    if (
+      mce.Method.DeclaringType == typeof(Math)
+      && SparkTranslatableOperations.SupportedMathMethods.Contains(mce.Method.Name)
+    )
       return TranslateMathMethod(mce, paramMap);
 
     throw new NotSupportedException(
@@ -676,6 +664,8 @@ internal sealed class SparkExpressionVisitor : FrameExpressionVisitor
       && me.Expression is not null
     )
     {
+      // Supported DateTime properties are listed in SparkTranslatableOperations.SupportedDateTimeProperties.
+      // Update that file when adding new translations.
       var col = TranslateSubExpression(me.Expression, paramMap);
       return dateTimeProp.Name switch
       {
