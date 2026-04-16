@@ -1,3 +1,13 @@
+## 0.6.1 (2026-04-16)
+
+### 🩹 Fixes
+
+- increase performance of shallow inspection on GQL+EFCore ([11e848a5](https://github.com/chaoticgoodcomputing/flowthru/commit/11e848a5))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.6.0 (2026-04-16)
 
 ### 🚀 Features
