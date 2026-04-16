@@ -8,9 +8,11 @@ public class TestDbContext : DbContext
     : base(options) { }
 
   public DbSet<TestEntity> TestEntities => Set<TestEntity>();
+  public DbSet<SourceEntity> SourceEntities => Set<SourceEntity>();
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<TestEntity>().HasKey(e => e.Id);
+    modelBuilder.Entity<SourceEntity>().HasKey(e => e.Id);
   }
 }

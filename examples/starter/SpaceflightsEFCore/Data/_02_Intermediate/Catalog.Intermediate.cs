@@ -9,12 +9,14 @@ public partial class Catalog
 {
   /// <summary>
   /// Preprocessed company data with validated and strongly-typed fields.
+  /// Backed by a deferred <see cref="Flowthru.Extensions.EFCore.Data.DbQuery{T}"/> handle:
+  /// no rows are fetched until a step iterates the value.
   /// </summary>
   public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
     CreateItem(
       () =>
         EFCoreItemFactory
-          .Enumerable.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
+          .Query.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
             label: "PreprocessedCompanies",
             contextFactory: _contextFactory
           )
@@ -23,12 +25,14 @@ public partial class Catalog
 
   /// <summary>
   /// Preprocessed shuttle data with validated and strongly-typed fields.
+  /// Backed by a deferred <see cref="Flowthru.Extensions.EFCore.Data.DbQuery{T}"/> handle:
+  /// no rows are fetched until a step iterates the value.
   /// </summary>
   public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
     CreateItem(
       () =>
         EFCoreItemFactory
-          .Enumerable.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(
+          .Query.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(
             label: "PreprocessedShuttles",
             contextFactory: _contextFactory
           )
