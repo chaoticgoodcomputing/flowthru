@@ -7,7 +7,17 @@ on:
       - "**.md"
       - "docs/**"
       - ".github/instructions/**"
-  workflow_dispatch: ~
+  workflow_dispatch:
+    inputs:
+      force_bump:
+        description: "Force a version bump type (bypasses conventional commits). Defaults to 'minor' on manual dispatch."
+        required: false
+        default: minor
+        type: choice
+        options:
+          - minor
+          - patch
+          - major
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -127,7 +137,8 @@ jobs:
           CI: "true"
         run: |
           OLD_VERSION=$(node -p "require('./package.json').version")
-          node scripts/release.mjs --from="${{ steps.last-published.outputs.tag }}"
+          FORCE_BUMP_FLAG=${{ inputs.force_bump && format('--force-bump={0}', inputs.force_bump) || '' }}
+          node scripts/release.mjs --from="${{ steps.last-published.outputs.tag }}" ${FORCE_BUMP_FLAG}
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then

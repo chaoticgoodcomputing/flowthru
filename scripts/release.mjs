@@ -26,12 +26,55 @@ const ROOT = resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
 const FROM_ARG = process.argv.find(a => a.startsWith('--from='));
 const FROM_TAG = FROM_ARG ? FROM_ARG.slice('--from='.length) : undefined;
+const FORCE_BUMP_ARG = process.argv.find(a => a.startsWith('--force-bump='));
+const FORCE_BUMP = FORCE_BUMP_ARG ? FORCE_BUMP_ARG.slice('--force-bump='.length) : undefined;
 
 // ── 1. Version determination via NX Release ──────────────────────────────────
+//
+// NX's conventional-commits specifier detection filters commits by project-file
+// ownership — only commits that touch files belonging to a project in the release
+// group are considered. Since the release group only contains the workspace root
+// project (`flowthru`), commits that exclusively touch src/ library projects are
+// silently discarded by NX before it can compute a specifier.
+//
+// To compensate, we pre-scan the git log ourselves and derive the specifier from
+// commit types, then hand it to NX as an explicit override. NX still handles
+// version writing, changelog generation, and tagging — we're only fixing the
+// commit-detection blind spot.
+//
+// Commit types and their bumps mirror nx.json release.conventionalCommits.types:
+//   feat         → minor
+//   fix/perf/revert → patch
+//   breaking (! or BREAKING CHANGE) → major
+//   everything else → not releasable
+function deriveSpecifierFromGitLog(fromRef) {
+  const range = fromRef ? `${fromRef}..HEAD` : 'HEAD';
+  const raw = execSync(`git log ${range} --format=%s`).toString().trim();
+  if (!raw) return null;
+  const lines = raw.split('\n').filter(Boolean);
+  let hasFeat = false;
+  let hasPatch = false;
+  for (const msg of lines) {
+    if (/^[a-z]+(\([^)]+\))?!:/.test(msg) || /^BREAKING CHANGE/.test(msg)) return 'major';
+    if (/^feat(\([^)]+\))?:/.test(msg)) hasFeat = true;
+    if (/^(fix|perf|revert)(\([^)]+\))?:/.test(msg)) hasPatch = true;
+  }
+  if (hasFeat) return 'minor';
+  if (hasPatch) return 'patch';
+  return null;
+}
+
+const specifier = FORCE_BUMP ?? deriveSpecifierFromGitLog(FROM_TAG);
+
+if (!specifier) {
+  console.log('No version bump required — no releasable commits since last tag.');
+  process.exit(0);
+}
 
 const { workspaceVersion, projectsVersionData } = await releaseVersion({
   dryRun: DRY_RUN,
   verbose: false,
+  specifier,
   ...(FROM_TAG ? { from: FROM_TAG } : {}),
 });
 

@@ -105,7 +105,7 @@ The project uses NX for task orchestration. Common commands:
 
 ```bash
 dotnet build # Confirm solution builds fully
-nx run affected -t test # Run all test projects affected by current changes
+nx run affected -t test # IMPORTANT: Run all test projects affected by current changes
 dotnet test # Run all tests for the project.
 ```
 

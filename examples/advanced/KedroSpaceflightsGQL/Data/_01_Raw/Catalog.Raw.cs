@@ -54,14 +54,20 @@ public partial class Catalog
     CreateItem(() => ItemFactory.Single.Memory<bool>("GqlDatabaseSeeded"));
 
   // ── Raw GQL entries — consumed by the DataProcessing flow ───────────────
+  //
+  // These are DEFERRED query handles, not materialized collections. No network I/O happens
+  // when the catalog is constructed or during pre-flight (beyond a lightweight connectivity
+  // probe). The step that consumes these entries calls .ToList() to trigger the actual
+  // GQL fetch — see CreateModelInputTableStep for the materialization point.
 
   /// <summary>
-  /// Raw company data queried from the GQL server.
+  /// Deferred GQL query handle for company data. The consuming step materializes this
+  /// via <c>ToList()</c>, which fires the <c>GetCompanies</c> query against the server.
   /// </summary>
-  public IItem<IEnumerable<IGetCompanies_Companies>> Companies =>
+  public IItem<GqlQuery<IGetCompaniesResult, IGetCompanies_Companies>> Companies =>
     CreateItem(
       () =>
-        GqlItemFactory.Enumerable.Query<IGetCompaniesResult, IGetCompanies_Companies>(
+        GqlItemFactory.Query.NonPaged<IGetCompaniesResult, IGetCompanies_Companies>(
           label: "GQLCompanies",
           queryFunc: ct => _client.GetCompanies.ExecuteAsync(ct),
           selectData: r => r.Companies,
@@ -70,12 +76,13 @@ public partial class Catalog
     );
 
   /// <summary>
-  /// Raw shuttle data queried from the GQL server.
+  /// Deferred GQL query handle for shuttle data. The consuming step materializes this
+  /// via <c>ToList()</c>, which fires the <c>GetShuttles</c> query against the server.
   /// </summary>
-  public IItem<IEnumerable<IGetShuttles_Shuttles>> Shuttles =>
+  public IItem<GqlQuery<IGetShuttlesResult, IGetShuttles_Shuttles>> Shuttles =>
     CreateItem(
       () =>
-        GqlItemFactory.Enumerable.Query<IGetShuttlesResult, IGetShuttles_Shuttles>(
+        GqlItemFactory.Query.NonPaged<IGetShuttlesResult, IGetShuttles_Shuttles>(
           label: "GQLShuttles",
           queryFunc: ct => _client.GetShuttles.ExecuteAsync(ct),
           selectData: r => r.Shuttles,
@@ -84,12 +91,13 @@ public partial class Catalog
     );
 
   /// <summary>
-  /// Raw review data queried from the GQL server.
+  /// Deferred GQL query handle for review data. The consuming step materializes this
+  /// via <c>ToList()</c>, which fires the <c>GetReviews</c> query against the server.
   /// </summary>
-  public IItem<IEnumerable<IGetReviews_Reviews>> Reviews =>
+  public IItem<GqlQuery<IGetReviewsResult, IGetReviews_Reviews>> Reviews =>
     CreateItem(
       () =>
-        GqlItemFactory.Enumerable.Query<IGetReviewsResult, IGetReviews_Reviews>(
+        GqlItemFactory.Query.NonPaged<IGetReviewsResult, IGetReviews_Reviews>(
           label: "GQLReviews",
           queryFunc: ct => _client.GetReviews.ExecuteAsync(ct),
           selectData: r => r.Reviews,
