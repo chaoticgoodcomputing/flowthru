@@ -12,10 +12,8 @@ public class Query
   public IReadOnlyList<CompanyRecord> GetCompanies([Service] SpaceflightsRepository repo) =>
     repo.GetCompanies();
 
-  public IReadOnlyList<ShuttleRecord> GetShuttles(
-    [Service] SpaceflightsRepository repo,
-    string? companyId = null
-  ) => companyId is not null ? repo.GetShuttlesByCompanyId(companyId) : repo.GetShuttles();
+  public IReadOnlyList<ShuttleRecord> GetShuttles([Service] SpaceflightsRepository repo) =>
+    repo.GetShuttles();
 
   public IReadOnlyList<ReviewRecord> GetReviews([Service] SpaceflightsRepository repo) =>
     repo.GetReviews();

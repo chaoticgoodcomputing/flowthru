@@ -37,20 +37,6 @@ public interface IItem : INode
   string? OwningCatalogLabel => null;
 
   /// <summary>
-  /// Returns the catalog items that this item's storage adapter depends on at load time,
-  /// if the underlying adapter implements <see cref="Storage.IHasItemDependencies"/>;
-  /// otherwise <see langword="null"/>.
-  /// </summary>
-  /// <remarks>
-  /// The dependency analyzer uses this to add transitive DAG edges so that any step
-  /// consuming this item is scheduled after the steps that produce its adapter dependencies.
-  /// Custom <see cref="IItem"/> implementations that do not wrap an
-  /// <see cref="Storage.IStorageAdapter{T}"/> should override this to return
-  /// <see langword="null"/> or an explicit dependency list.
-  /// </remarks>
-  IReadOnlyList<Graph.INode>? AdapterDependencies => null;
-
-  /// <summary>
   /// Loads data from the catalog item as an untyped object.
   /// Returns an effect that can fail.
   /// The returned type matches the DataType property.

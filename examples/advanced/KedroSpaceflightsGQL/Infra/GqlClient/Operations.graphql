@@ -21,20 +21,6 @@ query GetShuttles {
   }
 }
 
-query GetShuttlesByCompanyId($companyId: String!) {
-  shuttles(companyId: $companyId) {
-    id
-    shuttleType
-    companyId
-    engines
-    passengerCapacity
-    crew
-    price
-    dCheckComplete
-    moonClearanceComplete
-  }
-}
-
 query GetReviews {
   reviews {
     shuttleId

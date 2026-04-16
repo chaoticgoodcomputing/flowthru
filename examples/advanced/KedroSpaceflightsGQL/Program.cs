@@ -3,7 +3,6 @@ using Flowthru.Core.Services;
 using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using KedroSpaceflightsGQL.Data;
-using KedroSpaceflightsGQL.Flows.Analytics;
 using KedroSpaceflightsGQL.Flows.DataProcessing;
 using KedroSpaceflightsGQL.Flows.DataScience;
 using KedroSpaceflightsGQL.Flows.Ingest;
@@ -165,18 +164,6 @@ public class Program
           configurationSection: "Flowthru:Flows:Reporting"
         )
         .WithDescription("Generates passenger capacity reports and visualizations");
-
-      // Analytics: parameterized GQL catalog entry example.
-      // FindTopRatedCompany writes TopRatedCompanyId; AnalyzeTopCompanyFleet's input
-      // (TopRatedCompanyShuttles) uses that ID to fire a filtered GQL query.
-      // DAG ordering between the two steps is inferred automatically from the adapter's
-      // ItemDependencies — no explicit dependency declaration needed here.
-      flowthru
-        .RegisterFlow(label: "Analytics", flow: AnalyticsFlow.Create)
-        .WithDescription(
-          "Identifies the top-rated company and summarizes its shuttle fleet "
-            + "using a parameterized GQL catalog entry"
-        );
     });
 
     services.AddLogging(logging =>

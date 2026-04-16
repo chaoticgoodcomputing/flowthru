@@ -70,7 +70,7 @@ public partial class Catalog
     );
 
   /// <summary>
-  /// Raw shuttle data queried from the GQL server (all shuttles, unfiltered).
+  /// Raw shuttle data queried from the GQL server.
   /// </summary>
   public IItem<IEnumerable<IGetShuttles_Shuttles>> Shuttles =>
     CreateItem(
@@ -93,44 +93,6 @@ public partial class Catalog
           label: "GQLReviews",
           queryFunc: ct => _client.GetReviews.ExecuteAsync(ct),
           selectData: r => r.Reviews,
-          allowEmptyData: true
-        )
-    );
-
-  // ── Parameterized GQL entries — consumed by the Analytics flow ──────────
-
-  /// <summary>
-  /// The company ID of the highest-rated company. Written by FindTopRatedCompany;
-  /// used as the parameter source for <see cref="TopRatedCompanyShuttles"/>.
-  /// </summary>
-  public IItem<string> TopRatedCompanyId =>
-    CreateItem(() => ItemFactory.Single.Memory<string>("TopRatedCompanyId"));
-
-  /// <summary>
-  /// Shuttles operated by the top-rated company — a parameterized GQL catalog entry.
-  /// At load time, the adapter reads <see cref="TopRatedCompanyId"/> and fires a
-  /// filtered <c>GetShuttlesByCompanyId</c> query. Only that company's shuttles are
-  /// transferred; the full shuttle dataset is never pulled.
-  /// </summary>
-  /// <remarks>
-  /// The dependency analyzer discovers that this item's adapter depends on
-  /// <see cref="TopRatedCompanyId"/>. Any step consuming <see cref="TopRatedCompanyShuttles"/>
-  /// is automatically scheduled after the step that produces
-  /// <see cref="TopRatedCompanyId"/>, with no explicit ordering required in the flow
-  /// definition.
-  /// </remarks>
-  public IItem<IEnumerable<IGetShuttlesByCompanyId_Shuttles>> TopRatedCompanyShuttles =>
-    CreateItem(
-      () =>
-        GqlItemFactory.Enumerable.Query<
-          string,
-          IGetShuttlesByCompanyIdResult,
-          IGetShuttlesByCompanyId_Shuttles
-        >(
-          label: "GQLTopRatedCompanyShuttles",
-          parameterSource: TopRatedCompanyId,
-          queryFunc: (companyId, ct) => _client.GetShuttlesByCompanyId.ExecuteAsync(companyId, ct),
-          selectData: r => r.Shuttles,
           allowEmptyData: true
         )
     );
