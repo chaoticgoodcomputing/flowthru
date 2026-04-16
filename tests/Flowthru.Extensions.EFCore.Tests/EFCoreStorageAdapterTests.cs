@@ -176,4 +176,42 @@ public class EFCoreStorageAdapterTests
         )
     );
   }
+
+  // ── IHasEfficientCount ──────────────────────────────────────────────────
+
+  [Test]
+  public async Task GetCountAsync_UsesCountStar_NotFullLoad()
+  {
+    var testData = new[]
+    {
+      new TestEntity { Id = 1, Name = "Alice" },
+      new TestEntity { Id = 2, Name = "Bob" },
+      new TestEntity { Id = 3, Name = "Carol" },
+    };
+
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(_options)
+    );
+    await entry.Save(testData).Run();
+
+    // GetCountAsync must hit IHasEfficientCount, not Load()+enumerate
+    var count = await entry.GetCountAsync().Run();
+
+    Assert.That(count, Is.EqualTo(3));
+  }
+
+  [Test]
+  public async Task GetCountAsync_EmptyTable_ReturnsZero()
+  {
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(_options)
+    );
+
+    // Empty table: Exists() returns false → GetCountAsync() short-circuits to 0
+    var count = await entry.GetCountAsync().Run();
+
+    Assert.That(count, Is.EqualTo(0));
+  }
 }

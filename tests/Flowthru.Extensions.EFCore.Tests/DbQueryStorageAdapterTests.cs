@@ -358,6 +358,53 @@ public class DbQueryStorageAdapterTests
     Assert.That(rows.Select(r => r.Name), Is.EquivalentTo(new[] { "Alpha", "Beta" }));
   }
 
+  // ── IHasEfficientCount ──────────────────────────────────────
+
+  [Test]
+  public async Task GetCountAsync_UsesCountStar_NotFullLoad()
+  {
+    var seed = EFCoreItemFactory.Enumerable.EFCore<TestEntity>("seed", _factory);
+    await seed.Save(
+        new[]
+        {
+          new TestEntity { Id = 1, Name = "A" },
+          new TestEntity { Id = 2, Name = "B" },
+          new TestEntity { Id = 3, Name = "C" },
+        }
+      )
+      .Run();
+
+    var entry = EFCoreItemFactory.Query.EFCore<TestEntity>("test", _factory);
+
+    // Should use IHasEfficientCount → SELECT COUNT(*) rather than materializing
+    var count = await entry.GetCountAsync().Run();
+
+    Assert.That(count, Is.EqualTo(3));
+  }
+
+  [Test]
+  public async Task GetCountAsync_WithWhereClause_CountsMatchingRows()
+  {
+    var seed = EFCoreItemFactory.Enumerable.EFCore<TestEntity>("seed", _factory);
+    await seed.Save(Enumerable.Range(1, 10).Select(i => new TestEntity { Id = i, Name = $"E{i}" }))
+      .Run();
+
+    // Load the deferred handle, add a predicate, then count — should not pull all 10 rows
+    var entry = EFCoreItemFactory.Query.EFCore<TestEntity>("test", _factory);
+    IEnumerable<TestEntity> handle = await entry.Load().Run();
+    var filtered = ((DbQuery<TestEntity>)handle).Where(e => e.Id <= 4);
+
+    // Wrap back into an Item so GetCountAsync goes through IHasEfficientCount
+    var filteredEntry = EFCoreItemFactory.Query.EFCore<TestEntity>(
+      "filtered",
+      _factory,
+      queryCustomizer: q => q.Where(e => e.Id <= 4)
+    );
+    var count = await filteredEntry.GetCountAsync().Run();
+
+    Assert.That(count, Is.EqualTo(4));
+  }
+
   // ── Project<TResult> ─────────────────────────────────────────────────────
 
   [Test]

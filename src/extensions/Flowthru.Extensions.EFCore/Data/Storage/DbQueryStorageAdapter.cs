@@ -45,7 +45,7 @@ namespace Flowthru.Core.Data.Storage;
 /// </para>
 /// </remarks>
 /// <typeparam name="T">Entity type. Must be a class registered in the underlying DbContext.</typeparam>
-public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
+public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount
   where T : class
 {
   private readonly DbQuery<T> _handle;
@@ -121,6 +121,28 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
   /// <inheritdoc/>
   /// <remarks>Returns the deferred query handle — no database I/O.</remarks>
   public FlowIO<IEnumerable<T>> Load() => FlowIO.Lift<IEnumerable<T>>(() => _handle);
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Executes <c>SELECT COUNT(*)</c> against the query's predicate — no rows are transferred
+  /// to the application host.
+  /// </remarks>
+  FlowIO<int> IHasEfficientCount.GetCountAsync()
+  {
+    return FlowIO.LiftAsync(async ct =>
+    {
+      var ctx = _handle.OpenContext();
+      try
+      {
+        return await _handle.BuildQuery(ctx).CountAsync(ct);
+      }
+      finally
+      {
+        if (_handle.OwnsContext)
+          await ctx.DisposeAsync();
+      }
+    });
+  }
 
   /// <inheritdoc/>
   /// <remarks>

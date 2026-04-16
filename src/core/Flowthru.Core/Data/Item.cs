@@ -159,6 +159,11 @@ public sealed class Item<T> : IItem<T>
 
   private FlowIO<int> LoadAndCount()
   {
+    // If the adapter can count server-side (e.g. SQL COUNT(*)), use it —
+    // avoids materializing the full dataset just for diagnostic logging.
+    if (_storage is IHasEfficientCount efficient)
+      return efficient.GetCountAsync();
+
     return Load()
       .Map(data =>
       {

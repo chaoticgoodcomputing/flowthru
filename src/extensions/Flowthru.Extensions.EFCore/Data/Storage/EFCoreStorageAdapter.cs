@@ -82,7 +82,7 @@ namespace Flowthru.Core.Data.Storage;
 /// var adapter = new EFCoreStorageAdapter&lt;Company&gt;(dbContext, allowEmptyData: true);
 /// </code>
 /// </example>
-public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
+public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount
   where T : class
 {
   private readonly DbContext? _injectedContext;
@@ -461,6 +461,24 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>
     dbSet.RemoveRange(existing);
     await dbSet.AddRangeAsync(data, ct);
     await context.SaveChangesAsync(ct);
+  }
+
+  /// <inheritdoc/>
+  FlowIO<int> IHasEfficientCount.GetCountAsync()
+  {
+    return FlowIO.LiftAsync(async ct =>
+    {
+      var context = GetContext();
+      try
+      {
+        return await context.Set<T>().CountAsync(ct);
+      }
+      finally
+      {
+        if (_ownsContext && context != null)
+          await context.DisposeAsync();
+      }
+    });
   }
 
   private DbContext GetContext()
