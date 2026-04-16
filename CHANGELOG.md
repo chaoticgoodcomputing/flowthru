@@ -1,3 +1,25 @@
+## 0.6.0 (2026-04-16)
+
+### 🚀 Features
+
+- step-based parameterized catalog entries in GQL ([5639dda9](https://github.com/chaoticgoodcomputing/flowthru/commit/5639dda9))
+- gql query object for better control over materializing data ([c993ab35](https://github.com/chaoticgoodcomputing/flowthru/commit/c993ab35))
+- better deferred loading on EFCore ([f0657a0a](https://github.com/chaoticgoodcomputing/flowthru/commit/f0657a0a))
+
+### 🩹 Fixes
+
+- make spark example spark-ier ([6c15703b](https://github.com/chaoticgoodcomputing/flowthru/commit/6c15703b))
+- actual funit tests added to spaceflights distributed ([62e51a30](https://github.com/chaoticgoodcomputing/flowthru/commit/62e51a30))
+- actual reformat ([3896a28a](https://github.com/chaoticgoodcomputing/flowthru/commit/3896a28a))
+
+### ⏪ Revert
+
+- remove step-based parameterized GQL catalog entries ([132eadf9](https://github.com/chaoticgoodcomputing/flowthru/commit/132eadf9))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.5.1 (2026-04-15)
 
 ### 🚀 Features
