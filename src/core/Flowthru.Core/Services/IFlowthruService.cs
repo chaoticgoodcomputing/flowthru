@@ -70,7 +70,6 @@ public interface IFlowthruService
   /// </summary>
   /// <param name="options">Execution options with optional slice strategy</param>
   /// <param name="exportMetadata">Whether to export DAG metadata</param>
-  /// <param name="metadataOutputDirectory">Override for metadata output directory</param>
   /// <param name="cancellationToken">Cancellation token</param>
   /// <returns>Execution result with timing, step results, and status</returns>
   /// <remarks>
@@ -91,7 +90,6 @@ public interface IFlowthruService
   Task<FlowResult> ExecuteFlowAsync(
     ExecutionOptions? options = null,
     bool exportMetadata = true,
-    string? metadataOutputDirectory = null,
     CancellationToken cancellationToken = default
   );
 

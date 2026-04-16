@@ -27,7 +27,7 @@ public class JsonMetadataProviderBuilder
   /// <summary>
   /// Sets the filename template for pre-run DAG export files.
   /// </summary>
-  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
+  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}, {Flows}, {From}, {To}, {Only}</param>
   public JsonMetadataProviderBuilder WithFilenameTemplate(string template)
   {
     _dagFilenameTemplate = template ?? throw new ArgumentNullException(nameof(template));
@@ -37,7 +37,7 @@ public class JsonMetadataProviderBuilder
   /// <summary>
   /// Sets the filename template for post-run result export files.
   /// </summary>
-  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
+  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}, {Flows}, {From}, {To}, {Only}</param>
   public JsonMetadataProviderBuilder WithRunFilenameTemplate(string template)
   {
     _runFilenameTemplate = template ?? throw new ArgumentNullException(nameof(template));

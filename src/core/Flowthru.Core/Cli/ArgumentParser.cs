@@ -19,7 +19,6 @@ internal static class ArgumentParser
   {
     var options = new ExecutionOptions();
     var exportMetadata = true;
-    string? metadataOutputDirectory = null;
 
     // Slicing options
     HashSet<string>? flows = null;
@@ -40,17 +39,6 @@ internal static class ArgumentParser
 
         case "--no-metadata":
           exportMetadata = false;
-          break;
-
-        case "--metadata-output":
-          if (i + 1 < args.Length)
-          {
-            metadataOutputDirectory = args[++i];
-          }
-          else
-          {
-            throw new ArgumentException("--metadata-output requires a directory path");
-          }
           break;
 
         case "--flows":
@@ -169,7 +157,6 @@ internal static class ArgumentParser
       ExecuteAll = true,
       Options = options,
       ExportMetadata = exportMetadata,
-      MetadataOutputDirectory = metadataOutputDirectory,
     };
   }
 }
@@ -193,11 +180,6 @@ internal sealed class ParsedArguments
   /// Whether to export metadata.
   /// </summary>
   public bool ExportMetadata { get; init; } = true;
-
-  /// <summary>
-  /// Metadata output directory override.
-  /// </summary>
-  public string? MetadataOutputDirectory { get; init; }
 
   /// <summary>
   /// Whether to show help message.

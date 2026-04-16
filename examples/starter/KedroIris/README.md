@@ -25,60 +25,44 @@ Once you've confirmed your flow runs successfully, you can begin:
 flowchart TB
 
     %% External Data Inputs
-    IrisRaw[("Iris Raw")]
+    Catalog_IrisRaw[("Catalog.IrisRaw")]
 
     subgraph DataEngineering["DataEngineering"]
-        DataEngineering_SplitAndEncode["Data Engineering.Split And Encode"]
-        IrisFeatures[("Iris Features")]
-        TrainX[("Train X")]
-        TrainY[("Train Y")]
-        TestX[("Test X")]
-        TestY[("Test Y")]
+        DataEngineering_SplitAndEncode["DataEngineering.SplitAndEncode"]
+        Catalog_IrisFeatures[("Catalog.IrisFeatures")]
+        Catalog_TrainX[("Catalog.TrainX")]
+        Catalog_TrainY[("Catalog.TrainY")]
+        Catalog_TestX[("Catalog.TestX")]
+        Catalog_TestY[("Catalog.TestY")]
 
-        DataEngineering_SplitAndEncode --> IrisFeatures
-        DataEngineering_SplitAndEncode --> TrainX
-        DataEngineering_SplitAndEncode --> TrainY
-        DataEngineering_SplitAndEncode --> TestX
-        DataEngineering_SplitAndEncode --> TestY
+        DataEngineering_SplitAndEncode --> Catalog_IrisFeatures
+        DataEngineering_SplitAndEncode --> Catalog_TrainX
+        DataEngineering_SplitAndEncode --> Catalog_TrainY
+        DataEngineering_SplitAndEncode --> Catalog_TestX
+        DataEngineering_SplitAndEncode --> Catalog_TestY
     end
 
     subgraph DataScience["DataScience"]
-        DataScience_TrainModel["Data Science.Train Model"]
-        DataScience_Predict["Data Science.Predict"]
-        DataScience_Evaluate["Data Science.Evaluate"]
-        IrisModel[("Iris Model")]
-        Predictions[("Predictions")]
-        Metrics[("Metrics")]
+        DataScience_TrainModel["DataScience.TrainModel"]
+        DataScience_Predict["DataScience.Predict"]
+        DataScience_Evaluate["DataScience.Evaluate"]
+        Catalog_IrisModel[("Catalog.IrisModel")]
+        Catalog_Predictions[("Catalog.Predictions")]
+        Catalog_Metrics[("Catalog.Metrics")]
 
-        DataScience_TrainModel --> IrisModel
-        IrisModel --> DataScience_Predict
-        DataScience_Predict --> Predictions
-        Predictions --> DataScience_Evaluate
-        DataScience_Evaluate --> Metrics
+        DataScience_TrainModel --> Catalog_IrisModel
+        Catalog_IrisModel --> DataScience_Predict
+        DataScience_Predict --> Catalog_Predictions
+        Catalog_Predictions --> DataScience_Evaluate
+        DataScience_Evaluate --> Catalog_Metrics
     end
 
     %% External Data to Flow Edges
-    IrisRaw --> DataEngineering_SplitAndEncode
+    Catalog_IrisRaw --> DataEngineering_SplitAndEncode
 
     %% Cross-Flow Data Flow
-    TrainX -.-> DataScience_TrainModel
-    TrainY -.-> DataScience_TrainModel
-    TestX -.-> DataScience_Predict
-    TestY -.-> DataScience_Evaluate
-```
-
-
-### File Structure
-
-```
-KedroIris/
-├── Program.cs                      # Program entry point
-├── Data/                           # 8-layer data organization
-│   ├── _01_Raw/                   # Immutable source data
-│   │   └── Datasets/iris.csv
-│   ├── ...
-│   └── _08_Reporting/             # Metrics and visualizations
-├── Flows/
-│   ├── DataEngineering/           # Data splitting and encoding
-│   └── DataScience/               # Model training and evaluation
+    Catalog_TrainX -.-> DataScience_TrainModel
+    Catalog_TrainY -.-> DataScience_TrainModel
+    Catalog_TestX -.-> DataScience_Predict
+    Catalog_TestY -.-> DataScience_Evaluate
 ```

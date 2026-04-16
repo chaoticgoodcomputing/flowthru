@@ -15,11 +15,6 @@ public class FlowthruOptions
   public const string SectionName = "Flowthru";
 
   /// <summary>
-  /// Metadata collection and export configuration.
-  /// </summary>
-  public MetadataOptions Metadata { get; set; } = new();
-
-  /// <summary>
   /// Data catalog configuration.
   /// </summary>
   public CatalogOptions Catalog { get; set; } = new();
@@ -33,49 +28,6 @@ public class FlowthruOptions
   /// Logging configuration (extends standard .NET logging configuration).
   /// </summary>
   public LoggingOptions? Logging { get; set; }
-}
-
-/// <summary>
-/// Configuration options for metadata collection and export.
-/// </summary>
-public class MetadataOptions
-{
-  /// <summary>
-  /// Whether metadata collection is enabled.
-  /// </summary>
-  public bool Enabled { get; set; } = true;
-
-  /// <summary>
-  /// Directory where metadata files will be written.
-  /// </summary>
-  public string OutputDirectory { get; set; } = "metadata";
-
-  /// <summary>
-  /// Filename template for metadata exports.
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Supports dynamic tokens that are replaced during export:
-  /// </para>
-  /// <list type="bullet">
-  /// <item><c>{FlowName}</c> - Sanitized Flow name</item>
-  /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled in Timestamp.IncludeTimestamp)</item>
-  /// <item><c>{SliceType}</c> - "FromNodes", "Tags", "Mixed", or empty if unsliced</item>
-  /// </list>
-  /// <para>
-  /// Empty tokens are automatically collapsed to prevent double-separators.
-  /// File extensions are added by individual providers (.json, .md, etc.).
-  /// </para>
-  /// <para>
-  /// <strong>Default:</strong> <c>"dag-{FlowName}-{Timestamp}-{SliceType}"</c>
-  /// </para>
-  /// </remarks>
-  public string FilenameTemplate { get; set; } = "dag-{FlowName}-{Timestamp}-{SliceType}";
-
-  /// <summary>
-  /// Configuration for timestamp generation in metadata filenames.
-  /// </summary>
-  public TimestampConfiguration Timestamp { get; set; } = new();
 }
 
 /// <summary>

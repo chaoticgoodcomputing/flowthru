@@ -84,7 +84,6 @@ internal sealed class FlowthruService : IFlowthruService
   public async Task<FlowResult> ExecuteFlowAsync(
     ExecutionOptions? options = null,
     bool exportMetadata = true,
-    string? metadataOutputDirectory = null,
     CancellationToken cancellationToken = default
   )
   {
@@ -169,7 +168,7 @@ internal sealed class FlowthruService : IFlowthruService
       {
         _logger.LogInformation("→ Exporting DAG metadata...");
         dag = mergedPipeline.ExportDag();
-        ExportMetadata(dag, "Pipeline", metadataOutputDirectory);
+        ExportMetadata(dag, "Pipeline");
         _logger.LogInformation("  ✓ Metadata exported successfully");
       }
       catch (Exception ex)
@@ -338,22 +337,7 @@ internal sealed class FlowthruService : IFlowthruService
     return await pipeline.ValidateExternalInputsAsync(maxDegreeOfParallelism: 1, cancellationToken);
   }
 
-  private async Task ExportPipelineMetadataAsync(
-    Flow pipeline,
-    string pipelineName,
-    string? outputDirectory
-  )
-  {
-    if (_metadataBuilder == null)
-    {
-      return;
-    }
-
-    var dag = pipeline.ExportDag();
-    await Task.Run(() => ExportMetadata(dag, pipelineName, outputDirectory));
-  }
-
-  private void ExportMetadata(DagMetadata dag, string pipelineName, string? outputDirectory = null)
+  private void ExportMetadata(DagMetadata dag, string pipelineName)
   {
     if (_metadataBuilder == null)
     {

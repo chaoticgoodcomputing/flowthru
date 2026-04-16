@@ -75,51 +75,24 @@ public class DagSliceMetadata
   {
     int criteriaCount = 0;
     if (Flows?.Length > 0)
-    {
       criteriaCount++;
-    }
-
     if (From?.Length > 0)
-    {
       criteriaCount++;
-    }
-
     if (To?.Length > 0)
-    {
       criteriaCount++;
-    }
-
     if (Only?.Length > 0)
-    {
       criteriaCount++;
-    }
-
-    if (criteriaCount == 0)
-    {
-      return "FullDag";
-    }
 
     if (criteriaCount == 1)
     {
       if (Flows?.Length > 0)
-      {
         return Flows.Length == 1 ? "Flow" : "Flows";
-      }
-
       if (From?.Length > 0)
-      {
-        return From.Length == 1 ? "From" : "From";
-      }
-
+        return "From";
       if (To?.Length > 0)
-      {
-        return To.Length == 1 ? "To" : "To";
-      }
-
+        return "To";
       if (Only?.Length > 0)
-      {
-        return Only.Length == 1 ? "Only" : "Only";
-      }
+        return "Only";
     }
 
     return "ComposedSlice";

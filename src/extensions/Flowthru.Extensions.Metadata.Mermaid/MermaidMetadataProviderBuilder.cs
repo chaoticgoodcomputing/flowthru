@@ -33,7 +33,7 @@ public class MermaidMetadataProviderBuilder
   /// <summary>
   /// Sets the filename template for pre-run DAG diagram files.
   /// </summary>
-  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
+  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}, {Flows}, {From}, {To}, {Only}</param>
   public MermaidMetadataProviderBuilder WithFilenameTemplate(string template)
   {
     _dagFilenameTemplate = template ?? throw new ArgumentNullException(nameof(template));
@@ -43,7 +43,7 @@ public class MermaidMetadataProviderBuilder
   /// <summary>
   /// Sets the filename template for post-run result diagram files.
   /// </summary>
-  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}</param>
+  /// <param name="template">Template with placeholders: {FlowName}, {Timestamp}, {SliceType}, {Flows}, {From}, {To}, {Only}</param>
   public MermaidMetadataProviderBuilder WithRunFilenameTemplate(string template)
   {
     _runFilenameTemplate = template ?? throw new ArgumentNullException(nameof(template));

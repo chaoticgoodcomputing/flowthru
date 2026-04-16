@@ -135,7 +135,6 @@ public sealed class FlowthruCli
       var result = await _service.ExecuteFlowAsync(
         parsed.Options,
         parsed.ExportMetadata,
-        parsed.MetadataOutputDirectory,
         cancellationToken
       );
 
@@ -172,7 +171,6 @@ public sealed class FlowthruCli
     _output.WriteLine("  --parallelism N|auto   Max concurrent steps (default: 1 sequential).");
     _output.WriteLine("                         'auto' uses Environment.ProcessorCount.");
     _output.WriteLine("  --no-metadata          Disable metadata export");
-    _output.WriteLine("  --metadata-output DIR  Specify metadata output directory");
     _output.WriteLine("  -h, --help             Show this help message");
     _output.WriteLine("  -v, --version          Show version information");
     _output.WriteLine();

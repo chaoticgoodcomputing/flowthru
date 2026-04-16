@@ -14,12 +14,11 @@ namespace Flowthru.Core.Meta;
 /// <list type="bullet">
 /// <item><c>{FlowName}</c> - Sanitized pipeline name</item>
 /// <item><c>{Timestamp}</c> - Formatted timestamp (empty if disabled)</item>
-/// <item><c>{SliceType}</c> - Slice descriptor: "From", "To", "Only", "Flows", "Mixed", or empty</item>
+/// <item><c>{SliceType}</c> - Slice descriptor: "Flow", "Flows", "From", "To", "Only", "ComposedSlice", or empty if unsliced</item>
 /// <item><c>{Flows}</c> - Comma-separated list of flow names</item>
 /// <item><c>{From}</c> - Comma-separated list of from labels</item>
 /// <item><c>{To}</c> - Comma-separated list of to labels</item>
 /// <item><c>{Only}</c> - Comma-separated list of only labels</item>
-/// <item><c>{Tags}</c> - Comma-separated list of tags</item>
 /// </list>
 /// <para>
 /// <strong>Empty Token Collapsing:</strong> Consecutive separators (hyphens, underscores)
@@ -32,7 +31,7 @@ namespace Flowthru.Core.Meta;
 /// <code>
 /// Template: "dag-{FlowName}-{Timestamp}-{SliceType}"
 /// Unsliced: "dag-DataProcessing-20260304-153045"
-/// Sliced:   "dag-DataProcessing-20260304-153045-FromNodes"
+/// Sliced:   "dag-DataProcessing-20260304-153045-From"
 /// </code>
 /// </remarks>
 public static class FilenameTemplateParser
