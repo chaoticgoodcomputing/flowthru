@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
     paths-ignore:
       - "**.md"
       - "docs/**"
@@ -10,7 +10,8 @@ on:
   workflow_dispatch:
     inputs:
       force_bump:
-        description: "Force a version bump type (bypasses conventional commits). Defaults to 'minor' on manual dispatch."
+        description: "Force a version bump type (bypasses conventional commits).
+          Defaults to 'minor' on manual dispatch."
         required: false
         default: minor
         type: choice
@@ -26,7 +27,8 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'chore(release)')"
+    if: "!contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, 'chore(release)')"
 
     permissions:
       contents: write
@@ -151,7 +153,7 @@ jobs:
             done < <(find "$root" -name "coverage.cobertura.xml" -print0)
           done
 
-      - name: Create GitHub pre-release
+      - name: Create GitHub Release Draft
         if: steps.release.outputs.changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -162,7 +164,7 @@ jobs:
           gh release create "${VERSION}" \
             --title "${VERSION}" \
             --notes "${NOTES}" \
-            --prerelease
+            --draft
 
       - name: Pack NuGet packages (release version)
         if: steps.release.outputs.changed == 'true'
@@ -201,7 +203,6 @@ jobs:
             --api-key "${FLOWTHRU_NUGET_API_KEY}" \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
-
       # - name: Install Copilot CLI
       #   if: steps.release.outputs.changed == 'true'
       #   run: npm install -g @github/copilot
