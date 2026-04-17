@@ -15,7 +15,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
@@ -41,7 +41,7 @@ const projectNames = JSON.parse(projectsJson);
 
 const EXCLUDED_ROOTS = ['.github'];
 
-const flagNames = [];
+const flagsData = [];
 
 for (const name of projectNames) {
   let projectJson;
@@ -68,23 +68,32 @@ for (const name of projectNames) {
     continue;
   }
 
-  flagNames.push(basename(root));
+  flagsData.push({ flag: basename(root), root });
 }
 
-flagNames.sort((a, b) => a.localeCompare(b));
+flagsData.sort((a, b) => a.flag.localeCompare(b.flag));
 
-console.log(`Derived ${flagNames.length} flags:`);
-for (const flag of flagNames) {
+console.log(`Derived ${flagsData.length} flags:`);
+for (const { flag } of flagsData) {
   console.log(`  ${flag}`);
 }
 
-// ── 3. Update flags in codecov.yml ───────────────────────────────────────────
+// ── 3. Write dist/codecov-flags.json for use by CI upload step ───────────────
+
+const DIST_DIR = resolve(ROOT, 'dist');
+const FLAGS_JSON = resolve(DIST_DIR, 'codecov-flags.json');
+
+mkdirSync(DIST_DIR, { recursive: true });
+writeFileSync(FLAGS_JSON, JSON.stringify(flagsData, null, 2) + '\n', 'utf8');
+console.log(`\nWrote ${FLAGS_JSON}`);
+
+// ── 4. Update flags in codecov.yml ───────────────────────────────────────────
 
 const raw = readFileSync(CODECOV_YML, 'utf8');
 const doc = yaml.load(raw);
 
 const newFlags = Object.fromEntries(
-  flagNames.map(f => [f, { carryforward: true }])
+  flagsData.map(({ flag }) => [flag, { carryforward: true }])
 );
 
 doc.flags = newFlags;

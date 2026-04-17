@@ -70,43 +70,6 @@ jobs:
             --settings coverlet.runsettings \
             --logger "console;verbosity=minimal"
 
-      - name: Install Codecov CLI
-        if: always()
-        run: |
-          curl https://keybase.io/codecovsecurity/pgp_keys.asc \
-            | gpg --no-default-keyring --keyring trustedkeys.gpg --import
-          curl -Os https://cli.codecov.io/latest/linux/codecov
-          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM
-          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM.sig
-          gpg --no-default-keyring --keyring trustedkeys.gpg \
-            --verify codecov.SHA256SUM.sig codecov.SHA256SUM
-          shasum -a 256 -c codecov.SHA256SUM
-          sudo chmod +x codecov
-          sudo mv codecov /usr/local/bin/codecov
-
-      - name: Upload coverage to Codecov
-        if: always()
-        continue-on-error: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: |
-          # For each coverage file, walk up to the nearest project root and
-          # upload under a flag named after that directory.
-          while IFS= read -r -d '' coverage_file; do
-            dir=$(dirname "$coverage_file")
-            while [[ "$dir" != "." && "$dir" != "/" ]]; do
-              if compgen -G "${dir}/*.csproj" > /dev/null 2>&1 || [[ -f "${dir}/project.json" ]]; then
-                break
-              fi
-              dir=$(dirname "$dir")
-            done
-            flag=$(basename "$dir")
-            echo "Uploading $coverage_file as flag: $flag"
-            codecov upload-process \
-              --flag "$flag" \
-              --file "$coverage_file"
-          done < <(find tests/ -name "coverage.cobertura.xml" -print0)
-
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
@@ -126,9 +89,6 @@ jobs:
           fi
           echo "tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
           echo "Base tag for release: ${BASE_TAG}"
-
-      - name: Sync Codecov flags
-        run: node scripts/sync-codecov-flags.mjs
 
       - name: Run NX Release (version + changelog + commit + tag)
         id: release
@@ -153,7 +113,45 @@ jobs:
         if: steps.release.outputs.changed == 'true'
         run: git push --follow-tags
 
-      - name: Create draft GitHub Release
+      - name: Install Codecov CLI
+        if: always()
+        run: |
+          curl https://keybase.io/codecovsecurity/pgp_keys.asc \
+            | gpg --no-default-keyring --keyring trustedkeys.gpg --import
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM.sig
+          gpg --no-default-keyring --keyring trustedkeys.gpg \
+            --verify codecov.SHA256SUM.sig codecov.SHA256SUM
+          shasum -a 256 -c codecov.SHA256SUM
+          sudo chmod +x codecov
+          sudo mv codecov /usr/local/bin/codecov
+
+      - name: Sync Codecov flags
+        if: always()
+        run: node scripts/sync-codecov-flags.mjs
+
+      - name: Upload coverage to Codecov
+        if: always()
+        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.FLOWTHRU_CODECOV_TOKEN }}
+        run: |
+          # Upload each project's coverage under the flag written by sync-codecov-flags.mjs.
+          jq -c '.[]' dist/codecov-flags.json | while IFS= read -r entry; do
+            flag=$(echo "$entry" | jq -r '.flag')
+            root=$(echo "$entry" | jq -r '.root')
+            while IFS= read -r -d '' coverage_file; do
+              echo "Uploading $coverage_file as flag: $flag"
+              codecov upload-process \
+                --token "$CODECOV_TOKEN" \
+                --flag "$flag" \
+                --file "$coverage_file" \
+                --disable-search
+            done < <(find "$root" -name "coverage.cobertura.xml" -print0)
+          done
+
+      - name: Create GitHub pre-release
         if: steps.release.outputs.changed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
