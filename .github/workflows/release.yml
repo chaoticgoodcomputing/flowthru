@@ -164,11 +164,15 @@ jobs:
           gh release create "${VERSION}" \
             --title "${VERSION}" \
             --notes "${NOTES}" \
-            --draft
+            --prerelease
 
       - name: Pack NuGet packages (release version)
         if: steps.release.outputs.changed == 'true'
-        run: pnpm nx run-many -t pack
+        run: |
+          # Remove any nupkgs left in dist/packages from the test run (e.g. Flowthru.Tests.Templates)
+          # before packing to ensure only the newly-versioned packages are uploaded.
+          rm -f dist/packages/*.nupkg
+          pnpm nx run-many -t pack
 
       - name: Upload packages to GitHub release
         if: steps.release.outputs.changed == 'true'
@@ -200,50 +204,50 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
 
-      - name: Install Copilot CLI
-        if: steps.release.outputs.changed == 'true'
-        run: npm install -g @github/copilot
+      # - name: Install Copilot CLI
+      #   if: steps.release.outputs.changed == 'true'
+      #   run: npm install -g @github/copilot
 
-      - name: Generate release summary
-        if: steps.release.outputs.changed == 'true'
-        env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}
-        run: |
-          HEAD_TAG="v${{ steps.release.outputs.version }}"
-          BASE_TAG="${{ steps.last-published.outputs.tag }}"
-          copilot -p "Generate a release summary. Base tag: ${BASE_TAG}, head tag: ${HEAD_TAG}. Summarize all changes between these two tags." \
-            --agent=dev-relations \
-            --model=claude-haiku-4.5 \
-            --available-tools='view,create,edit,bash' \
-            --allow-tool='shell(git:*)' \
-            --allow-tool='write' \
-            --allow-tool='view' \
-            --add-dir=. \
-            --deny-tool='shell(git push)' \
-            --deny-tool='shell(git reset)' \
-            --deny-tool='shell(git checkout)' \
-            --deny-tool='shell(git commit)' \
-            --deny-tool='shell(git merge)' \
-            --deny-tool='shell(git rebase)' \
-            --deny-tool='shell(git branch -d)' \
-            --deny-tool='shell(git tag -d)' \
-            --no-ask-user
+      # - name: Generate release summary
+      #   if: steps.release.outputs.changed == 'true'
+      #   env:
+      #     COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}
+      #   run: |
+      #     HEAD_TAG="v${{ steps.release.outputs.version }}"
+      #     BASE_TAG="${{ steps.last-published.outputs.tag }}"
+      #     copilot -p "Generate a release summary. Base tag: ${BASE_TAG}, head tag: ${HEAD_TAG}. Summarize all changes between these two tags." \
+      #       --agent=dev-relations \
+      #       --model=claude-haiku-4.5 \
+      #       --available-tools='view,create,edit,bash' \
+      #       --allow-tool='shell(git:*)' \
+      #       --allow-tool='write' \
+      #       --allow-tool='view' \
+      #       --add-dir=. \
+      #       --deny-tool='shell(git push)' \
+      #       --deny-tool='shell(git reset)' \
+      #       --deny-tool='shell(git checkout)' \
+      #       --deny-tool='shell(git commit)' \
+      #       --deny-tool='shell(git merge)' \
+      #       --deny-tool='shell(git rebase)' \
+      #       --deny-tool='shell(git branch -d)' \
+      #       --deny-tool='shell(git tag -d)' \
+      #       --no-ask-user
 
-      - name: Prepend summary to draft release
-        if: steps.release.outputs.changed == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="v${{ steps.release.outputs.version }}"
-          SUMMARY_FILE="docs/scratch/release-${{ steps.release.outputs.version }}.md"
-          if [ -f "$SUMMARY_FILE" ]; then
-            EXISTING_NOTES=$(gh release view "${VERSION}" --json body -q '.body')
-            {
-              cat "$SUMMARY_FILE"
-              echo ""
-              echo "---"
-              echo ""
-              echo "$EXISTING_NOTES"
-            } > /tmp/combined-notes.md
-            gh release edit "${VERSION}" --notes-file /tmp/combined-notes.md
-          fi
+      # - name: Prepend summary to draft release
+      #   if: steps.release.outputs.changed == 'true'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     VERSION="v${{ steps.release.outputs.version }}"
+      #     SUMMARY_FILE="docs/scratch/release-${{ steps.release.outputs.version }}.md"
+      #     if [ -f "$SUMMARY_FILE" ]; then
+      #       EXISTING_NOTES=$(gh release view "${VERSION}" --json body -q '.body')
+      #       {
+      #         cat "$SUMMARY_FILE"
+      #         echo ""
+      #         echo "---"
+      #         echo ""
+      #         echo "$EXISTING_NOTES"
+      #       } > /tmp/combined-notes.md
+      #       gh release edit "${VERSION}" --notes-file /tmp/combined-notes.md
+      #     fi
