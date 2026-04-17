@@ -1,5 +1,7 @@
 using Flowthru.Core.Cli;
+using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Services;
+using Flowthru.Extensions.Http.Services;
 using Flowthru.Extensions.Python;
 using Flowthru.Extensions.Python.Services;
 using Flowthru.Meta;
@@ -53,6 +55,17 @@ public class Program
     {
       flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
 
+      // Enable HTTP(S) remote file access with local disk cache.
+      // Conditional GET (ETag/Last-Modified) avoids re-downloading the 43MB CSV on every run.
+      flowthru.UseHttp(http =>
+      {
+        http.Cache = new Flowthru.Extensions.Http.HttpCacheOptions
+        {
+          Directory = Path.Combine(basePath, ".http-cache"),
+          MaxAge = TimeSpan.FromHours(24),
+        };
+      });
+
       // Configure Python runtime — makes Flows/ importable and exposes the @step decorator
       flowthru.UsePython(python =>
       {
@@ -72,9 +85,12 @@ public class Program
           "Analysis:Countries not configured in appsettings.json"
         );
 
-      // Core catalog: raw inputs → intermediate → reporting
-      var coreCatalog = new CoreCatalog(dataPath);
-      flowthru.RegisterCatalog(coreCatalog);
+      // Core catalog: raw inputs → intermediate → reporting.
+      // Registered via DI factory so the resolver (populated by UseHttp above) is injected.
+      flowthru.RegisterCatalog<CoreCatalog>(sp => new CoreCatalog(
+        dataPath,
+        sp.GetRequiredService<IStorageMediumResolver>()
+      ));
 
       // Shard catalogs: one per country, labelled {Country}ShardCatalog
       var shardCatalogs = countries.Select(c => new CountryShardCatalog(c, dataPath)).ToList();
@@ -85,9 +101,11 @@ public class Program
       flowthru.RegisterFlow("Reporting", (CoreCatalog cat) => ReportingFlow.Create(cat));
       flowthru.RegisterFlow("Graphing", GraphingFlow.Create);
 
-      // Dynamic per-country analysis pipelines + fan-in consolidation
-      flowthru.RegisterFlows(_ =>
+      // Dynamic per-country analysis pipelines + fan-in consolidation.
+      // CoreCatalog is resolved from DI here (same singleton registered above).
+      flowthru.RegisterFlows(sp =>
       {
+        var coreCatalog = sp.GetRequiredService<CoreCatalog>();
         var pipelines = new Dictionary<string, Flowthru.Core.Flows.Flow>();
         foreach (var shard in shardCatalogs)
         {

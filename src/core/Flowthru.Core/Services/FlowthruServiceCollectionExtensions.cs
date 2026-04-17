@@ -1,4 +1,6 @@
+using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -70,6 +72,10 @@ public static class FlowthruServiceCollectionExtensions
     {
       throw new ArgumentNullException(nameof(configure));
     }
+
+    // Register the medium resolver before extensions run so providers registered
+    // inside `configure` are collected by the resolver's DI constructor.
+    services.TryAddSingleton<IStorageMediumResolver, StorageMediumResolver>();
 
     // Build service configuration
     var builder = new FlowthruServiceBuilder(services);

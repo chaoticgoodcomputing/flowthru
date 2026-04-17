@@ -5,8 +5,7 @@ using RetailDataMultipipeline.Flows.DataIngestion.Steps;
 namespace RetailDataMultipipeline.Flows.DataIngestion;
 
 /// <summary>
-/// Ingests the 305 daily retail transaction CSV files and consolidates them
-/// into a single Parquet dataset.
+/// Parses the raw online-retail CSV (fetched via HTTP) into a typed Parquet dataset.
 /// </summary>
 public static class DataIngestionFlow
 {
@@ -15,9 +14,9 @@ public static class DataIngestionFlow
     return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddStep(
-        label: "ConsolidateDailyFiles",
-        description: "Reads all daily CSV files from the raw directory and writes a unified Parquet dataset.",
-        transform: ConsolidateDailyFilesStep.Create(),
+        label: "ValidateCsvTransactions",
+        description: "Coerces all-string raw transaction records into fully-typed intermediate schema and writes a unified Parquet dataset.",
+        transform: ValidateCsvStep.Create(),
         input: catalog.RetailTransactionsRaw,
         output: catalog.AllRetailTransactions
       );

@@ -46,7 +46,15 @@ public sealed class EnumerableItemFactory
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be structured-serializable)</typeparam>
   /// <param name="label">Unique catalog label for DAG resolution</param>
-  /// <param name="filePath">Path to JSON file</param>
+  /// <param name="filePath">Path or URI to JSON file</param>
+  /// <param name="resolver">
+  /// Optional resolver for remote URIs (e.g., <c>https://</c>, <c>sftp://</c>).
+  /// Falls back to <see cref="Flowthru.Core.Data.Storage.Medium.FileStorageMedium"/> when <c>null</c>.
+  /// </param>
+  /// <param name="medium">
+  /// Explicit medium override. Takes precedence over <paramref name="resolver"/> when both
+  /// are supplied. Use for per-entry customisation or direct injection in tests.
+  /// </param>
   /// <returns>Catalog item with file + JSON + IEnumerable composition</returns>
   /// <remarks>
   /// <para>
@@ -68,13 +76,22 @@ public sealed class EnumerableItemFactory
   /// <strong>Serialization:</strong> JSON array format for collections
   /// </para>
   /// </remarks>
-  public Item<IEnumerable<TRow>> Json<TRow>(string label, string filePath)
+  public Item<IEnumerable<TRow>> Json<TRow>(
+    string label,
+    string filePath,
+    IStorageMediumResolver? resolver = null,
+    IStorageMedium? medium = null
+  )
     where TRow : notnull, IStructuredSerializable
   {
-    var medium = new FileStorageMedium(filePath);
+    var resolvedMedium = medium ?? resolver?.Resolve(filePath) ?? new FileStorageMedium(filePath);
     var format = new JsonFormatSerializer<TRow>();
     var container = new EnumerableContainerAdapter<TRow>();
-    var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
+    var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+      resolvedMedium,
+      format,
+      container
+    );
 
     return new Item<IEnumerable<TRow>>(label, storage);
   }

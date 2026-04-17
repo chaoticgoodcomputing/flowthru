@@ -1,6 +1,9 @@
 # Generated metadata
 Metadata/
 
+# HTTP response cache (populated at runtime by CachedHttpStorageMedium)
+.http-cache/
+
 # Ignore all generated data artifacts
 Data/**
 
@@ -9,8 +12,9 @@ Data/**
 !Data/*/Schemas/
 !Data/_01_Raw/Datasets/
 
-# Allow raw input dataset files
-!Data/_01_Raw/Datasets/*
+# Allow fixture files in the raw Datasets directory (JSON lookups, etc.)
+# Raw CSV data is fetched at runtime via HttpStorageMedium — do not commit large CSVs.
+!Data/_01_Raw/Datasets/*.json
 
 # Allow all schema and catalog .cs files
 !Data/**/*.cs

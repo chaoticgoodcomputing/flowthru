@@ -17,7 +17,15 @@ public static class CsvItemExtensions
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
   /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
-  /// <param name="filePath">Path to CSV file</param>
+  /// <param name="filePath">Path or URI to CSV file</param>
+  /// <param name="resolver">
+  /// Optional resolver for remote URIs (e.g., <c>https://</c>, <c>sftp://</c>).
+  /// Falls back to <see cref="Flowthru.Core.Data.Storage.Medium.FileStorageMedium"/> when <c>null</c>.
+  /// </param>
+  /// <param name="medium">
+  /// Explicit medium override. Takes precedence over <paramref name="resolver"/> when both
+  /// are supplied. Use for per-entry customisation or direct injection in tests.
+  /// </param>
   /// <returns>Catalog entry with file + CSV + IEnumerable composition</returns>
   /// <remarks>
   /// <para>
@@ -38,14 +46,20 @@ public static class CsvItemExtensions
   public static Item<IEnumerable<TRow>> Csv<TRow>(
     this EnumerableItemFactory _,
     string label,
-    string filePath
+    string filePath,
+    IStorageMediumResolver? resolver = null,
+    IStorageMedium? medium = null
   )
     where TRow : notnull, IFlatSchema, ITextSerializable
   {
-    var medium = new FileStorageMedium(filePath);
+    var resolvedMedium = medium ?? resolver?.Resolve(filePath) ?? new FileStorageMedium(filePath);
     var format = new CsvFormatSerializer<TRow>();
     var container = new EnumerableContainerAdapter<TRow>();
-    var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
+    var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+      resolvedMedium,
+      format,
+      container
+    );
 
     return new Item<IEnumerable<TRow>>(label, storage);
   }

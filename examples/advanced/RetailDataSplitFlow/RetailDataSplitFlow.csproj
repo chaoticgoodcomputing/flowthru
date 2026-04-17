@@ -14,6 +14,7 @@
   <ItemGroup Condition="Exists('../../../src/core/Flowthru.Core/Flowthru.Core.csproj')">
     <ProjectReference Include="../../../src/core/Flowthru.Core/Flowthru.Core.csproj" />
     <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj" />
     <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
     <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
     <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
@@ -22,6 +23,7 @@
   <ItemGroup Condition="!Exists('../../../src/core/Flowthru.Core/Flowthru.Core.csproj')">
     <PackageReference Include="Flowthru.Core" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.Csv" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.Extensions.Http" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.Parquet" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.Python" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.Metadata.Json" Version="FlowthruVersion" />

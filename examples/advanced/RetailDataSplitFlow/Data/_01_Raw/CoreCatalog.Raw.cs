@@ -6,15 +6,18 @@ namespace RetailDataMultipipeline.Data;
 public partial class CoreCatalog
 {
   /// <summary>
-  /// All daily retail transaction CSV files from the by-day directory, read as a
-  /// single concatenated sequence. Read-only — immutable raw source data.
+  /// Full online-retail dataset downloaded from the Spark: The Definitive Guide
+  /// GitHub repository. The resolver routes this https:// URI through
+  /// HttpStorageMedium at runtime; local file paths fall back to FileStorageMedium.
+  /// Read-only — immutable raw source data.
   /// </summary>
   public IItem<IEnumerable<RetailTransactionSchema>> RetailTransactionsRaw =>
     CreateItem(
       () =>
-        ItemFactory.Enumerable.CsvDirectory<RetailTransactionSchema>(
+        ItemFactory.Enumerable.Csv<RetailTransactionSchema>(
           label: "RetailTransactionsRaw",
-          directoryPath: $"{_basePath}/_01_Raw/Datasets"
+          filePath: "https://raw.githubusercontent.com/databricks/Spark-The-Definitive-Guide/refs/heads/master/data/retail-data/all/online-retail-dataset.csv",
+          resolver: _resolver
         )
     );
 

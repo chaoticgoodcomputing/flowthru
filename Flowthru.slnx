@@ -16,6 +16,7 @@
     <Project Path="src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+    <Project Path="src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.MLNet/Flowthru.Extensions.MLNet.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
