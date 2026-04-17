@@ -1,3 +1,14 @@
+## 0.6.2 (2026-04-17)
+
+### 🩹 Fixes
+
+- increase performance of shallow inspection on GQL+EFCore ([11e848a5](https://github.com/chaoticgoodcomputing/flowthru/commit/11e848a5))
+- richer metadata on flow exports ([3a8c7de4](https://github.com/chaoticgoodcomputing/flowthru/commit/3a8c7de4))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.6.1 (2026-04-16)
 
 ### 🩹 Fixes
