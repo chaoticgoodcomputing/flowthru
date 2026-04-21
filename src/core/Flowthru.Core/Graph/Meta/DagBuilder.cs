@@ -50,7 +50,7 @@ internal static class DagBuilder
       SlicedCatalogItemIds =
         slicedSteps != null
           ? slicedSteps
-            .SelectMany(n => n.Outputs)
+            .SelectMany(n => n.Inputs.Concat(n.Outputs))
             .SelectMany(ExpandCatalogItem)
             .Where(e => !e.Label.StartsWith("_nodata", StringComparison.OrdinalIgnoreCase))
             .Select(e => GetQualifiedLabel(e))

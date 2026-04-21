@@ -9,8 +9,8 @@ namespace Flowthru.Meta;
 public class MermaidMetadataProviderBuilder
 {
   private string _outputDirectory = "metadata";
-  private string _dagFilenameTemplate = "dag-{FlowName}-{Timestamp}-{SliceType}";
-  private string _runFilenameTemplate = "run-{FlowName}-{Timestamp}-{SliceType}";
+  private string _dagFilenameTemplate = "dag-{FlowName}-{Timestamp}-{Flows}-{From}-{To}-{Only}";
+  private string _runFilenameTemplate = "run-{FlowName}-{Timestamp}-{Flows}-{From}-{To}-{Only}";
   private Core.Meta.TimestampConfiguration _timestampConfig = new();
   private MermaidMetadataProvider.MermaidFlowchartDirection _direction = MermaidMetadataProvider
     .MermaidFlowchartDirection
@@ -19,6 +19,7 @@ public class MermaidMetadataProviderBuilder
   private string _activeDataColor = "#2E7D32";
   private string _failedStepColor = "#C62828";
   private string _notRunStepColor = "#757575";
+  private bool _showFullDag = true;
   private ILogger? _logger;
 
   /// <summary>
@@ -113,6 +114,16 @@ public class MermaidMetadataProviderBuilder
   }
 
   /// <summary>
+  /// Sets whether the full DAG is shown (with active nodes highlighted) or only the sliced portion.
+  /// Defaults to true. When false and no slice is applied, has no effect.
+  /// </summary>
+  public MermaidMetadataProviderBuilder WithShowFullDag(bool showFullDag)
+  {
+    _showFullDag = showFullDag;
+    return this;
+  }
+
+  /// <summary>
   /// Sets a custom logger for this provider.
   /// </summary>
   public MermaidMetadataProviderBuilder WithLogger(ILogger logger)
@@ -136,6 +147,7 @@ public class MermaidMetadataProviderBuilder
       _activeDataColor,
       _failedStepColor,
       _notRunStepColor,
+      _showFullDag,
       _logger
     );
   }

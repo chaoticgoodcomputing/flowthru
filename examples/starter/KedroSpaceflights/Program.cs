@@ -55,7 +55,7 @@ public class Program
             json.WithOutputDirectory(metadataPath)
           )
           .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
+            mermaid.WithOutputDirectory(metadataPath).WithShowFullDag(false)
           );
       });
 

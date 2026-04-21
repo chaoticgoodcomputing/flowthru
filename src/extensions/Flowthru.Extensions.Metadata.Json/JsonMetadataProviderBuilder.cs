@@ -9,8 +9,8 @@ namespace Flowthru.Meta;
 public class JsonMetadataProviderBuilder
 {
   private string _outputDirectory = "metadata";
-  private string _dagFilenameTemplate = "dag-{FlowName}-{Timestamp}-{SliceType}";
-  private string _runFilenameTemplate = "run-{FlowName}-{Timestamp}-{SliceType}";
+  private string _dagFilenameTemplate = "dag-{FlowName}-{Timestamp}-{Flows}-{From}-{To}-{Only}";
+  private string _runFilenameTemplate = "run-{FlowName}-{Timestamp}-{Flows}-{From}-{To}-{Only}";
   private Core.Meta.TimestampConfiguration _timestampConfig = new();
   private bool _useCompactFormat = false;
   private ILogger? _logger;

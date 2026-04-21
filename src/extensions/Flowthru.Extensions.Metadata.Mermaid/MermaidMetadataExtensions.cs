@@ -29,22 +29,46 @@ public static class MermaidMetadataExtensions
   /// <param name="direction">Flow direction code (TB, LR, BT, RL). Defaults to TB (Top to Bottom).</param>
   /// <param name="activeStepColor">Hex color for active (sliced) steps. Defaults to #2E7D32.</param>
   /// <param name="activeItemColor">Hex color for active (sliced) catalog items. Defaults to #2E7D32.</param>
+  /// <param name="showFullDag">
+  /// When true (default), the full DAG is rendered with active nodes highlighted.
+  /// When false and a slice is applied, only nodes in the active slice are rendered.
+  /// Has no effect when no slice is applied.
+  /// </param>
   /// <returns>Complete Markdown document with Mermaid code fence</returns>
   public static string ToMermaidDiagram(
     this DagMetadata dag,
     string direction = "TB",
     string activeStepColor = "#2E7D32",
-    string activeItemColor = "#2E7D32"
+    string activeItemColor = "#2E7D32",
+    bool showFullDag = true
   )
   {
     var sb = new StringBuilder();
+
+    // When showFullDag=false and a slice is applied, restrict nodes to the active subset
+    var isSliced = !showFullDag && dag.SlicedStepIds != null;
+
+    var steps = isSliced
+      ? dag.Steps.Where(s => dag.SlicedStepIds!.Contains(s.Id)).ToList()
+      : dag.Steps;
+
+    var catalogItems = isSliced
+      ? dag.CatalogItems.Where(i => dag.SlicedCatalogItemIds!.Contains(i.Key)).ToList()
+      : dag.CatalogItems;
 
     sb.AppendLine("```mermaid");
     sb.AppendLine($"flowchart {direction}");
     sb.AppendLine();
 
-    var externalItems = dag.CatalogItems.Where(e => string.IsNullOrEmpty(e.Producer)).ToList();
-    var producedItems = dag.CatalogItems.Where(e => !string.IsNullOrEmpty(e.Producer)).ToList();
+    // An item is "external" if it has no producer, or if its producer is not among the
+    // visible steps (producer is outside the slice when showFullDag=false).
+    var visibleStepIds = steps.Select(s => s.Id).ToHashSet();
+    var externalItems = catalogItems
+      .Where(e => string.IsNullOrEmpty(e.Producer) || !visibleStepIds.Contains(e.Producer))
+      .ToList();
+    var producedItems = catalogItems
+      .Where(e => !string.IsNullOrEmpty(e.Producer) && visibleStepIds.Contains(e.Producer))
+      .ToList();
 
     if (externalItems.Any())
     {
@@ -56,7 +80,7 @@ public static class MermaidMetadataExtensions
       sb.AppendLine();
     }
 
-    var flowGroups = dag.Steps.GroupBy(n => n.FlowName).OrderBy(g => g.Key);
+    var flowGroups = steps.GroupBy(n => n.FlowName).OrderBy(g => g.Key);
 
     foreach (var flowGroup in flowGroups)
     {
@@ -74,7 +98,7 @@ public static class MermaidMetadataExtensions
 
         sb.AppendLine($"        {stepId}[\"{stepLabel}\"]");
 
-        if (dag.SlicedStepIds != null && dag.SlicedStepIds.Contains(step.Id))
+        if (isSliced || (dag.SlicedStepIds != null && dag.SlicedStepIds.Contains(step.Id)))
         {
           sb.AppendLine($"        style {stepId} fill:{activeStepColor}");
         }
@@ -87,7 +111,10 @@ public static class MermaidMetadataExtensions
 
         sb.AppendLine($"        {itemId}[(\"{itemLabel}\")]");
 
-        if (dag.SlicedCatalogItemIds != null && dag.SlicedCatalogItemIds.Contains(item.Key))
+        if (
+          isSliced
+          || (dag.SlicedCatalogItemIds != null && dag.SlicedCatalogItemIds.Contains(item.Key))
+        )
         {
           sb.AppendLine($"        style {itemId} fill:{activeItemColor}");
         }
@@ -99,7 +126,7 @@ public static class MermaidMetadataExtensions
       {
         foreach (var input in step.Inputs)
         {
-          var inputItem = dag.CatalogItems.FirstOrDefault(e => e.Key == input);
+          var inputItem = catalogItems.FirstOrDefault(e => e.Key == input);
           if (inputItem != null)
           {
             var isProducedByThisFlow = flowItems.Any(e => e.Key == input);
@@ -129,7 +156,7 @@ public static class MermaidMetadataExtensions
     {
       foreach (var consumer in item.Consumers)
       {
-        var consumerStep = dag.Steps.FirstOrDefault(n => n.Id == consumer);
+        var consumerStep = steps.FirstOrDefault(n => n.Id == consumer);
         if (consumerStep != null)
         {
           sb.AppendLine($"    {SanitizeId(item.Key)} --> {SanitizeId(consumer)}");
@@ -142,7 +169,7 @@ public static class MermaidMetadataExtensions
 
     foreach (var item in producedItems)
     {
-      var producerStep = dag.Steps.FirstOrDefault(n => n.Id == item.Producer);
+      var producerStep = steps.FirstOrDefault(n => n.Id == item.Producer);
       if (producerStep == null)
       {
         continue;
@@ -150,7 +177,7 @@ public static class MermaidMetadataExtensions
 
       foreach (var consumer in item.Consumers)
       {
-        var consumerStep = dag.Steps.FirstOrDefault(n => n.Id == consumer);
+        var consumerStep = steps.FirstOrDefault(n => n.Id == consumer);
         if (consumerStep != null && consumerStep.FlowName != producerStep.FlowName)
         {
           crossFlowEdges.Add((item.Key, consumer));

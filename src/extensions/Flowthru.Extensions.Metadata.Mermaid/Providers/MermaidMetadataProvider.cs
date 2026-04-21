@@ -26,6 +26,7 @@ public class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadataProvid
   private readonly string _activeDataColor;
   private readonly string _failedStepColor;
   private readonly string _notRunStepColor;
+  private readonly bool _showFullDag;
   private readonly string _outputDirectory;
   private readonly string _dagFilenameTemplate;
   private readonly string _runFilenameTemplate;
@@ -63,6 +64,7 @@ public class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadataProvid
     string activeDataColor = "#2E7D32",
     string failedStepColor = "#C62828",
     string notRunStepColor = "#757575",
+    bool showFullDag = true,
     ILogger? logger = null
   )
   {
@@ -77,6 +79,7 @@ public class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadataProvid
     _activeDataColor = activeDataColor;
     _failedStepColor = failedStepColor;
     _notRunStepColor = notRunStepColor;
+    _showFullDag = showFullDag;
     _logger = logger;
   }
 
@@ -99,7 +102,8 @@ public class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadataProvid
       var mermaid = dag.ToMermaidDiagram(
         GetDirectionCode(_direction),
         _activeStepColor,
-        _activeDataColor
+        _activeDataColor,
+        _showFullDag
       );
 
       AtomicWriteFile(filePath, mermaid);
