@@ -1,5 +1,7 @@
 using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Flows;
 using Flowthru.Core.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -60,7 +62,8 @@ public static class FlowthruServiceCollectionExtensions
   /// </remarks>
   public static IServiceCollection AddFlowthru(
     this IServiceCollection services,
-    Action<FlowthruServiceBuilder> configure
+    IConfiguration configuration,
+    Action<IFlowthruBuilder> configure
   )
   {
     if (services == null)
@@ -68,17 +71,32 @@ public static class FlowthruServiceCollectionExtensions
       throw new ArgumentNullException(nameof(services));
     }
 
+    if (configuration == null)
+    {
+      throw new ArgumentNullException(nameof(configuration));
+    }
+
     if (configure == null)
     {
       throw new ArgumentNullException(nameof(configure));
     }
+
+    // Make IConfiguration injectable throughout the application.
+    services.TryAddSingleton(configuration);
+
+    // Register ExecutionOptions bound from the Flowthru:Execution config section.
+    // Code-first overrides via ConfigureExecution() run after config binding (PostConfigure).
+    services
+      .AddOptions<ExecutionOptions>()
+      .Configure<IConfiguration>((opts, cfg) => cfg.GetSection("Flowthru:Execution").Bind(opts))
+      .ValidateOnStart();
 
     // Register the medium resolver before extensions run so providers registered
     // inside `configure` are collected by the resolver's DI constructor.
     services.TryAddSingleton<IStorageMediumResolver, StorageMediumResolver>();
 
     // Build service configuration
-    var builder = new FlowthruServiceBuilder(services);
+    var builder = new FlowthruServiceBuilder(services, configuration);
     configure(builder);
 
     // Register pipeline dictionary factory if inline registrations exist

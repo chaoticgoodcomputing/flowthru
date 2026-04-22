@@ -42,7 +42,7 @@ public static class FlowthruServiceBuilderHttpExtensions
   /// to <see cref="Flowthru.Core.Data.Storage.Medium.FileStorageMedium"/>.
   /// </para>
   /// </remarks>
-  public static FlowthruServiceBuilder UseHttp(this FlowthruServiceBuilder builder) =>
+  public static IFlowthruBuilder UseHttp(this IFlowthruBuilder builder) =>
     builder.UseHttp(_ => { });
 
   /// <summary>
@@ -66,8 +66,8 @@ public static class FlowthruServiceBuilderHttpExtensions
   /// </code>
   /// </para>
   /// </remarks>
-  public static FlowthruServiceBuilder UseHttp(
-    this FlowthruServiceBuilder builder,
+  public static IFlowthruBuilder UseHttp(
+    this IFlowthruBuilder builder,
     Action<HttpOptions> configure
   )
   {

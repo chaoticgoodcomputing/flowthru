@@ -3,6 +3,7 @@ using Flowthru.Core.Flows;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Extensions.Python.Tests.Surface;
@@ -24,7 +25,7 @@ public class ServiceBuilderIntegrationTests
     services.AddLogging();
 
     // Act
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog(new TestCatalog());
       flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
@@ -47,7 +48,7 @@ public class ServiceBuilderIntegrationTests
     services.AddLogging();
 
     // Act
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog(new TestCatalog());
       flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());

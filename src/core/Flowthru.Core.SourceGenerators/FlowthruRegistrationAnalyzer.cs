@@ -36,13 +36,6 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   /// </summary>
   public const string UnboundConcreteParamId = "FT2003";
 
-  /// <summary>
-  /// A Flow registration specifies a configurationSection but UseConfiguration() was never called
-  /// on the builder. The Flow will throw at pre-flight time when it attempts to resolve the
-  /// configurationSection.
-  /// </summary>
-  public const string MissingUseConfigurationId = "FT2004";
-
   private static readonly DiagnosticDescriptor _missingCatalogRule =
     new(
       MissingCatalogId,
@@ -76,28 +69,12 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       description: "A concrete-class flow parameter that is not a catalog will be resolved from DI at flow-build time. If it is a configuration POCO, pass configurationSection to RegisterFlow to bind it from appsettings instead."
     );
 
-  private static readonly DiagnosticDescriptor _missingUseConfigurationRule =
-    new(
-      MissingUseConfigurationId,
-      "Missing UseConfiguration call",
-      "Flow '{0}' specifies configurationSection '{1}' but UseConfiguration() has not been called",
-      "Flowthru.Core.Registration",
-      DiagnosticSeverity.Error,
-      isEnabledByDefault: true,
-      description: "A RegisterFlow call references a configurationSection, but UseConfiguration() was never called on the builder. The flow will throw at pre-flight time."
-    );
-
   /// <summary>
   /// Supported diagnostics for this analyzer. Each descriptor corresponds to a specific
   /// registration issue.
   /// </summary>
   public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-    ImmutableArray.Create(
-      _missingCatalogRule,
-      _unusedCatalogRule,
-      _unboundConcreteParamRule,
-      _missingUseConfigurationRule
-    );
+    ImmutableArray.Create(_missingCatalogRule, _unusedCatalogRule, _unboundConcreteParamRule);
 
   /// <summary>
   /// Initializes the analyzer by registering an operation block action that analyzes
@@ -178,9 +155,7 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       System.Collections.Generic.List<(ITypeSymbol Type, string ParamName)> AmbiguousConcreteParams
     )>();
 
-    bool hasUseConfiguration = body.DescendantsAndSelf()
-      .OfType<IInvocationOperation>()
-      .Any(c => c.TargetMethod.Name == "UseConfiguration");
+    bool hasUseConfiguration = false; // UseConfiguration() no longer exists; IConfiguration is passed directly to AddFlowthru.
 
     foreach (var descendant in body.DescendantsAndSelf())
     {
@@ -272,38 +247,6 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
           paramType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
         );
         context.ReportDiagnostic(diagnostic);
-      }
-    }
-
-    // FT2004 — configurationSection supplied but UseConfiguration never called
-    if (!hasUseConfiguration)
-    {
-      foreach (var (label, invocation, _, _) in flowRegistrations)
-      {
-        string? sectionValue = null;
-        foreach (var arg in invocation.Arguments)
-        {
-          if (
-            arg.Parameter?.Name == "configurationSection"
-            && arg.Value.ConstantValue.HasValue
-            && arg.Value.ConstantValue.Value is string s
-          )
-          {
-            sectionValue = s;
-            break;
-          }
-        }
-
-        if (sectionValue != null)
-        {
-          var diagnostic = Diagnostic.Create(
-            _missingUseConfigurationRule,
-            invocation.Syntax.GetLocation(),
-            label,
-            sectionValue
-          );
-          context.ReportDiagnostic(diagnostic);
-        }
       }
     }
   }

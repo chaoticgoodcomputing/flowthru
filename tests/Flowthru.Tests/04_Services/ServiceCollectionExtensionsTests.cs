@@ -6,6 +6,7 @@ using Flowthru.Meta;
 using Flowthru.Meta.Providers;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Tests.Services;
@@ -26,11 +27,14 @@ public class ServiceCollectionExtensionsTests
     services.AddLogging();
 
     // Act
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
-      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
+        flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
 
@@ -47,11 +51,14 @@ public class ServiceCollectionExtensionsTests
     var catalog = new SimpleThreeStepCatalog();
 
     // Act
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.RegisterCatalog(catalog);
-      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(catalog);
+        flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
 
@@ -68,11 +75,14 @@ public class ServiceCollectionExtensionsTests
     var services = new ServiceCollection();
 
     // Act
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.RegisterCatalog<SimpleThreeStepCatalog>();
-      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog<SimpleThreeStepCatalog>();
+        flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
 
@@ -89,11 +99,14 @@ public class ServiceCollectionExtensionsTests
     var services = new ServiceCollection();
 
     // Act
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.RegisterCatalog<SimpleThreeStepCatalog>(sp => new SimpleThreeStepCatalog());
-      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog<SimpleThreeStepCatalog>(sp => new SimpleThreeStepCatalog());
+        flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
 
@@ -111,24 +124,27 @@ public class ServiceCollectionExtensionsTests
     services.AddLogging();
 
     // Act
-    services.AddFlowthru(flowthru =>
-    {
-      var catalog = new SimpleThreeStepCatalog();
-      flowthru.RegisterCatalog(catalog);
-      flowthru.RegisterFlow(
-        "test",
-        (SimpleThreeStepCatalog cat) =>
-          FlowBuilder.CreateFlow(builder =>
-          {
-            builder.AddStep(
-              label: "Step",
-              transform: PassthroughStep.Create(),
-              input: cat.Input,
-              output: cat.Output
-            );
-          })
-      );
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        var catalog = new SimpleThreeStepCatalog();
+        flowthru.RegisterCatalog(catalog);
+        flowthru.RegisterFlow(
+          "test",
+          (SimpleThreeStepCatalog cat) =>
+            FlowBuilder.CreateFlow(builder =>
+            {
+              builder.AddStep(
+                label: "Step",
+                transform: PassthroughStep.Create(),
+                input: cat.Input,
+                output: cat.Output
+              );
+            })
+        );
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
     var service = serviceProvider.GetRequiredService<IFlowthruService>();
@@ -145,7 +161,9 @@ public class ServiceCollectionExtensionsTests
     ServiceCollection services = null!;
 
     // Act & Assert
-    Assert.Throws<ArgumentNullException>(() => services.AddFlowthru(flowthru => { }));
+    Assert.Throws<ArgumentNullException>(
+      () => services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru => { })
+    );
   }
 
   [Test]
@@ -155,7 +173,10 @@ public class ServiceCollectionExtensionsTests
     var services = new ServiceCollection();
 
     // Act & Assert
-    Assert.Throws<ArgumentNullException>(() => services.AddFlowthru(null!));
+    Assert.Throws<ArgumentNullException>(
+      () =>
+        services.AddFlowthru(new ConfigurationBuilder().Build(), (Action<IFlowthruBuilder>)null!)
+    );
   }
 
   [Test]
@@ -165,17 +186,20 @@ public class ServiceCollectionExtensionsTests
     var services = new ServiceCollection();
 
     // Act
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
-      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
-      flowthru.ConfigureMetadata(meta =>
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
       {
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-          json.WithOutputDirectory("test-metadata")
-        );
-      });
-    });
+        flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
+        flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
+        flowthru.ConfigureMetadata(meta =>
+        {
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+            json.WithOutputDirectory("test-metadata")
+          );
+        });
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
     var metadataBuilder = serviceProvider.GetService<FlowthruMetadataBuilder>();
@@ -193,11 +217,14 @@ public class ServiceCollectionExtensionsTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
-      flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(new SimpleThreeStepCatalog());
+        flowthru.RegisterFlows(sp => new Dictionary<string, Flow>());
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
 
@@ -218,37 +245,40 @@ public class ServiceCollectionExtensionsTests
 
     var catalog = new SimpleThreeStepCatalog();
 
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.RegisterCatalog(catalog);
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(catalog);
 
-      flowthru.RegisterFlow(
-        "inline",
-        (SimpleThreeStepCatalog cat) =>
-          FlowBuilder.CreateFlow(builder =>
+        flowthru.RegisterFlow(
+          "inline",
+          (SimpleThreeStepCatalog cat) =>
+            FlowBuilder.CreateFlow(builder =>
+            {
+              builder.AddStep(
+                label: "Step",
+                transform: PassthroughStep.Create(),
+                input: cat.Input,
+                output: cat.Output
+              );
+            })
+        );
+
+        flowthru.RegisterFlows(_ => new Dictionary<string, Flow>
+        {
+          ["dynamic"] = FlowBuilder.CreateFlow(builder =>
           {
             builder.AddStep(
               label: "Step",
               transform: PassthroughStep.Create(),
-              input: cat.Input,
-              output: cat.Output
+              input: catalog.Input,
+              output: catalog.Output
             );
-          })
-      );
-
-      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>
-      {
-        ["dynamic"] = FlowBuilder.CreateFlow(builder =>
-        {
-          builder.AddStep(
-            label: "Step",
-            transform: PassthroughStep.Create(),
-            input: catalog.Input,
-            output: catalog.Output
-          );
-        }),
-      });
-    });
+          }),
+        });
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
     var service = serviceProvider.GetRequiredService<IFlowthruService>();

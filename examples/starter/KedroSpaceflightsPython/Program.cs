@@ -1,4 +1,3 @@
-using System.Reflection;
 using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Python;
@@ -9,25 +8,11 @@ using KedroSpaceflightsPython.Data;
 using KedroSpaceflightsPython.Flows.DataProcessing;
 using KedroSpaceflightsPython.Flows.DataScience;
 using KedroSpaceflightsPython.Flows.Reporting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace KedroSpaceflightsPython;
-
-/// <summary>
-/// Helper extension for accessing FlowthruServiceBuilder internals.
-/// </summary>
-internal static class FlowthruServiceBuilderExtensions
-{
-  public static IServiceCollection Services(this FlowthruServiceBuilder builder)
-  {
-    var field = typeof(FlowthruServiceBuilder).GetField(
-      "_services",
-      BindingFlags.NonPublic | BindingFlags.Instance
-    );
-    return (IServiceCollection)field!.GetValue(builder)!;
-  }
-}
 
 /// <summary>
 /// Main application entry point for the Spaceflights pipeline with Python nodes.
@@ -82,57 +67,65 @@ public class Program
       logging.SetMinimumLevel(LogLevel.Information);
     });
 
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      // Output pipeline metadata
-      flowthru.ConfigureMetadata(meta =>
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
       {
-        var metadataPath = Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
-          )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
+        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+
+        // Output pipeline metadata
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
+
+        // Configure Python runtime
+        flowthru.UsePython(python =>
+        {
+          // Project root: makes Flows/ importable as a Python module tree
+          python.ModuleSearchPaths.Add(basePath);
+          // Output directory: contains the flowthru package (@step decorator)
+          python.ModuleSearchPaths.Add(outputPath);
+          // Use this example's own output directory for venv isolation
+          python.VenvPath = outputPath;
+        });
+
+        // Phase 6 workaround: Resolve Python dependencies for pipeline registration
+        // Build temp provider after UsePython registers services but before pipeline registration
+        // NOTE: Don't dispose - we need the singleton instances to stay alive
+        var tempProvider = flowthru.Services.BuildServiceProvider();
+        var executor =
+          tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
+
+        // Register pipelines with resolved executor
+        flowthru
+          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
+          .WithDescription("Preprocesses companies, shuttles, and reviews data using Python");
+
+        flowthru
+          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
+          .WithDescription(
+            "Trains linear regression model for price prediction using Python/scikit-learn"
           );
-      });
 
-      // Configure Python runtime
-      flowthru.UsePython(python =>
-      {
-        // Project root: makes Flows/ importable as a Python module tree
-        python.ModuleSearchPaths.Add(basePath);
-        // Output directory: contains the flowthru package (@step decorator)
-        python.ModuleSearchPaths.Add(outputPath);
-        // Use this example's own output directory for venv isolation
-        python.VenvPath = outputPath;
-      });
-
-      // Phase 6 workaround: Resolve Python dependencies for pipeline registration
-      // Build temp provider after UsePython registers services but before pipeline registration
-      // NOTE: Don't dispose - we need the singleton instances to stay alive
-      var tempProvider = flowthru.Services().BuildServiceProvider();
-      var executor =
-        tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
-
-      // Register pipelines with resolved executor
-      flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-        .WithDescription("Preprocesses companies, shuttles, and reviews data using Python");
-
-      flowthru
-        .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-        .WithDescription(
-          "Trains linear regression model for price prediction using Python/scikit-learn"
-        );
-
-      flowthru
-        .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
-        .WithDescription(
-          "Generates visualization outputs including passenger capacity plots and confusion matrix"
-        );
-    });
+        flowthru
+          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
+          .WithDescription(
+            "Generates visualization outputs including passenger capacity plots and confusion matrix"
+          );
+      }
+    );
   }
 }

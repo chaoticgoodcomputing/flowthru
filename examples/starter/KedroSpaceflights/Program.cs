@@ -6,6 +6,7 @@ using KedroSpaceflights.Data;
 using KedroSpaceflights.Flows.DataProcessing;
 using KedroSpaceflights.Flows.DataScience;
 using KedroSpaceflights.Flows.Reporting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -42,46 +43,54 @@ public class Program
   /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      // Output pipeline metadata
-      flowthru.ConfigureMetadata(meta =>
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
       {
-        var metadataPath = Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
+        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+
+        // Output pipeline metadata
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath).WithShowFullDag(false)
+            );
+        });
+
+        // Register data processing pipeline
+        flowthru
+          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
+          .WithDescription("Preprocesses companies and shuttles data");
+
+        // Register data science pipeline with configuration parameters
+        flowthru
+          .RegisterFlow(
+            label: "DataScience",
+            flow: DataScienceFlow.Create,
+            configurationSection: "Flowthru:Flows:DataScience"
           )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath).WithShowFullDag(false)
-          );
-      });
+          .WithDescription("Trains linear regression model for price prediction");
 
-      // Register data processing pipeline
-      flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-        .WithDescription("Preprocesses companies and shuttles data");
-
-      // Register data science pipeline with configuration parameters
-      flowthru
-        .RegisterFlow(
-          label: "DataScience",
-          flow: DataScienceFlow.Create,
-          configurationSection: "Flowthru:Flows:DataScience"
-        )
-        .WithDescription("Trains linear regression model for price prediction");
-
-      // Register reporting pipeline with configuration parameters
-      flowthru
-        .RegisterFlow(
-          label: "Reporting",
-          flow: ReportingFlow.Create,
-          configurationSection: "Flowthru:Flows:Reporting"
-        )
-        .WithDescription("Generates passenger capacity reports and visualizations");
-    });
+        // Register reporting pipeline with configuration parameters
+        flowthru
+          .RegisterFlow(
+            label: "Reporting",
+            flow: ReportingFlow.Create,
+            configurationSection: "Flowthru:Flows:Reporting"
+          )
+          .WithDescription("Generates passenger capacity reports and visualizations");
+      }
+    );
 
     services.AddLogging(logging =>
     {

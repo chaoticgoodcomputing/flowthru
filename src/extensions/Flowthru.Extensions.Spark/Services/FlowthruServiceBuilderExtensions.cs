@@ -36,7 +36,7 @@ public static class FlowthruServiceBuilderExtensions
   /// </code>
   /// </para>
   /// </remarks>
-  public static FlowthruServiceBuilder UseSpark(this FlowthruServiceBuilder builder) =>
+  public static IFlowthruBuilder UseSpark(this IFlowthruBuilder builder) =>
     builder.UseSpark(_ => { });
 
   /// <summary>
@@ -61,8 +61,8 @@ public static class FlowthruServiceBuilderExtensions
   /// </code>
   /// </para>
   /// </remarks>
-  public static FlowthruServiceBuilder UseSpark(
-    this FlowthruServiceBuilder builder,
+  public static IFlowthruBuilder UseSpark(
+    this IFlowthruBuilder builder,
     Action<SparkRuntimeOptions> configure
   )
   {

@@ -10,6 +10,7 @@ using KedroSpaceflightsGQL.Flows.Reporting;
 using KedroSpaceflightsGQL.Infra.GqlClient;
 using KedroSpaceflightsGQL.Infra.GqlServer;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -117,54 +118,62 @@ public class Program
         }
       );
 
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(sp => new Catalog(
-        basePath: System.IO.Path.Combine(basePath, "Data"),
-        client: sp.GetRequiredService<ISpaceflightsClient>()
-      ));
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      // Output pipeline metadata
-      flowthru.ConfigureMetadata(meta =>
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
       {
-        var metadataPath = System.IO.Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
+        flowthru.RegisterCatalog(sp => new Catalog(
+          basePath: System.IO.Path.Combine(basePath, "Data"),
+          client: sp.GetRequiredService<ISpaceflightsClient>()
+        ));
+
+        // Output pipeline metadata
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = System.IO.Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
+
+        // Ingest: seeds the GQL server from CSV/Excel before DataProcessing runs.
+        // Flowthru resolves Catalog + ISpaceflightsClient from DI via delegate parameter inspection.
+        flowthru
+          .RegisterFlow(label: "Ingest", flow: IngestFlow.Create)
+          .WithDescription("Seeds the GraphQL server with raw company, shuttle, and review data");
+
+        // DataProcessing: reads from GQL server; depends on Ingest having run first
+        flowthru
+          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
+          .WithDescription("Preprocesses companies and shuttles data");
+
+        // DataScience and Reporting are unchanged from the base Spaceflights example
+        flowthru
+          .RegisterFlow(
+            label: "DataScience",
+            flow: DataScienceFlow.Create,
+            configurationSection: "Flowthru:Flows:DataScience"
           )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
-          );
-      });
+          .WithDescription("Trains linear regression model for price prediction");
 
-      // Ingest: seeds the GQL server from CSV/Excel before DataProcessing runs.
-      // Flowthru resolves Catalog + ISpaceflightsClient from DI via delegate parameter inspection.
-      flowthru
-        .RegisterFlow(label: "Ingest", flow: IngestFlow.Create)
-        .WithDescription("Seeds the GraphQL server with raw company, shuttle, and review data");
-
-      // DataProcessing: reads from GQL server; depends on Ingest having run first
-      flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-        .WithDescription("Preprocesses companies and shuttles data");
-
-      // DataScience and Reporting are unchanged from the base Spaceflights example
-      flowthru
-        .RegisterFlow(
-          label: "DataScience",
-          flow: DataScienceFlow.Create,
-          configurationSection: "Flowthru:Flows:DataScience"
-        )
-        .WithDescription("Trains linear regression model for price prediction");
-
-      flowthru
-        .RegisterFlow(
-          label: "Reporting",
-          flow: ReportingFlow.Create,
-          configurationSection: "Flowthru:Flows:Reporting"
-        )
-        .WithDescription("Generates passenger capacity reports and visualizations");
-    });
+        flowthru
+          .RegisterFlow(
+            label: "Reporting",
+            flow: ReportingFlow.Create,
+            configurationSection: "Flowthru:Flows:Reporting"
+          )
+          .WithDescription("Generates passenger capacity reports and visualizations");
+      }
+    );
 
     services.AddLogging(logging =>
     {

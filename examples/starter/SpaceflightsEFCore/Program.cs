@@ -1,6 +1,7 @@
 using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SpaceflightsEFCore.Data;
@@ -51,37 +52,45 @@ public class Program
       options.UseSqlite($"Data Source={dbPath}")
     );
 
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(sp => new Catalog(
-        basePath: Path.Combine(basePath, "Data"),
-        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
-      ));
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      // Register data processing pipeline
-      flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-        .WithDescription("Preprocesses companies and shuttles data");
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(sp => new Catalog(
+          basePath: Path.Combine(basePath, "Data"),
+          contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
+        ));
 
-      // Register data science pipeline with configuration parameters
-      flowthru
-        .RegisterFlow(
-          label: "DataScience",
-          flow: DataScienceFlow.Create,
-          configurationSection: "Flowthru:Flows:DataScience"
-        )
-        .WithDescription("Trains linear regression model for price prediction");
+        // Register data processing pipeline
+        flowthru
+          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
+          .WithDescription("Preprocesses companies and shuttles data");
 
-      // Register reporting pipeline with configuration parameters
-      flowthru
-        .RegisterFlow(
-          label: "Reporting",
-          flow: ReportingFlow.Create,
-          configurationSection: "Flowthru:Flows:Reporting"
-        )
-        .WithDescription("Generates passenger capacity reports and visualizations");
-    });
+        // Register data science pipeline with configuration parameters
+        flowthru
+          .RegisterFlow(
+            label: "DataScience",
+            flow: DataScienceFlow.Create,
+            configurationSection: "Flowthru:Flows:DataScience"
+          )
+          .WithDescription("Trains linear regression model for price prediction");
+
+        // Register reporting pipeline with configuration parameters
+        flowthru
+          .RegisterFlow(
+            label: "Reporting",
+            flow: ReportingFlow.Create,
+            configurationSection: "Flowthru:Flows:Reporting"
+          )
+          .WithDescription("Generates passenger capacity reports and visualizations");
+      }
+    );
 
     services.AddLogging(logging =>
     {

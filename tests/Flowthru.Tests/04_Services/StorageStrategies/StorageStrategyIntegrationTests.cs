@@ -102,12 +102,15 @@ public class StorageStrategyIntegrationTests
   {
     // Arrange - Use fluent builder API
     var services = new ServiceCollection();
-    services.AddFlowthru(builder =>
-    {
-      builder.UseStorageStrategy<MemoryStorageEntryFactory>();
-      builder.RegisterCatalog<TestCatalog>();
-      builder.RegisterFlows(_ => []);
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      builder =>
+      {
+        builder.UseStorageStrategy<MemoryStorageEntryFactory>();
+        builder.RegisterCatalog<TestCatalog>();
+        builder.RegisterFlows(_ => []);
+      }
+    );
 
     var provider = services.BuildServiceProvider();
 
@@ -131,13 +134,15 @@ public class StorageStrategyIntegrationTests
     var configuration = new ConfigurationBuilder().AddInMemoryCollection(configDict).Build();
 
     var services = new ServiceCollection();
-    services.AddSingleton<IConfiguration>(configuration);
-    services.AddFlowthru(builder =>
-    {
-      builder.UseStorageStrategy<CsvStorageEntryFactory>();
-      builder.RegisterCatalog<TestCatalog>();
-      builder.RegisterFlows(_ => []);
-    });
+    services.AddFlowthru(
+      configuration,
+      builder =>
+      {
+        builder.UseStorageStrategy<CsvStorageEntryFactory>();
+        builder.RegisterCatalog<TestCatalog>();
+        builder.RegisterFlows(_ => []);
+      }
+    );
 
     var provider = services.BuildServiceProvider();
 

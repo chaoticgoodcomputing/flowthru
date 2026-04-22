@@ -2,6 +2,7 @@ using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
 using Flowthru.Meta;
 using Flowthru.Meta.Providers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Minimal.Data;
@@ -40,28 +41,36 @@ public class Program
   /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(_ => new Catalog(basePath));
-      flowthru.ConfigureMetadata(meta =>
-      {
-        var metadataPath = Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
-          )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
-          );
-      });
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      // Register the greetings pipeline
-      flowthru
-        .RegisterFlow(label: "Greetings", flow: GreetingsFlow.Create)
-        .WithDescription(
-          "A minimal pipeline demonstrating name transformation into multiple greeting formats"
-        );
-    });
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(_ => new Catalog(basePath));
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
+
+        // Register the greetings pipeline
+        flowthru
+          .RegisterFlow(label: "Greetings", flow: GreetingsFlow.Create)
+          .WithDescription(
+            "A minimal pipeline demonstrating name transformation into multiple greeting formats"
+          );
+      }
+    );
 
     services.AddLogging(logging =>
     {

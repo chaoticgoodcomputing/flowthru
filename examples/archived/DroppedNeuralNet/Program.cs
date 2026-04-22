@@ -1,4 +1,3 @@
-using System.Reflection;
 using DroppedNeuralNet.Data;
 using DroppedNeuralNet.Flows.DataPrep;
 using DroppedNeuralNet.Flows.Exploration;
@@ -10,25 +9,11 @@ using Flowthru.Extensions.Python;
 using Flowthru.Extensions.Python.Services;
 using Flowthru.Meta;
 using Flowthru.Meta.Providers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace DroppedNeuralNet;
-
-/// <summary>
-/// Helper to access FlowthruServiceBuilder internals for pre-registration executor resolution.
-/// </summary>
-internal static class FlowthruServiceBuilderExtensions
-{
-  public static IServiceCollection Services(this FlowthruServiceBuilder builder)
-  {
-    var field = typeof(FlowthruServiceBuilder).GetField(
-      "_services",
-      BindingFlags.NonPublic | BindingFlags.Instance
-    );
-    return (IServiceCollection)field!.GetValue(builder)!;
-  }
-}
 
 /// <summary>
 /// Entry point for the DroppedNeuralNet example.
@@ -92,55 +77,65 @@ public class Program
       logging.SetMinimumLevel(LogLevel.Information);
     });
 
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(_ => new Catalog(basePath: Path.Combine(basePath, "Data")));
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      flowthru.ConfigureMetadata(meta =>
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
       {
-        var metadataPath = Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
-          )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
+        flowthru.RegisterCatalog(_ => new Catalog(basePath: Path.Combine(basePath, "Data")));
+
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
+
+        flowthru.UsePython(python =>
+        {
+          python.ModuleSearchPaths.Add(basePath);
+          python.ModuleSearchPaths.Add(outputPath);
+          python.VenvPath = outputPath;
+        });
+
+        // Eagerly initialize the Python runtime before pipeline registration.
+        // NOTE: Do not dispose — singleton instances must stay alive.
+        var tempProvider = flowthru.Services.BuildServiceProvider();
+        tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
+
+        flowthru
+          .RegisterFlow(label: "DataPrep", flow: DataPrepFlow.Create)
+          .WithDescription(
+            "Ingest .pth blobs and classify each piece by tensor dimensions (Python)"
           );
-      });
 
-      flowthru.UsePython(python =>
-      {
-        python.ModuleSearchPaths.Add(basePath);
-        python.ModuleSearchPaths.Add(outputPath);
-        python.VenvPath = outputPath;
-      });
+        flowthru
+          .RegisterFlow(label: "Exploration", flow: ExplorationFlow.Create)
+          .WithDescription(
+            "Enumerate legal pairings (C#), score via Frobenius norms, run Hungarian assignment, rank orderings via activation chaining (C# + Python)"
+          );
 
-      // Eagerly initialize the Python runtime before pipeline registration.
-      // NOTE: Do not dispose — singleton instances must stay alive.
-      var tempProvider = flowthru.Services().BuildServiceProvider();
-      tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
+        flowthru
+          .RegisterFlow(label: "Validation", flow: ValidationFlow.Create)
+          .WithDescription(
+            "Diagnostic probes: fixed-order baseline, ProductNorm signal stats, per-candidate errors (Python)"
+          );
 
-      flowthru
-        .RegisterFlow(label: "DataPrep", flow: DataPrepFlow.Create)
-        .WithDescription("Ingest .pth blobs and classify each piece by tensor dimensions (Python)");
-
-      flowthru
-        .RegisterFlow(label: "Exploration", flow: ExplorationFlow.Create)
-        .WithDescription(
-          "Enumerate legal pairings (C#), score via Frobenius norms, run Hungarian assignment, rank orderings via activation chaining (C# + Python)"
-        );
-
-      flowthru
-        .RegisterFlow(label: "Validation", flow: ValidationFlow.Create)
-        .WithDescription(
-          "Diagnostic probes: fixed-order baseline, ProductNorm signal stats, per-candidate errors (Python)"
-        );
-
-      flowthru
-        .RegisterFlow(label: "Solver", flow: SolverFlow.Create)
-        .WithDescription(
-          "Forward-pass validate ranked candidate permutations; emit the solution (Python)"
-        );
-    });
+        flowthru
+          .RegisterFlow(label: "Solver", flow: SolverFlow.Create)
+          .WithDescription(
+            "Forward-pass validate ranked candidate permutations; emit the solution (Python)"
+          );
+      }
+    );
   }
 }

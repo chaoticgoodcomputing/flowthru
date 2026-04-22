@@ -38,7 +38,7 @@ public static class FlowthruServiceBuilderExtensions
   /// </code>
   /// </para>
   /// </remarks>
-  public static FlowthruServiceBuilder UsePython(this FlowthruServiceBuilder builder)
+  public static IFlowthruBuilder UsePython(this IFlowthruBuilder builder)
   {
     return builder.UsePython(options => { });
   }
@@ -91,8 +91,8 @@ public static class FlowthruServiceBuilderExtensions
   /// </code>
   /// </para>
   /// </remarks>
-  public static FlowthruServiceBuilder UsePython(
-    this FlowthruServiceBuilder builder,
+  public static IFlowthruBuilder UsePython(
+    this IFlowthruBuilder builder,
     Action<PythonRuntimeOptions> configure
   )
   {
@@ -111,42 +111,30 @@ public static class FlowthruServiceBuilderExtensions
     configure(options);
 
     // Register options as singleton
-    builder.Services().AddSingleton(options);
+    builder.Services.AddSingleton(options);
 
     if (options.ExecutionMode == PythonExecutionMode.InProcess)
     {
       // In-process mode: shared PythonEngine, GIL-guarded execution.
       // PythonRuntime may be pre-registered for testing.
-      if (!builder.Services().Any(sd => sd.ServiceType == typeof(PythonRuntime)))
+      if (!builder.Services.Any(sd => sd.ServiceType == typeof(PythonRuntime)))
       {
-        builder.Services().AddSingleton<PythonRuntime>();
+        builder.Services.AddSingleton<PythonRuntime>();
       }
-      builder.Services().AddSingleton<IPythonExecutor, PythonNetExecutor>();
+      builder.Services.AddSingleton<IPythonExecutor, PythonNetExecutor>();
       // Register pre-flight decorator + dry-run dtype validation (in-process only)
-      builder
-        .Services()
-        .AddSingleton<Flowthru.Core.Graph.Validation.IFlowValidationHook, PythonStepValidator>();
+      builder.Services.AddSingleton<
+        Flowthru.Core.Graph.Validation.IFlowValidationHook,
+        PythonStepValidator
+      >();
     }
     else
     {
       // Subprocess mode (default): each service has an isolated Python worker process.
       // No shared PythonEngine or GIL — isolation is at the OS process boundary.
-      builder.Services().AddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
+      builder.Services.AddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
     }
 
     return builder;
-  }
-
-  /// <summary>
-  /// Internal accessor for DI container. Required for extension methods.
-  /// </summary>
-  private static IServiceCollection Services(this FlowthruServiceBuilder builder)
-  {
-    // Reflection access to private field — follows pattern from existing builder extensions
-    var field = typeof(FlowthruServiceBuilder).GetField(
-      "_services",
-      System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
-    );
-    return (IServiceCollection)field!.GetValue(builder)!;
   }
 }

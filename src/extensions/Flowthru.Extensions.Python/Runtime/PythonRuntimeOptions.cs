@@ -28,7 +28,7 @@ public enum PythonExecutionMode
 /// <remarks>
 /// <para>
 /// Follows the .NET Options pattern for environment-specific configuration.
-/// Resolution order mirrors <see cref="Flowthru.Core.Configuration.FlowthruConfigurationOptions"/>.
+/// Resolution order: explicit value → environment variable → auto-detected default.
 /// </para>
 /// <para>
 /// <strong>Developer workflow:</strong>

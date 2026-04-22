@@ -3,6 +3,7 @@ using Flowthru.Core.Flows;
 using Flowthru.Core.Services;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Tests.Services;
@@ -28,7 +29,7 @@ public class MultiCatalogRegistrationTests
     services.AddLogging();
 
     // Act
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog<UpstreamCatalog>();
       flowthru.RegisterCatalog<DownstreamCatalog>();
@@ -58,7 +59,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog<UpstreamCatalog>();
       flowthru.RegisterCatalog<DownstreamCatalog>();
@@ -93,7 +94,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog<UpstreamCatalog>();
       flowthru.RegisterCatalog<DownstreamCatalog>();
@@ -148,7 +149,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog(upstream);
       flowthru.RegisterCatalog(downstream);
@@ -212,7 +213,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog(upstream);
       flowthru.RegisterCatalog(downstream);
@@ -270,7 +271,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog<UpstreamCatalog>();
       flowthru.RegisterCatalog<DownstreamCatalog>();
@@ -314,7 +315,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog(upstream);
       flowthru.RegisterCatalog(downstream);
@@ -371,7 +372,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalogs(shards);
 
@@ -404,7 +405,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalog(staticCatalog);
       flowthru.RegisterCatalogs(shards);
@@ -439,7 +440,7 @@ public class MultiCatalogRegistrationTests
     var services = new ServiceCollection();
     services.AddLogging();
 
-    services.AddFlowthru(flowthru =>
+    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
     {
       flowthru.RegisterCatalogs(_ =>
         new CatalogAbstract[] { new ShardCatalog("factory_1"), new ShardCatalog("factory_2") }

@@ -8,6 +8,7 @@ using KedroSpaceflights.Custom.Flows.DataEvaluation;
 using KedroSpaceflights.Custom.Flows.DataProcessing;
 using KedroSpaceflights.Custom.Flows.DataScience;
 using KedroSpaceflights.Custom.Flows.Reporting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -48,55 +49,63 @@ public class Program
   /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
-    services.AddFlowthru(flowthru =>
-    {
-      // Enable configuration loading from appsettings.json files
-      // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
-      flowthru.ConfigureMetadata(meta =>
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
+
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
       {
-        var metadataPath = Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
+        // Enable configuration loading from appsettings.json files
+        // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
+        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
+
+        flowthru
+          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
+          .WithDescription("Preprocesses raw data and creates model input table");
+
+        flowthru
+          .RegisterFlow(
+            label: "DataScience",
+            flow: DataScienceFlow.Create,
+            configurationSection: "Flowthru:Flows:DataScience"
           )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
+          .WithDescription("Trains ML model");
+
+        flowthru
+          .RegisterFlow(label: "DataDiagnostics", flow: DataDiagnosticsFlow.Create)
+          .WithDescription(
+            "Validates pipeline outputs against Kedro reference and exports diagnostic data"
           );
-      });
 
-      flowthru
-        .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-        .WithDescription("Preprocesses raw data and creates model input table");
+        flowthru
+          .RegisterFlow(
+            label: "DataEvaluation",
+            flow: DataEvaluationFlow.Create,
+            configurationSection: "Flowthru:Flows:DataEvaluation"
+          )
+          .WithDescription("Evaluates ML model performance and cross-validation");
 
-      flowthru
-        .RegisterFlow(
-          label: "DataScience",
-          flow: DataScienceFlow.Create,
-          configurationSection: "Flowthru:Flows:DataScience"
-        )
-        .WithDescription("Trains ML model");
+        flowthru
+          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
+          .WithDescription("Generates reports and visualizations");
 
-      flowthru
-        .RegisterFlow(label: "DataDiagnostics", flow: DataDiagnosticsFlow.Create)
-        .WithDescription(
-          "Validates pipeline outputs against Kedro reference and exports diagnostic data"
-        );
-
-      flowthru
-        .RegisterFlow(
-          label: "DataEvaluation",
-          flow: DataEvaluationFlow.Create,
-          configurationSection: "Flowthru:Flows:DataEvaluation"
-        )
-        .WithDescription("Evaluates ML model performance and cross-validation");
-
-      flowthru
-        .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
-        .WithDescription("Generates reports and visualizations");
-
-      flowthru.ConfigureExecution(opts => opts.MaxDegreeOfParallelism = 8);
-    });
+        flowthru.ConfigureExecution(opts => opts.MaxDegreeOfParallelism = 8);
+      }
+    );
 
     services.AddLogging(logging =>
     {

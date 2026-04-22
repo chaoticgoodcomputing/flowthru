@@ -5,6 +5,7 @@ using Flowthru.Meta.Providers;
 using KedroIris.Data;
 using KedroIris.Flows.DataEngineering;
 using KedroIris.Flows.DataScience;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -41,41 +42,49 @@ public class Program
   /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
-    services.AddFlowthru(flowthru =>
-    {
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      // Output pipeline metadata
-      flowthru.ConfigureMetadata(meta =>
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
       {
-        var metadataPath = Path.Combine(basePath, "Metadata");
-        meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-            json.WithOutputDirectory(metadataPath)
+        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+
+        // Output pipeline metadata
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
+
+        // Register data engineering pipeline with configuration parameters
+        flowthru
+          .RegisterFlow(
+            label: "DataEngineering",
+            flow: DataEngineeringFlow.Create,
+            configurationSection: "Flowthru:Flows:DataEngineering"
           )
-          .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-            mermaid.WithOutputDirectory(metadataPath)
-          );
-      });
+          .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
-      // Register data engineering pipeline with configuration parameters
-      flowthru
-        .RegisterFlow(
-          label: "DataEngineering",
-          flow: DataEngineeringFlow.Create,
-          configurationSection: "Flowthru:Flows:DataEngineering"
-        )
-        .WithDescription("Splits iris data into training and test sets with one-hot encoding");
-
-      // Register data science pipeline with configuration parameters
-      flowthru
-        .RegisterFlow(
-          label: "DataScience",
-          flow: DataScienceFlow.Create,
-          configurationSection: "Flowthru:Flows:DataScience"
-        )
-        .WithDescription("Trains multi-class logistic regression model for iris classification");
-    });
+        // Register data science pipeline with configuration parameters
+        flowthru
+          .RegisterFlow(
+            label: "DataScience",
+            flow: DataScienceFlow.Create,
+            configurationSection: "Flowthru:Flows:DataScience"
+          )
+          .WithDescription("Trains multi-class logistic regression model for iris classification");
+      }
+    );
 
     services.AddLogging(logging =>
     {

@@ -5,7 +5,6 @@ using Flowthru.Core.Flows;
 using Flowthru.Core.Meta;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NetEscapades.Configuration.Yaml;
 
 namespace Flowthru.Core.Services;
 
@@ -20,7 +19,7 @@ namespace Flowthru.Core.Services;
 /// <para>
 /// <strong>Basic Usage:</strong>
 /// <code>
-/// services.AddFlowthru(flowthru =>
+/// services.AddFlowthru(configuration, flowthru =>
 /// {
 ///     flowthru.RegisterCatalog(_ => new MyCatalog(dataPath));
 ///     flowthru.RegisterFlow("my_flow", MyFlow.Create);
@@ -28,9 +27,8 @@ namespace Flowthru.Core.Services;
 /// </code>
 /// </para>
 /// </remarks>
-public sealed class FlowthruServiceBuilder
+public sealed class FlowthruServiceBuilder : IFlowthruBuilder
 {
-  private readonly IServiceCollection _services;
   private readonly List<Type> _registeredCatalogTypes = new();
   private readonly List<
     Func<IServiceProvider, IEnumerable<CatalogAbstract>>
@@ -38,12 +36,17 @@ public sealed class FlowthruServiceBuilder
   private readonly List<FlowRegistrationEntry> _registrations = new();
   private Func<IServiceProvider, Dictionary<string, Flow>>? _flowFactory;
   private FlowRegistrationEntry? _lastRegistration;
-  private IConfiguration? _configuration;
-  private int? _defaultMaxDegreeOfParallelism;
 
-  internal FlowthruServiceBuilder(IServiceCollection services)
+  /// <inheritdoc />
+  public IServiceCollection Services { get; }
+
+  /// <inheritdoc />
+  public IConfiguration Configuration { get; }
+
+  internal FlowthruServiceBuilder(IServiceCollection services, IConfiguration configuration)
   {
-    _services = services ?? throw new ArgumentNullException(nameof(services));
+    Services = services ?? throw new ArgumentNullException(nameof(services));
+    Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
   }
 
   /// <summary>
@@ -67,28 +70,30 @@ public sealed class FlowthruServiceBuilder
   /// });
   /// </code>
   /// </example>
-  public FlowthruServiceBuilder ConfigureExecution(Action<ExecutionOptions> configure)
-  {
-    var defaults = new ExecutionOptions();
-    configure(defaults);
-    _defaultMaxDegreeOfParallelism = defaults.MaxDegreeOfParallelism;
-    return this;
-  }
-
-  /// <summary>
-  /// Escape hatch for extension packages that need to register additional services
-  /// with the underlying <see cref="IServiceCollection"/>.
-  /// </summary>
-  /// <param name="configure">Action that receives the service collection.</param>
-  /// <returns>This builder for method chaining.</returns>
-  public FlowthruServiceBuilder ConfigureServices(Action<IServiceCollection> configure)
+  public IFlowthruBuilder ConfigureExecution(Action<ExecutionOptions> configure)
   {
     if (configure == null)
     {
       throw new ArgumentNullException(nameof(configure));
     }
 
-    configure(_services);
+    Services.PostConfigure<ExecutionOptions>(configure);
+    return this;
+  }
+
+  /// <summary>
+  /// Convenience method for registering additional services with <see cref="Services"/>.
+  /// </summary>
+  /// <param name="configure">Action that receives the service collection.</param>
+  /// <returns>This builder for method chaining.</returns>
+  public IFlowthruBuilder ConfigureServices(Action<IServiceCollection> configure)
+  {
+    if (configure == null)
+    {
+      throw new ArgumentNullException(nameof(configure));
+    }
+
+    configure(Services);
     return this;
   }
 
@@ -118,10 +123,10 @@ public sealed class FlowthruServiceBuilder
   /// The catalog will be resolved from the DI container, allowing constructor
   /// parameter injection (e.g., IConfiguration, IOptions).
   /// </remarks>
-  public FlowthruServiceBuilder RegisterCatalog<TCatalog>()
+  public IFlowthruBuilder RegisterCatalog<TCatalog>()
     where TCatalog : CatalogAbstract
   {
-    _services.AddSingleton<TCatalog>();
+    Services.AddSingleton<TCatalog>();
     _registeredCatalogTypes.Add(typeof(TCatalog));
     return this;
   }
@@ -134,14 +139,14 @@ public sealed class FlowthruServiceBuilder
   /// <remarks>
   /// Use this when the catalog doesn't require dependency injection.
   /// </remarks>
-  public FlowthruServiceBuilder RegisterCatalog(CatalogAbstract catalog)
+  public IFlowthruBuilder RegisterCatalog(CatalogAbstract catalog)
   {
     if (catalog == null)
     {
       throw new ArgumentNullException(nameof(catalog));
     }
 
-    _services.AddSingleton(catalog.GetType(), catalog);
+    Services.AddSingleton(catalog.GetType(), catalog);
     _registeredCatalogTypes.Add(catalog.GetType());
     return this;
   }
@@ -156,9 +161,7 @@ public sealed class FlowthruServiceBuilder
   /// Use this when the catalog needs to resolve services during construction,
   /// or when construction requires parameters unavailable at the call site.
   /// </remarks>
-  public FlowthruServiceBuilder RegisterCatalog<TCatalog>(
-    Func<IServiceProvider, TCatalog> catalogFactory
-  )
+  public IFlowthruBuilder RegisterCatalog<TCatalog>(Func<IServiceProvider, TCatalog> catalogFactory)
     where TCatalog : CatalogAbstract
   {
     if (catalogFactory == null)
@@ -166,7 +169,7 @@ public sealed class FlowthruServiceBuilder
       throw new ArgumentNullException(nameof(catalogFactory));
     }
 
-    _services.AddSingleton<TCatalog>(catalogFactory);
+    Services.AddSingleton<TCatalog>(catalogFactory);
     _registeredCatalogTypes.Add(typeof(TCatalog));
     return this;
   }
@@ -183,7 +186,7 @@ public sealed class FlowthruServiceBuilder
   /// <see cref="IFlowthruService.Catalogs"/>. Use with <see cref="RegisterFlows"/> to
   /// wire per-catalog flows in a loop.
   /// </remarks>
-  public FlowthruServiceBuilder RegisterCatalogs(IEnumerable<CatalogAbstract> catalogs)
+  public IFlowthruBuilder RegisterCatalogs(IEnumerable<CatalogAbstract> catalogs)
   {
     if (catalogs == null)
     {
@@ -201,7 +204,7 @@ public sealed class FlowthruServiceBuilder
   /// </summary>
   /// <param name="catalogsFactory">Factory that returns the catalog collection</param>
   /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder RegisterCatalogs(
+  public IFlowthruBuilder RegisterCatalogs(
     Func<IServiceProvider, IEnumerable<CatalogAbstract>> catalogsFactory
   )
   {
@@ -223,7 +226,7 @@ public sealed class FlowthruServiceBuilder
   /// Prefer <see cref="RegisterFlow(string, Delegate, string?)"/> for standard Flow registration.
   /// Use this only when you need full service provider access during Flow construction.
   /// </remarks>
-  public FlowthruServiceBuilder RegisterFlows(
+  public IFlowthruBuilder RegisterFlows(
     Func<IServiceProvider, Dictionary<string, Flow>> flowFactory
   )
   {
@@ -249,7 +252,7 @@ public sealed class FlowthruServiceBuilder
   /// is bound from configuration instead of DI.
   /// </param>
   /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder RegisterFlow(
+  public IFlowthruBuilder RegisterFlow(
     string label,
     Delegate flow,
     string? configurationSection = null
@@ -290,14 +293,7 @@ public sealed class FlowthruServiceBuilder
       )
       {
         // This is the configuration parameter — bind from config
-        if (_configuration == null)
-        {
-          throw new InvalidOperationException(
-            $"Flow '{label}' specifies a configuration section but UseConfiguration() has not been called."
-          );
-        }
-
-        var boundParams = _configuration.GetValidated(configurationSection, paramType);
+        var boundParams = Configuration.GetValidated(configurationSection, paramType);
         resolvers[i] = _ => boundParams;
         // Only bind the first non-catalog, non-interface parameter from config
         configurationSection = null;
@@ -334,7 +330,7 @@ public sealed class FlowthruServiceBuilder
   /// </summary>
   /// <param name="description">Human-readable description of what the Flow does</param>
   /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder WithDescription(string description)
+  public IFlowthruBuilder WithDescription(string description)
   {
     if (_lastRegistration == null)
     {
@@ -344,91 +340,6 @@ public sealed class FlowthruServiceBuilder
     }
 
     _lastRegistration.Description = description;
-    return this;
-  }
-
-  /// <summary>
-  /// Enables configuration loading from JSON and YAML files.
-  /// </summary>
-  /// <param name="configure">Optional action to configure how configuration files are loaded</param>
-  /// <returns>This builder for method chaining</returns>
-  /// <remarks>
-  /// By default, configuration is loaded from appsettings.json and environment-specific overrides.
-  /// </remarks>
-  public FlowthruServiceBuilder UseConfiguration(
-    Action<FlowthruConfigurationOptions>? configure = null
-  )
-  {
-    var options = new FlowthruConfigurationOptions();
-    configure?.Invoke(options);
-
-    var environment = options.GetResolvedEnvironment();
-    var configPath = options.ConfigurationPath;
-    var baseFileName = options.ConfigurationFileName;
-
-    var configBuilder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
-
-    // Add base configuration (required)
-    var baseJsonPath = Path.Combine(configPath, $"{baseFileName}.json");
-    configBuilder.AddJsonFile(baseJsonPath, optional: false, reloadOnChange: false);
-
-    // Add YAML support if enabled
-    if (options.EnableYamlSupport)
-    {
-      var baseYamlPath = Path.Combine(configPath, $"{baseFileName}.yml");
-      var baseYamlAltPath = Path.Combine(configPath, $"{baseFileName}.yaml");
-
-      if (File.Exists(baseYamlPath))
-      {
-        configBuilder.AddYamlFile(baseYamlPath, optional: true, reloadOnChange: false);
-      }
-      else if (File.Exists(baseYamlAltPath))
-      {
-        configBuilder.AddYamlFile(baseYamlAltPath, optional: true, reloadOnChange: false);
-      }
-    }
-
-    // Add environment-specific configuration (optional)
-    var envJsonPath = Path.Combine(configPath, $"{baseFileName}.{environment}.json");
-    configBuilder.AddJsonFile(envJsonPath, optional: true, reloadOnChange: false);
-
-    if (options.EnableYamlSupport)
-    {
-      var envYamlPath = Path.Combine(configPath, $"{baseFileName}.{environment}.yml");
-      var envYamlAltPath = Path.Combine(configPath, $"{baseFileName}.{environment}.yaml");
-
-      if (File.Exists(envYamlPath))
-      {
-        configBuilder.AddYamlFile(envYamlPath, optional: true, reloadOnChange: false);
-      }
-      else if (File.Exists(envYamlAltPath))
-      {
-        configBuilder.AddYamlFile(envYamlAltPath, optional: true, reloadOnChange: false);
-      }
-    }
-
-    // Add local configuration (optional, gitignored)
-    var localJsonPath = Path.Combine(configPath, $"{baseFileName}.Local.json");
-    configBuilder.AddJsonFile(localJsonPath, optional: true, reloadOnChange: false);
-
-    if (options.EnableYamlSupport)
-    {
-      var localYamlPath = Path.Combine(configPath, $"{baseFileName}.Local.yml");
-      var localYamlAltPath = Path.Combine(configPath, $"{baseFileName}.Local.yaml");
-
-      if (File.Exists(localYamlPath))
-      {
-        configBuilder.AddYamlFile(localYamlPath, optional: true, reloadOnChange: false);
-      }
-      else if (File.Exists(localYamlAltPath))
-      {
-        configBuilder.AddYamlFile(localYamlAltPath, optional: true, reloadOnChange: false);
-      }
-    }
-
-    _configuration = configBuilder.Build();
-    _services.AddSingleton(_configuration);
-
     return this;
   }
 
@@ -456,10 +367,10 @@ public sealed class FlowthruServiceBuilder
   /// }
   /// </code>
   /// </remarks>
-  public FlowthruServiceBuilder UseStorageStrategy<TStrategy>()
+  public IFlowthruBuilder UseStorageStrategy<TStrategy>()
     where TStrategy : class, IStorageEntryFactory
   {
-    _services.AddSingleton<IStorageEntryFactory, TStrategy>();
+    Services.AddSingleton<IStorageEntryFactory, TStrategy>();
     return this;
   }
 
@@ -468,14 +379,14 @@ public sealed class FlowthruServiceBuilder
   /// </summary>
   /// <param name="strategy">The storage strategy instance</param>
   /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder UseStorageStrategy(IStorageEntryFactory strategy)
+  public IFlowthruBuilder UseStorageStrategy(IStorageEntryFactory strategy)
   {
     if (strategy == null)
     {
       throw new ArgumentNullException(nameof(strategy));
     }
 
-    _services.AddSingleton(strategy);
+    Services.AddSingleton(strategy);
     return this;
   }
 
@@ -484,7 +395,7 @@ public sealed class FlowthruServiceBuilder
   /// </summary>
   /// <param name="strategyFactory">Factory function to create the strategy</param>
   /// <returns>This builder for method chaining</returns>
-  public FlowthruServiceBuilder UseStorageStrategy(
+  public IFlowthruBuilder UseStorageStrategy(
     Func<IServiceProvider, IStorageEntryFactory> strategyFactory
   )
   {
@@ -493,7 +404,7 @@ public sealed class FlowthruServiceBuilder
       throw new ArgumentNullException(nameof(strategyFactory));
     }
 
-    _services.AddSingleton(strategyFactory);
+    Services.AddSingleton(strategyFactory);
     return this;
   }
 
@@ -508,7 +419,7 @@ public sealed class FlowthruServiceBuilder
   /// without generating DAG diagrams or metadata files.
   /// </para>
   /// </remarks>
-  public FlowthruServiceBuilder ConfigureMetadata(Action<FlowthruMetadataBuilder> configure)
+  public IFlowthruBuilder ConfigureMetadata(Action<FlowthruMetadataBuilder> configure)
   {
     if (configure == null)
     {
@@ -520,7 +431,7 @@ public sealed class FlowthruServiceBuilder
     // Apply programmatic configuration
     configure(builder);
 
-    _services.AddSingleton(builder);
+    Services.AddSingleton(builder);
 
     return this;
   }
@@ -532,18 +443,12 @@ public sealed class FlowthruServiceBuilder
   /// </summary>
   internal void RegisterFlowDictionary()
   {
-    // Register the service-level default parallelism so FlowthruService can consume it.
-    var defaultParallelism = _defaultMaxDegreeOfParallelism;
-    _services.AddSingleton(
-      new FlowthruExecutionDefaults { MaxDegreeOfParallelism = defaultParallelism }
-    );
-
     // Always register the catalog collection so FlowthruService can inject all catalogs.
     // Merges both type-registered catalogs (RegisterCatalog) and dynamically constructed
     // catalog collections (RegisterCatalogs).
     var catalogTypes = _registeredCatalogTypes.ToList();
     var dynamicFactories = _dynamicCatalogFactories.ToList();
-    _services.AddSingleton<IReadOnlyList<CatalogAbstract>>(sp =>
+    Services.AddSingleton<IReadOnlyList<CatalogAbstract>>(sp =>
     {
       var typedCatalogs = catalogTypes.Select(t => (CatalogAbstract)sp.GetRequiredService(t));
       var dynamicCatalogs = dynamicFactories.SelectMany(f => f(sp));
@@ -560,7 +465,7 @@ public sealed class FlowthruServiceBuilder
       );
     }
 
-    _services.AddSingleton<Dictionary<string, Flow>>(sp =>
+    Services.AddSingleton<Dictionary<string, Flow>>(sp =>
     {
       var result = new Dictionary<string, Flow>();
 

@@ -1,5 +1,6 @@
 using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UmapReferenceComparisons.Data;
@@ -43,36 +44,44 @@ public class Program
   /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
-    services.AddFlowthru(flowthru =>
-    {
-      // Load configuration
-      flowthru.UseConfiguration(opts => opts.ConfigurationPath = basePath);
-      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(basePath)
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+      .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
+      .Build();
 
-      // Register comparison pipelines
-      flowthru
-        .RegisterFlow(label: "IrisComparisonFlow", flow: IrisComparisonFlow.Create)
-        .WithDescription(
-          "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
-        );
+    services.AddFlowthru(
+      configuration,
+      flowthru =>
+      {
+        // Load configuration
+        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
-      flowthru
-        .RegisterFlow(label: "DigitsComparisonFlow", flow: DigitsComparisonFlow.Create)
-        .WithDescription(
-          "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
-        );
+        // Register comparison pipelines
+        flowthru
+          .RegisterFlow(label: "IrisComparisonFlow", flow: IrisComparisonFlow.Create)
+          .WithDescription(
+            "Compare C# UMAP against Python reference for Iris dataset (150 samples, 4 features)"
+          );
 
-      // Fashion-MNIST pipeline disabled to keep repo lean (70K samples = ~12MB)
-      // Uncomment when large dataset support is needed
-      // flowthru
-      //   .RegisterFlow(
-      //     label: "FashionComparisonFlow",
-      //     pipeline: Flows.FashionComparison.FashionComparisonFlow.Create
-      //   )
-      //   .WithDescription(
-      //     "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
-      //   );
-    });
+        flowthru
+          .RegisterFlow(label: "DigitsComparisonFlow", flow: DigitsComparisonFlow.Create)
+          .WithDescription(
+            "Compare C# UMAP against Python reference for Digits dataset (1,797 samples, 64 features, 8x8 images)"
+          );
+
+        // Fashion-MNIST pipeline disabled to keep repo lean (70K samples = ~12MB)
+        // Uncomment when large dataset support is needed
+        // flowthru
+        //   .RegisterFlow(
+        //     label: "FashionComparisonFlow",
+        //     pipeline: Flows.FashionComparison.FashionComparisonFlow.Create
+        //   )
+        //   .WithDescription(
+        //     "Compare C# UMAP against Python reference for Fashion-MNIST dataset (70,000 samples, 784 features, 28x28 images)"
+        //   );
+      }
+    );
 
     services.AddLogging(logging =>
     {

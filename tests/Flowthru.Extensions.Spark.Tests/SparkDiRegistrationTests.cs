@@ -2,6 +2,7 @@ using Flowthru.Core.Flows;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Spark.Runtime;
 using Flowthru.Extensions.Spark.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Extensions.Spark.Tests;
@@ -14,20 +15,23 @@ public class SparkDiRegistrationTests
   {
     var services = new ServiceCollection();
     services.AddLogging();
-    services.AddFlowthru(flowthru =>
-    {
-      // A no-op flow is required — AddFlowthru rejects a registration with zero flows.
-      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        // A no-op flow is required — AddFlowthru rejects a registration with zero flows.
+        flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
 
-      if (configure is null)
-      {
-        flowthru.UseSpark();
+        if (configure is null)
+        {
+          flowthru.UseSpark();
+        }
+        else
+        {
+          flowthru.UseSpark(configure);
+        }
       }
-      else
-      {
-        flowthru.UseSpark(configure);
-      }
-    });
+    );
     return services.BuildServiceProvider();
   }
 
