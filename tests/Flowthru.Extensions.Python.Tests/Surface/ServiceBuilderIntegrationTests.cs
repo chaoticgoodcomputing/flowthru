@@ -2,9 +2,11 @@ using Flowthru.Core.Data;
 using Flowthru.Core.Flows;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Python.Execution;
+using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Extensions.Python.Tests.Surface;
 
@@ -25,12 +27,15 @@ public class ServiceBuilderIntegrationTests
     services.AddLogging();
 
     // Act
-    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
-    {
-      flowthru.RegisterCatalog(new TestCatalog());
-      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
-      flowthru.UsePython();
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(new TestCatalog());
+        flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
+        flowthru.UsePython();
+      }
+    );
 
     var provider = services.BuildServiceProvider();
 
@@ -48,22 +53,25 @@ public class ServiceBuilderIntegrationTests
     services.AddLogging();
 
     // Act
-    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
-    {
-      flowthru.RegisterCatalog(new TestCatalog());
-      flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
-      flowthru.UsePython(python =>
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
       {
-        python.ModuleSearchPaths.Add("/custom/path");
-      });
-    });
+        flowthru.RegisterCatalog(new TestCatalog());
+        flowthru.RegisterFlows(_ => new Dictionary<string, Flow>());
+        flowthru.UsePython(python =>
+        {
+          python.ModuleSearchPaths.Add("/custom/path");
+        });
+      }
+    );
 
     var provider = services.BuildServiceProvider();
 
     // Assert
-    var options = provider.GetService<Runtime.PythonRuntimeOptions>();
+    var options = provider.GetService<IOptions<PythonRuntimeOptions>>();
     Assert.That(options, Is.Not.Null);
-    Assert.That(options!.ModuleSearchPaths, Does.Contain("/custom/path"));
+    Assert.That(options!.Value.ModuleSearchPaths, Does.Contain("/custom/path"));
   }
 
   // Minimal test catalog for integration tests

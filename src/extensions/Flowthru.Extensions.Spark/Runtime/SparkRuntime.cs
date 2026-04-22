@@ -6,6 +6,7 @@ using System.Threading;
 using Flowthru.Spark.Interop;
 using Flowthru.Spark.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Extensions.Spark.Runtime;
 
@@ -39,12 +40,12 @@ public sealed class SparkRuntime : IDisposable
   /// Initializes a new instance of <see cref="SparkRuntime"/>.
   /// </summary>
   public SparkRuntime(
-    SparkRuntimeOptions options,
+    IOptions<SparkRuntimeOptions> options,
     ILogger<SparkRuntime> logger,
     ILoggerFactory loggerFactory
   )
   {
-    _options = options ?? throw new ArgumentNullException(nameof(options));
+    _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
   }
@@ -85,8 +86,18 @@ public sealed class SparkRuntime : IDisposable
       // writing directly to stdout via ConsoleLoggerService.
       LoggerServiceFactory.SetLoggerService(new MelLoggerService(_loggerFactory));
 
-      var sparkHome = _options.GetResolvedSparkHome();
-      var jarPath = _options.GetResolvedJarPath();
+      var sparkHome =
+        _options.SparkHome
+        ?? throw new InvalidOperationException(
+          "Spark installation not found. Set SparkHome in Flowthru:Spark configuration, "
+            + "or set the SPARK_HOME environment variable."
+        );
+      var jarPath =
+        _options.JarPath
+        ?? throw new InvalidOperationException(
+          $"Spark bridge JAR not found. Set JarPath in Flowthru:Spark configuration, "
+            + $"or ensure '{SparkRuntimeOptions.JarFileName}' is present in the output directory."
+        );
       var master = _options.Master;
 
       _logger.LogInformation("Spark home: {SparkHome}", sparkHome);

@@ -1,5 +1,6 @@
 using Flowthru.Extensions.Python.Runtime;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 [assembly: NUnit.Framework.LevelOfParallelism(1)]
 [assembly: NUnit.Framework.Parallelizable(NUnit.Framework.ParallelScope.None)]
@@ -44,14 +45,14 @@ public class PythonTestFixture
 
     try
     {
-      var pythonDll = options.GetResolvedPythonDll();
+      var pythonDll = PythonEnvironmentResolver.ResolvePythonDll(options);
       Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonDll);
       Console.WriteLine($"[PythonTestFixture] Set PYTHONNET_PYDLL={pythonDll}");
 
       // Create shared singleton runtime directly (not via DI container)
       // to avoid disposal when ServiceProvider is GC'd
       SharedRuntime = new PythonRuntime(
-        options,
+        Microsoft.Extensions.Options.Options.Create(options),
         Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance.CreateLogger<PythonRuntime>()
       );
       SharedRuntime.Initialize();

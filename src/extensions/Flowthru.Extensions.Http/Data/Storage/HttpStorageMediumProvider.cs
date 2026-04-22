@@ -1,5 +1,6 @@
 using Flowthru.Core.Data.Storage.Medium;
 using Flowthru.Extensions.Http;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Core.Data.Storage;
 
@@ -23,12 +24,13 @@ public sealed class HttpStorageMediumProvider : IStorageMediumProvider
   private readonly HttpCacheOptions? _cache;
 
   /// <summary>
-  /// Creates a new HTTP provider using the supplied client and optional cache options.
+  /// Creates a new HTTP provider using options resolved from DI.
   /// </summary>
-  public HttpStorageMediumProvider(HttpClient httpClient, HttpCacheOptions? cache = null)
+  public HttpStorageMediumProvider(IOptions<HttpOptions> options)
   {
-    _httpClient = httpClient;
-    _cache = cache;
+    var opts = options.Value;
+    _httpClient = opts.CreateClient();
+    _cache = opts.Cache;
   }
 
   /// <summary>
@@ -36,7 +38,7 @@ public sealed class HttpStorageMediumProvider : IStorageMediumProvider
   /// Use this for direct construction outside the DI container.
   /// </summary>
   public HttpStorageMediumProvider()
-    : this(new HttpClient()) { }
+    : this(Microsoft.Extensions.Options.Options.Create(new HttpOptions())) { }
 
   /// <inheritdoc/>
   public bool CanHandle(Uri uri) =>

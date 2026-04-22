@@ -13,6 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Expose internal test helpers to the Python test project -->
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Flowthru.Extensions.Python.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Core Flowthru library -->
     <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
     

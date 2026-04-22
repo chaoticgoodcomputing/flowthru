@@ -1,5 +1,6 @@
 using Flowthru.Extensions.Spark.Runtime;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace Flowthru.Extensions.Spark.Tests;
@@ -43,9 +44,13 @@ public static class SparkAssemblySetup
 
     try
     {
-      var options = new SparkRuntimeOptions { BackendStartupTimeoutSeconds = 30 };
+      var options = new SparkRuntimeOptions
+      {
+        BackendStartupTimeoutSeconds = 30,
+        SparkHome = sparkHome,
+      };
       _runtime = new SparkRuntime(
-        options,
+        Microsoft.Extensions.Options.Options.Create(options),
         NullLogger<SparkRuntime>.Instance,
         NullLoggerFactory.Instance
       );

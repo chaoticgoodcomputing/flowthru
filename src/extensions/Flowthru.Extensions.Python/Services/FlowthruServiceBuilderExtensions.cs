@@ -3,66 +3,109 @@ using Flowthru.Core.Services;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Validation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Extensions.Python.Services;
 
 /// <summary>
-/// Extension methods for integrating Python support with <see cref="FlowthruServiceBuilder"/>.
+/// Extension methods for integrating Python support with <see cref="IFlowthruBuilder"/>.
 /// </summary>
 public static class FlowthruServiceBuilderExtensions
 {
   /// <summary>
-  /// Registers Python runtime and executor with default configuration.
+  /// Registers the Python runtime with configuration bound from <c>Flowthru:Python</c>.
   /// </summary>
-  /// <param name="builder">The Flowthru service builder</param>
+  /// <param name="builder">The Flowthru service builder.</param>
   /// <returns>The builder for method chaining</returns>
   /// <remarks>
   /// <para>
-  /// Uses auto-detection for all configuration:
+  /// Platform defaults are applied after configuration binding:
   /// <list type="bullet">
-  /// <item>Python DLL: <c>PYTHONNET_PYDLL</c> → <c>.venv/</c> → system Python</item>
-  /// <item>Virtual environment: <c>FLOWTHRU_PYTHON_VENV</c> → <c>.venv/</c> → none</item>
-  /// <item>Module search paths: <c>FLOWTHRU_PYTHON_PATH</c> → project root</item>
+  /// <item>Python DLL: <c>PYTHONNET_PYDLL</c> → <c>.venv/</c> via <c>uv sync</c> → <c>VIRTUAL_ENV</c></item>
+  /// <item>Virtual environment: <c>.venv/</c> in output directory</item>
+  /// <item>Module search paths: output directory</item>
   /// </list>
   /// </para>
   /// <para>
   /// <strong>Example (auto-detection):</strong>
   /// <code>
-  /// services.AddFlowthru(flowthru =>
+  /// services.AddFlowthru(configuration, flowthru =>
   /// {
   ///     flowthru
   ///         .RegisterCatalog&lt;MyCatalog&gt;()
-  ///         .UsePython();  // Auto-detects .venv/, project root, etc.
+  ///         .UsePython();
   /// });
   /// </code>
   /// </para>
   /// </remarks>
   public static IFlowthruBuilder UsePython(this IFlowthruBuilder builder)
   {
-    return builder.UsePython(options => { });
+    builder
+      .Services.AddOptions<PythonRuntimeOptions>()
+      .Configure<IConfiguration>((opts, cfg) => cfg.GetSection("Flowthru:Python").Bind(opts))
+      .PostConfigure(opts =>
+      {
+        // PYTHONNET_PYDLL is a Python.NET convention that predates Flowthru's config
+        // namespace. Read it as a platform default rather than via IConfiguration.
+        if (string.IsNullOrWhiteSpace(opts.PythonDll))
+        {
+          var envDll = Environment.GetEnvironmentVariable("PYTHONNET_PYDLL");
+          if (!string.IsNullOrWhiteSpace(envDll))
+          {
+            opts.PythonDll = envDll;
+          }
+        }
+      })
+      .ValidateOnStart();
+
+    if (builder.Services.Any(sd => sd.ServiceType == typeof(PythonRuntimeOptions)))
+    {
+      // Already registered (e.g., test double injected before UsePython)
+      return builder;
+    }
+
+    // Determine execution mode: peek at options to decide which executor to register.
+    // We read the bound section directly here because the DI container hasn't been built yet.
+    // Use nullable so a missing config section stays null rather than defaulting to the
+    // zero-value enum member (InProcess), which would silently override the intended default.
+    var executionMode = builder
+      .Configuration.GetSection("Flowthru:Python:ExecutionMode")
+      .Get<PythonExecutionMode?>();
+
+    // Default to Subprocess — safe for multi-service scenarios.
+    if (executionMode == PythonExecutionMode.InProcess)
+    {
+      if (!builder.Services.Any(sd => sd.ServiceType == typeof(PythonRuntime)))
+      {
+        builder.Services.AddSingleton<PythonRuntime>();
+      }
+      builder.Services.AddSingleton<IPythonExecutor, PythonNetExecutor>();
+      builder.Services.AddSingleton<IFlowValidationHook, PythonStepValidator>();
+    }
+    else
+    {
+      builder.Services.AddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
+    }
+
+    return builder;
   }
 
   /// <summary>
-  /// Registers Python runtime and executor with custom configuration.
+  /// Registers the Python runtime with code-first configuration overrides.
   /// </summary>
-  /// <param name="builder">The Flowthru service builder</param>
-  /// <param name="configure">Action to configure Python runtime options</param>
+  /// <param name="builder">The Flowthru service builder.</param>
+  /// <param name="configure">Action to override Python options after config-file binding.</param>
   /// <returns>The builder for method chaining</returns>
   /// <remarks>
   /// <para>
-  /// Explicit configuration overrides auto-detection.
-  /// Use this for:
-  /// <list type="bullet">
-  /// <item>Container deployments with non-standard Python paths</item>
-  /// <item>Custom module search paths</item>
-  /// <item>Multiple Python versions (explicit DLL path)</item>
-  /// </list>
+  /// The <paramref name="configure"/> callback runs after <c>Flowthru:Python</c> section
+  /// binding and platform env-var defaults, so it can selectively override specific values.
   /// </para>
   /// <para>
   /// <strong>Example (explicit configuration):</strong>
   /// <code>
-  /// services.AddFlowthru(flowthru =>
+  /// services.AddFlowthru(configuration, flowthru =>
   /// {
   ///     flowthru
   ///         .RegisterCatalog&lt;MyCatalog&gt;()
@@ -70,22 +113,6 @@ public static class FlowthruServiceBuilderExtensions
   ///         {
   ///             python.PythonDll = "/usr/lib/x86_64-linux-gnu/libpython3.12.so";
   ///             python.ModuleSearchPaths.Add("Flows");
-  ///             python.ModuleSearchPaths.Add("SharedSteps");
-  ///         });
-  /// });
-  /// </code>
-  /// </para>
-  /// <para>
-  /// <strong>Example (environment-variable driven, for containers):</strong>
-  /// <code>
-  /// services.AddFlowthru(flowthru =>
-  /// {
-  ///     flowthru
-  ///         .RegisterCatalog&lt;MyCatalog&gt;()
-  ///         .UsePython(python =>
-  ///         {
-  ///             // Reads PYTHONNET_PYDLL, FLOWTHRU_PYTHON_VENV, FLOWTHRU_PYTHON_PATH
-  ///             // Auto-detection still active for unset properties
   ///         });
   /// });
   /// </code>
@@ -96,45 +123,8 @@ public static class FlowthruServiceBuilderExtensions
     Action<PythonRuntimeOptions> configure
   )
   {
-    if (builder == null)
-    {
-      throw new ArgumentNullException(nameof(builder));
-    }
-
-    if (configure == null)
-    {
-      throw new ArgumentNullException(nameof(configure));
-    }
-
-    // Create and configure options
-    var options = new PythonRuntimeOptions();
-    configure(options);
-
-    // Register options as singleton
-    builder.Services.AddSingleton(options);
-
-    if (options.ExecutionMode == PythonExecutionMode.InProcess)
-    {
-      // In-process mode: shared PythonEngine, GIL-guarded execution.
-      // PythonRuntime may be pre-registered for testing.
-      if (!builder.Services.Any(sd => sd.ServiceType == typeof(PythonRuntime)))
-      {
-        builder.Services.AddSingleton<PythonRuntime>();
-      }
-      builder.Services.AddSingleton<IPythonExecutor, PythonNetExecutor>();
-      // Register pre-flight decorator + dry-run dtype validation (in-process only)
-      builder.Services.AddSingleton<
-        Flowthru.Core.Graph.Validation.IFlowValidationHook,
-        PythonStepValidator
-      >();
-    }
-    else
-    {
-      // Subprocess mode (default): each service has an isolated Python worker process.
-      // No shared PythonEngine or GIL — isolation is at the OS process boundary.
-      builder.Services.AddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
-    }
-
+    builder.UsePython();
+    builder.Services.PostConfigure(configure);
     return builder;
   }
 }

@@ -1,5 +1,6 @@
 using System.IO;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Python.Runtime;
 using PythonEngineRuntime = Python.Runtime.Runtime;
 
@@ -34,9 +35,9 @@ public sealed class PythonRuntime : IDisposable
   /// <summary>
   /// Initializes a new instance of <see cref="PythonRuntime"/>.
   /// </summary>
-  public PythonRuntime(PythonRuntimeOptions options, ILogger<PythonRuntime> logger)
+  public PythonRuntime(IOptions<PythonRuntimeOptions> options, ILogger<PythonRuntime> logger)
   {
-    _options = options ?? throw new ArgumentNullException(nameof(options));
+    _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
 
@@ -91,7 +92,7 @@ public sealed class PythonRuntime : IDisposable
 
         bool engineAlreadyInitialized = false;
 
-        var pythonDll = _options.GetResolvedPythonDll();
+        var pythonDll = PythonEnvironmentResolver.ResolvePythonDll(_options);
         _logger.LogInformation("Resolved Python DLL path: {PythonDll}", pythonDll);
 
         if (!File.Exists(pythonDll))
@@ -149,13 +150,13 @@ public sealed class PythonRuntime : IDisposable
         // Different venv site-packages being on sys.path simultaneously is a documented
         // constraint (same-named packages resolve to whichever was imported first).
 
-        var venvPath = _options.GetResolvedVenvPath();
+        var venvPath = PythonEnvironmentResolver.ResolveVenvPath(_options);
         if (venvPath != null)
         {
           _logger.LogInformation("Using Python virtual environment: {VenvPath}", venvPath);
         }
 
-        var searchPaths = _options.GetResolvedModuleSearchPaths();
+        var searchPaths = PythonEnvironmentResolver.ResolveModuleSearchPaths(_options);
         using (Py.GIL())
         {
           dynamic sys = Py.Import("sys");

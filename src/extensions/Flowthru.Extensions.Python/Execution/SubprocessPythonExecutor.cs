@@ -6,6 +6,7 @@ using Apache.Arrow;
 using Flowthru.Extensions.Python.Marshalling;
 using Flowthru.Extensions.Python.Runtime;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Extensions.Python.Execution;
 
@@ -48,11 +49,11 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// <param name="logger">The logger instance.</param>
   /// <exception cref="ArgumentNullException"></exception>
   public SubprocessPythonExecutor(
-    PythonRuntimeOptions options,
+    IOptions<PythonRuntimeOptions> options,
     ILogger<SubprocessPythonExecutor> logger
   )
   {
-    _options = options ?? throw new ArgumentNullException(nameof(options));
+    _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
 
@@ -146,7 +147,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
   private void StartWorker()
   {
-    var pyExe = _options.GetResolvedPythonExe();
+    var pyExe = PythonEnvironmentResolver.ResolvePythonExe(_options);
     var workerScript = Path.Combine(AppContext.BaseDirectory, "flowthru_worker.py");
 
     if (!File.Exists(workerScript))
@@ -180,8 +181,8 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
     // Build init message: sys.path includes configured search paths + the base directory
     // (so flowthru_worker.py can import _flowthru_arrow from the same directory)
-    var sysPaths = _options
-      .GetResolvedModuleSearchPaths()
+    var sysPaths = PythonEnvironmentResolver
+      .ResolveModuleSearchPaths(_options)
       .Concat(new[] { AppContext.BaseDirectory })
       .Distinct()
       .Select(p => (JsonNode?)JsonValue.Create(p))

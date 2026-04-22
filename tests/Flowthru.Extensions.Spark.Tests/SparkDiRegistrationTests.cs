@@ -4,6 +4,7 @@ using Flowthru.Extensions.Spark.Runtime;
 using Flowthru.Extensions.Spark.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Extensions.Spark.Tests;
 
@@ -94,7 +95,7 @@ public class SparkDiRegistrationTests
   {
     var provider = BuildProvider(opts => opts.Master = "spark://test:7077");
 
-    var options = provider.GetRequiredService<SparkRuntimeOptions>();
+    var options = provider.GetRequiredService<IOptions<SparkRuntimeOptions>>().Value;
 
     Assert.That(options.Master, Is.EqualTo("spark://test:7077"));
   }
@@ -104,7 +105,7 @@ public class SparkDiRegistrationTests
   {
     var provider = BuildProvider();
 
-    var options = provider.GetRequiredService<SparkRuntimeOptions>();
+    var options = provider.GetRequiredService<IOptions<SparkRuntimeOptions>>().Value;
 
     Assert.That(options.Master, Does.StartWith("local"));
   }

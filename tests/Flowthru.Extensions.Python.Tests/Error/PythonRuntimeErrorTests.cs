@@ -1,6 +1,7 @@
 using Flowthru.Extensions.Python.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Flowthru.Extensions.Python.Tests.Error;
 
@@ -64,7 +65,7 @@ public class PythonRuntimeErrorTests
     var services = new ServiceCollection();
     services.AddLogging();
     var options = new PythonRuntimeOptions { PythonDll = "/nonexistent/path/to/libpython.so" };
-    services.AddSingleton(options);
+    services.AddSingleton<IOptions<PythonRuntimeOptions>>(Options.Create(options));
     services.AddSingleton<PythonRuntime>();
 
     var provider = services.BuildServiceProvider();

@@ -25,7 +25,7 @@ internal static class PythonTestModuleInitializer
       );
 
       var options = new PythonRuntimeOptions();
-      var pythonDll = options.GetResolvedPythonDll();
+      var pythonDll = PythonEnvironmentResolver.ResolvePythonDll(options);
 
       File.AppendAllText(logPath, $"[{DateTime.Now:O}] Resolved Python DLL: {pythonDll}\n");
       File.AppendAllText(logPath, $"[{DateTime.Now:O}] DLL Exists: {File.Exists(pythonDll)}\n");
