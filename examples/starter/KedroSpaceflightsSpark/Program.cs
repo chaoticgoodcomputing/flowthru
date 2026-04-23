@@ -45,6 +45,7 @@ public class Program
           Path.Combine(basePath, "Data"),
           sp.GetRequiredService<SparkFrameProvider>()
         ));
+        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
 
         flowthru.ConfigureMetadata(meta =>
         {
@@ -64,19 +65,11 @@ public class Program
           );
 
         flowthru
-          .RegisterFlow(
-            label: "DataScience",
-            flow: DataScienceFlow.Create,
-            configurationSection: "Flowthru:Flows:DataScience"
-          )
+          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
           .WithDescription("Trains linear regression model for price prediction");
 
         flowthru
-          .RegisterFlow(
-            label: "Reporting",
-            flow: ReportingFlow.Create,
-            configurationSection: "Flowthru:Flows:Reporting"
-          )
+          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
           .WithDescription("Generates passenger capacity reports and visualizations");
 
         flowthru.UseSpark();

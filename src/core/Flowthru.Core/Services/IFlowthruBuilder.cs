@@ -93,12 +93,8 @@ public interface IFlowthruBuilder
   /// Catalog parameters are resolved from DI; all others are resolved from DI as services.
   /// </summary>
   /// <param name="label">Unique flow name.</param>
-  /// <param name="flow">Delegate whose parameters are catalogs, services, or config objects.</param>
-  /// <param name="configurationSection">
-  /// Optional configuration section path. When provided, the first non-catalog,
-  /// non-interface parameter is bound from <see cref="Configuration"/> instead of DI.
-  /// </param>
-  IFlowthruBuilder RegisterFlow(string label, Delegate flow, string? configurationSection = null);
+  /// <param name="flow">Delegate whose parameters are catalogs or DI-registered services.</param>
+  IFlowthruBuilder RegisterFlow(string label, Delegate flow);
 
   /// <summary>Adds a description to the most recently registered flow.</summary>
   IFlowthruBuilder WithDescription(string description);

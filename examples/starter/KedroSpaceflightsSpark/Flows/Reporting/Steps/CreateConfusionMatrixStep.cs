@@ -1,6 +1,5 @@
 using Flowthru.Core.Steps;
 using KedroSpaceflightsSpark.Data._07_ModelOutput.Schemas;
-using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using CSharpChart = Plotly.NET.CSharp.Chart;
@@ -15,66 +14,50 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(
-    Options? options = null,
-    ILogger? logger = null
-  )
+  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
   {
-    var opts = options ?? new Options();
+    var (predictions, opts) = (input.Data.ToList(), input.Options);
 
-    return input =>
+    if (!predictions.Any())
     {
-      var predictions = input.ToList();
+      throw new InvalidOperationException("Cannot create confusion matrix from empty predictions");
+    }
 
-      if (!predictions.Any())
+    var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
+    var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+
+    var binnedPredictions = predictions
+      .Select(p =>
+        (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
+      )
+      .ToList();
+
+    var matrix = new int[opts.NumBins, opts.NumBins];
+    foreach (var (actual, predicted) in binnedPredictions)
+    {
+      matrix[actual, predicted]++;
+    }
+
+    var zValues = new List<List<int>>();
+    for (int i = 0; i < opts.NumBins; i++)
+    {
+      var row = new List<int>();
+      for (int j = 0; j < opts.NumBins; j++)
       {
-        throw new InvalidOperationException(
-          "Cannot create confusion matrix from empty predictions"
-        );
+        row.Add(matrix[i, j]);
       }
 
-      logger?.LogInformation(
-        "Generating confusion matrix from {Count} predictions using {NumBins} bins",
-        predictions.Count,
-        opts.NumBins
-      );
+      zValues.Add(row);
+    }
 
-      var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
-      var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+    var binLabels = Enumerable.Range(1, opts.NumBins).Select(i => $"Q{i}").ToList();
 
-      var binnedPredictions = predictions
-        .Select(p =>
-          (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
-        )
-        .ToList();
-
-      var matrix = new int[opts.NumBins, opts.NumBins];
-      foreach (var (actual, predicted) in binnedPredictions)
-      {
-        matrix[actual, predicted]++;
-      }
-
-      var zValues = new List<List<int>>();
-      for (int i = 0; i < opts.NumBins; i++)
-      {
-        var row = new List<int>();
-        for (int j = 0; j < opts.NumBins; j++)
-        {
-          row.Add(matrix[i, j]);
-        }
-
-        zValues.Add(row);
-      }
-
-      var binLabels = Enumerable.Range(1, opts.NumBins).Select(i => $"Q{i}").ToList();
-
-      return CSharpChart
-        .Heatmap<int, string, string, int>(zValues, X: binLabels, Y: binLabels, ShowScale: true)
-        .WithXAxisStyle(Title.init("Predicted"))
-        .WithYAxisStyle(Title.init("Actual"))
-        .WithTitle($"Prediction Confusion Matrix ({opts.NumBins} bins)")
-        .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
-    };
+    return CSharpChart
+      .Heatmap<int, string, string, int>(zValues, X: binLabels, Y: binLabels, ShowScale: true)
+      .WithXAxisStyle(Title.init("Predicted"))
+      .WithYAxisStyle(Title.init("Actual"))
+      .WithTitle($"Prediction Confusion Matrix ({opts.NumBins} bins)")
+      .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
   }
 
   private static List<double> CalculatePercentileThresholds(List<double> sortedValues, int numBins)

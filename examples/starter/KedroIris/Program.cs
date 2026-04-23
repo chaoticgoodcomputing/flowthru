@@ -53,6 +53,7 @@ public class Program
       flowthru =>
       {
         flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
 
         // Output pipeline metadata
         flowthru.ConfigureMetadata(meta =>
@@ -66,22 +67,12 @@ public class Program
             );
         });
 
-        // Register data engineering pipeline with configuration parameters
         flowthru
-          .RegisterFlow(
-            label: "DataEngineering",
-            flow: DataEngineeringFlow.Create,
-            configurationSection: "Flowthru:Flows:DataEngineering"
-          )
+          .RegisterFlow(label: "DataEngineering", flow: DataEngineeringFlow.Create)
           .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
-        // Register data science pipeline with configuration parameters
         flowthru
-          .RegisterFlow(
-            label: "DataScience",
-            flow: DataScienceFlow.Create,
-            configurationSection: "Flowthru:Flows:DataScience"
-          )
+          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
           .WithDescription("Trains multi-class logistic regression model for iris classification");
       }
     );

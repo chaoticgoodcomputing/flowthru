@@ -6,20 +6,15 @@ namespace KedroSpaceflightsSpark.Flows.DataScience;
 
 public static class DataScienceFlow
 {
-  public record Params
-  {
-    public SplitDataStep.ModelOptions ModelOptions { get; init; } = new();
-  }
-
-  public static Flow Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, FlowConfig config)
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddStep(
         label: "SplitData",
         description: "Splits model input data into training and test sets.",
-        transform: SplitDataStep.Create(parameters.ModelOptions),
-        input: catalog.ModelInputTable,
+        transform: SplitDataStep.Create,
+        input: (catalog.ModelInputTable, config.ModelOptions),
         output: (catalog.TrainSplit, catalog.TestSplit)
       );
 

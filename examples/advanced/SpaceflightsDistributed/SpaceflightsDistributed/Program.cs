@@ -65,6 +65,8 @@ public class Program
         flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
         flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
         flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
+        flowthru.RegisterCatalog(_ => new DataScienceFlowConfig(configuration));
+        flowthru.RegisterCatalog(_ => new ReportingFlowConfig(configuration));
 
         // ─── Flow Registration ─────────────────────────────────────────────
 
@@ -73,19 +75,11 @@ public class Program
           .WithDescription("Preprocesses companies and shuttles data into a model input table");
 
         flowthru
-          .RegisterFlow(
-            label: "DataScience",
-            flow: DataScienceFlow.Create,
-            configurationSection: "Flowthru:Flows:DataScience"
-          )
+          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
           .WithDescription("Trains linear regression model for shuttle price prediction");
 
         flowthru
-          .RegisterFlow(
-            label: "Reporting",
-            flow: ReportingFlow.Create,
-            configurationSection: "Flowthru:Flows:Reporting"
-          )
+          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
           .WithDescription(
             "Generates passenger capacity reports and confusion matrix visualizations"
           );

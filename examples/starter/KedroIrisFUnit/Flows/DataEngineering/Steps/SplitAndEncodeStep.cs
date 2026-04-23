@@ -14,25 +14,31 @@ namespace KedroIrisFUnit.Flows.DataEngineering.Steps;
 public static class SplitAndEncodeStep
 {
   /// <summary>
-  /// Creates a data splitting function that encodes species labels and partitions the dataset.
+  /// Configuration options for <see cref="SplitAndEncodeStep"/>.
   /// </summary>
-  /// <param name="testDataRatio">Proportion of data to use for testing (e.g., 0.2 for 20%).</param>
-  /// <returns>
-  /// A function that transforms raw iris data into feature-encoded data and four separate
-  /// training/test splits (train_x, train_y, test_x, test_y).
-  /// </returns>
-  public static Func<
-    IEnumerable<IrisRawSchema>,
-    (
-      IEnumerable<IrisFeatureSchema> Features,
-      IEnumerable<FeatureVectorSchema> TrainX,
-      IEnumerable<TargetLabelSchema> TrainY,
-      IEnumerable<FeatureVectorSchema> TestX,
-      IEnumerable<TargetLabelSchema> TestY
-    )
-  > Create(double testDataRatio)
+  public record Options
   {
-    return (rawData) =>
+    /// <summary>
+    /// Proportion of data to use for testing (e.g., 0.2 for 20%).
+    /// </summary>
+    public double TestDataRatio { get; init; } = 0.2;
+  }
+
+  private static readonly Options DefaultOptions = new();
+
+  /// <summary>
+  /// Splits and encodes the raw iris data.
+  /// </summary>
+  public static (
+    IEnumerable<IrisFeatureSchema> Features,
+    IEnumerable<FeatureVectorSchema> TrainX,
+    IEnumerable<TargetLabelSchema> TrainY,
+    IEnumerable<FeatureVectorSchema> TestX,
+    IEnumerable<TargetLabelSchema> TestY
+  ) Create((IEnumerable<IrisRawSchema> Data, Options Options) input)
+  {
+    var (rawData, options) = input;
+    var testDataRatio = options.TestDataRatio;
     {
       // One-hot encode species labels
       var encoded = rawData
@@ -90,7 +96,7 @@ public static class SplitAndEncodeStep
       });
 
       return (encoded, trainX, trainY, testX, testY);
-    };
+    }
   }
 
 #if FUNIT_ENABLED
@@ -124,7 +130,10 @@ public static class SplitAndEncodeStep
       );
 
       // Apply
-      var (features, trainX, trainY, testX, testY) = Invoke(Create(testDataRatio: 0.2), rawData);
+      var (features, trainX, trainY, testX, testY) = Invoke(
+        Create,
+        (rawData, new Options { TestDataRatio = 0.2 })
+      );
 
       // Assert
       Assert.That(features.Count(), Is.EqualTo(10));
@@ -155,7 +164,7 @@ public static class SplitAndEncodeStep
       );
 
       // Apply
-      var (features, _, _, _, _) = Invoke(Create(testDataRatio: 0.0), rawData);
+      var (features, _, _, _, _) = Invoke(Create, (rawData, new Options { TestDataRatio = 0.0 }));
       var feature = features.Single();
 
       // Assert

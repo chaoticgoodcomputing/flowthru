@@ -28,14 +28,6 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   /// </summary>
   public const string UnusedCatalogId = "FT2002";
 
-  /// <summary>
-  /// A Flow has a concrete-class parameter that is not a catalog and is not covered by
-  /// configurationSection, meaning it will be resolved from DI. This may be intentional,
-  /// but if the parameter is a configuration POCO, the user should pass configurationSection
-  /// to RegisterFlow to bind it from appsettings instead.
-  /// </summary>
-  public const string UnboundConcreteParamId = "FT2003";
-
   private static readonly DiagnosticDescriptor _missingCatalogRule =
     new(
       MissingCatalogId,
@@ -58,23 +50,12 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       description: "A catalog was registered but no flow references it. This may indicate dead configuration."
     );
 
-  private static readonly DiagnosticDescriptor _unboundConcreteParamRule =
-    new(
-      UnboundConcreteParamId,
-      "Unbound concrete parameter",
-      "Flow '{0}' has parameter '{1}' of type '{2}' that will be resolved from DI. If it is a configuration object, pass configurationSection to RegisterFlow.",
-      "Flowthru.Core.Registration",
-      DiagnosticSeverity.Warning,
-      isEnabledByDefault: true,
-      description: "A concrete-class flow parameter that is not a catalog will be resolved from DI at flow-build time. If it is a configuration POCO, pass configurationSection to RegisterFlow to bind it from appsettings instead."
-    );
-
   /// <summary>
   /// Supported diagnostics for this analyzer. Each descriptor corresponds to a specific
   /// registration issue.
   /// </summary>
   public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-    ImmutableArray.Create(_missingCatalogRule, _unusedCatalogRule, _unboundConcreteParamRule);
+    ImmutableArray.Create(_missingCatalogRule, _unusedCatalogRule);
 
   /// <summary>
   /// Initializes the analyzer by registering an operation block action that analyzes
@@ -147,12 +128,11 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       string,
       IInvocationOperation
     >();
-    // Collect Flow registrations with their required catalogs and any ambiguous concrete params
+    // Collect Flow registrations with their required catalogs
     var flowRegistrations = new System.Collections.Generic.List<(
       string Label,
       IInvocationOperation Invocation,
-      System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs,
-      System.Collections.Generic.List<(ITypeSymbol Type, string ParamName)> AmbiguousConcreteParams
+      System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs
     )>();
 
     bool hasUseConfiguration = false; // UseConfiguration() no longer exists; IConfiguration is passed directly to AddFlowthru.
@@ -180,20 +160,17 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       // ── RegisterFlow ──
       if (methodName == "RegisterFlow")
       {
-        var (label, requiredCatalogs, ambiguousConcreteParams) = ResolveFlowRequirements(
-          call,
-          dataCatalogBaseType
-        );
+        var (label, requiredCatalogs) = ResolveFlowRequirements(call, dataCatalogBaseType);
         if (label != null)
         {
-          flowRegistrations.Add((label, call, requiredCatalogs, ambiguousConcreteParams));
+          flowRegistrations.Add((label, call, requiredCatalogs));
         }
       }
     }
 
     // Cross-reference: FT2001 — Flow requires catalog not registered
     var allReferencedCatalogs = new System.Collections.Generic.HashSet<string>();
-    foreach (var (label, invocation, requiredCatalogs, _) in flowRegistrations)
+    foreach (var (label, invocation, requiredCatalogs) in flowRegistrations)
     {
       foreach (var required in requiredCatalogs)
       {
@@ -229,22 +206,6 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
           _unusedCatalogRule,
           kvp.Value.Syntax.GetLocation(),
           catalogName
-        );
-        context.ReportDiagnostic(diagnostic);
-      }
-    }
-
-    // FT2003 — concrete non-catalog parameter not bound from configuration
-    foreach (var (label, invocation, _, ambiguousConcreteParams) in flowRegistrations)
-    {
-      foreach (var (paramType, paramName) in ambiguousConcreteParams)
-      {
-        var diagnostic = Diagnostic.Create(
-          _unboundConcreteParamRule,
-          invocation.Syntax.GetLocation(),
-          label,
-          paramName,
-          paramType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
         );
         context.ReportDiagnostic(diagnostic);
       }
@@ -301,29 +262,20 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
   }
 
   /// <summary>
-  /// Extracts the Flow label, required catalog types, and unbound concrete parameters
-  /// from a RegisterFlow call.
+  /// Extracts the Flow label and required catalog types from a RegisterFlow call.
   /// <para>
-  /// Parameters are classified the same way the runtime resolver does:
-  /// <list type="bullet">
-  /// <item>Extends <c>DataCatalogBase</c> → required catalog (FT2001 if missing RegisterCatalog)</item>
-  /// <item>Interface → DI-resolved service (no warning — extension territory)</item>
-  /// <item>Concrete class, not covered by configurationSection → ambiguous (FT2003)</item>
-  /// </list>
+  /// Catalog parameters (those that extend <c>DataCatalogBase</c>) must have a
+  /// corresponding <c>RegisterCatalog</c> call or FT2001 is emitted.
+  /// Interface and other concrete parameters are DI-resolved services — no diagnostic.
   /// </para>
   /// </summary>
   private static (
     string? Label,
-    System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs,
-    System.Collections.Generic.List<(ITypeSymbol Type, string ParamName)> AmbiguousConcreteParams
+    System.Collections.Generic.List<ITypeSymbol> RequiredCatalogs
   ) ResolveFlowRequirements(IInvocationOperation call, INamedTypeSymbol dataCatalogBaseType)
   {
     string? label = null;
     var requiredCatalogs = new System.Collections.Generic.List<ITypeSymbol>();
-    var ambiguousConcreteParams = new System.Collections.Generic.List<(
-      ITypeSymbol Type,
-      string ParamName
-    )>();
 
     // Extract label
     foreach (var arg in call.Arguments)
@@ -331,23 +283,6 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
       if (arg.Parameter?.Name == "label" && arg.Value.ConstantValue.HasValue)
       {
         label = arg.Value.ConstantValue.Value as string;
-        break;
-      }
-    }
-
-    // Detect whether configurationSection was supplied with a non-null string value.
-    // The runtime binds the FIRST concrete non-catalog non-interface param from config;
-    // all others fall through to DI.
-    bool hasConfigSection = false;
-    foreach (var arg in call.Arguments)
-    {
-      if (
-        arg.Parameter?.Name == "configurationSection"
-        && arg.Value.ConstantValue.HasValue
-        && arg.Value.ConstantValue.Value is string
-      )
-      {
-        hasConfigSection = true;
         break;
       }
     }
@@ -386,10 +321,6 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
 
     if (flowParams != null)
     {
-      // The runtime consumes configurationSection on the first concrete non-catalog
-      // non-interface param it encounters (left to right). Track that slot.
-      bool configSectionConsumed = false;
-
       foreach (var param in flowParams)
       {
         if (InheritsFrom(param.Type, dataCatalogBaseType))
@@ -397,28 +328,11 @@ public class FlowthruRegistrationAnalyzer : DiagnosticAnalyzer
           // Catalog — must be registered via RegisterCatalog.
           requiredCatalogs.Add(param.Type);
         }
-        else if (param.Type.TypeKind == TypeKind.Interface)
-        {
-          // Interface — DI-resolved service. Core has no visibility into what registers
-          // it; extensions own that contract. No diagnostic.
-        }
-        else
-        {
-          // Concrete non-catalog class — could be a config POCO or an explicitly
-          // registered DI type. If configurationSection covers this slot, it's fine.
-          if (hasConfigSection && !configSectionConsumed)
-          {
-            configSectionConsumed = true;
-          }
-          else
-          {
-            ambiguousConcreteParams.Add((param.Type, param.Name));
-          }
-        }
+        // Interfaces and other concrete types are DI-resolved services; no diagnostic.
       }
     }
 
-    return (label, requiredCatalogs, ambiguousConcreteParams);
+    return (label, requiredCatalogs);
   }
 
   private static INamedTypeSymbol? ResolveMethodSignatureFromArgument(IOperation value)

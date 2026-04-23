@@ -14,23 +14,18 @@ namespace SpaceflightsDistributed.Reporting.Flows.Reporting;
 /// </summary>
 public static class ReportingFlow
 {
-  public record Params
-  {
-    public CreateConfusionMatrixStep.Options ConfusionMatrixOptions { get; init; } = new();
-  }
-
   /// <summary>
   /// Creates the reporting pipeline.
   /// </summary>
   /// <param name="dp">The data processing catalog supplying preprocessed shuttle data.</param>
   /// <param name="ds">The data science catalog supplying model predictions.</param>
   /// <param name="r">The reporting catalog receiving all report and chart outputs.</param>
-  /// <param name="parameters">Configuration for the pipeline.</param>
+  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
   public static Flow Create(
     DataProcessingCatalog dp,
     DataScienceCatalog ds,
     ReportingCatalog r,
-    Params parameters
+    ReportingFlowConfig config
   )
   {
     return FlowBuilder.CreateFlow(pipeline =>
@@ -54,8 +49,8 @@ public static class ReportingFlow
       pipeline.AddStep(
         label: "GenerateConfusionMatrixChart",
         description: "Generates a confusion matrix heatmap from model price predictions.",
-        transform: CreateConfusionMatrixStep.Create(parameters.ConfusionMatrixOptions),
-        input: ds.ModelPredictions,
+        transform: CreateConfusionMatrixStep.Create,
+        input: (ds.ModelPredictions, config.ConfusionMatrixOptions),
         output: r.ConfusionMatrixChart
       );
     });

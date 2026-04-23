@@ -132,6 +132,7 @@ public class Program
           basePath: System.IO.Path.Combine(basePath, "Data"),
           client: sp.GetRequiredService<ISpaceflightsClient>()
         ));
+        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
 
         // Output pipeline metadata
         flowthru.ConfigureMetadata(meta =>
@@ -156,21 +157,13 @@ public class Program
           .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
           .WithDescription("Preprocesses companies and shuttles data");
 
-        // DataScience and Reporting are unchanged from the base Spaceflights example
+        // DataScience and Reporting use FlowConfig for configuration parameters
         flowthru
-          .RegisterFlow(
-            label: "DataScience",
-            flow: DataScienceFlow.Create,
-            configurationSection: "Flowthru:Flows:DataScience"
-          )
+          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
           .WithDescription("Trains linear regression model for price prediction");
 
         flowthru
-          .RegisterFlow(
-            label: "Reporting",
-            flow: ReportingFlow.Create,
-            configurationSection: "Flowthru:Flows:Reporting"
-          )
+          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
           .WithDescription("Generates passenger capacity reports and visualizations");
       }
     );

@@ -6,15 +6,8 @@ namespace KedroSpaceflightsSpark.Flows.Reporting;
 
 public static class ReportingFlow
 {
-  public record Params
+  public static Flow Create(Catalog catalog, FlowConfig config)
   {
-    public CreateConfusionMatrixStep.Options ConfusionMatrixOptions { get; init; } = new();
-  }
-
-  public static Flow Create(Catalog catalog, Params? parameters = null)
-  {
-    var p = parameters ?? new Params();
-
     return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddStep(
@@ -34,8 +27,8 @@ public static class ReportingFlow
 
       pipeline.AddStep(
         label: "GenerateConfusionMatrixChart",
-        transform: CreateConfusionMatrixStep.Create(p.ConfusionMatrixOptions),
-        input: catalog.ModelPredictions,
+        transform: CreateConfusionMatrixStep.Create,
+        input: (catalog.ModelPredictions, config.ConfusionMatrixOptions),
         output: catalog.ConfusionMatrixChart
       );
 

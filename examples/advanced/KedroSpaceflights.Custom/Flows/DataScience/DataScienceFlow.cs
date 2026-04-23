@@ -33,26 +33,15 @@ namespace KedroSpaceflights.Custom.Flows.DataScience;
 /// </summary>
 public static class DataScienceFlow
 {
-  /// <summary>
-  /// Parameters for the data science pipeline nodes.
-  /// </summary>
-  public record Params
-  {
-    /// <summary>
-    /// Options for model training.
-    /// </summary>
-    public CreateTestTrainSplitStep.TestTrainSplitParams ModelParams { get; init; } = new();
-  }
-
-  public static Flow Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, FlowConfig config)
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
       // Step 1: Split data into train/test sets (single input → multi-output)
       pipeline.AddStep(
         label: "CreateTestTrainSplitDatasets",
-        transform: CreateTestTrainSplitStep.Create(parameters: parameters.ModelParams),
-        input: catalog.ModelInputTable,
+        transform: CreateTestTrainSplitStep.Create,
+        input: (catalog.ModelInputTable, config.ModelParams),
         output: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
       );
 

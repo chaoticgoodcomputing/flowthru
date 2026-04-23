@@ -10,31 +10,20 @@ namespace KedroSpaceflightsGQL.Flows.DataScience;
 public static class DataScienceFlow
 {
   /// <summary>
-  /// Configuration parameters for the data science pipeline.
-  /// </summary>
-  public record Params
-  {
-    /// <summary>
-    /// Configuration options for data splitting and model training.
-    /// </summary>
-    public SplitDataStep.ModelOptions ModelOptions { get; init; } = new();
-  }
-
-  /// <summary>
   /// Creates the data science pipeline.
   /// </summary>
   /// <param name="catalog">The data catalog containing input and output entries.</param>
-  /// <param name="parameters">Configuration parameters for the pipeline.</param>
+  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
   /// <returns>A configured pipeline that produces a trained model and evaluation metrics.</returns>
-  public static Flow Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, FlowConfig config)
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddStep(
         label: "SplitData",
         description: "Splits model input data into training and test sets.",
-        transform: SplitDataStep.Create(parameters.ModelOptions),
-        input: catalog.ModelInputTable,
+        transform: SplitDataStep.Create,
+        input: (catalog.ModelInputTable, config.ModelOptions),
         output: (catalog.TrainSplit, catalog.TestSplit)
       );
 

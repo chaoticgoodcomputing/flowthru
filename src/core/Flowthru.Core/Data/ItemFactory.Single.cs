@@ -1,5 +1,6 @@
 using Flowthru.Core.Abstractions;
 using Flowthru.Core.Data.Storage;
+using Microsoft.Extensions.Configuration;
 
 namespace Flowthru.Core.Data;
 
@@ -147,6 +148,32 @@ public static partial class ItemFactory
     public static Item<T> Null<T>(string label)
     {
       var storage = new NullStorageAdapter<T>();
+      return new Item<T>(label, storage);
+    }
+
+    /// <summary>
+    /// Creates a read-only configuration catalog item backed by an <see cref="IConfiguration"/> section.
+    /// </summary>
+    /// <typeparam name="T">Configuration POCO type. Must have a public parameterless constructor.</typeparam>
+    /// <param name="label">Unique catalog label for DAG resolution</param>
+    /// <param name="sectionPath">Dot-separated configuration section path (e.g. <c>Flowthru:Flows:DataScience:ModelOptions</c>).</param>
+    /// <param name="configuration">The root or scoped <see cref="IConfiguration"/> instance.</param>
+    /// <returns>Read-only catalog item that binds the configuration section to <typeparamref name="T"/>.</returns>
+    /// <remarks>
+    /// <para>
+    /// Treats a configuration section as a first-class DAG input node so steps can declare
+    /// typed configuration dependencies. Missing sections and DataAnnotations validation
+    /// failures are caught during pre-flight, not at step execution.
+    /// </para>
+    /// </remarks>
+    public static Item<T> Configuration<T>(
+      string label,
+      string sectionPath,
+      IConfiguration configuration
+    )
+      where T : class, new()
+    {
+      var storage = new ConfigurationStorageAdapter<T>(sectionPath, configuration);
       return new Item<T>(label, storage);
     }
   }

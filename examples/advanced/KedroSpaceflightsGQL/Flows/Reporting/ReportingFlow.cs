@@ -25,26 +25,13 @@ namespace KedroSpaceflightsGQL.Flows.Reporting;
 public static class ReportingFlow
 {
   /// <summary>
-  /// Configuration parameters for the reporting pipeline.
-  /// </summary>
-  public record Params
-  {
-    /// <summary>
-    /// Configuration options for confusion matrix generation.
-    /// </summary>
-    public CreateConfusionMatrixStep.Options ConfusionMatrixOptions { get; init; } = new();
-  }
-
-  /// <summary>
   /// Creates the reporting pipeline.
   /// </summary>
   /// <param name="catalog">The data catalog containing input and output entries.</param>
-  /// <param name="parameters">Configuration parameters for the pipeline (optional).</param>
+  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
   /// <returns>A configured pipeline that produces visualizations and reports.</returns>
-  public static Flow Create(Catalog catalog, Params? parameters = null)
+  public static Flow Create(Catalog catalog, FlowConfig config)
   {
-    var p = parameters ?? new Params();
-
     return FlowBuilder.CreateFlow(pipeline =>
     {
       // ===== Shuttle Passenger Capacity Report (JSON) =====
@@ -80,8 +67,8 @@ public static class ReportingFlow
       // Step 1: Generate confusion matrix heatmap from model predictions
       pipeline.AddStep(
         label: "GenerateConfusionMatrixChart",
-        transform: CreateConfusionMatrixStep.Create(p.ConfusionMatrixOptions),
-        input: catalog.ModelPredictions,
+        transform: CreateConfusionMatrixStep.Create,
+        input: (catalog.ModelPredictions, config.ConfusionMatrixOptions),
         output: catalog.ConfusionMatrixChart
       );
 

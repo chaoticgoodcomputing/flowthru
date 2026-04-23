@@ -32,18 +32,7 @@ namespace KedroSpaceflights.Custom.Flows.DataEvaluation;
 /// </summary>
 public static class DataEvaluationFlow
 {
-  /// <summary>
-  /// Parameters for the data evaluation pipeline.
-  /// </summary>
-  public class Params
-  {
-    /// <summary>
-    /// Options for cross-validation.
-    /// </summary>
-    public CrossValidateModelStep.Params CrossValidationParams { get; init; } = new();
-  }
-
-  public static Flow Create(Catalog catalog, Params parameters)
+  public static Flow Create(Catalog catalog, FlowConfig config)
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
@@ -58,8 +47,8 @@ public static class DataEvaluationFlow
       // Step 2: Cross-validation for R² distribution analysis and comparison to Kedro
       pipeline.AddStep(
         label: "PerformCrossValidatedOLSRegressionTest",
-        transform: CrossValidateModelStep.Create(parameters.CrossValidationParams),
-        input: catalog.ModelInputTable,
+        transform: CrossValidateModelStep.Create,
+        input: (catalog.ModelInputTable, config.CrossValidationParams),
         output: catalog.CrossValidationResults
       );
     });

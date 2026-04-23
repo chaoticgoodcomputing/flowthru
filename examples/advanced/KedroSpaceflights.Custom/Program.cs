@@ -62,6 +62,7 @@ public class Program
         // Enable configuration loading from appsettings.json files
         // This loads: appsettings.json (base) -> appsettings.{Environment}.json -> appsettings.Local.json
         flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
         flowthru.ConfigureMetadata(meta =>
         {
           var metadataPath = Path.Combine(basePath, "Metadata");
@@ -78,11 +79,7 @@ public class Program
           .WithDescription("Preprocesses raw data and creates model input table");
 
         flowthru
-          .RegisterFlow(
-            label: "DataScience",
-            flow: DataScienceFlow.Create,
-            configurationSection: "Flowthru:Flows:DataScience"
-          )
+          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
           .WithDescription("Trains ML model");
 
         flowthru
@@ -92,11 +89,7 @@ public class Program
           );
 
         flowthru
-          .RegisterFlow(
-            label: "DataEvaluation",
-            flow: DataEvaluationFlow.Create,
-            configurationSection: "Flowthru:Flows:DataEvaluation"
-          )
+          .RegisterFlow(label: "DataEvaluation", flow: DataEvaluationFlow.Create)
           .WithDescription("Evaluates ML model performance and cross-validation");
 
         flowthru

@@ -54,6 +54,7 @@ public class Program
       flowthru =>
       {
         flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
 
         // Output pipeline metadata
         flowthru.ConfigureMetadata(meta =>
@@ -72,22 +73,14 @@ public class Program
           .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
           .WithDescription("Preprocesses companies and shuttles data");
 
-        // Register data science pipeline with configuration parameters
+        // Register data science pipeline
         flowthru
-          .RegisterFlow(
-            label: "DataScience",
-            flow: DataScienceFlow.Create,
-            configurationSection: "Flowthru:Flows:DataScience"
-          )
+          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
           .WithDescription("Trains linear regression model for price prediction");
 
-        // Register reporting pipeline with configuration parameters
+        // Register reporting pipeline
         flowthru
-          .RegisterFlow(
-            label: "Reporting",
-            flow: ReportingFlow.Create,
-            configurationSection: "Flowthru:Flows:Reporting"
-          )
+          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
           .WithDescription("Generates passenger capacity reports and visualizations");
       }
     );

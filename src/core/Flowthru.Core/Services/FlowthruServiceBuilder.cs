@@ -1,4 +1,3 @@
-using Flowthru.Core.Configuration;
 using Flowthru.Core.Data;
 using Flowthru.Core.Data.Storage.Strategies;
 using Flowthru.Core.Flows;
@@ -246,17 +245,9 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   /// All other parameters are resolved from DI as services.
   /// </summary>
   /// <param name="label">Unique Flow name</param>
-  /// <param name="flow">A method group or delegate whose parameters are catalogs, services, or config objects</param>
-  /// <param name="configurationSection">
-  /// Optional configuration section path. When provided, the last non-catalog, non-service parameter
-  /// is bound from configuration instead of DI.
-  /// </param>
+  /// <param name="flow">A method group or delegate whose parameters are catalogs or DI-registered services.</param>
   /// <returns>This builder for method chaining</returns>
-  public IFlowthruBuilder RegisterFlow(
-    string label,
-    Delegate flow,
-    string? configurationSection = null
-  )
+  public IFlowthruBuilder RegisterFlow(string label, Delegate flow)
   {
     if (string.IsNullOrWhiteSpace(label))
     {
@@ -284,26 +275,8 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
     var resolvers = new Func<IServiceProvider, object?>[parameters.Length];
     for (int i = 0; i < parameters.Length; i++)
     {
-      var paramType = parameters[i].ParameterType;
-
-      if (
-        configurationSection != null
-        && !typeof(CatalogAbstract).IsAssignableFrom(paramType)
-        && !paramType.IsInterface
-      )
-      {
-        // This is the configuration parameter — bind from config
-        var boundParams = Configuration.GetValidated(configurationSection, paramType);
-        resolvers[i] = _ => boundParams;
-        // Only bind the first non-catalog, non-interface parameter from config
-        configurationSection = null;
-      }
-      else
-      {
-        // Resolve from DI (catalogs, services like IPythonExecutor, etc.)
-        var capturedType = paramType;
-        resolvers[i] = sp => sp.GetRequiredService(capturedType);
-      }
+      var capturedType = parameters[i].ParameterType;
+      resolvers[i] = sp => sp.GetRequiredService(capturedType);
     }
 
     var capturedDelegate = flow;

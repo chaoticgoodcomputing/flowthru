@@ -13,14 +13,6 @@ namespace SpaceflightsDistributed.DataScience.Flows.DataScience;
 public static class DataScienceFlow
 {
   /// <summary>
-  /// Configuration parameters for the data science pipeline.
-  /// </summary>
-  public record Params
-  {
-    public SplitDataStep.ModelOptions ModelOptions { get; init; } = new();
-  }
-
-  /// <summary>
   /// Creates the data science pipeline.
   /// This pipeline signature expresses its cross-catalog dependency directly:
   /// it requires both a DataProcessingCatalog (data source) and a
@@ -28,16 +20,20 @@ public static class DataScienceFlow
   /// </summary>
   /// <param name="dp">The data processing catalog supplying the model input table.</param>
   /// <param name="ds">The data science catalog receiving splits, model, and metrics.</param>
-  /// <param name="parameters">Configuration parameters for the pipeline.</param>
-  public static Flow Create(DataProcessingCatalog dp, DataScienceCatalog ds, Params parameters)
+  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
+  public static Flow Create(
+    DataProcessingCatalog dp,
+    DataScienceCatalog ds,
+    DataScienceFlowConfig config
+  )
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
       pipeline.AddStep(
         label: "SplitData",
         description: "Splits the model input table into training and test sets.",
-        transform: SplitDataStep.Create(parameters.ModelOptions),
-        input: dp.ModelInputTable,
+        transform: SplitDataStep.Create,
+        input: (dp.ModelInputTable, config.ModelOptions),
         output: (ds.TrainSplit, ds.TestSplit)
       );
 

@@ -13,82 +13,82 @@ namespace KedroIris.Flows.DataEngineering.Steps;
 public static class SplitAndEncodeStep
 {
   /// <summary>
-  /// Creates a data splitting function that encodes species labels and partitions the dataset.
+  /// Configuration options for data splitting.
   /// </summary>
-  /// <param name="testDataRatio">Proportion of data to use for testing (e.g., 0.2 for 20%).</param>
-  /// <returns>
-  /// A function that transforms raw iris data into feature-encoded data and four separate
-  /// training/test splits (train_x, train_y, test_x, test_y).
-  /// </returns>
-  public static Func<
-    IEnumerable<IrisRawSchema>,
-    (
-      IEnumerable<IrisFeatureSchema> Features,
-      IEnumerable<FeatureVectorSchema> TrainX,
-      IEnumerable<TargetLabelSchema> TrainY,
-      IEnumerable<FeatureVectorSchema> TestX,
-      IEnumerable<TargetLabelSchema> TestY
-    )
-  > Create(double testDataRatio)
+  public record Options
   {
-    return (rawData) =>
+    /// <summary>Proportion of data to use for testing (e.g., 0.2 for 20%).</summary>
+    public double TestDataRatio { get; init; } = 0.2;
+  }
+
+  /// <summary>
+  /// Splits raw iris data into encoded feature sets and training/test splits.
+  /// </summary>
+  public static (
+    IEnumerable<IrisFeatureSchema> Features,
+    IEnumerable<FeatureVectorSchema> TrainX,
+    IEnumerable<TargetLabelSchema> TrainY,
+    IEnumerable<FeatureVectorSchema> TestX,
+    IEnumerable<TargetLabelSchema> TestY
+  ) Create((IEnumerable<IrisRawSchema> Data, Options Options) input)
+  {
+    var (rawData, options) = input;
+
+    // One-hot encode species labels
+    var encoded = rawData
+      .Select(row => new IrisFeatureSchema
+      {
+        SepalLength = row.SepalLength,
+        SepalWidth = row.SepalWidth,
+        PetalLength = row.PetalLength,
+        PetalWidth = row.PetalWidth,
+        Setosa = row.Species == "setosa" ? 1.0 : 0.0,
+        Versicolor = row.Species == "versicolor" ? 1.0 : 0.0,
+        Virginica = row.Species == "virginica" ? 1.0 : 0.0,
+      })
+      .ToList();
+
+    // Shuffle data for random train/test split
+    var random = new Random(42); // Fixed seed for reproducibility
+    var shuffled = encoded.OrderBy(_ => random.Next()).ToList();
+
+    // Split into train and test sets
+    var totalCount = shuffled.Count;
+    var testCount = (int)(totalCount * options.TestDataRatio);
+    var testData = shuffled.Take(testCount).ToList();
+    var trainData = shuffled.Skip(testCount).ToList();
+
+    // Separate features (X) from labels (Y)
+    var trainX = trainData.Select(row => new FeatureVectorSchema
     {
-      // One-hot encode species labels
-      var encoded = rawData
-        .Select(row => new IrisFeatureSchema
-        {
-          SepalLength = row.SepalLength,
-          SepalWidth = row.SepalWidth,
-          PetalLength = row.PetalLength,
-          PetalWidth = row.PetalWidth,
-          Setosa = row.Species == "setosa" ? 1.0 : 0.0,
-          Versicolor = row.Species == "versicolor" ? 1.0 : 0.0,
-          Virginica = row.Species == "virginica" ? 1.0 : 0.0,
-        })
-        .ToList();
+      SepalLength = row.SepalLength,
+      SepalWidth = row.SepalWidth,
+      PetalLength = row.PetalLength,
+      PetalWidth = row.PetalWidth,
+    });
 
-      // Shuffle data for random train/test split
-      var random = new Random(42); // Fixed seed for reproducibility
-      var shuffled = encoded.OrderBy(_ => random.Next()).ToList();
+    var trainY = trainData.Select(row => new TargetLabelSchema
+    {
+      Setosa = row.Setosa,
+      Versicolor = row.Versicolor,
+      Virginica = row.Virginica,
+    });
 
-      // Split into train and test sets
-      var totalCount = shuffled.Count;
-      var testCount = (int)(totalCount * testDataRatio);
-      var testData = shuffled.Take(testCount).ToList();
-      var trainData = shuffled.Skip(testCount).ToList();
+    var testX = testData.Select(row => new FeatureVectorSchema
+    {
+      SepalLength = row.SepalLength,
+      SepalWidth = row.SepalWidth,
+      PetalLength = row.PetalLength,
+      PetalWidth = row.PetalWidth,
+    });
 
-      // Separate features (X) from labels (Y)
-      var trainX = trainData.Select(row => new FeatureVectorSchema
-      {
-        SepalLength = row.SepalLength,
-        SepalWidth = row.SepalWidth,
-        PetalLength = row.PetalLength,
-        PetalWidth = row.PetalWidth,
-      });
+    var testY = testData.Select(row => new TargetLabelSchema
+    {
+      Setosa = row.Setosa,
+      Versicolor = row.Versicolor,
+      Virginica = row.Virginica,
+    });
 
-      var trainY = trainData.Select(row => new TargetLabelSchema
-      {
-        Setosa = row.Setosa,
-        Versicolor = row.Versicolor,
-        Virginica = row.Virginica,
-      });
-
-      var testX = testData.Select(row => new FeatureVectorSchema
-      {
-        SepalLength = row.SepalLength,
-        SepalWidth = row.SepalWidth,
-        PetalLength = row.PetalLength,
-        PetalWidth = row.PetalWidth,
-      });
-
-      var testY = testData.Select(row => new TargetLabelSchema
-      {
-        Setosa = row.Setosa,
-        Versicolor = row.Versicolor,
-        Virginica = row.Virginica,
-      });
-
-      return (encoded, trainX, trainY, testX, testY);
-    };
+    return (encoded, trainX, trainY, testX, testY);
   }
 }

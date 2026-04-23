@@ -32,65 +32,57 @@ public static class SplitDataStep
   }
 
   /// <summary>
-  /// Creates a data splitting function that partitions input data into training and test sets.
+  /// Splits input data into training and test sets.
   /// </summary>
-  /// <param name="options">Configuration options controlling the split behavior.</param>
-  /// <returns>
-  /// A function that randomly shuffles input data and splits it into training and test sets
-  /// based on the configured test size.
-  /// </returns>
-  public static Func<
-    IEnumerable<ModelInputTableSchema>,
-    (IEnumerable<TrainingData>, IEnumerable<TestData>)
-  > Create(ModelOptions options)
+  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
+    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
+  )
   {
-    return (input) =>
-    {
-      var data = input.ToList();
+    var (rawData, options) = input;
+    var data = rawData.ToList();
 
-      // Use random state for reproducibility
-      var random = new Random(options.RandomState);
-      var shuffled = data.OrderBy(_ => random.Next()).ToList();
+    // Use random state for reproducibility
+    var random = new Random(options.RandomState);
+    var shuffled = data.OrderBy(_ => random.Next()).ToList();
 
-      var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
+    var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
 
-      var trainData = shuffled
-        .Take(splitIndex)
-        .Select(row => new TrainingData
+    var trainData = shuffled
+      .Take(splitIndex)
+      .Select(row => new TrainingData
+      {
+        Features = new FeatureVector
         {
-          Features = new FeatureVector
-          {
-            Engines = row.Engines,
-            PassengerCapacity = row.PassengerCapacity,
-            Crew = row.Crew,
-            DCheckComplete = row.DCheckComplete,
-            MoonClearanceComplete = row.MoonClearanceComplete,
-            IataApproved = row.IataApproved,
-            CompanyRating = row.CompanyRating,
-            ReviewScoresRating = row.ReviewScoresRating,
-          },
-          Label = row.Price,
-        });
+          Engines = row.Engines,
+          PassengerCapacity = row.PassengerCapacity,
+          Crew = row.Crew,
+          DCheckComplete = row.DCheckComplete,
+          MoonClearanceComplete = row.MoonClearanceComplete,
+          IataApproved = row.IataApproved,
+          CompanyRating = row.CompanyRating,
+          ReviewScoresRating = row.ReviewScoresRating,
+        },
+        Label = row.Price,
+      });
 
-      var testData = shuffled
-        .Skip(splitIndex)
-        .Select(row => new TestData
+    var testData = shuffled
+      .Skip(splitIndex)
+      .Select(row => new TestData
+      {
+        Features = new FeatureVector
         {
-          Features = new FeatureVector
-          {
-            Engines = row.Engines,
-            PassengerCapacity = row.PassengerCapacity,
-            Crew = row.Crew,
-            DCheckComplete = row.DCheckComplete,
-            MoonClearanceComplete = row.MoonClearanceComplete,
-            IataApproved = row.IataApproved,
-            CompanyRating = row.CompanyRating,
-            ReviewScoresRating = row.ReviewScoresRating,
-          },
-          Label = row.Price,
-        });
+          Engines = row.Engines,
+          PassengerCapacity = row.PassengerCapacity,
+          Crew = row.Crew,
+          DCheckComplete = row.DCheckComplete,
+          MoonClearanceComplete = row.MoonClearanceComplete,
+          IataApproved = row.IataApproved,
+          CompanyRating = row.CompanyRating,
+          ReviewScoresRating = row.ReviewScoresRating,
+        },
+        Label = row.Price,
+      });
 
-      return (trainData, testData);
-    };
+    return (trainData, testData);
   }
 }

@@ -22,67 +22,60 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(Options? options = null)
+  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
   {
-    var opts = options ?? new Options();
+    var (predictions, opts) = (input.Data.ToList(), input.Options);
 
-    return input =>
+    if (!predictions.Any())
     {
-      var predictions = input.ToList();
+      throw new InvalidOperationException("Cannot create confusion matrix from empty predictions");
+    }
 
-      if (!predictions.Any())
+    var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
+    var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+
+    var binnedPredictions = predictions
+      .Select(p =>
+        (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
+      )
+      .ToList();
+
+    var matrix = new int[opts.NumBins, opts.NumBins];
+    foreach (var (actual, predicted) in binnedPredictions)
+    {
+      matrix[actual, predicted]++;
+    }
+
+    var zData = new List<List<int>>();
+    for (int i = 0; i < opts.NumBins; i++)
+    {
+      var row = new List<int>();
+      for (int j = 0; j < opts.NumBins; j++)
       {
-        throw new InvalidOperationException(
-          "Cannot create confusion matrix from empty predictions"
-        );
+        row.Add(matrix[i, j]);
       }
 
-      var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
-      var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+      zData.Add(row);
+    }
 
-      var binnedPredictions = predictions
-        .Select(p =>
-          (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
-        )
-        .ToList();
+    var labels = GeneratePercentileLabels(opts.NumBins);
+    var xLabels = labels.Select(l => $"Pred {l}").ToArray();
+    var yLabels = labels.Select(l => $"Actual {l}").ToArray();
 
-      var matrix = new int[opts.NumBins, opts.NumBins];
-      foreach (var (actual, predicted) in binnedPredictions)
-      {
-        matrix[actual, predicted]++;
-      }
-
-      var zData = new List<List<int>>();
-      for (int i = 0; i < opts.NumBins; i++)
-      {
-        var row = new List<int>();
-        for (int j = 0; j < opts.NumBins; j++)
-        {
-          row.Add(matrix[i, j]);
-        }
-
-        zData.Add(row);
-      }
-
-      var labels = GeneratePercentileLabels(opts.NumBins);
-      var xLabels = labels.Select(l => $"Pred {l}").ToArray();
-      var yLabels = labels.Select(l => $"Actual {l}").ToArray();
-
-      var binName = opts.NumBins switch
-      {
-        2 => "Median Split",
-        3 => "Tertiles",
-        4 => "Quartiles",
-        5 => "Quintiles",
-        10 => "Deciles",
-        _ => $"{opts.NumBins} Bins",
-      };
-
-      return CSharpChart
-        .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
-        .WithTitle($"Confusion Matrix ({binName})")
-        .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
+    var binName = opts.NumBins switch
+    {
+      2 => "Median Split",
+      3 => "Tertiles",
+      4 => "Quartiles",
+      5 => "Quintiles",
+      10 => "Deciles",
+      _ => $"{opts.NumBins} Bins",
     };
+
+    return CSharpChart
+      .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
+      .WithTitle($"Confusion Matrix ({binName})")
+      .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
   }
 
   private static List<double> CalculatePercentileThresholds(List<double> sortedValues, int numBins)
@@ -135,7 +128,7 @@ public static class CreateConfusionMatrixStep
         new ModelPredictions { Actual = 400, Predicted = 390 }
       );
 
-      var chart = Invoke(Create(), predictions);
+      var chart = Invoke(Create, (predictions, new Options()));
 
       Assert.That(chart, Is.Not.Null);
     }
@@ -149,7 +142,7 @@ public static class CreateConfusionMatrixStep
         new ModelPredictions { Actual = 300, Predicted = 300 }
       );
 
-      var chart = Invoke(Create(new Options { NumBins = 3 }), predictions);
+      var chart = Invoke(Create, (predictions, new Options { NumBins = 3 }));
 
       Assert.That(chart, Is.Not.Null);
     }
@@ -158,7 +151,7 @@ public static class CreateConfusionMatrixStep
     public void EmptyInput_Throws()
     {
       Assert.That(
-        () => Invoke(Create(), Enumerable.Empty<ModelPredictions>()),
+        () => Invoke(Create, (Enumerable.Empty<ModelPredictions>(), new Options())),
         Throws.InvalidOperationException
       );
     }

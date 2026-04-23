@@ -1,6 +1,5 @@
 using Flowthru.Core.Steps;
 using KedroSpaceflights.Data._07_ModelOutput.Schemas;
-using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using CSharpChart = Plotly.NET.CSharp.Chart;
@@ -40,96 +39,65 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(
-    Options? options = null,
-    ILogger? logger = null
-  )
+  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
   {
-    var opts = options ?? new Options();
+    var (predictions, opts) = (input.Data.ToList(), input.Options);
 
-    return input =>
+    if (!predictions.Any())
     {
-      var predictions = input.ToList();
+      throw new InvalidOperationException("Cannot create confusion matrix from empty predictions");
+    }
 
-      if (!predictions.Any())
+    // Calculate percentile thresholds based on actual values
+    var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
+    var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+
+    // Bin predictions into classes
+    var binnedPredictions = predictions
+      .Select(p =>
+        (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
+      )
+      .ToList();
+
+    // Build NxN confusion matrix
+    var matrix = new int[opts.NumBins, opts.NumBins];
+    foreach (var (actual, predicted) in binnedPredictions)
+    {
+      matrix[actual, predicted]++;
+    }
+
+    // Convert to format for Plotly heatmap (list of lists)
+    var zData = new List<List<int>>();
+    for (int i = 0; i < opts.NumBins; i++)
+    {
+      var row = new List<int>();
+      for (int j = 0; j < opts.NumBins; j++)
       {
-        throw new InvalidOperationException(
-          "Cannot create confusion matrix from empty predictions"
-        );
+        row.Add(matrix[i, j]);
       }
+      zData.Add(row);
+    }
 
-      logger?.LogInformation(
-        "Generating confusion matrix from {Count} predictions using {NumBins} bins",
-        predictions.Count,
-        opts.NumBins
-      );
+    // Generate labels based on percentile ranges
+    var labels = GeneratePercentileLabels(opts.NumBins);
+    var xLabels = labels.Select(l => $"Pred {l}").ToArray();
+    var yLabels = labels.Select(l => $"Actual {l}").ToArray();
 
-      // Calculate percentile thresholds based on actual values
-      var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
-      var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
-
-      logger?.LogInformation(
-        "Percentile thresholds: [{Thresholds}]",
-        string.Join(", ", thresholds.Select(t => $"{t:F2}"))
-      );
-
-      // Bin predictions into classes
-      var binnedPredictions = predictions
-        .Select(p =>
-          (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
-        )
-        .ToList();
-
-      // Build NxN confusion matrix
-      var matrix = new int[opts.NumBins, opts.NumBins];
-      foreach (var (actual, predicted) in binnedPredictions)
-      {
-        matrix[actual, predicted]++;
-      }
-
-      // Convert to format for Plotly heatmap (list of lists)
-      var zData = new List<List<int>>();
-      for (int i = 0; i < opts.NumBins; i++)
-      {
-        var row = new List<int>();
-        for (int j = 0; j < opts.NumBins; j++)
-        {
-          row.Add(matrix[i, j]);
-        }
-        zData.Add(row);
-      }
-
-      // Generate labels based on percentile ranges
-      var labels = GeneratePercentileLabels(opts.NumBins);
-      var xLabels = labels.Select(l => $"Pred {l}").ToArray();
-      var yLabels = labels.Select(l => $"Actual {l}").ToArray();
-
-      logger?.LogInformation(
-        "Generated {Size}x{Size} confusion matrix",
-        opts.NumBins,
-        opts.NumBins
-      );
-
-      // Create heatmap using Plotly.NET.CSharp API
-      var binName = opts.NumBins switch
-      {
-        2 => "Median Split",
-        3 => "Tertiles",
-        4 => "Quartiles",
-        5 => "Quintiles",
-        10 => "Deciles",
-        _ => $"{opts.NumBins} Bins",
-      };
-
-      var chart = CSharpChart
-        .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
-        .WithTitle($"Confusion Matrix ({binName})")
-        .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
-
-      logger?.LogInformation("Generated GenericChart heatmap for confusion matrix");
-
-      return chart;
+    // Create heatmap using Plotly.NET.CSharp API
+    var binName = opts.NumBins switch
+    {
+      2 => "Median Split",
+      3 => "Tertiles",
+      4 => "Quartiles",
+      5 => "Quintiles",
+      10 => "Deciles",
+      _ => $"{opts.NumBins} Bins",
     };
+
+    return CSharpChart
+      .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
+      .WithTitle($"Confusion Matrix ({binName})")
+      .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
   }
 
   /// <summary>

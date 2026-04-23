@@ -12,22 +12,32 @@ namespace KedroIrisFUnit.Flows.DataScience.Steps;
 public static class TrainModelStep
 {
   /// <summary>
-  /// Creates a training function for multi-class logistic regression.
+  /// Configuration options for <see cref="TrainModelStep"/>.
   /// </summary>
-  /// <param name="numIterations">Number of training iterations.</param>
-  /// <param name="learningRate">Learning rate for gradient descent.</param>
-  /// <returns>
-  /// A function that trains on feature vectors and labels to produce model weights.
-  /// </returns>
-  public static Func<
-    (IEnumerable<FeatureVectorSchema> TrainX, IEnumerable<TargetLabelSchema> TrainY),
-    ModelWeightsSchema
-  > Create(int numIterations, double learningRate)
+  public record Options
   {
-    return (input) =>
-    {
-      var (trainX, trainY) = input;
+    /// <summary>Number of training iterations for gradient descent.</summary>
+    public int NumTrainIter { get; init; } = 10000;
 
+    /// <summary>Learning rate for gradient descent optimization.</summary>
+    public double LearningRate { get; init; } = 0.01;
+  }
+
+  /// <summary>
+  /// Trains a multi-class logistic regression model.
+  /// </summary>
+  public static ModelWeightsSchema Create(
+    (
+      IEnumerable<FeatureVectorSchema> TrainX,
+      IEnumerable<TargetLabelSchema> TrainY,
+      Options Options
+    ) input
+  )
+  {
+    var (trainX, trainY, options) = input;
+    var numIterations = options.NumTrainIter;
+    var learningRate = options.LearningRate;
+    {
       // Convert to arrays for matrix operations
       var xList = trainX.ToList();
       var yList = trainY.ToList();
@@ -126,7 +136,7 @@ public static class TrainModelStep
         NumFeatures = numFeatures,
         NumClasses = numClasses,
       };
-    };
+    }
   }
 
   /// <summary>
@@ -177,7 +187,10 @@ public static class TrainModelStep
       var trainY = SampleLabels(12);
 
       // Apply
-      var model = Invoke(Create(numIterations: 100, learningRate: 0.01), (trainX, trainY));
+      var model = Invoke(
+        Create,
+        (trainX, trainY, new Options { NumTrainIter = 100, LearningRate = 0.01 })
+      );
 
       // Assert — weight matrix shape: (NumFeatures + 1) × NumClasses = 5 × 3 = 15
       Assert.That(model.NumFeatures, Is.EqualTo(4));
@@ -199,7 +212,8 @@ public static class TrainModelStep
 
       // Apply + Assert
       Assert.DoesNotThrow(
-        () => Invoke(Create(numIterations: 1, learningRate: 0.001), (trainX, trainY))
+        () =>
+          Invoke(Create, (trainX, trainY, new Options { NumTrainIter = 1, LearningRate = 0.001 }))
       );
     }
   }
