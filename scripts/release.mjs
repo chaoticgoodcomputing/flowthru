@@ -20,6 +20,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import semver from 'semver';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -64,7 +65,19 @@ function deriveSpecifierFromGitLog(fromRef) {
   return null;
 }
 
-const specifier = FORCE_BUMP ?? deriveSpecifierFromGitLog(FROM_TAG);
+const specifier = (() => {
+  if (FORCE_BUMP) {
+    // For manual dispatch, compute the new version directly from package.json
+    // rather than letting NX scan git tags. This is resilient to orphaned or
+    // missing tags — the committed package.json version is always authoritative.
+    const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
+    const next = semver.inc(pkg.version, FORCE_BUMP);
+    if (!next) throw new Error(`Invalid semver bump type: ${FORCE_BUMP}`);
+    console.log(`Manual dispatch: bumping ${pkg.version} → ${next} (${FORCE_BUMP})`);
+    return next; // absolute version, bypasses NX tag resolution
+  }
+  return deriveSpecifierFromGitLog(FROM_TAG);
+})();
 
 if (!specifier) {
   console.log('No version bump required — no releasable commits since last tag.');
