@@ -1,3 +1,23 @@
+## 0.8.0 (2026-04-23)
+
+### 🚀 Features
+
+- pull over HTTP, storage cache ([8d430203](https://github.com/chaoticgoodcomputing/flowthru/commit/8d430203))
+- better metadata surface and default provider behavior ([d9df524f](https://github.com/chaoticgoodcomputing/flowthru/commit/d9df524f))
+- migrate to dotnet IConfiguration ([d3c8e50d](https://github.com/chaoticgoodcomputing/flowthru/commit/d3c8e50d))
+- extensions now use idiomatic C# config system ([77100c0c](https://github.com/chaoticgoodcomputing/flowthru/commit/77100c0c))
+- configuration as catalog ([ed8e3cb4](https://github.com/chaoticgoodcomputing/flowthru/commit/ed8e3cb4))
+
+### 🩹 Fixes
+
+- resolve issue with GitHub pre-releases ([95b15373](https://github.com/chaoticgoodcomputing/flowthru/commit/95b15373))
+- resolve CI orphaned head issue ([ec5c7237](https://github.com/chaoticgoodcomputing/flowthru/commit/ec5c7237))
+- resolve issues with manual dispatch deployments hitting NX versioning clothesline. ([07c1da41](https://github.com/chaoticgoodcomputing/flowthru/commit/07c1da41))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.7.0 (2026-04-17)
 
 ### 🚀 Features
