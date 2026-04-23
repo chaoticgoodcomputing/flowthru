@@ -79,15 +79,16 @@ jobs:
 
       - name: Determine last published release tag
         id: last-published
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Find the most recent non-draft, non-prerelease published release tag
-          BASE_TAG=$(gh release list --limit 20 --json tagName,isDraft,isPrerelease \
-            --jq '[.[] | select(.isDraft == false and .isPrerelease == false)] | .[0].tagName // empty')
+          # Find the most recent vX.Y.Z tag reachable from HEAD.
+          # --merged HEAD ensures we never resolve to a tag on an orphaned branch,
+          # which can happen when a release commit is pushed concurrently with other
+          # work and the merge produces a non-linear ancestry.
+          BASE_TAG=$(git tag --sort=-v:refname --merged HEAD \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
           if [ -z "$BASE_TAG" ]; then
-            # Fallback: most recent git tag (first release in the repo)
-            BASE_TAG=$(git tag --sort=-v:refname | head -1)
+            # No release tag yet — start from the initial commit.
+            BASE_TAG=$(git rev-list --max-parents=0 HEAD)
           fi
           echo "tag=${BASE_TAG}" >> "$GITHUB_OUTPUT"
           echo "Base tag for release: ${BASE_TAG}"
