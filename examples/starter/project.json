@@ -4,7 +4,7 @@
   "projectType": "library",
   "sourceRoot": "examples/starter",
   "targets": {
-    "_pack_all": {
+    "pack-all": {
       "//": "Packs all packable projects in the workspace. src/ lands in dist/packages/ (flat); others go under dist/packages/<relative-path>/",
       "executor": "nx:run-commands",
       "options": {
@@ -27,13 +27,7 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIris/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroIrisPython/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflights/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsPython/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/KedroSpaceflightsSpark/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/Minimal/AGENTS.md",
-          "cp docs/guides/misc/AGENTS.md examples/starter/SpaceflightsEFCore/AGENTS.md"
+          "for dir in examples/starter/*/; do cp docs/guides/misc/AGENTS.md \"$dir\"; done"
         ],
         "cwd": "{workspaceRoot}",
         "parallel": false
