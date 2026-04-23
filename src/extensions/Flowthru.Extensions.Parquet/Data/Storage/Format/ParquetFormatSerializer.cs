@@ -33,21 +33,32 @@ namespace Flowthru.Core.Data.Storage.Format;
 /// <item>Null Safety - Enforces non-nullable contracts during deserialization</item>
 /// <item>Value Type Nullability - DTOs use nullable value types to match Parquet schema conventions</item>
 /// <item>Enum Support - Automatically converts between Parquet's integer storage and enum types</item>
+/// <item>Row group streaming - Writes in bounded batches (default 1M rows/group); peak write memory
+/// is bounded to one row group regardless of total dataset size.</item>
 /// </list>
 /// <para>
 /// <strong>Current Limitations:</strong>
 /// </para>
 /// <list type="bullet">
 /// <item>SerializedEnum attributes are not used - enums stored/retrieved by underlying integer value</item>
+/// <item>Per-column encoding hints require Parquet.Net v6 (not yet on NuGet); use
+/// <see cref="ParquetItemOptions{TRow}.UseDictionaryEncoding"/> as a global flag in the meantime.</item>
 /// </list>
 /// </remarks>
 public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   where TRow : notnull, IFlatSchema, IBinarySerializable
 {
+  private readonly ParquetItemOptions<TRow>? _options;
+
   /// <summary>
-  /// Initializes a new instance of the <see cref="ParquetFormatSerializer{TRow}"/> class.
+  /// Initializes a new instance with default production-ready options.
   /// </summary>
   public ParquetFormatSerializer() { }
+
+  /// <summary>
+  /// Initializes a new instance with caller-supplied tuning options.
+  /// </summary>
+  public ParquetFormatSerializer(ParquetItemOptions<TRow>? options) => _options = options;
 
   /// <inheritdoc/>
   /// <remarks>
@@ -60,9 +71,13 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   /// <remarks>
   /// Streams rows one row group at a time. Early-exit consumers (e.g. shallow inspection)
   /// will break after reading fewer than all row groups, avoiding full-file materialisation.
+  /// Any <see cref="ParquetItemOptions{TRow}"/> supplied at construction time are threaded
+  /// into the deserialiser (date type mapping, big-decimal, encoding settings).
   /// </remarks>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
+    var readOptions = _options?.ToReadOptions();
+
     // Read schema and row-group count from the file footer (cheap seek-based metadata read)
     using var reader = await ParquetReader.CreateAsync(stream, leaveStreamOpen: true);
     var schema = reader.Schema;
@@ -73,7 +88,7 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
     for (int rgi = 0; rgi < rowGroupCount; rgi++)
     {
       stream.Position = 0;
-      var dtos = await adapter.DeserializeRowGroup(stream, rgi);
+      var dtos = await adapter.DeserializeRowGroup(stream, rgi, readOptions);
       foreach (var dto in dtos)
       {
         yield return adapter.FromDto(dto);
@@ -86,7 +101,12 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   {
     // For serialization, create adapter based on TRow schema (no file to read)
     var adapter = new ParquetAdapter<TRow>(parquetSchema: null);
-    await adapter.SerializeToParquetAsync(stream, rows);
+    await adapter.SerializeToParquetAsync(
+      stream,
+      rows,
+      writeOptions: _options?.ToWriteOptions(),
+      rowGroupSize: _options?.RowGroupSize ?? 1_000_000
+    );
   }
 
   /// <inheritdoc/>
@@ -167,23 +187,82 @@ internal sealed class ParquetAdapter<TRow>
   public TRow FromDto(object dto) => _fromDto(dto);
 
   /// <summary>
-  /// Serializes rows to Parquet format with proper type safety.
-  /// Converts TRow instances to DTO instances and maintains type through serialization.
+  /// Serializes rows to Parquet format, flushing one row group per <paramref name="rowGroupSize"/>
+  /// batch. Peak write-side memory is bounded to one row group regardless of total dataset size.
   /// </summary>
-  public async Task SerializeToParquetAsync(Stream stream, IAsyncEnumerable<TRow> rows)
+  /// <remarks>
+  /// Each flush calls <see cref="ParquetSerializer.SerializeAsync"/> with <c>Append = true</c> after
+  /// the first batch, producing one Parquet row group per batch. For 1–10 GB datasets this avoids
+  /// materialising the entire dataset in memory and produces multi-row-group files that enable
+  /// predicate pushdown and read parallelism in downstream query engines.
+  /// </remarks>
+  public async Task SerializeToParquetAsync(
+    Stream stream,
+    IAsyncEnumerable<TRow> rows,
+    ParquetSerializerOptions? writeOptions,
+    int rowGroupSize
+  )
   {
-    // Convert to strongly-typed list using reflection to create List<TDto>
     var listType = typeof(List<>).MakeGenericType(_dtoType);
-    var dtosList = (System.Collections.IList)Activator.CreateInstance(listType)!;
+    var batch = (System.Collections.IList)Activator.CreateInstance(listType)!;
+    bool firstBatch = true;
 
     await foreach (var row in rows)
     {
-      dtosList.Add(_toDto(row));
+      batch.Add(_toDto(row));
+
+      if (batch.Count >= rowGroupSize)
+      {
+        await SerializeBatch(batch, stream, writeOptions, firstBatch);
+        firstBatch = false;
+        batch.Clear();
+      }
     }
 
-    // Invoke: Task ParquetSerializer.SerializeAsync<TDto>(IEnumerable<TDto>, Stream, ...)
+    // Write the final (possibly partial) batch — handles the common single-batch case too.
+    if (batch.Count > 0)
+    {
+      await SerializeBatch(batch, stream, writeOptions, firstBatch);
+    }
+  }
+
+  /// <summary>
+  /// Writes one batch as a single Parquet row group. Stamps <c>Append = true</c> on
+  /// subsequent batches so that each call appends a new row group rather than overwriting.
+  /// </summary>
+  private async Task SerializeBatch(
+    System.Collections.IList batch,
+    Stream stream,
+    ParquetSerializerOptions? writeOptions,
+    bool isFirstBatch
+  )
+  {
+    ParquetSerializerOptions? opts;
+    if (!isFirstBatch)
+    {
+      // Clone the caller's options (or create minimal ones) with Append = true.
+      // ParquetSerializerOptions is a plain class with no copy constructor, so we
+      // construct a fresh instance and copy every relevant property.
+      opts = writeOptions != null
+        ? new ParquetSerializerOptions
+        {
+          Append = true,
+          CompressionMethod = writeOptions.CompressionMethod,
+          CompressionLevel = writeOptions.CompressionLevel,
+          RowGroupSize = writeOptions.RowGroupSize,
+          PropertyNameCaseInsensitive = writeOptions.PropertyNameCaseInsensitive,
+          ParquetOptions = writeOptions.ParquetOptions,
+        }
+        : new ParquetSerializerOptions { Append = true };
+    }
+    else
+    {
+      opts = writeOptions;
+    }
+
+    // Invoke: Task ParquetSerializer.SerializeAsync<TDto>(IEnumerable<TDto>, Stream, options, ct)
     var task = (Task)
-      _serializeMethod.Invoke(null, [dtosList, stream, null, CancellationToken.None])!;
+      _serializeMethod.Invoke(null, [batch, stream, opts, CancellationToken.None])!;
     await task;
   }
 
@@ -199,15 +278,20 @@ internal sealed class ParquetAdapter<TRow>
   }
 
   /// <summary>
-  /// Deserializes a single row group identified by <paramref name="rowGroupIndex"/>.
+  /// Deserializes a single row group identified by <paramref name="rowGroupIndex"/>,
+  /// threading any caller-supplied <paramref name="readOptions"/> into Parquet.NET.
   /// This keeps I/O bounded to one row group when consumers break early.
   /// </summary>
-  public async Task<System.Collections.IList> DeserializeRowGroup(Stream stream, int rowGroupIndex)
+  public async Task<System.Collections.IList> DeserializeRowGroup(
+    Stream stream,
+    int rowGroupIndex,
+    ParquetSerializerOptions? readOptions
+  )
   {
     // Invoke: Task<IList<TDto>> ParquetSerializer.DeserializeAsync<TDto>(Stream, int, options, ct)
     var task = (Task)_deserializeRowGroupMethod.Invoke(
       null,
-      [stream, rowGroupIndex, null, CancellationToken.None]
+      [stream, rowGroupIndex, readOptions, CancellationToken.None]
     )!;
     await task;
 
