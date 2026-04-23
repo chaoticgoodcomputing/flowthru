@@ -139,7 +139,9 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
       finally
       {
         if (_handle.OwnsContext)
+        {
           await ctx.DisposeAsync();
+        }
       }
     });
   }
@@ -172,15 +174,21 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
         finally
         {
           if (_handle.OwnsContext)
+          {
             await ctx.DisposeAsync();
+          }
         }
         return FlowUnit.Default;
       }
 
       if (data is DbQuery<T> query && query.Scope.IsSameDatabase(_handle.Scope))
+      {
         await FusedSaveAsync(query, ct);
+      }
       else
+      {
         await MaterialisedSaveAsync(data, ct);
+      }
 
       return FlowUnit.Default;
     });
@@ -203,7 +211,9 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
       finally
       {
         if (_handle.OwnsContext)
+        {
           await ctx.DisposeAsync();
+        }
       }
     });
   }
@@ -263,7 +273,9 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
       finally
       {
         if (_handle.OwnsContext)
+        {
           await ctx.DisposeAsync();
+        }
       }
     });
   }
@@ -323,7 +335,9 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
       finally
       {
         if (_handle.OwnsContext)
+        {
           await ctx.DisposeAsync();
+        }
       }
     });
   }
@@ -411,7 +425,9 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
     finally
     {
       if (_handle.OwnsContext)
+      {
         await context.DisposeAsync();
+      }
     }
   }
 
@@ -425,7 +441,9 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
     finally
     {
       if (_handle.OwnsContext)
+      {
         await ctx.DisposeAsync();
+      }
     }
   }
 

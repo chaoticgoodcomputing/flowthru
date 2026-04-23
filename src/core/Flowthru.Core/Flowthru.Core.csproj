@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Flowthru.Tests" />
+    <InternalsVisibleTo Include="Flowthru.Core.Tests" />
     <!-- Format extension packages need access to internal serialization helpers -->
     <InternalsVisibleTo Include="Flowthru.Extensions.Csv" />
     <InternalsVisibleTo Include="Flowthru.Extensions.Parquet" />

@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/misc/Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
   </ItemGroup>

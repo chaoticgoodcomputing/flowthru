@@ -256,7 +256,7 @@ public class ParquetLargeDatasetPerformanceTests
     // Open the file directly with Parquet.NET to inspect row group count.
     // (We don't expose reader internals through Flowthru's public API.)
     await using var stream = File.OpenRead(filePath);
-    using var reader = await Parquet.ParquetReader.CreateAsync(stream);
+    using var reader = await ParquetReader.CreateAsync(stream);
     int rowGroupCount = reader.RowGroupCount;
 
     Assert.That(

@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core\Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)tests/helpers/Flowthru.Tests.Helpers/Flowthru.Tests.Helpers.csproj" />
   </ItemGroup>
 
 </Project>
