@@ -137,6 +137,30 @@ public class ConsoleResultFormatter : IFlowResultFormatter
     }
 
     logger.LogError("");
+
+    // Generate error report and issue URL
+    var report = RuntimeErrorReport.FromFlowResult(result);
+    var issueUrl = GitHubIssueUrlBuilder.Build(report);
+
+    if (report.Classification == ErrorClassification.PossibleFrameworkBug)
+    {
+      logger.LogError(
+        "This failure may indicate a bug in Flowthru. If a pipeline passes"
+          + " pre-flight checks, it should complete successfully."
+      );
+      logger.LogError("Please consider reporting this issue:");
+    }
+    else
+    {
+      logger.LogWarning(
+        "This failure appears to be caused by an external factor"
+          + " (network, filesystem, resource exhaustion, etc.)."
+      );
+      logger.LogWarning("If you believe this is a Flowthru bug, you can still report it:");
+    }
+
+    logger.LogError("  {IssueUrl}", issueUrl);
+    logger.LogError("");
     logger.LogError("================================================================");
   }
 }
