@@ -1,5 +1,5 @@
-using Flowthru.Tests.Common;
 using Flowthru.Tests.Fixtures.TestCatalogs;
+using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis;
 
 namespace Flowthru.Tests.Compilation.TypeSafety;

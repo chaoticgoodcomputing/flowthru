@@ -29,8 +29,8 @@
     <!-- examples/archived/ is intentionally excluded — archived projects are not built or tested. -->
     <!-- Library sub-projects (OutputType=Library) are filtered at runtime by ExampleDiscovery -->
     <!-- using Assembly.EntryPoint — only executable assemblies become test cases. -->
-    <ProjectReference Include="..\..\examples\**\*.csproj"
-                      Exclude="..\..\examples\archived\**\*.csproj" />
+    <ProjectReference Include="$(RepoRoot)examples\**\*.csproj"
+                      Exclude="$(RepoRoot)examples\archived\**\*.csproj" />
   </ItemGroup>
 
   <!--

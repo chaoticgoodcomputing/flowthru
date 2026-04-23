@@ -6,9 +6,9 @@ using Flowthru.Core.Graph.Meta.Models;
 using Flowthru.Core.Graph.Validation;
 using Flowthru.Core.Services;
 using Flowthru.Core.Services.Models;
-using Flowthru.Tests.Common;
 using Flowthru.Tests.Fixtures.TestCatalogs;
 using Flowthru.Tests.Fixtures.TestSteps;
+using Flowthru.Tests.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -54,11 +54,14 @@ public class FlowthruServiceTests
     // Use the public AddFlowthru extension method to create the service
     var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
     services.AddLogging();
-    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
-    {
-      flowthru.RegisterCatalog(catalog);
-      flowthru.RegisterFlows(sp => pipelines);
-    });
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
+      {
+        flowthru.RegisterCatalog(catalog);
+        flowthru.RegisterFlows(sp => pipelines);
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
     return serviceProvider.GetRequiredService<IFlowthruService>();
@@ -75,10 +78,13 @@ public class FlowthruServiceTests
 
     Assert.Throws<ArgumentNullException>(() =>
     {
-      services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
-      {
-        flowthru.RegisterCatalog(nullCatalog);
-      });
+      services.AddFlowthru(
+        new ConfigurationBuilder().Build(),
+        flowthru =>
+        {
+          flowthru.RegisterCatalog(nullCatalog);
+        }
+      );
     });
   }
 
@@ -94,11 +100,14 @@ public class FlowthruServiceTests
 
     Assert.Throws<InvalidOperationException>(() =>
     {
-      services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
-      {
-        flowthru.RegisterCatalog(catalog);
-        // Don't register pipelines
-      });
+      services.AddFlowthru(
+        new ConfigurationBuilder().Build(),
+        flowthru =>
+        {
+          flowthru.RegisterCatalog(catalog);
+          // Don't register pipelines
+        }
+      );
 
       var serviceProvider = services.BuildServiceProvider();
       serviceProvider.GetRequiredService<IFlowthruService>();
@@ -751,15 +760,18 @@ public class FlowthruServiceTests
     // Create service with metadata provider configured
     var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
     services.AddLogging();
-    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
-    {
-      flowthru.RegisterCatalog(catalog);
-      flowthru.RegisterFlows(_ => pipelines);
-      flowthru.ConfigureMetadata(metadata =>
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
       {
-        metadata.AddProvider(capturingProvider);
-      });
-    });
+        flowthru.RegisterCatalog(catalog);
+        flowthru.RegisterFlows(_ => pipelines);
+        flowthru.ConfigureMetadata(metadata =>
+        {
+          metadata.AddProvider(capturingProvider);
+        });
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
     var service = serviceProvider.GetRequiredService<IFlowthruService>();
@@ -808,15 +820,18 @@ public class FlowthruServiceTests
     // Create service with metadata provider configured
     var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
     services.AddLogging();
-    services.AddFlowthru(new ConfigurationBuilder().Build(), flowthru =>
-    {
-      flowthru.RegisterCatalog(catalog);
-      flowthru.RegisterFlows(_ => pipelines);
-      flowthru.ConfigureMetadata(metadata =>
+    services.AddFlowthru(
+      new ConfigurationBuilder().Build(),
+      flowthru =>
       {
-        metadata.AddProvider(capturingProvider);
-      });
-    });
+        flowthru.RegisterCatalog(catalog);
+        flowthru.RegisterFlows(_ => pipelines);
+        flowthru.ConfigureMetadata(metadata =>
+        {
+          metadata.AddProvider(capturingProvider);
+        });
+      }
+    );
 
     var serviceProvider = services.BuildServiceProvider();
     var service = serviceProvider.GetRequiredService<IFlowthruService>();

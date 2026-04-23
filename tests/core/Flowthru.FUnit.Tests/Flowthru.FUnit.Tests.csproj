@@ -26,14 +26,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit\Flowthru.FUnit.csproj" />
     <!-- Direct reference to the generator and codefixes for testing -->
-    <ProjectReference Include="../../../src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
-    <ProjectReference Include="../../../src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.CodeFixes\Flowthru.FUnit.CodeFixes.csproj"
                       ReferenceOutputAssembly="true" />
     <!-- Shared test utilities (includes NUnit4Verifier) -->
-    <ProjectReference Include="../../Flowthru.Tests.Common/Flowthru.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\helpers\Flowthru.Tests.Helpers\Flowthru.Tests.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

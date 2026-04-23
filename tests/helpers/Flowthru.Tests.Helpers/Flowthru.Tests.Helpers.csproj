@@ -21,7 +21,7 @@
   <ItemGroup>
     <PackageReference Include="Flowthru" Version="*" />
     <!-- Needs direct reference to SourceGenerators for testing source generators -->
-    <ProjectReference Include="../../src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>
 

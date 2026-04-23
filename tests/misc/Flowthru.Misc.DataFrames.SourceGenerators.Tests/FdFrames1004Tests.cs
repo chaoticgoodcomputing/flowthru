@@ -2,7 +2,7 @@ using Flowthru.Misc.DataFrames.Analyzers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 
-namespace Flowthru.Analyzers.Tests;
+namespace Flowthru.Misc.DataFrames.SourceGenerators.Tests;
 
 /// <summary>
 /// Verifies that FDFRAMES1004 fires when the <c>Aggregate</c> result selector body is not an

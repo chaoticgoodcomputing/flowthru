@@ -29,20 +29,25 @@
   </Folder>
   <Folder Name="/src/core/" />
   <Folder Name="/src/extensions/" />
-  <Folder Name="/tests/">
-    <Project Path="tests/Flowthru.Tests.Common/Flowthru.Tests.Common.csproj" />
-    <Project Path="tests/Flowthru.Tests.Examples/Flowthru.Tests.Examples.csproj" />
-    <Project Path="tests/Flowthru.Tests.Templates/Flowthru.Tests.Templates.csproj" />
-    <Project Path="tests/Flowthru.Analyzers.Tests/Flowthru.Analyzers.Tests.csproj" />
+  <Folder Name="/tests/helpers/">
+    <Project Path="tests/helpers/Flowthru.Tests.Helpers/Flowthru.Tests.Helpers.csproj" />
+  </Folder>
+  <Folder Name="/tests/integration/">
+    <Project Path="tests/integration/Flowthru.Tests.Examples/Flowthru.Tests.Examples.csproj" />
+    <Project Path="tests/integration/Flowthru.Tests.Templates/Flowthru.Tests.Templates.csproj" />
   </Folder>
   <Folder Name="/tests/core/">
     <Project Path="tests/core/Flowthru.Tests/Flowthru.Tests.csproj" />
     <Project Path="tests/core/Flowthru.FUnit.Tests/Flowthru.FUnit.Tests.csproj" />
+    <Project Path="tests/core/Flowthru.Core.SourceGenerators.Tests/Flowthru.Core.SourceGenerators.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/extensions/">
     <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Tests/Flowthru.Extensions.EFCore.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.GQL.Tests/Flowthru.Extensions.GQL.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.Python.Tests/Flowthru.Extensions.Python.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/misc/">
+    <Project Path="tests/misc/Flowthru.Misc.DataFrames.SourceGenerators.Tests/Flowthru.Misc.DataFrames.SourceGenerators.Tests.csproj" />
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/starter/SpaceflightsEFCore/SpaceflightsEFCore.csproj" />

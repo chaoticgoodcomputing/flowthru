@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\misc\Flowthru.Misc.DataFrames.SourceGenerators\Flowthru.Misc.DataFrames.SourceGenerators.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\misc\Flowthru.Misc.DataFrames.SourceGenerators\Flowthru.Misc.DataFrames.SourceGenerators.csproj" />
   </ItemGroup>
 
 </Project>

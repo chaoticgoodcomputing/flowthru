@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
   </ItemGroup>
 
 </Project>

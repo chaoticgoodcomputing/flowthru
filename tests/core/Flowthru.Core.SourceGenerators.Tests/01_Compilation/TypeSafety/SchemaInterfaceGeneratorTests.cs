@@ -1,7 +1,7 @@
-using Flowthru.Tests.Common;
+using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis;
 
-namespace Flowthru.Tests.Compilation.TypeSafety;
+namespace Flowthru.Core.SourceGenerators.Tests.Compilation.TypeSafety;
 
 /// <summary>
 /// Tests for the [FlowthruSchema] source generator that auto-derives

@@ -1,7 +1,7 @@
 using Flowthru.Core.Graph.Meta.Models;
 using Flowthru.Core.Meta.Providers;
 
-namespace Flowthru.Tests.Common;
+namespace Flowthru.Tests.Helpers;
 
 /// <summary>
 /// Test metadata provider that captures metadata for assertions rather than exporting.

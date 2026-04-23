@@ -1,6 +1,6 @@
 using Flowthru.FUnit.CodeFixes;
 using Flowthru.FUnit.SourceGenerators;
-using Flowthru.Tests.Common;
+using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;

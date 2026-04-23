@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
 
-namespace Flowthru.Tests.Common;
+namespace Flowthru.Tests.Helpers;
 
 /// <summary>
 /// NUnit 4-compatible <see cref="IVerifier"/> for use with

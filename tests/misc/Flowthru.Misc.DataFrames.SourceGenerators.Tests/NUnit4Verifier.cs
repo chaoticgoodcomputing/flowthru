@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis.Testing;
 using NUnit.Framework;
 
-namespace Flowthru.Analyzers.Tests;
+namespace Flowthru.Misc.DataFrames.SourceGenerators.Tests;
 
 /// <summary>
 /// An <see cref="IVerifier"/> implementation compatible with NUnit 4.x.

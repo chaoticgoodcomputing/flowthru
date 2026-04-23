@@ -1,10 +1,10 @@
 using Flowthru.Core.CodeFixes;
 using Flowthru.Core.SourceGenerators.SchemaAnalysis;
-using Flowthru.Tests.Common;
+using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 
-namespace Flowthru.Tests.CodeFixes;
+namespace Flowthru.Core.SourceGenerators.Tests.CodeFixes;
 
 /// <summary>
 /// Tests for FT1001: adds the <c>partial</c> modifier to a <c>[FlowthruSchema]</c>-annotated

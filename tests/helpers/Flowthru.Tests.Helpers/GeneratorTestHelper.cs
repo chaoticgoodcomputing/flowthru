@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Flowthru.Tests.Common;
+namespace Flowthru.Tests.Helpers;
 
 /// <summary>
 /// Helper for running source generator tests against in-memory compilations.

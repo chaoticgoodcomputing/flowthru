@@ -2,7 +2,7 @@ using Flowthru.Core.Data;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Flowthru.Tests.Common;
+namespace Flowthru.Tests.Helpers;
 
 /// <summary>
 /// Helper for compiling C# code snippets using Roslyn to verify compile-time type safety.
