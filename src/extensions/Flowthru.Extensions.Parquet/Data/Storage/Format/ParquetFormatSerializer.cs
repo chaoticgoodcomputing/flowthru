@@ -57,20 +57,27 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   public StorageTraits Traits => new StorageTraits { CanStream = true };
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// Streams rows one row group at a time. Early-exit consumers (e.g. shallow inspection)
+  /// will break after reading fewer than all row groups, avoiding full-file materialisation.
+  /// </remarks>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
-    // Read Parquet schema first to create schema-aware adapter
+    // Read schema and row-group count from the file footer (cheap seek-based metadata read)
     using var reader = await ParquetReader.CreateAsync(stream, leaveStreamOpen: true);
-    var adapter = new ParquetAdapter<TRow>(reader.Schema);
+    var schema = reader.Schema;
+    int rowGroupCount = reader.RowGroupCount;
+    var adapter = new ParquetAdapter<TRow>(schema);
 
-    // Reset stream for actual deserialization
-    stream.Position = 0;
-
-    var dtos = await adapter.DeserializeFromParquet(stream);
-
-    foreach (var dto in dtos)
+    // Yield one row group at a time so early-break consumers avoid reading the full file
+    for (int rgi = 0; rgi < rowGroupCount; rgi++)
     {
-      yield return adapter.FromDto(dto);
+      stream.Position = 0;
+      var dtos = await adapter.DeserializeRowGroup(stream, rgi);
+      foreach (var dto in dtos)
+      {
+        yield return adapter.FromDto(dto);
+      }
     }
   }
 
@@ -102,6 +109,7 @@ internal sealed class ParquetAdapter<TRow>
   private readonly Func<object, TRow> _fromDto;
   private readonly MethodInfo _serializeMethod;
   private readonly MethodInfo _deserializeMethod;
+  private MethodInfo _deserializeRowGroupMethod;
   private readonly Dictionary<string, string> _propertyNameMap; // Maps TRow property name -> DTO property name (serialized label)
   private readonly Dictionary<string, Type>? _parquetColumnTypes; // Maps column name -> actual Parquet type (for deserialization)
 
@@ -135,10 +143,21 @@ internal sealed class ParquetAdapter<TRow>
       )
       .MakeGenericMethod(_dtoType);
 
+    // Full deserialize (all row groups): (Stream, options, ct) — used by Load()
     _deserializeMethod = typeof(ParquetSerializer)
       .GetMethods()
       .First(m =>
         m.Name == nameof(ParquetSerializer.DeserializeAsync) && m.GetParameters().Length == 3
+      )
+      .MakeGenericMethod(_dtoType);
+
+    // Single row-group deserialize: (Stream, int rowGroupIndex, options, ct) — used by DeserializeRows()
+    _deserializeRowGroupMethod = typeof(ParquetSerializer)
+      .GetMethods()
+      .First(m =>
+        m.Name == nameof(ParquetSerializer.DeserializeAsync)
+        && m.GetParameters().Length == 4
+        && m.GetParameters()[1].ParameterType == typeof(int)
       )
       .MakeGenericMethod(_dtoType);
   }
@@ -175,6 +194,23 @@ internal sealed class ParquetAdapter<TRow>
     await task;
 
     // Extract result using reflection - the Task<IList<TDto>> has a Result property
+    var resultProperty = task.GetType().GetProperty("Result")!;
+    return (System.Collections.IList)resultProperty.GetValue(task)!;
+  }
+
+  /// <summary>
+  /// Deserializes a single row group identified by <paramref name="rowGroupIndex"/>.
+  /// This keeps I/O bounded to one row group when consumers break early.
+  /// </summary>
+  public async Task<System.Collections.IList> DeserializeRowGroup(Stream stream, int rowGroupIndex)
+  {
+    // Invoke: Task<IList<TDto>> ParquetSerializer.DeserializeAsync<TDto>(Stream, int, options, ct)
+    var task = (Task)_deserializeRowGroupMethod.Invoke(
+      null,
+      [stream, rowGroupIndex, null, CancellationToken.None]
+    )!;
+    await task;
+
     var resultProperty = task.GetType().GetProperty("Result")!;
     return (System.Collections.IList)resultProperty.GetValue(task)!;
   }

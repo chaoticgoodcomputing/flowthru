@@ -145,17 +145,15 @@ public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
       throw new ArgumentNullException(nameof(stream));
     }
 
-    // Deserialize as array of TRow
-    var items = await JsonSerializer.DeserializeAsync<TRow[]>(stream, _options);
-
-    if (items == null)
+    // Stream array elements one at a time so early-break consumers (e.g. shallow inspection)
+    // do not need to deserialize the entire file into memory.
+    await foreach (var item in JsonSerializer.DeserializeAsyncEnumerable<TRow>(stream, _options))
     {
-      yield break;
-    }
+      if (item is null)
+      {
+        continue;
+      }
 
-    // Yield each item
-    foreach (var item in items)
-    {
       yield return item;
     }
   }

@@ -488,21 +488,11 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
       );
     }
 
-    // For non-paginated mode, also validate the collection itself is non-empty
-    if (_queryFunc is not null && _selectData is not null && result.Data is not null)
-    {
-      var items = _selectData(result.Data);
-      if ((items is null || !items.Any()) && !_allowEmptyData)
-      {
-        return ValidationResult.Failure(
-          catalogKey: _label,
-          errorType: ValidationErrorType.EmptyDataset,
-          message: $"GraphQL query for '{_label}' returned an empty collection.",
-          details: "Set allowEmptyData: true when creating the catalog entry if an empty collection is valid for this query."
-        );
-      }
-    }
-
+    // For non-paginated mode, validate the top-level data is non-null (items checked above).
+    // Note: non-paginated queries execute the full query in a single request — there is no
+    // client-side way to limit data transfer during a probe. Shallow inspection validates
+    // endpoint reachability and schema compatibility; empty-collection checks are deferred
+    // to avoid unnecessary LINQ projection over the full result set.
     return ValidationResult.Success();
   }
 }

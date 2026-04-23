@@ -352,7 +352,7 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
           {
             try
             {
-              var sample = await dbSet.Take(sampleSize).ToListAsync(ct);
+              var sample = await dbSet.AsNoTracking().Take(sampleSize).ToListAsync(ct);
               // Successfully read sample - validation passed
             }
             catch (Exception ex)
