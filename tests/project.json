@@ -4,6 +4,20 @@
   "projectType": "library",
   "sourceRoot": "tests",
   "targets": {
+    "test": {
+      "//": "Enforce 1:1 mirroring: every src/{domain}/{Project} must have tests/{domain}/{Project}.Tests",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/src/**/*.csproj",
+        "{workspaceRoot}/tests/**/*.csproj",
+        "{workspaceRoot}/scripts/verify-test-coverage.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/verify-test-coverage.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
     "purge": {
       "//": "Remove all TestResults directories to force a clean test run",
       "executor": "nx:run-commands",

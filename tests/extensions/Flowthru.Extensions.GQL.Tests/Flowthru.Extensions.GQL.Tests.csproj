@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\extensions\Flowthru.Extensions.GQL\Flowthru.Extensions.GQL.csproj" />
+    <ProjectReference Include="..\..\..\src\extensions\Flowthru.Extensions.GQL\Flowthru.Extensions.GQL.csproj" />
   </ItemGroup>
 
 </Project>

@@ -23,13 +23,13 @@
 
   <ItemGroup>
     <!-- Reference the Python extension -->
-    <ProjectReference Include="..\..\src\extensions\Flowthru.Extensions.Python\Flowthru.Extensions.Python.csproj" />
+    <ProjectReference Include="..\..\..\src\extensions\Flowthru.Extensions.Python\Flowthru.Extensions.Python.csproj" />
     
     <!-- Reference the core library (for FlowthruServiceBuilder) -->
-    <ProjectReference Include="..\..\src\core\Flowthru\Flowthru.csproj" />
+    <ProjectReference Include="..\..\..\src\core\Flowthru\Flowthru.csproj" />
     
     <!-- Reference test common helpers (CompilationTestHelper) -->
-    <ProjectReference Include="..\Flowthru.Tests.Common\Flowthru.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\Flowthru.Tests.Common\Flowthru.Tests.Common.csproj" />
   </ItemGroup>
 
   <!--
@@ -53,6 +53,6 @@
   </ItemGroup>
 
   <!-- Import Python extension .targets for schema export and generator registration -->
-  <Import Project="..\..\src\extensions\Flowthru.Extensions.Python\build\Flowthru.Extensions.Python.targets" />
+  <Import Project="..\..\..\src\extensions\Flowthru.Extensions.Python\build\Flowthru.Extensions.Python.targets" />
 
 </Project>

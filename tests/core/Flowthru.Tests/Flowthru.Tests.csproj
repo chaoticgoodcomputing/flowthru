@@ -25,12 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\core\Flowthru\Flowthru.csproj" />
-    <ProjectReference Include="..\Flowthru.Tests.Common\Flowthru.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\..\src\core\Flowthru\Flowthru.csproj" />
+    <ProjectReference Include="..\..\Flowthru.Tests.Common\Flowthru.Tests.Common.csproj" />
     <!-- Direct reference to analyzer + codefixes for Roslyn testing -->
-    <ProjectReference Include="..\..\src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
+    <ProjectReference Include="..\..\..\src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
-    <ProjectReference Include="..\..\src\core\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj"
+    <ProjectReference Include="..\..\..\src\core\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>
 
