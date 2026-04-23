@@ -1,3 +1,22 @@
+## 0.9.0 (2026-04-23)
+
+### 🚀 Features
+
+- runtime exception reporting addition ([6a4f30db](https://github.com/chaoticgoodcomputing/flowthru/commit/6a4f30db))
+
+### 🩹 Fixes
+
+- performance resolution for shallow inspection across extensions ([78e4c3a1](https://github.com/chaoticgoodcomputing/flowthru/commit/78e4c3a1))
+- performance improvements on parquet IO ([8aa35955](https://github.com/chaoticgoodcomputing/flowthru/commit/8aa35955))
+- resolve flow config issues ([e20a9144](https://github.com/chaoticgoodcomputing/flowthru/commit/e20a9144))
+- temp remove spark compat pending databricks branch integration ([65b1aee3](https://github.com/chaoticgoodcomputing/flowthru/commit/65b1aee3))
+- resolve KedroSpaceflightsCustom config settings ([a654c16e](https://github.com/chaoticgoodcomputing/flowthru/commit/a654c16e))
+- resolve brittle template test pack dependency ([c0038c9d](https://github.com/chaoticgoodcomputing/flowthru/commit/c0038c9d))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.8.0 (2026-04-23)
 
 ### 🚀 Features
