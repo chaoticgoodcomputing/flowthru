@@ -20,7 +20,7 @@
 
   <!-- Reference the analyzer project so fixer IDs can reference shared constants -->
   <ItemGroup>
-    <ProjectReference Include="../Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>
 

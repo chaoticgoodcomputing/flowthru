@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <!-- Core Flowthru library -->
-    <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <!-- Include README and LICENSE in package -->
-    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>

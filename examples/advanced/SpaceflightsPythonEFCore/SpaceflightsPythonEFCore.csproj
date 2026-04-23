@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
-    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
-    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.EFCore" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.Python" Version="FlowthruVersion" />

@@ -10,18 +10,18 @@
   </PropertyGroup>
 
   <!-- Flowthru: use project reference when building from source, otherwise NuGet -->
-  <ItemGroup Condition="Exists('../../../src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="../../../src/core/Flowthru/Flowthru.csproj" />
+  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../src/core/Flowthru/Flowthru.csproj')">
+  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
     <PackageReference Include="Flowthru" Version="*" />
   </ItemGroup>
 
   <!-- Flowthru GQL extension -->
-  <ItemGroup Condition="Exists('../../../src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
-    <ProjectReference Include="../../../src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+  <ItemGroup Condition="Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
+  <ItemGroup Condition="!Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
     <PackageReference Include="Flowthru.Extensions.GQL" Version="*" />
   </ItemGroup>
 

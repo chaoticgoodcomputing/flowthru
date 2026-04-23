@@ -7,23 +7,23 @@
   </PropertyGroup>
 
   <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('../../../../../src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="../../../../../src/core/Flowthru/Flowthru.csproj" />
+  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../../../src/core/Flowthru/Flowthru.csproj')">
+  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../SpaceflightsDistributed.DataProcessing/SpaceflightsDistributed.DataProcessing.csproj" />
-    <ProjectReference Include="../SpaceflightsDistributed.DataScience/SpaceflightsDistributed.DataScience.csproj" />
+    <ProjectReference Include="$(RepoRoot)examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataProcessing/SpaceflightsDistributed.DataProcessing.csproj" />
+    <ProjectReference Include="$(RepoRoot)examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataScience/SpaceflightsDistributed.DataScience.csproj" />
   </ItemGroup>
 
   <!-- Flowthru.FUnit reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
-    <ProjectReference Include="../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
+  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="!Exists('../../../../src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
     <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
   </ItemGroup>
 
@@ -48,7 +48,7 @@
 
   <!-- Source-tree: explicitly import FUnit targets to register the source generator as an Analyzer.
        NuGet package consumers get this automatically via build/Flowthru.FUnit.targets auto-import. -->
-  <Import Project="../../../../src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
-          Condition="Exists('../../../../src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
+  <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
+          Condition="Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
 
 </Project>

@@ -21,10 +21,10 @@
 
   <ItemGroup>
     <!-- Core Flowthru library -->
-    <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
     
     <!-- Source generator (isolated from runtime dependencies) -->
-    <ProjectReference Include="../Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
@@ -43,7 +43,7 @@
   <ItemGroup>
     <!-- Include README and LICENSE in package -->
     <None Include="README.md" Pack="true" PackagePath="/" />
-    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
     
     <!-- Include MSBuild targets file in package -->
     <None Include="build\Flowthru.Extensions.Python.targets" Pack="true" PackagePath="build\" />
@@ -101,7 +101,7 @@
 
   <!-- Ensure source generators are built before packing -->
   <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
-    <MSBuild Projects="../Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
+    <MSBuild Projects="$(RepoRoot)dist/src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
   </Target>

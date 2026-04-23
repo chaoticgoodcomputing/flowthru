@@ -13,7 +13,7 @@
   <ItemGroup>
     <!-- Include README and LICENSE in package -->
     <None Include="README.md" Pack="true" PackagePath="/" />
-    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
   <PropertyGroup>

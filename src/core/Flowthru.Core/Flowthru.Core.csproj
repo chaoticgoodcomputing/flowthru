@@ -43,7 +43,7 @@
 
   <!-- Reference own source generator for self-generation -->
   <ItemGroup>
-    <ProjectReference Include="../Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
   </ItemGroup>
@@ -51,7 +51,7 @@
   <ItemGroup>
     <!-- Include README and LICENSE in package -->
     <None Include="README.md" Pack="true" PackagePath="/" />
-    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
     <!-- Include build props to auto-import source generators -->
     <None Include="build/Flowthru.Core.props" Pack="true" PackagePath="build/" />
   </ItemGroup>
@@ -70,10 +70,10 @@
 
   <!-- Ensure source generators and code fixes are built before packing -->
   <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
-    <MSBuild Projects="../Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj" 
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj" 
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
-    <MSBuild Projects="../Flowthru.Core.CodeFixes/Flowthru.Core.CodeFixes.csproj" 
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.Core.CodeFixes/Flowthru.Core.CodeFixes.csproj" 
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
   </Target>

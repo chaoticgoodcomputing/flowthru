@@ -11,15 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
 
-    <ProjectReference Include="../Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
   </ItemGroup>
@@ -42,10 +42,10 @@
 
   <!-- Ensure analyzer DLLs are built before packing -->
   <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
-    <MSBuild Projects="../Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
-    <MSBuild Projects="../Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
              Targets="Build"
              Properties="Configuration=$(Configuration)" />
   </Target>

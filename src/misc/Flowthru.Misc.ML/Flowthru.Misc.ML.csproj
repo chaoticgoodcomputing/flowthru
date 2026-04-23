@@ -24,13 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="UMAP/UMAP_LICENSE.txt" Pack="true" PackagePath="" />
     <None Include="README.md" Pack="true" PackagePath="/" />
-    <None Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>

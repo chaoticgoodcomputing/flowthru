@@ -27,6 +27,6 @@
   </ItemGroup>
 
   <!-- TODO: Import MSBuild targets for Python schema generation (requires PackageReference or path override) -->
-  <!-- <Import Project="../../../src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets" /> -->
+  <!-- <Import Project="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/build/Flowthru.Extensions.Python.targets" /> -->
 
 </Project>

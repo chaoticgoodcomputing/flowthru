@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <!-- Core Flowthru library -->
-    <ProjectReference Include="../../core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
