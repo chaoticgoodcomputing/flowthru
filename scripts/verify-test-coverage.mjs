@@ -29,6 +29,7 @@ const ROOT = resolve(__dirname, '..');
 const SRC_DIR = join(ROOT, 'src');
 const TESTS_DIR = join(ROOT, 'tests');
 
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Recursively collect all *.csproj paths under a directory. */
