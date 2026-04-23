@@ -89,8 +89,6 @@ public class ConfigCatalogGenerator : IIncrementalGenerator
 
     var properties = ImmutableArray.CreateBuilder<ConfigPropertyInfo>();
 
-    var iItemFullName = "Flowthru.Core.Data.IItem`1";
-
     foreach (var member in typeSymbol.GetMembers().OfType<IPropertySymbol>())
     {
       if (member.IsStatic || member.DeclaredAccessibility != Accessibility.Public)
@@ -98,11 +96,16 @@ public class ConfigCatalogGenerator : IIncrementalGenerator
         continue;
       }
 
-      // Only process IItem<T> properties
+      // Only process IItem<T> properties. Use namespace + name instead of ToDisplayString()
+      // because ToDisplayString() returns C# angle-bracket format ("IItem<T>") whereas the
+      // old backtick check ("IItem`1") is the CLR metadata format — they never match.
       if (
         member.Type is not INamedTypeSymbol propType
-        || propType.OriginalDefinition.ToDisplayString() != iItemFullName
+        || !propType.IsGenericType
         || propType.TypeArguments.Length != 1
+        || propType.OriginalDefinition.Name != "IItem"
+        || propType.OriginalDefinition.ContainingNamespace?.ToDisplayString()
+          != "Flowthru.Core.Data"
       )
       {
         continue;
@@ -221,16 +224,21 @@ public class ConfigCatalogGenerator : IIncrementalGenerator
       }
 
       // Label is the property name — consistent with data catalog convention.
+      // This is the IMPLEMENTING part of a C# 13 partial property. The user's
+      // FlowConfig declares the declaring part: `public partial IItem<T> Prop { get; }`
       sb.AppendLine();
       sb.AppendLine(
-        $"  public global::Flowthru.Core.Data.IItem<{prop.ConfigTypeName}> {prop.PropertyName} =>"
+        $"  public partial global::Flowthru.Core.Data.IItem<{prop.ConfigTypeName}> {prop.PropertyName}"
       );
+      sb.AppendLine("  {");
+      sb.AppendLine("    get =>");
       sb.AppendLine(
-        $"    CreateItem(() => global::Flowthru.Core.Data.ItemFactory.Single.Configuration<{prop.ConfigTypeName}>("
+        $"      CreateItem(() => global::Flowthru.Core.Data.ItemFactory.Single.Configuration<{prop.ConfigTypeName}>("
       );
-      sb.AppendLine($"      \"{prop.PropertyName}\",");
-      sb.AppendLine($"      \"{prop.SectionPath}\",");
-      sb.AppendLine($"      _configuration));");
+      sb.AppendLine($"        \"{prop.PropertyName}\",");
+      sb.AppendLine($"        \"{prop.SectionPath}\",");
+      sb.AppendLine($"        _configuration));");
+      sb.AppendLine("  }");
     }
 
     sb.AppendLine("}");

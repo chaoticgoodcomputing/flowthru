@@ -12,5 +12,5 @@ public partial class DataScienceFlowConfig
 {
   /// <summary>Configuration options for data splitting and model training.</summary>
   [ConfigSection("Flowthru:Flows:DataScience:ModelOptions")]
-  public IItem<SplitDataStep.ModelOptions> ModelOptions { get; }
+  public partial IItem<SplitDataStep.ModelOptions> ModelOptions { get; }
 }

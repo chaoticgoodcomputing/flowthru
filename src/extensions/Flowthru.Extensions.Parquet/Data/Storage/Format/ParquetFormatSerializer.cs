@@ -243,17 +243,18 @@ internal sealed class ParquetAdapter<TRow>
       // Clone the caller's options (or create minimal ones) with Append = true.
       // ParquetSerializerOptions is a plain class with no copy constructor, so we
       // construct a fresh instance and copy every relevant property.
-      opts = writeOptions != null
-        ? new ParquetSerializerOptions
-        {
-          Append = true,
-          CompressionMethod = writeOptions.CompressionMethod,
-          CompressionLevel = writeOptions.CompressionLevel,
-          RowGroupSize = writeOptions.RowGroupSize,
-          PropertyNameCaseInsensitive = writeOptions.PropertyNameCaseInsensitive,
-          ParquetOptions = writeOptions.ParquetOptions,
-        }
-        : new ParquetSerializerOptions { Append = true };
+      opts =
+        writeOptions != null
+          ? new ParquetSerializerOptions
+          {
+            Append = true,
+            CompressionMethod = writeOptions.CompressionMethod,
+            CompressionLevel = writeOptions.CompressionLevel,
+            RowGroupSize = writeOptions.RowGroupSize,
+            PropertyNameCaseInsensitive = writeOptions.PropertyNameCaseInsensitive,
+            ParquetOptions = writeOptions.ParquetOptions,
+          }
+          : new ParquetSerializerOptions { Append = true };
     }
     else
     {
@@ -261,8 +262,7 @@ internal sealed class ParquetAdapter<TRow>
     }
 
     // Invoke: Task ParquetSerializer.SerializeAsync<TDto>(IEnumerable<TDto>, Stream, options, ct)
-    var task = (Task)
-      _serializeMethod.Invoke(null, [batch, stream, opts, CancellationToken.None])!;
+    var task = (Task)_serializeMethod.Invoke(null, [batch, stream, opts, CancellationToken.None])!;
     await task;
   }
 
@@ -289,10 +289,11 @@ internal sealed class ParquetAdapter<TRow>
   )
   {
     // Invoke: Task<IList<TDto>> ParquetSerializer.DeserializeAsync<TDto>(Stream, int, options, ct)
-    var task = (Task)_deserializeRowGroupMethod.Invoke(
-      null,
-      [stream, rowGroupIndex, readOptions, CancellationToken.None]
-    )!;
+    var task = (Task)
+      _deserializeRowGroupMethod.Invoke(
+        null,
+        [stream, rowGroupIndex, readOptions, CancellationToken.None]
+      )!;
     await task;
 
     var resultProperty = task.GetType().GetProperty("Result")!;

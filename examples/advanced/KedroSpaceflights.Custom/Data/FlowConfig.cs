@@ -13,9 +13,9 @@ public partial class FlowConfig
 {
   /// <summary>Configuration options for the train/test split step.</summary>
   [ConfigSection("Flowthru:Flows:DataScience")]
-  public IItem<CreateTestTrainSplitStep.TestTrainSplitParams> ModelParams { get; }
+  public partial IItem<CreateTestTrainSplitStep.TestTrainSplitParams> ModelParams { get; }
 
   /// <summary>Configuration options for cross-validation.</summary>
   [ConfigSection("Flowthru:Flows:DataEvaluation")]
-  public IItem<CrossValidateModelStep.Params> CrossValidationParams { get; }
+  public partial IItem<CrossValidateModelStep.Params> CrossValidationParams { get; }
 }

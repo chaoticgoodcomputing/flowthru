@@ -13,9 +13,9 @@ public partial class FlowConfig
 {
   /// <summary>Configuration options for data splitting and one-hot encoding.</summary>
   [ConfigSection("Flowthru:Flows:DataEngineering")]
-  public IItem<SplitAndEncodeStep.Options> SplitOptions { get; }
+  public partial IItem<SplitAndEncodeStep.Options> SplitOptions { get; }
 
   /// <summary>Configuration options for logistic regression model training.</summary>
   [ConfigSection("Flowthru:Flows:DataScience")]
-  public IItem<TrainModelStep.Options> TrainOptions { get; }
+  public partial IItem<TrainModelStep.Options> TrainOptions { get; }
 }

@@ -12,5 +12,5 @@ public partial class ReportingFlowConfig
 {
   /// <summary>Configuration options for confusion matrix generation.</summary>
   [ConfigSection("Flowthru:Flows:Reporting:ConfusionMatrixOptions")]
-  public IItem<CreateConfusionMatrixStep.Options> ConfusionMatrixOptions { get; }
+  public partial IItem<CreateConfusionMatrixStep.Options> ConfusionMatrixOptions { get; }
 }
