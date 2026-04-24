@@ -445,7 +445,7 @@ internal static class DagBuilder
   /// </summary>
   /// <remarks>
   /// Examples:
-  /// - "KedroSpaceflights.Custom.Data.Schemas.Company" → "Company"
+  /// - "KedroSpaceflightsCustom.Data.Schemas.Company" → "Company"
   /// - "System.Collections.Generic.List`1[System.String]" → "List"
   /// - "CsvCatalogDataset`1" → "CsvCatalogDataset"
   /// </remarks>

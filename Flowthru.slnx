@@ -79,7 +79,7 @@
     <Project Path="examples/starter/Minimal/Minimal.csproj" />
     <Project Path="examples/archived/UmapReferenceComparisons/UmapReferenceComparisons.csproj" />
     <Project Path="examples/archived/DroppedNeuralNet/DroppedNeuralNet.csproj" />
-    <Project Path="examples/advanced/KedroSpaceflights.Custom/KedroSpaceflights.Custom.csproj" />
+    <Project Path="examples/advanced/KedroSpaceflightsCustom/KedroSpaceflightsCustom.csproj" />
     <Project Path="examples/advanced/SpaceflightsPythonEFCore/SpaceflightsPythonEFCore.csproj" />
     <Project Path="examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataProcessing/SpaceflightsDistributed.DataProcessing.csproj" />
     <Project Path="examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataScience/SpaceflightsDistributed.DataScience.csproj" />
