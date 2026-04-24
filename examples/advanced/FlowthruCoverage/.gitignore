@@ -1,0 +1,16 @@
+# Generated metadata
+Metadata/
+
+# Ignore all generated data artifacts
+Data/**
+
+# Un-ignore layer directories and their Schemas subdirectories
+!Data/*/
+!Data/*/Schemas/
+!Data/_01_Raw/Datasets/
+
+# Un-ignore schema and catalog .cs files
+!Data/**/*.cs
+
+# Un-ignore .gitkeep files
+!**/.gitkeep

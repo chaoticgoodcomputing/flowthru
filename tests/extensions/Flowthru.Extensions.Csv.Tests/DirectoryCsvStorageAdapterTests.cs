@@ -160,6 +160,28 @@ public class DirectoryCsvStorageAdapterTests
     Assert.That(result.IsValid, Is.True);
   }
 
+  [Test]
+  public async Task InspectShallow_MultipleFiles_AllValid_ReturnsValidResult()
+  {
+    // InspectShallow validates the first N rows from EVERY file, not just the first file.
+    WriteCsv("a.csv", "Id,Name,Value\n1,Alice,1.5\n");
+    WriteCsv("b.csv", "Id,Name,Value\n2,Bob,2.5\n");
+    var adapter = new DirectoryCsvStorageAdapter<FlatRow>(_tempDir);
+    var result = await adapter.InspectShallow(5).Run();
+    Assert.That(result.IsValid, Is.True);
+  }
+
+  [Test]
+  public async Task InspectShallow_SecondFileInvalid_ReturnsInvalidResult()
+  {
+    // First file is valid; second has a non-integer Id — deserialization should fail.
+    WriteCsv("a.csv", "Id,Name,Value\n1,Alice,1.5\n");
+    WriteCsv("b.csv", "Id,Name,Value\nnot_a_number,Bob,2.5\n");
+    var adapter = new DirectoryCsvStorageAdapter<FlatRow>(_tempDir);
+    var result = await adapter.InspectShallow(5).Run();
+    Assert.That(result.IsValid, Is.False);
+  }
+
   // ── InspectTarget ─────────────────────────────────────────────────────────
 
   [Test]

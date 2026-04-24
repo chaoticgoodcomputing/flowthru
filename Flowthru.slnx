@@ -12,6 +12,7 @@
     <Project Path="src/core/Flowthru.Core.CodeFixes/Flowthru.Core.CodeFixes.csproj" />
     <Project Path="src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+    <Project Path="src/extensions/Flowthru.Extensions.Xml/Flowthru.Extensions.Xml.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
@@ -59,6 +60,7 @@
     <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Bulk.Tests/Flowthru.Extensions.EFCore.Bulk.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.Python.Tests/Flowthru.Extensions.Python.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.Python.SourceGenerators.Tests/Flowthru.Extensions.Python.SourceGenerators.Tests.csproj" />
+    <Project Path="tests/extensions/Flowthru.Extensions.Xml.Tests/Flowthru.Extensions.Xml.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/misc/">
     <Project Path="tests/misc/Flowthru.Misc.DataFrames.Tests/Flowthru.Misc.DataFrames.Tests.csproj" />
@@ -85,5 +87,6 @@
     <Project Path="examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed/SpaceflightsDistributed.csproj" />
     <Project Path="examples/advanced/RetailDataSplitFlow/RetailDataSplitFlow.csproj" />
     <Project Path="examples/advanced/KedroSpaceflightsGQL/KedroSpaceflightsGQL.csproj" />
+    <Project Path="examples/advanced/FlowthruCoverage/FlowthruCoverage.csproj" />
   </Folder>
 </Solution>

@@ -135,49 +135,10 @@ public sealed class TextFileStorageAdapter : IStorageAdapter<string>
 
   /// <inheritdoc/>
   /// <remarks>
-  /// Validates that the parent directory exists and the process has write access.
+  /// Validates that the write destination is accessible.
+  /// Walks up to the nearest existing ancestor to check write permissions,
+  /// so a missing intermediate directory is not itself a failure.
   /// </remarks>
-  public FlowIO<Data.Validation.ValidationResult> InspectTarget()
-  {
-    return FlowIO.LiftAsync(
-      async (CancellationToken ct) =>
-      {
-        var fullPath = Path.GetFullPath(_filePath);
-        var directory = Path.GetDirectoryName(fullPath);
-
-        if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
-        {
-          return Data.Validation.ValidationResult.Failure(
-            catalogKey: Path.GetFileName(_filePath),
-            errorType: Data.Validation.ValidationErrorType.NotFound,
-            message: $"Write destination directory does not exist: {directory ?? fullPath}",
-            details: $"Create the directory or correct the path for '{_filePath}'"
-          );
-        }
-
-        var probeFile = Path.Combine(directory, $".flowthru-probe-{Guid.NewGuid():N}");
-        try
-        {
-          await File.WriteAllBytesAsync(probeFile, Array.Empty<byte>(), ct);
-          return Data.Validation.ValidationResult.Success();
-        }
-        catch (Exception ex)
-        {
-          return Data.Validation.ValidationResult.Failure(
-            catalogKey: Path.GetFileName(_filePath),
-            errorType: Data.Validation.ValidationErrorType.WriteAccessDenied,
-            message: $"Write access denied for destination directory: {directory}",
-            details: ex.Message
-          );
-        }
-        finally
-        {
-          if (File.Exists(probeFile))
-          {
-            File.Delete(probeFile);
-          }
-        }
-      }
-    );
-  }
+  public FlowIO<Data.Validation.ValidationResult> InspectTarget() =>
+    FlowIO.LiftAsync(ct => LocalFileWriteProbe.ProbeAsync(_filePath, ct));
 }

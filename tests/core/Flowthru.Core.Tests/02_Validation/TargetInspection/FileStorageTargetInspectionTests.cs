@@ -57,16 +57,17 @@ public class FileStorageTargetInspectionTests
   }
 
   [Test]
-  public async Task FileStorageMedium_InspectTarget_MissingDirectory_ReturnsNotFound()
+  public async Task FileStorageMedium_InspectTarget_MissingButCreatableDirectory_ReturnsSuccess()
   {
+    // The parent directory does not yet exist, but _tempDir (the ancestor) does and is writable.
+    // Save() calls Directory.CreateDirectory() at runtime, so a missing intermediate
+    // directory is not a pre-flight blocker.
     var path = Path.Combine(_tempDir, "nonexistent", "sub", "output.bin");
     var medium = new FileStorageMedium(path);
 
     var result = await medium.InspectTarget().Run();
 
-    Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors, Has.Count.EqualTo(1));
-    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+    Assert.That(result.IsValid, Is.True);
   }
 
   [Test]
@@ -97,15 +98,14 @@ public class FileStorageTargetInspectionTests
   }
 
   [Test]
-  public async Task TextFileStorageAdapter_InspectTarget_MissingDirectory_ReturnsNotFound()
+  public async Task TextFileStorageAdapter_InspectTarget_MissingButCreatableDirectory_ReturnsSuccess()
   {
     var path = Path.Combine(_tempDir, "nonexistent", "output.txt");
     var adapter = new TextFileStorageAdapter(path);
 
     var result = await adapter.InspectTarget().Run();
 
-    Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+    Assert.That(result.IsValid, Is.True);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -124,15 +124,14 @@ public class FileStorageTargetInspectionTests
   }
 
   [Test]
-  public async Task BinaryFileStorageAdapter_InspectTarget_MissingDirectory_ReturnsNotFound()
+  public async Task BinaryFileStorageAdapter_InspectTarget_MissingButCreatableDirectory_ReturnsSuccess()
   {
     var path = Path.Combine(_tempDir, "nonexistent", "output.bin");
     var adapter = new BinaryFileStorageAdapter(path);
 
     var result = await adapter.InspectTarget().Run();
 
-    Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+    Assert.That(result.IsValid, Is.True);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -151,15 +150,14 @@ public class FileStorageTargetInspectionTests
   }
 
   [Test]
-  public async Task SingletonJsonStorageAdapter_InspectTarget_MissingDirectory_ReturnsNotFound()
+  public async Task SingletonJsonStorageAdapter_InspectTarget_MissingButCreatableDirectory_ReturnsSuccess()
   {
     var path = Path.Combine(_tempDir, "nonexistent", "output.json");
     var adapter = new SingletonJsonStorageAdapter<JsonPayload>(path);
 
     var result = await adapter.InspectTarget().Run();
 
-    Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+    Assert.That(result.IsValid, Is.True);
   }
 
   private record JsonPayload : IStructuredSerializable;

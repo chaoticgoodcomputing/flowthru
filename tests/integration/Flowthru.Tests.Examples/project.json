@@ -19,6 +19,17 @@
       "cache": true,
       "inputs": [ "default", "{workspaceRoot}/src/**", "{workspaceRoot}/examples/**" ]
     },
+    "test:all": {
+      "//": "Runs every discovered example individually (one dotnet test invocation per example) to produce separate per-example coverage XMLs in TestResults/{ExampleName}/. Use this before running FlowthruCoverage:run-with-staging to get per-example coverage in the heatmap.",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "build" ],
+      "options": {
+        "commands": [ "bash scripts/run-tests.sh --run-all" ],
+        "cwd": "tests/integration/Flowthru.Tests.Examples",
+        "parallel": false,
+        "forwardAllArgs": true
+      }
+    },
     "test:discovery": {
       "//": "Run only test discovery tests (smoke check for example project wiring)",
       "executor": "nx:run-commands",
