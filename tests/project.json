@@ -40,12 +40,22 @@
         "parallel": false
       }
     },
-    "coverage:upload": {
-      "//": "Sync Codecov flags from the current project graph, then upload all coverage.cobertura.xml files found under tests/. Assumes tests have already been run. Requires CODECOV_TOKEN env var and the codecov CLI on PATH.",
+    "coverage:sync": {
+      "//": "Sync codecov.yml flags and components from the current project graph and stage the file for commit. Must run before the release commit so the updated codecov.yml is included.",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "node scripts/sync-codecov-flags.mjs",
+          "node scripts/sync-codecov-flags.mjs"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "coverage:upload": {
+      "//": "Upload all coverage.cobertura.xml files found under tests/ to Codecov. Assumes tests have already been run and coverage:sync has been called. Requires CODECOV_TOKEN env var and the codecov CLI on PATH.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
           "bash scripts/upload-coverage.sh"
         ],
         "cwd": "{workspaceRoot}",
