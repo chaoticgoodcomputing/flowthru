@@ -1,3 +1,16 @@
+## 0.10.1 (2026-04-24)
+
+### 🩹 Fixes
+
+- better codecov analytics ([bf83f280](https://github.com/chaoticgoodcomputing/flowthru/commit/bf83f280))
+- clean up coverlet run settings ([77e3da4e](https://github.com/chaoticgoodcomputing/flowthru/commit/77e3da4e))
+- reorder codecov to end of release flow ([acee860c](https://github.com/chaoticgoodcomputing/flowthru/commit/acee860c))
+- split codecov yaml and upload in release flow ([759ab6b8](https://github.com/chaoticgoodcomputing/flowthru/commit/759ab6b8))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.10.0 (2026-04-24)
 
 ### 🚀 Features
