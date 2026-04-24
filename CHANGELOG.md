@@ -1,3 +1,17 @@
+## 0.11.0 (2026-04-24)
+
+### 🚀 Features
+
+- destination-based inspection during pre-flight ([2dfb6682](https://github.com/chaoticgoodcomputing/flowthru/commit/2dfb6682))
+
+### 🩹 Fixes
+
+- resolved covlet blobstring ([b3240dec](https://github.com/chaoticgoodcomputing/flowthru/commit/b3240dec))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.10.1 (2026-04-24)
 
 ### 🩹 Fixes
