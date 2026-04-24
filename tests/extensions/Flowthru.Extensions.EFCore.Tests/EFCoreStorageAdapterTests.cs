@@ -214,4 +214,63 @@ public class EFCoreStorageAdapterTests
 
     Assert.That(count, Is.EqualTo(0));
   }
+
+  // ── InspectTarget ───────────────────────────────────────────────────────
+
+  [Test]
+  public async Task InspectTarget_MigratedDatabase_ReturnsSuccess()
+  {
+    // Arrange: SetUp already called EnsureCreatedAsync — tables exist.
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(_options)
+    );
+
+    var result = await entry.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.True);
+  }
+
+  [Test]
+  public async Task InspectTarget_UnmigratedDatabase_ReturnsFailure()
+  {
+    // Arrange: open a fresh connection but skip EnsureCreatedAsync — no schema.
+    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
+    await bareConnection.OpenAsync();
+    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
+      .UseSqlite(bareConnection)
+      .Options;
+
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(bareOptions)
+    );
+
+    var result = await entry.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.False);
+  }
+
+  [Test]
+  public async Task InspectTarget_UnmigratedDatabase_ErrorDetailsContainContextTypeName()
+  {
+    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
+    await bareConnection.OpenAsync();
+    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
+      .UseSqlite(bareConnection)
+      .Options;
+
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(bareOptions)
+    );
+
+    var result = await entry.InspectTarget().Run();
+
+    Assert.That(
+      result.Errors[0].Details,
+      Does.Contain("TestDbContext"),
+      "Error details must identify which context type produced the error"
+    );
+  }
 }

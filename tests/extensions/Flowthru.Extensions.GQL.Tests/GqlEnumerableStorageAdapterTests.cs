@@ -311,4 +311,26 @@ public class GqlEnumerableStorageAdapterTests
       Is.EqualTo(Flowthru.Core.Data.Validation.ValidationErrorType.NotFound)
     );
   }
+
+  // ── InspectTarget ───────────────────────────────────────────────────────
+
+  [Test]
+  public async Task InspectTarget_AlwaysReturnsSuccess()
+  {
+    // GQL mutations cannot be probed without side effects — InspectTarget is a no-op.
+    var adapter = new GqlEnumerableStorageAdapter<TestPagedResult, TestUser>(
+      label: "test",
+      queryFunc: ct =>
+        Task.FromResult<IOperationResult<TestPagedResult>>(
+          StubOperationResult<TestPagedResult>.Success(
+            new TestPagedResult { Nodes = Array.Empty<TestUser>() }
+          )
+        ),
+      selectData: r => r.Nodes
+    );
+
+    var result = await adapter.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.True);
+  }
 }

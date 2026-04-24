@@ -281,4 +281,24 @@ public class GqlStorageAdapterTests
 
     Assert.That(result.IsValid, Is.True);
   }
+
+  // ── InspectTarget ───────────────────────────────────────────────────────
+
+  [Test]
+  public async Task InspectTarget_AlwaysReturnsSuccess()
+  {
+    // GQL mutations cannot be probed without side effects — InspectTarget is a no-op.
+    var adapter = new GqlStorageAdapter<TestPagedResult, TestUser>(
+      label: "test",
+      queryFunc: ct =>
+        Task.FromResult<IOperationResult<TestPagedResult>>(
+          StubOperationResult<TestPagedResult>.Success(new TestPagedResult())
+        ),
+      selectData: r => r.Nodes![0]
+    );
+
+    var result = await adapter.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.True);
+  }
 }

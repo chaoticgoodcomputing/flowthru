@@ -58,6 +58,63 @@ public class EFCoreSingleStorageAdapterTests
     Assert.That(result.IsValid, Is.False);
   }
 
+  // ── InspectTarget ───────────────────────────────────────────────────────
+
+  [Test]
+  public async Task InspectTarget_MigratedDatabase_ReturnsSuccess()
+  {
+    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(_options)
+    );
+
+    var result = await entry.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.True);
+  }
+
+  [Test]
+  public async Task InspectTarget_UnmigratedDatabase_ReturnsFailure()
+  {
+    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
+    await bareConnection.OpenAsync();
+    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
+      .UseSqlite(bareConnection)
+      .Options;
+
+    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(bareOptions)
+    );
+
+    var result = await entry.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.False);
+  }
+
+  [Test]
+  public async Task InspectTarget_UnmigratedDatabase_ErrorDetailsContainContextTypeName()
+  {
+    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
+    await bareConnection.OpenAsync();
+    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
+      .UseSqlite(bareConnection)
+      .Options;
+
+    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(bareOptions)
+    );
+
+    var result = await entry.InspectTarget().Run();
+
+    Assert.That(
+      result.Errors[0].Details,
+      Does.Contain("TestDbContext"),
+      "Error details must identify which context type produced the error"
+    );
+  }
+
   [Test]
   public async Task AllowEmptyData_True_PassesInspectionOnEmptyTable()
   {

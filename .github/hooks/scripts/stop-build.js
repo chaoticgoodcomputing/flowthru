@@ -6,39 +6,25 @@
  * - All tests pass: brief success message via systemMessage.
  * - Any test failures: blocks the agent via hookSpecificOutput so it can
  *   address failures before concluding.
+ * - Timeout: kills the child and emits a partial-progress block report so
+ *   the agent knows tests did not complete.
  *
  * Reads stdin to check stop_hook_active and avoid infinite loops.
+ * Reads its own timeout from hooks.json and self-manages a deadline so a
+ * partial report is always returned before the host kills the process.
  */
 
-const { spawnSync } = require('child_process');
+const { spawnSync, spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+const readline = require('readline');
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 /**
- * Parse dotnet test output to extract test counts.
- * Aggregates counts across all test runs.
- * Returns: { passed, failed, skipped, inconclusive, total }
- */
-function parseTestCounts(output) {
-  // Match patterns like: "Failed:     6, Passed:   156, Skipped:     0, Total:   162"
-  const regex = /Failed:\s*(\d+),\s*Passed:\s*(\d+),\s*Skipped:\s*(\d+),\s*Total:\s*(\d+)/g;
-  const counts = { passed: 0, failed: 0, skipped: 0, total: 0 };
-
-  let match;
-  while ((match = regex.exec(output)) !== null) {
-    counts.failed += parseInt(match[1], 10);
-    counts.passed += parseInt(match[2], 10);
-    counts.skipped += parseInt(match[3], 10);
-    counts.total += parseInt(match[4], 10);
-  }
-
-  // Inconclusive = Total - Passed - Failed - Skipped
-  counts.inconclusive = counts.total - counts.passed - counts.failed - counts.skipped;
-
-  return counts;
-}
-
-/**
- * Format test counts for display.
+ * Format aggregated test counts for display.
  */
 function formatTestCounts(counts) {
   return [
@@ -51,27 +37,28 @@ function formatTestCounts(counts) {
 }
 
 /**
- * Extract full failure blocks from dotnet test output.
- * A block starts with an indented "Failed <TestName>" line and continues
- * until the next dotnet test summary line or end of output.
+ * Extract full failure blocks from collected output lines.
+ * NX stream mode prefixes lines with "ProjectName: " — strip that before matching.
+ * A block starts with an indented "Failed <TestName>" line and continues until
+ * the next dotnet summary line.
  */
-function extractFailureBlocks(output) {
-  const lines = output.split('\n');
+function extractFailureBlocks(lines) {
   const resultLines = [];
   let capturing = false;
 
   for (const line of lines) {
-    if (/^\s+Failed\s+\S/.test(line)) {
-      // Start of a new failure block — blank separator between blocks.
+    // Strip the "ProjectName: " prefix that NX adds in stream mode.
+    const stripped = line.replace(/^[\w.-]+:\s+/, '');
+
+    if (/^\s+Failed\s+\S/.test(stripped)) {
       if (resultLines.length > 0) resultLines.push('');
       capturing = true;
-      resultLines.push(line);
+      resultLines.push(stripped);
     } else if (capturing) {
-      // Stop at the dotnet test run summary line (e.g. "Failed!  - Failed: 6, Passed: ...")
-      if (/^(Failed!|Passed!)\s+-\s+Failed:/.test(line.trim())) {
+      if (/^(Failed!|Passed!)\s+-\s+Failed:/.test(stripped.trim())) {
         capturing = false;
       } else {
-        resultLines.push(line);
+        resultLines.push(stripped);
       }
     }
   }
@@ -79,10 +66,40 @@ function extractFailureBlocks(output) {
   return resultLines.join('\n').trim();
 }
 
+/**
+ * Read the timeout (in seconds) for this script from hooks.json.
+ * Searches every event array for an entry whose `command` contains scriptBasename.
+ * Returns null if the file is missing or no matching entry is found.
+ */
+function readHookTimeout(hooksJsonPath, scriptBasename) {
+  try {
+    const config = JSON.parse(fs.readFileSync(hooksJsonPath, 'utf-8'));
+    for (const entries of Object.values(config.hooks || {})) {
+      if (!Array.isArray(entries)) continue;
+      for (const entry of entries) {
+        if (
+          typeof entry.command === 'string' &&
+          entry.command.includes(scriptBasename) &&
+          entry.timeout != null
+        ) {
+          return Number(entry.timeout);
+        }
+      }
+    }
+  } catch (_) {
+    // File unreadable or JSON invalid — fall back to default budget.
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Bootstrap
+// ---------------------------------------------------------------------------
+
 // Read and parse stdin to detect re-entry.
 let hookInput = {};
 try {
-  const raw = require('fs').readFileSync('/dev/stdin', 'utf-8').trim();
+  const raw = fs.readFileSync('/dev/stdin', 'utf-8').trim();
   if (raw) hookInput = JSON.parse(raw);
 } catch (_) {
   // stdin unavailable or empty — treat as first invocation.
@@ -94,11 +111,25 @@ if (hookInput.stop_hook_active) {
 }
 
 const repoRoot = path.resolve(__dirname, '../../..');
+const scriptBasename = path.basename(__filename);
+const hooksJsonPath = path.resolve(__dirname, '../hooks.json');
 
-// Determine which projects are affected by uncommitted working tree changes.
+// Budget = hook timeout minus a safety buffer so we always return before the
+// host hard-kills the process. Falls back to 5 minutes if hooks.json is missing.
+const TIMEOUT_BUFFER_MS = 20_000;
+const hookTimeoutSec = readHookTimeout(hooksJsonPath, scriptBasename);
+const budgetMs =
+  hookTimeoutSec != null
+    ? hookTimeoutSec * 1000 - TIMEOUT_BUFFER_MS
+    : 5 * 60 * 1000;
+
+// ---------------------------------------------------------------------------
+// Determine affected projects (those that have a `test` target)
+// ---------------------------------------------------------------------------
+
 const affectedResult = spawnSync(
   'pnpm',
-  ['nx', 'show', 'projects', '--affected', '--base=HEAD', '--json'],
+  ['nx', 'show', 'projects', '--affected', '--base=HEAD', '--withTarget=test', '--json'],
   { cwd: repoRoot, encoding: 'utf-8', timeout: 30000 },
 );
 
@@ -111,13 +142,165 @@ try {
 
 if (affectedProjects.length === 0) {
   process.stdout.write(JSON.stringify({
-    systemMessage: 'nx affected test: skipped (no affected projects in working tree).',
+    systemMessage: 'nx affected test: skipped (no affected projects with test targets in working tree).',
   }));
   process.exit(0);
 }
 
-// Run tests for all affected projects.
-const result = spawnSync(
+// ---------------------------------------------------------------------------
+// Per-project progress tracking
+// ---------------------------------------------------------------------------
+
+// Set of project names whose `test` task has started executing.
+const projectsStarted = new Set();
+
+// Map<projectName, { status, passed, failed, skipped, total }>
+const projectsCompleted = new Map();
+
+// All output lines (for failure block extraction).
+const outputLines = [];
+
+const startTime = Date.now();
+
+// "> nx run ProjectName:test [--logger ...] [[existing outputs match the cache]]"
+// Matches all :test task lines regardless of trailing flags or cache marker.
+const TASK_START_RE = /^>\s+nx run ([\w.-]+):test/;
+
+// "Passed!  - Failed: 0, Passed: 30, Skipped: 0, Total: 30, Duration: 39 ms - ProjectName.dll (net10.0)"
+// With --logger console;verbosity=minimal, NX strips the "ProjectName: " prefix from summary
+// lines (both live and cached). The project name is recoverable from the dll filename at the end.
+const SUMMARY_RE =
+  /^(Passed!|Failed!)\s+-\s+Failed:\s*(\d+),\s*Passed:\s*(\d+),\s*Skipped:\s*(\d+),\s*Total:\s*(\d+).*-\s+([\w.-]+)\.dll\b/;
+
+function processLine(line) {
+  outputLines.push(line);
+
+  const taskStart = TASK_START_RE.exec(line);
+  if (taskStart) {
+    projectsStarted.add(taskStart[1]);
+    return;
+  }
+
+  const summary = SUMMARY_RE.exec(line);
+  if (summary) {
+    const [, verdict, failed, passed, skipped, total, dllName] = summary;
+    projectsCompleted.set(dllName, {
+      status: verdict === 'Passed!' ? 'passed' : 'failed',
+      failed: parseInt(failed, 10),
+      passed: parseInt(passed, 10),
+      skipped: parseInt(skipped, 10),
+      total: parseInt(total, 10),
+    });
+  }
+}
+
+function buildProjectStatusTable() {
+  return affectedProjects
+    .map((proj) => {
+      if (projectsCompleted.has(proj)) {
+        const r = projectsCompleted.get(proj);
+        const icon = r.failed > 0 ? '✗' : '✓';
+        return `  ${icon} ${proj.padEnd(48)} ${r.status} (${r.passed}/${r.total})`;
+      }
+      if (projectsStarted.has(proj)) {
+        // Started but no dotnet summary: timed out mid-run, or a non-dotnet test target.
+        return timedOut
+          ? `  ○ ${proj.padEnd(48)} running (interrupted)`
+          : `  ✓ ${proj.padEnd(48)} passed (no test summary)`;
+      }
+      return `  - ${proj.padEnd(48)} not started`;
+    })
+    .join('\n');
+}
+
+function aggregateCounts() {
+  const counts = { passed: 0, failed: 0, skipped: 0, total: 0, inconclusive: 0 };
+  for (const r of projectsCompleted.values()) {
+    counts.passed += r.passed;
+    counts.failed += r.failed;
+    counts.skipped += r.skipped;
+    counts.total += r.total;
+  }
+  counts.inconclusive = counts.total - counts.passed - counts.failed - counts.skipped;
+  return counts;
+}
+
+// ---------------------------------------------------------------------------
+// Result emission
+// ---------------------------------------------------------------------------
+
+function emitResult(timedOut, exitCode) {
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const counts = aggregateCounts();
+  const countsDisplay = formatTestCounts(counts);
+  const completedCount = projectsCompleted.size;
+  const totalCount = affectedProjects.length;
+  const statusTable = buildProjectStatusTable();
+
+  if (timedOut) {
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: 'Stop',
+        decision: 'block',
+        reason: [
+          `nx affected test TIMED OUT after ${elapsed}s (budget: ${Math.round(budgetMs / 1000)}s).`,
+          `Completed ${completedCount}/${totalCount} test project(s) before deadline.`,
+          '',
+          'Project Status:',
+          statusTable,
+          '',
+          'Partial Test Summary (completed projects only):',
+          countsDisplay,
+        ].join('\n'),
+      },
+    }));
+    process.exit(1);
+    return;
+  }
+
+  if (exitCode !== 0 || counts.failed > 0) {
+    const failureBlocks = extractFailureBlocks(outputLines);
+    const summary = failureBlocks.length > 0 ? failureBlocks : outputLines.slice(-50).join('\n');
+
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: 'Stop',
+        decision: 'block',
+        reason: [
+          `nx affected test FAILED (${totalCount} project(s): ${affectedProjects.join(', ')}) — address these failures before concluding.`,
+          '',
+          'Project Status:',
+          statusTable,
+          '',
+          'Test Summary:',
+          countsDisplay,
+          '',
+          summary,
+        ].join('\n'),
+      },
+    }));
+    process.exit(1);
+  } else {
+    process.stdout.write(JSON.stringify({
+      systemMessage: [
+        `nx affected test: passed (${totalCount} project(s): ${affectedProjects.join(', ')}).`,
+        '',
+        'Project Status:',
+        statusTable,
+        '',
+        'Test Summary:',
+        countsDisplay,
+      ].join('\n'),
+    }));
+    process.exit(0);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Launch async test run
+// ---------------------------------------------------------------------------
+
+const child = spawn(
   'pnpm',
   [
     'nx', 'affected', '-t', 'test',
@@ -125,44 +308,21 @@ const result = spawnSync(
     '--output-style=stream',
     '--logger', 'console;verbosity=minimal',
   ],
-  { cwd: repoRoot, encoding: 'utf-8', timeout: 300000 },
+  { cwd: repoRoot },
 );
 
-const stdout = (result.stdout || '').trim();
-const stderr = (result.stderr || '').trim();
-const combined = [stdout, stderr].filter(Boolean).join('\n');
+const rlOut = readline.createInterface({ input: child.stdout });
+const rlErr = readline.createInterface({ input: child.stderr });
+rlOut.on('line', processLine);
+rlErr.on('line', processLine);
 
-// Parse test counts from output.
-const testCounts = parseTestCounts(combined);
-const countsDisplay = formatTestCounts(testCounts);
+let timedOut = false;
+const deadlineTimer = setTimeout(() => {
+  timedOut = true;
+  child.kill('SIGTERM');
+}, budgetMs);
 
-// NX does not always propagate the dotnet exit code — fall back to parsed counts.
-if (result.status !== 0 || testCounts.failed > 0) {
-  const failureBlocks = extractFailureBlocks(combined);
-  const summary = failureBlocks.length > 0 ? failureBlocks : combined;
-
-  process.stdout.write(JSON.stringify({
-    hookSpecificOutput: {
-      hookEventName: 'Stop',
-      decision: 'block',
-      reason: [
-        `nx affected test FAILED (affected: ${affectedProjects.join(', ')}) — address these failures before concluding.`,
-        '',
-        'Test Summary:',
-        countsDisplay,
-        '',
-        summary,
-      ].join('\n'),
-    },
-  }));
-  process.exit(1);
-} else {
-  process.stdout.write(JSON.stringify({
-    systemMessage: [
-      `nx affected test: passed (${affectedProjects.length} project(s): ${affectedProjects.join(', ')}).`,
-      '',
-      'Test Summary:',
-      countsDisplay,
-    ].join('\n'),
-  }));
-}
+child.on('close', (exitCode) => {
+  clearTimeout(deadlineTimer);
+  emitResult(timedOut, exitCode);
+});

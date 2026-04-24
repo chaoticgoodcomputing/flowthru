@@ -160,6 +160,20 @@ public class DirectoryCsvStorageAdapterTests
     Assert.That(result.IsValid, Is.True);
   }
 
+  // ── InspectTarget ─────────────────────────────────────────────────────────
+
+  [Test]
+  public async Task InspectTarget_AlwaysReturnsSuccess()
+  {
+    // DirectoryCsvStorageAdapter is read-only (CanWrite = false) — write-destination
+    // validation is not meaningful; InspectTarget() is a no-op that always succeeds.
+    var adapter = new DirectoryCsvStorageAdapter<FlatRow>(_tempDir);
+
+    var result = await adapter.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.True);
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   private void WriteCsv(string filename, string content) =>
