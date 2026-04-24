@@ -30,169 +30,190 @@ namespace Flowthru.Extensions.EFCore.Bulk.Tests.Performance;
 [Category("Performance")]
 public class BulkSavePerformanceTests
 {
-    private const int RowCount = 10_000;
-    private const int BudgetMs = 10_000;
+  private const int RowCount = 10_000;
+  private const int BudgetMs = 10_000;
 
-    private SqliteConnection _connection = null!;
-    private DbContextOptions<TestDbContext> _options = null!;
+  private SqliteConnection _connection = null!;
+  private DbContextOptions<TestDbContext> _options = null!;
 
-    [SetUp]
-    public async Task SetUp()
+  [SetUp]
+  public async Task SetUp()
+  {
+    _connection = new SqliteConnection("Data Source=:memory:");
+    await _connection.OpenAsync();
+    _options = new DbContextOptionsBuilder<TestDbContext>().UseSqlite(_connection).Options;
+
+    await using var db = new TestDbContext(_options);
+    await db.Database.EnsureCreatedAsync();
+  }
+
+  [TearDown]
+  public async Task TearDown()
+  {
+    await _connection.DisposeAsync();
+  }
+
+  // ── BulkSave.Insert ──────────────────────────────────────────────────────
+
+  [Test]
+  public async Task Insert_WritesAllRows_On10kEntities()
+  {
+    var rows = Seed(RowCount);
+    var saveFunc = BulkSave.Insert<TestEntity, TestDbContext>();
+
+    await using var db = new TestDbContext(_options);
+    await saveFunc(db, rows, CancellationToken.None);
+
+    await using var verify = new TestDbContext(_options);
+    var count = await verify.TestEntities.CountAsync();
+    Assert.That(
+      count,
+      Is.EqualTo(RowCount),
+      $"Expected {RowCount} rows after bulk insert, found {count}"
+    );
+  }
+
+  [Test]
+  public async Task Insert_CompletesWithinBudget_On10kEntities()
+  {
+    var rows = Seed(RowCount);
+    var saveFunc = BulkSave.Insert<TestEntity, TestDbContext>();
+
+    await using var db = new TestDbContext(_options);
+
+    var sw = Stopwatch.StartNew();
+    await saveFunc(db, rows, CancellationToken.None);
+    sw.Stop();
+
+    Assert.That(
+      sw.ElapsedMilliseconds,
+      Is.LessThan(BudgetMs),
+      $"BulkSave.Insert took {sw.ElapsedMilliseconds}ms — expected < {BudgetMs}ms"
+    );
+
+    TestContext.Out.WriteLine($"BulkSave.Insert ({RowCount} rows): {sw.ElapsedMilliseconds}ms");
+  }
+
+  // ── BulkSave.TruncateAndInsert ───────────────────────────────────────────
+
+  [Test]
+  public async Task TruncateAndInsert_ReplacesExistingRows_On10kEntities()
+  {
+    // Seed an initial set of rows with different IDs
+    var initial = Seed(count: 500, startId: 1);
+    await using (var db = new TestDbContext(_options))
+      await db.BulkInsertAsync(initial);
+
+    // Now replace with a completely different set
+    var replacement = Seed(count: RowCount, startId: 10_001);
+    var saveFunc = BulkSave.TruncateAndInsert<TestEntity, TestDbContext>();
+
+    await using var db2 = new TestDbContext(_options);
+    await saveFunc(db2, replacement, CancellationToken.None);
+
+    await using var verify = new TestDbContext(_options);
+    var count = await verify.TestEntities.CountAsync();
+    var firstId = await verify.TestEntities.MinAsync(e => e.Id);
+
+    Assert.Multiple(() =>
     {
-        _connection = new SqliteConnection("Data Source=:memory:");
-        await _connection.OpenAsync();
-        _options = new DbContextOptionsBuilder<TestDbContext>()
-            .UseSqlite(_connection)
-            .Options;
+      Assert.That(
+        count,
+        Is.EqualTo(RowCount),
+        $"Expected {RowCount} rows after TruncateAndInsert, found {count}"
+      );
+      Assert.That(
+        firstId,
+        Is.EqualTo(10_001),
+        "Expected rows from replacement set, not original set"
+      );
+    });
+  }
 
-        await using var db = new TestDbContext(_options);
-        await db.Database.EnsureCreatedAsync();
-    }
+  [Test]
+  public async Task TruncateAndInsert_CompletesWithinBudget_On10kEntities()
+  {
+    var rows = Seed(RowCount);
+    var saveFunc = BulkSave.TruncateAndInsert<TestEntity, TestDbContext>();
 
-    [TearDown]
-    public async Task TearDown()
-    {
-        await _connection.DisposeAsync();
-    }
+    await using var db = new TestDbContext(_options);
 
-    // ── BulkSave.Insert ──────────────────────────────────────────────────────
+    var sw = Stopwatch.StartNew();
+    await saveFunc(db, rows, CancellationToken.None);
+    sw.Stop();
 
-    [Test]
-    public async Task Insert_WritesAllRows_On10kEntities()
-    {
-        var rows = Seed(RowCount);
-        var saveFunc = BulkSave.Insert<TestEntity, TestDbContext>();
+    Assert.That(
+      sw.ElapsedMilliseconds,
+      Is.LessThan(BudgetMs),
+      $"BulkSave.TruncateAndInsert took {sw.ElapsedMilliseconds}ms — expected < {BudgetMs}ms"
+    );
 
-        await using var db = new TestDbContext(_options);
-        await saveFunc(db, rows, CancellationToken.None);
+    TestContext.Out.WriteLine(
+      $"BulkSave.TruncateAndInsert ({RowCount} rows): {sw.ElapsedMilliseconds}ms"
+    );
+  }
 
-        await using var verify = new TestDbContext(_options);
-        var count = await verify.TestEntities.CountAsync();
-        Assert.That(count, Is.EqualTo(RowCount),
-            $"Expected {RowCount} rows after bulk insert, found {count}");
-    }
+  // ── BulkSave.InsertOrUpdate ──────────────────────────────────────────────
 
-    [Test]
-    public async Task Insert_CompletesWithinBudget_On10kEntities()
-    {
-        var rows = Seed(RowCount);
-        var saveFunc = BulkSave.Insert<TestEntity, TestDbContext>();
+  [Test]
+  public async Task InsertOrUpdate_InsertsNewRows_And_UpdatesExisting_On10kEntities()
+  {
+    // Seed half the rows first
+    var initial = Seed(count: RowCount / 2, startId: 1);
+    await using (var db = new TestDbContext(_options))
+      await db.BulkInsertAsync(initial);
 
-        await using var db = new TestDbContext(_options);
+    // Upsert: first half updated, second half new
+    var upsert = Seed(count: RowCount, startId: 1, nameSuffix: "-updated");
+    var saveFunc = BulkSave.InsertOrUpdate<TestEntity, TestDbContext>();
 
-        var sw = Stopwatch.StartNew();
-        await saveFunc(db, rows, CancellationToken.None);
-        sw.Stop();
+    await using var db2 = new TestDbContext(_options);
+    await saveFunc(db2, upsert, CancellationToken.None);
 
-        Assert.That(sw.ElapsedMilliseconds, Is.LessThan(BudgetMs),
-            $"BulkSave.Insert took {sw.ElapsedMilliseconds}ms — expected < {BudgetMs}ms");
+    await using var verify = new TestDbContext(_options);
+    var count = await verify.TestEntities.CountAsync();
+    Assert.That(
+      count,
+      Is.EqualTo(RowCount),
+      $"Expected {RowCount} rows after upsert, found {count}"
+    );
+  }
 
-        TestContext.Out.WriteLine(
-            $"BulkSave.Insert ({RowCount} rows): {sw.ElapsedMilliseconds}ms");
-    }
+  [Test]
+  public async Task InsertOrUpdate_CompletesWithinBudget_On10kEntities()
+  {
+    var rows = Seed(RowCount);
+    var saveFunc = BulkSave.InsertOrUpdate<TestEntity, TestDbContext>();
 
-    // ── BulkSave.TruncateAndInsert ───────────────────────────────────────────
+    await using var db = new TestDbContext(_options);
 
-    [Test]
-    public async Task TruncateAndInsert_ReplacesExistingRows_On10kEntities()
-    {
-        // Seed an initial set of rows with different IDs
-        var initial = Seed(count: 500, startId: 1);
-        await using (var db = new TestDbContext(_options))
-            await db.BulkInsertAsync(initial);
+    var sw = Stopwatch.StartNew();
+    await saveFunc(db, rows, CancellationToken.None);
+    sw.Stop();
 
-        // Now replace with a completely different set
-        var replacement = Seed(count: RowCount, startId: 10_001);
-        var saveFunc = BulkSave.TruncateAndInsert<TestEntity, TestDbContext>();
+    Assert.That(
+      sw.ElapsedMilliseconds,
+      Is.LessThan(BudgetMs),
+      $"BulkSave.InsertOrUpdate took {sw.ElapsedMilliseconds}ms — expected < {BudgetMs}ms"
+    );
 
-        await using var db2 = new TestDbContext(_options);
-        await saveFunc(db2, replacement, CancellationToken.None);
+    TestContext.Out.WriteLine(
+      $"BulkSave.InsertOrUpdate ({RowCount} rows): {sw.ElapsedMilliseconds}ms"
+    );
+  }
 
-        await using var verify = new TestDbContext(_options);
-        var count = await verify.TestEntities.CountAsync();
-        var firstId = await verify.TestEntities.MinAsync(e => e.Id);
+  // ── BulkSave.InsertOrUpdateOrDelete ─────────────────────────────────────
+  // Note: BulkInsertOrUpdateOrDeleteAsync is not supported on SQLite — it requires
+  // a provider that supports DELETE-from-source semantics (PostgreSQL, SQL Server).
+  // Full-sync behaviour is verified by integration tests against a real provider.
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(count, Is.EqualTo(RowCount),
-                $"Expected {RowCount} rows after TruncateAndInsert, found {count}");
-            Assert.That(firstId, Is.EqualTo(10_001),
-                "Expected rows from replacement set, not original set");
-        });
-    }
+  // ── Helpers ──────────────────────────────────────────────────────────────
 
-    [Test]
-    public async Task TruncateAndInsert_CompletesWithinBudget_On10kEntities()
-    {
-        var rows = Seed(RowCount);
-        var saveFunc = BulkSave.TruncateAndInsert<TestEntity, TestDbContext>();
-
-        await using var db = new TestDbContext(_options);
-
-        var sw = Stopwatch.StartNew();
-        await saveFunc(db, rows, CancellationToken.None);
-        sw.Stop();
-
-        Assert.That(sw.ElapsedMilliseconds, Is.LessThan(BudgetMs),
-            $"BulkSave.TruncateAndInsert took {sw.ElapsedMilliseconds}ms — expected < {BudgetMs}ms");
-
-        TestContext.Out.WriteLine(
-            $"BulkSave.TruncateAndInsert ({RowCount} rows): {sw.ElapsedMilliseconds}ms");
-    }
-
-    // ── BulkSave.InsertOrUpdate ──────────────────────────────────────────────
-
-    [Test]
-    public async Task InsertOrUpdate_InsertsNewRows_And_UpdatesExisting_On10kEntities()
-    {
-        // Seed half the rows first
-        var initial = Seed(count: RowCount / 2, startId: 1);
-        await using (var db = new TestDbContext(_options))
-            await db.BulkInsertAsync(initial);
-
-        // Upsert: first half updated, second half new
-        var upsert = Seed(count: RowCount, startId: 1, nameSuffix: "-updated");
-        var saveFunc = BulkSave.InsertOrUpdate<TestEntity, TestDbContext>();
-
-        await using var db2 = new TestDbContext(_options);
-        await saveFunc(db2, upsert, CancellationToken.None);
-
-        await using var verify = new TestDbContext(_options);
-        var count = await verify.TestEntities.CountAsync();
-        Assert.That(count, Is.EqualTo(RowCount),
-            $"Expected {RowCount} rows after upsert, found {count}");
-    }
-
-    [Test]
-    public async Task InsertOrUpdate_CompletesWithinBudget_On10kEntities()
-    {
-        var rows = Seed(RowCount);
-        var saveFunc = BulkSave.InsertOrUpdate<TestEntity, TestDbContext>();
-
-        await using var db = new TestDbContext(_options);
-
-        var sw = Stopwatch.StartNew();
-        await saveFunc(db, rows, CancellationToken.None);
-        sw.Stop();
-
-        Assert.That(sw.ElapsedMilliseconds, Is.LessThan(BudgetMs),
-            $"BulkSave.InsertOrUpdate took {sw.ElapsedMilliseconds}ms — expected < {BudgetMs}ms");
-
-        TestContext.Out.WriteLine(
-            $"BulkSave.InsertOrUpdate ({RowCount} rows): {sw.ElapsedMilliseconds}ms");
-    }
-
-    // ── BulkSave.InsertOrUpdateOrDelete ─────────────────────────────────────
-    // Note: BulkInsertOrUpdateOrDeleteAsync is not supported on SQLite — it requires
-    // a provider that supports DELETE-from-source semantics (PostgreSQL, SQL Server).
-    // Full-sync behaviour is verified by integration tests against a real provider.
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
-
-    private static List<TestEntity> Seed(int count, int startId = 1, string nameSuffix = "")
-    {
-        return Enumerable.Range(startId, count)
-            .Select(i => new TestEntity { Id = i, Name = $"Entity-{i}{nameSuffix}" })
-            .ToList();
-    }
+  private static List<TestEntity> Seed(int count, int startId = 1, string nameSuffix = "")
+  {
+    return Enumerable
+      .Range(startId, count)
+      .Select(i => new TestEntity { Id = i, Name = $"Entity-{i}{nameSuffix}" })
+      .ToList();
+  }
 }
