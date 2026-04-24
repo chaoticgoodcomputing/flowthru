@@ -14,9 +14,22 @@
 
 Base class for strongly-typed catalog implementations with automatic property caching.
 
+ [ConfigSectionAttribute](Flowthru.Core.Data.ConfigSectionAttribute.md)
+
+Specifies the <xref href="Microsoft.Extensions.Configuration.IConfiguration" data-throw-if-not-resolved="false"></xref> section path
+that backs an <xref href="Flowthru.Core.Data.IItem%601" data-throw-if-not-resolved="false"></xref> property on a <xref href="Flowthru.Core.Data.FlowthruConfigAttribute" data-throw-if-not-resolved="false"></xref>-marked class.
+
  [EnumerableItemFactory](Flowthru.Core.Data.EnumerableItemFactory.md)
 
 Extension point for <xref href="Flowthru.Core.Data.ItemFactory.Enumerable" data-throw-if-not-resolved="false"></xref> factory methods.
+
+ [FlowthruConfigAttribute](Flowthru.Core.Data.FlowthruConfigAttribute.md)
+
+Marks a partial class as a Flowthru configuration catalog. The source generator
+will emit the <xref href="Flowthru.Core.Data.CatalogAbstract" data-throw-if-not-resolved="false"></xref> base class, a constructor accepting
+<code>Microsoft.Extensions.Configuration.IConfiguration</code>, and
+<xref href="Flowthru.Core.Data.CatalogAbstract.CreateItem%60%601(System.Func%7bFlowthru.Core.Data.IItem%7b%60%600%7d%7d%2cSystem.String)" data-throw-if-not-resolved="false"></xref> backing for each property decorated
+with <xref href="Flowthru.Core.Data.ConfigSectionAttribute" data-throw-if-not-resolved="false"></xref>.
 
  [Item<T\>](Flowthru.Core.Data.Item\-1.md)
 

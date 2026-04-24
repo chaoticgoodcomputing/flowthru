@@ -90,6 +90,31 @@ public IFlowResultFormatter? ResultFormatter { get; set; }
 
 Defaults to ConsoleResultFormatter if not specified.
 
+### <a id="Flowthru_Core_Flows_ExecutionOptions_SchedulingStrategy"></a> SchedulingStrategy
+
+Priority strategy used to order ready steps on each dispatch cycle.
+
+```csharp
+public ISchedulingStrategy? SchedulingStrategy { get; set; }
+```
+
+#### Property Value
+
+ [ISchedulingStrategy](Flowthru.Core.Graph.Scheduling.ISchedulingStrategy.md)?
+
+#### Remarks
+
+<p>
+When <code>null</code> (default), the executor selects a strategy automatically:
+<xref href="Flowthru.Core.Graph.Scheduling.FifoSchedulingStrategy" data-throw-if-not-resolved="false"></xref> for sequential execution
+(<xref href="Flowthru.Core.Flows.ExecutionOptions.MaxDegreeOfParallelism" data-throw-if-not-resolved="false"></xref> = 1), and
+<xref href="Flowthru.Core.Graph.Scheduling.CriticalPathSchedulingStrategy" data-throw-if-not-resolved="false"></xref> for parallel execution.
+</p>
+<p>
+Provide an explicit value to override this default — for example, to force FIFO
+ordering even under parallelism, or to supply a custom strategy.
+</p>
+
 ### <a id="Flowthru_Core_Flows_ExecutionOptions_SliceStrategy"></a> SliceStrategy
 
 Optional slicing strategy to apply when executing pipelines.

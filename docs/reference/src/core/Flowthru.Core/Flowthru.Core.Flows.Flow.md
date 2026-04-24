@@ -375,19 +375,25 @@ With <code>MaxDegreeOfParallelism = 1</code> (default) execution is sequential a
 behaviourally equivalent to the previous layer-by-layer loop.
 </p>
 
-### <a id="Flowthru_Core_Flows_Flow_ValidateExternalInputsAsync_System_Threading_CancellationToken_"></a> ValidateExternalInputsAsync\(CancellationToken\)
+### <a id="Flowthru_Core_Flows_Flow_ValidateExternalInputsAsync_System_Int32_System_Threading_CancellationToken_"></a> ValidateExternalInputsAsync\(int, CancellationToken\)
 
-Validates all external inputs before Flow execution.
+Validates all external inputs and write destinations before Flow execution.
 
 ```csharp
-public Task<ValidationResult> ValidateExternalInputsAsync(CancellationToken cancellationToken = default)
+public Task<ValidationResult> ValidateExternalInputsAsync(int maxDegreeOfParallelism = 1, CancellationToken cancellationToken = default)
 ```
 
 #### Parameters
 
+`maxDegreeOfParallelism` [int](https://learn.microsoft.com/dotnet/api/system.int32)
+
+Maximum number of external inputs inspected concurrently. Defaults to 1 (sequential).
+Pass the resolved <code>ExecutionOptions.MaxDegreeOfParallelism</code> to fan out I/O-bound
+inspections in parallel.
+
 `cancellationToken` [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken)
 
-Cancellation token for validation I/O operations
+Cancellation token for async operations.
 
 #### Returns
 
@@ -398,28 +404,32 @@ ValidationResult containing any errors found
 #### Remarks
 
 <p>
-This method inspects catalog entries that are consumed by the Flow but not
-produced by any step in the execution set. These are pre-existing external data
-sources (files, databases, APIs) that must exist and be valid before the flow
-can execute.
+This method runs two validation passes:
 </p>
+<ol><li>
+  <strong>Source validation:</strong> Inspects catalog entries consumed but not produced
+  by any step in the execution set. These are pre-existing external data sources
+  (files, databases, APIs) that must exist and be valid before the flow can execute.
+</li><li>
+  <strong>Target validation:</strong> Calls <code>InspectTarget()</code> on all catalog entries
+  that steps will write to. This validates write destinations (directories, database tables,
+  API endpoints) are accessible before any step executes. Skipped for entries where
+  <code>Traits.CanInspect = false</code> or explicitly disabled via
+  <code>ValidationOptions.SkipTargetInspection()</code>.
+</li></ol>
 <p>
 <strong>Slicing Support:</strong> In sliced flows, catalog entries that were
 produced by steps outside the slice are correctly identified as external inputs
 and validated. This prevents runtime failures from missing intermediate data.
 </p>
 <p>
-<strong>Inspection Levels:</strong>
+<strong>Inspection Levels (source validation):</strong>
 </p>
 <ul><li><strong>None:</strong> Skip inspection entirely</li><li><strong>Shallow:</strong> Validate file exists, check headers/schema, deserialize sample rows</li><li><strong>Deep:</strong> Validate all rows in the dataset (expensive!)</li></ul>
 <p>
 <strong>Default Behavior:</strong>
 </p>
 <ul><li>If explicitly configured via WithValidation() → use that level</li><li>If entry has PreferredInspectionLevel set → use that level</li><li>Otherwise → Shallow (all storage adapters support inspection)</li></ul>
-<p>
-<strong>Important:</strong> Only external inputs are inspected. Intermediate flow
-outputs produced within the execution set are never inspected, as they don't exist yet.
-</p>
 <p>
 <strong>Usage:</strong>
 </p>

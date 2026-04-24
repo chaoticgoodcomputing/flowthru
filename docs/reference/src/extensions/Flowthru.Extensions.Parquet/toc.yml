@@ -5,6 +5,8 @@
   - name: Classes
   - name: ParquetItemExtensions
     href: Flowthru.Core.Data.ParquetItemExtensions.md
+  - name: ParquetItemOptions<TRow>
+    href: Flowthru.Core.Data.ParquetItemOptions-1.md
 - name: Flowthru.Core.Data.Storage.Format
   href: Flowthru.Core.Data.Storage.Format.md
   items:

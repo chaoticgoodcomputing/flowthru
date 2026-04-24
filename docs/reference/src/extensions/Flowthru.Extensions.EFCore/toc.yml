@@ -3,6 +3,8 @@
   href: Flowthru.Core.Data.Storage.md
   items:
   - name: Classes
+  - name: DbQueryStorageAdapter<T>
+    href: Flowthru.Core.Data.Storage.DbQueryStorageAdapter-1.md
   - name: EFCoreSingleStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.EFCoreSingleStorageAdapter-1.md
   - name: EFCoreStorageAdapter<T>
@@ -11,10 +13,16 @@
   href: Flowthru.Extensions.EFCore.Data.md
   items:
   - name: Classes
+  - name: DbQuery<T>
+    href: Flowthru.Extensions.EFCore.Data.DbQuery-1.md
+  - name: DbScope
+    href: Flowthru.Extensions.EFCore.Data.DbScope.md
   - name: EFCoreItemFactory
     href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.md
   - name: EFCoreItemFactory.Enumerable
     href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Enumerable.md
+  - name: EFCoreItemFactory.Query
+    href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Query.md
   - name: EFCoreItemFactory.Single
     href: Flowthru.Extensions.EFCore.Data.EFCoreItemFactory.Single.md
 - name: Flowthru.Extensions.EFCore.Tests

@@ -32,43 +32,18 @@
   - name: Classes
   - name: FlowthruCli
     href: Flowthru.Core.Cli.FlowthruCli.md
-- name: Flowthru.Core.Configuration
-  href: Flowthru.Core.Configuration.md
-  items:
-  - name: Classes
-  - name: CatalogOptions
-    href: Flowthru.Core.Configuration.CatalogOptions.md
-  - name: ConfigurationExtensions
-    href: Flowthru.Core.Configuration.ConfigurationExtensions.md
-  - name: FlowOptions
-    href: Flowthru.Core.Configuration.FlowOptions.md
-  - name: FlowValidationOptions
-    href: Flowthru.Core.Configuration.FlowValidationOptions.md
-  - name: FlowthruConfigurationOptions
-    href: Flowthru.Core.Configuration.FlowthruConfigurationOptions.md
-  - name: FlowthruOptions
-    href: Flowthru.Core.Configuration.FlowthruOptions.md
-  - name: JsonMetadataOptions
-    href: Flowthru.Core.Configuration.JsonMetadataOptions.md
-  - name: LoggingOptions
-    href: Flowthru.Core.Configuration.LoggingOptions.md
-  - name: MermaidMetadataOptions
-    href: Flowthru.Core.Configuration.MermaidMetadataOptions.md
-  - name: MetadataOptions
-    href: Flowthru.Core.Configuration.MetadataOptions.md
-  - name: TimestampConfiguration
-    href: Flowthru.Core.Configuration.TimestampConfiguration.md
-  - name: Interfaces
-  - name: ICatalogFactory
-    href: Flowthru.Core.Configuration.ICatalogFactory.md
 - name: Flowthru.Core.Data
   href: Flowthru.Core.Data.md
   items:
   - name: Classes
   - name: CatalogAbstract
     href: Flowthru.Core.Data.CatalogAbstract.md
+  - name: ConfigSectionAttribute
+    href: Flowthru.Core.Data.ConfigSectionAttribute.md
   - name: EnumerableItemFactory
     href: Flowthru.Core.Data.EnumerableItemFactory.md
+  - name: FlowthruConfigAttribute
+    href: Flowthru.Core.Data.FlowthruConfigAttribute.md
   - name: Item<T>
     href: Flowthru.Core.Data.Item-1.md
   - name: ItemFactory
@@ -94,6 +69,8 @@
     href: Flowthru.Core.Data.Storage.BinaryFileStorageAdapter.md
   - name: ComposedStorageAdapter<TContainer, TRow>
     href: Flowthru.Core.Data.Storage.ComposedStorageAdapter-2.md
+  - name: ConfigurationStorageAdapter<T>
+    href: Flowthru.Core.Data.Storage.ConfigurationStorageAdapter-1.md
   - name: MemoryStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.MemoryStorageAdapter-1.md
   - name: NullStorageAdapter<T>
@@ -104,6 +81,8 @@
     href: Flowthru.Core.Data.Storage.SchemaActivator.md
   - name: SingletonJsonStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter-1.md
+  - name: StorageMediumResolver
+    href: Flowthru.Core.Data.Storage.StorageMediumResolver.md
   - name: TextFileStorageAdapter
     href: Flowthru.Core.Data.Storage.TextFileStorageAdapter.md
   - name: Interfaces
@@ -111,10 +90,16 @@
     href: Flowthru.Core.Data.Storage.IContainerAdapter-2.md
   - name: IFormatSerializer<TRow>
     href: Flowthru.Core.Data.Storage.IFormatSerializer-1.md
+  - name: IHasEfficientCount
+    href: Flowthru.Core.Data.Storage.IHasEfficientCount.md
   - name: IStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.IStorageAdapter-1.md
   - name: IStorageMedium
     href: Flowthru.Core.Data.Storage.IStorageMedium.md
+  - name: IStorageMediumProvider
+    href: Flowthru.Core.Data.Storage.IStorageMediumProvider.md
+  - name: IStorageMediumResolver
+    href: Flowthru.Core.Data.Storage.IStorageMediumResolver.md
   - name: Enums
   - name: PropertyMappingStrategy
     href: Flowthru.Core.Data.Storage.PropertyMappingStrategy.md
@@ -231,12 +216,27 @@
     href: Flowthru.Core.Graph.Meta.Models.EdgeMetadata.md
   - name: ItemMetadata
     href: Flowthru.Core.Graph.Meta.Models.ItemMetadata.md
+  - name: RunMetadata
+    href: Flowthru.Core.Graph.Meta.Models.RunMetadata.md
   - name: SchemaField
     href: Flowthru.Core.Graph.Meta.Models.SchemaField.md
   - name: SchemaMetadata
     href: Flowthru.Core.Graph.Meta.Models.SchemaMetadata.md
   - name: StepMetadata
     href: Flowthru.Core.Graph.Meta.Models.StepMetadata.md
+- name: Flowthru.Core.Graph.Scheduling
+  href: Flowthru.Core.Graph.Scheduling.md
+  items:
+  - name: Classes
+  - name: CriticalPathSchedulingStrategy
+    href: Flowthru.Core.Graph.Scheduling.CriticalPathSchedulingStrategy.md
+  - name: FifoSchedulingStrategy
+    href: Flowthru.Core.Graph.Scheduling.FifoSchedulingStrategy.md
+  - name: SchedulingContext
+    href: Flowthru.Core.Graph.Scheduling.SchedulingContext.md
+  - name: Interfaces
+  - name: ISchedulingStrategy
+    href: Flowthru.Core.Graph.Scheduling.ISchedulingStrategy.md
 - name: Flowthru.Core.Graph.Validation
   href: Flowthru.Core.Graph.Validation.md
   items:
@@ -250,18 +250,10 @@
   href: Flowthru.Core.Meta.md
   items:
   - name: Classes
+  - name: FilenameTemplateParser
+    href: Flowthru.Core.Meta.FilenameTemplateParser.md
   - name: FlowthruMetadataBuilder
     href: Flowthru.Core.Meta.FlowthruMetadataBuilder.md
-  - name: FlowthruMetadataConfiguration
-    href: Flowthru.Core.Meta.FlowthruMetadataConfiguration.md
-  - name: JsonMetadataProviderBuilder
-    href: Flowthru.Core.Meta.JsonMetadataProviderBuilder.md
-  - name: MermaidMetadataExtensions
-    href: Flowthru.Core.Meta.MermaidMetadataExtensions.md
-  - name: MermaidMetadataProviderBuilder
-    href: Flowthru.Core.Meta.MermaidMetadataProviderBuilder.md
-  - name: MetadataJsonExtensions
-    href: Flowthru.Core.Meta.MetadataJsonExtensions.md
   - name: MetadataProviderBuilderAttribute
     href: Flowthru.Core.Meta.MetadataProviderBuilderAttribute.md
   - name: TimestampConfiguration
@@ -269,17 +261,11 @@
 - name: Flowthru.Core.Meta.Providers
   href: Flowthru.Core.Meta.Providers.md
   items:
-  - name: Classes
-  - name: JsonMetadataProvider
-    href: Flowthru.Core.Meta.Providers.JsonMetadataProvider.md
-  - name: MermaidMetadataProvider
-    href: Flowthru.Core.Meta.Providers.MermaidMetadataProvider.md
   - name: Interfaces
   - name: IMetadataProvider
     href: Flowthru.Core.Meta.Providers.IMetadataProvider.md
-  - name: Enums
-  - name: MermaidMetadataProvider.MermaidFlowchartDirection
-    href: Flowthru.Core.Meta.Providers.MermaidMetadataProvider.MermaidFlowchartDirection.md
+  - name: IPostRunMetadataProvider
+    href: Flowthru.Core.Meta.Providers.IPostRunMetadataProvider.md
 - name: Flowthru.Core.Registry
   href: Flowthru.Core.Registry.md
   items:
@@ -292,9 +278,18 @@
   - name: Classes
   - name: ConsoleResultFormatter
     href: Flowthru.Core.Results.ConsoleResultFormatter.md
+  - name: GitHubIssueUrlBuilder
+    href: Flowthru.Core.Results.GitHubIssueUrlBuilder.md
+  - name: RuntimeErrorClassifier
+    href: Flowthru.Core.Results.RuntimeErrorClassifier.md
+  - name: RuntimeErrorReport
+    href: Flowthru.Core.Results.RuntimeErrorReport.md
   - name: Interfaces
   - name: IFlowResultFormatter
     href: Flowthru.Core.Results.IFlowResultFormatter.md
+  - name: Enums
+  - name: ErrorClassification
+    href: Flowthru.Core.Results.ErrorClassification.md
 - name: Flowthru.Core.Services
   href: Flowthru.Core.Services.md
   items:
@@ -302,6 +297,8 @@
   - name: FlowthruServiceBuilder
     href: Flowthru.Core.Services.FlowthruServiceBuilder.md
   - name: Interfaces
+  - name: IFlowthruBuilder
+    href: Flowthru.Core.Services.IFlowthruBuilder.md
   - name: IFlowthruService
     href: Flowthru.Core.Services.IFlowthruService.md
 - name: Flowthru.Core.Services.Models

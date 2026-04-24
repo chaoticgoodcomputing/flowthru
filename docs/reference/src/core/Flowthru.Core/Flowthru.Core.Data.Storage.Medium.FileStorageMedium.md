@@ -142,6 +142,25 @@ This is used to determine if a catalog entry is a "seed" (Layer 0 input)
 or if it's produced by a step in the pipeline.
 </p>
 
+### <a id="Flowthru_Core_Data_Storage_Medium_FileStorageMedium_InspectTarget"></a> InspectTarget\(\)
+
+Validates that this storage location is accessible as a write destination.
+
+```csharp
+public FlowIO<ValidationResult> InspectTarget()
+```
+
+#### Returns
+
+ [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<[ValidationResult](Flowthru.Core.Data.Validation.ValidationResult.md)\>
+
+Effect producing validation result
+
+#### Remarks
+
+Default implementation returns success — override in medium implementations that
+can meaningfully probe write access before execution (e.g., filesystem path checks).
+
 ### <a id="Flowthru_Core_Data_Storage_Medium_FileStorageMedium_ReadStream"></a> ReadStream\(\)
 
 Reads raw bytes from storage as a stream.

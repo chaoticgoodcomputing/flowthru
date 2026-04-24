@@ -2,6 +2,8 @@
 
 ### Namespaces
 
+ [Flowthru.Core.Graph.Scheduling](Flowthru.Core.Graph.Scheduling.md)
+
  [Flowthru.Core.Graph.Validation](Flowthru.Core.Graph.Validation.md)
 
 ### Classes

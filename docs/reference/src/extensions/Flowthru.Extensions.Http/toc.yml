@@ -1,0 +1,29 @@
+### YamlMime:TableOfContent
+- name: Flowthru.Core.Data.Storage
+  href: Flowthru.Core.Data.Storage.md
+  items:
+  - name: Classes
+  - name: HttpStorageMediumProvider
+    href: Flowthru.Core.Data.Storage.HttpStorageMediumProvider.md
+- name: Flowthru.Core.Data.Storage.Medium
+  href: Flowthru.Core.Data.Storage.Medium.md
+  items:
+  - name: Classes
+  - name: CachedHttpStorageMedium
+    href: Flowthru.Core.Data.Storage.Medium.CachedHttpStorageMedium.md
+  - name: HttpStorageMedium
+    href: Flowthru.Core.Data.Storage.Medium.HttpStorageMedium.md
+- name: Flowthru.Extensions.Http
+  href: Flowthru.Extensions.Http.md
+  items:
+  - name: Classes
+  - name: HttpCacheOptions
+    href: Flowthru.Extensions.Http.HttpCacheOptions.md
+  - name: HttpOptions
+    href: Flowthru.Extensions.Http.HttpOptions.md
+- name: Flowthru.Extensions.Http.Services
+  href: Flowthru.Extensions.Http.Services.md
+  items:
+  - name: Classes
+  - name: FlowthruServiceBuilderHttpExtensions
+    href: Flowthru.Extensions.Http.Services.FlowthruServiceBuilderHttpExtensions.md

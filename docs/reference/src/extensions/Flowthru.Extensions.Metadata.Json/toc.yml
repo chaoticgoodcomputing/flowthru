@@ -1,0 +1,15 @@
+### YamlMime:TableOfContent
+- name: Flowthru.Meta
+  href: Flowthru.Meta.md
+  items:
+  - name: Classes
+  - name: JsonMetadataProviderBuilder
+    href: Flowthru.Meta.JsonMetadataProviderBuilder.md
+  - name: MetadataJsonExtensions
+    href: Flowthru.Meta.MetadataJsonExtensions.md
+- name: Flowthru.Meta.Providers
+  href: Flowthru.Meta.Providers.md
+  items:
+  - name: Classes
+  - name: JsonMetadataProvider
+    href: Flowthru.Meta.Providers.JsonMetadataProvider.md

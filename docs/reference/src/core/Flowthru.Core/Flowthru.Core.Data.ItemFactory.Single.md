@@ -72,6 +72,48 @@ Catalog item for binary file with byte array content
 <strong>Storage Traits:</strong> All traits use filesystem baseline defaults
 </p>
 
+### <a id="Flowthru_Core_Data_ItemFactory_Single_Configuration__1_System_String_System_String_Microsoft_Extensions_Configuration_IConfiguration_"></a> Configuration<T\>\(string, string, IConfiguration\)
+
+Creates a read-only configuration catalog item backed by an <xref href="Microsoft.Extensions.Configuration.IConfiguration" data-throw-if-not-resolved="false"></xref> section.
+
+```csharp
+public static Item<T> Configuration<T>(string label, string sectionPath, IConfiguration configuration) where T : class, new()
+```
+
+#### Parameters
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique catalog label for DAG resolution
+
+`sectionPath` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dot-separated configuration section path (e.g. <code>Flowthru:Flows:DataScience:ModelOptions</code>).
+
+`configuration` [IConfiguration](https://learn.microsoft.com/dotnet/api/microsoft.extensions.configuration.iconfiguration)
+
+The root or scoped <xref href="Microsoft.Extensions.Configuration.IConfiguration" data-throw-if-not-resolved="false"></xref> instance.
+
+#### Returns
+
+ [Item](Flowthru.Core.Data.Item\-1.md)<T\>
+
+Read-only catalog item that binds the configuration section to <code class="typeparamref">T</code>.
+
+#### Type Parameters
+
+`T` 
+
+Configuration POCO type. Must have a public parameterless constructor.
+
+#### Remarks
+
+<p>
+Treats a configuration section as a first-class DAG input node so steps can declare
+typed configuration dependencies. Missing sections and DataAnnotations validation
+failures are caught during pre-flight, not at step execution.
+</p>
+
 ### <a id="Flowthru_Core_Data_ItemFactory_Single_Json__1_System_String_System_String_"></a> Json<T\>\(string, string\)
 
 Creates a JSON file catalog item for a single object (non-collection).

@@ -190,6 +190,37 @@ Effect producing validation result
 <strong>Performance:</strong> Should be fast (~10-100ms) - suitable for pre-flight validation.
 </p>
 
+### <a id="Flowthru_Core_Data_Storage_IStorageAdapter_1_InspectTarget"></a> InspectTarget\(\)
+
+Validates that this storage location is accessible as a write destination.
+
+```csharp
+FlowIO<ValidationResult> InspectTarget()
+```
+
+#### Returns
+
+ [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<[ValidationResult](Flowthru.Core.Data.Validation.ValidationResult.md)\>
+
+Effect producing validation result
+
+#### Remarks
+
+<p>
+<strong>Semantic Intent:</strong> Validate that the destination can accept writes
+before any pipeline step executes. This is distinct from <xref href="Flowthru.Core.Data.Storage.IStorageAdapter%601.InspectShallow(System.Int32)" data-throw-if-not-resolved="false"></xref>,
+which validates that readable data exists.
+</p>
+<p>
+<strong>Typical Checks:</strong>
+</p>
+<ul><li>File adapters: Parent directory exists and process has write permission</li><li>Database adapters: Target table exists, schema is compatible, connection is valid</li><li>Read-only adapters (<code>CanWrite = false</code>): Return success trivially</li><li>Memory / null adapters: Return success trivially</li></ul>
+<p>
+<strong>When Called:</strong> During pre-flight validation, after external inputs are
+inspected and before any step executes. Skipped if <code>Traits.CanInspect = false</code>
+or if explicitly disabled via <code>ValidationOptions.SkipTargetInspection()</code>.
+</p>
+
 ### <a id="Flowthru_Core_Data_Storage_IStorageAdapter_1_Load"></a> Load\(\)
 
 Loads data from storage.

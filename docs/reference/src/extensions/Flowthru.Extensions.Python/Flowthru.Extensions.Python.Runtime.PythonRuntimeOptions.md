@@ -27,7 +27,7 @@ public sealed class PythonRuntimeOptions
 
 <p>
 Follows the .NET Options pattern for environment-specific configuration.
-Resolution order mirrors <xref href="Flowthru.Core.Configuration.FlowthruConfigurationOptions" data-throw-if-not-resolved="false"></xref>.
+Resolution order: explicit value → environment variable → auto-detected default.
 </p>
 <p>
 <strong>Developer workflow:</strong>
@@ -148,94 +148,5 @@ If not set, resolved in order:
 <p>
 Setting this property explicitly skips <code>uv sync</code> auto-initialization.
 Useful for pre-built containers or custom venv management.
-</p>
-
-## Methods
-
-### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_GetResolvedModuleSearchPaths"></a> GetResolvedModuleSearchPaths\(\)
-
-Gets the resolved Python module search paths.
-
-```csharp
-public List<string> GetResolvedModuleSearchPaths()
-```
-
-#### Returns
-
- [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
-
-#### Remarks
-
-Returns configured module search paths, or the executing assembly's base directory if none specified.
-Python automatically includes site-packages from <code>VIRTUAL_ENV</code> when set.
-
-### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_GetResolvedPythonDll"></a> GetResolvedPythonDll\(\)
-
-Gets the resolved Python DLL path using the auto-detection hierarchy.
-
-```csharp
-public string GetResolvedPythonDll()
-```
-
-#### Returns
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-#### Remarks
-
-<p>
-Flowthru uses <code>uv</code> to manage Python environments. <code>pyproject.toml</code>, <code>uv.lock</code>,
-and <code>.python-version</code> are copied to the output directory during build. On first run,
-the runtime executes <code>uv sync --frozen</code> to materialize <code>.venv/</code> in-place.
-</p>
-<p>
-Attempts resolution in order: explicit value → <code>PYTHONNET_PYDLL</code> → explicit <code>VenvPath</code> →
-<code>uv sync</code> auto-init → <code>VIRTUAL_ENV</code>.
-Throws <xref href="System.InvalidOperationException" data-throw-if-not-resolved="false"></xref> if no Python runtime is found.
-</p>
-
-### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_GetResolvedPythonExe"></a> GetResolvedPythonExe\(\)
-
-Gets the Python executable path for subprocess execution.
-
-```csharp
-public string GetResolvedPythonExe()
-```
-
-#### Returns
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-#### Remarks
-
-<p>
-Resolves in the same order as <xref href="Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.GetResolvedPythonDll" data-throw-if-not-resolved="false"></xref> but returns the interpreter
-binary rather than the shared library. Used by <code>SubprocessPythonExecutor</code> to spawn
-the worker process.
-</p>
-<p>
-Falls back to <code>python3</code> (Unix) or <code>python</code> (Windows) on PATH if no venv is found.
-</p>
-
-### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_GetResolvedVenvPath"></a> GetResolvedVenvPath\(\)
-
-Gets the resolved virtual environment path.
-
-```csharp
-public string? GetResolvedVenvPath()
-```
-
-#### Returns
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)?
-
-#### Remarks
-
-<p>
-Checks in order:
-<ol><li>Explicit <code>VenvPath</code> property</li><li>Auto-materialized <code>.venv/</code> via <code>uv sync</code> in output directory</li><li><code>VIRTUAL_ENV</code> environment variable</li></ol>
-</p>
-<p>
-Returns <code>null</code> if no virtual environment is configured.
 </p>
 

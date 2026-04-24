@@ -6,29 +6,13 @@
 
 ### Classes
 
+ [FilenameTemplateParser](Flowthru.Core.Meta.FilenameTemplateParser.md)
+
+Renders filename templates with dynamic token replacement.
+
  [FlowthruMetadataBuilder](Flowthru.Core.Meta.FlowthruMetadataBuilder.md)
 
 Fluent builder for configuring metadata providers and export settings.
-
- [FlowthruMetadataConfiguration](Flowthru.Core.Meta.FlowthruMetadataConfiguration.md)
-
-Configuration for Flowthru metadata collection and export.
-
- [JsonMetadataProviderBuilder](Flowthru.Core.Meta.JsonMetadataProviderBuilder.md)
-
-Builder for configuring JSON metadata provider options.
-
- [MermaidMetadataExtensions](Flowthru.Core.Meta.MermaidMetadataExtensions.md)
-
-Extension methods for generating Mermaid diagram representations of DAG metadata.
-
- [MermaidMetadataProviderBuilder](Flowthru.Core.Meta.MermaidMetadataProviderBuilder.md)
-
-Builder for configuring Mermaid diagram provider options.
-
- [MetadataJsonExtensions](Flowthru.Core.Meta.MetadataJsonExtensions.md)
-
-Extension methods for serializing metadata to JSON.
 
  [MetadataProviderBuilderAttribute](Flowthru.Core.Meta.MetadataProviderBuilderAttribute.md)
 

@@ -79,12 +79,12 @@ IReadOnlyCollection<string> FlowNames { get; }
 
 ## Methods
 
-### <a id="Flowthru_Core_Services_IFlowthruService_ExecuteFlowAsync_Flowthru_Core_Flows_ExecutionOptions_System_Boolean_System_String_System_Threading_CancellationToken_"></a> ExecuteFlowAsync\(ExecutionOptions?, bool, string?, CancellationToken\)
+### <a id="Flowthru_Core_Services_IFlowthruService_ExecuteFlowAsync_Flowthru_Core_Flows_ExecutionOptions_System_Boolean_System_Threading_CancellationToken_"></a> ExecuteFlowAsync\(ExecutionOptions?, bool, CancellationToken\)
 
 Executes all registered flows, optionally sliced by criteria.
 
 ```csharp
-Task<FlowResult> ExecuteFlowAsync(ExecutionOptions? options = null, bool exportMetadata = true, string? metadataOutputDirectory = null, CancellationToken cancellationToken = default)
+Task<FlowResult> ExecuteFlowAsync(ExecutionOptions? options = null, bool exportMetadata = true, CancellationToken cancellationToken = default)
 ```
 
 #### Parameters
@@ -96,10 +96,6 @@ Execution options with optional slice strategy
 `exportMetadata` [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
 
 Whether to export DAG metadata
-
-`metadataOutputDirectory` [string](https://learn.microsoft.com/dotnet/api/system.string)?
-
-Override for metadata output directory
 
 `cancellationToken` [CancellationToken](https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken)
 

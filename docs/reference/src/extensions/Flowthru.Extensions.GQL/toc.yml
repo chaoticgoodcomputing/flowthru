@@ -5,6 +5,10 @@
   - name: Classes
   - name: GqlEnumerableStorageAdapter<TResult, T>
     href: Flowthru.Core.Data.Storage.GqlEnumerableStorageAdapter-2.md
+  - name: GqlQueryStorageAdapter<TFilter, TResult, T>
+    href: Flowthru.Core.Data.Storage.GqlQueryStorageAdapter-3.md
+  - name: GqlQueryStorageAdapter<TResult, T>
+    href: Flowthru.Core.Data.Storage.GqlQueryStorageAdapter-2.md
   - name: GqlStorageAdapter<TResult, T>
     href: Flowthru.Core.Data.Storage.GqlStorageAdapter-2.md
 - name: Flowthru.Extensions.GQL.Data
@@ -15,8 +19,14 @@
     href: Flowthru.Extensions.GQL.Data.GqlItemFactory.md
   - name: GqlItemFactory.Enumerable
     href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Enumerable.md
+  - name: GqlItemFactory.Query
+    href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Query.md
   - name: GqlItemFactory.Single
     href: Flowthru.Extensions.GQL.Data.GqlItemFactory.Single.md
+  - name: GqlQuery<TFilter, TResult, T>
+    href: Flowthru.Extensions.GQL.Data.GqlQuery-3.md
+  - name: GqlQuery<TResult, T>
+    href: Flowthru.Extensions.GQL.Data.GqlQuery-2.md
   - name: OffsetPaginationStrategy<TResult, T>
     href: Flowthru.Extensions.GQL.Data.OffsetPaginationStrategy-2.md
   - name: PageInfo

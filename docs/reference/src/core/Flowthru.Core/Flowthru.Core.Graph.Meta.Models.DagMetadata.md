@@ -24,12 +24,6 @@ public class DagMetadata
 [object.ReferenceEquals\(object?, object?\)](https://learn.microsoft.com/dotnet/api/system.object.referenceequals), 
 [object.ToString\(\)](https://learn.microsoft.com/dotnet/api/system.object.tostring)
 
-#### Extension Methods
-
-[MetadataJsonExtensions.ToCompactJson\(DagMetadata\)](Flowthru.Core.Meta.MetadataJsonExtensions.md\#Flowthru\_Core\_Meta\_MetadataJsonExtensions\_ToCompactJson\_Flowthru\_Core\_Graph\_Meta\_Models\_DagMetadata\_), 
-[MetadataJsonExtensions.ToJson\(DagMetadata\)](Flowthru.Core.Meta.MetadataJsonExtensions.md\#Flowthru\_Core\_Meta\_MetadataJsonExtensions\_ToJson\_Flowthru\_Core\_Graph\_Meta\_Models\_DagMetadata\_), 
-[MermaidMetadataExtensions.ToMermaidDiagram\(DagMetadata, string, string, string\)](Flowthru.Core.Meta.MermaidMetadataExtensions.md\#Flowthru\_Core\_Meta\_MermaidMetadataExtensions\_ToMermaidDiagram\_Flowthru\_Core\_Graph\_Meta\_Models\_DagMetadata\_System\_String\_System\_String\_System\_String\_)
-
 ## Remarks
 
 This model captures the structure of a built flow, including all steps,

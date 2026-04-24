@@ -18,7 +18,7 @@ process it in any way: write files, send to APIs, store in memory, etc.
 <p>
 <strong>Built-in Providers:</strong>
 </p>
-<ul><li><xref href="Flowthru.Core.Meta.Providers.JsonMetadataProvider" data-throw-if-not-resolved="false"></xref> - Exports JSON files</li><li><xref href="Flowthru.Core.Meta.Providers.MermaidMetadataProvider" data-throw-if-not-resolved="false"></xref> - Exports Mermaid diagrams</li></ul>
+<ul><li>Flowthru.Extensions.Metadata.Json - Exports JSON files</li><li>Flowthru.Extensions.Metadata.Mermaid - Exports Mermaid diagrams</li></ul>
 <p>
 <strong>Custom Provider Example:</strong>
 </p>

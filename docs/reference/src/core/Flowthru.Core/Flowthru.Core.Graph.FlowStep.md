@@ -110,6 +110,25 @@ public string Description { get; }
 
  [string](https://learn.microsoft.com/dotnet/api/system.string)
 
+### <a id="Flowthru_Core_Graph_FlowStep_Height"></a> Height
+
+Height in the DAG: the length of the longest path from this step to any sink (leaf).
+Sinks have height 0. Used by critical-path scheduling to prioritise steps that unblock
+the most downstream work.
+
+```csharp
+public int Height { get; set; }
+```
+
+#### Property Value
+
+ [int](https://learn.microsoft.com/dotnet/api/system.int32)
+
+#### Remarks
+
+Populated by <xref href="Flowthru.Core.Graph.DependencyAnalyzer.ComputeHeights(System.Collections.Generic.List%7bFlowthru.Core.Graph.FlowStep%7d)" data-throw-if-not-resolved="false"></xref> after the dependency
+graph has been built. A value of -1 indicates heights have not yet been computed.
+
 ### <a id="Flowthru_Core_Graph_FlowStep_Inputs"></a> Inputs
 
 Catalog entries that this step reads as input.

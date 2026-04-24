@@ -80,3 +80,19 @@ public bool IncludeTimestamp { get; set; }
 Default: true
 When false, files will be named without timestamps and will overwrite on each export.
 
+## Methods
+
+### <a id="Flowthru_Core_Meta_TimestampConfiguration_GenerateTimestamp"></a> GenerateTimestamp\(\)
+
+Generates a timestamp string based on current configuration.
+
+```csharp
+public string? GenerateTimestamp()
+```
+
+#### Returns
+
+ [string](https://learn.microsoft.com/dotnet/api/system.string)?
+
+Formatted timestamp string, or null if timestamps are disabled
+

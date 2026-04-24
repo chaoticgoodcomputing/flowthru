@@ -121,6 +121,20 @@ Number of rows/records to sample for validation
 
 Effect producing validation result
 
+### <a id="Flowthru_Core_Data_IItem_InspectTarget"></a> InspectTarget\(\)
+
+Validates that this catalog item is accessible as a write destination.
+
+```csharp
+FlowIO<ValidationResult> InspectTarget()
+```
+
+#### Returns
+
+ [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<[ValidationResult](Flowthru.Core.Data.Validation.ValidationResult.md)\>
+
+Effect producing validation result
+
 ### <a id="Flowthru_Core_Data_IItem_LoadUntyped"></a> LoadUntyped\(\)
 
 Loads data from the catalog item as an untyped object.

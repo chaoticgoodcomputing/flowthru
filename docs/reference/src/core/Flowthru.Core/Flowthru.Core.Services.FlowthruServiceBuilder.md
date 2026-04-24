@@ -6,13 +6,17 @@ Assembly: Flowthru.Core.dll
 Fluent builder for configuring Flowthru service registration.
 
 ```csharp
-public sealed class FlowthruServiceBuilder
+public sealed class FlowthruServiceBuilder : IFlowthruBuilder
 ```
 
 #### Inheritance
 
 [object](https://learn.microsoft.com/dotnet/api/system.object) ← 
 [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+
+#### Implements
+
+[IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 #### Inherited Members
 
@@ -31,12 +35,40 @@ Use it to register catalogs, flows, and optional features.
 </p>
 <p>
 <strong>Basic Usage:</strong>
-<pre><code class="lang-csharp">services.AddFlowthru(flowthru =&gt;
+<pre><code class="lang-csharp">services.AddFlowthru(configuration, flowthru =&gt;
 {
     flowthru.RegisterCatalog(_ =&gt; new MyCatalog(dataPath));
     flowthru.RegisterFlow("my_flow", MyFlow.Create);
 });</code></pre>
 </p>
+
+## Properties
+
+### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_Configuration"></a> Configuration
+
+The application configuration passed to <code>AddFlowthru</code>.
+Available to extensions that need to read config values at registration time.
+
+```csharp
+public IConfiguration Configuration { get; }
+```
+
+#### Property Value
+
+ [IConfiguration](https://learn.microsoft.com/dotnet/api/microsoft.extensions.configuration.iconfiguration)
+
+### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_Services"></a> Services
+
+The underlying DI service collection.
+Use this to register services, options, and validators.
+
+```csharp
+public IServiceCollection Services { get; }
+```
+
+#### Property Value
+
+ [IServiceCollection](https://learn.microsoft.com/dotnet/api/microsoft.extensions.dependencyinjection.iservicecollection)
 
 ## Methods
 
@@ -45,7 +77,7 @@ Use it to register catalogs, flows, and optional features.
 Configures default execution behaviour for all pipelines run through this service.
 
 ```csharp
-public FlowthruServiceBuilder ConfigureExecution(Action<ExecutionOptions> configure)
+public IFlowthruBuilder ConfigureExecution(Action<ExecutionOptions> configure)
 ```
 
 #### Parameters
@@ -54,7 +86,7 @@ public FlowthruServiceBuilder ConfigureExecution(Action<ExecutionOptions> config
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 #### Examples
 
@@ -70,7 +102,7 @@ public FlowthruServiceBuilder ConfigureExecution(Action<ExecutionOptions> config
 
 Settings applied here act as the service-level default. They are overridden by any
 value explicitly supplied in the <xref href="Flowthru.Core.Flows.ExecutionOptions" data-throw-if-not-resolved="false"></xref> passed to
-<xref href="Flowthru.Core.Services.IFlowthruService.ExecuteFlowAsync(Flowthru.Core.Flows.ExecutionOptions%2cSystem.Boolean%2cSystem.String%2cSystem.Threading.CancellationToken)" data-throw-if-not-resolved="false"></xref> (e.g. from the CLI <code>--parallelism</code>
+<xref href="Flowthru.Core.Services.IFlowthruService.ExecuteFlowAsync(Flowthru.Core.Flows.ExecutionOptions%2cSystem.Boolean%2cSystem.Threading.CancellationToken)" data-throw-if-not-resolved="false"></xref> (e.g. from the CLI <code>--parallelism</code>
 flag). Properties left <code>null</code> or at their default in the per-call options fall
 back to these values.
 
@@ -79,7 +111,7 @@ back to these values.
 Configures metadata export.
 
 ```csharp
-public FlowthruServiceBuilder ConfigureMetadata(Action<FlowthruMetadataBuilder> configure)
+public IFlowthruBuilder ConfigureMetadata(Action<FlowthruMetadataBuilder> configure)
 ```
 
 #### Parameters
@@ -90,7 +122,7 @@ Action to configure the metadata builder
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -100,27 +132,38 @@ This builder for method chaining
 Metadata export is optional. If not configured, flows will execute
 without generating DAG diagrams or metadata files.
 </p>
-<p>
-<strong>Example:</strong>
-<pre><code class="lang-csharp">flowthru.ConfigureMetadata(meta =&gt;
-{
-    meta.WithOutputDirectory("metadata")
-        .AddProvider&lt;JsonMetadataProvider, JsonMetadataProviderBuilder&gt;()
-        .AddProvider&lt;MermaidMetadataProvider, MermaidMetadataProviderBuilder&gt;();
-});</code></pre>
-</p>
+
+### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_ConfigureServices_System_Action_Microsoft_Extensions_DependencyInjection_IServiceCollection__"></a> ConfigureServices\(Action<IServiceCollection\>\)
+
+Convenience method for registering additional services with <xref href="Flowthru.Core.Services.FlowthruServiceBuilder.Services" data-throw-if-not-resolved="false"></xref>.
+
+```csharp
+public IFlowthruBuilder ConfigureServices(Action<IServiceCollection> configure)
+```
+
+#### Parameters
+
+`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[IServiceCollection](https://learn.microsoft.com/dotnet/api/microsoft.extensions.dependencyinjection.iservicecollection)\>
+
+Action that receives the service collection.
+
+#### Returns
+
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
+
+This builder for method chaining.
 
 ### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_RegisterCatalog__1"></a> RegisterCatalog<TCatalog\>\(\)
 
 Registers a catalog type with constructor injection.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalog<TCatalog>() where TCatalog : CatalogAbstract
+public IFlowthruBuilder RegisterCatalog<TCatalog>() where TCatalog : CatalogAbstract
 ```
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -140,7 +183,7 @@ parameter injection (e.g., IConfiguration, IOptions).
 Registers a catalog instance directly.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalog(CatalogAbstract catalog)
+public IFlowthruBuilder RegisterCatalog(CatalogAbstract catalog)
 ```
 
 #### Parameters
@@ -151,7 +194,7 @@ The catalog instance
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -164,7 +207,7 @@ Use this when the catalog doesn't require dependency injection.
 Registers a catalog factory that receives the service provider.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalog<TCatalog>(Func<IServiceProvider, TCatalog> catalogFactory) where TCatalog : CatalogAbstract
+public IFlowthruBuilder RegisterCatalog<TCatalog>(Func<IServiceProvider, TCatalog> catalogFactory) where TCatalog : CatalogAbstract
 ```
 
 #### Parameters
@@ -175,7 +218,7 @@ Factory function to create the catalog
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -197,7 +240,7 @@ construction — the fan-out pattern where N identical-shaped catalogs differ on
 their construction parameters (e.g., one catalog per US state).
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalogs(IEnumerable<CatalogAbstract> catalogs)
+public IFlowthruBuilder RegisterCatalogs(IEnumerable<CatalogAbstract> catalogs)
 ```
 
 #### Parameters
@@ -208,7 +251,7 @@ The catalog instances to register
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -224,7 +267,7 @@ Registers catalogs produced by a factory that receives the service provider —
 useful when catalog construction itself requires DI resolution.
 
 ```csharp
-public FlowthruServiceBuilder RegisterCatalogs(Func<IServiceProvider, IEnumerable<CatalogAbstract>> catalogsFactory)
+public IFlowthruBuilder RegisterCatalogs(Func<IServiceProvider, IEnumerable<CatalogAbstract>> catalogsFactory)
 ```
 
 #### Parameters
@@ -235,18 +278,18 @@ Factory that returns the catalog collection
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
-### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_RegisterFlow_System_String_System_Delegate_System_String_"></a> RegisterFlow\(string, Delegate, string?\)
+### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_RegisterFlow_System_String_System_Delegate_"></a> RegisterFlow\(string, Delegate\)
 
 Registers a Flow by inspecting the delegate's parameter types at runtime.
 Parameters that extend <xref href="Flowthru.Core.Data.CatalogAbstract" data-throw-if-not-resolved="false"></xref> are resolved from DI as catalogs.
 All other parameters are resolved from DI as services.
 
 ```csharp
-public FlowthruServiceBuilder RegisterFlow(string label, Delegate flow, string? configurationSection = null)
+public IFlowthruBuilder RegisterFlow(string label, Delegate flow)
 ```
 
 #### Parameters
@@ -257,16 +300,11 @@ Unique Flow name
 
 `flow` [Delegate](https://learn.microsoft.com/dotnet/api/system.delegate)
 
-A method group or delegate whose parameters are catalogs, services, or config objects
-
-`configurationSection` [string](https://learn.microsoft.com/dotnet/api/system.string)?
-
-Optional configuration section path. When provided, the last non-catalog, non-service parameter
-is bound from configuration instead of DI.
+A method group or delegate whose parameters are catalogs or DI-registered services.
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -275,7 +313,7 @@ This builder for method chaining
 Escape-hatch for registering flows via a full-access service provider factory.
 
 ```csharp
-public FlowthruServiceBuilder RegisterFlows(Func<IServiceProvider, Dictionary<string, Flow>> flowFactory)
+public IFlowthruBuilder RegisterFlows(Func<IServiceProvider, Dictionary<string, Flow>> flowFactory)
 ```
 
 #### Parameters
@@ -286,50 +324,26 @@ Factory function that receives the service provider and returns the Flow diction
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
 #### Remarks
 
-Prefer <xref href="Flowthru.Core.Services.FlowthruServiceBuilder.RegisterFlow(System.String%2cSystem.Delegate%2cSystem.String)" data-throw-if-not-resolved="false"></xref> for standard Flow registration.
+Prefer RegisterFlow(string, Delegate, string?) for standard Flow registration.
 Use this only when you need full service provider access during Flow construction.
-
-### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_UseConfiguration_System_Action_Flowthru_Core_Configuration_FlowthruConfigurationOptions__"></a> UseConfiguration\(Action<FlowthruConfigurationOptions\>?\)
-
-Enables configuration loading from JSON and YAML files.
-
-```csharp
-public FlowthruServiceBuilder UseConfiguration(Action<FlowthruConfigurationOptions>? configure = null)
-```
-
-#### Parameters
-
-`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[FlowthruConfigurationOptions](Flowthru.Core.Configuration.FlowthruConfigurationOptions.md)\>?
-
-Optional action to configure how configuration files are loaded
-
-#### Returns
-
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
-
-This builder for method chaining
-
-#### Remarks
-
-By default, configuration is loaded from appsettings.json and environment-specific overrides.
 
 ### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_UseStorageStrategy__1"></a> UseStorageStrategy<TStrategy\>\(\)
 
 Registers a storage entry factory (for environment-specific entries).
 
 ```csharp
-public FlowthruServiceBuilder UseStorageStrategy<TStrategy>() where TStrategy : class, IStorageEntryFactory
+public IFlowthruBuilder UseStorageStrategy<TStrategy>() where TStrategy : class, IStorageEntryFactory
 ```
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -362,7 +376,7 @@ else if (env.IsTest())
 Registers a storage entry factory instance.
 
 ```csharp
-public FlowthruServiceBuilder UseStorageStrategy(IStorageEntryFactory strategy)
+public IFlowthruBuilder UseStorageStrategy(IStorageEntryFactory strategy)
 ```
 
 #### Parameters
@@ -373,7 +387,7 @@ The storage strategy instance
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -382,7 +396,7 @@ This builder for method chaining
 Registers a storage entry factory using a factory function.
 
 ```csharp
-public FlowthruServiceBuilder UseStorageStrategy(Func<IServiceProvider, IStorageEntryFactory> strategyFactory)
+public IFlowthruBuilder UseStorageStrategy(Func<IServiceProvider, IStorageEntryFactory> strategyFactory)
 ```
 
 #### Parameters
@@ -393,7 +407,7 @@ Factory function to create the strategy
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 
@@ -402,7 +416,7 @@ This builder for method chaining
 Adds a description to the most recently registered flow.
 
 ```csharp
-public FlowthruServiceBuilder WithDescription(string description)
+public IFlowthruBuilder WithDescription(string description)
 ```
 
 #### Parameters
@@ -413,7 +427,7 @@ Human-readable description of what the Flow does
 
 #### Returns
 
- [FlowthruServiceBuilder](Flowthru.Core.Services.FlowthruServiceBuilder.md)
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
 This builder for method chaining
 

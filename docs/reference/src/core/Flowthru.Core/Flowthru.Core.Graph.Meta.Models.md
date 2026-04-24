@@ -18,6 +18,10 @@ Metadata describing an edge in the pipeline DAG.
 
 Metadata describing a single catalog item (dataset, json object, API response, whatever) in the flow.
 
+ [RunMetadata](Flowthru.Core.Graph.Meta.Models.RunMetadata.md)
+
+Composite metadata representing a completed pipeline run.
+
  [SchemaField](Flowthru.Core.Graph.Meta.Models.SchemaField.md)
 
 A single field (property) in a schema.

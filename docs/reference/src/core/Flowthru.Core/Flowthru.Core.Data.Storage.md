@@ -20,6 +20,10 @@ Storage adapter for binary files with byte array content.
 
 Composed storage adapter that delegates to medium, format, and container layers.
 
+ [ConfigurationStorageAdapter<T\>](Flowthru.Core.Data.Storage.ConfigurationStorageAdapter\-1.md)
+
+Read-only storage adapter that binds an <xref href="Microsoft.Extensions.Configuration.IConfiguration" data-throw-if-not-resolved="false"></xref> section to a typed POCO.
+
  [MemoryStorageAdapter<T\>](Flowthru.Core.Data.Storage.MemoryStorageAdapter\-1.md)
 
 Direct memory storage adapter that bypasses serialization.
@@ -41,6 +45,10 @@ and modern C# features like required members and positional records.
 
 Direct JSON file storage for singleton objects (not collections).
 
+ [StorageMediumResolver](Flowthru.Core.Data.Storage.StorageMediumResolver.md)
+
+Default implementation of <xref href="Flowthru.Core.Data.Storage.IStorageMediumResolver" data-throw-if-not-resolved="false"></xref>.
+
  [TextFileStorageAdapter](Flowthru.Core.Data.Storage.TextFileStorageAdapter.md)
 
 Storage adapter for plain text files with string content.
@@ -55,6 +63,11 @@ Interface for container adaptation - converts between streaming rows and in-memo
 
 Interface for format serialization - handles row-based serialization/deserialization.
 
+ [IHasEfficientCount](Flowthru.Core.Data.Storage.IHasEfficientCount.md)
+
+Optional interface for storage adapters that can return a row count without
+materializing the full dataset.
+
  [IStorageAdapter<T\>](Flowthru.Core.Data.Storage.IStorageAdapter\-1.md)
 
 Interface for high-level storage operations - abstracts Load/Save with any storage implementation.
@@ -62,6 +75,14 @@ Interface for high-level storage operations - abstracts Load/Save with any stora
  [IStorageMedium](Flowthru.Core.Data.Storage.IStorageMedium.md)
 
 Interface for storage medium - handles raw byte stream I/O.
+
+ [IStorageMediumProvider](Flowthru.Core.Data.Storage.IStorageMediumProvider.md)
+
+Factory for creating <xref href="Flowthru.Core.Data.Storage.IStorageMedium" data-throw-if-not-resolved="false"></xref> instances for a specific URI scheme.
+
+ [IStorageMediumResolver](Flowthru.Core.Data.Storage.IStorageMediumResolver.md)
+
+Resolves the appropriate <xref href="Flowthru.Core.Data.Storage.IStorageMedium" data-throw-if-not-resolved="false"></xref> for a given file path or URI string.
 
 ### Enums
 

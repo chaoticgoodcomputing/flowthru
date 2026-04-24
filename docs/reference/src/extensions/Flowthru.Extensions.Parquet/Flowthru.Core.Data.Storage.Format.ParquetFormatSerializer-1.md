@@ -46,21 +46,35 @@ Deserialize: Parquet → DTO (parameterless ctor) → TRow (required members)</c
 <p>
 <strong>Features:</strong>
 </p>
-<ul><li>SerializedLabel - Respects [SerializedLabel] attributes for property name mapping</li><li>Null Safety - Enforces non-nullable contracts during deserialization</li><li>Value Type Nullability - DTOs use nullable value types to match Parquet schema conventions</li><li>Enum Support - Automatically converts between Parquet's integer storage and enum types</li></ul>
+<ul><li>SerializedLabel - Respects [SerializedLabel] attributes for property name mapping</li><li>Null Safety - Enforces non-nullable contracts during deserialization</li><li>Value Type Nullability - DTOs use nullable value types to match Parquet schema conventions</li><li>Enum Support - Automatically converts between Parquet's integer storage and enum types</li><li>Row group streaming - Writes in bounded batches (default 1M rows/group); peak write memory
+is bounded to one row group regardless of total dataset size.</li></ul>
 <p>
 <strong>Current Limitations:</strong>
 </p>
-<ul><li>SerializedEnum attributes are not used - enums stored/retrieved by underlying integer value</li></ul>
+<ul><li>SerializedEnum attributes are not used - enums stored/retrieved by underlying integer value</li><li>Per-column encoding hints require Parquet.Net v6 (not yet on NuGet); use
+<xref href="Flowthru.Core.Data.ParquetItemOptions%601.UseDictionaryEncoding" data-throw-if-not-resolved="false"></xref> as a global flag in the meantime.</li></ul>
 
 ## Constructors
 
 ### <a id="Flowthru_Core_Data_Storage_Format_ParquetFormatSerializer_1__ctor"></a> ParquetFormatSerializer\(\)
 
-Initializes a new instance of the <xref href="Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer%601" data-throw-if-not-resolved="false"></xref> class.
+Initializes a new instance with default production-ready options.
 
 ```csharp
 public ParquetFormatSerializer()
 ```
+
+### <a id="Flowthru_Core_Data_Storage_Format_ParquetFormatSerializer_1__ctor_Flowthru_Core_Data_ParquetItemOptions__0__"></a> ParquetFormatSerializer\(ParquetItemOptions<TRow\>?\)
+
+Initializes a new instance with caller-supplied tuning options.
+
+```csharp
+public ParquetFormatSerializer(ParquetItemOptions<TRow>? options)
+```
+
+#### Parameters
+
+`options` [ParquetItemOptions](Flowthru.Core.Data.ParquetItemOptions\-1.md)<TRow\>?
 
 ## Properties
 

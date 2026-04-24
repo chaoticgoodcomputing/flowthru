@@ -47,18 +47,18 @@ The worker script (<code>flowthru_worker.py</code>) must be present in
 
 ## Constructors
 
-### <a id="Flowthru_Extensions_Python_Execution_SubprocessPythonExecutor__ctor_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_Microsoft_Extensions_Logging_ILogger_Flowthru_Extensions_Python_Execution_SubprocessPythonExecutor__"></a> SubprocessPythonExecutor\(PythonRuntimeOptions, ILogger<SubprocessPythonExecutor\>\)
+### <a id="Flowthru_Extensions_Python_Execution_SubprocessPythonExecutor__ctor_Microsoft_Extensions_Options_IOptions_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions__Microsoft_Extensions_Logging_ILogger_Flowthru_Extensions_Python_Execution_SubprocessPythonExecutor__"></a> SubprocessPythonExecutor\(IOptions<PythonRuntimeOptions\>, ILogger<SubprocessPythonExecutor\>\)
 
 Initializes a new instance of the <xref href="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor" data-throw-if-not-resolved="false"></xref> class with the specified options and logger.
 The Python worker process is started lazily upon the first call to <xref href="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor.Invoke%60%602(System.String%2cSystem.String%2c%60%600)" data-throw-if-not-resolved="false"></xref> or <xref href="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor.ValidateStep(System.String%2cSystem.String)" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
-public SubprocessPythonExecutor(PythonRuntimeOptions options, ILogger<SubprocessPythonExecutor> logger)
+public SubprocessPythonExecutor(IOptions<PythonRuntimeOptions> options, ILogger<SubprocessPythonExecutor> logger)
 ```
 
 #### Parameters
 
-`options` [PythonRuntimeOptions](Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.md)
+`options` [IOptions](https://learn.microsoft.com/dotnet/api/microsoft.extensions.options.ioptions\-1)<[PythonRuntimeOptions](Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.md)\>
 
 The Python runtime options.
 

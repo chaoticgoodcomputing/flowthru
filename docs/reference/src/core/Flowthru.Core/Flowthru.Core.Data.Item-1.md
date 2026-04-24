@@ -300,6 +300,24 @@ Effect producing validation result
 Forwards the call directly to the underlying storage adapter.
 All storage adapters must implement inspection.
 
+### <a id="Flowthru_Core_Data_Item_1_InspectTarget"></a> InspectTarget\(\)
+
+Validates that this catalog item is accessible as a write destination.
+
+```csharp
+public FlowIO<ValidationResult> InspectTarget()
+```
+
+#### Returns
+
+ [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<[ValidationResult](Flowthru.Core.Data.Validation.ValidationResult.md)\>
+
+Effect producing validation result
+
+#### Remarks
+
+Forwards the call directly to the underlying storage adapter.
+
 ### <a id="Flowthru_Core_Data_Item_1_Load"></a> Load\(\)
 
 Load data as an effect (can fail, is async, can be cancelled).

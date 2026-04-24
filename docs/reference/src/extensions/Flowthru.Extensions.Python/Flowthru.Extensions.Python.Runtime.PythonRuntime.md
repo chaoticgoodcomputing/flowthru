@@ -40,17 +40,17 @@ Use <xref href="Flowthru.Extensions.Python.Runtime.PythonRuntime.AcquireGil" dat
 
 ## Constructors
 
-### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntime__ctor_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions_Microsoft_Extensions_Logging_ILogger_Flowthru_Extensions_Python_Runtime_PythonRuntime__"></a> PythonRuntime\(PythonRuntimeOptions, ILogger<PythonRuntime\>\)
+### <a id="Flowthru_Extensions_Python_Runtime_PythonRuntime__ctor_Microsoft_Extensions_Options_IOptions_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions__Microsoft_Extensions_Logging_ILogger_Flowthru_Extensions_Python_Runtime_PythonRuntime__"></a> PythonRuntime\(IOptions<PythonRuntimeOptions\>, ILogger<PythonRuntime\>\)
 
 Initializes a new instance of <xref href="Flowthru.Extensions.Python.Runtime.PythonRuntime" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
-public PythonRuntime(PythonRuntimeOptions options, ILogger<PythonRuntime> logger)
+public PythonRuntime(IOptions<PythonRuntimeOptions> options, ILogger<PythonRuntime> logger)
 ```
 
 #### Parameters
 
-`options` [PythonRuntimeOptions](Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.md)
+`options` [IOptions](https://learn.microsoft.com/dotnet/api/microsoft.extensions.options.ioptions\-1)<[PythonRuntimeOptions](Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.md)\>
 
 `logger` [ILogger](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger\-1)<[PythonRuntime](Flowthru.Extensions.Python.Runtime.PythonRuntime.md)\>
 

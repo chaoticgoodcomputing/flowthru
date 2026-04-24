@@ -3,7 +3,7 @@
 Namespace: [Flowthru.Extensions.Python.Services](Flowthru.Extensions.Python.Services.md)  
 Assembly: Flowthru.Extensions.Python.dll  
 
-Extension methods for integrating Python support with <xref href="Flowthru.Core.Services.FlowthruServiceBuilder" data-throw-if-not-resolved="false"></xref>.
+Extension methods for integrating Python support with <xref href="Flowthru.Core.Services.IFlowthruBuilder" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
 public static class FlowthruServiceBuilderExtensions
@@ -26,76 +26,75 @@ public static class FlowthruServiceBuilderExtensions
 
 ## Methods
 
-### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Core_Services_FlowthruServiceBuilder_"></a> UsePython\(FlowthruServiceBuilder\)
+### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Core_Services_IFlowthruBuilder_"></a> UsePython\(IFlowthruBuilder\)
 
-Registers Python runtime and executor with default configuration.
+Registers the Python runtime with configuration bound from <code>Flowthru:Python</code>.
 
 ```csharp
-public static FlowthruServiceBuilder UsePython(this FlowthruServiceBuilder builder)
+public static IFlowthruBuilder UsePython(this IFlowthruBuilder builder)
 ```
 
 #### Parameters
 
-`builder` FlowthruServiceBuilder
+`builder` IFlowthruBuilder
 
-The Flowthru service builder
+The Flowthru service builder.
 
 #### Returns
 
- FlowthruServiceBuilder
+ IFlowthruBuilder
 
 The builder for method chaining
 
 #### Remarks
 
 <p>
-Uses auto-detection for all configuration:
-<ul><li>Python DLL: <code>PYTHONNET_PYDLL</code> → <code>.venv/</code> → system Python</li><li>Virtual environment: <code>FLOWTHRU_PYTHON_VENV</code> → <code>.venv/</code> → none</li><li>Module search paths: <code>FLOWTHRU_PYTHON_PATH</code> → project root</li></ul>
+Platform defaults are applied after configuration binding:
+<ul><li>Python DLL: <code>PYTHONNET_PYDLL</code> → <code>.venv/</code> via <code>uv sync</code> → <code>VIRTUAL_ENV</code></li><li>Virtual environment: <code>.venv/</code> in output directory</li><li>Module search paths: output directory</li></ul>
 </p>
 <p>
 <strong>Example (auto-detection):</strong>
-<pre><code class="lang-csharp">services.AddFlowthru(flowthru =&gt;
+<pre><code class="lang-csharp">services.AddFlowthru(configuration, flowthru =&gt;
 {
     flowthru
         .RegisterCatalog&lt;MyCatalog&gt;()
-        .UsePython();  // Auto-detects .venv/, project root, etc.
+        .UsePython();
 });</code></pre>
 </p>
 
-### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Core_Services_FlowthruServiceBuilder_System_Action_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions__"></a> UsePython\(FlowthruServiceBuilder, Action<PythonRuntimeOptions\>\)
+### <a id="Flowthru_Extensions_Python_Services_FlowthruServiceBuilderExtensions_UsePython_Flowthru_Core_Services_IFlowthruBuilder_System_Action_Flowthru_Extensions_Python_Runtime_PythonRuntimeOptions__"></a> UsePython\(IFlowthruBuilder, Action<PythonRuntimeOptions\>\)
 
-Registers Python runtime and executor with custom configuration.
+Registers the Python runtime with code-first configuration overrides.
 
 ```csharp
-public static FlowthruServiceBuilder UsePython(this FlowthruServiceBuilder builder, Action<PythonRuntimeOptions> configure)
+public static IFlowthruBuilder UsePython(this IFlowthruBuilder builder, Action<PythonRuntimeOptions> configure)
 ```
 
 #### Parameters
 
-`builder` FlowthruServiceBuilder
+`builder` IFlowthruBuilder
 
-The Flowthru service builder
+The Flowthru service builder.
 
 `configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[PythonRuntimeOptions](Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.md)\>
 
-Action to configure Python runtime options
+Action to override Python options after config-file binding.
 
 #### Returns
 
- FlowthruServiceBuilder
+ IFlowthruBuilder
 
 The builder for method chaining
 
 #### Remarks
 
 <p>
-Explicit configuration overrides auto-detection.
-Use this for:
-<ul><li>Container deployments with non-standard Python paths</li><li>Custom module search paths</li><li>Multiple Python versions (explicit DLL path)</li></ul>
+The <code class="paramref">configure</code> callback runs after <code>Flowthru:Python</code> section
+binding and platform env-var defaults, so it can selectively override specific values.
 </p>
 <p>
 <strong>Example (explicit configuration):</strong>
-<pre><code class="lang-csharp">services.AddFlowthru(flowthru =&gt;
+<pre><code class="lang-csharp">services.AddFlowthru(configuration, flowthru =&gt;
 {
     flowthru
         .RegisterCatalog&lt;MyCatalog&gt;()
@@ -103,20 +102,6 @@ Use this for:
         {
             python.PythonDll = "/usr/lib/x86_64-linux-gnu/libpython3.12.so";
             python.ModuleSearchPaths.Add("Flows");
-            python.ModuleSearchPaths.Add("SharedSteps");
-        });
-});</code></pre>
-</p>
-<p>
-<strong>Example (environment-variable driven, for containers):</strong>
-<pre><code class="lang-csharp">services.AddFlowthru(flowthru =&gt;
-{
-    flowthru
-        .RegisterCatalog&lt;MyCatalog&gt;()
-        .UsePython(python =&gt;
-        {
-            // Reads PYTHONNET_PYDLL, FLOWTHRU_PYTHON_VENV, FLOWTHRU_PYTHON_PATH
-            // Auto-detection still active for unset properties
         });
 });</code></pre>
 </p>

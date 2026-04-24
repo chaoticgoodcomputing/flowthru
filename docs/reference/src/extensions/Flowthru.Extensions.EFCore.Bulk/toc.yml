@@ -1,0 +1,9 @@
+### YamlMime:TableOfContent
+- name: Flowthru.Extensions.EFCore.Bulk
+  href: Flowthru.Extensions.EFCore.Bulk.md
+  items:
+  - name: Classes
+  - name: BulkSave
+    href: Flowthru.Extensions.EFCore.Bulk.BulkSave.md
+  - name: BulkSaveOptions
+    href: Flowthru.Extensions.EFCore.Bulk.BulkSaveOptions.md

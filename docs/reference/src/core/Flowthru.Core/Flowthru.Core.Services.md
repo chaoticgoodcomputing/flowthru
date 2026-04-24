@@ -12,6 +12,10 @@ Fluent builder for configuring Flowthru service registration.
 
 ### Interfaces
 
+ [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
+
+Builder interface for configuring Flowthru service registration.
+
  [IFlowthruService](Flowthru.Core.Services.IFlowthruService.md)
 
 Core service for executing Flowthru flows programmatically.

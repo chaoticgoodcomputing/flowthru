@@ -1,14 +1,27 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "plugins": [
-    "@nx/dotnet"
+    {
+      "plugin": "@nx/dotnet",
+      "options": {
+        "restore": false
+      }
+    }
   ],
   "targetDefaults": {
     "build": {
-      "dependsOn": [ "restore", "^build" ]
+      "dependsOn": [ "^build" ],
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}",
+        "{workspaceRoot}/dist/intermediates/{projectRoot}/obj"
+      ]
     },
     "build:release": {
-      "dependsOn": [ "restore", "^build:release" ]
+      "dependsOn": [ "^build:release" ],
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}",
+        "{workspaceRoot}/dist/intermediates/{projectRoot}/obj"
+      ]
     },
     "test": {
       "dependsOn": [ "build" ]

@@ -53,3 +53,9 @@ Data types in the source don't match the expected types.
 
 
 
+`WriteAccessDenied = 7` 
+
+The write destination exists but the process cannot write to it (permissions, read-only, etc.).
+
+
+

@@ -1,0 +1,30 @@
+### YamlMime:TableOfContent
+- name: Flowthru.Misc.DataFrames
+  href: Flowthru.Misc.DataFrames.md
+  items:
+  - name: Classes
+  - name: AggregationContext<TKey, TSource>
+    href: Flowthru.Misc.DataFrames.AggregationContext-2.md
+  - name: FrameExpressionVisitor
+    href: Flowthru.Misc.DataFrames.FrameExpressionVisitor.md
+  - name: FrameWindowSpec<TSource>
+    href: Flowthru.Misc.DataFrames.FrameWindowSpec-1.md
+  - name: GroupedFrame<TKey, TSource>
+    href: Flowthru.Misc.DataFrames.GroupedFrame-2.md
+  - name: GroupedFrameExtensions
+    href: Flowthru.Misc.DataFrames.GroupedFrameExtensions.md
+  - name: TypedFrame<T>
+    href: Flowthru.Misc.DataFrames.TypedFrame-1.md
+  - name: TypedFrameExtensions
+    href: Flowthru.Misc.DataFrames.TypedFrameExtensions.md
+  - name: WindowContext<TSource>
+    href: Flowthru.Misc.DataFrames.WindowContext-1.md
+  - name: Interfaces
+  - name: IFrameMemberTranslator
+    href: Flowthru.Misc.DataFrames.IFrameMemberTranslator.md
+  - name: IFrameMethodTranslator
+    href: Flowthru.Misc.DataFrames.IFrameMethodTranslator.md
+  - name: IFrameQueryProvider
+    href: Flowthru.Misc.DataFrames.IFrameQueryProvider.md
+  - name: IFrameWindowSpec
+    href: Flowthru.Misc.DataFrames.IFrameWindowSpec.md

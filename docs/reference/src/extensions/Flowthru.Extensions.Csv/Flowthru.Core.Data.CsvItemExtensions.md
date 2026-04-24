@@ -26,12 +26,12 @@ public static class CsvItemExtensions
 
 ## Methods
 
-### <a id="Flowthru_Core_Data_CsvItemExtensions_Csv__1_Flowthru_Core_Data_EnumerableItemFactory_System_String_System_String_"></a> Csv<TRow\>\(EnumerableItemFactory, string, string\)
+### <a id="Flowthru_Core_Data_CsvItemExtensions_Csv__1_Flowthru_Core_Data_EnumerableItemFactory_System_String_System_String_Flowthru_Core_Data_Storage_IStorageMediumResolver_Flowthru_Core_Data_Storage_IStorageMedium_"></a> Csv<TRow\>\(EnumerableItemFactory, string, string, IStorageMediumResolver?, IStorageMedium?\)
 
 Creates a CSV file catalog entry with IEnumerable container.
 
 ```csharp
-public static Item<IEnumerable<TRow>> Csv<TRow>(this EnumerableItemFactory _, string label, string filePath) where TRow : notnull, IFlatSchema, ITextSerializable
+public static Item<IEnumerable<TRow>> Csv<TRow>(this EnumerableItemFactory _, string label, string filePath, IStorageMediumResolver? resolver = null, IStorageMedium? medium = null) where TRow : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Parameters
@@ -46,7 +46,17 @@ Unique catalog label for DAG resolution
 
 `filePath` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-Path to CSV file
+Path or URI to CSV file
+
+`resolver` IStorageMediumResolver?
+
+Optional resolver for remote URIs (e.g., <code>https://</code>, <code>sftp://</code>).
+Falls back to <xref href="Flowthru.Core.Data.Storage.Medium.FileStorageMedium" data-throw-if-not-resolved="false"></xref> when <code>null</code>.
+
+`medium` IStorageMedium?
+
+Explicit medium override. Takes precedence over <code class="paramref">resolver</code> when both
+are supplied. Use for per-entry customisation or direct injection in tests.
 
 #### Returns
 

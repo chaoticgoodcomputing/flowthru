@@ -104,3 +104,29 @@ This ValidationOptions instance for fluent chaining
 This configuration only applies to Layer 0 inputs (external data).
 Intermediate outputs are never inspected regardless of this setting.
 
+### <a id="Flowthru_Core_Graph_Validation_ValidationOptions_SkipTargetInspection_Flowthru_Core_Graph_INode_"></a> SkipTargetInspection\(INode\)
+
+Opts a specific catalog entry out of write-target validation.
+
+```csharp
+public ValidationOptions SkipTargetInspection(INode catalogEntry)
+```
+
+#### Parameters
+
+`catalogEntry` [INode](Flowthru.Core.Graph.INode.md)
+
+The catalog entry to skip target inspection for
+
+#### Returns
+
+ [ValidationOptions](Flowthru.Core.Graph.Validation.ValidationOptions.md)
+
+This ValidationOptions instance for fluent chaining
+
+#### Remarks
+
+Use this when a destination is trusted or when write-access probing has
+unacceptable side effects for a specific entry. Use sparingly — target
+validation is default-on for all writable, inspectable catalog items.
+

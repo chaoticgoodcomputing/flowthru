@@ -6,7 +6,7 @@ Assembly: Flowthru.Extensions.EFCore.dll
 Storage adapter for Entity Framework Core database access.
 
 ```csharp
-public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>> where T : class
+public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, IHasEfficientCount where T : class
 ```
 
 #### Type Parameters
@@ -22,7 +22,8 @@ Entity type (must be a class configured in DbContext)
 
 #### Implements
 
-IStorageAdapter<IEnumerable<T\>\>
+IStorageAdapter<IEnumerable<T\>\>, 
+IHasEfficientCount
 
 #### Inherited Members
 
@@ -294,6 +295,37 @@ Effect producing validation result
 <ul><li>File adapters: Check file exists, read and validate sample rows</li><li>Memory adapters: Check if data has been initialized</li><li>Database adapters: Check table exists, query sample rows</li><li>Null adapters: Always return success (no data required)</li></ul>
 <p>
 <strong>Performance:</strong> Should be fast (~10-100ms) - suitable for pre-flight validation.
+</p>
+
+### <a id="Flowthru_Core_Data_Storage_EFCoreStorageAdapter_1_InspectTarget"></a> InspectTarget\(\)
+
+Validates that this storage location is accessible as a write destination.
+
+```csharp
+public FlowIO<ValidationResult> InspectTarget()
+```
+
+#### Returns
+
+ FlowIO<ValidationResult\>
+
+Effect producing validation result
+
+#### Remarks
+
+<p>
+<strong>Semantic Intent:</strong> Validate that the destination can accept writes
+before any pipeline step executes. This is distinct from <xref href="Flowthru.Core.Data.Storage.IStorageAdapter%601.InspectShallow(System.Int32)" data-throw-if-not-resolved="false"></xref>,
+which validates that readable data exists.
+</p>
+<p>
+<strong>Typical Checks:</strong>
+</p>
+<ul><li>File adapters: Parent directory exists and process has write permission</li><li>Database adapters: Target table exists, schema is compatible, connection is valid</li><li>Read-only adapters (<code>CanWrite = false</code>): Return success trivially</li><li>Memory / null adapters: Return success trivially</li></ul>
+<p>
+<strong>When Called:</strong> During pre-flight validation, after external inputs are
+inspected and before any step executes. Skipped if <code>Traits.CanInspect = false</code>
+or if explicitly disabled via <code>ValidationOptions.SkipTargetInspection()</code>.
 </p>
 
 ### <a id="Flowthru_Core_Data_Storage_EFCoreStorageAdapter_1_Load"></a> Load\(\)
