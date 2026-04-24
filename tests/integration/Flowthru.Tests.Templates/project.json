@@ -11,7 +11,7 @@
       "dependsOn": [ "build", "templates:pack-all" ],
       "options": {
         "commands": [ "dotnet test --no-build --no-restore" ],
-        "cwd": "tests/Flowthru.Tests.Templates",
+        "cwd": "tests/integration/Flowthru.Tests.Templates",
         "parallel": false,
         "forwardAllArgs": true
       }

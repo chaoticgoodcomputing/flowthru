@@ -18,6 +18,7 @@
     <Project Path="src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.MLNet/Flowthru.Extensions.MLNet.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
+    <Project Path="src/extensions/Flowthru.Extensions.EFCore.Bulk/Flowthru.Extensions.EFCore.Bulk.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
     <Project Path="src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
@@ -37,6 +38,7 @@
     <Project Path="tests/integration/Flowthru.Tests.Templates/Flowthru.Tests.Templates.csproj" />
   </Folder>
   <Folder Name="/tests/core/">
+    <Project Path="tests/core/Flowthru.Tests/Flowthru.Tests.csproj" />
     <Project Path="tests/core/Flowthru.Core.Tests/Flowthru.Core.Tests.csproj" />
     <Project Path="tests/core/Flowthru.Core.CodeFixes.Tests/Flowthru.Core.CodeFixes.Tests.csproj" />
     <Project Path="tests/core/Flowthru.Core.SourceGenerators.Tests/Flowthru.Core.SourceGenerators.Tests.csproj" />
@@ -54,6 +56,7 @@
     <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Mermaid.Tests/Flowthru.Extensions.Metadata.Mermaid.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.MLNet.Tests/Flowthru.Extensions.MLNet.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.Parquet.Tests/Flowthru.Extensions.Parquet.Tests.csproj" />
+    <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Bulk.Tests/Flowthru.Extensions.EFCore.Bulk.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.Python.Tests/Flowthru.Extensions.Python.Tests.csproj" />
     <Project Path="tests/extensions/Flowthru.Extensions.Python.SourceGenerators.Tests/Flowthru.Extensions.Python.SourceGenerators.Tests.csproj" />
   </Folder>

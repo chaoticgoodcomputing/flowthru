@@ -12,7 +12,7 @@
       "dependsOn": [ "build" ],
       "options": {
         "commands": [ "bash scripts/run-tests.sh" ],
-        "cwd": "tests/Flowthru.Tests.Examples",
+        "cwd": "tests/integration/Flowthru.Tests.Examples",
         "parallel": false,
         "forwardAllArgs": true
       },
@@ -24,7 +24,7 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [ "dotnet test --filter \"FullyQualifiedName~Discovery\" --logger \"console;verbosity=normal\"" ],
-        "cwd": "tests/Flowthru.Tests.Examples",
+        "cwd": "tests/integration/Flowthru.Tests.Examples",
         "parallel": false
       }
     },

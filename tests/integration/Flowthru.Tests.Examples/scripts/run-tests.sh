@@ -15,7 +15,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-WORKSPACE_ROOT="$(cd "$PROJECT_DIR/../.." && pwd)"
+WORKSPACE_ROOT="$(cd "$PROJECT_DIR/../../.." && pwd)"
 EXAMPLES_DIR="$WORKSPACE_ROOT/examples"
 
 EXTRA_ARGS=("$@")
