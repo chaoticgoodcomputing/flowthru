@@ -89,4 +89,14 @@
                       Condition="'$(MSBuildProjectName)' == 'KedroIrisFUnit' OR $(MSBuildProjectDirRelativePath.Contains('FUnit'))" />
   </ItemGroup>
 
+  <!--
+    Central coverage configuration: any project identified as a test project by
+    Microsoft.NET.Test.Sdk automatically uses coverlet.runsettings, regardless of
+    how dotnet test is invoked (IDE, CLI, or NX target). This removes the need to
+    pass collect and settings flags on every call site.
+  -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <RunSettingsFilePath>$(RepoRoot)coverlet.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+
 </Project>

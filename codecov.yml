@@ -14,23 +14,53 @@ comment:
   behavior: default
   require_changes: false
 flags:
-  Flowthru.Analyzers.Tests:
+  Flowthru.Core.CodeFixes.Tests:
+    carryforward: true
+  Flowthru.Core.SourceGenerators.Tests:
+    carryforward: true
+  Flowthru.Core.Tests:
+    carryforward: true
+  Flowthru.Extensions.Csv.Tests:
+    carryforward: true
+  Flowthru.Extensions.EFCore.Bulk.Tests:
     carryforward: true
   Flowthru.Extensions.EFCore.Tests:
     carryforward: true
+  Flowthru.Extensions.Excel.Tests:
+    carryforward: true
   Flowthru.Extensions.GQL.Tests:
+    carryforward: true
+  Flowthru.Extensions.Http.Tests:
+    carryforward: true
+  Flowthru.Extensions.Metadata.Json.Tests:
+    carryforward: true
+  Flowthru.Extensions.Metadata.Mermaid.Tests:
+    carryforward: true
+  Flowthru.Extensions.MLNet.Tests:
+    carryforward: true
+  Flowthru.Extensions.Parquet.Tests:
+    carryforward: true
+  Flowthru.Extensions.Python.SourceGenerators.Tests:
     carryforward: true
   Flowthru.Extensions.Python.Tests:
     carryforward: true
-  Flowthru.Extensions.Spark.Tests:
+  Flowthru.FUnit.CodeFixes.Tests:
+    carryforward: true
+  Flowthru.FUnit.SourceGenerators.Tests:
     carryforward: true
   Flowthru.FUnit.Tests:
+    carryforward: true
+  Flowthru.Misc.DataFrames.CodeFixes.Tests:
+    carryforward: true
+  Flowthru.Misc.DataFrames.SourceGenerators.Tests:
+    carryforward: true
+  Flowthru.Misc.DataFrames.Tests:
+    carryforward: true
+  Flowthru.Misc.ML.Tests:
     carryforward: true
   Flowthru.Tests:
     carryforward: true
   Flowthru.Tests.Examples:
-    carryforward: true
-  Flowthru.Tests.Spark:
     carryforward: true
   Flowthru.Tests.Templates:
     carryforward: true
@@ -42,3 +72,97 @@ flags:
     carryforward: true
   SpaceflightsDistributed:
     carryforward: true
+component_management:
+  individual_components:
+    - component_id: flowthru
+      name: Flowthru
+      paths:
+        - src/core/Flowthru/**
+    - component_id: flowthru_core
+      name: Flowthru.Core
+      paths:
+        - src/core/Flowthru.Core/**
+    - component_id: flowthru_core_codefixes
+      name: Flowthru.Core.CodeFixes
+      paths:
+        - src/core/Flowthru.Core.CodeFixes/**
+    - component_id: flowthru_core_sourcegenerators
+      name: Flowthru.Core.SourceGenerators
+      paths:
+        - src/core/Flowthru.Core.SourceGenerators/**
+    - component_id: flowthru_extensions_csv
+      name: Flowthru.Extensions.Csv
+      paths:
+        - src/extensions/Flowthru.Extensions.Csv/**
+    - component_id: flowthru_extensions_efcore
+      name: Flowthru.Extensions.EFCore
+      paths:
+        - src/extensions/Flowthru.Extensions.EFCore/**
+    - component_id: flowthru_extensions_efcore_bulk
+      name: Flowthru.Extensions.EFCore.Bulk
+      paths:
+        - src/extensions/Flowthru.Extensions.EFCore.Bulk/**
+    - component_id: flowthru_extensions_excel
+      name: Flowthru.Extensions.Excel
+      paths:
+        - src/extensions/Flowthru.Extensions.Excel/**
+    - component_id: flowthru_extensions_gql
+      name: Flowthru.Extensions.GQL
+      paths:
+        - src/extensions/Flowthru.Extensions.GQL/**
+    - component_id: flowthru_extensions_http
+      name: Flowthru.Extensions.Http
+      paths:
+        - src/extensions/Flowthru.Extensions.Http/**
+    - component_id: flowthru_extensions_metadata_json
+      name: Flowthru.Extensions.Metadata.Json
+      paths:
+        - src/extensions/Flowthru.Extensions.Metadata.Json/**
+    - component_id: flowthru_extensions_metadata_mermaid
+      name: Flowthru.Extensions.Metadata.Mermaid
+      paths:
+        - src/extensions/Flowthru.Extensions.Metadata.Mermaid/**
+    - component_id: flowthru_extensions_mlnet
+      name: Flowthru.Extensions.MLNet
+      paths:
+        - src/extensions/Flowthru.Extensions.MLNet/**
+    - component_id: flowthru_extensions_parquet
+      name: Flowthru.Extensions.Parquet
+      paths:
+        - src/extensions/Flowthru.Extensions.Parquet/**
+    - component_id: flowthru_extensions_python
+      name: Flowthru.Extensions.Python
+      paths:
+        - src/extensions/Flowthru.Extensions.Python/**
+    - component_id: flowthru_extensions_python_sourcegenerators
+      name: Flowthru.Extensions.Python.SourceGenerators
+      paths:
+        - src/extensions/Flowthru.Extensions.Python.SourceGenerators/**
+    - component_id: flowthru_funit
+      name: Flowthru.FUnit
+      paths:
+        - src/core/Flowthru.FUnit/**
+    - component_id: flowthru_funit_codefixes
+      name: Flowthru.FUnit.CodeFixes
+      paths:
+        - src/core/Flowthru.FUnit.CodeFixes/**
+    - component_id: flowthru_funit_sourcegenerators
+      name: Flowthru.FUnit.SourceGenerators
+      paths:
+        - src/core/Flowthru.FUnit.SourceGenerators/**
+    - component_id: flowthru_misc_dataframes
+      name: Flowthru.Misc.DataFrames
+      paths:
+        - src/misc/Flowthru.Misc.DataFrames/**
+    - component_id: flowthru_misc_dataframes_codefixes
+      name: Flowthru.Misc.DataFrames.CodeFixes
+      paths:
+        - src/misc/Flowthru.Misc.DataFrames.CodeFixes/**
+    - component_id: flowthru_misc_dataframes_sourcegenerators
+      name: Flowthru.Misc.DataFrames.SourceGenerators
+      paths:
+        - src/misc/Flowthru.Misc.DataFrames.SourceGenerators/**
+    - component_id: flowthru_misc_ml
+      name: Flowthru.Misc.ML
+      paths:
+        - src/misc/Flowthru.Misc.ML/**

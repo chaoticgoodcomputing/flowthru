@@ -28,6 +28,29 @@
         "cwd": "{workspaceRoot}",
         "parallel": false
       }
+    },
+    "coverage:purge": {
+      "//": "Remove all coverage artifact files from TestResults directories. Run locally before a full coverage run to ensure fresh results. Do NOT run in CI.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "find tests -name 'coverage.*' -type f -delete 2>/dev/null || true"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "coverage:upload": {
+      "//": "Sync Codecov flags from the current project graph, then upload all coverage.cobertura.xml files found under tests/. Assumes tests have already been run. Requires CODECOV_TOKEN env var and the codecov CLI on PATH.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "node scripts/sync-codecov-flags.mjs",
+          "bash scripts/upload-coverage.sh"
+        ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
     }
   }
 }

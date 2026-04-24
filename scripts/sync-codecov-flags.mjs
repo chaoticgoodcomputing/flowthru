@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 /**
- * Synchronizes the `flags` section of codecov.yml with the set of NX
- * projects that have a `test` target.
+ * Synchronizes the `flags` and `component_management` sections of codecov.yml.
  *
- * Flag naming convention: basename of the project's root directory.
+ * Flags: derived from NX projects with a `test` target.
+ *   Flag name = basename of the project's root directory.
  *   e.g. tests/Flowthru.Tests → Flowthru.Tests
+ *   Used for per-suite carryforward and status checks.
+ *
+ * Components: derived from src/ projects (csproj files).
+ *   Component id  = slugified project directory basename.
+ *   Component name = project directory basename.
+ *   Component path = src/<domain>/<Project>/**
+ *   Used for per-library aggregate coverage badges and status checks.
  *
  * Intended to be run before `scripts/release.mjs` so the updated
  * codecov.yml is included in the release commit.
@@ -15,7 +22,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, globSync } from 'node:fs';
 import { basename, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
@@ -38,8 +45,12 @@ const projectNames = JSON.parse(projectsJson);
 // Projects whose root is outside the repo's source tree (e.g. the NX
 // github-actions project rooted at .github/) cannot produce .NET coverage
 // files and are excluded.
-
-const EXCLUDED_ROOTS = ['.github'];
+//
+// "tests" is the root structural mirror-check project (root: "tests/"). Its
+// root directory is a parent of every test project, so including it would
+// cause the upload script to re-upload all coverage files under a single
+// umbrella flag, duplicating every report.
+const EXCLUDED_ROOTS = ['.github', 'tests'];
 
 const flagsData = [];
 
@@ -97,6 +108,38 @@ const newFlags = Object.fromEntries(
 );
 
 doc.flags = newFlags;
+
+// ── 5. Derive components from src/ projects ───────────────────────────────────
+//
+// Each .csproj under src/ becomes a component whose path covers all files under
+// that project's directory. This lets Codecov aggregate coverage across all test
+// suites (unit, integration, example) for each library, enabling per-library
+// badges and status checks.
+//
+// component_id: lowercase slug  e.g. "flowthru_core"
+// name:         display name    e.g. "Flowthru.Core"
+// paths:        [ "src/core/Flowthru.Core/**" ]
+
+const csprojPaths = globSync('src/**/*.csproj', { cwd: ROOT });
+
+const components = csprojPaths
+  .map((csproj) => {
+    // csproj = "src/core/Flowthru.Core/Flowthru.Core.csproj"
+    const projectDir = csproj.replace(/\/[^/]+\.csproj$/, '');
+    const name = basename(projectDir);
+    const component_id = name.toLowerCase().replace(/\./g, '_');
+    return { component_id, name, paths: [`${projectDir}/**`] };
+  })
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+console.log(`\nDerived ${components.length} components:`);
+for (const { name } of components) {
+  console.log(`  ${name}`);
+}
+
+doc.component_management = {
+  individual_components: components,
+};
 
 const updated = yaml.dump(doc, { lineWidth: -1 });
 
