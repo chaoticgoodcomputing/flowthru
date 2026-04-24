@@ -165,6 +165,10 @@ public sealed class OnnxModelStorageAdapter : IStorageAdapter<byte[]>
     // loading it with ML.NET, which is beyond inspection scope
     InspectShallow(sampleSize: 0);
 
+  /// <inheritdoc/>
+  /// <remarks>ONNX model adapters are read-only seed data — no write destination to validate.</remarks>
+  public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
+
   /// <summary>
   /// Gets the file path to the ONNX model.
   /// </summary>

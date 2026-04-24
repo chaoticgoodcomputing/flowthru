@@ -53,6 +53,7 @@ namespace Flowthru.Core.Graph.Validation;
 public class ValidationOptions
 {
   private readonly Dictionary<string, InspectionLevel> _catalogEntryInspectionLevels = new();
+  private readonly HashSet<string> _skipTargetInspection = new(StringComparer.OrdinalIgnoreCase);
 
   /// <summary>
   /// Specifies the inspection level for a specific catalog entry.
@@ -140,4 +141,38 @@ public class ValidationOptions
   /// Creates a new ValidationOptions instance with default settings.
   /// </summary>
   public static ValidationOptions Default() => new ValidationOptions();
+
+  /// <summary>
+  /// Opts a specific catalog entry out of write-target validation.
+  /// </summary>
+  /// <param name="catalogEntry">The catalog entry to skip target inspection for</param>
+  /// <returns>This ValidationOptions instance for fluent chaining</returns>
+  /// <remarks>
+  /// Use this when a destination is trusted or when write-access probing has
+  /// unacceptable side effects for a specific entry. Use sparingly — target
+  /// validation is default-on for all writable, inspectable catalog items.
+  /// </remarks>
+  public ValidationOptions SkipTargetInspection(INode catalogEntry)
+  {
+    if (catalogEntry == null)
+    {
+      throw new ArgumentNullException(nameof(catalogEntry));
+    }
+
+    _skipTargetInspection.Add(catalogEntry.Label);
+    return this;
+  }
+
+  /// <summary>
+  /// Returns <see langword="true"/> if target inspection should run for this node.
+  /// </summary>
+  internal bool ShouldInspectTarget(INode node)
+  {
+    if (node == null)
+    {
+      throw new ArgumentNullException(nameof(node));
+    }
+
+    return !_skipTargetInspection.Contains(node.Label);
+  }
 }

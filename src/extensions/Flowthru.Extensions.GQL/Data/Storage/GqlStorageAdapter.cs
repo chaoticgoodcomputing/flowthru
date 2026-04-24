@@ -247,4 +247,11 @@ public sealed class GqlStorageAdapter<TResult, T> : IStorageAdapter<T>
   /// there is only one result to validate.
   /// </remarks>
   public FlowIO<ValidationResult> InspectDeep() => InspectShallow(sampleSize: 0);
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// GQL mutations cannot be probed without side effects. Endpoint reachability is
+  /// already validated by <see cref="InspectShallow"/> on query-backed entries.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
 }

@@ -314,4 +314,11 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
       }
     );
   }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Delegates to the underlying storage medium's <c>InspectTarget</c> implementation.
+  /// For file-backed media this probes directory existence and write permissions.
+  /// </remarks>
+  public FlowIO<Data.Validation.ValidationResult> InspectTarget() => _medium.InspectTarget();
 }

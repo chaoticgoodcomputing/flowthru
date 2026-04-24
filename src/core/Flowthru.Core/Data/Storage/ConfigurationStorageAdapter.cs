@@ -159,4 +159,9 @@ public sealed class ConfigurationStorageAdapter<T> : IStorageAdapter<T>
 
     return Data.Validation.ValidationResult.Success();
   }
+
+  /// <inheritdoc/>
+  /// <remarks>Configuration adapters are read-only — no write destination to validate.</remarks>
+  public FlowIO<Data.Validation.ValidationResult> InspectTarget() =>
+    FlowIO.Pure(Data.Validation.ValidationResult.Success());
 }

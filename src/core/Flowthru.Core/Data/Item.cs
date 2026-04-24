@@ -344,4 +344,13 @@ public sealed class Item<T> : IItem<T>
   {
     return _storage.InspectDeep();
   }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Forwards the call directly to the underlying storage adapter.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectTarget()
+  {
+    return _storage.InspectTarget();
+  }
 }

@@ -217,4 +217,31 @@ public interface IStorageAdapter<T>
   /// </para>
   /// </remarks>
   FlowIO<Data.Validation.ValidationResult> InspectDeep();
+
+  /// <summary>
+  /// Validates that this storage location is accessible as a write destination.
+  /// </summary>
+  /// <returns>Effect producing validation result</returns>
+  /// <remarks>
+  /// <para>
+  /// <strong>Semantic Intent:</strong> Validate that the destination can accept writes
+  /// before any pipeline step executes. This is distinct from <see cref="InspectShallow"/>,
+  /// which validates that readable data exists.
+  /// </para>
+  /// <para>
+  /// <strong>Typical Checks:</strong>
+  /// </para>
+  /// <list type="bullet">
+  /// <item>File adapters: Parent directory exists and process has write permission</item>
+  /// <item>Database adapters: Target table exists, schema is compatible, connection is valid</item>
+  /// <item>Read-only adapters (<c>CanWrite = false</c>): Return success trivially</item>
+  /// <item>Memory / null adapters: Return success trivially</item>
+  /// </list>
+  /// <para>
+  /// <strong>When Called:</strong> During pre-flight validation, after external inputs are
+  /// inspected and before any step executes. Skipped if <c>Traits.CanInspect = false</c>
+  /// or if explicitly disabled via <c>ValidationOptions.SkipTargetInspection()</c>.
+  /// </para>
+  /// </remarks>
+  FlowIO<Data.Validation.ValidationResult> InspectTarget();
 }

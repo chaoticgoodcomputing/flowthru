@@ -102,6 +102,10 @@ public sealed class GqlQueryStorageAdapter<TResult, T>
         }
       }
     );
+
+  /// <inheritdoc/>
+  /// <remarks>GQL query adapters are read-only — no write destination to validate.</remarks>
+  public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
 }
 
 /// <summary>
@@ -190,4 +194,8 @@ public sealed class GqlQueryStorageAdapter<TFilter, TResult, T>
         }
       }
     );
+
+  /// <inheritdoc/>
+  /// <remarks>GQL query adapters are read-only — no write destination to validate.</remarks>
+  public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
 }

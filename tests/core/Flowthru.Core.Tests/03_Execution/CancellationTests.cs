@@ -373,6 +373,8 @@ public class CancellationTests
       FlowIO.Pure(ValidationResult.Success());
 
     public FlowIO<ValidationResult> InspectDeep() => FlowIO.Pure(ValidationResult.Success());
+
+    public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
   }
 
   /// <summary>
@@ -407,5 +409,7 @@ public class CancellationTests
       FlowIO.Pure(ValidationResult.Success());
 
     public FlowIO<ValidationResult> InspectDeep() => FlowIO.Pure(ValidationResult.Success());
+
+    public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
   }
 }

@@ -237,7 +237,7 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
             catalogKey: typeof(T).Name,
             errorType: ValidationErrorType.NotFound,
             message: $"Table '{typeof(T).Name}' does not exist or is not accessible.",
-            details: ex.Message
+            details: $"Via {ctx.GetType().Name} on {GetConnectionDescription(ctx)}: {ex.Message}"
           );
         }
 
@@ -263,7 +263,7 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
               catalogKey: typeof(T).Name,
               errorType: ValidationErrorType.DeserializationError,
               message: $"Failed to read sample rows from table '{typeof(T).Name}'.",
-              details: ex.Message
+              details: $"Via {ctx.GetType().Name} on {GetConnectionDescription(ctx)}: {ex.Message}"
             );
           }
         }
@@ -299,7 +299,7 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
             catalogKey: typeof(T).Name,
             errorType: ValidationErrorType.NotFound,
             message: $"Table '{typeof(T).Name}' does not exist or is not accessible.",
-            details: ex.Message
+            details: $"Via {ctx.GetType().Name} on {GetConnectionDescription(ctx)}: {ex.Message}"
           );
         }
 
@@ -325,7 +325,7 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
               catalogKey: typeof(T).Name,
               errorType: ValidationErrorType.DeserializationError,
               message: $"Failed to read all rows from table '{typeof(T).Name}'.",
-              details: ex.Message
+              details: $"Via {ctx.GetType().Name} on {GetConnectionDescription(ctx)}: {ex.Message}"
             );
           }
         }
@@ -340,6 +340,59 @@ public sealed class DbQueryStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, 
         }
       }
     });
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Validates that the target table exists and is writable via the configured
+  /// <see cref="DbContext"/>. Includes context type and connection metadata in
+  /// error messages so misrouted connections are immediately identifiable.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectTarget()
+  {
+    return FlowIO.LiftAsync(async ct =>
+    {
+      var ctx = _handle.OpenContext();
+      try
+      {
+        try
+        {
+          await ctx.Set<T>().AnyAsync(ct);
+          return ValidationResult.Success();
+        }
+        catch (Exception ex)
+        {
+          return ValidationResult.Failure(
+            catalogKey: typeof(T).Name,
+            errorType: ValidationErrorType.NotFound,
+            message: $"Write target '{typeof(T).Name}' does not exist or is not accessible.",
+            details: $"Via {ctx.GetType().Name} on {GetConnectionDescription(ctx)}: {ex.Message}"
+          );
+        }
+      }
+      finally
+      {
+        if (_handle.OwnsContext)
+        {
+          await ctx.DisposeAsync();
+        }
+      }
+    });
+  }
+
+  private static string GetConnectionDescription(DbContext context)
+  {
+    try
+    {
+      var conn = context.Database.GetDbConnection();
+      var dataSource = conn.DataSource;
+      var database = conn.Database;
+      return string.IsNullOrEmpty(dataSource) ? database : $"{dataSource}/{database}";
+    }
+    catch
+    {
+      return "(connection info unavailable)";
+    }
   }
 
   // ── Fused INSERT-FROM-SELECT ───────────────────────────────────────────────

@@ -262,6 +262,8 @@ public class ParallelPreFlightTests
       );
 
     public FlowIO<ValidationResult> InspectDeep() => InspectShallow(0);
+
+    public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
   }
 
   /// <summary>
@@ -306,5 +308,7 @@ public class ParallelPreFlightTests
     }
 
     public FlowIO<ValidationResult> InspectDeep() => InspectShallow(0);
+
+    public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
   }
 }

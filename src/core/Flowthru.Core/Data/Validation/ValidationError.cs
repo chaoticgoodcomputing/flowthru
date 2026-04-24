@@ -110,4 +110,9 @@ public enum ValidationErrorType
   /// An unexpected exception occurred during inspection.
   /// </summary>
   InspectionFailure,
+
+  /// <summary>
+  /// The write destination exists but the process cannot write to it (permissions, read-only, etc.).
+  /// </summary>
+  WriteAccessDenied,
 }

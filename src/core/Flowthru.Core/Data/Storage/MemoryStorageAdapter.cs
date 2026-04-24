@@ -144,4 +144,9 @@ public sealed class MemoryStorageAdapter<T> : IStorageAdapter<T>
     // since all data is already in memory
     return InspectShallow(sampleSize: 0);
   }
+
+  /// <inheritdoc />
+  /// <remarks>Memory is always a valid write destination — no pre-conditions to validate.</remarks>
+  public FlowIO<Data.Validation.ValidationResult> InspectTarget() =>
+    FlowIO.Pure(Data.Validation.ValidationResult.Success());
 }

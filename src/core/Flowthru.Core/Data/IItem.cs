@@ -76,6 +76,12 @@ public interface IItem : INode
   /// <returns>Effect producing validation result</returns>
   FlowIO<ValidationResult> InspectDeep();
 
+  /// <summary>
+  /// Validates that this catalog item is accessible as a write destination.
+  /// </summary>
+  /// <returns>Effect producing validation result</returns>
+  FlowIO<ValidationResult> InspectTarget();
+
   // ── INode default implementations ──
 
   /// <inheritdoc/>

@@ -338,24 +338,35 @@ public class Flow
   }
 
   /// <summary>
-  /// Validates all external inputs before Flow execution.
+  /// Validates all external inputs and write destinations before Flow execution.
   /// </summary>
   /// <returns>ValidationResult containing any errors found</returns>
   /// <exception cref="InvalidOperationException">Thrown if Flow has not been built</exception>
   /// <remarks>
   /// <para>
-  /// This method inspects catalog entries that are consumed by the Flow but not
-  /// produced by any step in the execution set. These are pre-existing external data
-  /// sources (files, databases, APIs) that must exist and be valid before the flow
-  /// can execute.
+  /// This method runs two validation passes:
   /// </para>
+  /// <list type="number">
+  /// <item>
+  ///   <strong>Source validation:</strong> Inspects catalog entries consumed but not produced
+  ///   by any step in the execution set. These are pre-existing external data sources
+  ///   (files, databases, APIs) that must exist and be valid before the flow can execute.
+  /// </item>
+  /// <item>
+  ///   <strong>Target validation:</strong> Calls <c>InspectTarget()</c> on all catalog entries
+  ///   that steps will write to. This validates write destinations (directories, database tables,
+  ///   API endpoints) are accessible before any step executes. Skipped for entries where
+  ///   <c>Traits.CanInspect = false</c> or explicitly disabled via
+  ///   <c>ValidationOptions.SkipTargetInspection()</c>.
+  /// </item>
+  /// </list>
   /// <para>
   /// <strong>Slicing Support:</strong> In sliced flows, catalog entries that were
   /// produced by steps outside the slice are correctly identified as external inputs
   /// and validated. This prevents runtime failures from missing intermediate data.
   /// </para>
   /// <para>
-  /// <strong>Inspection Levels:</strong>
+  /// <strong>Inspection Levels (source validation):</strong>
   /// </para>
   /// <list type="bullet">
   /// <item><strong>None:</strong> Skip inspection entirely</item>
@@ -370,10 +381,6 @@ public class Flow
   /// <item>If entry has PreferredInspectionLevel set → use that level</item>
   /// <item>Otherwise → Shallow (all storage adapters support inspection)</item>
   /// </list>
-  /// <para>
-  /// <strong>Important:</strong> Only external inputs are inspected. Intermediate flow
-  /// outputs produced within the execution set are never inspected, as they don't exist yet.
-  /// </para>
   /// <para>
   /// <strong>Usage:</strong>
   /// </para>
@@ -571,14 +578,102 @@ public class Flow
       result.Merge(entryResult);
     }
 
+    // Return early if source validation already has errors — no point probing write targets
+    if (!result.IsValid)
+    {
+      Logger?.LogError(
+        "Source validation failed with {ErrorCount} error(s) across {CatalogCount} catalog entries",
+        result.Errors.Count,
+        result.Errors.Select(e => e.CatalogKey).Distinct().Count()
+      );
+      return result;
+    }
+
+    Logger?.LogInformation("All external inputs passed validation");
+
+    // ── Target validation pass ──────────────────────────────────────────────
+    // Validate write destinations for all items produced by steps in this execution set.
+    // CanInspect = false means the adapter declared it cannot be probed cheaply (skip it).
+    // SkipTargetInspection() provides an explicit per-entry escape hatch.
+    var outputEntries = stepsToExecute
+      .SelectMany(step => step.Outputs)
+      .Where(entry => entry.Traits.CanInspect && ValidationOptions.ShouldInspectTarget(entry))
+      .DistinctBy(entry => entry.Label)
+      .ToList();
+
+    Logger?.LogInformation("Validating {OutputCount} write destination(s)", outputEntries.Count);
+
+    var targetResults = new ConcurrentBag<Data.Validation.ValidationResult>();
+
+    await Parallel.ForEachAsync(
+      outputEntries,
+      new ParallelOptions
+      {
+        MaxDegreeOfParallelism = maxDegreeOfParallelism,
+        CancellationToken = cancellationToken,
+      },
+      async (catalogEntry, token) =>
+      {
+        if (catalogEntry is not Data.IItem item)
+        {
+          return;
+        }
+
+        Logger?.LogInformation("Validating write destination '{CatalogKey}'", catalogEntry.Label);
+
+        Data.Validation.ValidationResult targetResult;
+        try
+        {
+          targetResult = await item.InspectTarget().Run(token);
+        }
+        catch (Exception ex)
+        {
+          Logger?.LogError(
+            ex,
+            "Exception during target inspection of '{CatalogKey}'",
+            catalogEntry.Label
+          );
+          targetResult = Data.Validation.ValidationResult.Failure(
+            catalogEntry.Label,
+            Data.Validation.ValidationErrorType.InspectionFailure,
+            $"Target inspection threw exception: {ex.Message}",
+            ex.ToString()
+          );
+        }
+
+        if (!targetResult.IsValid)
+        {
+          Logger?.LogWarning(
+            "Write destination '{CatalogKey}' failed target validation: {ErrorCount} error(s)",
+            catalogEntry.Label,
+            targetResult.Errors.Count
+          );
+        }
+        else
+        {
+          Logger?.LogInformation(
+            "Write destination '{CatalogKey}' passed target validation",
+            catalogEntry.Label
+          );
+        }
+
+        targetResults.Add(targetResult);
+      }
+    );
+
+    foreach (var targetResult in targetResults)
+    {
+      result.Merge(targetResult);
+    }
+
     if (result.IsValid)
     {
-      Logger?.LogInformation("All external inputs passed validation");
+      Logger?.LogInformation("All write destinations passed target validation");
     }
     else
     {
       Logger?.LogError(
-        "Validation failed with {ErrorCount} error(s) across {CatalogCount} catalog entries",
+        "Target validation failed with {ErrorCount} error(s) across {CatalogCount} catalog entries",
         result.Errors.Count,
         result.Errors.Select(e => e.CatalogKey).Distinct().Count()
       );

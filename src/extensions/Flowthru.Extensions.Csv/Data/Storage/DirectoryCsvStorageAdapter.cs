@@ -176,6 +176,10 @@ public sealed class DirectoryCsvStorageAdapter<TRow> : IStorageAdapter<IEnumerab
     );
   }
 
+  /// <inheritdoc/>
+  /// <remarks>Directory CSV adapters are read-only — no write destination to validate.</remarks>
+  public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
+
   private IEnumerable<string> GetCsvFiles() =>
     Directory.Exists(_directoryPath)
       ? Directory

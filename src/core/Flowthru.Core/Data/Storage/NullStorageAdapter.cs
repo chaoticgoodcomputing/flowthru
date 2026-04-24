@@ -50,4 +50,9 @@ public sealed class NullStorageAdapter<T> : IStorageAdapter<T>
   /// <inheritdoc/>
   public FlowIO<Data.Validation.ValidationResult> InspectDeep() =>
     FlowIO.Pure(Data.Validation.ValidationResult.Success()); // No data required, inherently available
+
+  /// <inheritdoc/>
+  /// <remarks>Null adapters are write-only no-ops — no destination to validate.</remarks>
+  public FlowIO<Data.Validation.ValidationResult> InspectTarget() =>
+    FlowIO.Pure(Data.Validation.ValidationResult.Success());
 }

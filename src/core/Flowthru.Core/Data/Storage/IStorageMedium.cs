@@ -122,4 +122,15 @@ public interface IStorageMedium
   /// </para>
   /// </remarks>
   FlowIO<bool> Exists();
+
+  /// <summary>
+  /// Validates that this storage location is accessible as a write destination.
+  /// </summary>
+  /// <returns>Effect producing validation result</returns>
+  /// <remarks>
+  /// Default implementation returns success — override in medium implementations that
+  /// can meaningfully probe write access before execution (e.g., filesystem path checks).
+  /// </remarks>
+  FlowIO<Data.Validation.ValidationResult> InspectTarget() =>
+    FlowIO.Pure(Data.Validation.ValidationResult.Success());
 }

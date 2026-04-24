@@ -447,6 +447,13 @@ public sealed class GqlEnumerableStorageAdapter<TResult, T> : IStorageAdapter<IE
       }
     );
 
+  /// <inheritdoc/>
+  /// <remarks>
+  /// GQL mutations cannot be probed without side effects. Endpoint reachability is
+  /// already validated by <see cref="InspectShallow"/> on query-backed entries.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectTarget() => FlowIO.Pure(ValidationResult.Success());
+
   private async Task<ValidationResult> ProbeEndpoint(int probeSize, CancellationToken ct)
   {
     IOperationResult<TResult> result;

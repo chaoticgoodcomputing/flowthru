@@ -212,7 +212,7 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
               catalogKey: typeof(T).Name,
               errorType: Data.Validation.ValidationErrorType.NotFound,
               message: $"Table '{typeof(T).Name}' does not exist or is not accessible",
-              details: ex.Message
+              details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
             );
           }
 
@@ -255,7 +255,7 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
               catalogKey: typeof(T).Name,
               errorType: Data.Validation.ValidationErrorType.DeserializationError,
               message: $"Failed to load entity from table '{typeof(T).Name}'",
-              details: ex.Message
+              details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
             );
           }
 
@@ -278,6 +278,47 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
     // For single entity storage, deep inspection is equivalent to shallow
     // since there's only one entity to validate
     return InspectShallow(sampleSize: 0);
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Validates that the target table exists and is accessible via the configured
+  /// <see cref="DbContext"/>. Includes context type and connection metadata in
+  /// error messages so misrouted connections are immediately identifiable.
+  /// </remarks>
+  public FlowIO<Data.Validation.ValidationResult> InspectTarget()
+  {
+    return FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        var context = GetContext();
+        try
+        {
+          var dbSet = context.Set<T>();
+          try
+          {
+            await dbSet.AnyAsync(ct);
+            return Data.Validation.ValidationResult.Success();
+          }
+          catch (Exception ex)
+          {
+            return Data.Validation.ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: Data.Validation.ValidationErrorType.NotFound,
+              message: $"Write target '{typeof(T).Name}' does not exist or is not accessible",
+              details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
+            );
+          }
+        }
+        finally
+        {
+          if (_ownsContext && _contextFactory != null)
+          {
+            await context.DisposeAsync();
+          }
+        }
+      }
+    );
   }
 
   /// <summary>
@@ -313,6 +354,21 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
     }
 
     throw new InvalidOperationException("No DbContext available");
+  }
+
+  private static string GetConnectionDescription(DbContext context)
+  {
+    try
+    {
+      var conn = context.Database.GetDbConnection();
+      var dataSource = conn.DataSource;
+      var database = conn.Database;
+      return string.IsNullOrEmpty(dataSource) ? database : $"{dataSource}/{database}";
+    }
+    catch
+    {
+      return "(connection info unavailable)";
+    }
   }
 
   /// <summary>

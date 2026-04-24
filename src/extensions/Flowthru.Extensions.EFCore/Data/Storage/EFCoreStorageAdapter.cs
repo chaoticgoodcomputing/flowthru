@@ -332,7 +332,7 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
               catalogKey: typeof(T).Name,
               errorType: ValidationErrorType.NotFound,
               message: $"Table '{typeof(T).Name}' does not exist or is not accessible",
-              details: ex.Message
+              details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
             );
           }
 
@@ -361,7 +361,7 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
                 catalogKey: typeof(T).Name,
                 errorType: ValidationErrorType.DeserializationError,
                 message: $"Failed to read sample rows from table '{typeof(T).Name}'",
-                details: ex.Message
+                details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
               );
             }
           }
@@ -402,7 +402,7 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
               catalogKey: typeof(T).Name,
               errorType: ValidationErrorType.NotFound,
               message: $"Table '{typeof(T).Name}' does not exist or is not accessible",
-              details: ex.Message
+              details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
             );
           }
 
@@ -431,12 +431,54 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
                 catalogKey: typeof(T).Name,
                 errorType: ValidationErrorType.DeserializationError,
                 message: $"Failed to read all rows from table '{typeof(T).Name}'",
-                details: ex.Message
+                details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
               );
             }
           }
 
           return ValidationResult.Success();
+        }
+        finally
+        {
+          if (_ownsContext && context != null)
+          {
+            await context.DisposeAsync();
+          }
+        }
+      }
+    );
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Validates that the target table exists and is writable via the configured
+  /// <see cref="DbContext"/>. Includes context type and connection metadata in
+  /// error messages so misrouted connections (e.g., two contexts targeting the
+  /// same schema on different databases) are immediately identifiable.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectTarget()
+  {
+    return FlowIO.LiftAsync(
+      async (ct) =>
+      {
+        var context = GetContext();
+        try
+        {
+          var dbSet = context.Set<T>();
+          try
+          {
+            await dbSet.AnyAsync(ct);
+            return ValidationResult.Success();
+          }
+          catch (Exception ex)
+          {
+            return ValidationResult.Failure(
+              catalogKey: typeof(T).Name,
+              errorType: ValidationErrorType.NotFound,
+              message: $"Write target '{typeof(T).Name}' does not exist or is not accessible",
+              details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
+            );
+          }
         }
         finally
         {
@@ -496,5 +538,20 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
     throw new InvalidOperationException(
       "EFCoreStorageAdapter has no DbContext. This should never happen."
     );
+  }
+
+  private static string GetConnectionDescription(DbContext context)
+  {
+    try
+    {
+      var conn = context.Database.GetDbConnection();
+      var dataSource = conn.DataSource;
+      var database = conn.Database;
+      return string.IsNullOrEmpty(dataSource) ? database : $"{dataSource}/{database}";
+    }
+    catch
+    {
+      return "(connection info unavailable)";
+    }
   }
 }
