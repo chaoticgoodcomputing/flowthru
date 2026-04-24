@@ -12,5 +12,6 @@ public class TestDbContext : DbContext
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<TestEntity>().HasKey(e => e.Id);
+    modelBuilder.Entity<TestEntity>().Property(e => e.Id).ValueGeneratedNever();
   }
 }
