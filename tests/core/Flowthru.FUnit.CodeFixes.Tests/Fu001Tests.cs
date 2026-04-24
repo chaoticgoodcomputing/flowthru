@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 
-namespace Flowthru.FUnit.Tests.CodeFixes;
+namespace Flowthru.FUnit.CodeFixes.Tests;
 
 /// <summary>
 /// Tests for FU001: scaffolds a stub <c>Tests : FunitContext</c> class inside a

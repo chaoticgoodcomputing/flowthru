@@ -1,0 +1,31 @@
+name: Cleanup Draft Releases
+
+on:
+  schedule:
+    - cron: "0 20 * * 0" # Sundays at 20:00 UTC
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Delete all draft releases and their tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release list \
+            --repo "${{ github.repository }}" \
+            --json tagName,isDraft \
+            --limit 100 \
+            | jq -r '.[] | select(.isDraft) | .tagName' \
+            | while IFS= read -r tag; do
+                echo "Deleting draft release: ${tag}"
+                gh release delete "${tag}" \
+                  --repo "${{ github.repository }}" \
+                  --cleanup-tag \
+                  --yes
+              done

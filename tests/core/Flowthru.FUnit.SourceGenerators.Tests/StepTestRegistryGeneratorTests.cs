@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Flowthru.FUnit.SourceGenerators;
-using Flowthru.FUnit.Tests.Fixtures;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Flowthru.FUnit.Tests;
+namespace Flowthru.FUnit.SourceGenerators.Tests;
 
 [TestFixture]
 [Category("FUnit")]

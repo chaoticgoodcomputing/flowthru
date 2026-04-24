@@ -10,6 +10,9 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.12.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.NUnit" Version="1.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
@@ -21,7 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit\Flowthru.FUnit.csproj" />
+    <!-- ReferenceOutputAssembly=true loads the analyzer/generator into the Roslyn test host -->
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\..\helpers\Flowthru.Tests.Helpers\Flowthru.Tests.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

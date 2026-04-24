@@ -4,7 +4,7 @@ using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 
-namespace Flowthru.FUnit.Tests.CodeFixes;
+namespace Flowthru.FUnit.CodeFixes.Tests;
 
 /// <summary>
 /// Tests for FU002: wraps an unguarded <c>FunitContext</c> subclass with

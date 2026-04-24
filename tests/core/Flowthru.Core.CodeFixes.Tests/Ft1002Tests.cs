@@ -4,7 +4,7 @@ using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 
-namespace Flowthru.Core.SourceGenerators.Tests.CodeFixes;
+namespace Flowthru.Core.CodeFixes.Tests;
 
 /// <summary>
 /// Tests for FT1002: removes manually-applied marker interfaces that the source
