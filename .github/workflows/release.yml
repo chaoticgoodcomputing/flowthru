@@ -114,27 +114,6 @@ jobs:
         if: steps.release.outputs.changed == 'true'
         run: git push --follow-tags
 
-      - name: Install Codecov CLI
-        if: always()
-        run: |
-          curl https://keybase.io/codecovsecurity/pgp_keys.asc \
-            | gpg --no-default-keyring --keyring trustedkeys.gpg --import
-          curl -Os https://cli.codecov.io/latest/linux/codecov
-          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM
-          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM.sig
-          gpg --no-default-keyring --keyring trustedkeys.gpg \
-            --verify codecov.SHA256SUM.sig codecov.SHA256SUM
-          shasum -a 256 -c codecov.SHA256SUM
-          sudo chmod +x codecov
-          sudo mv codecov /usr/local/bin/codecov
-
-      - name: Upload coverage to Codecov
-        if: always()
-        continue-on-error: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.FLOWTHRU_CODECOV_TOKEN }}
-        run: pnpm nx run tests:coverage:upload
-
       - name: Create GitHub Release Draft
         if: steps.release.outputs.changed == 'true'
         env:
@@ -164,27 +143,6 @@ jobs:
           VERSION="v${{ steps.release.outputs.version }}"
           gh release upload "${VERSION}" dist/packages/*.nupkg
 
-      - name: Publish preview to NuGet
-        if: steps.release.outputs.changed == 'true'
-        env:
-          FLOWTHRU_NUGET_API_KEY: ${{ secrets.FLOWTHRU_NUGET_API_KEY }}
-        run: |
-          VERSION="${{ steps.release.outputs.version }}"
-          PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
-          rm dist/packages/*.nupkg
-          # Scope to src/ only — examples and tests are not NuGet artifacts.
-          # Directory.Build.props already restricts Version and PackageOutputPath
-          # to src/ projects; this find mirrors that boundary explicitly.
-          find src/ -name "*.csproj" -print0 | while IFS= read -r -d '' csproj; do
-            dotnet pack "$csproj" \
-              --no-build \
-              -c Release \
-              /p:Version="${PRERELEASE_VERSION}"
-          done
-          dotnet nuget push "dist/packages/*.nupkg" \
-            --api-key "${FLOWTHRU_NUGET_API_KEY}" \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
       # - name: Install Copilot CLI
       #   if: steps.release.outputs.changed == 'true'
       #   run: npm install -g @github/copilot
@@ -232,3 +190,46 @@ jobs:
       #       } > /tmp/combined-notes.md
       #       gh release edit "${VERSION}" --notes-file /tmp/combined-notes.md
       #     fi
+
+      - name: Install Codecov CLI
+        if: always()
+        run: |
+          curl https://keybase.io/codecovsecurity/pgp_keys.asc \
+            | gpg --no-default-keyring --keyring trustedkeys.gpg --import
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM.sig
+          gpg --no-default-keyring --keyring trustedkeys.gpg \
+            --verify codecov.SHA256SUM.sig codecov.SHA256SUM
+          shasum -a 256 -c codecov.SHA256SUM
+          sudo chmod +x codecov
+          sudo mv codecov /usr/local/bin/codecov
+
+      - name: Upload coverage to Codecov
+        if: always()
+        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.FLOWTHRU_CODECOV_TOKEN }}
+        run: pnpm nx run tests:coverage:upload
+
+      - name: Publish preview to NuGet
+        if: steps.release.outputs.changed == 'true'
+        env:
+          FLOWTHRU_NUGET_API_KEY: ${{ secrets.FLOWTHRU_NUGET_API_KEY }}
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          PRERELEASE_VERSION="${VERSION}-preview.${{ github.run_number }}"
+          rm dist/packages/*.nupkg
+          # Scope to src/ only — examples and tests are not NuGet artifacts.
+          # Directory.Build.props already restricts Version and PackageOutputPath
+          # to src/ projects; this find mirrors that boundary explicitly.
+          find src/ -name "*.csproj" -print0 | while IFS= read -r -d '' csproj; do
+            dotnet pack "$csproj" \
+              --no-build \
+              -c Release \
+              /p:Version="${PRERELEASE_VERSION}"
+          done
+          dotnet nuget push "dist/packages/*.nupkg" \
+            --api-key "${FLOWTHRU_NUGET_API_KEY}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
