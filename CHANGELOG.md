@@ -1,3 +1,18 @@
+## 0.10.0 (2026-04-24)
+
+### 🚀 Features
+
+- EFCore bulk extension ([64dacb27](https://github.com/chaoticgoodcomputing/flowthru/commit/64dacb27))
+
+### 🩹 Fixes
+
+- relative paths within CS project files ([0883bb27](https://github.com/chaoticgoodcomputing/flowthru/commit/0883bb27))
+- resolve slnx issue ([5dbae0d9](https://github.com/chaoticgoodcomputing/flowthru/commit/5dbae0d9))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.9.0 (2026-04-23)
 
 ### 🚀 Features
