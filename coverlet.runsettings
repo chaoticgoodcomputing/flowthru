@@ -11,7 +11,7 @@
           <!-- [Flowthru]* covers all assemblies: Flowthru, Flowthru.Core,
                Flowthru.Extensions.*, Flowthru.FUnit, Flowthru.Misc.* -->
           <Include>
-            [Flowthru]*
+            [Flowthru*]*
           </Include>
           
           <!-- Exclude patterns: what NOT to measure -->
