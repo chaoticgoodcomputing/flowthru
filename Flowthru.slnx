@@ -37,7 +37,6 @@
     <Project Path="tests/integration/Flowthru.Tests.Templates/Flowthru.Tests.Templates.csproj" />
   </Folder>
   <Folder Name="/tests/core/">
-    <Project Path="tests/core/Flowthru.Tests/Flowthru.Tests.csproj" />
     <Project Path="tests/core/Flowthru.Core.Tests/Flowthru.Core.Tests.csproj" />
     <Project Path="tests/core/Flowthru.Core.CodeFixes.Tests/Flowthru.Core.CodeFixes.Tests.csproj" />
     <Project Path="tests/core/Flowthru.Core.SourceGenerators.Tests/Flowthru.Core.SourceGenerators.Tests.csproj" />
