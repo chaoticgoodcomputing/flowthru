@@ -8,10 +8,10 @@
           <Format>cobertura,json,lcov</Format>
           
           <!-- Include patterns: what to measure coverage for -->
+          <!-- [Flowthru]* covers all assemblies: Flowthru, Flowthru.Core,
+               Flowthru.Extensions.*, Flowthru.FUnit, Flowthru.Misc.* -->
           <Include>
             [Flowthru]*
-            [Flowthru.Integrations.*]*
-            [ML.Next]*
           </Include>
           
           <!-- Exclude patterns: what NOT to measure -->
