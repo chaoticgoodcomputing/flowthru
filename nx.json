@@ -24,7 +24,8 @@
       ]
     },
     "test": {
-      "dependsOn": [ "build" ]
+      "dependsOn": [ "build" ],
+      "inputs": [ "default", "^production", "coverageConfig" ]
     },
     "pack": {
       "dependsOn": [ "build:release", "templates:_inject_template_version", "templates:_inject_agents_md" ]
@@ -35,6 +36,9 @@
       "{projectRoot}/**/*",
       "{workspaceRoot}/Directory.Build.props",
       "{workspaceRoot}/Directory.Build.targets"
+    ],
+    "coverageConfig": [
+      "{workspaceRoot}/coverlet.runsettings"
     ],
     "production": [
       "default",
