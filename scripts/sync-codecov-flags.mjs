@@ -120,12 +120,15 @@ const EXAMPLES_RESULTS_ROOT =
 const exampleCsprojPaths = globSync(
   'examples/**/*.csproj',
   { cwd: ROOT }
-).filter(
-  (p) =>
-    !p.includes('/archived/') &&
-    !p.includes('/item-templates/') &&
-    !p.includes('/obj/')
-);
+).filter((p) => {
+  if (p.includes('/archived/') || p.includes('/item-templates/') || p.includes('/obj/')) {
+    return false;
+  }
+  // Exclude library sub-projects (supporting libs of multi-project examples
+  // like SpaceflightsDistributed.* — only the Exe harness is a test target).
+  const content = readFileSync(resolve(ROOT, p), 'utf8');
+  return content.includes('<OutputType>Exe</OutputType>');
+});
 
 for (const csproj of exampleCsprojPaths) {
   const exampleName = basename(csproj, '.csproj');

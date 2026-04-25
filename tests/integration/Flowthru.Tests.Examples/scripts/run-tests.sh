@@ -12,12 +12,6 @@
 #               coverage XML output).
 #
 # All other args are forwarded to each `dotnet test` invocation.
-#
-# Parallelism:
-#   All dotnet test invocations are launched as background jobs and waited on
-#   collectively. PythonEngine is process-global, so Python examples that share
-#   an interpreter would conflict — but each invocation here is a separate
-#   process, so there is no shared state.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -45,10 +39,14 @@ echo "Workspace root: $WORKSPACE_ROOT"
 
 declare -A EXAMPLE_SET
 while IFS= read -r csproj; do
-  name="$(basename "$(dirname "$csproj")")"  
+  # Skip library sub-projects (those without OutputType=Exe are supporting
+  # libraries of a multi-project example, not runnable harness entry points).
+  grep -q '<OutputType>Exe</OutputType>' "$csproj" || continue
+  name="$(basename "$(dirname "$csproj")")"
   EXAMPLE_SET["$name"]=1
 done < <(find "$EXAMPLES_DIR" -name "*.csproj" \
            -not -path "*/archived/*" \
+           -not -path "*/item-templates/*" \
            -not -path "*/obj/*" \
            -not -path "*/bin/*")
 
@@ -99,9 +97,8 @@ fi
 
 # ── 3. Pre-warm Python venv ───────────────────────────────────────────────────
 #
-# Each parallel dotnet test process would independently call `uv sync --frozen`
-# on first run. Pre-warming here serializes that once so the parallel test
-# processes find the venv already materialized.
+# Pre-warming here ensures the venv is materialized before the first test
+# process runs, avoiding redundant uv sync calls on cold runs.
 
 OUTPUT_DIR="$WORKSPACE_ROOT/dist/tests/integration/Flowthru.Tests.Examples/net10.0"
 if [ -d "$OUTPUT_DIR" ] && [ -f "$OUTPUT_DIR/pyproject.toml" ]; then
@@ -114,29 +111,27 @@ if [ -d "$OUTPUT_DIR" ] && [ -f "$OUTPUT_DIR/pyproject.toml" ]; then
   fi
 fi
 
-# ── 4. Run tests in parallel ──────────────────────────────────────────────────
+# ── 4. Run tests serially ─────────────────────────────────────────────────────
 #
-# Each invocation is a background job. Wrapping in a subshell with an explicit
-# `cd "$PROJECT_DIR"` ensures the dotnet test host always inherits a valid,
-# known cwd — guarding against the caller having a stale working directory
-# (e.g. from a renamed parent directory in the same shell session).
+# Each example gets its own dotnet test invocation so coverlet produces a
+# separate TestResults/{Name}/coverage.cobertura.xml per example.
+#
+# Serial execution is required for coverage correctness. Coverlet's DataCollector
+# instruments DLLs into temp copies identified by a per-process GUID. If multiple
+# dotnet test processes run in parallel against the same output directory, each
+# process's test host loads whichever DLL copy it finds first — which may have
+# been instrumented by a different process. The resulting hits file GUID then
+# doesn't match the DataCollector's instrumented copy, and all hits are lost.
 
-pids=()
 failed=0
 
 for example in "${TARGET_EXAMPLES[@]}"; do
-  echo "--- Queuing example: $example ---"
-  (cd "$PROJECT_DIR" && dotnet test "$PROJECT_DIR" --no-build --no-restore \
+  echo "--- Running example: $example ---"
+  if ! (cd "$PROJECT_DIR" && dotnet test "$PROJECT_DIR" --no-build --no-restore \
     --filter "FullyQualifiedName~${example}" \
     --results-directory "$PROJECT_DIR/TestResults/${example}" \
-    "${EXTRA_ARGS[@]}") &
-  pids+=($!)
-done
-
-echo "Waiting for ${#pids[@]} test run(s) to complete..."
-for pid in "${pids[@]}"; do
-  if ! wait "$pid"; then
-    echo "Test run failed (pid $pid)" >&2
+    "${EXTRA_ARGS[@]}"); then
+    echo "Test run failed for: $example" >&2
     failed=1
   fi
 done
