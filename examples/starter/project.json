@@ -8,10 +8,15 @@
       "//": "Packs all packable projects in the workspace. src/ lands in dist/packages/ (flat); others go under dist/packages/<relative-path>/",
       "executor": "nx:run-commands",
       "options": {
-        "commands": [ "pnpm nx run-many -t pack" ],
+        "commands": [
+          "pnpm nx run-many -t pack"
+        ],
         "cwd": "{workspaceRoot}",
         "parallel": false
-      }
+      },
+      "outputs": [
+        "{workspaceRoot}/dist/packages/**"
+      ]
     },
     "_inject_template_version": {
       "//": "Stamps the current Directory.Build.props version into all starter template.json files",

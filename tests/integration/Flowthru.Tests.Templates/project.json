@@ -2,19 +2,19 @@
   "name": "Flowthru.Tests.Templates",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "sourceRoot": "tests/Flowthru.Tests.Templates",
+  "sourceRoot": "tests/integration/Flowthru.Tests.Templates",
   "tags": [ "type:test" ],
   "targets": {
     "test": {
       "//": "Runs template tests. Requires all packs to be in dist/packages/ first — src/ lands flat, others under subdirectories.",
       "executor": "nx:run-commands",
-      "dependsOn": [ "build", "templates:pack-all" ],
+      "dependsOn": [ "^build", "templates:pack-all" ],
       "options": {
-        "commands": [ "dotnet test --no-build --no-restore" ],
-        "cwd": "tests/integration/Flowthru.Tests.Templates",
+        "commands": [ "dotnet test --no-restore" ],
         "parallel": false,
-        "forwardAllArgs": true
-      }
+        "forwardAllArgs": true,
+        "cwd": "tests/integration/Flowthru.Tests.Templates"
+      },
     }
   }
 }

@@ -10,14 +10,14 @@
   ],
   "targetDefaults": {
     "build": {
-      "dependsOn": [ "^build" ],
+      "dependsOn": [ "^build", "flowthru:restore" ],
       "outputs": [
         "{workspaceRoot}/dist/{projectRoot}",
         "{workspaceRoot}/dist/intermediates/{projectRoot}/obj"
       ]
     },
     "build:release": {
-      "dependsOn": [ "^build:release" ],
+      "dependsOn": [ "^build:release", "flowthru:restore" ],
       "outputs": [
         "{workspaceRoot}/dist/{projectRoot}",
         "{workspaceRoot}/dist/intermediates/{projectRoot}/obj"
@@ -28,7 +28,8 @@
       "inputs": [ "default", "^production", "coverageConfig" ]
     },
     "pack": {
-      "dependsOn": [ "build:release", "templates:_inject_template_version", "templates:_inject_agents_md" ]
+      "dependsOn": [ "build:release", "templates:_inject_template_version", "templates:_inject_agents_md" ],
+      "outputs": [ "{workspaceRoot}/dist/packages" ]
     }
   },
   "namedInputs": {
