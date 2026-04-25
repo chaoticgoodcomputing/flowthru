@@ -10,7 +10,7 @@ coverage:
       default:
         target: 80%
 comment:
-  layout: "reach,diff,flags,components"
+  layout: 'reach,diff,flags,components'
   behavior: default
   require_changes: false
 flags:
@@ -44,6 +44,8 @@ flags:
     carryforward: true
   Flowthru.Extensions.Python.Tests:
     carryforward: true
+  Flowthru.Extensions.Xml.Tests:
+    carryforward: true
   Flowthru.FUnit.CodeFixes.Tests:
     carryforward: true
   Flowthru.FUnit.SourceGenerators.Tests:
@@ -60,17 +62,35 @@ flags:
     carryforward: true
   Flowthru.Tests:
     carryforward: true
-  Flowthru.Tests.Examples:
-    carryforward: true
   Flowthru.Tests.Templates:
     carryforward: true
+  FlowthruCoverage:
+    carryforward: true
+  KedroIris:
+    carryforward: true
   KedroIrisFUnit:
+    carryforward: true
+  KedroIrisPython:
+    carryforward: true
+  KedroSpaceflights:
     carryforward: true
   KedroSpaceflightsCustom:
     carryforward: true
   KedroSpaceflightsFUnit:
     carryforward: true
+  KedroSpaceflightsGQL:
+    carryforward: true
+  KedroSpaceflightsPython:
+    carryforward: true
+  Minimal:
+    carryforward: true
+  RetailDataSplitFlow:
+    carryforward: true
   SpaceflightsDistributed:
+    carryforward: true
+  SpaceflightsEFCore:
+    carryforward: true
+  SpaceflightsPythonEFCore:
     carryforward: true
 component_management:
   individual_components:
@@ -138,6 +158,10 @@ component_management:
       name: Flowthru.Extensions.Python.SourceGenerators
       paths:
         - src/extensions/Flowthru.Extensions.Python.SourceGenerators/**
+    - component_id: flowthru_extensions_xml
+      name: Flowthru.Extensions.Xml
+      paths:
+        - src/extensions/Flowthru.Extensions.Xml/**
     - component_id: flowthru_funit
       name: Flowthru.FUnit
       paths:
