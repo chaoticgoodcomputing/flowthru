@@ -10,13 +10,18 @@
     "Stop": [
       {
         "type": "command",
-        "command": "node .github/hooks/scripts/stop-test-coverage.js",
-        "timeout": 30
+        "command": "node .github/hooks/scripts/stop-check.js",
+        "timeout": 5
       },
       {
         "type": "command",
-        "command": "node .github/hooks/scripts/stop-build.js",
-        "timeout": 600
+        "command": "node .github/hooks/scripts/stop-test-update-check.js",
+        "timeout": 10
+      },
+      {
+        "type": "command",
+        "command": "node .github/hooks/scripts/stop-test-affected.js",
+        "timeout": 300
       }
     ]
   }

@@ -22,9 +22,9 @@ public static class ReportingFlow
       pipeline.AddStep(
         label: "ClassifyCoverage",
         transform: ClassifyCoverageStep.Create(),
-        input: catalog.PackageCoverage,
+        input: (catalog.PackageCoverage, catalog.ProjectManifest),
         output: catalog.PivotCoverage,
-        description: "Annotates coverage rows with heatmap section (Library / Integration / Examples) and sorts into display order."
+        description: "Classifies and filters coverage rows using the project manifest: assigns Section/Subgroup to test columns, filters SrcPackage rows to manifest Library entries only, and sorts into display order."
       );
 
       pipeline.AddPythonStep(

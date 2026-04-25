@@ -20,8 +20,13 @@
 
   <ItemGroup>
     <PackageReference Include="Flowthru" Version="*" />
-    <!-- Needs direct reference to SourceGenerators for testing source generators -->
+    <!-- Needs direct references to source generator / analyzer assemblies so the CLR loads the
+         instrumented DLL through this project's dependency chain before any test runs, giving
+         coverlet a chance to record hits. -->
     <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="true" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit\Flowthru.FUnit.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>
 

@@ -2,8 +2,8 @@
 # Runs Flowthru.Tests.Examples with a NUnit filter scoped to affected examples.
 #
 # In CI, NX_AFFECTED_PROJECTS is exported by the "Compute affected projects" step
-# before `nx affected -t test` runs. Locally, the script computes it fresh from
-# the last git tag.
+# before `nx affected -t test` runs. Locally, the script uses --base=HEAD so only
+# uncommitted working-tree changes are considered.
 #
 # Flags:
 #   --run-all   Skip the affected-project filter and run every discovered example
@@ -64,12 +64,8 @@ else
     echo "Source: NX_AFFECTED_PROJECTS env var (CI)"
     read -ra AFFECTED <<< "$NX_AFFECTED_PROJECTS"
   else
-    echo "Source: computing from last git tag (local)"
-    if NX_BASE=$(cd "$WORKSPACE_ROOT" && git describe --tags --abbrev=0 2>/dev/null); then
-      true
-    else
-      NX_BASE=$(cd "$WORKSPACE_ROOT" && git rev-list --max-parents=0 HEAD)
-    fi
+    echo "Source: computing from HEAD (local)"
+    NX_BASE="HEAD"
     echo "Base: $NX_BASE"
     AFFECTED_JSON=$(cd "$WORKSPACE_ROOT" && \
       pnpm nx show projects --affected --base="$NX_BASE" --json 2>/dev/null)

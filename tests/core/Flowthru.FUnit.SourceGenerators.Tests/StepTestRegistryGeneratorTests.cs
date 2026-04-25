@@ -1,10 +1,8 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using Flowthru.FUnit.SourceGenerators;
+using Flowthru.Core.Data;
+using Flowthru.FUnit;
+using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 
 namespace Flowthru.FUnit.SourceGenerators.Tests;
 
@@ -37,7 +35,7 @@ public class StepTestRegistryGeneratorTests
       }
       """;
 
-    var result = RunGenerator(source);
+    var result = FUnitGeneratorTestHelper.RunFUnitGenerator(source);
 
     Assert.That(result.Success, Is.True, FormatErrors(result));
     Assert.That(result.GeneratedSource, Does.Contain("StepTestRegistry"));
@@ -55,7 +53,7 @@ public class StepTestRegistryGeneratorTests
       public static class UntestedStep { }
       """;
 
-    var result = RunGenerator(source);
+    var result = FUnitGeneratorTestHelper.RunFUnitGenerator(source);
 
     Assert.That(result.GeneratedSource, Does.Contain("= 0"));
   }
@@ -67,7 +65,7 @@ public class StepTestRegistryGeneratorTests
       public class SomePlainClass { }
       """;
 
-    var result = RunGenerator(source);
+    var result = FUnitGeneratorTestHelper.RunFUnitGenerator(source);
 
     Assert.That(result.GeneratedSource, Is.Null.Or.Empty);
   }
@@ -86,7 +84,7 @@ public class StepTestRegistryGeneratorTests
       public static class UntestedStep { }
       """;
 
-    var result = RunGenerator(source);
+    var result = FUnitGeneratorTestHelper.RunFUnitGenerator(source);
 
     var fu001 = result.Diagnostics.FirstOrDefault(d => d.Id == "FU001");
     Assert.That(fu001, Is.Not.Null, "Expected FU001 diagnostic");
@@ -111,7 +109,7 @@ public class StepTestRegistryGeneratorTests
       }
       """;
 
-    var result = RunGenerator(source);
+    var result = FUnitGeneratorTestHelper.RunFUnitGenerator(source);
 
     var fu001 = result.Diagnostics.Where(d => d.Id == "FU001").ToList();
     Assert.That(fu001, Is.Empty, "FU001 should not fire for a covered step");
@@ -145,7 +143,7 @@ public class StepTestRegistryGeneratorTests
       MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
       MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
       MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")),
-      MetadataReference.CreateFromFile(typeof(Core.Data.IItem).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location),
       MetadataReference.CreateFromFile(typeof(FunitContext).Assembly.Location),
     };
 
@@ -167,7 +165,7 @@ public class StepTestRegistryGeneratorTests
       using NUnit.Framework;
       """;
 
-    var result = RunGenerator(
+    var result = FUnitGeneratorTestHelper.RunFUnitGenerator(
       aggregatorSource,
       extraReferences:
       [
@@ -210,7 +208,7 @@ public class StepTestRegistryGeneratorTests
       MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
       MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
       MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")),
-      MetadataReference.CreateFromFile(typeof(Core.Data.IItem).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location),
       MetadataReference.CreateFromFile(typeof(FunitContext).Assembly.Location),
     };
 
@@ -232,7 +230,7 @@ public class StepTestRegistryGeneratorTests
       using NUnit.Framework;
       """;
 
-    var result = RunGenerator(
+    var result = FUnitGeneratorTestHelper.RunFUnitGenerator(
       aggregatorSource,
       extraReferences: [libRef],
       buildProperties: new Dictionary<string, string>()
@@ -247,120 +245,14 @@ public class StepTestRegistryGeneratorTests
   }
 
   // ===========================================================================
-  // Roslyn helper
+  // Helpers
   // ===========================================================================
 
-  private static GeneratorResult RunGenerator(string source) =>
-    RunGenerator(source, extraReferences: [], buildProperties: new Dictionary<string, string>());
-
-  private static GeneratorResult RunGenerator(
-    string source,
-    IReadOnlyList<MetadataReference> extraReferences,
-    IReadOnlyDictionary<string, string> buildProperties
-  )
-  {
-    var syntaxTree = CSharpSyntaxTree.ParseText(source);
-
-    var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-    var references = new List<MetadataReference>
-    {
-      MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-      MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")),
-      MetadataReference.CreateFromFile(typeof(Core.Data.IItem).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(FunitContext).Assembly.Location),
-    };
-
-    references.AddRange(extraReferences);
-
-    var compilation = CSharpCompilation.Create(
-      "GeneratorTestAssembly",
-      new[] { syntaxTree },
-      references,
-      new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-    );
-
-    var generator = new StepTestRegistryGenerator();
-
-    var optionsProvider = new TestAnalyzerConfigOptionsProvider(buildProperties);
-    GeneratorDriver driver = CSharpGeneratorDriver.Create(
-      generators: [generator.AsSourceGenerator()],
-      optionsProvider: optionsProvider
-    );
-
-    driver = driver.RunGeneratorsAndUpdateCompilation(
-      compilation,
-      out var outputCompilation,
-      out var generatorDiagnostics
-    );
-
-    var runResult = driver.GetRunResult();
-    var allGeneratedSources = runResult
-      .Results.SelectMany(r => r.GeneratedSources)
-      .Select(s => s.SourceText.ToString())
-      .ToList();
-
-    var generatedSource = allGeneratedSources.FirstOrDefault(s => s.Contains("StepTestRegistry"));
-
-    // Also run the FUnit diagnostic analyzer so FU001/FU002 appear in Diagnostics.
-    var analyzerDiagnostics = outputCompilation
-      .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new FunitDiagnosticAnalyzer()))
-      .GetAnalyzerDiagnosticsAsync()
-      .GetAwaiter()
-      .GetResult();
-
-    var allDiagnostics = generatorDiagnostics.Concat(analyzerDiagnostics).ToList();
-
-    return new GeneratorResult(
-      Success: !allDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error),
-      Diagnostics: allDiagnostics,
-      GeneratedSource: generatedSource,
-      AllGeneratedSources: allGeneratedSources
-    );
-  }
-
-  private static string FormatErrors(GeneratorResult result) =>
+  private static string FormatErrors(FUnitGeneratorResult result) =>
     string.Join(
       "\n",
       result
         .Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)
         .Select(d => d.GetMessage())
     );
-
-  private sealed record GeneratorResult(
-    bool Success,
-    List<Diagnostic> Diagnostics,
-    string? GeneratedSource,
-    List<string> AllGeneratedSources
-  );
-
-  // Minimal AnalyzerConfigOptionsProvider that surfaces build_property.* entries.
-  private sealed class TestAnalyzerConfigOptionsProvider(
-    IReadOnlyDictionary<string, string> properties
-  ) : AnalyzerConfigOptionsProvider
-  {
-    public override AnalyzerConfigOptions GlobalOptions { get; } =
-      new TestAnalyzerConfigOptions(properties);
-
-    public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
-
-    public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => GlobalOptions;
-  }
-
-  private sealed class TestAnalyzerConfigOptions(IReadOnlyDictionary<string, string> properties)
-    : AnalyzerConfigOptions
-  {
-    public override bool TryGetValue(string key, out string value)
-    {
-      // build_property.FUnitAggregate → properties["FUnitAggregate"]
-      if (key.StartsWith("build_property.", StringComparison.OrdinalIgnoreCase))
-      {
-        var shortKey = key.Substring("build_property.".Length);
-        return properties.TryGetValue(shortKey, out value!);
-      }
-
-      value = null!;
-      return false;
-    }
-  }
 }
