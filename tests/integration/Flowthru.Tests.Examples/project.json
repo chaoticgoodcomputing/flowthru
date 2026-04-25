@@ -7,7 +7,7 @@
   "tags": [ "type:test", "scope:examples" ],
   "targets": {
     "test": {
-      "//": "Runs only affected example projects via scripts/run-tests.sh. Extra args (coverage flags etc.) are forwarded from the nx affected -t test invocation.",
+      "//": "Runs only affected example projects via scripts/run-tests.sh. Each example gets its own dotnet test invocation producing TestResults/{Name}/coverage.cobertura.xml.",
       "executor": "nx:run-commands",
       "dependsOn": [ "build" ],
       "options": {
@@ -20,7 +20,7 @@
       "inputs": [ "default", "{workspaceRoot}/src/**", "{workspaceRoot}/examples/**" ]
     },
     "test:all": {
-      "//": "Runs every discovered example individually (one dotnet test invocation per example) to produce separate per-example coverage XMLs in TestResults/{ExampleName}/. Use this before running FlowthruCoverage:run-with-staging to get per-example coverage in the heatmap.",
+      "//": "Runs every discovered example (--run-all flag). Identical output structure to test — each example gets TestResults/{Name}/coverage.cobertura.xml.",
       "executor": "nx:run-commands",
       "dependsOn": [ "build" ],
       "options": {

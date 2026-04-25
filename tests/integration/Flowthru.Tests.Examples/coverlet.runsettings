@@ -6,7 +6,7 @@
         <Configuration>
           <Format>cobertura,json,lcov</Format>
           <Exclude>[*.Tests]*,[*.Tests.Common]*,[xunit.*]*,[NUnit.*]*</Exclude>
-          <Include>[Flowthru]*,[KedroSpaceflights.*]*,[RetailData]*</Include>
+          <Include>[Flowthru*]*</Include>
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
           <ExcludeByFile>**/Migrations/**/*.cs,**/obj/**/*.cs,**/bin/**/*.cs</ExcludeByFile>
           <SingleHit>false</SingleHit>

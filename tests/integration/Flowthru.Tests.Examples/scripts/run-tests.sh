@@ -12,6 +12,12 @@
 #               coverage XML output).
 #
 # All other args are forwarded to each `dotnet test` invocation.
+#
+# Parallelism:
+#   All dotnet test invocations are launched as background jobs and waited on
+#   collectively. PythonEngine is process-global, so Python examples that share
+#   an interpreter would conflict — but each invocation here is a separate
+#   process, so there is no shared state.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -91,34 +97,53 @@ else
   fi
 fi
 
-# ── 3. Run tests ──────────────────────────────────────────────────────────────
+# ── 3. Pre-warm Python venv ───────────────────────────────────────────────────
+#
+# Each parallel dotnet test process would independently call `uv sync --frozen`
+# on first run. Pre-warming here serializes that once so the parallel test
+# processes find the venv already materialized.
 
-if [[ "$RUN_ALL" == true ]]; then
-  # One dotnet test invocation per example → separate TestResults/{Name}/ directory
-  # → separate coverage.cobertura.xml per example. FUnit tests run once up front.
-  echo "Running FUnit auto-discovery tests..."
-  dotnet test "$PROJECT_DIR" --no-build --no-restore \
-    --filter "Category=FUnit" \
-    --results-directory "$PROJECT_DIR/TestResults/FUnit" \
-    "${EXTRA_ARGS[@]}"
-
-  for example in "${TARGET_EXAMPLES[@]}"; do
-    echo "--- Running example: $example ---"
-    dotnet test "$PROJECT_DIR" --no-build --no-restore \
-      --filter "FullyQualifiedName~${example}" \
-      --results-directory "$PROJECT_DIR/TestResults/${example}" \
-      "${EXTRA_ARGS[@]}"
-  done
-else
-  # Original behaviour: single dotnet test invocation, combined results.
-  # FUnit auto-discovery tests (Category=FUnit) are always included.
-  FILTER_PARTS=("Category=FUnit")
-  for example in "${TARGET_EXAMPLES[@]}"; do
-    FILTER_PARTS+=("FullyQualifiedName~${example}")
-  done
-
-  FILTER=$(IFS='|'; echo "${FILTER_PARTS[*]}")
-  echo "NUnit filter: $FILTER"
-
-  dotnet test "$PROJECT_DIR" --no-build --no-restore --filter "$FILTER" "${EXTRA_ARGS[@]}"
+OUTPUT_DIR="$WORKSPACE_ROOT/dist/tests/integration/Flowthru.Tests.Examples/net10.0"
+if [ -d "$OUTPUT_DIR" ] && [ -f "$OUTPUT_DIR/pyproject.toml" ]; then
+  if [ ! -f "$OUTPUT_DIR/.venv/pyvenv.cfg" ]; then
+    echo "Pre-warming Python venv in $OUTPUT_DIR..."
+    (cd "$OUTPUT_DIR" && uv sync --frozen --python-preference only-managed) \
+      || echo "Warning: venv pre-warm failed; individual test processes will retry."
+  else
+    echo "Python venv already materialized."
+  fi
 fi
+
+# ── 4. Run tests in parallel ──────────────────────────────────────────────────
+#
+# Each invocation is a background job. Wrapping in a subshell with an explicit
+# `cd "$PROJECT_DIR"` ensures the dotnet test host always inherits a valid,
+# known cwd — guarding against the caller having a stale working directory
+# (e.g. from a renamed parent directory in the same shell session).
+
+pids=()
+failed=0
+
+for example in "${TARGET_EXAMPLES[@]}"; do
+  echo "--- Queuing example: $example ---"
+  (cd "$PROJECT_DIR" && dotnet test "$PROJECT_DIR" --no-build --no-restore \
+    --filter "FullyQualifiedName~${example}" \
+    --results-directory "$PROJECT_DIR/TestResults/${example}" \
+    "${EXTRA_ARGS[@]}") &
+  pids+=($!)
+done
+
+echo "Waiting for ${#pids[@]} test run(s) to complete..."
+for pid in "${pids[@]}"; do
+  if ! wait "$pid"; then
+    echo "Test run failed (pid $pid)" >&2
+    failed=1
+  fi
+done
+
+if [ "$failed" -ne 0 ]; then
+  echo "One or more example test runs failed." >&2
+  exit 1
+fi
+
+echo "All example test runs passed."

@@ -2,10 +2,19 @@
 /**
  * Synchronizes the `flags` and `component_management` sections of codecov.yml.
  *
- * Flags: derived from NX projects with a `test` target.
- *   Flag name = basename of the project's root directory.
- *   e.g. tests/Flowthru.Tests → Flowthru.Tests
- *   Used for per-suite carryforward and status checks.
+ * Flags fall into two groups:
+ *
+ *   Standard test projects (all NX projects with a `test` target except
+ *   Flowthru.Tests.Examples):
+ *     Flag name = basename of the project's root directory.
+ *     e.g. tests/core/Flowthru.Core.Tests → Flowthru.Core.Tests
+ *
+ *   Example projects (one per .csproj under examples/, excluding archived/ and
+ *   item-templates/):
+ *     Flag name = csproj basename without extension.
+ *     Root      = tests/integration/Flowthru.Tests.Examples/TestResults/{Name}
+ *     Plus one "FUnit" flag for the FUnit auto-discovery tests that run
+ *     alongside examples.
  *
  * Components: derived from src/ projects (csproj files).
  *   Component id  = slugified project directory basename.
@@ -50,7 +59,20 @@ const projectNames = JSON.parse(projectsJson);
 // root directory is a parent of every test project, so including it would
 // cause the upload script to re-upload all coverage files under a single
 // umbrella flag, duplicating every report.
-const EXCLUDED_ROOTS = ['.github', 'tests'];
+//
+// "tests/integration/Flowthru.Tests.Examples" is handled separately below —
+// it produces per-example coverage files in named subdirectories, not a single
+// combined report. Including it here would upload all those files under one flag.
+//
+// Projects rooted under "examples/" are also handled by the per-example glob
+// below — exclude them here to avoid double-counting.
+const EXCLUDED_ROOTS = [
+  '.github',
+  'tests',
+  'tests/integration/Flowthru.Tests.Examples',
+];
+
+const EXCLUDED_ROOT_PREFIXES = ['examples/'];
 
 const flagsData = [];
 
@@ -79,7 +101,38 @@ for (const name of projectNames) {
     continue;
   }
 
+  if (EXCLUDED_ROOT_PREFIXES.some((prefix) => root.startsWith(prefix))) {
+    continue;
+  }
+
   flagsData.push({ flag: basename(root), root });
+}
+
+// ── 2b. Add per-example flags ─────────────────────────────────────────────────
+//
+// Flowthru.Tests.Examples runs each example project in its own dotnet test
+// invocation, writing coverage to TestResults/{ExampleName}/coverage.cobertura.xml.
+// We add one flag per example and one for the FUnit auto-discovery suite.
+
+const EXAMPLES_RESULTS_ROOT =
+  'tests/integration/Flowthru.Tests.Examples/TestResults';
+
+const exampleCsprojPaths = globSync(
+  'examples/**/*.csproj',
+  { cwd: ROOT }
+).filter(
+  (p) =>
+    !p.includes('/archived/') &&
+    !p.includes('/item-templates/') &&
+    !p.includes('/obj/')
+);
+
+for (const csproj of exampleCsprojPaths) {
+  const exampleName = basename(csproj, '.csproj');
+  flagsData.push({
+    flag: exampleName,
+    root: `${EXAMPLES_RESULTS_ROOT}/${exampleName}`,
+  });
 }
 
 flagsData.sort((a, b) => a.flag.localeCompare(b.flag));
