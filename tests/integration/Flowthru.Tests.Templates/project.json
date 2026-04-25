@@ -14,7 +14,7 @@
         "parallel": false,
         "forwardAllArgs": true,
         "cwd": "tests/integration/Flowthru.Tests.Templates"
-      },
+      }
     }
   }
 }
