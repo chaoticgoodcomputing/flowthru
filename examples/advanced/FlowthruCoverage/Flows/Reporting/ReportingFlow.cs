@@ -2,16 +2,20 @@ using Flowthru.Core.Flows;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Steps;
 using FlowthruCoverage.Data;
+using FlowthruCoverage.Data._03_Primary.Schemas;
 using FlowthruCoverage.Flows.Reporting.Steps;
 
 namespace FlowthruCoverage.Flows.Reporting;
 
 /// <summary>
-/// Two-step reporting pipeline:
+/// Reporting pipeline:
 /// 1. <see cref="ClassifyCoverageStep"/> (C#) annotates each aggregate row with its heatmap
 ///    section (Library Tests / Integration Tests / Examples) and writes the ordered CSV.
 /// 2. <see cref="generate_coverage_heatmap"/> (Python/Plotly) reads that CSV and produces
 ///    the PNG heatmap.
+/// 3. Two filter steps extract zero-hit methods from the primary summaries into
+///    <c>_04_Reporting/Datasets/uncovered_method_hits.csv</c> and
+///    <c>_04_Reporting/Datasets/uncovered_method_names.csv</c>.
 /// </summary>
 public static class ReportingFlow
 {
@@ -35,6 +39,25 @@ public static class ReportingFlow
         input: catalog.PivotCoverage,
         output: catalog.CoverageHeatmap,
         executor: executor
+      );
+
+      Func<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>> filterUncovered =
+        rows => rows.Where(r => r.TotalHits == 0);
+
+      pipeline.AddStep(
+        label: "FilterUncoveredMethodHits",
+        description: "Filters the full-signature method hit summary to rows with TotalHits == 0.",
+        transform: filterUncovered,
+        input: catalog.MethodHitSummary,
+        output: catalog.UncoveredMethodHits
+      );
+
+      pipeline.AddStep(
+        label: "FilterUncoveredMethodNames",
+        description: "Filters the method-name summary (overloads collapsed) to rows with TotalHits == 0.",
+        transform: filterUncovered,
+        input: catalog.MethodNameSummary,
+        output: catalog.UncoveredMethodNames
       );
     });
   }

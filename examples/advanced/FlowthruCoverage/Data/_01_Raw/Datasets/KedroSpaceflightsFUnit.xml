@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.1883" branch-rate="0.16579999999999998" version="1.9" timestamp="1777093448" lines-covered="2805" lines-valid="14891" branches-covered="743" branches-valid="4479">
+<coverage line-rate="0.1875" branch-rate="0.16579999999999998" version="1.9" timestamp="1777094202" lines-covered="2805" lines-valid="14957" branches-covered="743" branches-valid="4481">
   <sources>
     <source></source>
   </sources>
   <packages>
     <package name="Flowthru.Extensions.Metadata.Mermaid" line-rate="0.8076000000000001" branch-rate="0.6855" complexity="168">
       <classes>
-        <class name="Flowthru.Meta.MermaidMetadataExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataExtensions.cs" line-rate="0.927" branch-rate="0.8281000000000001" complexity="66">
+        <class name="Flowthru.Meta.MermaidMetadataExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataExtensions.cs" line-rate="0.927" branch-rate="0.8281000000000001" complexity="66">
           <methods>
             <method name="ToMermaidDiagram" signature="(Flowthru.Core.Graph.Meta.Models.DagMetadata,System.String,System.String,System.String,System.Boolean)" line-rate="0.92" branch-rate="0.8281000000000001" complexity="64">
               <lines>
@@ -524,7 +524,7 @@
             <line number="222" hits="56" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.MermaidMetadataProviderBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataProviderBuilder.cs" line-rate="0.4305" branch-rate="0.0625" complexity="21">
+        <class name="Flowthru.Meta.MermaidMetadataProviderBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataProviderBuilder.cs" line-rate="0.4305" branch-rate="0.0625" complexity="21">
           <methods>
             <method name="WithOutputDirectory" signature="(System.String)" line-rate="1" branch-rate="0.5" complexity="2">
               <lines>
@@ -790,7 +790,7 @@
             <line number="22" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.MermaidMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Metadata.Mermaid/Providers/MermaidMetadataProvider.cs" line-rate="0.8540000000000001" branch-rate="0.6962" complexity="81">
+        <class name="Flowthru.Meta.Providers.MermaidMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Metadata.Mermaid/Providers/MermaidMetadataProvider.cs" line-rate="0.8540000000000001" branch-rate="0.6962" complexity="81">
           <methods>
             <method name="get_Name" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -1594,7 +1594,7 @@
     </package>
     <package name="Flowthru.Extensions.Metadata.Json" line-rate="0.5025999999999999" branch-rate="0.3043" complexity="55">
       <classes>
-        <class name="Flowthru.Meta.JsonMetadataProviderBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Metadata.Json/JsonMetadataProviderBuilder.cs" line-rate="0.4318" branch-rate="0.125" complexity="13">
+        <class name="Flowthru.Meta.JsonMetadataProviderBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Metadata.Json/JsonMetadataProviderBuilder.cs" line-rate="0.4318" branch-rate="0.125" complexity="13">
           <methods>
             <method name="WithOutputDirectory" signature="(System.String)" line-rate="1" branch-rate="0.5" complexity="2">
               <lines>
@@ -1756,7 +1756,7 @@
             <line number="15" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.MetadataJsonExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Metadata.Json/MetadataJsonExtensions.cs" line-rate="0" branch-rate="0" complexity="9">
+        <class name="Flowthru.Meta.MetadataJsonExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Metadata.Json/MetadataJsonExtensions.cs" line-rate="0" branch-rate="0" complexity="9">
           <methods>
             <method name="ToJson" signature="(Flowthru.Core.Graph.Meta.Models.DagMetadata)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -1878,7 +1878,7 @@
             <line number="24" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.JsonMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0.7623000000000001" branch-rate="0.4642" complexity="30">
+        <class name="Flowthru.Meta.Providers.JsonMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0.7623000000000001" branch-rate="0.4642" complexity="30">
           <methods>
             <method name="get_Name" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -2222,7 +2222,7 @@
             <line number="43" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.JsonMetadataProvider/ExceptionJsonConverter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Meta.Providers.JsonMetadataProvider/ExceptionJsonConverter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2270,7 +2270,7 @@
         </class>
       </classes>
     </package>
-    <package name="FlowthruCoverage" line-rate="0" branch-rate="0" complexity="58">
+    <package name="FlowthruCoverage" line-rate="0" branch-rate="0" complexity="62">
       <classes>
         <class name="Flowthru.Core.Generated.SchemaManifest.SchemaManifest" filename="/Users/spelkington/Repos/@cgc/flowthru/dist/intermediates/examples/advanced/FlowthruCoverage/obj/net10.0/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaInterfaceGenerator/FlowthruSchemas.Manifest.g.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
@@ -2334,6 +2334,23 @@
                 <line number="68" hits="0" branch="False" />
                 <line number="69" hits="0" branch="False" />
                 <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+                <line number="73" hits="0" branch="False" />
+                <line number="74" hits="0" branch="False" />
+                <line number="75" hits="0" branch="False" />
+                <line number="76" hits="0" branch="False" />
+                <line number="77" hits="0" branch="False" />
+                <line number="78" hits="0" branch="False" />
+                <line number="79" hits="0" branch="False" />
+                <line number="80" hits="0" branch="False" />
+                <line number="81" hits="0" branch="False" />
+                <line number="82" hits="0" branch="False" />
+                <line number="83" hits="0" branch="False" />
+                <line number="84" hits="0" branch="False" />
+                <line number="85" hits="0" branch="False" />
+                <line number="86" hits="0" branch="False" />
+                <line number="87" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
@@ -2396,6 +2413,23 @@
             <line number="68" hits="0" branch="False" />
             <line number="69" hits="0" branch="False" />
             <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="73" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="76" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+            <line number="78" hits="0" branch="False" />
+            <line number="79" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="81" hits="0" branch="False" />
+            <line number="82" hits="0" branch="False" />
+            <line number="83" hits="0" branch="False" />
+            <line number="84" hits="0" branch="False" />
+            <line number="85" hits="0" branch="False" />
+            <line number="86" hits="0" branch="False" />
+            <line number="87" hits="0" branch="False" />
           </lines>
         </class>
         <class name="FlowthruCoverage.Program" filename="/Users/spelkington/Repos/@cgc/flowthru/examples/advanced/FlowthruCoverage/Program.cs" line-rate="0" branch-rate="0" complexity="7">
@@ -3002,7 +3036,6 @@
           <methods>
             <method name="Create" signature="(FlowthruCoverage.Data.Catalog)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="20" hits="0" branch="False" />
                 <line number="21" hits="0" branch="False" />
                 <line number="22" hits="0" branch="False" />
                 <line number="23" hits="0" branch="False" />
@@ -3022,11 +3055,19 @@
                 <line number="37" hits="0" branch="False" />
                 <line number="38" hits="0" branch="False" />
                 <line number="39" hits="0" branch="False" />
+                <line number="40" hits="0" branch="False" />
+                <line number="41" hits="0" branch="False" />
+                <line number="42" hits="0" branch="False" />
+                <line number="43" hits="0" branch="False" />
+                <line number="44" hits="0" branch="False" />
+                <line number="45" hits="0" branch="False" />
+                <line number="46" hits="0" branch="False" />
+                <line number="47" hits="0" branch="False" />
+                <line number="48" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="20" hits="0" branch="False" />
             <line number="21" hits="0" branch="False" />
             <line number="22" hits="0" branch="False" />
             <line number="23" hits="0" branch="False" />
@@ -3046,6 +3087,15 @@
             <line number="37" hits="0" branch="False" />
             <line number="38" hits="0" branch="False" />
             <line number="39" hits="0" branch="False" />
+            <line number="40" hits="0" branch="False" />
+            <line number="41" hits="0" branch="False" />
+            <line number="42" hits="0" branch="False" />
+            <line number="43" hits="0" branch="False" />
+            <line number="44" hits="0" branch="False" />
+            <line number="45" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="47" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
           </lines>
         </class>
         <class name="FlowthruCoverage.Flows.Coverage.Steps.AggregateCoverageStep" filename="/Users/spelkington/Repos/@cgc/flowthru/examples/advanced/FlowthruCoverage/Flows/Coverage/Steps/AggregateCoverageStep.cs" line-rate="0" branch-rate="0" complexity="2">
@@ -3108,6 +3158,96 @@
             <line number="35" hits="0" branch="False" />
             <line number="36" hits="0" branch="False" />
             <line number="37" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="FlowthruCoverage.Flows.Coverage.Steps.BuildMethodCoverageStep" filename="/Users/spelkington/Repos/@cgc/flowthru/examples/advanced/FlowthruCoverage/Flows/Coverage/Steps/BuildMethodCoverageStep.cs" line-rate="0" branch-rate="0" complexity="3">
+          <methods>
+            <method name="Create" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="23" hits="0" branch="False" />
+                <line number="24" hits="0" branch="False" />
+                <line number="25" hits="0" branch="False" />
+                <line number="26" hits="0" branch="False" />
+                <line number="27" hits="0" branch="False" />
+                <line number="28" hits="0" branch="False" />
+                <line number="29" hits="0" branch="False" />
+                <line number="30" hits="0" branch="False" />
+                <line number="31" hits="0" branch="False" />
+                <line number="32" hits="0" branch="False" />
+                <line number="33" hits="0" branch="False" />
+                <line number="34" hits="0" branch="False" />
+                <line number="35" hits="0" branch="False" />
+                <line number="36" hits="0" branch="False" />
+                <line number="37" hits="0" branch="False" />
+                <line number="38" hits="0" branch="False" />
+                <line number="39" hits="0" branch="False" />
+                <line number="40" hits="0" branch="False" />
+                <line number="41" hits="0" branch="False" />
+                <line number="42" hits="0" branch="False" />
+                <line number="43" hits="0" branch="False" />
+                <line number="44" hits="0" branch="False" />
+                <line number="45" hits="0" branch="False" />
+                <line number="46" hits="0" branch="False" />
+                <line number="47" hits="0" branch="False" />
+                <line number="48" hits="0" branch="False" />
+                <line number="49" hits="0" branch="False" />
+                <line number="50" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="SplitClassName" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="58" hits="0" branch="False" />
+                <line number="59" hits="0" branch="False" />
+                <line number="60" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="61" hits="0" branch="False" />
+                <line number="62" hits="0" branch="False" />
+                <line number="63" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="23" hits="0" branch="False" />
+            <line number="24" hits="0" branch="False" />
+            <line number="25" hits="0" branch="False" />
+            <line number="26" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="28" hits="0" branch="False" />
+            <line number="29" hits="0" branch="False" />
+            <line number="30" hits="0" branch="False" />
+            <line number="31" hits="0" branch="False" />
+            <line number="32" hits="0" branch="False" />
+            <line number="33" hits="0" branch="False" />
+            <line number="34" hits="0" branch="False" />
+            <line number="35" hits="0" branch="False" />
+            <line number="36" hits="0" branch="False" />
+            <line number="37" hits="0" branch="False" />
+            <line number="38" hits="0" branch="False" />
+            <line number="39" hits="0" branch="False" />
+            <line number="40" hits="0" branch="False" />
+            <line number="41" hits="0" branch="False" />
+            <line number="42" hits="0" branch="False" />
+            <line number="43" hits="0" branch="False" />
+            <line number="44" hits="0" branch="False" />
+            <line number="45" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="47" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="49" hits="0" branch="False" />
+            <line number="50" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+            <line number="59" hits="0" branch="False" />
+            <line number="60" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="61" hits="0" branch="False" />
+            <line number="62" hits="0" branch="False" />
+            <line number="63" hits="0" branch="False" />
           </lines>
         </class>
         <class name="FlowthruCoverage.Flows.Coverage.Steps.FlattenCoberturaStep" filename="/Users/spelkington/Repos/@cgc/flowthru/examples/advanced/FlowthruCoverage/Flows/Coverage/Steps/FlattenCoberturaStep.cs" line-rate="0" branch-rate="1" complexity="1">
@@ -3238,7 +3378,7 @@
             <line number="16" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="FlowthruCoverage.Data.Catalog" filename="/Users/spelkington/Repos/@cgc/flowthru/examples/advanced/FlowthruCoverage/Data/_03_Primary/Catalog.Primary.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="FlowthruCoverage.Data.Catalog" filename="/Users/spelkington/Repos/@cgc/flowthru/examples/advanced/FlowthruCoverage/Data/_03_Primary/Catalog.Primary.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="get_PackageCoverage" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3251,6 +3391,17 @@
                 <line number="19" hits="0" branch="False" />
               </lines>
             </method>
+            <method name="get_MethodCoverage" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="27" hits="0" branch="False" />
+                <line number="28" hits="0" branch="False" />
+                <line number="29" hits="0" branch="False" />
+                <line number="30" hits="0" branch="False" />
+                <line number="31" hits="0" branch="False" />
+                <line number="32" hits="0" branch="False" />
+                <line number="33" hits="0" branch="False" />
+              </lines>
+            </method>
           </methods>
           <lines>
             <line number="13" hits="0" branch="False" />
@@ -3260,6 +3411,13 @@
             <line number="17" hits="0" branch="False" />
             <line number="18" hits="0" branch="False" />
             <line number="19" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="28" hits="0" branch="False" />
+            <line number="29" hits="0" branch="False" />
+            <line number="30" hits="0" branch="False" />
+            <line number="31" hits="0" branch="False" />
+            <line number="32" hits="0" branch="False" />
+            <line number="33" hits="0" branch="False" />
           </lines>
         </class>
         <class name="FlowthruCoverage.Data.Catalog" filename="/Users/spelkington/Repos/@cgc/flowthru/examples/advanced/FlowthruCoverage/Data/_04_Reporting/Catalog.Reporting.cs" line-rate="0" branch-rate="1" complexity="2">
@@ -41240,7 +41398,7 @@
     </package>
     <package name="Flowthru.Extensions.Excel" line-rate="0.6626000000000001" branch-rate="0.7666" complexity="35">
       <classes>
-        <class name="Flowthru.Core.Data.ExcelItemExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Excel/ExcelItemExtensions.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.ExcelItemExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Excel/ExcelItemExtensions.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="Excel" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,System.String)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -41264,7 +41422,7 @@
             <line number="56" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0.2727" branch-rate="1" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0.2727" branch-rate="1" complexity="4">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -41308,7 +41466,7 @@
             <line number="34" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1/&lt;DeserializeRows&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/3947d335bb58fe988eda1659aae48b440bceaad3/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0.6923" branch-rate="0.7666" complexity="30">
+        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1/&lt;DeserializeRows&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0.6923" branch-rate="0.7666" complexity="30">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.6923" branch-rate="0.7666" complexity="30">
               <lines>
