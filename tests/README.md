@@ -114,7 +114,7 @@ Tests are run with coverage collection enabled in CI via `coverlet.runsettings`.
 
 To force a clean test run by removing previous `TestResults` artifacts:
 ```bash
-nx run tests:purge
+nx run tests:coverage:purge
 ```
 
 ### What Gets Measured

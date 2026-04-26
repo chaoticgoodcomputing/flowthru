@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Flowthru.Core.Data.Validation;
 using Flowthru.Core.Effects;
 using Flowthru.Core.Graph;
@@ -34,6 +35,9 @@ public interface IItem : INode
   /// <c>CatalogLabel.ItemLabel</c>. First-write-wins: cross-catalog shared items retain
   /// the label of the catalog that originally created them.
   /// </remarks>
+  // Coverage: Dead DIM — Item<T> (sole IItem implementor) provides an explicit
+  // override via its _owningCatalogLabel field. This default body is never dispatched.
+  [ExcludeFromCodeCoverage]
   string? OwningCatalogLabel => null;
 
   /// <summary>
@@ -84,13 +88,21 @@ public interface IItem : INode
 
   // ── INode default implementations ──
 
+  // Coverage: Dead DIMs — Item<T> (sole IItem implementor) provides explicit
+  // overrides for Traits, ProduceUntyped, and ConsumeUntyped. These default
+  // bodies are never dispatched. Re-introducing them as live code requires
+  // a second IItem implementor or removing the Item<T> overrides.
+
   /// <inheritdoc/>
+  [ExcludeFromCodeCoverage]
   NodeTraits INode.Traits => new NodeTraits { CanInspect = true };
 
   /// <inheritdoc/>
+  [ExcludeFromCodeCoverage]
   FlowIO<object> INode.ProduceUntyped() => LoadUntyped();
 
   /// <inheritdoc/>
+  [ExcludeFromCodeCoverage]
   FlowIO<FlowUnit> INode.ConsumeUntyped(object data) => SaveUntyped(data);
 
   /// <summary>

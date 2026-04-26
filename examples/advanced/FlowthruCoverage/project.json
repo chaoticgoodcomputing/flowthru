@@ -30,6 +30,7 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
+          "rm Data/_01_Raw/Datasets/*",
           "nx run FlowthruCoverage:_generate-project-manifest",
           "nx run FlowthruCoverage:_stage-coverage-xml",
           "dotnet run"
@@ -44,9 +45,20 @@
       "options": {
         "commands": [
           "nx run-many -t test",
-          "nx run FlowthruCoverage:_generate-project-manifest",
-          "nx run FlowthruCoverage:_stage-coverage-xml",
-          "dotnet run"
+          "nx FlowthruCoverage:run"
+        ],
+        "cwd": "examples/advanced/FlowthruCoverage",
+        "parallel": false
+      }
+    },
+    "run:with-tests-and-purge": {
+      "//": "Stages coverage XMLs, runs the Coverage pipeline, then generates the HTML heatmap report.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run flowthru:purge",
+          "nx run tests:coverage:purge",
+          "nx run FlowthruCoverage:run:with-tests"
         ],
         "cwd": "examples/advanced/FlowthruCoverage",
         "parallel": false

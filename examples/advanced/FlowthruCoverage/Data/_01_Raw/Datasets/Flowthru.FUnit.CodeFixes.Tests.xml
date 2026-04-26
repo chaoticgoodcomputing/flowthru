@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.024700000000000003" branch-rate="0.025699999999999997" version="1.9" timestamp="1777090059" lines-covered="241" lines-valid="9729" branches-covered="67" branches-valid="2607">
+<coverage line-rate="0.0248" branch-rate="0.025699999999999997" version="1.9" timestamp="1777161453" lines-covered="241" lines-valid="9710" branches-covered="67" branches-valid="2605">
   <sources>
     <source></source>
   </sources>
   <packages>
     <package name="Flowthru.Extensions.Metadata.Mermaid" line-rate="0" branch-rate="0" complexity="168">
       <classes>
-        <class name="Flowthru.Meta.MermaidMetadataExtensions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataExtensions.cs" line-rate="0" branch-rate="0" complexity="66">
+        <class name="Flowthru.Meta.MermaidMetadataExtensions" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataExtensions.cs" line-rate="0" branch-rate="0" complexity="66">
           <methods>
             <method name="ToMermaidDiagram" signature="(Flowthru.Core.Graph.Meta.Models.DagMetadata,System.String,System.String,System.String,System.Boolean)" line-rate="0" branch-rate="0" complexity="64">
               <lines>
@@ -524,7 +524,7 @@
             <line number="222" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.MermaidMetadataProviderBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataProviderBuilder.cs" line-rate="0" branch-rate="0" complexity="21">
+        <class name="Flowthru.Meta.MermaidMetadataProviderBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Mermaid/MermaidMetadataProviderBuilder.cs" line-rate="0" branch-rate="0" complexity="21">
           <methods>
             <method name="WithOutputDirectory" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -790,7 +790,7 @@
             <line number="22" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.MermaidMetadataProvider" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Mermaid/Providers/MermaidMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="81">
+        <class name="Flowthru.Meta.Providers.MermaidMetadataProvider" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Mermaid/Providers/MermaidMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="81">
           <methods>
             <method name="get_Name" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -1594,7 +1594,7 @@
     </package>
     <package name="Flowthru.Extensions.Metadata.Json" line-rate="0" branch-rate="0" complexity="55">
       <classes>
-        <class name="Flowthru.Meta.JsonMetadataProviderBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/JsonMetadataProviderBuilder.cs" line-rate="0" branch-rate="0" complexity="13">
+        <class name="Flowthru.Meta.JsonMetadataProviderBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/JsonMetadataProviderBuilder.cs" line-rate="0" branch-rate="0" complexity="13">
           <methods>
             <method name="WithOutputDirectory" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -1756,7 +1756,7 @@
             <line number="15" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.MetadataJsonExtensions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/MetadataJsonExtensions.cs" line-rate="0" branch-rate="0" complexity="9">
+        <class name="Flowthru.Meta.MetadataJsonExtensions" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/MetadataJsonExtensions.cs" line-rate="0" branch-rate="0" complexity="9">
           <methods>
             <method name="ToJson" signature="(Flowthru.Core.Graph.Meta.Models.DagMetadata)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -1878,7 +1878,7 @@
             <line number="24" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.JsonMetadataProvider" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="30">
+        <class name="Flowthru.Meta.Providers.JsonMetadataProvider" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="30">
           <methods>
             <method name="get_Name" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2222,7 +2222,7 @@
             <line number="43" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.JsonMetadataProvider/ExceptionJsonConverter" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Meta.Providers.JsonMetadataProvider/ExceptionJsonConverter" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2270,21 +2270,9 @@
         </class>
       </classes>
     </package>
-    <package name="Flowthru.FUnit" line-rate="0" branch-rate="0" complexity="36">
+    <package name="Flowthru.FUnit" line-rate="0" branch-rate="0" complexity="35">
       <classes>
-        <class name="Flowthru.FUnit.StepTestAttribute" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.FUnit/Attributes/StepTestAttribute.cs" line-rate="0" branch-rate="1" complexity="1">
-          <methods>
-            <method name=".ctor" signature="(System.Type)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="12" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="12" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.FUnit.FunitContext" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.FUnit.FunitContext" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="get_Services" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2388,7 +2376,7 @@
             <line number="48" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.FunitContext/&lt;Validate&gt;d__13" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.FunitContext/&lt;Validate&gt;d__13" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2400,7 +2388,7 @@
             <line number="96" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="Of" signature="(T[])" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2412,7 +2400,7 @@
             <line number="11" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;&gt;c__2`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;&gt;c__2`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;FromCsv&gt;b__2_0" signature="(System.Reflection.PropertyInfo)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2424,7 +2412,7 @@
             <line number="57" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;FromCsv&gt;d__2`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="0" complexity="16">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;FromCsv&gt;d__2`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="0" complexity="16">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="16">
               <lines>
@@ -2562,7 +2550,7 @@
             <line number="83" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;Generate&gt;d__1`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;Generate&gt;d__1`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -2596,7 +2584,7 @@
     </package>
     <package name="Flowthru.Tests.Helpers" line-rate="0.085" branch-rate="0.25" complexity="43">
       <classes>
-        <class name="Flowthru.Tests.Helpers.CapturingMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/CapturingMetadataProvider.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Tests.Helpers.CapturingMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/CapturingMetadataProvider.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="get_Name" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2628,7 +2616,7 @@
             <line number="37" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.CompilationTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/CompilationTestHelper.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Tests.Helpers.CompilationTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/CompilationTestHelper.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="Compile" signature="(System.String,System.Boolean,System.Type[])" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -2872,7 +2860,7 @@
             <line number="150" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitGeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Tests.Helpers.FUnitGeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="RunFUnitGenerator" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2992,7 +2980,7 @@
             <line number="90" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptionsProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptionsProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="GetOptions" signature="(Microsoft.CodeAnalysis.SyntaxTree)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3022,7 +3010,7 @@
             <line number="105" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="TryGetValue" signature="(System.String,System.String&amp;)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3062,7 +3050,7 @@
             <line number="112" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.GeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Tests.Helpers.GeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="RunSchemaGenerator" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3170,7 +3158,7 @@
             <line number="81" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.GeneratorTestResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Tests.Helpers.GeneratorTestResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="GetGeneratedSource" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3194,7 +3182,7 @@
             <line number="120" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.NUnit4Verifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/tests/helpers/Flowthru.Tests.Helpers/NUnit4Verifier.cs" line-rate="0.7241" branch-rate="0.75" complexity="17">
+        <class name="Flowthru.Tests.Helpers.NUnit4Verifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/NUnit4Verifier.cs" line-rate="0.7241" branch-rate="0.75" complexity="17">
           <methods>
             <method name="Msg" signature="(System.String)" line-rate="1" branch-rate="1" complexity="4">
               <lines>
@@ -3334,9 +3322,9 @@
         </class>
       </classes>
     </package>
-    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1953">
+    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1937">
       <classes>
-        <class name="Microsoft.Extensions.DependencyInjection.FlowthruServiceCollectionExtensions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceCollectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Microsoft.Extensions.DependencyInjection.FlowthruServiceCollectionExtensions" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceCollectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="AddFlowthru" signature="(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.Action`1&lt;Flowthru.Core.Services.IFlowthruBuilder&gt;)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -3414,7 +3402,7 @@
             <line number="109" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Steps.NoData" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Steps/NoData.cs" line-rate="0" branch-rate="1" complexity="7">
+        <class name="Flowthru.Core.Steps.NoData" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Steps/NoData.cs" line-rate="0" branch-rate="1" complexity="7">
           <methods>
             <method name="get_Input" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3468,7 +3456,7 @@
             <line number="66" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Steps.Factory.StepFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Steps/Factory/StepFactory.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Steps.Factory.StepFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Steps/Factory/StepFactory.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="Create" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3484,7 +3472,7 @@
             <line number="41" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Steps.Factory.TypeActivator" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Steps/Factory/TypeActivator.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Steps.Factory.TypeActivator" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Steps/Factory/TypeActivator.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="Create" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3548,7 +3536,7 @@
             <line number="30" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruService" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="40">
+        <class name="Flowthru.Core.Services.FlowthruService" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="40">
           <methods>
             <method name="get_FlowNames" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3956,7 +3944,7 @@
             <line number="77" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruService/&lt;&gt;c" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Core.Services.FlowthruService/&lt;&gt;c" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="&lt;ExecuteFlowAsync&gt;b__11_0" signature="(Flowthru.Core.Graph.FlowStep)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3980,7 +3968,7 @@
             <line number="159" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruService/&lt;&gt;c__DisplayClass11_0" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Services.FlowthruService/&lt;&gt;c__DisplayClass11_0" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;ExecuteFlowAsync&gt;b__2" signature="(Flowthru.Core.Graph.INode)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3992,7 +3980,7 @@
             <line number="158" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruService/&lt;ExecuteFlowAsync&gt;d__11" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="24">
+        <class name="Flowthru.Core.Services.FlowthruService/&lt;ExecuteFlowAsync&gt;d__11" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="24">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="24">
               <lines>
@@ -4330,7 +4318,7 @@
             <line number="257" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruService/&lt;ValidateFlowAsync&gt;d__14" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Services.FlowthruService/&lt;ValidateFlowAsync&gt;d__14" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -4364,7 +4352,7 @@
             <line number="340" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruServiceBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="0" complexity="48">
+        <class name="Flowthru.Core.Services.FlowthruServiceBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="0" complexity="48">
           <methods>
             <method name="ConfigureExecution" signature="(System.Action`1&lt;Flowthru.Core.Flows.ExecutionOptions&gt;)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -4976,7 +4964,7 @@
             <line number="49" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruServiceBuilder/FlowRegistrationEntry" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Services.FlowthruServiceBuilder/FlowRegistrationEntry" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.Func`2&lt;System.IServiceProvider,Flowthru.Core.Flows.Flow&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -4990,7 +4978,7 @@
             <line number="113" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumMetadataCache`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Serialization/EnumMetadataCache.cs" line-rate="0" branch-rate="0" complexity="16">
+        <class name="Flowthru.Core.Serialization.EnumMetadataCache`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Serialization/EnumMetadataCache.cs" line-rate="0" branch-rate="0" complexity="16">
           <methods>
             <method name="ToString" signature="(TEnum)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -5194,7 +5182,7 @@
             <line number="99" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumMetadataRegistry" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Serialization/EnumMetadataRegistry.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Serialization.EnumMetadataRegistry" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Serialization/EnumMetadataRegistry.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="Create" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -5264,7 +5252,7 @@
             <line number="25" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumSerializationHelper" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Serialization/EnumSerializationHelper.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Serialization.EnumSerializationHelper" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Serialization/EnumSerializationHelper.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="ParseEnumFromString" signature="(System.Type,System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -5398,7 +5386,7 @@
             <line number="138" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.ConsoleResultFormatter" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Results/ConsoleResultFormatter.cs" line-rate="0" branch-rate="0" complexity="36">
+        <class name="Flowthru.Core.Results.ConsoleResultFormatter" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Results/ConsoleResultFormatter.cs" line-rate="0" branch-rate="0" complexity="36">
           <methods>
             <method name="Format" signature="(Flowthru.Core.Flows.FlowResult,Microsoft.Extensions.Logging.ILogger)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -5796,7 +5784,7 @@
             <line number="165" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.GitHubIssueUrlBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Results/GitHubIssueUrlBuilder.cs" line-rate="0" branch-rate="0" complexity="24">
+        <class name="Flowthru.Core.Results.GitHubIssueUrlBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Results/GitHubIssueUrlBuilder.cs" line-rate="0" branch-rate="0" complexity="24">
           <methods>
             <method name="Build" signature="(Flowthru.Core.Results.RuntimeErrorReport)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -6102,7 +6090,7 @@
             <line number="137" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.RuntimeErrorClassifier" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Results/RuntimeErrorClassifier.cs" line-rate="0" branch-rate="0" complexity="13">
+        <class name="Flowthru.Core.Results.RuntimeErrorClassifier" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Results/RuntimeErrorClassifier.cs" line-rate="0" branch-rate="0" complexity="13">
           <methods>
             <method name="Classify" signature="(System.Exception)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -6212,7 +6200,7 @@
             <line number="21" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.RuntimeErrorReport" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Results/RuntimeErrorReport.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Results.RuntimeErrorReport" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Results/RuntimeErrorReport.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="FromFlowResult" signature="(Flowthru.Core.Flows.FlowResult)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -6310,7 +6298,7 @@
             <line number="101" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Registry.FlowRegistrar`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Registry/FlowRegistrar.cs" line-rate="0" branch-rate="0" complexity="21">
+        <class name="Flowthru.Core.Registry.FlowRegistrar`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Registry/FlowRegistrar.cs" line-rate="0" branch-rate="0" complexity="21">
           <methods>
             <method name="Register" signature="(System.String,System.Func`2&lt;TCatalog,Flowthru.Core.Flows.Flow&gt;)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -6556,7 +6544,7 @@
             <line number="26" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Parameters.ParameterStore" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Parameters/ParameterStore.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Parameters.ParameterStore" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Parameters/ParameterStore.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="Set" signature="(System.String,System.Object)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -6634,7 +6622,7 @@
             <line number="18" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.FilenameTemplateParser" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Meta/FilenameTemplateParser.cs" line-rate="0" branch-rate="0" complexity="56">
+        <class name="Flowthru.Core.Meta.FilenameTemplateParser" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Meta/FilenameTemplateParser.cs" line-rate="0" branch-rate="0" complexity="56">
           <methods>
             <method name="Render" signature="(Flowthru.Core.Graph.Meta.Models.DagMetadata,System.String,System.String)" line-rate="0" branch-rate="0" complexity="46">
               <lines>
@@ -6852,7 +6840,7 @@
             <line number="39" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.FlowthruMetadataBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Meta/FlowthruMetadataBuilder.cs" line-rate="0" branch-rate="0" complexity="16">
+        <class name="Flowthru.Core.Meta.FlowthruMetadataBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Meta/FlowthruMetadataBuilder.cs" line-rate="0" branch-rate="0" complexity="16">
           <methods>
             <method name="get_Providers" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -7024,7 +7012,7 @@
             <line number="32" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.MetadataProviderBuilderAttribute" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Meta/MetadataProviderBuilderAttribute.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Meta.MetadataProviderBuilderAttribute" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Meta/MetadataProviderBuilderAttribute.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name=".ctor" signature="(System.Type)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -7050,7 +7038,7 @@
             <line number="40" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.TimestampConfiguration" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Meta/TimestampConfiguration.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Meta.TimestampConfiguration" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Meta/TimestampConfiguration.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="Validate" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -7138,7 +7126,7 @@
             <line number="87" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.DependencyAnalyzer" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/DependencyAnalyzer.cs" line-rate="0" branch-rate="0" complexity="125">
+        <class name="Flowthru.Core.Graph.DependencyAnalyzer" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/DependencyAnalyzer.cs" line-rate="0" branch-rate="0" complexity="125">
           <methods>
             <method name="AnalyzeAndAssignLayers" signature="(System.Collections.Generic.List`1&lt;Flowthru.Core.Graph.FlowStep&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -8234,7 +8222,7 @@
             <line number="584" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.FlowSliceStrategy" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/FlowSliceStrategy.cs" line-rate="0" branch-rate="0" complexity="7">
+        <class name="Flowthru.Core.Graph.FlowSliceStrategy" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/FlowSliceStrategy.cs" line-rate="0" branch-rate="0" complexity="7">
           <methods>
             <method name="get_IsSliced" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -8264,7 +8252,7 @@
             <line number="91" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.FlowStep" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/FlowStep.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Graph.FlowStep" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/FlowStep.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -8294,7 +8282,7 @@
             <line number="135" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.GlobMatcher" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/GlobMatcher.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Graph.GlobMatcher" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/GlobMatcher.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="IsPattern" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -8410,7 +8398,7 @@
             <line number="63" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.INode`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/INode.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Graph.INode`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/INode.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="Flowthru.Core.Graph.INode.ProduceUntyped" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -8436,7 +8424,7 @@
             <line number="89" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.TaskGraphExecutor" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="18">
+        <class name="Flowthru.Core.Graph.TaskGraphExecutor" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="18">
           <methods>
             <method name="EnqueueReadyDependents" signature="(Flowthru.Core.Graph.FlowStep,System.Collections.Concurrent.ConcurrentDictionary`2&lt;Flowthru.Core.Graph.FlowStep,System.Int32&gt;,System.Collections.Generic.IReadOnlyDictionary`2&lt;Flowthru.Core.Graph.FlowStep,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.FlowStep&gt;&gt;,System.Collections.Generic.HashSet`1&lt;Flowthru.Core.Graph.FlowStep&gt;,System.Collections.Concurrent.ConcurrentBag`1&lt;Flowthru.Core.Graph.FlowStep&gt;)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -8598,7 +8586,7 @@
             <line number="70" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;&gt;c" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="1" complexity="5">
+        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;&gt;c" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="1" complexity="5">
           <methods>
             <method name="&lt;RunAsync&gt;b__6_0" signature="(Flowthru.Core.Graph.FlowStep)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -8634,7 +8622,7 @@
             <line number="254" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;&gt;c__DisplayClass6_0" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;&gt;c__DisplayClass6_0" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="&lt;RunAsync&gt;b__5" signature="(Flowthru.Core.Graph.FlowStep)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -8654,7 +8642,7 @@
             </line>
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;&gt;c__DisplayClass6_1/&lt;&lt;RunAsync&gt;b__4&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;&gt;c__DisplayClass6_1/&lt;&lt;RunAsync&gt;b__4&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -8808,7 +8796,7 @@
             <line number="239" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;RunAsync&gt;d__6" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="26">
+        <class name="Flowthru.Core.Graph.TaskGraphExecutor/&lt;RunAsync&gt;d__6" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="26">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="26">
               <lines>
@@ -9100,7 +9088,7 @@
             <line number="304" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Validation.ValidationOptions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/Validation/ValidationOptions.cs" line-rate="0" branch-rate="0" complexity="20">
+        <class name="Flowthru.Core.Graph.Validation.ValidationOptions" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/Validation/ValidationOptions.cs" line-rate="0" branch-rate="0" complexity="20">
           <methods>
             <method name="Inspect" signature="(Flowthru.Core.Graph.INode,Flowthru.Core.Data.Validation.InspectionLevel)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -9278,7 +9266,7 @@
             <line number="56" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Scheduling.CriticalPathSchedulingStrategy" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/Scheduling/CriticalPathSchedulingStrategy.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Graph.Scheduling.CriticalPathSchedulingStrategy" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/Scheduling/CriticalPathSchedulingStrategy.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="Prioritize" signature="(System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.FlowStep&gt;,Flowthru.Core.Graph.Scheduling.SchedulingContext)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -9302,7 +9290,7 @@
             <line number="40" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Scheduling.FifoSchedulingStrategy" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/Scheduling/FifoSchedulingStrategy.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Graph.Scheduling.FifoSchedulingStrategy" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/Scheduling/FifoSchedulingStrategy.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="Prioritize" signature="(System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.FlowStep&gt;,Flowthru.Core.Graph.Scheduling.SchedulingContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -9314,7 +9302,7 @@
             <line number="17" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Meta.DagBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/Meta/DagBuilder.cs" line-rate="0" branch-rate="0" complexity="100">
+        <class name="Flowthru.Core.Graph.Meta.DagBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/Meta/DagBuilder.cs" line-rate="0" branch-rate="0" complexity="100">
           <methods>
             <method name="Build" signature="(Flowthru.Core.Flows.Flow)" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -10208,7 +10196,7 @@
             <line number="475" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Meta.SchemaInference" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/Meta/SchemaInference.cs" line-rate="0" branch-rate="0" complexity="62">
+        <class name="Flowthru.Core.Graph.Meta.SchemaInference" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/Meta/SchemaInference.cs" line-rate="0" branch-rate="0" complexity="62">
           <methods>
             <method name="InferSchema" signature="(System.Type)" line-rate="0" branch-rate="0" complexity="16">
               <lines>
@@ -10650,7 +10638,7 @@
             <line number="237" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Meta.Models.DagSliceMetadata" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Graph/Meta/Models/DagSliceMetadata.cs" line-rate="0" branch-rate="0" complexity="46">
+        <class name="Flowthru.Core.Graph.Meta.Models.DagSliceMetadata" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Graph/Meta/Models/DagSliceMetadata.cs" line-rate="0" branch-rate="0" complexity="46">
           <methods>
             <method name="FromStrategy" signature="(Flowthru.Core.Graph.FlowSliceStrategy)" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -10852,7 +10840,7 @@
             <line number="99" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.DryRunOption" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/DryRunOption.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Core.Flows.DryRunOption" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/DryRunOption.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="op_Implicit" signature="(System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10878,7 +10866,7 @@
             <line number="28" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.ExecutionOptions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/ExecutionOptions.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Flows.ExecutionOptions" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/ExecutionOptions.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="GetFormatter" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -10910,7 +10898,7 @@
             <line number="54" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="56">
+        <class name="Flowthru.Core.Flows.Flow" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="56">
           <methods>
             <method name="get_Steps" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -11362,7 +11350,7 @@
             <line number="54" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="17">
+        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="17">
           <methods>
             <method name="&lt;ValidateExternalInputsAsync&gt;b__44_0" signature="(System.Collections.Generic.List`1&lt;Flowthru.Core.Graph.FlowStep&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -11462,7 +11450,7 @@
             <line number="1092" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass44_0" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass44_0" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="&lt;ValidateExternalInputsAsync&gt;b__3" signature="(Flowthru.Core.Graph.INode)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -11488,7 +11476,7 @@
             </line>
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass44_0/&lt;&lt;ValidateExternalInputsAsync&gt;b__10&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass44_0/&lt;&lt;ValidateExternalInputsAsync&gt;b__10&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="12">
               <lines>
@@ -11622,7 +11610,7 @@
             <line number="661" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass44_0/&lt;&lt;ValidateExternalInputsAsync&gt;b__5&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="18">
+        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass44_0/&lt;&lt;ValidateExternalInputsAsync&gt;b__5&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="18">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="18">
               <lines>
@@ -11820,7 +11808,7 @@
             <line number="572" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass49_0" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass49_0" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="&lt;ExecuteStepWithTrackingAsync&gt;b__1" signature="(Flowthru.Core.Effects.FlowIO`1&lt;System.Int32&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -11844,7 +11832,7 @@
             <line number="1041" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass50_0" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Flows.Flow/&lt;&gt;c__DisplayClass50_0" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;ExecuteStepAsync&gt;b__1" signature="(Flowthru.Core.Effects.FlowIO`1&lt;System.Object&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -11856,7 +11844,7 @@
             <line number="1093" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;ExecuteAsync&gt;d__47" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Core.Flows.Flow/&lt;ExecuteAsync&gt;d__47" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="12">
               <lines>
@@ -11954,7 +11942,7 @@
             <line number="831" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;ExecuteStepAsync&gt;d__50" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="26">
+        <class name="Flowthru.Core.Flows.Flow/&lt;ExecuteStepAsync&gt;d__50" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="26">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="26">
               <lines>
@@ -12198,7 +12186,7 @@
             <line number="1183" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;ExecuteStepWithTrackingAsync&gt;d__49" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="40">
+        <class name="Flowthru.Core.Flows.Flow/&lt;ExecuteStepWithTrackingAsync&gt;d__49" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="40">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="40">
               <lines>
@@ -12630,7 +12618,7 @@
             <line number="1077" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;RunAsync&gt;d__46" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="18">
+        <class name="Flowthru.Core.Flows.Flow/&lt;RunAsync&gt;d__46" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="18">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="18">
               <lines>
@@ -12818,7 +12806,7 @@
             <line number="792" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow/&lt;ValidateExternalInputsAsync&gt;d__44" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="42">
+        <class name="Flowthru.Core.Flows.Flow/&lt;ValidateExternalInputsAsync&gt;d__44" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="42">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="42">
               <lines>
@@ -13252,7 +13240,7 @@
             <line number="683" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.FlowBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/FlowBuilder.cs" line-rate="0" branch-rate="0" complexity="11">
+        <class name="Flowthru.Core.Flows.FlowBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/FlowBuilder.cs" line-rate="0" branch-rate="0" complexity="11">
           <methods>
             <method name="CreateFlow" signature="(System.Action`1&lt;Flowthru.Core.Flows.FlowBuilder&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -13430,7 +13418,7 @@
             <line number="83" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.FlowBuilder" filename="/Users/spelkington/Repos/@cgc/flowthru/dist/intermediates/src/core/Flowthru.Core/obj/net10.0/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.FlowBuilderGenerator/FlowBuilder.Generated.cs" line-rate="0" branch-rate="1" complexity="126">
+        <class name="Flowthru.Core.Flows.FlowBuilder" filename="/Users/spelkington/Repos/cgc/flowthru/dist/intermediates/src/core/Flowthru.Core/obj/net10.0/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.FlowBuilderGenerator/FlowBuilder.Generated.cs" line-rate="0" branch-rate="1" complexity="126">
           <methods>
             <method name="AddStep" signature="(System.String,System.Func`2&lt;TIn1,System.Threading.Tasks.Task`1&lt;System.ValueTuple`2&lt;TOut1,TOut2&gt;&gt;&gt;,Flowthru.Core.Graph.INode`1&lt;TIn1&gt;,System.ValueTuple`2&lt;Flowthru.Core.Graph.INode`1&lt;TOut1&gt;,Flowthru.Core.Graph.INode`1&lt;TOut2&gt;&gt;,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -17160,7 +17148,7 @@
             <line number="5259" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.FlowResult" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Flows.FlowResult" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name="CreateSuccess" signature="(System.TimeSpan,System.Collections.Generic.Dictionary`2&lt;System.String,Flowthru.Core.Flows.StepResult&gt;,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -17248,7 +17236,7 @@
             <line number="136" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.StepResult" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Flows.StepResult" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="CreateSuccess" signature="(System.String,System.TimeSpan,System.Int32,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -17304,7 +17292,7 @@
             <line number="225" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.FlowIO`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="0" complexity="28">
+        <class name="Flowthru.Core.Effects.FlowIO`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="0" complexity="28">
           <methods>
             <method name="Run" signature="(System.Threading.CancellationToken)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -17748,7 +17736,7 @@
             <line number="63" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.FlowIO" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="1" complexity="7">
+        <class name="Flowthru.Core.Effects.FlowIO" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="1" complexity="7">
           <methods>
             <method name="Pure" signature="(A)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -17834,89 +17822,29 @@
             <line number="441" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.FlowIO/&lt;&gt;c__DisplayClass5_0`1/&lt;&lt;Sequence&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Effects.FlowIO/&lt;&gt;c__DisplayClass5_0`1/&lt;&lt;Sequence&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Effects.FlowUnit" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Effects/FlowUnit.cs" line-rate="0" branch-rate="1" complexity="12">
+        <class name="Flowthru.Core.Effects.FlowUnit" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Effects/FlowUnit.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
-            <method name="Equals" signature="(Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="36" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Equals" signature="(System.Object)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="43" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="GetHashCode" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="49" hits="0" branch="False" />
-              </lines>
-            </method>
             <method name="ToString" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="55" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="CompareTo" signature="(Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="62" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="op_Equality" signature="(Flowthru.Core.Effects.FlowUnit,Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="70" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="op_Inequality" signature="(Flowthru.Core.Effects.FlowUnit,Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="78" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="op_LessThan" signature="(Flowthru.Core.Effects.FlowUnit,Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="86" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="op_LessThanOrEqual" signature="(Flowthru.Core.Effects.FlowUnit,Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="94" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="op_GreaterThan" signature="(Flowthru.Core.Effects.FlowUnit,Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="102" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="op_GreaterThanOrEqual" signature="(Flowthru.Core.Effects.FlowUnit,Flowthru.Core.Effects.FlowUnit)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="110" hits="0" branch="False" />
+                <line number="63" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="29" hits="0" branch="False" />
+                <line number="31" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="36" hits="0" branch="False" />
-            <line number="43" hits="0" branch="False" />
-            <line number="49" hits="0" branch="False" />
-            <line number="55" hits="0" branch="False" />
-            <line number="62" hits="0" branch="False" />
-            <line number="70" hits="0" branch="False" />
-            <line number="78" hits="0" branch="False" />
-            <line number="86" hits="0" branch="False" />
-            <line number="94" hits="0" branch="False" />
-            <line number="102" hits="0" branch="False" />
-            <line number="110" hits="0" branch="False" />
-            <line number="29" hits="0" branch="False" />
+            <line number="63" hits="0" branch="False" />
+            <line number="31" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.IEffect`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Effects/IEffect.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Effects.IEffect`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Effects/IEffect.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="Flowthru.Core.Graph.INode&lt;T&gt;.Produce" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -17934,33 +17862,7 @@
             <line number="42" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.ConfigSectionAttribute" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/ConfigSectionAttribute.cs" line-rate="0" branch-rate="0" complexity="2">
-          <methods>
-            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
-              <lines>
-                <line number="20" hits="0" branch="False" />
-                <line number="21" hits="0" branch="False" />
-                <line number="22" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="11" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="23" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="20" hits="0" branch="False" />
-            <line number="21" hits="0" branch="False" />
-            <line number="22" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="11" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="23" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.CatalogAbstract" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/DataCatalogBase.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.CatalogAbstract" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/DataCatalogBase.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="CreateItem" signature="(System.Func`1&lt;Flowthru.Core.Data.IItem`1&lt;T&gt;&gt;,System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -18092,7 +17994,7 @@
             <line number="76" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.ItemFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/DataFactory.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.ItemFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/DataFactory.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="Null" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -18116,7 +18018,7 @@
             <line number="69" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.ItemFactory/Single" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/ItemFactory.Single.cs" line-rate="0" branch-rate="1" complexity="6">
+        <class name="Flowthru.Core.Data.ItemFactory/Single" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/ItemFactory.Single.cs" line-rate="0" branch-rate="1" complexity="6">
           <methods>
             <method name="Json" signature="(System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -18194,7 +18096,7 @@
             <line number="178" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.EnumerableItemFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/EnumerableItemFactory.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Data.EnumerableItemFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/EnumerableItemFactory.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="Json" signature="(System.String,System.String,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -18256,87 +18158,63 @@
             <line number="42" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.IItem" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Data.IItem" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
-            <method name="get_OwningCatalogLabel" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="37" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Flowthru.Core.Graph.INode.get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="88" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Flowthru.Core.Graph.INode.ProduceUntyped" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="91" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Flowthru.Core.Graph.INode.ConsumeUntyped" signature="(System.Object)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="94" hits="0" branch="False" />
-              </lines>
-            </method>
             <method name="Flowthru.Core.Graph.INode.Validate" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
-                <line number="101" hits="0" branch="False" />
-                <line number="102" hits="0" branch="False" />
-                <line number="103" hits="0" branch="True" condition-coverage="0% (0/4)">
+                <line number="113" hits="0" branch="False" />
+                <line number="114" hits="0" branch="False" />
+                <line number="115" hits="0" branch="True" condition-coverage="0% (0/4)">
                   <conditions>
                     <condition number="22" type="jump" coverage="0%" />
                     <condition number="28" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="104" hits="0" branch="False" />
-                <line number="105" hits="0" branch="False" />
-                <line number="106" hits="0" branch="False" />
-                <line number="107" hits="0" branch="False" />
-                <line number="108" hits="0" branch="False" />
-                <line number="109" hits="0" branch="False" />
+                <line number="116" hits="0" branch="False" />
+                <line number="117" hits="0" branch="False" />
+                <line number="118" hits="0" branch="False" />
+                <line number="119" hits="0" branch="False" />
+                <line number="120" hits="0" branch="False" />
+                <line number="121" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="37" hits="0" branch="False" />
-            <line number="88" hits="0" branch="False" />
-            <line number="91" hits="0" branch="False" />
-            <line number="94" hits="0" branch="False" />
-            <line number="101" hits="0" branch="False" />
-            <line number="102" hits="0" branch="False" />
-            <line number="103" hits="0" branch="True" condition-coverage="0% (0/4)">
+            <line number="113" hits="0" branch="False" />
+            <line number="114" hits="0" branch="False" />
+            <line number="115" hits="0" branch="True" condition-coverage="0% (0/4)">
               <conditions>
                 <condition number="22" type="jump" coverage="0%" />
                 <condition number="28" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="104" hits="0" branch="False" />
-            <line number="105" hits="0" branch="False" />
-            <line number="106" hits="0" branch="False" />
-            <line number="107" hits="0" branch="False" />
-            <line number="108" hits="0" branch="False" />
-            <line number="109" hits="0" branch="False" />
+            <line number="116" hits="0" branch="False" />
+            <line number="117" hits="0" branch="False" />
+            <line number="118" hits="0" branch="False" />
+            <line number="119" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="121" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.IItem`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.IItem`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="Flowthru.Core.Graph.INode&lt;T&gt;.Produce" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="145" hits="0" branch="False" />
+                <line number="157" hits="0" branch="False" />
               </lines>
             </method>
             <method name="Flowthru.Core.Graph.INode&lt;T&gt;.Consume" signature="(T)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="148" hits="0" branch="False" />
+                <line number="160" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="145" hits="0" branch="False" />
-            <line number="148" hits="0" branch="False" />
+            <line number="157" hits="0" branch="False" />
+            <line number="160" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Item`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Item.cs" line-rate="0" branch-rate="0" complexity="85">
+        <class name="Flowthru.Core.Data.Item`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Item.cs" line-rate="0" branch-rate="0" complexity="85">
           <methods>
             <method name="get_DataType" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -18884,7 +18762,7 @@
             <line number="71" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Validation.ValidationError" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Validation/ValidationError.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Validation.ValidationError" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Validation/ValidationError.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="ToString" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -18946,7 +18824,7 @@
             <line number="30" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Validation.ValidationException" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Validation/ValidationException.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Core.Data.Validation.ValidationException" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Validation/ValidationException.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="BuildMessage" signature="(Flowthru.Core.Data.Validation.ValidationResult)" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -19066,7 +18944,7 @@
             <line number="21" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Validation.ValidationResult" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Validation/ValidationResult.cs" line-rate="0" branch-rate="0" complexity="18">
+        <class name="Flowthru.Core.Data.Validation.ValidationResult" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Validation/ValidationResult.cs" line-rate="0" branch-rate="0" complexity="18">
           <methods>
             <method name="get_IsValid" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -19260,7 +19138,7 @@
             <line number="32" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -19486,23 +19364,23 @@
             <line number="28" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&lt;InspectDeep&gt;b__8_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&lt;InspectDeep&gt;b__8_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&lt;InspectShallow&gt;b__7_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&lt;InspectShallow&gt;b__7_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="4">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&lt;Load&gt;b__4_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&lt;Load&gt;b__4_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&gt;c__DisplayClass5_0/&lt;&lt;Save&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter/&lt;&gt;c__DisplayClass5_0/&lt;&lt;Save&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="20">
+        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="20">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -19992,15 +19870,15 @@
             <line number="88" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2/&lt;&lt;InspectDeep&gt;b__10_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2/&lt;&lt;InspectDeep&gt;b__10_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="10">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2/&lt;&gt;c__DisplayClass9_0/&lt;&lt;InspectShallow&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="18">
+        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2/&lt;&gt;c__DisplayClass9_0/&lt;&lt;InspectShallow&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="18">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.ConfigurationStorageAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ConfigurationStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="23">
+        <class name="Flowthru.Core.Data.Storage.ConfigurationStorageAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ConfigurationStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="23">
           <methods>
             <method name="Load" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20256,7 +20134,7 @@
             <line number="57" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.IStorageMedium" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/IStorageMedium.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.IStorageMedium" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/IStorageMedium.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="InspectTarget" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20268,7 +20146,7 @@
             <line number="135" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.LocalFileWriteProbe/&lt;ProbeAsync&gt;d__0" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/LocalFileWriteProbe.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.LocalFileWriteProbe/&lt;ProbeAsync&gt;d__0" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/LocalFileWriteProbe.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -20408,7 +20286,7 @@
             <line number="104" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.MemoryStorageAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/MemoryStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="13">
+        <class name="Flowthru.Core.Data.Storage.MemoryStorageAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/MemoryStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="13">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20580,7 +20458,7 @@
             <line number="69" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.NullStorageAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/NullStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.NullStorageAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/NullStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20666,7 +20544,7 @@
             <line number="57" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.PropertyMappingConfiguration" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/PropertyMappingConfiguration.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.PropertyMappingConfiguration" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/PropertyMappingConfiguration.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="FromSerializedLabel" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20794,7 +20672,7 @@
             <line number="40" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="19">
+        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="19">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -21098,19 +20976,19 @@
             <line number="66" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1/&lt;&lt;InspectDeep&gt;b__10_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1/&lt;&lt;InspectDeep&gt;b__10_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="6">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1/&lt;&lt;Load&gt;b__6_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1/&lt;&lt;Load&gt;b__6_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="4">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1/&lt;&gt;c__DisplayClass9_0/&lt;&lt;InspectShallow&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1/&lt;&gt;c__DisplayClass9_0/&lt;&lt;InspectShallow&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="6">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.SchemaActivator" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SchemaActivator.cs" line-rate="0" branch-rate="0" complexity="19">
+        <class name="Flowthru.Core.Data.Storage.SchemaActivator" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SchemaActivator.cs" line-rate="0" branch-rate="0" complexity="19">
           <methods>
             <method name="CreateInstance" signature="()" line-rate="0" branch-rate="0" complexity="8">
               <lines>
@@ -21304,7 +21182,7 @@
             <line number="64" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -21602,19 +21480,19 @@
             <line number="79" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1/&lt;&lt;InspectShallow&gt;b__9_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1/&lt;&lt;InspectShallow&gt;b__9_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="6">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1/&lt;&lt;Load&gt;b__6_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1/&lt;&lt;Load&gt;b__6_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="8">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1/&lt;&gt;c__DisplayClass7_0/&lt;&lt;Save&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="12">
+        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1/&lt;&gt;c__DisplayClass7_0/&lt;&lt;Save&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="12">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.StorageMediumResolver" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/StorageMediumResolver.cs" line-rate="0" branch-rate="0" complexity="13">
+        <class name="Flowthru.Core.Data.Storage.StorageMediumResolver" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/StorageMediumResolver.cs" line-rate="0" branch-rate="0" complexity="13">
           <methods>
             <method name="Register" signature="(Flowthru.Core.Data.Storage.IStorageMediumProvider)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -21716,7 +21594,7 @@
             <line number="50" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -21942,23 +21820,23 @@
             <line number="28" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&lt;InspectDeep&gt;b__8_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&lt;InspectDeep&gt;b__8_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&lt;InspectShallow&gt;b__7_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&lt;InspectShallow&gt;b__7_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="4">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&lt;Load&gt;b__4_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&lt;Load&gt;b__4_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&gt;c__DisplayClass5_0/&lt;&lt;Save&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter/&lt;&gt;c__DisplayClass5_0/&lt;&lt;Save&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.DatabaseStorageEntryFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Strategies/DatabaseStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.Strategies.DatabaseStorageEntryFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Strategies/DatabaseStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="CreateEnumerable" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -22062,7 +21940,7 @@
             <line number="73" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.MemoryStorageEntryFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Strategies/MemoryStorageEntryFactory.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.Strategies.MemoryStorageEntryFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Strategies/MemoryStorageEntryFactory.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="CreateEnumerable" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -22088,7 +21966,7 @@
             <line number="47" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.StorageOptions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Strategies/StorageOptions.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.Strategies.StorageOptions" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Strategies/StorageOptions.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="WithPath" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -22100,7 +21978,7 @@
             <line number="37" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="get_FilePath" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -22334,15 +22212,15 @@
             <line number="67" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium/&lt;&lt;ReadStream&gt;b__6_0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium/&lt;&lt;ReadStream&gt;b__6_0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium/&lt;&gt;c__DisplayClass7_0/&lt;&lt;WriteStream&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="1" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium/&lt;&gt;c__DisplayClass7_0/&lt;&lt;WriteStream&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="1" branch-rate="0" complexity="8">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.Medium.MemoryStorageMedium" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/MemoryStorageMedium.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Core.Data.Storage.Medium.MemoryStorageMedium" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/MemoryStorageMedium.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -22538,11 +22416,11 @@
             <line number="80" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Medium.MemoryStorageMedium/&lt;&gt;c__DisplayClass7_0/&lt;&lt;WriteStream&gt;b__0&gt;d" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/MemoryStorageMedium.cs" line-rate="1" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.Medium.MemoryStorageMedium/&lt;&gt;c__DisplayClass7_0/&lt;&lt;WriteStream&gt;b__0&gt;d" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Medium/MemoryStorageMedium.cs" line-rate="1" branch-rate="0" complexity="2">
           <methods />
           <lines />
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="get_Options" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -22612,7 +22490,7 @@
             <line number="126" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1/&lt;DeserializeRows&gt;d__7" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1/&lt;DeserializeRows&gt;d__7" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -22670,7 +22548,7 @@
             <line number="159" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1/&lt;SerializeRows&gt;d__8" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1/&lt;SerializeRows&gt;d__8" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -22732,7 +22610,7 @@
             <line number="183" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverterFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="23">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverterFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="23">
           <methods>
             <method name="CanConvert" signature="(System.Type)" line-rate="0" branch-rate="0" complexity="22">
               <lines>
@@ -22858,7 +22736,7 @@
             <line number="242" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="29">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="29">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="16">
               <lines>
@@ -23150,7 +23028,7 @@
             <line number="257" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverterFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverterFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="CanConvert" signature="(System.Type)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -23178,7 +23056,7 @@
             <line number="398" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -23290,7 +23168,7 @@
             <line number="413" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/PropertyMappingHelper.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Format/PropertyMappingHelper.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="BuildPropertyMap" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -23384,7 +23262,7 @@
             <line number="115" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -23396,7 +23274,7 @@
             <line number="54" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1/&lt;FromRows&gt;d__1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1/&lt;FromRows&gt;d__1" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -23444,7 +23322,7 @@
             <line number="72" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1/&lt;ToRows&gt;d__2" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1/&lt;ToRows&gt;d__2" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -23488,7 +23366,7 @@
             <line number="87" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Cli.ArgumentParser" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Cli/ArgumentParser.cs" line-rate="0" branch-rate="0" complexity="90">
+        <class name="Flowthru.Core.Cli.ArgumentParser" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Cli/ArgumentParser.cs" line-rate="0" branch-rate="0" complexity="90">
           <methods>
             <method name="Parse" signature="(System.String[],System.Collections.Generic.IEnumerable`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="90">
               <lines>
@@ -23874,7 +23752,7 @@
             <line number="161" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Cli.FlowthruCli" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="27">
+        <class name="Flowthru.Core.Cli.FlowthruCli" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="27">
           <methods>
             <method name="ShowHelp" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -24128,7 +24006,7 @@
             <line number="47" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Cli.FlowthruCli/&lt;RunAsync&gt;d__5" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Cli.FlowthruCli/&lt;RunAsync&gt;d__5" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="8">
               <lines>
@@ -24238,7 +24116,7 @@
             <line number="158" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Cli.FlowthruCli/&lt;RunStandaloneAsync&gt;d__4" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Cli.FlowthruCli/&lt;RunStandaloneAsync&gt;d__4" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -24312,7 +24190,7 @@
             <line number="98" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Abstractions.SerializedEnumAttribute" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Abstractions/SerializedEnumAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Abstractions.SerializedEnumAttribute" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Abstractions/SerializedEnumAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="3">
               <lines>
@@ -24362,7 +24240,7 @@
             <line number="108" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Abstractions.SerializedLabelAttribute" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core/Abstractions/SerializedLabelAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Abstractions.SerializedLabelAttribute" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Abstractions/SerializedLabelAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="3">
               <lines>
@@ -24410,7 +24288,7 @@
     </package>
     <package name="Flowthru.FUnit.SourceGenerators" line-rate="0.2582" branch-rate="0.265" complexity="169">
       <classes>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.9466" branch-rate="0.7333" complexity="33">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.9466" branch-rate="0.7333" complexity="33">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -24684,7 +24562,7 @@
             <line number="49" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__10" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="1" branch-rate="1" complexity="10">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__10" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="1" branch-rate="1" complexity="10">
           <methods>
             <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="10">
               <lines>
@@ -24772,7 +24650,7 @@
             <line number="153" hits="60" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__11" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.8" branch-rate="0.75" complexity="4">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__11" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.8" branch-rate="0.75" complexity="4">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.8" branch-rate="0.75" complexity="4">
               <lines>
@@ -24818,7 +24696,7 @@
             <line number="167" hits="42" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.SourceGenerators/FunitSyntaxHelpers.cs" line-rate="0.606" branch-rate="0.5625" complexity="16">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitSyntaxHelpers.cs" line-rate="0.606" branch-rate="0.5625" complexity="16">
           <methods>
             <method name="IsInsidePreprocessorGuard" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax,System.String)" line-rate="0.606" branch-rate="0.5625" complexity="16">
               <lines>
@@ -24952,7 +24830,7 @@
             <line number="56" hits="12" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0" branch-rate="0" complexity="106">
+        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0" branch-rate="0" complexity="106">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="0" complexity="44">
               <lines>
@@ -25980,7 +25858,7 @@
     </package>
     <package name="Flowthru.Extensions.Parquet" line-rate="0" branch-rate="0" complexity="134">
       <classes>
-        <class name="Flowthru.Core.Data.ParquetItemExtensions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/ParquetItemExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.ParquetItemExtensions" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/ParquetItemExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="Parquet" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,Flowthru.Core.Data.ParquetItemOptions`1&lt;TRow&gt;,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -26024,7 +25902,7 @@
             <line number="67" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.ParquetItemOptions`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/ParquetItemOptions.cs" line-rate="0" branch-rate="1" complexity="4">
+        <class name="Flowthru.Core.Data.ParquetItemOptions`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/ParquetItemOptions.cs" line-rate="0" branch-rate="1" complexity="4">
           <methods>
             <method name="ToWriteOptions" signature="(System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -26112,7 +25990,7 @@
             <line number="140" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="4">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -26150,7 +26028,7 @@
             <line number="61" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer`1/&lt;DeserializeRows&gt;d__5" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer`1/&lt;DeserializeRows&gt;d__5" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -26216,7 +26094,7 @@
             <line number="97" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer`1/&lt;SerializeRows&gt;d__6" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetFormatSerializer`1/&lt;SerializeRows&gt;d__6" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -26254,7 +26132,7 @@
             <line number="110" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="98">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="98">
           <methods>
             <method name="ToDto" signature="(TRow)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -27150,7 +27028,7 @@
             <line number="183" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;DeserializeFromParquet&gt;d__13" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;DeserializeFromParquet&gt;d__13" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -27172,7 +27050,7 @@
             <line number="278" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;DeserializeRowGroup&gt;d__14" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;DeserializeRowGroup&gt;d__14" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -27202,7 +27080,7 @@
             <line number="301" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;SerializeBatch&gt;d__12" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;SerializeBatch&gt;d__12" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -27272,7 +27150,7 @@
             <line number="267" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;SerializeToParquetAsync&gt;d__11" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.ParquetAdapter`1/&lt;SerializeToParquetAsync&gt;d__11" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -27348,7 +27226,7 @@
     </package>
     <package name="Flowthru.Extensions.Excel" line-rate="0" branch-rate="0" complexity="35">
       <classes>
-        <class name="Flowthru.Core.Data.ExcelItemExtensions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/ExcelItemExtensions.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.ExcelItemExtensions" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/ExcelItemExtensions.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="Excel" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -27372,7 +27250,7 @@
             <line number="56" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="4">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -27416,7 +27294,7 @@
             <line number="34" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1/&lt;DeserializeRows&gt;d__4" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="30">
+        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1/&lt;DeserializeRows&gt;d__4" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="30">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="30">
               <lines>
@@ -27668,7 +27546,7 @@
     </package>
     <package name="Flowthru.Core.SourceGenerators" line-rate="0" branch-rate="0" complexity="387">
       <classes>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="0" complexity="50">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="0" complexity="50">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -28160,7 +28038,7 @@
             <line number="55" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigCatalogInfo" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigCatalogInfo" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.Boolean,System.Collections.Immutable.ImmutableArray`1&lt;Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo&gt;,Microsoft.CodeAnalysis.Location)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -28174,7 +28052,7 @@
             <line number="270" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.String,Microsoft.CodeAnalysis.Location,System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -28188,7 +28066,7 @@
             <line number="294" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.FlowBuilderGenerator" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs" line-rate="0" branch-rate="0" complexity="53">
+        <class name="Flowthru.Core.SourceGenerators.FlowBuilderGenerator" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs" line-rate="0" branch-rate="0" complexity="53">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -28838,7 +28716,7 @@
             <line number="293" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.FlowthruRegistrationAnalyzer" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/FlowthruRegistrationAnalyzer.cs" line-rate="0" branch-rate="0" complexity="97">
+        <class name="Flowthru.Core.SourceGenerators.FlowthruRegistrationAnalyzer" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/FlowthruRegistrationAnalyzer.cs" line-rate="0" branch-rate="0" complexity="97">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -29652,7 +29530,7 @@
             <line number="51" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.FlowthruSchemaAnalyzer" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/FlowthruSchemaAnalyzer.cs" line-rate="0" branch-rate="0" complexity="47">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.FlowthruSchemaAnalyzer" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/FlowthruSchemaAnalyzer.cs" line-rate="0" branch-rate="0" complexity="47">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -30020,7 +29898,7 @@
             <line number="32" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGeneratorDiagnostics" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaGeneratorDiagnostics.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGeneratorDiagnostics" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaGeneratorDiagnostics.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -30082,7 +29960,7 @@
             <line number="45" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaInterfaceGenerator" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="0" complexity="55">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaInterfaceGenerator" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="0" complexity="55">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -30712,7 +30590,7 @@
             <line number="325" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGenerationInfo" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGenerationInfo" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.String,System.Boolean,System.Boolean,System.Collections.Immutable.ImmutableArray`1&lt;System.String&gt;,Microsoft.CodeAnalysis.Location,System.Collections.Immutable.ImmutableArray`1&lt;Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -30726,7 +30604,7 @@
             <line number="361" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -30740,7 +30618,7 @@
             <line number="376" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyClassifier" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="0" complexity="78">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyClassifier" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="0" complexity="78">
           <methods>
             <method name="IsFlatPropertyType" signature="(Microsoft.CodeAnalysis.ITypeSymbol)" line-rate="0" branch-rate="0" complexity="60">
               <lines>
@@ -31030,7 +30908,7 @@
             <line number="175" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaClassification" filename="/Users/spelkington/Repos/@cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaClassification" filename="/Users/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="get_IsNested" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -31054,7 +30932,7 @@
     </package>
     <package name="Flowthru.FUnit.CodeFixes" line-rate="0.9026000000000001" branch-rate="0.5666" complexity="39">
       <classes>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="get_FixableDiagnosticIds" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -31072,7 +30950,7 @@
             <line number="29" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.6666" branch-rate="0.25" complexity="6">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.6666" branch-rate="0.25" complexity="6">
           <methods>
             <method name="&lt;ScaffoldTestsClassAsync&gt;b__4_0" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.UsingDirectiveSyntax)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -31104,7 +30982,7 @@
             <line number="132" hits="36" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;RegisterCodeFixesAsync&gt;b__0" signature="(System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -31116,7 +30994,7 @@
             <line number="57" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
               <lines>
@@ -31198,7 +31076,7 @@
             <line number="62" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;ScaffoldTestsClassAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.9582999999999999" branch-rate="0.7142000000000001" complexity="14">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;ScaffoldTestsClassAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.9582999999999999" branch-rate="0.7142000000000001" complexity="14">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.9582999999999999" branch-rate="0.7142000000000001" complexity="14">
               <lines>
@@ -31346,7 +31224,7 @@
             <line number="138" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="get_FixableDiagnosticIds" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -31364,7 +31242,7 @@
             <line number="27" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;RegisterCodeFixesAsync&gt;b__0" signature="(System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -31376,7 +31254,7 @@
             <line number="55" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
               <lines>
@@ -31458,7 +31336,7 @@
             <line number="60" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;WrapWithGuardAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2ac4ed18a85091087bf5134b85fc880a96de8c73/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;WrapWithGuardAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -31488,7 +31366,7 @@
     </package>
     <package name="Flowthru.Extensions.Csv" line-rate="0" branch-rate="0" complexity="74">
       <classes>
-        <class name="Flowthru.Core.Data.CsvItemExtensions" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/CsvItemExtensions.cs" line-rate="0" branch-rate="0" complexity="7">
+        <class name="Flowthru.Core.Data.CsvItemExtensions" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/CsvItemExtensions.cs" line-rate="0" branch-rate="0" complexity="7">
           <methods>
             <method name="Csv" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -31542,7 +31420,7 @@
             <line number="89" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -31566,7 +31444,7 @@
             <line number="42" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1/&lt;LoadFile&gt;d__4" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1/&lt;LoadFile&gt;d__4" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -31612,7 +31490,7 @@
             </line>
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1/&lt;ValidateFileAsync&gt;d__5" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1/&lt;ValidateFileAsync&gt;d__5" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -31682,7 +31560,7 @@
             <line number="90" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.CsvStorageEntryFactory" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Strategies/CsvStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.Strategies.CsvStorageEntryFactory" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Strategies/CsvStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="CreateEnumerable" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -31774,7 +31652,7 @@
             <line number="52" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="get_Configuration" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -31830,7 +31708,7 @@
             <line number="106" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1/&lt;DeserializeRows&gt;d__7" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1/&lt;DeserializeRows&gt;d__7" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -31880,7 +31758,7 @@
             <line number="136" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1/&lt;SerializeRows&gt;d__8" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="16">
+        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1/&lt;SerializeRows&gt;d__8" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="16">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="16">
               <lines>
@@ -31980,7 +31858,7 @@
             <line number="173" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelClassMap`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelClassMap`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name=".ctor" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -32040,7 +31918,7 @@
             <line number="209" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumCsvConverter`1" filename="/Users/spelkington/Repos/@cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="5">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumCsvConverter`1" filename="/Users/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="5">
           <methods>
             <method name="ConvertFromString" signature="(System.String,CsvHelper.IReaderRow,CsvHelper.Configuration.MemberMapData)" line-rate="0" branch-rate="0" complexity="2">
               <lines>

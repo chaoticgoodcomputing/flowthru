@@ -18,23 +18,12 @@
         "parallel": false
       }
     },
-    "purge": {
+    "coverage:purge": {
       "//": "Remove all TestResults directories to force a clean test run",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
           "find tests -name TestResults -type d -exec rm -rf {} + 2>/dev/null || true"
-        ],
-        "cwd": "{workspaceRoot}",
-        "parallel": false
-      }
-    },
-    "coverage:purge": {
-      "//": "Remove all coverage artifact files from TestResults directories. Run locally before a full coverage run to ensure fresh results. Do NOT run in CI.",
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          "find tests -name 'coverage.*' -type f -delete 2>/dev/null || true"
         ],
         "cwd": "{workspaceRoot}",
         "parallel": false

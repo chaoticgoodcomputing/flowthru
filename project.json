@@ -24,6 +24,17 @@
         "parallel": false
       }
     },
+    "purge": {
+      "//": "Purge distributable directory.",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "rm -rf dist"
+        ],
+        "cwd": ".",
+        "parallel": false
+      }
+    },
     "format": {
       "//": "Format all C# source files with CSharpier",
       "executor": "nx:run-commands",

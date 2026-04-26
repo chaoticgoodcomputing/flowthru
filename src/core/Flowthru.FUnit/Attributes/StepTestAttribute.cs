@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.FUnit;
 
 /// <summary>
@@ -8,6 +10,9 @@ namespace Flowthru.FUnit;
 /// <param name="stepType">
 /// The step class annotated with <c>[FlowthruStep]</c> that this test exercises.
 /// </param>
+// Coverage: Roslyn-only attribute — constructor is never invoked at runtime.
+// Consumed exclusively by FUnit.SourceGenerators via Roslyn semantic models.
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public sealed class StepTestAttribute(Type stepType) : Attribute
 {

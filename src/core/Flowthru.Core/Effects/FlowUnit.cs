@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Core.Effects;
 
 /// <summary>
@@ -33,6 +35,10 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// </summary>
   /// <param name="other">The <see cref="FlowUnit"/> to compare.</param>
   /// <returns>Always <c>true</c>, as all FlowUnit instances are equal.</returns>
+  // Coverage: Unit-type contract boilerplate — every FlowUnit is identical by definition.
+  // These members exist solely to satisfy IEquatable<T>, IComparable<T>, and operator
+  // contracts. They are structurally trivial and nothing dispatches through them.
+  [ExcludeFromCodeCoverage]
   public bool Equals(FlowUnit other) => true;
 
   /// <summary>
@@ -40,12 +46,14 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// </summary>
   /// <param name="obj">The object to compare.</param>
   /// <returns><c>true</c> if <paramref name="obj"/> is a <see cref="FlowUnit"/>; otherwise, <c>false</c>.</returns>
+  [ExcludeFromCodeCoverage]
   public override bool Equals(object? obj) => obj is FlowUnit;
 
   /// <summary>
   /// Returns the hash code for this instance.
   /// </summary>
   /// <returns>Always returns 0, as all FlowUnit instances are equal.</returns>
+  [ExcludeFromCodeCoverage]
   public override int GetHashCode() => 0;
 
   /// <summary>
@@ -59,6 +67,7 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// </summary>
   /// <param name="other">The <see cref="FlowUnit"/> to compare.</param>
   /// <returns>Always 0, as all FlowUnit instances are equal.</returns>
+  [ExcludeFromCodeCoverage]
   public int CompareTo(FlowUnit other) => 0;
 
   /// <summary>
@@ -67,6 +76,7 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// <param name="left">The first instance to compare.</param>
   /// <param name="right">The second instance to compare.</param>
   /// <returns>Always <c>true</c>.</returns>
+  [ExcludeFromCodeCoverage]
   public static bool operator ==(FlowUnit left, FlowUnit right) => true;
 
   /// <summary>
@@ -75,6 +85,7 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// <param name="left">The first instance to compare.</param>
   /// <param name="right">The second instance to compare.</param>
   /// <returns>Always <c>false</c>.</returns>
+  [ExcludeFromCodeCoverage]
   public static bool operator !=(FlowUnit left, FlowUnit right) => false;
 
   /// <summary>
@@ -83,6 +94,7 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// <param name="left">The first instance to compare.</param>
   /// <param name="right">The second instance to compare.</param>
   /// <returns>Always <c>false</c>.</returns>
+  [ExcludeFromCodeCoverage]
   public static bool operator <(FlowUnit left, FlowUnit right) => false;
 
   /// <summary>
@@ -91,6 +103,7 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// <param name="left">The first instance to compare.</param>
   /// <param name="right">The second instance to compare.</param>
   /// <returns>Always <c>true</c>.</returns>
+  [ExcludeFromCodeCoverage]
   public static bool operator <=(FlowUnit left, FlowUnit right) => true;
 
   /// <summary>
@@ -99,6 +112,7 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// <param name="left">The first instance to compare.</param>
   /// <param name="right">The second instance to compare.</param>
   /// <returns>Always <c>false</c>.</returns>
+  [ExcludeFromCodeCoverage]
   public static bool operator >(FlowUnit left, FlowUnit right) => false;
 
   /// <summary>
@@ -107,5 +121,6 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   /// <param name="left">The first instance to compare.</param>
   /// <param name="right">The second instance to compare.</param>
   /// <returns>Always <c>true</c>.</returns>
+  [ExcludeFromCodeCoverage]
   public static bool operator >=(FlowUnit left, FlowUnit right) => true;
 }

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Core.Data;
 
 /// <summary>
@@ -8,6 +10,9 @@ namespace Flowthru.Core.Data;
 /// The section path uses colon-separated segments following .NET configuration conventions
 /// (e.g. <c>Flowthru:Flows:DataScience:ModelOptions</c>).
 /// </remarks>
+// Coverage: Roslyn-only attribute — constructor is never invoked at runtime.
+// Consumed exclusively by ConfigCatalogGenerator via Roslyn semantic models.
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
 public sealed class ConfigSectionAttribute : Attribute
 {
