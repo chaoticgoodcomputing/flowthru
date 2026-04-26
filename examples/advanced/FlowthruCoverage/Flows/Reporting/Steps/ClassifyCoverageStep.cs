@@ -1,6 +1,10 @@
+using Flowthru.Core.Steps;
 using FlowthruCoverage.Data._01_Raw.Schemas;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 using FlowthruCoverage.Data._04_Reporting.Schemas;
+#if FUNIT_ENABLED
+using Flowthru.FUnit;
+#endif
 
 namespace FlowthruCoverage.Flows.Reporting.Steps;
 
@@ -10,6 +14,7 @@ namespace FlowthruCoverage.Flows.Reporting.Steps;
 /// Rows whose <c>SrcPackage</c> is not a manifest <c>Library</c> entry are excluded entirely.
 /// Returns rows sorted in section → subgroup → package-name order.
 /// </summary>
+[FlowthruStep]
 public static class ClassifyCoverageStep
 {
   public static Func<
@@ -161,4 +166,156 @@ public static class ClassifyCoverageStep
       "Extensions" => 1,
       _ => 2,
     };
+
+#if FUNIT_ENABLED
+  /// <summary>FUnit tests for <see cref="ClassifyCoverageStep"/>.</summary>
+  public class Tests : FunitContext
+  {
+    private static ProjectManifestEntry Manifest(string assemblyName, string projectType, string subgroup) =>
+      new()
+      {
+        AssemblyName = assemblyName,
+        ProjectType = projectType,
+        Subgroup = subgroup,
+      };
+
+    private static PackageCoverageRow Row(string testProject, string srcPackage, double percent) =>
+      new()
+      {
+        TestProject = testProject,
+        SrcPackage = srcPackage,
+        CoveredLines = 1,
+        TotalLines = 1,
+        CoveragePercent = percent,
+      };
+
+    /// <summary>
+    /// Rows whose SrcPackage is not a manifest <c>Library</c> entry are excluded from the real
+    /// rows entirely — they don't fit the Library × LibraryTest grid the heatmap displays.
+    /// </summary>
+    [StepTest(typeof(ClassifyCoverageStep))]
+    public void NonLibrarySrcPackage_IsExcluded()
+    {
+      var rows = new[]
+      {
+        Row("Pkg.Tests", "Pkg", 50.0),
+        Row("Pkg.Tests", "NotALibrary", 50.0),
+      };
+      var manifest = new[]
+      {
+        Manifest("Pkg", "Library", "Core"),
+        Manifest("Pkg.Tests", "LibraryTest", "Core"),
+      };
+
+      var result = Invoke(ClassifyCoverageStep.Create(), (rows, manifest)).ToList();
+
+      var realRows = result.Where(r => !r.IsGhost).ToList();
+      Assert.That(realRows, Has.Count.EqualTo(1));
+      Assert.That(realRows[0].SrcPackage, Is.EqualTo("Pkg"));
+    }
+
+    /// <summary>
+    /// A test project that ran but hit nothing is demoted to ghost rows so the X column
+    /// is grayed out — confirms the all-zero demotion documented in the implementation.
+    /// </summary>
+    [StepTest(typeof(ClassifyCoverageStep))]
+    public void AllZeroTestProject_IsDemotedToGhost()
+    {
+      var rows = new[]
+      {
+        Row("Pkg.Tests", "Pkg", 0.0),
+      };
+      var manifest = new[]
+      {
+        Manifest("Pkg", "Library", "Core"),
+        Manifest("Pkg.Tests", "LibraryTest", "Core"),
+      };
+
+      var result = Invoke(ClassifyCoverageStep.Create(), (rows, manifest)).ToList();
+
+      Assert.That(result.Where(r => !r.IsGhost), Is.Empty);
+      Assert.That(result.Any(r => r.IsGhost && r.TestProject == "Pkg.Tests"), Is.True);
+    }
+
+    /// <summary>
+    /// Section is derived from the test project's manifest entry: <c>LibraryTest</c> →
+    /// "Library Tests", <c>IntegrationTest</c> → "Integration Tests", anything else →
+    /// "Examples". LibraryTest entries must follow the <c>Foo.Tests</c> naming convention —
+    /// the step assumes this when computing pair anchors.
+    /// </summary>
+    [StepTest(typeof(ClassifyCoverageStep))]
+    public void Section_IsDerivedFromTestProjectType()
+    {
+      var rows = new[]
+      {
+        Row("Pkg.Tests", "Pkg", 50.0),
+        Row("IntT", "Pkg", 60.0),
+        Row("Ex", "Pkg", 70.0),
+      };
+      var manifest = new[]
+      {
+        Manifest("Pkg", "Library", "Core"),
+        Manifest("Pkg.Tests", "LibraryTest", "Core"),
+        Manifest("IntT", "IntegrationTest", ""),
+        Manifest("Ex", "Example", ""),
+      };
+
+      var result = Invoke(ClassifyCoverageStep.Create(), (rows, manifest))
+        .Where(r => !r.IsGhost)
+        .ToDictionary(r => r.TestProject, r => r.Section);
+
+      Assert.That(result["Pkg.Tests"], Is.EqualTo("Library Tests"));
+      Assert.That(result["IntT"], Is.EqualTo("Integration Tests"));
+      Assert.That(result["Ex"], Is.EqualTo("Examples"));
+    }
+
+    /// <summary>
+    /// A library with no Cobertura data still appears as a ghost Y-row anchor — the heatmap
+    /// needs to know the package exists in the manifest even when nothing measured it.
+    /// </summary>
+    [StepTest(typeof(ClassifyCoverageStep))]
+    public void LibraryWithNoCoverageData_GetsGhostAnchor()
+    {
+      var rows = new[] { Row("PkgA.Tests", "PkgA", 50.0) };
+      var manifest = new[]
+      {
+        Manifest("PkgA", "Library", "Core"),
+        Manifest("PkgA.Tests", "LibraryTest", "Core"),
+        Manifest("PkgB", "Library", "Core"),
+        Manifest("PkgB.Tests", "LibraryTest", "Core"),
+      };
+
+      var result = Invoke(ClassifyCoverageStep.Create(), (rows, manifest)).ToList();
+
+      Assert.That(result.Any(r => r.IsGhost && r.SrcPackage == "PkgB"), Is.True);
+    }
+
+    /// <summary>
+    /// Output is sorted by Section → Subgroup → TestProject (with .Tests suffix stripped) →
+    /// SrcPackage. Verifies the deterministic ordering the downstream pivot relies on.
+    /// </summary>
+    [StepTest(typeof(ClassifyCoverageStep))]
+    public void Output_IsSortedBySectionThenSubgroupThenProject()
+    {
+      var rows = new[]
+      {
+        Row("Ext.Tests", "Ext", 50.0),
+        Row("Core.Tests", "Core", 50.0),
+      };
+      var manifest = new[]
+      {
+        Manifest("Core", "Library", "Core"),
+        Manifest("Core.Tests", "LibraryTest", "Core"),
+        Manifest("Ext", "Library", "Extensions"),
+        Manifest("Ext.Tests", "LibraryTest", "Extensions"),
+      };
+
+      var realResult = Invoke(ClassifyCoverageStep.Create(), (rows, manifest))
+        .Where(r => !r.IsGhost)
+        .ToList();
+
+      Assert.That(realResult.Select(r => r.Subgroup), Is.EqualTo(new[] { "Core", "Extensions" }));
+    }
+  }
+#endif
 }
