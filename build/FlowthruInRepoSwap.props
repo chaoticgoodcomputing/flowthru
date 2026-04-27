@@ -7,25 +7,28 @@
             Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
   When the import fires (in-repo), it scans the project's existing
-  <PackageReference Include="Flowthru*" /> items, removes any whose corresponding
-  in-repo csproj exists, and adds equivalent <ProjectReference> items so the build
-  picks up the live source instead of the published NuGet package.
+  <PackageReference Include="Flowthru*" /> items and, for each that has an
+  in-repo csproj on disk, removes the PackageReference and adds an equivalent
+  ProjectReference so the build picks up the live source instead of the
+  published NuGet package.
 
   When the import is skipped (template-instantiated outside the repo, or genuine
   end-user NuGet consumption), the csproj's PackageReferences resolve normally.
 
-  This is the dual-mode mechanism that the previous Directory.Build.targets used
-  to apply globally; this version applies per-csproj via opt-in Import, so each
-  example explicitly declares "I expect the in-repo dual-mode swap" instead of
-  inheriting it implicitly.
+  IMPORTANT: All work happens in evaluation-time ItemGroups (NOT in a Target).
+  Static project-graph analyzers — @nx/dotnet, MSBuild's ProjectGraph, IDEs —
+  read items at evaluation time, so they MUST see the resolved ProjectReferences
+  to build the dependency graph correctly. If the swap happened in a Target,
+  the resulting ProjectReferences would be invisible to those analyzers and
+  dependent csprojs (like src/core/Flowthru) would never be scheduled for
+  build before the consuming project tries to compile.
 
-  Supported reference identities (matched by exact Identity or family prefix):
-
-    Flowthru                      → src/core/Flowthru/Flowthru.csproj
-    Flowthru.Core                 → src/core/Flowthru.Core/Flowthru.Core.csproj
-    Flowthru.FUnit                → src/core/Flowthru.FUnit/Flowthru.FUnit.csproj
-    Flowthru.Extensions.<Name>    → src/extensions/Flowthru.Extensions.<Name>/...
-    Flowthru.Misc.<Name>          → src/misc/Flowthru.Misc.<Name>/...
+  Implementation note: PackageReference has a strict attribute schema and
+  evaluation-time ItemGroup conditions can't reference custom metadata across
+  item types, so we can't do dynamic family-prefix matching here. Instead,
+  every known Flowthru package is enumerated explicitly. Adding a new package
+  to the framework is a two-line change (one Remove + one ProjectReference);
+  the structure is stable and the static analyzer's view is exact.
 -->
 <Project>
 
@@ -36,40 +39,89 @@
     <FlowthruInRepoSwapImported>true</FlowthruInRepoSwapImported>
   </PropertyGroup>
 
-  <Target Name="_SwapFlowthruPackageReferences"
-          BeforeTargets="CollectPackageReferences;ResolveProjectReferences"
-          Condition="'@(PackageReference)' != ''">
+  <!-- Each block below: if the in-repo csproj exists AND the project declares a
+       matching PackageReference, swap the PackageRef for a ProjectRef. The
+       @(PackageReference->WithMetadataValue('Identity', 'X')) form is allowed in
+       evaluation-time conditions because it produces an item-list string rather
+       than a per-item metadata reference. -->
 
-    <!-- Step 1: Filter to Flowthru-family PackageReferences and compute their
-         in-repo csproj path. -->
-    <ItemGroup>
-      <_FlowthruPackageRef Include="@(PackageReference)"
-                           Condition="$([System.String]::Copy('%(Identity)').StartsWith('Flowthru'))" />
+  <!-- Flowthru (umbrella) -->
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru'))' != '' AND Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
+    <PackageReference Remove="Flowthru" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
+  </ItemGroup>
 
-      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/core/Flowthru/Flowthru.csproj"
-                           Condition="'%(Identity)' == 'Flowthru'" />
-      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj"
-                           Condition="'%(Identity)' == 'Flowthru.Core'" />
-      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj"
-                           Condition="'%(Identity)' == 'Flowthru.FUnit'" />
-      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/extensions/%(Identity)/%(Identity).csproj"
-                           Condition="$([System.String]::Copy('%(Identity)').StartsWith('Flowthru.Extensions.'))" />
-      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/misc/%(Identity)/%(Identity).csproj"
-                           Condition="$([System.String]::Copy('%(Identity)').StartsWith('Flowthru.Misc.'))" />
+  <!-- Flowthru.Core -->
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Core'))' != '' AND Exists('$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj')">
+    <PackageReference Remove="Flowthru.Core" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
 
-      <!-- Mark items whose RepoCsprojPath exists. Only those get swapped. -->
-      <_FlowthruPackageRef ResolutionMode="InRepo"
-                           Condition="'%(_FlowthruPackageRef.RepoCsprojPath)' != '' AND Exists('%(_FlowthruPackageRef.RepoCsprojPath)')" />
-    </ItemGroup>
+  <!-- Flowthru.FUnit -->
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.FUnit'))' != '' AND Exists('$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
+    <PackageReference Remove="Flowthru.FUnit" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
+  </ItemGroup>
 
-    <!-- Step 2: For each "InRepo" item, remove the PackageReference and add a
-         ProjectReference pointing to the in-repo csproj. -->
-    <ItemGroup>
-      <PackageReference Remove="@(_FlowthruPackageRef->WithMetadataValue('ResolutionMode', 'InRepo'))" />
-      <ProjectReference Include="@(_FlowthruPackageRef->WithMetadataValue('ResolutionMode', 'InRepo')->'%(RepoCsprojPath)')" />
-    </ItemGroup>
+  <!-- Extensions -->
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Csv'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Csv" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.EFCore'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.EFCore" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.EFCore.Bulk'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore.Bulk/Flowthru.Extensions.EFCore.Bulk.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.EFCore.Bulk" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore.Bulk/Flowthru.Extensions.EFCore.Bulk.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Excel'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Excel" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.GQL'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.GQL" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Http'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Http" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Metadata.Json'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Metadata.Json" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Metadata.Mermaid'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Metadata.Mermaid" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.MLNet'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.MLNet/Flowthru.Extensions.MLNet.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.MLNet" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.MLNet/Flowthru.Extensions.MLNet.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Parquet'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Parquet" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Python'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Python" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Extensions.Xml'))' != '' AND Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.Xml/Flowthru.Extensions.Xml.csproj')">
+    <PackageReference Remove="Flowthru.Extensions.Xml" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Xml/Flowthru.Extensions.Xml.csproj" />
+  </ItemGroup>
 
-  </Target>
+  <!-- Misc packages -->
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Misc.DataFrames'))' != '' AND Exists('$(RepoRoot)src/misc/Flowthru.Misc.DataFrames/Flowthru.Misc.DataFrames.csproj')">
+    <PackageReference Remove="Flowthru.Misc.DataFrames" />
+    <ProjectReference Include="$(RepoRoot)src/misc/Flowthru.Misc.DataFrames/Flowthru.Misc.DataFrames.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'@(PackageReference->WithMetadataValue('Identity', 'Flowthru.Misc.ML'))' != '' AND Exists('$(RepoRoot)src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj')">
+    <PackageReference Remove="Flowthru.Misc.ML" />
+    <ProjectReference Include="$(RepoRoot)src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj" />
+  </ItemGroup>
 
   <!-- Always import the Flowthru.Core targets in-repo to register source generators
        + code fixes as analyzers. Mirrors NuGet's auto-import of the same file from

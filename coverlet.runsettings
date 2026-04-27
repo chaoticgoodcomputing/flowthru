@@ -6,44 +6,29 @@
         <Configuration>
           <!-- Output formats -->
           <Format>cobertura,json,lcov</Format>
-          
-          <!-- Include patterns: what to measure coverage for -->
-          <!-- [Flowthru]* covers all assemblies: Flowthru, Flowthru.Core,
-               Flowthru.Extensions.*, Flowthru.FUnit, Flowthru.Misc.* -->
-          <Include>
-            [Flowthru*]*
-          </Include>
-          
-          <!-- Exclude patterns: what NOT to measure -->
-          <!-- [FlowthruCoverage]* drops the analysis pipeline assembly itself; it matches
-               [Flowthru*]* but is an example, not a production package. -->
-          <Exclude>
-            [*.Tests]*
-            [*.Tests.*]*
-            [FlowthruCoverage]*
-            [xunit.*]*
-            [NUnit.*]*
-            [Microsoft.*]*
-            [System.*]*
-          </Exclude>
-          
-          <!-- Exclude by attribute -->
-          <ExcludeByAttribute>
-            Obsolete
-            GeneratedCodeAttribute
-            CompilerGeneratedAttribute
-            ExcludeFromCodeCoverageAttribute
-          </ExcludeByAttribute>
-          
-          <!-- Exclude by file pattern -->
-          <ExcludeByFile>
-            **/Migrations/**/*.cs
-            **/obj/**/*.cs
-            **/bin/**/*.cs
-            **/*Designer.cs
-            **/*.g.cs
-            **/*.g.i.cs
-          </ExcludeByFile>
+
+          <!-- Include patterns: what to measure coverage for.
+               [Flowthru*]* covers Flowthru, Flowthru.Core, Flowthru.Extensions.*,
+               Flowthru.FUnit, Flowthru.Misc.*. -->
+          <Include>[Flowthru*]*</Include>
+
+          <!-- Exclude patterns: comma-separated.
+               IMPORTANT: Coverlet's collector parses these by splitting on commas only
+               (CoverletSettingsParser.SplitElement). Multi-line values are read as one
+               mangled string, fail filter validation, and silently drop ALL excludes.
+               Each pattern is one comma-separated entry on a single line — keep it that way.
+               - [*.Tests]* / [*.Tests.*]* drop test projects and helper test infrastructure.
+               - [FlowthruCoverage]* drops this analysis pipeline assembly; it matches
+                 [Flowthru*]* but is an example project, not a production package. -->
+          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
+
+          <!-- Attributes that mark code as out-of-scope. Comma-separated for the same
+               parser reason as <Exclude> above. -->
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+
+          <!-- File patterns to skip — generated code, build outputs, designer files.
+               Comma-separated for the same parser reason as <Exclude> above. -->
+          <ExcludeByFile>**/Migrations/**/*.cs,**/obj/**/*.cs,**/bin/**/*.cs,**/*Designer.cs,**/*.g.cs,**/*.g.i.cs</ExcludeByFile>
           
           <!-- Coverage options -->
           <SingleHit>false</SingleHit>

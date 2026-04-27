@@ -7,48 +7,15 @@
           <!-- Output formats -->
           <Format>cobertura,json,lcov</Format>
 
-          <!-- Include patterns: what to measure coverage for -->
-          <!-- [Flowthru*]* covers all Flowthru-prefixed assemblies -->
-          <Include>
-            [Flowthru*]*
-          </Include>
-
-          <!-- Exclude patterns: what NOT to measure -->
-          <!-- Aligned with the workspace-level coverlet.runsettings to keep
-               example-driven coverage runs honest:
-               - [*.Tests.*]* covers Flowthru.Tests.Helpers and friends
-               - [FlowthruCoverage]* drops the analysis pipeline itself -->
-          <Exclude>
-            [*.Tests]*
-            [*.Tests.*]*
-            [FlowthruCoverage]*
-            [xunit.*]*
-            [NUnit.*]*
-            [Microsoft.*]*
-            [System.*]*
-          </Exclude>
-
-          <!-- Exclude by attribute -->
-          <ExcludeByAttribute>
-            Obsolete
-            GeneratedCodeAttribute
-            CompilerGeneratedAttribute
-            ExcludeFromCodeCoverageAttribute
-          </ExcludeByAttribute>
-
-          <!-- Exclude by file pattern -->
-          <!-- The .g.cs / .g.i.cs patterns are critical for example coverage runs:
-               source-generator output (e.g. Flowthru.Core.Generated.SchemaManifest)
-               lives under dist/intermediates/.../obj/.../*.g.cs and otherwise
-               leaks through as "uncovered production code". -->
-          <ExcludeByFile>
-            **/Migrations/**/*.cs
-            **/obj/**/*.cs
-            **/bin/**/*.cs
-            **/*Designer.cs
-            **/*.g.cs
-            **/*.g.i.cs
-          </ExcludeByFile>
+          <!-- Aligned with the workspace-level coverlet.runsettings.
+               IMPORTANT: Coverlet's collector splits these on commas only — multi-line
+               values are read as one mangled string and silently drop all filters.
+               Each pattern is one comma-separated entry on a single line.
+               See workspace coverlet.runsettings for full rationale. -->
+          <Include>[Flowthru*]*</Include>
+          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+          <ExcludeByFile>**/Migrations/**/*.cs,**/obj/**/*.cs,**/bin/**/*.cs,**/*Designer.cs,**/*.g.cs,**/*.g.i.cs</ExcludeByFile>
 
           <!-- Coverage options -->
           <SingleHit>false</SingleHit>
