@@ -1,15 +1,18 @@
 <!--
-  This file is imported late in the build order.
-  Use it to override properties and define dependent properties.
+  This file is imported late in the build order. Use it to override properties
+  and define dependent properties.
 
-  Note: Per-archetype Flowthru reference injection (PackageReference→ProjectReference
-  swap, Core/FUnit analyzer wiring, FUnit constants) is NOT handled here. Examples
-  declare their dependencies via <FlowthruReference> + Import of the appropriate
-  build/FlowthruExecutable.props or build/FlowthruLibrary.props at the repo root.
+  Per-project Flowthru reference injection (PackageReference→ProjectReference swap,
+  Core/FUnit analyzer wiring, FUnit constants) is NOT handled here for projects
+  that explicitly import build/FlowthruInRepoSwap.props (and optionally
+  build/FlowthruFUnit.props). Those projects own their own swap logic.
 
-  This file retains only repo-wide concerns: path properties, in-repo replacements
-  for the few test projects that haven't yet migrated to <FlowthruReference>, and
-  the central coverage runsettings hook for any IsTestProject.
+  The remaining unmigrated test projects under tests/ that don't import
+  FlowthruInRepoSwap.props (most of tests/core, tests/extensions, tests/misc) use
+  direct <ProjectReference> to Flowthru/Flowthru.Core in their csprojs and rely
+  on the Core/FUnit targets being imported here so that analyzers get registered.
+  This block is migration-scope only — it shrinks as more test projects adopt
+  FlowthruInRepoSwap.props.
 -->
 <Project>
   <PropertyGroup>
@@ -17,41 +20,35 @@
     <NodeModulesRelativePath>$([MSBuild]::MakeRelative($(MSBuildProjectDirectory), $(RepoRoot)))</NodeModulesRelativePath>
   </PropertyGroup>
 
-  <!--
-    Test projects under tests/ that haven't yet migrated to <FlowthruReference> still
-    consume Flowthru via PackageReference (e.g. Flowthru.Tests.Examples, Flowthru.Tests.Helpers).
-    For in-repo builds, swap those PackageReferences for ProjectReferences and import the
-    Core analyzer targets so source generators are registered.
+  <!-- Determine whether this project already imports FlowthruInRepoSwap.props (in
+       which case the analyzer wiring is already handled by that file). We can't
+       inspect imports directly, so we set a marker property in FlowthruInRepoSwap
+       and check for it here. The check is conservative: if the marker is unset
+       (not migrated), we fall back to the legacy global Core/FUnit imports below. -->
 
-    This block is migration-scope only — it should disappear when every project under
-    examples/ and tests/ uses <FlowthruReference>.
-  -->
-  <ItemGroup Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests'))">
-    <PackageReference Remove="Flowthru" />
-    <PackageReference Remove="Flowthru.FUnit" />
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj"
-                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Tests.Helpers'" />
-  </ItemGroup>
-
-  <!-- Import the Flowthru.Core targets to register source generators in tests/ projects.
-       This mirrors how the published build/Flowthru.Core.targets is auto-imported when
-       the project consumes Flowthru.Core via NuGet. -->
+  <!-- Legacy fallback: register Core source generators for unmigrated tests/ projects
+       that still rely on global injection. Once all tests/ projects import
+       FlowthruInRepoSwap.props, this block can go away. -->
   <Import Project="$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets"
-          Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests')) AND Exists('$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets')" />
+          Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests')) AND
+                     '$(FlowthruInRepoSwapImported)' != 'true' AND
+                     Exists('$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets')" />
 
-  <!-- Same for the FUnit targets in tests/ projects with FUnit in the path. Once the
-       remaining FUnit-using test csprojs migrate to importing build/FlowthruFUnit.props,
-       this can go away. -->
   <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
-          Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests')) AND $(MSBuildProjectDirRelativePath.Contains('FUnit')) AND Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
+          Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests')) AND
+                     $(MSBuildProjectDirRelativePath.Contains('FUnit')) AND
+                     '$(FlowthruInRepoSwapImported)' != 'true' AND
+                     Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
 
   <!--
     Central coverage configuration: any project identified as a test project by
     Microsoft.NET.Test.Sdk automatically uses coverlet.runsettings, regardless of
     how dotnet test is invoked (IDE, CLI, or NX target). This removes the need to
-    pass collect and settings flags on every call site.
+    pass collect and settings flags on every call site. Individual test projects
+    can override this by setting their own RunSettingsFilePath in PropertyGroup
+    (e.g., Flowthru.Tests.Examples uses a project-local runsettings file).
   -->
-  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true' AND '$(RunSettingsFilePath)' == ''">
     <RunSettingsFilePath>$(RepoRoot)coverlet.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 

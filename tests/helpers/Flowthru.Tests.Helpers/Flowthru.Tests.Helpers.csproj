@@ -2,9 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -16,22 +15,28 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.12.0" />
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="Microsoft.ML" Version="4.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Flowthru" Version="*" />
-    <!-- Needs direct references to source generator / analyzer assemblies so the CLR loads the
-         instrumented DLL through this project's dependency chain before any test runs, giving
-         coverlet a chance to record hits. -->
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="true" />
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit\Flowthru.FUnit.csproj" />
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="true" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Flowthru references — swapped to ProjectReference in-repo via FlowthruInRepoSwap.props. -->
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
+
+    <!-- Source generator DLLs as REGULAR runtime dependencies (note ReferenceOutputAssembly=true).
+         Tests.Helpers drives CSharpGeneratorDriver against the SGs in-process, so the SG
+         assemblies must be loadable as normal libraries — not analyzer-only references —
+         and coverlet must be able to instrument them through this project's dependency chain
+         to record hits. The Flowthru.Core.targets file (imported transitively by
+         FlowthruInRepoSwap.props) adds these same projects as analyzer references; the
+         analyzer and runtime references coexist for the same csproj. -->
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="true" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="true" />
+  </ItemGroup>
+
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

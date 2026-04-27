@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <!-- Force vstest to pick up the local coverlet.runsettings on every dotnet test
-         invocation. Without this, dotnet test with `no-build` and `no-restore` skips
+         invocation. Without this, dotnet test with no-build and no-restore skips
          runsettings auto-discovery, falling back to defaults that don't honor our
          per-example exclude/file filters (notably [FlowthruCoverage]* and the .g.cs
-         file pattern). -->
+         file pattern). Overrides the repo-wide RunSettingsFilePath set by
+         Directory.Build.targets for IsTestProject. -->
     <RunSettingsFilePath>$(MSBuildProjectDirectory)/coverlet.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
@@ -20,35 +20,35 @@
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Reference to Flowthru framework for coverage -->
-    <PackageReference Include="Flowthru" Version="*" />
-    
-    <!-- Dynamically reference all example projects for coverage collection -->
-    <!-- New examples anywhere under examples/ will be automatically discovered. -->
-    <!-- examples/archived/ is intentionally excluded — archived projects are not built or tested. -->
-    <!-- Library sub-projects (OutputType=Library) are filtered at runtime by ExampleDiscovery -->
-    <!-- using Assembly.EntryPoint — only executable assemblies become test cases. -->
-    <ProjectReference Include="$(RepoRoot)examples\**\*.csproj"
-                      Exclude="$(RepoRoot)examples\archived\**\*.csproj" />
+    <!-- Flowthru framework — swapped to ProjectReference in-repo via FlowthruInRepoSwap.props. -->
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+
+    <!-- Pull in every example project for coverage collection. New examples anywhere
+         under examples/ are automatically discovered. examples/archived/ is excluded —
+         archived projects aren't run by the harness. Library sub-projects (no
+         OutputType=Exe) are filtered at runtime by ExampleDiscovery via
+         Assembly.EntryPoint — only executable assemblies become test cases. -->
+    <ProjectReference Include="$(RepoRoot)examples/**/*.csproj"
+                      Exclude="$(RepoRoot)examples/archived/**/*.csproj" />
   </ItemGroup>
 
   <!--
-    Unified Python environment for test scenarios.
-    Contains all dependencies from KedroSpaceflightsPython and KedroIrisPython.
-    PythonEngine can only initialize once per process, so all Python examples
-    running in the same test host must share this .venv.
+    Unified Python environment for test scenarios. Contains all dependencies from
+    KedroSpaceflightsPython and KedroIrisPython. PythonEngine can only initialize
+    once per process, so all Python examples running in the same test host must
+    share this .venv.
   -->
   <ItemGroup>
     <Content Include="pyproject.toml" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="uv.lock" CopyToOutputDirectory="PreserveNewest" />
     <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

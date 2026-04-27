@@ -30,6 +30,17 @@
         "forwardAllArgs": true
       }
     },
+    "run:all": {
+      "//": "Alias for test:all. Runs every discovered example end-to-end and writes per-example coverage XMLs to TestResults/{Name}/. Useful when you think of the harness as 'running the examples' rather than 'testing them'.",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "build" ],
+      "options": {
+        "commands": [ "bash scripts/run-tests.sh --run-all" ],
+        "cwd": "tests/integration/Flowthru.Tests.Examples",
+        "parallel": false,
+        "forwardAllArgs": true
+      }
+    },
     "test:discovery": {
       "//": "Run only test discovery tests (smoke check for example project wiring)",
       "executor": "nx:run-commands",

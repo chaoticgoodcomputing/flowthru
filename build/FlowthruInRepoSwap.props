@@ -29,6 +29,13 @@
 -->
 <Project>
 
+  <!-- Marker property: Directory.Build.targets reads this to skip its legacy fallback
+       Core/FUnit targets imports for projects that have already opted into
+       FlowthruInRepoSwap. Avoids double-importing the analyzer registration. -->
+  <PropertyGroup>
+    <FlowthruInRepoSwapImported>true</FlowthruInRepoSwapImported>
+  </PropertyGroup>
+
   <Target Name="_SwapFlowthruPackageReferences"
           BeforeTargets="CollectPackageReferences;ResolveProjectReferences"
           Condition="'@(PackageReference)' != ''">
