@@ -15,9 +15,12 @@
           </Include>
           
           <!-- Exclude patterns: what NOT to measure -->
+          <!-- [FlowthruCoverage]* drops the analysis pipeline assembly itself; it matches
+               [Flowthru*]* but is an example, not a production package. -->
           <Exclude>
             [*.Tests]*
             [*.Tests.*]*
+            [FlowthruCoverage]*
             [xunit.*]*
             [NUnit.*]*
             [Microsoft.*]*

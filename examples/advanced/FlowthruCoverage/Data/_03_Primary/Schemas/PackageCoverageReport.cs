@@ -54,6 +54,19 @@ public partial record MethodCoverage
   /// </summary>
   public required string MethodSignature { get; init; }
 
+  /// <summary>
+  /// Source file path (or SourceLink URL) of the file containing this method, taken from the
+  /// underlying Cobertura class entry. Lets coverage triage navigate from a row to the code
+  /// without grepping; null when the underlying class entry has no filename attribute.
+  /// </summary>
+  public required string? SourceFile { get; init; }
+
+  /// <summary>
+  /// Count of instrumented lines belonging to this method — a rough proxy for method size.
+  /// Used during coverage triage to prioritize "big uncovered methods" over trivial getters.
+  /// </summary>
+  public required int LineCount { get; init; }
+
   /// <summary>Total hit count across all test projects combined.</summary>
   public required int TotalHits { get; init; }
 

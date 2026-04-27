@@ -101,32 +101,22 @@ This doesn't mean *ignoring* these concerns — it just means extending the API 
 
 ### Building and Testing
 
-The project uses NX for task orchestration. Common commands:
+The project uses NX for task orchestration. When possible, use `nx run` targets over `dotnet` directives, as the `nx` targets may include prerequisites to target runs.
 
 ```bash
-dotnet build # Confirm solution builds fully
+nx run-many -t build # Confirm solution builds fully
 nx run affected -t test # IMPORTANT: Run all test projects affected by current changes
-dotnet test # Run all tests for the project.
+nx run KedroSpaceflights # Run a specific Flowthru example pipeline
 ```
 
-To run a subset of tests by category:
+`dotnet` can be used to run subsets of tests, or specific tests:
 
 ```bash
 dotnet test --filter "Category=Compilation"
 ```
 
-### Running Example Flows
-
-From an example project directory:
-
-```bash
-cd examples/starter/KedroIris
-dotnet run                        # Run all registered flows
-dotnet run --pipelines DataEngineering     # Run a specific flow
-```
-
 ### Code Style
 
-- Format C# code with CSharpier before committing
+- Allow CSharpier to handle formatting.
 - Follow existing patterns in the codebase for new features
-- Add XML documentation comments to public APIs
+- Add XML documentation comments to public APIs. For writing conventions, please read `docs/CONTRIBUTING.md`.

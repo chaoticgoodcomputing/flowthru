@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Core.Data;
 
 /// <summary>
@@ -27,5 +29,8 @@ namespace Flowthru.Core.Data;
 /// </code>
 /// </para>
 /// </remarks>
+// Coverage: Roslyn-only attribute — constructor never fires at runtime.
+// Consumed exclusively by ConfigCatalogGenerator via Roslyn semantic models.
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class FlowthruConfigAttribute : Attribute { }

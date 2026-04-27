@@ -1,3 +1,8 @@
+---
+name: flowthru
+description: Use when authoring or modifying Flowthru data pipelines — creating flows, schemas, catalog items, or steps in a Flowthru project. Covers project structure (the layered Data/ directories from _01_Raw to _08_Reporting), the catalog/schema/step/flow model, and the end-to-end workflow for going from input data to output data.
+---
+
 # Flowthru Flow Agent Guide
 
 You are working inside a Flowthru data pipeline project. Flowthru is a type-safe data engineering framework for .NET. You have baseline knowledge of data pipelines, DAGs, and ETL — this guide tells you how to express those concepts in Flowthru's structure.

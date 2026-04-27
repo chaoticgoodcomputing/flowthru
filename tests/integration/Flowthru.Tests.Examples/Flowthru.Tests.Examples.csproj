@@ -6,6 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <!-- Force vstest to pick up the local coverlet.runsettings on every dotnet test
+         invocation. Without this, dotnet test with `no-build` and `no-restore` skips
+         runsettings auto-discovery, falling back to defaults that don't honor our
+         per-example exclude/file filters (notably [FlowthruCoverage]* and the .g.cs
+         file pattern). -->
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)/coverlet.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
   <ItemGroup>

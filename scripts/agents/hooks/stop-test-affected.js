@@ -66,32 +66,6 @@ function extractFailureBlocks(lines) {
   return resultLines.join('\n').trim();
 }
 
-/**
- * Read the timeout (in seconds) for this script from hooks.json.
- * Searches every event array for an entry whose `command` contains scriptBasename.
- * Returns null if the file is missing or no matching entry is found.
- */
-function readHookTimeout(hooksJsonPath, scriptBasename) {
-  try {
-    const config = JSON.parse(fs.readFileSync(hooksJsonPath, 'utf-8'));
-    for (const entries of Object.values(config.hooks || {})) {
-      if (!Array.isArray(entries)) continue;
-      for (const entry of entries) {
-        if (
-          typeof entry.command === 'string' &&
-          entry.command.includes(scriptBasename) &&
-          entry.timeout != null
-        ) {
-          return Number(entry.timeout);
-        }
-      }
-    }
-  } catch (_) {
-    // File unreadable or JSON invalid — fall back to default budget.
-  }
-  return null;
-}
-
 // ---------------------------------------------------------------------------
 // Bootstrap
 // ---------------------------------------------------------------------------
@@ -111,13 +85,13 @@ if (hookInput.stop_hook_active) {
 }
 
 const repoRoot = path.resolve(__dirname, '../../..');
-const scriptBasename = path.basename(__filename);
-const hooksJsonPath = path.resolve(__dirname, '../hooks.json');
 
 // Budget = hook timeout minus a safety buffer so we always return before the
-// host hard-kills the process. Falls back to 5 minutes if hooks.json is missing.
+// host hard-kills the process. Each tool's hook config (Copilot's hooks.json,
+// Claude's settings.json) passes HOOK_TIMEOUT_SEC inline; falls back to 5min
+// if absent.
 const TIMEOUT_BUFFER_MS = 20_000;
-const hookTimeoutSec = readHookTimeout(hooksJsonPath, scriptBasename);
+const hookTimeoutSec = Number(process.env.HOOK_TIMEOUT_SEC) || null;
 const budgetMs =
   hookTimeoutSec != null
     ? hookTimeoutSec * 1000 - TIMEOUT_BUFFER_MS

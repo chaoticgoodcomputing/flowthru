@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0248" branch-rate="0.025699999999999997" version="1.9" timestamp="1777161453" lines-covered="241" lines-valid="9710" branches-covered="67" branches-valid="2605">
+<coverage line-rate="0.0248" branch-rate="0.025699999999999997" version="1.9" timestamp="1777240623" lines-covered="241" lines-valid="9710" branches-covered="67" branches-valid="2605">
   <sources>
     <source></source>
   </sources>
@@ -2584,7 +2584,7 @@
     </package>
     <package name="Flowthru.Tests.Helpers" line-rate="0.085" branch-rate="0.25" complexity="43">
       <classes>
-        <class name="Flowthru.Tests.Helpers.CapturingMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/CapturingMetadataProvider.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Tests.Helpers.CapturingMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/CapturingMetadataProvider.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="get_Name" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2616,7 +2616,7 @@
             <line number="37" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.CompilationTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/CompilationTestHelper.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Tests.Helpers.CompilationTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/CompilationTestHelper.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="Compile" signature="(System.String,System.Boolean,System.Type[])" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -2860,7 +2860,7 @@
             <line number="150" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitGeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Tests.Helpers.FUnitGeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="RunFUnitGenerator" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2980,7 +2980,7 @@
             <line number="90" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptionsProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptionsProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="GetOptions" signature="(Microsoft.CodeAnalysis.SyntaxTree)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3010,7 +3010,7 @@
             <line number="105" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="TryGetValue" signature="(System.String,System.String&amp;)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3050,7 +3050,7 @@
             <line number="112" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.GeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Tests.Helpers.GeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="RunSchemaGenerator" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3158,7 +3158,7 @@
             <line number="81" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.GeneratorTestResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Tests.Helpers.GeneratorTestResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="GetGeneratedSource" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3182,7 +3182,7 @@
             <line number="120" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.NUnit4Verifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/NUnit4Verifier.cs" line-rate="0.7241" branch-rate="0.75" complexity="17">
+        <class name="Flowthru.Tests.Helpers.NUnit4Verifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/NUnit4Verifier.cs" line-rate="0.7241" branch-rate="0.75" complexity="17">
           <methods>
             <method name="Msg" signature="(System.String)" line-rate="1" branch-rate="1" complexity="4">
               <lines>
@@ -24288,7 +24288,7 @@
     </package>
     <package name="Flowthru.FUnit.SourceGenerators" line-rate="0.2582" branch-rate="0.265" complexity="169">
       <classes>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.9466" branch-rate="0.7333" complexity="33">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.9466" branch-rate="0.7333" complexity="33">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -24562,7 +24562,7 @@
             <line number="49" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__10" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="1" branch-rate="1" complexity="10">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__10" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="1" branch-rate="1" complexity="10">
           <methods>
             <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="10">
               <lines>
@@ -24650,7 +24650,7 @@
             <line number="153" hits="60" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__11" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.8" branch-rate="0.75" complexity="4">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitDiagnosticAnalyzer/&lt;GetAllTypes&gt;d__11" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.SourceGenerators/FunitDiagnosticAnalyzer.cs" line-rate="0.8" branch-rate="0.75" complexity="4">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.8" branch-rate="0.75" complexity="4">
               <lines>
@@ -24696,7 +24696,7 @@
             <line number="167" hits="42" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FunitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/FunitSyntaxHelpers.cs" line-rate="0.606" branch-rate="0.5625" complexity="16">
+        <class name="Flowthru.FUnit.SourceGenerators.FunitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.SourceGenerators/FunitSyntaxHelpers.cs" line-rate="0.606" branch-rate="0.5625" complexity="16">
           <methods>
             <method name="IsInsidePreprocessorGuard" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax,System.String)" line-rate="0.606" branch-rate="0.5625" complexity="16">
               <lines>
@@ -24830,7 +24830,7 @@
             <line number="56" hits="12" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0" branch-rate="0" complexity="106">
+        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0" branch-rate="0" complexity="106">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="0" complexity="44">
               <lines>
@@ -30932,7 +30932,7 @@
     </package>
     <package name="Flowthru.FUnit.CodeFixes" line-rate="0.9026000000000001" branch-rate="0.5666" complexity="39">
       <classes>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="get_FixableDiagnosticIds" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -30950,7 +30950,7 @@
             <line number="29" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.6666" branch-rate="0.25" complexity="6">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.6666" branch-rate="0.25" complexity="6">
           <methods>
             <method name="&lt;ScaffoldTestsClassAsync&gt;b__4_0" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.UsingDirectiveSyntax)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -30982,7 +30982,7 @@
             <line number="132" hits="36" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;RegisterCodeFixesAsync&gt;b__0" signature="(System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -30994,7 +30994,7 @@
             <line number="57" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
               <lines>
@@ -31076,7 +31076,7 @@
             <line number="62" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;ScaffoldTestsClassAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.9582999999999999" branch-rate="0.7142000000000001" complexity="14">
+        <class name="Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix/&lt;ScaffoldTestsClassAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu001ScaffoldTestsClassFix.cs" line-rate="0.9582999999999999" branch-rate="0.7142000000000001" complexity="14">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.9582999999999999" branch-rate="0.7142000000000001" complexity="14">
               <lines>
@@ -31224,7 +31224,7 @@
             <line number="138" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="get_FixableDiagnosticIds" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -31242,7 +31242,7 @@
             <line number="27" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;RegisterCodeFixesAsync&gt;b__0" signature="(System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -31254,7 +31254,7 @@
             <line number="55" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
               <lines>
@@ -31336,7 +31336,7 @@
             <line number="60" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;WrapWithGuardAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix/&lt;WrapWithGuardAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit.CodeFixes/Fu002WrapWithFunitEnabledFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>

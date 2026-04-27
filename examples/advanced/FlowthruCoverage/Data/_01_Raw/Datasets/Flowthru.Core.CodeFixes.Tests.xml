@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.042800000000000005" branch-rate="0.042" version="1.9" timestamp="1777161486" lines-covered="417" lines-valid="9723" branches-covered="110" branches-valid="2619">
+<coverage line-rate="0.0438" branch-rate="0.042" version="1.9" timestamp="1777240629" lines-covered="427" lines-valid="9747" branches-covered="110" branches-valid="2619">
   <sources>
     <source></source>
   </sources>
@@ -2584,7 +2584,7 @@
     </package>
     <package name="Flowthru.Tests.Helpers" line-rate="0.085" branch-rate="0.25" complexity="43">
       <classes>
-        <class name="Flowthru.Tests.Helpers.CapturingMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/CapturingMetadataProvider.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Tests.Helpers.CapturingMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/CapturingMetadataProvider.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="get_Name" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2616,7 +2616,7 @@
             <line number="37" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.CompilationTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/CompilationTestHelper.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Tests.Helpers.CompilationTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/CompilationTestHelper.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="Compile" signature="(System.String,System.Boolean,System.Type[])" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -2860,7 +2860,7 @@
             <line number="150" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitGeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Tests.Helpers.FUnitGeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="RunFUnitGenerator" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2980,7 +2980,7 @@
             <line number="90" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptionsProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptionsProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="GetOptions" signature="(Microsoft.CodeAnalysis.SyntaxTree)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3010,7 +3010,7 @@
             <line number="105" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Tests.Helpers.FUnitAnalyzerConfigOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/FUnitGeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="TryGetValue" signature="(System.String,System.String&amp;)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3050,7 +3050,7 @@
             <line number="112" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.GeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Tests.Helpers.GeneratorTestHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="RunSchemaGenerator" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3158,7 +3158,7 @@
             <line number="81" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.GeneratorTestResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Tests.Helpers.GeneratorTestResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/GeneratorTestHelper.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="GetGeneratedSource" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3182,7 +3182,7 @@
             <line number="120" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Tests.Helpers.NUnit4Verifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/tests/helpers/Flowthru.Tests.Helpers/NUnit4Verifier.cs" line-rate="0.7241" branch-rate="0.75" complexity="17">
+        <class name="Flowthru.Tests.Helpers.NUnit4Verifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/tests/helpers/Flowthru.Tests.Helpers/NUnit4Verifier.cs" line-rate="0.7241" branch-rate="0.75" complexity="17">
           <methods>
             <method name="Msg" signature="(System.String)" line-rate="1" branch-rate="1" complexity="4">
               <lines>
@@ -27544,9 +27544,9 @@
         </class>
       </classes>
     </package>
-    <package name="Flowthru.Core.CodeFixes" line-rate="0.8968" branch-rate="0.5" complexity="54">
+    <package name="Flowthru.Core.CodeFixes" line-rate="0.82" branch-rate="0.5" complexity="54">
       <classes>
-        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="get_FixableDiagnosticIds" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -27564,7 +27564,7 @@
             <line number="27" hits="8" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;RegisterCodeFixesAsync&gt;b__0" signature="(System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -27576,16 +27576,18 @@
             <line number="55" hits="8" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix/&lt;AddPartialModifierAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="0.909" branch-rate="0.5" complexity="2">
+        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix/&lt;AddPartialModifierAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="0.8461" branch-rate="0.5" complexity="2">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0.909" branch-rate="0.5" complexity="2">
+            <method name="MoveNext" signature="()" line-rate="0.8461" branch-rate="0.5" complexity="2">
               <lines>
+                <line number="67" hits="8" branch="False" />
                 <line number="68" hits="8" branch="False" />
                 <line number="69" hits="8" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="127" type="jump" coverage="50%" />
+                    <condition number="169" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="70" hits="0" branch="False" />
                 <line number="71" hits="0" branch="False" />
                 <line number="75" hits="8" branch="False" />
                 <line number="76" hits="8" branch="False" />
@@ -27599,12 +27601,14 @@
             </method>
           </methods>
           <lines>
+            <line number="67" hits="8" branch="False" />
             <line number="68" hits="8" branch="False" />
             <line number="69" hits="8" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="127" type="jump" coverage="50%" />
+                <condition number="169" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="70" hits="0" branch="False" />
             <line number="71" hits="0" branch="False" />
             <line number="75" hits="8" branch="False" />
             <line number="76" hits="8" branch="False" />
@@ -27616,24 +27620,26 @@
             <line number="83" hits="8" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="0.9047" branch-rate="0.5" complexity="6">
+        <class name="Flowthru.Core.CodeFixes.Ft1001AddPartialKeywordFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1001AddPartialKeywordFix.cs" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0.9047" branch-rate="0.5" complexity="6">
+            <method name="MoveNext" signature="()" line-rate="0.8332999999999999" branch-rate="0.5" complexity="6">
               <lines>
+                <line number="31" hits="14" branch="False" />
                 <line number="32" hits="14" branch="False" />
                 <line number="33" hits="14" branch="False" />
                 <line number="34" hits="14" branch="False" />
                 <line number="35" hits="14" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="175" type="jump" coverage="50%" />
+                    <condition number="219" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="36" hits="0" branch="False" />
                 <line number="37" hits="0" branch="False" />
                 <line number="40" hits="14" branch="False" />
                 <line number="41" hits="14" branch="False" />
                 <line number="42" hits="14" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="246" type="jump" coverage="50%" />
+                    <condition number="315" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="43" hits="14" branch="False" />
@@ -27641,9 +27647,10 @@
                 <line number="45" hits="14" branch="False" />
                 <line number="47" hits="14" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="284" type="jump" coverage="50%" />
+                    <condition number="360" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="48" hits="0" branch="False" />
                 <line number="49" hits="0" branch="False" />
                 <line number="52" hits="14" branch="False" />
                 <line number="53" hits="14" branch="False" />
@@ -27657,20 +27664,22 @@
             </method>
           </methods>
           <lines>
+            <line number="31" hits="14" branch="False" />
             <line number="32" hits="14" branch="False" />
             <line number="33" hits="14" branch="False" />
             <line number="34" hits="14" branch="False" />
             <line number="35" hits="14" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="175" type="jump" coverage="50%" />
+                <condition number="219" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="36" hits="0" branch="False" />
             <line number="37" hits="0" branch="False" />
             <line number="40" hits="14" branch="False" />
             <line number="41" hits="14" branch="False" />
             <line number="42" hits="14" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="246" type="jump" coverage="50%" />
+                <condition number="315" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="43" hits="14" branch="False" />
@@ -27678,9 +27687,10 @@
             <line number="45" hits="14" branch="False" />
             <line number="47" hits="14" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="284" type="jump" coverage="50%" />
+                <condition number="360" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="48" hits="0" branch="False" />
             <line number="49" hits="0" branch="False" />
             <line number="52" hits="14" branch="False" />
             <line number="53" hits="14" branch="False" />
@@ -27692,7 +27702,7 @@
             <line number="60" hits="14" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="1" branch-rate="1" complexity="3">
+        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="1" branch-rate="1" complexity="3">
           <methods>
             <method name="get_FixableDiagnosticIds" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -27730,45 +27740,49 @@
             <line number="32" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;&gt;c" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="1" branch-rate="0.375" complexity="8">
+        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;&gt;c" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="1" branch-rate="0.375" complexity="8">
           <methods>
             <method name="&lt;RemoveConflictingInterfacesAsync&gt;b__5_0" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.BaseTypeSyntax)" line-rate="1" branch-rate="0.375" complexity="8">
               <lines>
+                <line number="95" hits="4" branch="False" />
                 <line number="96" hits="4" branch="True" condition-coverage="33.33% (2/6)">
                   <conditions>
-                    <condition number="12" type="jump" coverage="50%" />
-                    <condition number="32" type="jump" coverage="50%" />
-                    <condition number="47" type="jump" coverage="0%" />
+                    <condition number="13" type="jump" coverage="50%" />
+                    <condition number="33" type="jump" coverage="50%" />
+                    <condition number="48" type="jump" coverage="0%" />
                   </conditions>
                 </line>
                 <line number="97" hits="4" branch="False" />
                 <line number="98" hits="4" branch="False" />
                 <line number="99" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="73" type="jump" coverage="50%" />
+                    <condition number="74" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="100" hits="4" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
+            <line number="95" hits="4" branch="False" />
             <line number="96" hits="4" branch="True" condition-coverage="33.33% (2/6)">
               <conditions>
-                <condition number="12" type="jump" coverage="50%" />
-                <condition number="32" type="jump" coverage="50%" />
-                <condition number="47" type="jump" coverage="0%" />
+                <condition number="13" type="jump" coverage="50%" />
+                <condition number="33" type="jump" coverage="50%" />
+                <condition number="48" type="jump" coverage="0%" />
               </conditions>
             </line>
             <line number="97" hits="4" branch="False" />
             <line number="98" hits="4" branch="False" />
             <line number="99" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="73" type="jump" coverage="50%" />
+                <condition number="74" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="100" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;&gt;c__DisplayClass4_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;&gt;c__DisplayClass4_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;RegisterCodeFixesAsync&gt;b__0" signature="(System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -27780,24 +27794,26 @@
             <line number="68" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;RegisterCodeFixesAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="0.909" branch-rate="0.5" complexity="8">
+        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;RegisterCodeFixesAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="0.84" branch-rate="0.5" complexity="8">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0.909" branch-rate="0.5" complexity="8">
+            <method name="MoveNext" signature="()" line-rate="0.84" branch-rate="0.5" complexity="8">
               <lines>
+                <line number="43" hits="7" branch="False" />
                 <line number="44" hits="7" branch="False" />
                 <line number="45" hits="7" branch="False" />
                 <line number="46" hits="7" branch="False" />
                 <line number="47" hits="7" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="175" type="jump" coverage="50%" />
+                    <condition number="219" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="48" hits="0" branch="False" />
                 <line number="49" hits="0" branch="False" />
                 <line number="52" hits="7" branch="False" />
                 <line number="53" hits="7" branch="False" />
                 <line number="54" hits="7" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="246" type="jump" coverage="50%" />
+                    <condition number="315" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="55" hits="7" branch="False" />
@@ -27805,10 +27821,11 @@
                 <line number="57" hits="7" branch="False" />
                 <line number="59" hits="7" branch="True" condition-coverage="50% (2/4)">
                   <conditions>
-                    <condition number="285" type="jump" coverage="50%" />
-                    <condition number="296" type="jump" coverage="50%" />
+                    <condition number="354" type="jump" coverage="50%" />
+                    <condition number="372" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="60" hits="0" branch="False" />
                 <line number="61" hits="0" branch="False" />
                 <line number="64" hits="7" branch="False" />
                 <line number="65" hits="7" branch="False" />
@@ -27823,20 +27840,22 @@
             </method>
           </methods>
           <lines>
+            <line number="43" hits="7" branch="False" />
             <line number="44" hits="7" branch="False" />
             <line number="45" hits="7" branch="False" />
             <line number="46" hits="7" branch="False" />
             <line number="47" hits="7" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="175" type="jump" coverage="50%" />
+                <condition number="219" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="48" hits="0" branch="False" />
             <line number="49" hits="0" branch="False" />
             <line number="52" hits="7" branch="False" />
             <line number="53" hits="7" branch="False" />
             <line number="54" hits="7" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="246" type="jump" coverage="50%" />
+                <condition number="315" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="55" hits="7" branch="False" />
@@ -27844,10 +27863,11 @@
             <line number="57" hits="7" branch="False" />
             <line number="59" hits="7" branch="True" condition-coverage="50% (2/4)">
               <conditions>
-                <condition number="285" type="jump" coverage="50%" />
-                <condition number="296" type="jump" coverage="50%" />
+                <condition number="354" type="jump" coverage="50%" />
+                <condition number="372" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="60" hits="0" branch="False" />
             <line number="61" hits="0" branch="False" />
             <line number="64" hits="7" branch="False" />
             <line number="65" hits="7" branch="False" />
@@ -27860,48 +27880,56 @@
             <line number="73" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;RemoveConflictingInterfacesAsync&gt;d__5" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="0.8095" branch-rate="0.6" complexity="10">
+        <class name="Flowthru.Core.CodeFixes.Ft1002RemoveConflictingInterfaceFix/&lt;RemoveConflictingInterfacesAsync&gt;d__5" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft1002RemoveConflictingInterfaceFix.cs" line-rate="0.6896" branch-rate="0.6" complexity="10">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0.8095" branch-rate="0.6" complexity="10">
+            <method name="MoveNext" signature="()" line-rate="0.6896" branch-rate="0.6" complexity="10">
               <lines>
+                <line number="80" hits="4" branch="False" />
                 <line number="81" hits="4" branch="False" />
                 <line number="82" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="127" type="jump" coverage="50%" />
+                    <condition number="169" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="83" hits="0" branch="False" />
                 <line number="84" hits="0" branch="False" />
                 <line number="87" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="152" type="jump" coverage="50%" />
+                    <condition number="202" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="88" hits="0" branch="False" />
                 <line number="89" hits="0" branch="False" />
                 <line number="93" hits="4" branch="False" />
                 <line number="94" hits="4" branch="False" />
-                <line number="95" hits="4" branch="False" />
-                <line number="100" hits="4" branch="False" />
                 <line number="101" hits="4" branch="False" />
                 <line number="103" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="235" type="jump" coverage="50%" />
+                    <condition number="303" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="104" hits="0" branch="False" />
                 <line number="105" hits="0" branch="False" />
                 <line number="108" hits="4" branch="False" />
-                <line number="109" hits="16" branch="True" condition-coverage="100% (2/2)">
+                <line number="109" hits="20" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
-                    <condition number="304" type="jump" coverage="100%" />
+                    <condition number="420" type="jump" coverage="100%" />
                   </conditions>
                 </line>
+                <line number="110" hits="4" branch="False" />
                 <line number="111" hits="4" branch="False" />
+                <line number="112" hits="4" branch="False" />
                 <line number="115" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="333" type="jump" coverage="50%" />
+                    <condition number="465" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="116" hits="4" branch="False" />
                 <line number="117" hits="4" branch="False" />
+                <line number="118" hits="4" branch="False" />
+                <line number="120" hits="0" branch="False" />
                 <line number="121" hits="0" branch="False" />
+                <line number="122" hits="0" branch="False" />
                 <line number="124" hits="4" branch="False" />
                 <line number="125" hits="4" branch="False" />
                 <line number="126" hits="4" branch="False" />
@@ -27909,50 +27937,58 @@
             </method>
           </methods>
           <lines>
+            <line number="80" hits="4" branch="False" />
             <line number="81" hits="4" branch="False" />
             <line number="82" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="127" type="jump" coverage="50%" />
+                <condition number="169" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="83" hits="0" branch="False" />
             <line number="84" hits="0" branch="False" />
             <line number="87" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="152" type="jump" coverage="50%" />
+                <condition number="202" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="88" hits="0" branch="False" />
             <line number="89" hits="0" branch="False" />
             <line number="93" hits="4" branch="False" />
             <line number="94" hits="4" branch="False" />
-            <line number="95" hits="4" branch="False" />
-            <line number="100" hits="4" branch="False" />
             <line number="101" hits="4" branch="False" />
             <line number="103" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="235" type="jump" coverage="50%" />
+                <condition number="303" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="104" hits="0" branch="False" />
             <line number="105" hits="0" branch="False" />
             <line number="108" hits="4" branch="False" />
-            <line number="109" hits="16" branch="True" condition-coverage="100% (2/2)">
+            <line number="109" hits="20" branch="True" condition-coverage="100% (2/2)">
               <conditions>
-                <condition number="304" type="jump" coverage="100%" />
+                <condition number="420" type="jump" coverage="100%" />
               </conditions>
             </line>
+            <line number="110" hits="4" branch="False" />
             <line number="111" hits="4" branch="False" />
+            <line number="112" hits="4" branch="False" />
             <line number="115" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="333" type="jump" coverage="50%" />
+                <condition number="465" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="116" hits="4" branch="False" />
             <line number="117" hits="4" branch="False" />
+            <line number="118" hits="4" branch="False" />
+            <line number="120" hits="0" branch="False" />
             <line number="121" hits="0" branch="False" />
+            <line number="122" hits="0" branch="False" />
             <line number="124" hits="4" branch="False" />
             <line number="125" hits="4" branch="False" />
             <line number="126" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="get_FixableDiagnosticIds" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -27970,7 +28006,7 @@
             <line number="26" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix/&lt;&gt;c__DisplayClass3_0" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;RegisterCodeFixesAsync&gt;b__0" signature="(System.Threading.CancellationToken)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -27982,25 +28018,27 @@
             <line number="56" hits="4" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="0.909" branch-rate="0.5" complexity="6">
+        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix/&lt;RegisterCodeFixesAsync&gt;d__3" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="0.84" branch-rate="0.5" complexity="6">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0.909" branch-rate="0.5" complexity="6">
+            <method name="MoveNext" signature="()" line-rate="0.84" branch-rate="0.5" complexity="6">
               <lines>
+                <line number="30" hits="7" branch="False" />
                 <line number="31" hits="7" branch="False" />
                 <line number="32" hits="7" branch="False" />
                 <line number="33" hits="7" branch="False" />
                 <line number="34" hits="7" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="175" type="jump" coverage="50%" />
+                    <condition number="219" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="35" hits="0" branch="False" />
                 <line number="36" hits="0" branch="False" />
                 <line number="39" hits="7" branch="False" />
                 <line number="40" hits="7" branch="False" />
                 <line number="43" hits="7" branch="False" />
                 <line number="44" hits="7" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="246" type="jump" coverage="50%" />
+                    <condition number="323" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="45" hits="7" branch="False" />
@@ -28008,9 +28046,10 @@
                 <line number="47" hits="7" branch="False" />
                 <line number="48" hits="7" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="284" type="jump" coverage="50%" />
+                    <condition number="368" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="49" hits="0" branch="False" />
                 <line number="50" hits="0" branch="False" />
                 <line number="53" hits="7" branch="False" />
                 <line number="54" hits="7" branch="False" />
@@ -28024,21 +28063,23 @@
             </method>
           </methods>
           <lines>
+            <line number="30" hits="7" branch="False" />
             <line number="31" hits="7" branch="False" />
             <line number="32" hits="7" branch="False" />
             <line number="33" hits="7" branch="False" />
             <line number="34" hits="7" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="175" type="jump" coverage="50%" />
+                <condition number="219" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="35" hits="0" branch="False" />
             <line number="36" hits="0" branch="False" />
             <line number="39" hits="7" branch="False" />
             <line number="40" hits="7" branch="False" />
             <line number="43" hits="7" branch="False" />
             <line number="44" hits="7" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="246" type="jump" coverage="50%" />
+                <condition number="323" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="45" hits="7" branch="False" />
@@ -28046,9 +28087,10 @@
             <line number="47" hits="7" branch="False" />
             <line number="48" hits="7" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="284" type="jump" coverage="50%" />
+                <condition number="368" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="49" hits="0" branch="False" />
             <line number="50" hits="0" branch="False" />
             <line number="53" hits="7" branch="False" />
             <line number="54" hits="7" branch="False" />
@@ -28060,23 +28102,26 @@
             <line number="61" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix/&lt;RemoveStatementAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="0.75" branch-rate="0.5" complexity="4">
+        <class name="Flowthru.Core.CodeFixes.Ft2002RemoveUnusedCatalogFix/&lt;RemoveStatementAsync&gt;d__4" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.CodeFixes/Ft2002RemoveUnusedCatalogFix.cs" line-rate="0.6363" branch-rate="0.5" complexity="4">
           <methods>
-            <method name="MoveNext" signature="()" line-rate="0.75" branch-rate="0.5" complexity="4">
+            <method name="MoveNext" signature="()" line-rate="0.6363" branch-rate="0.5" complexity="4">
               <lines>
+                <line number="68" hits="4" branch="False" />
                 <line number="69" hits="4" branch="False" />
                 <line number="70" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="127" type="jump" coverage="50%" />
+                    <condition number="169" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="71" hits="0" branch="False" />
                 <line number="72" hits="0" branch="False" />
                 <line number="75" hits="4" branch="False" />
                 <line number="76" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="153" type="jump" coverage="50%" />
+                    <condition number="218" type="jump" coverage="50%" />
                   </conditions>
                 </line>
+                <line number="77" hits="0" branch="False" />
                 <line number="78" hits="0" branch="False" />
                 <line number="81" hits="4" branch="False" />
                 <line number="82" hits="4" branch="False" />
@@ -28084,19 +28129,22 @@
             </method>
           </methods>
           <lines>
+            <line number="68" hits="4" branch="False" />
             <line number="69" hits="4" branch="False" />
             <line number="70" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="127" type="jump" coverage="50%" />
+                <condition number="169" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="71" hits="0" branch="False" />
             <line number="72" hits="0" branch="False" />
             <line number="75" hits="4" branch="False" />
             <line number="76" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="153" type="jump" coverage="50%" />
+                <condition number="218" type="jump" coverage="50%" />
               </conditions>
             </line>
+            <line number="77" hits="0" branch="False" />
             <line number="78" hits="0" branch="False" />
             <line number="81" hits="4" branch="False" />
             <line number="82" hits="4" branch="False" />
@@ -28106,7 +28154,7 @@
     </package>
     <package name="Flowthru.Core.SourceGenerators" line-rate="0.2852" branch-rate="0.2228" complexity="387">
       <classes>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="0" complexity="50">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="0" complexity="50">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -28598,7 +28646,7 @@
             <line number="55" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigCatalogInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigCatalogInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.Boolean,System.Collections.Immutable.ImmutableArray`1&lt;Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo&gt;,Microsoft.CodeAnalysis.Location)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -28612,7 +28660,7 @@
             <line number="270" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.String,Microsoft.CodeAnalysis.Location,System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -28626,7 +28674,7 @@
             <line number="294" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.FlowBuilderGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs" line-rate="0" branch-rate="0" complexity="53">
+        <class name="Flowthru.Core.SourceGenerators.FlowBuilderGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs" line-rate="0" branch-rate="0" complexity="53">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -29276,7 +29324,7 @@
             <line number="293" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.FlowthruRegistrationAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/FlowthruRegistrationAnalyzer.cs" line-rate="0.7746999999999999" branch-rate="0.6275999999999999" complexity="97">
+        <class name="Flowthru.Core.SourceGenerators.FlowthruRegistrationAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/FlowthruRegistrationAnalyzer.cs" line-rate="0.7746999999999999" branch-rate="0.6275999999999999" complexity="97">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -30090,7 +30138,7 @@
             <line number="51" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.FlowthruSchemaAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/FlowthruSchemaAnalyzer.cs" line-rate="0.8332999999999999" branch-rate="0.5227" complexity="47">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.FlowthruSchemaAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/FlowthruSchemaAnalyzer.cs" line-rate="0.8332999999999999" branch-rate="0.5227" complexity="47">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -30458,7 +30506,7 @@
             <line number="32" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGeneratorDiagnostics" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaGeneratorDiagnostics.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGeneratorDiagnostics" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaGeneratorDiagnostics.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -30520,7 +30568,7 @@
             <line number="45" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaInterfaceGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="0" complexity="55">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaInterfaceGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="0" complexity="55">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -31150,7 +31198,7 @@
             <line number="325" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGenerationInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGenerationInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.String,System.Boolean,System.Boolean,System.Collections.Immutable.ImmutableArray`1&lt;System.String&gt;,Microsoft.CodeAnalysis.Location,System.Collections.Immutable.ImmutableArray`1&lt;Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -31164,7 +31212,7 @@
             <line number="361" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -31178,7 +31226,7 @@
             <line number="376" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyClassifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="0" complexity="78">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyClassifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="0" complexity="78">
           <methods>
             <method name="IsFlatPropertyType" signature="(Microsoft.CodeAnalysis.ITypeSymbol)" line-rate="0" branch-rate="0" complexity="60">
               <lines>
@@ -31468,7 +31516,7 @@
             <line number="175" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaClassification" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaClassification" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="get_IsNested" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>

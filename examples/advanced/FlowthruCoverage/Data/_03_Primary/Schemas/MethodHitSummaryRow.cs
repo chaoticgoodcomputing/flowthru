@@ -18,6 +18,20 @@ public partial record MethodHitSummaryRow
   /// <summary>Domain subgroup of the source package: <c>Core</c>, <c>Extensions</c>, or <c>Misc</c>.</summary>
   public required string Subgroup { get; init; }
 
+  /// <summary>
+  /// Source file path (or SourceLink URL) of the file containing this method. Lets coverage
+  /// triage open the code directly from the report; empty string when no filename is available.
+  /// For name-summarized rows that collapse overloads from one class, all overloads share the
+  /// same source file so the value is unambiguous.
+  /// </summary>
+  public required string SourceFile { get; init; }
+
+  /// <summary>
+  /// Approximate instrumented line count for this method (or sum across collapsed overloads in
+  /// name-summarized rows). Useful for prioritizing larger uncovered methods over trivial ones.
+  /// </summary>
+  public required int LineCount { get; init; }
+
   /// <summary>Total hit count summed across all test projects.</summary>
   public required int TotalHits { get; init; }
 

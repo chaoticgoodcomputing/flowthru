@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Core.Steps;
 
 /// <summary>
@@ -29,5 +31,9 @@ namespace Flowthru.Core.Steps;
 /// }
 /// </code>
 /// </example>
+// Coverage: Roslyn-only attribute — constructor never fires at runtime.
+// Consumed by FUnit source generators via Roslyn semantic models (queried by full
+// type-name string match in StepTestRegistryGenerator and FunitDiagnosticAnalyzer).
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class FlowthruStepAttribute : Attribute { }

@@ -27,12 +27,12 @@
         "parallel": false
       }
     },
-    "_inject_agents_md": {
-      "//": "Copies the canonical AGENTS.md into each starter template before packing",
+    "_inject_flowthru_skill": {
+      "//": "Copies the canonical Flowthru SKILL.md into each starter template before packing. The bare SKILL.md lands at the template root with no tooling opinion — end users move it to .claude/skills/flowthru/, .github/skills/flowthru/, or wherever their agent harness expects.",
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "for dir in examples/starter/*/; do cp docs/guides/misc/AGENTS.md \"$dir\"; done"
+          "for dir in examples/starter/*/; do cp .claude/skills/flowthru/SKILL.md \"$dir\"; done"
         ],
         "cwd": "{workspaceRoot}",
         "parallel": false

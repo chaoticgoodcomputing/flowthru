@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Core.Abstractions;
 
 /// <summary>
@@ -14,6 +16,9 @@ namespace Flowthru.Core.Abstractions;
 /// The annotated type must be declared as <c>partial</c>. The generator inspects
 /// public instance properties to determine structural classification.
 /// </remarks>
+// Coverage: Roslyn-only attribute — constructor never fires at runtime.
+// Consumed exclusively by SchemaInterfaceGenerator via Roslyn semantic models.
+[ExcludeFromCodeCoverage]
 [AttributeUsage(
   AttributeTargets.Class | AttributeTargets.Struct,
   Inherited = false,

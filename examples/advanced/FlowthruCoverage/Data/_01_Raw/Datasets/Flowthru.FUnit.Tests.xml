@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0034000000000000002" branch-rate="0.0034000000000000002" version="1.9" timestamp="1777161458" lines-covered="33" lines-valid="9597" branches-covered="9" branches-valid="2575">
+<coverage line-rate="0.0034000000000000002" branch-rate="0.0034000000000000002" version="1.9" timestamp="1777240650" lines-covered="33" lines-valid="9597" branches-covered="9" branches-valid="2575">
   <sources>
     <source></source>
   </sources>
@@ -2272,7 +2272,7 @@
     </package>
     <package name="Flowthru.FUnit" line-rate="0.5156000000000001" branch-rate="0.3461" complexity="35">
       <classes>
-        <class name="Flowthru.FUnit.FunitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0.9" branch-rate="0.75" complexity="14">
+        <class name="Flowthru.FUnit.FunitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0.9" branch-rate="0.75" complexity="14">
           <methods>
             <method name="get_Services" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -2376,7 +2376,7 @@
             <line number="48" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.FunitContext/&lt;Validate&gt;d__13" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.FunitContext/&lt;Validate&gt;d__13" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2388,7 +2388,7 @@
             <line number="96" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="Of" signature="(T[])" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -2400,7 +2400,7 @@
             <line number="11" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;&gt;c__2`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;&gt;c__2`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="&lt;FromCsv&gt;b__2_0" signature="(System.Reflection.PropertyInfo)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2412,7 +2412,7 @@
             <line number="57" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;FromCsv&gt;d__2`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0.2285" branch-rate="0.0625" complexity="16">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;FromCsv&gt;d__2`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="0.2285" branch-rate="0.0625" complexity="16">
           <methods>
             <method name="MoveNext" signature="()" line-rate="0.2285" branch-rate="0.0625" complexity="16">
               <lines>
@@ -2550,7 +2550,7 @@
             <line number="83" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;Generate&gt;d__1`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="2">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder/&lt;Generate&gt;d__1`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="2">
               <lines>

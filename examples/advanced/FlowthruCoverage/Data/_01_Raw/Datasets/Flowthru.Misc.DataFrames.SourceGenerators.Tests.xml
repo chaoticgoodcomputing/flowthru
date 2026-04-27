@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0369" branch-rate="0.0524" version="1.9" timestamp="1777161446" lines-covered="302" lines-valid="8169" branches-covered="113" branches-valid="2153">
+<coverage line-rate="0.0369" branch-rate="0.0524" version="1.9" timestamp="1777240645" lines-covered="302" lines-valid="8169" branches-covered="113" branches-valid="2153">
   <sources>
     <source></source>
   </sources>
@@ -2272,7 +2272,7 @@
     </package>
     <package name="Flowthru.Misc.DataFrames.SourceGenerators" line-rate="0.9096" branch-rate="0.6975" complexity="166">
       <classes>
-        <class name="Flowthru.Misc.DataFrames.Analyzers.DataFrameDiagnostics" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/DataFrameDiagnostics.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Misc.DataFrames.Analyzers.DataFrameDiagnostics" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/DataFrameDiagnostics.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -2428,7 +2428,7 @@
             <line number="114" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.Analyzers.TypedFrameExpressionAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/TypedFrameExpressionAnalyzer.cs" line-rate="0.8828" branch-rate="0.6866" complexity="152">
+        <class name="Flowthru.Misc.DataFrames.Analyzers.TypedFrameExpressionAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/TypedFrameExpressionAnalyzer.cs" line-rate="0.8828" branch-rate="0.6866" complexity="152">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -3356,7 +3356,7 @@
             <line number="386" hits="20" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.Analyzers.TypedFrameInvocation" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/TypedFrameInvocationHelper.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Misc.DataFrames.Analyzers.TypedFrameInvocation" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/TypedFrameInvocationHelper.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(Microsoft.CodeAnalysis.IMethodSymbol,Microsoft.CodeAnalysis.CSharp.Syntax.InvocationExpressionSyntax,System.Collections.Generic.IReadOnlyList`1&lt;Microsoft.CodeAnalysis.CSharp.Syntax.LambdaExpressionSyntax&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -3370,7 +3370,7 @@
             <line number="35" hits="41" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Misc.DataFrames.Analyzers.TypedFrameInvocationHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/c39cdb773912fe7dec7b1e7bf16b5d15ba9410e2/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/TypedFrameInvocationHelper.cs" line-rate="0.8887999999999999" branch-rate="0.8332999999999999" complexity="12">
+        <class name="Flowthru.Misc.DataFrames.Analyzers.TypedFrameInvocationHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/d4d85bc9488c2241c1c2aab60212dde2519cb471/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/TypedFrameInvocationHelper.cs" line-rate="0.8887999999999999" branch-rate="0.8332999999999999" complexity="12">
           <methods>
             <method name="TryMatch" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.InvocationExpressionSyntax,Microsoft.CodeAnalysis.SemanticModel)" line-rate="0.8887999999999999" branch-rate="0.8332999999999999" complexity="12">
               <lines>
