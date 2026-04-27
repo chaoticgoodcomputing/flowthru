@@ -8,6 +8,7 @@ Consumed by <code>Flowthru.FUnit.SourceGenerators</code> to build the
 <code>StepTestRegistry</code> and emit <code>FU001</code> warnings for uncovered steps.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public sealed class StepTestAttribute : Attribute
 ```

@@ -10,6 +10,7 @@ will emit the <xref href="Flowthru.Core.Data.CatalogAbstract" data-throw-if-not-
 with <xref href="Flowthru.Core.Data.ConfigSectionAttribute" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class FlowthruConfigAttribute : Attribute
 ```

@@ -12,12 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data/**/*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Update="Data/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <!-- In-repo dual-mode: swap Flowthru* PackageReferences for ProjectReferences,
+       register Core source generators. Skipped for template instantiations where
+       $(RepoRoot) is undefined and the csproj works as a regular NuGet consumer. -->
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

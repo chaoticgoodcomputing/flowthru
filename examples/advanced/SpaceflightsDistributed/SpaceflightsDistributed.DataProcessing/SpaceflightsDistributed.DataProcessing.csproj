@@ -2,33 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
-    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-  </ItemGroup>
-
-  <!-- Flowthru.FUnit reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
-    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
-  </ItemGroup>
-
-  <!-- Define FUNIT_ENABLED so step test inner classes can be conditionally compiled -->
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
   </PropertyGroup>
 
-  <!-- NUnit: only included in Debug. Microsoft.NET.Test.Sdk is intentionally excluded
-       because this is a class library — test discovery is handled by the harness. -->
+  <ItemGroup>
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
+  </ItemGroup>
+
+  <!-- NUnit only: this is a class library, so Microsoft.NET.Test.Sdk is intentionally
+       excluded. Test discovery is handled by the upstream harness with FUnitAggregate=true. -->
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
@@ -39,9 +27,10 @@
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
   </ItemGroup>
 
-  <!-- Source-tree: explicitly import FUnit targets to register the source generator as an Analyzer.
-       NuGet package consumers get this automatically via build/Flowthru.FUnit.targets auto-import. -->
-  <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
-          Condition="Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
+
+  <Import Project="$(RepoRoot)build/FlowthruFUnit.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruFUnit.props')" />
 
 </Project>

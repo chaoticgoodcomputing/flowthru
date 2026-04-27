@@ -24,6 +24,10 @@ Composed storage adapter that delegates to medium, format, and container layers.
 
 Read-only storage adapter that binds an <xref href="Microsoft.Extensions.Configuration.IConfiguration" data-throw-if-not-resolved="false"></xref> section to a typed POCO.
 
+ [LocalFileWriteProbe](Flowthru.Core.Data.Storage.LocalFileWriteProbe.md)
+
+Shared write-access probe for local filesystem paths.
+
  [MemoryStorageAdapter<T\>](Flowthru.Core.Data.Storage.MemoryStorageAdapter\-1.md)
 
 Direct memory storage adapter that bypasses serialization.
@@ -35,6 +39,11 @@ Null storage adapter for side-effect-only nodes that produce no meaningful data.
  [PropertyMappingConfiguration](Flowthru.Core.Data.Storage.PropertyMappingConfiguration.md)
 
 Describes how a format serializer handles property-to-field name mapping.
+
+ [ReadOnlyDirectoryStorageAdapter<TItem\>](Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter\-1.md)
+
+Abstract base for read-only storage adapters that aggregate all files of a given
+pattern within a directory into a single item sequence.
 
  [SchemaActivator](Flowthru.Core.Data.Storage.SchemaActivator.md)
 

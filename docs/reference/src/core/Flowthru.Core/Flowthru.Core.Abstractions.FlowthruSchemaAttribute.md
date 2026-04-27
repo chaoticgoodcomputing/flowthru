@@ -8,6 +8,7 @@ will analyze the type's properties and emit the appropriate marker interfaces:
 <ul><li><xref href="Flowthru.Core.Abstractions.IFlatSchema" data-throw-if-not-resolved="false"></xref> or <xref href="Flowthru.Core.Abstractions.INestedSchema" data-throw-if-not-resolved="false"></xref> based on property types</li><li><xref href="Flowthru.Core.Abstractions.ITextSerializable" data-throw-if-not-resolved="false"></xref> for flat schemas (CSV/TSV compatible)</li><li><xref href="Flowthru.Core.Abstractions.IBinarySerializable" data-throw-if-not-resolved="false"></xref> for flat schemas (Parquet compatible)</li><li><xref href="Flowthru.Core.Abstractions.IStructuredSerializable" data-throw-if-not-resolved="false"></xref> for all schemas (JSON/XML compatible)</li></ul>
 
 ```csharp
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Class|AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
 public sealed class FlowthruSchemaAttribute : Attribute
 ```

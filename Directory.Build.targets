@@ -1,6 +1,15 @@
-<!-- 
-  This file is imported late in the build order. 
+<!--
+  This file is imported late in the build order.
   Use it to override properties and define dependent properties.
+
+  Note: Per-archetype Flowthru reference injection (PackageReference→ProjectReference
+  swap, Core/FUnit analyzer wiring, FUnit constants) is NOT handled here. Examples
+  declare their dependencies via <FlowthruReference> + Import of the appropriate
+  build/FlowthruExecutable.props or build/FlowthruLibrary.props at the repo root.
+
+  This file retains only repo-wide concerns: path properties, in-repo replacements
+  for the few test projects that haven't yet migrated to <FlowthruReference>, and
+  the central coverage runsettings hook for any IsTestProject.
 -->
 <Project>
   <PropertyGroup>
@@ -8,86 +17,33 @@
     <NodeModulesRelativePath>$([MSBuild]::MakeRelative($(MSBuildProjectDirectory), $(RepoRoot)))</NodeModulesRelativePath>
   </PropertyGroup>
 
-  <!-- 
-    For example and test projects within the repo: replace PackageReferences with ProjectReferences.
-    This ensures the test suite always uses local versions while keeping projects as
-    true NuGet consumers when distributed.
-    
-    Exception: Flowthru.Tests.Helpers needs direct SourceGenerators reference for testing.
-  -->
-  <ItemGroup Condition="($(MSBuildProjectDirRelativePath.StartsWith('examples')) OR $(MSBuildProjectDirRelativePath.StartsWith('tests'))) AND '$(MSBuildProjectName)' != 'Flowthru.Tests.Helpers'">
-    <!-- Remove Flowthru PackageReferences -->
-    <PackageReference Remove="Flowthru" />
-    <PackageReference Remove="Flowthru.Extensions.Python" />
-    <PackageReference Remove="Flowthru.Extensions.EFCore" />
-    <PackageReference Remove="Flowthru.Extensions.EFCore.Bulk" />
-    <PackageReference Remove="Flowthru.Extensions.GQL" />
-    <PackageReference Remove="Flowthru.Misc.ML" />
-
-    <!-- Add Flowthru ProjectReferences -->
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
-
-    <!-- Add source generator and code fix references directly for local development -->
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
-
-    <!-- Add Misc.ML ProjectReference only for UmapReferenceComparisons -->
-    <ProjectReference Include="$(RepoRoot)src\misc\Flowthru.Misc.ML\Flowthru.Misc.ML.csproj"
-                      Condition="'$(MSBuildProjectName)' == 'UmapReferenceComparisons'" />
-  </ItemGroup>
-
   <!--
-    Separate ItemGroup so the Condition can reference the PackageReference list
-    before the Remove above processes it. Projects that declared a PackageReference
-    to Flowthru.Extensions.Python get a ProjectReference to the local source instead.
-    We match on directory path so the condition is explicit, not inferred.
+    Test projects under tests/ that haven't yet migrated to <FlowthruReference> still
+    consume Flowthru via PackageReference (e.g. Flowthru.Tests.Examples, Flowthru.Tests.Helpers).
+    For in-repo builds, swap those PackageReferences for ProjectReferences and import the
+    Core analyzer targets so source generators are registered.
+
+    This block is migration-scope only — it should disappear when every project under
+    examples/ and tests/ uses <FlowthruReference>.
   -->
-  <ItemGroup Condition="$(MSBuildProjectDirRelativePath.Contains('KedroIrisPython')) OR $(MSBuildProjectDirRelativePath.Contains('KedroSpaceflightsPython'))">
-    <ProjectReference Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Python\Flowthru.Extensions.Python.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(MSBuildProjectDirRelativePath.Contains('SpaceflightsEFCore'))">
-    <ProjectReference Include="$(RepoRoot)src\extensions\Flowthru.Extensions.EFCore\Flowthru.Extensions.EFCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(MSBuildProjectDirRelativePath.Contains('KedroSpaceflightsSpark'))">
-    <PackageReference Remove="Flowthru.Extensions.Spark" />
-    <ProjectReference Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Spark\Flowthru.Extensions.Spark.csproj" />
-  </ItemGroup>
-
-  <!-- Special case for Flowthru.Tests.Helpers: also convert PackageReference but keep existing SourceGenerators ProjectReference -->
-  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Flowthru.Tests.Helpers'">
+  <ItemGroup Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests'))">
     <PackageReference Remove="Flowthru" />
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
-  </ItemGroup>
-
-  <!--
-    For projects that explicitly depend on Flowthru.FUnit (opt-in, not universal):
-    remove any PackageReference and wire up the source + analyzer projects directly.
-    FUnit generators emit code that imports Flowthru.FUnit types, so this injection
-    must NOT be applied globally — only for projects that already reference FUnit.
-  -->
-  <ItemGroup Condition="($(MSBuildProjectDirRelativePath.StartsWith('examples')) OR $(MSBuildProjectDirRelativePath.StartsWith('tests'))) AND '$(MSBuildProjectName)' != 'Flowthru.FUnit'">
     <PackageReference Remove="Flowthru.FUnit" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj"
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Tests.Helpers'" />
   </ItemGroup>
 
-  <ItemGroup Condition="($(MSBuildProjectDirRelativePath.StartsWith('examples')) OR $(MSBuildProjectDirRelativePath.StartsWith('tests'))) AND Exists('$(RepoRoot)src\core\Flowthru.FUnit\Flowthru.FUnit.csproj') AND '$(MSBuildProjectName)' != 'Flowthru.FUnit'">
-    <!-- Replace PackageReference to Flowthru.FUnit with in-repo sources where applicable. -->
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit\Flowthru.FUnit.csproj"
-                      Condition="$(MSBuildProjectDirRelativePath.Contains('FUnit'))" />
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer"
-                      Condition="'$(MSBuildProjectName)' == 'KedroIrisFUnit' OR $(MSBuildProjectDirRelativePath.Contains('FUnit'))" />
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.FUnit.CodeFixes\Flowthru.FUnit.CodeFixes.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer"
-                      Condition="'$(MSBuildProjectName)' == 'KedroIrisFUnit' OR $(MSBuildProjectDirRelativePath.Contains('FUnit'))" />
-  </ItemGroup>
+  <!-- Import the Flowthru.Core targets to register source generators in tests/ projects.
+       This mirrors how the published build/Flowthru.Core.targets is auto-imported when
+       the project consumes Flowthru.Core via NuGet. -->
+  <Import Project="$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets"
+          Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests')) AND Exists('$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets')" />
+
+  <!-- Same for the FUnit targets in tests/ projects with FUnit in the path. Once the
+       remaining FUnit-using test csprojs migrate to importing build/FlowthruFUnit.props,
+       this can go away. -->
+  <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
+          Condition="$(MSBuildProjectDirRelativePath.StartsWith('tests')) AND $(MSBuildProjectDirRelativePath.Contains('FUnit')) AND Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
 
   <!--
     Central coverage configuration: any project identified as a test project by

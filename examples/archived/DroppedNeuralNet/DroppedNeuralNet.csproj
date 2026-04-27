@@ -3,40 +3,25 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>DroppedNeuralNet</RootNamespace>
   </PropertyGroup>
 
-  <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
-    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
-    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
+  <ItemGroup>
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.Csv" Version="FlowthruVersion" />
     <PackageReference Include="Flowthru.Extensions.Python" Version="FlowthruVersion" />
   </ItemGroup>
 
-  <!--
-    Python environment files for uv sync.
-    Copied to the output directory during build. PythonRuntime.Initialize() runs "uv sync"
-    at startup to materialize .venv/ from these files.
-  -->
   <ItemGroup>
     <Content Include="pyproject.toml" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="uv.lock" CopyToOutputDirectory="PreserveNewest" />
     <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

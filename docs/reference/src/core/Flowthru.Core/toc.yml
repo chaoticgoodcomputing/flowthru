@@ -71,12 +71,16 @@
     href: Flowthru.Core.Data.Storage.ComposedStorageAdapter-2.md
   - name: ConfigurationStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.ConfigurationStorageAdapter-1.md
+  - name: LocalFileWriteProbe
+    href: Flowthru.Core.Data.Storage.LocalFileWriteProbe.md
   - name: MemoryStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.MemoryStorageAdapter-1.md
   - name: NullStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.NullStorageAdapter-1.md
   - name: PropertyMappingConfiguration
     href: Flowthru.Core.Data.Storage.PropertyMappingConfiguration.md
+  - name: ReadOnlyDirectoryStorageAdapter<TItem>
+    href: Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter-1.md
   - name: SchemaActivator
     href: Flowthru.Core.Data.Storage.SchemaActivator.md
   - name: SingletonJsonStorageAdapter<T>

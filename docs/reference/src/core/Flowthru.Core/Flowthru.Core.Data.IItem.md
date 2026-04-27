@@ -33,6 +33,7 @@ this item. Set automatically by <code>CreateItem</code>; null for items created 
 a catalog or by custom <xref href="Flowthru.Core.Data.IItem" data-throw-if-not-resolved="false"></xref> implementations.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 string? OwningCatalogLabel { get; }
 ```
 

@@ -6,6 +6,7 @@ Assembly: Flowthru.Core.dll
 Marker attribute identifying a class as a Flowthru step definition.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class FlowthruStepAttribute : Attribute
 ```

@@ -1,0 +1,28 @@
+<!--
+  FlowthruFUnit.props — in-repo FUnit analyzer wiring.
+
+  This file is imported (conditionally) by csprojs that consume Flowthru.FUnit
+  inline (i.e., the csproj has <PackageReference Include="Flowthru.FUnit" /> +
+  the inline NUnit / Test.Sdk / FUNIT_ENABLED / GenerateProgramFile setup that
+  end-user FUnit projects need).
+
+    <Import Project="$(RepoRoot)build/FlowthruFUnit.props"
+            Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruFUnit.props')" />
+
+  When the import fires (in-repo), it imports the FUnit targets file from the
+  source tree, which registers the Flowthru.FUnit.SourceGenerators analyzer DLL
+  as a ProjectReference and exposes FUnitAggregate as a CompilerVisibleProperty.
+
+  When the import is skipped (template-instantiated outside the repo), NuGet
+  auto-imports the same targets file from the Flowthru.FUnit package's build/
+  folder — same contract, different entry path.
+
+  Set <FUnitAggregate>true</FUnitAggregate> in a harness/aggregator project that
+  collects [StepTest] methods from referenced libraries.
+-->
+<Project>
+
+  <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
+          Condition="Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
+
+</Project>

@@ -1,0 +1,73 @@
+<!--
+  FlowthruInRepoSwap.props — in-repo dual-mode reference resolver.
+
+  This file is imported (conditionally) at the bottom of consuming csprojs:
+
+    <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+            Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
+
+  When the import fires (in-repo), it scans the project's existing
+  <PackageReference Include="Flowthru*" /> items, removes any whose corresponding
+  in-repo csproj exists, and adds equivalent <ProjectReference> items so the build
+  picks up the live source instead of the published NuGet package.
+
+  When the import is skipped (template-instantiated outside the repo, or genuine
+  end-user NuGet consumption), the csproj's PackageReferences resolve normally.
+
+  This is the dual-mode mechanism that the previous Directory.Build.targets used
+  to apply globally; this version applies per-csproj via opt-in Import, so each
+  example explicitly declares "I expect the in-repo dual-mode swap" instead of
+  inheriting it implicitly.
+
+  Supported reference identities (matched by exact Identity or family prefix):
+
+    Flowthru                      → src/core/Flowthru/Flowthru.csproj
+    Flowthru.Core                 → src/core/Flowthru.Core/Flowthru.Core.csproj
+    Flowthru.FUnit                → src/core/Flowthru.FUnit/Flowthru.FUnit.csproj
+    Flowthru.Extensions.<Name>    → src/extensions/Flowthru.Extensions.<Name>/...
+    Flowthru.Misc.<Name>          → src/misc/Flowthru.Misc.<Name>/...
+-->
+<Project>
+
+  <Target Name="_SwapFlowthruPackageReferences"
+          BeforeTargets="CollectPackageReferences;ResolveProjectReferences"
+          Condition="'@(PackageReference)' != ''">
+
+    <!-- Step 1: Filter to Flowthru-family PackageReferences and compute their
+         in-repo csproj path. -->
+    <ItemGroup>
+      <_FlowthruPackageRef Include="@(PackageReference)"
+                           Condition="$([System.String]::Copy('%(Identity)').StartsWith('Flowthru'))" />
+
+      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/core/Flowthru/Flowthru.csproj"
+                           Condition="'%(Identity)' == 'Flowthru'" />
+      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj"
+                           Condition="'%(Identity)' == 'Flowthru.Core'" />
+      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj"
+                           Condition="'%(Identity)' == 'Flowthru.FUnit'" />
+      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/extensions/%(Identity)/%(Identity).csproj"
+                           Condition="$([System.String]::Copy('%(Identity)').StartsWith('Flowthru.Extensions.'))" />
+      <_FlowthruPackageRef RepoCsprojPath="$(RepoRoot)src/misc/%(Identity)/%(Identity).csproj"
+                           Condition="$([System.String]::Copy('%(Identity)').StartsWith('Flowthru.Misc.'))" />
+
+      <!-- Mark items whose RepoCsprojPath exists. Only those get swapped. -->
+      <_FlowthruPackageRef ResolutionMode="InRepo"
+                           Condition="'%(_FlowthruPackageRef.RepoCsprojPath)' != '' AND Exists('%(_FlowthruPackageRef.RepoCsprojPath)')" />
+    </ItemGroup>
+
+    <!-- Step 2: For each "InRepo" item, remove the PackageReference and add a
+         ProjectReference pointing to the in-repo csproj. -->
+    <ItemGroup>
+      <PackageReference Remove="@(_FlowthruPackageRef->WithMetadataValue('ResolutionMode', 'InRepo'))" />
+      <ProjectReference Include="@(_FlowthruPackageRef->WithMetadataValue('ResolutionMode', 'InRepo')->'%(RepoCsprojPath)')" />
+    </ItemGroup>
+
+  </Target>
+
+  <!-- Always import the Flowthru.Core targets in-repo to register source generators
+       + code fixes as analyzers. Mirrors NuGet's auto-import of the same file from
+       the Flowthru.Core package. The targets file itself is dual-mode-aware. -->
+  <Import Project="$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets"
+          Condition="Exists('$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets')" />
+
+</Project>

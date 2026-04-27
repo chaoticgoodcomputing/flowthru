@@ -7,6 +7,7 @@ Specifies the <xref href="Microsoft.Extensions.Configuration.IConfiguration" dat
 that backs an <xref href="Flowthru.Core.Data.IItem%601" data-throw-if-not-resolved="false"></xref> property on a <xref href="Flowthru.Core.Data.FlowthruConfigAttribute" data-throw-if-not-resolved="false"></xref>-marked class.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
 public sealed class ConfigSectionAttribute : Attribute
 ```

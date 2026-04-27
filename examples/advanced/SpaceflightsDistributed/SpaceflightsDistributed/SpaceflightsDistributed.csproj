@@ -3,34 +3,24 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <!-- FUnitAggregate: collect [StepTest] methods from all referenced sub-libraries
-       and emit NUnit runner classes in this project. Microsoft.NET.Test.Sdk's
-       OutputType=Exe override is harmless here because this is already an Exe.
-       GenerateProgramFile=false prevents the SDK from injecting a competing Main. -->
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <FUnitAggregate>true</FUnitAggregate>
+    <ImplicitUsings>enable</ImplicitUsings>
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
-  <!-- Flowthru reference: ProjectReference when building from source, PackageReference for templates -->
-  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
-    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-  </ItemGroup>
+  <!-- FUnitAggregate: collect [StepTest] methods from all referenced sub-libraries
+       and emit NUnit runner classes in this project. The FUnit source generator
+       reads this as build_property.FUnitAggregate. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <FUnitAggregate>true</FUnitAggregate>
+    <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataProcessing/SpaceflightsDistributed.DataProcessing.csproj" />
-    <ProjectReference Include="$(RepoRoot)examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.DataScience/SpaceflightsDistributed.DataScience.csproj" />
-    <ProjectReference Include="$(RepoRoot)examples/advanced/SpaceflightsDistributed/SpaceflightsDistributed.Reporting/SpaceflightsDistributed.Reporting.csproj" />
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
   </ItemGroup>
 
-  <!-- Test packages: only in Debug so Release builds carry zero test infrastructure -->
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="NUnit" Version="4.2.2" />
@@ -39,24 +29,20 @@
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
-  <!-- Flowthru.FUnit: only in Debug. Provides the source generator (StepTestRegistryGenerator)
-       that aggregates [StepTest] methods from referenced sub-libraries via FUnitAggregate=true. -->
-  <ItemGroup Condition="'$(Configuration)' == 'Debug' AND Exists('$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Debug' AND !Exists('$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj')">
-    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
+  <ItemGroup>
+    <ProjectReference Include="..\SpaceflightsDistributed.DataProcessing\SpaceflightsDistributed.DataProcessing.csproj" />
+    <ProjectReference Include="..\SpaceflightsDistributed.DataScience\SpaceflightsDistributed.DataScience.csproj" />
+    <ProjectReference Include="..\SpaceflightsDistributed.Reporting\SpaceflightsDistributed.Reporting.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <!-- Source-tree: explicitly import FUnit targets to register the source generator as an Analyzer.
-       NuGet package consumers get this automatically via build/Flowthru.FUnit.targets auto-import. -->
-  <Import Project="$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets"
-          Condition="Exists('$(RepoRoot)src/core/Flowthru.FUnit/build/Flowthru.FUnit.targets')" />
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
+
+  <Import Project="$(RepoRoot)build/FlowthruFUnit.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruFUnit.props')" />
 
 </Project>

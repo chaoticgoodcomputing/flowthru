@@ -1,47 +1,41 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <!-- Required so the Web SDK doesn't generate a second entry point -->
-    <GenerateProgramFile>false</GenerateProgramFile>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <!-- Flowthru: use project reference when building from source, otherwise NuGet -->
-  <ItemGroup Condition="Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru/Flowthru.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="!Exists('$(RepoRoot)src/core/Flowthru/Flowthru.csproj')">
-    <PackageReference Include="Flowthru" Version="*" />
+  <!-- ASP.NET Core types (WebApplication, TestServer, app.MapGraphQL) require the
+       AspNetCore.App shared framework. Adding this FrameworkReference avoids the need
+       for Microsoft.NET.Sdk.Web — this is a non-web-hosting example, so the Web SDK's
+       launchSettings/wwwroot conventions aren't needed. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <!-- Flowthru GQL extension -->
-  <ItemGroup Condition="Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
-    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+  <!-- Reproduce the implicit usings that Microsoft.NET.Sdk.Web would otherwise inject. -->
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Builder" />
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
-  <ItemGroup Condition="!Exists('$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj')">
-    <PackageReference Include="Flowthru.Extensions.GQL" Version="*" />
+
+  <ItemGroup>
+    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru.Extensions.GQL" Version="FlowthruVersion" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- GQL server (in-process demo) -->
     <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.14" />
-
-    <!-- In-process TestServer for hosting the GQL demo server without binding a port.
-         Remove this together with SpaceflightsGqlServer when using a real endpoint. -->
+    <!-- In-process TestServer for hosting the GQL demo server without binding a port. -->
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.5" />
-
     <!-- StrawberryShake client: Server metapackage bundles Transport.Http, Core,
          and the MSBuild-driven codegen tool (no separate analyzer needed in v15) -->
     <PackageReference Include="StrawberryShake.Server" Version="15.1.14" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -50,5 +44,12 @@
     <PackageReference Include="Plotly.NET.CSharp" Version="0.13.0" />
     <PackageReference Include="Plotly.NET.ImageExport" Version="6.1.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
+          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

@@ -1,0 +1,21 @@
+### YamlMime:TableOfContent
+- name: Flowthru.Core.Data
+  href: Flowthru.Core.Data.md
+  items:
+  - name: Classes
+  - name: XmlDocument<T>
+    href: Flowthru.Core.Data.XmlDocument-1.md
+  - name: XmlEnumerableItemExtensions
+    href: Flowthru.Core.Data.XmlEnumerableItemExtensions.md
+  - name: XmlItemFactory
+    href: Flowthru.Core.Data.XmlItemFactory.md
+  - name: XmlItemFactory.Single
+    href: Flowthru.Core.Data.XmlItemFactory.Single.md
+- name: Flowthru.Core.Data.Storage
+  href: Flowthru.Core.Data.Storage.md
+  items:
+  - name: Classes
+  - name: SingletonXmlStorageAdapter<T>
+    href: Flowthru.Core.Data.Storage.SingletonXmlStorageAdapter-1.md
+  - name: XmlDirectoryStorageAdapter<T>
+    href: Flowthru.Core.Data.Storage.XmlDirectoryStorageAdapter-1.md

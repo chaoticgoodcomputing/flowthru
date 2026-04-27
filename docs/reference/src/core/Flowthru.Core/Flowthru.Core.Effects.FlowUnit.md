@@ -61,6 +61,7 @@ public static readonly FlowUnit Default
 Compares the current instance with another <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref>.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public int CompareTo(FlowUnit other)
 ```
 
@@ -81,6 +82,7 @@ Always 0, as all FlowUnit instances are equal.
 Determines whether the specified <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref> is equal to the current instance.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public bool Equals(FlowUnit other)
 ```
 
@@ -101,6 +103,7 @@ Always <code>true</code>, as all FlowUnit instances are equal.
 Determines whether the specified object is equal to the current instance.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public override bool Equals(object? obj)
 ```
 
@@ -121,6 +124,7 @@ The object to compare.
 Returns the hash code for this instance.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public override int GetHashCode()
 ```
 
@@ -151,6 +155,7 @@ Always returns "unit".
 Determines whether two <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref> instances are equal.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public static bool operator ==(FlowUnit left, FlowUnit right)
 ```
 
@@ -175,6 +180,7 @@ Always <code>true</code>.
 Compares two <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref> instances.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public static bool operator >(FlowUnit left, FlowUnit right)
 ```
 
@@ -199,6 +205,7 @@ Always <code>false</code>.
 Compares two <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref> instances.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public static bool operator >=(FlowUnit left, FlowUnit right)
 ```
 
@@ -223,6 +230,7 @@ Always <code>true</code>.
 Determines whether two <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref> instances are not equal.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public static bool operator !=(FlowUnit left, FlowUnit right)
 ```
 
@@ -247,6 +255,7 @@ Always <code>false</code>.
 Compares two <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref> instances.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public static bool operator <(FlowUnit left, FlowUnit right)
 ```
 
@@ -271,6 +280,7 @@ Always <code>false</code>.
 Compares two <xref href="Flowthru.Core.Effects.FlowUnit" data-throw-if-not-resolved="false"></xref> instances.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public static bool operator <=(FlowUnit left, FlowUnit right)
 ```
 
