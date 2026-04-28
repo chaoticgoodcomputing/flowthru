@@ -1,0 +1,5 @@
+# Raw datasets in example pipelines are tracked so examples run out-of-the-box,
+# but their contents are regenerated and not meaningful to review. Mark them
+# generated so GitHub collapses them in PR diffs and excludes them from
+# language statistics. Local `git diff` still works normally.
+**/Data/_01_Raw/Datasets/** linguist-generated=true
