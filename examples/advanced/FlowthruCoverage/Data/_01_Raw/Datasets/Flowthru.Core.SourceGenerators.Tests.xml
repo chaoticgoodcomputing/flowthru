@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0554" branch-rate="0.06860000000000001" version="1.9" timestamp="1777314323" lines-covered="361" lines-valid="6515" branches-covered="127" branches-valid="1851">
+<coverage line-rate="0.0554" branch-rate="0.06860000000000001" version="1.9" timestamp="1777323950" lines-covered="361" lines-valid="6515" branches-covered="127" branches-valid="1851">
   <sources>
     <source></source>
   </sources>
@@ -18452,7 +18452,7 @@
     </package>
     <package name="Flowthru.Core.SourceGenerators" line-rate="0.3639" branch-rate="0.3567" complexity="376">
       <classes>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="0" complexity="50">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="0" complexity="50">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -18944,7 +18944,7 @@
             <line number="55" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigCatalogInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigCatalogInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.Boolean,System.Collections.Immutable.ImmutableArray`1&lt;Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo&gt;,Microsoft.CodeAnalysis.Location)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -18958,7 +18958,7 @@
             <line number="270" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.ConfigCatalogGenerator/ConfigPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/ConfigCatalogGenerator.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.String,Microsoft.CodeAnalysis.Location,System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -18972,7 +18972,7 @@
             <line number="294" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.FlowBuilderGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs" line-rate="0" branch-rate="0" complexity="52">
+        <class name="Flowthru.Core.SourceGenerators.FlowBuilderGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs" line-rate="0" branch-rate="0" complexity="52">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -19614,7 +19614,7 @@
             <line number="293" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.FlowthruRegistrationAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/FlowthruRegistrationAnalyzer.cs" line-rate="0" branch-rate="0" complexity="97">
+        <class name="Flowthru.Core.SourceGenerators.FlowthruRegistrationAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/FlowthruRegistrationAnalyzer.cs" line-rate="0" branch-rate="0" complexity="97">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20428,7 +20428,7 @@
             <line number="51" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.FlowthruSchemaAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/FlowthruSchemaAnalyzer.cs" line-rate="0.9018999999999999" branch-rate="0.625" complexity="43">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.FlowthruSchemaAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/FlowthruSchemaAnalyzer.cs" line-rate="0.9018999999999999" branch-rate="0.625" complexity="43">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -20780,7 +20780,7 @@
             <line number="32" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGeneratorDiagnostics" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaGeneratorDiagnostics.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGeneratorDiagnostics" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaGeneratorDiagnostics.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -20842,7 +20842,7 @@
             <line number="45" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaInterfaceGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0.9601000000000001" branch-rate="0.8845999999999999" complexity="55">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaInterfaceGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="0.9601000000000001" branch-rate="0.8845999999999999" complexity="55">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -21472,7 +21472,7 @@
             <line number="325" hits="88" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGenerationInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaGenerationInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String,System.String,System.Boolean,System.Boolean,System.Collections.Immutable.ImmutableArray`1&lt;System.String&gt;,Microsoft.CodeAnalysis.Location,System.Collections.Immutable.ImmutableArray`1&lt;Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo&gt;)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -21486,7 +21486,7 @@
             <line number="361" hits="14" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyInfo" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaInterfaceGenerator.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.String)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -21500,7 +21500,7 @@
             <line number="376" hits="32" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyClassifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0.6875" branch-rate="0.7777" complexity="72">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaPropertyClassifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0.6875" branch-rate="0.7777" complexity="72">
           <methods>
             <method name="IsFlatPropertyType" signature="(Microsoft.CodeAnalysis.ITypeSymbol)" line-rate="0.9309999999999999" branch-rate="0.9" complexity="60">
               <lines>
@@ -21778,7 +21778,7 @@
             <line number="175" hits="14" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaClassification" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0.6666" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.SourceGenerators.SchemaAnalysis.SchemaClassification" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.Core.SourceGenerators/SchemaAnalysis/SchemaPropertyClassifier.cs" line-rate="0.6666" branch-rate="1" complexity="2">
           <methods>
             <method name="get_IsNested" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>

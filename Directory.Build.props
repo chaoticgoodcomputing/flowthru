@@ -17,6 +17,16 @@
   <PropertyGroup>
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
   </PropertyGroup>
+
+  <!-- Force every in-repo csproj to resolve PackageVersions against the repo-root
+       Directory.Packages.props, even if a per-template Directory.Packages.props
+       sits in a closer directory. The per-template files exist in starter
+       directories so they ship with `dotnet new` template content; in the user's
+       directory after instantiation, NuGet's default discovery finds them. In
+       our repo, this override keeps everything centralized. -->
+  <PropertyGroup>
+    <DirectoryPackagesPropsPath>$(RepoRoot)Directory.Packages.props</DirectoryPackagesPropsPath>
+  </PropertyGroup>
   
   <!-- Generate XML documentation for src/ projects (consumed by DocFX) -->
   <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('src'))">

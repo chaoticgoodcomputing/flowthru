@@ -18,13 +18,13 @@
   <!-- NUnit only: this is a class library, so Microsoft.NET.Test.Sdk is intentionally
        excluded. Test discovery is handled by the upstream harness with FUnitAggregate=true. -->
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <PackageReference Include="NUnit" Version="4.2.2" />
-    <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="MathNet.Numerics" />
   </ItemGroup>
 
   <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"

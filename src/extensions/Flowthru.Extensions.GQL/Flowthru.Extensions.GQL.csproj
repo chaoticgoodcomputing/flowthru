@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <!-- StrawberryShake core runtime — provides IOperationResult<T>, IClientError, GraphQLClientException -->
-    <PackageReference Include="StrawberryShake.Core" Version="15.1.14" />
+    <PackageReference Include="StrawberryShake.Core" />
   </ItemGroup>
 
 </Project>

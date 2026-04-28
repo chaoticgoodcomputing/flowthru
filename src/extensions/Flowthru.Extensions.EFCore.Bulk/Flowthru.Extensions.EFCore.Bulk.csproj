@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <!-- Bulk operations engine -->
-    <PackageReference Include="EFCore.BulkExtensions" Version="10.0.1" />
+    <PackageReference Include="EFCore.BulkExtensions" />
   </ItemGroup>
 
 </Project>

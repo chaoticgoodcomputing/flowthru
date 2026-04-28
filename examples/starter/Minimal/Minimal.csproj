@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru" />
   </ItemGroup>
 
   <ItemGroup>

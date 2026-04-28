@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0029" branch-rate="0.0032" version="1.9" timestamp="1777314341" lines-covered="19" lines-valid="6501" branches-covered="6" branches-valid="1851">
+<coverage line-rate="0.0029" branch-rate="0.0032" version="1.9" timestamp="1777323967" lines-covered="19" lines-valid="6501" branches-covered="6" branches-valid="1851">
   <sources>
     <source></source>
   </sources>
@@ -2256,7 +2256,7 @@
     </package>
     <package name="Flowthru.FUnit" line-rate="0.9047" branch-rate="0.75" complexity="15">
       <classes>
-        <class name="Flowthru.FUnit.FunitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0.9" branch-rate="0.75" complexity="14">
+        <class name="Flowthru.FUnit.FunitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.FUnit/FunitContext.cs" line-rate="0.9" branch-rate="0.75" complexity="14">
           <methods>
             <method name="get_Services" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -2360,7 +2360,7 @@
             <line number="48" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.Samples.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.FUnit.Samples.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/core/Flowthru.FUnit/Samples/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="Of" signature="(T[])" line-rate="1" branch-rate="1" complexity="1">
               <lines>

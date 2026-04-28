@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-    <PackageReference Include="Flowthru.Extensions.Python" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru" />
+    <PackageReference Include="Flowthru.Extensions.Python" />
   </ItemGroup>
 
   <ItemGroup>

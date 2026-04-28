@@ -5,9 +5,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ML" Version="4.0.0" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
-    <PackageReference Include="Microsoft.ML.OnnxTransformer" Version="4.0.0" />
+    <PackageReference Include="Microsoft.ML" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" />
+    <PackageReference Include="Microsoft.ML.OnnxTransformer" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,13 +31,13 @@
 
   <ItemGroup>
     <!-- Python.NET for embedded Python runtime (official package) -->
-    <PackageReference Include="pythonnet" Version="3.0.5" />
+    <PackageReference Include="pythonnet" />
     
     <!-- Apache Arrow for tabular data interchange (Phase 3) -->
-    <PackageReference Include="Apache.Arrow" Version="18.0.0" />
+    <PackageReference Include="Apache.Arrow" />
     
     <!-- MSBuild task authoring (Phase 5) -->
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.50" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

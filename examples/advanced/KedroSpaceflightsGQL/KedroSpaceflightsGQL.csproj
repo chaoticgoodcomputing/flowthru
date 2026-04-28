@@ -30,19 +30,19 @@
 
   <ItemGroup>
     <!-- GQL server (in-process demo) -->
-    <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.14" />
+    <PackageReference Include="HotChocolate.AspNetCore" />
     <!-- In-process TestServer for hosting the GQL demo server without binding a port. -->
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" />
     <!-- StrawberryShake client: Server metapackage bundles Transport.Http, Core,
          and the MSBuild-driven codegen tool (no separate analyzer needed in v15) -->
-    <PackageReference Include="StrawberryShake.Server" Version="15.1.14" />
+    <PackageReference Include="StrawberryShake.Server" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-    <PackageReference Include="Plotly.NET" Version="5.1.0" />
-    <PackageReference Include="Plotly.NET.CSharp" Version="0.13.0" />
-    <PackageReference Include="Plotly.NET.ImageExport" Version="6.1.0" />
+    <PackageReference Include="MathNet.Numerics" />
+    <PackageReference Include="Plotly.NET" />
+    <PackageReference Include="Plotly.NET.CSharp" />
+    <PackageReference Include="Plotly.NET.ImageExport" />
   </ItemGroup>
 
   <ItemGroup>

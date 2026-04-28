@@ -16,11 +16,11 @@
 
   <ItemGroup>
     <!-- ML.NET Core packages -->
-    <PackageReference Include="Microsoft.ML" Version="3.0.1" />
-    <PackageReference Include="Microsoft.ML.DataView" Version="3.0.1" />
+    <PackageReference Include="Microsoft.ML" />
+    <PackageReference Include="Microsoft.ML.DataView" />
     
     <!-- MathNet for advanced numerical operations (matrix ops, linear algebra) -->
-    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="MathNet.Numerics" />
   </ItemGroup>
 
   <ItemGroup>

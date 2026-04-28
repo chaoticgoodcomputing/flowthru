@@ -8,16 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-    <PackageReference Include="Flowthru.Extensions.EFCore" Version="FlowthruVersion" />
+    <PackageReference Include="Flowthru" />
+    <PackageReference Include="Flowthru.Extensions.EFCore" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-    <PackageReference Include="Plotly.NET" Version="5.1.0" />
-    <PackageReference Include="Plotly.NET.CSharp" Version="0.13.0" />
-    <PackageReference Include="Plotly.NET.ImageExport" Version="6.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+    <PackageReference Include="MathNet.Numerics" />
+    <PackageReference Include="Plotly.NET" />
+    <PackageReference Include="Plotly.NET.CSharp" />
+    <PackageReference Include="Plotly.NET.ImageExport" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
   </ItemGroup>
 
   <ItemGroup>

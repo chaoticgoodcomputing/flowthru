@@ -14,10 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ML" Version="4.0.0" />
-    <PackageReference Include="Plotly.NET" Version="5.1.0" />
-    <PackageReference Include="Plotly.NET.CSharp" Version="0.13.0" />
-    <PackageReference Include="Plotly.NET.ImageExport" Version="6.1.0" />
+    <PackageReference Include="Microsoft.ML" />
+    <PackageReference Include="Plotly.NET" />
+    <PackageReference Include="Plotly.NET.CSharp" />
+    <PackageReference Include="Plotly.NET.ImageExport" />
   </ItemGroup>
 
   <ItemGroup>

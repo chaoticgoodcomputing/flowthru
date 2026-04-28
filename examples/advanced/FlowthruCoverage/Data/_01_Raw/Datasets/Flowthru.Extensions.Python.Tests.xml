@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.1182" branch-rate="0.1277" version="1.9" timestamp="1777314266" lines-covered="1036" lines-valid="8763" branches-covered="377" branches-valid="2951">
+<coverage line-rate="0.1213" branch-rate="0.1297" version="1.9" timestamp="1777323936" lines-covered="1063" lines-valid="8763" branches-covered="383" branches-valid="2951">
   <sources>
     <source></source>
   </sources>
@@ -2254,9 +2254,9 @@
         </class>
       </classes>
     </package>
-    <package name="Flowthru.Extensions.Python" line-rate="0.45799999999999996" branch-rate="0.3427" complexity="1116">
+    <package name="Flowthru.Extensions.Python" line-rate="0.46990000000000004" branch-rate="0.3481" complexity="1116">
       <classes>
-        <class name="Flowthru.Extensions.Python.Validation.PythonStepRegistrationValidator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Validation/PythonStepRegistrationValidator.cs" line-rate="1" branch-rate="0.9166" complexity="12">
+        <class name="Flowthru.Extensions.Python.Validation.PythonStepRegistrationValidator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Validation/PythonStepRegistrationValidator.cs" line-rate="1" branch-rate="0.9166" complexity="12">
           <methods>
             <method name="ValidateRegistration" signature="(Flowthru.Extensions.Python.Runtime.PythonRuntime,System.String,System.String)" line-rate="1" branch-rate="0.9166" complexity="12">
               <lines>
@@ -2418,7 +2418,7 @@
             <line number="123" hits="22" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Validation.PythonStepValidator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Validation/PythonStepValidator.cs" line-rate="0.5898" branch-rate="0.5921" complexity="76">
+        <class name="Flowthru.Extensions.Python.Validation.PythonStepValidator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Validation/PythonStepValidator.cs" line-rate="0.5898" branch-rate="0.5921" complexity="76">
           <methods>
             <method name="IsPythonStep" signature="(Flowthru.Core.Graph.FlowStep,Flowthru.Extensions.Python.Validation.PythonStepValidator/PythonStepInfo&amp;)" line-rate="0.7272" branch-rate="0.5" complexity="16">
               <lines>
@@ -3240,7 +3240,7 @@
             <line number="52" hits="12" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Steps.PythonStepFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Steps/PythonStepFactory.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Extensions.Python.Steps.PythonStepFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Steps/PythonStepFactory.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="AddPythonStep" signature="(Flowthru.Core.Flows.FlowBuilder,System.String,System.String,System.String,Flowthru.Core.Graph.INode`1&lt;TInput&gt;,Flowthru.Core.Graph.INode`1&lt;TOutput&gt;,Flowthru.Extensions.Python.Execution.IPythonExecutor,System.String)" line-rate="0" branch-rate="0" complexity="14">
               <lines>
@@ -3370,7 +3370,7 @@
             <line number="152" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Steps.PythonStepWrapper`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Steps/PythonStepWrapper.cs" line-rate="1" branch-rate="0.5" complexity="8">
+        <class name="Flowthru.Extensions.Python.Steps.PythonStepWrapper`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Steps/PythonStepWrapper.cs" line-rate="1" branch-rate="0.5" complexity="8">
           <methods>
             <method name="GetTransform" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -3428,7 +3428,7 @@
             <line number="31" hits="22" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Services.FlowthruServiceBuilderExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Services/FlowthruServiceBuilderExtensions.cs" line-rate="0.7674" branch-rate="0.3333" complexity="7">
+        <class name="Flowthru.Extensions.Python.Services.FlowthruServiceBuilderExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Services/FlowthruServiceBuilderExtensions.cs" line-rate="0.7674" branch-rate="0.3333" complexity="7">
           <methods>
             <method name="UsePython" signature="(Flowthru.Core.Services.IFlowthruBuilder)" line-rate="0.7368000000000001" branch-rate="0.3333" complexity="6">
               <lines>
@@ -3552,7 +3552,7 @@
             <line number="129" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Runtime.PythonEnvironmentResolver" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Runtime/PythonEnvironmentResolver.cs" line-rate="0.3063" branch-rate="0.2788" complexity="105">
+        <class name="Flowthru.Extensions.Python.Runtime.PythonEnvironmentResolver" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Runtime/PythonEnvironmentResolver.cs" line-rate="0.4279" branch-rate="0.33649999999999997" complexity="105">
           <methods>
             <method name="ResolvePythonDll" signature="(Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions)" line-rate="0.325" branch-rate="0.2777" complexity="18">
               <lines>
@@ -3903,7 +3903,7 @@
                 <line number="275" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="EnsureVenvViaUv" signature="(System.String,System.String)" line-rate="0.1724" branch-rate="0.1666" complexity="18">
+            <method name="EnsureVenvViaUv" signature="(System.String,System.String)" line-rate="0.6034" branch-rate="0.5" complexity="18">
               <lines>
                 <line number="278" hits="4" branch="False" />
                 <line number="279" hits="4" branch="False" />
@@ -3918,26 +3918,26 @@
                 </line>
                 <line number="285" hits="0" branch="False" />
                 <line number="286" hits="0" branch="False" />
-                <line number="289" hits="4" branch="True" condition-coverage="50% (1/2)">
+                <line number="289" hits="4" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
-                    <condition number="94" type="jump" coverage="50%" />
+                    <condition number="94" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="290" hits="4" branch="False" />
-                <line number="291" hits="4" branch="False" />
-                <line number="294" hits="0" branch="False" />
-                <line number="295" hits="0" branch="False" />
-                <line number="297" hits="0" branch="False" />
-                <line number="298" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="290" hits="3" branch="False" />
+                <line number="291" hits="3" branch="False" />
+                <line number="294" hits="1" branch="False" />
+                <line number="295" hits="1" branch="False" />
+                <line number="297" hits="1" branch="False" />
+                <line number="298" hits="1" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="168" type="jump" coverage="0%" />
+                    <condition number="168" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="299" hits="0" branch="False" />
                 <line number="300" hits="0" branch="False" />
-                <line number="303" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="303" hits="1" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="189" type="jump" coverage="0%" />
+                    <condition number="189" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="304" hits="0" branch="False" />
@@ -3948,34 +3948,34 @@
                 <line number="310" hits="0" branch="False" />
                 <line number="312" hits="0" branch="False" />
                 <line number="313" hits="0" branch="False" />
-                <line number="316" hits="0" branch="False" />
-                <line number="317" hits="0" branch="False" />
-                <line number="318" hits="0" branch="False" />
-                <line number="319" hits="0" branch="False" />
-                <line number="320" hits="0" branch="False" />
-                <line number="321" hits="0" branch="False" />
-                <line number="322" hits="0" branch="False" />
-                <line number="323" hits="0" branch="False" />
-                <line number="324" hits="0" branch="False" />
-                <line number="325" hits="0" branch="False" />
-                <line number="326" hits="0" branch="False" />
-                <line number="328" hits="0" branch="False" />
-                <line number="329" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="316" hits="1" branch="False" />
+                <line number="317" hits="1" branch="False" />
+                <line number="318" hits="1" branch="False" />
+                <line number="319" hits="1" branch="False" />
+                <line number="320" hits="1" branch="False" />
+                <line number="321" hits="1" branch="False" />
+                <line number="322" hits="1" branch="False" />
+                <line number="323" hits="1" branch="False" />
+                <line number="324" hits="1" branch="False" />
+                <line number="325" hits="1" branch="False" />
+                <line number="326" hits="1" branch="False" />
+                <line number="328" hits="1" branch="False" />
+                <line number="329" hits="1" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="297" type="jump" coverage="0%" />
+                    <condition number="297" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="330" hits="0" branch="False" />
                 <line number="331" hits="0" branch="False" />
-                <line number="334" hits="0" branch="False" />
-                <line number="336" hits="0" branch="True" condition-coverage="0% (0/4)">
+                <line number="334" hits="1" branch="False" />
+                <line number="336" hits="1" branch="True" condition-coverage="50% (2/4)">
                   <conditions>
-                    <condition number="323" type="jump" coverage="0%" />
-                    <condition number="338" type="jump" coverage="0%" />
+                    <condition number="323" type="jump" coverage="50%" />
+                    <condition number="338" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="337" hits="0" branch="False" />
-                <line number="338" hits="0" branch="False" />
+                <line number="337" hits="1" branch="False" />
+                <line number="338" hits="1" branch="False" />
                 <line number="341" hits="0" branch="False" />
                 <line number="342" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
@@ -3989,16 +3989,16 @@
                 <line number="348" hits="0" branch="False" />
                 <line number="349" hits="0" branch="False" />
                 <line number="350" hits="0" branch="False" />
-                <line number="354" hits="0" branch="False" />
-                <line number="355" hits="0" branch="False" />
-                <line number="356" hits="0" branch="False" />
+                <line number="354" hits="1" branch="False" />
+                <line number="355" hits="1" branch="False" />
+                <line number="356" hits="1" branch="False" />
                 <line number="357" hits="4" branch="False" />
               </lines>
             </method>
-            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="21" hits="0" branch="False" />
-                <line number="22" hits="0" branch="False" />
+                <line number="21" hits="1" branch="False" />
+                <line number="22" hits="1" branch="False" />
               </lines>
             </method>
           </methods>
@@ -4341,26 +4341,26 @@
             </line>
             <line number="285" hits="0" branch="False" />
             <line number="286" hits="0" branch="False" />
-            <line number="289" hits="4" branch="True" condition-coverage="50% (1/2)">
+            <line number="289" hits="4" branch="True" condition-coverage="100% (2/2)">
               <conditions>
-                <condition number="94" type="jump" coverage="50%" />
+                <condition number="94" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="290" hits="4" branch="False" />
-            <line number="291" hits="4" branch="False" />
-            <line number="294" hits="0" branch="False" />
-            <line number="295" hits="0" branch="False" />
-            <line number="297" hits="0" branch="False" />
-            <line number="298" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="290" hits="3" branch="False" />
+            <line number="291" hits="3" branch="False" />
+            <line number="294" hits="1" branch="False" />
+            <line number="295" hits="1" branch="False" />
+            <line number="297" hits="1" branch="False" />
+            <line number="298" hits="1" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="168" type="jump" coverage="0%" />
+                <condition number="168" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="299" hits="0" branch="False" />
             <line number="300" hits="0" branch="False" />
-            <line number="303" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="303" hits="1" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="189" type="jump" coverage="0%" />
+                <condition number="189" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="304" hits="0" branch="False" />
@@ -4371,34 +4371,34 @@
             <line number="310" hits="0" branch="False" />
             <line number="312" hits="0" branch="False" />
             <line number="313" hits="0" branch="False" />
-            <line number="316" hits="0" branch="False" />
-            <line number="317" hits="0" branch="False" />
-            <line number="318" hits="0" branch="False" />
-            <line number="319" hits="0" branch="False" />
-            <line number="320" hits="0" branch="False" />
-            <line number="321" hits="0" branch="False" />
-            <line number="322" hits="0" branch="False" />
-            <line number="323" hits="0" branch="False" />
-            <line number="324" hits="0" branch="False" />
-            <line number="325" hits="0" branch="False" />
-            <line number="326" hits="0" branch="False" />
-            <line number="328" hits="0" branch="False" />
-            <line number="329" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="316" hits="1" branch="False" />
+            <line number="317" hits="1" branch="False" />
+            <line number="318" hits="1" branch="False" />
+            <line number="319" hits="1" branch="False" />
+            <line number="320" hits="1" branch="False" />
+            <line number="321" hits="1" branch="False" />
+            <line number="322" hits="1" branch="False" />
+            <line number="323" hits="1" branch="False" />
+            <line number="324" hits="1" branch="False" />
+            <line number="325" hits="1" branch="False" />
+            <line number="326" hits="1" branch="False" />
+            <line number="328" hits="1" branch="False" />
+            <line number="329" hits="1" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="297" type="jump" coverage="0%" />
+                <condition number="297" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="330" hits="0" branch="False" />
             <line number="331" hits="0" branch="False" />
-            <line number="334" hits="0" branch="False" />
-            <line number="336" hits="0" branch="True" condition-coverage="0% (0/4)">
+            <line number="334" hits="1" branch="False" />
+            <line number="336" hits="1" branch="True" condition-coverage="50% (2/4)">
               <conditions>
-                <condition number="323" type="jump" coverage="0%" />
-                <condition number="338" type="jump" coverage="0%" />
+                <condition number="323" type="jump" coverage="50%" />
+                <condition number="338" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="337" hits="0" branch="False" />
-            <line number="338" hits="0" branch="False" />
+            <line number="337" hits="1" branch="False" />
+            <line number="338" hits="1" branch="False" />
             <line number="341" hits="0" branch="False" />
             <line number="342" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
@@ -4412,15 +4412,15 @@
             <line number="348" hits="0" branch="False" />
             <line number="349" hits="0" branch="False" />
             <line number="350" hits="0" branch="False" />
-            <line number="354" hits="0" branch="False" />
-            <line number="355" hits="0" branch="False" />
-            <line number="356" hits="0" branch="False" />
+            <line number="354" hits="1" branch="False" />
+            <line number="355" hits="1" branch="False" />
+            <line number="356" hits="1" branch="False" />
             <line number="357" hits="4" branch="False" />
-            <line number="21" hits="0" branch="False" />
-            <line number="22" hits="0" branch="False" />
+            <line number="21" hits="1" branch="False" />
+            <line number="22" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Runtime.PythonRuntime" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Runtime/PythonRuntime.cs" line-rate="0.8582" branch-rate="0.78" complexity="51">
+        <class name="Flowthru.Extensions.Python.Runtime.PythonRuntime" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Runtime/PythonRuntime.cs" line-rate="0.8582" branch-rate="0.78" complexity="51">
           <methods>
             <method name="Initialize" signature="()" line-rate="0.8965000000000001" branch-rate="0.9333" complexity="30">
               <lines>
@@ -4886,7 +4886,7 @@
             <line number="28" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Marshalling.ArrowMarshaller" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Marshalling/ArrowMarshaller.cs" line-rate="0.5259" branch-rate="0.5364" complexity="195">
+        <class name="Flowthru.Extensions.Python.Marshalling.ArrowMarshaller" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Marshalling/ArrowMarshaller.cs" line-rate="0.5259" branch-rate="0.5364" complexity="195">
           <methods>
             <method name="ToRecordBatch" signature="(System.Collections.Generic.IEnumerable`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="6">
               <lines>
@@ -6596,7 +6596,7 @@
             <line number="724" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Marshalling.ArrowSchemaMapper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Marshalling/ArrowSchemaMapper.cs" line-rate="0.5714" branch-rate="0.4756" complexity="84">
+        <class name="Flowthru.Extensions.Python.Marshalling.ArrowSchemaMapper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Marshalling/ArrowSchemaMapper.cs" line-rate="0.5714" branch-rate="0.4756" complexity="84">
           <methods>
             <method name="BuildArrowSchema" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -7076,7 +7076,7 @@
             <line number="283" hits="7" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Marshalling.ScalarMarshaller" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Marshalling/ScalarMarshaller.cs" line-rate="0.7581" branch-rate="0.7343000000000001" complexity="64">
+        <class name="Flowthru.Extensions.Python.Marshalling.ScalarMarshaller" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Marshalling/ScalarMarshaller.cs" line-rate="0.7581" branch-rate="0.7343000000000001" complexity="64">
           <methods>
             <method name="ToPython" signature="(System.Object)" line-rate="0.75" branch-rate="0.6428" complexity="14">
               <lines>
@@ -7612,7 +7612,7 @@
             <line number="340" hits="14" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Execution.PythonNetExecutor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Execution/PythonNetExecutor.cs" line-rate="0.7375" branch-rate="0.5957" complexity="97">
+        <class name="Flowthru.Extensions.Python.Execution.PythonNetExecutor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Execution/PythonNetExecutor.cs" line-rate="0.7375" branch-rate="0.5957" complexity="97">
           <methods>
             <method name="Invoke" signature="(System.String,System.String,TInput)" line-rate="0.8478" branch-rate="0.8332999999999999" complexity="12">
               <lines>
@@ -8476,7 +8476,7 @@
             <line number="49" hits="36" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/Execution/SubprocessPythonExecutor.cs" line-rate="0.016" branch-rate="0.0227" complexity="135">
+        <class name="Flowthru.Extensions.Python.Execution.SubprocessPythonExecutor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/Execution/SubprocessPythonExecutor.cs" line-rate="0.016" branch-rate="0.0227" complexity="135">
           <methods>
             <method name="Invoke" signature="(System.String,System.String,TInput)" line-rate="0" branch-rate="0" complexity="16">
               <lines>
@@ -9548,7 +9548,7 @@
             <line number="58" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.Python.Build.PythonSchemaExportTask" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/f5d1eabdba7342472f5a8730463d042709db7992/src/extensions/Flowthru.Extensions.Python/build/PythonSchemaExportTask.cs" line-rate="0" branch-rate="0" complexity="268">
+        <class name="Flowthru.Extensions.Python.Build.PythonSchemaExportTask" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8cfd259bb5aa74b5cbb71bb60c3fdfc28625c5de/src/extensions/Flowthru.Extensions.Python/build/PythonSchemaExportTask.cs" line-rate="0" branch-rate="0" complexity="268">
           <methods>
             <method name="Execute" signature="()" line-rate="0" branch-rate="0" complexity="18">
               <lines>
