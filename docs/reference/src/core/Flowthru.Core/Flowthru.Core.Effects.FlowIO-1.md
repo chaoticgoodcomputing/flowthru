@@ -30,7 +30,7 @@ The type of value produced by this effect.
 <xref href="Flowthru.Core.Effects.FlowIO%601" data-throw-if-not-resolved="false"></xref> is a lightweight effect monad for representing I/O operations.
 It provides:
 </p>
-<ul><li>Lazy evaluation - effects don't run until <xref href="Flowthru.Core.Effects.FlowIO%601.Run(System.Threading.CancellationToken)" data-throw-if-not-resolved="false"></xref> is called</li><li>Cancellation support - all effects accept a <xref href="System.Threading.CancellationToken" data-throw-if-not-resolved="false"></xref></li><li>Functor/Monad operations - <xref href="Flowthru.Core.Effects.FlowIO%601.Map%60%601(System.Func%7b%600%2c%60%600%7d)" data-throw-if-not-resolved="false"></xref>, <xref href="Flowthru.Core.Effects.FlowIO%601.Bind%60%601(System.Func%7b%600%2cFlowthru.Core.Effects.FlowIO%7b%60%600%7d%7d)" data-throw-if-not-resolved="false"></xref></li><li>LINQ comprehension syntax - via <xref href="Flowthru.Core.Effects.FlowIO%601.Select%60%601(System.Func%7b%600%2c%60%600%7d)" data-throw-if-not-resolved="false"></xref> and <xref href="Flowthru.Core.Effects.FlowIO%601.SelectMany%60%602(System.Func%7b%600%2cFlowthru.Core.Effects.FlowIO%7b%60%600%7d%7d%2cSystem.Func%7b%600%2c%60%600%2c%60%601%7d)" data-throw-if-not-resolved="false"></xref></li></ul>
+<ul><li>Lazy evaluation - effects don't run until <xref href="Flowthru.Core.Effects.FlowIO%601.Run(System.Threading.CancellationToken)" data-throw-if-not-resolved="false"></xref> is called</li><li>Cancellation support - all effects accept a <xref href="System.Threading.CancellationToken" data-throw-if-not-resolved="false"></xref></li><li>Functor/Monad operations - <xref href="Flowthru.Core.Effects.FlowIO%601.Map%60%601(System.Func%7b%600%2c%60%600%7d)" data-throw-if-not-resolved="false"></xref>, Bind&lt;B&gt;</li><li>LINQ comprehension syntax - via <xref href="Flowthru.Core.Effects.FlowIO%601.Select%60%601(System.Func%7b%600%2c%60%600%7d)" data-throw-if-not-resolved="false"></xref> and <xref href="Flowthru.Core.Effects.FlowIO%601.SelectMany%60%602(System.Func%7b%600%2cFlowthru.Core.Effects.FlowIO%7b%60%600%7d%7d%2cSystem.Func%7b%600%2c%60%600%2c%60%601%7d)" data-throw-if-not-resolved="false"></xref></li></ul>
 <p>
 <strong>Example - Basic usage:</strong>
 </p>
@@ -60,123 +60,6 @@ catch (FileNotFoundException ex) {
 }</code></pre>
 
 ## Methods
-
-### <a id="Flowthru_Core_Effects_FlowIO_1_Bind__1_System_Func__0_Flowthru_Core_Effects_FlowIO___0___"></a> Bind<B\>\(Func<A, FlowIO<B\>\>\)
-
-Binds this effect to a function that produces another effect.
-
-```csharp
-public FlowIO<B> Bind<B>(Func<A, FlowIO<B>> f)
-```
-
-#### Parameters
-
-`f` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<A, [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<B\>\>
-
-The function that takes this effect's result and produces a new effect.
-
-#### Returns
-
- [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<B\>
-
-A new effect representing the sequential composition of both effects.
-
-#### Type Parameters
-
-`B` 
-
-The result type of the produced effect.
-
-#### Remarks
-
-This is the monad's <code>bind</code> (or <code>&gt;&gt;=</code>) operation. It enables sequential
-composition of effects, forming a computational pipeline.
-
-### <a id="Flowthru_Core_Effects_FlowIO_1_Catch_System_Func_System_Exception_Flowthru_Core_Effects_FlowIO__0___"></a> Catch\(Func<Exception, FlowIO<A\>\>\)
-
-Catches exceptions thrown during effect execution and recovers with an alternative effect.
-
-```csharp
-public FlowIO<A> Catch(Func<Exception, FlowIO<A>> handler)
-```
-
-#### Parameters
-
-`handler` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[Exception](https://learn.microsoft.com/dotnet/api/system.exception), [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>\>
-
-Function that receives the exception and produces a recovery effect.
-
-#### Returns
-
- [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>
-
-A new effect that recovers from failures using <code class="paramref">handler</code>.
-
-### <a id="Flowthru_Core_Effects_FlowIO_1_Catch__1_System_Func___0_Flowthru_Core_Effects_FlowIO__0___"></a> Catch<TException\>\(Func<TException, FlowIO<A\>\>\)
-
-Catches exceptions of a specific type during effect execution.
-
-```csharp
-public FlowIO<A> Catch<TException>(Func<TException, FlowIO<A>> handler) where TException : Exception
-```
-
-#### Parameters
-
-`handler` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<TException, [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>\>
-
-Function that receives the exception and produces a recovery effect.
-
-#### Returns
-
- [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>
-
-A new effect that recovers from specific exceptions.
-
-#### Type Parameters
-
-`TException` 
-
-The type of exception to catch.
-
-### <a id="Flowthru_Core_Effects_FlowIO_1_IfFail__0_"></a> IfFail\(A\)
-
-Returns a default value if this effect fails.
-
-```csharp
-public FlowIO<A> IfFail(A defaultValue)
-```
-
-#### Parameters
-
-`defaultValue` A
-
-The value to return on failure.
-
-#### Returns
-
- [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>
-
-A new effect that never fails, using <code class="paramref">defaultValue</code> on error.
-
-### <a id="Flowthru_Core_Effects_FlowIO_1_IfFail_Flowthru_Core_Effects_FlowIO__0__"></a> IfFail\(FlowIO<A\>\)
-
-Returns an alternative effect if this effect fails.
-
-```csharp
-public FlowIO<A> IfFail(FlowIO<A> alternative)
-```
-
-#### Parameters
-
-`alternative` [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>
-
-The effect to run on failure.
-
-#### Returns
-
- [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>
-
-A new effect that falls back to <code class="paramref">alternative</code> on error.
 
 ### <a id="Flowthru_Core_Effects_FlowIO_1_Map__1_System_Func__0___0__"></a> Map<B\>\(Func<A, B\>\)
 
@@ -208,32 +91,6 @@ The result type after mapping.
 
 This is the functor's <code>fmap</code> operation. It transforms the value inside the effect
 without changing the effect structure.
-
-### <a id="Flowthru_Core_Effects_FlowIO_1_MapAsync__1_System_Func__0_System_Threading_Tasks_Task___0___"></a> MapAsync<B\>\(Func<A, Task<B\>\>\)
-
-Maps the result of this effect using an async function.
-
-```csharp
-public FlowIO<B> MapAsync<B>(Func<A, Task<B>> f)
-```
-
-#### Parameters
-
-`f` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<A, [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<B\>\>
-
-The async function to apply to the effect's result.
-
-#### Returns
-
- [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<B\>
-
-A new effect that applies <code class="paramref">f</code> to this effect's result.
-
-#### Type Parameters
-
-`B` 
-
-The result type after mapping.
 
 ### <a id="Flowthru_Core_Effects_FlowIO_1_Run_System_Threading_CancellationToken_"></a> Run\(CancellationToken\)
 

@@ -55,19 +55,6 @@ public sealed class PropertyMappingConfiguration
   }
 
   /// <summary>
-  /// Serializer uses format-specific attributes (e.g., ML.NET's [LoadColumn], [ColumnName]).
-  /// </summary>
-  /// <param name="attributeDescription">Description of native attributes used</param>
-  /// <returns>Configuration for native attribute mapping</returns>
-  public static PropertyMappingConfiguration FromNativeAttributes(string attributeDescription)
-  {
-    return new PropertyMappingConfiguration(
-      PropertyMappingStrategy.NativeAttributes,
-      description: $"Uses format-specific attributes: {attributeDescription}"
-    );
-  }
-
-  /// <summary>
   /// Underlying library controls mapping with no programmatic API.
   /// Property names must match storage field names exactly.
   /// </summary>
@@ -83,33 +70,9 @@ public sealed class PropertyMappingConfiguration
   }
 
   /// <summary>
-  /// Serializer uses an adapter to bridge SerializedLabel with native attributes.
+  /// Checks if the serializer supports SerializedLabel attributes.
   /// </summary>
-  /// <typeparam name="TAdapter">The adapter type that performs the bridging</typeparam>
-  /// <returns>Configuration for adapter-based mapping</returns>
-  public static PropertyMappingConfiguration FromAdapter<TAdapter>()
-  {
-    return new PropertyMappingConfiguration(
-      PropertyMappingStrategy.Adapter,
-      description: $"Uses adapter {typeof(TAdapter).Name} to bridge [SerializedLabel] with native format attributes.",
-      metadataType: typeof(TAdapter)
-    );
-  }
-
-  /// <summary>
-  /// Checks if the serializer supports SerializedLabel attributes (directly or via adapter).
-  /// </summary>
-  public bool SupportsSerializedLabel =>
-    Strategy == PropertyMappingStrategy.SerializedLabel
-    || Strategy == PropertyMappingStrategy.Adapter;
-
-  /// <summary>
-  /// Gets a human-readable description of the mapping strategy.
-  /// </summary>
-  public override string ToString()
-  {
-    return Description ?? Strategy.ToString();
-  }
+  public bool SupportsSerializedLabel => Strategy == PropertyMappingStrategy.SerializedLabel;
 }
 
 /// <summary>
@@ -123,17 +86,7 @@ public enum PropertyMappingStrategy
   SerializedLabel,
 
   /// <summary>
-  /// Serializer uses format-specific attributes (e.g., ML.NET [LoadColumn], CsvHelper [Name]).
-  /// </summary>
-  NativeAttributes,
-
-  /// <summary>
   /// Underlying library controls mapping with no programmatic access.
   /// </summary>
   LibraryControlled,
-
-  /// <summary>
-  /// Serializer uses an adapter to translate SerializedLabel to native attributes.
-  /// </summary>
-  Adapter,
 }

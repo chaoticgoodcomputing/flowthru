@@ -117,20 +117,6 @@ public class ValidationResult
   }
 
   /// <summary>
-  /// Returns a formatted string representation of all errors.
-  /// </summary>
-  public override string ToString()
-  {
-    if (IsValid)
-    {
-      return "Validation successful - no errors found";
-    }
-
-    return $"Validation failed with {ErrorCount} error(s):\n"
-      + string.Join("\n", _errors.Select(e => $"  • {e}"));
-  }
-
-  /// <summary>
   /// Throws a ValidationException if this result has errors.
   /// </summary>
   /// <exception cref="ValidationException">Thrown if validation failed</exception>

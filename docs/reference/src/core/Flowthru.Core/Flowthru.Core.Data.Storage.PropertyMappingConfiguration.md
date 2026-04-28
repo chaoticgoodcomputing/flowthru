@@ -163,15 +163,3 @@ Optional description of the limitation
 
 Configuration for library-controlled mapping
 
-### <a id="Flowthru_Core_Data_Storage_PropertyMappingConfiguration_ToString"></a> ToString\(\)
-
-Gets a human-readable description of the mapping strategy.
-
-```csharp
-public override string ToString()
-```
-
-#### Returns
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)
-

@@ -1,4 +1,5 @@
 using Flowthru.Core.Steps;
+using KedroSpaceflights.Data._02_Intermediate.Schemas;
 using KedroSpaceflights.Data._05_ModelInput.Schemas;
 using KedroSpaceflights.Data._06_Models.Schemas;
 using KedroSpaceflights.Data._07_ModelOutput.Schemas;
@@ -91,7 +92,7 @@ public static class EvaluateModelStep
       (double)features.Engines,
       (double)features.PassengerCapacity,
       (double)features.Crew,
-      features.DCheckComplete ? 1.0 : 0.0,
+      features.DCheckComplete == CheckStatus.Complete ? 1.0 : 0.0,
       features.IataApproved ? 1.0 : 0.0,
       (double)features.CompanyRating,
       (double)features.ReviewScoresRating,

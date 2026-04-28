@@ -40,7 +40,7 @@ public static class DataDiagnosticsFlow
         label: "ValidateModelInputTableAgainstKedroSource",
         transform: ValidateAgainstKedroStep.Create(),
         input: (catalog.ModelInputTable, catalog.KedroModelInputTable),
-        output: NoData.Discard
+        output: NoData.Item
       );
 
       // Step 2: Export cleaned companies to CSV for manual inspection

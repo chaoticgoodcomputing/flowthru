@@ -1,5 +1,5 @@
 using Flowthru.Core.Data.Storage.Strategies;
-using Flowthru.Core.Tests.Schemas;
+using Flowthru.Tests.Helpers.Schemas;
 
 namespace Flowthru.Core.Tests.Services.StorageStrategies;
 

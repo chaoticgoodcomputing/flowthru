@@ -140,17 +140,3 @@ Expands to include all transitive dependencies.
 Equivalent to "run everything up to and including these nodes".
 Useful for targeted execution: "run everything needed to produce this step or item".
 
-## Methods
-
-### <a id="Flowthru_Core_Graph_FlowSliceStrategy_All"></a> All\(\)
-
-No filtering - execute entire flow.
-
-```csharp
-public static FlowSliceStrategy All()
-```
-
-#### Returns
-
- [FlowSliceStrategy](Flowthru.Core.Graph.FlowSliceStrategy.md)
-

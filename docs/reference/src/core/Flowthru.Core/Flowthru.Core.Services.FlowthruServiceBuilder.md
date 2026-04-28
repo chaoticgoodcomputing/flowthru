@@ -133,26 +133,6 @@ Metadata export is optional. If not configured, flows will execute
 without generating DAG diagrams or metadata files.
 </p>
 
-### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_ConfigureServices_System_Action_Microsoft_Extensions_DependencyInjection_IServiceCollection__"></a> ConfigureServices\(Action<IServiceCollection\>\)
-
-Convenience method for registering additional services with <xref href="Flowthru.Core.Services.FlowthruServiceBuilder.Services" data-throw-if-not-resolved="false"></xref>.
-
-```csharp
-public IFlowthruBuilder ConfigureServices(Action<IServiceCollection> configure)
-```
-
-#### Parameters
-
-`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[IServiceCollection](https://learn.microsoft.com/dotnet/api/microsoft.extensions.dependencyinjection.iservicecollection)\>
-
-Action that receives the service collection.
-
-#### Returns
-
- [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
-
-This builder for method chaining.
-
 ### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_RegisterCatalog__1"></a> RegisterCatalog<TCatalog\>\(\)
 
 Registers a catalog type with constructor injection.

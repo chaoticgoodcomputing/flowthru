@@ -95,23 +95,6 @@ IFlowthruBuilder ConfigureMetadata(Action<FlowthruMetadataBuilder> configure)
 
  [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
 
-### <a id="Flowthru_Core_Services_IFlowthruBuilder_ConfigureServices_System_Action_Microsoft_Extensions_DependencyInjection_IServiceCollection__"></a> ConfigureServices\(Action<IServiceCollection\>\)
-
-Convenience escape hatch for registering additional services with the underlying
-<xref href="Flowthru.Core.Services.IFlowthruBuilder.Services" data-throw-if-not-resolved="false"></xref> collection. Prefer using <xref href="Flowthru.Core.Services.IFlowthruBuilder.Services" data-throw-if-not-resolved="false"></xref> directly.
-
-```csharp
-IFlowthruBuilder ConfigureServices(Action<IServiceCollection> configure)
-```
-
-#### Parameters
-
-`configure` [Action](https://learn.microsoft.com/dotnet/api/system.action\-1)<[IServiceCollection](https://learn.microsoft.com/dotnet/api/microsoft.extensions.dependencyinjection.iservicecollection)\>
-
-#### Returns
-
- [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
-
 ### <a id="Flowthru_Core_Services_IFlowthruBuilder_RegisterCatalog__1"></a> RegisterCatalog<TCatalog\>\(\)
 
 Registers a catalog type with DI constructor injection.

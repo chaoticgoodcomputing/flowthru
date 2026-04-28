@@ -222,17 +222,3 @@ do not accept a CancellationToken will only be cancelled between step executions
 The execution engine detects whether the result is a Task and awaits it if needed.
 </p>
 
-## Methods
-
-### <a id="Flowthru_Core_Graph_FlowStep_ToString"></a> ToString\(\)
-
-Returns a string representation for debugging.
-
-```csharp
-public override string ToString()
-```
-
-#### Returns
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)
-

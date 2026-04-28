@@ -87,6 +87,8 @@ public class JsonMetadataProviderBuilder
   /// </summary>
   public JsonMetadataProvider Build()
   {
+    _timestampConfig.Validate();
+
     return new JsonMetadataProvider(
       _outputDirectory,
       _dagFilenameTemplate,

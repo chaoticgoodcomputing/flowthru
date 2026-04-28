@@ -54,21 +54,4 @@ internal static class EnumMetadataRegistry
     return metadata;
   }
 
-  /// <summary>
-  /// Determines whether the specified type is an enum type registered in the cache.
-  /// </summary>
-  /// <param name="type">The type to check.</param>
-  /// <returns>true if the type is an enum and has cached metadata; otherwise, false.</returns>
-  public static bool IsRegistered(Type type)
-  {
-    return type.IsEnum && _cache.ContainsKey(type);
-  }
-
-  /// <summary>
-  /// Clears all cached enum metadata. Primarily used for testing.
-  /// </summary>
-  internal static void Clear()
-  {
-    _cache.Clear();
-  }
 }

@@ -101,23 +101,3 @@ The metadata provider to register
 
 This builder for fluent chaining
 
-### <a id="Flowthru_Core_Meta_FlowthruMetadataBuilder_WithAutoExport_System_Boolean_"></a> WithAutoExport\(bool\)
-
-Enables or disables automatic metadata export during pipeline execution.
-
-```csharp
-public FlowthruMetadataBuilder WithAutoExport(bool enabled = true)
-```
-
-#### Parameters
-
-`enabled` [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
-
-True to auto-export (default), false to require manual export
-
-#### Returns
-
- [FlowthruMetadataBuilder](Flowthru.Core.Meta.FlowthruMetadataBuilder.md)
-
-This builder for fluent chaining
-

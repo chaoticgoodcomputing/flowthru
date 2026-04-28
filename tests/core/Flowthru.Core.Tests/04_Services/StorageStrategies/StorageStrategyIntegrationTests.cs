@@ -1,6 +1,6 @@
 using Flowthru.Core.Data;
 using Flowthru.Core.Data.Storage.Strategies;
-using Flowthru.Core.Tests.Schemas;
+using Flowthru.Tests.Helpers.Schemas;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

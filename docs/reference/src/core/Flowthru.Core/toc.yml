@@ -127,8 +127,6 @@
   - name: Classes
   - name: FileStorageMedium
     href: Flowthru.Core.Data.Storage.Medium.FileStorageMedium.md
-  - name: MemoryStorageMedium
-    href: Flowthru.Core.Data.Storage.Medium.MemoryStorageMedium.md
 - name: Flowthru.Core.Data.Storage.Strategies
   href: Flowthru.Core.Data.Storage.Strategies.md
   items:
@@ -270,12 +268,6 @@
     href: Flowthru.Core.Meta.Providers.IMetadataProvider.md
   - name: IPostRunMetadataProvider
     href: Flowthru.Core.Meta.Providers.IPostRunMetadataProvider.md
-- name: Flowthru.Core.Registry
-  href: Flowthru.Core.Registry.md
-  items:
-  - name: Interfaces
-  - name: IFlowRegistrar<TCatalog>
-    href: Flowthru.Core.Registry.IFlowRegistrar-1.md
 - name: Flowthru.Core.Results
   href: Flowthru.Core.Results.md
   items:
@@ -321,14 +313,6 @@
     href: Flowthru.Core.Steps.NoData.md
   - name: NoParams
     href: Flowthru.Core.Steps.NoParams.md
-- name: Flowthru.Core.Steps.Factory
-  href: Flowthru.Core.Steps.Factory.md
-  items:
-  - name: Classes
-  - name: StepFactory
-    href: Flowthru.Core.Steps.Factory.StepFactory.md
-  - name: TypeActivator
-    href: Flowthru.Core.Steps.Factory.TypeActivator.md
 - name: Microsoft.Extensions.DependencyInjection
   href: Microsoft.Extensions.DependencyInjection.md
   items:

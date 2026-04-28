@@ -31,25 +31,6 @@ namespace Flowthru.Core.Graph;
 internal static class DependencyAnalyzer
 {
   /// <summary>
-  /// Analyzes dependencies and assigns execution layers to all nodes.
-  /// </summary>
-  /// <param name="nodes">All nodes in the pipeline</param>
-  /// <exception cref="InvalidOperationException">
-  /// Thrown if:
-  /// - Multiple nodes write to the same catalog entry (violates single producer rule)
-  /// - A circular dependency is detected
-  /// </exception>
-  /// <remarks>
-  /// This method combines BuildDependencyGraph and AssignLayers for convenience.
-  /// For sliced pipelines, call these methods separately to recalculate layers post-slice.
-  /// </remarks>
-  public static void AnalyzeAndAssignLayers(List<FlowStep> nodes)
-  {
-    BuildDependencyGraph(nodes);
-    AssignLayers(nodes);
-  }
-
-  /// <summary>
   /// Builds the dependency graph by mapping producers and resolving dependencies.
   /// </summary>
   /// <param name="nodes">All nodes in the pipeline</param>

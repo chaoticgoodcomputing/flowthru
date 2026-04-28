@@ -13,11 +13,7 @@ public interface IStorageMedium
 
 <pre><code class="lang-csharp">// File storage medium
 var fileMedium = new FileStorageMedium("data/file.csv");
-var readResult = await fileMedium.ReadStream().Run();
-
-// Memory storage medium
-var memoryMedium = new MemoryStorageMedium();
-var writeResult = await memoryMedium.WriteStream(stream).Run();</code></pre>
+var readResult = await fileMedium.ReadStream().Run();</code></pre>
 
 ## Remarks
 

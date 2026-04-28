@@ -81,24 +81,7 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   }
 
   /// <summary>
-  /// Convenience method for registering additional services with <see cref="Services"/>.
-  /// </summary>
-  /// <param name="configure">Action that receives the service collection.</param>
-  /// <returns>This builder for method chaining.</returns>
-  public IFlowthruBuilder ConfigureServices(Action<IServiceCollection> configure)
-  {
-    if (configure == null)
-    {
-      throw new ArgumentNullException(nameof(configure));
-    }
-
-    configure(Services);
-    return this;
-  }
-
-  /// <summary>
   /// Internal entry type that carries a Flow factory and its associated metadata.
-  /// Replaces the FlowRegistrar indirection for cleaner multi-catalog support.
   /// </summary>
   internal sealed class FlowRegistrationEntry
   {

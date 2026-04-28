@@ -113,41 +113,6 @@ internal static class SchemaPropertyClassifier
   }
 
   /// <summary>
-  /// Determines whether a property type is a collection (array, IEnumerable&lt;T&gt;, List, etc.),
-  /// dictionary, or nested complex object.
-  /// </summary>
-  public static bool IsNestedPropertyType(ITypeSymbol type)
-  {
-    // Unwrap nullable — a Nullable<CustomStruct> is still nested if CustomStruct is nested
-    if (
-      type is INamedTypeSymbol
-      {
-        OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
-      } nullable
-    )
-    {
-      type = nullable.TypeArguments[0];
-    }
-
-    // If it's flat, it's not nested
-    if (IsFlatPropertyType(type))
-    {
-      return false;
-    }
-
-    // Arrays — byte[] was already handled as a flat blob by IsFlatPropertyType (Tier 3),
-    // so any array reaching here is a traversable collection and is therefore nested.
-    if (type is IArrayTypeSymbol)
-    {
-      return true;
-    }
-
-    // Everything else that isn't flat is nested: collections, dictionaries,
-    // custom classes/records/structs, interfaces, etc.
-    return true;
-  }
-
-  /// <summary>
   /// Analyzes all public instance properties of a type and determines if the schema is flat.
   /// A schema is flat if ALL of its properties are flat types.
   /// </summary>
@@ -181,7 +146,6 @@ internal static class SchemaPropertyClassifier
 internal sealed class SchemaClassification
 {
   public bool IsFlat { get; }
-  public bool IsNested => !IsFlat;
   public IList<IPropertySymbol> Properties { get; }
 
   public SchemaClassification(bool isFlat, IList<IPropertySymbol> properties)

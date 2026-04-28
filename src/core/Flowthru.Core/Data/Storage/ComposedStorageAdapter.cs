@@ -54,13 +54,6 @@ namespace Flowthru.Core.Data.Storage;
 ///     format: new CsvFormatSerializer&lt;Company&gt;(),
 ///     container: new DataViewContainerAdapter&lt;Company&gt;(mlContext)
 /// );
-///
-/// // JSON in memory with IEnumerable container
-/// var jsonEnumerable = new ComposedStorageAdapter&lt;IEnumerable&lt;Order&gt;, Order&gt;(
-///     medium: new MemoryStorageMedium(),
-///     format: new JsonFormatSerializer&lt;Order&gt;(),
-///     container: new EnumerableContainerAdapter&lt;Order&gt;()
-/// );
 /// </code>
 /// </example>
 public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<TContainer>

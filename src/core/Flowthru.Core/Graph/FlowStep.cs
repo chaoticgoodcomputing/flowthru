@@ -134,9 +134,4 @@ public class FlowStep
     Outputs = outputs;
   }
 
-  /// <summary>
-  /// Returns a string representation for debugging.
-  /// </summary>
-  public override string ToString() =>
-    $"FlowStep({Label}, Layer={Layer}, Inputs={Inputs.Count}, Outputs={Outputs.Count}, Dependencies={Dependencies.Count})";
 }

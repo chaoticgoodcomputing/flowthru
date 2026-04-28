@@ -180,34 +180,4 @@ public abstract class CatalogAbstract
     }
   }
 
-  /// <summary>
-  /// Gets all cached catalog items.
-  /// </summary>
-  /// <returns>Enumerable of all initialized catalog items</returns>
-  /// <remarks>
-  /// Useful for diagnostic purposes or when you need to iterate over all items
-  /// (e.g., for validation, cleanup, or reporting).
-  /// </remarks>
-  protected IEnumerable<IItem> GetAllItemFactory()
-  {
-    return _propertyCache.Values;
-  }
-
-  /// <summary>
-  /// Clears the property cache. Use with caution!
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// <strong>Warning:</strong> Clearing the cache after Flow construction will break
-  /// DAG dependencies since new instances will be created on next access.
-  /// </para>
-  /// <para>
-  /// <strong>Use Case:</strong> Primarily for testing scenarios where you need to reset
-  /// catalog state between test runs.
-  /// </para>
-  /// </remarks>
-  protected void ClearCache()
-  {
-    _propertyCache.Clear();
-  }
 }

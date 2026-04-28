@@ -29,28 +29,11 @@ namespace Flowthru.Core.Meta;
 public class FlowthruMetadataBuilder
 {
   private readonly List<IMetadataProvider> _providers = new();
-  private bool _autoExport = true;
 
   /// <summary>
   /// Gets the list of registered metadata providers.
   /// </summary>
   internal IReadOnlyList<IMetadataProvider> Providers => _providers.AsReadOnly();
-
-  /// <summary>
-  /// Gets whether metadata should be auto-exported during pipeline execution.
-  /// </summary>
-  internal bool AutoExport => _autoExport;
-
-  /// <summary>
-  /// Enables or disables automatic metadata export during pipeline execution.
-  /// </summary>
-  /// <param name="enabled">True to auto-export (default), false to require manual export</param>
-  /// <returns>This builder for fluent chaining</returns>
-  public FlowthruMetadataBuilder WithAutoExport(bool enabled = true)
-  {
-    _autoExport = enabled;
-    return this;
-  }
 
   /// <summary>
   /// Adds a metadata provider with optional configuration.

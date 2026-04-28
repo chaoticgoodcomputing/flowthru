@@ -1,9 +1,11 @@
 using System.Collections.Immutable;
 using Flowthru.Core.Data;
+using Flowthru.Core.SourceGenerators;
 using Flowthru.Core.SourceGenerators.SchemaAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.Extensions.Configuration;
 
 namespace Flowthru.Tests.Helpers;
 
@@ -16,7 +18,57 @@ public static class GeneratorTestHelper
   /// Runs the <see cref="SchemaInterfaceGenerator"/> against the given source code
   /// and returns the generator output alongside compilation diagnostics.
   /// </summary>
-  public static GeneratorTestResult RunSchemaGenerator(string source)
+  public static GeneratorTestResult RunSchemaGenerator(string source) =>
+    RunGenerators(
+      source,
+      assemblyName: "GeneratorTestAssembly",
+      generators: new IIncrementalGenerator[] { new SchemaInterfaceGenerator() },
+      includeAnalyzer: true
+    );
+
+  /// <summary>
+  /// Runs the <see cref="ConfigCatalogGenerator"/> against the given source code. Includes the
+  /// references needed for <c>[FlowthruConfig]</c> + <c>[ConfigSection]</c> partial classes
+  /// to resolve (<c>Flowthru.Core</c>, <c>Microsoft.Extensions.Configuration</c>).
+  /// </summary>
+  public static GeneratorTestResult RunConfigCatalogGenerator(string source) =>
+    RunGenerators(
+      source,
+      assemblyName: "ConfigCatalogTestAssembly",
+      generators: new IIncrementalGenerator[] { new ConfigCatalogGenerator() }
+    );
+
+  /// <summary>
+  /// Runs the <see cref="FlowBuilderGenerator"/>. The generator is gated on the consuming
+  /// assembly name being <c>"Flowthru.Core"</c>, so the test forces that name. The result's
+  /// generated sources contain the <c>FlowBuilder.Generated.cs</c> AddStep overloads.
+  /// </summary>
+  public static GeneratorTestResult RunFlowBuilderGenerator() =>
+    RunGenerators(
+      // Empty source — FlowBuilderGenerator doesn't depend on consumer code, only assembly name.
+      source: "namespace Flowthru.Core.Flows { internal class _Marker { } }",
+      assemblyName: "Flowthru.Core",
+      generators: new IIncrementalGenerator[] { new FlowBuilderGenerator() }
+    );
+
+  /// <summary>
+  /// Runs the <see cref="FlowBuilderGenerator"/> against a compilation with a non-Core
+  /// assembly name. Used to assert the generator is correctly gated and emits nothing for
+  /// consumer projects.
+  /// </summary>
+  public static GeneratorTestResult RunFlowBuilderGeneratorAsConsumer() =>
+    RunGenerators(
+      source: "namespace Test { internal class _Marker { } }",
+      assemblyName: "Some.Consumer.Assembly",
+      generators: new IIncrementalGenerator[] { new FlowBuilderGenerator() }
+    );
+
+  private static GeneratorTestResult RunGenerators(
+    string source,
+    string assemblyName,
+    IIncrementalGenerator[] generators,
+    bool includeAnalyzer = false
+  )
   {
     var syntaxTree = CSharpSyntaxTree.ParseText(source);
 
@@ -27,7 +79,6 @@ public static class GeneratorTestHelper
       MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
     };
 
-    // .NET runtime references
     var runtimePath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
     references.Add(
       MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll"))
@@ -36,18 +87,19 @@ public static class GeneratorTestHelper
       MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Collections.dll"))
     );
 
-    // Flowthru assembly — so the marker interfaces resolve
     references.Add(MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location));
+    references.Add(
+      MetadataReference.CreateFromFile(typeof(IConfiguration).Assembly.Location)
+    );
 
     var compilation = CSharpCompilation.Create(
-      "GeneratorTestAssembly",
+      assemblyName,
       new[] { syntaxTree },
       references,
       new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
     );
 
-    var generator = new SchemaInterfaceGenerator();
-    GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+    GeneratorDriver driver = CSharpGeneratorDriver.Create(generators);
     driver = driver.RunGeneratorsAndUpdateCompilation(
       compilation,
       out var outputCompilation,
@@ -56,17 +108,22 @@ public static class GeneratorTestHelper
 
     var runResult = driver.GetRunResult();
     var allDiagnostics = outputCompilation.GetDiagnostics().Concat(generatorDiagnostics).ToList();
+    var combinedGeneratorDiagnostics = generatorDiagnostics.ToList();
 
-    // Also run the schema analyzer so FT1001/FT1002 appear in GeneratorDiagnostics.
-    var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new FlowthruSchemaAnalyzer());
-    var analyzerDiagnostics = outputCompilation
-      .WithAnalyzers(analyzers)
-      .GetAnalyzerDiagnosticsAsync()
-      .GetAwaiter()
-      .GetResult();
+    if (includeAnalyzer)
+    {
+      var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new FlowthruSchemaAnalyzer());
+      var analyzerDiagnostics = outputCompilation
+        .WithAnalyzers(analyzers)
+        .GetAnalyzerDiagnosticsAsync()
+        .GetAwaiter()
+        .GetResult();
 
-    var combinedGeneratorDiagnostics = generatorDiagnostics.Concat(analyzerDiagnostics).ToList();
-    allDiagnostics = allDiagnostics.Concat(analyzerDiagnostics).ToList();
+      combinedGeneratorDiagnostics = combinedGeneratorDiagnostics
+        .Concat(analyzerDiagnostics)
+        .ToList();
+      allDiagnostics = allDiagnostics.Concat(analyzerDiagnostics).ToList();
+    }
 
     var errors = allDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
 

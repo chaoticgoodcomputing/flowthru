@@ -193,45 +193,6 @@ Object type
 </p>
 <ul><li>ML models (LinearRegressionModel)</li><li>Charts (GenericChart from Plotly.NET)</li><li>Metrics objects (ModelMetrics, CrossValidationResults)</li><li>Any singleton data that doesn't need persistence</li></ul>
 
-### <a id="Flowthru_Core_Data_ItemFactory_Single_Null__1_System_String_"></a> Null<T\>\(string\)
-
-Creates a null catalog item for side-effect-only steps.
-
-```csharp
-public static Item<T> Null<T>(string label)
-```
-
-#### Parameters
-
-`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-Unique catalog label for DAG resolution
-
-#### Returns
-
- [Item](Flowthru.Core.Data.Item\-1.md)<T\>
-
-Catalog item for void/no-data semantics
-
-#### Type Parameters
-
-`T` 
-
-The data type (typically NoData)
-
-#### Remarks
-
-<p>
-<strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
-</p>
-<p>
-<strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.
-</p>
-<p>
-<strong>Storage Traits:</strong>
-</p>
-<ul><li>CanWrite: false (Save is a no-op)</li><li>CanRead: false (Load throws NotSupportedException)</li></ul>
-
 ### <a id="Flowthru_Core_Data_ItemFactory_Single_Text_System_String_System_String_"></a> Text\(string, string\)
 
 Creates a plain text file catalog item .

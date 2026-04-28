@@ -1183,30 +1183,6 @@ public class Flow
   }
 
   /// <summary>
-  /// Helper method to dynamically create a tuple type from input values.
-  /// </summary>
-  private static Type GetTupleType(object[] values)
-  {
-    return values.Length switch
-    {
-      2 => typeof(ValueTuple<,>).MakeGenericType(values[0].GetType(), values[1].GetType()),
-      3 => typeof(ValueTuple<,,>).MakeGenericType(
-        values[0].GetType(),
-        values[1].GetType(),
-        values[2].GetType()
-      ),
-      4 => typeof(ValueTuple<,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
-      5 => typeof(ValueTuple<,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
-      6 => typeof(ValueTuple<,,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
-      7 => typeof(ValueTuple<,,,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
-      8 => typeof(ValueTuple<,,,,,,,>).MakeGenericType(values.Select(v => v.GetType()).ToArray()),
-      _ => throw new NotSupportedException(
-        $"Tuples with {values.Length} elements not supported. Maximum is 8."
-      ),
-    };
-  }
-
-  /// <summary>
   /// Helper method to extract the result from a Task&lt;T&gt;.
   /// </summary>
   private static object GetTaskResult(Task task)

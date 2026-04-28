@@ -56,19 +56,6 @@ public class ValidationError
   /// - Stack trace (for exceptions)
   /// </remarks>
   public string? Details { get; }
-
-  /// <summary>
-  /// Returns a formatted string representation of the error.
-  /// </summary>
-  public override string ToString()
-  {
-    var result = $"[{ErrorType}] {CatalogKey}: {Message}";
-    if (!string.IsNullOrEmpty(Details))
-    {
-      result += $"\n  Details: {Details}";
-    }
-    return result;
-  }
 }
 
 /// <summary>

@@ -118,25 +118,6 @@ items to resolve services (e.g., database connections, HTTP clients).
 
 ## Methods
 
-### <a id="Flowthru_Core_Data_CatalogAbstract_ClearCache"></a> ClearCache\(\)
-
-Clears the property cache. Use with caution!
-
-```csharp
-protected void ClearCache()
-```
-
-#### Remarks
-
-<p>
-<strong>Warning:</strong> Clearing the cache after Flow construction will break
-DAG dependencies since new instances will be created on next access.
-</p>
-<p>
-<strong>Use Case:</strong> Primarily for testing scenarios where you need to reset
-catalog state between test runs.
-</p>
-
 ### <a id="Flowthru_Core_Data_CatalogAbstract_CreateItem__1_System_Func_Flowthru_Core_Data_IItem___0___System_String_"></a> CreateItem<T\>\(Func<IItem<T\>\>, string\)
 
 Gets or creates a unified catalog item, caching it for subsequent accesses.
@@ -215,25 +196,6 @@ Cached catalog item instance
 `T` 
 
 The data type (singleton or collection)
-
-### <a id="Flowthru_Core_Data_CatalogAbstract_GetAllItemFactory"></a> GetAllItemFactory\(\)
-
-Gets all cached catalog items.
-
-```csharp
-protected IEnumerable<IItem> GetAllItemFactory()
-```
-
-#### Returns
-
- [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[IItem](Flowthru.Core.Data.IItem.md)\>
-
-Enumerable of all initialized catalog items
-
-#### Remarks
-
-Useful for diagnostic purposes or when you need to iterate over all items
-(e.g., for validation, cleanup, or reporting).
 
 ### <a id="Flowthru_Core_Data_CatalogAbstract_InitializeCatalogProperties"></a> InitializeCatalogProperties\(\)
 

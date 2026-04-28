@@ -134,20 +134,6 @@ public override int GetHashCode()
 
 Always returns 0, as all FlowUnit instances are equal.
 
-### <a id="Flowthru_Core_Effects_FlowUnit_ToString"></a> ToString\(\)
-
-Returns a string representation of this instance.
-
-```csharp
-public override string ToString()
-```
-
-#### Returns
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-Always returns "unit".
-
 ## Operators
 
 ### <a id="Flowthru_Core_Effects_FlowUnit_op_Equality_Flowthru_Core_Effects_FlowUnit_Flowthru_Core_Effects_FlowUnit_"></a> operator ==\(FlowUnit, FlowUnit\)

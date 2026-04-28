@@ -96,3 +96,19 @@ public string? GenerateTimestamp()
 
 Formatted timestamp string, or null if timestamps are disabled
 
+### <a id="Flowthru_Core_Meta_TimestampConfiguration_Validate"></a> Validate\(\)
+
+Validates the timestamp configuration. Metadata provider builders should call this from
+their <code>Build()</code> implementations so misconfigured formats fail fast at registration
+time rather than at the first export attempt.
+
+```csharp
+public void Validate()
+```
+
+#### Exceptions
+
+ [ArgumentException](https://learn.microsoft.com/dotnet/api/system.argumentexception)
+
+Thrown if format string is invalid
+

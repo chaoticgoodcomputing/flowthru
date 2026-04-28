@@ -46,10 +46,12 @@ public class TimestampConfiguration
   public string Format { get; set; } = "yyyy-MM-dd-HH-mm-ss";
 
   /// <summary>
-  /// Validates the timestamp configuration.
+  /// Validates the timestamp configuration. Metadata provider builders should call this from
+  /// their <c>Build()</c> implementations so misconfigured formats fail fast at registration
+  /// time rather than at the first export attempt.
   /// </summary>
   /// <exception cref="ArgumentException">Thrown if format string is invalid</exception>
-  internal void Validate()
+  public void Validate()
   {
     if (IncludeTimestamp && string.IsNullOrWhiteSpace(Format))
     {

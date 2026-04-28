@@ -39,9 +39,15 @@ public static class PreprocessShuttlesStep
   /// </returns>
   private static PreprocessedShuttleSchema? Parse(ShuttleSchema raw)
   {
-    // Parse boolean fields
-    bool dCheckComplete = raw.DCheckComplete.Trim().ToLowerInvariant() == "t";
-    bool moonClearanceComplete = raw.MoonClearanceComplete.Trim().ToLowerInvariant() == "t";
+    // Parse status flag fields. The raw "t"/"f" string is mapped to CheckStatus via its
+    // [SerializedEnum] attribute when round-tripped through Flowthru's JSON/CSV adapters,
+    // but here we're constructing the typed value from a raw string field, so the mapping
+    // is explicit.
+    static CheckStatus ParseFlag(string raw) =>
+      raw.Trim().ToLowerInvariant() == "t" ? CheckStatus.Complete : CheckStatus.Incomplete;
+
+    var dCheckComplete = ParseFlag(raw.DCheckComplete);
+    var moonClearanceComplete = ParseFlag(raw.MoonClearanceComplete);
 
     // Parse numeric fields
     if (!int.TryParse(raw.Engines, out var engines))

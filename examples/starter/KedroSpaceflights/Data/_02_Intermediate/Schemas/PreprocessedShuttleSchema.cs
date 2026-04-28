@@ -56,14 +56,17 @@ public partial record PreprocessedShuttleSchema
   public required decimal Price { get; init; }
 
   /// <summary>
-  /// D-check completion status.
+  /// D-check completion status. Uses <see cref="CheckStatus"/> so the on-disk "t"/"f" flag
+  /// is round-tripped through Flowthru's <c>[SerializedEnum]</c> infrastructure rather than
+  /// hand-coded into a <c>bool</c>.
   /// </summary>
   [SerializedLabel("d_check_complete")]
-  public required bool DCheckComplete { get; init; }
+  public required CheckStatus DCheckComplete { get; init; }
 
   /// <summary>
-  /// Moon clearance completion status.
+  /// Moon clearance completion status. Same <see cref="CheckStatus"/> pattern as
+  /// <see cref="DCheckComplete"/>.
   /// </summary>
   [SerializedLabel("moon_clearance_complete")]
-  public required bool MoonClearanceComplete { get; init; }
+  public required CheckStatus MoonClearanceComplete { get; init; }
 }

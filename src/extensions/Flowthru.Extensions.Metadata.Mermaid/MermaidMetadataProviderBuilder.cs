@@ -137,6 +137,8 @@ public class MermaidMetadataProviderBuilder
   /// </summary>
   public MermaidMetadataProvider Build()
   {
+    _timestampConfig.Validate();
+
     return new MermaidMetadataProvider(
       _outputDirectory,
       _dagFilenameTemplate,

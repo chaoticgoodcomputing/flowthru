@@ -116,17 +116,3 @@ public string Message { get; }
 
  [string](https://learn.microsoft.com/dotnet/api/system.string)
 
-## Methods
-
-### <a id="Flowthru_Core_Data_Validation_ValidationError_ToString"></a> ToString\(\)
-
-Returns a formatted string representation of the error.
-
-```csharp
-public override string ToString()
-```
-
-#### Returns
-
- [string](https://learn.microsoft.com/dotnet/api/system.string)
-

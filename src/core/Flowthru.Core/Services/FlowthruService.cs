@@ -164,7 +164,7 @@ internal sealed class FlowthruService : IFlowthruService
 
     // Export DAG metadata if requested — runs after all pre-flight checks, before any execution
     DagMetadata? dag = null;
-    if (exportMetadata && _metadataBuilder != null && _metadataBuilder.AutoExport)
+    if (exportMetadata && _metadataBuilder != null)
     {
       try
       {

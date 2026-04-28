@@ -194,24 +194,6 @@ public static class SchemaActivator
     }
   }
 
-  /// <summary>
-  /// Clears the internal caches. Useful for testing or long-running applications
-  /// that dynamically load/unload types.
-  /// </summary>
-  internal static void ClearCaches()
-  {
-    _strategyCache.Clear();
-    _factoryCache.Clear();
-  }
-
-  /// <summary>
-  /// Gets the instantiation strategy that will be used for a type.
-  /// Useful for diagnostics and testing.
-  /// </summary>
-  internal static InstantiationStrategy GetStrategy<T>()
-  {
-    return _strategyCache.GetOrAdd(typeof(T), DetermineStrategy);
-  }
 }
 
 /// <summary>

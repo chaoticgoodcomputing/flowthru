@@ -53,12 +53,6 @@ public interface IFlowthruBuilder
   /// </remarks>
   IFlowthruBuilder ConfigureExecution(Action<ExecutionOptions> configure);
 
-  /// <summary>
-  /// Convenience escape hatch for registering additional services with the underlying
-  /// <see cref="Services"/> collection. Prefer using <see cref="Services"/> directly.
-  /// </summary>
-  IFlowthruBuilder ConfigureServices(Action<IServiceCollection> configure);
-
   /// <summary>Registers a catalog type with DI constructor injection.</summary>
   IFlowthruBuilder RegisterCatalog<TCatalog>()
     where TCatalog : CatalogAbstract;

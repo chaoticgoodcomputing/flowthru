@@ -57,12 +57,6 @@ public readonly struct FlowUnit : IEquatable<FlowUnit>, IComparable<FlowUnit>
   public override int GetHashCode() => 0;
 
   /// <summary>
-  /// Returns a string representation of this instance.
-  /// </summary>
-  /// <returns>Always returns "unit".</returns>
-  public override string ToString() => "unit";
-
-  /// <summary>
   /// Compares the current instance with another <see cref="FlowUnit"/>.
   /// </summary>
   /// <param name="other">The <see cref="FlowUnit"/> to compare.</param>

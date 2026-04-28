@@ -84,9 +84,4 @@ public sealed class FlowSliceStrategy
   /// Whether any slicing is configured.
   /// </summary>
   public bool IsSliced => Flows != null || From != null || To != null || Only != null;
-
-  /// <summary>
-  /// No filtering - execute entire flow.
-  /// </summary>
-  public static FlowSliceStrategy All() => new();
 }

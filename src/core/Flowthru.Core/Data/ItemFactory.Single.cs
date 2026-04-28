@@ -125,33 +125,6 @@ public static partial class ItemFactory
     }
 
     /// <summary>
-    /// Creates a null catalog item for side-effect-only steps.
-    /// </summary>
-    /// <typeparam name="T">The data type (typically NoData)</typeparam>
-    /// <param name="label">Unique catalog label for DAG resolution</param>
-    /// <returns>Catalog item for void/no-data semantics</returns>
-    /// <remarks>
-    /// <para>
-    /// <strong>Use Case:</strong> Steps that perform side effects (logging, visualization) without producing meaningful data
-    /// </para>
-    /// <para>
-    /// <strong>Implementation:</strong> Uses NullStorageAdapter which performs no I/O operations.
-    /// </para>
-    /// <para>
-    /// <strong>Storage Traits:</strong>
-    /// </para>
-    /// <list type="bullet">
-    /// <item>CanWrite: false (Save is a no-op)</item>
-    /// <item>CanRead: false (Load throws NotSupportedException)</item>
-    /// </list>
-    /// </remarks>
-    public static Item<T> Null<T>(string label)
-    {
-      var storage = new NullStorageAdapter<T>();
-      return new Item<T>(label, storage);
-    }
-
-    /// <summary>
     /// Creates a read-only configuration catalog item backed by an <see cref="IConfiguration"/> section.
     /// </summary>
     /// <typeparam name="T">Configuration POCO type. Must have a public parameterless constructor.</typeparam>

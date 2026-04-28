@@ -4,7 +4,7 @@ Namespace: [Flowthru.Core.Steps](Flowthru.Core.Steps.md)
 Assembly: Flowthru.Core.dll  
 
 Marker type representing "no meaningful data" for nodes with side-effects or data generation.
-Used as input/output type in StepBase when a step doesn't consume or produce meaningful data.
+Used as input/output type when a step doesn't consume or produce meaningful data.
 
 ```csharp
 public sealed class NoData
@@ -27,57 +27,36 @@ public sealed class NoData
 ## Remarks
 
 <p>
-<strong>Design Rationale:</strong> NoData provides a type-safe way to represent nodes that:
-- Generate data without inputs (e.g., synthetic data generation, seeding)
-- Perform side-effects without outputs (e.g., validation, logging, diagnostics)
+<strong>Design rationale:</strong> NoData provides a type-safe way to represent nodes that:
+</p>
+<ul><li>Generate data without inputs (synthetic data, seeding)</li><li>Perform side-effects without outputs (validation, logging, diagnostics)</li></ul>
+<p>
+Inspired by functional programming's "Unit" type but with naming closer to typical .NET usage.
 </p>
 <p>
-This pattern is inspired by functional programming's "Unit" type but uses more intuitive
-naming for .NET developers unfamiliar with functional terminology.
+<strong>Pipeline registration:</strong> Use <xref href="Flowthru.Core.Steps.NoData.Item" data-throw-if-not-resolved="false"></xref> in either input or output position
+when wiring a step that has no meaningful data on that side. Each access yields a unique catalog
+entry to avoid DAG conflicts.
 </p>
-<p>
-<strong>Usage Examples:</strong>
-</p>
-<pre><code class="lang-csharp">// Step with no inputs (data generation)
-public class GenerateDataStep : StepBase&lt;NoData, OutputSchema&gt;
-{
-    protected override Task&lt;IEnumerable&lt;OutputSchema&gt;&gt; Transform(IEnumerable&lt;NoData&gt; input)
-    {
-        // Generate data from scratch...
-        return Task.FromResult(generatedData);
-    }
-}
-
-// Step with no outputs (side-effects only)
-public class ValidateStep : StepBase&lt;InputSchema, NoData&gt;
-{
-    protected override Task&lt;IEnumerable&lt;NoData&gt;&gt; Transform(IEnumerable&lt;InputSchema&gt; input)
-    {
-        // Perform validation, logging, etc...
-        return Task.FromResult(Enumerable.Repeat(NoData.Value, 1));
-    }
-}</code></pre>
-<p>
-<strong>Pipeline Registration:</strong> Use NoData type directly - it automatically converts
-to a unique NullCatalogDataset instance:
-</p>
-<pre><code class="lang-csharp">// Simple syntax with automatic unique key generation
-pipeline.AddStep&lt;ValidationStep&gt;(
+<pre><code class="lang-csharp">pipeline.AddStep&lt;ValidationStep&gt;(
     input: catalog.InputData,
-    output: NoData.Output  // or just: NoData.Discard
+    output: NoData.Item   // side-effect-only step
 );
 
 pipeline.AddStep&lt;GenerateDataStep&gt;(
-    input: NoData.Input,  // or just: NoData.None
+    input: NoData.Item,   // no-input step
     output: catalog.GeneratedData
 );</code></pre>
+<p>
+Use <xref href="Flowthru.Core.Steps.NoData.Value" data-throw-if-not-resolved="false"></xref> when returning <code>NoData</code> from a step's transform, or
+<xref href="Flowthru.Core.Steps.NoData.Result" data-throw-if-not-resolved="false"></xref> for the standard <code>Task&lt;IEnumerable&lt;NoData&gt;&gt;</code> wrapper.
+</p>
 
 ## Fields
 
 ### <a id="Flowthru_Core_Steps_NoData_Value"></a> Value
 
-Singleton instance of NoData.
-Use this value when returning NoData from step transformations.
+Singleton instance returned from step transformations that produce <code>NoData</code>.
 
 ```csharp
 public static readonly NoData Value
@@ -89,72 +68,26 @@ public static readonly NoData Value
 
 ## Properties
 
-### <a id="Flowthru_Core_Steps_NoData_Discard"></a> Discard
+### <a id="Flowthru_Core_Steps_NoData_Item"></a> Item
 
-Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
-Semantic alias for Output - use whichever reads better in context.
+Yields a unique null catalog entry for use in either input or output position when wiring
+a step. Each access returns a fresh instance with a unique key so the DAG can distinguish
+independent NoData edges.
 
 ```csharp
-public static IItem<NoData> Discard { get; }
+public static IItem<NoData> Item { get; }
 ```
 
 #### Property Value
 
  [IItem](Flowthru.Core.Data.IItem\-1.md)<[NoData](Flowthru.Core.Steps.NoData.md)\>
-
-### <a id="Flowthru_Core_Steps_NoData_Input"></a> Input
-
-Creates a unique null catalog entry for use as a step input (no-input nodes).
-Each call generates a new instance with a unique key to avoid DAG conflicts.
-
-```csharp
-public static IItem<NoData> Input { get; }
-```
-
-#### Property Value
-
- [IItem](Flowthru.Core.Data.IItem\-1.md)<[NoData](Flowthru.Core.Steps.NoData.md)\>
-
-#### Remarks
-
-Alias for readability in pipeline declarations where nodes don't consume external inputs.
-
-### <a id="Flowthru_Core_Steps_NoData_None"></a> None
-
-Creates a unique null catalog entry for use as a step input (no-input nodes).
-Semantic alias for Input - use whichever reads better in context.
-
-```csharp
-public static IItem<NoData> None { get; }
-```
-
-#### Property Value
-
- [IItem](Flowthru.Core.Data.IItem\-1.md)<[NoData](Flowthru.Core.Steps.NoData.md)\>
-
-### <a id="Flowthru_Core_Steps_NoData_Output"></a> Output
-
-Creates a unique null catalog entry for use as a step output (side-effect-only nodes).
-Each call generates a new instance with a unique key to avoid DAG conflicts.
-
-```csharp
-public static IItem<NoData> Output { get; }
-```
-
-#### Property Value
-
- [IItem](Flowthru.Core.Data.IItem\-1.md)<[NoData](Flowthru.Core.Steps.NoData.md)\>
-
-#### Remarks
-
-Alias for readability in pipeline declarations where nodes produce no meaningful output.
 
 ## Methods
 
 ### <a id="Flowthru_Core_Steps_NoData_Result"></a> Result\(\)
 
-Returns the standard NoData result for side-effect-only nodes.
-Use this at the end of Transform() methods that return NoData.
+Returns the standard <code>NoData</code> result for side-effect-only steps. Eliminates the
+verbose <code>Task.FromResult(Enumerable.Repeat(NoData.Value, 1))</code> boilerplate.
 
 ```csharp
 public static Task<IEnumerable<NoData>> Result()
@@ -164,19 +97,5 @@ public static Task<IEnumerable<NoData>> Result()
 
  [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task\-1)<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[NoData](Flowthru.Core.Steps.NoData.md)\>\>
 
-Singleton collection containing NoData.Value
-
-#### Remarks
-
-<p>
-This helper eliminates the verbose <code>Task.FromResult(Enumerable.Repeat(NoData.Value, 1))</code>
-boilerplate. Simply return <code>NoData.Result()</code>.
-</p>
-<example>
-<pre><code class="lang-csharp">// Instead of:
-return Task.FromResult(Enumerable.Repeat(NoData.Value, 1));
-
-// Use:
-return NoData.Result();</code></pre>
-</example>
+Singleton collection containing <xref href="Flowthru.Core.Steps.NoData.Value" data-throw-if-not-resolved="false"></xref>.
 

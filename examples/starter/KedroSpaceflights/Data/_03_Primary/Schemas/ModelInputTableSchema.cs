@@ -1,4 +1,5 @@
 using Flowthru.Core.Abstractions;
+using KedroSpaceflights.Data._02_Intermediate.Schemas;
 
 namespace KedroSpaceflights.Data._03_Primary.Schemas;
 
@@ -49,17 +50,13 @@ public partial record ModelInputTableSchema
   [SerializedLabel("crew")]
   public required int Crew { get; init; }
 
-  /// <summary>
-  /// D-check completion status.
-  /// </summary>
+  /// <summary>D-check completion status (uses <see cref="CheckStatus"/>).</summary>
   [SerializedLabel("d_check_complete")]
-  public required bool DCheckComplete { get; init; }
+  public required CheckStatus DCheckComplete { get; init; }
 
-  /// <summary>
-  /// Moon clearance completion status.
-  /// </summary>
+  /// <summary>Moon clearance completion status (uses <see cref="CheckStatus"/>).</summary>
   [SerializedLabel("moon_clearance_complete")]
-  public required bool MoonClearanceComplete { get; init; }
+  public required CheckStatus MoonClearanceComplete { get; init; }
 
   /// <summary>
   /// Trip price (target variable for prediction).

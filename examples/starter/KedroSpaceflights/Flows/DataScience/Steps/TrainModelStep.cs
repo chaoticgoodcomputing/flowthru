@@ -1,4 +1,5 @@
 using Flowthru.Core.Steps;
+using KedroSpaceflights.Data._02_Intermediate.Schemas;
 using KedroSpaceflights.Data._05_ModelInput.Schemas;
 using KedroSpaceflights.Data._06_Models.Schemas;
 using MathNet.Numerics.LinearRegression;
@@ -48,7 +49,7 @@ public static class TrainModelStep
           (double)features[i].Engines,
           (double)features[i].PassengerCapacity,
           (double)features[i].Crew,
-          features[i].DCheckComplete ? 1.0 : 0.0,
+          features[i].DCheckComplete == CheckStatus.Complete ? 1.0 : 0.0,
           features[i].IataApproved ? 1.0 : 0.0,
           (double)features[i].CompanyRating,
           (double)features[i].ReviewScoresRating,

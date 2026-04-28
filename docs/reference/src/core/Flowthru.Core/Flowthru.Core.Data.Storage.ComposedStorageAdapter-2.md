@@ -51,13 +51,6 @@ var csvDataView = new ComposedStorageAdapter&lt;IDataView, Company&gt;(
     medium: new FileStorageMedium("data.csv"),
     format: new CsvFormatSerializer&lt;Company&gt;(),
     container: new DataViewContainerAdapter&lt;Company&gt;(mlContext)
-);
-
-// JSON in memory with IEnumerable container
-var jsonEnumerable = new ComposedStorageAdapter&lt;IEnumerable&lt;Order&gt;, Order&gt;(
-    medium: new MemoryStorageMedium(),
-    format: new JsonFormatSerializer&lt;Order&gt;(),
-    container: new EnumerableContainerAdapter&lt;Order&gt;()
 );</code></pre>
 
 ## Remarks
