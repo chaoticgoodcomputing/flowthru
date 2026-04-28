@@ -1,3 +1,24 @@
+## 0.12.0 (2026-04-28)
+
+### 🚀 Features
+
+- xml extension ([f056ef74](https://github.com/chaoticgoodcomputing/flowthru/commit/f056ef74))
+- better local coverage analytics ([a4b8fa29](https://github.com/chaoticgoodcomputing/flowthru/commit/a4b8fa29))
+
+### 🩹 Fixes
+
+- remove funit discovery from examples project ([11b41d80](https://github.com/chaoticgoodcomputing/flowthru/commit/11b41d80))
+- code coverage for examples ([27f468b4](https://github.com/chaoticgoodcomputing/flowthru/commit/27f468b4))
+- resolve test output cache issue ([c8d6a965](https://github.com/chaoticgoodcomputing/flowthru/commit/c8d6a965))
+- better coverage analytics ([5858b558](https://github.com/chaoticgoodcomputing/flowthru/commit/5858b558))
+- less flakey template testing ([f94a8de7](https://github.com/chaoticgoodcomputing/flowthru/commit/f94a8de7))
+- updated inputs for coverage ([d0646912](https://github.com/chaoticgoodcomputing/flowthru/commit/d0646912))
+- unignore missing coverage analysis flow ([d9f2d7cb](https://github.com/chaoticgoodcomputing/flowthru/commit/d9f2d7cb))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.11.0 (2026-04-24)
 
 ### 🚀 Features
