@@ -48,7 +48,7 @@ public class Program
         flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
 
         flowthru
-          .RegisterFlow(label: "Coverage", flow: CoverageFlow.Create)
+          .RegisterFlow(label: "Coverage", flow: CoverageAnalysisFlow.Create)
           .WithDescription(
             "Aggregates staged Cobertura XML reports into a pivot-ready coverage heatmap CSV."
           );
