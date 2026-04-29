@@ -77,6 +77,21 @@ The key runtime guarantees:
 - **Errors are captured, never swallowed.** Step failures propagate to structured pipeline results. Silent `catch {}` blocks are a bug.
 - **Steps are isolated.** A failing step halts execution and reports which step failed and why — partial silent failures are not possible.
 
+## Flowthru Development Roles
+
+In working on Flowthru at all stages — the core library, extensions, and Flowthru projects themselves — we can break up expectations and responsibilities into four core roles:
+
+1. **Flow Developers:** These are the folks who are using Flowthru, and their work is largely captured by the `examples/` projects. They write steps, catalog schemas, and string them together into Flows. They are most analogous to data analysts and scientists: focused on generating outputs with logically sound steps. They handle the "Transformation" portion of ETL.
+2. **Catalog Developers:** These are the folks who set up Catalogs as the interface between a Flowthru project's internal logic and the external world of data storage and processing. They're responsible for ensuring that the Catalog entries used in Flows are correctly set up to read and write data efficiently. They handle the "Extract" and "Load" portions of ETL, and serve Flow Developers by insulating transformation concerns from extract and load concerns.
+3. **Extension Developers:** These are the folks that extend Flowthru's core functionality in ways that feel native to Flowthru, and allow for Flowthru projects to fit teams' stacks depending on their data formats, storage locations, and ecosystem requirements. There are three primary areas that Extension Developers can bridge the gap between Flowthru's core and popular stacks to better serve the needs of Flow and Catalog developers:
+  1. Expanded Catalog options, such as databases via EFCore, or additional data formats like Parquet or Excel.
+  2. Expanded Step options, such as Python and Spark steps
+  3. Expanded type safety, such as type-safe versions of Spark and ML.NET DataFrames
+4. **Core Developers:** These are the folks that curate the core capabilities of Flowthru. The task here is to ensure that Flowthru:
+  1. Has a clean API surface for Flow and Catalog developers to build their projects off of, in a way that allows end-developers to focus on what their project needs to cover and less on the internal plumbing of things like DAG assembly, optimizations, etc.
+  2. Has a fail-fast error surface to allow for Flow and Catalog developers to rapidly iterate and catch issues early, moving as much as possible to build-time and pre-flight errors
+  3. Has a clear public API surface for Extension Developers to build off of, so that extensions to Flowthru feel native to Flowthru's API surface.
+
 ## Decision Rules for Contributors
 
 When adding a new feature or fixing a bug, use these rules to determine where validation belongs:

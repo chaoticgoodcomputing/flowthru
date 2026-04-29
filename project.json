@@ -19,7 +19,8 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "dotnet restore"
+          "dotnet restore",
+          "dotnet tool restore"
         ],
         "parallel": false
       }
