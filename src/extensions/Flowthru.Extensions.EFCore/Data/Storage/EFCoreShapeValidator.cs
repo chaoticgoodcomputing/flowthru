@@ -168,8 +168,14 @@ internal static class EFCoreShapeValidator
       cmd.CommandText = $"SELECT * FROM {qualifiedTable} WHERE 1 = 0";
       cmd.CommandType = CommandType.Text;
 
+      // KeyInfo is required for Npgsql to populate AllowDBNull from
+      // pg_attribute.attnotnull — without it, GetSchemaTable returns DBNull
+      // for the AllowDBNull column on every row, which would make every
+      // NOT NULL entity property look like a nullability mismatch (verified
+      // empirically against Npgsql 10.0.1). The flag is a hint, not a
+      // contract; SQLite and SqlClient tolerate it without behavior change.
       await using var reader = await cmd.ExecuteReaderAsync(
-        CommandBehavior.SchemaOnly | CommandBehavior.SingleResult,
+        CommandBehavior.SchemaOnly | CommandBehavior.SingleResult | CommandBehavior.KeyInfo,
         ct
       );
 
@@ -225,9 +231,17 @@ internal static class EFCoreShapeValidator
 
   private static bool ParseAllowDbNull(object? value)
   {
+    // Provider differences: Microsoft.Data.Sqlite types this column as bool;
+    // Npgsql and SqlClient return "YES"/"NO"; some return "1"/"0".
     if (value is null || value == DBNull.Value)
     {
-      return true; // Unknown → lenient (don't false-flag).
+      // When AllowDBNull is unreadable, treat the column as NOT NULL so the
+      // nullability check becomes a safe no-op for it. The opposite default
+      // (assume nullable) reliably false-flags every non-nullable entity
+      // property — a regression we hit on Npgsql before adding KeyInfo above.
+      // Defaulting to false defers detection of real drift to runtime for
+      // this column rather than blocking pipelines that would succeed.
+      return false;
     }
     if (value is bool b)
     {
