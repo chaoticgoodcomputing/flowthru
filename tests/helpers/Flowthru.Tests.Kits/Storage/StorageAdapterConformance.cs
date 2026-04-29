@@ -89,6 +89,16 @@ public abstract class StorageAdapterConformance<T>
   /// <summary>Optional comparer for round-trip equivalence.</summary>
   protected virtual IEqualityComparer<T>? Comparer => null;
 
+  /// <summary>
+  /// The expected validation-error type when <see cref="CreateMissingSource"/>'s adapter is
+  /// inspected. Defaults to <see cref="ValidationErrorType.NotFound"/> — appropriate for
+  /// filesystem and HTTP adapters where "missing" means the source doesn't exist. EFCore
+  /// adapters override to <see cref="ValidationErrorType.EmptyDataset"/> because their
+  /// "missing source" scenario is an empty table (the connection works; the data isn't
+  /// there). Adapters with other semantics override accordingly.
+  /// </summary>
+  protected virtual ValidationErrorType MissingSourceErrorType => ValidationErrorType.NotFound;
+
   // ── Happy-path tests ─────────────────────────────────────────────────────
 
   [Test]
@@ -134,7 +144,7 @@ public abstract class StorageAdapterConformance<T>
   public Task InspectShallow_MissingSource_Fails() =>
     StorageAdapterAssertions.InspectShallowFails(
       CreateMissingSource(),
-      ValidationErrorType.NotFound
+      MissingSourceErrorType
     );
 
   [Test]

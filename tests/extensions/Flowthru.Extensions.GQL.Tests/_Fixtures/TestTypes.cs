@@ -6,20 +6,20 @@ namespace Flowthru.Extensions.GQL.Tests;
 // Test entity types (stand in for StrawberryShake-generated data types)
 // ─────────────────────────────────────────────────────────────────────────────
 
-internal class TestUser
+public class TestUser
 {
   public int Id { get; set; }
   public string Name { get; set; } = string.Empty;
 }
 
-internal class TestPagedResult
+public class TestPagedResult
 {
   public IReadOnlyList<TestUser>? Nodes { get; set; }
   public StubPageInfo? PageInfo { get; set; }
   public int? Total { get; set; }
 }
 
-internal class StubPageInfo
+public class StubPageInfo
 {
   public bool HasNextPage { get; set; }
   public string? EndCursor { get; set; }
@@ -29,7 +29,7 @@ internal class StubPageInfo
 // Mock IOperationResult<T> implementation
 // ─────────────────────────────────────────────────────────────────────────────
 
-internal class StubOperationResult<T> : IOperationResult<T>
+public class StubOperationResult<T> : IOperationResult<T>
   where T : class
 {
   public T? Data { get; init; }
@@ -55,7 +55,7 @@ internal class StubOperationResult<T> : IOperationResult<T>
     new() { Errors = messages.Select(m => (IClientError)new StubClientError(m)).ToArray() };
 }
 
-internal class StubClientError : IClientError
+public class StubClientError : IClientError
 {
   public StubClientError(string message) => Message = message;
 
@@ -68,7 +68,7 @@ internal class StubClientError : IClientError
 }
 
 // Minimal no-op IOperationResultDataFactory implementations required by the interface
-internal class NullDataFactory : IOperationResultDataFactory
+public class NullDataFactory : IOperationResultDataFactory
 {
   public static readonly NullDataFactory Instance = new();
 
@@ -78,7 +78,7 @@ internal class NullDataFactory : IOperationResultDataFactory
     null!;
 }
 
-internal class NullDataFactory<T> : IOperationResultDataFactory<T>
+public class NullDataFactory<T> : IOperationResultDataFactory<T>
   where T : class
 {
   public static readonly NullDataFactory<T> Instance = new();

@@ -8,7 +8,7 @@ namespace Flowthru.Extensions.Http.Tests;
 /// Fake <see cref="HttpMessageHandler"/> that returns a pre-configured response.
 /// Records every request so tests can assert on method, headers, etc.
 /// </summary>
-internal sealed class FakeHandler : HttpMessageHandler
+public sealed class FakeHandler : HttpMessageHandler
 {
   private readonly HttpStatusCode _defaultStatus;
   private readonly string _defaultBody;
@@ -57,7 +57,7 @@ internal sealed class FakeHandler : HttpMessageHandler
 /// Fake handler that always throws <see cref="HttpRequestException"/> to simulate
 /// network failures.
 /// </summary>
-internal sealed class ThrowingHandler : HttpMessageHandler
+public sealed class ThrowingHandler : HttpMessageHandler
 {
   protected override Task<HttpResponseMessage> SendAsync(
     HttpRequestMessage request,
