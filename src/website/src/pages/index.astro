@@ -1,0 +1,301 @@
+---
+// Flowthru marketing homepage. Standalone Astro page (not Starlight).
+// Lives at the site root; docs are namespaced under /docs/* via Starlight.
+import "../styles/marketing.css";
+
+const docsBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+const href = (p: string) => `${docsBase}${p}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Flowthru — type-safe data engineering for .NET</title>
+    <meta
+      name="description"
+      content="A type-safe, fail-fast data engineering framework for .NET. The Flow you wrote at 10 AM is the Flow that ships at 5."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="nav">
+      <a class="brand" href={href("/")}>
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="none">
+            <path
+              d="M9 10h14M9 16h10M9 22h6"
+              stroke="#5EEAD4"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+          </svg>
+        </span>
+        Flowthru
+      </a>
+      <nav class="nav-links">
+        <a href={href("/docs/")}>Docs</a>
+        <a href={href("/docs/tutorials/first-flow/")}>Tutorial</a>
+        <a href="#extensions">Extensions</a>
+        <a href="https://github.com/chaoticgoodcomputing/flowthru">GitHub ↗</a>
+      </nav>
+      <a class="cta" href={href("/docs/tutorials/first-flow/")}>
+        Build your first Flow
+      </a>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">v0.1.36 · Open source</div>
+      <h1>The Flow you wrote at 10 AM<br />is the Flow that ships at 5.</h1>
+      <p class="tagline">
+        Flowthru is a type-safe, fail-fast data engineering framework for
+        .NET. Compile-time wiring, pre-flight validation, and a runtime
+        reserved for genuine surprises.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href={href("/docs/tutorials/first-flow/")}>
+          Build your first Flow →
+        </a>
+        <a class="btn btn-ghost" href={href("/docs/")}>Read the docs</a>
+      </div>
+      <div class="hero-strip">
+        <span>Compatible with</span>
+        <a href="#extensions">Spark</a>
+        <span>·</span>
+        <a href="#extensions">EF Core</a>
+        <span>·</span>
+        <a href="#extensions">Python</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">How it works</div>
+      <h2>Steps form Flows. Data Items form Catalogs.</h2>
+      <p class="lead">
+        Two primitives, one type system. Steps are pure transforms generic
+        over their inputs and outputs. Catalogs are the strongly-typed
+        registry that wires them together.
+      </p>
+
+      <div class="code-card">
+        <div class="code-card-header">
+          <span class="dot dot-r"></span><span class="dot dot-y"></span><span
+            class="dot dot-g"></span>
+          <span class="filename">DataProcessingFlow.cs</span>
+        </div>
+        <pre><code>{`public static Flow Create(Catalog catalog) =>
+  FlowBuilder.CreateFlow(pipeline =>
+  {
+    pipeline.AddStep(
+      label: "PreprocessCompanies",
+      transform: PreprocessCompaniesStep.Create(),
+      input: catalog.Companies,
+      output: catalog.PreprocessedCompanies
+    );
+
+    pipeline.AddStep(
+      label: "PreprocessShuttles",
+      transform: PreprocessShuttlesStep.Create(),
+      input: catalog.Shuttles,
+      output: catalog.PreprocessedShuttles
+    );
+
+    pipeline.AddStep(
+      label: "CreateModelInputTable",
+      transform: CreateModelInputTableStep.Create(),
+      input: (
+        catalog.PreprocessedShuttles,
+        catalog.PreprocessedCompanies,
+        catalog.Reviews
+      ),
+      output: catalog.ModelInputTable
+    );
+  });`}</code></pre>
+      </div>
+
+      <div class="callouts">
+        <div class="callout">
+          <h3>The compiler is the source of truth</h3>
+          <p>
+            Wire the wrong shape together and the build fails. No runtime
+            surprises, no production-only bugs.
+          </p>
+        </div>
+        <div class="callout">
+          <h3>A team can split the work</h3>
+          <p>
+            Engineers own the type graph. Scientists and analysts own the
+            Step bodies. The compiler owns the contract between them.
+          </p>
+        </div>
+        <div class="callout">
+          <h3>Reusable, not rewritten</h3>
+          <p>
+            The exploratory Flow you wrote in a notebook is the same Flow
+            that ships to production. Same code, same types.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark">
+      <div class="eyebrow eyebrow-light">The error model</div>
+      <h2>Three phases. Cheapest first.</h2>
+      <p class="lead lead-light">
+        The cost of a failure is roughly proportional to how late it
+        surfaces. Flowthru catches as much as possible before runtime.
+      </p>
+
+      <div class="phases">
+        <div class="phase">
+          <div class="phase-num">01</div>
+          <div class="phase-label">Build-time</div>
+          <h3>Free, in your IDE</h3>
+          <p>
+            Schema mismatches, missing inputs, broken Step contracts, wrong
+            serializers. Squigglies in your IDE before you save.
+          </p>
+        </div>
+        <div class="phase">
+          <div class="phase-num">02</div>
+          <div class="phase-label">Pre-flight</div>
+          <h3>Cheap, before any Step runs</h3>
+          <p>
+            DAG validation, duplicate producers, missing files, unreachable
+            databases, header drift. Caught with zero side effects.
+          </p>
+        </div>
+        <div class="phase">
+          <div class="phase-num">03</div>
+          <div class="phase-label">Runtime</div>
+          <h3>Network drops &amp; true surprises</h3>
+          <p>
+            Rare, and recoverable. Reserved for the genuine kind — with
+            graceful recovery and structured logging built in.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="extensions">
+      <div class="eyebrow">The extension system</div>
+      <h2>Bring your stack with you.</h2>
+      <p class="lead">
+        Flowthru's core engine is small and stack-agnostic. First-party
+        extensions match your existing tools — without losing type safety.
+      </p>
+
+      <div class="ext-grid">
+        <a class="ext-card" href={href("/docs/extensions/spark/")}>
+          <div class="ext-name">Flowthru.Spark</div>
+          <div class="ext-title">Spark DataFrames as Steps</div>
+          <code>dotnet add package Flowthru.Spark</code>
+        </a>
+        <a class="ext-card" href={href("/docs/extensions/efcore/")}>
+          <div class="ext-name">Flowthru.EFCore</div>
+          <div class="ext-title">EF Core-backed Catalogs</div>
+          <code>dotnet add package Flowthru.EFCore</code>
+        </a>
+        <a class="ext-card" href={href("/docs/extensions/python/")}>
+          <div class="ext-name">Flowthru.Python</div>
+          <div class="ext-title">Python.NET transforms</div>
+          <code>dotnet add package Flowthru.Python</code>
+        </a>
+      </div>
+    </section>
+
+    <section class="section section-dark cta-section">
+      <div class="cta-inner">
+        <div>
+          <div class="eyebrow eyebrow-light">Or — skip ahead</div>
+          <h2 class="cta-h">One command. You're writing Flows.</h2>
+          <p class="lead lead-light">
+            Drop Flowthru into any .NET project. No config files, no
+            scaffolding step.
+          </p>
+        </div>
+        <button class="copy-btn" id="copy-btn">
+          <span class="prompt">$</span>
+          <span class="cmd">dotnet add package Flowthru</span>
+          <span class="copy-label" id="copy-label">Copy</span>
+        </button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-brand">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 32 32" fill="none">
+              <path
+                d="M9 10h14M9 16h10M9 22h6"
+                stroke="#5EEAD4"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+            </svg>
+          </span>
+          Flowthru
+        </div>
+        <p>A type-safe, fail-fast data engineering framework for .NET.</p>
+        <p class="muted">Open source. Built by chaoticgoodcomputing.</p>
+      </div>
+      <div class="footer-cols">
+        <div>
+          <h4>Docs</h4>
+          <a href={href("/docs/tutorials/first-flow/")}>Tutorials</a>
+          <a href={href("/docs/how-to/add-spark-step/")}>How-to</a>
+          <a href={href("/docs/explanation/why-fail-fast/")}>Explanation</a>
+          <a href={href("/docs/reference/")}>Reference</a>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <a href="https://github.com/chaoticgoodcomputing/flowthru">GitHub</a>
+          <a
+            href="https://github.com/chaoticgoodcomputing/flowthru/releases"
+            >Releases</a
+          >
+          <a
+            href="https://github.com/chaoticgoodcomputing/flowthru/blob/main/CHANGELOG.md"
+            >Changelog</a
+          >
+        </div>
+        <div>
+          <h4>Community</h4>
+          <a
+            href="https://github.com/chaoticgoodcomputing/flowthru/discussions"
+            >Discussions</a
+          >
+          <a
+            href="https://github.com/chaoticgoodcomputing/flowthru/blob/main/CONTRIBUTING.md"
+            >Contributing</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script is:inline>
+      const btn = document.getElementById("copy-btn");
+      const label = document.getElementById("copy-label");
+      btn?.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText("dotnet add package Flowthru");
+        } catch (e) {}
+        if (label) {
+          label.textContent = "Copied";
+          label.classList.add("copied");
+          setTimeout(() => {
+            label.textContent = "Copy";
+            label.classList.remove("copied");
+          }, 1600);
+        }
+      });
+    </script>
+  </body>
+</html>

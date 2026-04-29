@@ -1,0 +1,66 @@
+{
+  "name": "website",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "src/website/src",
+  "tags": [ "scope:website", "type:app" ],
+  "targets": {
+    "_ingest-docs": {
+      "//": "Copies docs/{tutorials,guides,explanation,reference} into the Starlight content tree. Hand-written docs with frontmatter are passed through; docfx-generated reference files have YAML synthesized from H1 + first paragraph. Depends on docs:build so the reference is on disk first.",
+      "executor": "nx:run-commands",
+      "outputs": [ "{projectRoot}/src/content/docs/docs" ],
+      "dependsOn": [
+        {
+          "projects": [ "docs" ],
+          "target": "build"
+        }
+      ],
+      "options": {
+        "command": "node scripts/ingest-docs.mjs",
+        "cwd": "src/website"
+      }
+    },
+    "_lint-docs": {
+      "//": "Validates ingested frontmatter against Flowthru's contract (title + description, both non-empty) before Astro is invoked. Errors are mapped back to the source path under docs/.",
+      "executor": "nx:run-commands",
+      "dependsOn": [ { "projects": [ "self" ], "target": "_ingest-docs" } ],
+      "options": {
+        "command": "node scripts/lint-docs.mjs",
+        "cwd": "src/website"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "dependsOn": [ { "projects": [ "self" ], "target": "_lint-docs" } ],
+      "options": {
+        "command": "pnpm --filter @flowthru/website dev --host",
+        "cwd": "."
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [ "{projectRoot}/dist" ],
+      "dependsOn": [ { "projects": [ "self" ], "target": "_lint-docs" } ],
+      "options": {
+        "command": "pnpm --filter @flowthru/website build",
+        "cwd": "."
+      }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "dependsOn": [ { "projects": [ "self" ], "target": "build" } ],
+      "options": {
+        "command": "pnpm --filter @flowthru/website preview",
+        "cwd": "."
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "dependsOn": [ { "projects": [ "self" ], "target": "_lint-docs" } ],
+      "options": {
+        "command": "pnpm --filter @flowthru/website check",
+        "cwd": "."
+      }
+    }
+  }
+}
