@@ -1,3 +1,14 @@
+## 0.12.2 (2026-04-29)
+
+### 🩹 Fixes
+
+- test fixtures & CSV nullability fix ([80a6a4f6](https://github.com/chaoticgoodcomputing/flowthru/commit/80a6a4f6))
+- resolved nullability bug for PGSQL on EFCore shape validator ([0cb460d9](https://github.com/chaoticgoodcomputing/flowthru/commit/0cb460d9))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.12.1 (2026-04-29)
 
 ### 🩹 Fixes

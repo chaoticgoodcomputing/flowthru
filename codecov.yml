@@ -62,6 +62,8 @@ flags:
     carryforward: true
   Flowthru.Tests:
     carryforward: true
+  Flowthru.Tests.Kits:
+    carryforward: true
   Flowthru.Tests.Templates:
     carryforward: true
   FlowthruCoverage:
