@@ -43,17 +43,27 @@ public static class CsvItemExtensions
   /// <item>All other traits use filesystem baseline defaults</item>
   /// </list>
   /// </remarks>
+  /// <param name="nullValues">
+  /// Optional set of strings that should deserialize to null for nullable properties.
+  /// Defaults to <c>[""]</c> — empty cells (<c>,,</c>) are treated as null, matching CSV
+  /// convention. Pass e.g. <c>["", "NA", "N/A", "NULL"]</c> for pandas-style handling of
+  /// messy real-world data. The first entry is also used on the write side as the
+  /// canonical representation of null.
+  /// </param>
   public static Item<IEnumerable<TRow>> Csv<TRow>(
     this EnumerableItemFactory _,
     string label,
     string filePath,
     IStorageMediumResolver? resolver = null,
-    IStorageMedium? medium = null
+    IStorageMedium? medium = null,
+    IReadOnlyList<string>? nullValues = null
   )
     where TRow : notnull, IFlatSchema, ITextSerializable
   {
     var resolvedMedium = medium ?? resolver?.Resolve(filePath) ?? new FileStorageMedium(filePath);
-    var format = new CsvFormatSerializer<TRow>();
+    var format = nullValues is null
+      ? new CsvFormatSerializer<TRow>()
+      : new CsvFormatSerializer<TRow>(nullValues);
     var container = new EnumerableContainerAdapter<TRow>();
     var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
       resolvedMedium,
@@ -81,10 +91,14 @@ public static class CsvItemExtensions
   public static Item<IEnumerable<TRow>> CsvDirectory<TRow>(
     this EnumerableItemFactory _,
     string label,
-    string directoryPath
+    string directoryPath,
+    IReadOnlyList<string>? nullValues = null
   )
     where TRow : notnull, IFlatSchema, ITextSerializable
   {
-    return new Item<IEnumerable<TRow>>(label, new DirectoryCsvStorageAdapter<TRow>(directoryPath));
+    return new Item<IEnumerable<TRow>>(
+      label,
+      new DirectoryCsvStorageAdapter<TRow>(directoryPath, nullValues)
+    );
   }
 }

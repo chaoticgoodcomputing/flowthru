@@ -77,6 +77,39 @@ Runtime errors are like suspicious moles: they're horrible, dangerous, and shoul
 
 **Tests should not remain here for very long!** Once a user report of a runtime error has been cataloged here, it should be moved to the appropriate location — fixed if possible, or moved up to a pre-flight or build error.
 
+### Extension Conformance Kits (`Flowthru.Tests.Kits`)
+
+Every first-party Flowthru extension that implements a Core extension surface — `IStorageAdapter<T>`, `IFormatSerializer<TRow>`, `IMetadataProvider`, and friends — must also ship a *conformance subclass* that inherits from the matching abstract base in [`tests/helpers/Flowthru.Tests.Kits`](helpers/Flowthru.Tests.Kits/). The conformance bases codify each surface's contract; the subclass supplies factory methods, NUnit instantiates one fixture per declared scenario, and the contract is enforced uniformly.
+
+The kit lives separately from `Flowthru.Tests.Helpers`:
+
+- `Flowthru.Tests.Helpers` — Core test mechanism (compilation/generator helpers, NUnit verifier, capturing providers).
+- `Flowthru.Tests.Kits` — extension contract: conformance bases, schema fixtures, JSON sample data, the `FixtureLoader`. Self-contained; does not depend on `Helpers`.
+
+#### Adding a conformance subclass
+
+The pattern is the same across surfaces — declare a static `Fixtures` property, decorate with `[TestFixtureSource(nameof(Fixtures))]`, take the fixture path through the constructor, and override the abstract factory methods. NUnit instantiates one fixture per entry in `Fixtures` and runs the inherited `[Test]` methods against each.
+
+```csharp
+[TestFixtureSource(nameof(Fixtures))]
+public class ParquetTraditionalSchemaConformance : FormatSerializerConformance<TraditionalSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/Simple/rows.json" };
+  public ParquetTraditionalSchemaConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<TraditionalSchema> CreateSerializer()
+    => new ParquetFormatSerializer<TraditionalSchema>();
+}
+```
+
+#### Why JSON for fixtures
+
+`JsonFormatSerializer<TRow>` ships in Core, so the kit can deserialize fixture data without taking on an extension dependency. Cross-format round-trip tests use the *same* JSON fixture as input across CSV, Excel, Parquet, XML, etc. — behavioral drift between formats surfaces as a test failure rather than a manual review. Fixtures live as `.json` files under `Flowthru.Tests.Kits/Fixtures/{Flat,Nested,Mixed}/<scenario>/<variant>.json`; the shape directories pair with the schema's capability marker interfaces emitted by `[FlowthruSchema]`.
+
+#### Read-only formats and adapters
+
+When `Traits.CanWrite = false` (Excel, OnnxModelStorageAdapter), the round-trip test passes vacuously with an explanatory message. The trait-honesty cross-check in `StorageAdapterTraitsConformance<T>` exercises the read-only path; per-extension tests cover format-specific deserialization scenarios that require a writer from a different library (e.g., ClosedXML for `.xlsx`).
+
 ### Evaluating Error Tests
 
 When you encounter a runtime or pre-flight error during development:

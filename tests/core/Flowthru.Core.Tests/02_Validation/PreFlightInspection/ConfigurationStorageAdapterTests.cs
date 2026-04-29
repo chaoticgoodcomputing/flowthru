@@ -1,6 +1,6 @@
 using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Data.Validation;
-using Flowthru.Tests.Helpers.Adapters;
+using Flowthru.Tests.Kits.Storage;
 using Microsoft.Extensions.Configuration;
 
 namespace Flowthru.Core.Tests.Validation.PreFlightInspection;

@@ -1,7 +1,7 @@
 using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Serialization;
-using Flowthru.Tests.Helpers.Adapters;
-using Flowthru.Tests.Helpers.Schemas;
+using Flowthru.Tests.Kits.Storage;
+using Flowthru.Tests.Kits.Schemas;
 
 namespace Flowthru.Core.Tests.Services.Serialization;
 

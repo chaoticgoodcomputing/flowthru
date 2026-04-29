@@ -34,11 +34,21 @@ public sealed class DirectoryCsvStorageAdapter<TRow> : ReadOnlyDirectoryStorageA
 
   /// <summary>Creates a new directory CSV adapter.</summary>
   /// <param name="directoryPath">Path to the directory containing CSV files.</param>
+  /// <param name="nullValues">
+  /// Optional set of strings that should deserialize to null for nullable properties.
+  /// Defaults to <c>[""]</c> — empty cells are treated as null per CSV convention. Pass a
+  /// custom list (e.g. <c>["", "NA", "N/A"]</c>) for pandas-style handling of messy data.
+  /// </param>
   /// <exception cref="ArgumentException">Thrown if <paramref name="directoryPath"/> is null or whitespace.</exception>
-  public DirectoryCsvStorageAdapter(string directoryPath)
+  public DirectoryCsvStorageAdapter(
+    string directoryPath,
+    IReadOnlyList<string>? nullValues = null
+  )
     : base(directoryPath, "*.csv", typeof(TRow).Name)
   {
-    _format = new CsvFormatSerializer<TRow>();
+    _format = nullValues is null
+      ? new CsvFormatSerializer<TRow>()
+      : new CsvFormatSerializer<TRow>(nullValues);
   }
 
   /// <inheritdoc/>

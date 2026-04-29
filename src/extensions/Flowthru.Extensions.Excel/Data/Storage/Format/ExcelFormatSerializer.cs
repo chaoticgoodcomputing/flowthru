@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using ExcelDataReader;
 using Flowthru.Core.Abstractions;
@@ -18,20 +19,50 @@ namespace Flowthru.Core.Data.Storage.Format;
 /// <para>
 /// <strong>Sheet Selection:</strong> Reads from specified sheet name.
 /// </para>
+/// <para>
+/// <strong>Null Handling:</strong> Empty cells (DBNull) deserialize to null for nullable
+/// properties by default. Catalog authors can additionally treat specific string sentinels
+/// as null via the <c>nullValues</c> constructor parameter — for example
+/// <c>["", "NA", "N/A", "NULL"]</c> for messy spreadsheet exports. The override applies
+/// only to properties declared nullable in the schema (<c>string?</c>, <c>int?</c>, etc.).
+/// Non-nullable properties are unaffected.
+/// </para>
 /// </remarks>
 public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
   where TRow : notnull, IFlatSchema, ITextSerializable
 {
+  /// <summary>The default set of strings treated as null on read for nullable properties.</summary>
+  public static readonly IReadOnlyList<string> DefaultNullValues = new[] { string.Empty };
+
   private readonly string _sheetName;
+  private readonly IReadOnlyList<string> _nullValues;
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="ExcelFormatSerializer{TRow}"/> class with the specified sheet name.
+  /// Initializes a new instance of the <see cref="ExcelFormatSerializer{TRow}"/> class with
+  /// the specified sheet name. Empty cells in nullable properties deserialize to null.
   /// </summary>
   /// <param name="sheetName">The name of the Excel sheet to read from.</param>
   public ExcelFormatSerializer(string sheetName)
+    : this(sheetName, DefaultNullValues) { }
+
+  /// <summary>
+  /// Initializes a new instance with a custom set of null-representation strings.
+  /// </summary>
+  /// <param name="sheetName">The name of the Excel sheet to read from.</param>
+  /// <param name="nullValues">
+  /// Strings that should deserialize to null for nullable properties. Pass
+  /// <c>["", "NA", "N/A", "NULL"]</c> for pandas-style handling of messy exports.
+  /// </param>
+  public ExcelFormatSerializer(string sheetName, IReadOnlyList<string> nullValues)
   {
-    _sheetName = sheetName;
+    _sheetName = sheetName ?? throw new ArgumentNullException(nameof(sheetName));
+    _nullValues = nullValues ?? throw new ArgumentNullException(nameof(nullValues));
   }
+
+  /// <summary>
+  /// Gets the null-representation strings for this serializer.
+  /// </summary>
+  public IReadOnlyList<string> NullValues => _nullValues;
 
   /// <inheritdoc/>
   /// <remarks>
@@ -54,6 +85,16 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
     using var reader = ExcelReaderFactory.CreateReader(stream);
+
+    // Compute per-property nullability once. Nullable properties accept _nullValues
+    // string sentinels in addition to genuine DBNull cells.
+    var nullabilityContext = new NullabilityInfoContext();
+    var propertyNullability = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+    foreach (var property in typeof(TRow).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+    {
+      var fieldName = PropertyMappingHelper.GetFieldName(property);
+      propertyNullability[fieldName] = IsNullable(property, nullabilityContext);
+    }
 
     // Find the target sheet
     do
@@ -95,6 +136,18 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
             if (columnIndexMap.TryGetValue(fieldName, out var columnIndex))
             {
               var value = reader.GetValue(columnIndex);
+
+              // For nullable properties, also treat declared string sentinels as null.
+              if (
+                propertyNullability.TryGetValue(fieldName, out var isNullable)
+                && isNullable
+                && value is string strValue
+                && _nullValues.Contains(strValue)
+              )
+              {
+                continue; // Leave property at its default (null).
+              }
+
               if (value != null && value != DBNull.Value)
               {
                 try
@@ -152,5 +205,26 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
   public PropertyMappingConfiguration GetPropertyMappingConfiguration()
   {
     return PropertyMappingConfiguration.FromSerializedLabel<TRow>();
+  }
+
+  /// <summary>
+  /// Determines whether a property is declared nullable. For value types this is
+  /// <c>Nullable&lt;T&gt;</c>; for reference types this reads the C# 8 nullability
+  /// annotation via <see cref="NullabilityInfoContext"/>.
+  /// </summary>
+  private static bool IsNullable(PropertyInfo property, NullabilityInfoContext context)
+  {
+    if (Nullable.GetUnderlyingType(property.PropertyType) is not null)
+    {
+      return true;
+    }
+
+    if (property.PropertyType.IsValueType)
+    {
+      return false;
+    }
+
+    var info = context.Create(property);
+    return info.ReadState == NullabilityState.Nullable;
   }
 }

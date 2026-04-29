@@ -1,7 +1,7 @@
 using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Data.Validation;
 
-namespace Flowthru.Tests.Helpers.Adapters;
+namespace Flowthru.Tests.Kits.Storage;
 
 /// <summary>
 /// Reusable assertions for exercising any <see cref="IStorageAdapter{T}"/> implementation
@@ -16,9 +16,9 @@ namespace Flowthru.Tests.Helpers.Adapters;
 /// multiple adapters use the same assertion call; only the adapter construction differs.
 /// </para>
 /// <para>
-/// <strong>Reuse target.</strong> This harness is the foundation for both Core adapter
-/// coverage (Phase 6) and future extension audits (CSV, Parquet, XML, EFCore, GQL). Adding
-/// a new scenario here lifts coverage for every adapter that opts into the harness.
+/// <strong>Reuse target.</strong> This harness is the underlying mechanism that the
+/// <c>StorageAdapterConformance</c> base in this same project delegates to. Core's adapter
+/// tests call into these assertions directly without going through the conformance base.
 /// </para>
 /// </remarks>
 public static class StorageAdapterAssertions

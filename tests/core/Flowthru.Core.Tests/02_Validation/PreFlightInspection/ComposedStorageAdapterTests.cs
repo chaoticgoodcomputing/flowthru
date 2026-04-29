@@ -2,7 +2,7 @@ using Flowthru.Core.Data.Capabilities;
 using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Data.Validation;
 using Flowthru.Core.Effects;
-using Flowthru.Tests.Helpers.Adapters;
+using Flowthru.Tests.Kits.Storage;
 
 namespace Flowthru.Core.Tests.Validation.PreFlightInspection;
 

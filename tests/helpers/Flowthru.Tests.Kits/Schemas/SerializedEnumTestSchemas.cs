@@ -1,6 +1,6 @@
 using Flowthru.Core.Abstractions;
 
-namespace Flowthru.Tests.Helpers.Schemas;
+namespace Flowthru.Tests.Kits.Schemas;
 
 /// <summary>
 /// Test enum demonstrating <c>[SerializedEnum]</c> string-mapping support.

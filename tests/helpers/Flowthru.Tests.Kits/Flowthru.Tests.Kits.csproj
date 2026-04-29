@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- NUnit1017: TestCaseSource must be static.
+         Suppressed at the kit level because conformance bases require instance sources:
+         each subclass overrides FlatFixtures/NestedFixtures/MixedFixtures to declare which
+         fixtures it runs. NUnit runtime supports instance sources; only the analyzer flags
+         them. The trade-off is intentional. -->
+    <NoWarn>$(NoWarn);NUnit1017</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Fixtures/**/*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

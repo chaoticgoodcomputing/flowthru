@@ -39,16 +39,24 @@ public static class ExcelItemExtensions
   /// <item>CanWrite: false (Excel adapter is read-only via ExcelDataReader)</item>
   /// </list>
   /// </remarks>
+  /// <param name="nullValues">
+  /// Optional set of strings that should deserialize to null for nullable properties.
+  /// Defaults to <c>[""]</c> — only genuinely empty cells (DBNull) become null. Pass e.g.
+  /// <c>["", "NA", "N/A", "NULL"]</c> to also treat those string sentinels as null on read.
+  /// </param>
   public static Item<IEnumerable<TRow>> Excel<TRow>(
     this EnumerableItemFactory _,
     string label,
     string filePath,
-    string sheetName
+    string sheetName,
+    IReadOnlyList<string>? nullValues = null
   )
     where TRow : notnull, IFlatSchema, ITextSerializable
   {
     var medium = new FileStorageMedium(filePath);
-    var format = new ExcelFormatSerializer<TRow>(sheetName);
+    var format = nullValues is null
+      ? new ExcelFormatSerializer<TRow>(sheetName)
+      : new ExcelFormatSerializer<TRow>(sheetName, nullValues);
     var container = new EnumerableContainerAdapter<TRow>();
     var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
 
