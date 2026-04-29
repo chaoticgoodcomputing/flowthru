@@ -336,6 +336,20 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
             );
           }
 
+          // Validate table shape against the EF model before considering emptiness
+          // or sampling — a column-shape mismatch is the actionable root cause and
+          // would otherwise surface as a confusing materialization error mid-flow.
+          var shapeResult = await EFCoreShapeValidator.ValidateAsync(
+            context,
+            typeof(T),
+            typeof(T).Name,
+            ct
+          );
+          if (shapeResult.HasErrors)
+          {
+            return shapeResult;
+          }
+
           // If table is empty and empty data is not allowed, fail validation
           if (!hasData && !_allowEmptyData)
           {
@@ -406,6 +420,19 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
             );
           }
 
+          // Validate table shape against the EF model before considering emptiness
+          // or reading rows — a column-shape mismatch is the actionable root cause.
+          var shapeResult = await EFCoreShapeValidator.ValidateAsync(
+            context,
+            typeof(T),
+            typeof(T).Name,
+            ct
+          );
+          if (shapeResult.HasErrors)
+          {
+            return shapeResult;
+          }
+
           // If table is empty and empty data is not allowed, fail validation
           if (!hasData && !_allowEmptyData)
           {
@@ -468,7 +495,6 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
           try
           {
             await dbSet.AnyAsync(ct);
-            return ValidationResult.Success();
           }
           catch (Exception ex)
           {
@@ -479,6 +505,16 @@ public sealed class EFCoreStorageAdapter<T> : IStorageAdapter<IEnumerable<T>>, I
               details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
             );
           }
+
+          // Confirm the write target's column shape matches the entity. A missing
+          // or NULL-incompatible column would otherwise surface as a runtime SQL
+          // error from EF's INSERT — by which point upstream steps have run.
+          return await EFCoreShapeValidator.ValidateAsync(
+            context,
+            typeof(T),
+            typeof(T).Name,
+            ct
+          );
         }
         finally
         {

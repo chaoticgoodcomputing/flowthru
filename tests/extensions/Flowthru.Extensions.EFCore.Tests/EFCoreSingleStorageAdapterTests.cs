@@ -1,3 +1,4 @@
+using Flowthru.Core.Data.Validation;
 using Flowthru.Extensions.EFCore.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -143,5 +144,69 @@ public class EFCoreSingleStorageAdapterTests
           () => new ArrayKeyDbContext(options)
         )
     );
+  }
+
+  // ── Shape validation ────────────────────────────────────────────────────
+
+  private static async Task<(SqliteConnection conn, DbContextOptions<TestDbContext> options)> CreateDriftedDatabaseAsync(
+    string testEntitiesTableSql
+  )
+  {
+    var conn = new SqliteConnection("Data Source=:memory:");
+    await conn.OpenAsync();
+
+    await using (var cmd = conn.CreateCommand())
+    {
+      cmd.CommandText = testEntitiesTableSql;
+      await cmd.ExecuteNonQueryAsync();
+    }
+
+    var options = new DbContextOptionsBuilder<TestDbContext>().UseSqlite(conn).Options;
+    return (conn, options);
+  }
+
+  [Test]
+  public async Task InspectTarget_TableMissingColumn_ReturnsSchemaMismatch()
+  {
+    var (conn, options) = await CreateDriftedDatabaseAsync(
+      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    );
+    await using (conn)
+    {
+      var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
+        "test",
+        () => new TestDbContext(options)
+      );
+
+      var result = await entry.InspectTarget().Run();
+
+      Assert.That(result.IsValid, Is.False);
+      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
+    }
+  }
+
+  [Test]
+  public async Task InspectShallow_TableMissingColumn_ReturnsSchemaMismatch()
+  {
+    var (conn, options) = await CreateDriftedDatabaseAsync(
+      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    );
+    await using (conn)
+    {
+      // allowEmptyData: true so the empty-table check doesn't pre-empt the
+      // shape check we're trying to exercise.
+      var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
+        "test",
+        () => new TestDbContext(options),
+        allowEmptyData: true
+      );
+
+      var result = await entry.InspectShallow(0).Run();
+
+      Assert.That(result.IsValid, Is.False);
+      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
+    }
   }
 }

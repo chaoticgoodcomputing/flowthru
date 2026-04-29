@@ -155,4 +155,41 @@ public class RuntimeErrorClassifierTests
 
     Assert.That(result, Is.EqualTo(ErrorClassification.PossibleFrameworkBug));
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FlowExecutionEscapedException short-circuit
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public void Classify_FlowExecutionEscapedException_ReturnsPossibleFrameworkBug_RegardlessOfInner()
+  {
+    // The marker exception means a runtime failure escaped the FlowResult
+    // contract. Even when the underlying cause is an allowlisted type
+    // (cancellation), the escape itself is a framework bug — the classifier
+    // must short-circuit before walking the inner.
+    var leakedCancellation = new FlowExecutionEscapedException(
+      "Flow aborted by an unexpected cancellation.",
+      new TaskCanceledException()
+    );
+
+    var result = RuntimeErrorClassifier.Classify(leakedCancellation);
+
+    Assert.That(result, Is.EqualTo(ErrorClassification.PossibleFrameworkBug));
+  }
+
+  [Test]
+  public void Classify_FlowExecutionEscapedException_WithExternalInner_StillFrameworkBug()
+  {
+    // Sanity: even an inner type that's *normally* external (IOException)
+    // shouldn't downgrade the classification, since the escape itself is
+    // unexpected.
+    var escaped = new FlowExecutionEscapedException(
+      "Flow execution failed unexpectedly.",
+      new IOException("disk read error")
+    );
+
+    var result = RuntimeErrorClassifier.Classify(escaped);
+
+    Assert.That(result, Is.EqualTo(ErrorClassification.PossibleFrameworkBug));
+  }
 }

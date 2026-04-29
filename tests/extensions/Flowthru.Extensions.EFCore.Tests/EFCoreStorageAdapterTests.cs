@@ -1,4 +1,5 @@
 using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Data.Validation;
 using Flowthru.Extensions.EFCore.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -272,5 +273,148 @@ public class EFCoreStorageAdapterTests
       Does.Contain("TestDbContext"),
       "Error details must identify which context type produced the error"
     );
+  }
+
+  // ── Shape validation ────────────────────────────────────────────────────
+
+  /// <summary>
+  /// Hand-rolls a SQLite database whose physical schema diverges from
+  /// <see cref="TestEntity"/>'s EF model in the requested way. Returns an
+  /// already-open connection wired to <see cref="TestDbContext"/> options —
+  /// callers own disposal.
+  /// </summary>
+  private static async Task<(SqliteConnection conn, DbContextOptions<TestDbContext> options)> CreateDriftedDatabaseAsync(
+    string testEntitiesTableSql
+  )
+  {
+    var conn = new SqliteConnection("Data Source=:memory:");
+    await conn.OpenAsync();
+
+    await using (var cmd = conn.CreateCommand())
+    {
+      cmd.CommandText = testEntitiesTableSql;
+      await cmd.ExecuteNonQueryAsync();
+    }
+    // SourceEntities is registered on TestDbContext but never queried in these
+    // tests, so we don't need to materialize it.
+
+    var options = new DbContextOptionsBuilder<TestDbContext>().UseSqlite(conn).Options;
+    return (conn, options);
+  }
+
+  [Test]
+  public async Task InspectTarget_TableMissingColumn_ReturnsSchemaMismatch()
+  {
+    // Table is reachable (AnyAsync would succeed) but is missing the Name column.
+    var (conn, options) = await CreateDriftedDatabaseAsync(
+      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    );
+    await using (conn)
+    {
+      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+        "test",
+        () => new TestDbContext(options)
+      );
+
+      var result = await entry.InspectTarget().Run();
+
+      Assert.That(result.IsValid, Is.False);
+      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+      Assert.That(
+        result.Errors[0].Message,
+        Does.Contain("Name"),
+        "Error must name the missing column so the user can fix the schema"
+      );
+      Assert.That(
+        result.Errors[0].Details,
+        Does.Contain("TestDbContext"),
+        "Schema-mismatch errors must still surface the context name for misrouted-connection diagnosis"
+      );
+    }
+  }
+
+  [Test]
+  public async Task InspectTarget_NullabilityDrift_ReturnsSchemaMismatch()
+  {
+    // Name is non-nullable on the entity but the DB column allows NULL — reads
+    // would explode the moment a NULL row is materialized.
+    var (conn, options) = await CreateDriftedDatabaseAsync(
+      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY, \"Name\" TEXT)"
+    );
+    await using (conn)
+    {
+      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+        "test",
+        () => new TestDbContext(options)
+      );
+
+      var result = await entry.InspectTarget().Run();
+
+      Assert.That(result.IsValid, Is.False);
+      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
+    }
+  }
+
+  [Test]
+  public async Task InspectShallow_TableMissingColumn_ReturnsSchemaMismatch()
+  {
+    var (conn, options) = await CreateDriftedDatabaseAsync(
+      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    );
+    await using (conn)
+    {
+      // allowEmptyData: true so the empty-dataset check doesn't pre-empt the
+      // shape check we're trying to exercise.
+      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+        "test",
+        () => new TestDbContext(options),
+        allowEmptyData: true
+      );
+
+      var result = await entry.InspectShallow(sampleSize: 10).Run();
+
+      Assert.That(result.IsValid, Is.False);
+      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
+    }
+  }
+
+  [Test]
+  public async Task InspectDeep_TableMissingColumn_ReturnsSchemaMismatch()
+  {
+    var (conn, options) = await CreateDriftedDatabaseAsync(
+      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    );
+    await using (conn)
+    {
+      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+        "test",
+        () => new TestDbContext(options),
+        allowEmptyData: true
+      );
+
+      var result = await entry.InspectDeep().Run();
+
+      Assert.That(result.IsValid, Is.False);
+      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
+    }
+  }
+
+  [Test]
+  public async Task InspectTarget_MatchingShape_ReturnsSuccess()
+  {
+    // Sanity check: the migrated-database happy path still passes once shape
+    // validation is wired in. (SetUp runs EnsureCreatedAsync which produces a
+    // table that matches the model exactly.)
+    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
+      "test",
+      () => new TestDbContext(_options)
+    );
+
+    var result = await entry.InspectTarget().Run();
+
+    Assert.That(result.IsValid, Is.True);
   }
 }

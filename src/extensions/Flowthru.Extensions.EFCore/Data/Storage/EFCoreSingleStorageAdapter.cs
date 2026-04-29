@@ -216,6 +216,20 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
             );
           }
 
+          // Validate table shape against the EF model before checking row counts —
+          // a shape mismatch is the actionable root cause and would otherwise
+          // surface as a confusing materialization error mid-flow.
+          var shapeResult = await EFCoreShapeValidator.ValidateAsync(
+            context,
+            typeof(T),
+            typeof(T).Name,
+            ct
+          );
+          if (shapeResult.HasErrors)
+          {
+            return shapeResult;
+          }
+
           // Single entity storage requires exactly one row (unless allowEmptyData)
           if (count == 0 && !_allowEmptyData)
           {
@@ -298,7 +312,6 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
           try
           {
             await dbSet.AnyAsync(ct);
-            return Data.Validation.ValidationResult.Success();
           }
           catch (Exception ex)
           {
@@ -309,6 +322,14 @@ public sealed class EFCoreSingleStorageAdapter<T> : IStorageAdapter<T>
               details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}: {ex.Message}"
             );
           }
+
+          // Confirm the write target's column shape matches the entity.
+          return await EFCoreShapeValidator.ValidateAsync(
+            context,
+            typeof(T),
+            typeof(T).Name,
+            ct
+          );
         }
         finally
         {

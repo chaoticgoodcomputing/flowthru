@@ -169,4 +169,42 @@ public class ConsoleResultFormatterTests
     Assert.That(urlEntry, Is.Not.Null);
     Assert.That(urlEntry, Does.Contain(Uri.EscapeDataString("ComputeFeatures")));
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FlowExecutionEscapedException — the escape-path framing must fire
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public void Format_FlowExecutionEscapedException_EmitsIssueUrlAtErrorLevel()
+  {
+    // Real-world scenario this guards against: a step throws an exception
+    // that propagates past Flow's structured-failure boundary (e.g., a
+    // cancellation cascade leaks out of the executor). The service-level
+    // wrap converts it to a FlowExecutionEscapedException-wrapped FlowResult
+    // before formatting. Even if the inner exception is allowlisted (here,
+    // TaskCanceledException), the framing must still fire — the escape
+    // itself is the framework-bug signal.
+    var escaped = new FlowExecutionEscapedException(
+      "Flow execution aborted by an unexpected cancellation.",
+      new TaskCanceledException()
+    );
+    var result = FlowResult.CreateFailure(TimeSpan.FromSeconds(2), escaped, flowName: "MyFlow");
+
+    _formatter.Format(result, _logger);
+
+    var issueEntry = _logger.Entries.FirstOrDefault(e =>
+      e.Message.Contains("github.com/chaoticgoodcomputing/flowthru/issues/new")
+    );
+    Assert.That(
+      issueEntry,
+      Is.Not.Null,
+      "Issue URL must appear in output when a FlowExecutionEscapedException is in play"
+    );
+    Assert.That(
+      issueEntry!.Level,
+      Is.EqualTo(LogLevel.Error),
+      "FlowExecutionEscapedException is always classified as a possible framework bug, "
+        + "so the framing logs at Error level"
+    );
+  }
 }

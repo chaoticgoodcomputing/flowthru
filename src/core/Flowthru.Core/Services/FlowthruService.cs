@@ -7,6 +7,7 @@ using Flowthru.Core.Graph.Meta.Models;
 using Flowthru.Core.Graph.Validation;
 using Flowthru.Core.Meta;
 using Flowthru.Core.Meta.Providers;
+using Flowthru.Core.Results;
 using Flowthru.Core.Services.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -223,8 +224,43 @@ internal sealed class FlowthruService : IFlowthruService
     _logger.LogInformation("════════════════════════════════════════");
     _logger.LogInformation("");
 
-    // Execute merged pipeline
-    var result = await mergedPipeline.RunAsync(options, cancellationToken);
+    // Execute merged pipeline.
+    //
+    // Service-level safety net: anything that escapes Flow.RunAsync past the
+    // FlowResult contract is, by definition, an unexpected runtime escape. The
+    // wrap below ensures the user-facing formatter still gets a chance to fire
+    // (with the "please file an issue" framing) before the exception reaches
+    // the host. Caller-initiated cancellation propagates clean — that's a
+    // user-requested abort, not a Flowthru failure.
+    FlowResult result;
+    try
+    {
+      result = await mergedPipeline.RunAsync(options, cancellationToken);
+    }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    {
+      throw;
+    }
+    catch (Exception ex)
+    {
+      var wrapped =
+        ex as FlowExecutionEscapedException
+        ?? new FlowExecutionEscapedException(
+          "Flow execution failed with an exception that escaped the FlowResult "
+            + "contract. This is unexpected — pre-flight should have caught the "
+            + "underlying issue before runtime. The original exception is "
+            + "preserved as the inner exception.",
+          ex
+        );
+      var synthetic = FlowResult.CreateFailure(
+        executionTime: totalStopwatch.Elapsed,
+        exception: wrapped,
+        stepResults: new Dictionary<string, StepResult>(),
+        flowName: "Pipeline"
+      );
+      options.GetFormatter().Format(synthetic, _logger);
+      throw;
+    }
 
     // Export post-run metadata — fires only after real executions (dry run returns above)
     if (_metadataBuilder != null)

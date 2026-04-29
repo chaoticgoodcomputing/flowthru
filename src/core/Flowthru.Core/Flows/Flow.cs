@@ -7,6 +7,7 @@ using Flowthru.Core.Graph.Meta;
 using Flowthru.Core.Graph.Meta.Models;
 using Flowthru.Core.Graph.Scheduling;
 using Flowthru.Core.Graph.Validation;
+using Flowthru.Core.Results;
 using Microsoft.Extensions.Logging;
 
 namespace Flowthru.Core.Flows;
@@ -772,11 +773,36 @@ public class Flow
 
       return FlowResult.CreateSuccess(stopwatch.Elapsed, stepResults, Name);
     }
-    catch (OperationCanceledException)
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
     {
-      // Re-throw — cancellation is not a failure but a requested abort.
+      // Caller-initiated abort — re-throw cleanly so hosts can distinguish a
+      // requested cancellation from a runtime failure.
       stopwatch.Stop();
       throw;
+    }
+    catch (OperationCanceledException ex)
+    {
+      // Cancellation propagated past the executor without the caller asking
+      // for it — i.e., an internal stop-on-first-error cascade leaked the
+      // cancel out instead of cleanly returning partial results. By the
+      // FlowResult contract this is an unexpected escape, so wrap it in
+      // FlowExecutionEscapedException so the runtime-error classifier reports
+      // it as a possible framework bug instead of an external cancellation.
+      stopwatch.Stop();
+      var wrapped = new FlowExecutionEscapedException(
+        "Flow execution aborted by an unexpected cancellation that was not "
+          + "caller-initiated. This indicates a possible bug in Flowthru's "
+          + "execution path — the original cancellation is preserved as the "
+          + "inner exception.",
+        ex
+      );
+      Logger?.LogError(wrapped, "Flow execution aborted unexpectedly: {ErrorMessage}", ex.Message);
+      return FlowResult.CreateFailure(
+        stopwatch.Elapsed,
+        wrapped,
+        new Dictionary<string, StepResult>(),
+        Name
+      );
     }
     catch (Exception ex)
     {
