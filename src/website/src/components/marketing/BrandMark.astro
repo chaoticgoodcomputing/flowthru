@@ -1,0 +1,16 @@
+---
+// Teal-gradient rounded square containing a white "F". Used in the nav
+// and footer brand wordmarks.
+interface Props {
+  size?: number;
+}
+const { size = 26 } = Astro.props;
+---
+
+<span
+  class="brand-mark"
+  aria-hidden="true"
+  style={`width: ${size}px; height: ${size}px; font-size: ${Math.round(size * 0.55)}px;`}
+>
+  F
+</span>

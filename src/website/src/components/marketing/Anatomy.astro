@@ -1,0 +1,49 @@
+---
+import CodeBlock from "./CodeBlock.astro";
+import FlowDag from "./FlowDag.astro";
+import { FLOWTHRU_CODE, ANATOMY_CALLOUTS } from "../../data/marketing";
+---
+
+<section class="section">
+  <div class="eyebrow">Writing a Workflow</div>
+  <h2>Data flows step-by-step from raw sources to production outputs</h2>
+  <p class="lead">
+    With compile-time handling of data connections, you can describe a whole
+    production-ready workflow with clean, readable syntax.
+  </p>
+
+  <div class="anatomy-grid">
+    <div class="notebook-panel">
+      <div class="notebook-header">
+        <div class="window-dots">
+          <span class="window-dot window-dot-r"></span>
+          <span class="window-dot window-dot-y"></span>
+          <span class="window-dot window-dot-g"></span>
+        </div>
+        <span class="notebook-filename">
+          Flows/Spaceflights/DataProcessingFlow.cs
+        </span>
+      </div>
+      <CodeBlock src={FLOWTHRU_CODE} showLineNumbers />
+    </div>
+
+    <div class="notebook-panel">
+      <div class="notebook-header notebook-header-spread">
+        <span class="notebook-title">Generated DAG</span>
+        <span class="notebook-subtitle">Catalog.* · DataProcessing</span>
+      </div>
+      <div class="dag-stage">
+        <FlowDag />
+      </div>
+    </div>
+  </div>
+
+  <div class="callouts">
+    {ANATOMY_CALLOUTS.map((c) => (
+      <div class="callout">
+        <h3>{c.title}</h3>
+        <p>{c.body}</p>
+      </div>
+    ))}
+  </div>
+</section>

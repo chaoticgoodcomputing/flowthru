@@ -47,5 +47,9 @@ public static ErrorClassification Classify(Exception exception)
 
 Walks the exception type's inheritance chain and checks inner exceptions.
 Any match against known external/environmental exception types produces
-<xref href="Flowthru.Core.Results.ErrorClassification.ExternalError" data-throw-if-not-resolved="false"></xref>.
+<xref href="Flowthru.Core.Results.ErrorClassification.ExternalError" data-throw-if-not-resolved="false"></xref>. A
+<xref href="Flowthru.Core.Results.FlowExecutionEscapedException" data-throw-if-not-resolved="false"></xref> short-circuits the inner-walk
+and is always classified as <xref href="Flowthru.Core.Results.ErrorClassification.PossibleFrameworkBug" data-throw-if-not-resolved="false"></xref>,
+since by definition it represents a failure that escaped the FlowResult
+contract — even if its inner exception happens to be allowlisted.
 

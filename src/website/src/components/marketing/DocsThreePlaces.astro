@@ -1,0 +1,38 @@
+---
+import { DOC_SECTIONS } from "../../data/marketing";
+
+const docsBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+const href = (p: string) => (p.startsWith("#") ? p : `${docsBase}${p}`);
+const diataxisChips = ["Tutorials", "How-to guides", "Explanations", "Reference"];
+---
+
+<section class="section docs-section">
+  <div class="eyebrow">Documentation</div>
+  <h2>Three places to read.<br />Pick the one that fits.</h2>
+  <p class="lead">
+    Core docs cover the framework itself. Examples are real, runnable Flows
+    with their own walkthroughs. Each extension has its own docs and a focused
+    guide for adopting it in an existing pipeline.
+  </p>
+
+  <div class="docs-grid">
+    {DOC_SECTIONS.map((d, i) => (
+      <a
+        href={href(d.href)}
+        class={`docs-card${i === 0 ? " docs-card-featured" : ""}`}
+      >
+        <div class="docs-card-audience">{d.audience}</div>
+        <div class="docs-card-label">{d.label}</div>
+        <p class="docs-card-blurb">{d.blurb}</p>
+        {d.key === "docs" && (
+          <div class="docs-card-chips">
+            {diataxisChips.map((c) => (
+              <span class="docs-chip">{c}</span>
+            ))}
+          </div>
+        )}
+        <div class="docs-card-cta">{d.cta} →</div>
+      </a>
+    ))}
+  </div>
+</section>

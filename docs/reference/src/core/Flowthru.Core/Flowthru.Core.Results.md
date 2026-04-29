@@ -6,6 +6,12 @@
 
 Formats pipeline results as human-readable console output.
 
+ [FlowExecutionEscapedException](Flowthru.Core.Results.FlowExecutionEscapedException.md)
+
+Marker exception that wraps any failure which escapes the normal
+<xref href="Flowthru.Core.Flows.FlowResult" data-throw-if-not-resolved="false"></xref> contract — i.e., a runtime failure that
+surfaced as a thrown exception rather than a structured step failure.
+
  [GitHubIssueUrlBuilder](Flowthru.Core.Results.GitHubIssueUrlBuilder.md)
 
 Builds a pre-filled GitHub issue URL from a <xref href="Flowthru.Core.Results.RuntimeErrorReport" data-throw-if-not-resolved="false"></xref>.

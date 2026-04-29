@@ -1,0 +1,57 @@
+---
+import { tokenizeLine } from "../../data/tokenize-csharp";
+import type { ScenarioLine } from "../../data/marketing";
+
+interface Props {
+  lines: ScenarioLine[];
+}
+const { lines } = Astro.props;
+
+// Renders a tokenized line, splitting around the `target` substring so we can
+// wrap it in a span that paints the squiggly background.
+function renderWithSquiggly(text: string, target: string) {
+  const idx = text.indexOf(target);
+  if (idx === -1) {
+    return [{ kind: "plain" as const, text }];
+  }
+  return [
+    { kind: "plain" as const, text: text.slice(0, idx) },
+    { kind: "squiggly" as const, text: target },
+    { kind: "plain" as const, text: text.slice(idx + target.length) },
+  ];
+}
+---
+
+<div class="ide-code">
+  {lines.map((line) => {
+    const lineClass = [
+      "ide-line",
+      line.error && "ide-line-error",
+      line.warn && "ide-line-warn",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    const segments = line.squigglyOn
+      ? renderWithSquiggly(line.text, line.squigglyOn)
+      : [{ kind: "plain" as const, text: line.text }];
+    const squigglyClass = line.warn
+      ? "squiggly squiggly-warn"
+      : "squiggly squiggly-error";
+    return (
+      <div class={lineClass}>
+        <span class="ide-lineno">{line.n}</span>
+        <span class="ide-text">
+          {segments.map((seg) =>
+            seg.kind === "plain" ? (
+              tokenizeLine(seg.text).map((t) => (
+                <span class={`tok-${t.kind}`}>{t.text}</span>
+              ))
+            ) : (
+              <span class={squigglyClass}>{seg.text}</span>
+            ),
+          )}
+        </span>
+      </div>
+    );
+  })}
+</div>

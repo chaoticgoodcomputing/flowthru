@@ -1,0 +1,29 @@
+---
+import BrandMark from "./BrandMark.astro";
+import { FOOTER_COLUMNS } from "../../data/marketing";
+
+const docsBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+const resolveHref = (href: string) => (isExternal(href) ? href : `${docsBase}${href}`);
+---
+
+<footer class="footer">
+  <div class="footer-brand">
+    <a class="brand" href={`${docsBase}/`}>
+      <BrandMark />
+      Flowthru
+    </a>
+    <p>
+      A type-safe, fail-fast data engineering framework for .NET. Open source.
+      Built by chaoticgoodcomputing.
+    </p>
+  </div>
+  {FOOTER_COLUMNS.map((c) => (
+    <div class="footer-col">
+      <h4>{c.h}</h4>
+      {c.items.map((it) => (
+        <a href={resolveHref(it.href)}>{it.label}</a>
+      ))}
+    </div>
+  ))}
+</footer>

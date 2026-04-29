@@ -1,0 +1,42 @@
+---
+// Dark CTA card with the teal-glow gradient and a clipboard-aware install
+// button. The clipboard interaction lives in an inline <script> at the bottom.
+---
+
+<section class="install-card">
+  <div class="install-glow" aria-hidden="true"></div>
+  <div class="install-text">
+    <div class="eyebrow eyebrow-light">Or — skip ahead</div>
+    <h2 class="install-h2">One command. You're writing Flows.</h2>
+    <p class="install-sub">
+      Drop Flowthru into any .NET project. No config files, no scaffolding
+      step. The compiler picks it up and your first
+      <span class="install-mono">FlowBuilder.CreateFlow</span> works.
+    </p>
+  </div>
+  <button class="copy-btn" id="copy-btn" type="button">
+    <span class="copy-prompt">$</span>
+    <span class="copy-cmd">dotnet add package Flowthru</span>
+    <span class="copy-label" id="copy-label">Copy</span>
+  </button>
+</section>
+
+<script>
+  const btn = document.getElementById("copy-btn");
+  const label = document.getElementById("copy-label");
+  btn?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText("dotnet add package Flowthru");
+    } catch {
+      /* clipboard may be unavailable */
+    }
+    if (label) {
+      label.textContent = "Copied";
+      label.classList.add("copied");
+      setTimeout(() => {
+        label.textContent = "Copy";
+        label.classList.remove("copied");
+      }, 1600);
+    }
+  });
+</script>

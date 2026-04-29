@@ -45,12 +45,12 @@ Factory methods for single (non-collection) values.
 
 ### Interfaces
 
- [IItem<T\>](Flowthru.Core.Data.IItem\-1.md)
-
-Typed catalog item — a specialization of <xref href="Flowthru.Core.Graph.INode%601" data-throw-if-not-resolved="false"></xref> for data I/O.
-
  [IItem](Flowthru.Core.Data.IItem.md)
 
 Non-generic base interface for catalog items — a specialization of <xref href="Flowthru.Core.Graph.INode" data-throw-if-not-resolved="false"></xref>
 for data I/O nodes backed by storage adapters.
+
+ [IItem<T\>](Flowthru.Core.Data.IItem\-1.md)
+
+Typed catalog item — a specialization of <xref href="Flowthru.Core.Graph.INode%601" data-throw-if-not-resolved="false"></xref> for data I/O.
 

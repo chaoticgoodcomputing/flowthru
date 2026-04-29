@@ -186,9 +186,9 @@ Every hand-written page under `tutorials/`, `guides/`, and `explanation/` begins
 
 ### Required fields
 
-| Field         | Type   | Purpose                                                              |
-| ------------- | ------ | -------------------------------------------------------------------- |
-| `title`       | string | Page `<h1>`, browser tab, sidebar label, search result title.        |
+| Field         | Type   | Purpose                                                                        |
+| ------------- | ------ | ------------------------------------------------------------------------------ |
+| `title`       | string | Page `<h1>`, browser tab, sidebar label, search result title.                  |
 | `description` | string | One- to two-sentence summary. Drives `<meta description>` and search snippets. |
 
 ### Useful optional fields
@@ -225,7 +225,7 @@ Execute subsets of your flow using slicing strategies. This is useful for…
 
 Frontmatter is validated in two places:
 
-1. **`nx run website:_lint-docs`** runs between ingest and build. Missing or malformed frontmatter fails fast with errors pointed at the source path under `docs/`.
+1. **`nx run site:_lint-docs`** runs between ingest and build. Missing or malformed frontmatter fails fast with errors pointed at the source path under `docs/`.
 2. **Astro's content collection schema** re-validates during `astro build` as a backstop, using [Starlight's `docsSchema()`](https://starlight.astro.build/reference/frontmatter/) tightened to require `description`.
 
 A page without frontmatter, or with an empty `title` or `description`, will fail the build.

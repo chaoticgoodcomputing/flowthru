@@ -1,0 +1,42 @@
+---
+import { FLOWTHRU_VERSION } from "../../data/marketing";
+
+const docsBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+const href = (p: string) => `${docsBase}${p}`;
+---
+
+<section class="hero">
+  <div class="hero-badge">
+    <span class="hero-badge-dot" aria-hidden="true"></span>
+    {FLOWTHRU_VERSION} — public preview
+  </div>
+
+  <h1 class="hero-h1">
+    Write a new ETL workflow <span class="hero-h1-accent">at breakfast.</span>
+    <br />
+    Deploy it before lunch.
+  </h1>
+
+  <p class="hero-sub">
+    Flowthru is a type-safe & extensible ETL framework. Write production-ready
+    data workflows step-by-step, rapidly iterate, and deploy them with
+    confidence. Mismatched schemas, bad data, and broken steps surface in
+    your IDE — not three hours into a production run.
+  </p>
+
+  <div class="hero-actions">
+    <a class="btn btn-primary" href={href("/docs/tutorials/spaceflights/")}>
+      Build your first Flow →
+    </a>
+    <a class="btn btn-mono" href={href("/docs/")}>
+      dotnet add package Flowthru
+    </a>
+  </div>
+
+  <div class="hero-strip">
+    <span>● .NET 8+</span>
+    <span>● 100% Open Source</span>
+    <a href="#extensions">● Compatible with Spark, EF Core, Python →</a>
+  </div>
+</section>
+

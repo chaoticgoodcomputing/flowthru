@@ -26,7 +26,7 @@
 // `<repo>/docs` when run from `src/website`.
 
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -42,6 +42,16 @@ const DOCS_OUT = resolve(PROJECT_ROOT, "src", "content", "docs", "docs");
 const SECTIONS = ["tutorials", "guides", "explanation", "reference"];
 const SYNTHESIS_ALLOWED = new Set(["reference"]);
 
+// Path fragments to exclude from ingestion. `reference/misc/external/` holds
+// third-party repos kept around for cross-reference but not part of the
+// Flowthru documentation surface.
+const EXCLUDE_FRAGMENTS = [`${"reference"}/misc/external/`];
+
+function isExcluded(absPath) {
+  const norm = absPath.split(sep).join("/");
+  return EXCLUDE_FRAGMENTS.some((frag) => norm.includes(`/${frag}`));
+}
+
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 const DOCFX_ANCHOR_RE = /<a\s+id="[^"]*"\s*><\/a>\s*/gi;
 
@@ -56,6 +66,7 @@ async function walk(dir) {
   }
   for (const entry of entries) {
     const full = join(dir, entry.name);
+    if (isExcluded(full)) continue;
     if (entry.isDirectory()) {
       out.push(...(await walk(full)));
     } else if (entry.isFile() && entry.name.endsWith(".md")) {

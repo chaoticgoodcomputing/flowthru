@@ -274,6 +274,8 @@
   - name: Classes
   - name: ConsoleResultFormatter
     href: Flowthru.Core.Results.ConsoleResultFormatter.md
+  - name: FlowExecutionEscapedException
+    href: Flowthru.Core.Results.FlowExecutionEscapedException.md
   - name: GitHubIssueUrlBuilder
     href: Flowthru.Core.Results.GitHubIssueUrlBuilder.md
   - name: RuntimeErrorClassifier

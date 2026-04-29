@@ -1,0 +1,108 @@
+---
+import IdeCode from "./IdeCode.astro";
+import FaultPanel from "./FaultPanel.astro";
+import { PHASE_CARDS, SCENARIOS } from "../../data/marketing";
+---
+
+<section class="section error-surface">
+  <div class="eyebrow">The error surface</div>
+  <h2>Three places an error can hide.<br />We squeeze them down to one.</h2>
+  <p class="lead">
+    Most pipeline frameworks find errors at runtime — three hours into a job,
+    on production data. Flowthru pushes these errors as early as possible, so
+    you can catch them quick & fix them fast.
+  </p>
+
+  <div class="phase-cards">
+    {PHASE_CARDS.map((p) => (
+      <div class={`phase-card phase-card-${p.tone}`}>
+        <div class="phase-tag">
+          <span class="phase-tag-dot" aria-hidden="true"></span>
+          {p.tag}
+        </div>
+        <div class="phase-title">{p.title}</div>
+        <div class="phase-weight">{p.weight}</div>
+        <p class="phase-body">{p.body}</p>
+        {p.shareLabel && (
+          <div class="phase-share">← {p.shareLabel}</div>
+        )}
+      </div>
+    ))}
+  </div>
+
+  <div class="scenario-tabs" role="tablist" aria-label="Error scenarios">
+    {SCENARIOS.map((s, i) => (
+      <button
+        type="button"
+        class={`scenario-tab${i === 0 ? " is-active" : ""}`}
+        role="tab"
+        aria-selected={i === 0 ? "true" : "false"}
+        aria-controls={`scenario-${s.key}`}
+        data-scenario={s.key}
+      >
+        <span
+          class={`scenario-tab-phase scenario-tab-phase-${s.phase === "Build-time" ? "ok" : "warn"}`}
+        >
+          {s.phase}
+        </span>
+        {s.label}
+      </button>
+    ))}
+  </div>
+
+  <div class="scenario-stage">
+    {SCENARIOS.map((s, i) => (
+      <div
+        class={`scenario-panel${i === 0 ? " is-active" : ""}`}
+        id={`scenario-${s.key}`}
+        role="tabpanel"
+        data-scenario={s.key}
+        hidden={i !== 0}
+      >
+        <div class="scenario-header">
+          <div class="window-dots">
+            <span class="window-dot window-dot-r"></span>
+            <span class="window-dot window-dot-y"></span>
+            <span class="window-dot window-dot-g"></span>
+          </div>
+          <span class="scenario-filename">{s.filename}</span>
+        </div>
+        <div class="scenario-body">
+          <IdeCode lines={s.lines} />
+          <FaultPanel scenario={s} />
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  // Vanilla tab switching: clicking a button sets aria-selected on the tabs
+  // and shows/hides the matching scenario panel.
+  const tabs = Array.from(
+    document.querySelectorAll<HTMLButtonElement>(".scenario-tab"),
+  );
+  const panels = Array.from(
+    document.querySelectorAll<HTMLDivElement>(".scenario-panel"),
+  );
+
+  function activate(key: string) {
+    for (const tab of tabs) {
+      const isActive = tab.dataset.scenario === key;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    }
+    for (const panel of panels) {
+      const isActive = panel.dataset.scenario === key;
+      panel.classList.toggle("is-active", isActive);
+      panel.hidden = !isActive;
+    }
+  }
+
+  for (const tab of tabs) {
+    tab.addEventListener("click", () => {
+      const key = tab.dataset.scenario;
+      if (key) activate(key);
+    });
+  }
+</script>

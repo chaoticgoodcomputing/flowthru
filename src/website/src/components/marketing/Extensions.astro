@@ -1,0 +1,35 @@
+---
+import { EXTENSIONS } from "../../data/marketing";
+
+const docsBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+const href = (p?: string) => (p ? `${docsBase}${p}` : undefined);
+---
+
+<section class="section" id="extensions">
+  <div class="eyebrow">The extension system</div>
+  <h2>Bring your stack with you.</h2>
+  <p class="lead">
+    Flowthru's core engine is built to be flexible, with out-of-the-box
+    extensions ready to match your team's existing stack. Mix-and-match data
+    sources and step languages with ease — without losing any rapid iteration
+    or production-ready guarantees.
+  </p>
+
+  <div class="ext-grid ext-grid-six">
+    {EXTENSIONS.map((x) => {
+      const url = href(x.href);
+      const Tag = url ? "a" : "div";
+      return (
+        <Tag class="ext-card" {...(url ? { href: url } : {})}>
+          <div class="ext-card-head">
+            <span class="ext-name">{x.name}</span>
+            <span class={`ext-status ext-status-${x.status}`}>{x.status}</span>
+          </div>
+          <div class="ext-title">{x.title}</div>
+          <p class="ext-blurb">{x.blurb}</p>
+          <code class="ext-code">{x.code}</code>
+        </Tag>
+      );
+    })}
+  </div>
+</section>

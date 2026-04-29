@@ -32,7 +32,7 @@ jobs:
       - name: Build website
         env:
           CI: "true"
-        run: pnpm nx run website:build --output-style=stream
+        run: pnpm nx run site:build --output-style=stream
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

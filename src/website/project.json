@@ -1,5 +1,5 @@
 {
-  "name": "website",
+  "name": "site",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "src/website/src",
@@ -8,60 +8,111 @@
   "implicitDependencies": [ "docs" ],
   "targets": {
     "_ingest-docs": {
-      "//": "Copies docs/{tutorials,guides,explanation,reference} into the Starlight content tree. Hand-written docs with frontmatter are passed through; docfx-generated reference files have YAML synthesized from H1 + first paragraph. Depends on docs:build so the reference is on disk first.",
+      "//": "Copies docs/{tutorials,guides,explanation,reference} into the Starlight content tree. Hand-written docs with frontmatter are passed through; docfx-generated reference files have YAML synthesized from H1 + first paragraph. Depends on docs:build so the reference is on disk first. Cached on the source docs + the script itself.",
       "executor": "nx:run-commands",
-      "outputs": [ "{projectRoot}/src/content/docs/docs" ],
-      "dependsOn": [
-        {
-          "projects": [ "docs" ],
-          "target": "build"
-        }
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/tutorials/**/*",
+        "{workspaceRoot}/docs/guides/**/*",
+        "{workspaceRoot}/docs/explanation/**/*",
+        "{workspaceRoot}/docs/reference/src/**/*",
+        "{projectRoot}/scripts/ingest-docs.mjs"
       ],
+      "outputs": [ "{projectRoot}/src/content/docs/docs" ],
+      "dependsOn": [ "docs:build" ],
       "options": {
         "command": "node scripts/ingest-docs.mjs",
         "cwd": "src/website"
       }
     },
     "_lint-docs": {
-      "//": "Validates ingested frontmatter against Flowthru's contract (title + description, both non-empty) before Astro is invoked. Errors are mapped back to the source path under docs/.",
+      "//": "Validates ingested frontmatter against Flowthru's contract (title + description, both non-empty) before Astro is invoked. Errors are mapped back to the source path under docs/. Inputs are scoped to *source* files — the ingested copy is upstream output, which Nx hashes before tasks run; using the originals keeps the cache key correct.",
       "executor": "nx:run-commands",
-      "dependsOn": [ { "projects": [ "self" ], "target": "_ingest-docs" } ],
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/tutorials/**/*",
+        "{workspaceRoot}/docs/guides/**/*",
+        "{workspaceRoot}/docs/explanation/**/*",
+        "{workspaceRoot}/docs/reference/src/**/*",
+        "{projectRoot}/scripts/ingest-docs.mjs",
+        "{projectRoot}/scripts/lint-docs.mjs",
+        "{projectRoot}/src/content/docs/docs/index.mdx",
+        "{projectRoot}/src/content/config.ts"
+      ],
+      "outputs": [],
+      "dependsOn": [ "site:_ingest-docs" ],
       "options": {
         "command": "node scripts/lint-docs.mjs",
         "cwd": "src/website"
       }
     },
-    "dev": {
+    "serve": {
       "executor": "nx:run-commands",
-      "dependsOn": [ { "projects": [ "self" ], "target": "_lint-docs" } ],
+      "dependsOn": [ "site:_lint-docs" ],
       "options": {
-        "command": "pnpm --filter @flowthru/website dev --host",
-        "cwd": "."
+        "command": "astro dev --host",
+        "cwd": "src/website"
       }
     },
     "build": {
+      "//": "Inputs include the *source* docs (not the ingested copy at src/content/docs/docs/) — Nx hashes inputs at the start of a run, before the upstream ingest produces the new copy on disk, so listing the originals is what actually invalidates this cache when docs change.",
       "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/tutorials/**/*",
+        "{workspaceRoot}/docs/guides/**/*",
+        "{workspaceRoot}/docs/explanation/**/*",
+        "{workspaceRoot}/docs/reference/src/**/*",
+        "{projectRoot}/scripts/ingest-docs.mjs",
+        "{projectRoot}/src/pages/**/*",
+        "{projectRoot}/src/components/**/*",
+        "{projectRoot}/src/styles/**/*",
+        "{projectRoot}/src/data/**/*",
+        "{projectRoot}/src/assets/**/*",
+        "{projectRoot}/src/content/config.ts",
+        "{projectRoot}/src/content/docs/docs/index.mdx",
+        "{projectRoot}/astro.config.mjs",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/package.json"
+      ],
       "outputs": [ "{projectRoot}/dist" ],
-      "dependsOn": [ { "projects": [ "self" ], "target": "_lint-docs" } ],
+      "dependsOn": [ "site:_lint-docs" ],
       "options": {
-        "command": "pnpm --filter @flowthru/website build",
-        "cwd": "."
+        "command": "astro build",
+        "cwd": "src/website"
       }
     },
     "preview": {
       "executor": "nx:run-commands",
-      "dependsOn": [ { "projects": [ "self" ], "target": "build" } ],
+      "dependsOn": [ "site:build" ],
       "options": {
-        "command": "pnpm --filter @flowthru/website preview",
-        "cwd": "."
+        "command": "astro preview",
+        "cwd": "src/website"
       }
     },
     "check": {
       "executor": "nx:run-commands",
-      "dependsOn": [ { "projects": [ "self" ], "target": "_lint-docs" } ],
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/docs/tutorials/**/*",
+        "{workspaceRoot}/docs/guides/**/*",
+        "{workspaceRoot}/docs/explanation/**/*",
+        "{workspaceRoot}/docs/reference/src/**/*",
+        "{projectRoot}/scripts/ingest-docs.mjs",
+        "{projectRoot}/src/pages/**/*",
+        "{projectRoot}/src/components/**/*",
+        "{projectRoot}/src/styles/**/*",
+        "{projectRoot}/src/data/**/*",
+        "{projectRoot}/src/content/config.ts",
+        "{projectRoot}/src/content/docs/docs/index.mdx",
+        "{projectRoot}/astro.config.mjs",
+        "{projectRoot}/tsconfig.json"
+      ],
+      "outputs": [],
+      "dependsOn": [ "site:_lint-docs" ],
       "options": {
-        "command": "pnpm --filter @flowthru/website check",
-        "cwd": "."
+        "command": "astro check",
+        "cwd": "src/website"
       }
     }
   }

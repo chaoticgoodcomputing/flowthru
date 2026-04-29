@@ -1,0 +1,100 @@
+---
+import { FLOW_DAG } from "../../data/marketing";
+
+const { width, height, catalogs, steps, edges, subgraph } = FLOW_DAG;
+
+type NodeMeta =
+  | { type: "step"; x: number; y: number; id: string; label: string }
+  | { type: "catalog"; x: number; y: number; id: string; label: string };
+
+const nodeById: Record<string, NodeMeta> = {};
+for (const c of catalogs) nodeById[c.id] = { ...c, type: "catalog" };
+for (const s of steps) nodeById[s.id] = { ...s, type: "step" };
+
+interface Anchor {
+  top: { x: number; y: number };
+  bottom: { x: number; y: number };
+}
+function edgePoints(n: NodeMeta): Anchor {
+  return n.type === "step"
+    ? { top: { x: n.x, y: n.y - 18 }, bottom: { x: n.x, y: n.y + 18 } }
+    : { top: { x: n.x, y: n.y - 22 }, bottom: { x: n.x, y: n.y + 22 } };
+}
+
+const edgePaths = edges
+  .map((e) => {
+    const a = nodeById[e.from];
+    const b = nodeById[e.to];
+    if (!a || !b) return null;
+    const start = edgePoints(a).bottom;
+    const end = edgePoints(b).top;
+    const midY = (start.y + end.y) / 2;
+    const d =
+      a.x === b.x
+        ? `M ${start.x} ${start.y} L ${end.x} ${end.y}`
+        : `M ${start.x} ${start.y} C ${start.x} ${midY}, ${end.x} ${midY}, ${end.x} ${end.y}`;
+    return d;
+  })
+  .filter((d): d is string => d !== null);
+---
+
+<svg
+  class="flow-dag"
+  viewBox={`0 0 ${width} ${height}`}
+  width="100%"
+  height="100%"
+  role="img"
+  aria-label="Spaceflights data processing DAG: companies and shuttles preprocessed and joined with reviews to produce the model input table."
+>
+  <defs>
+    <marker
+      id="dag-arrow"
+      viewBox="0 0 10 10"
+      refX="9"
+      refY="5"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto-start-reverse"
+    >
+      <path d="M 0 0 L 10 5 L 0 10 z" class="dag-arrowhead" />
+    </marker>
+  </defs>
+
+  <g>
+    <rect
+      x={subgraph.x}
+      y={subgraph.y}
+      width={subgraph.width}
+      height={subgraph.height}
+      rx="10"
+      class="dag-subgraph"
+    />
+    <text
+      x={subgraph.x + 14}
+      y={subgraph.y + 18}
+      class="dag-subgraph-label"
+    >
+      {subgraph.label.toUpperCase()}
+    </text>
+  </g>
+
+  {edgePaths.map((d) => <path d={d} class="dag-edge" marker-end="url(#dag-arrow)" />)}
+
+  {catalogs.map((c) => (
+    <g class={`dag-catalog dag-catalog-${c.kind}`}>
+      <ellipse cx={c.x} cy={c.y - 14} rx="78" ry="6" />
+      <rect x={c.x - 78} y={c.y - 14} width="156" height="28" />
+      <ellipse cx={c.x} cy={c.y + 14} rx="78" ry="6" />
+      <line x1={c.x - 78} y1={c.y - 14} x2={c.x - 78} y2={c.y + 14} />
+      <line x1={c.x + 78} y1={c.y - 14} x2={c.x + 78} y2={c.y + 14} />
+      <text x={c.x} y={c.y + 4} text-anchor="middle">{c.label}</text>
+    </g>
+  ))}
+
+  {steps.map((s) => (
+    <g class="dag-step">
+      <rect x={s.x - 78} y={s.y - 18} width="156" height="36" rx="6" />
+      <text x={s.x} y={s.y + 4} text-anchor="middle">{s.label}</text>
+    </g>
+  ))}
+</svg>

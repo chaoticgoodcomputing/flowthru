@@ -5,15 +5,18 @@
   "sourceRoot": "./docs",
   "targets": {
     "_build-reference": {
-      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/.",
+      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/. Inputs are scoped to the C# source + the docfx script — hand-written docs (tutorials/, guides/, explanation/) do NOT invalidate this cache, since docfx doesn't read them.",
       "executor": "nx:run-commands",
       "dependsOn": [ "flowthru:restore" ],
+      "cache": true,
       "inputs": [
-        "default",
         "{workspaceRoot}/src/**/*.cs",
         "{workspaceRoot}/src/**/*.csproj",
-        "{workspaceRoot}/scripts/docfx-metadata.sh"
+        "{workspaceRoot}/scripts/docfx-metadata.sh",
+        "{workspaceRoot}/Directory.Build.props",
+        "{workspaceRoot}/Directory.Build.targets"
       ],
+      "outputs": [ "{workspaceRoot}/docs/reference/src" ],
       "options": {
         "commands": [
           "./scripts/docfx-metadata.sh --projects src"
@@ -22,15 +25,18 @@
       }
     },
     "build": {
-      "//": "Umbrella docs build target. Inputs mirror _build-reference so that affected propagation reaches downstream consumers (e.g. website) when C# source changes.",
+      "//": "Umbrella docs build target. Inputs mirror _build-reference so this stays in sync with the underlying docfx run; downstream consumers (site:_ingest-docs) read the produced reference/src/ tree directly.",
       "executor": "nx:run-commands",
       "dependsOn": [ "_build-reference" ],
+      "cache": true,
       "inputs": [
-        "default",
         "{workspaceRoot}/src/**/*.cs",
         "{workspaceRoot}/src/**/*.csproj",
-        "{workspaceRoot}/scripts/docfx-metadata.sh"
+        "{workspaceRoot}/scripts/docfx-metadata.sh",
+        "{workspaceRoot}/Directory.Build.props",
+        "{workspaceRoot}/Directory.Build.targets"
       ],
+      "outputs": [ "{workspaceRoot}/docs/reference/src" ],
       "options": {
         "commands": [
           "echo 'Docs Build Complete!'"

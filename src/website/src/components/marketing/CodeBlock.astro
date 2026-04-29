@@ -1,0 +1,31 @@
+---
+import { tokenizeCSharp, tokenizeLine } from "../../data/tokenize-csharp";
+
+interface Props {
+  src: string;
+  showLineNumbers?: boolean;
+}
+const { src, showLineNumbers = false } = Astro.props;
+
+const lines = src.split("\n");
+const flatTokens = showLineNumbers ? null : tokenizeCSharp(src);
+---
+
+<pre class="code-block">
+<code>{showLineNumbers ? (
+  <table class="code-lines">
+    <tbody>
+      {lines.map((line, idx) => (
+        <tr>
+          <td class="code-lineno">{idx + 1}</td>
+          <td class="code-line">{tokenizeLine(line).map((t) => (
+            <span class={`tok-${t.kind}`}>{t.text}</span>
+          ))}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+) : (
+  flatTokens?.map((t) => <span class={`tok-${t.kind}`}>{t.text}</span>)
+)}</code>
+</pre>

@@ -1,0 +1,21 @@
+---
+import type { Scenario } from "../../data/marketing";
+
+interface Props {
+  scenario: Scenario;
+}
+const { scenario } = Astro.props;
+---
+
+<div class={`fault-panel fault-panel-${scenario.kind}`}>
+  <div class={`fault-header fault-header-${scenario.kind}`}>
+    <span class="fault-icon" aria-hidden="true">!</span>
+    {scenario.phaseLabel} · {scenario.code}
+  </div>
+  <div class="fault-body" set:html={scenario.bodyHtml} />
+  <div class="fault-hint" set:html={scenario.hintHtml} />
+  <hr class="fault-divider" />
+  <div class="fault-outcome">
+    <strong>{scenario.time}</strong> {scenario.outcome}
+  </div>
+</div>
