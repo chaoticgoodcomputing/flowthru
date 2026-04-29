@@ -1,62 +1,216 @@
-/* Flowthru — Starlight theme overrides
+/* Flowthru — Starlight theme overrides.
  *
  * Lifts the Notebook visual direction (warm paper, teal accent, JetBrains
- * Mono for code) into Starlight's CSS-variable-driven theme.
+ * Mono for code) into Starlight's CSS-variable-driven theme. Paired with
+ * marketing.css so the homepage at `/` and the docs at `/docs/*` share a
+ * consistent visual language.
+ *
+ * Site is light-only. The Astro middleware at src/middleware.ts rewrites
+ * Starlight's hardcoded `data-theme="dark"` → `data-theme="light"` on the
+ * <html> element before the response leaves the server, so dark mode is
+ * never reachable. This file matches `:root[data-theme="light"]` to win
+ * source-order against Starlight's own [data-theme="light"] rules at the
+ * same specificity (0,2,0); the bare `:root` selector is a defensive
+ * fallback in case the middleware ever stops running.
+ *
+ * Design tokens live in tokens.css.
+ *
  * See: https://starlight.astro.build/guides/css-and-tailwind/#theming
  */
 
-:root {
-  /* Light theme (paper) */
-  --sl-color-accent-low: #cdfaf2;
-  --sl-color-accent: #0d9488;
-  --sl-color-accent-high: #115e59;
+@import "./tokens.css";
 
+/* =================================================== Starlight tokens === */
+
+:root,
+:root[data-theme="light"] {
+  /* Accent — used for links, focus rings, sidebar-active, and inline-code text */
+  --sl-color-accent-low: var(--accent-soft);
+  --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent-high);
+
+  /* Polar — Starlight uses these as endpoints; we keep them stable across
+     the (notional) light/dark theme since we only ship light. */
   --sl-color-white: #ffffff;
-  --sl-color-gray-1: #0f172a;
-  --sl-color-gray-2: #1e293b;
-  --sl-color-gray-3: #334155;
-  --sl-color-gray-4: #64748b;
-  --sl-color-gray-5: #94a3b8;
-  --sl-color-gray-6: #e2e8f0;
-  --sl-color-gray-7: #f1f5f9;
-  --sl-color-black: #0f172a;
+  --sl-color-black: var(--ink);
 
+  /* Grays — text and surface ramp. Starlight uses these throughout, so
+     mapping them onto the Notebook palette governs most of the chrome. */
+  --sl-color-gray-1: var(--ink);
+  --sl-color-gray-2: #2c313d;
+  --sl-color-gray-3: #4b5563;
+  --sl-color-gray-4: var(--muted);
+  --sl-color-gray-5: var(--faint);
+  --sl-color-gray-6: var(--border);
+  --sl-color-gray-7: var(--paper-3);
+
+  /* Surfaces */
+  --sl-color-bg: var(--paper);
+  --sl-color-bg-nav: var(--paper);
+  --sl-color-bg-sidebar: var(--paper);
+  --sl-color-bg-inline-code: var(--accent-soft);
+
+  /* Text */
+  --sl-color-text: var(--ink);
+  --sl-color-text-accent: var(--accent-high);
+  --sl-color-text-invert: var(--paper);
+
+  /* Hairlines */
+  --sl-color-hairline-light: var(--border-light);
+  --sl-color-hairline: var(--border);
+  --sl-color-hairline-shade: var(--border-strong);
+
+  /* Typography */
   --sl-font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, sans-serif;
   --sl-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas,
     monospace;
 
+  /* Layout */
   --sl-content-width: 56rem;
   --sl-sidebar-width: 17rem;
 }
 
-:root[data-theme="dark"] {
-  --sl-color-accent-low: #042f2e;
-  --sl-color-accent: #14b8a6;
-  --sl-color-accent-high: #5eead4;
+/* ============================================================== Body === */
 
-  --sl-color-bg: #0b1220;
-  --sl-color-bg-nav: #0f172a;
-  --sl-color-bg-sidebar: #0f172a;
+body {
+  background: var(--paper);
+  color: var(--ink);
 }
 
-/* Slightly tighter heading scale + better hanging punctuation */
+/* ======================================================= Header / nav === */
+/* Sticky header gets the same translucent paper backdrop as the marketing
+   nav so the transition between `/` and `/docs/*` doesn't pop. */
+
+.header {
+  background: rgba(251, 248, 243, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ============================================================ Sidebar === */
+
+nav.sidebar {
+  border-right: 1px solid var(--border);
+}
+
+/* Section group labels — small caps, accent color, matches marketing eyebrows */
+.sidebar-content summary > span,
+.sidebar-content details > summary,
+.sidebar-content > ul > li > details > summary {
+  letter-spacing: 0.04em;
+}
+
+/* Active link in the sidebar uses the accent-soft chip from marketing */
+.sidebar-content a[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent-high);
+  font-weight: 600;
+}
+
+/* =================================================== Markdown content === */
+
 .sl-markdown-content h1,
 .sl-markdown-content h2,
-.sl-markdown-content h3 {
+.sl-markdown-content h3,
+.sl-markdown-content h4 {
   letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
-.sl-markdown-content p {
+.sl-markdown-content p,
+.sl-markdown-content li {
   text-wrap: pretty;
 }
 
-/* Inline code: subtle teal tint */
+.sl-markdown-content a:not(:where(.not-content *)) {
+  color: var(--accent-high);
+  text-decoration-color: var(--accent-soft);
+}
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+  color: var(--accent);
+}
+
+/* Inline code — soft teal chip, matching the pill-suggestion style in the
+   marketing hero's fault scenarios. */
 .sl-markdown-content :not(pre) > code {
-  background: var(--sl-color-accent-low);
-  color: var(--sl-color-accent-high);
+  background: var(--accent-soft);
+  color: var(--accent-high);
   border-radius: 4px;
   padding: 0.1em 0.35em;
   font-size: 0.92em;
+}
+
+/* Blockquotes — warm tint with an accent rule. */
+.sl-markdown-content blockquote {
+  border-left: 3px solid var(--accent);
+  background: var(--paper-2);
+  color: var(--ink);
+  padding: 12px 18px;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Tables — warm header band, hairline rows. */
+.sl-markdown-content table {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sl-markdown-content thead {
+  background: var(--paper-2);
+}
+.sl-markdown-content th,
+.sl-markdown-content td {
+  border-color: var(--border);
+}
+
+/* ====================================================== Code blocks === */
+/* Fenced code blocks are rendered by Shiki with the custom Notebook theme
+   wired in astro.config.mjs. Container chrome is themed here. */
+
+.expressive-code,
+.expressive-code .frame,
+.sl-markdown-content pre {
+  border: 1px solid var(--code-border) !important;
+  border-radius: 12px !important;
+  background: var(--paper) !important;
+}
+.expressive-code .header,
+.expressive-code .frame .title-bar {
+  background: var(--paper-2) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--muted) !important;
+  font-family: var(--sl-font-mono) !important;
+}
+
+/* ============================================================ Cards === */
+/* Starlight `<Card>` and `<LinkCard>` — match the Notebook callout look. */
+
+starlight-card,
+.sl-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.sl-link-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 140ms ease, transform 140ms ease;
+}
+.sl-link-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ====================================================== Theme toggle === */
+/* The site is light-only; hide Starlight's theme picker so users aren't
+   tempted by it. The selector targets the toggle's wrapper without leaning
+   on Starlight's internal class names too tightly. */
+
+starlight-theme-select,
+.sl-flex.social-icons + starlight-theme-select,
+.right-sidebar-panel .theme-select,
+[data-astro-cid] starlight-theme-select {
+  display: none !important;
 }

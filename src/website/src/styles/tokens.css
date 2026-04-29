@@ -1,0 +1,56 @@
+/* Flowthru — shared design tokens.
+ *
+ * Single source of truth for the Notebook visual direction. Both the
+ * marketing surface (marketing.css) and the Starlight docs surface
+ * (flowthru.css) `@import` this file and bind these tokens onto their
+ * respective component variables.
+ *
+ * The site is intentionally light-only for now. A coordinated dark variant
+ * — covering both surfaces — is planned for a future pass.
+ */
+
+:root {
+  /* ----- Surfaces ----- */
+  --paper: #fbf8f3;          /* Page background — warm off-white */
+  --paper-2: #fcfaf5;        /* Slightly cooler — used for headers */
+  --paper-3: #f5f0e5;        /* Inset surface — subgraph fills, tabs */
+  --panel: #ffffff;          /* Cards, code blocks, raised surfaces */
+
+  /* ----- Text ----- */
+  --ink: #1f2430;            /* Primary text */
+  --ink-soft: #1f2937;       /* Slightly softer ink */
+  --muted: #6b6f7a;          /* Secondary text, captions */
+  --faint: #9ca3af;          /* Decorative text, line numbers */
+
+  /* ----- Hairlines ----- */
+  --border-light: #f3eddf;   /* Very faint warm border */
+  --border: #e8e2d6;         /* Standard border */
+  --border-strong: #d9d2c2;  /* Emphasized border */
+  --code-border: #eae3d2;    /* Code-block border */
+
+  /* ----- Accent (teal) ----- */
+  --accent: #0d9488;         /* Primary accent */
+  --accent-high: #0f766e;    /* Stronger accent */
+  --accent-soft: #ccfbf1;    /* Tinted accent surface */
+  --teal-300: #5eead4;       /* Light teal, used on dark backgrounds */
+
+  /* ----- Status ----- */
+  --warn: #d97706;
+  --warn-soft: #fef3c7;
+  --warn-deep: #92400e;
+  --err: #dc2626;
+  --err-soft: #fee2e2;
+  --ok: #059669;
+
+  /* ----- Code tokenizer (Notebook light palette) ----- */
+  --tok-text: var(--ink);
+  --tok-keyword: #7c3aed;    /* Violet */
+  --tok-type: var(--accent-high);
+  --tok-string: #b45309;     /* Amber */
+  --tok-comment: #9ca3af;
+  --tok-number: #0e7490;     /* Cyan */
+  --tok-func: #1d4ed8;       /* Blue */
+  --tok-punct: #4b5563;
+  --tok-ident: var(--ink);
+  --tok-ws: var(--ink);
+}

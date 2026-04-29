@@ -1,0 +1,20 @@
+---
+// Replacement for Starlight's <ThemeProvider />.
+//
+// Starlight's default ThemeProvider runs a synchronous inline script that
+// sets `data-theme="dark"` when the user's OS prefers a dark color scheme.
+// The site is light-only for now (a coordinated dark variant is planned for
+// a future pass that retheme both the marketing surface and the docs
+// together), so we hard-pin `data-theme="light"` regardless of OS prefs.
+//
+// The script is inlined and `is:inline` to avoid a flash of mis-themed
+// content (FOUC) — same pattern Starlight uses.
+---
+
+<script is:inline>
+  document.documentElement.dataset.theme = "light";
+  // Starlight's components reference window.StarlightThemeProvider; provide
+  // a stub so anything calling .updatePickers() doesn't blow up. The actual
+  // theme picker is replaced by EmptyThemeSelect.astro.
+  window.StarlightThemeProvider = { updatePickers() {} };
+</script>

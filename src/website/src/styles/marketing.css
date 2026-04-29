@@ -2,47 +2,12 @@
  * Starlight's theme so the marketing surface can evolve independently. The
  * "Notebook" visual direction: warm paper background, teal accent, ink-dark
  * deep panels, and a light IDE-style code surface with custom tokens.
+ *
+ * Design tokens live in tokens.css and are also consumed by flowthru.css
+ * (the Starlight docs theme).
  */
 
-/* ============================================================ Tokens === */
-
-:root {
-  --paper: #fbf8f3;
-  --paper-2: #fcfaf5;
-  --paper-3: #f5f0e5;
-  --panel: #ffffff;
-  --ink: #1f2430;
-  --ink-soft: #1f2937;
-  --muted: #6b6f7a;
-  --faint: #9ca3af;
-  --border: #e8e2d6;
-  --border-strong: #d9d2c2;
-  --code-border: #eae3d2;
-
-  --accent: #0d9488;
-  --accent-high: #0f766e;
-  --accent-soft: #ccfbf1;
-  --teal-300: #5eead4;
-
-  --warn: #d97706;
-  --warn-soft: #fef3c7;
-  --warn-deep: #92400e;
-  --err: #dc2626;
-  --err-soft: #fee2e2;
-  --ok: #059669;
-
-  /* Token colors for the C# tokenizer (Notebook light palette). */
-  --tok-text: var(--ink);
-  --tok-keyword: #7c3aed;
-  --tok-type: var(--accent-high);
-  --tok-string: #b45309;
-  --tok-comment: #9ca3af;
-  --tok-number: #0e7490;
-  --tok-func: #1d4ed8;
-  --tok-punct: #4b5563;
-  --tok-ident: var(--ink);
-  --tok-ws: var(--ink);
-}
+@import "./tokens.css";
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
