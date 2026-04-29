@@ -5,9 +5,15 @@
   "sourceRoot": "./docs",
   "targets": {
     "_build-reference": {
-      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/",
+      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/.",
       "executor": "nx:run-commands",
       "dependsOn": [ "flowthru:restore" ],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/src/**/*.cs",
+        "{workspaceRoot}/src/**/*.csproj",
+        "{workspaceRoot}/scripts/docfx-metadata.sh"
+      ],
       "options": {
         "commands": [
           "./scripts/docfx-metadata.sh --projects src"
@@ -16,9 +22,15 @@
       }
     },
     "build": {
-      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/",
+      "//": "Umbrella docs build target. Inputs mirror _build-reference so that affected propagation reaches downstream consumers (e.g. website) when C# source changes.",
       "executor": "nx:run-commands",
       "dependsOn": [ "_build-reference" ],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/src/**/*.cs",
+        "{workspaceRoot}/src/**/*.csproj",
+        "{workspaceRoot}/scripts/docfx-metadata.sh"
+      ],
       "options": {
         "commands": [
           "echo 'Docs Build Complete!'"

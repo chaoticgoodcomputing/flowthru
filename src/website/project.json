@@ -4,6 +4,8 @@
   "projectType": "application",
   "sourceRoot": "src/website/src",
   "tags": [ "scope:website", "type:app" ],
+  "//": "implicitDependencies on `docs` is what makes affected propagation reach `website` — Nx's project graph doesn't synthesize edges from target-level dependsOn entries, so changes under docs/ or src/**/*.cs (which mark `docs` affected via its inputs) need this explicit edge to also mark `website` affected.",
+  "implicitDependencies": [ "docs" ],
   "targets": {
     "_ingest-docs": {
       "//": "Copies docs/{tutorials,guides,explanation,reference} into the Starlight content tree. Hand-written docs with frontmatter are passed through; docfx-generated reference files have YAML synthesized from H1 + first paragraph. Depends on docs:build so the reference is on disk first.",

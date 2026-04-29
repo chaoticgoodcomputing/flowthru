@@ -1,15 +1,12 @@
 name: Deploy website to GitHub Pages
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "src/website/**"
-      - "docs/**"
-      - "src/**"
-      - "scripts/docfx-metadata.sh"
-      - ".github/workflows/website-deploy.yml"
-      - ".github/actions/setup/**"
+  # Mirrors the NuGet publish trigger — the deployed docs always correspond
+  # to the most recently released version of Flowthru. The release event
+  # checks out the release tag, so docfx-generated reference reflects the
+  # released code, not whatever happens to be on main at deploy time.
+  release:
+    types: [released]
   workflow_dispatch:
 
 permissions:

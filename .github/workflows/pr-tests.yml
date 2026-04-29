@@ -4,8 +4,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
-      - "**.md"
-      - "docs/**"
       - ".github/instructions/**"
 
 concurrency:
@@ -29,11 +27,11 @@ jobs:
       - name: Setup CI environment
         uses: ./.github/actions/setup
 
-      - name: Run affected tests
+      - name: Run affected builds and tests
         env:
           CI: "true"
         run: |
-          pnpm nx affected -t test \
+          pnpm nx affected -t build test \
             --base=${{ github.event.pull_request.base.sha }} --head=HEAD \
             --output-style=stream \
             --logger "console;verbosity=minimal"
