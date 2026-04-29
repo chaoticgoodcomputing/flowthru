@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.0116" branch-rate="0.0103" version="1.9" timestamp="1777486808" lines-covered="56" lines-valid="4817" branches-covered="12" branches-valid="1154">
+<coverage line-rate="0.0116" branch-rate="0.0103" version="1.9" timestamp="1777490989" lines-covered="56" lines-valid="4819" branches-covered="12" branches-valid="1154">
   <sources>
     <source></source>
   </sources>
   <packages>
-    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1211">
+    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1212">
       <classes>
         <class name="Microsoft.Extensions.DependencyInjection.FlowthruServiceCollectionExtensions" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceCollectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
@@ -9838,35 +9838,34 @@
             <line number="64" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="15">
           <methods>
+            <method name="BuildDefaultOptions" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="69" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+                <line number="73" hits="0" branch="False" />
+                <line number="74" hits="0" branch="False" />
+                <line number="75" hits="0" branch="False" />
+                <line number="80" hits="0" branch="False" />
+                <line number="81" hits="0" branch="False" />
+                <line number="82" hits="0" branch="False" />
+                <line number="83" hits="0" branch="False" />
+              </lines>
+            </method>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="82" hits="0" branch="False" />
+                <line number="97" hits="0" branch="False" />
               </lines>
             </method>
             <method name="Load" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="86" hits="0" branch="False" />
-                <line number="87" hits="0" branch="False" />
-                <line number="88" hits="0" branch="False" />
-                <line number="89" hits="0" branch="False" />
-                <line number="90" hits="0" branch="False" />
-                <line number="91" hits="0" branch="False" />
-                <line number="92" hits="0" branch="False" />
-                <line number="93" hits="0" branch="False" />
-                <line number="94" hits="0" branch="False" />
-                <line number="95" hits="0" branch="False" />
-                <line number="96" hits="0" branch="False" />
-                <line number="97" hits="0" branch="False" />
-                <line number="98" hits="0" branch="False" />
-                <line number="99" hits="0" branch="False" />
-                <line number="100" hits="0" branch="False" />
                 <line number="101" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Save" signature="(T)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
+                <line number="102" hits="0" branch="False" />
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
                 <line number="105" hits="0" branch="False" />
                 <line number="106" hits="0" branch="False" />
                 <line number="107" hits="0" branch="False" />
@@ -9879,9 +9878,10 @@
                 <line number="114" hits="0" branch="False" />
                 <line number="115" hits="0" branch="False" />
                 <line number="116" hits="0" branch="False" />
-                <line number="117" hits="0" branch="False" />
-                <line number="118" hits="0" branch="False" />
-                <line number="119" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Save" signature="(T)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
                 <line number="120" hits="0" branch="False" />
                 <line number="121" hits="0" branch="False" />
                 <line number="122" hits="0" branch="False" />
@@ -9901,32 +9901,32 @@
                 <line number="136" hits="0" branch="False" />
                 <line number="137" hits="0" branch="False" />
                 <line number="138" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Exists" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="False" />
+                <line number="141" hits="0" branch="False" />
                 <line number="142" hits="0" branch="False" />
                 <line number="143" hits="0" branch="False" />
                 <line number="144" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="InspectShallow" signature="(System.Int32)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
+                <line number="145" hits="0" branch="False" />
+                <line number="146" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
                 <line number="148" hits="0" branch="False" />
                 <line number="149" hits="0" branch="False" />
                 <line number="150" hits="0" branch="False" />
                 <line number="151" hits="0" branch="False" />
                 <line number="152" hits="0" branch="False" />
                 <line number="153" hits="0" branch="False" />
-                <line number="154" hits="0" branch="False" />
-                <line number="155" hits="0" branch="False" />
-                <line number="156" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Exists" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
                 <line number="157" hits="0" branch="False" />
                 <line number="158" hits="0" branch="False" />
                 <line number="159" hits="0" branch="False" />
-                <line number="160" hits="0" branch="False" />
-                <line number="161" hits="0" branch="False" />
-                <line number="162" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="InspectShallow" signature="(System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
                 <line number="163" hits="0" branch="False" />
                 <line number="164" hits="0" branch="False" />
                 <line number="165" hits="0" branch="False" />
@@ -9954,79 +9954,84 @@
                 <line number="187" hits="0" branch="False" />
                 <line number="188" hits="0" branch="False" />
                 <line number="189" hits="0" branch="False" />
+                <line number="190" hits="0" branch="False" />
+                <line number="191" hits="0" branch="False" />
+                <line number="192" hits="0" branch="False" />
+                <line number="193" hits="0" branch="False" />
+                <line number="194" hits="0" branch="False" />
+                <line number="195" hits="0" branch="False" />
+                <line number="196" hits="0" branch="False" />
+                <line number="197" hits="0" branch="False" />
+                <line number="198" hits="0" branch="False" />
+                <line number="199" hits="0" branch="False" />
+                <line number="200" hits="0" branch="False" />
+                <line number="201" hits="0" branch="False" />
+                <line number="202" hits="0" branch="False" />
+                <line number="203" hits="0" branch="False" />
+                <line number="204" hits="0" branch="False" />
               </lines>
             </method>
             <method name="InspectDeep" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="193" hits="0" branch="False" />
-                <line number="196" hits="0" branch="False" />
-                <line number="197" hits="0" branch="False" />
+                <line number="208" hits="0" branch="False" />
+                <line number="211" hits="0" branch="False" />
+                <line number="212" hits="0" branch="False" />
               </lines>
             </method>
             <method name="InspectTarget" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="206" hits="0" branch="False" />
+                <line number="221" hits="0" branch="False" />
               </lines>
             </method>
             <method name="get_FilePath" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="211" hits="0" branch="False" />
+                <line number="226" hits="0" branch="False" />
               </lines>
             </method>
             <method name="get_Options" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="216" hits="0" branch="False" />
+                <line number="231" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="59" hits="0" branch="False" />
-                <line number="60" hits="0" branch="False" />
-                <line number="61" hits="0" branch="False" />
-                <line number="62" hits="0" branch="False" />
-                <line number="63" hits="0" branch="False" />
-                <line number="64" hits="0" branch="False" />
-                <line number="65" hits="0" branch="False" />
                 <line number="66" hits="0" branch="False" />
-                <line number="67" hits="0" branch="False" />
-                <line number="68" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.String,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
-                <line number="76" hits="0" branch="False" />
-                <line number="77" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="11" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="78" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="93" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="33" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="79" hits="0" branch="False" />
+                <line number="94" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
+            <line number="69" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="73" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="81" hits="0" branch="False" />
             <line number="82" hits="0" branch="False" />
-            <line number="86" hits="0" branch="False" />
-            <line number="87" hits="0" branch="False" />
-            <line number="88" hits="0" branch="False" />
-            <line number="89" hits="0" branch="False" />
-            <line number="90" hits="0" branch="False" />
-            <line number="91" hits="0" branch="False" />
-            <line number="92" hits="0" branch="False" />
-            <line number="93" hits="0" branch="False" />
-            <line number="94" hits="0" branch="False" />
-            <line number="95" hits="0" branch="False" />
-            <line number="96" hits="0" branch="False" />
+            <line number="83" hits="0" branch="False" />
             <line number="97" hits="0" branch="False" />
-            <line number="98" hits="0" branch="False" />
-            <line number="99" hits="0" branch="False" />
-            <line number="100" hits="0" branch="False" />
             <line number="101" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
             <line number="105" hits="0" branch="False" />
             <line number="106" hits="0" branch="False" />
             <line number="107" hits="0" branch="False" />
@@ -10039,9 +10044,6 @@
             <line number="114" hits="0" branch="False" />
             <line number="115" hits="0" branch="False" />
             <line number="116" hits="0" branch="False" />
-            <line number="117" hits="0" branch="False" />
-            <line number="118" hits="0" branch="False" />
-            <line number="119" hits="0" branch="False" />
             <line number="120" hits="0" branch="False" />
             <line number="121" hits="0" branch="False" />
             <line number="122" hits="0" branch="False" />
@@ -10061,24 +10063,24 @@
             <line number="136" hits="0" branch="False" />
             <line number="137" hits="0" branch="False" />
             <line number="138" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="141" hits="0" branch="False" />
             <line number="142" hits="0" branch="False" />
             <line number="143" hits="0" branch="False" />
             <line number="144" hits="0" branch="False" />
+            <line number="145" hits="0" branch="False" />
+            <line number="146" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
             <line number="148" hits="0" branch="False" />
             <line number="149" hits="0" branch="False" />
             <line number="150" hits="0" branch="False" />
             <line number="151" hits="0" branch="False" />
             <line number="152" hits="0" branch="False" />
             <line number="153" hits="0" branch="False" />
-            <line number="154" hits="0" branch="False" />
-            <line number="155" hits="0" branch="False" />
-            <line number="156" hits="0" branch="False" />
             <line number="157" hits="0" branch="False" />
             <line number="158" hits="0" branch="False" />
             <line number="159" hits="0" branch="False" />
-            <line number="160" hits="0" branch="False" />
-            <line number="161" hits="0" branch="False" />
-            <line number="162" hits="0" branch="False" />
             <line number="163" hits="0" branch="False" />
             <line number="164" hits="0" branch="False" />
             <line number="165" hits="0" branch="False" />
@@ -10106,34 +10108,40 @@
             <line number="187" hits="0" branch="False" />
             <line number="188" hits="0" branch="False" />
             <line number="189" hits="0" branch="False" />
+            <line number="190" hits="0" branch="False" />
+            <line number="191" hits="0" branch="False" />
+            <line number="192" hits="0" branch="False" />
             <line number="193" hits="0" branch="False" />
+            <line number="194" hits="0" branch="False" />
+            <line number="195" hits="0" branch="False" />
             <line number="196" hits="0" branch="False" />
             <line number="197" hits="0" branch="False" />
-            <line number="206" hits="0" branch="False" />
+            <line number="198" hits="0" branch="False" />
+            <line number="199" hits="0" branch="False" />
+            <line number="200" hits="0" branch="False" />
+            <line number="201" hits="0" branch="False" />
+            <line number="202" hits="0" branch="False" />
+            <line number="203" hits="0" branch="False" />
+            <line number="204" hits="0" branch="False" />
+            <line number="208" hits="0" branch="False" />
             <line number="211" hits="0" branch="False" />
-            <line number="216" hits="0" branch="False" />
-            <line number="59" hits="0" branch="False" />
-            <line number="60" hits="0" branch="False" />
-            <line number="61" hits="0" branch="False" />
-            <line number="62" hits="0" branch="False" />
-            <line number="63" hits="0" branch="False" />
-            <line number="64" hits="0" branch="False" />
-            <line number="65" hits="0" branch="False" />
+            <line number="212" hits="0" branch="False" />
+            <line number="221" hits="0" branch="False" />
+            <line number="226" hits="0" branch="False" />
+            <line number="231" hits="0" branch="False" />
             <line number="66" hits="0" branch="False" />
-            <line number="67" hits="0" branch="False" />
-            <line number="68" hits="0" branch="False" />
-            <line number="76" hits="0" branch="False" />
-            <line number="77" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="11" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="78" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="93" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="33" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="79" hits="0" branch="False" />
+            <line number="94" hits="0" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.StorageMediumResolver" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/StorageMediumResolver.cs" line-rate="0" branch-rate="0" complexity="13">
@@ -12312,7 +12320,7 @@
     </package>
     <package name="Flowthru.Extensions.EFCore.Bulk" line-rate="1" branch-rate="1" complexity="16">
       <classes>
-        <class name="Flowthru.Extensions.EFCore.Bulk.BulkSave" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/80a6a4f6a43c65a020645578db1b864de8658995/src/extensions/Flowthru.Extensions.EFCore.Bulk/BulkSave.cs" line-rate="1" branch-rate="1" complexity="4">
+        <class name="Flowthru.Extensions.EFCore.Bulk.BulkSave" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/a393522eeb57fa7cb8e5ef02d9948cf7c46f7dce/src/extensions/Flowthru.Extensions.EFCore.Bulk/BulkSave.cs" line-rate="1" branch-rate="1" complexity="4">
           <methods>
             <method name="Insert" signature="(Flowthru.Extensions.EFCore.Bulk.BulkSaveOptions)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -12412,7 +12420,7 @@
             <line number="120" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Extensions.EFCore.Bulk.Internal.BulkConfigMapper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/80a6a4f6a43c65a020645578db1b864de8658995/src/extensions/Flowthru.Extensions.EFCore.Bulk/Internal/BulkConfigMapper.cs" line-rate="1" branch-rate="1" complexity="12">
+        <class name="Flowthru.Extensions.EFCore.Bulk.Internal.BulkConfigMapper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/a393522eeb57fa7cb8e5ef02d9948cf7c46f7dce/src/extensions/Flowthru.Extensions.EFCore.Bulk/Internal/BulkConfigMapper.cs" line-rate="1" branch-rate="1" complexity="12">
           <methods>
             <method name="ToBulkConfig" signature="(Flowthru.Extensions.EFCore.Bulk.BulkSaveOptions)" line-rate="1" branch-rate="1" complexity="12">
               <lines>

@@ -20,24 +20,33 @@ namespace Flowthru.Core.Data.Storage;
 /// step actually tries to read or write — wasting all preceding compute.
 /// </para>
 /// <para>
-/// This validator closes that gap for the most common drift cases: missing columns
-/// (column declared on the entity but absent in the table) and nullability
-/// mismatches (entity expects NOT NULL but the column allows NULL, which guarantees
-/// a runtime read failure as soon as a NULL row is materialized).
+/// This validator closes that gap for three drift cases: missing columns
+/// (column declared on the entity but absent in the table), nullability mismatches
+/// (entity expects NOT NULL but the column allows NULL, which guarantees a runtime
+/// read failure as soon as a NULL row is materialized), and column-type mismatches
+/// (e.g. entity property mapped to a PostgreSQL native enum but the column is
+/// <c>integer</c>, which only fails at <c>INSERT … SELECT</c> time as
+/// <c>42804: column type mismatch</c>).
 /// </para>
 /// <para>
-/// Type comparison is intentionally out of scope: provider-specific type-name
-/// differences (<c>INTEGER</c> vs <c>int4</c> vs <c>int</c>) make a portable
-/// comparison fragile, and EF's own materialization will surface most type-shape
-/// problems via the existing sample-read path in <c>InspectShallow</c>.
+/// Column-type comparison routes through EF Core's own
+/// <see cref="IRelationalTypeMappingSource"/>: each column's <c>DataTypeName</c>
+/// (from the schema reader) and the entity property's expected store type are
+/// each resolved through <c>FindMapping</c>, then compared by canonical
+/// <see cref="RelationalTypeMapping.StoreType"/> and the mapping's CLR
+/// type. The provider's own resolver
+/// handles every alias the provider knows about (e.g. Npgsql's <c>int</c> ↔
+/// <c>integer</c> ↔ <c>int4</c>), so we don't maintain a per-provider alias
+/// table. Mirrors EFCore's internal pattern in <c>MigrationsModelDiffer</c>
+/// (model-vs-model diff) and <c>ScaffoldingTypeMapper</c> (DB-to-CLR resolution).
 /// </para>
 /// </remarks>
 internal static class EFCoreShapeValidator
 {
   /// <summary>
   /// Compares the EF Core model's expected columns for <paramref name="entityClrType"/>
-  /// against the live table's columns, surfacing missing columns and nullability
-  /// drift as <see cref="ValidationErrorType.SchemaMismatch"/>.
+  /// against the live table's columns, surfacing missing columns, nullability drift,
+  /// and column-type drift as <see cref="ValidationErrorType.SchemaMismatch"/>.
   /// </summary>
   public static async Task<ValidationResult> ValidateAsync(
     DbContext context,
@@ -66,7 +75,8 @@ internal static class EFCoreShapeValidator
       .GetProperties()
       .Select(p => new ExpectedColumn(
         Name: p.GetColumnName(storeId) ?? p.Name,
-        IsNullable: p.IsNullable
+        IsNullable: p.IsNullable,
+        StoreType: p.GetColumnType(storeId)
       ))
       .ToList();
 
@@ -130,6 +140,75 @@ internal static class EFCoreShapeValidator
           + $"column(s) {string.Join(", ", nullabilityMismatches)} are NOT NULL on the entity but allow NULL in the database",
         details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}. "
           + "NULL values in these columns will cause runtime read failures when materializing the entity."
+      );
+    }
+
+    // Column-type compatibility check. Resolves each side through the provider's
+    // IRelationalTypeMappingSource so aliases (int ↔ integer ↔ int4 on Npgsql,
+    // varchar(255) ↔ varchar on SqlServer, etc.) are handled by the provider rather
+    // than by us. A genuine mismatch — e.g. table column INTEGER but entity property
+    // mapped to a Postgres-native enum (`client.poll_element_type`) — surfaces here
+    // before the pipeline runs and discovers PG error 42804 at INSERT time.
+    var typeMappingSource = context.GetService<IRelationalTypeMappingSource>();
+    var typeMismatches = new List<TypeMismatch>();
+    foreach (var expected in expectedColumns)
+    {
+      var actual = actualColumns[expected.Name];
+      if (string.IsNullOrEmpty(expected.StoreType) || string.IsNullOrEmpty(actual.DataTypeName))
+      {
+        // Either side missing a type string we can resolve. Skip rather than guess.
+        continue;
+      }
+
+      var expectedMapping = typeMappingSource.FindMapping(expected.StoreType);
+      var actualMapping = typeMappingSource.FindMapping(actual.DataTypeName);
+
+      if (expectedMapping is null || actualMapping is null)
+      {
+        // Provider doesn't recognize one or both type strings. Treat as
+        // best-effort skip — we'd rather miss an obscure type than false-flag.
+        continue;
+      }
+
+      if (
+        !string.Equals(
+          expectedMapping.StoreType,
+          actualMapping.StoreType,
+          StringComparison.OrdinalIgnoreCase
+        ) || expectedMapping.ClrType != actualMapping.ClrType
+      )
+      {
+        typeMismatches.Add(
+          new TypeMismatch(
+            ColumnName: expected.Name,
+            ExpectedStoreType: expected.StoreType,
+            ExpectedCanonical: expectedMapping.StoreType,
+            ExpectedClrType: expectedMapping.ClrType,
+            ActualStoreType: actual.DataTypeName,
+            ActualCanonical: actualMapping.StoreType,
+            ActualClrType: actualMapping.ClrType
+          )
+        );
+      }
+    }
+
+    if (typeMismatches.Count > 0)
+    {
+      var summaries = typeMismatches.Select(m =>
+        $"{m.ColumnName} (entity: {m.ExpectedStoreType} → {m.ExpectedClrType.Name}; "
+          + $"database: {m.ActualStoreType} → {m.ActualClrType.Name})"
+      );
+      return ValidationResult.Failure(
+        catalogKey: catalogKey,
+        errorType: ValidationErrorType.SchemaMismatch,
+        message: $"Table '{FormatTableName(schema, tableName)}' column-type mismatch with entity '{entityClrType.Name}': "
+          + string.Join("; ", summaries),
+        details: $"Via {context.GetType().Name} on {GetConnectionDescription(context)}. "
+          + "EFCore's IProperty.GetColumnType() reports the provider-specific store type for the entity "
+          + "property; the schema reader's DataTypeName reports what the database actually has. "
+          + "A mismatch indicates the schema diverged from the entity model — e.g. a missing "
+          + "Npgsql.MapEnum() registration, a column re-typed in DbUp without re-running, or a "
+          + "DbContext registered twice with different conventions."
       );
     }
 
@@ -197,8 +276,8 @@ internal static class EFCoreShapeValidator
     // GetSchemaTable is the standard ADO.NET shape carrier — it's required to
     // include ColumnName and AllowDBNull. A few providers may return null if
     // they couldn't materialize a schema for the query; in that case fall back
-    // to FieldCount/GetName (column presence only — nullability check
-    // gracefully degrades to no-op rather than false-flagging).
+    // to FieldCount/GetName (column presence only — nullability + type checks
+    // gracefully degrade to no-op rather than false-flagging).
     var schemaTable = reader.GetSchemaTable();
     if (schemaTable is null)
     {
@@ -207,7 +286,7 @@ internal static class EFCoreShapeValidator
         var name = reader.GetName(i);
         if (!string.IsNullOrEmpty(name))
         {
-          dict[name] = new ActualColumn(name, IsNullable: true);
+          dict[name] = new ActualColumn(name, IsNullable: true, DataTypeName: null);
         }
       }
       return dict;
@@ -224,7 +303,10 @@ internal static class EFCoreShapeValidator
       var isNullable = ParseAllowDbNull(
         schemaTable.Columns.Contains("AllowDBNull") ? row["AllowDBNull"] : null
       );
-      dict[name] = new ActualColumn(name, isNullable);
+      var dataTypeName = schemaTable.Columns.Contains("DataTypeName")
+        ? row["DataTypeName"]?.ToString()
+        : null;
+      dict[name] = new ActualColumn(name, isNullable, dataTypeName);
     }
     return dict;
   }
@@ -271,7 +353,17 @@ internal static class EFCoreShapeValidator
     }
   }
 
-  private record ExpectedColumn(string Name, bool IsNullable);
+  private record ExpectedColumn(string Name, bool IsNullable, string? StoreType);
 
-  private record ActualColumn(string Name, bool IsNullable);
+  private record ActualColumn(string Name, bool IsNullable, string? DataTypeName);
+
+  private record TypeMismatch(
+    string ColumnName,
+    string ExpectedStoreType,
+    string ExpectedCanonical,
+    Type ExpectedClrType,
+    string ActualStoreType,
+    string ActualCanonical,
+    Type ActualClrType
+  );
 }

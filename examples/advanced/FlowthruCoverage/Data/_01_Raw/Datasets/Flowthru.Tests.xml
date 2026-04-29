@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0" branch-rate="0" version="1.9" timestamp="1777453889" lines-covered="0" lines-valid="6072" branches-covered="0" branches-valid="1773">
+<coverage line-rate="0" branch-rate="0" version="1.9" timestamp="1777488849" lines-covered="0" lines-valid="6122" branches-covered="0" branches-valid="1795">
   <sources>
     <source></source>
   </sources>
   <packages>
-    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1211">
+    <package name="Flowthru.Core" line-rate="0" branch-rate="0" complexity="1212">
       <classes>
         <class name="Microsoft.Extensions.DependencyInjection.FlowthruServiceCollectionExtensions" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Services/FlowthruServiceCollectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
@@ -9838,35 +9838,34 @@
             <line number="64" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="15">
           <methods>
+            <method name="BuildDefaultOptions" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="69" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+                <line number="73" hits="0" branch="False" />
+                <line number="74" hits="0" branch="False" />
+                <line number="75" hits="0" branch="False" />
+                <line number="80" hits="0" branch="False" />
+                <line number="81" hits="0" branch="False" />
+                <line number="82" hits="0" branch="False" />
+                <line number="83" hits="0" branch="False" />
+              </lines>
+            </method>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="82" hits="0" branch="False" />
+                <line number="97" hits="0" branch="False" />
               </lines>
             </method>
             <method name="Load" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="86" hits="0" branch="False" />
-                <line number="87" hits="0" branch="False" />
-                <line number="88" hits="0" branch="False" />
-                <line number="89" hits="0" branch="False" />
-                <line number="90" hits="0" branch="False" />
-                <line number="91" hits="0" branch="False" />
-                <line number="92" hits="0" branch="False" />
-                <line number="93" hits="0" branch="False" />
-                <line number="94" hits="0" branch="False" />
-                <line number="95" hits="0" branch="False" />
-                <line number="96" hits="0" branch="False" />
-                <line number="97" hits="0" branch="False" />
-                <line number="98" hits="0" branch="False" />
-                <line number="99" hits="0" branch="False" />
-                <line number="100" hits="0" branch="False" />
                 <line number="101" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Save" signature="(T)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
+                <line number="102" hits="0" branch="False" />
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
                 <line number="105" hits="0" branch="False" />
                 <line number="106" hits="0" branch="False" />
                 <line number="107" hits="0" branch="False" />
@@ -9879,9 +9878,10 @@
                 <line number="114" hits="0" branch="False" />
                 <line number="115" hits="0" branch="False" />
                 <line number="116" hits="0" branch="False" />
-                <line number="117" hits="0" branch="False" />
-                <line number="118" hits="0" branch="False" />
-                <line number="119" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Save" signature="(T)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
                 <line number="120" hits="0" branch="False" />
                 <line number="121" hits="0" branch="False" />
                 <line number="122" hits="0" branch="False" />
@@ -9901,32 +9901,32 @@
                 <line number="136" hits="0" branch="False" />
                 <line number="137" hits="0" branch="False" />
                 <line number="138" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="Exists" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="False" />
+                <line number="141" hits="0" branch="False" />
                 <line number="142" hits="0" branch="False" />
                 <line number="143" hits="0" branch="False" />
                 <line number="144" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="InspectShallow" signature="(System.Int32)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
+                <line number="145" hits="0" branch="False" />
+                <line number="146" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
                 <line number="148" hits="0" branch="False" />
                 <line number="149" hits="0" branch="False" />
                 <line number="150" hits="0" branch="False" />
                 <line number="151" hits="0" branch="False" />
                 <line number="152" hits="0" branch="False" />
                 <line number="153" hits="0" branch="False" />
-                <line number="154" hits="0" branch="False" />
-                <line number="155" hits="0" branch="False" />
-                <line number="156" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Exists" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
                 <line number="157" hits="0" branch="False" />
                 <line number="158" hits="0" branch="False" />
                 <line number="159" hits="0" branch="False" />
-                <line number="160" hits="0" branch="False" />
-                <line number="161" hits="0" branch="False" />
-                <line number="162" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="InspectShallow" signature="(System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
                 <line number="163" hits="0" branch="False" />
                 <line number="164" hits="0" branch="False" />
                 <line number="165" hits="0" branch="False" />
@@ -9954,79 +9954,84 @@
                 <line number="187" hits="0" branch="False" />
                 <line number="188" hits="0" branch="False" />
                 <line number="189" hits="0" branch="False" />
+                <line number="190" hits="0" branch="False" />
+                <line number="191" hits="0" branch="False" />
+                <line number="192" hits="0" branch="False" />
+                <line number="193" hits="0" branch="False" />
+                <line number="194" hits="0" branch="False" />
+                <line number="195" hits="0" branch="False" />
+                <line number="196" hits="0" branch="False" />
+                <line number="197" hits="0" branch="False" />
+                <line number="198" hits="0" branch="False" />
+                <line number="199" hits="0" branch="False" />
+                <line number="200" hits="0" branch="False" />
+                <line number="201" hits="0" branch="False" />
+                <line number="202" hits="0" branch="False" />
+                <line number="203" hits="0" branch="False" />
+                <line number="204" hits="0" branch="False" />
               </lines>
             </method>
             <method name="InspectDeep" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="193" hits="0" branch="False" />
-                <line number="196" hits="0" branch="False" />
-                <line number="197" hits="0" branch="False" />
+                <line number="208" hits="0" branch="False" />
+                <line number="211" hits="0" branch="False" />
+                <line number="212" hits="0" branch="False" />
               </lines>
             </method>
             <method name="InspectTarget" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="206" hits="0" branch="False" />
+                <line number="221" hits="0" branch="False" />
               </lines>
             </method>
             <method name="get_FilePath" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="211" hits="0" branch="False" />
+                <line number="226" hits="0" branch="False" />
               </lines>
             </method>
             <method name="get_Options" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="216" hits="0" branch="False" />
+                <line number="231" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="59" hits="0" branch="False" />
-                <line number="60" hits="0" branch="False" />
-                <line number="61" hits="0" branch="False" />
-                <line number="62" hits="0" branch="False" />
-                <line number="63" hits="0" branch="False" />
-                <line number="64" hits="0" branch="False" />
-                <line number="65" hits="0" branch="False" />
                 <line number="66" hits="0" branch="False" />
-                <line number="67" hits="0" branch="False" />
-                <line number="68" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.String,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
-                <line number="76" hits="0" branch="False" />
-                <line number="77" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="11" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="78" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="93" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="33" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="79" hits="0" branch="False" />
+                <line number="94" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
+            <line number="69" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="73" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="81" hits="0" branch="False" />
             <line number="82" hits="0" branch="False" />
-            <line number="86" hits="0" branch="False" />
-            <line number="87" hits="0" branch="False" />
-            <line number="88" hits="0" branch="False" />
-            <line number="89" hits="0" branch="False" />
-            <line number="90" hits="0" branch="False" />
-            <line number="91" hits="0" branch="False" />
-            <line number="92" hits="0" branch="False" />
-            <line number="93" hits="0" branch="False" />
-            <line number="94" hits="0" branch="False" />
-            <line number="95" hits="0" branch="False" />
-            <line number="96" hits="0" branch="False" />
+            <line number="83" hits="0" branch="False" />
             <line number="97" hits="0" branch="False" />
-            <line number="98" hits="0" branch="False" />
-            <line number="99" hits="0" branch="False" />
-            <line number="100" hits="0" branch="False" />
             <line number="101" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
             <line number="105" hits="0" branch="False" />
             <line number="106" hits="0" branch="False" />
             <line number="107" hits="0" branch="False" />
@@ -10039,9 +10044,6 @@
             <line number="114" hits="0" branch="False" />
             <line number="115" hits="0" branch="False" />
             <line number="116" hits="0" branch="False" />
-            <line number="117" hits="0" branch="False" />
-            <line number="118" hits="0" branch="False" />
-            <line number="119" hits="0" branch="False" />
             <line number="120" hits="0" branch="False" />
             <line number="121" hits="0" branch="False" />
             <line number="122" hits="0" branch="False" />
@@ -10061,24 +10063,24 @@
             <line number="136" hits="0" branch="False" />
             <line number="137" hits="0" branch="False" />
             <line number="138" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="141" hits="0" branch="False" />
             <line number="142" hits="0" branch="False" />
             <line number="143" hits="0" branch="False" />
             <line number="144" hits="0" branch="False" />
+            <line number="145" hits="0" branch="False" />
+            <line number="146" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
             <line number="148" hits="0" branch="False" />
             <line number="149" hits="0" branch="False" />
             <line number="150" hits="0" branch="False" />
             <line number="151" hits="0" branch="False" />
             <line number="152" hits="0" branch="False" />
             <line number="153" hits="0" branch="False" />
-            <line number="154" hits="0" branch="False" />
-            <line number="155" hits="0" branch="False" />
-            <line number="156" hits="0" branch="False" />
             <line number="157" hits="0" branch="False" />
             <line number="158" hits="0" branch="False" />
             <line number="159" hits="0" branch="False" />
-            <line number="160" hits="0" branch="False" />
-            <line number="161" hits="0" branch="False" />
-            <line number="162" hits="0" branch="False" />
             <line number="163" hits="0" branch="False" />
             <line number="164" hits="0" branch="False" />
             <line number="165" hits="0" branch="False" />
@@ -10106,34 +10108,40 @@
             <line number="187" hits="0" branch="False" />
             <line number="188" hits="0" branch="False" />
             <line number="189" hits="0" branch="False" />
+            <line number="190" hits="0" branch="False" />
+            <line number="191" hits="0" branch="False" />
+            <line number="192" hits="0" branch="False" />
             <line number="193" hits="0" branch="False" />
+            <line number="194" hits="0" branch="False" />
+            <line number="195" hits="0" branch="False" />
             <line number="196" hits="0" branch="False" />
             <line number="197" hits="0" branch="False" />
-            <line number="206" hits="0" branch="False" />
+            <line number="198" hits="0" branch="False" />
+            <line number="199" hits="0" branch="False" />
+            <line number="200" hits="0" branch="False" />
+            <line number="201" hits="0" branch="False" />
+            <line number="202" hits="0" branch="False" />
+            <line number="203" hits="0" branch="False" />
+            <line number="204" hits="0" branch="False" />
+            <line number="208" hits="0" branch="False" />
             <line number="211" hits="0" branch="False" />
-            <line number="216" hits="0" branch="False" />
-            <line number="59" hits="0" branch="False" />
-            <line number="60" hits="0" branch="False" />
-            <line number="61" hits="0" branch="False" />
-            <line number="62" hits="0" branch="False" />
-            <line number="63" hits="0" branch="False" />
-            <line number="64" hits="0" branch="False" />
-            <line number="65" hits="0" branch="False" />
+            <line number="212" hits="0" branch="False" />
+            <line number="221" hits="0" branch="False" />
+            <line number="226" hits="0" branch="False" />
+            <line number="231" hits="0" branch="False" />
             <line number="66" hits="0" branch="False" />
-            <line number="67" hits="0" branch="False" />
-            <line number="68" hits="0" branch="False" />
-            <line number="76" hits="0" branch="False" />
-            <line number="77" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="11" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="78" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="93" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="33" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="79" hits="0" branch="False" />
+            <line number="94" hits="0" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.StorageMediumResolver" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.Core/Data/Storage/StorageMediumResolver.cs" line-rate="0" branch-rate="0" complexity="13">
@@ -15589,84 +15597,114 @@
     <package name="Flowthru" line-rate="1" branch-rate="1" complexity="0">
       <classes />
     </package>
-    <package name="Flowthru.Extensions.Csv" line-rate="0" branch-rate="0" complexity="34">
+    <package name="Flowthru.Extensions.Csv" line-rate="0" branch-rate="0" complexity="50">
       <classes>
-        <class name="Flowthru.Core.Data.CsvItemExtensions" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/CsvItemExtensions.cs" line-rate="0" branch-rate="0" complexity="7">
+        <class name="Flowthru.Core.Data.CsvItemExtensions" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/CsvItemExtensions.cs" line-rate="0" branch-rate="0" complexity="9">
           <methods>
-            <method name="Csv" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium)" line-rate="0" branch-rate="0" complexity="6">
+            <method name="Csv" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="8">
               <lines>
-                <line number="54" hits="0" branch="False" />
-                <line number="55" hits="0" branch="True" condition-coverage="0% (0/6)">
+                <line number="62" hits="0" branch="False" />
+                <line number="63" hits="0" branch="True" condition-coverage="0% (0/6)">
                   <conditions>
                     <condition number="4" type="jump" coverage="0%" />
                     <condition number="8" type="jump" coverage="0%" />
                     <condition number="21" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="56" hits="0" branch="False" />
-                <line number="57" hits="0" branch="False" />
-                <line number="58" hits="0" branch="False" />
-                <line number="59" hits="0" branch="False" />
-                <line number="60" hits="0" branch="False" />
-                <line number="61" hits="0" branch="False" />
-                <line number="62" hits="0" branch="False" />
-                <line number="64" hits="0" branch="False" />
+                <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="33" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
                 <line number="65" hits="0" branch="False" />
+                <line number="66" hits="0" branch="False" />
+                <line number="67" hits="0" branch="False" />
+                <line number="68" hits="0" branch="False" />
+                <line number="69" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+                <line number="74" hits="0" branch="False" />
+                <line number="75" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="CsvDirectory" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="CsvDirectory" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="87" hits="0" branch="False" />
-                <line number="88" hits="0" branch="False" />
-                <line number="89" hits="0" branch="False" />
+                <line number="98" hits="0" branch="False" />
+                <line number="99" hits="0" branch="False" />
+                <line number="100" hits="0" branch="False" />
+                <line number="101" hits="0" branch="False" />
+                <line number="102" hits="0" branch="False" />
+                <line number="103" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="54" hits="0" branch="False" />
-            <line number="55" hits="0" branch="True" condition-coverage="0% (0/6)">
+            <line number="62" hits="0" branch="False" />
+            <line number="63" hits="0" branch="True" condition-coverage="0% (0/6)">
               <conditions>
                 <condition number="4" type="jump" coverage="0%" />
                 <condition number="8" type="jump" coverage="0%" />
                 <condition number="21" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="56" hits="0" branch="False" />
-            <line number="57" hits="0" branch="False" />
-            <line number="58" hits="0" branch="False" />
-            <line number="59" hits="0" branch="False" />
-            <line number="60" hits="0" branch="False" />
-            <line number="61" hits="0" branch="False" />
-            <line number="62" hits="0" branch="False" />
-            <line number="64" hits="0" branch="False" />
+            <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="33" type="jump" coverage="0%" />
+              </conditions>
+            </line>
             <line number="65" hits="0" branch="False" />
-            <line number="87" hits="0" branch="False" />
-            <line number="88" hits="0" branch="False" />
-            <line number="89" hits="0" branch="False" />
+            <line number="66" hits="0" branch="False" />
+            <line number="67" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="69" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="98" hits="0" branch="False" />
+            <line number="99" hits="0" branch="False" />
+            <line number="100" hits="0" branch="False" />
+            <line number="101" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="50" hits="0" branch="False" />
+                <line number="60" hits="0" branch="False" />
               </lines>
             </method>
-            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="(System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
-                <line number="39" hits="0" branch="False" />
-                <line number="40" hits="0" branch="False" />
-                <line number="41" hits="0" branch="False" />
-                <line number="42" hits="0" branch="False" />
+                <line number="47" hits="0" branch="False" />
+                <line number="48" hits="0" branch="False" />
+                <line number="49" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="31" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="50" hits="0" branch="False" />
+                <line number="51" hits="0" branch="False" />
+                <line number="52" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
+            <line number="60" hits="0" branch="False" />
+            <line number="47" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="49" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="31" type="jump" coverage="0%" />
+              </conditions>
+            </line>
             <line number="50" hits="0" branch="False" />
-            <line number="39" hits="0" branch="False" />
-            <line number="40" hits="0" branch="False" />
-            <line number="41" hits="0" branch="False" />
-            <line number="42" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+            <line number="52" hits="0" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.Strategies.CsvStorageEntryFactory" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Strategies/CsvStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="10">
@@ -15761,162 +15799,158 @@
             <line number="52" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="11">
           <methods>
             <method name="get_Configuration" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="111" hits="0" branch="False" />
+                <line number="158" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_NullValues" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="163" hits="0" branch="False" />
               </lines>
             </method>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="114" hits="0" branch="False" />
+                <line number="166" hits="0" branch="False" />
               </lines>
             </method>
             <method name="GetPropertyMappingConfiguration" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="177" hits="0" branch="False" />
-                <line number="178" hits="0" branch="False" />
-                <line number="179" hits="0" branch="False" />
+                <line number="229" hits="0" branch="False" />
+                <line number="230" hits="0" branch="False" />
+                <line number="231" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="94" hits="0" branch="False" />
-                <line number="95" hits="0" branch="False" />
-                <line number="96" hits="0" branch="False" />
+                <line number="114" hits="0" branch="False" />
+                <line number="115" hits="0" branch="False" />
+                <line number="116" hits="0" branch="False" />
+                <line number="117" hits="0" branch="False" />
               </lines>
             </method>
-            <method name=".ctor" signature="(CsvHelper.Configuration.CsvConfiguration)" line-rate="0" branch-rate="0" complexity="2">
+            <method name=".ctor" signature="(System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="104" hits="0" branch="False" />
-                <line number="105" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="129" hits="0" branch="False" />
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+                <line number="132" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CsvHelper.Configuration.CsvConfiguration)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="140" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CsvHelper.Configuration.CsvConfiguration,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="150" hits="0" branch="False" />
+                <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="11" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="106" hits="0" branch="False" />
+                <line number="152" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="33" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="153" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="111" hits="0" branch="False" />
+            <line number="158" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="166" hits="0" branch="False" />
+            <line number="229" hits="0" branch="False" />
+            <line number="230" hits="0" branch="False" />
+            <line number="231" hits="0" branch="False" />
             <line number="114" hits="0" branch="False" />
-            <line number="177" hits="0" branch="False" />
-            <line number="178" hits="0" branch="False" />
-            <line number="179" hits="0" branch="False" />
-            <line number="94" hits="0" branch="False" />
-            <line number="95" hits="0" branch="False" />
-            <line number="96" hits="0" branch="False" />
-            <line number="104" hits="0" branch="False" />
-            <line number="105" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="115" hits="0" branch="False" />
+            <line number="116" hits="0" branch="False" />
+            <line number="117" hits="0" branch="False" />
+            <line number="129" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="150" hits="0" branch="False" />
+            <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="11" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="106" hits="0" branch="False" />
+            <line number="152" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="33" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="153" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelClassMap`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializerDefaults" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
-            <method name=".ctor" signature="()" line-rate="0" branch-rate="0" complexity="4">
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="189" hits="0" branch="False" />
-                <line number="190" hits="0" branch="False" />
-                <line number="192" hits="0" branch="False" />
-                <line number="194" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="169" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="195" hits="0" branch="False" />
-                <line number="196" hits="0" branch="False" />
-                <line number="197" hits="0" branch="False" />
-                <line number="200" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="100" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="201" hits="0" branch="False" />
-                <line number="202" hits="0" branch="False" />
-                <line number="203" hits="0" branch="False" />
-                <line number="204" hits="0" branch="False" />
-                <line number="205" hits="0" branch="False" />
-                <line number="206" hits="0" branch="False" />
-                <line number="207" hits="0" branch="False" />
-                <line number="208" hits="0" branch="False" />
-                <line number="209" hits="0" branch="False" />
+                <line number="240" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="189" hits="0" branch="False" />
-            <line number="190" hits="0" branch="False" />
-            <line number="192" hits="0" branch="False" />
-            <line number="194" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="169" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="195" hits="0" branch="False" />
-            <line number="196" hits="0" branch="False" />
-            <line number="197" hits="0" branch="False" />
-            <line number="200" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="100" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="201" hits="0" branch="False" />
-            <line number="202" hits="0" branch="False" />
-            <line number="203" hits="0" branch="False" />
-            <line number="204" hits="0" branch="False" />
-            <line number="205" hits="0" branch="False" />
-            <line number="206" hits="0" branch="False" />
-            <line number="207" hits="0" branch="False" />
-            <line number="208" hits="0" branch="False" />
-            <line number="209" hits="0" branch="False" />
+            <line number="240" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumCsvConverter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="5">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelClassMap`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="11">
           <methods>
-            <method name="ConvertFromString" signature="(System.String,CsvHelper.IReaderRow,CsvHelper.Configuration.MemberMapData)" line-rate="0" branch-rate="0" complexity="2">
+            <method name="IsNullable" signature="(System.Reflection.PropertyInfo,System.Reflection.NullabilityInfoContext)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
-                <line number="232" hits="0" branch="False" />
-                <line number="233" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="296" hits="0" branch="False" />
+                <line number="297" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
-                    <condition number="9" type="jump" coverage="0%" />
+                    <condition number="20" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="234" hits="0" branch="False" />
-                <line number="236" hits="0" branch="False" />
-                <line number="240" hits="0" branch="False" />
-                <line number="241" hits="0" branch="False" />
-                <line number="243" hits="0" branch="False" />
-                <line number="244" hits="0" branch="False" />
-                <line number="245" hits="0" branch="False" />
-                <line number="246" hits="0" branch="False" />
-                <line number="247" hits="0" branch="False" />
-                <line number="248" hits="0" branch="False" />
-                <line number="249" hits="0" branch="False" />
-                <line number="250" hits="0" branch="False" />
-                <line number="251" hits="0" branch="False" />
+                <line number="298" hits="0" branch="False" />
+                <line number="299" hits="0" branch="False" />
+                <line number="302" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="40" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="303" hits="0" branch="False" />
+                <line number="304" hits="0" branch="False" />
+                <line number="307" hits="0" branch="False" />
+                <line number="308" hits="0" branch="False" />
+                <line number="309" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
                 <line number="253" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="ConvertToString" signature="(System.Object,CsvHelper.IWriterRow,CsvHelper.Configuration.MemberMapData)" line-rate="0" branch-rate="0" complexity="2">
+            <method name=".ctor" signature="(System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
                 <line number="260" hits="0" branch="False" />
-                <line number="261" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="7" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
+                <line number="261" hits="0" branch="False" />
                 <line number="262" hits="0" branch="False" />
                 <line number="263" hits="0" branch="False" />
+                <line number="265" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="215" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="266" hits="0" branch="False" />
                 <line number="267" hits="0" branch="False" />
                 <line number="268" hits="0" branch="False" />
-                <line number="270" hits="0" branch="False" />
-                <line number="271" hits="0" branch="False" />
+                <line number="271" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="110" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
                 <line number="272" hits="0" branch="False" />
                 <line number="273" hits="0" branch="False" />
                 <line number="274" hits="0" branch="False" />
@@ -15924,51 +15958,56 @@
                 <line number="276" hits="0" branch="False" />
                 <line number="277" hits="0" branch="False" />
                 <line number="278" hits="0" branch="False" />
-                <line number="280" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="222" hits="0" branch="False" />
-                <line number="223" hits="0" branch="False" />
-                <line number="224" hits="0" branch="False" />
-                <line number="225" hits="0" branch="False" />
+                <line number="280" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="183" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="281" hits="0" branch="False" />
+                <line number="285" hits="0" branch="False" />
+                <line number="286" hits="0" branch="False" />
+                <line number="287" hits="0" branch="False" />
+                <line number="288" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="232" hits="0" branch="False" />
-            <line number="233" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="296" hits="0" branch="False" />
+            <line number="297" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
-                <condition number="9" type="jump" coverage="0%" />
+                <condition number="20" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="234" hits="0" branch="False" />
-            <line number="236" hits="0" branch="False" />
-            <line number="240" hits="0" branch="False" />
-            <line number="241" hits="0" branch="False" />
-            <line number="243" hits="0" branch="False" />
-            <line number="244" hits="0" branch="False" />
-            <line number="245" hits="0" branch="False" />
-            <line number="246" hits="0" branch="False" />
-            <line number="247" hits="0" branch="False" />
-            <line number="248" hits="0" branch="False" />
-            <line number="249" hits="0" branch="False" />
-            <line number="250" hits="0" branch="False" />
-            <line number="251" hits="0" branch="False" />
+            <line number="298" hits="0" branch="False" />
+            <line number="299" hits="0" branch="False" />
+            <line number="302" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="40" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="303" hits="0" branch="False" />
+            <line number="304" hits="0" branch="False" />
+            <line number="307" hits="0" branch="False" />
+            <line number="308" hits="0" branch="False" />
+            <line number="309" hits="0" branch="False" />
             <line number="253" hits="0" branch="False" />
             <line number="260" hits="0" branch="False" />
-            <line number="261" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="7" type="jump" coverage="0%" />
-              </conditions>
-            </line>
+            <line number="261" hits="0" branch="False" />
             <line number="262" hits="0" branch="False" />
             <line number="263" hits="0" branch="False" />
+            <line number="265" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="215" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="266" hits="0" branch="False" />
             <line number="267" hits="0" branch="False" />
             <line number="268" hits="0" branch="False" />
-            <line number="270" hits="0" branch="False" />
-            <line number="271" hits="0" branch="False" />
+            <line number="271" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="110" type="jump" coverage="0%" />
+              </conditions>
+            </line>
             <line number="272" hits="0" branch="False" />
             <line number="273" hits="0" branch="False" />
             <line number="274" hits="0" branch="False" />
@@ -15976,83 +16015,122 @@
             <line number="276" hits="0" branch="False" />
             <line number="277" hits="0" branch="False" />
             <line number="278" hits="0" branch="False" />
-            <line number="280" hits="0" branch="False" />
-            <line number="222" hits="0" branch="False" />
-            <line number="223" hits="0" branch="False" />
-            <line number="224" hits="0" branch="False" />
-            <line number="225" hits="0" branch="False" />
+            <line number="280" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="183" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="281" hits="0" branch="False" />
+            <line number="285" hits="0" branch="False" />
+            <line number="286" hits="0" branch="False" />
+            <line number="287" hits="0" branch="False" />
+            <line number="288" hits="0" branch="False" />
           </lines>
         </class>
-      </classes>
-    </package>
-    <package name="Flowthru.Extensions.Excel" line-rate="0" branch-rate="1" complexity="5">
-      <classes>
-        <class name="Flowthru.Core.Data.ExcelItemExtensions" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/ExcelItemExtensions.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumCsvConverter`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="5">
           <methods>
-            <method name="Excel" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="ConvertFromString" signature="(System.String,CsvHelper.IReaderRow,CsvHelper.Configuration.MemberMapData)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
-                <line number="49" hits="0" branch="False" />
-                <line number="50" hits="0" branch="False" />
-                <line number="51" hits="0" branch="False" />
-                <line number="52" hits="0" branch="False" />
-                <line number="53" hits="0" branch="False" />
-                <line number="55" hits="0" branch="False" />
-                <line number="56" hits="0" branch="False" />
+                <line number="332" hits="0" branch="False" />
+                <line number="333" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="334" hits="0" branch="False" />
+                <line number="336" hits="0" branch="False" />
+                <line number="340" hits="0" branch="False" />
+                <line number="341" hits="0" branch="False" />
+                <line number="343" hits="0" branch="False" />
+                <line number="344" hits="0" branch="False" />
+                <line number="345" hits="0" branch="False" />
+                <line number="346" hits="0" branch="False" />
+                <line number="347" hits="0" branch="False" />
+                <line number="348" hits="0" branch="False" />
+                <line number="349" hits="0" branch="False" />
+                <line number="350" hits="0" branch="False" />
+                <line number="351" hits="0" branch="False" />
+                <line number="353" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ConvertToString" signature="(System.Object,CsvHelper.IWriterRow,CsvHelper.Configuration.MemberMapData)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="360" hits="0" branch="False" />
+                <line number="361" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="362" hits="0" branch="False" />
+                <line number="363" hits="0" branch="False" />
+                <line number="367" hits="0" branch="False" />
+                <line number="368" hits="0" branch="False" />
+                <line number="370" hits="0" branch="False" />
+                <line number="371" hits="0" branch="False" />
+                <line number="372" hits="0" branch="False" />
+                <line number="373" hits="0" branch="False" />
+                <line number="374" hits="0" branch="False" />
+                <line number="375" hits="0" branch="False" />
+                <line number="376" hits="0" branch="False" />
+                <line number="377" hits="0" branch="False" />
+                <line number="378" hits="0" branch="False" />
+                <line number="380" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="322" hits="0" branch="False" />
+                <line number="323" hits="0" branch="False" />
+                <line number="324" hits="0" branch="False" />
+                <line number="325" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="49" hits="0" branch="False" />
-            <line number="50" hits="0" branch="False" />
-            <line number="51" hits="0" branch="False" />
-            <line number="52" hits="0" branch="False" />
-            <line number="53" hits="0" branch="False" />
-            <line number="55" hits="0" branch="False" />
-            <line number="56" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="4">
-          <methods>
-            <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="40" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="SerializeRows" signature="(System.IO.Stream,System.Collections.Generic.IAsyncEnumerable`1&lt;TRow&gt;)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="145" hits="0" branch="False" />
-                <line number="146" hits="0" branch="False" />
-                <line number="147" hits="0" branch="False" />
-                <line number="148" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="GetPropertyMappingConfiguration" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="153" hits="0" branch="False" />
-                <line number="154" hits="0" branch="False" />
-                <line number="155" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="32" hits="0" branch="False" />
-                <line number="33" hits="0" branch="False" />
-                <line number="34" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="40" hits="0" branch="False" />
-            <line number="145" hits="0" branch="False" />
-            <line number="146" hits="0" branch="False" />
-            <line number="147" hits="0" branch="False" />
-            <line number="148" hits="0" branch="False" />
-            <line number="153" hits="0" branch="False" />
-            <line number="154" hits="0" branch="False" />
-            <line number="155" hits="0" branch="False" />
-            <line number="32" hits="0" branch="False" />
-            <line number="33" hits="0" branch="False" />
-            <line number="34" hits="0" branch="False" />
+            <line number="332" hits="0" branch="False" />
+            <line number="333" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="334" hits="0" branch="False" />
+            <line number="336" hits="0" branch="False" />
+            <line number="340" hits="0" branch="False" />
+            <line number="341" hits="0" branch="False" />
+            <line number="343" hits="0" branch="False" />
+            <line number="344" hits="0" branch="False" />
+            <line number="345" hits="0" branch="False" />
+            <line number="346" hits="0" branch="False" />
+            <line number="347" hits="0" branch="False" />
+            <line number="348" hits="0" branch="False" />
+            <line number="349" hits="0" branch="False" />
+            <line number="350" hits="0" branch="False" />
+            <line number="351" hits="0" branch="False" />
+            <line number="353" hits="0" branch="False" />
+            <line number="360" hits="0" branch="False" />
+            <line number="361" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="362" hits="0" branch="False" />
+            <line number="363" hits="0" branch="False" />
+            <line number="367" hits="0" branch="False" />
+            <line number="368" hits="0" branch="False" />
+            <line number="370" hits="0" branch="False" />
+            <line number="371" hits="0" branch="False" />
+            <line number="372" hits="0" branch="False" />
+            <line number="373" hits="0" branch="False" />
+            <line number="374" hits="0" branch="False" />
+            <line number="375" hits="0" branch="False" />
+            <line number="376" hits="0" branch="False" />
+            <line number="377" hits="0" branch="False" />
+            <line number="378" hits="0" branch="False" />
+            <line number="380" hits="0" branch="False" />
+            <line number="322" hits="0" branch="False" />
+            <line number="323" hits="0" branch="False" />
+            <line number="324" hits="0" branch="False" />
+            <line number="325" hits="0" branch="False" />
           </lines>
         </class>
       </classes>
@@ -20723,6 +20801,166 @@
             <line number="443" hits="0" branch="False" />
             <line number="444" hits="0" branch="False" />
             <line number="445" hits="0" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="Flowthru.Extensions.Excel" line-rate="0" branch-rate="0" complexity="16">
+      <classes>
+        <class name="Flowthru.Core.Data.ExcelItemExtensions" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/ExcelItemExtensions.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="Excel" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="55" hits="0" branch="False" />
+                <line number="56" hits="0" branch="False" />
+                <line number="57" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="10" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="58" hits="0" branch="False" />
+                <line number="59" hits="0" branch="False" />
+                <line number="60" hits="0" branch="False" />
+                <line number="61" hits="0" branch="False" />
+                <line number="63" hits="0" branch="False" />
+                <line number="64" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="55" hits="0" branch="False" />
+            <line number="56" hits="0" branch="False" />
+            <line number="57" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="10" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="58" hits="0" branch="False" />
+            <line number="59" hits="0" branch="False" />
+            <line number="60" hits="0" branch="False" />
+            <line number="61" hits="0" branch="False" />
+            <line number="63" hits="0" branch="False" />
+            <line number="64" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Data.Storage.Format.ExcelFormatSerializer`1" filename="/home/spelkington/Repos/cgc/flowthru/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="14">
+          <methods>
+            <method name="get_NullValues" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="65" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="71" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="SerializeRows" signature="(System.IO.Stream,System.Collections.Generic.IAsyncEnumerable`1&lt;TRow&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="198" hits="0" branch="False" />
+                <line number="199" hits="0" branch="False" />
+                <line number="200" hits="0" branch="False" />
+                <line number="201" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetPropertyMappingConfiguration" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="206" hits="0" branch="False" />
+                <line number="207" hits="0" branch="False" />
+                <line number="208" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="IsNullable" signature="(System.Reflection.PropertyInfo,System.Reflection.NullabilityInfoContext)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="216" hits="0" branch="False" />
+                <line number="217" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="218" hits="0" branch="False" />
+                <line number="219" hits="0" branch="False" />
+                <line number="222" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="40" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="223" hits="0" branch="False" />
+                <line number="224" hits="0" branch="False" />
+                <line number="227" hits="0" branch="False" />
+                <line number="228" hits="0" branch="False" />
+                <line number="229" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="46" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="57" hits="0" branch="False" />
+                <line number="58" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="11" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="59" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="33" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="60" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="35" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="65" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="198" hits="0" branch="False" />
+            <line number="199" hits="0" branch="False" />
+            <line number="200" hits="0" branch="False" />
+            <line number="201" hits="0" branch="False" />
+            <line number="206" hits="0" branch="False" />
+            <line number="207" hits="0" branch="False" />
+            <line number="208" hits="0" branch="False" />
+            <line number="216" hits="0" branch="False" />
+            <line number="217" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="218" hits="0" branch="False" />
+            <line number="219" hits="0" branch="False" />
+            <line number="222" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="40" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="223" hits="0" branch="False" />
+            <line number="224" hits="0" branch="False" />
+            <line number="227" hits="0" branch="False" />
+            <line number="228" hits="0" branch="False" />
+            <line number="229" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="57" hits="0" branch="False" />
+            <line number="58" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="11" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="59" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="33" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="60" hits="0" branch="False" />
+            <line number="35" hits="0" branch="False" />
           </lines>
         </class>
       </classes>
