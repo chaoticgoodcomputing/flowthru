@@ -1,3 +1,13 @@
+## 0.12.1 (2026-04-29)
+
+### 🩹 Fixes
+
+- efcore forward look at query shapes ([f531dede](https://github.com/chaoticgoodcomputing/flowthru/commit/f531dede))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.12.0 (2026-04-28)
 
 ### 🚀 Features
