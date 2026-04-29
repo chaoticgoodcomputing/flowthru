@@ -1,4 +1,7 @@
-# Storage Adapter Architecture
+---
+title: Storage Adapter Architecture
+description: Flowthru's storage layer factors *where* data lives, *how* it's serialized, and *what* container holds it into three composable layers, with capabilities and constraints unified through a trait system.
+---
 
 Flowthru's storage layer uses a three-layer composition pattern that separates *where* data lives, *how* it's serialized, and *what* container holds it. Storage capabilities and constraints propagate through this composition via a unified trait system.
 

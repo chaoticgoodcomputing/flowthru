@@ -1,4 +1,7 @@
-# Slicing Flows
+---
+title: Slicing Flows
+description: Execute subsets of a flow with --from, --to, --only, and related slicing flags — useful for testing specific steps, debugging data flow, or running portions of a large flow.
+---
 
 Execute subsets of your flow using slicing strategies. This is useful for testing specific steps, debugging data flow, or running specific portions of large flows.
 

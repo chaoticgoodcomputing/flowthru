@@ -1,4 +1,7 @@
-# Using EFCore Catalog Entries
+---
+title: Using EFCore Catalog Entries
+description: Move some or all of a Flowthru pipeline's catalog entries from file-based storage (CSV, JSON, Parquet) to a relational database via the Flowthru.Extensions.EFCore package.
+---
 
 This guide is for teams who already have a working Flowthru pipeline backed by file-based catalog entries (CSV, JSON, Parquet) and want to move some or all entries to a relational database. You should be comfortable with Entity Framework Core at a conceptual level — DbContext, `OnModelCreating`, and `IDbContextFactory`.
 

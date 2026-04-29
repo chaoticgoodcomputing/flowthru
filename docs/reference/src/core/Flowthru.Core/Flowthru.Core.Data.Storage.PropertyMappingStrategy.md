@@ -11,21 +11,9 @@ public enum PropertyMappingStrategy
 
 ## Fields
 
-`Adapter = 3` 
-
-Serializer uses an adapter to translate SerializedLabel to native attributes.
-
-
-
-`LibraryControlled = 2` 
+`LibraryControlled = 1` 
 
 Underlying library controls mapping with no programmatic access.
-
-
-
-`NativeAttributes = 1` 
-
-Serializer uses format-specific attributes (e.g., ML.NET [LoadColumn], CsvHelper [Name]).
 
 
 

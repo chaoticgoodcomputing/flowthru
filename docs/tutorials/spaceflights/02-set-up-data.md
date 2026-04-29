@@ -1,4 +1,7 @@
-# Set Up Data
+---
+title: Set Up Data
+description: Add the Spaceflights datasets to your project, define a schema for each, and register catalog items that connect those schemas to the physical CSV and Excel files.
+---
 
 This page explains how to add datasets to your project and register them in Flowthru's Catalog. You'll define schemas for each dataset and create catalog items that connect schemas to physical files.
 

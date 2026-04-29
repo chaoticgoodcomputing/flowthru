@@ -1,4 +1,7 @@
-# Custom Metadata Providers
+---
+title: Custom Metadata Providers
+description: Implement IMetadataProvider to receive pipeline DAG metadata at execution time — for dashboards, lineage tracking, or any other downstream consumer.
+---
 
 This guide shows how to create custom metadata providers that receive pipeline metadata automatically during execution.
 

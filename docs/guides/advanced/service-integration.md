@@ -1,4 +1,7 @@
-# Using Flowthru as a Service Dependency
+---
+title: Using Flowthru as a Service Dependency
+description: Register IFlowthruService into an existing .NET application and invoke pipelines programmatically from API endpoints, background jobs, or message handlers.
+---
 
 Register `IFlowthruService` into an existing .NET application and invoke pipelines programmatically — from API endpoints, background jobs, or message handlers.
 

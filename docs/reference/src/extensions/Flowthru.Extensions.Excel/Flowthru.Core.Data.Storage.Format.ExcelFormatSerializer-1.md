@@ -171,10 +171,10 @@ to explicitly declare how it handles property name mapping.
 to respect [SerializedLabel] attributes. Return <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromSerializedLabel%60%601" data-throw-if-not-resolved="false"></xref>.
 </li><li>
 <strong>Native Attribute Mapping:</strong> Use format-specific attributes (e.g., ML.NET's [LoadColumn]).
-Return <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromNativeAttributes(System.String)" data-throw-if-not-resolved="false"></xref> with the attribute type name.
+Return PropertyMappingConfiguration.FromNativeAttributes(string) with the attribute type name.
 </li><li>
 <strong>Adapter Pattern:</strong> Bridge between SerializedLabel and native attributes.
-Return <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromAdapter%60%601" data-throw-if-not-resolved="false"></xref>.
+Return PropertyMappingConfiguration.FromAdapter&lt;TAdapter&gt;().
 </li></ul>
 <p>
 <strong>Design Intent:</strong> This contract makes property mapping an explicit, discoverable

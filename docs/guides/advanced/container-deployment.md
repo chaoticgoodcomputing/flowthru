@@ -1,4 +1,7 @@
-# Deploying a Pipeline in a Container
+---
+title: Deploying a Pipeline in a Container
+description: Package a Flowthru pipeline as a standalone container image suitable for AWS Lambda, Azure Container Apps, Kubernetes Jobs, or any other container runtime.
+---
 
 Deploy a Flowthru pipeline as a standalone container image for execution in environments like AWS Lambda, Azure Container Apps, or Kubernetes Jobs.
 

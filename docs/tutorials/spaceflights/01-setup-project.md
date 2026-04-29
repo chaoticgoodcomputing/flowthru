@@ -1,4 +1,7 @@
-# Set Up the Spaceflights Project
+---
+title: Set Up the Spaceflights Project
+description: Install the Flowthru project template and scaffold a new pipeline project — the starting point for the rest of the tutorial.
+---
 
 To get started with the Spaceflights template — as well as any starter templates Flowthru provides — we'll walk you through:
 

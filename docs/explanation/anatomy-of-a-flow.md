@@ -1,4 +1,7 @@
-# Anatomy of a Flowthru Flow
+---
+title: Anatomy of a Flowthru Flow
+description: A walkthrough of the pieces that make up a Flowthru flow — schemas, catalogs, steps, and flows — and how they connect, using the Iris starter as the running example.
+---
 
 This document walks through the structure of a Flowthru flow. What are steps? What is the Catalog? How do flows come together? This anatomy serves as an explanation of Flowthru concepts, and how they connect.
 

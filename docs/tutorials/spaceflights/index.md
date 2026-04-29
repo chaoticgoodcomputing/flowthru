@@ -1,4 +1,7 @@
-# Spaceflights Tutorial
+---
+title: Spaceflights Tutorial
+description: A hands-on walkthrough of Flowthru's core concepts — schemas, catalogs, steps, and flows — by building a complete data flow for space tourism price prediction.
+---
 
 Welcome to the Flowthru Spaceflights tutorial. This hands-on guide walks you through building a complete data flow for space tourism price prediction. You'll learn Flowthru's core concepts — schemas, catalogs, steps, and flows — by constructing a working application.
 

@@ -180,6 +180,56 @@ Regardless of category:
 - **Runnable examples** — Code samples must compile and execute
 - **Synchronization** — Documentation drift violates Flowthru's fail-fast principle
 
+## Frontmatter Convention
+
+Every hand-written page under `tutorials/`, `guides/`, and `explanation/` begins with a YAML frontmatter block. The site (under `src/website/`) ingests these files and uses the frontmatter to drive titles, metadata, search snippets, and sidebar ordering. Reference content is generated from C# XML docs and synthesizes its own frontmatter — don't hand-edit `docs/reference/`.
+
+### Required fields
+
+| Field         | Type   | Purpose                                                              |
+| ------------- | ------ | -------------------------------------------------------------------- |
+| `title`       | string | Page `<h1>`, browser tab, sidebar label, search result title.        |
+| `description` | string | One- to two-sentence summary. Drives `<meta description>` and search snippets. |
+
+### Useful optional fields
+
+Flowthru follows [Starlight's frontmatter spec](https://starlight.astro.build/reference/frontmatter/) — anything Starlight accepts works. Most commonly:
+
+- `sidebar.order` (number) — overrides alphabetical ordering. Tutorials currently use numbered filenames (`01-…`, `02-…`) which already sort correctly, so this is rarely needed.
+- `sidebar.label` (string) — override sidebar text when `title` is too long.
+- `sidebar.badge` (string or object) — adds a chip like `"New"`, `"Beta"`, `"Deprecated"`.
+- `template: "splash"` — for landing pages with hero sections.
+- `lastUpdated: false` — suppress the timestamp on pages that aren't versioned.
+
+### Body conventions
+
+- **Do not write a top-level `# Title` H1.** Starlight renders the title from frontmatter; a duplicate H1 will appear twice on the rendered page.
+- Section headers start at `##` (`<h2>`) and nest from there.
+
+### Example
+
+```markdown
+---
+title: Slicing Flows
+description: Execute subsets of your flow using slicing strategies — useful for testing specific steps, debugging data flow, or running specific portions of large flows.
+---
+
+Execute subsets of your flow using slicing strategies. This is useful for…
+
+## Label Resolution
+
+…
+```
+
+### Validation
+
+Frontmatter is validated in two places:
+
+1. **`nx run website:_lint-docs`** runs between ingest and build. Missing or malformed frontmatter fails fast with errors pointed at the source path under `docs/`.
+2. **Astro's content collection schema** re-validates during `astro build` as a backstop, using [Starlight's `docsSchema()`](https://starlight.astro.build/reference/frontmatter/) tightened to require `description`.
+
+A page without frontmatter, or with an empty `title` or `description`, will fail the build.
+
 ---
 
 The goal isn't perfect documentation. The goal is documentation that meets users where they are, answers the question they're asking, and helps them move forward. Start with the question, and the rest follows.

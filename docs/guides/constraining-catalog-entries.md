@@ -1,4 +1,7 @@
-# Constraining Catalog Entries
+---
+title: Constraining Catalog Entries
+description: Apply constraints to catalog entries — read-only, append-only, and similar — to enforce data access policies and catch configuration errors at flow construction rather than runtime.
+---
 
 Apply additional constraints to catalog entries to enforce data access policies and catch configuration errors early. Constraints fail fast during pipeline construction, not during execution.
 

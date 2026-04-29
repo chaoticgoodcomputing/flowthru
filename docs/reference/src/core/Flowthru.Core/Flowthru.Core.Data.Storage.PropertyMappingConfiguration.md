@@ -70,7 +70,7 @@ public PropertyMappingStrategy Strategy { get; }
 
 ### <a id="Flowthru_Core_Data_Storage_PropertyMappingConfiguration_SupportsSerializedLabel"></a> SupportsSerializedLabel
 
-Checks if the serializer supports SerializedLabel attributes (directly or via adapter).
+Checks if the serializer supports SerializedLabel attributes.
 
 ```csharp
 public bool SupportsSerializedLabel { get; }
@@ -81,46 +81,6 @@ public bool SupportsSerializedLabel { get; }
  [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
 
 ## Methods
-
-### <a id="Flowthru_Core_Data_Storage_PropertyMappingConfiguration_FromAdapter__1"></a> FromAdapter<TAdapter\>\(\)
-
-Serializer uses an adapter to bridge SerializedLabel with native attributes.
-
-```csharp
-public static PropertyMappingConfiguration FromAdapter<TAdapter>()
-```
-
-#### Returns
-
- [PropertyMappingConfiguration](Flowthru.Core.Data.Storage.PropertyMappingConfiguration.md)
-
-Configuration for adapter-based mapping
-
-#### Type Parameters
-
-`TAdapter` 
-
-The adapter type that performs the bridging
-
-### <a id="Flowthru_Core_Data_Storage_PropertyMappingConfiguration_FromNativeAttributes_System_String_"></a> FromNativeAttributes\(string\)
-
-Serializer uses format-specific attributes (e.g., ML.NET's [LoadColumn], [ColumnName]).
-
-```csharp
-public static PropertyMappingConfiguration FromNativeAttributes(string attributeDescription)
-```
-
-#### Parameters
-
-`attributeDescription` [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-Description of native attributes used
-
-#### Returns
-
- [PropertyMappingConfiguration](Flowthru.Core.Data.Storage.PropertyMappingConfiguration.md)
-
-Configuration for native attribute mapping
 
 ### <a id="Flowthru_Core_Data_Storage_PropertyMappingConfiguration_FromSerializedLabel__1"></a> FromSerializedLabel<TRow\>\(\)
 

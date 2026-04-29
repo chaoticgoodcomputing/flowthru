@@ -1,4 +1,7 @@
-# Customizing Schema Property Types
+---
+title: Customizing Schema Property Types
+description: Use IScalar to allow custom types — newtypes, value objects, strong-typed identifiers — to appear as columns in flat schemas without being misclassified as nested objects.
+---
 
 Use `IScalar` to allow custom types — NewTypes, value objects, strong-typed identifiers — to appear as columns in flat schemas without being misclassified as nested objects.
 
