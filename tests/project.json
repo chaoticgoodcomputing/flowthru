@@ -18,6 +18,16 @@
         "parallel": false
       }
     },
+    "test:integration": {
+      "//": "Run only integration-tagged tests (e.g. Postgres-backed EFCore conformance via TestContainers). Requires Docker. Skipped by default in nx run affected -t test; intended for nightly CI runs and on-demand local validation.",
+      "executor": "nx:run-commands",
+      "inputs": [ "default", "^production" ],
+      "options": {
+        "commands": [ "dotnet test --filter Category=Integration --no-build" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
     "coverage:purge": {
       "//": "Remove all TestResults directories to force a clean test run",
       "executor": "nx:run-commands",

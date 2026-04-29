@@ -110,6 +110,57 @@ public class ParquetTraditionalSchemaConformance : FormatSerializerConformance<T
 
 When `Traits.CanWrite = false` (Excel, OnnxModelStorageAdapter), the round-trip test passes vacuously with an explanatory message. The trait-honesty cross-check in `StorageAdapterTraitsConformance<T>` exercises the read-only path; per-extension tests cover format-specific deserialization scenarios that require a writer from a different library (e.g., ClosedXML for `.xlsx`).
 
+#### Backend matrix testing (EFCore + TestContainers)
+
+Some extensions need to be exercised against multiple real backends to catch provider-specific bugs that in-memory shims can't reproduce. The canonical example is EFCore: a Postgres-only false positive in `EFCoreShapeValidator` shipped to production because tests only ran against in-memory SQLite (commit `0cb460d9`).
+
+EFCore's conformance subclasses parameterize over a backend abstraction:
+
+```csharp
+[TestFixtureSource(nameof(BackendMatrix))]
+public class EFCoreStorageAdapterConformance : StorageAdapterConformance<IEnumerable<TestEntity>>
+{
+  public static IEnumerable<TestFixtureData> BackendMatrix()
+  {
+    yield return new TestFixtureData("Synthetic/efcore-entities", typeof(SqliteInMemoryBackend));
+    var pg = new TestFixtureData("Synthetic/efcore-entities", typeof(PostgresContainerBackend));
+    pg.Properties.Add("Category", "Integration");
+    yield return pg;
+  }
+
+  public EFCoreStorageAdapterConformance(string fixturePath, Type backendType)
+    : base(fixturePath) { _backendType = backendType; }
+  // ... [OneTimeSetUp] activates the backend; tests run identically against both.
+}
+```
+
+`IDbBackend` is a minimal abstraction (`StartAsync()` → `DbContextOptions<TestDbContext>`, plus `IAsyncDisposable`). Two implementations live in `tests/extensions/Flowthru.Extensions.EFCore.Tests/Backends/`:
+
+- **`SqliteInMemoryBackend`** — fast (no Docker), runs on every PR via the default `nx run affected -t test` flow.
+- **`PostgresContainerBackend`** — `Testcontainers.PostgreSql`-driven, tagged `Integration`, runs only on demand.
+
+Two-tier execution:
+
+```bash
+# Fast tier — SQLite only, sub-second EFCore
+nx run-many -t test                     # default
+dotnet test                             # excludes nothing; runs Integration if Docker is available
+
+# Integration tier — TestContainers (requires Docker)
+nx run tests:test:integration           # filters to Category=Integration across the solution
+dotnet test --filter Category=Integration
+```
+
+The pattern lifts to other extensions where multiple backends matter: HTTP (TestContainers nginx serving fixture files), EFCore.Bulk (per-provider bulk-load paths), GQL (TestContainers hot-chocolate). The `IDbBackend`-style abstraction stays per-extension; the `Category = "Integration"` convention and the `nx test:integration` target stay shared.
+
+When adding a backend matrix to a new extension:
+
+1. Define a minimal backend abstraction in `tests/extensions/<Ext>.Tests/Backends/` mirroring `IDbBackend`.
+2. Implement an in-process / in-memory backend for the fast tier.
+3. Implement a TestContainers-backed integration backend tagged `Category = "Integration"`.
+4. Refactor existing conformance subclasses to take the backend type as a constructor argument (per the `EFCoreStorageAdapterConformance` example above) and activate via `Activator.CreateInstance` in `[OneTimeSetUp]`.
+5. Add an explicit regression test for any production bug the backend matrix would have caught — pin it to the relevant integration backend and cite the commit.
+
 ### Evaluating Error Tests
 
 When you encounter a runtime or pre-flight error during development:

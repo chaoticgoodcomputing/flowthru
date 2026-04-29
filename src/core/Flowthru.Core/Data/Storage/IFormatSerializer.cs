@@ -175,16 +175,14 @@ public interface IFormatSerializer<TRow>
   /// </para>
   /// <list type="bullet">
   /// <item>
-  /// <strong>SerializedLabel Support:</strong> Use <see cref="Format.PropertyMappingHelper"/>
-  /// to respect [SerializedLabel] attributes. Return <see cref="PropertyMappingConfiguration.FromSerializedLabel{T}()"/>.
+  /// <strong>SerializedLabel:</strong> Use <see cref="Format.PropertyMappingHelper"/>
+  /// to respect <c>[SerializedLabel]</c> attributes. Return
+  /// <see cref="PropertyMappingConfiguration.FromSerializedLabel{T}()"/>.
   /// </item>
   /// <item>
-  /// <strong>Native Attribute Mapping:</strong> Use format-specific attributes (e.g., ML.NET's [LoadColumn]).
-  /// Return <see cref="PropertyMappingConfiguration.FromNativeAttributes(string)"/> with the attribute type name.
-  /// </item>
-  /// <item>
-  /// <strong>Adapter Pattern:</strong> Bridge between SerializedLabel and native attributes.
-  /// Return <see cref="PropertyMappingConfiguration.FromAdapter{TAdapter}()"/>.
+  /// <strong>LibraryControlled:</strong> The underlying library handles mapping with no
+  /// programmatic API; property names must match storage field names exactly. Return
+  /// <see cref="PropertyMappingConfiguration.LibraryControlled(string)"/>.
   /// </item>
   /// </list>
   /// <para>
@@ -203,10 +201,6 @@ public interface IFormatSerializer<TRow>
   /// // CSV serializer using SerializedLabel
   /// public PropertyMappingConfiguration GetPropertyMappingConfiguration()
   ///     => PropertyMappingConfiguration.FromSerializedLabel&lt;TRow&gt;();
-  ///
-  /// // ML.NET serializer using native attributes
-  /// public PropertyMappingConfiguration GetPropertyMappingConfiguration()
-  ///     => PropertyMappingConfiguration.FromNativeAttributes("LoadColumnAttribute");
   ///
   /// // Parquet with library-controlled mapping
   /// public PropertyMappingConfiguration GetPropertyMappingConfiguration()

@@ -23,8 +23,8 @@ public sealed class PropertyMappingConfiguration
   public string? Description { get; }
 
   /// <summary>
-  /// For NativeAttributes strategy: the name of the attribute type(s) used.
-  /// For Adapter strategy: the adapter type.
+  /// For SerializedLabel strategy: the schema type whose <c>[SerializedLabel]</c>
+  /// annotations drive the mapping. <c>null</c> for LibraryControlled.
   /// </summary>
   public Type? MetadataType { get; }
 

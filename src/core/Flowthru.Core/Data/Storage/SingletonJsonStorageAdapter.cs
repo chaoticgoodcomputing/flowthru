@@ -52,20 +52,35 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
   /// <summary>
   /// Creates a new singleton JSON storage adapter with default options.
   /// Uses JsonFormatSerializer's default options to ensure consistent behavior,
-  /// including SerializedLabel attribute support.
+  /// including <c>[SerializedLabel]</c> and <c>[SerializedEnum]</c> attribute support.
   /// </summary>
   /// <param name="filePath">Path to JSON file</param>
+  /// <remarks>
+  /// Mirrors <see cref="Format.JsonFormatSerializer{TRow}"/>'s converter registration shape:
+  /// build the base options first, then add converters via <c>Add()</c> in the constructor
+  /// body. The enum-aware converter must be registered before the label-aware converter so
+  /// that enum-typed properties dispatch to <c>SerializedEnumJsonConverter</c> rather than
+  /// the generic label converter.
+  /// </remarks>
   public SingletonJsonStorageAdapter(string filePath)
-    : this(
-      filePath,
-      new JsonSerializerOptions
-      {
-        WriteIndented = true, // Pretty-print by default for readability
-        PropertyNamingPolicy = null, // No automatic naming transformation (use [SerializedLabel] instead)
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-        Converters = { new Format.SerializedLabelJsonConverterFactory() },
-      }
-    ) { }
+    : this(filePath, BuildDefaultOptions()) { }
+
+  private static JsonSerializerOptions BuildDefaultOptions()
+  {
+    var options = new JsonSerializerOptions
+    {
+      WriteIndented = true,
+      PropertyNamingPolicy = null,
+      DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+    };
+    // Enum factory first so [SerializedEnum] mappings (e.g. CheckStatus.Complete → "t")
+    // are honored end-to-end. Registering only the label factory — as this adapter did
+    // pre-Phase-C — silently dropped [SerializedEnum] mappings, with enum values
+    // round-tripping as their C# member names instead of declared serialized strings.
+    options.Converters.Add(new Format.SerializedEnumJsonConverterFactory());
+    options.Converters.Add(new Format.SerializedLabelJsonConverterFactory());
+    return options;
+  }
 
   /// <summary>
   /// Creates a new singleton JSON storage adapter with custom options.

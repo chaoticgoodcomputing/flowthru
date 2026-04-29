@@ -88,6 +88,66 @@ public class SerializedEnumJsonRoundTripTests
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Wire-format regression — the on-disk JSON must contain the [SerializedEnum]
+  // string mapping, not the C# member name. Round-trip tests above only verify
+  // symmetry (write X, read X back); a symmetric bug — e.g., the singleton
+  // adapter dropping the SerializedEnumJsonConverterFactory and writing
+  // "Complete"/"Mythic_Rare" instead of "t"/"mythic_rare" — would still
+  // round-trip correctly but produce files unreadable by any other tool that
+  // expects the declared serialized strings. This was the actual Phase 6 bug:
+  // SingletonJsonStorageAdapter registered only SerializedLabelJsonConverterFactory,
+  // silently dropping [SerializedEnum] mappings on the wire.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public async Task CheckStatusSchema_OnDiskJson_UsesSerializedEnumString()
+  {
+    var path = Path.Combine(_tempDir, "wire-format.json");
+    var adapter = new SingletonJsonStorageAdapter<CheckStatusSchema>(path);
+    var data = new CheckStatusSchema { Id = Guid.NewGuid(), Status = CheckStatus.Complete };
+
+    await adapter.Save(data).Run();
+    var fileContent = await File.ReadAllTextAsync(path);
+
+    Assert.That(
+      fileContent,
+      Does.Contain("\"status\": \"t\""),
+      "Singleton JSON adapter must serialize [SerializedEnum(\"t\")] Complete as \"t\". "
+        + "Seeing \"Complete\" instead means SerializedEnumJsonConverterFactory was not "
+        + "registered in JsonSerializerOptions.Converters."
+    );
+    Assert.That(
+      fileContent,
+      Does.Not.Contain("\"Complete\""),
+      "Wire format leaks the C# enum member name; SerializedEnum factory missing or out of order."
+    );
+  }
+
+  [Test]
+  public async Task RaritySnakeCase_OnDiskJson_UsesSerializedEnumString()
+  {
+    var path = Path.Combine(_tempDir, "wire-rarity.json");
+    var adapter = new SingletonJsonStorageAdapter<MultiEnumSchema>(path);
+    var data = new MultiEnumSchema
+    {
+      Id = Guid.NewGuid(),
+      PrimaryStatus = CheckStatus.Complete,
+      SecondaryStatus = CheckStatus.Incomplete,
+      Rarity = Rarity.MythicRare,
+    };
+
+    await adapter.Save(data).Run();
+    var fileContent = await File.ReadAllTextAsync(path);
+
+    Assert.That(
+      fileContent,
+      Does.Contain("\"rarity\": \"mythic_rare\""),
+      "[SerializedEnum(\"mythic_rare\")] MythicRare must serialize as \"mythic_rare\", "
+        + "not as the C# member name."
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Direct EnumMetadataCache assertions — verify the cache produces the
   // expected mappings before they're consumed by the JSON converter.
   // ─────────────────────────────────────────────────────────────────────────
