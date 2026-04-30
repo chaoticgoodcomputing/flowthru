@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Flowthru.Extensions.EFCore.Data;
@@ -45,7 +46,12 @@ public abstract class DbScope
   /// </summary>
   /// <remarks>
   /// Virtual hook for future subclasses that match by connection string or other criteria.
+  /// All current concrete subclasses (<see cref="InferredDbScope"/>, <see cref="ExplicitDbScope"/>)
+  /// override this; the base implementation only fires for hypothetical future scopes that
+  /// neither override nor implement custom equality. Excluded from coverage as a structurally
+  /// unreachable fallback path.
   /// </remarks>
+  [ExcludeFromCodeCoverage]
   internal virtual bool IsSameDatabase(DbScope other) => Equals(other);
 
   private sealed class InferredDbScope : DbScope

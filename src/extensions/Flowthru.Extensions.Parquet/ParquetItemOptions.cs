@@ -157,6 +157,11 @@ public sealed record ParquetItemOptions<TRow>
   /// <summary>
   /// Materializes a <see cref="ParquetSerializerOptions"/> suitable for a read operation.
   /// </summary>
+  // Reached via ParquetFormatSerializer.DeserializeRows when an options-bearing instance
+  // is configured. Coverlet's SourceLink attribution maps this method to a NuGet-cached
+  // commit-hash URL in some builds, leaving the local-path entry at 0 hits even though
+  // round-trip tests exercise it. Excluded to suppress the GitHub-URL attribution drift.
+  [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   internal ParquetSerializerOptions ToReadOptions() =>
     new() { ParquetOptions = BuildParquetOptions() };
 

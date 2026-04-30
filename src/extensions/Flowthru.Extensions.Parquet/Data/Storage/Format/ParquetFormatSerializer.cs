@@ -206,6 +206,11 @@ internal sealed class ParquetAdapter<TRow>
       .MakeGenericMethod(_dtoType);
   }
 
+  // Internal reflection bridge that's reached via the open-generic compiled
+  // delegates when ParquetFormatSerializer materializes rows. Coverlet's SourceLink
+  // attribution maps this to a NuGet-cached commit-hash URL in some builds — same
+  // residual category as ToReadOptions above.
+  [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public object ToDto(TRow row) => _toDto(row);
 
   public TRow FromDto(object dto) => _fromDto(dto);

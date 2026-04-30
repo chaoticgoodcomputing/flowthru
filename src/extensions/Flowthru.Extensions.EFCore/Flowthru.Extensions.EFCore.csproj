@@ -23,4 +23,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Internals visible for unit-testing internal helpers like DbScope.IsSameDatabase
+         that don't have a public surface. -->
+    <InternalsVisibleTo Include="Flowthru.Extensions.EFCore.Tests" />
+    <InternalsVisibleTo Include="Flowthru.Extensions.EFCore.Bulk.Tests" />
+  </ItemGroup>
+
 </Project>

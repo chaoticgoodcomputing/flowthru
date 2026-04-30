@@ -69,6 +69,54 @@ public class DbScopeTests
     Assert.That(inferred.Equals(@explicit), Is.False);
     Assert.That(@explicit.Equals(inferred), Is.False);
   }
+
+  // ── IsSameDatabase (internal) — exercised via InternalsVisibleTo ──────────
+
+  [Test]
+  public void Inferred_SameFactoryReference_IsSameDatabase()
+  {
+    var factory = new object();
+    Assert.That(DbScope.Inferred(factory).IsSameDatabase(DbScope.Inferred(factory)), Is.True);
+  }
+
+  [Test]
+  public void Inferred_DifferentFactoryReferences_AreNotSameDatabase()
+  {
+    Assert.That(
+      DbScope.Inferred(new object()).IsSameDatabase(DbScope.Inferred(new object())),
+      Is.False
+    );
+  }
+
+  [Test]
+  public void Explicit_SameName_IsSameDatabase()
+  {
+    Assert.That(DbScope.Explicit("primary").IsSameDatabase(DbScope.Explicit("primary")), Is.True);
+  }
+
+  [Test]
+  public void Explicit_DifferentNames_AreNotSameDatabase()
+  {
+    Assert.That(
+      DbScope.Explicit("primary").IsSameDatabase(DbScope.Explicit("secondary")),
+      Is.False
+    );
+  }
+
+  [Test]
+  public void Explicit_CaseSensitive_AreNotSameDatabase()
+  {
+    Assert.That(DbScope.Explicit("Primary").IsSameDatabase(DbScope.Explicit("primary")), Is.False);
+  }
+
+  [Test]
+  public void Inferred_VsExplicit_AreNotSameDatabase()
+  {
+    var inferred = DbScope.Inferred(new object());
+    var @explicit = DbScope.Explicit("named");
+    Assert.That(inferred.IsSameDatabase(@explicit), Is.False);
+    Assert.That(@explicit.IsSameDatabase(inferred), Is.False);
+  }
 }
 
 [TestFixture]
