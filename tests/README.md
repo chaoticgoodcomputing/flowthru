@@ -161,6 +161,46 @@ When adding a backend matrix to a new extension:
 4. Refactor existing conformance subclasses to take the backend type as a constructor argument (per the `EFCoreStorageAdapterConformance` example above) and activate via `Activator.CreateInstance` in `[OneTimeSetUp]`.
 5. Add an explicit regression test for any production bug the backend matrix would have caught — pin it to the relevant integration backend and cite the commit.
 
+#### Cross-extension negative scenarios
+
+Some bugs have a *categorical shape* — pre-flight pass-through that should have surfaced a structural mismatch, the wrong `ValidationErrorType` for a known failure mode, etc. — that could plausibly exist in extensions other than the one where the bug was first found. The kit lifts these into *negative scenarios*: a virtual factory on the kit base, defaulting to `null`, that each adapter's conformance subclass opts into when the scenario applies.
+
+When the kit catches an adapter using the wrong error category for a known failure, **fix the adapter, don't loosen the assertion.** The kit's assertions reflect what the Core types *should* mean, not what current adapters happen to do — that's the whole reason for having a kit.
+
+```csharp
+// In StorageAdapterConformance<T> — the kit base:
+protected virtual IStorageAdapter<T>? CreateAdapterMissingExpectedColumn() => null;
+
+[Test]
+public async Task InspectShallow_SchemaDeclaresColumnNotInSource_DetectsMismatch()
+{
+  var adapter = CreateAdapterMissingExpectedColumn();
+  if (adapter is null) Assert.Pass("Negative scenario not opted into.");
+
+  var result = await adapter!.InspectShallow(sampleSize: 10).Run();
+  Assert.That(result.Errors,
+    Has.Some.Matches<ValidationError>(e => e.ErrorType == ValidationErrorType.SchemaMismatch));
+}
+
+// In each conformance subclass that can construct the scenario:
+protected override IStorageAdapter<...>? CreateAdapterMissingExpectedColumn()
+{
+  // build an adapter pointing at a source whose shape diverges from the schema
+  // (e.g., a CSV file with a header row missing a schema-declared column)
+  return BuildAdapter(seedFileWithMismatchedShape);
+}
+```
+
+The error category is part of the contract. Provider extensions that detect a structural mismatch should throw `SchemaMismatchException` (in `Flowthru.Core.Data.Validation`); `ValidationResult.FromException` translates it to `ValidationErrorType.SchemaMismatch`. Provider-specific exception text (CsvHelper's `HeaderValidationException` message, Parquet's schema-diff details, etc.) lives in `ValidationError.Message`, never in the `ErrorType`.
+
+When a bug surfaces in one extension and you suspect the same shape elsewhere:
+
+1. **Lift the bug shape to a kit virtual.** Add a `CreateAdapter<X>()` factory on the relevant conformance base that returns `null` by default. Add the corresponding `[Test]` method asserting the expected outcome.
+2. **Opt the original extension in.** Override the factory in its conformance subclass; verify the test catches the bug.
+3. **Audit the others.** Override the factory in every adapter conformance subclass that *could* exercise the scenario; run the suite. Each adapter that fails the assertion either has the same bug (fix it) or is using the wrong category (fix it). Adapters where the scenario is structurally inapplicable (XML's whole-document semantics, JSON's missing-optional indistinguishability) legitimately leave the default `null`.
+
+The Phase F audit ran exactly this pattern with `CreateAdapterMissingExpectedColumn`. Found bugs in three of four audited paths: CSV's two adapter paths used wrong categories; Parquet silently accepted missing columns; SingletonJSON silently accepted missing required properties. All three fixed in the same phase.
+
 ### Evaluating Error Tests
 
 When you encounter a runtime or pre-flight error during development:

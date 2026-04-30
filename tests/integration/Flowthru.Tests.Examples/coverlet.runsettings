@@ -13,9 +13,9 @@
                Each pattern is one comma-separated entry on a single line.
                See workspace coverlet.runsettings for full rationale. -->
           <Include>[Flowthru*]*</Include>
-          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
+          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[Flowthru.Misc.ML]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
-          <ExcludeByFile>**/Migrations/**/*.cs,**/obj/**/*.cs,**/bin/**/*.cs,**/*Designer.cs,**/*.g.cs,**/*.g.i.cs</ExcludeByFile>
+          <ExcludeByFile>**/Migrations/**/*.cs,**/obj/**/*.cs,**/bin/**/*.cs,**/*Designer.cs,**/*.g.cs,**/*.g.i.cs,**/src/**/Tests/**/*.cs</ExcludeByFile>
 
           <!-- Coverage options -->
           <SingleHit>false</SingleHit>

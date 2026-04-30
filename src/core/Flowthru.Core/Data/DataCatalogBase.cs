@@ -128,27 +128,6 @@ public abstract class CatalogAbstract
   }
 
   /// <summary>
-  /// Gets or creates a unified catalog item with service provider access.
-  /// </summary>
-  /// <typeparam name="T">The data type (singleton or collection)</typeparam>
-  /// <param name="factory">Factory function that receives service provider</param>
-  /// <param name="propertyName">Auto-populated by compiler with calling property name</param>
-  /// <returns>Cached catalog item instance</returns>
-  protected IItem<T> CreateItem<T>(
-    Func<IServiceProvider?, IItem<T>> factory,
-    [System.Runtime.CompilerServices.CallerMemberName] string propertyName = ""
-  )
-  {
-    var item = _propertyCache.GetOrAdd(propertyName, _ => factory(Services));
-    if (item is Item<T> concrete)
-    {
-      concrete.SetOwningCatalog(CatalogLabel);
-    }
-
-    return (IItem<T>)item;
-  }
-
-  /// <summary>
   /// Initializes all catalog item properties by invoking their getters once.
   /// </summary>
   /// <remarks>

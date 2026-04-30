@@ -13,7 +13,12 @@ namespace FlowthruCoverage.Flows.Reporting;
 ///    section (Library Tests / Integration Tests / Examples) and writes the ordered CSV.
 /// 2. <see cref="generate_coverage_heatmap"/> (Python/Plotly) reads that CSV and produces
 ///    the PNG heatmap.
-/// 3. Two filter steps extract zero-hit methods from the primary summaries into
+/// 3. <see cref="AggregatePackageCoverageStep"/> rolls up the per-(TestProject, SrcPackage)
+///    pivot to per-SrcPackage with MAX coverage, written to
+///    <c>_04_Reporting/Datasets/package_coverage_max.csv</c>.
+/// 4. Two filter steps extract zero-hit methods from the primary summaries; their output is
+///    then passed through <see cref="FilterRemoteSourceFilesStep"/> to drop rows whose
+///    <c>SourceFile</c> resolves to a remote SourceLink URL, and written to
 ///    <c>_04_Reporting/Datasets/uncovered_method_hits.csv</c> and
 ///    <c>_04_Reporting/Datasets/uncovered_method_names.csv</c>.
 /// </summary>
@@ -41,6 +46,14 @@ public static class ReportingFlow
         executor: executor
       );
 
+      pipeline.AddStep(
+        label: "AggregatePackageCoverage",
+        description: "Rolls up per-(TestProject, SrcPackage) pivot rows to per-SrcPackage rows with MAX coverage. Avoids the multi-test-project double-count drag (e.g. SourceGenerators reading 0% in Core.Tests AND 74.41% in SourceGenerators.Tests).",
+        transform: AggregatePackageCoverageStep.Create(),
+        input: catalog.PivotCoverage,
+        output: catalog.PackageCoverageMax
+      );
+
       Func<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>> filterUncovered =
         rows => rows.Where(r => r.TotalHits == 0);
 
@@ -49,7 +62,7 @@ public static class ReportingFlow
         description: "Filters the full-signature method hit summary to rows with TotalHits == 0.",
         transform: filterUncovered,
         input: catalog.MethodHitSummary,
-        output: catalog.UncoveredMethodHits
+        output: catalog.UncoveredMethodHitsRaw
       );
 
       pipeline.AddStep(
@@ -57,6 +70,22 @@ public static class ReportingFlow
         description: "Filters the method-name summary (overloads collapsed) to rows with TotalHits == 0.",
         transform: filterUncovered,
         input: catalog.MethodNameSummary,
+        output: catalog.UncoveredMethodNamesRaw
+      );
+
+      pipeline.AddStep(
+        label: "FilterRemoteSourceFilesHits",
+        description: "Drops rows whose SourceFile is a remote SourceLink URL (https://...) — those resolve to NuGet-cached commit-pinned snapshots and add no analytical value to the published report.",
+        transform: FilterRemoteSourceFilesStep.Create(),
+        input: catalog.UncoveredMethodHitsRaw,
+        output: catalog.UncoveredMethodHits
+      );
+
+      pipeline.AddStep(
+        label: "FilterRemoteSourceFilesNames",
+        description: "Drops method-name rows whose SourceFile is a remote SourceLink URL — same rationale as FilterRemoteSourceFilesHits.",
+        transform: FilterRemoteSourceFilesStep.Create(),
+        input: catalog.UncoveredMethodNamesRaw,
         output: catalog.UncoveredMethodNames
       );
     });

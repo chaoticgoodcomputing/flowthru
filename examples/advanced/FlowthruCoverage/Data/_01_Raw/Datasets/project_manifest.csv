@@ -22,7 +22,6 @@ Flowthru.Extensions.Xml,Library,Extensions
 Flowthru.Misc.DataFrames,Library,Misc
 Flowthru.Misc.DataFrames.CodeFixes,Library,Misc
 Flowthru.Misc.DataFrames.SourceGenerators,Library,Misc
-Flowthru.Misc.ML,Library,Misc
 Flowthru.Core.CodeFixes.Tests,LibraryTest,Core
 Flowthru.Core.SourceGenerators.Tests,LibraryTest,Core
 Flowthru.Core.Tests,LibraryTest,Core
@@ -46,7 +45,6 @@ Flowthru.Extensions.Xml.Tests,LibraryTest,Extensions
 Flowthru.Misc.DataFrames.CodeFixes.Tests,LibraryTest,Misc
 Flowthru.Misc.DataFrames.SourceGenerators.Tests,LibraryTest,Misc
 Flowthru.Misc.DataFrames.Tests,LibraryTest,Misc
-Flowthru.Misc.ML.Tests,LibraryTest,Misc
 Flowthru.Tests.Helpers,IntegrationTest,
 Flowthru.Tests.Kits,IntegrationTest,
 Flowthru.Tests.Examples,IntegrationTest,

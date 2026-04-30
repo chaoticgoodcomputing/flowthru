@@ -19,16 +19,20 @@
                Each pattern is one comma-separated entry on a single line — keep it that way.
                - [*.Tests]* / [*.Tests.*]* drop test projects and helper test infrastructure.
                - [FlowthruCoverage]* drops this analysis pipeline assembly; it matches
-                 [Flowthru*]* but is an example project, not a production package. -->
-          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
+                 [Flowthru*]* but is an example project, not a production package.
+               - [Flowthru.Misc.ML]* drops the deprecated UMAP package; it has no test
+                 project and no examples drive it. -->
+          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[Flowthru.Misc.ML]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
 
           <!-- Attributes that mark code as out-of-scope. Comma-separated for the same
                parser reason as <Exclude> above. -->
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
 
-          <!-- File patterns to skip — generated code, build outputs, designer files.
+          <!-- File patterns to skip — generated code, build outputs, designer files,
+               and test-shaped code under src/ (compilation harnesses like
+               src/extensions/Flowthru.Extensions.EFCore/Tests/CompilationTest.cs).
                Comma-separated for the same parser reason as <Exclude> above. -->
-          <ExcludeByFile>**/Migrations/**/*.cs,**/obj/**/*.cs,**/bin/**/*.cs,**/*Designer.cs,**/*.g.cs,**/*.g.i.cs</ExcludeByFile>
+          <ExcludeByFile>**/Migrations/**/*.cs,**/obj/**/*.cs,**/bin/**/*.cs,**/*Designer.cs,**/*.g.cs,**/*.g.i.cs,**/src/**/Tests/**/*.cs</ExcludeByFile>
           
           <!-- Coverage options -->
           <SingleHit>false</SingleHit>

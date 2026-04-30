@@ -97,12 +97,6 @@ public interface IFlowthruBuilder
   IFlowthruBuilder UseStorageStrategy<TStrategy>()
     where TStrategy : class, IStorageEntryFactory;
 
-  /// <summary>Registers a storage entry factory instance.</summary>
-  IFlowthruBuilder UseStorageStrategy(IStorageEntryFactory strategy);
-
-  /// <summary>Registers a storage entry factory via a service-provider factory.</summary>
-  IFlowthruBuilder UseStorageStrategy(Func<IServiceProvider, IStorageEntryFactory> strategyFactory);
-
   /// <summary>Configures metadata export (DAG diagrams, JSON manifests, etc.).</summary>
   IFlowthruBuilder ConfigureMetadata(Action<FlowthruMetadataBuilder> configure);
 }

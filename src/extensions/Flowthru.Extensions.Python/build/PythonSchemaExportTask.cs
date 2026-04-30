@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,11 @@ namespace Flowthru.Extensions.Python.Build;
 /// <strong>Invoked from:</strong> Flowthru.Extensions.Python.targets AfterBuild
 /// </para>
 /// </remarks>
+// MSBuild task host — runs at build time in the MSBuild process, not in any test
+// assembly. Coverlet's IL rewriter targets test-assembly DLLs; methods on this
+// class will permanently report 0 hits. Annotating the type matches Phase 2 of the
+// Core coverage audit (Roslyn-only attribute classes).
+[ExcludeFromCodeCoverage]
 public class PythonSchemaExportTask : Microsoft.Build.Utilities.Task
 {
   /// <summary>

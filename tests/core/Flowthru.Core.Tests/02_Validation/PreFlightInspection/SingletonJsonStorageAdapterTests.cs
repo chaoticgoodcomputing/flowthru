@@ -76,6 +76,40 @@ public class SingletonJsonStorageAdapterTests
     );
   }
 
+  [Test]
+  public async Task InspectShallow_FileMissingRequiredSchemaProperty_FailsWithSchemaMismatch()
+  {
+    // Phase F negative scenario: file is valid JSON but is missing a property the
+    // schema declares as `required`. Pre-flight should catch this structural
+    // mismatch and surface SchemaMismatch — same category EFCore, CSV, and Parquet
+    // use post-Phase-F.
+    //
+    // JSON-specific limitation (Phase F deviation): only *required* properties are
+    // detectable here. JSON's serialization with WhenWritingNull legitimately omits
+    // null-valued keys, so "key absent" and "key present with null value" produce
+    // byte-identical files for nullable properties. The kit can't ask JSON whether
+    // a missing optional key is structural or null-valued; that distinction simply
+    // doesn't exist in the JSON wire format. CSV and Parquet have a separate header
+    // / schema metadata layer that does carry the distinction, which is why those
+    // adapters can also catch missing-optional cases.
+    var path = Path.Combine(_tempDir, "missing-required-property.json");
+    await File.WriteAllTextAsync(
+      path,
+      """
+      {
+        "id": "11111111-1111-1111-1111-111111111111",
+        "value": 42
+      }
+      """
+    );
+    var adapter = new SingletonJsonStorageAdapter<RequiredMembersSchema>(path);
+
+    await StorageAdapterAssertions.InspectShallowFails(
+      adapter,
+      ValidationErrorType.SchemaMismatch
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // InspectDeep
   // ─────────────────────────────────────────────────────────────────────────

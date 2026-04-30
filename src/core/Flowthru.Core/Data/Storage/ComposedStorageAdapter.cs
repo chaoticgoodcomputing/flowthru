@@ -233,6 +233,20 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
 
           return Data.Validation.ValidationResult.Success();
         }
+        catch (Data.Validation.SchemaMismatchException ex)
+        {
+          // Provider raised a structural-mismatch signal (e.g. CSV header not
+          // matching schema). Pre-flight surfaces this as SchemaMismatch — the
+          // canonically-correct category per ValidationErrorType's own definition,
+          // and the same category EFCore's shape validator uses. See Phase F in
+          // docs/scratch/extension-conformance-kits.md.
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.SchemaMismatch,
+            message: ex.Message,
+            details: ex.InnerException?.ToString() ?? ex.ToString()
+          );
+        }
         catch (Exception ex)
         {
           return Data.Validation.ValidationResult.Failure(
@@ -294,6 +308,15 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
           }
 
           return Data.Validation.ValidationResult.Success();
+        }
+        catch (Data.Validation.SchemaMismatchException ex)
+        {
+          return Data.Validation.ValidationResult.Failure(
+            catalogKey: typeof(TRow).Name,
+            errorType: Data.Validation.ValidationErrorType.SchemaMismatch,
+            message: ex.Message,
+            details: ex.InnerException?.ToString() ?? ex.ToString()
+          );
         }
         catch (Exception ex)
         {

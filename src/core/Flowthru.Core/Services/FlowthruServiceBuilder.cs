@@ -331,40 +331,6 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   }
 
   /// <summary>
-  /// Registers a storage entry factory instance.
-  /// </summary>
-  /// <param name="strategy">The storage strategy instance</param>
-  /// <returns>This builder for method chaining</returns>
-  public IFlowthruBuilder UseStorageStrategy(IStorageEntryFactory strategy)
-  {
-    if (strategy == null)
-    {
-      throw new ArgumentNullException(nameof(strategy));
-    }
-
-    Services.AddSingleton(strategy);
-    return this;
-  }
-
-  /// <summary>
-  /// Registers a storage entry factory using a factory function.
-  /// </summary>
-  /// <param name="strategyFactory">Factory function to create the strategy</param>
-  /// <returns>This builder for method chaining</returns>
-  public IFlowthruBuilder UseStorageStrategy(
-    Func<IServiceProvider, IStorageEntryFactory> strategyFactory
-  )
-  {
-    if (strategyFactory == null)
-    {
-      throw new ArgumentNullException(nameof(strategyFactory));
-    }
-
-    Services.AddSingleton(strategyFactory);
-    return this;
-  }
-
-  /// <summary>
   /// Configures metadata export.
   /// </summary>
   /// <param name="configure">Action to configure the metadata builder</param>

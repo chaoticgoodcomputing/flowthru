@@ -180,10 +180,41 @@ public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
     // Register SerializedLabel-aware class map with nullability handling.
     csv.Context.RegisterClassMap(new SerializedLabelClassMap<TRow>(_nullValues));
 
-    // Stream records one at a time
-    await foreach (var record in csv.GetRecordsAsync<TRow>())
+    // Stream records one at a time. Translate CsvHelper's HeaderValidationException
+    // into Core's SchemaMismatchException so pre-flight surfaces a structural
+    // mismatch (missing/renamed schema column) as ValidationErrorType.SchemaMismatch
+    // rather than the generic InspectionFailure / DeserializationError. The
+    // wrapping must happen here at the provider boundary; Core can't reference
+    // CsvHelper directly. See Phase F in docs/scratch/extension-conformance-kits.md.
+    var enumerator = csv.GetRecordsAsync<TRow>().GetAsyncEnumerator();
+    try
     {
-      yield return record;
+      while (true)
+      {
+        bool hasMore;
+        try
+        {
+          hasMore = await enumerator.MoveNextAsync();
+        }
+        catch (CsvHelper.HeaderValidationException ex)
+        {
+          throw new Flowthru.Core.Data.Validation.SchemaMismatchException(
+            $"CSV header does not match schema '{typeof(TRow).Name}': {ex.Message.Split('\n')[0]}",
+            ex
+          );
+        }
+
+        if (!hasMore)
+        {
+          yield break;
+        }
+
+        yield return enumerator.Current;
+      }
+    }
+    finally
+    {
+      await enumerator.DisposeAsync();
     }
   }
 

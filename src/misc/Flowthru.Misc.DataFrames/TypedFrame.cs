@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace Flowthru.Misc.DataFrames;
@@ -72,5 +73,8 @@ public class TypedFrame<T> : IQueryable<T>, IOrderedQueryable<T>
   public IEnumerator<T> GetEnumerator() => _provider.Materialize<T>(_expression).GetEnumerator();
 
   /// <inheritdoc cref="GetEnumerator"/>
+  // Required-by-interface shim — Coverlet doesn't credit DIM-shaped explicit
+  // interface implementations. See Phase 2 of the Core coverage audit.
+  [ExcludeFromCodeCoverage]
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

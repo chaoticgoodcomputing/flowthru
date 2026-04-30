@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -22,7 +23,14 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 /// to build-time (strongly-typed factory methods with tuple signatures).
 /// </para>
 /// </remarks>
+// Roslyn host code — generators are loaded into the compiler / IDE process, not
+// into any test-assembly. Coverlet's IL rewriter targets test-assembly DLLs only;
+// methods on this class will permanently report 0 hits. If a dedicated
+// Flowthru.Extensions.Python.SourceGenerators.Tests project is added later, this
+// can be revisited at the method level — the in-process driver pattern from
+// GeneratorTestHelper does instrument generator methods.
 [Generator]
+[ExcludeFromCodeCoverage]
 public class PythonStepFactoryGenerator : IIncrementalGenerator
 {
   /// <summary>

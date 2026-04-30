@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0" branch-rate="0" version="1.9" timestamp="1777487117" lines-covered="0" lines-valid="332" branches-covered="0" branches-valid="162">
+<coverage line-rate="0" branch-rate="0" version="1.9" timestamp="1777510218" lines-covered="0" lines-valid="332" branches-covered="0" branches-valid="162">
   <sources>
     <source></source>
   </sources>
   <packages>
-    <package name="Flowthru.Misc.DataFrames.CodeFixes" line-rate="1" branch-rate="1" complexity="0">
-      <classes />
-    </package>
     <package name="Flowthru.Misc.DataFrames.SourceGenerators" line-rate="0" branch-rate="0" complexity="166">
       <classes>
         <class name="Flowthru.Misc.DataFrames.Analyzers.DataFrameDiagnostics" filename="/home/spelkington/Repos/cgc/flowthru/src/misc/Flowthru.Misc.DataFrames.SourceGenerators/DataFrameDiagnostics.cs" line-rate="0" branch-rate="1" complexity="1">
@@ -1196,6 +1193,9 @@
           </lines>
         </class>
       </classes>
+    </package>
+    <package name="Flowthru.Misc.DataFrames.CodeFixes" line-rate="1" branch-rate="1" complexity="0">
+      <classes />
     </package>
   </packages>
 </coverage>

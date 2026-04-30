@@ -1,5 +1,4 @@
 using Flowthru.Core.Abstractions;
-using Microsoft.Extensions.Configuration;
 
 namespace Flowthru.Core.Data.Storage.Strategies;
 
@@ -42,23 +41,6 @@ public sealed class DatabaseStorageEntryFactory : IStorageEntryFactory
 {
   private readonly string _connectionString;
   private readonly string _schema;
-
-  /// <summary>
-  /// Initializes a new database storage factory.
-  /// </summary>
-  /// <param name="configuration">Configuration containing connection string</param>
-  /// <exception cref="InvalidOperationException">
-  /// Thrown if database connection string is not configured
-  /// </exception>
-  public DatabaseStorageEntryFactory(IConfiguration configuration)
-  {
-    _connectionString =
-      configuration.GetConnectionString("Database")
-      ?? throw new InvalidOperationException(
-        "Database connection string 'Database' is required for DatabaseStorageEntryFactory"
-      );
-    _schema = configuration["Flowthru:Database:Schema"] ?? "dbo";
-  }
 
   /// <summary>
   /// Initializes a new database storage factory with explicit settings.

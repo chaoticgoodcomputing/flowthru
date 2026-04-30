@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
@@ -158,6 +159,11 @@ public sealed class DbQuery<T> : IEnumerable<T>
   /// </remarks>
   public IEnumerator<T> GetEnumerator() => ToListAsync().GetAwaiter().GetResult().GetEnumerator();
 
+  // Required-by-interface shim — delegates to the typed enumerator. Coverlet
+  // doesn't credit DIM-shaped explicit interface implementations to consumer
+  // code, so this would permanently report 0 hits even with full enumeration
+  // tests. See Phase 2 of the Core coverage audit for the same pattern.
+  [ExcludeFromCodeCoverage]
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
   // ── Private helpers ────────────────────────────────────────────────────────

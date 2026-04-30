@@ -193,16 +193,6 @@ public static class FlowIO
   public static FlowIO<A> Fail<A>(Exception error) => new(_ => ValueTask.FromException<A>(error));
 
   /// <summary>
-  /// Creates an effect that immediately fails with an exception containing the given message.
-  /// </summary>
-  /// <typeparam name="A">The expected result type.</typeparam>
-  /// <param name="message">The error message.</param>
-  /// <returns>An effect that fails with an exception containing <paramref name="message"/>.</returns>
-  [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  public static FlowIO<A> Fail<A>(string message) =>
-    new(_ => ValueTask.FromException<A>(new Exception(message)));
-
-  /// <summary>
   /// Lifts a synchronous function into an effect.
   /// </summary>
   /// <typeparam name="A">The return type.</typeparam>

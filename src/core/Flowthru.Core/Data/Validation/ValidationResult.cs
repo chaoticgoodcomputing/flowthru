@@ -102,18 +102,33 @@ public class ValidationResult
   }
 
   /// <summary>
-  /// Creates a failed validation result from an exception.
+  /// Creates a failed validation result from an exception, introspecting the exception
+  /// type to pick the most-specific <see cref="ValidationErrorType"/> available.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Recognizes <see cref="SchemaMismatchException"/> as
+  /// <see cref="ValidationErrorType.SchemaMismatch"/>; all other exceptions fall through
+  /// to <see cref="ValidationErrorType.InspectionFailure"/> (the catch-all category for
+  /// "something we don't know how to classify").
+  /// </para>
+  /// <para>
+  /// Provider extensions and format serializers that detect a structural divergence
+  /// should catch the provider's native exception and re-throw as
+  /// <see cref="SchemaMismatchException"/>; the wrapping happens once at the provider
+  /// boundary so Core can stay agnostic of every provider's exception types.
+  /// </para>
+  /// </remarks>
   /// <param name="catalogKey">The catalog entry key where the error occurred</param>
   /// <param name="exception">The exception that occurred during inspection</param>
   public static ValidationResult FromException(string catalogKey, Exception exception)
   {
-    return Failure(
-      catalogKey,
-      ValidationErrorType.InspectionFailure,
-      exception.Message,
-      exception.ToString()
-    );
+    var errorType = exception switch
+    {
+      SchemaMismatchException => ValidationErrorType.SchemaMismatch,
+      _ => ValidationErrorType.InspectionFailure,
+    };
+    return Failure(catalogKey, errorType, exception.Message, exception.ToString());
   }
 
   /// <summary>

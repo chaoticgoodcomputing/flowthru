@@ -63,6 +63,23 @@ public class CsvComposedStorageAdapterConformance
     return BuildAdapter(path);
   }
 
+  protected override IStorageAdapter<IEnumerable<TraditionalSchema>>? CreateAdapterMissingExpectedColumn()
+  {
+    // Phase F negative scenario: write a CSV file whose header row is missing the
+    // 'name' column that TraditionalSchema declares. The adapter points at this file;
+    // pre-flight should surface the divergence rather than silently passing.
+    var path = Path.Combine(_tempDir, $"missing-column-{Guid.NewGuid():N}.csv");
+    File.WriteAllText(
+      path,
+      """
+      id,value
+      11111111-1111-1111-1111-111111111111,42
+      22222222-2222-2222-2222-222222222222,7
+      """
+    );
+    return BuildAdapter(path);
+  }
+
   protected override IEqualityComparer<IEnumerable<TraditionalSchema>>? Comparer =>
     new SequenceEqualityComparer();
 

@@ -82,6 +82,30 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
     using var reader = await ParquetReader.CreateAsync(stream, leaveStreamOpen: true);
     var schema = reader.Schema;
     int rowGroupCount = reader.RowGroupCount;
+
+    // Pre-flight schema check (Phase F): the entity declares N columns; the on-disk
+    // Parquet schema must include all of them. Without this check, missing columns
+    // silently deserialize to default-typed values (null for nullable, default(T)
+    // for value types) — pre-flight then passes on a structurally invalid file.
+    // Cross-extension consistency: CSV's CsvHelper raises HeaderValidationException
+    // for the same case; we standardize on SchemaMismatchException so Core's
+    // ComposedStorageAdapter classifies both as ValidationErrorType.SchemaMismatch.
+    // See docs/scratch/extension-conformance-kits.md (Phase F) for context.
+    var expectedColumns = PropertyMappingHelper.BuildPropertyMap<TRow>().Keys;
+    var fileColumns = new HashSet<string>(
+      schema.Fields.OfType<DataField>().Select(f => f.Name),
+      StringComparer.OrdinalIgnoreCase
+    );
+    var missing = expectedColumns.Where(c => !fileColumns.Contains(c)).ToList();
+    if (missing.Count > 0)
+    {
+      throw new Flowthru.Core.Data.Validation.SchemaMismatchException(
+        $"Parquet file is missing column(s) declared by schema '{typeof(TRow).Name}': "
+          + $"[{string.Join(", ", missing)}]. "
+          + $"File columns: [{string.Join(", ", fileColumns)}]."
+      );
+    }
+
     var adapter = new ParquetAdapter<TRow>(schema);
 
     // Yield one row group at a time so early-break consumers avoid reading the full file

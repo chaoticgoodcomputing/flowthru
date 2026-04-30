@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using StrawberryShake;
 
 namespace Flowthru.Extensions.GQL.Data;
@@ -173,6 +174,9 @@ public sealed class GqlQuery<TResult, T> : IEnumerable<T>
   public IEnumerator<T> GetEnumerator() => ToList().GetEnumerator();
 
   /// <inheritdoc/>
+  // Required-by-interface shim — Coverlet doesn't credit DIM-shaped explicit
+  // interface implementations. See Phase 2 of the Core coverage audit.
+  [ExcludeFromCodeCoverage]
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
@@ -390,5 +394,8 @@ public sealed class GqlQuery<TFilter, TResult, T> : IEnumerable<T>
   public IEnumerator<T> GetEnumerator() => ToList().GetEnumerator();
 
   /// <inheritdoc/>
+  // Required-by-interface shim — Coverlet doesn't credit DIM-shaped explicit
+  // interface implementations. See Phase 2 of the Core coverage audit.
+  [ExcludeFromCodeCoverage]
   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

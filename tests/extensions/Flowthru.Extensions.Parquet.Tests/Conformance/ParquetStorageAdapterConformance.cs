@@ -63,8 +63,52 @@ public class ParquetStorageAdapterConformance
     return BuildAdapter(path);
   }
 
+  protected override IStorageAdapter<IEnumerable<TraditionalSchema>>? CreateAdapterMissingExpectedColumn()
+  {
+    // Phase F negative scenario: write a Parquet file using a different schema (a row
+    // type that omits the 'name' field declared by TraditionalSchema), then point a
+    // TraditionalSchema-typed adapter at it. Pre-flight should detect that the on-disk
+    // schema diverges from what TraditionalSchema declares and surface SchemaMismatch.
+    var path = Path.Combine(_tempDir, $"missing-column-{Guid.NewGuid():N}.parquet");
+    var seedAdapter = BuildSchemaMismatchSeedAdapter(path);
+    seedAdapter
+      .Save(
+        new[]
+        {
+          new SchemaMismatchSeedRow
+          {
+            Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            Value = 42,
+          },
+          new SchemaMismatchSeedRow
+          {
+            Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            Value = 7,
+          },
+        }
+      )
+      .Run()
+      .GetAwaiter()
+      .GetResult();
+    return BuildAdapter(path);
+  }
+
   protected override IEqualityComparer<IEnumerable<TraditionalSchema>>? Comparer =>
     new SequenceEqualityComparer();
+
+  private static IStorageAdapter<IEnumerable<SchemaMismatchSeedRow>> BuildSchemaMismatchSeedAdapter(
+    string path
+  )
+  {
+    var medium = new FileStorageMedium(path);
+    var format = new ParquetFormatSerializer<SchemaMismatchSeedRow>();
+    var container = new EnumerableContainerAdapter<SchemaMismatchSeedRow>();
+    return new ComposedStorageAdapter<IEnumerable<SchemaMismatchSeedRow>, SchemaMismatchSeedRow>(
+      medium,
+      format,
+      container
+    );
+  }
 
   private static IStorageAdapter<IEnumerable<TraditionalSchema>> BuildAdapter(string path)
   {

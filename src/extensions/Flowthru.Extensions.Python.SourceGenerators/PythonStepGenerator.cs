@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -19,7 +20,9 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 /// Sync-only in Phase 5 — async support deferred to Phase 6.
 /// </para>
 /// </remarks>
+// Roslyn host code — see PythonStepFactoryGenerator for full rationale.
 [Generator]
+[ExcludeFromCodeCoverage]
 public class PythonStepGenerator : IIncrementalGenerator
 {
   private const int MaxInputs = 8;

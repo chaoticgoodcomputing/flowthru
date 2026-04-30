@@ -73,6 +73,23 @@ public class CsvDirectoryStorageAdapterConformance
     return new DirectoryCsvStorageAdapter<TraditionalSchema>(dirPath);
   }
 
+  protected override IStorageAdapter<IEnumerable<TraditionalSchema>>? CreateAdapterMissingExpectedColumn()
+  {
+    // Phase F negative scenario: seed the directory with a CSV whose header row is
+    // missing the 'name' column declared by TraditionalSchema.
+    var dirPath = Path.Combine(_rootDir, $"missing-column-{Guid.NewGuid():N}");
+    Directory.CreateDirectory(dirPath);
+    File.WriteAllText(
+      Path.Combine(dirPath, "rows.csv"),
+      """
+      id,value
+      11111111-1111-1111-1111-111111111111,42
+      22222222-2222-2222-2222-222222222222,7
+      """
+    );
+    return new DirectoryCsvStorageAdapter<TraditionalSchema>(dirPath);
+  }
+
   protected override IEqualityComparer<IEnumerable<TraditionalSchema>>? Comparer =>
     new SequenceEqualityComparer();
 
