@@ -1,10 +1,474 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.17329999999999998" branch-rate="0.0684" version="1.9" timestamp="1777510209" lines-covered="642" lines-valid="3704" branches-covered="73" branches-valid="1066">
+<coverage line-rate="0.19269999999999998" branch-rate="0.0816" version="1.9" timestamp="1777525095" lines-covered="714" lines-valid="3704" branches-covered="87" branches-valid="1066">
   <sources>
     <source></source>
   </sources>
   <packages>
-    <package name="Flowthru.Core" line-rate="0.168" branch-rate="0.0592" complexity="1207">
+    <package name="Flowthru.Extensions.Csv" line-rate="0.5102" branch-rate="0.41659999999999997" complexity="50">
+      <classes>
+        <class name="Flowthru.Core.Data.CsvItemExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/CsvItemExtensions.cs" line-rate="0" branch-rate="0" complexity="9">
+          <methods>
+            <method name="Csv" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="63" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="3" type="jump" coverage="0%" />
+                    <condition number="7" type="jump" coverage="0%" />
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="31" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="65" hits="0" branch="False" />
+                <line number="66" hits="0" branch="False" />
+                <line number="67" hits="0" branch="False" />
+                <line number="68" hits="0" branch="False" />
+                <line number="69" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+                <line number="74" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CsvDirectory" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="99" hits="0" branch="False" />
+                <line number="100" hits="0" branch="False" />
+                <line number="101" hits="0" branch="False" />
+                <line number="102" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="63" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="3" type="jump" coverage="0%" />
+                <condition number="7" type="jump" coverage="0%" />
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="31" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="65" hits="0" branch="False" />
+            <line number="66" hits="0" branch="False" />
+            <line number="67" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="69" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="99" hits="0" branch="False" />
+            <line number="100" hits="0" branch="False" />
+            <line number="101" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="1" branch-rate="0.5" complexity="3">
+          <methods>
+            <method name="get_Traits" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="60" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="1" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="47" hits="25" branch="False" />
+                <line number="49" hits="23" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="29" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="50" hits="23" branch="False" />
+                <line number="51" hits="23" branch="False" />
+                <line number="52" hits="23" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="60" hits="3" branch="False" />
+            <line number="47" hits="25" branch="False" />
+            <line number="49" hits="23" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="29" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="50" hits="23" branch="False" />
+            <line number="51" hits="23" branch="False" />
+            <line number="52" hits="23" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Data.Storage.Strategies.CsvStorageEntryFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Strategies/CsvStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="10">
+          <methods>
+            <method name="CreateEnumerable" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="58" hits="0" branch="False" />
+                <line number="59" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CreateSingle" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="66" hits="0" branch="False" />
+                <line number="67" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ResolvePath" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions,System.String)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="72" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="1" type="jump" coverage="0%" />
+                    <condition number="9" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="75" hits="0" branch="False" />
+                <line number="79" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Microsoft.Extensions.Configuration.IConfiguration)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="42" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="43" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="51" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="52" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="58" hits="0" branch="False" />
+            <line number="59" hits="0" branch="False" />
+            <line number="66" hits="0" branch="False" />
+            <line number="67" hits="0" branch="False" />
+            <line number="72" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="1" type="jump" coverage="0%" />
+                <condition number="9" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="75" hits="0" branch="False" />
+            <line number="79" hits="0" branch="False" />
+            <line number="42" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="43" hits="0" branch="False" />
+            <line number="51" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="52" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0.8125" branch-rate="0.5" complexity="11">
+          <methods>
+            <method name="get_Configuration" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="158" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_NullValues" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="163" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Traits" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="166" hits="12" branch="False" />
+              </lines>
+            </method>
+            <method name="GetPropertyMappingConfiguration" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="261" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="114" hits="54" branch="False" />
+                <line number="115" hits="54" branch="False" />
+                <line number="116" hits="54" branch="False" />
+                <line number="117" hits="108" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="129" hits="2" branch="False" />
+                <line number="130" hits="2" branch="False" />
+                <line number="131" hits="2" branch="False" />
+                <line number="132" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CsvHelper.Configuration.CsvConfiguration)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="140" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CsvHelper.Configuration.CsvConfiguration,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="1" branch-rate="0.5" complexity="4">
+              <lines>
+                <line number="151" hits="56" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="152" hits="56" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="31" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="153" hits="56" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="158" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="166" hits="12" branch="False" />
+            <line number="261" hits="4" branch="False" />
+            <line number="114" hits="54" branch="False" />
+            <line number="115" hits="54" branch="False" />
+            <line number="116" hits="54" branch="False" />
+            <line number="117" hits="108" branch="False" />
+            <line number="129" hits="2" branch="False" />
+            <line number="130" hits="2" branch="False" />
+            <line number="131" hits="2" branch="False" />
+            <line number="132" hits="4" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="151" hits="56" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="152" hits="56" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="31" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="153" hits="56" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializerDefaults" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="271" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="271" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelClassMap`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0.9545" branch-rate="1" complexity="11">
+          <methods>
+            <method name="IsNullable" signature="(System.Reflection.PropertyInfo,System.Reflection.NullabilityInfoContext)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="328" hits="149" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="11" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="330" hits="8" branch="False" />
+                <line number="333" hits="141" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="26" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="335" hits="90" branch="False" />
+                <line number="338" hits="51" branch="False" />
+                <line number="339" hits="51" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="284" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="291" hits="47" branch="False" />
+                <line number="293" hits="47" branch="False" />
+                <line number="294" hits="47" branch="False" />
+                <line number="296" hits="392" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="186" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="298" hits="149" branch="False" />
+                <line number="299" hits="149" branch="False" />
+                <line number="302" hits="149" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="96" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="304" hits="8" branch="False" />
+                <line number="305" hits="8" branch="False" />
+                <line number="306" hits="8" branch="False" />
+                <line number="307" hits="8" branch="False" />
+                <line number="308" hits="8" branch="False" />
+                <line number="311" hits="149" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="157" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="316" hits="36" branch="False" />
+                <line number="319" hits="47" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="328" hits="149" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="11" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="330" hits="8" branch="False" />
+            <line number="333" hits="141" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="26" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="335" hits="90" branch="False" />
+            <line number="338" hits="51" branch="False" />
+            <line number="339" hits="51" branch="False" />
+            <line number="284" hits="0" branch="False" />
+            <line number="291" hits="47" branch="False" />
+            <line number="293" hits="47" branch="False" />
+            <line number="294" hits="47" branch="False" />
+            <line number="296" hits="392" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="186" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="298" hits="149" branch="False" />
+            <line number="299" hits="149" branch="False" />
+            <line number="302" hits="149" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="96" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="304" hits="8" branch="False" />
+            <line number="305" hits="8" branch="False" />
+            <line number="306" hits="8" branch="False" />
+            <line number="307" hits="8" branch="False" />
+            <line number="308" hits="8" branch="False" />
+            <line number="311" hits="149" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="157" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="316" hits="36" branch="False" />
+            <line number="319" hits="47" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumCsvConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0.3333" branch-rate="0.5" complexity="5">
+          <methods>
+            <method name="ConvertFromString" signature="(System.String,CsvHelper.IReaderRow,CsvHelper.Configuration.MemberMapData)" line-rate="0.25" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="364" hits="12" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="367" hits="0" branch="False" />
+                <line number="372" hits="12" branch="False" />
+                <line number="374" hits="0" branch="False" />
+                <line number="376" hits="0" branch="False" />
+                <line number="377" hits="0" branch="False" />
+                <line number="378" hits="0" branch="False" />
+                <line number="379" hits="0" branch="False" />
+                <line number="380" hits="0" branch="False" />
+                <line number="381" hits="0" branch="False" />
+                <line number="382" hits="0" branch="False" />
+                <line number="384" hits="12" branch="False" />
+              </lines>
+            </method>
+            <method name="ConvertToString" signature="(System.Object,CsvHelper.IWriterRow,CsvHelper.Configuration.MemberMapData)" line-rate="0.25" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="392" hits="12" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="1" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="394" hits="0" branch="False" />
+                <line number="399" hits="12" branch="False" />
+                <line number="401" hits="0" branch="False" />
+                <line number="403" hits="0" branch="False" />
+                <line number="404" hits="0" branch="False" />
+                <line number="405" hits="0" branch="False" />
+                <line number="406" hits="0" branch="False" />
+                <line number="407" hits="0" branch="False" />
+                <line number="408" hits="0" branch="False" />
+                <line number="409" hits="0" branch="False" />
+                <line number="411" hits="12" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="353" hits="8" branch="False" />
+                <line number="355" hits="8" branch="False" />
+                <line number="356" hits="8" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="364" hits="12" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="367" hits="0" branch="False" />
+            <line number="372" hits="12" branch="False" />
+            <line number="374" hits="0" branch="False" />
+            <line number="376" hits="0" branch="False" />
+            <line number="377" hits="0" branch="False" />
+            <line number="378" hits="0" branch="False" />
+            <line number="379" hits="0" branch="False" />
+            <line number="380" hits="0" branch="False" />
+            <line number="381" hits="0" branch="False" />
+            <line number="382" hits="0" branch="False" />
+            <line number="384" hits="12" branch="False" />
+            <line number="392" hits="12" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="1" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="394" hits="0" branch="False" />
+            <line number="399" hits="12" branch="False" />
+            <line number="401" hits="0" branch="False" />
+            <line number="403" hits="0" branch="False" />
+            <line number="404" hits="0" branch="False" />
+            <line number="405" hits="0" branch="False" />
+            <line number="406" hits="0" branch="False" />
+            <line number="407" hits="0" branch="False" />
+            <line number="408" hits="0" branch="False" />
+            <line number="409" hits="0" branch="False" />
+            <line number="411" hits="12" branch="False" />
+            <line number="353" hits="8" branch="False" />
+            <line number="355" hits="8" branch="False" />
+            <line number="356" hits="8" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="Flowthru.Core" line-rate="0.1841" branch-rate="0.0699" complexity="1207">
       <classes>
         <class name="Microsoft.Extensions.DependencyInjection.FlowthruServiceCollectionExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Services/FlowthruServiceCollectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
@@ -1044,23 +1508,23 @@
             <line number="96" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumMetadataCache`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Serialization/EnumMetadataCache.cs" line-rate="0" branch-rate="0" complexity="16">
+        <class name="Flowthru.Core.Serialization.EnumMetadataCache`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Serialization/EnumMetadataCache.cs" line-rate="0.45899999999999996" branch-rate="0.5" complexity="16">
           <methods>
-            <method name="ToString" signature="(TEnum)" line-rate="0" branch-rate="0" complexity="2">
+            <method name="ToString" signature="(TEnum)" line-rate="0.5555" branch-rate="0.5" complexity="2">
               <lines>
-                <line number="110" hits="0" branch="False" />
-                <line number="111" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="110" hits="12" branch="False" />
+                <line number="111" hits="12" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="17" type="jump" coverage="0%" />
+                    <condition number="17" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="112" hits="0" branch="False" />
-                <line number="113" hits="0" branch="False" />
+                <line number="112" hits="12" branch="False" />
+                <line number="113" hits="12" branch="False" />
                 <line number="116" hits="0" branch="False" />
                 <line number="117" hits="0" branch="False" />
                 <line number="118" hits="0" branch="False" />
                 <line number="119" hits="0" branch="False" />
-                <line number="120" hits="0" branch="False" />
+                <line number="120" hits="12" branch="False" />
               </lines>
             </method>
             <method name="TryToString" signature="(TEnum,System.String&amp;)" line-rate="0" branch-rate="1" complexity="1">
@@ -1070,16 +1534,16 @@
                 <line number="134" hits="0" branch="False" />
               </lines>
             </method>
-            <method name="Parse" signature="(System.String)" line-rate="0" branch-rate="0" complexity="4">
+            <method name="Parse" signature="(System.String)" line-rate="0.5555" branch-rate="0.25" complexity="4">
               <lines>
-                <line number="145" hits="0" branch="False" />
-                <line number="146" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="145" hits="24" branch="False" />
+                <line number="146" hits="24" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="17" type="jump" coverage="0%" />
+                    <condition number="17" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="147" hits="0" branch="False" />
-                <line number="148" hits="0" branch="False" />
+                <line number="147" hits="24" branch="False" />
+                <line number="148" hits="24" branch="False" />
                 <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="141" type="jump" coverage="0%" />
@@ -1088,7 +1552,7 @@
                 <line number="152" hits="0" branch="False" />
                 <line number="153" hits="0" branch="False" />
                 <line number="154" hits="0" branch="False" />
-                <line number="155" hits="0" branch="False" />
+                <line number="155" hits="24" branch="False" />
               </lines>
             </method>
             <method name="TryParse" signature="(System.String,TEnum&amp;)" line-rate="0" branch-rate="1" complexity="1">
@@ -1112,24 +1576,24 @@
                 <line number="187" hits="0" branch="False" />
               </lines>
             </method>
-            <method name=".ctor" signature="()" line-rate="0" branch-rate="0" complexity="6">
+            <method name=".ctor" signature="()" line-rate="0.5806" branch-rate="0.6666" complexity="6">
               <lines>
-                <line number="53" hits="0" branch="False" />
-                <line number="54" hits="0" branch="False" />
-                <line number="56" hits="0" branch="False" />
-                <line number="58" hits="0" branch="False" />
-                <line number="59" hits="0" branch="False" />
-                <line number="61" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="53" hits="2" branch="False" />
+                <line number="54" hits="2" branch="False" />
+                <line number="56" hits="2" branch="False" />
+                <line number="58" hits="2" branch="False" />
+                <line number="59" hits="2" branch="False" />
+                <line number="61" hits="18" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
-                    <condition number="482" type="jump" coverage="0%" />
+                    <condition number="482" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="62" hits="0" branch="False" />
-                <line number="64" hits="0" branch="False" />
-                <line number="67" hits="0" branch="False" />
-                <line number="69" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="62" hits="6" branch="False" />
+                <line number="64" hits="6" branch="False" />
+                <line number="67" hits="6" branch="False" />
+                <line number="69" hits="6" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="112" type="jump" coverage="0%" />
+                    <condition number="112" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="70" hits="0" branch="False" />
@@ -1138,10 +1602,10 @@
                 <line number="73" hits="0" branch="False" />
                 <line number="74" hits="0" branch="False" />
                 <line number="75" hits="0" branch="False" />
-                <line number="78" hits="0" branch="False" />
-                <line number="81" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="78" hits="6" branch="False" />
+                <line number="81" hits="6" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="261" type="jump" coverage="0%" />
+                    <condition number="261" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="82" hits="0" branch="False" />
@@ -1151,40 +1615,40 @@
                 <line number="86" hits="0" branch="False" />
                 <line number="87" hits="0" branch="False" />
                 <line number="88" hits="0" branch="False" />
-                <line number="92" hits="0" branch="False" />
-                <line number="93" hits="0" branch="False" />
-                <line number="94" hits="0" branch="False" />
-                <line number="97" hits="0" branch="False" />
-                <line number="98" hits="0" branch="False" />
-                <line number="99" hits="0" branch="False" />
+                <line number="92" hits="6" branch="False" />
+                <line number="93" hits="6" branch="False" />
+                <line number="94" hits="6" branch="False" />
+                <line number="97" hits="2" branch="False" />
+                <line number="98" hits="2" branch="False" />
+                <line number="99" hits="2" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="110" hits="0" branch="False" />
-            <line number="111" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="110" hits="12" branch="False" />
+            <line number="111" hits="12" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="17" type="jump" coverage="0%" />
+                <condition number="17" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="112" hits="0" branch="False" />
-            <line number="113" hits="0" branch="False" />
+            <line number="112" hits="12" branch="False" />
+            <line number="113" hits="12" branch="False" />
             <line number="116" hits="0" branch="False" />
             <line number="117" hits="0" branch="False" />
             <line number="118" hits="0" branch="False" />
             <line number="119" hits="0" branch="False" />
-            <line number="120" hits="0" branch="False" />
+            <line number="120" hits="12" branch="False" />
             <line number="132" hits="0" branch="False" />
             <line number="133" hits="0" branch="False" />
             <line number="134" hits="0" branch="False" />
-            <line number="145" hits="0" branch="False" />
-            <line number="146" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="145" hits="24" branch="False" />
+            <line number="146" hits="24" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="17" type="jump" coverage="0%" />
+                <condition number="17" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="147" hits="0" branch="False" />
-            <line number="148" hits="0" branch="False" />
+            <line number="147" hits="24" branch="False" />
+            <line number="148" hits="24" branch="False" />
             <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="141" type="jump" coverage="0%" />
@@ -1193,7 +1657,7 @@
             <line number="152" hits="0" branch="False" />
             <line number="153" hits="0" branch="False" />
             <line number="154" hits="0" branch="False" />
-            <line number="155" hits="0" branch="False" />
+            <line number="155" hits="24" branch="False" />
             <line number="167" hits="0" branch="False" />
             <line number="168" hits="0" branch="False" />
             <line number="169" hits="0" branch="False" />
@@ -1203,22 +1667,22 @@
             <line number="185" hits="0" branch="False" />
             <line number="186" hits="0" branch="False" />
             <line number="187" hits="0" branch="False" />
-            <line number="53" hits="0" branch="False" />
-            <line number="54" hits="0" branch="False" />
-            <line number="56" hits="0" branch="False" />
-            <line number="58" hits="0" branch="False" />
-            <line number="59" hits="0" branch="False" />
-            <line number="61" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="53" hits="2" branch="False" />
+            <line number="54" hits="2" branch="False" />
+            <line number="56" hits="2" branch="False" />
+            <line number="58" hits="2" branch="False" />
+            <line number="59" hits="2" branch="False" />
+            <line number="61" hits="18" branch="True" condition-coverage="100% (2/2)">
               <conditions>
-                <condition number="482" type="jump" coverage="0%" />
+                <condition number="482" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="62" hits="0" branch="False" />
-            <line number="64" hits="0" branch="False" />
-            <line number="67" hits="0" branch="False" />
-            <line number="69" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="62" hits="6" branch="False" />
+            <line number="64" hits="6" branch="False" />
+            <line number="67" hits="6" branch="False" />
+            <line number="69" hits="6" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="112" type="jump" coverage="0%" />
+                <condition number="112" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="70" hits="0" branch="False" />
@@ -1227,10 +1691,10 @@
             <line number="73" hits="0" branch="False" />
             <line number="74" hits="0" branch="False" />
             <line number="75" hits="0" branch="False" />
-            <line number="78" hits="0" branch="False" />
-            <line number="81" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="78" hits="6" branch="False" />
+            <line number="81" hits="6" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="261" type="jump" coverage="0%" />
+                <condition number="261" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="82" hits="0" branch="False" />
@@ -1240,54 +1704,54 @@
             <line number="86" hits="0" branch="False" />
             <line number="87" hits="0" branch="False" />
             <line number="88" hits="0" branch="False" />
-            <line number="92" hits="0" branch="False" />
-            <line number="93" hits="0" branch="False" />
-            <line number="94" hits="0" branch="False" />
-            <line number="97" hits="0" branch="False" />
-            <line number="98" hits="0" branch="False" />
-            <line number="99" hits="0" branch="False" />
+            <line number="92" hits="6" branch="False" />
+            <line number="93" hits="6" branch="False" />
+            <line number="94" hits="6" branch="False" />
+            <line number="97" hits="2" branch="False" />
+            <line number="98" hits="2" branch="False" />
+            <line number="99" hits="2" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumMetadataRegistry" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Serialization/EnumMetadataRegistry.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Serialization.EnumMetadataRegistry" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Serialization/EnumMetadataRegistry.cs" line-rate="1" branch-rate="1" complexity="3">
           <methods>
-            <method name="Create" signature="()" line-rate="0" branch-rate="0" complexity="2">
+            <method name="Create" signature="()" line-rate="1" branch-rate="1" complexity="2">
               <lines>
-                <line number="42" hits="0" branch="False" />
-                <line number="43" hits="0" branch="False" />
-                <line number="46" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="42" hits="11" branch="False" />
+                <line number="43" hits="11" branch="False" />
+                <line number="46" hits="11" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
-                    <condition number="27" type="jump" coverage="0%" />
+                    <condition number="27" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="47" hits="0" branch="False" />
-                <line number="48" hits="0" branch="False" />
-                <line number="52" hits="0" branch="False" />
-                <line number="53" hits="0" branch="False" />
-                <line number="54" hits="0" branch="False" />
-                <line number="55" hits="0" branch="False" />
+                <line number="47" hits="9" branch="False" />
+                <line number="48" hits="9" branch="False" />
+                <line number="52" hits="2" branch="False" />
+                <line number="53" hits="2" branch="False" />
+                <line number="54" hits="2" branch="False" />
+                <line number="55" hits="11" branch="False" />
               </lines>
             </method>
-            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="25" hits="0" branch="False" />
+                <line number="25" hits="1" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="42" hits="0" branch="False" />
-            <line number="43" hits="0" branch="False" />
-            <line number="46" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="42" hits="11" branch="False" />
+            <line number="43" hits="11" branch="False" />
+            <line number="46" hits="11" branch="True" condition-coverage="100% (2/2)">
               <conditions>
-                <condition number="27" type="jump" coverage="0%" />
+                <condition number="27" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="47" hits="0" branch="False" />
-            <line number="48" hits="0" branch="False" />
-            <line number="52" hits="0" branch="False" />
-            <line number="53" hits="0" branch="False" />
-            <line number="54" hits="0" branch="False" />
-            <line number="55" hits="0" branch="False" />
-            <line number="25" hits="0" branch="False" />
+            <line number="47" hits="9" branch="False" />
+            <line number="48" hits="9" branch="False" />
+            <line number="52" hits="2" branch="False" />
+            <line number="53" hits="2" branch="False" />
+            <line number="54" hits="2" branch="False" />
+            <line number="55" hits="11" branch="False" />
+            <line number="25" hits="1" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Serialization.EnumSerializationHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Serialization/EnumSerializationHelper.cs" line-rate="0" branch-rate="0" complexity="2">
@@ -9288,14 +9752,14 @@
           <methods>
             <method name="FromSerializedLabel" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="48" hits="2" branch="False" />
-                <line number="49" hits="2" branch="False" />
-                <line number="50" hits="2" branch="False" />
-                <line number="51" hits="2" branch="False" />
-                <line number="52" hits="2" branch="False" />
-                <line number="53" hits="2" branch="False" />
-                <line number="54" hits="2" branch="False" />
-                <line number="55" hits="2" branch="False" />
+                <line number="48" hits="4" branch="False" />
+                <line number="49" hits="4" branch="False" />
+                <line number="50" hits="4" branch="False" />
+                <line number="51" hits="4" branch="False" />
+                <line number="52" hits="4" branch="False" />
+                <line number="53" hits="4" branch="False" />
+                <line number="54" hits="4" branch="False" />
+                <line number="55" hits="4" branch="False" />
               </lines>
             </method>
             <method name="LibraryControlled" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
@@ -9320,20 +9784,20 @@
             </method>
             <method name=".ctor" signature="(Flowthru.Core.Data.Storage.PropertyMappingStrategy,System.String,System.Type)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="36" hits="2" branch="False" />
-                <line number="40" hits="2" branch="False" />
+                <line number="36" hits="4" branch="False" />
+                <line number="40" hits="4" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="48" hits="2" branch="False" />
-            <line number="49" hits="2" branch="False" />
-            <line number="50" hits="2" branch="False" />
-            <line number="51" hits="2" branch="False" />
-            <line number="52" hits="2" branch="False" />
-            <line number="53" hits="2" branch="False" />
-            <line number="54" hits="2" branch="False" />
-            <line number="55" hits="2" branch="False" />
+            <line number="48" hits="4" branch="False" />
+            <line number="49" hits="4" branch="False" />
+            <line number="50" hits="4" branch="False" />
+            <line number="51" hits="4" branch="False" />
+            <line number="52" hits="4" branch="False" />
+            <line number="53" hits="4" branch="False" />
+            <line number="54" hits="4" branch="False" />
+            <line number="55" hits="4" branch="False" />
             <line number="64" hits="0" branch="False" />
             <line number="65" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
@@ -9346,8 +9810,8 @@
             <line number="69" hits="0" branch="False" />
             <line number="70" hits="0" branch="False" />
             <line number="75" hits="0" branch="False" />
-            <line number="36" hits="2" branch="False" />
-            <line number="40" hits="2" branch="False" />
+            <line number="36" hits="4" branch="False" />
+            <line number="40" hits="4" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="0.991" branch-rate="0.9" complexity="17">
@@ -9658,9 +10122,9 @@
           <methods>
             <method name="CreateInstance" signature="()" line-rate="0.6" branch-rate="0.375" complexity="8">
               <lines>
-                <line number="90" hits="11" branch="False" />
-                <line number="91" hits="11" branch="False" />
-                <line number="94" hits="11" branch="True" condition-coverage="50% (2/4)">
+                <line number="90" hits="17" branch="False" />
+                <line number="91" hits="17" branch="False" />
+                <line number="94" hits="17" branch="True" condition-coverage="50% (2/4)">
                   <conditions>
                     <condition number="18" type="jump" coverage="50%" />
                     <condition number="31" type="jump" coverage="50%" />
@@ -9670,57 +10134,57 @@
                 <line number="96" hits="0" branch="False" />
                 <line number="97" hits="0" branch="False" />
                 <line number="98" hits="0" branch="False" />
-                <line number="102" hits="11" branch="False" />
-                <line number="104" hits="11" branch="True" condition-coverage="25% (1/4)">
+                <line number="102" hits="17" branch="False" />
+                <line number="104" hits="17" branch="True" condition-coverage="25% (1/4)">
                   <conditions>
                     <condition number="100" type="jump" coverage="50%" />
                     <condition number="106" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="105" hits="11" branch="False" />
-                <line number="106" hits="11" branch="False" />
+                <line number="105" hits="17" branch="False" />
+                <line number="106" hits="17" branch="False" />
                 <line number="107" hits="0" branch="False" />
                 <line number="108" hits="0" branch="False" />
-                <line number="109" hits="11" branch="False" />
-                <line number="110" hits="11" branch="False" />
+                <line number="109" hits="17" branch="False" />
+                <line number="110" hits="17" branch="False" />
               </lines>
             </method>
             <method name="DetermineStrategy" signature="(System.Type)" line-rate="0.875" branch-rate="0.5" complexity="2">
               <lines>
-                <line number="116" hits="2" branch="False" />
-                <line number="118" hits="2" branch="False" />
-                <line number="119" hits="2" branch="False" />
-                <line number="121" hits="2" branch="True" condition-coverage="50% (1/2)">
+                <line number="116" hits="4" branch="False" />
+                <line number="118" hits="4" branch="False" />
+                <line number="119" hits="4" branch="False" />
+                <line number="121" hits="4" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="47" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="122" hits="2" branch="False" />
-                <line number="123" hits="2" branch="False" />
+                <line number="122" hits="4" branch="False" />
+                <line number="123" hits="4" branch="False" />
                 <line number="130" hits="0" branch="False" />
-                <line number="131" hits="2" branch="False" />
+                <line number="131" hits="4" branch="False" />
               </lines>
             </method>
             <method name="CreateViaConstructor" signature="()" line-rate="1" branch-rate="1" complexity="2">
               <lines>
-                <line number="137" hits="11" branch="False" />
-                <line number="138" hits="11" branch="False" />
-                <line number="141" hits="11" branch="True" condition-coverage="100% (2/2)">
+                <line number="137" hits="17" branch="False" />
+                <line number="138" hits="17" branch="False" />
+                <line number="141" hits="17" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="24" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="143" hits="11" branch="False" />
-                <line number="144" hits="11" branch="False" />
+                <line number="143" hits="17" branch="False" />
+                <line number="144" hits="17" branch="False" />
               </lines>
             </method>
             <method name="CompileFactory" signature="(System.Type)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="150" hits="2" branch="False" />
-                <line number="152" hits="2" branch="False" />
-                <line number="153" hits="2" branch="False" />
-                <line number="156" hits="2" branch="False" />
-                <line number="157" hits="2" branch="False" />
+                <line number="150" hits="4" branch="False" />
+                <line number="152" hits="4" branch="False" />
+                <line number="153" hits="4" branch="False" />
+                <line number="156" hits="4" branch="False" />
+                <line number="157" hits="4" branch="False" />
               </lines>
             </method>
             <method name="CreateUninitializedObject" signature="()" line-rate="0" branch-rate="1" complexity="1">
@@ -9749,9 +10213,9 @@
             </method>
           </methods>
           <lines>
-            <line number="90" hits="11" branch="False" />
-            <line number="91" hits="11" branch="False" />
-            <line number="94" hits="11" branch="True" condition-coverage="50% (2/4)">
+            <line number="90" hits="17" branch="False" />
+            <line number="91" hits="17" branch="False" />
+            <line number="94" hits="17" branch="True" condition-coverage="50% (2/4)">
               <conditions>
                 <condition number="18" type="jump" coverage="50%" />
                 <condition number="31" type="jump" coverage="50%" />
@@ -9761,45 +10225,45 @@
             <line number="96" hits="0" branch="False" />
             <line number="97" hits="0" branch="False" />
             <line number="98" hits="0" branch="False" />
-            <line number="102" hits="11" branch="False" />
-            <line number="104" hits="11" branch="True" condition-coverage="25% (1/4)">
+            <line number="102" hits="17" branch="False" />
+            <line number="104" hits="17" branch="True" condition-coverage="25% (1/4)">
               <conditions>
                 <condition number="100" type="jump" coverage="50%" />
                 <condition number="106" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="105" hits="11" branch="False" />
-            <line number="106" hits="11" branch="False" />
+            <line number="105" hits="17" branch="False" />
+            <line number="106" hits="17" branch="False" />
             <line number="107" hits="0" branch="False" />
             <line number="108" hits="0" branch="False" />
-            <line number="109" hits="11" branch="False" />
-            <line number="110" hits="11" branch="False" />
-            <line number="116" hits="2" branch="False" />
-            <line number="118" hits="2" branch="False" />
-            <line number="119" hits="2" branch="False" />
-            <line number="121" hits="2" branch="True" condition-coverage="50% (1/2)">
+            <line number="109" hits="17" branch="False" />
+            <line number="110" hits="17" branch="False" />
+            <line number="116" hits="4" branch="False" />
+            <line number="118" hits="4" branch="False" />
+            <line number="119" hits="4" branch="False" />
+            <line number="121" hits="4" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="47" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="122" hits="2" branch="False" />
-            <line number="123" hits="2" branch="False" />
+            <line number="122" hits="4" branch="False" />
+            <line number="123" hits="4" branch="False" />
             <line number="130" hits="0" branch="False" />
-            <line number="131" hits="2" branch="False" />
-            <line number="137" hits="11" branch="False" />
-            <line number="138" hits="11" branch="False" />
-            <line number="141" hits="11" branch="True" condition-coverage="100% (2/2)">
+            <line number="131" hits="4" branch="False" />
+            <line number="137" hits="17" branch="False" />
+            <line number="138" hits="17" branch="False" />
+            <line number="141" hits="17" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="24" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="143" hits="11" branch="False" />
-            <line number="144" hits="11" branch="False" />
-            <line number="150" hits="2" branch="False" />
-            <line number="152" hits="2" branch="False" />
-            <line number="153" hits="2" branch="False" />
-            <line number="156" hits="2" branch="False" />
-            <line number="157" hits="2" branch="False" />
+            <line number="143" hits="17" branch="False" />
+            <line number="144" hits="17" branch="False" />
+            <line number="150" hits="4" branch="False" />
+            <line number="152" hits="4" branch="False" />
+            <line number="153" hits="4" branch="False" />
+            <line number="156" hits="4" branch="False" />
+            <line number="157" hits="4" branch="False" />
             <line number="178" hits="0" branch="False" />
             <line number="179" hits="0" branch="False" />
             <line number="182" hits="0" branch="False" />
@@ -10953,27 +11417,27 @@
             </method>
             <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="103" hits="4" branch="False" />
-                <line number="104" hits="4" branch="False" />
-                <line number="105" hits="4" branch="False" />
-                <line number="106" hits="4" branch="False" />
-                <line number="107" hits="4" branch="False" />
-                <line number="108" hits="4" branch="False" />
-                <line number="109" hits="4" branch="False" />
-                <line number="110" hits="12" branch="False" />
+                <line number="103" hits="6" branch="False" />
+                <line number="104" hits="6" branch="False" />
+                <line number="105" hits="6" branch="False" />
+                <line number="106" hits="6" branch="False" />
+                <line number="107" hits="6" branch="False" />
+                <line number="108" hits="6" branch="False" />
+                <line number="109" hits="6" branch="False" />
+                <line number="110" hits="18" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="(System.Text.Json.JsonSerializerOptions)" line-rate="1" branch-rate="0.5" complexity="2">
               <lines>
-                <line number="118" hits="4" branch="False" />
-                <line number="119" hits="4" branch="True" condition-coverage="50% (1/2)">
+                <line number="118" hits="6" branch="False" />
+                <line number="119" hits="6" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="11" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="122" hits="4" branch="False" />
-                <line number="125" hits="4" branch="False" />
-                <line number="126" hits="4" branch="False" />
+                <line number="122" hits="6" branch="False" />
+                <line number="125" hits="6" branch="False" />
+                <line number="126" hits="6" branch="False" />
               </lines>
             </method>
           </methods>
@@ -10983,39 +11447,39 @@
             <line number="187" hits="0" branch="False" />
             <line number="188" hits="0" branch="False" />
             <line number="189" hits="0" branch="False" />
-            <line number="103" hits="4" branch="False" />
-            <line number="104" hits="4" branch="False" />
-            <line number="105" hits="4" branch="False" />
-            <line number="106" hits="4" branch="False" />
-            <line number="107" hits="4" branch="False" />
-            <line number="108" hits="4" branch="False" />
-            <line number="109" hits="4" branch="False" />
-            <line number="110" hits="12" branch="False" />
-            <line number="118" hits="4" branch="False" />
-            <line number="119" hits="4" branch="True" condition-coverage="50% (1/2)">
+            <line number="103" hits="6" branch="False" />
+            <line number="104" hits="6" branch="False" />
+            <line number="105" hits="6" branch="False" />
+            <line number="106" hits="6" branch="False" />
+            <line number="107" hits="6" branch="False" />
+            <line number="108" hits="6" branch="False" />
+            <line number="109" hits="6" branch="False" />
+            <line number="110" hits="18" branch="False" />
+            <line number="118" hits="6" branch="False" />
+            <line number="119" hits="6" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="11" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="122" hits="4" branch="False" />
-            <line number="125" hits="4" branch="False" />
-            <line number="126" hits="4" branch="False" />
+            <line number="122" hits="6" branch="False" />
+            <line number="125" hits="6" branch="False" />
+            <line number="126" hits="6" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverterFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0.5" branch-rate="0.3181" complexity="23">
           <methods>
             <method name="CanConvert" signature="(System.Type)" line-rate="0.423" branch-rate="0.3181" complexity="22">
               <lines>
-                <line number="198" hits="18" branch="False" />
-                <line number="200" hits="18" branch="True" condition-coverage="75% (3/4)">
+                <line number="198" hits="22" branch="False" />
+                <line number="200" hits="22" branch="True" condition-coverage="75% (3/4)">
                   <conditions>
                     <condition number="7" type="jump" coverage="50%" />
                     <condition number="20" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="201" hits="10" branch="False" />
-                <line number="202" hits="10" branch="False" />
-                <line number="206" hits="8" branch="True" condition-coverage="50% (1/2)">
+                <line number="201" hits="12" branch="False" />
+                <line number="202" hits="12" branch="False" />
+                <line number="206" hits="10" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="38" type="jump" coverage="50%" />
                   </conditions>
@@ -11042,44 +11506,44 @@
                 <line number="217" hits="0" branch="False" />
                 <line number="218" hits="0" branch="False" />
                 <line number="220" hits="0" branch="False" />
-                <line number="223" hits="8" branch="True" condition-coverage="100% (2/2)">
+                <line number="223" hits="10" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="192" type="jump" coverage="100%" />
                   </conditions>
                 </line>
                 <line number="224" hits="4" branch="False" />
                 <line number="225" hits="4" branch="False" />
-                <line number="229" hits="4" branch="True" condition-coverage="50% (1/2)">
+                <line number="229" hits="6" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="219" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="230" hits="0" branch="False" />
                 <line number="231" hits="0" branch="False" />
-                <line number="235" hits="4" branch="False" />
-                <line number="236" hits="18" branch="False" />
+                <line number="235" hits="6" branch="False" />
+                <line number="236" hits="22" branch="False" />
               </lines>
             </method>
             <method name="CreateConverter" signature="(System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="239" hits="4" branch="False" />
-                <line number="240" hits="4" branch="False" />
-                <line number="241" hits="4" branch="False" />
-                <line number="242" hits="4" branch="False" />
+                <line number="239" hits="6" branch="False" />
+                <line number="240" hits="6" branch="False" />
+                <line number="241" hits="6" branch="False" />
+                <line number="242" hits="6" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="198" hits="18" branch="False" />
-            <line number="200" hits="18" branch="True" condition-coverage="75% (3/4)">
+            <line number="198" hits="22" branch="False" />
+            <line number="200" hits="22" branch="True" condition-coverage="75% (3/4)">
               <conditions>
                 <condition number="7" type="jump" coverage="50%" />
                 <condition number="20" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="201" hits="10" branch="False" />
-            <line number="202" hits="10" branch="False" />
-            <line number="206" hits="8" branch="True" condition-coverage="50% (1/2)">
+            <line number="201" hits="12" branch="False" />
+            <line number="202" hits="12" branch="False" />
+            <line number="206" hits="10" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="38" type="jump" coverage="50%" />
               </conditions>
@@ -11106,34 +11570,34 @@
             <line number="217" hits="0" branch="False" />
             <line number="218" hits="0" branch="False" />
             <line number="220" hits="0" branch="False" />
-            <line number="223" hits="8" branch="True" condition-coverage="100% (2/2)">
+            <line number="223" hits="10" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="192" type="jump" coverage="100%" />
               </conditions>
             </line>
             <line number="224" hits="4" branch="False" />
             <line number="225" hits="4" branch="False" />
-            <line number="229" hits="4" branch="True" condition-coverage="50% (1/2)">
+            <line number="229" hits="6" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="219" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="230" hits="0" branch="False" />
             <line number="231" hits="0" branch="False" />
-            <line number="235" hits="4" branch="False" />
-            <line number="236" hits="18" branch="False" />
-            <line number="239" hits="4" branch="False" />
-            <line number="240" hits="4" branch="False" />
-            <line number="241" hits="4" branch="False" />
-            <line number="242" hits="4" branch="False" />
+            <line number="235" hits="6" branch="False" />
+            <line number="236" hits="22" branch="False" />
+            <line number="239" hits="6" branch="False" />
+            <line number="240" hits="6" branch="False" />
+            <line number="241" hits="6" branch="False" />
+            <line number="242" hits="6" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0.4022" branch-rate="0.39280000000000004" complexity="29">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0.7559999999999999" branch-rate="0.6875" complexity="16">
               <lines>
-                <line number="264" hits="11" branch="False" />
-                <line number="265" hits="11" branch="True" condition-coverage="50% (1/2)">
+                <line number="264" hits="17" branch="False" />
+                <line number="265" hits="17" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="15" type="jump" coverage="50%" />
                   </conditions>
@@ -11142,66 +11606,66 @@
                 <line number="267" hits="0" branch="False" />
                 <line number="268" hits="0" branch="False" />
                 <line number="269" hits="0" branch="False" />
-                <line number="272" hits="11" branch="False" />
-                <line number="276" hits="11" branch="False" />
-                <line number="277" hits="11" branch="False" />
-                <line number="278" hits="77" branch="True" condition-coverage="100% (2/2)">
+                <line number="272" hits="17" branch="False" />
+                <line number="276" hits="17" branch="False" />
+                <line number="277" hits="17" branch="False" />
+                <line number="278" hits="119" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="198" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="279" hits="22" branch="False" />
-                <line number="282" hits="22" branch="True" condition-coverage="100% (2/2)">
+                <line number="279" hits="34" branch="False" />
+                <line number="282" hits="34" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="172" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="283" hits="22" branch="False" />
-                <line number="284" hits="22" branch="False" />
-                <line number="285" hits="22" branch="False" />
-                <line number="286" hits="22" branch="False" />
-                <line number="288" hits="48" branch="True" condition-coverage="50% (1/2)">
+                <line number="283" hits="34" branch="False" />
+                <line number="284" hits="34" branch="False" />
+                <line number="285" hits="34" branch="False" />
+                <line number="286" hits="34" branch="False" />
+                <line number="288" hits="72" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="375" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="289" hits="48" branch="False" />
-                <line number="290" hits="48" branch="True" condition-coverage="100% (2/2)">
+                <line number="289" hits="72" branch="False" />
+                <line number="290" hits="72" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="234" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="291" hits="11" branch="False" />
-                <line number="292" hits="11" branch="False" />
-                <line number="295" hits="37" branch="True" condition-coverage="50% (1/2)">
+                <line number="291" hits="17" branch="False" />
+                <line number="292" hits="17" branch="False" />
+                <line number="295" hits="55" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="261" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="296" hits="0" branch="False" />
                 <line number="297" hits="0" branch="False" />
-                <line number="300" hits="37" branch="False" />
-                <line number="301" hits="37" branch="False" />
-                <line number="303" hits="37" branch="True" condition-coverage="50% (2/4)">
+                <line number="300" hits="55" branch="False" />
+                <line number="301" hits="55" branch="False" />
+                <line number="303" hits="55" branch="True" condition-coverage="50% (2/4)">
                   <conditions>
                     <condition number="292" type="jump" coverage="50%" />
                     <condition number="316" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="304" hits="37" branch="False" />
-                <line number="305" hits="37" branch="False" />
-                <line number="306" hits="37" branch="False" />
-                <line number="307" hits="37" branch="False" />
-                <line number="308" hits="37" branch="False" />
-                <line number="309" hits="37" branch="False" />
-                <line number="310" hits="37" branch="False" />
-                <line number="311" hits="37" branch="False" />
+                <line number="304" hits="55" branch="False" />
+                <line number="305" hits="55" branch="False" />
+                <line number="306" hits="55" branch="False" />
+                <line number="307" hits="55" branch="False" />
+                <line number="308" hits="55" branch="False" />
+                <line number="309" hits="55" branch="False" />
+                <line number="310" hits="55" branch="False" />
+                <line number="311" hits="55" branch="False" />
                 <line number="313" hits="0" branch="False" />
                 <line number="316" hits="0" branch="False" />
                 <line number="317" hits="0" branch="False" />
-                <line number="318" hits="37" branch="False" />
+                <line number="318" hits="55" branch="False" />
                 <line number="320" hits="0" branch="False" />
-                <line number="321" hits="11" branch="False" />
+                <line number="321" hits="17" branch="False" />
               </lines>
             </method>
             <method name="Write" signature="(System.Text.Json.Utf8JsonWriter,T,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="12">
@@ -11273,16 +11737,16 @@
             </method>
             <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="254" hits="4" branch="False" />
-                <line number="255" hits="4" branch="False" />
-                <line number="256" hits="4" branch="False" />
-                <line number="257" hits="4" branch="False" />
+                <line number="254" hits="6" branch="False" />
+                <line number="255" hits="6" branch="False" />
+                <line number="256" hits="6" branch="False" />
+                <line number="257" hits="6" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="264" hits="11" branch="False" />
-            <line number="265" hits="11" branch="True" condition-coverage="50% (1/2)">
+            <line number="264" hits="17" branch="False" />
+            <line number="265" hits="17" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="15" type="jump" coverage="50%" />
               </conditions>
@@ -11291,66 +11755,66 @@
             <line number="267" hits="0" branch="False" />
             <line number="268" hits="0" branch="False" />
             <line number="269" hits="0" branch="False" />
-            <line number="272" hits="11" branch="False" />
-            <line number="276" hits="11" branch="False" />
-            <line number="277" hits="11" branch="False" />
-            <line number="278" hits="77" branch="True" condition-coverage="100% (2/2)">
+            <line number="272" hits="17" branch="False" />
+            <line number="276" hits="17" branch="False" />
+            <line number="277" hits="17" branch="False" />
+            <line number="278" hits="119" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="198" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="279" hits="22" branch="False" />
-            <line number="282" hits="22" branch="True" condition-coverage="100% (2/2)">
+            <line number="279" hits="34" branch="False" />
+            <line number="282" hits="34" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="172" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="283" hits="22" branch="False" />
-            <line number="284" hits="22" branch="False" />
-            <line number="285" hits="22" branch="False" />
-            <line number="286" hits="22" branch="False" />
-            <line number="288" hits="48" branch="True" condition-coverage="50% (1/2)">
+            <line number="283" hits="34" branch="False" />
+            <line number="284" hits="34" branch="False" />
+            <line number="285" hits="34" branch="False" />
+            <line number="286" hits="34" branch="False" />
+            <line number="288" hits="72" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="375" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="289" hits="48" branch="False" />
-            <line number="290" hits="48" branch="True" condition-coverage="100% (2/2)">
+            <line number="289" hits="72" branch="False" />
+            <line number="290" hits="72" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="234" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="291" hits="11" branch="False" />
-            <line number="292" hits="11" branch="False" />
-            <line number="295" hits="37" branch="True" condition-coverage="50% (1/2)">
+            <line number="291" hits="17" branch="False" />
+            <line number="292" hits="17" branch="False" />
+            <line number="295" hits="55" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="261" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="296" hits="0" branch="False" />
             <line number="297" hits="0" branch="False" />
-            <line number="300" hits="37" branch="False" />
-            <line number="301" hits="37" branch="False" />
-            <line number="303" hits="37" branch="True" condition-coverage="50% (2/4)">
+            <line number="300" hits="55" branch="False" />
+            <line number="301" hits="55" branch="False" />
+            <line number="303" hits="55" branch="True" condition-coverage="50% (2/4)">
               <conditions>
                 <condition number="292" type="jump" coverage="50%" />
                 <condition number="316" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="304" hits="37" branch="False" />
-            <line number="305" hits="37" branch="False" />
-            <line number="306" hits="37" branch="False" />
-            <line number="307" hits="37" branch="False" />
-            <line number="308" hits="37" branch="False" />
-            <line number="309" hits="37" branch="False" />
-            <line number="310" hits="37" branch="False" />
-            <line number="311" hits="37" branch="False" />
+            <line number="304" hits="55" branch="False" />
+            <line number="305" hits="55" branch="False" />
+            <line number="306" hits="55" branch="False" />
+            <line number="307" hits="55" branch="False" />
+            <line number="308" hits="55" branch="False" />
+            <line number="309" hits="55" branch="False" />
+            <line number="310" hits="55" branch="False" />
+            <line number="311" hits="55" branch="False" />
             <line number="313" hits="0" branch="False" />
             <line number="316" hits="0" branch="False" />
             <line number="317" hits="0" branch="False" />
-            <line number="318" hits="37" branch="False" />
+            <line number="318" hits="55" branch="False" />
             <line number="320" hits="0" branch="False" />
-            <line number="321" hits="11" branch="False" />
+            <line number="321" hits="17" branch="False" />
             <line number="324" hits="0" branch="False" />
             <line number="325" hits="0" branch="False" />
             <line number="329" hits="0" branch="False" />
@@ -11414,48 +11878,48 @@
             <line number="378" hits="0" branch="False" />
             <line number="380" hits="0" branch="False" />
             <line number="381" hits="0" branch="False" />
-            <line number="254" hits="4" branch="False" />
-            <line number="255" hits="4" branch="False" />
-            <line number="256" hits="4" branch="False" />
-            <line number="257" hits="4" branch="False" />
+            <line number="254" hits="6" branch="False" />
+            <line number="255" hits="6" branch="False" />
+            <line number="256" hits="6" branch="False" />
+            <line number="257" hits="6" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverterFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0.4285" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverterFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="1" branch-rate="1" complexity="2">
           <methods>
             <method name="CanConvert" signature="(System.Type)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="390" hits="18" branch="False" />
-                <line number="391" hits="18" branch="False" />
-                <line number="392" hits="18" branch="False" />
+                <line number="390" hits="25" branch="False" />
+                <line number="391" hits="25" branch="False" />
+                <line number="392" hits="25" branch="False" />
               </lines>
             </method>
-            <method name="CreateConverter" signature="(System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="1" complexity="1">
+            <method name="CreateConverter" signature="(System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="395" hits="0" branch="False" />
-                <line number="396" hits="0" branch="False" />
-                <line number="397" hits="0" branch="False" />
-                <line number="398" hits="0" branch="False" />
+                <line number="395" hits="3" branch="False" />
+                <line number="396" hits="3" branch="False" />
+                <line number="397" hits="3" branch="False" />
+                <line number="398" hits="3" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="390" hits="18" branch="False" />
-            <line number="391" hits="18" branch="False" />
-            <line number="392" hits="18" branch="False" />
-            <line number="395" hits="0" branch="False" />
-            <line number="396" hits="0" branch="False" />
-            <line number="397" hits="0" branch="False" />
-            <line number="398" hits="0" branch="False" />
+            <line number="390" hits="25" branch="False" />
+            <line number="391" hits="25" branch="False" />
+            <line number="392" hits="25" branch="False" />
+            <line number="395" hits="3" branch="False" />
+            <line number="396" hits="3" branch="False" />
+            <line number="397" hits="3" branch="False" />
+            <line number="398" hits="3" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0.282" branch-rate="0.5" complexity="6">
           <methods>
-            <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="4">
+            <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0.3043" branch-rate="0.5" complexity="4">
               <lines>
-                <line number="420" hits="0" branch="False" />
-                <line number="421" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="420" hits="12" branch="False" />
+                <line number="421" hits="12" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="15" type="jump" coverage="0%" />
+                    <condition number="15" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="422" hits="0" branch="False" />
@@ -11464,25 +11928,25 @@
                 <line number="425" hits="0" branch="False" />
                 <line number="426" hits="0" branch="False" />
                 <line number="427" hits="0" branch="False" />
-                <line number="430" hits="0" branch="False" />
-                <line number="431" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="430" hits="12" branch="False" />
+                <line number="431" hits="12" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="162" type="jump" coverage="0%" />
+                    <condition number="162" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="432" hits="0" branch="False" />
                 <line number="433" hits="0" branch="False" />
                 <line number="434" hits="0" branch="False" />
                 <line number="435" hits="0" branch="False" />
-                <line number="439" hits="0" branch="False" />
-                <line number="440" hits="0" branch="False" />
+                <line number="439" hits="12" branch="False" />
+                <line number="440" hits="12" branch="False" />
                 <line number="442" hits="0" branch="False" />
                 <line number="443" hits="0" branch="False" />
                 <line number="444" hits="0" branch="False" />
                 <line number="445" hits="0" branch="False" />
                 <line number="446" hits="0" branch="False" />
                 <line number="447" hits="0" branch="False" />
-                <line number="449" hits="0" branch="False" />
+                <line number="449" hits="12" branch="False" />
               </lines>
             </method>
             <method name="Write" signature="(System.Text.Json.Utf8JsonWriter,TEnum,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="1" complexity="1">
@@ -11501,20 +11965,20 @@
                 <line number="465" hits="0" branch="False" />
               </lines>
             </method>
-            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
-                <line number="410" hits="0" branch="False" />
-                <line number="411" hits="0" branch="False" />
-                <line number="412" hits="0" branch="False" />
-                <line number="413" hits="0" branch="False" />
+                <line number="410" hits="3" branch="False" />
+                <line number="411" hits="3" branch="False" />
+                <line number="412" hits="3" branch="False" />
+                <line number="413" hits="3" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="420" hits="0" branch="False" />
-            <line number="421" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="420" hits="12" branch="False" />
+            <line number="421" hits="12" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="15" type="jump" coverage="0%" />
+                <condition number="15" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="422" hits="0" branch="False" />
@@ -11523,25 +11987,25 @@
             <line number="425" hits="0" branch="False" />
             <line number="426" hits="0" branch="False" />
             <line number="427" hits="0" branch="False" />
-            <line number="430" hits="0" branch="False" />
-            <line number="431" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="430" hits="12" branch="False" />
+            <line number="431" hits="12" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="162" type="jump" coverage="0%" />
+                <condition number="162" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="432" hits="0" branch="False" />
             <line number="433" hits="0" branch="False" />
             <line number="434" hits="0" branch="False" />
             <line number="435" hits="0" branch="False" />
-            <line number="439" hits="0" branch="False" />
-            <line number="440" hits="0" branch="False" />
+            <line number="439" hits="12" branch="False" />
+            <line number="440" hits="12" branch="False" />
             <line number="442" hits="0" branch="False" />
             <line number="443" hits="0" branch="False" />
             <line number="444" hits="0" branch="False" />
             <line number="445" hits="0" branch="False" />
             <line number="446" hits="0" branch="False" />
             <line number="447" hits="0" branch="False" />
-            <line number="449" hits="0" branch="False" />
+            <line number="449" hits="12" branch="False" />
             <line number="452" hits="0" branch="False" />
             <line number="454" hits="0" branch="False" />
             <line number="455" hits="0" branch="False" />
@@ -11554,104 +12018,104 @@
             <line number="462" hits="0" branch="False" />
             <line number="463" hits="0" branch="False" />
             <line number="465" hits="0" branch="False" />
-            <line number="410" hits="0" branch="False" />
-            <line number="411" hits="0" branch="False" />
-            <line number="412" hits="0" branch="False" />
-            <line number="413" hits="0" branch="False" />
+            <line number="410" hits="3" branch="False" />
+            <line number="411" hits="3" branch="False" />
+            <line number="412" hits="3" branch="False" />
+            <line number="413" hits="3" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Format/PropertyMappingHelper.cs" line-rate="0.7826000000000001" branch-rate="0.8" complexity="10">
           <methods>
             <method name="BuildPropertyMap" signature="()" line-rate="0.8125" branch-rate="0.75" complexity="4">
               <lines>
-                <line number="61" hits="4" branch="False" />
-                <line number="62" hits="4" branch="False" />
-                <line number="63" hits="4" branch="False" />
-                <line number="65" hits="40" branch="True" condition-coverage="100% (2/2)">
+                <line number="61" hits="6" branch="False" />
+                <line number="62" hits="6" branch="False" />
+                <line number="63" hits="6" branch="False" />
+                <line number="65" hits="58" branch="True" condition-coverage="100% (2/2)">
                   <conditions>
                     <condition number="110" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="66" hits="14" branch="False" />
-                <line number="68" hits="14" branch="False" />
-                <line number="70" hits="14" branch="True" condition-coverage="50% (1/2)">
+                <line number="66" hits="20" branch="False" />
+                <line number="68" hits="20" branch="False" />
+                <line number="70" hits="20" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="61" type="jump" coverage="50%" />
                   </conditions>
                 </line>
-                <line number="71" hits="14" branch="False" />
-                <line number="73" hits="14" branch="False" />
-                <line number="74" hits="14" branch="False" />
+                <line number="71" hits="20" branch="False" />
+                <line number="73" hits="20" branch="False" />
+                <line number="74" hits="20" branch="False" />
                 <line number="76" hits="0" branch="False" />
                 <line number="78" hits="0" branch="False" />
                 <line number="79" hits="0" branch="False" />
-                <line number="80" hits="14" branch="False" />
-                <line number="82" hits="4" branch="False" />
-                <line number="83" hits="4" branch="False" />
+                <line number="80" hits="20" branch="False" />
+                <line number="82" hits="6" branch="False" />
+                <line number="83" hits="6" branch="False" />
               </lines>
             </method>
             <method name="GetFieldName" signature="(System.Reflection.PropertyInfo)" line-rate="0.7142000000000001" branch-rate="0.8332999999999999" complexity="6">
               <lines>
-                <line number="107" hits="137" branch="False" />
-                <line number="108" hits="137" branch="True" condition-coverage="50% (1/2)">
+                <line number="107" hits="149" branch="False" />
+                <line number="108" hits="149" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="10" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="109" hits="0" branch="False" />
                 <line number="110" hits="0" branch="False" />
-                <line number="113" hits="137" branch="False" />
-                <line number="114" hits="137" branch="True" condition-coverage="100% (4/4)">
+                <line number="113" hits="149" branch="False" />
+                <line number="114" hits="149" branch="True" condition-coverage="100% (4/4)">
                   <conditions>
                     <condition number="32" type="jump" coverage="100%" />
                     <condition number="44" type="jump" coverage="100%" />
                   </conditions>
                 </line>
-                <line number="115" hits="137" branch="False" />
+                <line number="115" hits="149" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="61" hits="4" branch="False" />
-            <line number="62" hits="4" branch="False" />
-            <line number="63" hits="4" branch="False" />
-            <line number="65" hits="40" branch="True" condition-coverage="100% (2/2)">
+            <line number="61" hits="6" branch="False" />
+            <line number="62" hits="6" branch="False" />
+            <line number="63" hits="6" branch="False" />
+            <line number="65" hits="58" branch="True" condition-coverage="100% (2/2)">
               <conditions>
                 <condition number="110" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="66" hits="14" branch="False" />
-            <line number="68" hits="14" branch="False" />
-            <line number="70" hits="14" branch="True" condition-coverage="50% (1/2)">
+            <line number="66" hits="20" branch="False" />
+            <line number="68" hits="20" branch="False" />
+            <line number="70" hits="20" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="61" type="jump" coverage="50%" />
               </conditions>
             </line>
-            <line number="71" hits="14" branch="False" />
-            <line number="73" hits="14" branch="False" />
-            <line number="74" hits="14" branch="False" />
+            <line number="71" hits="20" branch="False" />
+            <line number="73" hits="20" branch="False" />
+            <line number="74" hits="20" branch="False" />
             <line number="76" hits="0" branch="False" />
             <line number="78" hits="0" branch="False" />
             <line number="79" hits="0" branch="False" />
-            <line number="80" hits="14" branch="False" />
-            <line number="82" hits="4" branch="False" />
-            <line number="83" hits="4" branch="False" />
-            <line number="107" hits="137" branch="False" />
-            <line number="108" hits="137" branch="True" condition-coverage="50% (1/2)">
+            <line number="80" hits="20" branch="False" />
+            <line number="82" hits="6" branch="False" />
+            <line number="83" hits="6" branch="False" />
+            <line number="107" hits="149" branch="False" />
+            <line number="108" hits="149" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="10" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="109" hits="0" branch="False" />
             <line number="110" hits="0" branch="False" />
-            <line number="113" hits="137" branch="False" />
-            <line number="114" hits="137" branch="True" condition-coverage="100% (4/4)">
+            <line number="113" hits="149" branch="False" />
+            <line number="114" hits="149" branch="True" condition-coverage="100% (4/4)">
               <conditions>
                 <condition number="32" type="jump" coverage="100%" />
                 <condition number="44" type="jump" coverage="100%" />
               </conditions>
             </line>
-            <line number="115" hits="137" branch="False" />
+            <line number="115" hits="149" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="1" branch-rate="1" complexity="1">
@@ -12306,20 +12770,20 @@
             <line number="47" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Abstractions.SerializedEnumAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Abstractions/SerializedEnumAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Abstractions.SerializedEnumAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Abstractions/SerializedEnumAttribute.cs" line-rate="0.41659999999999997" branch-rate="0.3333" complexity="3">
           <methods>
-            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="3">
+            <method name=".ctor" signature="(System.String)" line-rate="0.41659999999999997" branch-rate="0.3333" complexity="3">
               <lines>
-                <line number="92" hits="0" branch="False" />
-                <line number="93" hits="0" branch="False" />
-                <line number="94" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="92" hits="6" branch="False" />
+                <line number="93" hits="6" branch="False" />
+                <line number="94" hits="6" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
-                    <condition number="14" type="jump" coverage="0%" />
+                    <condition number="14" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="95" hits="0" branch="False" />
                 <line number="96" hits="0" branch="False" />
-                <line number="99" hits="0" branch="True" condition-coverage="0% (0/1)">
+                <line number="99" hits="6" branch="True" condition-coverage="0% (0/1)">
                   <conditions>
                     <condition number="36" type="jump" coverage="0%" />
                   </conditions>
@@ -12329,21 +12793,21 @@
                 <line number="102" hits="0" branch="False" />
                 <line number="103" hits="0" branch="False" />
                 <line number="104" hits="0" branch="False" />
-                <line number="108" hits="0" branch="False" />
+                <line number="108" hits="6" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="92" hits="0" branch="False" />
-            <line number="93" hits="0" branch="False" />
-            <line number="94" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="92" hits="6" branch="False" />
+            <line number="93" hits="6" branch="False" />
+            <line number="94" hits="6" branch="True" condition-coverage="50% (1/2)">
               <conditions>
-                <condition number="14" type="jump" coverage="0%" />
+                <condition number="14" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="95" hits="0" branch="False" />
             <line number="96" hits="0" branch="False" />
-            <line number="99" hits="0" branch="True" condition-coverage="0% (0/1)">
+            <line number="99" hits="6" branch="True" condition-coverage="0% (0/1)">
               <conditions>
                 <condition number="36" type="jump" coverage="0%" />
               </conditions>
@@ -12353,515 +12817,51 @@
             <line number="102" hits="0" branch="False" />
             <line number="103" hits="0" branch="False" />
             <line number="104" hits="0" branch="False" />
-            <line number="108" hits="0" branch="False" />
+            <line number="108" hits="6" branch="False" />
           </lines>
         </class>
         <class name="Flowthru.Core.Abstractions.SerializedLabelAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/core/Flowthru.Core/Abstractions/SerializedLabelAttribute.cs" line-rate="0.5555" branch-rate="0.3333" complexity="3">
           <methods>
             <method name=".ctor" signature="(System.String)" line-rate="0.5555" branch-rate="0.3333" complexity="3">
               <lines>
-                <line number="64" hits="112" branch="False" />
-                <line number="65" hits="112" branch="False" />
-                <line number="66" hits="112" branch="True" condition-coverage="50% (1/2)">
+                <line number="64" hits="130" branch="False" />
+                <line number="65" hits="130" branch="False" />
+                <line number="66" hits="130" branch="True" condition-coverage="50% (1/2)">
                   <conditions>
                     <condition number="14" type="jump" coverage="50%" />
                   </conditions>
                 </line>
                 <line number="67" hits="0" branch="False" />
                 <line number="68" hits="0" branch="False" />
-                <line number="71" hits="112" branch="True" condition-coverage="0% (0/1)">
+                <line number="71" hits="130" branch="True" condition-coverage="0% (0/1)">
                   <conditions>
                     <condition number="36" type="jump" coverage="0%" />
                   </conditions>
                 </line>
                 <line number="72" hits="0" branch="False" />
                 <line number="73" hits="0" branch="False" />
-                <line number="77" hits="112" branch="False" />
+                <line number="77" hits="130" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="64" hits="112" branch="False" />
-            <line number="65" hits="112" branch="False" />
-            <line number="66" hits="112" branch="True" condition-coverage="50% (1/2)">
+            <line number="64" hits="130" branch="False" />
+            <line number="65" hits="130" branch="False" />
+            <line number="66" hits="130" branch="True" condition-coverage="50% (1/2)">
               <conditions>
                 <condition number="14" type="jump" coverage="50%" />
               </conditions>
             </line>
             <line number="67" hits="0" branch="False" />
             <line number="68" hits="0" branch="False" />
-            <line number="71" hits="112" branch="True" condition-coverage="0% (0/1)">
+            <line number="71" hits="130" branch="True" condition-coverage="0% (0/1)">
               <conditions>
                 <condition number="36" type="jump" coverage="0%" />
               </conditions>
             </line>
             <line number="72" hits="0" branch="False" />
             <line number="73" hits="0" branch="False" />
-            <line number="77" hits="112" branch="False" />
-          </lines>
-        </class>
-      </classes>
-    </package>
-    <package name="Flowthru.Extensions.Csv" line-rate="0.36729999999999996" branch-rate="0.3333" complexity="50">
-      <classes>
-        <class name="Flowthru.Core.Data.CsvItemExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/CsvItemExtensions.cs" line-rate="0" branch-rate="0" complexity="9">
-          <methods>
-            <method name="Csv" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="8">
-              <lines>
-                <line number="63" hits="0" branch="True" condition-coverage="0% (0/6)">
-                  <conditions>
-                    <condition number="3" type="jump" coverage="0%" />
-                    <condition number="7" type="jump" coverage="0%" />
-                    <condition number="20" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="31" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="65" hits="0" branch="False" />
-                <line number="66" hits="0" branch="False" />
-                <line number="67" hits="0" branch="False" />
-                <line number="68" hits="0" branch="False" />
-                <line number="69" hits="0" branch="False" />
-                <line number="70" hits="0" branch="False" />
-                <line number="71" hits="0" branch="False" />
-                <line number="72" hits="0" branch="False" />
-                <line number="74" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="CsvDirectory" signature="(Flowthru.Core.Data.EnumerableItemFactory,System.String,System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="99" hits="0" branch="False" />
-                <line number="100" hits="0" branch="False" />
-                <line number="101" hits="0" branch="False" />
-                <line number="102" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="63" hits="0" branch="True" condition-coverage="0% (0/6)">
-              <conditions>
-                <condition number="3" type="jump" coverage="0%" />
-                <condition number="7" type="jump" coverage="0%" />
-                <condition number="20" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="31" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="65" hits="0" branch="False" />
-            <line number="66" hits="0" branch="False" />
-            <line number="67" hits="0" branch="False" />
-            <line number="68" hits="0" branch="False" />
-            <line number="69" hits="0" branch="False" />
-            <line number="70" hits="0" branch="False" />
-            <line number="71" hits="0" branch="False" />
-            <line number="72" hits="0" branch="False" />
-            <line number="74" hits="0" branch="False" />
-            <line number="99" hits="0" branch="False" />
-            <line number="100" hits="0" branch="False" />
-            <line number="101" hits="0" branch="False" />
-            <line number="102" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/DirectoryCsvStorageAdapter.cs" line-rate="1" branch-rate="0.5" complexity="3">
-          <methods>
-            <method name="get_Traits" signature="()" line-rate="1" branch-rate="1" complexity="1">
-              <lines>
-                <line number="60" hits="3" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(System.String,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="1" branch-rate="0.5" complexity="2">
-              <lines>
-                <line number="47" hits="25" branch="False" />
-                <line number="49" hits="23" branch="True" condition-coverage="50% (1/2)">
-                  <conditions>
-                    <condition number="29" type="jump" coverage="50%" />
-                  </conditions>
-                </line>
-                <line number="50" hits="23" branch="False" />
-                <line number="51" hits="23" branch="False" />
-                <line number="52" hits="23" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="60" hits="3" branch="False" />
-            <line number="47" hits="25" branch="False" />
-            <line number="49" hits="23" branch="True" condition-coverage="50% (1/2)">
-              <conditions>
-                <condition number="29" type="jump" coverage="50%" />
-              </conditions>
-            </line>
-            <line number="50" hits="23" branch="False" />
-            <line number="51" hits="23" branch="False" />
-            <line number="52" hits="23" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.CsvStorageEntryFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Strategies/CsvStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="10">
-          <methods>
-            <method name="CreateEnumerable" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="58" hits="0" branch="False" />
-                <line number="59" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="CreateSingle" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="66" hits="0" branch="False" />
-                <line number="67" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="ResolvePath" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions,System.String)" line-rate="0" branch-rate="0" complexity="4">
-              <lines>
-                <line number="72" hits="0" branch="True" condition-coverage="0% (0/4)">
-                  <conditions>
-                    <condition number="1" type="jump" coverage="0%" />
-                    <condition number="9" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="75" hits="0" branch="False" />
-                <line number="79" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(Microsoft.Extensions.Configuration.IConfiguration)" line-rate="0" branch-rate="0" complexity="2">
-              <lines>
-                <line number="42" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="19" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="43" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
-              <lines>
-                <line number="51" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="9" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="52" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="58" hits="0" branch="False" />
-            <line number="59" hits="0" branch="False" />
-            <line number="66" hits="0" branch="False" />
-            <line number="67" hits="0" branch="False" />
-            <line number="72" hits="0" branch="True" condition-coverage="0% (0/4)">
-              <conditions>
-                <condition number="1" type="jump" coverage="0%" />
-                <condition number="9" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="75" hits="0" branch="False" />
-            <line number="79" hits="0" branch="False" />
-            <line number="42" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="19" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="43" hits="0" branch="False" />
-            <line number="51" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="9" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="52" hits="0" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializer`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0.8125" branch-rate="0.5" complexity="11">
-          <methods>
-            <method name="get_Configuration" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="158" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="get_NullValues" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="163" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="get_Traits" signature="()" line-rate="1" branch-rate="1" complexity="1">
-              <lines>
-                <line number="166" hits="10" branch="False" />
-              </lines>
-            </method>
-            <method name="GetPropertyMappingConfiguration" signature="()" line-rate="1" branch-rate="1" complexity="1">
-              <lines>
-                <line number="261" hits="2" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
-              <lines>
-                <line number="114" hits="50" branch="False" />
-                <line number="115" hits="50" branch="False" />
-                <line number="116" hits="50" branch="False" />
-                <line number="117" hits="100" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="1" branch-rate="1" complexity="1">
-              <lines>
-                <line number="129" hits="2" branch="False" />
-                <line number="130" hits="2" branch="False" />
-                <line number="131" hits="2" branch="False" />
-                <line number="132" hits="4" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(CsvHelper.Configuration.CsvConfiguration)" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="140" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(CsvHelper.Configuration.CsvConfiguration,System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="1" branch-rate="0.5" complexity="4">
-              <lines>
-                <line number="151" hits="52" branch="True" condition-coverage="50% (1/2)">
-                  <conditions>
-                    <condition number="9" type="jump" coverage="50%" />
-                  </conditions>
-                </line>
-                <line number="152" hits="52" branch="True" condition-coverage="50% (1/2)">
-                  <conditions>
-                    <condition number="31" type="jump" coverage="50%" />
-                  </conditions>
-                </line>
-                <line number="153" hits="52" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="158" hits="0" branch="False" />
-            <line number="163" hits="0" branch="False" />
-            <line number="166" hits="10" branch="False" />
-            <line number="261" hits="2" branch="False" />
-            <line number="114" hits="50" branch="False" />
-            <line number="115" hits="50" branch="False" />
-            <line number="116" hits="50" branch="False" />
-            <line number="117" hits="100" branch="False" />
-            <line number="129" hits="2" branch="False" />
-            <line number="130" hits="2" branch="False" />
-            <line number="131" hits="2" branch="False" />
-            <line number="132" hits="4" branch="False" />
-            <line number="140" hits="0" branch="False" />
-            <line number="151" hits="52" branch="True" condition-coverage="50% (1/2)">
-              <conditions>
-                <condition number="9" type="jump" coverage="50%" />
-              </conditions>
-            </line>
-            <line number="152" hits="52" branch="True" condition-coverage="50% (1/2)">
-              <conditions>
-                <condition number="31" type="jump" coverage="50%" />
-              </conditions>
-            </line>
-            <line number="153" hits="52" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.Storage.Format.CsvFormatSerializerDefaults" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="1" branch-rate="1" complexity="1">
-          <methods>
-            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
-              <lines>
-                <line number="271" hits="1" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="271" hits="1" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelClassMap`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0.7272" branch-rate="0.9" complexity="11">
-          <methods>
-            <method name="IsNullable" signature="(System.Reflection.PropertyInfo,System.Reflection.NullabilityInfoContext)" line-rate="1" branch-rate="1" complexity="4">
-              <lines>
-                <line number="328" hits="137" branch="True" condition-coverage="100% (2/2)">
-                  <conditions>
-                    <condition number="11" type="jump" coverage="100%" />
-                  </conditions>
-                </line>
-                <line number="330" hits="8" branch="False" />
-                <line number="333" hits="129" branch="True" condition-coverage="100% (2/2)">
-                  <conditions>
-                    <condition number="26" type="jump" coverage="100%" />
-                  </conditions>
-                </line>
-                <line number="335" hits="78" branch="False" />
-                <line number="338" hits="51" branch="False" />
-                <line number="339" hits="51" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="284" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="(System.Collections.Generic.IReadOnlyList`1&lt;System.String&gt;)" line-rate="0.6666" branch-rate="0.8332999999999999" complexity="6">
-              <lines>
-                <line number="291" hits="43" branch="False" />
-                <line number="293" hits="43" branch="False" />
-                <line number="294" hits="43" branch="False" />
-                <line number="296" hits="360" branch="True" condition-coverage="100% (2/2)">
-                  <conditions>
-                    <condition number="186" type="jump" coverage="100%" />
-                  </conditions>
-                </line>
-                <line number="298" hits="137" branch="False" />
-                <line number="299" hits="137" branch="False" />
-                <line number="302" hits="137" branch="True" condition-coverage="50% (1/2)">
-                  <conditions>
-                    <condition number="96" type="jump" coverage="50%" />
-                  </conditions>
-                </line>
-                <line number="304" hits="0" branch="False" />
-                <line number="305" hits="0" branch="False" />
-                <line number="306" hits="0" branch="False" />
-                <line number="307" hits="0" branch="False" />
-                <line number="308" hits="0" branch="False" />
-                <line number="311" hits="137" branch="True" condition-coverage="100% (2/2)">
-                  <conditions>
-                    <condition number="157" type="jump" coverage="100%" />
-                  </conditions>
-                </line>
-                <line number="316" hits="36" branch="False" />
-                <line number="319" hits="43" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="328" hits="137" branch="True" condition-coverage="100% (2/2)">
-              <conditions>
-                <condition number="11" type="jump" coverage="100%" />
-              </conditions>
-            </line>
-            <line number="330" hits="8" branch="False" />
-            <line number="333" hits="129" branch="True" condition-coverage="100% (2/2)">
-              <conditions>
-                <condition number="26" type="jump" coverage="100%" />
-              </conditions>
-            </line>
-            <line number="335" hits="78" branch="False" />
-            <line number="338" hits="51" branch="False" />
-            <line number="339" hits="51" branch="False" />
-            <line number="284" hits="0" branch="False" />
-            <line number="291" hits="43" branch="False" />
-            <line number="293" hits="43" branch="False" />
-            <line number="294" hits="43" branch="False" />
-            <line number="296" hits="360" branch="True" condition-coverage="100% (2/2)">
-              <conditions>
-                <condition number="186" type="jump" coverage="100%" />
-              </conditions>
-            </line>
-            <line number="298" hits="137" branch="False" />
-            <line number="299" hits="137" branch="False" />
-            <line number="302" hits="137" branch="True" condition-coverage="50% (1/2)">
-              <conditions>
-                <condition number="96" type="jump" coverage="50%" />
-              </conditions>
-            </line>
-            <line number="304" hits="0" branch="False" />
-            <line number="305" hits="0" branch="False" />
-            <line number="306" hits="0" branch="False" />
-            <line number="307" hits="0" branch="False" />
-            <line number="308" hits="0" branch="False" />
-            <line number="311" hits="137" branch="True" condition-coverage="100% (2/2)">
-              <conditions>
-                <condition number="157" type="jump" coverage="100%" />
-              </conditions>
-            </line>
-            <line number="316" hits="36" branch="False" />
-            <line number="319" hits="43" branch="False" />
-          </lines>
-        </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumCsvConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/6ea0f606741b2a01fa93a270c937a482c7f94bd2/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="5">
-          <methods>
-            <method name="ConvertFromString" signature="(System.String,CsvHelper.IReaderRow,CsvHelper.Configuration.MemberMapData)" line-rate="0" branch-rate="0" complexity="2">
-              <lines>
-                <line number="364" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="6" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="367" hits="0" branch="False" />
-                <line number="372" hits="0" branch="False" />
-                <line number="374" hits="0" branch="False" />
-                <line number="376" hits="0" branch="False" />
-                <line number="377" hits="0" branch="False" />
-                <line number="378" hits="0" branch="False" />
-                <line number="379" hits="0" branch="False" />
-                <line number="380" hits="0" branch="False" />
-                <line number="381" hits="0" branch="False" />
-                <line number="382" hits="0" branch="False" />
-                <line number="384" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name="ConvertToString" signature="(System.Object,CsvHelper.IWriterRow,CsvHelper.Configuration.MemberMapData)" line-rate="0" branch-rate="0" complexity="2">
-              <lines>
-                <line number="392" hits="0" branch="True" condition-coverage="0% (0/2)">
-                  <conditions>
-                    <condition number="1" type="jump" coverage="0%" />
-                  </conditions>
-                </line>
-                <line number="394" hits="0" branch="False" />
-                <line number="399" hits="0" branch="False" />
-                <line number="401" hits="0" branch="False" />
-                <line number="403" hits="0" branch="False" />
-                <line number="404" hits="0" branch="False" />
-                <line number="405" hits="0" branch="False" />
-                <line number="406" hits="0" branch="False" />
-                <line number="407" hits="0" branch="False" />
-                <line number="408" hits="0" branch="False" />
-                <line number="409" hits="0" branch="False" />
-                <line number="411" hits="0" branch="False" />
-              </lines>
-            </method>
-            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
-              <lines>
-                <line number="353" hits="0" branch="False" />
-                <line number="355" hits="0" branch="False" />
-                <line number="356" hits="0" branch="False" />
-              </lines>
-            </method>
-          </methods>
-          <lines>
-            <line number="364" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="6" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="367" hits="0" branch="False" />
-            <line number="372" hits="0" branch="False" />
-            <line number="374" hits="0" branch="False" />
-            <line number="376" hits="0" branch="False" />
-            <line number="377" hits="0" branch="False" />
-            <line number="378" hits="0" branch="False" />
-            <line number="379" hits="0" branch="False" />
-            <line number="380" hits="0" branch="False" />
-            <line number="381" hits="0" branch="False" />
-            <line number="382" hits="0" branch="False" />
-            <line number="384" hits="0" branch="False" />
-            <line number="392" hits="0" branch="True" condition-coverage="0% (0/2)">
-              <conditions>
-                <condition number="1" type="jump" coverage="0%" />
-              </conditions>
-            </line>
-            <line number="394" hits="0" branch="False" />
-            <line number="399" hits="0" branch="False" />
-            <line number="401" hits="0" branch="False" />
-            <line number="403" hits="0" branch="False" />
-            <line number="404" hits="0" branch="False" />
-            <line number="405" hits="0" branch="False" />
-            <line number="406" hits="0" branch="False" />
-            <line number="407" hits="0" branch="False" />
-            <line number="408" hits="0" branch="False" />
-            <line number="409" hits="0" branch="False" />
-            <line number="411" hits="0" branch="False" />
-            <line number="353" hits="0" branch="False" />
-            <line number="355" hits="0" branch="False" />
-            <line number="356" hits="0" branch="False" />
+            <line number="77" hits="130" branch="False" />
           </lines>
         </class>
       </classes>
