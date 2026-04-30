@@ -21,7 +21,7 @@ namespace Flowthru.FUnit.SourceGenerators;
 ///   <c>[StepTest]</c> methods without any framework attributes in user code.</item>
 /// </list>
 /// <para>
-/// Diagnostics (FU001, FU002) are emitted by <see cref="FunitDiagnosticAnalyzer"/>,
+/// Diagnostics (FU001, FU002) are emitted by <see cref="FUnitDiagnosticAnalyzer"/>,
 /// not by this generator — generators should only generate code.
 /// </para>
 /// </summary>

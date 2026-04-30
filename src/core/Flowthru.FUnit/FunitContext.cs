@@ -21,7 +21,7 @@ namespace Flowthru.FUnit;
 /// <para>
 /// <strong>Usage:</strong>
 /// <code>
-/// public class EvaluateModelStepTests : FunitContext
+/// public class EvaluateModelStepTests : FUnitContext
 /// {
 ///     [StepTest(typeof(EvaluateModelStep))]
 ///     public void PerfectPredictions_ShouldReturn100PercentAccuracy()
@@ -42,7 +42,7 @@ namespace Flowthru.FUnit;
 /// The service collection is frozen on first access.
 /// </para>
 /// </remarks>
-public class FunitContext : IDisposable
+public class FUnitContext : IDisposable
 {
   private bool _disposed;
   private IServiceProvider? _serviceProvider;
@@ -54,7 +54,7 @@ public class FunitContext : IDisposable
   /// derived class's assembly. Per-test or per-fixture <see cref="Services"/>
   /// registrations made after the constructor runs override stub-container defaults.
   /// </summary>
-  public FunitContext()
+  public FUnitContext()
   {
     RegisterStubContainers();
   }

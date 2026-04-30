@@ -39,8 +39,10 @@ public partial class Catalog
     );
 
   /// <summary>
-  /// Per-library Plotly icicle PNGs, one file per src project. Keys are full file paths
-  /// under <c>_04_Reporting/Datasets/icicles/</c>; values are PNG bytes.
+  /// Per-library Plotly icicle SVGs, one file per src project. Keys are full file paths
+  /// under <c>_04_Reporting/Datasets/icicles/</c>; values are SVG bytes. SVG is used so
+  /// reviewers can zoom into method-level slices that would be unreadable at any
+  /// reasonable raster resolution.
   /// </summary>
   public IItem<Directory<byte[]>> CoverageIcicles =>
     CreateItem(
@@ -48,7 +50,7 @@ public partial class Catalog
         ItemFactory.Enumerable.BinaryDirectory(
           label: "CoverageIcicles",
           directoryPath: $"{_basePath}/_04_Reporting/Datasets/icicles",
-          filePattern: "*.png"
+          filePattern: "*.svg"
         )
     );
 
@@ -66,7 +68,7 @@ public partial class Catalog
     );
 
   /// <summary>
-  /// Per-library Plotly icicle PNGs derived from example-only coverage. Sister output to
+  /// Per-library Plotly icicle SVGs derived from example-only coverage. Sister output to
   /// <see cref="CoverageIcicles"/>; lands in <c>_04_Reporting/Datasets/icicles_examples/</c>
   /// so the two variants don't collide.
   /// </summary>
@@ -76,7 +78,7 @@ public partial class Catalog
         ItemFactory.Enumerable.BinaryDirectory(
           label: "ExampleCoverageIcicles",
           directoryPath: $"{_basePath}/_04_Reporting/Datasets/icicles_examples",
-          filePattern: "*.png"
+          filePattern: "*.svg"
         )
     );
 

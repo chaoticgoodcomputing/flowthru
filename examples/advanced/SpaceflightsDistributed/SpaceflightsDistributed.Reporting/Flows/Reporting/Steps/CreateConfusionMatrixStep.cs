@@ -116,7 +116,7 @@ public static class CreateConfusionMatrixStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="CreateConfusionMatrixStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     [StepTest(typeof(CreateConfusionMatrixStep))]
     public void DefaultOptions_ProducesChart()

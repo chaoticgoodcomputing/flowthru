@@ -68,7 +68,7 @@ public static class CreateModelInputTableStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="CreateModelInputTableStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static PreprocessedShuttleSchema MakeShuttle(string id, string companyId = "c1") =>
       new()

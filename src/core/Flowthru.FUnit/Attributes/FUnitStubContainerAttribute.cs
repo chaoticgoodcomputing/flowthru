@@ -4,7 +4,7 @@ namespace Flowthru.FUnit;
 
 /// <summary>
 /// Marks a static class as a stub-service container for FUnit-driven tests.
-/// At test-fixture instantiation time, <see cref="FunitContext"/> discovers all
+/// At test-fixture instantiation time, <see cref="FUnitContext"/> discovers all
 /// <see cref="FUnitStubContainerAttribute"/>-attributed types in the test assembly
 /// via reflection and invokes their <c>Configure(IServiceCollection)</c> method to
 /// populate the per-test DI container.
@@ -14,7 +14,7 @@ namespace Flowthru.FUnit;
 /// The attribute is convention-based: the marked class must be <c>static</c> and
 /// expose a <c>public static void Configure(IServiceCollection services)</c> method.
 /// Containers that don't satisfy the convention are silently ignored at runtime —
-/// the <c>FunitDiagnosticAnalyzer</c> emits <c>FU100</c> when a <c>[StepTest]</c>'s
+/// the <c>FUnitDiagnosticAnalyzer</c> emits <c>FU100</c> when a <c>[StepTest]</c>'s
 /// step has service dependencies that aren't registered in any container.
 /// </para>
 /// <para>
@@ -38,7 +38,7 @@ namespace Flowthru.FUnit;
 ///     }
 /// }
 ///
-/// public class ApplyDeltasStepTests : FunitContext
+/// public class ApplyDeltasStepTests : FUnitContext
 /// {
 ///     [StepTest(typeof(ApplyDeltasStep))]
 ///     public void DeltasAreApplied()

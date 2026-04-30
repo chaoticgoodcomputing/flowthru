@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.FUnit.CodeFixes.Tests;
 
 /// <summary>
-/// Tests for FU002: wraps an unguarded <c>FunitContext</c> subclass with
+/// Tests for FU002: wraps an unguarded <c>FUnitContext</c> subclass with
 /// <c>#if FUNIT_ENABLED</c> / <c>#endif</c>.
 /// </summary>
 [TestFixture]
@@ -17,7 +17,7 @@ public class Fu002Tests
   private const string Stubs = """
     namespace Flowthru.FUnit
     {
-        public abstract class FunitContext { }
+        public abstract class FUnitContext { }
     }
     """;
 
@@ -32,7 +32,7 @@ public class Fu002Tests
         {
             using Flowthru.FUnit;
 
-            public class {|FU002:Tests|} : FunitContext { }
+            public class {|FU002:Tests|} : FUnitContext { }
         }
         """;
 
@@ -45,14 +45,14 @@ public class Fu002Tests
             using Flowthru.FUnit;
         #if FUNIT_ENABLED
 
-            public class Tests : FunitContext { }
+            public class Tests : FUnitContext { }
         #endif
         }
         """;
 
     await new CSharpCodeFixTest<
-      FunitDiagnosticAnalyzer,
-      Fu002WrapWithFunitEnabledFix,
+      FUnitDiagnosticAnalyzer,
+      Fu002WrapWithFUnitEnabledFix,
       NUnit4Verifier
     >
     {
@@ -73,12 +73,12 @@ public class Fu002Tests
             using Flowthru.FUnit;
 
         #if FUNIT_ENABLED
-            public class Tests : FunitContext { }
+            public class Tests : FUnitContext { }
         #endif
         }
         """;
 
-    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     }.RunAsync();

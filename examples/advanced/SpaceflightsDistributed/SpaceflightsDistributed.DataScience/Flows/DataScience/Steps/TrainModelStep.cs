@@ -60,7 +60,7 @@ public static class TrainModelStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="TrainModelStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static FeatureVector MakeFeatures(int engines = 2, int capacity = 100) =>
       new()

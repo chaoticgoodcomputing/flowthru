@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.FUnit.CodeFixes.Tests;
 
 /// <summary>
-/// Tests for FU001: scaffolds a stub <c>Tests : FunitContext</c> class inside a
+/// Tests for FU001: scaffolds a stub <c>Tests : FUnitContext</c> class inside a
 /// <c>#if FUNIT_ENABLED</c> guard when a step has no tests.
 /// </summary>
 [TestFixture]
@@ -24,7 +24,7 @@ public class Fu001Tests
     }
     namespace Flowthru.FUnit
     {
-        public abstract class FunitContext { }
+        public abstract class FUnitContext { }
         [System.AttributeUsage(System.AttributeTargets.Method)]
         public class StepTestAttribute : System.Attribute
         {
@@ -68,7 +68,7 @@ public class Fu001Tests
 
         #if FUNIT_ENABLED
               /// <summary>FUnit tests for <see cref="MyStep"/>.</summary>
-              public class Tests : FunitContext
+              public class Tests : FUnitContext
               {
                   [StepTest(typeof(MyStep))]
                   public void TODO_WriteYourTestHere()
@@ -85,7 +85,7 @@ public class Fu001Tests
     // after the fix the Tests class is inside #if FUNIT_ENABLED and becomes visible,
     // meaning FU001 no longer fires and the verifier can confirm convergence.
     var test = new CSharpCodeFixTest<
-      FunitDiagnosticAnalyzer,
+      FUnitDiagnosticAnalyzer,
       Fu001ScaffoldTestsClassFix,
       NUnit4Verifier
     >
@@ -124,7 +124,7 @@ public class Fu001Tests
             public class MyStep
             {
         #if FUNIT_ENABLED
-                public class Tests : FunitContext
+                public class Tests : FUnitContext
                 {
                     [StepTest(typeof(MyStep))]
                     public void Test1() { }
@@ -134,7 +134,7 @@ public class Fu001Tests
         }
         """;
 
-    var analyzerTest = new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    var analyzerTest = new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     };

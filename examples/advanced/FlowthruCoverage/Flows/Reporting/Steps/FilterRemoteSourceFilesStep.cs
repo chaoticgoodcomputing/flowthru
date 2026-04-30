@@ -40,7 +40,7 @@ public static class FilterRemoteSourceFilesStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="FilterRemoteSourceFilesStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static MethodHitSummaryRow Row(string sourceFile) =>
       new()

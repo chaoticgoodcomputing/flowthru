@@ -51,7 +51,7 @@ public static class FlattenCoberturaStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="FlattenCoberturaStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static KeyValuePair<string, CoberturaReport> Entry(string fileName, params CoberturaPackage[] packages) =>
       new(fileName, new CoberturaReport { Packages = packages.ToList() });

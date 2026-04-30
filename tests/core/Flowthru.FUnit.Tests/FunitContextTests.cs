@@ -6,7 +6,7 @@ namespace Flowthru.FUnit.Tests;
 [TestFixture]
 [Category("FUnit")]
 #pragma warning disable FU002 // FU002 is suppressed here, as these are the actual unit tests for this error.
-public class FunitContextTests : FunitContext
+public class FUnitContextTests : FUnitContext
 {
   // ===========================================================================
   // Invoke (sync)
@@ -76,7 +76,7 @@ public class FunitContextTests : FunitContext
   [Test]
   public void Services_AllowsRegistrationBeforeFirstAccess()
   {
-    using var ctx = new FunitContextAccessor();
+    using var ctx = new FUnitContextAccessor();
     ctx.Services.AddSingleton<string>("hello");
 
     var value = ctx.Get().GetRequiredService<string>();
@@ -86,8 +86,8 @@ public class FunitContextTests : FunitContext
 }
 
 // Helper to expose the protected ServiceProvider for the DI test.
-file sealed class FunitContextAccessor : FunitContext
+file sealed class FUnitContextAccessor : FUnitContext
 {
   public IServiceProvider Get() => ServiceProvider;
 }
-#pragma warning restore FU002 // FunitContext subclass not guarded by #if FUNIT_ENABLED
+#pragma warning restore FU002 // FUnitContext subclass not guarded by #if FUNIT_ENABLED

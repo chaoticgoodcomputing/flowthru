@@ -162,4 +162,48 @@ public class StepMetadataIntegrationTests
     });
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Flow.Merge preserves ServiceDependencies on prefixed steps
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// <summary>
+  /// Regression test: when multiple flows are merged into a unified DAG, each prefixed
+  /// step must carry its source step's <see cref="FlowStep.ServiceDependencies"/>
+  /// forward. Without this, DagBuilder reads empty deps and the Mermaid renderer
+  /// emits a graph missing the service-dependency edges that should appear in the
+  /// metadata for service-consuming steps.
+  /// </summary>
+  [Test]
+  public void Flow_Merge_PreservesServiceDependenciesOnPrefixedSteps()
+  {
+    var services = new ServiceCollection();
+    services.AddSingleton<IIntegrationFakeService, IntegrationFakeService>();
+    var sp = services.BuildServiceProvider();
+
+    var catalog = new SimpleThreeStepCatalog();
+    var fakeService = sp.GetRequiredService<IIntegrationFakeService>();
+
+    var flow = FlowBuilder.CreateFlow(b =>
+    {
+      b.AddStep(
+        label: "ServiceConsumingStep",
+        transform: ServiceConsumingStep.Create(fakeService),
+        input: catalog.Input,
+        output: catalog.Output
+      );
+    });
+
+    var merged = Flow.Merge(new Dictionary<string, Flow> { ["A"] = flow });
+
+    var mergedStep = merged.Steps.Single();
+    Assert.Multiple(() =>
+    {
+      Assert.That(mergedStep.Label, Is.EqualTo("A.ServiceConsumingStep"));
+      Assert.That(
+        mergedStep.ServiceDependencies,
+        Is.EquivalentTo(new[] { typeof(IIntegrationFakeService) }),
+        "Flow.Merge must forward ServiceDependencies; DagBuilder/Mermaid metadata depends on this"
+      );
+    });
+  }
 }

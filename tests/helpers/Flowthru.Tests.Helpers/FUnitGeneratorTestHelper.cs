@@ -40,7 +40,7 @@ public static class FUnitGeneratorTestHelper
       MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
       MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")),
       MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(FunitContext).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(FUnitContext).Assembly.Location),
     };
 
     references.AddRange(extraReferences);
@@ -74,7 +74,7 @@ public static class FUnitGeneratorTestHelper
     var generatedSource = allGeneratedSources.FirstOrDefault(s => s.Contains("StepTestRegistry"));
 
     var analyzerDiagnostics = outputCompilation
-      .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new FunitDiagnosticAnalyzer()))
+      .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new FUnitDiagnosticAnalyzer()))
       .GetAnalyzerDiagnosticsAsync()
       .GetAwaiter()
       .GetResult();

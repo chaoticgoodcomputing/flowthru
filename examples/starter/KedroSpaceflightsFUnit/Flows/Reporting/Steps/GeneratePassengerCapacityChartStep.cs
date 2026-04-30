@@ -79,7 +79,7 @@ public static class GeneratePassengerCapacityChartStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="GeneratePassengerCapacityChartStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static PreprocessedShuttleSchema Shuttle(string type, int capacity) =>
       new()

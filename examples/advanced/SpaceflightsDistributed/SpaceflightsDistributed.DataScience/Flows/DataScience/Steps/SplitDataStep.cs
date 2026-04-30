@@ -65,7 +65,7 @@ public static class SplitDataStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="SplitDataStep"/>.</summary>
-  public class Tests : Flowthru.FUnit.FunitContext
+  public class Tests : Flowthru.FUnit.FUnitContext
   {
     private static ModelInputTableSchema MakeRow(string id, decimal price = 1000m) =>
       new()

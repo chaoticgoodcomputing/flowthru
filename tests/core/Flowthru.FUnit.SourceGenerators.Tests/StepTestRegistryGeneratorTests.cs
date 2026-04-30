@@ -130,7 +130,7 @@ public class StepTestRegistryGeneratorTests
       [FlowthruStep]
       public static class RemoteStep { }
 
-      public class RemoteTests : FunitContext
+      public class RemoteTests : FUnitContext
       {
           [StepTest(typeof(RemoteStep))]
           public void RemoteTest1() { }
@@ -144,7 +144,7 @@ public class StepTestRegistryGeneratorTests
       MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
       MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")),
       MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(FunitContext).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(FUnitContext).Assembly.Location),
     };
 
     var libCompilation = CSharpCompilation.Create(
@@ -195,7 +195,7 @@ public class StepTestRegistryGeneratorTests
       [FlowthruStep]
       public static class RemoteStep2 { }
 
-      public class RemoteTests2 : FunitContext
+      public class RemoteTests2 : FUnitContext
       {
           [StepTest(typeof(RemoteStep2))]
           public void RemoteTest2() { }
@@ -209,7 +209,7 @@ public class StepTestRegistryGeneratorTests
       MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
       MetadataReference.CreateFromFile(Path.Combine(runtimePath, "System.Runtime.dll")),
       MetadataReference.CreateFromFile(typeof(CatalogAbstract).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(FunitContext).Assembly.Location),
+      MetadataReference.CreateFromFile(typeof(FUnitContext).Assembly.Location),
     };
 
     var libCompilation = CSharpCompilation.Create(

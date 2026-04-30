@@ -148,7 +148,7 @@ public static class CreateConfusionMatrixStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="CreateConfusionMatrixStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static ModelPredictions Prediction(double actual, double predicted) =>
       new() { Actual = actual, Predicted = predicted };

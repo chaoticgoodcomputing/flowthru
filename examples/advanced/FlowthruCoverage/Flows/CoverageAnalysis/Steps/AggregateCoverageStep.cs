@@ -43,7 +43,7 @@ public static class AggregateCoverageStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="AggregateCoverageStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static LineCoverageRow Row(string testProject, string srcPackage, int hits) =>
       new()

@@ -29,7 +29,7 @@ public sealed class Fu100AddStubRegistrationFix : CodeFixProvider
 
   /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
-    ImmutableArray.Create(FunitDiagnosticAnalyzer.Fu100.Id);
+    ImmutableArray.Create(FUnitDiagnosticAnalyzer.Fu100.Id);
 
   /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;

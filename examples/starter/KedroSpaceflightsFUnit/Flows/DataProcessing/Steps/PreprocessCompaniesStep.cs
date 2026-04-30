@@ -87,7 +87,7 @@ public static class PreprocessCompaniesStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="PreprocessCompaniesStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static CompanySchema ValidRaw =>
       new()

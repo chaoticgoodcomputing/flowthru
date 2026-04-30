@@ -9,7 +9,9 @@ using Flowthru.FUnit;
 namespace FlowthruCoverage.Flows.Reporting.Steps;
 
 /// <summary>
-/// Builds the flat project → file → method icicle hierarchy for src libraries.
+/// Builds the icicle hierarchy for src libraries: Project → Directory(/sub-dirs) → File →
+/// Method, with intermediate Directory levels mirroring the on-disk folder structure
+/// (e.g. <c>Flowthru.Core / Data / Capabilities / Bar.cs / Bar.M()</c>).
 ///
 /// SourceFile values are canonicalised to the path suffix starting at the package segment
 /// (e.g. <c>Abstractions/Foo.cs</c>) so that local-disk paths and SourceLink URLs pointing at
@@ -21,16 +23,21 @@ namespace FlowthruCoverage.Flows.Reporting.Steps;
 ///   • <c>TotalLines</c> = distinct LineNumbers contributed across test projects
 ///   • <c>CoveredLines</c> = distinct LineNumbers where any test project hit > 0
 ///
-/// File nodes sum the methods within (SrcPackage, RelativePath); project nodes sum the files
-/// within SrcPackage. Coverage percent is recomputed at each level from the rolled-up totals.
+/// Aggregation rolls up bottom-up: methods → files → directories (innermost to outermost) →
+/// project. Coverage percent is recomputed at each level from the rolled-up totals.
+///
+/// Identifier conventions:
+///   • Project — <c>{SrcPackage}</c>
+///   • Directory — <c>{SrcPackage}::{path}/</c> (trailing slash distinguishes dirs from files)
+///   • File — <c>{SrcPackage}::{relativeFilePath}</c>
+///   • Method — <c>{fileId}::{className}.{methodName}{signature}</c>
 ///
 /// Filtering: only manifest <c>Library</c> packages are kept — those are the projects under
 /// <c>src/</c>. Rows with an empty SourceFile are dropped (no file to attribute them to);
 /// rows whose source path can't be canonicalised (no <c>/{srcPackage}/</c> segment) are also
 /// dropped, since their file identity would be ambiguous.
 ///
-/// Output rows are ordered Project → File → Method with stable alphabetical order within each
-/// level so the icicle layout is deterministic.
+/// Output rows are ordered Project → Directory → File → Method, alphabetical within each level.
 /// </summary>
 [FlowthruStep]
 public static class BuildIcicleCoverageStep
@@ -92,6 +99,9 @@ public static class BuildIcicleCoverageStep
         .Where(n => n.TotalLines > 0)
         .ToList();
 
+      // File nodes parent on the deepest containing directory (or the project for files at
+      // the package root). Label is just the basename — the directory chain becomes the
+      // explicit hierarchy below.
       var fileNodes = methodNodes
         .GroupBy(m => m.ParentId)
         .Select(g =>
@@ -99,11 +109,12 @@ public static class BuildIcicleCoverageStep
           var totalLines = g.Sum(m => m.TotalLines);
           var coveredLines = g.Sum(m => m.CoveredLines);
           var (srcPackage, relative) = SplitFileId(g.Key);
+          var (parentId, fileLabel) = ResolveFileParent(srcPackage, relative);
           return new IcicleCoverageNode
           {
             Id = g.Key,
-            ParentId = srcPackage,
-            Label = relative,
+            ParentId = parentId,
+            Label = fileLabel,
             Level = "File",
             CoveredLines = coveredLines,
             TotalLines = totalLines,
@@ -112,30 +123,160 @@ public static class BuildIcicleCoverageStep
         })
         .ToList();
 
-      var projectNodes = fileNodes
-        .GroupBy(f => f.ParentId)
-        .Select(g =>
+      // Walk every file up its directory chain, recording (dirId → parentDirId, label) once.
+      var directoryParents = new Dictionary<string, string>(StringComparer.Ordinal);
+      var directoryLabels = new Dictionary<string, string>(StringComparer.Ordinal);
+      foreach (var file in fileNodes)
+        RecordDirectoryChain(file.ParentId, directoryParents, directoryLabels);
+
+      // Aggregate Directory totals bottom-up. Children of a directory are immediate files
+      // (whose ParentId equals the dir id) plus immediate sub-directories (whose entry in
+      // directoryParents maps to this dir id). Sorting by depth descending ensures every
+      // sub-directory's totals are already computed when we visit its parent.
+      var filesByParent = fileNodes
+        .GroupBy(f => f.ParentId, StringComparer.Ordinal)
+        .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+
+      var subdirsByParent = directoryParents
+        .GroupBy(kv => kv.Value, StringComparer.Ordinal)
+        .ToDictionary(g => g.Key, g => g.Select(kv => kv.Key).ToList(), StringComparer.Ordinal);
+
+      var dirAggregates = new Dictionary<string, (int Covered, int Total)>(StringComparer.Ordinal);
+      foreach (var dirId in directoryParents.Keys.OrderByDescending(id => id.Count(c => c == '/')))
+      {
+        var covered = 0;
+        var total = 0;
+        if (filesByParent.TryGetValue(dirId, out var fs))
         {
-          var totalLines = g.Sum(f => f.TotalLines);
-          var coveredLines = g.Sum(f => f.CoveredLines);
+          covered += fs.Sum(f => f.CoveredLines);
+          total += fs.Sum(f => f.TotalLines);
+        }
+        if (subdirsByParent.TryGetValue(dirId, out var ss))
+        {
+          foreach (var subId in ss)
+          {
+            var (sc, st) = dirAggregates[subId];
+            covered += sc;
+            total += st;
+          }
+        }
+        dirAggregates[dirId] = (covered, total);
+      }
+
+      var directoryNodes = directoryParents
+        .Select(kv =>
+        {
+          var (covered, total) = dirAggregates[kv.Key];
           return new IcicleCoverageNode
           {
-            Id = g.Key,
+            Id = kv.Key,
+            ParentId = kv.Value,
+            Label = directoryLabels[kv.Key],
+            Level = "Directory",
+            CoveredLines = covered,
+            TotalLines = total,
+            CoveragePercent = Percent(covered, total),
+          };
+        })
+        .ToList();
+
+      // Project nodes aggregate the union of their immediate children (top-level files +
+      // top-level directories). Project IDs are exactly those ParentId values without a "::".
+      var projectIds = fileNodes.Select(f => f.ParentId)
+        .Concat(directoryNodes.Select(d => d.ParentId))
+        .Where(p => !p.Contains("::", StringComparison.Ordinal))
+        .ToHashSet(StringComparer.Ordinal);
+
+      var projectNodes = projectIds
+        .Select(projectId =>
+        {
+          var topFiles = filesByParent.TryGetValue(projectId, out var fs) ? fs : new List<IcicleCoverageNode>();
+          var topDirs = subdirsByParent.TryGetValue(projectId, out var ds) ? ds : new List<string>();
+
+          var covered = topFiles.Sum(f => f.CoveredLines)
+            + topDirs.Sum(d => dirAggregates[d].Covered);
+          var total = topFiles.Sum(f => f.TotalLines)
+            + topDirs.Sum(d => dirAggregates[d].Total);
+
+          return new IcicleCoverageNode
+          {
+            Id = projectId,
             ParentId = string.Empty,
-            Label = g.Key,
+            Label = projectId,
             Level = "Project",
-            CoveredLines = coveredLines,
-            TotalLines = totalLines,
-            CoveragePercent = Percent(coveredLines, totalLines),
+            CoveredLines = covered,
+            TotalLines = total,
+            CoveragePercent = Percent(covered, total),
           };
         })
         .ToList();
 
       return projectNodes
         .OrderBy(p => p.Id, StringComparer.Ordinal)
+        .Concat(directoryNodes.OrderBy(d => d.Id, StringComparer.Ordinal))
         .Concat(fileNodes.OrderBy(f => f.Id, StringComparer.Ordinal))
         .Concat(methodNodes.OrderBy(m => m.Id, StringComparer.Ordinal));
     };
+  }
+
+  /// <summary>
+  /// Splits a relative file path into (parent directory ID, file basename). Files at the
+  /// package root land directly under the project (ParentId = SrcPackage); files in any
+  /// subdirectory get the deepest directory's id (with trailing slash) as their parent.
+  /// </summary>
+  private static (string ParentId, string Label) ResolveFileParent(string srcPackage, string relativePath)
+  {
+    var lastSlash = relativePath.LastIndexOf('/');
+    if (lastSlash < 0)
+      return (srcPackage, relativePath);
+
+    var dirPath = relativePath[..lastSlash];
+    var fileName = relativePath[(lastSlash + 1)..];
+    return ($"{srcPackage}::{dirPath}/", fileName);
+  }
+
+  /// <summary>
+  /// Walks from a starting node ID up its directory chain, recording each unseen directory's
+  /// parent ID and display label. The walk stops at the project boundary (the first ID
+  /// without a <c>::</c> separator). Idempotent — already-seen directories short-circuit.
+  /// </summary>
+  private static void RecordDirectoryChain(
+    string startId,
+    Dictionary<string, string> directoryParents,
+    Dictionary<string, string> directoryLabels
+  )
+  {
+    var current = startId;
+    while (true)
+    {
+      var idx = current.IndexOf("::", StringComparison.Ordinal);
+      if (idx < 0)
+        return; // Reached the project boundary.
+
+      if (directoryParents.ContainsKey(current))
+        return; // Already processed this dir and its ancestors on a prior walk.
+
+      var srcPackage = current[..idx];
+      var dirPath = current[(idx + 2)..].TrimEnd('/');
+      var lastSlash = dirPath.LastIndexOf('/');
+
+      string parent;
+      string label;
+      if (lastSlash < 0)
+      {
+        parent = srcPackage;
+        label = dirPath;
+      }
+      else
+      {
+        parent = $"{srcPackage}::{dirPath[..lastSlash]}/";
+        label = dirPath[(lastSlash + 1)..];
+      }
+
+      directoryParents[current] = parent;
+      directoryLabels[current] = label;
+      current = parent;
+    }
   }
 
   private static string MakeFileId(string srcPackage, string sourceFile) =>
@@ -181,7 +322,7 @@ public static class BuildIcicleCoverageStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="BuildIcicleCoverageStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static ProjectManifestEntry Manifest(string assemblyName, string projectType) =>
       new()
@@ -314,10 +455,11 @@ public static class BuildIcicleCoverageStep
     }
 
     /// <summary>
-    /// The file label is the path suffix relative to the package segment of the source path.
+    /// File labels are basenames; directory segments become their own intermediate Directory
+    /// nodes. A file at <c>Sub/A.cs</c> renders as Project → Directory("Sub") → File("A.cs").
     /// </summary>
     [StepTest(typeof(BuildIcicleCoverageStep))]
-    public void FileLabel_IsRelativeToPackageSegment()
+    public void FileLabel_IsBasename_DirectorySegmentsBecomeOwnLevel()
     {
       var rows = new[]
       {
@@ -325,15 +467,90 @@ public static class BuildIcicleCoverageStep
       };
       var manifest = new[] { Manifest("Pkg", "Library") };
 
-      var file = Invoke(BuildIcicleCoverageStep.Create(), (rows, manifest))
-        .Single(n => n.Level == "File");
+      var nodes = Invoke(BuildIcicleCoverageStep.Create(), (rows, manifest)).ToList();
+      var file = nodes.Single(n => n.Level == "File");
+      var directories = nodes.Where(n => n.Level == "Directory").ToList();
 
-      Assert.That(file.Label, Is.EqualTo("Sub/A.cs"));
+      Assert.That(file.Label, Is.EqualTo("A.cs"));
+      Assert.That(directories.Select(d => d.Label), Is.EqualTo(new[] { "Sub" }));
+      Assert.That(file.ParentId, Is.EqualTo(directories.Single().Id));
     }
 
     /// <summary>
-    /// Parent ids form a valid tree: every Method has its File as ParentId, every File has
-    /// its Project as ParentId, every Project has empty ParentId.
+    /// Files at the package root parent directly on the project — no intermediate Directory
+    /// node is emitted when the relative path has no slash. Confirms the degenerate case.
+    /// </summary>
+    [StepTest(typeof(BuildIcicleCoverageStep))]
+    public void RootLevelFile_ParentsDirectlyOnProject_NoDirectoryNode()
+    {
+      var rows = new[]
+      {
+        Row("Pkg", "/repo/src/Pkg/Foo.cs", "Pkg.Foo", "M", "()", 1, 1),
+      };
+      var manifest = new[] { Manifest("Pkg", "Library") };
+
+      var nodes = Invoke(BuildIcicleCoverageStep.Create(), (rows, manifest)).ToList();
+
+      Assert.That(nodes.Any(n => n.Level == "Directory"), Is.False);
+      var file = nodes.Single(n => n.Level == "File");
+      Assert.That(file.ParentId, Is.EqualTo("Pkg"));
+    }
+
+    /// <summary>
+    /// Multiple sub-directory levels nest correctly: a file at <c>Data/Capabilities/Bar.cs</c>
+    /// produces two Directory nodes (<c>Data</c>, <c>Capabilities</c>) with the deeper one
+    /// parented on the shallower.
+    /// </summary>
+    [StepTest(typeof(BuildIcicleCoverageStep))]
+    public void NestedDirectories_FormProperParentChain()
+    {
+      var rows = new[]
+      {
+        Row("Pkg", "/repo/src/Pkg/Data/Capabilities/Bar.cs", "Pkg.Data.Capabilities.Bar", "M", "()", 1, 1),
+      };
+      var manifest = new[] { Manifest("Pkg", "Library") };
+
+      var nodes = Invoke(BuildIcicleCoverageStep.Create(), (rows, manifest)).ToList();
+      var directories = nodes.Where(n => n.Level == "Directory").ToList();
+
+      var data = directories.Single(d => d.Label == "Data");
+      var caps = directories.Single(d => d.Label == "Capabilities");
+
+      Assert.That(data.ParentId, Is.EqualTo("Pkg"));
+      Assert.That(caps.ParentId, Is.EqualTo(data.Id));
+      Assert.That(nodes.Single(n => n.Level == "File").ParentId, Is.EqualTo(caps.Id));
+    }
+
+    /// <summary>
+    /// Directory-level totals roll up from descendants. A directory with a single file at
+    /// 50% and a sub-directory containing one file at 100% reports 75% across 4 lines.
+    /// </summary>
+    [StepTest(typeof(BuildIcicleCoverageStep))]
+    public void DirectoryTotals_RollUpFromFilesAndSubDirectories()
+    {
+      var rows = new[]
+      {
+        // Top.cs in Sub/: 1/2 covered
+        Row("Pkg", "/repo/src/Pkg/Sub/Top.cs", "Pkg.Sub.Top", "M", "()", 1, 1),
+        Row("Pkg", "/repo/src/Pkg/Sub/Top.cs", "Pkg.Sub.Top", "M", "()", 2, 0),
+        // Deep.cs in Sub/Inner/: 2/2 covered
+        Row("Pkg", "/repo/src/Pkg/Sub/Inner/Deep.cs", "Pkg.Sub.Inner.Deep", "M", "()", 1, 1),
+        Row("Pkg", "/repo/src/Pkg/Sub/Inner/Deep.cs", "Pkg.Sub.Inner.Deep", "M", "()", 2, 1),
+      };
+      var manifest = new[] { Manifest("Pkg", "Library") };
+
+      var nodes = Invoke(BuildIcicleCoverageStep.Create(), (rows, manifest)).ToList();
+      var sub = nodes.Single(n => n.Level == "Directory" && n.Label == "Sub");
+
+      Assert.That(sub.TotalLines, Is.EqualTo(4));
+      Assert.That(sub.CoveredLines, Is.EqualTo(3));
+      Assert.That(sub.CoveragePercent, Is.EqualTo(75.0));
+    }
+
+    /// <summary>
+    /// Parent ids form a valid tree: every non-Project node's ParentId resolves to another
+    /// node's Id; Project nodes have empty ParentId. With Directory nodes, this contract
+    /// extends to a multi-level chain (Method → File → Dir(s) → Project).
     /// </summary>
     [StepTest(typeof(BuildIcicleCoverageStep))]
     public void ParentIds_FormValidTree()
@@ -341,6 +558,7 @@ public static class BuildIcicleCoverageStep
       var rows = new[]
       {
         Row("Pkg", "/repo/src/Pkg/A.cs", "Pkg.A", "M", "()", 1, 1),
+        Row("Pkg", "/repo/src/Pkg/Sub/Inner/B.cs", "Pkg.Sub.Inner.B", "M", "()", 1, 1),
       };
       var manifest = new[] { Manifest("Pkg", "Library") };
 

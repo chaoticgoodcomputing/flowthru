@@ -37,7 +37,7 @@ public static class CompilerGeneratedFilter
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="CompilerGeneratedFilter"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     /// <summary>
     /// Async state machines surface as <c>&lt;MethodName&gt;d__N</c> nested types whose

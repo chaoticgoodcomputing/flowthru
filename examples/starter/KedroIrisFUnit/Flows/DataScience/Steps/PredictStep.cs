@@ -91,7 +91,7 @@ public static class PredictStep
   /// <summary>
   /// FUnit tests for <see cref="PredictStep"/>.
   /// </summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static ModelWeightsSchema ZeroModel() =>
       new ModelWeightsSchema

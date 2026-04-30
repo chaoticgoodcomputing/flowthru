@@ -112,7 +112,7 @@ public static class BuildMethodCoverageStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="BuildMethodCoverageStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static LineCoverageRow Row(
       string testProject,

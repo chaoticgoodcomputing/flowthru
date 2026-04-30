@@ -15,7 +15,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace Flowthru.FUnit.CodeFixes;
 
 /// <summary>
-/// Code fix for FU001: scaffolds a stub <c>Tests : FunitContext</c> class inside a
+/// Code fix for FU001: scaffolds a stub <c>Tests : FUnitContext</c> class inside a
 /// <c>#if FUNIT_ENABLED</c> / <c>#endif</c> block at the end of the step class body.
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Fu001ScaffoldTestsClassFix)), Shared]
@@ -23,7 +23,7 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
 {
   /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
-    ImmutableArray.Create(FunitDiagnosticAnalyzer.Fu001.Id);
+    ImmutableArray.Create(FUnitDiagnosticAnalyzer.Fu001.Id);
 
   /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -53,7 +53,7 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
 
     context.RegisterCodeFix(
       CodeAction.Create(
-        title: $"Add nested 'Tests : FunitContext' class inside '{classDecl.Identifier.Text}'",
+        title: $"Add nested 'Tests : FUnitContext' class inside '{classDecl.Identifier.Text}'",
         createChangedDocument: ct => ScaffoldTestsClassAsync(context.Document, classDecl, ct),
         equivalenceKey: nameof(Fu001ScaffoldTestsClassFix)
       ),
@@ -86,7 +86,7 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
 
 #if FUNIT_ENABLED
 {{indent}}/// <summary>FUnit tests for <see cref="{{stepName}}"/>.</summary>
-{{indent}}public class Tests : FunitContext
+{{indent}}public class Tests : FUnitContext
 {{indent}}{
 {{indent}}    [StepTest(typeof({{stepName}}))]
 {{indent}}    public void TODO_WriteYourTestHere()

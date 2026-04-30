@@ -103,7 +103,7 @@ public static class SplitAndEncodeStep
   /// <summary>
   /// FUnit tests for <see cref="SplitAndEncodeStep"/>.
   /// </summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     /// <summary>
     /// With a 20% test ratio on 10 rows, the step should place 2 rows in the test

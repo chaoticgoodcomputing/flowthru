@@ -14,24 +14,24 @@ namespace Flowthru.FUnit.SourceGenerators;
 /// Emits:
 /// <list type="bullet">
 /// <item><c>FU001</c> — a <c>[FlowthruStep]</c> class has no <c>[StepTest]</c> methods.</item>
-/// <item><c>FU002</c> — a <c>FunitContext</c> subclass is not wrapped in <c>#if FUNIT_ENABLED</c>.</item>
+/// <item><c>FU002</c> — a <c>FUnitContext</c> subclass is not wrapped in <c>#if FUNIT_ENABLED</c>.</item>
 /// <item><c>FU100</c> — a <c>[StepTest]</c>'s step has a service-typed <c>Create(...)</c>
 ///   parameter that no <c>[FUnitStubContainer]</c> registers.</item>
 /// </list>
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
+public sealed class FUnitDiagnosticAnalyzer : DiagnosticAnalyzer
 {
   internal const string FlowthruStepAttributeFullName = "Flowthru.Core.Steps.FlowthruStepAttribute";
   internal const string StepTestAttributeFullName = "Flowthru.FUnit.StepTestAttribute";
-  internal const string FunitContextFullName = "Flowthru.FUnit.FunitContext";
-  internal const string FunitStubContainerAttributeFullName =
+  internal const string FUnitContextFullName = "Flowthru.FUnit.FUnitContext";
+  internal const string FUnitStubContainerAttributeFullName =
     "Flowthru.FUnit.FUnitStubContainerAttribute";
   internal const string FlowthruSchemaAttributeFullName =
     "Flowthru.Core.Abstractions.FlowthruSchemaAttribute";
   internal const string FlowthruConfigAttributeFullName =
     "Flowthru.Core.Abstractions.FlowthruConfigAttribute";
-  internal const string FunitEnabledGuard = "FUNIT_ENABLED";
+  internal const string FUnitEnabledGuard = "FUNIT_ENABLED";
 
   // Service-collection registration method names recognised by the FU100 scan.
   private static readonly HashSet<string> RegistrationMethodNames = new()
@@ -66,12 +66,12 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
   );
 
   /// <summary>
-  /// FU002: a <c>FunitContext</c> subclass is not wrapped in <c>#if FUNIT_ENABLED</c>.
+  /// FU002: a <c>FUnitContext</c> subclass is not wrapped in <c>#if FUNIT_ENABLED</c>.
   /// </summary>
   public static readonly DiagnosticDescriptor Fu002 = new DiagnosticDescriptor(
     id: "FU002",
-    title: "FunitContext subclass not guarded by #if FUNIT_ENABLED",
-    messageFormat: "'{0}' inherits from FunitContext but is not inside a '#if FUNIT_ENABLED' block. "
+    title: "FUnitContext subclass not guarded by #if FUNIT_ENABLED",
+    messageFormat: "'{0}' inherits from FUnitContext but is not inside a '#if FUNIT_ENABLED' block. "
       + "Without this guard, the class cannot be excluded from Release builds.",
     category: "Flowthru.FUnit",
     defaultSeverity: DiagnosticSeverity.Warning,
@@ -168,20 +168,20 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
       }
     }
 
-    // FU002 — FunitContext subclass not inside #if FUNIT_ENABLED
-    bool isFunitContextSubclass = false;
+    // FU002 — FUnitContext subclass not inside #if FUNIT_ENABLED
+    bool isFUnitContextSubclass = false;
     var baseType = typeSymbol.BaseType;
     while (baseType is not null)
     {
-      if (baseType.ToDisplayString() == FunitContextFullName)
+      if (baseType.ToDisplayString() == FUnitContextFullName)
       {
-        isFunitContextSubclass = true;
+        isFUnitContextSubclass = true;
         break;
       }
       baseType = baseType.BaseType;
     }
 
-    if (!isFunitContextSubclass)
+    if (!isFUnitContextSubclass)
     {
       return;
     }
@@ -197,7 +197,7 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
       return;
     }
 
-    if (!FunitSyntaxHelpers.IsInsidePreprocessorGuard(classDecl, FunitEnabledGuard))
+    if (!FUnitSyntaxHelpers.IsInsidePreprocessorGuard(classDecl, FUnitEnabledGuard))
     {
       context.ReportDiagnostic(
         Diagnostic.Create(Fu002, classDecl.Identifier.GetLocation(), typeSymbol.Name)
@@ -285,7 +285,7 @@ public sealed class FunitDiagnosticAnalyzer : DiagnosticAnalyzer
 
     return symbol
       .GetAttributes()
-      .Any(a => a.AttributeClass?.ToDisplayString() == FunitStubContainerAttributeFullName);
+      .Any(a => a.AttributeClass?.ToDisplayString() == FUnitStubContainerAttributeFullName);
   }
 
   private static void CollectStepTestMethod(

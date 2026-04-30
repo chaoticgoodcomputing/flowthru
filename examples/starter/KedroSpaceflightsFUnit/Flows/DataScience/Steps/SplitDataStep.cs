@@ -89,7 +89,7 @@ public static class SplitDataStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="SplitDataStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static ModelInputTableSchema Row(string id) =>
       new()

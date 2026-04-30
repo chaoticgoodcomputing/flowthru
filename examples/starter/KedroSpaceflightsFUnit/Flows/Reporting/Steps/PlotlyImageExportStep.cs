@@ -101,7 +101,7 @@ public static class PlotlyImageExportStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="PlotlyImageExportStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     /// <summary>
     /// PNG export requires a headless Chromium browser (PuppeteerSharp) which is not

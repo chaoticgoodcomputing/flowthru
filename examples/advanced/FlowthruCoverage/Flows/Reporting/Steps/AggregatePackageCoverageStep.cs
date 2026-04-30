@@ -50,7 +50,7 @@ public static class AggregatePackageCoverageStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="AggregatePackageCoverageStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static PivotCoverageRow Row(
       string testProject,

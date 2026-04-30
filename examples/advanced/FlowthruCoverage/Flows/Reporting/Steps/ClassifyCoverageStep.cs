@@ -169,7 +169,7 @@ public static class ClassifyCoverageStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="ClassifyCoverageStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static ProjectManifestEntry Manifest(string assemblyName, string projectType, string subgroup) =>
       new()

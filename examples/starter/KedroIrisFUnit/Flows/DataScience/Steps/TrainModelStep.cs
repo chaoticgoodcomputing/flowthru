@@ -151,7 +151,7 @@ public static class TrainModelStep
   /// <summary>
   /// FUnit tests for <see cref="TrainModelStep"/>.
   /// </summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static IEnumerable<FeatureVectorSchema> SampleFeatures(int count) =>
       Enumerable

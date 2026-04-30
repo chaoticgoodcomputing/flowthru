@@ -28,16 +28,16 @@ public static class TestStubsContainer
 }
 
 /// <summary>
-/// Verifies that <see cref="FunitContext"/> auto-registers stub containers from the
+/// Verifies that <see cref="FUnitContext"/> auto-registers stub containers from the
 /// test assembly via reflection, and that the new <c>GetRequiredService&lt;T&gt;</c>
 /// helper resolves them. Split into separate fixtures to avoid NUnit's per-fixture
-/// instance reuse leaking <see cref="FunitContext.Services"/> mutations across tests.
+/// instance reuse leaking <see cref="FUnitContext.Services"/> mutations across tests.
 /// </summary>
 [TestFixture]
 [Category("FUnit")]
 [Category("StubContainer")]
-#pragma warning disable FU002 // FU002 fires on FunitContext subclasses outside #if FUNIT_ENABLED
-public class StubContainerAutoRegistrationTests : FunitContext
+#pragma warning disable FU002 // FU002 fires on FUnitContext subclasses outside #if FUNIT_ENABLED
+public class StubContainerAutoRegistrationTests : FUnitContext
 {
   [Test]
   public void StubContainer_AutoRegistration_ServiceResolvable()
@@ -50,7 +50,7 @@ public class StubContainerAutoRegistrationTests : FunitContext
 [TestFixture]
 [Category("FUnit")]
 [Category("StubContainer")]
-public class StubContainerOverrideTests : FunitContext
+public class StubContainerOverrideTests : FUnitContext
 {
   [Test]
   public void StubContainer_AutoRegistration_RegistersBeforeUserCode()

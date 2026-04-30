@@ -52,7 +52,7 @@ public static class PreprocessCompaniesStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="PreprocessCompaniesStep"/>.</summary>
-  public class Tests : Flowthru.FUnit.FunitContext
+  public class Tests : Flowthru.FUnit.FUnitContext
   {
     private static readonly CompanySchema ValidRaw =
       new()

@@ -9,7 +9,7 @@ namespace Flowthru.FUnit.SourceGenerators;
 /// <summary>
 /// Shared syntax utilities for FUnit source generators and analyzers.
 /// </summary>
-internal static class FunitSyntaxHelpers
+internal static class FUnitSyntaxHelpers
 {
   /// <summary>
   /// Checks whether a class declaration is enclosed inside a <c>#if</c> preprocessor

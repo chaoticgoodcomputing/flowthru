@@ -30,7 +30,7 @@ public static class ComparePassengerCapacityStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="ComparePassengerCapacityStep"/>.</summary>
-  public class Tests : Flowthru.FUnit.FunitContext
+  public class Tests : Flowthru.FUnit.FUnitContext
   {
     private static PreprocessedShuttleSchema MakeShuttle(string type, int capacity) =>
       new()

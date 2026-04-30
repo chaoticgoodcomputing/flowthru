@@ -197,13 +197,16 @@ public class Flow
     {
       foreach (var step in flow.Steps)
       {
-        // Create a new step with prefixed name
+        // Create a new step with prefixed name. Service dependencies must be
+        // forwarded so DagBuilder/Mermaid metadata reflect the merged flow's
+        // service-dependency edges.
         var prefixedStep = new FlowStep(
           label: $"{flowName}.{step.Label}",
           description: step.Description,
           step: step.TransformFunction,
           inputs: step.Inputs,
-          outputs: step.Outputs
+          outputs: step.Outputs,
+          serviceDependencies: step.ServiceDependencies
         );
 
         mergedFlows.AddStep(prefixedStep);

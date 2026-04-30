@@ -103,7 +103,7 @@ public static class PreprocessShuttlesStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="PreprocessShuttlesStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static ShuttleSchema ValidRaw =>
       new()

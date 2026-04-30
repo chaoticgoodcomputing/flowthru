@@ -81,7 +81,7 @@ public static class TrainModelStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="TrainModelStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static TrainingData SampleRow(double price = 1000.0) =>
       new()

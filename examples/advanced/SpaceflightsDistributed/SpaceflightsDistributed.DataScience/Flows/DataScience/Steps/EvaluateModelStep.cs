@@ -96,7 +96,7 @@ public static class EvaluateModelStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="EvaluateModelStep"/>.</summary>
-  public class Tests : FunitContext
+  public class Tests : FUnitContext
   {
     private static LinearRegressionModel IdentityModel() =>
       new()

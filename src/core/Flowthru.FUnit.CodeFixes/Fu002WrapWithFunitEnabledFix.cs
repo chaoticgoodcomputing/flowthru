@@ -13,15 +13,15 @@ using Microsoft.CodeAnalysis.Text;
 namespace Flowthru.FUnit.CodeFixes;
 
 /// <summary>
-/// Code fix for FU002: wraps a <c>FunitContext</c> subclass with
+/// Code fix for FU002: wraps a <c>FUnitContext</c> subclass with
 /// <c>#if FUNIT_ENABLED</c> / <c>#endif</c> preprocessor guards.
 /// </summary>
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Fu002WrapWithFunitEnabledFix)), Shared]
-public sealed class Fu002WrapWithFunitEnabledFix : CodeFixProvider
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Fu002WrapWithFUnitEnabledFix)), Shared]
+public sealed class Fu002WrapWithFUnitEnabledFix : CodeFixProvider
 {
   /// <inheritdoc/>
   public override ImmutableArray<string> FixableDiagnosticIds =>
-    ImmutableArray.Create(FunitDiagnosticAnalyzer.Fu002.Id);
+    ImmutableArray.Create(FUnitDiagnosticAnalyzer.Fu002.Id);
 
   /// <inheritdoc/>
   public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
@@ -53,7 +53,7 @@ public sealed class Fu002WrapWithFunitEnabledFix : CodeFixProvider
       CodeAction.Create(
         title: "Wrap with #if FUNIT_ENABLED",
         createChangedDocument: ct => WrapWithGuardAsync(context.Document, classDecl, ct),
-        equivalenceKey: nameof(Fu002WrapWithFunitEnabledFix)
+        equivalenceKey: nameof(Fu002WrapWithFUnitEnabledFix)
       ),
       diagnostic
     );

@@ -58,6 +58,7 @@
   <Project Path="examples/starter/KedroIrisFUnit/KedroIrisFUnit.csproj" />
   <Project Path="examples/starter/KedroIrisPython/KedroIrisPython.csproj" />
   <Project Path="examples/starter/Minimal/Minimal.csproj" />
+  <Project Path="examples/starter/SimpleEffectsExample/SimpleEffectsExample.csproj" />
   <Project Path="examples/archived/UmapReferenceComparisons/UmapReferenceComparisons.csproj" />
   <Project Path="examples/archived/DroppedNeuralNet/DroppedNeuralNet.csproj" />
   <Project Path="examples/advanced/KedroSpaceflightsCustom/KedroSpaceflightsCustom.csproj" />

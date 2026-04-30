@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Testing;
 namespace Flowthru.FUnit.SourceGenerators.Tests.Analysis;
 
 /// <summary>
-/// Tests for FU100 in <see cref="FunitDiagnosticAnalyzer"/>: when a <c>[StepTest]</c>
+/// Tests for FU100 in <see cref="FUnitDiagnosticAnalyzer"/>: when a <c>[StepTest]</c>
 /// references a step whose service-typed <c>Create(...)</c> parameter is not registered
 /// in any visible <c>[FUnitStubContainer]</c>, the analyzer warns at the test method.
 /// </summary>
@@ -15,7 +15,7 @@ namespace Flowthru.FUnit.SourceGenerators.Tests.Analysis;
 public class FU100AnalyzerTests
 {
   // Minimal stubs so the analyzer can resolve [FlowthruStep], [StepTest],
-  // [FUnitStubContainer], FunitContext, and IServiceCollection without referencing
+  // [FUnitStubContainer], FUnitContext, and IServiceCollection without referencing
   // the full Flowthru.Core / Flowthru.FUnit assemblies.
   private const string Stubs = """
     namespace Flowthru.Core.Steps
@@ -40,7 +40,7 @@ public class FU100AnalyzerTests
         [System.AttributeUsage(System.AttributeTargets.Class)]
         public sealed class FUnitStubContainerAttribute : System.Attribute { }
 
-        public abstract class FunitContext { }
+        public abstract class FUnitContext { }
     }
 
     namespace Microsoft.Extensions.DependencyInjection
@@ -93,7 +93,7 @@ public class FU100AnalyzerTests
             }
 
         #pragma warning disable FU002
-            public class MyTests : FunitContext
+            public class MyTests : FUnitContext
             {
                 [StepTest(typeof(MyStep))]
                 public void Works() { }
@@ -101,7 +101,7 @@ public class FU100AnalyzerTests
         }
         """;
 
-    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     }.RunAsync();
@@ -139,7 +139,7 @@ public class FU100AnalyzerTests
             }
 
         #pragma warning disable FU002
-            public class MyTests : FunitContext
+            public class MyTests : FUnitContext
             {
                 [StepTest(typeof(MyStep))]
                 public void {|FU100:Works|}() { }
@@ -147,7 +147,7 @@ public class FU100AnalyzerTests
         }
         """;
 
-    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     }.RunAsync();
@@ -200,7 +200,7 @@ public class FU100AnalyzerTests
             }
 
         #pragma warning disable FU002
-            public class MyTests : FunitContext
+            public class MyTests : FUnitContext
             {
                 [StepTest(typeof(MyStep))]
                 public void Works() { }
@@ -208,7 +208,7 @@ public class FU100AnalyzerTests
         }
         """;
 
-    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     }.RunAsync();
@@ -237,7 +237,7 @@ public class FU100AnalyzerTests
             }
 
         #pragma warning disable FU002
-            public class MyTests : FunitContext
+            public class MyTests : FUnitContext
             {
                 [StepTest(typeof(PureStep))]
                 public void Works() { }
@@ -245,7 +245,7 @@ public class FU100AnalyzerTests
         }
         """;
 
-    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     }.RunAsync();
@@ -276,7 +276,7 @@ public class FU100AnalyzerTests
             }
 
         #pragma warning disable FU002
-            public class MyTests : FunitContext
+            public class MyTests : FUnitContext
             {
                 [StepTest(typeof(MyStep))]
                 public void {|FU100:Works|}() { }
@@ -284,7 +284,7 @@ public class FU100AnalyzerTests
         }
         """;
 
-    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     }.RunAsync();
@@ -326,7 +326,7 @@ public class FU100AnalyzerTests
             }
 
         #pragma warning disable FU002
-            public class MyTests : FunitContext
+            public class MyTests : FUnitContext
             {
                 [StepTest(typeof(MyStep))]
                 public void {|FU100:Works|}() { }
@@ -334,7 +334,7 @@ public class FU100AnalyzerTests
         }
         """;
 
-    await new CSharpAnalyzerTest<FunitDiagnosticAnalyzer, NUnit4Verifier>
+    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
     {
       TestCode = source,
     }.RunAsync();
