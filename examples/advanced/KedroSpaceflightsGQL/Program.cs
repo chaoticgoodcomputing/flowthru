@@ -118,6 +118,15 @@ public class Program
         }
       );
 
+    // Pre-flight inspector for the StrawberryShake client. Demonstrates the canonical
+    // sidecar registration pattern (Phase 3): no Flowthru types appear on the client's
+    // contract — inspection is attached via DI. The probe here is a lightweight
+    // no-op success since the in-process GQL server is fully under our control;
+    // a production-bound configuration would issue a small healthcheck query.
+    services.AddFlowthruInspect<ISpaceflightsClient>((_, _) =>
+      Flowthru.Core.Effects.FlowIO.Pure(Flowthru.Core.Data.Validation.ValidationResult.Success())
+    );
+
     var configuration = new ConfigurationBuilder()
       .SetBasePath(basePath)
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)

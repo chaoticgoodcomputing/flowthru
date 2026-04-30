@@ -62,4 +62,50 @@ public static class ExcelItemExtensions
 
     return new Item<IEnumerable<TRow>>(label, storage);
   }
+
+  /// <summary>
+  /// Creates a read-only catalog entry over a directory of Excel files where each file's
+  /// designated sheet deserialises to one independent row collection of the same schema.
+  /// Read produces a <see cref="Directory{T}"/> keyed by full file path.
+  /// </summary>
+  /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
+  /// <param name="_">The enumerable catalog entries factory</param>
+  /// <param name="label">Unique catalog label for DAG resolution</param>
+  /// <param name="directoryPath">Path to the directory containing the <c>.xlsx</c> files</param>
+  /// <param name="sheetName">Name of the sheet to read in each file</param>
+  /// <param name="nullValues">Optional null-sentinel list; see <see cref="Excel{TRow}"/>.</param>
+  /// <remarks>
+  /// All files must share the same schema and use the same <paramref name="sheetName"/>.
+  /// This entry is read-only — Excel write is not supported by the underlying adapter.
+  /// </remarks>
+  public static Item<Directory<IEnumerable<TRow>>> ExcelDirectory<TRow>(
+    this EnumerableItemFactory _,
+    string label,
+    string directoryPath,
+    string sheetName,
+    IReadOnlyList<string>? nullValues = null
+  )
+    where TRow : notnull, IFlatSchema, ITextSerializable
+  {
+    var format = nullValues is null
+      ? new ExcelFormatSerializer<TRow>(sheetName)
+      : new ExcelFormatSerializer<TRow>(sheetName, nullValues);
+    var container = new EnumerableContainerAdapter<TRow>();
+
+    IStorageAdapter<IEnumerable<TRow>> PerFileAdapter(string path) =>
+      new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+        new FileStorageMedium(path),
+        format,
+        container
+      );
+
+    return new Item<Directory<IEnumerable<TRow>>>(
+      label,
+      new DirectoryStorageAdapter<IEnumerable<TRow>>(
+        directoryPath: directoryPath,
+        filePattern: "*.xlsx",
+        perFileAdapter: PerFileAdapter
+      )
+    );
+  }
 }

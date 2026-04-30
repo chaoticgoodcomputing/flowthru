@@ -154,7 +154,7 @@ def generate_coverage_heatmap(pivot_coverage: pd.DataFrame) -> bytes:
             zmin=-1,
             zmax=100,
             colorbar=dict(
-                title="Coverage %", ticksuffix="%", tickvals=[0, 25, 50, 75, 100]
+                title="Coverage %", ticksuffix="%", tickvals=[0, 20, 40, 60, 80, 100]
             ),
         )
     )

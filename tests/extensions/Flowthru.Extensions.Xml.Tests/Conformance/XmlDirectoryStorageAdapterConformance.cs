@@ -3,21 +3,23 @@ using Flowthru.Core.Data;
 using Flowthru.Core.Data.Storage;
 using Flowthru.Extensions.Xml.Tests.Fixtures;
 using Flowthru.Tests.Kits.Storage;
+using SysIO = System.IO;
 
 namespace Flowthru.Extensions.Xml.Tests.Conformance;
 
 /// <summary>
-/// Conformance for <see cref="XmlDirectoryStorageAdapter{T}"/> — read-only directory
-/// adapter that yields one <see cref="XmlDocument{T}"/> per <c>*.xml</c> file. Each
-/// wrapper carries the file's name plus the deserialized payload.
+/// Conformance for the XML-shaped <see cref="DirectoryStorageAdapter{T}"/> composition that
+/// backs <c>ItemFactory.Enumerable.XmlDocuments&lt;T&gt;</c>: a directory of XML files where
+/// each file deserialises to one <typeparamref name="T"/>.
 /// </summary>
 [TestFixtureSource(nameof(Fixtures))]
 public class XmlDirectoryStorageAdapterConformance
-  : StorageAdapterConformance<IEnumerable<XmlDocument<XmlTestItem>>>
+  : DirectoryStorageAdapterConformance<XmlTestItem>
 {
   public static IEnumerable<string> Fixtures => new[] { "Synthetic/xml-directory" };
 
   private string _rootDir = string.Empty;
+  private string _wellFormedDir = string.Empty;
 
   public XmlDirectoryStorageAdapterConformance(string fixturePath) : base(fixturePath) { }
 
@@ -28,85 +30,70 @@ public class XmlDirectoryStorageAdapterConformance
       Path.GetTempPath(),
       $"flowthru-xml-dir-conformance-{Guid.NewGuid():N}"
     );
-    Directory.CreateDirectory(_rootDir);
+    SysIO.Directory.CreateDirectory(_rootDir);
+    _wellFormedDir = Path.Combine(_rootDir, "well-formed");
   }
 
   [TearDown]
   public void TearDown()
   {
-    if (Directory.Exists(_rootDir))
-    {
-      Directory.Delete(_rootDir, recursive: true);
-    }
+    if (SysIO.Directory.Exists(_rootDir))
+      SysIO.Directory.Delete(_rootDir, recursive: true);
   }
 
-  protected override IEnumerable<XmlDocument<XmlTestItem>> LoadFixture(string fixturePath) =>
-    new[]
+  protected override Directory<XmlTestItem> LoadFixture(string fixturePath) =>
+    new(new Dictionary<string, XmlTestItem>
     {
-      new XmlDocument<XmlTestItem>("alpha.xml", new XmlTestItem { Name = "alpha", Count = 1 }),
-      new XmlDocument<XmlTestItem>("beta.xml", new XmlTestItem { Name = "beta", Count = 2 }),
-    };
+      ["alpha.xml"] = new XmlTestItem { Name = "alpha", Count = 1 },
+      ["beta.xml"] = new XmlTestItem { Name = "beta", Count = 2 },
+    });
 
-  protected override IStorageAdapter<IEnumerable<XmlDocument<XmlTestItem>>> CreateWellFormed(
-    IEnumerable<XmlDocument<XmlTestItem>> data
+  protected override IStorageAdapter<Directory<XmlTestItem>> CreateWellFormed(
+    Directory<XmlTestItem> data
   )
   {
-    var dirPath = Path.Combine(_rootDir, $"well-formed-{Guid.NewGuid():N}");
-    Directory.CreateDirectory(dirPath);
+    var adapter = BuildAdapter(_wellFormedDir);
+    adapter.Save(data).Run().GetAwaiter().GetResult();
+    return adapter;
+  }
 
-    // Seed the directory by writing each document's payload as a separate XML file.
+  protected override IStorageAdapter<Directory<XmlTestItem>> CreateMissingSource() =>
+    BuildAdapter(Path.Combine(_rootDir, $"missing-{Guid.NewGuid():N}"));
+
+  protected override string WellFormedDirectoryPath => _wellFormedDir;
+
+  protected override string FileExtension => ".xml";
+
+  protected override IStorageAdapter<Directory<XmlTestItem>> CreateAdapterForWellFormedPath() =>
+    BuildAdapter(_wellFormedDir);
+
+  protected override void PlantWellFormedFile(string filePath)
+  {
+    SysIO.Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
     var serializer = new XmlSerializer(typeof(XmlTestItem));
-    foreach (var doc in data)
-    {
-      var path = Path.Combine(dirPath, doc.FileName);
-      using var stream = File.Create(path);
-      serializer.Serialize(stream, doc.Document);
-    }
-
-    return new XmlDirectoryStorageAdapter<XmlTestItem>(dirPath);
+    using var writer = new StreamWriter(filePath);
+    serializer.Serialize(writer, new XmlTestItem { Name = "stale", Count = 0 });
   }
 
-  protected override IStorageAdapter<IEnumerable<XmlDocument<XmlTestItem>>> CreateMissingSource()
-  {
-    var dirPath = Path.Combine(_rootDir, $"missing-{Guid.NewGuid():N}");
-    return new XmlDirectoryStorageAdapter<XmlTestItem>(dirPath);
-  }
+  protected override IEqualityComparer<Directory<XmlTestItem>>? Comparer =>
+    new DirectoryEqualityComparer<XmlTestItem>(new XmlTestItemComparer());
 
-  protected override IEqualityComparer<IEnumerable<XmlDocument<XmlTestItem>>>? Comparer =>
-    new XmlDocumentSequenceComparer();
+  private static IStorageAdapter<Directory<XmlTestItem>> BuildAdapter(string dir) =>
+    new DirectoryStorageAdapter<XmlTestItem>(
+      directoryPath: dir,
+      filePattern: "*.xml",
+      perFileAdapter: path => new SingletonXmlStorageAdapter<XmlTestItem>(path)
+    );
 
-  private sealed class XmlDocumentSequenceComparer
-    : IEqualityComparer<IEnumerable<XmlDocument<XmlTestItem>>>
+  private sealed class XmlTestItemComparer : IEqualityComparer<XmlTestItem>
   {
-    public bool Equals(
-      IEnumerable<XmlDocument<XmlTestItem>>? x,
-      IEnumerable<XmlDocument<XmlTestItem>>? y
-    )
+    public bool Equals(XmlTestItem? x, XmlTestItem? y)
     {
       if (x is null || y is null)
-      {
         return ReferenceEquals(x, y);
-      }
-      var xList = x.OrderBy(d => d.FileName).ToList();
-      var yList = y.OrderBy(d => d.FileName).ToList();
-      if (xList.Count != yList.Count)
-      {
-        return false;
-      }
-      for (var i = 0; i < xList.Count; i++)
-      {
-        if (
-          xList[i].FileName != yList[i].FileName
-          || xList[i].Document.Name != yList[i].Document.Name
-          || xList[i].Document.Count != yList[i].Document.Count
-        )
-        {
-          return false;
-        }
-      }
-      return true;
+      return x.Name == y.Name && x.Count == y.Count;
     }
 
-    public int GetHashCode(IEnumerable<XmlDocument<XmlTestItem>> obj) => 0;
+    public int GetHashCode(XmlTestItem obj) => HashCode.Combine(obj.Name, obj.Count);
   }
 }

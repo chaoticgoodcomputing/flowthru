@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.056100000000000004" branch-rate="0.0327" version="1.9" timestamp="1777567599" lines-covered="210" lines-valid="3740" branches-covered="35" branches-valid="1070">
+<coverage line-rate="0.055099999999999996" branch-rate="0.0317" version="1.9" timestamp="1777571220" lines-covered="210" lines-valid="3810" branches-covered="35" branches-valid="1102">
   <sources>
     <source></source>
   </sources>
   <packages>
-    <package name="Flowthru.Core" line-rate="0.0126" branch-rate="0.0058" complexity="1189">
+    <package name="Flowthru.Core" line-rate="0.0124" branch-rate="0.005600000000000001" complexity="1223">
       <classes>
-        <class name="Microsoft.Extensions.DependencyInjection.FlowthruServiceCollectionExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Services/FlowthruServiceCollectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Microsoft.Extensions.DependencyInjection.FlowthruServiceCollectionExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Services/FlowthruServiceCollectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="AddFlowthru" signature="(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.Action`1&lt;Flowthru.Core.Services.IFlowthruBuilder&gt;)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -84,7 +84,261 @@
             <line number="109" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruService" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="40">
+        <class name="Flowthru.Core.Steps.StepMetadataResolver" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Steps/StepMetadataResolver.cs" line-rate="0" branch-rate="0" complexity="22">
+          <methods>
+            <method name="GetServiceDependencies" signature="(System.Delegate)" line-rate="0" branch-rate="0" complexity="8">
+              <lines>
+                <line number="36" hits="0" branch="False" />
+                <line number="37" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="38" hits="0" branch="False" />
+                <line number="39" hits="0" branch="False" />
+                <line number="42" hits="0" branch="False" />
+                <line number="43" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="34" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="44" hits="0" branch="False" />
+                <line number="45" hits="0" branch="False" />
+                <line number="48" hits="0" branch="False" />
+                <line number="49" hits="0" branch="False" />
+                <line number="50" hits="0" branch="False" />
+                <line number="51" hits="0" branch="False" />
+                <line number="52" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="61" type="jump" coverage="0%" />
+                    <condition number="87" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="53" hits="0" branch="False" />
+                <line number="54" hits="0" branch="False" />
+                <line number="57" hits="0" branch="False" />
+                <line number="58" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetTraits" signature="(System.Delegate)" line-rate="0" branch-rate="0" complexity="10">
+              <lines>
+                <line number="65" hits="0" branch="False" />
+                <line number="66" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="67" hits="0" branch="False" />
+                <line number="68" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="39" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="73" hits="0" branch="False" />
+                <line number="74" hits="0" branch="False" />
+                <line number="77" hits="0" branch="False" />
+                <line number="78" hits="0" branch="False" />
+                <line number="79" hits="0" branch="False" />
+                <line number="80" hits="0" branch="False" />
+                <line number="81" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="71" type="jump" coverage="0%" />
+                    <condition number="92" type="jump" coverage="0%" />
+                    <condition number="110" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="82" hits="0" branch="False" />
+                <line number="83" hits="0" branch="False" />
+                <line number="86" hits="0" branch="False" />
+                <line number="87" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ResolveMetadataType" signature="(System.Delegate)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="90" hits="0" branch="False" />
+                <line number="97" hits="0" branch="False" />
+                <line number="98" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="76" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="99" hits="0" branch="False" />
+                <line number="100" hits="0" branch="False" />
+                <line number="101" hits="0" branch="False" />
+                <line number="102" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="52" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
+                <line number="106" hits="0" branch="False" />
+                <line number="107" hits="0" branch="False" />
+                <line number="108" hits="0" branch="False" />
+                <line number="109" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="36" hits="0" branch="False" />
+            <line number="37" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="38" hits="0" branch="False" />
+            <line number="39" hits="0" branch="False" />
+            <line number="42" hits="0" branch="False" />
+            <line number="43" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="34" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="44" hits="0" branch="False" />
+            <line number="45" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="49" hits="0" branch="False" />
+            <line number="50" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+            <line number="52" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="61" type="jump" coverage="0%" />
+                <condition number="87" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="53" hits="0" branch="False" />
+            <line number="54" hits="0" branch="False" />
+            <line number="57" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+            <line number="65" hits="0" branch="False" />
+            <line number="66" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="67" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="39" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="73" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+            <line number="78" hits="0" branch="False" />
+            <line number="79" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="81" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="71" type="jump" coverage="0%" />
+                <condition number="92" type="jump" coverage="0%" />
+                <condition number="110" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="82" hits="0" branch="False" />
+            <line number="83" hits="0" branch="False" />
+            <line number="86" hits="0" branch="False" />
+            <line number="87" hits="0" branch="False" />
+            <line number="90" hits="0" branch="False" />
+            <line number="97" hits="0" branch="False" />
+            <line number="98" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="76" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="99" hits="0" branch="False" />
+            <line number="100" hits="0" branch="False" />
+            <line number="101" hits="0" branch="False" />
+            <line number="102" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="52" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
+            <line number="106" hits="0" branch="False" />
+            <line number="107" hits="0" branch="False" />
+            <line number="108" hits="0" branch="False" />
+            <line number="109" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Services.FlowthruInspectionExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Services/FlowthruInspectionExtensions.cs" line-rate="0" branch-rate="0" complexity="6">
+          <methods>
+            <method name="AddFlowthruInspect" signature="(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func`3&lt;TService,System.Threading.CancellationToken,Flowthru.Core.Effects.FlowIO`1&lt;Flowthru.Core.Data.Validation.ValidationResult&gt;&gt;)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="57" hits="0" branch="False" />
+                <line number="58" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="59" hits="0" branch="False" />
+                <line number="60" hits="0" branch="False" />
+                <line number="62" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="45" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="63" hits="0" branch="False" />
+                <line number="64" hits="0" branch="False" />
+                <line number="67" hits="0" branch="False" />
+                <line number="68" hits="0" branch="False" />
+                <line number="69" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="AddFlowthruInspect" signature="(Microsoft.Extensions.DependencyInjection.IServiceCollection)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="85" hits="0" branch="False" />
+                <line number="86" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="87" hits="0" branch="False" />
+                <line number="88" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="False" />
+                <line number="93" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="57" hits="0" branch="False" />
+            <line number="58" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="59" hits="0" branch="False" />
+            <line number="60" hits="0" branch="False" />
+            <line number="62" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="45" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="63" hits="0" branch="False" />
+            <line number="64" hits="0" branch="False" />
+            <line number="67" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="69" hits="0" branch="False" />
+            <line number="85" hits="0" branch="False" />
+            <line number="86" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="87" hits="0" branch="False" />
+            <line number="88" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+            <line number="93" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Services.FlowthruService" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Services/FlowthruService.cs" line-rate="0" branch-rate="0" complexity="40">
           <methods>
             <method name="get_FlowNames" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -492,7 +746,7 @@
             <line number="78" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruServiceBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="0" complexity="34">
+        <class name="Flowthru.Core.Services.FlowthruServiceBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="0" complexity="34">
           <methods>
             <method name="ConfigureExecution" signature="(System.Action`1&lt;Flowthru.Core.Flows.ExecutionOptions&gt;)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -994,7 +1248,7 @@
             <line number="49" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Services.FlowthruServiceBuilder/FlowRegistrationEntry" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Services.FlowthruServiceBuilder/FlowRegistrationEntry" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Services/FlowthruServiceBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.Func`2&lt;System.IServiceProvider,Flowthru.Core.Flows.Flow&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -1008,7 +1262,7 @@
             <line number="96" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumMetadataCache`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Serialization/EnumMetadataCache.cs" line-rate="0" branch-rate="0" complexity="16">
+        <class name="Flowthru.Core.Serialization.EnumMetadataCache`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Serialization/EnumMetadataCache.cs" line-rate="0" branch-rate="0" complexity="16">
           <methods>
             <method name="ToString" signature="(TEnum)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -1212,7 +1466,7 @@
             <line number="99" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumMetadataRegistry" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Serialization/EnumMetadataRegistry.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Serialization.EnumMetadataRegistry" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Serialization/EnumMetadataRegistry.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="Create" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -1254,7 +1508,7 @@
             <line number="25" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Serialization.EnumSerializationHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Serialization/EnumSerializationHelper.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Serialization.EnumSerializationHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Serialization/EnumSerializationHelper.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name="ParseEnumFromString" signature="(System.Type,System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -1302,7 +1556,7 @@
             <line number="52" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.ConsoleResultFormatter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Results/ConsoleResultFormatter.cs" line-rate="0" branch-rate="0" complexity="36">
+        <class name="Flowthru.Core.Results.ConsoleResultFormatter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Results/ConsoleResultFormatter.cs" line-rate="0" branch-rate="0" complexity="36">
           <methods>
             <method name="Format" signature="(Flowthru.Core.Flows.FlowResult,Microsoft.Extensions.Logging.ILogger)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -1700,7 +1954,7 @@
             <line number="165" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.FlowExecutionEscapedException" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Results/FlowExecutionEscapedException.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Results.FlowExecutionEscapedException" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Results/FlowExecutionEscapedException.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.Exception)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -1712,7 +1966,7 @@
             <line number="36" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.GitHubIssueUrlBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Results/GitHubIssueUrlBuilder.cs" line-rate="0" branch-rate="0" complexity="24">
+        <class name="Flowthru.Core.Results.GitHubIssueUrlBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Results/GitHubIssueUrlBuilder.cs" line-rate="0" branch-rate="0" complexity="24">
           <methods>
             <method name="Build" signature="(Flowthru.Core.Results.RuntimeErrorReport)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -2018,7 +2272,7 @@
             <line number="137" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.RuntimeErrorClassifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Results/RuntimeErrorClassifier.cs" line-rate="0" branch-rate="0" complexity="15">
+        <class name="Flowthru.Core.Results.RuntimeErrorClassifier" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Results/RuntimeErrorClassifier.cs" line-rate="0" branch-rate="0" complexity="15">
           <methods>
             <method name="Classify" signature="(System.Exception)" line-rate="0" branch-rate="0" complexity="8">
               <lines>
@@ -2140,7 +2394,7 @@
             <line number="21" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Results.RuntimeErrorReport" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Results/RuntimeErrorReport.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Results.RuntimeErrorReport" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Results/RuntimeErrorReport.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="FromFlowResult" signature="(Flowthru.Core.Flows.FlowResult)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -2238,7 +2492,7 @@
             <line number="101" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.FilenameTemplateParser" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Meta/FilenameTemplateParser.cs" line-rate="0.6923" branch-rate="0" complexity="11">
+        <class name="Flowthru.Core.Meta.FilenameTemplateParser" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Meta/FilenameTemplateParser.cs" line-rate="0.6923" branch-rate="0" complexity="11">
           <methods>
             <method name="Render" signature="(Flowthru.Core.Graph.Meta.Models.DagMetadata,System.String,System.String)" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -2368,7 +2622,7 @@
             <line number="39" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.FlowthruMetadataBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Meta/FlowthruMetadataBuilder.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Meta.FlowthruMetadataBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Meta/FlowthruMetadataBuilder.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="get_Providers" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -2520,7 +2774,7 @@
             <line number="31" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.MetadataProviderBuilderAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Meta/MetadataProviderBuilderAttribute.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Meta.MetadataProviderBuilderAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Meta/MetadataProviderBuilderAttribute.cs" line-rate="0" branch-rate="0" complexity="2">
           <methods>
             <method name=".ctor" signature="(System.Type)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -2546,7 +2800,7 @@
             <line number="40" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Meta.TimestampConfiguration" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Meta/TimestampConfiguration.cs" line-rate="0.2916" branch-rate="0.5" complexity="8">
+        <class name="Flowthru.Core.Meta.TimestampConfiguration" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Meta/TimestampConfiguration.cs" line-rate="0.2916" branch-rate="0.5" complexity="8">
           <methods>
             <method name="Validate" signature="()" line-rate="0.19039999999999999" branch-rate="0.5" complexity="6">
               <lines>
@@ -2634,7 +2888,7 @@
             <line number="89" hits="5" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.DependencyAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/DependencyAnalyzer.cs" line-rate="0" branch-rate="0" complexity="114">
+        <class name="Flowthru.Core.Graph.DependencyAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/DependencyAnalyzer.cs" line-rate="0" branch-rate="0" complexity="114">
           <methods>
             <method name="BuildDependencyGraph" signature="(System.Collections.Generic.List`1&lt;Flowthru.Core.Graph.FlowStep&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -3678,7 +3932,7 @@
             <line number="565" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.FlowSliceStrategy" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/FlowSliceStrategy.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Graph.FlowSliceStrategy" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/FlowSliceStrategy.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="get_IsSliced" signature="()" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -3702,31 +3956,47 @@
             </line>
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.FlowStep" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/FlowStep.cs" line-rate="0" branch-rate="0" complexity="2">
+        <class name="Flowthru.Core.Graph.FlowStep" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/FlowStep.cs" line-rate="0" branch-rate="0" complexity="5">
           <methods>
-            <method name=".ctor" signature="(System.String,System.String,System.Delegate,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.INode&gt;,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.INode&gt;)" line-rate="0" branch-rate="0" complexity="2">
+            <method name=".ctor" signature="(System.String,System.String,System.Delegate,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.INode&gt;,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.INode&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="136" hits="0" branch="False" />
-                <line number="138" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="156" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String,System.Delegate,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.INode&gt;,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.INode&gt;,System.Collections.Generic.IReadOnlyList`1&lt;System.Type&gt;)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="180" hits="0" branch="False" />
+                <line number="182" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="43" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="142" hits="0" branch="False" />
+                <line number="186" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="83" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="187" hits="0" branch="False" />
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="136" hits="0" branch="False" />
-            <line number="138" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="156" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="182" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="43" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="142" hits="0" branch="False" />
+            <line number="186" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="83" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="187" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.GlobMatcher" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/GlobMatcher.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.Core.Graph.GlobMatcher" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/GlobMatcher.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="IsPattern" signature="(System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3842,7 +4112,7 @@
             <line number="63" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.INode`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/INode.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Graph.INode`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/INode.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="Flowthru.Core.Graph.INode.ProduceUntyped" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -3868,7 +4138,7 @@
             <line number="89" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.TaskGraphExecutor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="18">
+        <class name="Flowthru.Core.Graph.TaskGraphExecutor" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/TaskGraphExecutor.cs" line-rate="0" branch-rate="0" complexity="18">
           <methods>
             <method name="EnqueueReadyDependents" signature="(Flowthru.Core.Graph.FlowStep,System.Collections.Concurrent.ConcurrentDictionary`2&lt;Flowthru.Core.Graph.FlowStep,System.Int32&gt;,System.Collections.Generic.IReadOnlyDictionary`2&lt;Flowthru.Core.Graph.FlowStep,System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.FlowStep&gt;&gt;,System.Collections.Generic.HashSet`1&lt;Flowthru.Core.Graph.FlowStep&gt;,System.Collections.Concurrent.ConcurrentBag`1&lt;Flowthru.Core.Graph.FlowStep&gt;)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -4030,7 +4300,7 @@
             <line number="70" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Validation.ValidationOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/Validation/ValidationOptions.cs" line-rate="0" branch-rate="0" complexity="20">
+        <class name="Flowthru.Core.Graph.Validation.ValidationOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/Validation/ValidationOptions.cs" line-rate="0" branch-rate="0" complexity="20">
           <methods>
             <method name="Inspect" signature="(Flowthru.Core.Graph.INode,Flowthru.Core.Data.Validation.InspectionLevel)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -4208,7 +4478,7 @@
             <line number="56" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Scheduling.CriticalPathSchedulingStrategy" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/Scheduling/CriticalPathSchedulingStrategy.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Graph.Scheduling.CriticalPathSchedulingStrategy" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/Scheduling/CriticalPathSchedulingStrategy.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="Prioritize" signature="(System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.FlowStep&gt;,Flowthru.Core.Graph.Scheduling.SchedulingContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -4224,7 +4494,7 @@
             <line number="40" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Scheduling.FifoSchedulingStrategy" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/Scheduling/FifoSchedulingStrategy.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Graph.Scheduling.FifoSchedulingStrategy" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/Scheduling/FifoSchedulingStrategy.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="Prioritize" signature="(System.Collections.Generic.IReadOnlyList`1&lt;Flowthru.Core.Graph.FlowStep&gt;,Flowthru.Core.Graph.Scheduling.SchedulingContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -4236,7 +4506,7 @@
             <line number="17" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Meta.DagBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/Meta/DagBuilder.cs" line-rate="0" branch-rate="0" complexity="100">
+        <class name="Flowthru.Core.Graph.Meta.DagBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/Meta/DagBuilder.cs" line-rate="0" branch-rate="0" complexity="100">
           <methods>
             <method name="Build" signature="(Flowthru.Core.Flows.Flow)" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -5130,7 +5400,7 @@
             <line number="475" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Meta.SchemaInference" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/Meta/SchemaInference.cs" line-rate="0" branch-rate="0" complexity="62">
+        <class name="Flowthru.Core.Graph.Meta.SchemaInference" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/Meta/SchemaInference.cs" line-rate="0" branch-rate="0" complexity="62">
           <methods>
             <method name="InferSchema" signature="(System.Type)" line-rate="0" branch-rate="0" complexity="16">
               <lines>
@@ -5572,7 +5842,7 @@
             <line number="237" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Graph.Meta.Models.DagSliceMetadata" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Graph/Meta/Models/DagSliceMetadata.cs" line-rate="0" branch-rate="0" complexity="46">
+        <class name="Flowthru.Core.Graph.Meta.Models.DagSliceMetadata" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Graph/Meta/Models/DagSliceMetadata.cs" line-rate="0" branch-rate="0" complexity="46">
           <methods>
             <method name="FromStrategy" signature="(Flowthru.Core.Graph.FlowSliceStrategy)" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -5774,7 +6044,7 @@
             <line number="99" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.DryRunOption" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Flows/DryRunOption.cs" line-rate="0" branch-rate="1" complexity="3">
+        <class name="Flowthru.Core.Flows.DryRunOption" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Flows/DryRunOption.cs" line-rate="0" branch-rate="1" complexity="3">
           <methods>
             <method name="op_Implicit" signature="(System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -5800,7 +6070,7 @@
             <line number="28" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.ExecutionOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Flows/ExecutionOptions.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Flows.ExecutionOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Flows/ExecutionOptions.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name="GetFormatter" signature="()" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -5832,7 +6102,7 @@
             <line number="54" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.Flow" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="48">
+        <class name="Flowthru.Core.Flows.Flow" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Flows/Flow.cs" line-rate="0" branch-rate="0" complexity="48">
           <methods>
             <method name="get_Steps" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6019,36 +6289,36 @@
             </method>
             <method name="RunAsync" signature="(System.Threading.CancellationToken)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
-                <line number="697" hits="0" branch="False" />
+                <line number="847" hits="0" branch="False" />
               </lines>
             </method>
             <method name="StepAcceptsCancellationToken" signature="(System.Delegate)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
-                <line number="875" hits="0" branch="False" />
-                <line number="876" hits="0" branch="False" />
-                <line number="877" hits="0" branch="False" />
-                <line number="881" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="1025" hits="0" branch="False" />
+                <line number="1026" hits="0" branch="False" />
+                <line number="1027" hits="0" branch="False" />
+                <line number="1031" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="29" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="882" hits="0" branch="False" />
+                <line number="1032" hits="0" branch="False" />
               </lines>
             </method>
             <method name="GetTaskResult" signature="(System.Threading.Tasks.Task)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
-                <line number="1269" hits="0" branch="False" />
-                <line number="1270" hits="0" branch="False" />
-                <line number="1271" hits="0" branch="True" condition-coverage="0% (0/2)">
+                <line number="1419" hits="0" branch="False" />
+                <line number="1420" hits="0" branch="False" />
+                <line number="1421" hits="0" branch="True" condition-coverage="0% (0/2)">
                   <conditions>
                     <condition number="19" type="jump" coverage="0%" />
                   </conditions>
                 </line>
-                <line number="1272" hits="0" branch="False" />
-                <line number="1273" hits="0" branch="False" />
-                <line number="1275" hits="0" branch="False" />
-                <line number="1276" hits="0" branch="False" />
-                <line number="1277" hits="0" branch="False" />
+                <line number="1422" hits="0" branch="False" />
+                <line number="1423" hits="0" branch="False" />
+                <line number="1425" hits="0" branch="False" />
+                <line number="1426" hits="0" branch="False" />
+                <line number="1427" hits="0" branch="False" />
               </lines>
             </method>
             <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
@@ -6209,32 +6479,32 @@
             </line>
             <line number="338" hits="0" branch="False" />
             <line number="339" hits="0" branch="False" />
-            <line number="697" hits="0" branch="False" />
-            <line number="875" hits="0" branch="False" />
-            <line number="876" hits="0" branch="False" />
-            <line number="877" hits="0" branch="False" />
-            <line number="881" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="847" hits="0" branch="False" />
+            <line number="1025" hits="0" branch="False" />
+            <line number="1026" hits="0" branch="False" />
+            <line number="1027" hits="0" branch="False" />
+            <line number="1031" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="29" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="882" hits="0" branch="False" />
-            <line number="1269" hits="0" branch="False" />
-            <line number="1270" hits="0" branch="False" />
-            <line number="1271" hits="0" branch="True" condition-coverage="0% (0/2)">
+            <line number="1032" hits="0" branch="False" />
+            <line number="1419" hits="0" branch="False" />
+            <line number="1420" hits="0" branch="False" />
+            <line number="1421" hits="0" branch="True" condition-coverage="0% (0/2)">
               <conditions>
                 <condition number="19" type="jump" coverage="0%" />
               </conditions>
             </line>
-            <line number="1272" hits="0" branch="False" />
-            <line number="1273" hits="0" branch="False" />
-            <line number="1275" hits="0" branch="False" />
-            <line number="1276" hits="0" branch="False" />
-            <line number="1277" hits="0" branch="False" />
+            <line number="1422" hits="0" branch="False" />
+            <line number="1423" hits="0" branch="False" />
+            <line number="1425" hits="0" branch="False" />
+            <line number="1426" hits="0" branch="False" />
+            <line number="1427" hits="0" branch="False" />
             <line number="55" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.FlowBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Flows/FlowBuilder.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Flows.FlowBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Flows/FlowBuilder.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="CreateFlow" signature="(System.Action`1&lt;Flowthru.Core.Flows.FlowBuilder&gt;)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6334,7 +6604,7 @@
             <line number="88" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.FlowResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0.35479999999999995" branch-rate="1" complexity="4">
+        <class name="Flowthru.Core.Flows.FlowResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0.35479999999999995" branch-rate="1" complexity="4">
           <methods>
             <method name="CreateSuccess" signature="(System.TimeSpan,System.Collections.Generic.Dictionary`2&lt;System.String,Flowthru.Core.Flows.StepResult&gt;,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6422,7 +6692,7 @@
             <line number="136" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Flows.StepResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Flows.StepResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Flows/FlowResult.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="CreateSuccess" signature="(System.String,System.TimeSpan,System.Int32,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6478,7 +6748,37 @@
             <line number="225" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.FlowIO`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Core.Effects.DelegateInspector`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Effects/DelegateInspector.cs" line-rate="0" branch-rate="0" complexity="3">
+          <methods>
+            <method name="InspectAsync" signature="(TService,System.Threading.CancellationToken)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="22" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Func`3&lt;TService,System.Threading.CancellationToken,Flowthru.Core.Effects.FlowIO`1&lt;Flowthru.Core.Data.Validation.ValidationResult&gt;&gt;)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="17" hits="0" branch="False" />
+                <line number="18" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="11" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="19" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="22" hits="0" branch="False" />
+            <line number="17" hits="0" branch="False" />
+            <line number="18" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="11" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="19" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Flowthru.Core.Effects.FlowIO`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="Run" signature="(System.Threading.CancellationToken)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -6632,7 +6932,7 @@
             <line number="63" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.FlowIO" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="1" complexity="4">
+        <class name="Flowthru.Core.Effects.FlowIO" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Effects/FlowIO.cs" line-rate="0" branch-rate="1" complexity="4">
           <methods>
             <method name="Pure" signature="(A)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6682,7 +6982,7 @@
             <line number="233" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.FlowUnit" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Effects/FlowUnit.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Effects.FlowUnit" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Effects/FlowUnit.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6694,7 +6994,7 @@
             <line number="31" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Effects.IEffect`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Effects/IEffect.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Effects.IEffect`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Effects/IEffect.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="Flowthru.Core.Graph.INode&lt;T&gt;.Produce" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6712,7 +7012,7 @@
             <line number="42" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.CatalogAbstract" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/DataCatalogBase.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.CatalogAbstract" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/DataCatalogBase.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="CreateItem" signature="(System.Func`1&lt;Flowthru.Core.Data.IItem`1&lt;T&gt;&gt;,System.String)" line-rate="0" branch-rate="0" complexity="2">
               <lines>
@@ -6796,7 +7096,7 @@
             <line number="76" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.ItemFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/DataFactory.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.ItemFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/DataFactory.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6808,7 +7108,7 @@
             <line number="68" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.ItemFactory/Single" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/ItemFactory.Single.cs" line-rate="0" branch-rate="1" complexity="5">
+        <class name="Flowthru.Core.Data.ItemFactory/Single" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/ItemFactory.Single.cs" line-rate="0" branch-rate="1" complexity="5">
           <methods>
             <method name="Json" signature="(System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6874,7 +7174,7 @@
             <line number="151" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.EnumerableItemFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/EnumerableItemFactory.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Data.EnumerableItemFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/EnumerableItemFactory.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="Json" signature="(System.String,System.String,Flowthru.Core.Data.Storage.IStorageMediumResolver,Flowthru.Core.Data.Storage.IStorageMedium)" line-rate="0" branch-rate="0" complexity="6">
               <lines>
@@ -6936,7 +7236,7 @@
             <line number="42" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.IItem" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.IItem" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name="Flowthru.Core.Graph.INode.Validate" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -6974,7 +7274,7 @@
             <line number="121" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.IItem`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.IItem`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/IItem.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="Flowthru.Core.Graph.INode&lt;T&gt;.Produce" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -6992,7 +7292,7 @@
             <line number="160" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Item`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Item.cs" line-rate="0" branch-rate="0" complexity="77">
+        <class name="Flowthru.Core.Data.Item`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Item.cs" line-rate="0" branch-rate="0" complexity="77">
           <methods>
             <method name="get_DataType" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -7528,7 +7828,7 @@
             <line number="71" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Validation.SchemaMismatchException" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Validation/SchemaMismatchException.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Validation.SchemaMismatchException" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Validation/SchemaMismatchException.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="(System.String,System.Exception)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -7540,7 +7840,7 @@
             <line number="43" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Validation.ValidationError" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Validation/ValidationError.cs" line-rate="0" branch-rate="0" complexity="4">
+        <class name="Flowthru.Core.Data.Validation.ValidationError" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Validation/ValidationError.cs" line-rate="0" branch-rate="0" complexity="4">
           <methods>
             <method name=".ctor" signature="(System.String,Flowthru.Core.Data.Validation.ValidationErrorType,System.String,System.String)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -7574,7 +7874,7 @@
             <line number="30" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Validation.ValidationException" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Validation/ValidationException.cs" line-rate="0" branch-rate="0" complexity="12">
+        <class name="Flowthru.Core.Data.Validation.ValidationException" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Validation/ValidationException.cs" line-rate="0" branch-rate="0" complexity="12">
           <methods>
             <method name="BuildMessage" signature="(Flowthru.Core.Data.Validation.ValidationResult)" line-rate="0" branch-rate="0" complexity="10">
               <lines>
@@ -7694,7 +7994,7 @@
             <line number="21" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Validation.ValidationResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Validation/ValidationResult.cs" line-rate="0" branch-rate="0" complexity="17">
+        <class name="Flowthru.Core.Data.Validation.ValidationResult" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Validation/ValidationResult.cs" line-rate="0" branch-rate="0" complexity="17">
           <methods>
             <method name="get_IsValid" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -7870,7 +8170,7 @@
             <line number="32" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.BinaryFileStorageAdapter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/BinaryFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -8096,7 +8396,7 @@
             <line number="28" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="20">
+        <class name="Flowthru.Core.Data.Storage.ComposedStorageAdapter`2" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/ComposedStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="20">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -8632,7 +8932,7 @@
             <line number="81" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.ConfigurationStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/ConfigurationStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="19">
+        <class name="Flowthru.Core.Data.Storage.ConfigurationStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/ConfigurationStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="19">
           <methods>
             <method name="Load" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -8888,7 +9188,7 @@
             <line number="57" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.IStorageMedium" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/IStorageMedium.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.IStorageMedium" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/IStorageMedium.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="InspectTarget" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -8900,7 +9200,7 @@
             <line number="131" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.MemoryStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/MemoryStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="9">
+        <class name="Flowthru.Core.Data.Storage.MemoryStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/MemoryStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="9">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -9072,7 +9372,7 @@
             <line number="69" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.PropertyMappingConfiguration" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/PropertyMappingConfiguration.cs" line-rate="0" branch-rate="0" complexity="5">
+        <class name="Flowthru.Core.Data.Storage.PropertyMappingConfiguration" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/PropertyMappingConfiguration.cs" line-rate="0" branch-rate="0" complexity="5">
           <methods>
             <method name="FromSerializedLabel" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -9138,7 +9438,7 @@
             <line number="40" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="17">
+        <class name="Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/ReadOnlyDirectoryStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="17">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -9442,7 +9742,7 @@
             <line number="66" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.SchemaActivator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/SchemaActivator.cs" line-rate="0" branch-rate="0" complexity="15">
+        <class name="Flowthru.Core.Data.Storage.SchemaActivator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/SchemaActivator.cs" line-rate="0" branch-rate="0" complexity="15">
           <methods>
             <method name="CreateInstance" signature="()" line-rate="0" branch-rate="0" complexity="8">
               <lines>
@@ -9606,7 +9906,7 @@
             <line number="64" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="19">
+        <class name="Flowthru.Core.Data.Storage.SingletonJsonStorageAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/SingletonJsonStorageAdapter.cs" line-rate="0" branch-rate="0" complexity="19">
           <methods>
             <method name="BuildDefaultOptions" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10052,7 +10352,7 @@
             <line number="94" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.StorageMediumResolver" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/StorageMediumResolver.cs" line-rate="0" branch-rate="0" complexity="13">
+        <class name="Flowthru.Core.Data.Storage.StorageMediumResolver" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/StorageMediumResolver.cs" line-rate="0" branch-rate="0" complexity="13">
           <methods>
             <method name="Register" signature="(Flowthru.Core.Data.Storage.IStorageMediumProvider)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10154,7 +10454,7 @@
             <line number="50" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.TextFileStorageAdapter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/TextFileStorageAdapter.cs" line-rate="0" branch-rate="1" complexity="8">
           <methods>
             <method name="get_Traits" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10380,7 +10680,7 @@
             <line number="28" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.DatabaseStorageEntryFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Strategies/DatabaseStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Strategies.DatabaseStorageEntryFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Strategies/DatabaseStorageEntryFactory.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="CreateEnumerable" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10448,7 +10748,7 @@
             <line number="55" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.MemoryStorageEntryFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Strategies/MemoryStorageEntryFactory.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.Strategies.MemoryStorageEntryFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Strategies/MemoryStorageEntryFactory.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="CreateEnumerable" signature="(System.String,Flowthru.Core.Data.Storage.Strategies.StorageOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10474,7 +10774,7 @@
             <line number="47" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Strategies.StorageOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Strategies/StorageOptions.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.Strategies.StorageOptions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Strategies/StorageOptions.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="WithPath" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10486,7 +10786,7 @@
             <line number="37" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="0" branch-rate="0" complexity="8">
+        <class name="Flowthru.Core.Data.Storage.Medium.FileStorageMedium" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Medium/FileStorageMedium.cs" line-rate="0" branch-rate="0" complexity="8">
           <methods>
             <method name="get_FilePath" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10720,7 +11020,7 @@
             <line number="67" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="get_Options" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -10790,7 +11090,7 @@
             <line number="126" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverterFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="23">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverterFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="23">
           <methods>
             <method name="CanConvert" signature="(System.Type)" line-rate="0" branch-rate="0" complexity="22">
               <lines>
@@ -10916,7 +11216,7 @@
             <line number="242" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="29">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedLabelJsonConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="29">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="16">
               <lines>
@@ -11208,7 +11508,7 @@
             <line number="257" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverterFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="2">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverterFactory" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="1" complexity="2">
           <methods>
             <method name="CanConvert" signature="(System.Type)" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -11236,7 +11536,7 @@
             <line number="398" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
+        <class name="Flowthru.Core.Data.Storage.Format.SerializedEnumJsonConverter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs" line-rate="0" branch-rate="0" complexity="6">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -11348,7 +11648,7 @@
             <line number="413" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Format/PropertyMappingHelper.cs" line-rate="0" branch-rate="0" complexity="10">
+        <class name="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Format/PropertyMappingHelper.cs" line-rate="0" branch-rate="0" complexity="10">
           <methods>
             <method name="BuildPropertyMap" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -11442,7 +11742,7 @@
             <line number="115" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Core.Data.Storage.Container.EnumerableContainerAdapter`1" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Data/Storage/Container/EnumerableContainerAdapter.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -11454,7 +11754,7 @@
             <line number="54" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Cli.ArgumentParser" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Cli/ArgumentParser.cs" line-rate="0" branch-rate="0" complexity="90">
+        <class name="Flowthru.Core.Cli.ArgumentParser" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Cli/ArgumentParser.cs" line-rate="0" branch-rate="0" complexity="90">
           <methods>
             <method name="Parse" signature="(System.String[],System.Collections.Generic.IEnumerable`1&lt;System.String&gt;)" line-rate="0" branch-rate="0" complexity="90">
               <lines>
@@ -11840,7 +12140,7 @@
             <line number="161" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Cli.FlowthruCli" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="27">
+        <class name="Flowthru.Core.Cli.FlowthruCli" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Cli/FlowthruCli.cs" line-rate="0" branch-rate="0" complexity="27">
           <methods>
             <method name="ShowHelp" signature="()" line-rate="0" branch-rate="0" complexity="4">
               <lines>
@@ -12094,7 +12394,7 @@
             <line number="47" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Abstractions.SerializedEnumAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Abstractions/SerializedEnumAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Abstractions.SerializedEnumAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Abstractions/SerializedEnumAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="3">
               <lines>
@@ -12144,7 +12444,7 @@
             <line number="108" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Core.Abstractions.SerializedLabelAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/core/Flowthru.Core/Abstractions/SerializedLabelAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
+        <class name="Flowthru.Core.Abstractions.SerializedLabelAttribute" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/core/Flowthru.Core/Abstractions/SerializedLabelAttribute.cs" line-rate="0" branch-rate="0" complexity="3">
           <methods>
             <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="0" complexity="3">
               <lines>
@@ -12192,7 +12492,7 @@
     </package>
     <package name="Flowthru.Extensions.Metadata.Json" line-rate="0.8593000000000001" branch-rate="0.6304" complexity="55">
       <classes>
-        <class name="Flowthru.Meta.JsonMetadataProviderBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/extensions/Flowthru.Extensions.Metadata.Json/JsonMetadataProviderBuilder.cs" line-rate="1" branch-rate="0.875" complexity="13">
+        <class name="Flowthru.Meta.JsonMetadataProviderBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/extensions/Flowthru.Extensions.Metadata.Json/JsonMetadataProviderBuilder.cs" line-rate="1" branch-rate="0.875" complexity="13">
           <methods>
             <method name="WithOutputDirectory" signature="(System.String)" line-rate="1" branch-rate="0.5" complexity="2">
               <lines>
@@ -12356,7 +12656,7 @@
             <line number="15" hits="9" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.MetadataJsonExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/extensions/Flowthru.Extensions.Metadata.Json/MetadataJsonExtensions.cs" line-rate="0.9411" branch-rate="0.875" complexity="9">
+        <class name="Flowthru.Meta.MetadataJsonExtensions" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/extensions/Flowthru.Extensions.Metadata.Json/MetadataJsonExtensions.cs" line-rate="0.9411" branch-rate="0.875" complexity="9">
           <methods>
             <method name="ToJson" signature="(Flowthru.Core.Graph.Meta.Models.DagMetadata)" line-rate="1" branch-rate="1" complexity="2">
               <lines>
@@ -12478,7 +12778,7 @@
             <line number="24" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.JsonMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0.7623000000000001" branch-rate="0.4642" complexity="30">
+        <class name="Flowthru.Meta.Providers.JsonMetadataProvider" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0.7623000000000001" branch-rate="0.4642" complexity="30">
           <methods>
             <method name="get_Name" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -12822,7 +13122,7 @@
             <line number="43" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Meta.Providers.JsonMetadataProvider/ExceptionJsonConverter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/2af598cac16548a0593a788b9b8d4b1dc0083f92/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0.9166" branch-rate="1" complexity="3">
+        <class name="Flowthru.Meta.Providers.JsonMetadataProvider/ExceptionJsonConverter" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/83f16fb424556c4558cf3ecdadae7651fa38eb58/src/extensions/Flowthru.Extensions.Metadata.Json/Providers/JsonMetadataProvider.cs" line-rate="0.9166" branch-rate="1" complexity="3">
           <methods>
             <method name="Read" signature="(System.Text.Json.Utf8JsonReader&amp;,System.Type,System.Text.Json.JsonSerializerOptions)" line-rate="0" branch-rate="1" complexity="1">
               <lines>

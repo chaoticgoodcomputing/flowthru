@@ -26,4 +26,13 @@
     <ProjectReference Include="$(RepoRoot)tests/helpers/Flowthru.Tests.Kits/Flowthru.Tests.Kits.csproj" />
   </ItemGroup>
 
+  <!-- Wire the source generators as analyzers so end-to-end integration tests
+       exercise the real consumer path (StepMetadataGenerator emits metadata for
+       [FlowthruStep] classes in this project). -->
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+  </ItemGroup>
+
 </Project>

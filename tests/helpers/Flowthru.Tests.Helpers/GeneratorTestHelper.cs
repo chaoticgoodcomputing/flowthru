@@ -2,6 +2,8 @@ using System.Collections.Immutable;
 using Flowthru.Core.Data;
 using Flowthru.Core.SourceGenerators;
 using Flowthru.Core.SourceGenerators.SchemaAnalysis;
+using Flowthru.Core.SourceGenerators.StepAnalysis;
+using Flowthru.Core.Steps;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -61,6 +63,18 @@ public static class GeneratorTestHelper
       source: "namespace Test { internal class _Marker { } }",
       assemblyName: "Some.Consumer.Assembly",
       generators: new IIncrementalGenerator[] { new FlowBuilderGenerator() }
+    );
+
+  /// <summary>
+  /// Runs the <see cref="StepMetadataGenerator"/> against the given source. Caller must
+  /// include a <c>[FlowthruStep]</c>-attributed class in the source for any output to be
+  /// emitted.
+  /// </summary>
+  public static GeneratorTestResult RunStepMetadataGenerator(string source) =>
+    RunGenerators(
+      source,
+      assemblyName: "StepMetadataTestAssembly",
+      generators: new IIncrementalGenerator[] { new StepMetadataGenerator() }
     );
 
   private static GeneratorTestResult RunGenerators(

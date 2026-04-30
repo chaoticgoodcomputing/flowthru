@@ -65,4 +65,53 @@ public static class ParquetItemExtensions
 
     return new Item<IEnumerable<TRow>>(label, storage);
   }
+
+  /// <summary>
+  /// Creates a catalog entry over a directory of Parquet files where each file is one
+  /// independent row collection of the same schema. Read produces a
+  /// <see cref="Directory{T}"/> keyed by full file path; Save writes one Parquet file per
+  /// entry, deleting any existing <c>*.parquet</c> in the directory first so re-runs are
+  /// deterministic.
+  /// </summary>
+  /// <typeparam name="TRow">Row schema type (must be flat and binary-serializable)</typeparam>
+  /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
+  /// <param name="label">Unique catalog label for DAG resolution</param>
+  /// <param name="directoryPath">Path to the directory containing the Parquet files</param>
+  /// <param name="options">
+  /// Optional performance and behavior tuning applied uniformly to every file in the
+  /// directory; see <see cref="Parquet{TRow}"/> for details.
+  /// </param>
+  /// <remarks>
+  /// All files must share the same schema. This is intentionally not a partitioning
+  /// primitive — each file represents an independent unit. If you need to chunk a single
+  /// logical dataset across files, do that in a step before write and reassemble in a step
+  /// after read.
+  /// </remarks>
+  public static Item<Directory<IEnumerable<TRow>>> ParquetDirectory<TRow>(
+    this EnumerableItemFactory _,
+    string label,
+    string directoryPath,
+    ParquetItemOptions<TRow>? options = null
+  )
+    where TRow : notnull, IFlatSchema, IBinarySerializable
+  {
+    var format = new ParquetFormatSerializer<TRow>(options);
+    var container = new EnumerableContainerAdapter<TRow>();
+
+    IStorageAdapter<IEnumerable<TRow>> PerFileAdapter(string path) =>
+      new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+        new FileStorageMedium(path),
+        format,
+        container
+      );
+
+    return new Item<Directory<IEnumerable<TRow>>>(
+      label,
+      new DirectoryStorageAdapter<IEnumerable<TRow>>(
+        directoryPath: directoryPath,
+        filePattern: "*.parquet",
+        perFileAdapter: PerFileAdapter
+      )
+    );
+  }
 }

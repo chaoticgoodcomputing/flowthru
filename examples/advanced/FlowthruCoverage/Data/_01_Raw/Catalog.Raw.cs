@@ -10,7 +10,7 @@ public partial class Catalog
   /// Run the <c>_stage-coverage-xml</c> NX target before executing the pipeline.
   /// Each file is named <c>{ProjectName}.xml</c>.
   /// </summary>
-  public IItem<IEnumerable<XmlDocument<CoberturaReport>>> CoverageXmlFiles =>
+  public IItem<Directory<CoberturaReport>> CoverageXmlFiles =>
     CreateItem(
       () =>
         ItemFactory.Enumerable.XmlDocuments<CoberturaReport>(

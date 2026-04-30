@@ -50,33 +50,37 @@ public static partial class XmlItemFactory
 public static class XmlEnumerableItemExtensions
 {
   /// <summary>
-  /// Creates a read-only catalog entry that deserializes all <c>*.xml</c> files in a directory,
-  /// yielding each as an <see cref="XmlDocument{T}"/> that carries the source file name.
+  /// Creates a catalog entry over a directory of XML files where each file deserialises to
+  /// one <typeparamref name="T"/>. Read produces a <see cref="Directory{T}"/> keyed by full
+  /// file path; Save writes one XML file per entry, deleting any existing <c>*.xml</c> in
+  /// the directory first so re-runs are deterministic.
   /// </summary>
   /// <typeparam name="T">The document type for each XML file.</typeparam>
   /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="directoryPath">Path to the directory containing XML files</param>
-  /// <returns>Read-only catalog entry yielding one <see cref="XmlDocument{T}"/> per file</returns>
   /// <remarks>
-  /// <para>
-  /// Files are processed in lexicographic order for deterministic output across runs.
-  /// The <see cref="XmlDocument{T}.FileName"/> carries the file name without directory path,
-  /// allowing downstream steps to derive semantic meaning from the naming convention.
-  /// </para>
-  /// <para>
-  /// This entry is <strong>read-only</strong> — attempting to save will fail with
-  /// <see cref="NotSupportedException"/>.
-  /// </para>
+  /// All files must share the same schema. This is intentionally not a partitioning
+  /// primitive — each file represents an independent unit. If you need to chunk a single
+  /// logical dataset across files, do that in a step before write and reassemble in a step
+  /// after read.
   /// </remarks>
-  public static Item<IEnumerable<XmlDocument<T>>> XmlDocuments<T>(
+  public static Item<Directory<T>> XmlDocuments<T>(
     this EnumerableItemFactory _,
     string label,
     string directoryPath
   )
     where T : IStructuredSerializable
   {
-    var storage = new XmlDirectoryStorageAdapter<T>(directoryPath);
-    return new Item<IEnumerable<XmlDocument<T>>>(label, storage);
+    IStorageAdapter<T> PerFileAdapter(string path) => new SingletonXmlStorageAdapter<T>(path);
+
+    return new Item<Directory<T>>(
+      label,
+      new DirectoryStorageAdapter<T>(
+        directoryPath: directoryPath,
+        filePattern: "*.xml",
+        perFileAdapter: PerFileAdapter
+      )
+    );
   }
 }

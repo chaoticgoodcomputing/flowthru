@@ -33,10 +33,13 @@ Shutdown:
 
 Encoding
 --------
-- scalar:  JSON (via json.dumps / json.loads)
-- tabular: base64-encoded Apache Arrow IPC stream bytes
-- bytes:   base64-encoded raw bytes
-- multi:   JSON array of {"kind": "<type>", "value": "<encoded>"}
+- scalar:    JSON (via json.dumps / json.loads)
+- tabular:   base64-encoded Apache Arrow IPC stream bytes
+- bytes:     base64-encoded raw bytes
+- multi:     JSON array of {"kind": "<type>", "value": "<encoded>"}
+- directory: JSON object {"inner_kind": "<type>", "entries": {"<path>": "<encoded>", ...}}
+             — represents a Directory<T> where each entry is one file. The Python step
+             receives / returns a plain dict[str, T] with paths as keys.
 """
 
 import sys
@@ -111,6 +114,10 @@ def _decode(input_type: str, encoded: str):
     if input_type == "multi":
         elements = json.loads(encoded)
         return [_decode(e["kind"], e["value"]) for e in elements]
+    if input_type == "directory":
+        envelope = json.loads(encoded)
+        inner_kind = envelope["inner_kind"]
+        return {k: _decode(inner_kind, v) for k, v in envelope["entries"].items()}
     raise ValueError(f"Unknown input_type: {input_type!r}")
 
 
@@ -118,7 +125,7 @@ def _decode(input_type: str, encoded: str):
 # Output encoding
 # ---------------------------------------------------------------------------
 
-def _encode(output_type: str, value, dtype_spec=None, element_specs=None) -> str:
+def _encode(output_type: str, value, dtype_spec=None, element_specs=None, directory_spec=None) -> str:
     if output_type == "scalar":
         return json.dumps(value)
     if output_type == "bytes":
@@ -142,6 +149,20 @@ def _encode(output_type: str, value, dtype_spec=None, element_specs=None) -> str
                 "value": _encode(kind, item, dtype_spec=spec.get("dtype_spec")),
             })
         return json.dumps(result)
+    if output_type == "directory":
+        if not isinstance(value, dict):
+            raise TypeError(
+                f"Expected dict for directory output, got {type(value).__name__}. "
+                "Python steps with a Directory<T> output must return dict[str, T]."
+            )
+        if directory_spec is None:
+            raise ValueError("directory output requires directory_spec.")
+        inner_kind = directory_spec["inner_kind"]
+        inner_dtype = directory_spec.get("dtype_spec")
+        entries = {
+            k: _encode(inner_kind, v, dtype_spec=inner_dtype) for k, v in value.items()
+        }
+        return json.dumps({"inner_kind": inner_kind, "entries": entries})
     raise ValueError(f"Unknown output_type: {output_type!r}")
 
 
@@ -176,6 +197,7 @@ def _handle_invoke(msg: dict) -> dict:
             result,
             dtype_spec=msg.get("output_dtype_spec"),
             element_specs=msg.get("output_element_specs"),
+            directory_spec=msg.get("output_directory_spec"),
         )
         return {"status": "ok", "output": encoded}
     except Exception:

@@ -25,6 +25,34 @@ public partial class Catalog
     );
 
   /// <summary>
+  /// Flat project → file → method icicle nodes for src libraries. Pivot source for the
+  /// Plotly icicle chart: each row is one node with its parent id, level, and aggregated
+  /// covered/total line counts.
+  /// </summary>
+  public IItem<IEnumerable<IcicleCoverageNode>> IcicleCoverage =>
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.Csv<IcicleCoverageNode>(
+          label: "IcicleCoverage",
+          filePath: $"{_basePath}/_04_Reporting/Datasets/icicle_coverage.csv"
+        )
+    );
+
+  /// <summary>
+  /// Per-library Plotly icicle PNGs, one file per src project. Keys are full file paths
+  /// under <c>_04_Reporting/Datasets/icicles/</c>; values are PNG bytes.
+  /// </summary>
+  public IItem<Directory<byte[]>> CoverageIcicles =>
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.BinaryDirectory(
+          label: "CoverageIcicles",
+          directoryPath: $"{_basePath}/_04_Reporting/Datasets/icicles",
+          filePattern: "*.png"
+        )
+    );
+
+  /// <summary>
   /// Methods with zero total hits — full-signature variant — BEFORE the remote-source filter.
   /// In-memory intermediate consumed by <see cref="Flows.Reporting.Steps.FilterRemoteSourceFilesStep"/>.
   /// </summary>

@@ -136,7 +136,8 @@ public class FlowBuilderGenerator : IIncrementalGenerator
             description: description,
             step: transform,
             inputs: {{inputsArg}},
-            outputs: {{outputsArg}}
+            outputs: {{outputsArg}},
+            serviceDependencies: StepMetadataResolver.GetServiceDependencies(transform)
           );
 
           _flow.AddStep(flowStep);

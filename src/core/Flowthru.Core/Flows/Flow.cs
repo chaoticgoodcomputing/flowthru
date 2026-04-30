@@ -592,6 +592,22 @@ public class Flow
 
     Logger?.LogInformation("All external inputs passed validation");
 
+    // ── Step service inspection pass ───────────────────────────────────────
+    // For each unique service type referenced by step.ServiceDependencies, look up a
+    // registered IFlowthruInspector<T> sidecar and run the probe. Missing inspectors
+    // are logged as warnings (non-fatal); inspector failures merge into the result.
+    var serviceInspectionResult = await InspectStepServicesAsync(stepsToExecute, cancellationToken);
+    result.Merge(serviceInspectionResult);
+
+    if (!result.IsValid)
+    {
+      Logger?.LogError(
+        "Step service inspection failed with {ErrorCount} error(s)",
+        result.Errors.Count
+      );
+      return result;
+    }
+
     // ── Target validation pass ──────────────────────────────────────────────
     // Validate write destinations for all items produced by steps in this execution set.
     // CanInspect = false means the adapter declared it cannot be probed cheaply (skip it).
@@ -681,6 +697,140 @@ public class Flow
     }
 
     return result;
+  }
+
+  /// <summary>
+  /// Runs preflight inspection on the union of services declared by
+  /// <see cref="FlowStep.ServiceDependencies"/> across the given steps. Each unique
+  /// service type is inspected at most once per execution.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// For each service type T:
+  /// </para>
+  /// <list type="number">
+  /// <item>Resolve T from <see cref="ServiceProvider"/>. If null, log warning, skip.</item>
+  /// <item>Resolve <c>IFlowthruInspector&lt;T&gt;</c> from <see cref="ServiceProvider"/>.
+  /// If absent, log warning, skip — services without inspectors are non-fatal.</item>
+  /// <item>If both are present, invoke the inspector. Exceptions are wrapped via
+  /// <see cref="Data.Validation.ValidationResult.FromException"/>.</item>
+  /// </list>
+  /// <para>
+  /// When <see cref="ServiceProvider"/> is null (e.g., flows constructed directly in
+  /// tests without DI), service inspection is skipped entirely.
+  /// </para>
+  /// </remarks>
+  private async Task<Data.Validation.ValidationResult> InspectStepServicesAsync(
+    IReadOnlyList<FlowStep> stepsToExecute,
+    CancellationToken cancellationToken
+  )
+  {
+    var aggregate = Data.Validation.ValidationResult.Success();
+
+    if (ServiceProvider is null)
+    {
+      // No DI container available — nothing to inspect.
+      return aggregate;
+    }
+
+    // Deduplicate service types across steps so each unique service is probed once.
+    var serviceGroups = stepsToExecute
+      .SelectMany(step => step.ServiceDependencies.Select(t => (Step: step, ServiceType: t)))
+      .GroupBy(pair => pair.ServiceType)
+      .ToList();
+
+    if (serviceGroups.Count == 0)
+    {
+      // No declared service deps — nothing to inspect.
+      return aggregate;
+    }
+
+    Logger?.LogInformation(
+      "Inspecting {ServiceCount} unique service dependency type(s) across {StepCount} step(s)",
+      serviceGroups.Count,
+      stepsToExecute.Count
+    );
+
+    foreach (var group in serviceGroups)
+    {
+      var serviceType = group.Key;
+      var stepsUsingService = string.Join(
+        ", ",
+        group.Select(g => g.Step.Label).Distinct()
+      );
+
+      // Resolve the service instance.
+      var serviceInstance = ServiceProvider.GetService(serviceType);
+      if (serviceInstance is null)
+      {
+        Logger?.LogWarning(
+          "Service '{ServiceType}' (used by step(s) '{Steps}') is not registered in DI; "
+            + "preflight cannot inspect it.",
+          serviceType.FullName,
+          stepsUsingService
+        );
+        continue;
+      }
+
+      // Resolve the IFlowthruInspector<TService> sidecar.
+      var inspectorType = typeof(Effects.IFlowthruInspector<>).MakeGenericType(serviceType);
+      var inspector = ServiceProvider.GetService(inspectorType);
+      if (inspector is null)
+      {
+        Logger?.LogWarning(
+          "Service '{ServiceType}' (used by step(s) '{Steps}') has no registered "
+            + "IFlowthruInspector<{ServiceTypeName}>. Use services.AddFlowthruInspect<{ServiceTypeName}>(...) "
+            + "to enable preflight inspection.",
+          serviceType.FullName,
+          stepsUsingService,
+          serviceType.Name,
+          serviceType.Name
+        );
+        continue;
+      }
+
+      // Invoke the inspector reflectively. The inspector itself is strongly-typed;
+      // only the lookup is reflective.
+      try
+      {
+        var inspectMethod = inspectorType.GetMethod(
+          nameof(Effects.IFlowthruInspector<object>.InspectAsync)
+        )!;
+        var flowIo = (FlowIO<Data.Validation.ValidationResult>)
+          inspectMethod.Invoke(inspector, new[] { serviceInstance, (object)cancellationToken })!;
+        var probeResult = await flowIo.Run(cancellationToken);
+        aggregate.Merge(probeResult);
+
+        if (probeResult.IsValid)
+        {
+          Logger?.LogInformation(
+            "Service '{ServiceType}' passed preflight inspection",
+            serviceType.FullName
+          );
+        }
+        else
+        {
+          Logger?.LogWarning(
+            "Service '{ServiceType}' failed preflight inspection: {ErrorCount} error(s)",
+            serviceType.FullName,
+            probeResult.Errors.Count
+          );
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger?.LogError(
+          ex,
+          "Exception during preflight inspection of service '{ServiceType}'",
+          serviceType.FullName
+        );
+        aggregate.Merge(
+          Data.Validation.ValidationResult.FromException(serviceType.Name, ex)
+        );
+      }
+    }
+
+    return aggregate;
   }
 
   /// <summary>

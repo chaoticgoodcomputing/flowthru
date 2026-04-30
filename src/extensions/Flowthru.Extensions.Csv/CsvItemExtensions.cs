@@ -75,20 +75,26 @@ public static class CsvItemExtensions
   }
 
   /// <summary>
-  /// Creates a catalog entry that reads all CSV files in a directory and
-  /// concatenates them into a single <see cref="IEnumerable{TRow}"/>.
+  /// Creates a catalog entry over a directory of CSV files where each file is one
+  /// independent row collection of the same schema. Read produces a
+  /// <see cref="Directory{T}"/> keyed by full file path; Save writes one CSV per entry,
+  /// deleting any existing <c>*.csv</c> in the directory first so re-runs are deterministic.
   /// </summary>
   /// <typeparam name="TRow">Row schema type (must be flat and text-serializable)</typeparam>
   /// <param name="_">The enumerable catalog entries factory (from <see cref="ItemFactory.Enumerable"/>)</param>
   /// <param name="label">Unique catalog label for DAG resolution</param>
   /// <param name="directoryPath">Path to the directory containing the CSV files</param>
-  /// <returns>Read-only catalog entry that concatenates every <c>*.csv</c> in the directory</returns>
+  /// <param name="nullValues">
+  /// Optional set of strings that should deserialize to null for nullable properties; see
+  /// <see cref="Csv{TRow}"/> for details. Applied uniformly to every file in the directory.
+  /// </param>
   /// <remarks>
-  /// Files are read in lexicographic order. All files must share the same schema.
-  /// This entry is <strong>read-only</strong> — attempting to save will fail with
-  /// <see cref="NotSupportedException"/>.
+  /// All files must share the same schema (identical column headers). This is intentionally
+  /// not a partitioning primitive — each file represents an independent unit. If you need
+  /// to chunk a single logical dataset across files, do that in a step before write and
+  /// reassemble in a step after read.
   /// </remarks>
-  public static Item<IEnumerable<TRow>> CsvDirectory<TRow>(
+  public static Item<Directory<IEnumerable<TRow>>> CsvDirectory<TRow>(
     this EnumerableItemFactory _,
     string label,
     string directoryPath,
@@ -96,9 +102,25 @@ public static class CsvItemExtensions
   )
     where TRow : notnull, IFlatSchema, ITextSerializable
   {
-    return new Item<IEnumerable<TRow>>(
+    var format = nullValues is null
+      ? new CsvFormatSerializer<TRow>()
+      : new CsvFormatSerializer<TRow>(nullValues);
+    var container = new EnumerableContainerAdapter<TRow>();
+
+    IStorageAdapter<IEnumerable<TRow>> PerFileAdapter(string path) =>
+      new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+        new FileStorageMedium(path),
+        format,
+        container
+      );
+
+    return new Item<Directory<IEnumerable<TRow>>>(
       label,
-      new DirectoryCsvStorageAdapter<TRow>(directoryPath, nullValues)
+      new DirectoryStorageAdapter<IEnumerable<TRow>>(
+        directoryPath: directoryPath,
+        filePattern: "*.csv",
+        perFileAdapter: PerFileAdapter
+      )
     );
   }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -83,6 +84,10 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
     else if (outputKind == "multi")
     {
       req["output_element_specs"] = BuildMultiElementSpecs(typeof(TOutput));
+    }
+    else if (outputKind == "directory")
+    {
+      req["output_directory_spec"] = BuildDirectorySpecJson(typeof(TOutput));
     }
 
     var resp = SendRequest(req);
@@ -259,6 +264,11 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       return "bytes";
     }
 
+    if (IsDirectoryType(type))
+    {
+      return "directory";
+    }
+
     if (IsEnumerableSchema(type))
     {
       return "tabular";
@@ -266,6 +276,9 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 
     return "scalar";
   }
+
+  private static bool IsDirectoryType(Type type) =>
+    type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Flowthru.Core.Data.Directory<>);
 
   private static bool IsValueTuple(Type type)
   {
@@ -310,6 +323,21 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   }
 
   /// <summary>
+  /// Builds the output_directory_spec object for <see cref="Flowthru.Core.Data.Directory{T}"/>
+  /// outputs. Tells the worker the inner kind (and dtype spec when inner is tabular) so it can
+  /// encode each dict entry correctly.
+  /// </summary>
+  private static JsonObject BuildDirectorySpecJson(Type directoryType)
+  {
+    var innerType = directoryType.GetGenericArguments()[0];
+    var innerKind = ClassifyType(innerType);
+    var spec = new JsonObject { ["inner_kind"] = innerKind };
+    if (innerKind == "tabular")
+      spec["dtype_spec"] = BuildDtypeSpecJson(innerType);
+    return spec;
+  }
+
+  /// <summary>
   /// Builds the output_element_specs array for multi-output (ValueTuple) types.
   /// Each entry describes the kind and (for tabular elements) the dtype spec.
   /// </summary>
@@ -340,8 +368,27 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       "bytes" => Convert.ToBase64String((byte[])value),
       "tabular" => EncodeTabular(value, type),
       "multi" => EncodeMulti(value, type),
+      "directory" => EncodeDirectory(value, type),
       _ => throw new NotSupportedException($"Unknown serialization kind: {kind}"),
     };
+
+  private static string EncodeDirectory(object value, Type directoryType)
+  {
+    var innerType = directoryType.GetGenericArguments()[0];
+    var innerKind = ClassifyType(innerType);
+
+    var entries = new JsonObject();
+    foreach (var kvp in (System.Collections.IEnumerable)value)
+    {
+      var keyProp = kvp.GetType().GetProperty("Key")!;
+      var valueProp = kvp.GetType().GetProperty("Value")!;
+      var key = (string)keyProp.GetValue(kvp)!;
+      var inner = valueProp.GetValue(kvp)!;
+      entries[key] = EncodeValue(inner, innerType, innerKind);
+    }
+
+    return new JsonObject { ["inner_kind"] = innerKind, ["entries"] = entries }.ToJsonString();
+  }
 
   private static string EncodeTabular(object value, Type collectionType)
   {
@@ -387,8 +434,33 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       "bytes" => (TOutput)(object)Convert.FromBase64String(payload),
       "tabular" => DecodeTabular<TOutput>(payload, type),
       "multi" => DecodeMulti<TOutput>(payload, type),
+      "directory" => DecodeDirectory<TOutput>(payload, type),
       _ => throw new NotSupportedException($"Unknown deserialization kind: {kind}"),
     };
+
+  private static TOutput DecodeDirectory<TOutput>(string payload, Type directoryType)
+  {
+    var innerType = directoryType.GetGenericArguments()[0];
+    var envelope = JsonNode.Parse(payload)!.AsObject();
+    var innerKind = envelope["inner_kind"]!.GetValue<string>();
+    var entriesJson = envelope["entries"]!.AsObject();
+
+    var dictType = typeof(Dictionary<,>).MakeGenericType(typeof(string), innerType);
+    var dict = (System.Collections.IDictionary)Activator.CreateInstance(dictType)!;
+
+    var decodeMethod = typeof(SubprocessPythonExecutor)
+      .GetMethod(nameof(DecodeValue), BindingFlags.NonPublic | BindingFlags.Static)!
+      .MakeGenericMethod(innerType);
+
+    foreach (var kvp in entriesJson)
+    {
+      var encoded = kvp.Value!.GetValue<string>();
+      var decoded = decodeMethod.Invoke(null, new object[] { encoded, innerType, innerKind });
+      dict[kvp.Key] = decoded;
+    }
+
+    return (TOutput)Activator.CreateInstance(directoryType, dict)!;
+  }
 
   private static TOutput DecodeTabular<TOutput>(string base64, Type collectionType)
   {

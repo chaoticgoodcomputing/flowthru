@@ -47,6 +47,24 @@ public static class ReportingFlow
       );
 
       pipeline.AddStep(
+        label: "BuildIcicleCoverage",
+        description: "Builds the flat project → file → method icicle hierarchy from line-level coverage rows. Filters to manifest Library packages (src/) and drops remote SourceLink URLs; sums covered/total lines at each level.",
+        transform: BuildIcicleCoverageStep.Create(),
+        input: (catalog.MethodLineCoverage, catalog.ProjectManifest),
+        output: catalog.IcicleCoverage
+      );
+
+      pipeline.AddPythonStep(
+        label: "GenerateCoverageIcicle",
+        description: "One Plotly PNG icicle per src library (file → method) written to the icicles/ directory. Box size = TotalLines; box colour = CoveragePercent.",
+        module: "Flows.Reporting.Steps.generate_coverage_icicle",
+        function: "generate_coverage_icicle",
+        input: catalog.IcicleCoverage,
+        output: catalog.CoverageIcicles,
+        executor: executor
+      );
+
+      pipeline.AddStep(
         label: "AggregatePackageCoverage",
         description: "Rolls up per-(TestProject, SrcPackage) pivot rows to per-SrcPackage rows with MAX coverage. Avoids the multi-test-project double-count drag (e.g. SourceGenerators reading 0% in Core.Tests AND 74.41% in SourceGenerators.Tests).",
         transform: AggregatePackageCoverageStep.Create(),

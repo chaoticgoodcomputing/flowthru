@@ -91,6 +91,23 @@ public class FlowStep
   public IReadOnlyList<INode> Outputs { get; }
 
   /// <summary>
+  /// Service types this step depends on, used by the preflight loop to look up
+  /// matching <see cref="Effects.IFlowthruInspector{TService}"/> registrations and
+  /// run reachability probes before the flow executes.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Defaults to an empty list when constructed via <c>FlowBuilder.AddStep</c>
+  /// — Phase 3 of the effects-as-steps initiative ships the inspection mechanism but
+  /// not the source-generated metadata that populates this list. Until the metadata
+  /// generator lands (Phase 4), real flows pay no preflight cost from service inspection;
+  /// tests construct <see cref="FlowStep"/> directly with explicit service deps to
+  /// exercise the inspection path.
+  /// </para>
+  /// </remarks>
+  public IReadOnlyList<Type> ServiceDependencies { get; }
+
+  /// <summary>
   /// Other Flow steps that must execute before this step.
   /// Populated during dependency analysis by checking which steps produce our inputs.
   /// </summary>
@@ -119,7 +136,10 @@ public class FlowStep
   public int Height { get; set; } = -1; // -1 indicates not yet computed
 
   /// <summary>
-  /// Creates a new Flow step with a transformation function.
+  /// Creates a new Flow step with a transformation function and no declared service
+  /// dependencies. Equivalent to calling the <see cref="FlowStep(string, string?, Delegate,
+  /// IReadOnlyList{INode}, IReadOnlyList{INode}, IReadOnlyList{Type}?)"/> overload with
+  /// a null service-deps list.
   /// </summary>
   /// <param name="label">Unique identifier for this step</param>
   /// <param name="description">Optional description of this step</param>
@@ -133,12 +153,36 @@ public class FlowStep
     IReadOnlyList<INode> inputs,
     IReadOnlyList<INode> outputs
   )
+    : this(label, description, step, inputs, outputs, serviceDependencies: null) { }
+
+  /// <summary>
+  /// Creates a new Flow step with a transformation function and an explicit list of
+  /// service dependencies for preflight inspection.
+  /// </summary>
+  /// <param name="label">Unique identifier for this step</param>
+  /// <param name="description">Optional description of this step</param>
+  /// <param name="step">The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)</param>
+  /// <param name="inputs">Catalog entries this step reads</param>
+  /// <param name="outputs">Catalog entries this step writes</param>
+  /// <param name="serviceDependencies">
+  /// Service types this step's transform depends on. The engine uses these to look up
+  /// matching <see cref="Effects.IFlowthruInspector{TService}"/> registrations during
+  /// preflight. Pass <c>null</c> for steps with no service dependencies (the default).
+  /// </param>
+  public FlowStep(
+    string label,
+    string? description,
+    Delegate step,
+    IReadOnlyList<INode> inputs,
+    IReadOnlyList<INode> outputs,
+    IReadOnlyList<Type>? serviceDependencies
+  )
   {
     Label = label;
     Description = description ?? string.Empty;
     TransformFunction = step;
     Inputs = inputs;
     Outputs = outputs;
+    ServiceDependencies = serviceDependencies ?? Array.Empty<Type>();
   }
-
 }

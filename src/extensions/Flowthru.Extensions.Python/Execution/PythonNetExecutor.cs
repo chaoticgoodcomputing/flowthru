@@ -79,6 +79,14 @@ public sealed class PythonNetExecutor : IPythonExecutor
           return InvokeMulti<TInput, TOutput>(moduleName, functionName, input);
         }
 
+        // Directory<T> dispatch is uniform: marshal input via MarshalSingleArg (which
+        // handles directory + tabular + scalar), invoke, unmarshal via UnmarshalElement
+        // (likewise). Routed before the tabular/scalar split so both ends stay simple.
+        if (IsDirectoryType(inputType) || IsDirectoryType(outputType))
+        {
+          return InvokeWithDirectory<TInput, TOutput>(moduleName, functionName, input);
+        }
+
         bool isInputTabular = IsEnumerableSchema(inputType);
         bool isOutputTabular = IsEnumerableSchema(outputType);
 
@@ -198,6 +206,15 @@ public sealed class PythonNetExecutor : IPythonExecutor
     return UnmarshalSingle<TOutput>(pyResult);
   }
 
+  // ── Directory path ────────────────────────────────────────────────────────────────────
+
+  private TOutput InvokeWithDirectory<TInput, TOutput>(string module, string function, TInput input)
+  {
+    var pyInput = (PyObject)MarshalSingleArg(input!, typeof(TInput));
+    var pyResult = InvokeRaw(module, function, pyInput);
+    return (TOutput)UnmarshalElement(pyResult, typeof(TOutput))!;
+  }
+
   // ── Raw invocation ────────────────────────────────────────────────────────────────────
 
   private PyObject InvokeRaw(string moduleName, string functionName, params object[] args)
@@ -253,6 +270,9 @@ public sealed class PythonNetExecutor : IPythonExecutor
   }
 
   // ── Marshalling helpers ───────────────────────────────────────────────────────────────
+
+  private static bool IsDirectoryType(Type type) =>
+    type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Flowthru.Core.Data.Directory<>);
 
   private static bool IsValueTuple(Type type)
   {
@@ -310,12 +330,40 @@ public sealed class PythonNetExecutor : IPythonExecutor
 
   private static object MarshalSingleArg(object value, Type type)
   {
+    if (IsDirectoryType(type))
+      return DirectoryToPyObject(value, type);
     if (IsEnumerableSchema(type))
-    {
-      var elemType = type.GetGenericArguments()[0];
       return TabularToPyObject(value, type);
-    }
     return ScalarMarshaller.ToPython(value);
+  }
+
+  /// <summary>
+  /// Converts a <see cref="Flowthru.Core.Data.Directory{T}"/> to a Python <c>dict</c> whose
+  /// keys are file paths and whose values are marshalled per the inner type's kind:
+  /// scalar/bytes through <see cref="ScalarMarshaller"/>, tabular through Arrow IPC,
+  /// directory recursively (though nested directories aren't a typical shape). The Python
+  /// step receives a plain <c>dict[str, T]</c>.
+  /// </summary>
+  private static PyObject DirectoryToPyObject(object value, Type directoryType)
+  {
+    var innerType = directoryType.GetGenericArguments()[0];
+
+    // Caller owns the returned PyDict; no `using` here. Python.NET decrements the
+    // refcount when the wrapper is collected, the same path InvokeRaw uses for any
+    // other PyObject argument we return.
+    var pyDict = new PyDict();
+    foreach (var kvp in (System.Collections.IEnumerable)value)
+    {
+      var keyProp = kvp.GetType().GetProperty("Key")!;
+      var valueProp = kvp.GetType().GetProperty("Value")!;
+      var key = (string)keyProp.GetValue(kvp)!;
+      var inner = valueProp.GetValue(kvp)!;
+
+      using var pyKey = new PyString(key);
+      var pyValue = (PyObject)MarshalSingleArg(inner, innerType);
+      pyDict[pyKey] = pyValue;
+    }
+    return pyDict;
   }
 
   private static PyObject TabularToPyObject(object value, Type collectionType)
@@ -384,6 +432,9 @@ public sealed class PythonNetExecutor : IPythonExecutor
 
   private static object? UnmarshalElement(PyObject pyObj, Type targetType)
   {
+    if (IsDirectoryType(targetType))
+      return DirectoryFromPyObject(pyObj, targetType);
+
     if (IsEnumerableSchema(targetType))
     {
       var elemType = targetType.GetGenericArguments()[0];
@@ -395,5 +446,29 @@ public sealed class PythonNetExecutor : IPythonExecutor
       .GetMethod(nameof(ScalarMarshaller.FromPython))!
       .MakeGenericMethod(targetType);
     return fromPythonMethod.Invoke(null, new object[] { pyObj });
+  }
+
+  /// <summary>
+  /// Converts a Python <c>dict[str, T]</c> back into a <see cref="Flowthru.Core.Data.Directory{T}"/>.
+  /// Each value is unmarshalled via <see cref="UnmarshalElement"/> so the inner kind
+  /// (scalar/tabular/directory) is handled uniformly.
+  /// </summary>
+  private static object DirectoryFromPyObject(PyObject pyObj, Type directoryType)
+  {
+    var innerType = directoryType.GetGenericArguments()[0];
+    var pyDict = new PyDict(pyObj);
+
+    var dictType = typeof(Dictionary<,>).MakeGenericType(typeof(string), innerType);
+    var dict = (System.Collections.IDictionary)Activator.CreateInstance(dictType)!;
+
+    foreach (PyObject pyKey in pyDict.Keys())
+    {
+      var key = pyKey.ToString() ?? throw new InvalidOperationException("Null directory key.");
+      var pyValue = pyDict[pyKey];
+      var inner = UnmarshalElement(pyValue, innerType);
+      dict[key] = inner;
+    }
+
+    return Activator.CreateInstance(directoryType, dict)!;
   }
 }
