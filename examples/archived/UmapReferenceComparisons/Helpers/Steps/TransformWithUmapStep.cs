@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Flowthru.Misc.ML.UMAP.Core;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
@@ -6,6 +7,7 @@ namespace UmapReferenceComparisons.Helpers.Steps;
 /// <summary>
 /// Applies C# UMAP transformation to universal UmapInput data using the new strategy architecture.
 /// </summary>
+[FlowthruStep]
 public static class TransformWithUmapStep
 {
   public record Params

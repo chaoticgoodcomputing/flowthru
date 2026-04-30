@@ -62,6 +62,39 @@ public class FlowBuilderGeneratorTests
     Assert.That(generated, Does.Contain("Task<"));
   }
 
+  [Test]
+  public void GeneratedFile_ContainsCancellationTokenVariants()
+  {
+    var result = GeneratorTestHelper.RunFlowBuilderGenerator();
+
+    var generated = result.GetGeneratedSource("FlowBuilder.Generated.cs")!;
+
+    // The generator emits async-with-CancellationToken across the full arity matrix —
+    // pre-Phase-1 only 1×1 had a hand-written CT variant. Confirm the generated source
+    // now carries CT-bearing transform signatures.
+    Assert.That(generated, Does.Contain("CancellationToken"));
+  }
+
+  [Test]
+  public void GeneratedFile_ContainsZeroArityShapes()
+  {
+    var result = GeneratorTestHelper.RunFlowBuilderGenerator();
+
+    var generated = result.GetGeneratedSource("FlowBuilder.Generated.cs")!;
+
+    // 0-arity sync/async shapes use Action / Func<Task> rather than the typed
+    // Func<TIn, TOut> family. Confirm both signatures appear in the output.
+    Assert.Multiple(() =>
+    {
+      // 0×0 sync: Action transform
+      Assert.That(generated, Does.Contain("Action transform"));
+      // 0×0 async: Func<Task> transform (or Func<CancellationToken, Task>)
+      Assert.That(generated, Does.Contain("Func<Task> transform"));
+      // 1×0 sync: Action<TIn1> transform
+      Assert.That(generated, Does.Contain("Action<TIn1> transform"));
+    });
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Gating — does NOT run for consumer assemblies
   // ─────────────────────────────────────────────────────────────────────────

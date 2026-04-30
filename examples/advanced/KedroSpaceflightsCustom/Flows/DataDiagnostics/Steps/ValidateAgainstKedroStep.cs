@@ -16,8 +16,8 @@ namespace KedroSpaceflightsCustom.Flows.DataDiagnostics.Steps;
 /// 3. Data value comparison - checks for discrepancies in actual values
 /// </para>
 /// <para>
-/// This is a side-effect-only node that produces no meaningful output (NoData),
-/// but logs detailed comparison results for diagnostic purposes.
+/// This is a side-effect-only node (2 inputs, 0 outputs) that logs detailed
+/// comparison results for diagnostic purposes.
 /// </para>
 /// </remarks>
 [FlowthruStep]
@@ -25,11 +25,13 @@ public static class ValidateAgainstKedroStep
 {
   public static Func<
     (IEnumerable<ModelInputSchema> FlowthruData, IEnumerable<KedroModelInputSchema> KedroData),
-    Task<NoData>
+    Task
   > Create()
   {
     return async (input) =>
     {
+      await Task.Yield();
+
       var flowthruData = input.FlowthruData.ToList();
       var kedroData = input.KedroData.ToList();
 
@@ -46,9 +48,6 @@ public static class ValidateAgainstKedroStep
 
       // Step 3: Data Value Comparison
       CompareDataValues(flowthruData, kedroData);
-
-      // This is a side-effect-only node - return NoData singleton
-      return NoData.Value;
     };
   }
 

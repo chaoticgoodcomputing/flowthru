@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Flowthru.Core.Steps;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
 namespace UmapReferenceComparisons.Flows.FashionComparison.Steps;
@@ -7,6 +8,7 @@ namespace UmapReferenceComparisons.Flows.FashionComparison.Steps;
 /// <summary>
 /// Converts FashionMnistInputRow to UmapInput (float[784] features, string label).
 /// </summary>
+[FlowthruStep]
 public static class ConvertFashionMnistToUmapInputStep
 {
   public static Func<IEnumerable<MnistInputRow>, Task<IEnumerable<UmapInput>>> Create()

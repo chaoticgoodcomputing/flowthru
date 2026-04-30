@@ -1,5 +1,4 @@
 using Flowthru.Core.Flows;
-using Flowthru.Core.Steps;
 using KedroSpaceflightsCustom.Data;
 using KedroSpaceflightsCustom.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsCustom.Data._03_Primary.Schemas;
@@ -18,8 +17,7 @@ namespace KedroSpaceflightsCustom.Flows.DataDiagnostics;
 ///
 /// <para><strong>Diagnostic Steps:</strong></para>
 /// <list type="bullet">
-/// <item>GenerateSyntheticDataStep - Generates test data with NoData input (demonstrates no-input nodes)</item>
-/// <item>ValidateAgainstKedroStep - Compares Flowthru vs Kedro model input table (demonstrates no-output nodes)</item>
+/// <item>ValidateAgainstKedroStep - Compares Flowthru vs Kedro model input table (demonstrates 2-input, 0-output side-effect nodes)</item>
 /// <item>ExportToCsvStep - Exports intermediate datasets to CSV for debugging</item>
 /// <item>CrossValidateModelStep - Performs k-fold cross-validation and comparison to Kedro</item>
 /// </list>
@@ -35,12 +33,11 @@ public static class DataDiagnosticsFlow
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      // Step 1: Validate model input table against Kedro reference output (demonstrates NoData output pattern)
+      // Step 1: Validate model input table against Kedro reference output (2-input, 0-output diagnostic step)
       pipeline.AddStep(
         label: "ValidateModelInputTableAgainstKedroSource",
         transform: ValidateAgainstKedroStep.Create(),
-        input: (catalog.ModelInputTable, catalog.KedroModelInputTable),
-        output: NoData.Item
+        input: (catalog.ModelInputTable, catalog.KedroModelInputTable)
       );
 
       // Step 2: Export cleaned companies to CSV for manual inspection

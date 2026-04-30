@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
 namespace UmapReferenceComparisons.Flows.IrisComparison.Steps;
@@ -5,6 +6,7 @@ namespace UmapReferenceComparisons.Flows.IrisComparison.Steps;
 /// <summary>
 /// Converts Iris-specific input schema to universal UmapInput format.
 /// </summary>
+[FlowthruStep]
 public static class ConvertIrisToUmapInputStep
 {
   public static Func<IEnumerable<IrisInputRow>, Task<IEnumerable<UmapInput>>> Create()

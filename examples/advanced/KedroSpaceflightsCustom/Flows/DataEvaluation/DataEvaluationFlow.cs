@@ -19,8 +19,7 @@ namespace KedroSpaceflightsCustom.Flows.DataEvaluation;
 ///
 /// <para><strong>Diagnostic Steps:</strong></para>
 /// <list type="bullet">
-/// <item>GenerateSyntheticDataStep - Generates test data with NoData input (demonstrates no-input nodes)</item>
-/// <item>ValidateAgainstKedroStep - Compares Flowthru vs Kedro model input table (demonstrates no-output nodes)</item>
+/// <item>ValidateAgainstKedroStep - Compares Flowthru vs Kedro model input table (demonstrates 2-input, 0-output side-effect nodes)</item>
 /// <item>ExportToCsvStep - Exports intermediate datasets to CSV for debugging</item>
 /// <item>CrossValidateModelStep - Performs k-fold cross-validation and comparison to Kedro</item>
 /// </list>

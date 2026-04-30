@@ -11,3 +11,4 @@
 | FT2002  | Flowthru.Registration | Warning  | Catalog registered but not referenced by any pipeline                       |
 | FT2003  | Flowthru.Registration | Warning  | Concrete pipeline parameter resolved from DI; consider configurationSection |
 | FT2004  | Flowthru.Registration | Error    | configurationSection specified but UseConfiguration() not called            |
+| FT4001  | Flowthru.Core.Steps   | Warning  | Step factory class missing [FlowthruStep] attribute                         |

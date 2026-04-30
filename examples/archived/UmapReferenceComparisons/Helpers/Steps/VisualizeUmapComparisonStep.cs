@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
@@ -16,6 +17,7 @@ namespace UmapReferenceComparisons.Helpers.Steps;
 /// Points are colored by class labels to enable visual validation that both
 /// implementations preserve similar clustering patterns.
 /// </remarks>
+[FlowthruStep]
 public static class VisualizeUmapComparisonStep
 {
   public record Params

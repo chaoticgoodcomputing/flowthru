@@ -11,11 +11,16 @@ namespace Flowthru.Core.Flows;
 /// <para>
 /// <strong>Function-Based Design (v0.5.0):</strong>
 /// Steps are pure transformation functions with compile-time type safety.
-/// Both synchronous and asynchronous functions are supported:
+/// Both synchronous and asynchronous functions are supported, across the full
+/// 0–8 inputs × 0–8 outputs arity matrix:
 /// - Sync: Func&lt;TInput, TOutput&gt;
 /// - Async: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
+/// - Async with cancellation: Func&lt;TInput, CancellationToken, Task&lt;TOutput&gt;&gt;
 /// - Multi-input: Func&lt;(TIn1, TIn2, ...), TOutput&gt; or Task&lt;TOutput&gt;
 /// - Multi-output: Func&lt;TInput, (TOut1, TOut2, ...)&gt; or Task&lt;(TOut1, TOut2, ...)&gt;
+/// - Zero-input (side-effect generator): Func&lt;TOutput&gt;, Func&lt;Task&lt;TOutput&gt;&gt;
+/// - Zero-output (side-effect sink): Action&lt;TInput&gt;, Func&lt;TInput, Task&gt;
+/// - Zero-by-zero (pure side effect): Action, Func&lt;Task&gt;
 /// </para>
 /// <para>
 /// Use synchronous functions for pure data transformations. Use asynchronous functions
@@ -94,103 +99,9 @@ public partial class FlowBuilder
     return builder._flow;
   }
 
-  /// <summary>
-  /// Adds a step with single input and single output (asynchronous transformation).
-  /// All types are inferred from the transformation function signature.
-  /// </summary>
-  /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
-  /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
-  /// <param name="label">Unique identifier for this step</param>
-  /// <param name="transform">Asynchronous transformation function from input to output</param>
-  /// <param name="input">Catalog entry providing input data</param>
-  /// <param name="output">Catalog entry to store output data</param>
-  /// <param name="description">Optional description for this step</param>
-  /// <returns>This builder for method chaining</returns>
-  public FlowBuilder AddStep<TInput, TOutput>(
-    string label,
-    Func<TInput, Task<TOutput>> transform,
-    INode<TInput> input,
-    INode<TOutput> output,
-    string description = ""
-  )
-  {
-    var flowStep = new FlowStep(
-      label: label,
-      description: description,
-      step: transform,
-      inputs: new List<INode> { input },
-      outputs: new List<INode> { output }
-    );
-
-    _flow.AddStep(flowStep);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a step with single input and single output (asynchronous transformation with cancellation support).
-  /// All types are inferred from the transformation function signature.
-  /// </summary>
-  /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
-  /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
-  /// <param name="label">Unique identifier for this step</param>
-  /// <param name="transform">Asynchronous transformation function from input to output with cancellation token</param>
-  /// <param name="input">Catalog entry providing input data</param>
-  /// <param name="output">Catalog entry to store output data</param>
-  /// <param name="description">Optional description for this step</param>
-  /// <returns>This builder for method chaining</returns>
-  public FlowBuilder AddStep<TInput, TOutput>(
-    string label,
-    Func<TInput, CancellationToken, Task<TOutput>> transform,
-    INode<TInput> input,
-    INode<TOutput> output,
-    string description = ""
-  )
-  {
-    var flowStep = new FlowStep(
-      label: label,
-      description: description,
-      step: transform,
-      inputs: new List<INode> { input },
-      outputs: new List<INode> { output }
-    );
-
-    _flow.AddStep(flowStep);
-    return this;
-  }
-
-  /// <summary>
-  /// Adds a step with single input and single output (synchronous transformation).
-  /// All types are inferred from the transformation function signature.
-  /// </summary>
-  /// <typeparam name="TInput">Input type (inferred from transform)</typeparam>
-  /// <typeparam name="TOutput">Output type (inferred from transform)</typeparam>
-  /// <param name="label">Unique identifier for this step</param>
-  /// <param name="transform">Synchronous transformation function from input to output</param>
-  /// <param name="input">Catalog entry providing input data</param>
-  /// <param name="output">Catalog entry to store output data</param>
-  /// <param name="description">Optional description for this step</param>
-  /// <returns>This builder for method chaining</returns>
-  public FlowBuilder AddStep<TInput, TOutput>(
-    string label,
-    Func<TInput, TOutput> transform,
-    INode<TInput> input,
-    INode<TOutput> output,
-    string description = ""
-  )
-  {
-    var flowStep = new FlowStep(
-      label: label,
-      description: description,
-      step: transform,
-      inputs: new List<INode> { input },
-      outputs: new List<INode> { output }
-    );
-
-    _flow.AddStep(flowStep);
-    return this;
-  }
-
-  // Additional overloads (2-8 inputs, 1-8 outputs) are auto-generated via source generator.
+  // All AddStep overloads (0-8 inputs × 0-8 outputs, in sync / async / async-with-CT
+  // variants) are emitted by the source generator. There are no hand-written overloads
+  // — the generator is the single source of truth for the AddStep surface.
   // See: Flowthru.Core.SourceGenerators/FlowBuilderGenerator.cs
 
   /// <summary>

@@ -865,6 +865,8 @@ public class Flow
   /// Supports optional cancellation awareness in step functions. Steps can opt-in to cancellation
   /// by accepting a CancellationToken as the last parameter:
   /// <list type="bullet">
+  /// <item>Func&lt;CancellationToken, Task&gt; - zero-input with cancellation</item>
+  /// <item>Func&lt;CancellationToken, Task&lt;TOut&gt;&gt; - zero-input, single-output with cancellation</item>
   /// <item>Func&lt;TIn, CancellationToken, Task&lt;TOut&gt;&gt; - single input with cancellation</item>
   /// <item>Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOut&gt;&gt; - multi-input with cancellation</item>
   /// </list>
@@ -874,8 +876,9 @@ public class Flow
     var invokeMethod = transformFunc.GetType().GetMethod("Invoke");
     var parameters = invokeMethod!.GetParameters();
 
-    // Check if last parameter is CancellationToken
-    return parameters.Length >= 2 && parameters[^1].ParameterType == typeof(CancellationToken);
+    // Check if last parameter is CancellationToken. Length >= 1 covers zero-input
+    // transforms whose only parameter is the CT itself (Func<CancellationToken, Task>).
+    return parameters.Length >= 1 && parameters[^1].ParameterType == typeof(CancellationToken);
   }
 
   /// <summary>
@@ -917,9 +920,10 @@ public class Flow
       var inputs = inputResults;
 
       // Prepare input parameter for function invocation
+      // For zero-input steps: no parameter (transform takes no input)
       // For single-input steps: pass data directly (T)
       // For multi-input steps: construct tuple (T1, T2, ...) or pass as object[] for fan-in
-      object inputParameter;
+      object? inputParameter = null;
       if (flowStep.Inputs.Count == 1)
       {
         // Single input: pass data directly, unless this is a fan-in wrapper (Func<object[], TOut>)
@@ -935,7 +939,7 @@ public class Flow
           inputParameter = inputs[0];
         }
       }
-      else
+      else if (flowStep.Inputs.Count > 1)
       {
         // Multi-input: construct tuple from loaded values, or pass as object[] for fan-in steps.
         // Use the function's actual parameter type to ensure correct tuple signature.
@@ -943,10 +947,15 @@ public class Flow
         var invokeMethod = funcType.GetMethod("Invoke");
         var parameters = invokeMethod!.GetParameters();
 
-        if (parameters.Length != 1)
+        // Strip trailing CancellationToken when present so we look at "data" parameters only.
+        var dataParameterCount =
+          parameters.Length >= 1 && parameters[^1].ParameterType == typeof(CancellationToken)
+            ? parameters.Length - 1
+            : parameters.Length;
+        if (dataParameterCount != 1)
         {
           throw new InvalidOperationException(
-            $"Transform function for step {flowStep.Label} should have exactly 1 parameter (tuple), but has {parameters.Length}"
+            $"Transform function for step {flowStep.Label} should have exactly 1 data parameter (tuple), but has {dataParameterCount}"
           );
         }
 
@@ -986,8 +995,16 @@ public class Flow
       // Invoke transformation function directly via DynamicInvoke
       // Pass cancellation token if the step signature accepts it
       var transformFunc = flowStep.TransformFunction;
+      var hasCancellationToken = StepAcceptsCancellationToken(transformFunc);
       object? result;
-      if (StepAcceptsCancellationToken(transformFunc))
+      if (flowStep.Inputs.Count == 0)
+      {
+        // Zero-input: invoke with either (CT) or () depending on signature.
+        result = hasCancellationToken
+          ? transformFunc.DynamicInvoke(cancellationToken)
+          : transformFunc.DynamicInvoke();
+      }
+      else if (hasCancellationToken)
       {
         result = transformFunc.DynamicInvoke(inputParameter, cancellationToken);
       }
@@ -995,24 +1012,33 @@ public class Flow
       {
         result = transformFunc.DynamicInvoke(inputParameter);
       }
-      if (result == null)
+
+      // Result handling. Zero-output transforms (Action / Func<Task>) may return null
+      // (sync void) or a non-generic Task (async void); both are valid.
+      object? output;
+      if (flowStep.Outputs.Count == 0)
+      {
+        if (result is Task voidTask)
+        {
+          await voidTask.ConfigureAwait(false);
+        }
+        output = null;
+      }
+      else if (result == null)
       {
         throw new InvalidOperationException(
           $"Transform function for step {flowStep.Label} returned null"
         );
       }
-
-      // Check if result is a Task (async function) or direct value (sync function)
-      object output;
-      if (result is Task resultTask)
+      else if (result is Task resultTask)
       {
-        // Async path: await the task and extract result
+        // Async path with output: await and extract Task<T>.Result.
         await resultTask.ConfigureAwait(false);
         output = GetTaskResult(resultTask);
       }
       else
       {
-        // Sync path: use result directly
+        // Sync path with output: use result directly.
         output = result;
       }
 
@@ -1097,8 +1123,21 @@ public class Flow
     catch (Exception ex)
     {
       stopwatch.Stop();
-      Logger?.LogError(ex, "Step {StepName} failed: {ErrorMessage}", flowStep.Label, ex.Message);
-      return StepResult.CreateFailure(flowStep.Label, stopwatch.Elapsed, ex);
+      // Unwrap reflection's TargetInvocationException so the surfaced exception is the
+      // one the user's transform actually threw. Sync transforms invoked via DynamicInvoke
+      // are wrapped; async transforms unwrap automatically via await — this normalizes
+      // the two paths so consumers always see the original.
+      var surfacedException = ex is System.Reflection.TargetInvocationException tie
+        && tie.InnerException is not null
+        ? tie.InnerException
+        : ex;
+      Logger?.LogError(
+        surfacedException,
+        "Step {StepName} failed: {ErrorMessage}",
+        flowStep.Label,
+        surfacedException.Message
+      );
+      return StepResult.CreateFailure(flowStep.Label, stopwatch.Elapsed, surfacedException);
     }
   }
 
@@ -1121,7 +1160,7 @@ public class Flow
       var inputs = inputResults;
 
       // Prepare input parameter
-      object inputParameter;
+      object? inputParameter = null;
       if (flowStep.Inputs.Count == 1)
       {
         // Single input, unless this is a fan-in wrapper (Func<object[], TOut>)
@@ -1136,7 +1175,7 @@ public class Flow
           inputParameter = inputs[0];
         }
       }
-      else
+      else if (flowStep.Inputs.Count > 1)
       {
         // Use the function's actual parameter type to ensure correct tuple signature
         var funcType = flowStep.TransformFunction.GetType();
@@ -1163,8 +1202,16 @@ public class Flow
       // Invoke transformation function
       // Pass cancellation token if the step signature accepts it
       var transformFunc = flowStep.TransformFunction;
+      var hasCancellationToken = StepAcceptsCancellationToken(transformFunc);
       Task? resultTask;
-      if (StepAcceptsCancellationToken(transformFunc))
+      if (flowStep.Inputs.Count == 0)
+      {
+        // Zero-input: invoke with either (CT) or () depending on signature.
+        resultTask = (Task?)(hasCancellationToken
+          ? transformFunc.DynamicInvoke(cancellationToken)
+          : transformFunc.DynamicInvoke());
+      }
+      else if (hasCancellationToken)
       {
         resultTask = (Task?)transformFunc.DynamicInvoke(inputParameter, cancellationToken);
       }
@@ -1181,6 +1228,13 @@ public class Flow
       }
 
       await resultTask.ConfigureAwait(false);
+
+      // Zero-output transforms return a non-generic Task (void). No output to extract or save.
+      if (flowStep.Outputs.Count == 0)
+      {
+        return;
+      }
+
       var output = GetTaskResult(resultTask);
 
       // Save outputs

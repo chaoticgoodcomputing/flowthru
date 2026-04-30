@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Flowthru.Core.Tests.Fixtures.TestCatalogs;
 
 namespace Flowthru.Core.Tests.Fixtures.TestSteps;
@@ -5,6 +6,7 @@ namespace Flowthru.Core.Tests.Fixtures.TestSteps;
 /// <summary>
 /// Simple passthrough step that copies input to output unchanged.
 /// </summary>
+[FlowthruStep]
 public static class PassthroughStep
 {
   public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create()
@@ -16,6 +18,7 @@ public static class PassthroughStep
 /// <summary>
 /// Step that always throws an exception during execution.
 /// </summary>
+[FlowthruStep]
 public static class FailingStep
 {
   public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create(
@@ -33,6 +36,7 @@ public static class FailingStep
 /// <summary>
 /// Step that introduces a delay during execution.
 /// </summary>
+[FlowthruStep]
 public static class DelayedStep
 {
   public static Func<IEnumerable<TestData>, CancellationToken, Task<IEnumerable<TestData>>> Create(
@@ -51,6 +55,7 @@ public static class DelayedStep
 /// <summary>
 /// Step that transforms data by incrementing the Id field.
 /// </summary>
+[FlowthruStep]
 public static class IncrementStep
 {
   public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create()
@@ -66,6 +71,7 @@ public static class IncrementStep
 /// <summary>
 /// Step that transforms data by doubling the Value field.
 /// </summary>
+[FlowthruStep]
 public static class DoubleValueStep
 {
   public static Func<IEnumerable<TestData>, Task<IEnumerable<TestData>>> Create()
@@ -81,6 +87,7 @@ public static class DoubleValueStep
 /// <summary>
 /// Step that merges two datasets into one.
 /// </summary>
+[FlowthruStep]
 public static class MergeStep
 {
   public static Func<
@@ -99,6 +106,7 @@ public static class MergeStep
 /// <summary>
 /// Step that splits a dataset into two halves.
 /// </summary>
+[FlowthruStep]
 public static class SplitStep
 {
   public static Func<
@@ -120,6 +128,7 @@ public static class SplitStep
 /// Step that records its execution window (start/end timestamp) to a shared log,
 /// then applies an optional delay. Used to verify concurrent vs. sequential dispatch.
 /// </summary>
+[FlowthruStep]
 public static class RecordingStep
 {
   /// <param name="log">Shared bag that captures execution windows across steps.</param>

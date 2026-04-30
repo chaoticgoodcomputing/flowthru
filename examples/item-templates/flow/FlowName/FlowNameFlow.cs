@@ -20,13 +20,12 @@ public static class FlowNameFlow
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      // Start with a dummy node - replace with your actu
+      // Start with a dummy 0-input/0-output node — replace with your actual
+      // step that wires real catalog inputs/outputs.
       pipeline.AddStep(
         label: "FlowNameDummy",
         description: "Placeholder",
-        transform: FlowNameDummyStep.Create(),
-        input: catalog.NoData,
-        output: catalog.NoData
+        transform: FlowNameDummyStep.Create()
       );
     });
   }

@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using Flowthru.Misc.ML.UMAP;
 using Flowthru.Misc.ML.UMAP.Core;
 using Microsoft.ML;
@@ -37,6 +38,7 @@ namespace UmapReferenceComparisons.Helpers.Steps;
 /// <item>Validation thresholds (minimum preservation, confidence, trials)</item>
 /// </list>
 /// </remarks>
+[FlowthruStep]
 public static class CompareUmapImplementationsStep
 {
   /// <summary>

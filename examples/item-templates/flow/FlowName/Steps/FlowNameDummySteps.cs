@@ -1,5 +1,3 @@
-using Flowthru.Core.Abstractions;
-
 namespace ProjectName.Flows.FlowName.Steps;
 
 /// <summary>
@@ -8,19 +6,23 @@ namespace ProjectName.Flows.FlowName.Steps;
 public static class FlowNameDummyStep
 {
   /// <summary>
-  /// Creates a dummy transformation function. Replace this with your actual processing logic.
+  /// Creates a dummy 0-input/0-output transformation. Replace with your actual
+  /// processing logic — typically a Func&lt;TIn, TOut&gt; with real inputs and outputs
+  /// wired through the catalog.
   /// </summary>
   /// <returns>
-  /// A function that performs a placeholder transformation.
+  /// An <see cref="Action"/> placeholder that does nothing.
   /// </returns>
-  public static Func<NoData, NoData> Create()
+  public static Action Create()
   {
-    return (input) =>
+    return () =>
     {
       // TODO: Replace this dummy node with actual transformation logic.
-      // Example:
-      //   return inputData.Select(item => new OutputSchema { ... });
-      return input;
+      // Typical shape:
+      //   public static Func<IEnumerable<InputSchema>, IEnumerable<OutputSchema>> Create()
+      //   {
+      //     return input => input.Select(item => new OutputSchema { ... });
+      //   }
     };
   }
 }

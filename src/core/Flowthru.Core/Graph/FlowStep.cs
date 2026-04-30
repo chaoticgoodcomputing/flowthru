@@ -45,18 +45,25 @@ public class FlowStep
   /// <remarks>
   /// <para>
   /// At execution time, this delegate will be invoked via DynamicInvoke with the
-  /// appropriate input parameter(s). The function signature can be either synchronous
-  /// or asynchronous:
+  /// appropriate input parameter(s) — or with no parameters at all for zero-input steps.
+  /// The function signature can be synchronous or asynchronous, across the full
+  /// 0–8 inputs × 0–8 outputs arity matrix:
   /// - Sync single: Func&lt;TInput, TOutput&gt;
   /// - Async single: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
   /// - Sync multi-input: Func&lt;(TIn1, TIn2, ...), TOutput&gt;
   /// - Async multi-input: Func&lt;(TIn1, TIn2, ...), Task&lt;TOutput&gt;&gt;
   /// - Sync multi-output: Func&lt;TInput, (TOut1, TOut2, ...)&gt;
   /// - Async multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
+  /// - Zero-input sync: Func&lt;TOutput&gt; or Action (when also zero-output)
+  /// - Zero-input async: Func&lt;Task&lt;TOutput&gt;&gt; or Func&lt;Task&gt; (when also zero-output)
+  /// - Zero-output sync: Action&lt;TInput&gt;
+  /// - Zero-output async: Func&lt;TInput, Task&gt;
   /// </para>
   /// <para>
   /// <strong>Optional Cancellation Support:</strong> Steps can opt-in to cancellation awareness
   /// by accepting a CancellationToken as the last parameter:
+  /// - Func&lt;CancellationToken, Task&gt; (zero-input, zero-output)
+  /// - Func&lt;CancellationToken, Task&lt;TOutput&gt;&gt; (zero-input)
   /// - Func&lt;TInput, CancellationToken, Task&lt;TOutput&gt;&gt;
   /// - Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOutput&gt;&gt;
   /// </para>

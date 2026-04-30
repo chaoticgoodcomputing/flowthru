@@ -1,3 +1,4 @@
+using Flowthru.Core.Steps;
 using UmapReferenceComparisons.Data._01_Raw.Schemas;
 
 namespace UmapReferenceComparisons.Flows.DigitsComparison.Steps;
@@ -5,6 +6,7 @@ namespace UmapReferenceComparisons.Flows.DigitsComparison.Steps;
 /// <summary>
 /// Converts Digits-specific input schema to universal UmapInput format.
 /// </summary>
+[FlowthruStep]
 public static class ConvertDigitsToUmapInputStep
 {
   public static Func<IEnumerable<DigitsInputRow>, Task<IEnumerable<UmapInput>>> Create()
