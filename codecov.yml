@@ -88,6 +88,8 @@ flags:
     carryforward: true
   RetailDataSplitFlow:
     carryforward: true
+  SimpleEffectsExample:
+    carryforward: true
   SpaceflightsDistributed:
     carryforward: true
   SpaceflightsEFCore:

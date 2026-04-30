@@ -1,3 +1,19 @@
+## 0.13.0 (2026-04-30)
+
+### 🚀 Features
+
+- complete service DI system for steps ([69bd4e1c](https://github.com/chaoticgoodcomputing/flowthru/commit/69bd4e1c))
+- step example project ([aa750404](https://github.com/chaoticgoodcomputing/flowthru/commit/aa750404))
+
+### 🩹 Fixes
+
+- set up zero-arity steps ([83f16fb4](https://github.com/chaoticgoodcomputing/flowthru/commit/83f16fb4))
+- consistent pattern for file directory loading ([bcd1d032](https://github.com/chaoticgoodcomputing/flowthru/commit/bcd1d032))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.12.3 (2026-04-30)
 
 ### 🩹 Fixes
