@@ -1,3 +1,14 @@
+## 0.12.3 (2026-04-30)
+
+### 🩹 Fixes
+
+- leverage EFCore builtin utilities for runtime shape validationa across frameworks ([6ea0f606](https://github.com/chaoticgoodcomputing/flowthru/commit/6ea0f606))
+- miscellaneous fixes from additional extension testing coverage ([7db5c7dc](https://github.com/chaoticgoodcomputing/flowthru/commit/7db5c7dc))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.12.2 (2026-04-29)
 
 ### 🩹 Fixes
