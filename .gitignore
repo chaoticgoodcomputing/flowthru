@@ -286,3 +286,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 Flowthru.sln.DotSettings.user
+
+.fake
