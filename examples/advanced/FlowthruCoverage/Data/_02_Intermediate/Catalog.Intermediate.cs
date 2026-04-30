@@ -28,4 +28,18 @@ public partial class Catalog
           filePath: $"{_basePath}/_02_Intermediate/Datasets/method_line_coverage.csv"
         )
     );
+
+  /// <summary>
+  /// <see cref="MethodLineCoverage"/> filtered to rows whose <c>TestProject</c> is a
+  /// manifest <c>Example</c> entry. Drives the example-only icicle so you can see what
+  /// the example surface area covers vs the full picture.
+  /// </summary>
+  public IItem<IEnumerable<LineCoverageRow>> ExampleMethodLineCoverage =>
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.Csv<LineCoverageRow>(
+          label: "ExampleMethodLineCoverage",
+          filePath: $"{_basePath}/_02_Intermediate/Datasets/example_method_line_coverage.csv"
+        )
+    );
 }

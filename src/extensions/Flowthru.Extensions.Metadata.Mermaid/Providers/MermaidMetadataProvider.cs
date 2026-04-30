@@ -303,6 +303,8 @@ public class MermaidMetadataProvider : IMetadataProvider, IPostRunMetadataProvid
       }
     }
 
+    MermaidMetadataExtensions.AppendServiceNodes(sb, dag.Steps);
+
     sb.AppendLine("```");
 
     return sb.ToString();

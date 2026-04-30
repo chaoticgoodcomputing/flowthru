@@ -22,7 +22,28 @@ from flowthru import step
 
 logger = logging.getLogger(__name__)
 
-def _render_one(project: str, project_node: pd.Series, sub: pd.DataFrame) -> bytes:
+_COLORSCALE = [
+    [0.0, "#F8F8F8"],
+    [0.0 + 1e-4, "#F8F8F8"],
+    [0.0 + 2 * (1e-4), "#0D0887"],
+    [0.2 - 1e-4, "#0D0887"],
+    [0.2 + 1e-4, "#B93289"],
+    [0.4 - 1e-4, "#B93289"],
+    [0.4 + 1e-4, "#F48849"],
+    [0.6 - 1e-4, "#F48849"],
+    [0.6 + 1e-4, "#F0F921"],
+    [0.8 - 1e-4, "#F0F921"],
+    [0.8, "#00DD00"],
+    [1.0, "#00FF00"],
+]
+
+
+def _render_one(
+    project: str,
+    project_node: pd.Series,
+    sub: pd.DataFrame,
+    title_qualifier: str = "Coverage Icicle",
+) -> bytes:
     """Render one library's icicle PNG.
 
     Args:
@@ -30,6 +51,8 @@ def _render_one(project: str, project_node: pd.Series, sub: pd.DataFrame) -> byt
         project_node: The Project-level row for this library — supplies aggregated coverage
                       for the chart title.
         sub: File and Method rows for this library only.
+        title_qualifier: Suffix appended to the project name in the chart title — used to
+                         distinguish between variants (default vs example-only).
 
     Returns:
         PNG image bytes.
@@ -59,21 +82,13 @@ def _render_one(project: str, project_node: pd.Series, sub: pd.DataFrame) -> byt
             hovertemplate="%{text}<extra></extra>",
             marker=dict(
                 colors=sub["CoveragePercent"].tolist(),
-                colorscale=[ 
-                    [0.0,  "#0D0887"],
-                    [0.2, "#B93289"],
-                    [0.4,  "#F48849"],
-                    [0.6,  "#F0F921"],
-                    [0.79, "#F0F921"],
-                    [0.8,  "#00DD00"],
-                    [0.1,  "#00FF00"]
-                ],
+                colorscale=_COLORSCALE,
                 cmin=0,
                 cmax=100,
                 colorbar=dict(
                     title="Coverage %",
                     ticksuffix="%",
-                    tickvals=[0, 20, 40, 60, 80, 100],
+                    tickvals=[0, 25, 50, 75, 100],
                 ),
             ),
             tiling=dict(orientation="h"),
@@ -83,7 +98,7 @@ def _render_one(project: str, project_node: pd.Series, sub: pd.DataFrame) -> byt
     fig.update_layout(
         title=dict(
             text=(
-                f"{project} — Coverage Icicle<br>"
+                f"{project} — {title_qualifier}<br>"
                 f"<sub>{project_node['CoveragePercent']:.1f}% "
                 f"({project_node['CoveredLines']:,} / {project_node['TotalLines']:,} lines)</sub>"
             ),
@@ -91,27 +106,21 @@ def _render_one(project: str, project_node: pd.Series, sub: pd.DataFrame) -> byt
             y=0.97,
         ),
         margin=dict(l=20, r=20, t=90, b=20),
-        width=1400,
-        height=800,
+        width=3840,
+        height=2160,
     )
 
     return pio.to_image(fig, format="png", scale=2)
 
 
-@step(inputs=["IcicleCoverageNode"], outputs="CoverageIcicles")
-def generate_coverage_icicle(nodes: pd.DataFrame) -> dict[str, bytes]:
-    """Render one icicle PNG per src library.
-
-    Args:
-        nodes: All icicle nodes (Project, File, Method levels combined) produced by
-               BuildIcicleCoverageStep.
-
-    Returns:
-        Dict mapping "{project}.png" → PNG bytes. The C# DirectoryStorageAdapter writes
-        each entry to the configured icicles output directory.
-    """
+def _render_directory(
+    nodes: pd.DataFrame, log_prefix: str, title_qualifier: str
+) -> dict[str, bytes]:
+    """Shared driver: split the flat node table by project root and render one PNG per
+    library. Used by every <c>@step</c> entry point in this module — variants only differ
+    in their input filtering (upstream) and chart title qualifier."""
     projects_df = nodes[nodes["Level"] == "Project"]
-    logger.info(f"[generate_coverage_icicle] rendering {len(projects_df)} library icicles")
+    logger.info(f"[{log_prefix}] rendering {len(projects_df)} library icicles")
 
     out: dict[str, bytes] = {}
     for _, project_node in projects_df.iterrows():
@@ -124,9 +133,45 @@ def generate_coverage_icicle(nodes: pd.DataFrame) -> dict[str, bytes]:
             )
         ]
         if sub.empty:
-            logger.warning(f"[generate_coverage_icicle] no file/method rows for {project}; skipping")
+            logger.warning(f"[{log_prefix}] no file/method rows for {project}; skipping")
             continue
 
-        out[f"{project}.png"] = _render_one(project, project_node, sub)
+        out[f"{project}.png"] = _render_one(
+            project, project_node, sub, title_qualifier=title_qualifier
+        )
 
     return out
+
+
+@step(inputs=["IcicleCoverageNode"], outputs="CoverageIcicles")
+def generate_coverage_icicle(nodes: pd.DataFrame) -> dict[str, bytes]:
+    """Render one icicle PNG per src library across all test runs.
+
+    Args:
+        nodes: All icicle nodes (Project, File, Method levels combined) produced by
+               BuildIcicleCoverageStep.
+
+    Returns:
+        Dict mapping "{project}.png" → PNG bytes. The C# DirectoryStorageAdapter writes
+        each entry to the configured icicles output directory.
+    """
+    return _render_directory(
+        nodes,
+        log_prefix="generate_coverage_icicle",
+        title_qualifier="Coverage Icicle",
+    )
+
+
+@step(inputs=["IcicleCoverageNode"], outputs="ExampleCoverageIcicles")
+def generate_example_coverage_icicle(nodes: pd.DataFrame) -> dict[str, bytes]:
+    """Render one icicle PNG per src library, restricted to coverage attributed to manifest
+    Example projects. The upstream filter step trims line coverage to Example test runs
+    before BuildIcicleCoverageStep aggregates; this step is identical to
+    <c>generate_coverage_icicle</c> beyond a chart title qualifier so the rendered PNG
+    self-identifies as the example-only variant.
+    """
+    return _render_directory(
+        nodes,
+        log_prefix="generate_example_coverage_icicle",
+        title_qualifier="Example Coverage Icicle",
+    )

@@ -5,13 +5,13 @@ namespace Flowthru.Core.Graph;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Describes universal properties that apply to any node in the DAG — data items,
-/// effects, or steps. Archetype-specific traits extend this record:
+/// Describes universal properties that apply to any node in the DAG. The canonical
+/// archetype-specific extension is
+/// <see cref="Flowthru.Core.Data.Capabilities.StorageTraits"/> for data I/O nodes
+/// (catalog entries — IItem). Step-level traits like <c>IsIdempotent</c> /
+/// <c>HasSideEffects</c> are emitted by the source generator into per-step
+/// <c>StepTraits</c> values rather than carried via NodeTraits inheritance.
 /// </para>
-/// <list type="bullet">
-/// <item><see cref="Flowthru.Core.Data.Capabilities.StorageTraits"/> for data I/O nodes</item>
-/// <item><see cref="Flowthru.Core.Effects.EffectTraits"/> for side-effect nodes</item>
-/// </list>
 /// </remarks>
 public record NodeTraits
 {

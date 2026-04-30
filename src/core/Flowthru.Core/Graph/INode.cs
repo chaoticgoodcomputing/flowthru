@@ -10,10 +10,12 @@ namespace Flowthru.Core.Graph;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Concrete node types (<see cref="Flowthru.Core.Data.IItem"/>,
-/// <see cref="IEffect{T}"/>) implement this interface with archetype-appropriate
-/// semantics. <see cref="Flowthru.Core.Graph.DependencyAnalyzer"/> resolves dependencies
-/// using only <see cref="Label"/> — the engine is archetype-agnostic.
+/// The canonical concrete <see cref="INode"/> implementation is
+/// <see cref="Flowthru.Core.Data.IItem"/> (catalog entries — data sources and sinks).
+/// <see cref="Flowthru.Core.Graph.DependencyAnalyzer"/> resolves dependencies using only
+/// <see cref="Label"/>; the engine is archetype-agnostic. Side-effect operations live
+/// inside steps as the canonical pattern (see CONTRIBUTING.md "Side effects in flows"),
+/// not as a separate node archetype.
 /// </para>
 /// </remarks>
 public interface INode

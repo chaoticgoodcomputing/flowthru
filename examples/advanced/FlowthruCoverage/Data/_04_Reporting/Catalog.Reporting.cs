@@ -53,6 +53,34 @@ public partial class Catalog
     );
 
   /// <summary>
+  /// Flat icicle nodes computed from <see cref="ExampleMethodLineCoverage"/> — coverage
+  /// attributed to manifest <c>Example</c> test projects only.
+  /// </summary>
+  public IItem<IEnumerable<IcicleCoverageNode>> ExampleIcicleCoverage =>
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.Csv<IcicleCoverageNode>(
+          label: "ExampleIcicleCoverage",
+          filePath: $"{_basePath}/_04_Reporting/Datasets/icicle_coverage_examples.csv"
+        )
+    );
+
+  /// <summary>
+  /// Per-library Plotly icicle PNGs derived from example-only coverage. Sister output to
+  /// <see cref="CoverageIcicles"/>; lands in <c>_04_Reporting/Datasets/icicles_examples/</c>
+  /// so the two variants don't collide.
+  /// </summary>
+  public IItem<Directory<byte[]>> ExampleCoverageIcicles =>
+    CreateItem(
+      () =>
+        ItemFactory.Enumerable.BinaryDirectory(
+          label: "ExampleCoverageIcicles",
+          directoryPath: $"{_basePath}/_04_Reporting/Datasets/icicles_examples",
+          filePattern: "*.png"
+        )
+    );
+
+  /// <summary>
   /// Methods with zero total hits — full-signature variant — BEFORE the remote-source filter.
   /// In-memory intermediate consumed by <see cref="Flows.Reporting.Steps.FilterRemoteSourceFilesStep"/>.
   /// </summary>

@@ -2,6 +2,8 @@ using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Python;
 using Flowthru.Extensions.Python.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using FlowthruCoverage.Data;
 using FlowthruCoverage.Flows.Coverage;
 using FlowthruCoverage.Flows.Reporting;
@@ -58,6 +60,18 @@ public class Program
           .WithDescription(
             "Generates an interactive Plotly HTML heatmap from the aggregated coverage CSV."
           );
+
+        // Output pipeline metadata
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
       }
     );
 

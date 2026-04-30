@@ -225,6 +225,13 @@ internal static class DagBuilder
         testCount = count;
       }
 
+      // Service dependencies populated by the source-generated *_Metadata at flow
+      // construction. Use FullName when available — falling back to Name keeps the
+      // metadata stable for closed generic types whose FullName is null.
+      var serviceDependencies = flowStep
+        .ServiceDependencies.Select(t => t.FullName ?? t.Name)
+        .ToList();
+
       stepMetadataList.Add(
         new StepMetadata
         {
@@ -236,6 +243,7 @@ internal static class DagBuilder
           Inputs = inputKeys,
           Outputs = outputKeys,
           TestCount = testCount,
+          ServiceDependencies = serviceDependencies,
         }
       );
     }

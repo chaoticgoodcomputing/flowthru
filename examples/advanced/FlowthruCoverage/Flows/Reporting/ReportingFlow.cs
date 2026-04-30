@@ -64,6 +64,37 @@ public static class ReportingFlow
         executor: executor
       );
 
+      // ── Example-only icicle variant ─────────────────────────────────────
+      // Same icicle pipeline, but the input line-coverage is filtered upstream so the
+      // resulting per-library PNGs reflect only what the manifest's Example projects
+      // exercised. Useful for answering "what does our example surface area cover?"
+
+      pipeline.AddStep(
+        label: "FilterToExampleLineCoverage",
+        description: "Drops every line-coverage row whose TestProject is not a manifest Example entry. The downstream BuildIcicleCoverage uses this to compute coverage attributed only to example test runs.",
+        transform: FilterLineCoverageByTestProjectTypeStep.Create("Example"),
+        input: (catalog.MethodLineCoverage, catalog.ProjectManifest),
+        output: catalog.ExampleMethodLineCoverage
+      );
+
+      pipeline.AddStep(
+        label: "BuildExampleIcicleCoverage",
+        description: "Same icicle build as BuildIcicleCoverage, but consumes the example-only line coverage so per-library aggregates reflect only what example projects covered.",
+        transform: BuildIcicleCoverageStep.Create(),
+        input: (catalog.ExampleMethodLineCoverage, catalog.ProjectManifest),
+        output: catalog.ExampleIcicleCoverage
+      );
+
+      pipeline.AddPythonStep(
+        label: "GenerateExampleCoverageIcicle",
+        description: "Per-library icicle PNGs derived from example-only coverage. Sister output to GenerateCoverageIcicle landing in icicles_examples/.",
+        module: "Flows.Reporting.Steps.generate_coverage_icicle",
+        function: "generate_example_coverage_icicle",
+        input: catalog.ExampleIcicleCoverage,
+        output: catalog.ExampleCoverageIcicles,
+        executor: executor
+      );
+
       pipeline.AddStep(
         label: "AggregatePackageCoverage",
         description: "Rolls up per-(TestProject, SrcPackage) pivot rows to per-SrcPackage rows with MAX coverage. Avoids the multi-test-project double-count drag (e.g. SourceGenerators reading 0% in Core.Tests AND 74.41% in SourceGenerators.Tests).",

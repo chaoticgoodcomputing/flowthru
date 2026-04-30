@@ -194,9 +194,77 @@ public static class MermaidMetadataExtensions
       }
     }
 
+    AppendServiceNodes(sb, steps);
+
     sb.AppendLine("```");
 
     return sb.ToString();
+  }
+
+  /// <summary>
+  /// Renders service-dependency nodes for any step that declares
+  /// <see cref="StepMetadata.ServiceDependencies"/>. Each unique service type appears
+  /// once; consuming steps connect via dashed <c>-.uses.-&gt;</c> edges.
+  /// </summary>
+  /// <remarks>
+  /// Services are rendered outside flow subgraphs because they are typically
+  /// process-level resources (DI singletons) shared across flow boundaries.
+  /// A dedicated <c>service</c> classDef visually distinguishes them from data
+  /// items (cylinders) and steps (rectangles).
+  /// </remarks>
+  internal static void AppendServiceNodes(StringBuilder sb, IReadOnlyList<StepMetadata> steps)
+  {
+    // Collect (stepId, serviceFullName) pairs across all visible steps; build a
+    // unique service set keyed by full name.
+    var pairs = steps
+      .SelectMany(s => s.ServiceDependencies.Select(svc => (StepId: s.Id, ServiceName: svc)))
+      .ToList();
+
+    if (pairs.Count == 0)
+    {
+      return;
+    }
+
+    var uniqueServices = pairs.Select(p => p.ServiceName).Distinct().OrderBy(n => n).ToList();
+
+    sb.AppendLine();
+    sb.AppendLine("    %% Service Dependencies");
+    foreach (var fullName in uniqueServices)
+    {
+      var nodeId = ServiceNodeId(fullName);
+      var displayName = SimpleTypeName(fullName);
+      sb.AppendLine($"    {nodeId}[\"{EscapeLabel(displayName)}\"]");
+    }
+    sb.AppendLine();
+
+    foreach (var (stepId, serviceName) in pairs.Distinct().OrderBy(p => p.StepId).ThenBy(p => p.ServiceName))
+    {
+      sb.AppendLine($"    {SanitizeId(stepId)} -.uses.-> {ServiceNodeId(serviceName)}");
+    }
+    sb.AppendLine();
+
+    sb.AppendLine("    classDef service fill:#FEF7E0,stroke:#A05A00,color:#5E4400");
+    var classList = string.Join(",", uniqueServices.Select(ServiceNodeId));
+    sb.AppendLine($"    class {classList} service");
+  }
+
+  /// <summary>
+  /// Stable, collision-resistant node ID for a service type. Uses a <c>svc_</c> prefix
+  /// over the sanitized full name so service nodes never collide with step or item IDs.
+  /// </summary>
+  internal static string ServiceNodeId(string serviceFullName) =>
+    "svc_" + SanitizeId(serviceFullName);
+
+  /// <summary>
+  /// Extracts the simple (unqualified) name from a fully-qualified type name.
+  /// Falls back to the input when no <c>.</c> is present.
+  /// </summary>
+  internal static string SimpleTypeName(string fullName)
+  {
+    var lastDot = fullName.LastIndexOf('.');
+    return lastDot >= 0 && lastDot < fullName.Length - 1
+      ? fullName.Substring(lastDot + 1)
+      : fullName;
   }
 
   /// <summary>

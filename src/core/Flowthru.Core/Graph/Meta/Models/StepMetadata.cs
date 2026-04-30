@@ -91,4 +91,19 @@ public class StepMetadata
   [JsonPropertyName("testCount")]
   [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
   public int? TestCount { get; init; }
+
+  /// <summary>
+  /// Display names of the service types this step's transform depends on.
+  /// Sourced from <c>FlowStep.ServiceDependencies</c>, which is populated by the
+  /// <c>StepMetadataGenerator</c> at compile time for any class carrying
+  /// <c>[FlowthruStep]</c>. Empty when the step has no service dependencies
+  /// (pure data transforms, inline lambdas).
+  /// </summary>
+  /// <remarks>
+  /// Each entry is the fully-qualified type name (e.g.,
+  /// <c>Flowthru.Extensions.Mailchimp.IMailchimpClient</c>). Renderers that want
+  /// the simple name can split on <c>.</c> and take the last segment.
+  /// </remarks>
+  [JsonPropertyName("serviceDependencies")]
+  public List<string> ServiceDependencies { get; init; } = new();
 }
