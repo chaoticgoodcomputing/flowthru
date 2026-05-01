@@ -8,40 +8,41 @@ using Microsoft.Extensions.DependencyInjection;
 namespace SimpleEffectsExample.Flows.Reporting.Steps;
 
 /// <summary>
-/// Single-step "effect" demonstrating Flowthru's effect-as-step pattern: this step
-/// takes a string template input, calls an injected <see cref="IRemoteTimeService"/>
-/// to fetch the current UTC time, and emits the formatted report string as output.
+/// Effect step that fetches the current UTC time via the injected
+/// <see cref="IRemoteTimeService"/>, converts it to a target time zone, and
+/// renders a formatted line against the input template.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The <c>Create(...)</c> factory accepts the service as a parameter. The
-/// source-generated <c>ReportTimeStep_Metadata</c> companion records
-/// <see cref="IRemoteTimeService"/> as a service dependency, which:
+/// The factory accepts the service plus a <see cref="TimeZoneInfo"/> and a short
+/// label (e.g., "ET"). The flow adds the same step four times — once per US
+/// timezone — so all four steps share a single <see cref="IRemoteTimeService"/>
+/// service node in the rendered DAG (one node, four dashed <c>-.uses.-&gt;</c>
+/// edges).
 /// </para>
-/// <list type="bullet">
-///   <item>Flows into <c>FlowStep.ServiceDependencies</c> at flow construction (Phase 4).</item>
-///   <item>Triggers preflight inspection via the registered
-///   <c>AddFlowthruInspect&lt;IRemoteTimeService&gt;(...)</c> sidecar (Phase 3).</item>
-///   <item>Renders as a service node + dashed edge in the Mermaid metadata (Phase 6).</item>
-/// </list>
 /// <para>
-/// <see cref="FlowthruStepAttribute.IsIdempotent"/> is <c>true</c> because re-running
-/// the step always emits a fresh report — there's no accumulating state.
-/// <see cref="FlowthruStepAttribute.HasSideEffects"/> is <c>true</c> because the step
-/// reaches out to an external system.
+/// Source-generated <c>ReportTimeStep_Metadata</c> records
+/// <see cref="IRemoteTimeService"/> as the only service dependency;
+/// <see cref="TimeZoneInfo"/> and <see cref="string"/> are non-interface params
+/// and skipped by the metadata generator's service-detection heuristic.
 /// </para>
 /// </remarks>
 [FlowthruStep(IsIdempotent = true, HasSideEffects = true)]
 public static class ReportTimeStep
 {
-  public static Func<string, Task<string>> Create(IRemoteTimeService timeService) =>
+  public static Func<string, Task<string>> Create(
+    IRemoteTimeService timeService,
+    TimeZoneInfo timeZone,
+    string zoneLabel
+  ) =>
     async template =>
     {
-      var now = await timeService.GetCurrentUtcAsync();
+      var utc = await timeService.GetCurrentUtcAsync();
+      var local = TimeZoneInfo.ConvertTime(utc, timeZone);
       return string.Format(
         System.Globalization.CultureInfo.InvariantCulture,
         template,
-        now.ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture)
+        $"{local:yyyy-MM-dd HH:mm:ss} {zoneLabel}"
       );
     };
 
@@ -70,16 +71,18 @@ public static class ReportTimeStep
   public class Tests : FUnitContext
   {
     [StepTest(typeof(ReportTimeStep))]
-    public void FormatsTemplateWithFetchedTime()
+    public void FormatsTemplateWithEasternTime()
     {
       var service = GetRequiredService<IRemoteTimeService>();
-      var transform = ReportTimeStep.Create(service);
+      // 2026-04-30 14:00 UTC → 10:00 ET (DST: UTC-4)
+      var eastern = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+      var transform = ReportTimeStep.Create(service, eastern, "ET");
 
       // The FUnit runner generator currently emits sync runners; we block on
       // the async transform via GetResult so the test runs deterministically.
       var result = InvokeAsync(transform, "The time is currently {0}").GetAwaiter().GetResult();
 
-      Assert.That(result, Is.EqualTo("The time is currently 2026-04-30T14:00:00Z"));
+      Assert.That(result, Is.EqualTo("The time is currently 2026-04-30 10:00:00 ET"));
     }
   }
 

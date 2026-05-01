@@ -1,8 +1,9 @@
 # SimpleEffectsExample Starter
 
-A minimal Flowthru example demonstrating the **effect-as-step** pattern — a
-single step that calls an external service (a public time API) and writes a
-formatted text report.
+A minimal Flowthru example demonstrating the **effect-as-step** pattern. Four
+steps share a single time-service dependency: each step fetches the current UTC
+time, converts it to a US timezone (Eastern, Central, Mountain, Pacific), and
+writes a per-zone report file.
 
 ## Getting Started
 
@@ -12,10 +13,14 @@ dotnet run -- --flow ReportTime
 
 The flow reads the format string from
 [Data/_01_Raw/Datasets/report-template.txt](Data/_01_Raw/Datasets/report-template.txt),
-fetches the current UTC time from `timeapi.io`, and writes the formatted result
-to `Data/_08_Reporting/Datasets/current-time.txt`.
+fetches the current UTC time from `timeapi.io`, and writes one report per zone
+to `Data/_08_Reporting/Datasets/{eastern,central,mountain,pacific}-time.txt`.
 
 ## Flow Structure
+
+The four steps all consume the same `IRemoteTimeService`. The metadata
+collapses identical service types to a single node, so the rendered DAG shows
+**one** service node with **four** dashed `-.uses.->` edges:
 
 ```mermaid
 flowchart TB
@@ -24,22 +29,37 @@ flowchart TB
     Catalog_ReportTemplate[("Catalog.ReportTemplate")]
 
     subgraph ReportTime["ReportTime"]
-        ReportTime_ReportTime["ReportTime.ReportTime"]
-        Catalog_CurrentTimeReport[("Catalog.CurrentTimeReport")]
+        ReportTime_ReportEastern["ReportTime.ReportEastern"]
+        ReportTime_ReportCentral["ReportTime.ReportCentral"]
+        ReportTime_ReportMountain["ReportTime.ReportMountain"]
+        ReportTime_ReportPacific["ReportTime.ReportPacific"]
+        Catalog_EasternTimeReport[("Catalog.EasternTimeReport")]
+        Catalog_CentralTimeReport[("Catalog.CentralTimeReport")]
+        Catalog_MountainTimeReport[("Catalog.MountainTimeReport")]
+        Catalog_PacificTimeReport[("Catalog.PacificTimeReport")]
 
-        ReportTime_ReportTime --> Catalog_CurrentTimeReport
+        ReportTime_ReportEastern --> Catalog_EasternTimeReport
+        ReportTime_ReportCentral --> Catalog_CentralTimeReport
+        ReportTime_ReportMountain --> Catalog_MountainTimeReport
+        ReportTime_ReportPacific --> Catalog_PacificTimeReport
     end
 
     %% External Data to Flow Edges
-    Catalog_ReportTemplate --> ReportTime_ReportTime
+    Catalog_ReportTemplate --> ReportTime_ReportEastern
+    Catalog_ReportTemplate --> ReportTime_ReportCentral
+    Catalog_ReportTemplate --> ReportTime_ReportMountain
+    Catalog_ReportTemplate --> ReportTime_ReportPacific
 
     %% Service Dependencies
-    svc_SimpleEffectsExample_Services_IRemoteTimeService["IRemoteTimeService"]
+    svc_IRemoteTimeService["IRemoteTimeService"]
 
-    ReportTime_ReportTime -.uses.-> svc_SimpleEffectsExample_Services_IRemoteTimeService
+    ReportTime_ReportEastern -.uses.-> svc_IRemoteTimeService
+    ReportTime_ReportCentral -.uses.-> svc_IRemoteTimeService
+    ReportTime_ReportMountain -.uses.-> svc_IRemoteTimeService
+    ReportTime_ReportPacific -.uses.-> svc_IRemoteTimeService
 
     classDef service fill:#FEF7E0,stroke:#A05A00,color:#5E4400
-    class svc_SimpleEffectsExample_Services_IRemoteTimeService service
+    class svc_IRemoteTimeService service
 ```
 
 ## Patterns Demonstrated
@@ -54,19 +74,27 @@ accepts the service dependency and returns the transform delegate:
 [FlowthruStep(IsIdempotent = true, HasSideEffects = true)]
 public static class ReportTimeStep
 {
-  public static Func<string, Task<string>> Create(IRemoteTimeService timeService) =>
-    async template => string.Format(
-      template,
-      (await timeService.GetCurrentUtcAsync()).ToString("yyyy-MM-ddTHH:mm:ssZ")
-    );
+  public static Func<string, Task<string>> Create(
+    IRemoteTimeService timeService,
+    TimeZoneInfo timeZone,
+    string zoneLabel
+  ) =>
+    async template =>
+    {
+      var local = TimeZoneInfo.ConvertTime(await timeService.GetCurrentUtcAsync(), timeZone);
+      return string.Format(template, $"{local:yyyy-MM-dd HH:mm:ss} {zoneLabel}");
+    };
 }
 ```
 
-The `[FlowthruStep]` attribute triggers the source-gen
-`ReportTimeStep_Metadata` companion, which records `IRemoteTimeService` as a
-service dependency. That metadata flows through to
-`FlowStep.ServiceDependencies`, drives preflight inspection, and renders the
-service node + dashed edge in the Mermaid diagram above.
+[ReportTimeFlow.cs](Flows/Reporting/ReportTimeFlow.cs) instantiates the step
+once per US timezone, all sharing the injected service. The
+`[FlowthruStep]` attribute triggers the source-gen
+`ReportTimeStep_Metadata` companion, which records `IRemoteTimeService` as the
+only service dependency (the `TimeZoneInfo` and `string` parameters are
+non-interface types and aren't classified as services). That metadata flows
+through to `FlowStep.ServiceDependencies`, drives preflight inspection, and
+renders the single shared service node in the Mermaid diagram above.
 
 ### 2. Pre-flight reachability via `AddFlowthruInspect<TService>`
 
