@@ -32,6 +32,8 @@ flags:
     carryforward: true
   Flowthru.Extensions.Http.Tests:
     carryforward: true
+  Flowthru.Extensions.Metadata.Diagnostics.Tests:
+    carryforward: true
   Flowthru.Extensions.Metadata.Json.Tests:
     carryforward: true
   Flowthru.Extensions.Metadata.Mermaid.Tests:
@@ -138,6 +140,10 @@ component_management:
       name: Flowthru.Extensions.Http
       paths:
         - src/extensions/Flowthru.Extensions.Http/**
+    - component_id: flowthru_extensions_metadata_diagnostics
+      name: Flowthru.Extensions.Metadata.Diagnostics
+      paths:
+        - src/extensions/Flowthru.Extensions.Metadata.Diagnostics/**
     - component_id: flowthru_extensions_metadata_json
       name: Flowthru.Extensions.Metadata.Json
       paths:

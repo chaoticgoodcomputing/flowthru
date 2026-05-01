@@ -1,3 +1,13 @@
+## 0.14.0 (2026-05-01)
+
+### 🚀 Features
+
+- stronger opt-in post-run metadata options ([550193ae](https://github.com/chaoticgoodcomputing/flowthru/commit/550193ae))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.13.0 (2026-04-30)
 
 ### 🚀 Features
