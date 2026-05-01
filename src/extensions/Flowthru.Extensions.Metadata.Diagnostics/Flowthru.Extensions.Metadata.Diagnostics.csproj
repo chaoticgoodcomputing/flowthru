@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru</RootNamespace>
+    <Description>Optional post-run diagnostic providers (row counts, step timings, output existence) for Flowthru pipelines</Description>
+
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Extensions.Metadata.Diagnostics</PackageId>
+    <PackageTags>data-engineering;pipeline;metadata;diagnostics</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

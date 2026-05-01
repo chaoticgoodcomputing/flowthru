@@ -1049,19 +1049,9 @@ public class Flow
 
     try
     {
-      // Get input counts for diagnostics (before loading data)
-      var inputCountAffs = flowStep
-        .Inputs.OfType<Data.IItem>()
-        .Select(entry => entry.GetCountAsync());
-      var inputCountTasks = inputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
-      var inputCountResults = await Task.WhenAll(inputCountTasks);
-      var inputCounts = inputCountResults;
-      var totalInputCount = inputCounts.Sum();
-
       Logger?.LogInformation(
-        "Executing step: {StepName} (inputs: {InputCount} observations from {EntryCount} entries)",
+        "Executing step: {StepName} ({EntryCount} input entries)",
         flowStep.Label,
-        totalInputCount,
         flowStep.Inputs.Count
       );
 
@@ -1239,29 +1229,13 @@ public class Flow
 
       stopwatch.Stop();
 
-      // Get output counts for diagnostics (after saving data)
-      var outputCountAffs = flowStep
-        .Outputs.OfType<Data.IItem>()
-        .Select(entry => entry.GetCountAsync());
-      var outputCountTasks = outputCountAffs.Select(aff => aff.Run(cancellationToken).AsTask());
-      var outputCountResults = await Task.WhenAll(outputCountTasks);
-      var outputCounts = outputCountResults;
-      var totalOutputCount = outputCounts.Sum();
-
       Logger?.LogInformation(
-        "Step {StepName} completed: {InputCount} observations in → {OutputCount} observations out ({ElapsedMs}ms)",
+        "Step {StepName} completed in {ElapsedMs}ms",
         flowStep.Label,
-        totalInputCount,
-        totalOutputCount,
         stopwatch.ElapsedMilliseconds
       );
 
-      return StepResult.CreateSuccess(
-        flowStep.Label,
-        stopwatch.Elapsed,
-        totalInputCount,
-        totalOutputCount
-      );
+      return StepResult.CreateSuccess(flowStep.Label, stopwatch.Elapsed);
     }
     catch (OperationCanceledException ex)
     {

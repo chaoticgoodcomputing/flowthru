@@ -166,40 +166,15 @@ public class StepResult
   public Exception? Exception { get; init; }
 
   /// <summary>
-  /// Number of input items processed by this step.
-  /// </summary>
-  /// <remarks>
-  /// For multi-input steps, this represents the total count across
-  /// all input catalog entries.
-  /// </remarks>
-  public int InputCount { get; init; }
-
-  /// <summary>
-  /// Number of output items produced by this step.
-  /// </summary>
-  /// <remarks>
-  /// For multi-output steps, this represents the total count across
-  /// all output catalog entries.
-  /// </remarks>
-  public int OutputCount { get; init; }
-
-  /// <summary>
   /// Creates a successful step result.
   /// </summary>
-  public static StepResult CreateSuccess(
-    string stepName,
-    TimeSpan executionTime,
-    int inputCount,
-    int outputCount
-  )
+  public static StepResult CreateSuccess(string stepName, TimeSpan executionTime)
   {
     return new StepResult
     {
       StepName = stepName,
       Success = true,
       ExecutionTime = executionTime,
-      InputCount = inputCount,
-      OutputCount = outputCount,
     };
   }
 
@@ -209,8 +184,7 @@ public class StepResult
   public static StepResult CreateFailure(
     string stepName,
     TimeSpan executionTime,
-    Exception exception,
-    int inputCount = 0
+    Exception exception
   )
   {
     return new StepResult
@@ -219,8 +193,6 @@ public class StepResult
       Success = false,
       ExecutionTime = executionTime,
       Exception = exception,
-      InputCount = inputCount,
-      OutputCount = 0,
     };
   }
 }

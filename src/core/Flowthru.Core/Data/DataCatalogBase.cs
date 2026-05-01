@@ -159,4 +159,15 @@ public abstract class CatalogAbstract
     }
   }
 
+  /// <summary>
+  /// Enumerates all <see cref="IItem"/> instances registered against this catalog.
+  /// </summary>
+  /// <remarks>
+  /// Items become enumerable after <see cref="InitializeCatalogProperties"/> runs (typically
+  /// at the end of a derived catalog's constructor). Provided so post-run metadata providers
+  /// and user diagnostic code can resolve live items by label without reflecting on the catalog
+  /// type. Returned in insertion order; not deduplicated across catalogs.
+  /// </remarks>
+  public virtual IEnumerable<IItem> GetAllItems() => _propertyCache.Values;
+
 }

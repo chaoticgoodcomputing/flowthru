@@ -216,11 +216,9 @@ internal sealed class TaskGraphExecutor
               else
               {
                 _logger?.LogInformation(
-                  "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)   ({CompletedCount} of {Total} steps, worker {WorkerId}/{TotalWorkers})",
+                  "  ✓ {StepName,-40} {Duration,6:F2}s   ({CompletedCount} of {Total} steps, worker {WorkerId}/{TotalWorkers})",
                   capturedStep.Label,
                   result.ExecutionTime.TotalSeconds,
-                  result.InputCount,
-                  result.OutputCount,
                   completedCount,
                   totalSteps,
                   workerId,

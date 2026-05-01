@@ -84,7 +84,7 @@ public class FlowthruCliTests
       executionTime: TimeSpan.FromMilliseconds(123),
       stepResults: new Dictionary<string, StepResult>
       {
-        ["StepA"] = StepResult.CreateSuccess("StepA", TimeSpan.FromMilliseconds(50), 100, 200),
+        ["StepA"] = StepResult.CreateSuccess("StepA", TimeSpan.FromMilliseconds(50)),
       },
       flowName: "TestFlow"
     );

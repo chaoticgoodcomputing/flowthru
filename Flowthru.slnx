@@ -18,6 +18,7 @@
   <Project Path="src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
+  <Project Path="src/extensions/Flowthru.Extensions.Metadata.Diagnostics/Flowthru.Extensions.Metadata.Diagnostics.csproj" />
   <Project Path="src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj" />
   <Project Path="src/misc/Flowthru.Misc.DataFrames/Flowthru.Misc.DataFrames.csproj" />
   <Project Path="src/misc/Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj" />
@@ -40,6 +41,7 @@
   <Project Path="tests/extensions/Flowthru.Extensions.Http.Tests/Flowthru.Extensions.Http.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Json.Tests/Flowthru.Extensions.Metadata.Json.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Mermaid.Tests/Flowthru.Extensions.Metadata.Mermaid.Tests.csproj" />
+  <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Diagnostics.Tests/Flowthru.Extensions.Metadata.Diagnostics.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.MLNet.Tests/Flowthru.Extensions.MLNet.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Parquet.Tests/Flowthru.Extensions.Parquet.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Bulk.Tests/Flowthru.Extensions.EFCore.Bulk.Tests.csproj" />

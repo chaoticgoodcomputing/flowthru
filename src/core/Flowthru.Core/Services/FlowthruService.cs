@@ -418,7 +418,7 @@ internal sealed class FlowthruService : IFlowthruService
       try
       {
         _logger.LogInformation("Exporting post-run metadata using {Provider}", name);
-        provider.Consume(run);
+        provider.Consume(run, _services);
         _logger.LogInformation("{Provider} post-run export completed successfully", name);
       }
       catch (Exception ex)

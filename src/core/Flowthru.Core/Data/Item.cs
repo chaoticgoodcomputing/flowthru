@@ -175,6 +175,9 @@ public sealed class Item<T> : IItem<T>
       });
   }
 
+  /// <inheritdoc />
+  public bool HasEfficientCount => _storage is IHasEfficientCount;
+
   private static bool IsCollectionType(Type type)
   {
     if (type == typeof(string))

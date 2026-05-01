@@ -43,11 +43,9 @@ public class ConsoleResultFormatter : IFlowResultFormatter
         if (nodeResult.Success)
         {
           logger.LogInformation(
-            "  ✓ {StepName,-40} {Duration,6:F2}s   ({InputCount,6} → {OutputCount,6} records)",
+            "  ✓ {StepName,-40} {Duration,6:F2}s",
             nodeResult.StepName,
-            nodeResult.ExecutionTime.TotalSeconds,
-            nodeResult.InputCount,
-            nodeResult.OutputCount
+            nodeResult.ExecutionTime.TotalSeconds
           );
         }
         else

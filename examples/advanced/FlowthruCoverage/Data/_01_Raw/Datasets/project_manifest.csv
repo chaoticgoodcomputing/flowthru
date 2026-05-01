@@ -12,6 +12,7 @@ Flowthru.Extensions.EFCore.Bulk,Library,Extensions
 Flowthru.Extensions.Excel,Library,Extensions
 Flowthru.Extensions.GQL,Library,Extensions
 Flowthru.Extensions.Http,Library,Extensions
+Flowthru.Extensions.Metadata.Diagnostics,Library,Extensions
 Flowthru.Extensions.Metadata.Json,Library,Extensions
 Flowthru.Extensions.Metadata.Mermaid,Library,Extensions
 Flowthru.Extensions.MLNet,Library,Extensions
@@ -35,6 +36,7 @@ Flowthru.Extensions.EFCore.Tests,LibraryTest,Extensions
 Flowthru.Extensions.Excel.Tests,LibraryTest,Extensions
 Flowthru.Extensions.GQL.Tests,LibraryTest,Extensions
 Flowthru.Extensions.Http.Tests,LibraryTest,Extensions
+Flowthru.Extensions.Metadata.Diagnostics.Tests,LibraryTest,Extensions
 Flowthru.Extensions.Metadata.Json.Tests,LibraryTest,Extensions
 Flowthru.Extensions.Metadata.Mermaid.Tests,LibraryTest,Extensions
 Flowthru.Extensions.MLNet.Tests,LibraryTest,Extensions

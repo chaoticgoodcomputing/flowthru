@@ -65,7 +65,39 @@ public interface IItem : INode
   /// For collections (IEnumerable&lt;T&gt;), returns the enumerable count.
   /// For singletons, returns 1 if exists, 0 otherwise.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The Flowthru engine does <strong>not</strong> call this method during step execution —
+  /// counting rows can require materializing the entire dataset (or a server-side
+  /// <c>COUNT(*)</c> query on storage adapters that implement
+  /// <see cref="Flowthru.Core.Data.Storage.IHasEfficientCount"/>), and the framework
+  /// refuses to charge that cost for diagnostics by default.
+  /// </para>
+  /// <para>
+  /// This method is intended for use by post-run metadata providers (see
+  /// <c>IPostRunMetadataProvider</c>) and user code that explicitly opts into the
+  /// cost. The reference <c>RowCountProvider</c> in
+  /// <c>Flowthru.Extensions.Metadata.Diagnostics</c> demonstrates the canonical pattern —
+  /// it consults <see cref="HasEfficientCount"/> first and skips items that would
+  /// require materialization.
+  /// </para>
+  /// </remarks>
   FlowIO<int> GetCountAsync();
+
+  /// <summary>
+  /// True when this item's storage adapter implements
+  /// <see cref="Flowthru.Core.Data.Storage.IHasEfficientCount"/> — i.e., a call to
+  /// <see cref="GetCountAsync"/> will use a cheap server-side count rather than
+  /// materializing the full dataset. False otherwise.
+  /// </summary>
+  /// <remarks>
+  /// Provided so cost-conscious post-run providers can decide whether to count an
+  /// item without paying for an exploratory call. The default implementation
+  /// returns <c>false</c>; <see cref="Item{T}"/> overrides this to inspect its
+  /// underlying storage adapter.
+  /// </remarks>
+  [ExcludeFromCodeCoverage]
+  bool HasEfficientCount => false;
 
   /// <summary>
   /// Performs shallow validation of this catalog item.
