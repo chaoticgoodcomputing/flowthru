@@ -63,6 +63,8 @@
   href: Flowthru.Core.Data.Capabilities.md
   items:
   - name: Classes
+  - name: FormatRowFeatures
+    href: Flowthru.Core.Data.Capabilities.FormatRowFeatures.md
   - name: StorageTraits
     href: Flowthru.Core.Data.Capabilities.StorageTraits.md
 - name: Flowthru.Core.Data.Serialization

@@ -78,6 +78,29 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
 
   /// <inheritdoc/>
   /// <remarks>
+  /// <para>
+  /// Parquet declares <see cref="OptOutOfPropertyPlannerAttribute"/> (see Phase B5):
+  /// its IL-emitted typed-DTO synthesis is structurally different from the reflection
+  /// walks the planner subsumes for CSV/Excel/JSON, and IScalar handling has not yet
+  /// been ported into Parquet's DTO emitter. Flat IScalar wrappers are silently dropped
+  /// during serialization — kit conformance subclasses surface this as test failures
+  /// when <see cref="SupportsIScalar"/> is claimed.
+  /// </para>
+  /// <para>
+  /// Nested support is listed as <see langword="false"/> for the initial declaration —
+  /// Parquet's runtime can express nested data, but the kit hasn't added Parquet
+  /// conformance subclasses for the <c>Nested/*</c> fixtures yet. Flip to
+  /// <see langword="true"/> once those subclasses verify nested round-trip works.
+  /// </para>
+  /// </remarks>
+  public FormatRowFeatures RowFeatures => new()
+  {
+    SupportsIScalar = false,
+    SupportsNested = false,
+  };
+
+  /// <inheritdoc/>
+  /// <remarks>
   /// Streams rows one row group at a time. Early-exit consumers (e.g. shallow inspection)
   /// will break after reading fewer than all row groups, avoiding full-file materialisation.
   /// Any <see cref="ParquetItemOptions{TRow}"/> supplied at construction time are threaded

@@ -1,3 +1,4 @@
+using Flowthru.Core.Data.Capabilities;
 using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Data.Storage.Format;
 using Flowthru.Tests.Kits.Format;
@@ -113,4 +114,44 @@ public class ParquetOptionalEnumConformance : FormatSerializerConformance<Option
 
   protected override IFormatSerializer<OptionalEnumSchema> CreateSerializer() =>
     new ParquetFormatSerializer<OptionalEnumSchema>();
+}
+
+/// <summary>
+/// Conformance for <see cref="ParquetFormatSerializer{TRow}"/> against
+/// <see cref="IScalarSchema"/>. Parquet declares
+/// <see cref="OptOutOfPropertyPlannerAttribute"/> so the planner-driven IScalar
+/// integration that CSV / Excel / JSON received in Phase B does not yet apply —
+/// this conformance subclass surfaces whether Parquet's existing typed-DTO synthesis
+/// happens to handle the wrapper correctly anyway.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ParquetIScalarConformance : FormatSerializerConformance<IScalarSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/IScalar/rows.json" };
+
+  public ParquetIScalarConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<IScalarSchema> CreateSerializer() =>
+    new ParquetFormatSerializer<IScalarSchema>();
+
+  protected override Func<FormatRowFeatures, bool>? RequiredFeatures =>
+    f => f.SupportsIScalar;
+}
+
+/// <summary>
+/// Conformance for <see cref="ParquetFormatSerializer{TRow}"/> against
+/// <see cref="MultiIScalarSchema"/> — multiple distinct IScalar wrappers on one row.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ParquetMultiIScalarConformance : FormatSerializerConformance<MultiIScalarSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/MultiIScalar/rows.json" };
+
+  public ParquetMultiIScalarConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<MultiIScalarSchema> CreateSerializer() =>
+    new ParquetFormatSerializer<MultiIScalarSchema>();
+
+  protected override Func<FormatRowFeatures, bool>? RequiredFeatures =>
+    f => f.SupportsIScalar;
 }

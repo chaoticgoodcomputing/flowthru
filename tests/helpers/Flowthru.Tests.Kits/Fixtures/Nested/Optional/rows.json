@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Alice Anderson",
+    "billing_address": {
+      "street": "100 Main Street",
+      "city": "Springfield",
+      "postal_code": "12345"
+    }
+  },
+  {
+    "name": "Bob Baker",
+    "billing_address": null
+  },
+  {
+    "name": "Carol Chen",
+    "billing_address": {
+      "street": "300 Pine Road",
+      "city": "Lakeside",
+      "postal_code": "34567"
+    }
+  }
+]

@@ -140,6 +140,19 @@ public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>
   public StorageTraits Traits => new StorageTraits();
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// JSON consumes the planner-driven <c>SerializedLabelJsonConverter&lt;T&gt;</c>
+  /// (Phase B4) which dispatches on <see cref="Serialization.PropertyKind"/> to handle
+  /// IScalar wrap/unwrap. Nested rows are JSON's natural shape — supported via
+  /// System.Text.Json's recursive converter resolution.
+  /// </remarks>
+  public FormatRowFeatures RowFeatures => new()
+  {
+    SupportsIScalar = true,
+    SupportsNested = true,
+  };
+
+  /// <inheritdoc/>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
     if (stream == null)

@@ -73,6 +73,20 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
   public StorageTraits Traits => new StorageTraits { CanWrite = false };
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// Excel inherits IScalar handling from the planner-driven cell-conversion path
+  /// (Phase B3). Flat-only by construction — nested schemas don't compile here due to
+  /// the <see cref="Abstractions.IFlatSchema"/> generic constraint. Read-only round-trip
+  /// is vacuous, so feature claims are exercised only through the property-mapping
+  /// configuration check.
+  /// </remarks>
+  public FormatRowFeatures RowFeatures => new()
+  {
+    SupportsIScalar = true,
+    SupportsNested = false,
+  };
+
+  /// <inheritdoc/>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
     // ExcelDataReader requires stream to support seeking

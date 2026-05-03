@@ -115,6 +115,41 @@ public IReadOnlyList<string> NullValues { get; }
 
  [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
 
+### <a id="Flowthru_Core_Data_Storage_Format_ExcelFormatSerializer_1_RowFeatures"></a> RowFeatures
+
+Row-shape capabilities this format supports. Defaults to all-false; format
+implementations override the property to declare honestly which features round-trip.
+
+```csharp
+public FormatRowFeatures RowFeatures { get; }
+```
+
+#### Property Value
+
+ FormatRowFeatures
+
+#### Remarks
+
+<p>
+Companion to <xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601.Traits" data-throw-if-not-resolved="false"></xref>. Where <xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601.Traits" data-throw-if-not-resolved="false"></xref> describes
+medium-level capabilities (read/write, streaming, transactional),
+<xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601.RowFeatures" data-throw-if-not-resolved="false"></xref> describes which row-shape features the format honors
+(<xref href="Flowthru.Core.Abstractions.IScalar" data-throw-if-not-resolved="false"></xref> NewType wrappers, <code>byte[]</code> opaque blobs,
+<xref href="Flowthru.Core.Abstractions.INestedSchema" data-throw-if-not-resolved="false"></xref> structures, etc.).
+</p>
+<p>
+The kit's <code>FormatSerializerConformance&lt;TRow&gt;</code> consults these flags to gate
+fixtures: when <xref href="Flowthru.Core.Data.Capabilities.FormatRowFeatures.SupportsIScalar" data-throw-if-not-resolved="false"></xref> is <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool">false</a>,
+the IScalar fixture for that format skips with an explanatory message rather than
+failing. When the flag is <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool">true</a>, the fixture must round-trip
+successfully or the test fails.
+</p>
+<p>
+The default-interface-method returns <code>new FormatRowFeatures()</code> (all
+false) — a format that doesn't override is reported as supporting only the
+universal feature surface in the capability matrix.
+</p>
+
 ### <a id="Flowthru_Core_Data_Storage_Format_ExcelFormatSerializer_1_Traits"></a> Traits
 
 Structural capabilities of this format serializer.

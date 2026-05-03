@@ -99,6 +99,33 @@ public interface IFormatSerializer<TRow>
   StorageTraits Traits { get; }
 
   /// <summary>
+  /// Row-shape capabilities this format supports. Defaults to all-false; format
+  /// implementations override the property to declare honestly which features round-trip.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Companion to <see cref="Traits"/>. Where <see cref="Traits"/> describes
+  /// medium-level capabilities (read/write, streaming, transactional),
+  /// <see cref="RowFeatures"/> describes which row-shape features the format honors
+  /// (<see cref="Abstractions.IScalar"/> NewType wrappers, <c>byte[]</c> opaque blobs,
+  /// <see cref="Abstractions.INestedSchema"/> structures, etc.).
+  /// </para>
+  /// <para>
+  /// The kit's <c>FormatSerializerConformance&lt;TRow&gt;</c> consults these flags to gate
+  /// fixtures: when <see cref="FormatRowFeatures.SupportsIScalar"/> is <see langword="false"/>,
+  /// the IScalar fixture for that format skips with an explanatory message rather than
+  /// failing. When the flag is <see langword="true"/>, the fixture must round-trip
+  /// successfully or the test fails.
+  /// </para>
+  /// <para>
+  /// The default-interface-method returns <c>new FormatRowFeatures()</c> (all
+  /// false) — a format that doesn't override is reported as supporting only the
+  /// universal feature surface in the capability matrix.
+  /// </para>
+  /// </remarks>
+  FormatRowFeatures RowFeatures => new();
+
+  /// <summary>
   /// Deserializes a stream of bytes into a stream of rows.
   /// </summary>
   /// <param name="stream">The stream containing serialized data</param>

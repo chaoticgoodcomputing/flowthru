@@ -1,3 +1,4 @@
+using Flowthru.Core.Data.Capabilities;
 using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Data.Storage.Format;
 using Flowthru.Tests.Kits.Format;
@@ -108,4 +109,41 @@ public class ExcelOptionalEnumConformance : FormatSerializerConformance<Optional
 
   protected override IFormatSerializer<OptionalEnumSchema> CreateSerializer() =>
     new ExcelFormatSerializer<OptionalEnumSchema>(sheetName: "Sheet1");
+}
+
+/// <summary>
+/// Conformance for <see cref="ExcelFormatSerializer{TRow}"/> against
+/// <see cref="IScalarSchema"/>. Excel is read-only; the round-trip test passes vacuously
+/// and the property-mapping check exercises the planner-driven IScalar binding emission.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ExcelIScalarConformance : FormatSerializerConformance<IScalarSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/IScalar/rows.json" };
+
+  public ExcelIScalarConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<IScalarSchema> CreateSerializer() =>
+    new ExcelFormatSerializer<IScalarSchema>(sheetName: "Sheet1");
+
+  protected override Func<FormatRowFeatures, bool>? RequiredFeatures =>
+    f => f.SupportsIScalar;
+}
+
+/// <summary>
+/// Conformance for <see cref="ExcelFormatSerializer{TRow}"/> against
+/// <see cref="MultiIScalarSchema"/>.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ExcelMultiIScalarConformance : FormatSerializerConformance<MultiIScalarSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/MultiIScalar/rows.json" };
+
+  public ExcelMultiIScalarConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<MultiIScalarSchema> CreateSerializer() =>
+    new ExcelFormatSerializer<MultiIScalarSchema>(sheetName: "Sheet1");
+
+  protected override Func<FormatRowFeatures, bool>? RequiredFeatures =>
+    f => f.SupportsIScalar;
 }

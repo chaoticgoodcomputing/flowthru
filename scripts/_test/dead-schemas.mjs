@@ -123,6 +123,33 @@ function extractConformanceTypeArgs(filePath) {
   return referenced;
 }
 
+/**
+ * For each declared schema, extract the set of *other declared-schema names* it
+ * references via property types. Used to compute transitive aliveness: a sub-schema
+ * referenced by a directly-tested parent counts as alive.
+ */
+function extractSchemaPropertyTypeNames(filePath, declaredNames) {
+  const text = readFileSync(filePath, 'utf8');
+  const stripped = text
+    .replace(/\/\/.*$/gm, '')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+
+  const referenced = new Set();
+  // Match `public[ required] [Type] PropName { get; init; }` patterns. The type token
+  // is whatever sits after the modifiers; we look for any of the declared schema names
+  // (with optional `?` for nullable) appearing as a token before a property identifier.
+  for (const candidate of declaredNames) {
+    const re = new RegExp(
+      `public\\s+(?:required\\s+)?${candidate}\\??\\s+[A-Z][A-Za-z0-9_]*\\s*\\{`,
+      'g'
+    );
+    if (re.test(stripped)) {
+      referenced.add(candidate);
+    }
+  }
+  return referenced;
+}
+
 // ── Walk schemas ─────────────────────────────────────────────────────────────
 
 const declaredSchemas = new Map(); // name → file path
@@ -137,12 +164,45 @@ for (const csFile of findCs(SCHEMAS_DIR)) {
 
 // ── Walk conformance subclasses ──────────────────────────────────────────────
 
-const referenced = new Set();
+const directlyReferenced = new Set();
 for (const dir of CONFORMANCE_SEARCH_DIRS) {
   for (const csFile of findCs(dir)) {
     if (!csFile.includes(`${'Conformance'}`) && !readFileSync(csFile, 'utf8').includes('Conformance')) continue;
     const args = extractConformanceTypeArgs(csFile);
-    for (const a of args) referenced.add(a);
+    for (const a of args) directlyReferenced.add(a);
+  }
+}
+
+// ── Compute transitive aliveness ─────────────────────────────────────────────
+//
+// A schema is alive iff it's directly referenced by a conformance subclass OR it's
+// used as a property type within another schema that is alive. This handles
+// sub-schemas (e.g., AddressSchema referenced via NestedSimpleSchema.Address) —
+// adding a conformance subclass for AddressSchema directly would be redundant when
+// the parent NestedSimpleSchema's conformance already exercises round-trip through
+// the sub-schema.
+const declaredNames = [...declaredSchemas.keys()];
+const propertyReferences = new Map(); // schema name → set of declared-schema names it references
+for (const [name, filePath] of declaredSchemas) {
+  propertyReferences.set(
+    name,
+    extractSchemaPropertyTypeNames(filePath, declaredNames.filter((n) => n !== name))
+  );
+}
+
+const alive = new Set(directlyReferenced);
+let added = true;
+while (added) {
+  added = false;
+  for (const [name, refs] of propertyReferences) {
+    if (alive.has(name)) {
+      for (const ref of refs) {
+        if (!alive.has(ref) && declaredSchemas.has(ref)) {
+          alive.add(ref);
+          added = true;
+        }
+      }
+    }
   }
 }
 
@@ -150,7 +210,7 @@ for (const dir of CONFORMANCE_SEARCH_DIRS) {
 
 const orphans = [];
 for (const [name, filePath] of declaredSchemas) {
-  if (!referenced.has(name)) {
+  if (!alive.has(name)) {
     orphans.push({ name, file: rel(filePath) });
   }
 }

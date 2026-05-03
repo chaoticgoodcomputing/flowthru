@@ -168,6 +168,18 @@ public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
   public StorageTraits Traits => new StorageTraits { CanStream = true };
 
   /// <inheritdoc/>
+  /// <remarks>
+  /// CSV inherits IScalar handling from the planner-driven <c>SerializedLabelClassMap</c>
+  /// (Phase B2). Flat-only by construction — nested schemas don't compile here due to the
+  /// <see cref="Abstractions.IFlatSchema"/> generic constraint.
+  /// </remarks>
+  public FormatRowFeatures RowFeatures => new()
+  {
+    SupportsIScalar = true,
+    SupportsNested = false,
+  };
+
+  /// <inheritdoc/>
   public async IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
   {
     if (stream == null)

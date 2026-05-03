@@ -13,7 +13,10 @@
         "_test:dead-schemas",
         "_test:dead-fixtures",
         "_test:diagnostic-id-registration",
-        "_test:planner-consumption"
+        "_test:planner-consumption",
+        "_test:capability-matrix-freshness",
+        "_test:row-features-claims",
+        "_test:row-features-inventory"
       ]
     },
     "_test:project-mirror": {
@@ -104,6 +107,64 @@
       ],
       "options": {
         "commands": [ "node scripts/_test/planner-consumption.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:capability-matrix-freshness": {
+      "//": "Regenerates docs/reference/extensions/capability-matrix.md via Flowthru.Tools.CapabilityMatrix and asserts the regenerated content matches the committed file. Drift means a format's RowFeatures or [OptOutOfPropertyPlanner] reason changed without a paired matrix update. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Capabilities/FormatRowFeatures.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/IFormatSerializer.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Serialization/OptOutOfPropertyPlannerAttribute.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs",
+        "{workspaceRoot}/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs",
+        "{workspaceRoot}/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs",
+        "{workspaceRoot}/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs",
+        "{workspaceRoot}/tools/Flowthru.Tools.CapabilityMatrix/**/*.cs",
+        "{workspaceRoot}/tools/Flowthru.Tools.CapabilityMatrix/**/*.csproj",
+        "{workspaceRoot}/docs/reference/extensions/capability-matrix.md",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/capability-matrix-freshness.mjs"
+      ],
+      "dependsOn": [
+        { "target": "build", "projects": [ "Flowthru.Tools.CapabilityMatrix" ] }
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/capability-matrix-freshness.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:row-features-claims": {
+      "//": "Every Supports* = true claim on a RowFeatures property has a corresponding *Conformance<...> subclass that overrides RequiredFeatures referencing that flag. Catches 'extension lies about its capabilities.' Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/src/core/**/*.cs",
+        "{workspaceRoot}/src/extensions/**/*.cs",
+        "{workspaceRoot}/tests/extensions/**/*.cs",
+        "{workspaceRoot}/tests/core/**/*.cs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/row-features-claims.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/row-features-claims.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:row-features-inventory": {
+      "//": "Every flag on FormatRowFeatures is referenced in the row-shape feature surface table (currently in docs/scratch/data-extension-contract.md §2; migrates to src/extensions/CONTRIBUTING.md after Phase E). Catches drift between the type and its documentation. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Capabilities/FormatRowFeatures.cs",
+        "{workspaceRoot}/docs/scratch/data-extension-contract.md",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/row-features-inventory.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/row-features-inventory.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }

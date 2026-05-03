@@ -1,4 +1,5 @@
 using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Capabilities;
 using Flowthru.Core.Data.Storage;
 using Flowthru.Tests.Kits.Fixtures;
 
@@ -65,12 +66,39 @@ public abstract class FormatSerializerConformance<TRow>
   /// </summary>
   protected virtual IEqualityComparer<TRow> RowComparer => EqualityComparer<TRow>.Default;
 
+  /// <summary>
+  /// Optional row-feature gate. When non-null, the round-trip test consults the
+  /// serializer's <see cref="IFormatSerializer{TRow}.RowFeatures"/> against this
+  /// predicate; if the format does not satisfy it, the test passes vacuously with an
+  /// explanatory message. When null (the default), the round-trip runs unconditionally.
+  /// </summary>
+  /// <remarks>
+  /// Subclasses exercising fixtures that require a specific row-feature claim should
+  /// override this to gate the test. For example, a conformance subclass for the
+  /// <c>Flat/IScalar/</c> fixture overrides as
+  /// <c>features =&gt; features.SupportsIScalar</c>. Formats that haven't claimed the
+  /// feature skip the round-trip; formats that have claimed it must round-trip
+  /// successfully or the test fails.
+  /// </remarks>
+  protected virtual Func<FormatRowFeatures, bool>? RequiredFeatures => null;
+
   // ── Round-trip contract ─────────────────────────────────────────────────
 
   [Test]
   public async Task SerializeAndDeserialize_RoundTrips()
   {
     var serializer = CreateSerializer();
+
+    if (RequiredFeatures is { } predicate && !predicate(serializer.RowFeatures))
+    {
+      Assert.Pass(
+        $"Format does not declare the row features required by fixture '{FixturePath}'. "
+          + "The conformance subclass gates this test on a specific RowFeatures predicate; "
+          + "the serializer's declared features do not satisfy it. This is an honest "
+          + "skip — the capability matrix records the format as not supporting the "
+          + "fixture's required feature."
+      );
+    }
 
     if (!serializer.Traits.CanWrite)
     {
