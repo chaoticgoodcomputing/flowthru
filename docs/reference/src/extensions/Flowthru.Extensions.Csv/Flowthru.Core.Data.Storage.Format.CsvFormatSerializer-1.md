@@ -89,6 +89,23 @@ Uses CsvHelper library with default configuration:
 Custom configuration can be provided via constructor.
 </p>
 <p>
+<strong>Null Handling:</strong>
+</p>
+<p>
+By default, empty cells in nullable properties (<code>string?</code>, <code>int?</code>,
+<code>DateTime?</code>, etc.) deserialize to <code>null</code> — matching the conventional CSV
+representation where <code>,,</code> indicates a missing value (the same convention pandas,
+R, and most CSV consumers use). Non-nullable properties retain their type's default
+behavior: <code>string</code> reads empty cells as empty strings, value types use CsvHelper
+defaults.
+</p>
+<p>
+Catalog authors can extend the set of null sentinels via the <code>nullValues</code>
+constructor parameter — for example <code>["", "NA", "N/A", "NULL"]</code> to handle messy
+real-world data. Nullability is detected per-property via <xref href="System.Reflection.NullabilityInfoContext" data-throw-if-not-resolved="false"></xref>;
+the override applies only to properties declared nullable in the schema.
+</p>
+<p>
 <strong>Streaming Behavior:</strong>
 </p>
 <p>
@@ -102,11 +119,29 @@ Both deserialization and serialization use streaming:
 
 ### <a id="Flowthru_Core_Data_Storage_Format_CsvFormatSerializer_1__ctor"></a> CsvFormatSerializer\(\)
 
-Creates a new CSV format serializer with default configuration.
+Creates a new CSV format serializer with default configuration. Empty cells in
+nullable properties deserialize to null.
 
 ```csharp
 public CsvFormatSerializer()
 ```
+
+### <a id="Flowthru_Core_Data_Storage_Format_CsvFormatSerializer_1__ctor_System_Collections_Generic_IReadOnlyList_System_String__"></a> CsvFormatSerializer\(IReadOnlyList<string\>\)
+
+Creates a new CSV format serializer with a custom set of null-representation strings.
+
+```csharp
+public CsvFormatSerializer(IReadOnlyList<string> nullValues)
+```
+
+#### Parameters
+
+`nullValues` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
+
+Strings that should deserialize to null for nullable properties. Pass
+<code>["", "NA", "N/A", "NULL"]</code> for pandas-style handling of messy data. The first
+entry — typically <xref href="System.String.Empty" data-throw-if-not-resolved="false"></xref> — is also used as the canonical write
+representation when a nullable property's value is null.
 
 ### <a id="Flowthru_Core_Data_Storage_Format_CsvFormatSerializer_1__ctor_CsvHelper_Configuration_CsvConfiguration_"></a> CsvFormatSerializer\(CsvConfiguration\)
 
@@ -128,6 +163,31 @@ CsvHelper configuration
 
 Thrown if configuration is null
 
+### <a id="Flowthru_Core_Data_Storage_Format_CsvFormatSerializer_1__ctor_CsvHelper_Configuration_CsvConfiguration_System_Collections_Generic_IReadOnlyList_System_String__"></a> CsvFormatSerializer\(CsvConfiguration, IReadOnlyList<string\>\)
+
+Creates a new CSV format serializer with custom configuration and null-representation
+strings.
+
+```csharp
+public CsvFormatSerializer(CsvConfiguration configuration, IReadOnlyList<string> nullValues)
+```
+
+#### Parameters
+
+`configuration` CsvConfiguration
+
+CsvHelper configuration
+
+`nullValues` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
+
+Strings that should deserialize to null for nullable properties.
+
+#### Exceptions
+
+ [ArgumentNullException](https://learn.microsoft.com/dotnet/api/system.argumentnullexception)
+
+Thrown if either argument is null.
+
 ## Properties
 
 ### <a id="Flowthru_Core_Data_Storage_Format_CsvFormatSerializer_1_Configuration"></a> Configuration
@@ -141,6 +201,18 @@ public CsvConfiguration Configuration { get; }
 #### Property Value
 
  CsvConfiguration
+
+### <a id="Flowthru_Core_Data_Storage_Format_CsvFormatSerializer_1_NullValues"></a> NullValues
+
+Gets the null-representation strings for this serializer.
+
+```csharp
+public IReadOnlyList<string> NullValues { get; }
+```
+
+#### Property Value
+
+ [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
 
 ### <a id="Flowthru_Core_Data_Storage_Format_CsvFormatSerializer_1_Traits"></a> Traits
 
@@ -230,10 +302,6 @@ Property mapping configuration describing the mapping strategy
 public PropertyMappingConfiguration GetPropertyMappingConfiguration()
     =&gt; PropertyMappingConfiguration.FromSerializedLabel&lt;TRow&gt;();
 
-// ML.NET serializer using native attributes
-public PropertyMappingConfiguration GetPropertyMappingConfiguration()
-    =&gt; PropertyMappingConfiguration.FromNativeAttributes("LoadColumnAttribute");
-
 // Parquet with library-controlled mapping
 public PropertyMappingConfiguration GetPropertyMappingConfiguration()
     =&gt; PropertyMappingConfiguration.LibraryControlled();</code></pre>
@@ -248,14 +316,13 @@ to explicitly declare how it handles property name mapping.
 <strong>Implementation Strategies:</strong>
 </p>
 <ul><li>
-<strong>SerializedLabel Support:</strong> Use <xref href="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" data-throw-if-not-resolved="false"></xref>
-to respect [SerializedLabel] attributes. Return <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromSerializedLabel%60%601" data-throw-if-not-resolved="false"></xref>.
+<strong>SerializedLabel:</strong> Use <xref href="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" data-throw-if-not-resolved="false"></xref>
+to respect <code>[SerializedLabel]</code> attributes. Return
+<xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromSerializedLabel%60%601" data-throw-if-not-resolved="false"></xref>.
 </li><li>
-<strong>Native Attribute Mapping:</strong> Use format-specific attributes (e.g., ML.NET's [LoadColumn]).
-Return PropertyMappingConfiguration.FromNativeAttributes(string) with the attribute type name.
-</li><li>
-<strong>Adapter Pattern:</strong> Bridge between SerializedLabel and native attributes.
-Return PropertyMappingConfiguration.FromAdapter&lt;TAdapter&gt;().
+<strong>LibraryControlled:</strong> The underlying library handles mapping with no
+programmatic API; property names must match storage field names exactly. Return
+<xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.LibraryControlled(System.String)" data-throw-if-not-resolved="false"></xref>.
 </li></ul>
 <p>
 <strong>Design Intent:</strong> This contract makes property mapping an explicit, discoverable

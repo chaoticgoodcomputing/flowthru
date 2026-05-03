@@ -52,32 +52,6 @@ An effect that fails with <code class="paramref">error</code>.
 
 The expected result type.
 
-### <a id="Flowthru_Core_Effects_FlowIO_Fail__1_System_String_"></a> Fail<A\>\(string\)
-
-Creates an effect that immediately fails with an exception containing the given message.
-
-```csharp
-public static FlowIO<A> Fail<A>(string message)
-```
-
-#### Parameters
-
-`message` [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-The error message.
-
-#### Returns
-
- [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<A\>
-
-An effect that fails with an exception containing <code class="paramref">message</code>.
-
-#### Type Parameters
-
-`A` 
-
-The expected result type.
-
 ### <a id="Flowthru_Core_Effects_FlowIO_Lift__1_System_Func___0__"></a> Lift<A\>\(Func<A\>\)
 
 Lifts a synchronous function into an effect.

@@ -20,6 +20,8 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
 {
   private const string AttributeFullName = "Flowthru.Core.Abstractions.FlowthruSchemaAttribute";
   private const string AttributeShortName = "FlowthruSchema";
+  private const string ColumnAttributeFullName =
+    "Flowthru.Core.Abstractions.FlowthruColumnAttribute";
 
   /// <inheritdoc/>
   public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -34,15 +36,55 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
       .Where(static info => info != null)
       .Select(static (info, _) => info);
 
-    // Emit generated source for each candidate (marker interfaces).
-    context.RegisterSourceOutput(candidates, static (ctx, info) => EmitSchemaInterfaces(ctx, info));
+    // Collect every NewType simple-name declared via [FlowthruColumn] anywhere in the
+    // compilation. This registry lets schemas reference NewTypes declared elsewhere (in
+    // any namespace) and still be classified as flat — even though the generated NewType
+    // is invisible to this generator's input compilation.
+    var columnNewTypeNames = context
+      .SyntaxProvider.ForAttributeWithMetadataName(
+        ColumnAttributeFullName,
+        predicate: static (node, _) => node is PropertyDeclarationSyntax,
+        transform: static (ctx, _) => ExtractColumnNewTypeName(ctx)
+      )
+      .Where(static name => !string.IsNullOrEmpty(name))
+      .Collect();
+
+    // Emit per-schema marker interfaces, finalizing flat/nested classification with the
+    // collected NewType registry.
+    var combined = candidates.Combine(columnNewTypeNames);
+    context.RegisterSourceOutput(
+      combined,
+      static (ctx, pair) => EmitSchemaInterfaces(ctx, pair.Left, pair.Right)
+    );
 
     // Phase 5: Collect all schemas and emit manifest for Python schema generation
     var allSchemas = candidates.Collect();
+    var allSchemasWithRegistry = allSchemas.Combine(columnNewTypeNames);
     context.RegisterSourceOutput(
-      allSchemas,
-      static (ctx, schemas) => EmitSchemaManifest(ctx, schemas)
+      allSchemasWithRegistry,
+      static (ctx, pair) => EmitSchemaManifest(ctx, pair.Left, pair.Right)
     );
+  }
+
+  /// <summary>
+  /// Extracts the simple type name of the property bearing a <c>[FlowthruColumn]</c>
+  /// attribute — read directly from syntax so the lookup works even if the NewType
+  /// hasn't yet been generated.
+  /// </summary>
+  private static string ExtractColumnNewTypeName(GeneratorAttributeSyntaxContext ctx)
+  {
+    if (ctx.TargetNode is not PropertyDeclarationSyntax propertyDeclaration)
+    {
+      return string.Empty;
+    }
+
+    var name = propertyDeclaration.Type.ToString();
+    // Strip nullable annotation so a property typed `ShuttleId?` registers as `ShuttleId`.
+    if (name.EndsWith("?"))
+    {
+      name = name.Substring(0, name.Length - 1);
+    }
+    return name;
   }
 
   /// <summary>
@@ -63,8 +105,35 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
     // Check for partial modifier
     bool isPartial = typeDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword);
 
-    // Classify the schema
-    var classification = SchemaPropertyClassifier.Classify(typeSymbol);
+    // Compute a tentative flat/nested classification using only locally-visible information
+    // (CLR primitives, IScalar implementors, [FlowthruColumn] on this schema's own properties).
+    // This may be promoted to flat at emission time once the cross-assembly NewType
+    // registry is available.
+    var tentativeClassification = SchemaPropertyClassifier.Classify(typeSymbol);
+
+    // Capture the simple-name + tentative-flat snapshot of every property for late
+    // classification finalization. Only properties that are NOT yet definitely flat need
+    // to be re-checked against the registry — but we capture all of them for clarity.
+    var classifications = ImmutableArray.CreateBuilder<PropertyClassification>();
+    foreach (var p in tentativeClassification.Properties)
+    {
+      var typeForName = p.Type;
+      if (
+        typeForName is INamedTypeSymbol
+        {
+          OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+        } nullable
+      )
+      {
+        typeForName = nullable.TypeArguments[0];
+      }
+
+      var isBasicallyFlat =
+        SchemaPropertyClassifier.IsFlatPropertyType(p.Type)
+        || HasFlowthruColumnAttribute(p);
+
+      classifications.Add(new PropertyClassification(typeForName.Name, isBasicallyFlat));
+    }
 
     // Detect manually-applied marker interfaces
     var manualInterfaces = DetectManualInterfaces(typeSymbol);
@@ -91,11 +160,23 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
       @namespace: namespaceName,
       typeKind: typeKind,
       isPartial: isPartial,
-      isFlat: classification.IsFlat,
+      isFlat: tentativeClassification.IsFlat,
       manualInterfaces: manualInterfaces,
       location: typeDeclaration.Identifier.GetLocation(),
-      properties: properties
+      properties: properties,
+      propertyClassifications: classifications.ToImmutable()
     );
+  }
+
+  /// <summary>
+  /// Whether the property carries the <c>[FlowthruColumn]</c> attribute. Mirrored from
+  /// <see cref="SchemaPropertyClassifier"/> so this generator can compute a tentative
+  /// classification snapshot without exposing internals.
+  /// </summary>
+  private static bool HasFlowthruColumnAttribute(IPropertySymbol property)
+  {
+    return property.GetAttributes()
+      .Any(a => a.AttributeClass?.ToDisplayString() == ColumnAttributeFullName);
   }
 
   /// <summary>
@@ -159,7 +240,11 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
   /// Diagnostics (FT1001, FT1002) are emitted by <see cref="FlowthruSchemaAnalyzer"/>,
   /// not here — generators should only generate code.
   /// </summary>
-  private static void EmitSchemaInterfaces(SourceProductionContext ctx, SchemaGenerationInfo info)
+  private static void EmitSchemaInterfaces(
+    SourceProductionContext ctx,
+    SchemaGenerationInfo info,
+    ImmutableArray<string> knownNewTypeNames
+  )
   {
     // Skip generation for non-partial types; FlowthruSchemaAnalyzer emits FT1001.
     if (!info.IsPartial)
@@ -167,12 +252,32 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
       return;
     }
 
+    // Finalize flat/nested classification using the cross-assembly NewType registry.
+    // A property whose type simple name matches any [FlowthruColumn]-declared NewType is
+    // treated as flat — even if the property itself doesn't carry [FlowthruColumn] (i.e.,
+    // it references a NewType declared elsewhere via `using`).
+    var registry = knownNewTypeNames.IsDefaultOrEmpty
+      ? ImmutableHashSet<string>.Empty
+      : knownNewTypeNames.ToImmutableHashSet();
+
+    bool isFlat;
+    if (info.IsFlat)
+    {
+      isFlat = true; // already flat per local classification
+    }
+    else
+    {
+      isFlat = info.PropertyClassifications.All(p =>
+        p.IsBasicallyFlat || registry.Contains(p.SimpleTypeName)
+      );
+    }
+
     // Build the interface list based on classification.
     // Do NOT emit interfaces that the user already manually applied — that would cause
     // CS8646 (interface already listed in the interface list).
     var interfaces = new List<string>();
 
-    if (info.IsFlat)
+    if (isFlat)
     {
       if (!info.ManualInterfaces.Contains("Flowthru.Core.Abstractions.IFlatSchema"))
       {
@@ -244,12 +349,16 @@ public class SchemaInterfaceGenerator : IIncrementalGenerator
 
   /// <summary>
   /// Emits a consolidated manifest of all schemas for Python schema generation (Phase 5).
+  /// The NewType registry is accepted for signature consistency with the per-schema emitter
+  /// but currently unused — manifest contents do not depend on flat/nested classification.
   /// </summary>
   private static void EmitSchemaManifest(
     SourceProductionContext ctx,
-    ImmutableArray<SchemaGenerationInfo> schemas
+    ImmutableArray<SchemaGenerationInfo> schemas,
+    ImmutableArray<string> knownNewTypeNames
   )
   {
+    _ = knownNewTypeNames;
     // Only emit manifest if there are schemas
     if (schemas.Length == 0)
     {
@@ -339,6 +448,14 @@ internal sealed class SchemaGenerationInfo
   public Location Location { get; }
   public ImmutableArray<SchemaPropertyInfo> Properties { get; } // Phase 5: For manifest generation
 
+  /// <summary>
+  /// Per-property classification snapshot: simple type name + whether the property is
+  /// definitely flat by local rules (CLR primitive / IScalar / [FlowthruColumn] on this
+  /// property). Used by the emission stage to finalize <see cref="IsFlat"/> against the
+  /// cross-assembly NewType registry.
+  /// </summary>
+  public ImmutableArray<PropertyClassification> PropertyClassifications { get; }
+
   public SchemaGenerationInfo(
     string typeName,
     string @namespace,
@@ -347,7 +464,8 @@ internal sealed class SchemaGenerationInfo
     bool isFlat,
     ImmutableArray<string> manualInterfaces,
     Location location,
-    ImmutableArray<SchemaPropertyInfo> properties
+    ImmutableArray<SchemaPropertyInfo> properties,
+    ImmutableArray<PropertyClassification> propertyClassifications
   )
   {
     TypeName = typeName;
@@ -358,8 +476,16 @@ internal sealed class SchemaGenerationInfo
     ManualInterfaces = manualInterfaces;
     Location = location;
     Properties = properties;
+    PropertyClassifications = propertyClassifications;
   }
 }
+
+/// <summary>
+/// Snapshot of a single property's classification status, captured at extraction time so
+/// the emission stage can finalize flat/nested classification once the cross-assembly
+/// NewType registry is available.
+/// </summary>
+internal readonly record struct PropertyClassification(string SimpleTypeName, bool IsBasicallyFlat);
 
 /// <summary>
 /// Information about a schema property (Phase 5).

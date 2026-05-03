@@ -49,7 +49,9 @@ This is necessary for extensions (e.g., Python) to validate their own step types
 
 ### <a id="Flowthru_Core_Graph_FlowStep__ctor_System_String_System_String_System_Delegate_System_Collections_Generic_IReadOnlyList_Flowthru_Core_Graph_INode__System_Collections_Generic_IReadOnlyList_Flowthru_Core_Graph_INode__"></a> FlowStep\(string, string?, Delegate, IReadOnlyList<INode\>, IReadOnlyList<INode\>\)
 
-Creates a new Flow step with a transformation function.
+Creates a new Flow step with a transformation function and no declared service
+dependencies. Equivalent to calling the <xref href="Flowthru.Core.Graph.FlowStep.%23ctor(System.String%2cSystem.String%2cSystem.Delegate%2cSystem.Collections.Generic.IReadOnlyList%7bFlowthru.Core.Graph.INode%7d%2cSystem.Collections.Generic.IReadOnlyList%7bFlowthru.Core.Graph.INode%7d%2cSystem.Collections.Generic.IReadOnlyList%7bSystem.Type%7d)" data-throw-if-not-resolved="false"></xref> overload with
+a null service-deps list.
 
 ```csharp
 public FlowStep(string label, string? description, Delegate step, IReadOnlyList<INode> inputs, IReadOnlyList<INode> outputs)
@@ -76,6 +78,43 @@ Catalog entries this step reads
 `outputs` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[INode](Flowthru.Core.Graph.INode.md)\>
 
 Catalog entries this step writes
+
+### <a id="Flowthru_Core_Graph_FlowStep__ctor_System_String_System_String_System_Delegate_System_Collections_Generic_IReadOnlyList_Flowthru_Core_Graph_INode__System_Collections_Generic_IReadOnlyList_Flowthru_Core_Graph_INode__System_Collections_Generic_IReadOnlyList_System_Type__"></a> FlowStep\(string, string?, Delegate, IReadOnlyList<INode\>, IReadOnlyList<INode\>, IReadOnlyList<Type\>?\)
+
+Creates a new Flow step with a transformation function and an explicit list of
+service dependencies for preflight inspection.
+
+```csharp
+public FlowStep(string label, string? description, Delegate step, IReadOnlyList<INode> inputs, IReadOnlyList<INode> outputs, IReadOnlyList<Type>? serviceDependencies)
+```
+
+#### Parameters
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)?
+
+Optional description of this step
+
+`step` [Delegate](https://learn.microsoft.com/dotnet/api/system.delegate)
+
+The transformation function (Func&lt;TInput, Task&lt;TOutput&gt;&gt;)
+
+`inputs` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[INode](Flowthru.Core.Graph.INode.md)\>
+
+Catalog entries this step reads
+
+`outputs` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[INode](Flowthru.Core.Graph.INode.md)\>
+
+Catalog entries this step writes
+
+`serviceDependencies` [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[Type](https://learn.microsoft.com/dotnet/api/system.type)\>?
+
+Service types this step's transform depends on. The engine uses these to look up
+matching <xref href="Flowthru.Core.Effects.IFlowthruInspector%601" data-throw-if-not-resolved="false"></xref> registrations during
+preflight. Pass <code>null</code> for steps with no service dependencies (the default).
 
 ## Properties
 
@@ -181,6 +220,31 @@ public IReadOnlyList<INode> Outputs { get; }
 
  [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[INode](Flowthru.Core.Graph.INode.md)\>
 
+### <a id="Flowthru_Core_Graph_FlowStep_ServiceDependencies"></a> ServiceDependencies
+
+Service types this step depends on, used by the preflight loop to look up
+matching <xref href="Flowthru.Core.Effects.IFlowthruInspector%601" data-throw-if-not-resolved="false"></xref> registrations and
+run reachability probes before the flow executes.
+
+```csharp
+public IReadOnlyList<Type> ServiceDependencies { get; }
+```
+
+#### Property Value
+
+ [IReadOnlyList](https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist\-1)<[Type](https://learn.microsoft.com/dotnet/api/system.type)\>
+
+#### Remarks
+
+<p>
+Defaults to an empty list when constructed via <code>FlowBuilder.AddStep</code>
+— Phase 3 of the effects-as-steps initiative ships the inspection mechanism but
+not the source-generated metadata that populates this list. Until the metadata
+generator lands (Phase 4), real flows pay no preflight cost from service inspection;
+tests construct <xref href="Flowthru.Core.Graph.FlowStep" data-throw-if-not-resolved="false"></xref> directly with explicit service deps to
+exercise the inspection path.
+</p>
+
 ### <a id="Flowthru_Core_Graph_FlowStep_TransformFunction"></a> TransformFunction
 
 The transformation function that performs the step's work.
@@ -198,18 +262,25 @@ public Delegate TransformFunction { get; }
 
 <p>
 At execution time, this delegate will be invoked via DynamicInvoke with the
-appropriate input parameter(s). The function signature can be either synchronous
-or asynchronous:
+appropriate input parameter(s) — or with no parameters at all for zero-input steps.
+The function signature can be synchronous or asynchronous, across the full
+0–8 inputs × 0–8 outputs arity matrix:
 - Sync single: Func&lt;TInput, TOutput&gt;
 - Async single: Func&lt;TInput, Task&lt;TOutput&gt;&gt;
 - Sync multi-input: Func&lt;(TIn1, TIn2, ...), TOutput&gt;
 - Async multi-input: Func&lt;(TIn1, TIn2, ...), Task&lt;TOutput&gt;&gt;
 - Sync multi-output: Func&lt;TInput, (TOut1, TOut2, ...)&gt;
 - Async multi-output: Func&lt;TInput, Task&lt;(TOut1, TOut2, ...)&gt;&gt;
+- Zero-input sync: Func&lt;TOutput&gt; or Action (when also zero-output)
+- Zero-input async: Func&lt;Task&lt;TOutput&gt;&gt; or Func&lt;Task&gt; (when also zero-output)
+- Zero-output sync: Action&lt;TInput&gt;
+- Zero-output async: Func&lt;TInput, Task&gt;
 </p>
 <p>
 <strong>Optional Cancellation Support:</strong> Steps can opt-in to cancellation awareness
 by accepting a CancellationToken as the last parameter:
+- Func&lt;CancellationToken, Task&gt; (zero-input, zero-output)
+- Func&lt;CancellationToken, Task&lt;TOutput&gt;&gt; (zero-input)
 - Func&lt;TInput, CancellationToken, Task&lt;TOutput&gt;&gt;
 - Func&lt;(TIn1, TIn2), CancellationToken, Task&lt;TOutput&gt;&gt;
 </p>

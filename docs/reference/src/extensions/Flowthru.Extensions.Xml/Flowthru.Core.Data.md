@@ -10,10 +10,6 @@
 
 Factory methods for single XML document catalog entries.
 
- [XmlDocument<T\>](Flowthru.Core.Data.XmlDocument\-1.md)
-
-Wraps a deserialized XML document with its source file name.
-
  [XmlEnumerableItemExtensions](Flowthru.Core.Data.XmlEnumerableItemExtensions.md)
 
 Extension methods that add XML directory support to <xref href="Flowthru.Core.Data.ItemFactory.Enumerable" data-throw-if-not-resolved="false"></xref>.

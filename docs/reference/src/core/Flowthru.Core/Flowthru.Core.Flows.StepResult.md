@@ -55,40 +55,6 @@ public TimeSpan ExecutionTime { get; init; }
 
  [TimeSpan](https://learn.microsoft.com/dotnet/api/system.timespan)
 
-### <a id="Flowthru_Core_Flows_StepResult_InputCount"></a> InputCount
-
-Number of input items processed by this step.
-
-```csharp
-public int InputCount { get; init; }
-```
-
-#### Property Value
-
- [int](https://learn.microsoft.com/dotnet/api/system.int32)
-
-#### Remarks
-
-For multi-input steps, this represents the total count across
-all input catalog entries.
-
-### <a id="Flowthru_Core_Flows_StepResult_OutputCount"></a> OutputCount
-
-Number of output items produced by this step.
-
-```csharp
-public int OutputCount { get; init; }
-```
-
-#### Property Value
-
- [int](https://learn.microsoft.com/dotnet/api/system.int32)
-
-#### Remarks
-
-For multi-output steps, this represents the total count across
-all output catalog entries.
-
 ### <a id="Flowthru_Core_Flows_StepResult_StepName"></a> StepName
 
 The name of the step that was executed.
@@ -115,12 +81,12 @@ public bool Success { get; init; }
 
 ## Methods
 
-### <a id="Flowthru_Core_Flows_StepResult_CreateFailure_System_String_System_TimeSpan_System_Exception_System_Int32_"></a> CreateFailure\(string, TimeSpan, Exception, int\)
+### <a id="Flowthru_Core_Flows_StepResult_CreateFailure_System_String_System_TimeSpan_System_Exception_"></a> CreateFailure\(string, TimeSpan, Exception\)
 
 Creates a failed step result.
 
 ```csharp
-public static StepResult CreateFailure(string stepName, TimeSpan executionTime, Exception exception, int inputCount = 0)
+public static StepResult CreateFailure(string stepName, TimeSpan executionTime, Exception exception)
 ```
 
 #### Parameters
@@ -131,18 +97,16 @@ public static StepResult CreateFailure(string stepName, TimeSpan executionTime, 
 
 `exception` [Exception](https://learn.microsoft.com/dotnet/api/system.exception)
 
-`inputCount` [int](https://learn.microsoft.com/dotnet/api/system.int32)
-
 #### Returns
 
  [StepResult](Flowthru.Core.Flows.StepResult.md)
 
-### <a id="Flowthru_Core_Flows_StepResult_CreateSuccess_System_String_System_TimeSpan_System_Int32_System_Int32_"></a> CreateSuccess\(string, TimeSpan, int, int\)
+### <a id="Flowthru_Core_Flows_StepResult_CreateSuccess_System_String_System_TimeSpan_"></a> CreateSuccess\(string, TimeSpan\)
 
 Creates a successful step result.
 
 ```csharp
-public static StepResult CreateSuccess(string stepName, TimeSpan executionTime, int inputCount, int outputCount)
+public static StepResult CreateSuccess(string stepName, TimeSpan executionTime)
 ```
 
 #### Parameters
@@ -150,10 +114,6 @@ public static StepResult CreateSuccess(string stepName, TimeSpan executionTime, 
 `stepName` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
 `executionTime` [TimeSpan](https://learn.microsoft.com/dotnet/api/system.timespan)
-
-`inputCount` [int](https://learn.microsoft.com/dotnet/api/system.int32)
-
-`outputCount` [int](https://learn.microsoft.com/dotnet/api/system.int32)
 
 #### Returns
 

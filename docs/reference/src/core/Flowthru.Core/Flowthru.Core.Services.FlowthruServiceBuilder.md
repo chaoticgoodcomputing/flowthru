@@ -351,46 +351,6 @@ else if (env.IsTest())
     flowthru.UseStorageStrategy&lt;MemoryStorageEntryFactory&gt;();
 }</code></pre>
 
-### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_UseStorageStrategy_Flowthru_Core_Data_Storage_Strategies_IStorageEntryFactory_"></a> UseStorageStrategy\(IStorageEntryFactory\)
-
-Registers a storage entry factory instance.
-
-```csharp
-public IFlowthruBuilder UseStorageStrategy(IStorageEntryFactory strategy)
-```
-
-#### Parameters
-
-`strategy` [IStorageEntryFactory](Flowthru.Core.Data.Storage.Strategies.IStorageEntryFactory.md)
-
-The storage strategy instance
-
-#### Returns
-
- [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
-
-This builder for method chaining
-
-### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_UseStorageStrategy_System_Func_System_IServiceProvider_Flowthru_Core_Data_Storage_Strategies_IStorageEntryFactory__"></a> UseStorageStrategy\(Func<IServiceProvider, IStorageEntryFactory\>\)
-
-Registers a storage entry factory using a factory function.
-
-```csharp
-public IFlowthruBuilder UseStorageStrategy(Func<IServiceProvider, IStorageEntryFactory> strategyFactory)
-```
-
-#### Parameters
-
-`strategyFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [IStorageEntryFactory](Flowthru.Core.Data.Storage.Strategies.IStorageEntryFactory.md)\>
-
-Factory function to create the strategy
-
-#### Returns
-
- [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
-
-This builder for method chaining
-
 ### <a id="Flowthru_Core_Services_FlowthruServiceBuilder_WithDescription_System_String_"></a> WithDescription\(string\)
 
 Adds a description to the most recently registered flow.

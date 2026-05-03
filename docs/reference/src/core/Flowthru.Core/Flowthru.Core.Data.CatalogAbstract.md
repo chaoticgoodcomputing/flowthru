@@ -167,35 +167,24 @@ public IItem&lt;IEnumerable&lt;FeatureRow&gt;&gt; Features =&gt;
     CreateItem(() =&gt; ItemFactory.Enumerable.Csv&lt;FeatureRow&gt;("features", "data.csv"));</code></pre>
 </p>
 
-### <a id="Flowthru_Core_Data_CatalogAbstract_CreateItem__1_System_Func_System_IServiceProvider_Flowthru_Core_Data_IItem___0___System_String_"></a> CreateItem<T\>\(Func<IServiceProvider?, IItem<T\>\>, string\)
+### <a id="Flowthru_Core_Data_CatalogAbstract_GetAllItems"></a> GetAllItems\(\)
 
-Gets or creates a unified catalog item with service provider access.
+Enumerates all <xref href="Flowthru.Core.Data.IItem" data-throw-if-not-resolved="false"></xref> instances registered against this catalog.
 
 ```csharp
-protected IItem<T> CreateItem<T>(Func<IServiceProvider?, IItem<T>> factory, string propertyName = "")
+public virtual IEnumerable<IItem> GetAllItems()
 ```
-
-#### Parameters
-
-`factory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider)?, [IItem](Flowthru.Core.Data.IItem\-1.md)<T\>\>
-
-Factory function that receives service provider
-
-`propertyName` [string](https://learn.microsoft.com/dotnet/api/system.string)
-
-Auto-populated by compiler with calling property name
 
 #### Returns
 
- [IItem](Flowthru.Core.Data.IItem\-1.md)<T\>
+ [IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[IItem](Flowthru.Core.Data.IItem.md)\>
 
-Cached catalog item instance
+#### Remarks
 
-#### Type Parameters
-
-`T` 
-
-The data type (singleton or collection)
+Items become enumerable after <xref href="Flowthru.Core.Data.CatalogAbstract.InitializeCatalogProperties" data-throw-if-not-resolved="false"></xref> runs (typically
+at the end of a derived catalog's constructor). Provided so post-run metadata providers
+and user diagnostic code can resolve live items by label without reflecting on the catalog
+type. Returned in insertion order; not deduplicated across catalogs.
 
 ### <a id="Flowthru_Core_Data_CatalogAbstract_InitializeCatalogProperties"></a> InitializeCatalogProperties\(\)
 

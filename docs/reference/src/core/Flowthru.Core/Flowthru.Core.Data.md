@@ -19,6 +19,12 @@ Base class for strongly-typed catalog implementations with automatic property ca
 Specifies the <xref href="Microsoft.Extensions.Configuration.IConfiguration" data-throw-if-not-resolved="false"></xref> section path
 that backs an <xref href="Flowthru.Core.Data.IItem%601" data-throw-if-not-resolved="false"></xref> property on a <xref href="Flowthru.Core.Data.FlowthruConfigAttribute" data-throw-if-not-resolved="false"></xref>-marked class.
 
+ [Directory<T\>](Flowthru.Core.Data.Directory\-1.md)
+
+A typed view over a set of same-schema files within a directory, keyed by full file path.
+Each entry is one independent unit of <code class="typeparamref">T</code>; the directory holds N units
+of the same shape.
+
  [EnumerableItemFactory](Flowthru.Core.Data.EnumerableItemFactory.md)
 
 Extension point for <xref href="Flowthru.Core.Data.ItemFactory.Enumerable" data-throw-if-not-resolved="false"></xref> factory methods.
@@ -45,12 +51,12 @@ Factory methods for single (non-collection) values.
 
 ### Interfaces
 
+ [IItem<T\>](Flowthru.Core.Data.IItem\-1.md)
+
+Typed catalog item — a specialization of <xref href="Flowthru.Core.Graph.INode%601" data-throw-if-not-resolved="false"></xref> for data I/O.
+
  [IItem](Flowthru.Core.Data.IItem.md)
 
 Non-generic base interface for catalog items — a specialization of <xref href="Flowthru.Core.Graph.INode" data-throw-if-not-resolved="false"></xref>
 for data I/O nodes backed by storage adapters.
-
- [IItem<T\>](Flowthru.Core.Data.IItem\-1.md)
-
-Typed catalog item — a specialization of <xref href="Flowthru.Core.Graph.INode%601" data-throw-if-not-resolved="false"></xref> for data I/O.
 

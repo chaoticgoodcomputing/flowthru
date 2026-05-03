@@ -307,6 +307,20 @@ internal sealed class SerializedLabelClassMap<T> : ClassMap<T>
         var converter = Activator.CreateInstance(converterType);
         memberMap.TypeConverter((CsvHelper.TypeConversion.ITypeConverter)converter!);
       }
+      // Add IScalar converter for user-defined NewType wrappers that round-trip through
+      // a single primitive value. Required so types like `record struct CustomerId(string Value) : IScalar`
+      // deserialize from a single CSV cell instead of failing in CsvHelper's default converter.
+      else if (
+        IsIScalarWrapper(property.PropertyType, out var backingType, out var valuePropertyName)
+      )
+      {
+        var converterType = typeof(IScalarCsvConverter<,>).MakeGenericType(
+          property.PropertyType,
+          backingType!
+        );
+        var converter = Activator.CreateInstance(converterType, valuePropertyName);
+        memberMap.TypeConverter((CsvHelper.TypeConversion.ITypeConverter)converter!);
+      }
 
       if (IsNullable(property, nullabilityContext))
       {
@@ -316,6 +330,42 @@ internal sealed class SerializedLabelClassMap<T> : ClassMap<T>
         memberMap.TypeConverterOption.NullValues(nullValues.ToArray());
       }
     }
+  }
+
+  /// <summary>
+  /// Determines whether a type is an <see cref="IScalar"/> wrapper around a single primitive
+  /// — i.e., a NewType pattern such as <c>readonly record struct CustomerId(string Value) : IScalar</c>.
+  /// Returns <c>true</c> with the backing type and the public scalar property name on success.
+  /// </summary>
+  /// <remarks>
+  /// We accept any <see cref="IScalar"/> type that exposes exactly one public readable
+  /// instance property (a NewType wrapper). Multi-property structs that erroneously declare
+  /// <c>IScalar</c> are not accepted — the docs already warn against that.
+  /// </remarks>
+  private static bool IsIScalarWrapper(Type type, out Type? backingType, out string? valuePropertyName)
+  {
+    backingType = null;
+    valuePropertyName = null;
+
+    if (!typeof(IScalar).IsAssignableFrom(type))
+    {
+      return false;
+    }
+
+    var publicReadableProps = type
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+      .Where(p => p.CanRead && p.GetIndexParameters().Length == 0)
+      .Where(p => p.DeclaringType == type)  // ignore inherited members
+      .ToList();
+
+    if (publicReadableProps.Count != 1)
+    {
+      return false;
+    }
+
+    backingType = publicReadableProps[0].PropertyType;
+    valuePropertyName = publicReadableProps[0].Name;
+    return true;
   }
 
   /// <summary>
@@ -408,5 +458,60 @@ internal sealed class SerializedEnumCsvConverter<TEnum>
         $"Failed to convert enum value '{value}' of type '{typeof(TEnum).Name}' to string. {ex.Message}"
       );
     }
+  }
+}
+
+/// <summary>
+/// CsvHelper type converter for <see cref="IScalar"/> NewType wrappers (e.g. record struct
+/// <c>CustomerId(string Value) : IScalar</c>). Reads/writes the cell as the backing type
+/// and constructs the wrapper via its single-arg constructor.
+/// </summary>
+internal sealed class IScalarCsvConverter<TScalar, TBacking>
+  : CsvHelper.TypeConversion.DefaultTypeConverter
+  where TScalar : IScalar
+{
+  private readonly PropertyInfo _valueProperty;
+  private readonly ConstructorInfo _wrappingConstructor;
+
+  public IScalarCsvConverter(string valuePropertyName)
+  {
+    _valueProperty =
+      typeof(TScalar).GetProperty(valuePropertyName, BindingFlags.Public | BindingFlags.Instance)
+      ?? throw new InvalidOperationException(
+        $"IScalar type '{typeof(TScalar).Name}' does not expose a public '{valuePropertyName}' property."
+      );
+
+    _wrappingConstructor =
+      typeof(TScalar).GetConstructor(new[] { typeof(TBacking) })
+      ?? throw new InvalidOperationException(
+        $"IScalar type '{typeof(TScalar).Name}' does not expose a constructor taking a single '{typeof(TBacking).Name}' argument."
+      );
+  }
+
+  public override object? ConvertFromString(
+    string? text,
+    CsvHelper.IReaderRow row,
+    CsvHelper.Configuration.MemberMapData memberMapData
+  )
+  {
+    var backingConverter = row.Context.TypeConverterCache.GetConverter(typeof(TBacking));
+    var rawValue = backingConverter.ConvertFromString(text, row, memberMapData);
+    return _wrappingConstructor.Invoke(new[] { rawValue });
+  }
+
+  public override string? ConvertToString(
+    object? value,
+    CsvHelper.IWriterRow row,
+    CsvHelper.Configuration.MemberMapData memberMapData
+  )
+  {
+    if (value is null)
+    {
+      return string.Empty;
+    }
+
+    var raw = _valueProperty.GetValue(value);
+    var backingConverter = row.Context.TypeConverterCache.GetConverter(typeof(TBacking));
+    return backingConverter.ConvertToString(raw, row, memberMapData);
   }
 }

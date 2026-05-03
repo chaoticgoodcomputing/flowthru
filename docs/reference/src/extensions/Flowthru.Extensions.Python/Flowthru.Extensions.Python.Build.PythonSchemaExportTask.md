@@ -6,6 +6,7 @@ Assembly: Flowthru.Extensions.Python.dll
 MSBuild task that exports C# schema metadata to Python schema files.
 
 ```csharp
+[ExcludeFromCodeCoverage]
 public class PythonSchemaExportTask : Task, ITask
 ```
 

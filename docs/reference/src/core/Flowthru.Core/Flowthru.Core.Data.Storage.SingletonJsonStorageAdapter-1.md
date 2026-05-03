@@ -68,7 +68,7 @@ provides direct JSON serialization for single objects.
 
 Creates a new singleton JSON storage adapter with default options.
 Uses JsonFormatSerializer's default options to ensure consistent behavior,
-including SerializedLabel attribute support.
+including <code>[SerializedLabel]</code> and <code>[SerializedEnum]</code> attribute support.
 
 ```csharp
 public SingletonJsonStorageAdapter(string filePath)
@@ -79,6 +79,14 @@ public SingletonJsonStorageAdapter(string filePath)
 `filePath` [string](https://learn.microsoft.com/dotnet/api/system.string)
 
 Path to JSON file
+
+#### Remarks
+
+Mirrors <xref href="Flowthru.Core.Data.Storage.Format.JsonFormatSerializer%601" data-throw-if-not-resolved="false"></xref>'s converter registration shape:
+build the base options first, then add converters via <code>Add()</code> in the constructor
+body. The enum-aware converter must be registered before the label-aware converter so
+that enum-typed properties dispatch to <code>SerializedEnumJsonConverter</code> rather than
+the generic label converter.
 
 ### <a id="Flowthru_Core_Data_Storage_SingletonJsonStorageAdapter_1__ctor_System_String_System_Text_Json_JsonSerializerOptions_"></a> SingletonJsonStorageAdapter\(string, JsonSerializerOptions\)
 

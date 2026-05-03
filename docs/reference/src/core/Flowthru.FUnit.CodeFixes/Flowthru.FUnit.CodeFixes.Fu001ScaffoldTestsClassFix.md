@@ -3,7 +3,7 @@
 Namespace: [Flowthru.FUnit.CodeFixes](Flowthru.FUnit.CodeFixes.md)  
 Assembly: Flowthru.FUnit.CodeFixes.dll  
 
-Code fix for FU001: scaffolds a stub <code>Tests : FunitContext</code> class inside a
+Code fix for FU001: scaffolds a stub <code>Tests : FUnitContext</code> class inside a
 <code>#if FUNIT_ENABLED</code> / <code>#endif</code> block at the end of the step class body.
 
 ```csharp

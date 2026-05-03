@@ -64,3 +64,41 @@ void Consume(RunMetadata run)
 The combined run metadata, containing both the pre-run DAG structure and
 the execution outcome for all steps.
 
+### <a id="Flowthru_Core_Meta_Providers_IPostRunMetadataProvider_Consume_Flowthru_Core_Graph_Meta_Models_RunMetadata_System_IServiceProvider_"></a> Consume\(RunMetadata, IServiceProvider\)
+
+Service-aware overload of <xref href="Flowthru.Core.Meta.Providers.IPostRunMetadataProvider.Consume(Flowthru.Core.Graph.Meta.Models.RunMetadata)" data-throw-if-not-resolved="false"></xref>. Receives the host's
+fully-built <xref href="System.IServiceProvider" data-throw-if-not-resolved="false"></xref> alongside the run metadata, allowing
+providers to resolve live runtime state (catalog instances, registered options,
+etc.) for inspection.
+
+```csharp
+void Consume(RunMetadata run, IServiceProvider services)
+```
+
+#### Parameters
+
+`run` [RunMetadata](Flowthru.Core.Graph.Meta.Models.RunMetadata.md)
+
+The combined run metadata.
+
+`services` [IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider)
+
+The host's built service provider.
+
+#### Remarks
+
+<p>
+The default implementation forwards to the simple <xref href="Flowthru.Core.Meta.Providers.IPostRunMetadataProvider.Consume(Flowthru.Core.Graph.Meta.Models.RunMetadata)" data-throw-if-not-resolved="false"></xref>
+overload — providers that don't need DI access are unaffected. Override this method
+to opt into service resolution; the engine prefers this overload when both are
+implemented.
+</p>
+<p>
+<strong>Cost discipline.</strong> Resolving live state can be expensive (counting
+rows, hitting external storage, etc.). Providers that walk the catalog should
+default to cheap operations (e.g. only counting items whose adapters implement
+<xref href="Flowthru.Core.Data.Storage.IHasEfficientCount" data-throw-if-not-resolved="false"></xref>) rather than forcing
+materialization. The framework does not police this — the convention is the
+provider's responsibility.
+</p>
+

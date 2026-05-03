@@ -5,18 +5,14 @@
   - name: Classes
   - name: CsvItemExtensions
     href: Flowthru.Core.Data.CsvItemExtensions.md
-- name: Flowthru.Core.Data.Storage
-  href: Flowthru.Core.Data.Storage.md
-  items:
-  - name: Classes
-  - name: DirectoryCsvStorageAdapter<TRow>
-    href: Flowthru.Core.Data.Storage.DirectoryCsvStorageAdapter-1.md
 - name: Flowthru.Core.Data.Storage.Format
   href: Flowthru.Core.Data.Storage.Format.md
   items:
   - name: Classes
   - name: CsvFormatSerializer<TRow>
     href: Flowthru.Core.Data.Storage.Format.CsvFormatSerializer-1.md
+  - name: CsvFormatSerializerDefaults
+    href: Flowthru.Core.Data.Storage.Format.CsvFormatSerializerDefaults.md
 - name: Flowthru.Core.Data.Storage.Strategies
   href: Flowthru.Core.Data.Storage.Strategies.md
   items:

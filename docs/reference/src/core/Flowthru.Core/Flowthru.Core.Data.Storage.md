@@ -24,6 +24,13 @@ Composed storage adapter that delegates to medium, format, and container layers.
 
 Read-only storage adapter that binds an <xref href="Microsoft.Extensions.Configuration.IConfiguration" data-throw-if-not-resolved="false"></xref> section to a typed POCO.
 
+ [DirectoryStorageAdapter<T\>](Flowthru.Core.Data.Storage.DirectoryStorageAdapter\-1.md)
+
+Single, format-agnostic storage adapter for a <xref href="Flowthru.Core.Data.Directory%601" data-throw-if-not-resolved="false"></xref> of same-schema
+files. Format concerns are externalised through <code>perFileAdapter</code>: the directory
+owns enumeration, save ordering, and target validation; the per-file adapter owns
+serialisation for one path.
+
  [LocalFileWriteProbe](Flowthru.Core.Data.Storage.LocalFileWriteProbe.md)
 
 Shared write-access probe for local filesystem paths.
@@ -32,18 +39,9 @@ Shared write-access probe for local filesystem paths.
 
 Direct memory storage adapter that bypasses serialization.
 
- [NullStorageAdapter<T\>](Flowthru.Core.Data.Storage.NullStorageAdapter\-1.md)
-
-Null storage adapter for side-effect-only nodes that produce no meaningful data.
-
  [PropertyMappingConfiguration](Flowthru.Core.Data.Storage.PropertyMappingConfiguration.md)
 
 Describes how a format serializer handles property-to-field name mapping.
-
- [ReadOnlyDirectoryStorageAdapter<TItem\>](Flowthru.Core.Data.Storage.ReadOnlyDirectoryStorageAdapter\-1.md)
-
-Abstract base for read-only storage adapters that aggregate all files of a given
-pattern within a directory into a single item sequence.
 
  [SchemaActivator](Flowthru.Core.Data.Storage.SchemaActivator.md)
 

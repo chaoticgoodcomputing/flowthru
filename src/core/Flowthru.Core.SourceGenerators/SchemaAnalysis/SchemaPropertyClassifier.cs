@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -116,7 +117,18 @@ internal static class SchemaPropertyClassifier
   /// Analyzes all public instance properties of a type and determines if the schema is flat.
   /// A schema is flat if ALL of its properties are flat types.
   /// </summary>
-  public static SchemaClassification Classify(INamedTypeSymbol typeSymbol)
+  /// <param name="typeSymbol">The schema type to classify.</param>
+  /// <param name="knownNewTypeNames">
+  /// Optional set of simple type names that the <c>[FlowthruColumn]</c> generator will emit
+  /// as <c>IScalar</c> NewTypes. Properties whose type matches one of these names by simple
+  /// name are treated as flat — this makes "schema USES NewType, declared elsewhere" cases
+  /// classify correctly even though the generated NewType is invisible to this generator's
+  /// input compilation.
+  /// </param>
+  public static SchemaClassification Classify(
+    INamedTypeSymbol typeSymbol,
+    ImmutableHashSet<string>? knownNewTypeNames = null
+  )
   {
     var properties = typeSymbol
       .GetMembers()
@@ -135,8 +147,64 @@ internal static class SchemaPropertyClassifier
       return new SchemaClassification(isFlat: true, properties);
     }
 
-    var isFlat = properties.All(p => IsFlatPropertyType(p.Type));
+    var isFlat = properties.All(p =>
+      IsFlatPropertyType(p.Type)
+      || HasFlowthruColumnAttribute(p)
+      || IsRegisteredNewTypeReference(p, knownNewTypeNames)
+    );
     return new SchemaClassification(isFlat, properties);
+  }
+
+  /// <summary>
+  /// Determines whether a property is annotated with <c>[FlowthruColumn]</c>.
+  /// If so, the property will generate a flat scalar NewType and should be treated as flat
+  /// even before the NewType is generated.
+  /// </summary>
+  private static bool HasFlowthruColumnAttribute(IPropertySymbol property)
+  {
+    const string ColumnAttribute = "Flowthru.Core.Abstractions.FlowthruColumnAttribute";
+    return property.GetAttributes()
+      .Any(a => a.AttributeClass?.ToDisplayString() == ColumnAttribute);
+  }
+
+  /// <summary>
+  /// Determines whether a property's type matches a NewType declared elsewhere in the
+  /// compilation via <c>[FlowthruColumn]</c>. The match is by simple name, since the
+  /// generated NewType may not yet exist in the input compilation.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Both resolved and unresolved property types expose <see cref="ISymbol.Name"/> as the
+  /// identifier the developer wrote — for an unresolved type that is still the simple name,
+  /// for a resolved type it is the type's name.
+  /// </para>
+  /// <para>
+  /// Nullable wrappers are unwrapped first so a property typed <c>ShuttleId?</c> matches
+  /// the registered <c>ShuttleId</c>.
+  /// </para>
+  /// </remarks>
+  private static bool IsRegisteredNewTypeReference(
+    IPropertySymbol property,
+    ImmutableHashSet<string>? knownNewTypeNames
+  )
+  {
+    if (knownNewTypeNames is null || knownNewTypeNames.IsEmpty)
+    {
+      return false;
+    }
+
+    var type = property.Type;
+    if (
+      type is INamedTypeSymbol
+      {
+        OriginalDefinition.SpecialType: SpecialType.System_Nullable_T
+      } nullable
+    )
+    {
+      type = nullable.TypeArguments[0];
+    }
+
+    return knownNewTypeNames.Contains(type.Name);
   }
 }
 

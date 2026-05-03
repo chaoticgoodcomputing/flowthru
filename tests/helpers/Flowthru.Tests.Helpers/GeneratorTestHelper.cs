@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Flowthru.Core.Data;
 using Flowthru.Core.SourceGenerators;
+using Flowthru.Core.SourceGenerators.ColumnAnalysis;
 using Flowthru.Core.SourceGenerators.SchemaAnalysis;
 using Flowthru.Core.SourceGenerators.StepAnalysis;
 using Flowthru.Core.Steps;
@@ -75,6 +76,23 @@ public static class GeneratorTestHelper
       source,
       assemblyName: "StepMetadataTestAssembly",
       generators: new IIncrementalGenerator[] { new StepMetadataGenerator() }
+    );
+
+  /// <summary>
+  /// Runs the <see cref="ColumnNewTypeGenerator"/> against the given source.
+  /// Includes the <see cref="SchemaInterfaceGenerator"/> as well since <c>[FlowthruColumn]</c>
+  /// properties often appear on <c>[FlowthruSchema]</c> types.
+  /// </summary>
+  public static GeneratorTestResult RunColumnNewTypeGenerator(string source) =>
+    RunGenerators(
+      source,
+      assemblyName: "ColumnNewTypeTestAssembly",
+      generators: new IIncrementalGenerator[]
+      {
+        new ColumnNewTypeGenerator(),
+        new SchemaInterfaceGenerator()
+      },
+      includeAnalyzer: true
     );
 
   private static GeneratorTestResult RunGenerators(

@@ -28,11 +28,13 @@ public static class XmlEnumerableItemExtensions
 
 ### <a id="Flowthru_Core_Data_XmlEnumerableItemExtensions_XmlDocuments__1_Flowthru_Core_Data_EnumerableItemFactory_System_String_System_String_"></a> XmlDocuments<T\>\(EnumerableItemFactory, string, string\)
 
-Creates a read-only catalog entry that deserializes all <code>*.xml</code> files in a directory,
-yielding each as an <xref href="Flowthru.Core.Data.XmlDocument%601" data-throw-if-not-resolved="false"></xref> that carries the source file name.
+Creates a catalog entry over a directory of XML files where each file deserialises to
+one <code class="typeparamref">T</code>. Read produces a <xref href="Flowthru.Core.Data.Directory%601" data-throw-if-not-resolved="false"></xref> keyed by full
+file path; Save writes one XML file per entry, deleting any existing <code>*.xml</code> in
+the directory first so re-runs are deterministic.
 
 ```csharp
-public static Item<IEnumerable<XmlDocument<T>>> XmlDocuments<T>(this EnumerableItemFactory _, string label, string directoryPath) where T : IStructuredSerializable
+public static Item<Directory<T>> XmlDocuments<T>(this EnumerableItemFactory _, string label, string directoryPath) where T : IStructuredSerializable
 ```
 
 #### Parameters
@@ -51,9 +53,7 @@ Path to the directory containing XML files
 
 #### Returns
 
- Item<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<[XmlDocument](Flowthru.Core.Data.XmlDocument\-1.md)<T\>\>\>
-
-Read-only catalog entry yielding one <xref href="Flowthru.Core.Data.XmlDocument%601" data-throw-if-not-resolved="false"></xref> per file
+ Item<Directory<T\>\>
 
 #### Type Parameters
 
@@ -63,13 +63,8 @@ The document type for each XML file.
 
 #### Remarks
 
-<p>
-Files are processed in lexicographic order for deterministic output across runs.
-The <xref href="Flowthru.Core.Data.XmlDocument%601.FileName" data-throw-if-not-resolved="false"></xref> carries the file name without directory path,
-allowing downstream steps to derive semantic meaning from the naming convention.
-</p>
-<p>
-This entry is <strong>read-only</strong> — attempting to save will fail with
-<xref href="System.NotSupportedException" data-throw-if-not-resolved="false"></xref>.
-</p>
+All files must share the same schema. This is intentionally not a partitioning
+primitive — each file represents an independent unit. If you need to chunk a single
+logical dataset across files, do that in a step before write and reassemble in a step
+after read.
 

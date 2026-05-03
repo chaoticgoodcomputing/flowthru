@@ -66,13 +66,11 @@ public class FlowthruStepAttribute : Attribute
 
 ## Examples
 
-<pre><code class="lang-csharp">[FlowthruStep]
-public static class EvaluateModelStep
+<pre><code class="lang-csharp">[FlowthruStep(IsIdempotent = true, HasSideEffects = true)]
+public static class ApplyDeltasStep
 {
-    public static Func&lt;
-        (IEnumerable&lt;PredictionSchema&gt;, IEnumerable&lt;TargetLabelSchema&gt;),
-        MetricsSchema
-    &gt; Create() =&gt; ...;
+    public static Func&lt;IEnumerable&lt;Delta&gt;, Task&lt;IEnumerable&lt;SyncRow&gt;&gt;&gt;
+        Create(IRemoteClient client) =&gt; …;
 }</code></pre>
 
 ## Remarks
@@ -80,10 +78,49 @@ public static class EvaluateModelStep
 <p>
 This attribute enables step discovery by source generators and tooling:
 </p>
-<ul><li>FUnit source generators use it to discover steps and warn about missing tests.</li><li>Future Flowthru source generators may use it for compile-time validation
-(e.g., verifying that <code>Create()</code> returns a compatible function signature).</li></ul>
+<ul><li>FUnit source generators use it to discover steps and warn about missing tests.</li><li><code>StepMetadataGenerator</code> emits a sibling <code>{StepClassName}_Metadata</code>
+  static class carrying <xref href="Flowthru.Core.Steps.StepTraits" data-throw-if-not-resolved="false"></xref> and the inferred service-dependency
+  list, consumed at flow-construction time to populate
+  <xref href="Flowthru.Core.Graph.FlowStep.ServiceDependencies" data-throw-if-not-resolved="false"></xref>.</li></ul>
 <p>
 Follows the same pattern as <code>[FlowthruSchema]</code> — a core marker attribute
 that downstream generators consume.
 </p>
+
+## Properties
+
+### <a id="Flowthru_Core_Steps_FlowthruStepAttribute_HasSideEffects"></a> HasSideEffects
+
+Whether the step modifies external state when executed.
+
+```csharp
+public bool HasSideEffects { get; init; }
+```
+
+#### Property Value
+
+ [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
+
+#### Remarks
+
+Defaults to <code>false</code>. Steps with no service dependencies and no I/O typically
+leave this as <code>false</code>; steps that talk to external services declare <code>true</code>.
+
+### <a id="Flowthru_Core_Steps_FlowthruStepAttribute_IsIdempotent"></a> IsIdempotent
+
+Whether the step is safe to retry without changing the outcome.
+
+```csharp
+public bool IsIdempotent { get; init; }
+```
+
+#### Property Value
+
+ [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
+
+#### Remarks
+
+Defaults to <code>false</code> (conservative). Pure data transforms with no side effects
+can safely declare <code>true</code>; steps that talk to external services must reason
+about the service's idempotency contract before declaring this.
 

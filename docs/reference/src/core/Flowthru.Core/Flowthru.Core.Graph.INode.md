@@ -14,10 +14,12 @@ public interface INode
 ## Remarks
 
 <p>
-Concrete node types (<xref href="Flowthru.Core.Data.IItem" data-throw-if-not-resolved="false"></xref>,
-<xref href="Flowthru.Core.Effects.IEffect%601" data-throw-if-not-resolved="false"></xref>) implement this interface with archetype-appropriate
-semantics. <xref href="Flowthru.Core.Graph.DependencyAnalyzer" data-throw-if-not-resolved="false"></xref> resolves dependencies
-using only <xref href="Flowthru.Core.Graph.INode.Label" data-throw-if-not-resolved="false"></xref> — the engine is archetype-agnostic.
+The canonical concrete <xref href="Flowthru.Core.Graph.INode" data-throw-if-not-resolved="false"></xref> implementation is
+<xref href="Flowthru.Core.Data.IItem" data-throw-if-not-resolved="false"></xref> (catalog entries — data sources and sinks).
+<xref href="Flowthru.Core.Graph.DependencyAnalyzer" data-throw-if-not-resolved="false"></xref> resolves dependencies using only
+<xref href="Flowthru.Core.Graph.INode.Label" data-throw-if-not-resolved="false"></xref>; the engine is archetype-agnostic. Side-effect operations live
+inside steps as the canonical pattern (see CONTRIBUTING.md "Side effects in flows"),
+not as a separate node archetype.
 </p>
 
 ## Properties

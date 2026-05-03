@@ -235,38 +235,6 @@ IFlowthruBuilder UseStorageStrategy<TStrategy>() where TStrategy : class, IStora
 
 `TStrategy` 
 
-### <a id="Flowthru_Core_Services_IFlowthruBuilder_UseStorageStrategy_Flowthru_Core_Data_Storage_Strategies_IStorageEntryFactory_"></a> UseStorageStrategy\(IStorageEntryFactory\)
-
-Registers a storage entry factory instance.
-
-```csharp
-IFlowthruBuilder UseStorageStrategy(IStorageEntryFactory strategy)
-```
-
-#### Parameters
-
-`strategy` [IStorageEntryFactory](Flowthru.Core.Data.Storage.Strategies.IStorageEntryFactory.md)
-
-#### Returns
-
- [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
-
-### <a id="Flowthru_Core_Services_IFlowthruBuilder_UseStorageStrategy_System_Func_System_IServiceProvider_Flowthru_Core_Data_Storage_Strategies_IStorageEntryFactory__"></a> UseStorageStrategy\(Func<IServiceProvider, IStorageEntryFactory\>\)
-
-Registers a storage entry factory via a service-provider factory.
-
-```csharp
-IFlowthruBuilder UseStorageStrategy(Func<IServiceProvider, IStorageEntryFactory> strategyFactory)
-```
-
-#### Parameters
-
-`strategyFactory` [Func](https://learn.microsoft.com/dotnet/api/system.func\-2)<[IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider), [IStorageEntryFactory](Flowthru.Core.Data.Storage.Strategies.IStorageEntryFactory.md)\>
-
-#### Returns
-
- [IFlowthruBuilder](Flowthru.Core.Services.IFlowthruBuilder.md)
-
 ### <a id="Flowthru_Core_Services_IFlowthruBuilder_WithDescription_System_String_"></a> WithDescription\(string\)
 
 Adds a description to the most recently registered flow.

@@ -26,6 +26,29 @@ interface implementations.
 
 ## Properties
 
+### <a id="Flowthru_Core_Data_IItem_HasEfficientCount"></a> HasEfficientCount
+
+True when this item's storage adapter implements
+<xref href="Flowthru.Core.Data.Storage.IHasEfficientCount" data-throw-if-not-resolved="false"></xref> — i.e., a call to
+<xref href="Flowthru.Core.Data.IItem.GetCountAsync" data-throw-if-not-resolved="false"></xref> will use a cheap server-side count rather than
+materializing the full dataset. False otherwise.
+
+```csharp
+[ExcludeFromCodeCoverage]
+bool HasEfficientCount { get; }
+```
+
+#### Property Value
+
+ [bool](https://learn.microsoft.com/dotnet/api/system.boolean)
+
+#### Remarks
+
+Provided so cost-conscious post-run providers can decide whether to count an
+item without paying for an exploratory call. The default implementation
+returns <code>false</code>; <xref href="Flowthru.Core.Data.Item%601" data-throw-if-not-resolved="false"></xref> overrides this to inspect its
+underlying storage adapter.
+
 ### <a id="Flowthru_Core_Data_IItem_OwningCatalogLabel"></a> OwningCatalogLabel
 
 The label of the <xref href="Flowthru.Core.Data.CatalogAbstract" data-throw-if-not-resolved="false"></xref>-derived class that created
@@ -87,6 +110,24 @@ FlowIO<int> GetCountAsync()
 #### Returns
 
  [FlowIO](Flowthru.Core.Effects.FlowIO\-1.md)<[int](https://learn.microsoft.com/dotnet/api/system.int32)\>
+
+#### Remarks
+
+<p>
+The Flowthru engine does <strong>not</strong> call this method during step execution —
+counting rows can require materializing the entire dataset (or a server-side
+<code>COUNT(*)</code> query on storage adapters that implement
+<xref href="Flowthru.Core.Data.Storage.IHasEfficientCount" data-throw-if-not-resolved="false"></xref>), and the framework
+refuses to charge that cost for diagnostics by default.
+</p>
+<p>
+This method is intended for use by post-run metadata providers (see
+<code>IPostRunMetadataProvider</code>) and user code that explicitly opts into the
+cost. The reference <code>RowCountProvider</code> in
+<code>Flowthru.Extensions.Metadata.Diagnostics</code> demonstrates the canonical pattern —
+it consults <xref href="Flowthru.Core.Data.IItem.HasEfficientCount" data-throw-if-not-resolved="false"></xref> first and skips items that would
+require materialization.
+</p>
 
 ### <a id="Flowthru_Core_Data_IItem_InspectDeep"></a> InspectDeep\(\)
 

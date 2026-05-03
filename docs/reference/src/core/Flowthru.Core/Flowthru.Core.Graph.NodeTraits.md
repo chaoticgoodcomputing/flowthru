@@ -16,7 +16,6 @@ public record NodeTraits : IEquatable<NodeTraits>
 
 #### Derived
 
-[EffectTraits](Flowthru.Core.Effects.EffectTraits.md), 
 [StorageTraits](Flowthru.Core.Data.Capabilities.StorageTraits.md)
 
 #### Implements
@@ -36,10 +35,13 @@ public record NodeTraits : IEquatable<NodeTraits>
 ## Remarks
 
 <p>
-Describes universal properties that apply to any node in the DAG — data items,
-effects, or steps. Archetype-specific traits extend this record:
+Describes universal properties that apply to any node in the DAG. The canonical
+archetype-specific extension is
+<xref href="Flowthru.Core.Data.Capabilities.StorageTraits" data-throw-if-not-resolved="false"></xref> for data I/O nodes
+(catalog entries — IItem). Step-level traits like <code>IsIdempotent</code> /
+<code>HasSideEffects</code> are emitted by the source generator into per-step
+<code>StepTraits</code> values rather than carried via NodeTraits inheritance.
 </p>
-<ul><li><xref href="Flowthru.Core.Data.Capabilities.StorageTraits" data-throw-if-not-resolved="false"></xref> for data I/O nodes</li><li><xref href="Flowthru.Core.Effects.EffectTraits" data-throw-if-not-resolved="false"></xref> for side-effect nodes</li></ul>
 
 ## Properties
 

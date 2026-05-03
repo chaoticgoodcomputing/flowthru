@@ -3,8 +3,6 @@
   href: Flowthru.Core.Data.md
   items:
   - name: Classes
-  - name: XmlDocument<T>
-    href: Flowthru.Core.Data.XmlDocument-1.md
   - name: XmlEnumerableItemExtensions
     href: Flowthru.Core.Data.XmlEnumerableItemExtensions.md
   - name: XmlItemFactory
@@ -17,5 +15,3 @@
   - name: Classes
   - name: SingletonXmlStorageAdapter<T>
     href: Flowthru.Core.Data.Storage.SingletonXmlStorageAdapter-1.md
-  - name: XmlDirectoryStorageAdapter<T>
-    href: Flowthru.Core.Data.Storage.XmlDirectoryStorageAdapter-1.md

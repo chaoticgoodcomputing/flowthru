@@ -140,7 +140,8 @@ Optional additional context
 
 ### <a id="Flowthru_Core_Data_Validation_ValidationResult_FromException_System_String_System_Exception_"></a> FromException\(string, Exception\)
 
-Creates a failed validation result from an exception.
+Creates a failed validation result from an exception, introspecting the exception
+type to pick the most-specific <xref href="Flowthru.Core.Data.Validation.ValidationErrorType" data-throw-if-not-resolved="false"></xref> available.
 
 ```csharp
 public static ValidationResult FromException(string catalogKey, Exception exception)
@@ -159,6 +160,21 @@ The exception that occurred during inspection
 #### Returns
 
  [ValidationResult](Flowthru.Core.Data.Validation.ValidationResult.md)
+
+#### Remarks
+
+<p>
+Recognizes <xref href="Flowthru.Core.Data.Validation.SchemaMismatchException" data-throw-if-not-resolved="false"></xref> as
+<xref href="Flowthru.Core.Data.Validation.ValidationErrorType.SchemaMismatch" data-throw-if-not-resolved="false"></xref>; all other exceptions fall through
+to <xref href="Flowthru.Core.Data.Validation.ValidationErrorType.InspectionFailure" data-throw-if-not-resolved="false"></xref> (the catch-all category for
+"something we don't know how to classify").
+</p>
+<p>
+Provider extensions and format serializers that detect a structural divergence
+should catch the provider's native exception and re-throw as
+<xref href="Flowthru.Core.Data.Validation.SchemaMismatchException" data-throw-if-not-resolved="false"></xref>; the wrapping happens once at the provider
+boundary so Core can stay agnostic of every provider's exception types.
+</p>
 
 ### <a id="Flowthru_Core_Data_Validation_ValidationResult_Success"></a> Success\(\)
 

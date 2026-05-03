@@ -2,6 +2,13 @@
 
 ### Classes
 
+ [FlowthruColumnAttribute](Flowthru.Core.Abstractions.FlowthruColumnAttribute.md)
+
+Marks a schema property for automatic NewType generation via source generator.
+The source generator will emit a <code>readonly record struct</code> NewType implementing
+<xref href="Flowthru.Core.Abstractions.IScalar" data-throw-if-not-resolved="false"></xref> using the provided backing type, placed in a <code>Types</code> namespace
+sibling to the schema.
+
  [FlowthruSchemaAttribute](Flowthru.Core.Abstractions.FlowthruSchemaAttribute.md)
 
 Marks a schema type for automatic interface generation. The source generator

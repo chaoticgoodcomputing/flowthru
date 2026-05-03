@@ -86,3 +86,51 @@ Row schema type (must be flat and binary-serializable)
 peak memory scales with row-group size, not total dataset size. Suitable for 1–10 GB datasets.
 </p>
 
+### <a id="Flowthru_Core_Data_ParquetItemExtensions_ParquetDirectory__1_Flowthru_Core_Data_EnumerableItemFactory_System_String_System_String_Flowthru_Core_Data_ParquetItemOptions___0__"></a> ParquetDirectory<TRow\>\(EnumerableItemFactory, string, string, ParquetItemOptions<TRow\>?\)
+
+Creates a catalog entry over a directory of Parquet files where each file is one
+independent row collection of the same schema. Read produces a
+<xref href="Flowthru.Core.Data.Directory%601" data-throw-if-not-resolved="false"></xref> keyed by full file path; Save writes one Parquet file per
+entry, deleting any existing <code>*.parquet</code> in the directory first so re-runs are
+deterministic.
+
+```csharp
+public static Item<Directory<IEnumerable<TRow>>> ParquetDirectory<TRow>(this EnumerableItemFactory _, string label, string directoryPath, ParquetItemOptions<TRow>? options = null) where TRow : notnull, IFlatSchema, IBinarySerializable
+```
+
+#### Parameters
+
+`_` EnumerableItemFactory
+
+The enumerable catalog entries factory (from <xref href="Flowthru.Core.Data.ItemFactory.Enumerable" data-throw-if-not-resolved="false"></xref>)
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique catalog label for DAG resolution
+
+`directoryPath` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Path to the directory containing the Parquet files
+
+`options` [ParquetItemOptions](Flowthru.Core.Data.ParquetItemOptions\-1.md)<TRow\>?
+
+Optional performance and behavior tuning applied uniformly to every file in the
+directory; see <xref href="Flowthru.Core.Data.ParquetItemExtensions.Parquet%60%601(Flowthru.Core.Data.EnumerableItemFactory%2cSystem.String%2cSystem.String%2cFlowthru.Core.Data.ParquetItemOptions%7b%60%600%7d%2cFlowthru.Core.Data.Storage.IStorageMediumResolver%2cFlowthru.Core.Data.Storage.IStorageMedium)" data-throw-if-not-resolved="false"></xref> for details.
+
+#### Returns
+
+ Item<Directory<[IEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.ienumerable\-1)<TRow\>\>\>
+
+#### Type Parameters
+
+`TRow` 
+
+Row schema type (must be flat and binary-serializable)
+
+#### Remarks
+
+All files must share the same schema. This is intentionally not a partitioning
+primitive — each file represents an independent unit. If you need to chunk a single
+logical dataset across files, do that in a step before write and reassemble in a step
+after read.
+

@@ -55,26 +55,6 @@ NotImplementedException for all operations.
 
 ## Constructors
 
-### <a id="Flowthru_Core_Data_Storage_Strategies_DatabaseStorageEntryFactory__ctor_Microsoft_Extensions_Configuration_IConfiguration_"></a> DatabaseStorageEntryFactory\(IConfiguration\)
-
-Initializes a new database storage factory.
-
-```csharp
-public DatabaseStorageEntryFactory(IConfiguration configuration)
-```
-
-#### Parameters
-
-`configuration` [IConfiguration](https://learn.microsoft.com/dotnet/api/microsoft.extensions.configuration.iconfiguration)
-
-Configuration containing connection string
-
-#### Exceptions
-
- [InvalidOperationException](https://learn.microsoft.com/dotnet/api/system.invalidoperationexception)
-
-Thrown if database connection string is not configured
-
 ### <a id="Flowthru_Core_Data_Storage_Strategies_DatabaseStorageEntryFactory__ctor_System_String_System_String_"></a> DatabaseStorageEntryFactory\(string, string\)
 
 Initializes a new database storage factory with explicit settings.

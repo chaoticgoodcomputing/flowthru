@@ -5,5 +5,7 @@
   - name: Classes
   - name: Fu001ScaffoldTestsClassFix
     href: Flowthru.FUnit.CodeFixes.Fu001ScaffoldTestsClassFix.md
-  - name: Fu002WrapWithFunitEnabledFix
-    href: Flowthru.FUnit.CodeFixes.Fu002WrapWithFunitEnabledFix.md
+  - name: Fu002WrapWithFUnitEnabledFix
+    href: Flowthru.FUnit.CodeFixes.Fu002WrapWithFUnitEnabledFix.md
+  - name: Fu100AddStubRegistrationFix
+    href: Flowthru.FUnit.CodeFixes.Fu100AddStubRegistrationFix.md

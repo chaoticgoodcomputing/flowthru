@@ -241,10 +241,6 @@ Property mapping configuration describing the mapping strategy
 public PropertyMappingConfiguration GetPropertyMappingConfiguration()
     =&gt; PropertyMappingConfiguration.FromSerializedLabel&lt;TRow&gt;();
 
-// ML.NET serializer using native attributes
-public PropertyMappingConfiguration GetPropertyMappingConfiguration()
-    =&gt; PropertyMappingConfiguration.FromNativeAttributes("LoadColumnAttribute");
-
 // Parquet with library-controlled mapping
 public PropertyMappingConfiguration GetPropertyMappingConfiguration()
     =&gt; PropertyMappingConfiguration.LibraryControlled();</code></pre>
@@ -259,14 +255,13 @@ to explicitly declare how it handles property name mapping.
 <strong>Implementation Strategies:</strong>
 </p>
 <ul><li>
-<strong>SerializedLabel Support:</strong> Use <xref href="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" data-throw-if-not-resolved="false"></xref>
-to respect [SerializedLabel] attributes. Return <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromSerializedLabel%60%601" data-throw-if-not-resolved="false"></xref>.
+<strong>SerializedLabel:</strong> Use <xref href="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" data-throw-if-not-resolved="false"></xref>
+to respect <code>[SerializedLabel]</code> attributes. Return
+<xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromSerializedLabel%60%601" data-throw-if-not-resolved="false"></xref>.
 </li><li>
-<strong>Native Attribute Mapping:</strong> Use format-specific attributes (e.g., ML.NET's [LoadColumn]).
-Return PropertyMappingConfiguration.FromNativeAttributes(string) with the attribute type name.
-</li><li>
-<strong>Adapter Pattern:</strong> Bridge between SerializedLabel and native attributes.
-Return PropertyMappingConfiguration.FromAdapter&lt;TAdapter&gt;().
+<strong>LibraryControlled:</strong> The underlying library handles mapping with no
+programmatic API; property names must match storage field names exactly. Return
+<xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.LibraryControlled(System.String)" data-throw-if-not-resolved="false"></xref>.
 </li></ul>
 <p>
 <strong>Design Intent:</strong> This contract makes property mapping an explicit, discoverable

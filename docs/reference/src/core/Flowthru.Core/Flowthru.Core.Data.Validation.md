@@ -2,6 +2,12 @@
 
 ### Classes
 
+ [SchemaMismatchException](Flowthru.Core.Data.Validation.SchemaMismatchException.md)
+
+Thrown by format serializers and storage adapters when the underlying source
+structurally diverges from the schema — missing columns, mismatched column types,
+extra columns, header-row mismatches, etc.
+
  [ValidationError](Flowthru.Core.Data.Validation.ValidationError.md)
 
 Represents a single validation error discovered during catalog entry inspection.

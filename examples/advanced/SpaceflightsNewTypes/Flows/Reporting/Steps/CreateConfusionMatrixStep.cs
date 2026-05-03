@@ -1,0 +1,156 @@
+using Flowthru.Core.Steps;
+using SpaceflightsNewTypes.Data._07_ModelOutput.Schemas;
+using Plotly.NET;
+using Plotly.NET.LayoutObjects;
+using CSharpChart = Plotly.NET.CSharp.Chart;
+
+namespace SpaceflightsNewTypes.Flows.Reporting.Steps;
+
+/// <summary>
+/// Creates a confusion matrix heatmap from actual model predictions.
+/// Converts continuous regression predictions into multi-class classification for visualization.
+/// </summary>
+/// <remarks>
+/// <para>
+/// This node generates a confusion matrix by binning continuous prediction values into
+/// percentile-based ranges (quartiles, quintiles, deciles, etc.). This provides a more
+/// granular view of prediction accuracy across different value ranges compared to simple
+/// binary classification.
+/// </para>
+/// <para>
+/// <strong>Input:</strong> ModelPredictions enumerable with Actual and Predicted values
+/// </para>
+/// <para>
+/// <strong>Output:</strong> GenericChart heatmap object stored in memory for downstream PNG export
+/// </para>
+/// </remarks>
+[FlowthruStep]
+public static class CreateConfusionMatrixStep
+{
+  /// <summary>
+  /// Configuration options for confusion matrix generation.
+  /// </summary>
+  public record Options
+  {
+    /// <summary>
+    /// Number of bins to divide the predictions into (e.g., 4 for quartiles, 5 for quintiles, 10 for deciles).
+    /// Default is 4 (quartiles).
+    /// </summary>
+    public int NumBins { get; init; } = 4;
+  }
+
+  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
+  {
+    var (predictions, opts) = (input.Data.ToList(), input.Options);
+
+    if (!predictions.Any())
+    {
+      throw new InvalidOperationException("Cannot create confusion matrix from empty predictions");
+    }
+
+    // Reporting needs the underlying double for sorting and binning. The .Value accessor
+    // is the explicit, intentional downcast — it's the ONLY way out of the NewType, since
+    // no implicit/explicit conversion operators are emitted. This makes reporting code
+    // visibly distinct from pipeline transformations, which carry typed columns through
+    // unchanged.
+    var sortedActuals = predictions.Select(p => p.Actual.Value).OrderBy(v => v).ToList();
+    var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+
+    // Bin predictions into classes — same .Value downcast pattern. Notice the compiler
+    // would refuse a swap (e.g., `Actual = AssignBin(p.Predicted.Value, ...)`) if you renamed
+    // the wrong line, even though both ultimately wrap a double.
+    var binnedPredictions = predictions
+      .Select(p =>
+        (
+          Actual: AssignBin(p.Actual.Value, thresholds),
+          Predicted: AssignBin(p.Predicted.Value, thresholds)
+        )
+      )
+      .ToList();
+
+    // Build NxN confusion matrix
+    var matrix = new int[opts.NumBins, opts.NumBins];
+    foreach (var (actual, predicted) in binnedPredictions)
+    {
+      matrix[actual, predicted]++;
+    }
+
+    // Convert to format for Plotly heatmap (list of lists)
+    var zData = new List<List<int>>();
+    for (int i = 0; i < opts.NumBins; i++)
+    {
+      var row = new List<int>();
+      for (int j = 0; j < opts.NumBins; j++)
+      {
+        row.Add(matrix[i, j]);
+      }
+      zData.Add(row);
+    }
+
+    // Generate labels based on percentile ranges
+    var labels = GeneratePercentileLabels(opts.NumBins);
+    var xLabels = labels.Select(l => $"Pred {l}").ToArray();
+    var yLabels = labels.Select(l => $"Actual {l}").ToArray();
+
+    // Create heatmap using Plotly.NET.CSharp API
+    var binName = opts.NumBins switch
+    {
+      2 => "Median Split",
+      3 => "Tertiles",
+      4 => "Quartiles",
+      5 => "Quintiles",
+      10 => "Deciles",
+      _ => $"{opts.NumBins} Bins",
+    };
+
+    return CSharpChart
+      .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
+      .WithTitle($"Confusion Matrix ({binName})")
+      .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
+  }
+
+  /// <summary>
+  /// Calculates percentile threshold values for binning.
+  /// </summary>
+  private static List<double> CalculatePercentileThresholds(List<double> sortedValues, int numBins)
+  {
+    var thresholds = new List<double>();
+    for (int i = 1; i < numBins; i++)
+    {
+      var percentile = (double)i / numBins;
+      var index = (int)(percentile * sortedValues.Count);
+      thresholds.Add(sortedValues[Math.Min(index, sortedValues.Count - 1)]);
+    }
+    return thresholds;
+  }
+
+  /// <summary>
+  /// Assigns a value to a bin based on percentile thresholds.
+  /// </summary>
+  private static int AssignBin(double value, List<double> thresholds)
+  {
+    for (int i = 0; i < thresholds.Count; i++)
+    {
+      if (value < thresholds[i])
+      {
+        return i;
+      }
+    }
+    return thresholds.Count; // Last bin
+  }
+
+  /// <summary>
+  /// Generates human-readable percentile range labels.
+  /// </summary>
+  private static List<string> GeneratePercentileLabels(int numBins)
+  {
+    var labels = new List<string>();
+    for (int i = 0; i < numBins; i++)
+    {
+      var startPercentile = (i * 100) / numBins;
+      var endPercentile = ((i + 1) * 100) / numBins;
+      labels.Add($"P{startPercentile}-{endPercentile}");
+    }
+    return labels;
+  }
+}

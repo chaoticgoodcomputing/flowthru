@@ -18,3 +18,10 @@ The generator will re-apply the correct interfaces automatically.
 Code fix for FT2002: removes the <code>RegisterCatalog</code> call that is registered
 but never referenced by any flow.
 
+ [Ft4001AddFlowthruStepAttributeFix](Flowthru.Core.CodeFixes.Ft4001AddFlowthruStepAttributeFix.md)
+
+Code fix for FT4001: adds <code>[FlowthruStep]</code> to the step factory class referenced
+from a <code>FlowBuilder.AddStep(transform: …)</code> call. The fix may modify a different
+document than the diagnostic site, since the step class is typically authored in its
+own file.
+

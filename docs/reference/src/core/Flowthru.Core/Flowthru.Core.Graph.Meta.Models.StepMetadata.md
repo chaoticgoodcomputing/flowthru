@@ -140,6 +140,29 @@ public List<string> Outputs { get; init; }
 For multi-output steps using CatalogMap, this contains all mapped entries.
 Example: ["XTrain", "XTest", "YTrain", "YTest"]
 
+### <a id="Flowthru_Core_Graph_Meta_Models_StepMetadata_ServiceDependencies"></a> ServiceDependencies
+
+Display names of the service types this step's transform depends on.
+Sourced from <code>FlowStep.ServiceDependencies</code>, which is populated by the
+<code>StepMetadataGenerator</code> at compile time for any class carrying
+<code>[FlowthruStep]</code>. Empty when the step has no service dependencies
+(pure data transforms, inline lambdas).
+
+```csharp
+[JsonPropertyName("serviceDependencies")]
+public List<string> ServiceDependencies { get; init; }
+```
+
+#### Property Value
+
+ [List](https://learn.microsoft.com/dotnet/api/system.collections.generic.list\-1)<[string](https://learn.microsoft.com/dotnet/api/system.string)\>
+
+#### Remarks
+
+Each entry is the fully-qualified type name (e.g.,
+<code>Flowthru.Extensions.Mailchimp.IMailchimpClient</code>). Renderers that want
+the simple name can split on <code>.</code> and take the last segment.
+
 ### <a id="Flowthru_Core_Graph_Meta_Models_StepMetadata_StepType"></a> StepType
 
 The C# class type name implementing this step.

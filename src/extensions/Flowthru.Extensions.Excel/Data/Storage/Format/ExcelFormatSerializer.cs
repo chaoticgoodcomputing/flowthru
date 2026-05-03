@@ -167,6 +167,19 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
                       stringValue
                     );
                   }
+                  // Special handling for IScalar NewType wrappers (e.g. record struct
+                  // CustomerId(string Value) : IScalar). Convert the cell to the backing
+                  // type, then construct the wrapper via its single-arg constructor.
+                  else if (TryGetScalarBackingType(targetType, out var backingType))
+                  {
+                    var rawValue = Convert.ChangeType(value, backingType!);
+                    var ctor =
+                      targetType.GetConstructor(new[] { backingType! })
+                      ?? throw new InvalidOperationException(
+                        $"IScalar type '{targetType.Name}' must declare a public constructor taking '{backingType!.Name}'."
+                      );
+                    convertedValue = ctor.Invoke(new[] { rawValue });
+                  }
                   else
                   {
                     convertedValue = Convert.ChangeType(value, targetType);
@@ -205,6 +218,33 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
   public PropertyMappingConfiguration GetPropertyMappingConfiguration()
   {
     return PropertyMappingConfiguration.FromSerializedLabel<TRow>();
+  }
+
+  /// <summary>
+  /// Determines whether a type is an <see cref="IScalar"/> wrapper around a single primitive
+  /// (NewType pattern). Returns the backing type via <paramref name="backingType"/> on success.
+  /// </summary>
+  private static bool TryGetScalarBackingType(Type type, out Type? backingType)
+  {
+    backingType = null;
+    if (!typeof(IScalar).IsAssignableFrom(type))
+    {
+      return false;
+    }
+
+    var publicReadableProps = type
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+      .Where(p => p.CanRead && p.GetIndexParameters().Length == 0)
+      .Where(p => p.DeclaringType == type)
+      .ToList();
+
+    if (publicReadableProps.Count != 1)
+    {
+      return false;
+    }
+
+    backingType = publicReadableProps[0].PropertyType;
+    return true;
   }
 
   /// <summary>

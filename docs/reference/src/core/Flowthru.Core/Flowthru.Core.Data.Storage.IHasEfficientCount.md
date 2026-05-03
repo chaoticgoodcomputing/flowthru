@@ -15,12 +15,18 @@ public interface IHasEfficientCount
 <p>
 By default, <xref href="Flowthru.Core.Data.Item%601.GetCountAsync" data-throw-if-not-resolved="false"></xref> counts by calling <xref href="Flowthru.Core.Data.Storage.IStorageAdapter%601.Load" data-throw-if-not-resolved="false"></xref>
 and enumerating the result. For I/O-bound adapters (databases, APIs) this materializes the
-entire dataset just to count rows — wasteful when the count is only needed for diagnostic
-logging around step execution.
+entire dataset just to count rows.
 </p>
 <p>
 Implement this interface on a storage adapter to provide a cheap server-side count
 (e.g. <code>COUNT(*)</code> SQL) that <xref href="Flowthru.Core.Data.Item%601.GetCountAsync" data-throw-if-not-resolved="false"></xref> will use instead.
+</p>
+<p>
+<strong>The Flowthru engine does not call <xref href="Flowthru.Core.Data.Item%601.GetCountAsync" data-throw-if-not-resolved="false"></xref> during step execution.</strong>
+This interface signals to metadata providers and user code that an adapter can be counted
+cheaply — count-interested providers should check for it and skip adapters that lack it
+rather than triggering a forced materialization. The reference <code>RowCountProvider</code> in
+<code>Flowthru.Extensions.Metadata.Diagnostics</code> demonstrates the canonical pattern.
 </p>
 <p>
 Existing adapters that do not implement this interface continue to work without change.

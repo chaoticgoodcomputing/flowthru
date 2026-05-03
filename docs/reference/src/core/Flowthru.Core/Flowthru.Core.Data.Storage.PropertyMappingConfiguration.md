@@ -45,8 +45,8 @@ public string? Description { get; }
 
 ### <a id="Flowthru_Core_Data_Storage_PropertyMappingConfiguration_MetadataType"></a> MetadataType
 
-For NativeAttributes strategy: the name of the attribute type(s) used.
-For Adapter strategy: the adapter type.
+For SerializedLabel strategy: the schema type whose <code>[SerializedLabel]</code>
+annotations drive the mapping. <code>null</code> for LibraryControlled.
 
 ```csharp
 public Type? MetadataType { get; }

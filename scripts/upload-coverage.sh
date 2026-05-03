@@ -4,13 +4,11 @@ set -euo pipefail
 # Upload all coverage.cobertura.xml files to Codecov, tagged with the flags
 # written by sync-codecov-flags.mjs into dist/codecov-flags.json.
 #
-# Structure:
-#   1. create-commit and create-report once (registers the commit server-side).
-#   2. Spawn one background do-upload per coverage file, each with its flag.
-#   3. Wait for all uploads to complete, collecting any failures.
-#
-# This avoids the N redundant create-commit/create-report round-trips that
-# upload-process would make, and runs all uploads concurrently.
+# Uses codecov upload-coverage, which:
+#   - Automatically creates commit and report server-side
+#   - Collects network files (git ls-files) to convey source tree state to Codecov
+#   - Properly removes deleted files from carryforward tracking
+#   - Runs uploads concurrently, one per flag
 #
 # Prerequisites:
 #   - codecov CLI installed and on PATH
@@ -26,15 +24,7 @@ if [ ! -f "$FLAGS_JSON" ]; then
   exit 1
 fi
 
-# ── 1. Register commit and report once ───────────────────────────────────────
-
-echo "Creating commit..."
-codecov create-commit --token "$CODECOV_TOKEN"
-
-echo "Creating report..."
-codecov create-report --token "$CODECOV_TOKEN"
-
-# ── 2. Spawn concurrent uploads ───────────────────────────────────────────────
+# ── Spawn concurrent uploads (one per flag) ──────────────────────────────────
 
 pids=()
 failed=0
@@ -44,7 +34,7 @@ while IFS= read -r entry; do
   root=$(echo "$entry" | jq -r '.root')
   while IFS= read -r -d '' coverage_file; do
     echo "Queuing upload: $coverage_file (flag: $flag)"
-    codecov do-upload \
+    codecov upload-coverage \
       --token "$CODECOV_TOKEN" \
       --flag "$flag" \
       --file "$coverage_file" \
@@ -53,7 +43,7 @@ while IFS= read -r entry; do
   done < <(find "$ROOT/$root" -name "coverage.cobertura.xml" -print0 2>/dev/null || true)
 done < <(jq -c '.[]' "$FLAGS_JSON")
 
-# ── 3. Wait for all uploads, report failures ─────────────────────────────────
+# ── Wait for all uploads, report failures ────────────────────────────────────
 
 for pid in "${pids[@]}"; do
   if ! wait "$pid"; then

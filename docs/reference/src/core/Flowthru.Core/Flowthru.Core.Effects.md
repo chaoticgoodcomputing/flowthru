@@ -2,10 +2,6 @@
 
 ### Classes
 
- [EffectTraits](Flowthru.Core.Effects.EffectTraits.md)
-
-Capability metadata for side-effect nodes.
-
  [FlowIO](Flowthru.Core.Effects.FlowIO.md)
 
 Provides factory methods and combinators for creating <xref href="Flowthru.Core.Effects.FlowIO%601" data-throw-if-not-resolved="false"></xref> effects.
@@ -24,8 +20,7 @@ but usable as a type parameter.
 
 ### Interfaces
 
- [IEffect<T\>](Flowthru.Core.Effects.IEffect\-1.md)
+ [IFlowthruInspector<TService\>](Flowthru.Core.Effects.IFlowthruInspector\-1.md)
 
-A DAG node representing a general side effect — an operation that interacts
-with an external system (webhook, deployment, DDL mutation, notification, etc.).
+Sidecar capability contract for preflight-inspecting a service that a step depends on.
 

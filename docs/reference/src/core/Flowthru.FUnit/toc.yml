@@ -5,8 +5,10 @@
   - name: Classes
   - name: EffectTestAttribute
     href: Flowthru.FUnit.EffectTestAttribute.md
-  - name: FunitContext
-    href: Flowthru.FUnit.FunitContext.md
+  - name: FUnitContext
+    href: Flowthru.FUnit.FUnitContext.md
+  - name: FUnitStubContainerAttribute
+    href: Flowthru.FUnit.FUnitStubContainerAttribute.md
   - name: StepTestAttribute
     href: Flowthru.FUnit.StepTestAttribute.md
 - name: Flowthru.FUnit.Samples
