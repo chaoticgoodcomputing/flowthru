@@ -66,3 +66,51 @@ public class ParquetMultiEnumConformance : FormatSerializerConformance<MultiEnum
   protected override IFormatSerializer<MultiEnumSchema> CreateSerializer() =>
     new ParquetFormatSerializer<MultiEnumSchema>();
 }
+
+/// <summary>
+/// Conformance for <see cref="ParquetFormatSerializer{TRow}"/> against
+/// <see cref="MixedRequirementsSchema"/> — exercises required-identity members with
+/// optional metadata fields through Parquet's typed-DTO synthesis path.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ParquetMixedRequirementsConformance : FormatSerializerConformance<MixedRequirementsSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/MixedRequirements/rows.json" };
+
+  public ParquetMixedRequirementsConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<MixedRequirementsSchema> CreateSerializer() =>
+    new ParquetFormatSerializer<MixedRequirementsSchema>();
+}
+
+/// <summary>
+/// Conformance for <see cref="ParquetFormatSerializer{TRow}"/> against
+/// <see cref="PositionalRecordSchema"/> — verifies that primary-constructor records
+/// round-trip through Parquet's binary encoding via the activator's slow path.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ParquetPositionalRecordConformance : FormatSerializerConformance<PositionalRecordSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/PositionalRecord/rows.json" };
+
+  public ParquetPositionalRecordConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<PositionalRecordSchema> CreateSerializer() =>
+    new ParquetFormatSerializer<PositionalRecordSchema>();
+}
+
+/// <summary>
+/// Conformance for <see cref="ParquetFormatSerializer{TRow}"/> against
+/// <see cref="OptionalEnumSchema"/> — verifies nullable enum cells round-trip through
+/// Parquet's binary encoding without falling through to a default.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ParquetOptionalEnumConformance : FormatSerializerConformance<OptionalEnumSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/OptionalEnum/rows.json" };
+
+  public ParquetOptionalEnumConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<OptionalEnumSchema> CreateSerializer() =>
+    new ParquetFormatSerializer<OptionalEnumSchema>();
+}

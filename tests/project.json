@@ -5,15 +5,90 @@
   "sourceRoot": "tests",
   "targets": {
     "test": {
-      "//": "Enforce 1:1 mirroring: every src/{domain}/{Project} must have tests/{domain}/{Project}.Tests",
+      "//": "Public meta-test barrel. Composes private _test:* subtargets via dependsOn — has no executor body of its own. Each subtarget enforces one structural workspace invariant. See docs/scratch/data-extension-contract.md §6 'Workspace Target Architecture' for the full pattern; tests/README.md describes individual invariants. Adding a new invariant: drop a script under scripts/_test/, add a `_test:<name>` private target below, append to `dependsOn` here.",
+      "executor": "nx:noop",
+      "dependsOn": [
+        "_test:project-mirror",
+        "_test:conformance-presence",
+        "_test:dead-schemas",
+        "_test:dead-fixtures",
+        "_test:diagnostic-id-registration"
+      ]
+    },
+    "_test:project-mirror": {
+      "//": "Every src/{domain}/{Project} has a corresponding tests/{domain}/{Project}.Tests at the mirrored path. Private subtarget: invoked only by the tests:test barrel.",
       "executor": "nx:run-commands",
       "inputs": [
         "{workspaceRoot}/src/**/*.csproj",
         "{workspaceRoot}/tests/**/*.csproj",
-        "{workspaceRoot}/scripts/verify-test-coverage.mjs"
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/project-mirror.mjs"
       ],
       "options": {
-        "commands": [ "node scripts/verify-test-coverage.mjs" ],
+        "commands": [ "node scripts/_test/project-mirror.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:conformance-presence": {
+      "//": "Every first-party Flowthru extension implementing a Core surface has at least one matching *Conformance subclass in its sibling test project. Private subtarget: invoked only by the tests:test barrel.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/src/extensions/**/*.cs",
+        "{workspaceRoot}/tests/extensions/**/*.cs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/conformance-presence.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/conformance-presence.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:dead-schemas": {
+      "//": "Every type declared under tests/helpers/Flowthru.Tests.Kits/Schemas/ is referenced as a type argument by at least one *Conformance<...> subclass. Catches schemas authored without follow-through. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/tests/helpers/Flowthru.Tests.Kits/Schemas/**/*.cs",
+        "{workspaceRoot}/tests/extensions/**/*.cs",
+        "{workspaceRoot}/tests/core/**/*.cs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/dead-schemas.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/dead-schemas.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:dead-fixtures": {
+      "//": "Every fixture file under tests/helpers/Flowthru.Tests.Kits/Fixtures/ is referenced (by literal path) from at least one conformance subclass. Catches fixtures authored without wired-up consumers. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/tests/helpers/Flowthru.Tests.Kits/Fixtures/**/*.json",
+        "{workspaceRoot}/tests/extensions/**/*.cs",
+        "{workspaceRoot}/tests/core/**/*.cs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/dead-fixtures.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/dead-fixtures.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:diagnostic-id-registration": {
+      "//": "Every FT### / FU### diagnostic ID emitted from src/ is registered in some AnalyzerReleases.{Un,}shipped.md. Workspace-level backstop for Roslyn's release-tracking analyzer. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/src/**/*.cs",
+        "{workspaceRoot}/src/**/AnalyzerReleases.Unshipped.md",
+        "{workspaceRoot}/src/**/AnalyzerReleases.Shipped.md",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/diagnostic-id-registration.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/diagnostic-id-registration.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }

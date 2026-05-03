@@ -69,3 +69,47 @@ public class CsvMultiEnumConformance : FormatSerializerConformance<MultiEnumSche
   protected override IFormatSerializer<MultiEnumSchema> CreateSerializer() =>
     new CsvFormatSerializer<MultiEnumSchema>();
 }
+
+/// <summary>
+/// Conformance for <see cref="CsvFormatSerializer{TRow}"/> against
+/// <see cref="MixedRequirementsSchema"/> — exercises required identity members alongside
+/// optional metadata fields (nullable string, nullable int, default-value bool).
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class CsvMixedRequirementsConformance : FormatSerializerConformance<MixedRequirementsSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/MixedRequirements/rows.json" };
+
+  public CsvMixedRequirementsConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<MixedRequirementsSchema> CreateSerializer() =>
+    new CsvFormatSerializer<MixedRequirementsSchema>();
+}
+
+// CsvFormatSerializer does not currently support PositionalRecordSchema: CsvHelper's
+// default deserialization path requires a parameterless constructor on the row type, and
+// positional records expose only a primary constructor with required parameters. The
+// kit's "format-incompatible" handling applies — a conformance subclass is omitted rather
+// than overridden. PositionalRecordSchema remains alive via the Parquet and Excel
+// conformance subclasses.
+//
+// Closing this gap is a Phase B follow-up: a CsvHelper IObjectResolver that constructs
+// instances via the primary constructor would let the kit cover positional records here
+// too. When that lands, add a CsvPositionalRecordConformance subclass mirroring the
+// Parquet equivalent.
+
+/// <summary>
+/// Conformance for <see cref="CsvFormatSerializer{TRow}"/> against
+/// <see cref="OptionalEnumSchema"/> — verifies that nullable enum fields round-trip
+/// correctly when the cell value is empty/null in addition to the standard mapped values.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class CsvOptionalEnumConformance : FormatSerializerConformance<OptionalEnumSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/OptionalEnum/rows.json" };
+
+  public CsvOptionalEnumConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<OptionalEnumSchema> CreateSerializer() =>
+    new CsvFormatSerializer<OptionalEnumSchema>();
+}

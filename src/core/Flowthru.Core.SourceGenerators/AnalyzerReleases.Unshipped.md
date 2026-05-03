@@ -13,6 +13,8 @@
 | FT2002  | Flowthru.Registration | Warning  | Catalog registered but not referenced by any pipeline                       |
 | FT2003  | Flowthru.Registration | Warning  | Concrete pipeline parameter resolved from DI; consider configurationSection |
 | FT2004  | Flowthru.Registration | Error    | configurationSection specified but UseConfiguration() not called            |
+| FT3001  | Flowthru.Core.Config  | Error    | FlowthruConfig class must be partial                                        |
+| FT3002  | Flowthru.Core.Config  | Warning  | FlowthruConfig IItem property missing [ConfigSection] attribute             |
 | FT4001  | Flowthru.Core.Steps   | Warning  | Step factory class missing [FlowthruStep] attribute                         |
 | FT4002  | Flowthru.Core.Steps   | Warning  | Step service has no registered IFlowthruInspector                           |
 | FT4003  | Flowthru.Core.Steps   | Hidden   | Step with service dependencies lacks declared traits                        |

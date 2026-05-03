@@ -59,3 +59,53 @@ public class ExcelMultiEnumConformance : FormatSerializerConformance<MultiEnumSc
   protected override IFormatSerializer<MultiEnumSchema> CreateSerializer() =>
     new ExcelFormatSerializer<MultiEnumSchema>(sheetName: "Sheet1");
 }
+
+/// <summary>
+/// Conformance for <see cref="ExcelFormatSerializer{TRow}"/> against
+/// <see cref="MixedRequirementsSchema"/>. Excel is read-only; the round-trip test passes
+/// vacuously and the contractual obligation that fires is the property-mapping
+/// configuration check — confirming the serializer can construct a property mapping for
+/// a schema mixing required-identity and optional-metadata fields without throwing.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ExcelMixedRequirementsConformance : FormatSerializerConformance<MixedRequirementsSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/MixedRequirements/rows.json" };
+
+  public ExcelMixedRequirementsConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<MixedRequirementsSchema> CreateSerializer() =>
+    new ExcelFormatSerializer<MixedRequirementsSchema>(sheetName: "Sheet1");
+}
+
+/// <summary>
+/// Conformance for <see cref="ExcelFormatSerializer{TRow}"/> against
+/// <see cref="PositionalRecordSchema"/>. Excel is read-only; this exercises the
+/// property-mapping path for a positional (primary-constructor) record.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ExcelPositionalRecordConformance : FormatSerializerConformance<PositionalRecordSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/PositionalRecord/rows.json" };
+
+  public ExcelPositionalRecordConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<PositionalRecordSchema> CreateSerializer() =>
+    new ExcelFormatSerializer<PositionalRecordSchema>(sheetName: "Sheet1");
+}
+
+/// <summary>
+/// Conformance for <see cref="ExcelFormatSerializer{TRow}"/> against
+/// <see cref="OptionalEnumSchema"/>. Excel is read-only; this exercises property-mapping
+/// for a schema with a nullable enum field.
+/// </summary>
+[TestFixtureSource(nameof(Fixtures))]
+public class ExcelOptionalEnumConformance : FormatSerializerConformance<OptionalEnumSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/OptionalEnum/rows.json" };
+
+  public ExcelOptionalEnumConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<OptionalEnumSchema> CreateSerializer() =>
+    new ExcelFormatSerializer<OptionalEnumSchema>(sheetName: "Sheet1");
+}
