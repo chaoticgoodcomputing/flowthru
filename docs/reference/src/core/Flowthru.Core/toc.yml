@@ -65,6 +65,27 @@
   - name: Classes
   - name: StorageTraits
     href: Flowthru.Core.Data.Capabilities.StorageTraits.md
+- name: Flowthru.Core.Data.Serialization
+  href: Flowthru.Core.Data.Serialization.md
+  items:
+  - name: Classes
+  - name: EnumBindingInfo
+    href: Flowthru.Core.Data.Serialization.EnumBindingInfo.md
+  - name: IScalarBindingInfo
+    href: Flowthru.Core.Data.Serialization.IScalarBindingInfo.md
+  - name: OptOutOfPropertyPlannerAttribute
+    href: Flowthru.Core.Data.Serialization.OptOutOfPropertyPlannerAttribute.md
+  - name: PropertyBinding
+    href: Flowthru.Core.Data.Serialization.PropertyBinding.md
+  - name: PropertyMappingPlan<TRow>
+    href: Flowthru.Core.Data.Serialization.PropertyMappingPlan-1.md
+  - name: PropertyMappingPlanner
+    href: Flowthru.Core.Data.Serialization.PropertyMappingPlanner.md
+  - name: PropertyMappingPlannerOptions
+    href: Flowthru.Core.Data.Serialization.PropertyMappingPlannerOptions.md
+  - name: Enums
+  - name: PropertyKind
+    href: Flowthru.Core.Data.Serialization.PropertyKind.md
 - name: Flowthru.Core.Data.Storage
   href: Flowthru.Core.Data.Storage.md
   items:
@@ -121,8 +142,6 @@
   - name: Classes
   - name: JsonFormatSerializer<TRow>
     href: Flowthru.Core.Data.Storage.Format.JsonFormatSerializer-1.md
-  - name: PropertyMappingHelper
-    href: Flowthru.Core.Data.Storage.Format.PropertyMappingHelper.md
 - name: Flowthru.Core.Data.Storage.Medium
   href: Flowthru.Core.Data.Storage.Medium.md
   items:

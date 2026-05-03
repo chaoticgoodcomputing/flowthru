@@ -6,7 +6,3 @@
 
 Format serializer for JSON (JavaScript Object Notation) files.
 
- [PropertyMappingHelper](Flowthru.Core.Data.Storage.Format.PropertyMappingHelper.md)
-
-Helper for mapping external field names to C# property names using SerializedLabel attribute.
-

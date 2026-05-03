@@ -84,7 +84,7 @@ public bool SupportsSerializedLabel { get; }
 
 ### <a id="Flowthru_Core_Data_Storage_PropertyMappingConfiguration_FromSerializedLabel__1"></a> FromSerializedLabel<TRow\>\(\)
 
-Serializer uses SerializedLabel attributes via PropertyMappingHelper.
+Serializer uses SerializedLabel attributes via PropertyMappingPlanner.
 
 ```csharp
 public static PropertyMappingConfiguration FromSerializedLabel<TRow>()

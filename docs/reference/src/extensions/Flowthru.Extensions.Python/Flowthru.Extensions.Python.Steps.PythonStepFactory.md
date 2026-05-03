@@ -134,3 +134,5449 @@ Mismatched types produce compiler errors.
 <ul><li>Decorator schemas match C# generic types</li><li>Function signature arity is correct</li><li>Dry-run with 0-row data validates output structure</li></ul>
 </p>
 
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__3_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_Flowthru_Core_Graph_INode___0__System_ValueTuple_Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2\>\(FlowBuilder, string, string, string, INode<TIn1\>, \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 1 input and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, INode<TIn1> input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` INode<TIn1\>
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__4_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_Flowthru_Core_Graph_INode___0__System_ValueTuple_Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, INode<TIn1\>, \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 1 input and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, INode<TIn1> input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` INode<TIn1\>
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__5_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_Flowthru_Core_Graph_INode___0__System_ValueTuple_Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, INode<TIn1\>, \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 1 input and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, INode<TIn1> input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` INode<TIn1\>
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__6_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_Flowthru_Core_Graph_INode___0__System_ValueTuple_Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, INode<TIn1\>, \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 1 input and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, INode<TIn1> input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` INode<TIn1\>
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__7_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_Flowthru_Core_Graph_INode___0__System_ValueTuple_Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, INode<TIn1\>, \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 1 input and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, INode<TIn1> input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` INode<TIn1\>
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__8_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_Flowthru_Core_Graph_INode___0__System_ValueTuple_Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, INode<TIn1\>, \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 1 input and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, INode<TIn1> input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` INode<TIn1\>
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_Flowthru_Core_Graph_INode___0__System_ValueTuple_Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__System_ValueTuple_Flowthru_Core_Graph_INode___8____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, INode<TIn1\>, \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 1 input and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, INode<TIn1> input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` INode<TIn1\>
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__3_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___Flowthru_Core_Graph_INode___2__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), INode<TOut1\>, IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 1 output.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, INode<TOut1> output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` INode<TOut1\>
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__4_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___System_ValueTuple_Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__5_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___System_ValueTuple_Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__6_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___System_ValueTuple_Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__7_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___System_ValueTuple_Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__8_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___System_ValueTuple_Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___System_ValueTuple_Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__10_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1___System_ValueTuple_Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__System_ValueTuple_Flowthru_Core_Graph_INode___9____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 2 inputs and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__4_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___Flowthru_Core_Graph_INode___3__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), INode<TOut1\>, IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 1 output.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, INode<TOut1> output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` INode<TOut1\>
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__5_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___System_ValueTuple_Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__6_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___System_ValueTuple_Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__7_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___System_ValueTuple_Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__8_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___System_ValueTuple_Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___System_ValueTuple_Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__10_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___System_ValueTuple_Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__11_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2___System_ValueTuple_Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__System_ValueTuple_Flowthru_Core_Graph_INode___10____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 3 inputs and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__5_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___Flowthru_Core_Graph_INode___4__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), INode<TOut1\>, IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 1 output.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, INode<TOut1> output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` INode<TOut1\>
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__6_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___System_ValueTuple_Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__7_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___System_ValueTuple_Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__8_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___System_ValueTuple_Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___System_ValueTuple_Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__10_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___System_ValueTuple_Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__11_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___System_ValueTuple_Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__12_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3___System_ValueTuple_Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__System_ValueTuple_Flowthru_Core_Graph_INode___11____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 4 inputs and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__6_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___Flowthru_Core_Graph_INode___5__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), INode<TOut1\>, IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 1 output.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, INode<TOut1> output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` INode<TOut1\>
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__7_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___System_ValueTuple_Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__8_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___System_ValueTuple_Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___System_ValueTuple_Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__10_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___System_ValueTuple_Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__11_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___System_ValueTuple_Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__12_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___System_ValueTuple_Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__13_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4___System_ValueTuple_Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__System_ValueTuple_Flowthru_Core_Graph_INode___12____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 5 inputs and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__7_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___Flowthru_Core_Graph_INode___6__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), INode<TOut1\>, IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 1 output.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, INode<TOut1> output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` INode<TOut1\>
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__8_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___System_ValueTuple_Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___System_ValueTuple_Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__10_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___System_ValueTuple_Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__11_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___System_ValueTuple_Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__12_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___System_ValueTuple_Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__13_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___System_ValueTuple_Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__14_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5___System_ValueTuple_Flowthru_Core_Graph_INode___6__Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12__System_ValueTuple_Flowthru_Core_Graph_INode___13____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 6 inputs and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__8_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___Flowthru_Core_Graph_INode___7__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), INode<TOut1\>, IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 1 output.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, INode<TOut1> output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` INode<TOut1\>
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___System_ValueTuple_Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__10_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___System_ValueTuple_Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__11_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___System_ValueTuple_Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__12_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___System_ValueTuple_Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__13_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___System_ValueTuple_Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__14_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___System_ValueTuple_Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12__Flowthru_Core_Graph_INode___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__15_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6___System_ValueTuple_Flowthru_Core_Graph_INode___7__Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12__Flowthru_Core_Graph_INode___13__System_ValueTuple_Flowthru_Core_Graph_INode___14____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 7 inputs and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__9_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____Flowthru_Core_Graph_INode___8__Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), INode<TOut1\>, IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 1 output.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, INode<TOut1> output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` INode<TOut1\>
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__10_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____System_ValueTuple_Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), \(INode<TOut1\>, INode<TOut2\>\), IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 2 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, (INode<TOut1>, INode<TOut2>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__11_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____System_ValueTuple_Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\), IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 3 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__12_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____System_ValueTuple_Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\), IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 4 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__13_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____System_ValueTuple_Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\), IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 5 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__14_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____System_ValueTuple_Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12__Flowthru_Core_Graph_INode___13___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\), IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 6 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__15_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____System_ValueTuple_Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12__Flowthru_Core_Graph_INode___13__Flowthru_Core_Graph_INode___14___Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\), IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 7 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+### <a id="Flowthru_Extensions_Python_Steps_PythonStepFactory_AddPythonStep__16_Flowthru_Core_Flows_FlowBuilder_System_String_System_String_System_String_System_ValueTuple_Flowthru_Core_Graph_INode___0__Flowthru_Core_Graph_INode___1__Flowthru_Core_Graph_INode___2__Flowthru_Core_Graph_INode___3__Flowthru_Core_Graph_INode___4__Flowthru_Core_Graph_INode___5__Flowthru_Core_Graph_INode___6__System_ValueTuple_Flowthru_Core_Graph_INode___7____System_ValueTuple_Flowthru_Core_Graph_INode___8__Flowthru_Core_Graph_INode___9__Flowthru_Core_Graph_INode___10__Flowthru_Core_Graph_INode___11__Flowthru_Core_Graph_INode___12__Flowthru_Core_Graph_INode___13__Flowthru_Core_Graph_INode___14__System_ValueTuple_Flowthru_Core_Graph_INode___15____Flowthru_Extensions_Python_Execution_IPythonExecutor_System_String_"></a> AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8\>\(FlowBuilder, string, string, string, \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\), \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\), IPythonExecutor, string\)
+
+Adds a Python step with 8 inputs and 8 outputs.
+
+```csharp
+public static FlowBuilder AddPythonStep<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>(this FlowBuilder builder, string label, string module, string function, (INode<TIn1>, INode<TIn2>, INode<TIn3>, INode<TIn4>, INode<TIn5>, INode<TIn6>, INode<TIn7>, INode<TIn8>) input, (INode<TOut1>, INode<TOut2>, INode<TOut3>, INode<TOut4>, INode<TOut5>, INode<TOut6>, INode<TOut7>, INode<TOut8>) output, IPythonExecutor executor, string description = "")
+```
+
+#### Parameters
+
+`builder` FlowBuilder
+
+Flow builder instance
+
+`label` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Unique identifier for this step
+
+`module` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Dotted Python module name (e.g., "Flows.DataScience.train_model")
+
+`function` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Python function name within the module
+
+`input` \(INode<TIn1\>, INode<TIn2\>, INode<TIn3\>, INode<TIn4\>, INode<TIn5\>, INode<TIn6\>, INode<TIn7\>, INode<TIn8\>\)
+
+Catalog item or tuple of catalog items providing input data
+
+`output` \(INode<TOut1\>, INode<TOut2\>, INode<TOut3\>, INode<TOut4\>, INode<TOut5\>, INode<TOut6\>, INode<TOut7\>, INode<TOut8\>\)
+
+Catalog item or tuple of catalog items to store output data
+
+`executor` [IPythonExecutor](Flowthru.Extensions.Python.Execution.IPythonExecutor.md)
+
+Python executor for invoking the function
+
+`description` [string](https://learn.microsoft.com/dotnet/api/system.string)
+
+Optional step description
+
+#### Returns
+
+ FlowBuilder
+
+This builder for method chaining
+
+#### Type Parameters
+
+`TIn1` 
+
+Input type 1
+
+`TIn2` 
+
+Input type 2
+
+`TIn3` 
+
+Input type 3
+
+`TIn4` 
+
+Input type 4
+
+`TIn5` 
+
+Input type 5
+
+`TIn6` 
+
+Input type 6
+
+`TIn7` 
+
+Input type 7
+
+`TIn8` 
+
+Input type 8
+
+`TOut1` 
+
+Output type 1
+
+`TOut2` 
+
+Output type 2
+
+`TOut3` 
+
+Output type 3
+
+`TOut4` 
+
+Output type 4
+
+`TOut5` 
+
+Output type 5
+
+`TOut6` 
+
+Output type 6
+
+`TOut7` 
+
+Output type 7
+
+`TOut8` 
+
+Output type 8
+

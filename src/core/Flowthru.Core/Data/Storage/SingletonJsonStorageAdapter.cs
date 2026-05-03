@@ -286,25 +286,20 @@ public sealed class SingletonJsonStorageAdapter<T> : IStorageAdapter<T>
   /// Returns the JSON property names corresponding to schema properties carrying the
   /// C# <c>required</c> modifier. Resolution: <c>SerializedLabelAttribute.Name</c>
   /// when present, otherwise the C# property name. Only checks public instance
-  /// properties — the same surface <see cref="Format.PropertyMappingHelper"/> walks.
+  /// properties — the same surface the planner walks during binding construction.
   /// </summary>
   private static IEnumerable<string> GetRequiredSchemaPropertyNames()
   {
-    foreach (
-      var property in typeof(T).GetProperties(
-        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance
-      )
-    )
+    var plan = Serialization.PropertyMappingPlanner.Build<T>();
+    foreach (var binding in plan.Bindings)
     {
-      var isRequired = property
+      var isRequired = binding.Property
         .GetCustomAttributes(typeof(System.Runtime.CompilerServices.RequiredMemberAttribute), false)
         .Any();
-      if (!isRequired)
+      if (isRequired)
       {
-        continue;
+        yield return binding.FieldName;
       }
-
-      yield return Format.PropertyMappingHelper.GetFieldName(property);
     }
   }
 

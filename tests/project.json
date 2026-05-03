@@ -12,7 +12,8 @@
         "_test:conformance-presence",
         "_test:dead-schemas",
         "_test:dead-fixtures",
-        "_test:diagnostic-id-registration"
+        "_test:diagnostic-id-registration",
+        "_test:planner-consumption"
       ]
     },
     "_test:project-mirror": {
@@ -89,6 +90,20 @@
       ],
       "options": {
         "commands": [ "node scripts/_test/diagnostic-id-registration.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:planner-consumption": {
+      "//": "Every IFormatSerializer<TRow> implementor under src/extensions/ either references PropertyMappingPlanner / PropertyMappingPlan<> or carries [OptOutOfPropertyPlanner]. Backstops the Phase B contract that format extensions consume Core's universal property-walk cascade rather than reimplementing it. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/src/extensions/**/*.cs",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/planner-consumption.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/planner-consumption.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }

@@ -1,7 +1,7 @@
 using System.Reflection;
 using Apache.Arrow;
 using Apache.Arrow.Types;
-using Flowthru.Core.Data.Storage.Format;
+using Flowthru.Core.Abstractions;
 
 namespace Flowthru.Extensions.Python.Marshalling;
 
@@ -30,8 +30,10 @@ namespace Flowthru.Extensions.Python.Marshalling;
 /// <item>byte[] → BinaryType</item>
 /// </list>
 /// <para>
-/// <strong>Field Naming:</strong> Uses PropertyMappingHelper to respect [SerializedLabel] attributes,
-/// ensuring consistency with CSV/Parquet/JSON serializers.
+/// <strong>Field Naming:</strong> Resolves <c>[SerializedLabel]</c> attributes via
+/// <see cref="GetFieldName"/>, the same resolution Core's
+/// <see cref="Flowthru.Core.Data.Serialization.PropertyMappingPlanner"/> applies for
+/// CSV/Parquet/JSON serializers.
 /// </para>
 /// </remarks>
 public static class ArrowSchemaMapper
@@ -76,7 +78,7 @@ public static class ArrowSchemaMapper
       }
 
       // Get external field name (respects SerializedLabel)
-      var fieldName = PropertyMappingHelper.GetFieldName(property);
+      var fieldName = GetFieldName(property);
 
       // Map C# type to Arrow type
       var arrowType = MapToArrowType(property.PropertyType, out bool nullable);
@@ -200,10 +202,14 @@ public static class ArrowSchemaMapper
   /// Gets the external field name for a property, respecting [SerializedLabel].
   /// </summary>
   /// <remarks>
-  /// This is a convenience wrapper around PropertyMappingHelper for internal use.
+  /// Inlined during Phase B5 — previously delegated to <c>PropertyMappingHelper.GetFieldName</c>
+  /// in <c>Flowthru.Core.Data.Storage.Format</c>, which has been deleted.
   /// </remarks>
-  internal static string GetFieldName(PropertyInfo property) =>
-    PropertyMappingHelper.GetFieldName(property);
+  internal static string GetFieldName(PropertyInfo property)
+  {
+    var label = property.GetCustomAttribute<SerializedLabelAttribute>();
+    return label?.Label ?? property.Name;
+  }
 
   /// <summary>
   /// Builds a C# dictionary mapping column names to pandas dtype strings,

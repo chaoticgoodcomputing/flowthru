@@ -3,7 +3,9 @@ using System.Text;
 using ExcelDataReader;
 using Flowthru.Core.Abstractions;
 using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Serialization;
 using Flowthru.Core.Data.Storage;
+using Flowthru.Core.Serialization;
 
 namespace Flowthru.Core.Data.Storage.Format;
 
@@ -86,15 +88,12 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
 
     using var reader = ExcelReaderFactory.CreateReader(stream);
 
-    // Compute per-property nullability once. Nullable properties accept _nullValues
-    // string sentinels in addition to genuine DBNull cells.
-    var nullabilityContext = new NullabilityInfoContext();
-    var propertyNullability = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-    foreach (var property in typeof(TRow).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-    {
-      var fieldName = PropertyMappingHelper.GetFieldName(property);
-      propertyNullability[fieldName] = IsNullable(property, nullabilityContext);
-    }
+    // Build the planner once per Deserialize call. The plan reports per-property
+    // nullability, field-name overrides, and per-kind metadata (Enum / IScalar) the
+    // cell-conversion loop below consumes via switch on Kind.
+    var plan = PropertyMappingPlanner.Build<TRow>(
+      new PropertyMappingPlannerOptions { NullSentinels = _nullValues }
+    );
 
     // Find the target sheet
     do
@@ -113,9 +112,6 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
           headers[i] = reader.GetValue(i)?.ToString() ?? string.Empty;
         }
 
-        // Build property map using SerializedLabel attributes
-        var propertyMap = PropertyMappingHelper.BuildPropertyMap<TRow>();
-
         // Build column index mapping (Excel column header → column index)
         var columnIndexMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         for (int i = 0; i < headers.Length; i++)
@@ -129,70 +125,44 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
           // Create new instance using SchemaActivator (supports required members)
           var row = SchemaActivator.CreateInstance<TRow>();
 
-          // Set properties from Excel columns using the property map
-          foreach (var (fieldName, property) in propertyMap)
+          // Iterate planner bindings rather than reflecting properties directly.
+          foreach (var binding in plan.Bindings)
           {
-            // Try to find column by field name (from SerializedLabel or property name)
-            if (columnIndexMap.TryGetValue(fieldName, out var columnIndex))
+            if (!columnIndexMap.TryGetValue(binding.FieldName, out var columnIndex))
             {
-              var value = reader.GetValue(columnIndex);
+              continue;
+            }
 
-              // For nullable properties, also treat declared string sentinels as null.
-              if (
-                propertyNullability.TryGetValue(fieldName, out var isNullable)
-                && isNullable
-                && value is string strValue
-                && _nullValues.Contains(strValue)
-              )
+            var value = reader.GetValue(columnIndex);
+
+            // Treat configured null sentinels (string-form) and DBNull as null. For
+            // nullable bindings, leave the property at its default (null); for non-
+            // nullable bindings, fall through to the converter (which surfaces a clear
+            // error for required-but-missing data).
+            if (binding.IsNullable)
+            {
+              if (value is null || value == DBNull.Value)
               {
-                continue; // Leave property at its default (null).
+                continue;
               }
-
-              if (value != null && value != DBNull.Value)
+              if (value is string strValue && binding.NullSentinels.Contains(strValue))
               {
-                try
-                {
-                  // Handle nullable properties
-                  var targetType =
-                    Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-
-                  object convertedValue;
-
-                  // Special handling for enum types with [SerializedEnum] attributes
-                  if (targetType.IsEnum)
-                  {
-                    string stringValue = value.ToString()!;
-                    convertedValue = Serialization.EnumSerializationHelper.ParseEnumFromString(
-                      targetType,
-                      stringValue
-                    );
-                  }
-                  // Special handling for IScalar NewType wrappers (e.g. record struct
-                  // CustomerId(string Value) : IScalar). Convert the cell to the backing
-                  // type, then construct the wrapper via its single-arg constructor.
-                  else if (TryGetScalarBackingType(targetType, out var backingType))
-                  {
-                    var rawValue = Convert.ChangeType(value, backingType!);
-                    var ctor =
-                      targetType.GetConstructor(new[] { backingType! })
-                      ?? throw new InvalidOperationException(
-                        $"IScalar type '{targetType.Name}' must declare a public constructor taking '{backingType!.Name}'."
-                      );
-                    convertedValue = ctor.Invoke(new[] { rawValue });
-                  }
-                  else
-                  {
-                    convertedValue = Convert.ChangeType(value, targetType);
-                  }
-
-                  // SetValue works on init properties via reflection
-                  property.SetValue(row, convertedValue);
-                }
-                catch
-                {
-                  // Skip properties that can't be converted
-                }
+                continue;
               }
+            }
+            else if (value is null || value == DBNull.Value)
+            {
+              continue;
+            }
+
+            try
+            {
+              object convertedValue = ConvertCellValue(value, binding);
+              binding.Property.SetValue(row, convertedValue);
+            }
+            catch
+            {
+              // Skip properties that can't be converted (matches pre-migration behavior).
             }
           }
 
@@ -204,6 +174,32 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
     } while (reader.NextResult());
 
     throw new InvalidOperationException($"Sheet '{_sheetName}' not found in Excel file.");
+  }
+
+  // Per-binding cell conversion. Centralizes the kind-specific decoding the planner
+  // tells us applies to each property. Format-specific cell-level encoding (the actual
+  // call into Convert.ChangeType / IScalar wrapping / EnumSerializationHelper) stays
+  // here in the Excel extension; the planner provides only the metadata.
+  private static object ConvertCellValue(object cellValue, PropertyBinding binding)
+  {
+    return binding.Kind switch
+    {
+      PropertyKind.Enum => EnumSerializationHelper.ParseEnumFromString(
+        binding.EffectiveType,
+        cellValue.ToString()!
+      ),
+      PropertyKind.IScalar => binding.IScalar!.WrappingConstructor.Invoke(
+        new[] { Convert.ChangeType(cellValue, binding.IScalar.BackingType) }
+      ),
+      // Primitive (incl. byte[] and BCL scalar structs): defer to Convert.ChangeType,
+      // which handles primitive coercions ExcelDataReader returns (cell typed as double
+      // but property typed as int, etc.).
+      PropertyKind.Primitive => Convert.ChangeType(cellValue, binding.EffectiveType),
+      // Nested: would only reach here if a nested-bearing schema slipped past the
+      // IFlatSchema generic constraint — defensive fall-through.
+      PropertyKind.Nested => Convert.ChangeType(cellValue, binding.EffectiveType),
+      _ => Convert.ChangeType(cellValue, binding.EffectiveType),
+    };
   }
 
   /// <inheritdoc/>
@@ -218,53 +214,5 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
   public PropertyMappingConfiguration GetPropertyMappingConfiguration()
   {
     return PropertyMappingConfiguration.FromSerializedLabel<TRow>();
-  }
-
-  /// <summary>
-  /// Determines whether a type is an <see cref="IScalar"/> wrapper around a single primitive
-  /// (NewType pattern). Returns the backing type via <paramref name="backingType"/> on success.
-  /// </summary>
-  private static bool TryGetScalarBackingType(Type type, out Type? backingType)
-  {
-    backingType = null;
-    if (!typeof(IScalar).IsAssignableFrom(type))
-    {
-      return false;
-    }
-
-    var publicReadableProps = type
-      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-      .Where(p => p.CanRead && p.GetIndexParameters().Length == 0)
-      .Where(p => p.DeclaringType == type)
-      .ToList();
-
-    if (publicReadableProps.Count != 1)
-    {
-      return false;
-    }
-
-    backingType = publicReadableProps[0].PropertyType;
-    return true;
-  }
-
-  /// <summary>
-  /// Determines whether a property is declared nullable. For value types this is
-  /// <c>Nullable&lt;T&gt;</c>; for reference types this reads the C# 8 nullability
-  /// annotation via <see cref="NullabilityInfoContext"/>.
-  /// </summary>
-  private static bool IsNullable(PropertyInfo property, NullabilityInfoContext context)
-  {
-    if (Nullable.GetUnderlyingType(property.PropertyType) is not null)
-    {
-      return true;
-    }
-
-    if (property.PropertyType.IsValueType)
-    {
-      return false;
-    }
-
-    var info = context.Create(property);
-    return info.ReadState == NullabilityState.Nullable;
   }
 }

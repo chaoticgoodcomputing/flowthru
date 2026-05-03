@@ -316,8 +316,8 @@ to explicitly declare how it handles property name mapping.
 <strong>Implementation Strategies:</strong>
 </p>
 <ul><li>
-<strong>SerializedLabel:</strong> Use <xref href="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" data-throw-if-not-resolved="false"></xref>
-to respect <code>[SerializedLabel]</code> attributes. Return
+<strong>SerializedLabel:</strong> Consume <xref href="Flowthru.Core.Data.Serialization.PropertyMappingPlanner" data-throw-if-not-resolved="false"></xref>
+to walk properties and resolve <code>[SerializedLabel]</code>-driven field names. Return
 <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromSerializedLabel%60%601" data-throw-if-not-resolved="false"></xref>.
 </li><li>
 <strong>LibraryControlled:</strong> The underlying library handles mapping with no

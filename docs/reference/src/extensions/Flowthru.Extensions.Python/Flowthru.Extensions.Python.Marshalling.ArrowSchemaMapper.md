@@ -35,8 +35,10 @@ preserving field names (via [SerializedLabel]) and nullability for correct DataF
 </p>
 <ul><li>int, int? → Int32Type</li><li>long, long? → Int64Type</li><li>float, float? → FloatType</li><li>double, double? → DoubleType</li><li>bool, bool? → BooleanType</li><li>string → StringType (always nullable in Arrow)</li><li>DateTime, DateTime? → TimestampType (microsecond, UTC)</li><li>DateTimeOffset, DateTimeOffset? → TimestampType (microsecond, UTC)</li><li>TimeSpan, TimeSpan? → DurationType (microsecond)</li><li>Guid, Guid? → StringType (serialized as string)</li><li>byte[] → BinaryType</li></ul>
 <p>
-<strong>Field Naming:</strong> Uses PropertyMappingHelper to respect [SerializedLabel] attributes,
-ensuring consistency with CSV/Parquet/JSON serializers.
+<strong>Field Naming:</strong> Resolves <code>[SerializedLabel]</code> attributes via
+<xref href="Flowthru.Extensions.Python.Marshalling.ArrowSchemaMapper.GetFieldName(System.Reflection.PropertyInfo)" data-throw-if-not-resolved="false"></xref>, the same resolution Core's
+<xref href="Flowthru.Core.Data.Serialization.PropertyMappingPlanner" data-throw-if-not-resolved="false"></xref> applies for
+CSV/Parquet/JSON serializers.
 </p>
 
 ## Methods

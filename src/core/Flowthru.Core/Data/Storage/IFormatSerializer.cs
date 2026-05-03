@@ -175,8 +175,8 @@ public interface IFormatSerializer<TRow>
   /// </para>
   /// <list type="bullet">
   /// <item>
-  /// <strong>SerializedLabel:</strong> Use <see cref="Format.PropertyMappingHelper"/>
-  /// to respect <c>[SerializedLabel]</c> attributes. Return
+  /// <strong>SerializedLabel:</strong> Consume <see cref="Serialization.PropertyMappingPlanner"/>
+  /// to walk properties and resolve <c>[SerializedLabel]</c>-driven field names. Return
   /// <see cref="PropertyMappingConfiguration.FromSerializedLabel{T}()"/>.
   /// </item>
   /// <item>

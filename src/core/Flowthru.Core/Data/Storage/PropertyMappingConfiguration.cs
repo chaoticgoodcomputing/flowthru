@@ -40,7 +40,7 @@ public sealed class PropertyMappingConfiguration
   }
 
   /// <summary>
-  /// Serializer uses SerializedLabel attributes via PropertyMappingHelper.
+  /// Serializer uses SerializedLabel attributes via PropertyMappingPlanner.
   /// </summary>
   /// <typeparam name="TRow">The schema type</typeparam>
   /// <returns>Configuration for SerializedLabel-based mapping</returns>
@@ -81,7 +81,7 @@ public sealed class PropertyMappingConfiguration
 public enum PropertyMappingStrategy
 {
   /// <summary>
-  /// Serializer respects [SerializedLabel] attributes using PropertyMappingHelper.
+  /// Serializer respects [SerializedLabel] attributes using PropertyMappingPlanner.
   /// </summary>
   SerializedLabel,
 

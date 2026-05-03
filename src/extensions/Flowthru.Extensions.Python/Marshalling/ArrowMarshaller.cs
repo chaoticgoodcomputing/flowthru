@@ -4,7 +4,6 @@ using Apache.Arrow.Ipc;
 using Apache.Arrow.Types;
 using Flowthru.Core.Abstractions;
 using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Data.Storage.Format;
 
 namespace Flowthru.Extensions.Python.Marshalling;
 
@@ -73,7 +72,7 @@ public static class ArrowMarshaller
     foreach (var field in schema.FieldsList)
     {
       // Find corresponding property
-      var property = properties.First(p => PropertyMappingHelper.GetFieldName(p) == field.Name);
+      var property = properties.First(p => ArrowSchemaMapper.GetFieldName(p) == field.Name);
 
       // Build array for this column
       var array = BuildArrayForProperty(property, field, materializedRows, rowCount);
@@ -116,7 +115,7 @@ public static class ArrowMarshaller
 
     foreach (var property in properties)
     {
-      var fieldName = PropertyMappingHelper.GetFieldName(property);
+      var fieldName = ArrowSchemaMapper.GetFieldName(property);
       var columnIndex = batch.Schema.GetFieldIndex(fieldName);
 
       if (columnIndex < 0)

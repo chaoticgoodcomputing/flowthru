@@ -6,6 +6,7 @@ Assembly: Flowthru.Extensions.Parquet.dll
 Format serializer for Parquet (columnar storage) files using adapter pattern.
 
 ```csharp
+[OptOutOfPropertyPlanner("Parquet's runtime DTO synthesis via System.Reflection.Emit is structurally different from the reflection walks PropertyMappingPlanner subsumes for CSV/Excel/JSON. Migrating Parquet to consume the planner is a deliberate follow-up effort outside Phase B's scope — it requires reworking how the typed DTO is built per-row from PropertyBinding metadata. The capability matrix surfaces this opt-out under 'manual mapping' so reviewers and end users see the gap explicitly.")]
 public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow> where TRow : notnull, IFlatSchema, IBinarySerializable
 ```
 
@@ -180,8 +181,8 @@ to explicitly declare how it handles property name mapping.
 <strong>Implementation Strategies:</strong>
 </p>
 <ul><li>
-<strong>SerializedLabel:</strong> Use <xref href="Flowthru.Core.Data.Storage.Format.PropertyMappingHelper" data-throw-if-not-resolved="false"></xref>
-to respect <code>[SerializedLabel]</code> attributes. Return
+<strong>SerializedLabel:</strong> Consume <xref href="Flowthru.Core.Data.Serialization.PropertyMappingPlanner" data-throw-if-not-resolved="false"></xref>
+to walk properties and resolve <code>[SerializedLabel]</code>-driven field names. Return
 <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.FromSerializedLabel%60%601" data-throw-if-not-resolved="false"></xref>.
 </li><li>
 <strong>LibraryControlled:</strong> The underlying library handles mapping with no

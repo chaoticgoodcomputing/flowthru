@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Flowthru.Core.Abstractions;
 using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Serialization;
+using Flowthru.Core.Serialization;
 
 namespace Flowthru.Core.Data.Storage.Format;
 
@@ -249,11 +251,11 @@ internal sealed class SerializedLabelJsonConverterFactory : JsonConverterFactory
 internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
   where T : notnull
 {
-  private readonly Dictionary<string, PropertyInfo> _propertyMap;
+  private readonly PropertyMappingPlan<T> _plan;
 
   public SerializedLabelJsonConverter()
   {
-    _propertyMap = PropertyMappingHelper.BuildPropertyMap<T>();
+    _plan = PropertyMappingPlanner.Build<T>();
   }
 
   public override T? Read(
@@ -300,14 +302,10 @@ internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
       var propertyName = reader.GetString();
       reader.Read();
 
-      if (propertyName != null && _propertyMap.TryGetValue(propertyName, out var property))
+      if (propertyName != null && _plan.TryGetByFieldName(propertyName, out var binding))
       {
-        var value = JsonSerializer.Deserialize(
-          ref reader,
-          property.PropertyType,
-          optionsWithoutThisConverter
-        );
-        property.SetValue(instance, value);
+        var value = ReadPropertyValue(ref reader, binding!, optionsWithoutThisConverter);
+        binding!.Property.SetValue(instance, value);
       }
       else
       {
@@ -338,12 +336,12 @@ internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
       }
     }
 
-    foreach (var (fieldName, property) in _propertyMap)
+    foreach (var binding in _plan.Bindings)
     {
       object? propertyValue;
       try
       {
-        propertyValue = property.GetValue(value);
+        propertyValue = binding.Property.GetValue(value);
       }
       catch
       {
@@ -357,27 +355,77 @@ internal sealed class SerializedLabelJsonConverter<T> : JsonConverter<T>
           != System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
       )
       {
-        writer.WritePropertyName(fieldName);
+        writer.WritePropertyName(binding.FieldName);
 
-        // Serialize the property value using the appropriate overload
         if (propertyValue == null)
         {
           writer.WriteNullValue();
         }
         else
         {
-          // Use the property type to ensure correct converter selection for nested objects
-          JsonSerializer.Serialize(
-            writer,
-            propertyValue,
-            property.PropertyType,
-            optionsWithoutThisConverter
-          );
+          WritePropertyValue(writer, propertyValue, binding, optionsWithoutThisConverter);
         }
       }
     }
 
     writer.WriteEndObject();
+  }
+
+  // ── Per-binding read/write helpers ────────────────────────────────────────────
+
+  // Reads a JSON token into the property's CLR value. For IScalar bindings, deserializes
+  // the cell as the backing type and constructs the wrapper — closing the JSON-side
+  // IScalar gap that motivated Phase B's planner work. Other kinds dispatch to the
+  // standard JsonSerializer.Deserialize(propertyType) flow.
+  private static object? ReadPropertyValue(
+    ref Utf8JsonReader reader,
+    PropertyBinding binding,
+    JsonSerializerOptions options
+  )
+  {
+    if (binding.Kind == PropertyKind.IScalar && reader.TokenType != JsonTokenType.Null)
+    {
+      var info = binding.IScalar!;
+      var rawValue = JsonSerializer.Deserialize(ref reader, info.BackingType, options);
+      if (rawValue is null)
+      {
+        return null;
+      }
+      return info.WrappingConstructor.Invoke(new[] { rawValue });
+    }
+
+    return JsonSerializer.Deserialize(
+      ref reader,
+      binding.Property.PropertyType,
+      options
+    );
+  }
+
+  // Writes the property's value as JSON. For IScalar bindings, unwraps to the backing
+  // type before delegating to JsonSerializer.Serialize so the cell appears as the raw
+  // primitive in the output. Other kinds dispatch to JsonSerializer.Serialize on the
+  // declared property type.
+  private static void WritePropertyValue(
+    Utf8JsonWriter writer,
+    object propertyValue,
+    PropertyBinding binding,
+    JsonSerializerOptions options
+  )
+  {
+    if (binding.Kind == PropertyKind.IScalar)
+    {
+      var info = binding.IScalar!;
+      var rawValue = info.ValueProperty.GetValue(propertyValue);
+      JsonSerializer.Serialize(writer, rawValue, info.BackingType, options);
+      return;
+    }
+
+    JsonSerializer.Serialize(
+      writer,
+      propertyValue,
+      binding.Property.PropertyType,
+      options
+    );
   }
 }
 
@@ -405,11 +453,11 @@ internal sealed class SerializedEnumJsonConverterFactory : JsonConverterFactory
 internal sealed class SerializedEnumJsonConverter<TEnum> : JsonConverter<TEnum>
   where TEnum : struct, Enum
 {
-  private readonly Serialization.EnumMetadataCache<TEnum> _metadata;
+  private readonly EnumMetadataCache<TEnum> _metadata;
 
   public SerializedEnumJsonConverter()
   {
-    _metadata = Serialization.EnumMetadataRegistry.Create<TEnum>();
+    _metadata = EnumMetadataRegistry.Create<TEnum>();
   }
 
   public override TEnum Read(

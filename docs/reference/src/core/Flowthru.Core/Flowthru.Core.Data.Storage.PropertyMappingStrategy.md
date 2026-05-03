@@ -19,7 +19,7 @@ Underlying library controls mapping with no programmatic access.
 
 `SerializedLabel = 0` 
 
-Serializer respects [SerializedLabel] attributes using PropertyMappingHelper.
+Serializer respects [SerializedLabel] attributes using PropertyMappingPlanner.
 
 
 

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Flowthru.Core.Abstractions;
 using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Serialization;
 using Parquet;
 using Parquet.Schema;
 using Parquet.Serialization;
@@ -45,6 +46,14 @@ namespace Flowthru.Core.Data.Storage.Format;
 /// <see cref="ParquetItemOptions{TRow}.UseDictionaryEncoding"/> as a global flag in the meantime.</item>
 /// </list>
 /// </remarks>
+[OptOutOfPropertyPlanner(
+  "Parquet's runtime DTO synthesis via System.Reflection.Emit is structurally different "
+    + "from the reflection walks PropertyMappingPlanner subsumes for CSV/Excel/JSON. "
+    + "Migrating Parquet to consume the planner is a deliberate follow-up effort outside "
+    + "Phase B's scope — it requires reworking how the typed DTO is built per-row from "
+    + "PropertyBinding metadata. The capability matrix surfaces this opt-out under "
+    + "'manual mapping' so reviewers and end users see the gap explicitly."
+)]
 public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
   where TRow : notnull, IFlatSchema, IBinarySerializable
 {
@@ -91,7 +100,7 @@ public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
     // for the same case; we standardize on SchemaMismatchException so Core's
     // ComposedStorageAdapter classifies both as ValidationErrorType.SchemaMismatch.
     // See docs/scratch/extension-conformance-kits.md (Phase F) for context.
-    var expectedColumns = PropertyMappingHelper.BuildPropertyMap<TRow>().Keys;
+    var expectedColumns = PropertyMappingPlanner.Build<TRow>().ByFieldName.Keys;
     var fileColumns = new HashSet<string>(
       schema.Fields.OfType<DataField>().Select(f => f.Name),
       StringComparer.OrdinalIgnoreCase
@@ -384,8 +393,12 @@ internal sealed class ParquetAdapter<TRow>
         continue;
       }
 
-      // Get serialized name (respects [SerializedLabel] attribute)
-      var serializedName = PropertyMappingHelper.GetFieldName(property);
+      // Get serialized name (respects [SerializedLabel] attribute). Inlined here rather
+      // than going through the planner — Parquet's typed-DTO synthesis already walks
+      // properties directly, and this single method-level helper avoids re-running the
+      // planner per call.
+      var label = property.GetCustomAttribute<SerializedLabelAttribute>();
+      var serializedName = label?.Label ?? property.Name;
       map[property.Name] = serializedName;
     }
 

@@ -5,6 +5,8 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using Flowthru.Core.Abstractions;
 using Flowthru.Core.Data.Capabilities;
+using Flowthru.Core.Data.Serialization;
+using Flowthru.Core.Serialization;
 
 namespace Flowthru.Core.Data.Storage.Format;
 
@@ -277,6 +279,20 @@ public static class CsvFormatSerializerDefaults
 /// for nullable properties.
 /// </summary>
 /// <typeparam name="T">The row type to map</typeparam>
+/// <remarks>
+/// <para>
+/// Consumes <see cref="PropertyMappingPlanner"/> to drive its class map. The planner
+/// classifies each property (primitive / enum / IScalar / nested) and reports
+/// nullability, field-name override, and per-kind metadata. This class translates the
+/// plan into CsvHelper's <c>ClassMap</c> abstractions:
+/// </para>
+/// <list type="bullet">
+/// <item>For types with a parameterless constructor: <c>Map(...)</c> per property.</item>
+/// <item>For positional records (primary-constructor-only types): <c>Parameter(...)</c>
+/// per constructor parameter, matched to a planner binding by name. This closes the
+/// CsvHelper positional-record gap surfaced during the Phase A foundation pass.</item>
+/// </list>
+/// </remarks>
 internal sealed class SerializedLabelClassMap<T> : ClassMap<T>
 {
   /// <summary>Default constructor — empty cells are the only null sentinel.</summary>
@@ -290,103 +306,123 @@ internal sealed class SerializedLabelClassMap<T> : ClassMap<T>
   /// </summary>
   public SerializedLabelClassMap(IReadOnlyList<string> nullValues)
   {
-    var nullabilityContext = new NullabilityInfoContext();
-    var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+    var plan = PropertyMappingPlanner.Build<T>(
+      new PropertyMappingPlannerOptions { NullSentinels = nullValues }
+    );
 
-    foreach (var property in properties)
+    // Register property-side maps unconditionally. These cover the writer path for both
+    // parameterless-constructor types and positional records (record's compiler-
+    // synthesized properties have getters), and cover the reader path for types with a
+    // parameterless constructor.
+    foreach (var binding in plan.Bindings)
     {
-      var fieldName = PropertyMappingHelper.GetFieldName(property);
-      var memberMap = Map(typeof(T), property).Name(fieldName);
+      var memberMap = Map(typeof(T), binding.Property).Name(binding.FieldName);
+      ApplyConverter(memberMap, binding);
+      ApplyNullSentinels(memberMap, binding);
+    }
 
-      // Add enum converter if property type is an enum
-      if (property.PropertyType.IsEnum)
+    // For positional records (no parameterless constructor), additionally register
+    // ParameterMaps so CsvHelper's reader can bind cells to the primary constructor's
+    // parameters and instantiate the type. This is the path closed by Phase B2 — the
+    // planner's per-property metadata drives both Member (write) and Parameter (read)
+    // registrations.
+    var hasParameterlessCtor = typeof(T).GetConstructor(Type.EmptyTypes) is not null;
+    if (!hasParameterlessCtor)
+    {
+      var primaryCtor = typeof(T)
+        .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+        .OrderByDescending(c => c.GetParameters().Length)
+        .First();
+
+      foreach (var param in primaryCtor.GetParameters())
+      {
+        // Records emit primary-constructor parameters with names matching the synthesized
+        // properties verbatim. Match by property name; falling back to parameter name
+        // only if the property lookup fails.
+        var binding = plan.Bindings.FirstOrDefault(b =>
+          string.Equals(b.Property.Name, param.Name, StringComparison.Ordinal)
+        );
+        if (binding is null)
+        {
+          continue; // unusual; let CsvHelper handle via defaults
+        }
+
+        var parameterMap = Parameter(() => primaryCtor, param.Name!).Name(binding.FieldName);
+        ApplyConverter(parameterMap, binding);
+        ApplyNullSentinels(parameterMap, binding);
+      }
+    }
+  }
+
+  // ── Per-binding wiring helpers ────────────────────────────────────────────────
+
+  private static void ApplyConverter(MemberMap memberMap, PropertyBinding binding)
+  {
+    var converter = BuildConverter(binding);
+    if (converter is not null)
+    {
+      memberMap.TypeConverter(converter);
+    }
+  }
+
+  private static void ApplyConverter(ParameterMap parameterMap, PropertyBinding binding)
+  {
+    var converter = BuildConverter(binding);
+    if (converter is not null)
+    {
+      parameterMap.TypeConverter(converter);
+    }
+  }
+
+  private static void ApplyNullSentinels(MemberMap memberMap, PropertyBinding binding)
+  {
+    if (binding.IsNullable && binding.NullSentinels.Count > 0)
+    {
+      memberMap.TypeConverterOption.NullValues(binding.NullSentinels.ToArray());
+    }
+  }
+
+  private static void ApplyNullSentinels(ParameterMap parameterMap, PropertyBinding binding)
+  {
+    if (binding.IsNullable && binding.NullSentinels.Count > 0)
+    {
+      parameterMap.TypeConverterOption.NullValues(binding.NullSentinels.ToArray());
+    }
+  }
+
+  private static CsvHelper.TypeConversion.ITypeConverter? BuildConverter(PropertyBinding binding)
+  {
+    switch (binding.Kind)
+    {
+      case PropertyKind.Enum:
       {
         var converterType = typeof(SerializedEnumCsvConverter<>).MakeGenericType(
-          property.PropertyType
+          binding.EffectiveType
         );
-        var converter = Activator.CreateInstance(converterType);
-        memberMap.TypeConverter((CsvHelper.TypeConversion.ITypeConverter)converter!);
+        return (CsvHelper.TypeConversion.ITypeConverter)Activator.CreateInstance(converterType)!;
       }
-      // Add IScalar converter for user-defined NewType wrappers that round-trip through
-      // a single primitive value. Required so types like `record struct CustomerId(string Value) : IScalar`
-      // deserialize from a single CSV cell instead of failing in CsvHelper's default converter.
-      else if (
-        IsIScalarWrapper(property.PropertyType, out var backingType, out var valuePropertyName)
-      )
+      case PropertyKind.IScalar:
       {
+        var info = binding.IScalar!;
         var converterType = typeof(IScalarCsvConverter<,>).MakeGenericType(
-          property.PropertyType,
-          backingType!
+          info.ScalarType,
+          info.BackingType
         );
-        var converter = Activator.CreateInstance(converterType, valuePropertyName);
-        memberMap.TypeConverter((CsvHelper.TypeConversion.ITypeConverter)converter!);
+        return (CsvHelper.TypeConversion.ITypeConverter)
+          Activator.CreateInstance(converterType, info.ValueProperty.Name)!;
       }
-
-      if (IsNullable(property, nullabilityContext))
-      {
-        // Apply null-value sentinels for nullable properties only. Non-nullable string
-        // fields keep "" as empty-string semantics; nullable fields treat "" (and any
-        // additional sentinels) as null.
-        memberMap.TypeConverterOption.NullValues(nullValues.ToArray());
-      }
+      case PropertyKind.Primitive:
+        // CsvHelper handles primitives natively via its built-in TypeConverterCache.
+        return null;
+      case PropertyKind.Nested:
+        // CsvFormatSerializer's generic constraint on IFlatSchema prevents nested-bearing
+        // schemas from compiling here — receiving a Nested binding indicates a bug
+        // upstream. Returning null falls through to CsvHelper's default converter, which
+        // will produce a clear error if nested data unexpectedly reaches this point.
+        return null;
+      default:
+        return null;
     }
-  }
-
-  /// <summary>
-  /// Determines whether a type is an <see cref="IScalar"/> wrapper around a single primitive
-  /// — i.e., a NewType pattern such as <c>readonly record struct CustomerId(string Value) : IScalar</c>.
-  /// Returns <c>true</c> with the backing type and the public scalar property name on success.
-  /// </summary>
-  /// <remarks>
-  /// We accept any <see cref="IScalar"/> type that exposes exactly one public readable
-  /// instance property (a NewType wrapper). Multi-property structs that erroneously declare
-  /// <c>IScalar</c> are not accepted — the docs already warn against that.
-  /// </remarks>
-  private static bool IsIScalarWrapper(Type type, out Type? backingType, out string? valuePropertyName)
-  {
-    backingType = null;
-    valuePropertyName = null;
-
-    if (!typeof(IScalar).IsAssignableFrom(type))
-    {
-      return false;
-    }
-
-    var publicReadableProps = type
-      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-      .Where(p => p.CanRead && p.GetIndexParameters().Length == 0)
-      .Where(p => p.DeclaringType == type)  // ignore inherited members
-      .ToList();
-
-    if (publicReadableProps.Count != 1)
-    {
-      return false;
-    }
-
-    backingType = publicReadableProps[0].PropertyType;
-    valuePropertyName = publicReadableProps[0].Name;
-    return true;
-  }
-
-  /// <summary>
-  /// Determines whether a property is declared nullable. For value types this is
-  /// <c>Nullable&lt;T&gt;</c>; for reference types this reads the C# 8 nullability
-  /// annotation via <see cref="NullabilityInfoContext"/>.
-  /// </summary>
-  private static bool IsNullable(PropertyInfo property, NullabilityInfoContext context)
-  {
-    if (Nullable.GetUnderlyingType(property.PropertyType) is not null)
-    {
-      return true;
-    }
-
-    if (property.PropertyType.IsValueType)
-    {
-      return false;
-    }
-
-    var info = context.Create(property);
-    return info.ReadState == NullabilityState.Nullable;
   }
 }
 
@@ -398,11 +434,11 @@ internal sealed class SerializedEnumCsvConverter<TEnum>
   : CsvHelper.TypeConversion.DefaultTypeConverter
   where TEnum : struct, Enum
 {
-  private readonly Serialization.EnumMetadataCache<TEnum> _metadata;
+  private readonly EnumMetadataCache<TEnum> _metadata;
 
   public SerializedEnumCsvConverter()
   {
-    _metadata = Serialization.EnumMetadataRegistry.Create<TEnum>();
+    _metadata = EnumMetadataRegistry.Create<TEnum>();
   }
 
   public override object? ConvertFromString(
@@ -411,10 +447,21 @@ internal sealed class SerializedEnumCsvConverter<TEnum>
     CsvHelper.Configuration.MemberMapData memberMapData
   )
   {
-    if (string.IsNullOrWhiteSpace(text))
+    // Honor the member's null-sentinel configuration. CsvHelper auto-applies NullValues
+    // for built-in nullable converters; for custom converters like this one the converter
+    // must consult MemberMapData itself. When the member is nullable and the cell matches
+    // a configured sentinel, return null (CsvHelper unboxes to TEnum? on the property
+    // setter); for non-nullable enum members, returning null causes CsvHelper to surface
+    // a clear "cannot convert null" error rather than silently substituting default(TEnum).
+    var nullValues = memberMapData.TypeConverterOptions?.NullValues;
+    if (text is not null && nullValues is not null && nullValues.Contains(text))
     {
-      // Return default value for empty/null strings
-      return default(TEnum);
+      return null;
+    }
+
+    if (string.IsNullOrEmpty(text))
+    {
+      return null;
     }
 
     try

@@ -4,6 +4,8 @@
 
  [Flowthru.Core.Data.Capabilities](Flowthru.Core.Data.Capabilities.md)
 
+ [Flowthru.Core.Data.Serialization](Flowthru.Core.Data.Serialization.md)
+
  [Flowthru.Core.Data.Storage](Flowthru.Core.Data.Storage.md)
 
  [Flowthru.Core.Data.Validation](Flowthru.Core.Data.Validation.md)

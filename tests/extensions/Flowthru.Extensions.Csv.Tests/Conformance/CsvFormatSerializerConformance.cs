@@ -86,17 +86,29 @@ public class CsvMixedRequirementsConformance : FormatSerializerConformance<Mixed
     new CsvFormatSerializer<MixedRequirementsSchema>();
 }
 
-// CsvFormatSerializer does not currently support PositionalRecordSchema: CsvHelper's
-// default deserialization path requires a parameterless constructor on the row type, and
-// positional records expose only a primary constructor with required parameters. The
-// kit's "format-incompatible" handling applies — a conformance subclass is omitted rather
-// than overridden. PositionalRecordSchema remains alive via the Parquet and Excel
-// conformance subclasses.
-//
-// Closing this gap is a Phase B follow-up: a CsvHelper IObjectResolver that constructs
-// instances via the primary constructor would let the kit cover positional records here
-// too. When that lands, add a CsvPositionalRecordConformance subclass mirroring the
-// Parquet equivalent.
+/// <summary>
+/// Conformance for <see cref="CsvFormatSerializer{TRow}"/> against
+/// <see cref="PositionalRecordSchema"/> — exercises positional (primary-constructor)
+/// records and the activator's slow path for non-default-constructible types.
+/// </summary>
+/// <remarks>
+/// Phase B2 closed the previous CsvHelper positional-record gap: the migrated
+/// <c>SerializedLabelClassMap&lt;T&gt;</c> detects types lacking a parameterless
+/// constructor and registers <c>ParameterMap</c> bindings against the primary
+/// constructor's parameters. The planner provides the per-property metadata; the CSV
+/// class map consumes it for both the Map (parameterless-ctor) and Parameter (positional)
+/// flows.
+/// </remarks>
+[TestFixtureSource(nameof(Fixtures))]
+public class CsvPositionalRecordConformance : FormatSerializerConformance<PositionalRecordSchema>
+{
+  public static IEnumerable<string> Fixtures => new[] { "Flat/PositionalRecord/rows.json" };
+
+  public CsvPositionalRecordConformance(string fixturePath) : base(fixturePath) { }
+
+  protected override IFormatSerializer<PositionalRecordSchema> CreateSerializer() =>
+    new CsvFormatSerializer<PositionalRecordSchema>();
+}
 
 /// <summary>
 /// Conformance for <see cref="CsvFormatSerializer{TRow}"/> against

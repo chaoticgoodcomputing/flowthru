@@ -1,6 +1,6 @@
 using System.Reflection;
+using Flowthru.Core.Data.Serialization;
 using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Data.Storage.Format;
 using Python.Runtime;
 using PythonEngineRuntime = Python.Runtime.Runtime;
 
@@ -235,8 +235,11 @@ public static class ScalarMarshaller
           pyValue = ToPython(propValue);
         }
 
-        // Use external field name (respects [SerializedLabel])
-        var fieldName = PropertyMappingHelper.GetFieldName(prop);
+        // Use external field name (respects [SerializedLabel]). RecordToPython is
+        // non-generic so it can't use the typed planner directly; inline the SerializedLabel
+        // resolution to keep this method's call shape unchanged.
+        var label = prop.GetCustomAttribute<Core.Abstractions.SerializedLabelAttribute>();
+        var fieldName = label?.Label ?? prop.Name;
         dict.SetItem(fieldName.ToPython(), pyValue);
       }
 
@@ -292,8 +295,11 @@ public static class ScalarMarshaller
     var instance = SchemaActivator.CreateInstance<T>();
 #pragma warning restore CS8714
 
-    // Build map of external field names → PropertyInfo (case-insensitive, respects SerializedLabel)
-    var propertyMap = PropertyMappingHelper.BuildPropertyMap<T>();
+    // Build the planner once per record-deserialization call to resolve field-name → property
+    // bindings (case-insensitive, respects SerializedLabel). The planner subsumes the
+    // PropertyMappingHelper.BuildPropertyMap shape via plan.ByFieldName.
+    var plan = PropertyMappingPlanner.Build<T>();
+    var propertyMap = plan.ByFieldName;
 
     // Convert PyObject to PyDict for proper dictionary access
     using var dict = new PyDict(pyObject);
@@ -303,12 +309,13 @@ public static class ScalarMarshaller
     {
       var fieldName = pyKey.As<string>();
 
-      // Look up corresponding property (case-insensitive)
-      if (!propertyMap.TryGetValue(fieldName, out var prop))
+      // Look up corresponding property binding (case-insensitive)
+      if (!propertyMap.TryGetValue(fieldName, out var binding))
       {
         continue;
       }
 
+      var prop = binding.Property;
       if (!prop.CanWrite)
       {
         continue;
