@@ -125,6 +125,8 @@
     href: Flowthru.Core.Data.Storage.IFormatRowWriter-1.md
   - name: IFormatSerializer<TRow>
     href: Flowthru.Core.Data.Storage.IFormatSerializer-1.md
+  - name: IFormatStreamReader<TRow>
+    href: Flowthru.Core.Data.Storage.IFormatStreamReader-1.md
   - name: IHasEfficientCount
     href: Flowthru.Core.Data.Storage.IHasEfficientCount.md
   - name: IStorageAdapter<T>

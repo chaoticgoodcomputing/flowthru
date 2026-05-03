@@ -6,7 +6,7 @@ Assembly: Flowthru.Extensions.Excel.dll
 Serializes flat schemas to/from Excel (.xlsx) files using ExcelDataReader.
 
 ```csharp
-public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatRowReader<TRow>, IFormatRowWriter<TRow>, IFormatBase<TRow> where TRow : notnull, IFlatSchema, ITextSerializable
+public sealed class ExcelFormatSerializer<TRow> : IFormatRowReader<TRow>, IFormatBase<TRow> where TRow : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Type Parameters
@@ -22,9 +22,7 @@ Row type (must be flat and text-serializable)
 
 #### Implements
 
-IFormatSerializer<TRow\>, 
 IFormatRowReader<TRow\>, 
-IFormatRowWriter<TRow\>, 
 IFormatBase<TRow\>
 
 #### Inherited Members
@@ -227,28 +225,4 @@ to walk properties and resolve <code>[SerializedLabel]</code>-driven field names
 programmatic API; property names must match storage field names exactly. Return
 <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.LibraryControlled(System.String)" data-throw-if-not-resolved="false"></xref>.
 </li></ul>
-
-### <a id="Flowthru_Core_Data_Storage_Format_ExcelFormatSerializer_1_SerializeRows_System_IO_Stream_System_Collections_Generic_IAsyncEnumerable__0__"></a> SerializeRows\(Stream, IAsyncEnumerable<TRow\>\)
-
-Serializes a stream of rows into a stream of bytes.
-
-```csharp
-public Task SerializeRows(Stream stream, IAsyncEnumerable<TRow> rows)
-```
-
-#### Parameters
-
-`stream` [Stream](https://learn.microsoft.com/dotnet/api/system.io.stream)
-
-The stream to write serialized data to.
-
-`rows` [IAsyncEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.iasyncenumerable\-1)<TRow\>
-
-The rows to serialize.
-
-#### Returns
-
- [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)
-
-Task that completes when serialization finishes.
 

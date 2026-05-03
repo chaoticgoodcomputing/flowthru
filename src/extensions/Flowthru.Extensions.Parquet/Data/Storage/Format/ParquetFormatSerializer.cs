@@ -54,7 +54,7 @@ namespace Flowthru.Core.Data.Storage.Format;
     + "PropertyBinding metadata. The capability matrix surfaces this opt-out under "
     + "'manual mapping' so reviewers and end users see the gap explicitly."
 )]
-public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>
+public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatStreamReader<TRow>
   where TRow : notnull, IFlatSchema, IBinarySerializable
 {
   private readonly ParquetItemOptions<TRow>? _options;

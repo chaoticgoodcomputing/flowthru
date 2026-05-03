@@ -6,7 +6,7 @@ Assembly: Flowthru.Extensions.Csv.dll
 Format serializer for CSV (Comma-Separated Values) files.
 
 ```csharp
-public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatRowReader<TRow>, IFormatRowWriter<TRow>, IFormatBase<TRow> where TRow : notnull, IFlatSchema, ITextSerializable
+public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatRowWriter<TRow>, IFormatStreamReader<TRow>, IFormatRowReader<TRow>, IFormatBase<TRow> where TRow : notnull, IFlatSchema, ITextSerializable
 ```
 
 #### Type Parameters
@@ -23,8 +23,9 @@ The row schema type
 #### Implements
 
 IFormatSerializer<TRow\>, 
-IFormatRowReader<TRow\>, 
 IFormatRowWriter<TRow\>, 
+IFormatStreamReader<TRow\>, 
+IFormatRowReader<TRow\>, 
 IFormatBase<TRow\>
 
 #### Inherited Members

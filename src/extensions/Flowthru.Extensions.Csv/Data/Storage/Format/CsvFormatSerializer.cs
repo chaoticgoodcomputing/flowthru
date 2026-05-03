@@ -101,7 +101,7 @@ namespace Flowthru.Core.Data.Storage.Format;
 /// await serializer.SerializeRows(writeStream, companies.ToAsyncEnumerable());
 /// </code>
 /// </example>
-public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>
+public sealed class CsvFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatStreamReader<TRow>
   where TRow : notnull, IFlatSchema, ITextSerializable
 {
 

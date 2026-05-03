@@ -5,7 +5,7 @@
   "sourceRoot": "./docs",
   "targets": {
     "_build-reference": {
-      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/. Inputs are scoped to the C# source + the docfx script — hand-written docs (tutorials/, guides/, explanation/) do NOT invalidate this cache, since docfx doesn't read them.",
+      "//": "Generates markdown API reference from C# docstrings into docs/reference/src/. Inputs are scoped to the C# source + the docfx script — hand-written docs (tutorials/, guides/, explanation/) do NOT invalidate this cache, since docfx doesn't read them. Private subtarget; composed into docs:build.",
       "executor": "nx:run-commands",
       "dependsOn": [ "flowthru:restore" ],
       "cache": true,
@@ -24,25 +24,40 @@
         "parallel": false
       }
     },
-    "build": {
-      "//": "Umbrella docs build target. Inputs mirror _build-reference so this stays in sync with the underlying docfx run; downstream consumers (site:_ingest-docs) read the produced reference/src/ tree directly.",
+    "_build-capability-matrix": {
+      "//": "Regenerates docs/reference/extensions/capability-matrix.md by running the file-based C# program at scripts/_test/capability-matrix.cs. The same script is exercised in freshness mode by tests:_test:capability-matrix-freshness; this target is the generation half. Private subtarget; composed into docs:build. Inputs scoped to the format-extension surface the generator reflects on plus the script itself, so unrelated source changes don't invalidate the cache.",
       "executor": "nx:run-commands",
-      "dependsOn": [ "_build-reference" ],
       "cache": true,
       "inputs": [
-        "{workspaceRoot}/src/**/*.cs",
-        "{workspaceRoot}/src/**/*.csproj",
-        "{workspaceRoot}/scripts/docfx-metadata.sh",
-        "{workspaceRoot}/Directory.Build.props",
-        "{workspaceRoot}/Directory.Build.targets"
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Capabilities/FormatRowFeatures.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/IFormatBase.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/IFormatRowReader.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/IFormatRowWriter.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/IFormatStreamReader.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/IFormatSerializer.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Serialization/OptOutOfPropertyPlannerAttribute.cs",
+        "{workspaceRoot}/src/core/Flowthru.Core/Data/Storage/Format/JsonFormatSerializer.cs",
+        "{workspaceRoot}/src/extensions/Flowthru.Extensions.Csv/Data/Storage/Format/CsvFormatSerializer.cs",
+        "{workspaceRoot}/src/extensions/Flowthru.Extensions.Excel/Data/Storage/Format/ExcelFormatSerializer.cs",
+        "{workspaceRoot}/src/extensions/Flowthru.Extensions.Parquet/Data/Storage/Format/ParquetFormatSerializer.cs",
+        "{workspaceRoot}/scripts/_test/capability-matrix.cs"
       ],
-      "outputs": [ "{workspaceRoot}/docs/reference/src" ],
+      "outputs": [ "{workspaceRoot}/docs/reference/extensions/capability-matrix.md" ],
       "options": {
         "commands": [
-          "echo 'Docs Build Complete!'"
+          "dotnet run scripts/_test/capability-matrix.cs --verbosity quiet"
         ],
+        "cwd": "{workspaceRoot}",
         "parallel": false
       }
+    },
+    "build": {
+      "//": "Public docs build barrel. Composes private _build-* subtargets via dependsOn — each subtarget owns its own input/output footprint and caches independently. Adding a new MD generator (e.g., a future schema-gallery or diagnostic-id catalog) is a new _build-<name> private subtarget plus one line here. Mirrors the tests:test pattern.",
+      "executor": "nx:noop",
+      "dependsOn": [
+        "_build-reference",
+        "_build-capability-matrix"
+      ]
     }
   }
 }

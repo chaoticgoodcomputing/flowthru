@@ -187,25 +187,37 @@ public static class ExampleDiscovery
   }
 
   /// <summary>
-  /// Walks up the directory tree from the current directory to find the workspace root,
-  /// identified by the presence of <c>nx.json</c>.
+  /// Walks up the directory tree to find the workspace root, identified by the presence
+  /// of <c>nx.json</c>. Tries the current directory first (default for Nx-driven runs from
+  /// the workspace root), then falls back to the test assembly's directory — necessary when
+  /// the test host runs against a per-shard publish output where vstest sets cwd to the
+  /// DLL's directory rather than the workspace.
   /// </summary>
   private static string FindWorkspaceRoot()
   {
-    var dir = Directory.GetCurrentDirectory();
-
-    while (dir != null)
-    {
-      if (File.Exists(System.IO.Path.Combine(dir, "nx.json")))
+    foreach (
+      var start in new[]
       {
-        return dir;
+        Directory.GetCurrentDirectory(),
+        Path.GetDirectoryName(typeof(ExampleDiscovery).Assembly.Location),
       }
+    )
+    {
+      var dir = start;
+      while (dir != null)
+      {
+        if (File.Exists(Path.Combine(dir, "nx.json")))
+        {
+          return dir;
+        }
 
-      dir = Directory.GetParent(dir)?.FullName;
+        dir = Directory.GetParent(dir)?.FullName;
+      }
     }
 
     throw new InvalidOperationException(
-      "Could not find workspace root. Ensure nx.json exists in an ancestor directory."
+      "Could not find workspace root. Ensure nx.json exists in an ancestor directory of "
+        + "either the cwd or the test assembly location."
     );
   }
 

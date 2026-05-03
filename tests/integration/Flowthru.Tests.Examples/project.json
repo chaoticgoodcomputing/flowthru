@@ -6,44 +6,56 @@
   "implicitDependencies": [ ],
   "tags": [ "type:test", "scope:examples" ],
   "targets": {
-    "test": {
-      "//": "Runs only affected example projects via scripts/run-tests.sh. Each example gets its own dotnet test invocation producing TestResults/{Name}/coverage.cobertura.xml.",
+    "publish": {
+      "//": "Self-contained publish output used as the source for per-shard test runs. -c Debug matches the configuration used by the build target so coverage line counts (lines-valid) align with the rest of the test suite. ErrorOnDuplicatePublishOutputFiles is relaxed because the example ProjectReference glob causes content-file collisions (appsettings.json, pyproject.toml) when flattened into a single output dir.",
       "executor": "nx:run-commands",
       "dependsOn": [ "build" ],
       "options": {
+        "commands": [
+          "dotnet publish tests/integration/Flowthru.Tests.Examples/Flowthru.Tests.Examples.csproj -c Debug --no-restore -p:UseAppHost=false -p:ErrorOnDuplicatePublishOutputFiles=false -o dist/tests/integration/Flowthru.Tests.Examples/publish"
+        ],
+        "cwd": "{workspaceRoot}"
+      },
+      "outputs": [ "{workspaceRoot}/dist/tests/integration/Flowthru.Tests.Examples/publish" ],
+      "cache": true,
+      "inputs": [ "default", "{workspaceRoot}/src/**", "{workspaceRoot}/examples/**" ]
+    },
+    "test": {
+      "//": "Runs only affected example projects via scripts/run-tests.sh. Each example is sharded into its own copy of the publish output and run in parallel — coverage XMLs land in TestResults/{Name}/. Publish is an upstream dependency so the shard source is always up-to-date.",
+      "executor": "nx:run-commands",
+      "dependsOn": [ "publish" ],
+      "options": {
         "commands": [ "bash scripts/run-tests.sh" ],
         "cwd": "tests/integration/Flowthru.Tests.Examples",
-        "parallel": false,
         "forwardAllArgs": true
       },
       "cache": true,
-      "inputs": [ "default", "{workspaceRoot}/src/**", "{workspaceRoot}/examples/**" ]
+      "inputs": [ "default", "{workspaceRoot}/src/**", "{workspaceRoot}/examples/**", "{workspaceRoot}/coverlet.runsettings" ]
     },
     "test:all": {
       "//": "Runs every discovered example (--run-all flag). Identical output structure to test — each example gets TestResults/{Name}/coverage.cobertura.xml.",
       "executor": "nx:run-commands",
-      "dependsOn": [ "build" ],
+      "dependsOn": [ "publish" ],
       "options": {
         "commands": [ "bash scripts/run-tests.sh --run-all" ],
         "cwd": "tests/integration/Flowthru.Tests.Examples",
-        "parallel": false,
         "forwardAllArgs": true
       }
     },
     "run:all": {
       "//": "Alias for test:all. Runs every discovered example end-to-end and writes per-example coverage XMLs to TestResults/{Name}/. Useful when you think of the harness as 'running the examples' rather than 'testing them'.",
       "executor": "nx:run-commands",
-      "dependsOn": [ "build" ],
+      "dependsOn": [ "publish" ],
       "options": {
         "commands": [ "bash scripts/run-tests.sh --run-all" ],
         "cwd": "tests/integration/Flowthru.Tests.Examples",
-        "parallel": false,
         "forwardAllArgs": true
       }
     },
     "test:discovery": {
-      "//": "Run only test discovery tests (smoke check for example project wiring)",
+      "//": "Run only test discovery tests (smoke check for example project wiring). Uses the in-tree build output (no shard) — the discovery test doesn't exercise any example.",
       "executor": "nx:run-commands",
+      "dependsOn": [ "build" ],
       "options": {
         "commands": [ "dotnet test --filter \"FullyQualifiedName~Discovery\" --logger \"console;verbosity=normal\"" ],
         "cwd": "tests/integration/Flowthru.Tests.Examples",

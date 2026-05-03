@@ -23,14 +23,14 @@ Base capability metadata for all DAG node types.
 
 ### Interfaces
 
- [INode<T\>](Flowthru.Core.Graph.INode\-1.md)
-
-Typed DAG node contract. Adds strongly-typed <xref href="Flowthru.Core.Graph.INode%601.Produce" data-throw-if-not-resolved="false"></xref> and
-<xref href="Flowthru.Core.Graph.INode%601.Consume(%600)" data-throw-if-not-resolved="false"></xref> operations alongside the untyped engine dispatch surface.
-
  [INode](Flowthru.Core.Graph.INode.md)
 
 Engine-level contract for all DAG nodes. The execution engine dispatches
 <xref href="Flowthru.Core.Graph.INode.ProduceUntyped" data-throw-if-not-resolved="false"></xref>, <xref href="Flowthru.Core.Graph.INode.ConsumeUntyped(System.Object)" data-throw-if-not-resolved="false"></xref>, and <xref href="Flowthru.Core.Graph.INode.Validate" data-throw-if-not-resolved="false"></xref>
 without knowing the node's specific archetype.
+
+ [INode<T\>](Flowthru.Core.Graph.INode\-1.md)
+
+Typed DAG node contract. Adds strongly-typed <xref href="Flowthru.Core.Graph.INode%601.Produce" data-throw-if-not-resolved="false"></xref> and
+<xref href="Flowthru.Core.Graph.INode%601.Consume(%600)" data-throw-if-not-resolved="false"></xref> operations alongside the untyped engine dispatch surface.
 

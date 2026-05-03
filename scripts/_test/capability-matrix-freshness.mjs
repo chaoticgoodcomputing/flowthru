@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
  * `_test:capability-matrix-freshness` — regenerates `docs/reference/extensions/capability-matrix.md`
- * via the `Flowthru.Tools.CapabilityMatrix` tool, then asserts the regenerated file
- * matches the committed copy. Drift means a format's declared `RowFeatures` (or
- * `[OptOutOfPropertyPlanner]` reason) changed without a corresponding doc update.
+ * via the file-based C# program at `scripts/_test/capability-matrix.cs`, then asserts
+ * the regenerated file matches the committed copy. Drift means a format's declared
+ * `RowFeatures`, `[OptOutOfPropertyPlanner]` reason, or implemented capability segment
+ * changed without a corresponding doc update.
  *
  * Failures here are most often a sign that a format extension was edited but the
- * matrix wasn't regenerated. Resolution: run the tool locally
- * (`dotnet run --project tools/Flowthru.Tools.CapabilityMatrix`), commit the updated
- * matrix file, and re-run the meta-test.
+ * matrix wasn't regenerated. Resolution: run the generator locally
+ * (`dotnet run scripts/_test/capability-matrix.cs` or `nx run docs:build`), commit
+ * the updated matrix file, and re-run the meta-test.
  *
  * Usage:
  *   node scripts/_test/capability-matrix-freshness.mjs
@@ -20,51 +21,37 @@ import { join } from 'node:path';
 import { ROOT } from './_lib.mjs';
 
 const MATRIX_PATH = join(ROOT, 'docs', 'reference', 'extensions', 'capability-matrix.md');
-const TOOL_PROJECT = join(
-  ROOT,
-  'tools',
-  'Flowthru.Tools.CapabilityMatrix',
-  'Flowthru.Tools.CapabilityMatrix.csproj'
-);
+const GENERATOR_SCRIPT = join(ROOT, 'scripts', '_test', 'capability-matrix.cs');
 
 if (!existsSync(MATRIX_PATH)) {
   console.error(
     `\nMatrix file not found at ${MATRIX_PATH}.\n`
-      + `Run \`dotnet run --project tools/Flowthru.Tools.CapabilityMatrix\` to generate it.\n`
+      + 'Run `dotnet run scripts/_test/capability-matrix.cs` to generate it.\n'
   );
   process.exit(1);
 }
 
-if (!existsSync(TOOL_PROJECT)) {
+if (!existsSync(GENERATOR_SCRIPT)) {
   console.error(
-    `\nMatrix generator project not found at ${TOOL_PROJECT}.\n`
-      + 'The capability matrix freshness check cannot run without the generator tool.\n'
+    `\nMatrix generator script not found at ${GENERATOR_SCRIPT}.\n`
+      + 'The capability matrix freshness check cannot run without the generator script.\n'
   );
   process.exit(1);
 }
 
-// Regenerate. The tool writes to its default location (the committed file).
+// Regenerate via the file-based C# program (.NET 10 `dotnet run path/to/script.cs`).
+// The generator writes to its default location (the committed file at MATRIX_PATH)
+// when invoked with no arguments.
 try {
-  execFileSync(
-    'dotnet',
-    ['run', '--project', TOOL_PROJECT, '--no-build', '-c', 'Debug', '--verbosity', 'quiet'],
-    { stdio: ['ignore', 'inherit', 'inherit'], cwd: ROOT }
-  );
+  execFileSync('dotnet', ['run', GENERATOR_SCRIPT, '--verbosity', 'quiet'], {
+    stdio: ['ignore', 'inherit', 'inherit'],
+    cwd: ROOT,
+  });
 } catch (err) {
-  // If --no-build fails because the tool hasn't been built, fall back to a build run.
-  // This happens on first invocation; later runs hit the no-build fast path.
-  try {
-    execFileSync(
-      'dotnet',
-      ['run', '--project', TOOL_PROJECT, '-c', 'Debug', '--verbosity', 'quiet'],
-      { stdio: ['ignore', 'inherit', 'inherit'], cwd: ROOT }
-    );
-  } catch (innerErr) {
-    console.error(
-      '\nCapability matrix generator failed to run. See output above for details.\n'
-    );
-    process.exit(1);
-  }
+  console.error(
+    '\nCapability matrix generator failed to run. See output above for details.\n'
+  );
+  process.exit(1);
 }
 
 // Diff against the committed file. `git diff --quiet` exits non-zero if there's a

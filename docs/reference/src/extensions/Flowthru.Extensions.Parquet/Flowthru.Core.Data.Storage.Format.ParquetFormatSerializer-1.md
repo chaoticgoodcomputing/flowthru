@@ -7,7 +7,7 @@ Format serializer for Parquet (columnar storage) files using adapter pattern.
 
 ```csharp
 [OptOutOfPropertyPlanner("Parquet's runtime DTO synthesis via System.Reflection.Emit is structurally different from the reflection walks PropertyMappingPlanner subsumes for CSV/Excel/JSON. Migrating Parquet to consume the planner is a deliberate follow-up effort outside Phase B's scope — it requires reworking how the typed DTO is built per-row from PropertyBinding metadata. The capability matrix surfaces this opt-out under 'manual mapping' so reviewers and end users see the gap explicitly.")]
-public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatRowReader<TRow>, IFormatRowWriter<TRow>, IFormatBase<TRow> where TRow : notnull, IFlatSchema, IBinarySerializable
+public sealed class ParquetFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatRowWriter<TRow>, IFormatStreamReader<TRow>, IFormatRowReader<TRow>, IFormatBase<TRow> where TRow : notnull, IFlatSchema, IBinarySerializable
 ```
 
 #### Type Parameters
@@ -24,8 +24,9 @@ The Flowthru schema type
 #### Implements
 
 IFormatSerializer<TRow\>, 
-IFormatRowReader<TRow\>, 
 IFormatRowWriter<TRow\>, 
+IFormatStreamReader<TRow\>, 
+IFormatRowReader<TRow\>, 
 IFormatBase<TRow\>
 
 #### Inherited Members

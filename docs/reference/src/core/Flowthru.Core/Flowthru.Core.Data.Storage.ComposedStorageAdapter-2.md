@@ -86,7 +86,9 @@ as explicit interface implementations to avoid polluting the base interface.
 
 ### <a id="Flowthru_Core_Data_Storage_ComposedStorageAdapter_2__ctor_Flowthru_Core_Data_Storage_IStorageMedium_Flowthru_Core_Data_Storage_IFormatSerializer__1__Flowthru_Core_Data_Storage_IContainerAdapter__0__1__"></a> ComposedStorageAdapter\(IStorageMedium, IFormatSerializer<TRow\>, IContainerAdapter<TContainer, TRow\>\)
 
-Creates a new composed storage adapter.
+Creates a new composed storage adapter from a write-capable format serializer.
+Backward-compatible entry point: any <xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601" data-throw-if-not-resolved="false"></xref> is
+both a reader and a writer and is wired into both segments.
 
 ```csharp
 public ComposedStorageAdapter(IStorageMedium medium, IFormatSerializer<TRow> format, IContainerAdapter<TContainer, TRow> container)
@@ -96,15 +98,46 @@ public ComposedStorageAdapter(IStorageMedium medium, IFormatSerializer<TRow> for
 
 `medium` [IStorageMedium](Flowthru.Core.Data.Storage.IStorageMedium.md)
 
-The storage medium (file, memory, etc.)
+The storage medium (file, memory, etc.).
 
 `format` [IFormatSerializer](Flowthru.Core.Data.Storage.IFormatSerializer\-1.md)<TRow\>
 
-The format serializer (CSV, JSON, etc.)
+The full-duplex format serializer (CSV, JSON, Parquet).
 
 `container` [IContainerAdapter](Flowthru.Core.Data.Storage.IContainerAdapter\-2.md)<TContainer, TRow\>
 
-The container adapter (IEnumerable, IDataView, etc.)
+The container adapter (IEnumerable, IDataView, etc.).
+
+### <a id="Flowthru_Core_Data_Storage_ComposedStorageAdapter_2__ctor_Flowthru_Core_Data_Storage_IStorageMedium_Flowthru_Core_Data_Storage_IFormatRowReader__1__Flowthru_Core_Data_Storage_IFormatRowWriter__1__Flowthru_Core_Data_Storage_IContainerAdapter__0__1__"></a> ComposedStorageAdapter\(IStorageMedium, IFormatRowReader<TRow\>, IFormatRowWriter<TRow\>?, IContainerAdapter<TContainer, TRow\>\)
+
+Creates a new composed storage adapter with separate reader and writer segments
+(Phase D capability-segmented interfaces). Read-only formats — e.g.,
+<code>ExcelFormatSerializer</code> implementing only <xref href="Flowthru.Core.Data.Storage.IFormatRowReader%601" data-throw-if-not-resolved="false"></xref> —
+pass <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null">null</a> for the writer; the resulting adapter exposes
+<xref href="Flowthru.Core.Data.Storage.ComposedStorageAdapter%602.Traits" data-throw-if-not-resolved="false"></xref>.<xref href="Flowthru.Core.Data.Capabilities.StorageTraits.CanWrite" data-throw-if-not-resolved="false"></xref> as <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool">false</a>
+and <xref href="Flowthru.Core.Data.Storage.ComposedStorageAdapter%602.Save(%600)" data-throw-if-not-resolved="false"></xref> fails fast.
+
+```csharp
+public ComposedStorageAdapter(IStorageMedium medium, IFormatRowReader<TRow> reader, IFormatRowWriter<TRow>? writer, IContainerAdapter<TContainer, TRow> container)
+```
+
+#### Parameters
+
+`medium` [IStorageMedium](Flowthru.Core.Data.Storage.IStorageMedium.md)
+
+The storage medium.
+
+`reader` [IFormatRowReader](Flowthru.Core.Data.Storage.IFormatRowReader\-1.md)<TRow\>
+
+Format reader segment. Required.
+
+`writer` [IFormatRowWriter](Flowthru.Core.Data.Storage.IFormatRowWriter\-1.md)<TRow\>?
+
+Format writer segment. <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null">null</a> for read-only formats.
+
+`container` [IContainerAdapter](Flowthru.Core.Data.Storage.IContainerAdapter\-2.md)<TContainer, TRow\>
+
+The container adapter.
 
 ## Properties
 

@@ -92,6 +92,14 @@ writer is also a reader and composes both via <xref href="Flowthru.Core.Data.Sto
 Format extension that supports both reading and writing — the composition of
 <xref href="Flowthru.Core.Data.Storage.IFormatRowReader%601" data-throw-if-not-resolved="false"></xref> and <xref href="Flowthru.Core.Data.Storage.IFormatRowWriter%601" data-throw-if-not-resolved="false"></xref>.
 
+ [IFormatStreamReader<TRow\>](Flowthru.Core.Data.Storage.IFormatStreamReader\-1.md)
+
+Format extension that produces rows incrementally without buffering the full
+input. Implementing this interface is a <em>structural</em> claim — distinct from
+the runtime <xref href="Flowthru.Core.Data.Capabilities.StorageTraits.CanStream" data-throw-if-not-resolved="false"></xref> flag — that the
+format's deserialization path is genuinely streaming: bounded memory, no
+"parse-the-whole-array-then-yield" buffering.
+
  [IHasEfficientCount](Flowthru.Core.Data.Storage.IHasEfficientCount.md)
 
 Optional interface for storage adapters that can return a row count without

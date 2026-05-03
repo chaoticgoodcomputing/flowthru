@@ -16,3 +16,5 @@ When adding or modifying Flowthru internals:
 - Add pre-flight validation for environmental concerns (files, connections, external schemas).
 - Reserve runtime error handling for truly unpredictable failures.
 - Ask not just "Will this work?" but "When will it break?"
+
+Flowthru also depends on, and connects to, many other projects. Projects that may be helpful to directly introspect can be found in `docs/reference/misc/external/*/repo` subdirectories. If a source's `repo` subdirectory is missing, it can be pulled by running `nx run xdocs:pull <source>`.
