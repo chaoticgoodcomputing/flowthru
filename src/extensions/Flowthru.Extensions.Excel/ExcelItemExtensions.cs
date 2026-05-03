@@ -58,7 +58,12 @@ public static class ExcelItemExtensions
       ? new ExcelFormatSerializer<TRow>(sheetName)
       : new ExcelFormatSerializer<TRow>(sheetName, nullValues);
     var container = new EnumerableContainerAdapter<TRow>();
-    var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(medium, format, container);
+    var storage = new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+      medium,
+      reader: format,
+      writer: null,
+      container
+    );
 
     return new Item<IEnumerable<TRow>>(label, storage);
   }
@@ -95,7 +100,8 @@ public static class ExcelItemExtensions
     IStorageAdapter<IEnumerable<TRow>> PerFileAdapter(string path) =>
       new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
         new FileStorageMedium(path),
-        format,
+        reader: format,
+        writer: null,
         container
       );
 

@@ -6,14 +6,22 @@ using Flowthru.Tests.Kits.Fixtures;
 namespace Flowthru.Tests.Kits.Format;
 
 /// <summary>
-/// Abstract conformance suite that every <see cref="IFormatSerializer{TRow}"/> implementor
-/// in a first-party Flowthru extension must inherit from. Codifies the round-trip contract:
-/// rows loaded from a JSON fixture, serialized via the format under test, deserialized back,
-/// must equal the original.
+/// Abstract conformance suite that every format extension must inherit from. Codifies the
+/// round-trip contract: rows loaded from a JSON fixture, serialized via the format under
+/// test, deserialized back, must equal the original.
 /// </summary>
 /// <typeparam name="TRow">The row schema type. Must be JSON-loadable
 /// (<see cref="IStructuredSerializable"/>) so the fixture can be deserialized.</typeparam>
 /// <remarks>
+/// <para>
+/// <strong>Reader floor, writer optional.</strong> The kit's contract is built on the
+/// reader segment (<see cref="IFormatRowReader{TRow}"/>), which every first-party format
+/// implements. The round-trip test additionally requires a writer
+/// (<see cref="IFormatRowWriter{TRow}"/>); read-only formats — Excel via ExcelDataReader —
+/// pass <see cref="CreateSerializer"/> as a reader and the round-trip test skips
+/// vacuously, while contractual obligations on <see cref="IFormatBase{TRow}"/>
+/// (property-mapping configuration, trait honesty) still fire.
+/// </para>
 /// <para>
 /// <strong>Subclass pattern.</strong> Each subclass declares a <c>static</c> source of
 /// fixture paths and decorates the class with <c>[TestFixtureSource(nameof(...))]</c>.
@@ -28,7 +36,7 @@ namespace Flowthru.Tests.Kits.Format;
 ///   public static IEnumerable&lt;string&gt; Fixtures =&gt; new[] { "Flat/Simple/rows.json" };
 ///   public ParquetTraditionalSchemaConformance(string fixturePath) : base(fixturePath) { }
 ///
-///   protected override IFormatSerializer&lt;TraditionalSchema&gt; CreateSerializer()
+///   protected override IFormatRowReader&lt;TraditionalSchema&gt; CreateSerializer()
 ///     =&gt; new ParquetFormatSerializer&lt;TraditionalSchema&gt;();
 /// }
 /// </code>
@@ -58,8 +66,14 @@ public abstract class FormatSerializerConformance<TRow>
     FixtureRows = await FixtureLoader.LoadAsync<TRow>(FixturePath);
   }
 
-  /// <summary>Builds a fresh instance of the format serializer under test.</summary>
-  protected abstract IFormatSerializer<TRow> CreateSerializer();
+  /// <summary>
+  /// Builds a fresh instance of the format under test. Returns the reader segment —
+  /// the floor every first-party format implements. If the format additionally
+  /// implements <see cref="IFormatRowWriter{TRow}"/> (the common case via
+  /// <see cref="IFormatSerializer{TRow}"/>), the round-trip test detects this via
+  /// pattern match and exercises the full duplex contract.
+  /// </summary>
+  protected abstract IFormatRowReader<TRow> CreateSerializer();
 
   /// <summary>
   /// Optional row equality comparer. Defaults to <see cref="EqualityComparer{T}.Default"/>.
@@ -68,7 +82,7 @@ public abstract class FormatSerializerConformance<TRow>
 
   /// <summary>
   /// Optional row-feature gate. When non-null, the round-trip test consults the
-  /// serializer's <see cref="IFormatSerializer{TRow}.RowFeatures"/> against this
+  /// serializer's <see cref="IFormatBase{TRow}.RowFeatures"/> against this
   /// predicate; if the format does not satisfy it, the test passes vacuously with an
   /// explanatory message. When null (the default), the round-trip runs unconditionally.
   /// </summary>
@@ -100,20 +114,33 @@ public abstract class FormatSerializerConformance<TRow>
       );
     }
 
-    if (!serializer.Traits.CanWrite)
+    // Structural read-only-ness: format does not implement the writer segment. Compile-
+    // time signal — captured by the type system, not just the runtime trait flag.
+    if (serializer is not IFormatRowWriter<TRow> writer)
     {
       Assert.Pass(
-        "Format declares Traits.CanWrite = false (read-only format). The round-trip "
-          + "scenario is not applicable; the format's read path should be exercised by an "
-          + "extension-specific deserialize-only test using a stream produced by a different "
-          + "writer (e.g., ClosedXML for .xlsx). v1 conformance covers contract obligations "
-          + "shared by all formats; deserialize-only conformance for read-only formats is a "
-          + "Phase B follow-up."
+        "Format does not implement IFormatRowWriter<TRow> (structurally read-only — "
+          + "e.g., Excel via ExcelDataReader). The round-trip scenario is not applicable; "
+          + "the format's read path is exercised by an extension-specific deserialize-only "
+          + "test using a stream produced by a different writer (e.g., ClosedXML for .xlsx)."
       );
+      return;
+    }
+
+    // Runtime read-only-ness: writer exists at compile time but is gated off at runtime
+    // (e.g., medium pointed at a read-only file system). Honored even when the structural
+    // signal would permit writing.
+    if (!writer.Traits.CanWrite)
+    {
+      Assert.Pass(
+        "Format declares Traits.CanWrite = false at runtime. The writer segment exists "
+          + "structurally, but is disabled by configuration; round-trip is not applicable."
+      );
+      return;
     }
 
     using var buffer = new MemoryStream();
-    await serializer.SerializeRows(buffer, ToAsync(FixtureRows));
+    await writer.SerializeRows(buffer, ToAsync(FixtureRows));
 
     buffer.Position = 0;
 
@@ -151,7 +178,7 @@ public abstract class FormatSerializerConformance<TRow>
     Assert.That(
       mapping,
       Is.Not.Null,
-      "GetPropertyMappingConfiguration() is a contractual obligation per IFormatSerializer."
+      "GetPropertyMappingConfiguration() is a contractual obligation per IFormatBase."
     );
   }
 

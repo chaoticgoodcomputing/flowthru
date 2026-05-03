@@ -30,7 +30,9 @@ internal static class Program
     string? OptOutReason,
     FormatRowFeatures Features,
     StorageTraits Traits,
-    bool ConstrainedToFlat
+    bool ConstrainedToFlat,
+    bool ImplementsReader,
+    bool ImplementsWriter
   );
 
   private static int Main(string[] args)
@@ -75,7 +77,7 @@ internal static class Program
   private static FormatEntry InspectFormat<TSerializer>(
     string displayName,
     string assemblyShortName,
-    Func<IFormatSerializer<TraditionalSchema>> factory
+    Func<IFormatRowReader<TraditionalSchema>> factory
   )
   {
     var serializerType = typeof(TSerializer).IsGenericType
@@ -97,6 +99,12 @@ internal static class Program
       constrainedToFlat = constraints.Any(c => c == typeof(IFlatSchema));
     }
 
+    // Phase D capability segments: the format's structural read/write surface is encoded
+    // by which interface segments it implements. Reader is the floor (every first-party
+    // format reads); writer is optional (Excel via ExcelDataReader is reader-only).
+    var implementsReader = typeof(IFormatRowReader<TraditionalSchema>).IsAssignableFrom(typeof(TSerializer));
+    var implementsWriter = typeof(IFormatRowWriter<TraditionalSchema>).IsAssignableFrom(typeof(TSerializer));
+
     var instance = factory();
     return new FormatEntry(
       displayName,
@@ -105,7 +113,9 @@ internal static class Program
       optOutAttr?.Reason,
       instance.RowFeatures,
       instance.Traits,
-      constrainedToFlat
+      constrainedToFlat,
+      implementsReader,
+      implementsWriter
     );
   }
 
@@ -117,7 +127,9 @@ internal static class Program
     sb.AppendLine();
     sb.AppendLine(
       "This document is **auto-generated** from each format extension's"
-        + " `IFormatSerializer<TRow>.RowFeatures` declaration."
+        + " `IFormatBase<TRow>.RowFeatures` declaration and which capability"
+        + " segments it implements (`IFormatRowReader<TRow>`,"
+        + " `IFormatRowWriter<TRow>`)."
         + " Do not edit by hand —"
         + " the `_test:capability-matrix-freshness` meta-test fails on drift."
     );
@@ -214,12 +226,35 @@ internal static class Program
         + " `Flowthru.Core.Data.Capabilities.StorageTraits` for the full surface."
     );
     sb.AppendLine();
+    sb.AppendLine(
+      "**Read / Write columns** carry two signals. Phase D"
+        + " (capability-segmented interfaces) split the format surface into"
+        + " `IFormatRowReader<TRow>` and `IFormatRowWriter<TRow>`. A format that"
+        + " does not implement a segment is *structurally* incapable of that"
+        + " operation — the absence is enforced by the type system, not a runtime"
+        + " trait flag. A format that implements the segment but reports"
+        + " `Traits.CanWrite = false` (etc.) is *runtime*-disabled."
+    );
+    sb.AppendLine();
+    sb.AppendLine(
+      "- **`✓`** — segment implemented and runtime trait permits."
+    );
+    sb.AppendLine(
+      "- **`—`** — segment not implemented (structural / compile-time signal)."
+        + " Calling code paths against the missing segment fail at compile time."
+    );
+    sb.AppendLine(
+      "- **`✗`** — segment implemented but runtime trait reports unavailable"
+        + " (e.g., medium pointed at a read-only file system)."
+    );
+    sb.AppendLine();
     sb.AppendLine("| Format | Read | Write | Stream | Append | Transactional |");
     sb.AppendLine("|---|:---:|:---:|:---:|:---:|:---:|");
     foreach (var e in entries)
     {
       sb.AppendLine(
-        $"| **{e.Name}** | {Cell(e.Traits.CanRead)} | {Cell(e.Traits.CanWrite)} |"
+        $"| **{e.Name}** | {SegmentCell(e.ImplementsReader, e.Traits.CanRead)} |"
+          + $" {SegmentCell(e.ImplementsWriter, e.Traits.CanWrite)} |"
           + $" {Cell(e.Traits.CanStream)} | {Cell(e.Traits.CanAppend)} |"
           + $" {Cell(e.Traits.IsTransactional)} |"
       );
@@ -230,6 +265,12 @@ internal static class Program
   }
 
   private static string Cell(bool flag) => flag ? "✓" : "✗";
+
+  // Phase D segment cell: combines structural (interface implementation) with runtime
+  // (Traits flag). Structural absence wins — a format that doesn't implement the
+  // segment cannot have it enabled at runtime.
+  private static string SegmentCell(bool implementsSegment, bool runtimePermits) =>
+    !implementsSegment ? "—" : (runtimePermits ? "✓" : "✗");
 
   private static string EscapeMarkdown(string input) =>
     input.Replace("|", "\\|").Replace("\n", " ").Replace("\r", "");

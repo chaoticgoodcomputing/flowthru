@@ -10,11 +10,12 @@ namespace Flowthru.Extensions.Excel.Tests.Conformance;
 /// Conformance for <see cref="ExcelFormatSerializer{TRow}"/>.
 /// </summary>
 /// <remarks>
-/// Excel is a read-only format (<c>Traits.CanWrite = false</c>). The kit's round-trip test
-/// passes vacuously; the contractual obligations covered are
-/// <see cref="IFormatSerializer{TRow}.GetPropertyMappingConfiguration"/> and the
-/// trait-honesty assertion. Read-path correctness is exercised by
-/// <c>ExcelFormatSerializerTests</c>, which builds in-memory .xlsx via ClosedXML.
+/// Excel implements <see cref="IFormatRowReader{TRow}"/> only — structurally read-only,
+/// not just runtime-disabled. The kit's round-trip test detects the missing writer segment
+/// and skips vacuously; the contractual obligations that fire are
+/// <see cref="IFormatBase{TRow}.GetPropertyMappingConfiguration"/> and the trait-honesty
+/// assertion. Read-path correctness is exercised by <c>ExcelFormatSerializerTests</c>,
+/// which builds in-memory .xlsx via ClosedXML.
 /// </remarks>
 [TestFixtureSource(nameof(Fixtures))]
 public class ExcelTraditionalSchemaConformance : FormatSerializerConformance<TraditionalSchema>
@@ -23,7 +24,7 @@ public class ExcelTraditionalSchemaConformance : FormatSerializerConformance<Tra
 
   public ExcelTraditionalSchemaConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<TraditionalSchema> CreateSerializer() =>
+  protected override IFormatRowReader<TraditionalSchema> CreateSerializer() =>
     new ExcelFormatSerializer<TraditionalSchema>(sheetName: "Sheet1");
 }
 
@@ -42,7 +43,7 @@ public class ExcelCheckStatusConformance : FormatSerializerConformance<CheckStat
 
   public ExcelCheckStatusConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<CheckStatusSchema> CreateSerializer() =>
+  protected override IFormatRowReader<CheckStatusSchema> CreateSerializer() =>
     new ExcelFormatSerializer<CheckStatusSchema>(sheetName: "Sheet1");
 }
 
@@ -57,7 +58,7 @@ public class ExcelMultiEnumConformance : FormatSerializerConformance<MultiEnumSc
 
   public ExcelMultiEnumConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<MultiEnumSchema> CreateSerializer() =>
+  protected override IFormatRowReader<MultiEnumSchema> CreateSerializer() =>
     new ExcelFormatSerializer<MultiEnumSchema>(sheetName: "Sheet1");
 }
 
@@ -75,7 +76,7 @@ public class ExcelMixedRequirementsConformance : FormatSerializerConformance<Mix
 
   public ExcelMixedRequirementsConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<MixedRequirementsSchema> CreateSerializer() =>
+  protected override IFormatRowReader<MixedRequirementsSchema> CreateSerializer() =>
     new ExcelFormatSerializer<MixedRequirementsSchema>(sheetName: "Sheet1");
 }
 
@@ -91,7 +92,7 @@ public class ExcelPositionalRecordConformance : FormatSerializerConformance<Posi
 
   public ExcelPositionalRecordConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<PositionalRecordSchema> CreateSerializer() =>
+  protected override IFormatRowReader<PositionalRecordSchema> CreateSerializer() =>
     new ExcelFormatSerializer<PositionalRecordSchema>(sheetName: "Sheet1");
 }
 
@@ -107,7 +108,7 @@ public class ExcelOptionalEnumConformance : FormatSerializerConformance<Optional
 
   public ExcelOptionalEnumConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<OptionalEnumSchema> CreateSerializer() =>
+  protected override IFormatRowReader<OptionalEnumSchema> CreateSerializer() =>
     new ExcelFormatSerializer<OptionalEnumSchema>(sheetName: "Sheet1");
 }
 
@@ -123,7 +124,7 @@ public class ExcelIScalarConformance : FormatSerializerConformance<IScalarSchema
 
   public ExcelIScalarConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<IScalarSchema> CreateSerializer() =>
+  protected override IFormatRowReader<IScalarSchema> CreateSerializer() =>
     new ExcelFormatSerializer<IScalarSchema>(sheetName: "Sheet1");
 
   protected override Func<FormatRowFeatures, bool>? RequiredFeatures =>
@@ -141,7 +142,7 @@ public class ExcelMultiIScalarConformance : FormatSerializerConformance<MultiISc
 
   public ExcelMultiIScalarConformance(string fixturePath) : base(fixturePath) { }
 
-  protected override IFormatSerializer<MultiIScalarSchema> CreateSerializer() =>
+  protected override IFormatRowReader<MultiIScalarSchema> CreateSerializer() =>
     new ExcelFormatSerializer<MultiIScalarSchema>(sheetName: "Sheet1");
 
   protected override Func<FormatRowFeatures, bool>? RequiredFeatures =>

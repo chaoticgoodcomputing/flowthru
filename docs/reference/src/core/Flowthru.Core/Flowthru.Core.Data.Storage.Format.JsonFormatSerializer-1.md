@@ -6,7 +6,7 @@ Assembly: Flowthru.Core.dll
 Format serializer for JSON (JavaScript Object Notation) files.
 
 ```csharp
-public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow> where TRow : notnull, IStructuredSerializable
+public sealed class JsonFormatSerializer<TRow> : IFormatSerializer<TRow>, IFormatRowReader<TRow>, IFormatRowWriter<TRow>, IFormatBase<TRow> where TRow : notnull, IStructuredSerializable
 ```
 
 #### Type Parameters
@@ -22,7 +22,10 @@ The row schema type
 
 #### Implements
 
-[IFormatSerializer<TRow\>](Flowthru.Core.Data.Storage.IFormatSerializer\-1.md)
+[IFormatSerializer<TRow\>](Flowthru.Core.Data.Storage.IFormatSerializer\-1.md), 
+[IFormatRowReader<TRow\>](Flowthru.Core.Data.Storage.IFormatRowReader\-1.md), 
+[IFormatRowWriter<TRow\>](Flowthru.Core.Data.Storage.IFormatRowWriter\-1.md), 
+[IFormatBase<TRow\>](Flowthru.Core.Data.Storage.IFormatBase\-1.md)
 
 #### Inherited Members
 
@@ -169,10 +172,10 @@ public FormatRowFeatures RowFeatures { get; }
 #### Remarks
 
 <p>
-Companion to <xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601.Traits" data-throw-if-not-resolved="false"></xref>. Where <xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601.Traits" data-throw-if-not-resolved="false"></xref> describes
+Companion to <xref href="Flowthru.Core.Data.Storage.IFormatBase%601.Traits" data-throw-if-not-resolved="false"></xref>. Where <xref href="Flowthru.Core.Data.Storage.IFormatBase%601.Traits" data-throw-if-not-resolved="false"></xref> describes
 medium-level capabilities (read/write, streaming, transactional),
-<xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601.RowFeatures" data-throw-if-not-resolved="false"></xref> describes which row-shape features the format honors
-(<xref href="Flowthru.Core.Abstractions.IScalar" data-throw-if-not-resolved="false"></xref> NewType wrappers, <code>byte[]</code> opaque blobs,
+<xref href="Flowthru.Core.Data.Storage.IFormatBase%601.RowFeatures" data-throw-if-not-resolved="false"></xref> describes which row-shape features the format honors
+(<xref href="Flowthru.Core.Abstractions.IScalar" data-throw-if-not-resolved="false"></xref> NewType wrappers,
 <xref href="Flowthru.Core.Abstractions.INestedSchema" data-throw-if-not-resolved="false"></xref> structures, etc.).
 </p>
 <p>
@@ -183,9 +186,9 @@ failing. When the flag is <a href="https://learn.microsoft.com/dotnet/csharp/lan
 successfully or the test fails.
 </p>
 <p>
-The default-interface-method returns <code>new FormatRowFeatures()</code> (all
-false) — a format that doesn't override is reported as supporting only the
-universal feature surface in the capability matrix.
+The default-interface-method returns <code>new FormatRowFeatures()</code> (all false) —
+a format that doesn't override is reported as supporting only the universal feature
+surface in the capability matrix.
 </p>
 
 ### <a id="Flowthru_Core_Data_Storage_Format_JsonFormatSerializer_1_Traits"></a> Traits
@@ -202,15 +205,11 @@ public StorageTraits Traits { get; }
 
 #### Remarks
 
-<p>
 Format traits focus on HOW data is serialized and whether it supports streaming.
 For composed adapters, these traits are merged with medium and container traits.
-</p>
-<p>
 Most formats should declare <code>CanStream = true</code> if they can deserialize row-by-row
-without buffering the entire stream (e.g., CSV, JSONL). Formats that require full
+without buffering the entire stream (e.g., CSV, Parquet). Formats that require full
 parsing before yielding rows (e.g., JSON arrays) should set <code>CanStream = false</code>.
-</p>
 
 ## Methods
 
@@ -226,35 +225,13 @@ public IAsyncEnumerable<TRow> DeserializeRows(Stream stream)
 
 `stream` [Stream](https://learn.microsoft.com/dotnet/api/system.io.stream)
 
-The stream containing serialized data
+The stream containing serialized data.
 
 #### Returns
 
  [IAsyncEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.iasyncenumerable\-1)<TRow\>
 
-Async enumerable of deserialized rows
-
-#### Remarks
-
-<p>
-<strong>Streaming Behavior:</strong>
-</p>
-<p>
-Rows should be yielded as they are deserialized (lazy evaluation).
-This allows processing large datasets without loading everything into memory.
-</p>
-<p>
-<strong>Error Handling:</strong>
-</p>
-<p>
-Deserialization errors should throw exceptions:
-- Format exceptions (malformed CSV, invalid JSON)
-- Schema mismatches (missing columns, type conversion failures)
-- I/O errors during stream reading
-</p>
-<p>
-The caller should handle these exceptions appropriately.
-</p>
+Async enumerable of deserialized rows.
 
 ### <a id="Flowthru_Core_Data_Storage_Format_JsonFormatSerializer_1_GetPropertyMappingConfiguration"></a> GetPropertyMappingConfiguration\(\)
 
@@ -268,23 +245,13 @@ public PropertyMappingConfiguration GetPropertyMappingConfiguration()
 
  [PropertyMappingConfiguration](Flowthru.Core.Data.Storage.PropertyMappingConfiguration.md)
 
-Property mapping configuration describing the mapping strategy
-
-#### Examples
-
-<pre><code class="lang-csharp">// CSV serializer using SerializedLabel
-public PropertyMappingConfiguration GetPropertyMappingConfiguration()
-    =&gt; PropertyMappingConfiguration.FromSerializedLabel&lt;TRow&gt;();
-
-// Parquet with library-controlled mapping
-public PropertyMappingConfiguration GetPropertyMappingConfiguration()
-    =&gt; PropertyMappingConfiguration.LibraryControlled();</code></pre>
+Property mapping configuration describing the mapping strategy.
 
 #### Remarks
 
 <p>
-<strong>Contractual Obligation:</strong> Every format serializer MUST implement this method
-to explicitly declare how it handles property name mapping.
+<strong>Contractual Obligation:</strong> Every format implementor MUST implement this
+method to explicitly declare how it handles property name mapping.
 </p>
 <p>
 <strong>Implementation Strategies:</strong>
@@ -298,11 +265,6 @@ to walk properties and resolve <code>[SerializedLabel]</code>-driven field names
 programmatic API; property names must match storage field names exactly. Return
 <xref href="Flowthru.Core.Data.Storage.PropertyMappingConfiguration.LibraryControlled(System.String)" data-throw-if-not-resolved="false"></xref>.
 </li></ul>
-<p>
-<strong>Design Intent:</strong> This contract makes property mapping an explicit, discoverable
-capability rather than an implicit behavior, enabling:
-</p>
-<ul><li>Runtime introspection of mapping capabilities</li><li>Better error messages when schemas don't match storage</li><li>Documentation generation for serializer capabilities</li><li>Testing framework validation of mapping correctness</li></ul>
 
 ### <a id="Flowthru_Core_Data_Storage_Format_JsonFormatSerializer_1_SerializeRows_System_IO_Stream_System_Collections_Generic_IAsyncEnumerable__0__"></a> SerializeRows\(Stream, IAsyncEnumerable<TRow\>\)
 
@@ -316,43 +278,15 @@ public Task SerializeRows(Stream stream, IAsyncEnumerable<TRow> rows)
 
 `stream` [Stream](https://learn.microsoft.com/dotnet/api/system.io.stream)
 
-The stream to write serialized data to
+The stream to write serialized data to.
 
 `rows` [IAsyncEnumerable](https://learn.microsoft.com/dotnet/api/system.collections.generic.iasyncenumerable\-1)<TRow\>
 
-The rows to serialize
+The rows to serialize.
 
 #### Returns
 
  [Task](https://learn.microsoft.com/dotnet/api/system.threading.tasks.task)
 
-Task that completes when serialization finishes
-
-#### Remarks
-
-<p>
-<strong>Streaming Behavior:</strong>
-</p>
-<p>
-Rows should be written as they are enumerated (lazy evaluation).
-This allows handling large datasets efficiently.
-</p>
-<p>
-<strong>Format-Specific Headers:</strong>
-</p>
-<p>
-Implementations should handle format-specific initialization:
-- CSV: Write header row with column names
-- JSON: Write opening bracket for array
-- Parquet: Write schema metadata
-</p>
-<p>
-<strong>Error Handling:</strong>
-</p>
-<p>
-Serialization errors should throw exceptions:
-- Type conversion failures
-- I/O errors during stream writing
-- Invalid data values for format constraints
-</p>
+Task that completes when serialization finishes.
 

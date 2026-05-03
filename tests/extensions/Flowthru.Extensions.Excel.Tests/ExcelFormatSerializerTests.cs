@@ -1,5 +1,6 @@
 using ClosedXML.Excel;
 using Flowthru.Core.Abstractions;
+using Flowthru.Core.Data.Storage;
 using Flowthru.Core.Data.Storage.Format;
 
 namespace Flowthru.Extensions.Excel.Tests;
@@ -87,15 +88,23 @@ public class ExcelFormatSerializerTests
     Assert.That(new ExcelFormatSerializer<ProductRow>("Sheet1").Traits.CanWrite, Is.False);
   }
 
-  // ── SerializeRows — always throws ─────────────────────────────────────────
+  // ── Structural read-only-ness ─────────────────────────────────────────────
+  // Excel does not implement IFormatRowWriter<TRow> at all — read-only-ness is a
+  // compile-time signal carried by the type, not a runtime exception. Phase D
+  // (capability-segmented interfaces) replaced the throw-from-SerializeRows pattern
+  // with the absence of the writer segment.
 
   [Test]
-  public void SerializeRows_ThrowsNotSupportedException()
+  public void Type_DoesNotImplementWriterSegment()
   {
-    var serializer = new ExcelFormatSerializer<ProductRow>("Sheet1");
-    Assert.ThrowsAsync<NotSupportedException>(
-      async () =>
-        await serializer.SerializeRows(new MemoryStream(), AsyncEnumerable.Empty<ProductRow>())
+    Assert.That(
+      typeof(ExcelFormatSerializer<ProductRow>)
+        .GetInterfaces()
+        .Any(i => i.IsGenericType
+          && i.GetGenericTypeDefinition() == typeof(IFormatRowWriter<>)),
+      Is.False,
+      "ExcelFormatSerializer<TRow> must not implement IFormatRowWriter<TRow>; "
+        + "structural read-only-ness depends on the writer segment being absent."
     );
   }
 

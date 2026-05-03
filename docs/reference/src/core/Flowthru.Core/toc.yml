@@ -117,6 +117,12 @@
   - name: Interfaces
   - name: IContainerAdapter<TContainer, TRow>
     href: Flowthru.Core.Data.Storage.IContainerAdapter-2.md
+  - name: IFormatBase<TRow>
+    href: Flowthru.Core.Data.Storage.IFormatBase-1.md
+  - name: IFormatRowReader<TRow>
+    href: Flowthru.Core.Data.Storage.IFormatRowReader-1.md
+  - name: IFormatRowWriter<TRow>
+    href: Flowthru.Core.Data.Storage.IFormatRowWriter-1.md
   - name: IFormatSerializer<TRow>
     href: Flowthru.Core.Data.Storage.IFormatSerializer-1.md
   - name: IHasEfficientCount

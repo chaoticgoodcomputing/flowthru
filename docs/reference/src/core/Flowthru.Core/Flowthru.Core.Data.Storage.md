@@ -66,9 +66,31 @@ Storage adapter for plain text files with string content.
 
 Interface for container adaptation - converts between streaming rows and in-memory containers.
 
+ [IFormatBase<TRow\>](Flowthru.Core.Data.Storage.IFormatBase\-1.md)
+
+Common surface shared by <xref href="Flowthru.Core.Data.Storage.IFormatRowReader%601" data-throw-if-not-resolved="false"></xref> and
+<xref href="Flowthru.Core.Data.Storage.IFormatRowWriter%601" data-throw-if-not-resolved="false"></xref>. Holds the metadata every format extension
+declares regardless of read or write capability — runtime traits, row-shape
+feature claims, and property-mapping strategy.
+
+ [IFormatRowReader<TRow\>](Flowthru.Core.Data.Storage.IFormatRowReader\-1.md)
+
+Format extension that can deserialize rows from a byte stream. Read-only formats
+(e.g., Excel via ExcelDataReader) implement this interface and not
+<xref href="Flowthru.Core.Data.Storage.IFormatRowWriter%601" data-throw-if-not-resolved="false"></xref> — their inability to write is a structural
+fact carried in the type system, not a runtime trait check.
+
+ [IFormatRowWriter<TRow\>](Flowthru.Core.Data.Storage.IFormatRowWriter\-1.md)
+
+Format extension that can serialize rows to a byte stream. Write-only sinks (rare
+— typically only logging-style formats) would implement this interface and not
+<xref href="Flowthru.Core.Data.Storage.IFormatRowReader%601" data-throw-if-not-resolved="false"></xref>; in the current first-party suite, every
+writer is also a reader and composes both via <xref href="Flowthru.Core.Data.Storage.IFormatSerializer%601" data-throw-if-not-resolved="false"></xref>.
+
  [IFormatSerializer<TRow\>](Flowthru.Core.Data.Storage.IFormatSerializer\-1.md)
 
-Interface for format serialization - handles row-based serialization/deserialization.
+Format extension that supports both reading and writing — the composition of
+<xref href="Flowthru.Core.Data.Storage.IFormatRowReader%601" data-throw-if-not-resolved="false"></xref> and <xref href="Flowthru.Core.Data.Storage.IFormatRowWriter%601" data-throw-if-not-resolved="false"></xref>.
 
  [IHasEfficientCount](Flowthru.Core.Data.Storage.IHasEfficientCount.md)
 

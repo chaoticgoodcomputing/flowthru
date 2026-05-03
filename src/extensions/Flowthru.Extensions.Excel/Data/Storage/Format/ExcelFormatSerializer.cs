@@ -30,7 +30,7 @@ namespace Flowthru.Core.Data.Storage.Format;
 /// Non-nullable properties are unaffected.
 /// </para>
 /// </remarks>
-public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
+public sealed class ExcelFormatSerializer<TRow> : IFormatRowReader<TRow>
   where TRow : notnull, IFlatSchema, ITextSerializable
 {
   /// <summary>The default set of strings treated as null on read for nullable properties.</summary>
@@ -214,14 +214,6 @@ public sealed class ExcelFormatSerializer<TRow> : IFormatSerializer<TRow>
       PropertyKind.Nested => Convert.ChangeType(cellValue, binding.EffectiveType),
       _ => Convert.ChangeType(cellValue, binding.EffectiveType),
     };
-  }
-
-  /// <inheritdoc/>
-  public Task SerializeRows(Stream stream, IAsyncEnumerable<TRow> rows)
-  {
-    throw new NotSupportedException(
-      "ExcelFormatSerializer is read-only. Writing Excel files is not supported."
-    );
   }
 
   /// <inheritdoc/>

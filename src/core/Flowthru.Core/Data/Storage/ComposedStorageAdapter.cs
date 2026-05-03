@@ -60,23 +60,49 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
   where TRow : notnull
 {
   private readonly IStorageMedium _medium;
-  private readonly IFormatSerializer<TRow> _format;
+  private readonly IFormatRowReader<TRow> _reader;
+  private readonly IFormatRowWriter<TRow>? _writer;
   private readonly IContainerAdapter<TContainer, TRow> _container;
 
   /// <summary>
-  /// Creates a new composed storage adapter.
+  /// Creates a new composed storage adapter from a write-capable format serializer.
+  /// Backward-compatible entry point: any <see cref="IFormatSerializer{TRow}"/> is
+  /// both a reader and a writer and is wired into both segments.
   /// </summary>
-  /// <param name="medium">The storage medium (file, memory, etc.)</param>
-  /// <param name="format">The format serializer (CSV, JSON, etc.)</param>
-  /// <param name="container">The container adapter (IEnumerable, IDataView, etc.)</param>
+  /// <param name="medium">The storage medium (file, memory, etc.).</param>
+  /// <param name="format">The full-duplex format serializer (CSV, JSON, Parquet).</param>
+  /// <param name="container">The container adapter (IEnumerable, IDataView, etc.).</param>
   public ComposedStorageAdapter(
     IStorageMedium medium,
     IFormatSerializer<TRow> format,
     IContainerAdapter<TContainer, TRow> container
   )
+    : this(medium, format, format, container)
+  {
+  }
+
+  /// <summary>
+  /// Creates a new composed storage adapter with separate reader and writer segments
+  /// (Phase D capability-segmented interfaces). Read-only formats — e.g.,
+  /// <c>ExcelFormatSerializer</c> implementing only <see cref="IFormatRowReader{TRow}"/> —
+  /// pass <see langword="null"/> for the writer; the resulting adapter exposes
+  /// <see cref="Traits"/>.<see cref="StorageTraits.CanWrite"/> as <see langword="false"/>
+  /// and <see cref="Save"/> fails fast.
+  /// </summary>
+  /// <param name="medium">The storage medium.</param>
+  /// <param name="reader">Format reader segment. Required.</param>
+  /// <param name="writer">Format writer segment. <see langword="null"/> for read-only formats.</param>
+  /// <param name="container">The container adapter.</param>
+  public ComposedStorageAdapter(
+    IStorageMedium medium,
+    IFormatRowReader<TRow> reader,
+    IFormatRowWriter<TRow>? writer,
+    IContainerAdapter<TContainer, TRow> container
+  )
   {
     _medium = medium ?? throw new ArgumentNullException(nameof(medium));
-    _format = format ?? throw new ArgumentNullException(nameof(format));
+    _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+    _writer = writer;
     _container = container ?? throw new ArgumentNullException(nameof(container));
   }
 
@@ -100,12 +126,16 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
     {
       // Medium determines storage-level constraints
       CanRead = _medium.Traits.CanRead,
-      CanWrite = _medium.Traits.CanWrite && _format.Traits.CanWrite,
+      // CanWrite combines: medium can write AND a writer segment was provided AND the
+      // writer's runtime traits allow it. The writer being null is the structural
+      // (compile-time) read-only-ness signal; _writer.Traits.CanWrite carries any
+      // runtime read-only-ness signal layered on top.
+      CanWrite = _medium.Traits.CanWrite && _writer is not null && _writer.Traits.CanWrite,
       CanInspect = _medium.Traits.CanInspect,
       IsPersistent = _medium.Traits.IsPersistent,
       RequiresNetwork = _medium.Traits.RequiresNetwork,
       // Format determines streaming capability (medium must support it too)
-      CanStream = _medium.Traits.CanStream && _format.Traits.CanStream,
+      CanStream = _medium.Traits.CanStream && _reader.Traits.CanStream,
       // Medium determines append/transactional capabilities
       CanAppend = _medium.Traits.CanAppend,
       IsTransactional = _medium.Traits.IsTransactional,
@@ -122,7 +152,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
           try
           {
             // 2. Format: Deserialize bytes to rows
-            var rows = _format.DeserializeRows(stream);
+            var rows = _reader.DeserializeRows(stream);
 
             // 3. Container: Materialize rows into container
             var result = await _container.FromRows(rows);
@@ -162,7 +192,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
           var rows = _container.ToRows(data);
 
           // 2. Format: Serialize rows to bytes
-          await _format.SerializeRows(stream, rows);
+          await _writer!.SerializeRows(stream, rows);
 
           stream.Position = 0;
           return stream;
@@ -217,7 +247,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
           await using var _ = stream;
 
           // Deserialize sample rows
-          var rows = _format.DeserializeRows(stream);
+          var rows = _reader.DeserializeRows(stream);
           var sample = new List<TRow>();
           var count = 0;
 
@@ -299,7 +329,7 @@ public sealed class ComposedStorageAdapter<TContainer, TRow> : IStorageAdapter<T
           await using var _ = stream;
 
           // Deserialize all rows to validate entire dataset
-          var rows = _format.DeserializeRows(stream);
+          var rows = _reader.DeserializeRows(stream);
           var count = 0;
 
           await foreach (var row in rows.WithCancellation(ct))

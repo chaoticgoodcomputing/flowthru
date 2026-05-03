@@ -104,7 +104,8 @@ public class ExcelDirectoryStorageAdapterConformance
       filePattern: "*.xlsx",
       perFileAdapter: path => new ComposedStorageAdapter<IEnumerable<TraditionalSchema>, TraditionalSchema>(
         new FileStorageMedium(path),
-        format,
+        reader: format,
+        writer: null,
         container
       )
     );
