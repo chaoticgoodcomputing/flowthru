@@ -1,3 +1,21 @@
+## 0.15.0 (2026-05-03)
+
+### 🚀 Features
+
+- finish data compat testing layer and refactors ([f2e3b2c7](https://github.com/chaoticgoodcomputing/flowthru/commit/f2e3b2c7))
+- wrap up data feature matrix & optimize example runs ([e7e6b9c3](https://github.com/chaoticgoodcomputing/flowthru/commit/e7e6b9c3))
+
+### 🩹 Fixes
+
+- phase 1 of diagnostic setup ([1b27a9f7](https://github.com/chaoticgoodcomputing/flowthru/commit/1b27a9f7))
+- set up second phase on data extension surface ([f9dc25a5](https://github.com/chaoticgoodcomputing/flowthru/commit/f9dc25a5))
+- add metatest compat matrix for storage extensions ([f1a4a99f](https://github.com/chaoticgoodcomputing/flowthru/commit/f1a4a99f))
+- resolve scratch doc reference ([c5c48456](https://github.com/chaoticgoodcomputing/flowthru/commit/c5c48456))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.14.1 (2026-05-03)
 
 ### 🩹 Fixes
