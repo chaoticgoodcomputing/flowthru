@@ -96,6 +96,8 @@ flags:
     carryforward: true
   SpaceflightsEFCore:
     carryforward: true
+  SpaceflightsNewTypes:
+    carryforward: true
   SpaceflightsPythonEFCore:
     carryforward: true
 component_management:

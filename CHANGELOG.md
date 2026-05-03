@@ -1,3 +1,14 @@
+## 0.14.1 (2026-05-03)
+
+### 🩹 Fixes
+
+- phase 1 of diagnostic setup ([1b27a9f7](https://github.com/chaoticgoodcomputing/flowthru/commit/1b27a9f7))
+- set up second phase on data extension surface ([f9dc25a5](https://github.com/chaoticgoodcomputing/flowthru/commit/f9dc25a5))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.14.0 (2026-05-01)
 
 ### 🚀 Features
