@@ -202,8 +202,9 @@
       }
     },
     "coverage:upload": {
-      "//": "Upload all coverage.cobertura.xml files found under tests/ to Codecov. Assumes tests have already been run and coverage:sync has been called. Requires CODECOV_TOKEN env var and the codecov CLI on PATH.",
+      "//": "Upload all coverage.cobertura.xml files found under tests/ to Codecov. Depends on coverage:sync so dist/codecov-flags.json exists regardless of prior workflow steps — CI used to fail with 'flags.json not found' when the test step bailed before the explicit Sync step ran. Requires CODECOV_TOKEN env var and the codecov CLI on PATH.",
       "executor": "nx:run-commands",
+      "dependsOn": [ "coverage:sync" ],
       "options": {
         "commands": [
           "bash scripts/upload-coverage.sh"

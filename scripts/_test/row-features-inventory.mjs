@@ -50,11 +50,27 @@ if (!existsSync(FEATURES_TYPE_PATH)) {
 }
 
 if (!existsSync(SURFACE_TABLE_PATH)) {
-  console.error(
-    `\nSurface-table source document not found at ${SURFACE_TABLE_PATH}.\n`
-      + 'The row-features inventory check cannot run without it.\n'
+  // The surface table currently lives under docs/scratch/, which is gitignored
+  // (`docs/.gitignore: scratch`). Local working trees keep the in-progress phase
+  // doc; CI checkouts don't. Until Phase E moves the table to a tracked location
+  // (planned: src/extensions/CONTRIBUTING.md per the phase doc), the check
+  // soft-skips when the source isn't present rather than blocking CI on a doc
+  // that is structurally absent.
+  //
+  // The check still fires in any environment with the doc — i.e., contributor
+  // dev loops where drift is most likely to be authored. Post-Phase-E, the
+  // SURFACE_TABLE_PATH constant moves to the tracked successor and this branch
+  // becomes a hard failure again.
+  console.warn(
+    `\nWarning: surface-table source not found at ${rel(SURFACE_TABLE_PATH)}.\n`
+      + 'This file lives under docs/scratch/ (gitignored) and is expected to be absent\n'
+      + 'in CI checkouts until Phase E migrates the row-shape feature surface table\n'
+      + 'to src/extensions/CONTRIBUTING.md (per docs/scratch/data-extension-contract.md\n'
+      + 'Phase E plan).\n\n'
+      + 'Skipping the inventory check. Drift between FormatRowFeatures and the\n'
+      + 'surface table is still caught locally when the scratch doc is present.\n'
   );
-  process.exit(1);
+  process.exit(0);
 }
 
 // ── Extract Supports* property names from FormatRowFeatures.cs ──────────────
