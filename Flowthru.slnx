@@ -53,6 +53,7 @@
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.SourceGenerators.Tests/Flowthru.Misc.DataFrames.SourceGenerators.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.ML.Tests/Flowthru.Misc.ML.Tests.csproj" />
   <Project Path="examples/starter/SpaceflightsEFCore/SpaceflightsEFCore.csproj" />
+  <Project Path="examples/starter/SpaceflightsStagingSchema/SpaceflightsStagingSchema.csproj" />
   <Project Path="examples/starter/KedroSpaceflights/KedroSpaceflights.csproj" />
   <Project Path="examples/starter/KedroSpaceflightsFUnit/KedroSpaceflightsFUnit.csproj" />
   <Project Path="examples/starter/KedroSpaceflightsPython/KedroSpaceflightsPython.csproj" />

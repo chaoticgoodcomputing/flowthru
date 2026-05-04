@@ -37,6 +37,10 @@ internal static class ArgumentParser
           options.DryRun = true;
           break;
 
+        case "--acquire-on-dry-run":
+          options.AcquireResourcesOnDryRun = true;
+          break;
+
         case "--no-metadata":
           exportMetadata = false;
           break;

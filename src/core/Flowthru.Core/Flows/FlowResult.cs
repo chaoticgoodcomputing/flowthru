@@ -69,6 +69,26 @@ public class FlowResult
   public Exception? Exception { get; init; }
 
   /// <summary>
+  /// Errors raised by catalog-level resource teardown, in LIFO order.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// When a flow declares <c>FlowResource&lt;TScope&gt;</c> via
+  /// <c>CatalogAbstract.Resource</c>, the framework runs each resource's
+  /// release effect on flow exit. Any release that throws is captured here
+  /// rather than masking the primary <see cref="Exception"/> — release
+  /// errors aggregate, the primary error always wins for "what caused the
+  /// flow to fail" reporting.
+  /// </para>
+  /// <para>
+  /// Empty when no resources are registered, when all releases succeed, or
+  /// for dry runs that don't acquire resources.
+  /// </para>
+  /// </remarks>
+  public IReadOnlyList<Exception> TeardownErrors { get; init; } =
+    Array.Empty<Exception>();
+
+  /// <summary>
   /// Creates a successful Flow result.
   /// </summary>
   public static FlowResult CreateSuccess(
@@ -134,6 +154,23 @@ public class FlowResult
       FlowName = flowName,
     };
   }
+
+  /// <summary>
+  /// Returns a copy of this result with the supplied teardown errors attached.
+  /// Used by the framework when catalog-level resource releases produce
+  /// errors that must be reported alongside the primary outcome.
+  /// </summary>
+  public FlowResult WithTeardownErrors(IReadOnlyList<Exception> teardownErrors) =>
+    new()
+    {
+      FlowName = FlowName,
+      Success = Success,
+      IsDryRun = IsDryRun,
+      ExecutionTime = ExecutionTime,
+      StepResults = StepResults,
+      Exception = Exception,
+      TeardownErrors = teardownErrors,
+    };
 }
 
 /// <summary>

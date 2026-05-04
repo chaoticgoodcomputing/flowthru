@@ -1,5 +1,7 @@
 using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
+using Flowthru.Meta;
+using Flowthru.Meta.Providers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -82,6 +84,18 @@ public class Program
         flowthru
           .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
           .WithDescription("Generates passenger capacity reports and visualizations");
+
+        flowthru.ConfigureMetadata(meta =>
+        {
+          var metadataPath = Path.Combine(basePath, "Metadata");
+          meta
+            .AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
+              json.WithOutputDirectory(metadataPath)
+            )
+            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
+              mermaid.WithOutputDirectory(metadataPath)
+            );
+        });
       }
     );
 

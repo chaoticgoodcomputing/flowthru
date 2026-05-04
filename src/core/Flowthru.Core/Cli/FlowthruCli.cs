@@ -168,6 +168,8 @@ public sealed class FlowthruCli
     _output.WriteLine();
     _output.WriteLine("Options:");
     _output.WriteLine("  --dry-run              Validate without executing steps");
+    _output.WriteLine("  --acquire-on-dry-run   With --dry-run, also acquire/release catalog");
+    _output.WriteLine("                         resources and run external-input inspection.");
     _output.WriteLine("  --parallelism N|auto   Max concurrent steps (default: 1 sequential).");
     _output.WriteLine("                         'auto' uses Environment.ProcessorCount.");
     _output.WriteLine("  --no-metadata          Disable metadata export");

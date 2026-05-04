@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Flowthru.Core.Data;
 using Flowthru.Core.Data.Validation;
+using Flowthru.Core.Effects;
 using Flowthru.Core.Flows;
 using Flowthru.Core.Graph;
 using Flowthru.Core.Graph.Meta.Models;
@@ -127,14 +128,191 @@ internal sealed class FlowthruService : IFlowthruService
       mergedPipeline.ExecutionLayers!.Count
     );
 
-    // Validate external inputs — skipped for StructureOnly dry runs (no data source access)
+    // Catalog-level applicative validation — every catalog's Validate() runs;
+    // failures across catalogs are accumulated into one report.
+    var executionContext = new FlowExecutionContext(
+      FlowLabel: "Pipeline",
+      Options: options,
+      Services: _services
+    );
+
+    _logger.LogInformation("→ Running catalog-level validation...");
+    var compositeValidation = FlowValidation.Combine(
+      _catalogs.Select(c => c.Validate(executionContext))
+    );
+    if (!compositeValidation.IsValid)
+    {
+      _logger.LogError(
+        "  ✗ {Count} catalog validation failure(s)",
+        compositeValidation.Failures.Count
+      );
+      foreach (var f in compositeValidation.Failures)
+      {
+        _logger.LogError("    [{Source}] {Message}", f.Source, f.Message);
+      }
+      throw new FlowValidationException(compositeValidation);
+    }
+    _logger.LogInformation("  ✓ Catalog validation passed");
+
+    // Catalog-attached resource acquisition. Skipped on default dry run to
+    // preserve the "zero side effects" promise; enabled by
+    // ExecutionOptions.AcquireResourcesOnDryRun for thorough probing.
+    var resources = _catalogs
+      .Select(c => c.Resource)
+      .Where(r => r is not null)
+      .Cast<IFlowResource>()
+      .ToList();
+
+    var shouldAcquire = !options.DryRun.Enabled || options.AcquireResourcesOnDryRun;
+    var acquiredResources = new Stack<(IFlowResource Resource, object? Scope)>();
+    var teardownErrors = new List<Exception>();
+    Exception? bodyException = null;
+    FlowResult? result = null;
+
+    try
+    {
+      if (shouldAcquire && resources.Count > 0)
+      {
+        _logger.LogInformation(
+          "→ Acquiring {Count} catalog resource(s)...",
+          resources.Count
+        );
+        foreach (var resource in resources)
+        {
+          var scope = await resource.AcquireUntyped().Run(cancellationToken).ConfigureAwait(false);
+          acquiredResources.Push((resource, scope));
+        }
+        _logger.LogInformation("  ✓ Resources acquired");
+      }
+      else if (resources.Count > 0)
+      {
+        _logger.LogInformation(
+          "→ Skipping {Count} catalog resource(s) (dry run, AcquireResourcesOnDryRun=false)",
+          resources.Count
+        );
+      }
+
+      result = await ExecuteFlowBodyAsync(
+        mergedPipeline,
+        options,
+        exportMetadata,
+        preFlightStopwatch,
+        totalStopwatch,
+        cancellationToken
+      ).ConfigureAwait(false);
+
+      // Propagate step-level failure into bodyException so release closures
+      // (e.g., PreserveOnFailure) can observe the run failed even when the
+      // body returned a failed FlowResult instead of throwing.
+      if (result is not null && !result.Success)
+      {
+        bodyException =
+          result.Exception
+          ?? new InvalidOperationException(
+            "Flow returned a failed FlowResult without an exception."
+          );
+      }
+    }
+    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+    {
+      // User-initiated cancellation. Release still runs in finally; rethrow clean.
+      throw;
+    }
+    catch (Exception ex)
+    {
+      bodyException = ex;
+      throw;
+    }
+    finally
+    {
+      if (acquiredResources.Count > 0)
+      {
+        _logger.LogInformation(
+          "→ Releasing {Count} catalog resource(s) (LIFO)...",
+          acquiredResources.Count
+        );
+        while (acquiredResources.Count > 0)
+        {
+          var (resource, scope) = acquiredResources.Pop();
+          try
+          {
+            await resource
+              .ReleaseUntyped(scope, bodyException)
+              .Run(cancellationToken)
+              .ConfigureAwait(false);
+          }
+          catch (Exception releaseEx)
+          {
+            teardownErrors.Add(releaseEx);
+            _logger.LogWarning(
+              releaseEx,
+              "  ⚠ Resource release threw: {Message}",
+              releaseEx.Message
+            );
+          }
+        }
+
+        if (teardownErrors.Count == 0)
+        {
+          _logger.LogInformation("  ✓ Resources released");
+        }
+        else
+        {
+          _logger.LogWarning(
+            "  ⚠ {Count} teardown error(s) captured",
+            teardownErrors.Count
+          );
+        }
+      }
+    }
+
+    // Successful path. Attach any teardown errors to the result; primary
+    // result.Success / result.Exception are unchanged so the primary outcome
+    // wins for "what caused the flow to (not) succeed" reporting.
+    if (teardownErrors.Count > 0 && result is not null)
+    {
+      result = result.WithTeardownErrors(teardownErrors);
+    }
+
+    return result!;
+  }
+
+  /// <summary>
+  /// Pre-flight (post-validation, post-acquire) plus execution. Extracted from
+  /// <see cref="ExecuteFlowAsync"/> so the resource lifecycle wrapper stays
+  /// readable. Returns the <see cref="FlowResult"/>; teardown errors are
+  /// folded in by the caller after release completes.
+  /// </summary>
+  private async Task<FlowResult> ExecuteFlowBodyAsync(
+    Flow mergedPipeline,
+    ExecutionOptions options,
+    bool exportMetadata,
+    Stopwatch preFlightStopwatch,
+    Stopwatch totalStopwatch,
+    CancellationToken cancellationToken
+  )
+  {
+    // Validate external inputs — skipped when:
+    //  - StructureOnly dry runs (explicit no-data-access mode), OR
+    //  - Default dry runs against catalogs with FlowResources (resources
+    //    weren't acquired, so items behind them can't be inspected; don't
+    //    pretend to validate what we can't reach).
     var validatedInputCount = 0;
+    var hasUnacquiredResources =
+      options.DryRun.Enabled
+      && !options.AcquireResourcesOnDryRun
+      && _catalogs.Any(c => c.Resource is not null);
     var skipDataValidation =
-      options.DryRun.Enabled && options.DryRun.Depth == ValidationDepth.StructureOnly;
+      (options.DryRun.Enabled && options.DryRun.Depth == ValidationDepth.StructureOnly)
+      || hasUnacquiredResources;
 
     if (skipDataValidation)
     {
-      _logger.LogInformation("→ Skipping data source validation (StructureOnly dry run)");
+      var reason =
+        options.DryRun.Enabled && options.DryRun.Depth == ValidationDepth.StructureOnly
+          ? "StructureOnly dry run"
+          : "dry run with unacquired catalog resources";
+      _logger.LogInformation("→ Skipping data source validation ({Reason})", reason);
     }
     else
     {

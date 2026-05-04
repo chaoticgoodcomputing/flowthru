@@ -26,6 +26,27 @@ public class ExecutionOptions
   public DryRunOption DryRun { get; set; } = false;
 
   /// <summary>
+  /// When <c>true</c>, dry runs additionally acquire and release any catalog
+  /// resources declared via <c>CatalogAbstract.Resource</c>, then run external
+  /// input inspection against the live state.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Default <c>false</c>. Default dry runs preserve the "zero side effects"
+  /// promise — only validation hooks and external-input inspection run; no
+  /// resource is acquired.
+  /// </para>
+  /// <para>
+  /// Setting this to <c>true</c> turns dry run into the most accurate
+  /// "would this run succeed?" probe: every step happens except the actual
+  /// pipeline execution. Side effects from acquire are unwound by the same
+  /// LIFO release the real run uses, so transient resources like ephemeral
+  /// databases come up and go down within the dry run.
+  /// </para>
+  /// </remarks>
+  public bool AcquireResourcesOnDryRun { get; set; } = false;
+
+  /// <summary>
   /// Whether to stop execution on the first node failure.
   /// </summary>
   /// <remarks>

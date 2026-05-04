@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
+using Flowthru.Core.Effects;
+using Flowthru.Core.Services;
 
 namespace Flowthru.Core.Data;
 
@@ -170,4 +172,49 @@ public abstract class CatalogAbstract
   /// </remarks>
   public virtual IEnumerable<IItem> GetAllItems() => _propertyCache.Values;
 
+  /// <summary>
+  /// Catalog-level pre-flight check. Runs applicatively across all participating
+  /// catalogs — every override is invoked, and failures are aggregated into one
+  /// report rather than short-circuiting on the first failure.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Use this for environmental concerns the catalog can answer with a fast,
+  /// side-effect-free probe: connection reachability, permission checks,
+  /// directory writability. <see cref="FlowValidation"/> deliberately exposes
+  /// applicative <c>Combine</c> only — independent checks within an override
+  /// should compose with <see cref="FlowValidation.Combine(FlowValidation[])"/>,
+  /// not with monadic chaining.
+  /// </para>
+  /// <para>
+  /// Default implementation returns <see cref="FlowValidation.Pass"/>; override
+  /// to add catalog-specific checks. Failures from this phase are surfaced as
+  /// a <see cref="FlowValidationException"/> before resource acquisition or
+  /// external-input inspection runs.
+  /// </para>
+  /// </remarks>
+  /// <param name="context">The current flow's identifying context.</param>
+  /// <returns>A passing or failing <see cref="FlowValidation"/>.</returns>
+  public virtual FlowValidation Validate(FlowExecutionContext context) => FlowValidation.Pass;
+
+  /// <summary>
+  /// Catalog-attached managed resource. Acquired by the framework after
+  /// <see cref="Validate"/> passes and before external-input inspection;
+  /// released in LIFO order on flow exit, regardless of success or failure.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Override to declare a transient resource the catalog owns — an ephemeral
+  /// database, a temp directory, an authentication token. The default returns
+  /// <c>null</c>, indicating no resource lifecycle.
+  /// </para>
+  /// <para>
+  /// The framework treats the returned <see cref="IFlowResource"/> as opaque;
+  /// concrete extensions return strongly typed
+  /// <see cref="FlowResource{TScope}"/> instances. C# 9 covariant returns let
+  /// derived classes narrow the property type — for example,
+  /// <c>protected override FlowResource&lt;DbScope&gt; Resource =&gt; …</c>.
+  /// </para>
+  /// </remarks>
+  public virtual IFlowResource? Resource => null;
 }
