@@ -1,7 +1,6 @@
 <Solution>
   <Project Path="src/core/Flowthru/Flowthru.csproj" />
   <Project Path="src/core/Flowthru.Core/Flowthru.Core.csproj" />
-  <Project Path="src/core/Flowthru.New.Core/Flowthru.New.Core.csproj" />
   <Project Path="src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj" />
   <Project Path="src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
   <Project Path="src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj" />
