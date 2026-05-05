@@ -14,9 +14,9 @@ public partial class Catalog
   public IItem<IEnumerable<PredictionSchema>> Predictions =>
     CreateItem(
       () =>
-        ItemFactory.Enumerable.Csv<PredictionSchema>(
+        ItemFactory.Enumerable.Json<PredictionSchema>(
           label: "Predictions",
-          filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.csv"
+          filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.json"
         )
     );
 }

@@ -1,7 +1,5 @@
 using Flowthru.Core.Cli;
 using Flowthru.Core.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
 using KedroIris.Data;
 using KedroIris.Flows.DataEngineering;
 using KedroIris.Flows.DataScience;
@@ -54,18 +52,6 @@ public class Program
       {
         flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
         flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
-
-        // Output pipeline metadata
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
 
         flowthru
           .RegisterFlow(label: "DataEngineering", flow: DataEngineeringFlow.Create)
