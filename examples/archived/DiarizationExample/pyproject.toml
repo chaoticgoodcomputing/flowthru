@@ -1,0 +1,32 @@
+[project]
+name = "diarization-example"
+version = "0.1.0"
+description = "Flowthru example demonstrating the IConfiguration → env-var bridge for Python services. Whisper transcription + pyannote speaker diarization."
+requires-python = ">=3.10"
+dependencies = [
+  # Flowthru's existing Python contract (DataFrames over Arrow IPC).
+  "pandas>=2.0.0",
+  "pyarrow>=18.0.0",
+
+  # Audio I/O — system ffmpeg binary is the actual dependency.
+  "ffmpeg-python>=0.2.0",
+  "soundfile>=0.12.1",
+  "numpy>=1.26.0",
+
+  # Whisper.
+  "openai-whisper>=20231117",
+
+  # pyannote (gated behind HF token + model-terms acceptance).
+  "pyannote.audio>=3.1.0",
+
+  # Used by the PyannoteDiarizer sidecar inspector for the HF API probe.
+  "httpx>=0.27.0",
+
+  # Reporting.
+  "jinja2>=3.1.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+  "pytest>=8.0.0",
+]
