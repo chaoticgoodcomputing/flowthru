@@ -26,7 +26,6 @@
   <Project Path="src/misc/Flowthru.Misc.ML/Flowthru.Misc.ML.csproj" />
   <Project Path="tests/helpers/Flowthru.Tests.Helpers/Flowthru.Tests.Helpers.csproj" />
   <Project Path="tests/integration/Flowthru.Tests.Examples/Flowthru.Tests.Examples.csproj" />
-  <Project Path="tests/integration/Flowthru.Tests.Templates/Flowthru.Tests.Templates.csproj" />
   <Project Path="tests/core/Flowthru.Tests/Flowthru.Tests.csproj" />
   <Project Path="tests/core/Flowthru.Core.Tests/Flowthru.Core.Tests.csproj" />
   <Project Path="tests/core/Flowthru.Core.CodeFixes.Tests/Flowthru.Core.CodeFixes.Tests.csproj" />
