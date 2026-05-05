@@ -1,3 +1,14 @@
+## 0.16.0 (2026-05-05)
+
+### 🚀 Features
+
+- flowthru catalog lifecycle hooks ([70126aff](https://github.com/chaoticgoodcomputing/flowthru/commit/70126aff))
+- further efcore production examples and infrastructure ([9d0614a9](https://github.com/chaoticgoodcomputing/flowthru/commit/9d0614a9))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.15.0 (2026-05-03)
 
 ### 🚀 Features

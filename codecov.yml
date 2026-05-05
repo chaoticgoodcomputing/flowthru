@@ -66,8 +66,6 @@ flags:
     carryforward: true
   Flowthru.Tests.Kits:
     carryforward: true
-  Flowthru.Tests.Templates:
-    carryforward: true
   FlowthruCoverage:
     carryforward: true
   KedroIris:
@@ -99,6 +97,8 @@ flags:
   SpaceflightsNewTypes:
     carryforward: true
   SpaceflightsPythonEFCore:
+    carryforward: true
+  SpaceflightsStagingSchema:
     carryforward: true
 component_management:
   individual_components:
