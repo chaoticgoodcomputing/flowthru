@@ -1,0 +1,15 @@
+<Project>
+  <!--
+    Auto-imported by NuGet consumers of Flowthru.New.Core. Adds the FP-foundation
+    namespaces as global usings so users can write Eff, Has, Validated, RuntimeError,
+    and PreFlightError without explicit using directives.
+
+    Mirrors Haskell's implicit Prelude import. When the rewrite completes and this
+    package is renamed to Flowthru.Core, this props file moves with it.
+  -->
+  <ItemGroup>
+    <Using Include="Flowthru.Prelude" />
+    <Using Include="Flowthru.Error" />
+    <Using Include="Flowthru.Validation" />
+  </ItemGroup>
+</Project>
