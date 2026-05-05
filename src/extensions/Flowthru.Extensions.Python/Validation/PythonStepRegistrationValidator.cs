@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Flowthru.Extensions.Python.Execution;
 using Flowthru.Extensions.Python.Runtime;
 using Python.Runtime;
@@ -33,15 +34,20 @@ namespace Flowthru.Extensions.Python.Validation;
 internal static class PythonStepRegistrationValidator
 {
   /// <summary>
-  /// Validates that a Python step can be registered.
+  /// Validates that a Python step can be registered, and returns metadata
+  /// extracted from its <c>@step</c> decorator.
   /// </summary>
   /// <param name="runtime">Python runtime for GIL management</param>
   /// <param name="moduleName">Python module name (e.g., "flows.steps.transform")</param>
   /// <param name="functionName">Python function name (e.g., "encode_species")</param>
+  /// <returns>
+  /// Decorator-derived metadata (currently the list of declared service
+  /// dependencies). Empty when no services are declared.
+  /// </returns>
   /// <exception cref="InvalidOperationException">
   /// Thrown if module, function, or decorator is missing or invalid
   /// </exception>
-  public static void ValidateRegistration(
+  public static PythonStepMetadata ValidateRegistration(
     PythonRuntime runtime,
     string moduleName,
     string functionName
@@ -117,8 +123,47 @@ internal static class PythonStepRegistrationValidator
         );
       }
 
-      // If we got here, basic registration requirements are met
-      // More thorough validation happens during pre-flight
+      // Basic registration requirements are met. Capture optional metadata
+      // (currently __flowthru_services__) for the caller. More thorough
+      // validation happens during pre-flight.
+      var services = ExtractServiceList(function);
+      return services.Count == 0
+        ? PythonStepMetadata.Empty
+        : new PythonStepMetadata(services);
     }
+  }
+
+  /// <summary>
+  /// Reads <c>__flowthru_services__</c> from the decorated function (a list
+  /// of fully-qualified Python class paths). Returns an empty list when the
+  /// attribute is missing — pre-existing steps without the decorator's new
+  /// <c>services=</c> parameter remain valid.
+  /// </summary>
+  /// <remarks>
+  /// Caller is expected to hold the GIL.
+  /// </remarks>
+  private static List<string> ExtractServiceList(PyObject function)
+  {
+    if (!function.HasAttr("__flowthru_services__"))
+    {
+      return new List<string>(capacity: 0);
+    }
+
+    using PyObject raw = function.GetAttr("__flowthru_services__");
+    // The decorator stores a Python list — wrap as PyList for IEnumerable
+    // support. PyObject.GetAttr returns the base PyObject type, which does
+    // not implement IEnumerable directly.
+    using var list = new PyList(raw);
+    var result = new List<string>(capacity: (int)list.Length());
+    foreach (PyObject item in list)
+    {
+      var value = item.ToString();
+      if (!string.IsNullOrEmpty(value))
+      {
+        result.Add(value);
+      }
+      item.Dispose();
+    }
+    return result;
   }
 }

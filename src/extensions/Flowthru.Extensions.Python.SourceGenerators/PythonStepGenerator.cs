@@ -169,20 +169,39 @@ public class PythonStepGenerator : IIncrementalGenerator
       """
     );
 
-    // Create wrapper with tuple types
+    // Build the FlowStep directly so wrapper.ServiceRefs (sourced from the
+    // @step decorator's services= parameter) flow into the step's
+    // ServiceDependencies. The standard AddStep path uses
+    // StepMetadataResolver which finds no _Metadata companion for the
+    // synthesized PythonStepWrapper transform.
+    var inputsArg =
+      inputCount == 1
+        ? "new System.Collections.Generic.List<global::Flowthru.Core.Graph.INode> { input }"
+        : "new System.Collections.Generic.List<global::Flowthru.Core.Graph.INode> { "
+          + GenerateInputsList(inputCount)
+          + " }";
+    var outputsArg =
+      outputCount == 1
+        ? "new System.Collections.Generic.List<global::Flowthru.Core.Graph.INode> { output }"
+        : "new System.Collections.Generic.List<global::Flowthru.Core.Graph.INode> { "
+          + GenerateOutputsList(outputCount)
+          + " }";
+
     sb.AppendLine(
       $$"""
           var wrapper = new PythonStepWrapper<{{inputTupleType}}, {{outputTupleType}}>(executor, module, function);
-          executor.ValidateStep(module, function);
+          var serviceRefs = wrapper.ServiceRefs.Count > 0 ? wrapper.ServiceRefs : null;
 
-          // Delegate to existing AddStep infrastructure
-          return builder.AddStep(
+          var flowStep = new global::Flowthru.Core.Graph.FlowStep(
             label: label,
-            transform: wrapper.GetTransform(),
-            input: input,
-            output: output,
-            description: description
+            description: description,
+            step: wrapper.GetTransform(),
+            inputs: {{inputsArg}},
+            outputs: {{outputsArg}},
+            serviceDependencies: serviceRefs
           );
+
+          return builder.AddFlowStep(flowStep);
         }
       """
     );

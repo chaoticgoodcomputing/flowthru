@@ -1,3 +1,5 @@
+using Flowthru.Extensions.Python.Services;
+
 namespace Flowthru.Extensions.Python.Runtime;
 
 /// <summary>
@@ -127,4 +129,85 @@ public sealed class PythonRuntimeOptions
   /// </para>
   /// </remarks>
   public List<string> ModuleSearchPaths { get; set; } = new();
+
+  /// <summary>
+  /// Name of the <see cref="Microsoft.Extensions.Configuration.IConfiguration"/>
+  /// section to flatten into env vars at subprocess spawn. Empty (default)
+  /// disables the bridge — no IConfiguration values are exported to Python.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Set to a top-level section name (e.g. <c>"Diarization"</c>) to enable
+  /// the bridge. The flattener walks that section recursively, joining
+  /// nested keys with .NET's native <c>__</c> separator. Python-side
+  /// consumers — <c>flowthru.config</c>, <c>pydantic-settings</c>, plain
+  /// <c>os.environ</c> — see the resulting env vars and re-nest as needed.
+  /// </para>
+  /// <para>
+  /// Use a path like <c>"Flowthru:Python:Services"</c> to scope a deeper
+  /// section instead of the project's root config.
+  /// </para>
+  /// </remarks>
+  public string ConfigurationSection { get; set; } = string.Empty;
+
+  /// <summary>
+  /// Service ↔ sidecar-inspector registrations populated by
+  /// <see cref="RegisterService(string, Action{PythonServiceBuilder})"/>.
+  /// Consumed by <see cref="IPythonServiceInspectorRegistry"/> at
+  /// preflight time. Internal — users should not mutate this directly.
+  /// </summary>
+  internal Dictionary<string, PythonServiceRegistration> ServiceRegistrations { get; } =
+    new(StringComparer.Ordinal);
+
+  /// <summary>
+  /// Registers a Python service for preflight inspection via a separately-
+  /// defined sidecar inspector module. Mirrors .NET's
+  /// <c>AddFlowthruInspect&lt;TService, TInspector&gt;()</c>: the service
+  /// class is unmodified user code; the inspector is a Python module that
+  /// exports an <c>inspect(svc)</c> function returning a
+  /// <c>flowthru.ValidationResult</c>.
+  /// </summary>
+  /// <param name="serviceClassPath">
+  /// Fully-qualified Python class path of the service — e.g.
+  /// <c>"Services.PyannoteDiarizer"</c>. Must match the value emitted by
+  /// the corresponding Python <c>@step(services=[...])</c> decorator.
+  /// </param>
+  /// <param name="configure">
+  /// Builder lambda; must call
+  /// <see cref="PythonServiceBuilder.WithInspector(string, string)"/> to
+  /// declare the sidecar inspector module.
+  /// </param>
+  /// <returns>This options instance, for chaining.</returns>
+  /// <example>
+  /// <code>
+  /// flowthru.UsePython(python =>
+  /// {
+  ///     python.ConfigurationSection = "Diarization";
+  ///     python.RegisterService("Services.PyannoteDiarizer", svc => svc
+  ///         .WithInspector("Services.pyannote_diarizer_inspector"));
+  /// });
+  /// </code>
+  /// </example>
+  public PythonRuntimeOptions RegisterService(
+    string serviceClassPath,
+    Action<PythonServiceBuilder> configure
+  )
+  {
+    if (string.IsNullOrWhiteSpace(serviceClassPath))
+    {
+      throw new ArgumentException(
+        "Service class path cannot be null or whitespace.",
+        nameof(serviceClassPath)
+      );
+    }
+    if (configure is null)
+    {
+      throw new ArgumentNullException(nameof(configure));
+    }
+
+    var builder = new PythonServiceBuilder(serviceClassPath);
+    configure(builder);
+    ServiceRegistrations[serviceClassPath] = builder.Build();
+    return this;
+  }
 }

@@ -1,3 +1,4 @@
+using Flowthru.Core.Effects;
 using Flowthru.Core.Steps;
 
 namespace Flowthru.Core.Graph;
@@ -91,21 +92,22 @@ public class FlowStep
   public IReadOnlyList<INode> Outputs { get; }
 
   /// <summary>
-  /// Service types this step depends on, used by the preflight loop to look up
-  /// matching <see cref="Effects.IFlowthruInspector{TService}"/> registrations and
-  /// run reachability probes before the flow executes.
+  /// Service references this step depends on, used by the preflight loop to look up
+  /// matching inspector registrations and run reachability probes before the flow
+  /// executes. C# services dispatch via <see cref="Effects.IFlowthruInspector{TService}"/>;
+  /// Python services dispatch via the Python extension's inspector registry.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Defaults to an empty list when constructed via <c>FlowBuilder.AddStep</c>
-  /// — Phase 3 of the effects-as-steps initiative ships the inspection mechanism but
-  /// not the source-generated metadata that populates this list. Until the metadata
-  /// generator lands (Phase 4), real flows pay no preflight cost from service inspection;
-  /// tests construct <see cref="FlowStep"/> directly with explicit service deps to
-  /// exercise the inspection path.
+  /// For C# steps annotated with <c>[FlowthruStep]</c>, the source-generated
+  /// <c>{StepClassName}_Metadata</c> companion class populates this list with
+  /// <see cref="ServiceRef.CSharp"/> entries inferred from the step's
+  /// <c>Create(...)</c> factory's interface-typed parameters. For Python steps,
+  /// the <c>AddPythonStep</c> wiring populates it with <see cref="ServiceRef.Python"/>
+  /// entries derived from the <c>@step(services=[...])</c> decorator.
   /// </para>
   /// </remarks>
-  public IReadOnlyList<Type> ServiceDependencies { get; }
+  public IReadOnlyList<ServiceRef> ServiceDependencies { get; }
 
   /// <summary>
   /// Other Flow steps that must execute before this step.
@@ -165,9 +167,10 @@ public class FlowStep
   /// <param name="inputs">Catalog entries this step reads</param>
   /// <param name="outputs">Catalog entries this step writes</param>
   /// <param name="serviceDependencies">
-  /// Service types this step's transform depends on. The engine uses these to look up
-  /// matching <see cref="Effects.IFlowthruInspector{TService}"/> registrations during
-  /// preflight. Pass <c>null</c> for steps with no service dependencies (the default).
+  /// Service refs this step's transform depends on. The engine uses these to look up
+  /// matching inspector registrations during preflight (C# via
+  /// <see cref="Effects.IFlowthruInspector{TService}"/>, Python via the extension's
+  /// inspector registry). Pass <c>null</c> for steps with no service dependencies.
   /// </param>
   public FlowStep(
     string label,
@@ -175,7 +178,7 @@ public class FlowStep
     Delegate step,
     IReadOnlyList<INode> inputs,
     IReadOnlyList<INode> outputs,
-    IReadOnlyList<Type>? serviceDependencies
+    IReadOnlyList<ServiceRef>? serviceDependencies
   )
   {
     Label = label;
@@ -183,6 +186,6 @@ public class FlowStep
     TransformFunction = step;
     Inputs = inputs;
     Outputs = outputs;
-    ServiceDependencies = serviceDependencies ?? Array.Empty<Type>();
+    ServiceDependencies = serviceDependencies ?? Array.Empty<ServiceRef>();
   }
 }

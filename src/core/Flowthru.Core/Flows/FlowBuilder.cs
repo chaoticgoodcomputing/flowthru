@@ -164,4 +164,25 @@ public partial class FlowBuilder
     _flow.AddStep(flowStep);
     return this;
   }
+
+  /// <summary>
+  /// Appends a pre-constructed <see cref="FlowStep"/> to the flow. Provided
+  /// as an extension hook for callers that build the step directly with
+  /// non-default service dependencies — typically extensions whose service
+  /// discovery happens outside the C# <c>[FlowthruStep]</c> source-gen
+  /// path (e.g. the Python extension reads <c>__flowthru_services__</c> off
+  /// a Python decorator at registration time).
+  /// </summary>
+  /// <param name="flowStep">The pre-constructed step to append.</param>
+  /// <returns>This builder for method chaining.</returns>
+  /// <exception cref="ArgumentNullException">When <paramref name="flowStep"/> is null.</exception>
+  public FlowBuilder AddFlowStep(FlowStep flowStep)
+  {
+    if (flowStep is null)
+    {
+      throw new ArgumentNullException(nameof(flowStep));
+    }
+    _flow.AddStep(flowStep);
+    return this;
+  }
 }

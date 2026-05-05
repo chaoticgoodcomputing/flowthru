@@ -1,3 +1,4 @@
+using Flowthru.Core.Effects;
 using Flowthru.Core.Steps;
 
 namespace Flowthru.Core.Tests.Execution;
@@ -23,7 +24,16 @@ public class StepMetadataResolverTests
 
     var deps = StepMetadataResolver.GetServiceDependencies(transform);
 
-    Assert.That(deps, Is.EquivalentTo(new[] { typeof(IFakeService), typeof(IOtherService) }));
+    Assert.That(
+      deps,
+      Is.EquivalentTo(
+        new ServiceRef[]
+        {
+          ServiceRef.Of<IFakeService>(),
+          ServiceRef.Of<IOtherService>(),
+        }
+      )
+    );
   }
 
   [Test]
@@ -101,10 +111,10 @@ public class StepMetadataResolverTests
   {
     public static readonly StepTraits Traits = new(IsIdempotent: true, HasSideEffects: true);
 
-    public static readonly IReadOnlyList<Type> ServiceDependencies = new[]
+    public static readonly IReadOnlyList<ServiceRef> ServiceDependencies = new ServiceRef[]
     {
-      typeof(IFakeService),
-      typeof(IOtherService),
+      new ServiceRef.CSharp(typeof(IFakeService)),
+      new ServiceRef.CSharp(typeof(IOtherService)),
     };
   }
 

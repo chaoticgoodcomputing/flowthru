@@ -68,10 +68,20 @@
              Link="flowthru\__init__.py"
              Pack="true" 
              PackagePath="build\flowthru\" />
-    <Content Include="build\flowthru\step.py" 
-             CopyToOutputDirectory="PreserveNewest" 
+    <Content Include="build\flowthru\step.py"
+             CopyToOutputDirectory="PreserveNewest"
              Link="flowthru\step.py"
-             Pack="true" 
+             Pack="true"
+             PackagePath="build\flowthru\" />
+    <Content Include="build\flowthru\validation.py"
+             CopyToOutputDirectory="PreserveNewest"
+             Link="flowthru\validation.py"
+             Pack="true"
+             PackagePath="build\flowthru\" />
+    <Content Include="build\flowthru\config.py"
+             CopyToOutputDirectory="PreserveNewest"
+             Link="flowthru\config.py"
+             Pack="true"
              PackagePath="build\flowthru\" />
   </ItemGroup>
 

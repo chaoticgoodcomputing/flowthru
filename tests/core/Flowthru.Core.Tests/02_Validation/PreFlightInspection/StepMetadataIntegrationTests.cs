@@ -91,7 +91,12 @@ public class StepMetadataIntegrationTests
     var step = flow.Steps.Single();
     Assert.That(
       step.ServiceDependencies,
-      Is.EquivalentTo(new[] { typeof(IIntegrationFakeService) }),
+      Is.EquivalentTo(
+        new Flowthru.Core.Effects.ServiceRef[]
+        {
+          Flowthru.Core.Effects.ServiceRef.Of<IIntegrationFakeService>(),
+        }
+      ),
       "ServiceDependencies should be populated from the source-generated metadata"
     );
 
@@ -201,7 +206,12 @@ public class StepMetadataIntegrationTests
       Assert.That(mergedStep.Label, Is.EqualTo("A.ServiceConsumingStep"));
       Assert.That(
         mergedStep.ServiceDependencies,
-        Is.EquivalentTo(new[] { typeof(IIntegrationFakeService) }),
+        Is.EquivalentTo(
+          new Flowthru.Core.Effects.ServiceRef[]
+          {
+            Flowthru.Core.Effects.ServiceRef.Of<IIntegrationFakeService>(),
+          }
+        ),
         "Flow.Merge must forward ServiceDependencies; DagBuilder/Mermaid metadata depends on this"
       );
     });

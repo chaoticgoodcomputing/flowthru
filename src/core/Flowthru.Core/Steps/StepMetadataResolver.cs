@@ -1,4 +1,5 @@
 using System.Reflection;
+using Flowthru.Core.Effects;
 
 namespace Flowthru.Core.Steps;
 
@@ -32,29 +33,29 @@ public static class StepMetadataResolver
   /// Looks up the service-dependency list for the step class declaring the given
   /// transform delegate. Returns an empty list when no metadata is found.
   /// </summary>
-  public static IReadOnlyList<Type> GetServiceDependencies(Delegate transform)
+  public static IReadOnlyList<ServiceRef> GetServiceDependencies(Delegate transform)
   {
     if (transform is null)
     {
-      return Array.Empty<Type>();
+      return Array.Empty<ServiceRef>();
     }
 
     var metadataType = ResolveMetadataType(transform);
     if (metadataType is null)
     {
-      return Array.Empty<Type>();
+      return Array.Empty<ServiceRef>();
     }
 
     var field = metadataType.GetField(
       ServiceDependenciesFieldName,
       BindingFlags.Public | BindingFlags.Static
     );
-    if (field?.GetValue(null) is IReadOnlyList<Type> deps)
+    if (field?.GetValue(null) is IReadOnlyList<ServiceRef> refs)
     {
-      return deps;
+      return refs;
     }
 
-    return Array.Empty<Type>();
+    return Array.Empty<ServiceRef>();
   }
 
   /// <summary>

@@ -12,7 +12,20 @@ Init (first message):
 
 Validate:
     {"type": "validate", "module": "...", "function": "..."}
-    Response: {"status": "ok"} | {"status": "error", "message": "..."}
+    Response: {"status": "ok", "services": ["module.Class", ...]}
+            | {"status": "error", "message": "..."}
+
+Inspect:
+    {
+      "type": "inspect",
+      "service_module": "...",
+      "service_class": "...",
+      "inspector_module": "...",
+      "inspector_function": "inspect"            # optional; default "inspect"
+    }
+    Response: {"status": "ok", "result": {"success": bool, "source": str,
+                                          "error_type": str, "message": str}}
+            | {"status": "error", "message": "..."}
 
 Invoke:
     {
@@ -90,7 +103,83 @@ def _handle_validate(msg: dict) -> dict:
                 "status": "error",
                 "message": f"Function '{fn}' not found in module '{msg['module']}'",
             }
-        return {"status": "ok"}
+        func = getattr(mod, fn)
+        # Surface the @step decorator's service-dependency list so the C#
+        # FlowStep can register them as ServiceRef.Python entries before the
+        # DAG is finalized. Empty list when the step declares no services.
+        services = list(getattr(func, "__flowthru_services__", []))
+        return {"status": "ok", "services": services}
+    except Exception:
+        return {"status": "error", "message": traceback.format_exc()}
+
+
+# ---------------------------------------------------------------------------
+# Inspect (sidecar service preflight)
+# ---------------------------------------------------------------------------
+
+def _handle_inspect(msg: dict) -> dict:
+    """
+    Run a sidecar inspector against a constructed service instance.
+
+    Message shape:
+        {
+          "type": "inspect",
+          "service_module":    "Services.pyannote_diarizer",
+          "service_class":     "PyannoteDiarizer",
+          "inspector_module":  "Services.pyannote_diarizer_inspector",
+          "inspector_function": "inspect"          # optional, default "inspect"
+        }
+
+    Response shape on success:
+        {"status": "ok", "result": {<ValidationResult.to_dict()>}}
+
+    The service instance is constructed with no arguments — config is
+    expected to flow in via env vars (see flowthru.config). The inspector
+    function receives the constructed instance and returns a
+    flowthru.ValidationResult.
+    """
+    try:
+        service_mod = _get_module(msg["service_module"])
+        service_cls_name = msg["service_class"]
+        if not hasattr(service_mod, service_cls_name):
+            return {
+                "status": "error",
+                "message": (
+                    f"Service class '{service_cls_name}' not found in module "
+                    f"'{msg['service_module']}'."
+                ),
+            }
+        service_cls = getattr(service_mod, service_cls_name)
+        svc = service_cls()  # zero-arg construction; config from env
+
+        inspector_mod = _get_module(msg["inspector_module"])
+        inspector_fn_name = msg.get("inspector_function", "inspect")
+        if not hasattr(inspector_mod, inspector_fn_name):
+            return {
+                "status": "error",
+                "message": (
+                    f"Inspector function '{inspector_fn_name}' not found in "
+                    f"module '{msg['inspector_module']}'."
+                ),
+            }
+        inspector_fn = getattr(inspector_mod, inspector_fn_name)
+        result = inspector_fn(svc)
+
+        # Accept either a flowthru.ValidationResult instance (preferred)
+        # or a duck-typed object with a to_dict() method, or a raw dict.
+        if hasattr(result, "to_dict"):
+            payload = result.to_dict()
+        elif isinstance(result, dict):
+            payload = result
+        else:
+            return {
+                "status": "error",
+                "message": (
+                    f"Inspector '{msg['inspector_module']}.{inspector_fn_name}' "
+                    f"returned {type(result).__name__}; expected ValidationResult."
+                ),
+            }
+        return {"status": "ok", "result": payload}
     except Exception:
         return {"status": "error", "message": traceback.format_exc()}
 
@@ -257,6 +346,8 @@ def main() -> None:
             resp = _handle_validate(msg)
         elif msg_type == "invoke":
             resp = _handle_invoke(msg)
+        elif msg_type == "inspect":
+            resp = _handle_inspect(msg)
         else:
             resp = {"status": "error", "message": f"Unknown message type: {msg_type!r}"}
 

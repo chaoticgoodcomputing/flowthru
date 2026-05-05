@@ -205,18 +205,22 @@ public sealed class StepMetadataGenerator : IIncrementalGenerator
       $"    new global::Flowthru.Core.Steps.StepTraits(IsIdempotent: {(info.IsIdempotent ? "true" : "false")}, HasSideEffects: {(info.HasSideEffects ? "true" : "false")});"
     );
     sb.AppendLine();
-    sb.AppendLine("  public static readonly IReadOnlyList<Type> ServiceDependencies =");
+    sb.AppendLine(
+      "  public static readonly IReadOnlyList<global::Flowthru.Core.Effects.ServiceRef> ServiceDependencies ="
+    );
     if (info.ServiceTypeFullNames.IsDefaultOrEmpty)
     {
-      sb.AppendLine("    Array.Empty<Type>();");
+      sb.AppendLine("    Array.Empty<global::Flowthru.Core.Effects.ServiceRef>();");
     }
     else
     {
-      sb.AppendLine("    new Type[]");
+      sb.AppendLine("    new global::Flowthru.Core.Effects.ServiceRef[]");
       sb.AppendLine("    {");
       foreach (var typeFullName in info.ServiceTypeFullNames)
       {
-        sb.AppendLine($"      typeof({typeFullName}),");
+        sb.AppendLine(
+          $"      new global::Flowthru.Core.Effects.ServiceRef.CSharp(typeof({typeFullName})),"
+        );
       }
       sb.AppendLine("    };");
     }

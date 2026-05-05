@@ -7,14 +7,20 @@ functions and C# pipeline registrations.
 """
 
 
-def step(inputs=None, outputs=None):
+def step(inputs=None, outputs=None, services=None):
     """
-    Declares the input and output schemas for a Python step function.
+    Declares the input/output schemas and service dependencies for a Python step.
 
-    This decorator attaches metadata (__flowthru_inputs__, __flowthru_outputs__)
-    that Flowthru's pre-flight validator reads via Python.NET. The validator
-    compares this metadata against the C# generic type parameters used during
-    step registration to catch schema mismatches before pipeline execution.
+    This decorator attaches metadata to the function that Flowthru reads at
+    registration time:
+
+    * ``__flowthru_inputs__`` — schema names for inputs (matched against
+      C# generic type parameters during pre-flight).
+    * ``__flowthru_outputs__`` — schema names for outputs (same).
+    * ``__flowthru_services__`` — fully-qualified class paths of services
+      this step depends on (e.g., ``"Services.PyannoteDiarizer"``). The
+      Flowthru preflight loop runs each declared service's registered
+      sidecar inspector before any step executes.
 
     Args:
         inputs: Single schema type or list of schema types for inputs.
@@ -23,48 +29,36 @@ def step(inputs=None, outputs=None):
         outputs: Single schema type or list of schema types for outputs.
                  For single-output steps: outputs=SchemaType or outputs=[SchemaType]
                  For multi-output steps: outputs=[Schema1, Schema2, ...]
+        services: Optional list of service classes the step depends on.
+                  Each entry should be a class reference (or fully-qualified
+                  string). The decorator resolves each to a stable
+                  ``"module.ClassName"`` path at decoration time using the
+                  class's ``__module__`` and ``__qualname__``.
 
     Returns:
-        Decorated function with __flowthru_inputs__ and __flowthru_outputs__ attributes.
+        Decorated function with the metadata attributes above.
 
     Example:
-        Single input, single output (tabular):
+        With a service dependency:
 
             from flowthru import step
-            from flowthru_schemas import IrisRawSchema, IrisFeatureSchema
-
-            @step(inputs=[IrisRawSchema], outputs=[IrisFeatureSchema])
-            def transform(df):
-                return df.assign(species_encoded=df['species'].map({...}))
-
-        Single input, single output (scalar):
-
-            from flowthru import step
-            from flowthru_schemas import ModelConfig, ModelMetrics
-
-            @step(inputs=[ModelConfig], outputs=[ModelMetrics])
-            def train_model(config):
-                accuracy = config['LearningRate'] * config['Iterations'] / 100.0
-                return {'Accuracy': accuracy, 'Loss': 1.0 - accuracy}
-
-        Multi-input, multi-output (Phase 5):
+            from flowthru_schemas import NormalizedAudio, DiarizationSegmentSchema
+            from Services import PyannoteDiarizer
 
             @step(
-                inputs=[TrainDataSchema, TestDataSchema],
-                outputs=[FeaturesSchema, LabelsSchema]
+                inputs=[NormalizedAudio],
+                outputs=[DiarizationSegmentSchema],
+                services=[PyannoteDiarizer],
             )
-            def split_features(train_df, test_df):
-                features = ...
-                labels = ...
-                return features, labels
+            def diarize(clips, diarizer):
+                ...
 
     Notes:
         - The decorator is required for all Python steps in Flowthru pipelines.
-        - Schema types should be imported from the generated flowthru_schemas package
-          (available in Phase 5), or referenced by name as strings.
-        - For Phase 4, pass schema type objects or class references directly.
         - The decorator has no runtime behavior — it only attaches metadata for
           pre-flight validation.
+        - Services in ``services=[...]`` must have a registered sidecar
+          inspector on the C# side (see ``python.RegisterService(...)``).
     """
     # Normalize inputs to list
     if inputs is None:
@@ -82,6 +76,16 @@ def step(inputs=None, outputs=None):
     else:
         output_list = [outputs]
 
+    # Normalize services to list of fully-qualified class paths.
+    # Class refs are resolved via __module__ + __qualname__ at decoration time
+    # so the C# side gets a stable string identity without needing to import
+    # the class itself.
+    if services is None:
+        service_paths = []
+    else:
+        service_iter = services if isinstance(services, list) else [services]
+        service_paths = [_extract_service_path(s) for s in service_iter]
+
     def decorator(func):
         """Inner decorator that attaches metadata to the function."""
         # Extract schema names from type objects
@@ -92,10 +96,31 @@ def step(inputs=None, outputs=None):
         func.__flowthru_outputs__ = [
             _extract_schema_name(schema) for schema in output_list
         ]
+        func.__flowthru_services__ = list(service_paths)
 
         return func
 
     return decorator
+
+
+def _extract_service_path(service):
+    """
+    Resolve a service to a fully-qualified ``"module.ClassName"`` path.
+
+    Accepts class references (preferred) and strings. Strings pass through
+    verbatim — useful for forward-references when the class itself isn't
+    yet importable at decoration time.
+    """
+    if isinstance(service, str):
+        return service
+    if isinstance(service, type):
+        module = getattr(service, "__module__", "")
+        qualname = getattr(service, "__qualname__", service.__name__)
+        return f"{module}.{qualname}" if module else qualname
+    raise TypeError(
+        f"@step(services=[...]) entries must be class references or strings; "
+        f"got {service!r} ({type(service).__name__})."
+    )
 
 
 def _extract_schema_name(schema):

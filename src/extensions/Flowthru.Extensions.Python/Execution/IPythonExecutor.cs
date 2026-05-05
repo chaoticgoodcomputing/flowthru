@@ -1,3 +1,6 @@
+using Flowthru.Core.Data.Validation;
+using Flowthru.Extensions.Python.Services;
+
 namespace Flowthru.Extensions.Python.Execution;
 
 /// <summary>
@@ -25,6 +28,7 @@ namespace Flowthru.Extensions.Python.Execution;
 /// <item>Function resolution and invocation</item>
 /// <item>Argument marshalling (C# ↔ Python) — scalar, tabular (Arrow IPC), and raw bytes</item>
 /// <item>Error propagation (Python exceptions → <see cref="InvalidOperationException"/>)</item>
+/// <item>Sidecar inspector invocation — see <see cref="InvokeInspector"/></item>
 /// </list>
 /// </para>
 /// </remarks>
@@ -54,13 +58,49 @@ public interface IPythonExecutor
   TOutput Invoke<TInput, TOutput>(string moduleName, string functionName, TInput input);
 
   /// <summary>
-  /// Validates that a Python step exists and satisfies Flowthru's <c>@step</c> contract.
+  /// Validates that a Python step exists and satisfies Flowthru's <c>@step</c> contract,
+  /// returning metadata extracted from the decorator.
   /// </summary>
   /// <param name="moduleName">Dotted Python module name.</param>
   /// <param name="functionName">Python function name within the module.</param>
+  /// <returns>
+  /// Metadata read from the <c>@step</c> decorator — currently the list of declared
+  /// service dependencies (<c>__flowthru_services__</c>). Returns
+  /// <see cref="PythonStepMetadata.Empty"/> when the step declares no services.
+  /// </returns>
   /// <exception cref="InvalidOperationException">
   /// Thrown if the module is not importable, the function is missing, or the
   /// <c>@step</c> decorator is absent.
   /// </exception>
-  void ValidateStep(string moduleName, string functionName);
+  PythonStepMetadata ValidateStep(string moduleName, string functionName);
+
+  /// <summary>
+  /// Runs a sidecar inspector against a freshly-constructed instance of the
+  /// declared Python service. The C# preflight loop dispatches one
+  /// <c>InvokeInspector</c> call per registered Python service before any
+  /// step in the flow executes.
+  /// </summary>
+  /// <param name="registration">
+  /// The service ↔ inspector linkage from
+  /// <see cref="IPythonServiceInspectorRegistry"/>.
+  /// </param>
+  /// <returns>
+  /// The inspector's <see cref="ValidationResult"/>. The Python side returns
+  /// a <c>flowthru.ValidationResult</c> dataclass; this method translates
+  /// the wire-format payload into the C# domain type.
+  /// </returns>
+  /// <exception cref="InvalidOperationException">
+  /// Thrown when the service module/class or inspector module/function
+  /// cannot be resolved, when service construction raises, or when the
+  /// inspector returns something other than a <c>ValidationResult</c>.
+  /// </exception>
+  /// <remarks>
+  /// The Python service class is constructed with no arguments — service
+  /// configuration is expected to flow in via env vars (the
+  /// <c>flowthru.config</c> bridge). Inspector calls reuse the same
+  /// long-lived subprocess that step invocations use; the constructed
+  /// service instance is cached in the worker's module-cache and lives
+  /// for the worker's lifetime.
+  /// </remarks>
+  ValidationResult InvokeInspector(PythonServiceRegistration registration);
 }

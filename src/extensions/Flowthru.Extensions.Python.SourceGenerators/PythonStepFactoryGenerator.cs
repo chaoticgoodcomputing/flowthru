@@ -98,10 +98,15 @@ public class PythonStepFactoryGenerator : IIncrementalGenerator
 
   private static PythonStepInfo? ParsePythonStep(string filePath, string content)
   {
-    // Regex to match @step decorator with inputs/outputs
+    // Regex to match @step decorator with inputs/outputs.
     // Handles: @step(inputs=["Schema1", "Schema2"], outputs=["Schema3"])
+    // Also tolerates the optional `services=[...]` parameter introduced
+    // alongside Python sidecar inspectors — the generator does not consume
+    // those entries (services flow through at runtime via the worker's
+    // validate-response), it just needs to not break on their presence.
     var decoratorPattern =
-      @"@step\s*\(\s*inputs\s*=\s*\[([^\]]*)\]\s*,\s*outputs\s*=\s*(\[[^\]]*\]|None)\s*\)";
+      @"@step\s*\(\s*inputs\s*=\s*\[([^\]]*)\]\s*,\s*outputs\s*=\s*(\[[^\]]*\]|None)"
+        + @"(?:\s*,\s*services\s*=\s*\[[^\]]*\])?\s*\)";
     var functionPattern = @"def\s+(\w+)\s*\(";
 
     var decoratorMatch = Regex.Match(content, decoratorPattern);

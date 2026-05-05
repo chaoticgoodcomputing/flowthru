@@ -80,6 +80,20 @@
           PackagePath="build\flowthru"
           Visible="false"
           Link="flowthru\step.py" />
+    <None Include="$(MSBuildThisFileDirectory)flowthru\validation.py"
+          CopyToOutputDirectory="PreserveNewest"
+          PackageCopyToOutput="true"
+          Pack="true"
+          PackagePath="build\flowthru"
+          Visible="false"
+          Link="flowthru\validation.py" />
+    <None Include="$(MSBuildThisFileDirectory)flowthru\config.py"
+          CopyToOutputDirectory="PreserveNewest"
+          PackageCopyToOutput="true"
+          Pack="true"
+          PackagePath="build\flowthru"
+          Visible="false"
+          Link="flowthru\config.py" />
   </ItemGroup>
 
   <!--

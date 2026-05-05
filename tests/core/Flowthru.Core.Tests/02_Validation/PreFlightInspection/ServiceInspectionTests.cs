@@ -292,7 +292,7 @@ public class ServiceInspectionTests
         step: transform,
         inputs: new INode[] { catalog.Input },
         outputs: new INode[] { catalog.Output },
-        serviceDependencies: new[] { typeof(TService) }
+        serviceDependencies: new Flowthru.Core.Effects.ServiceRef[] { Flowthru.Core.Effects.ServiceRef.Of(typeof(TService)) }
       )
     );
 
@@ -319,7 +319,7 @@ public class ServiceInspectionTests
         step: transform,
         inputs: new INode[] { catalog.Input },
         outputs: new INode[] { catalog.StepOne },
-        serviceDependencies: new[] { typeof(TService) }
+        serviceDependencies: new Flowthru.Core.Effects.ServiceRef[] { Flowthru.Core.Effects.ServiceRef.Of(typeof(TService)) }
       )
     );
 
@@ -330,7 +330,7 @@ public class ServiceInspectionTests
         step: transform,
         inputs: new INode[] { catalog.StepOne },
         outputs: new INode[] { catalog.Output },
-        serviceDependencies: new[] { typeof(TService) }
+        serviceDependencies: new Flowthru.Core.Effects.ServiceRef[] { Flowthru.Core.Effects.ServiceRef.Of(typeof(TService)) }
       )
     );
 

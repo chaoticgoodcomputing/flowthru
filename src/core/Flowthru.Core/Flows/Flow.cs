@@ -736,10 +736,12 @@ public class Flow
       return aggregate;
     }
 
-    // Deduplicate service types across steps so each unique service is probed once.
+    // Deduplicate service refs across steps so each unique service is probed once.
+    // ServiceRef is a value-equality record, so GroupBy unifies CSharp(typeof(X))
+    // and Python("X.Y.Z") refs by their underlying identity.
     var serviceGroups = stepsToExecute
-      .SelectMany(step => step.ServiceDependencies.Select(t => (Step: step, ServiceType: t)))
-      .GroupBy(pair => pair.ServiceType)
+      .SelectMany(step => step.ServiceDependencies.Select(r => (Step: step, ServiceRef: r)))
+      .GroupBy(pair => pair.ServiceRef)
       .ToList();
 
     if (serviceGroups.Count == 0)
@@ -749,91 +751,151 @@ public class Flow
     }
 
     Logger?.LogInformation(
-      "Inspecting {ServiceCount} unique service dependency type(s) across {StepCount} step(s)",
+      "Inspecting {ServiceCount} unique service dependency ref(s) across {StepCount} step(s)",
       serviceGroups.Count,
       stepsToExecute.Count
     );
 
+    // Extension-provided dispatchers handle non-CSharp variants (e.g. Python).
+    // Core handles CSharp directly. Resolved once outside the loop.
+    var dispatchers = (
+      ServiceProvider.GetService(typeof(IEnumerable<Effects.IServiceRefDispatcher>))
+        as IEnumerable<Effects.IServiceRefDispatcher>
+    )?.ToList() ?? new List<Effects.IServiceRefDispatcher>();
+
     foreach (var group in serviceGroups)
     {
-      var serviceType = group.Key;
+      var serviceRef = group.Key;
       var stepsUsingService = string.Join(
         ", ",
         group.Select(g => g.Step.Label).Distinct()
       );
 
-      // Resolve the service instance.
-      var serviceInstance = ServiceProvider.GetService(serviceType);
-      if (serviceInstance is null)
+      Data.Validation.ValidationResult probeResult;
+      if (serviceRef is Effects.ServiceRef.CSharp csharp)
       {
-        Logger?.LogWarning(
-          "Service '{ServiceType}' (used by step(s) '{Steps}') is not registered in DI; "
-            + "preflight cannot inspect it.",
-          serviceType.FullName,
-          stepsUsingService
-        );
-        continue;
-      }
-
-      // Resolve the IFlowthruInspector<TService> sidecar.
-      var inspectorType = typeof(Effects.IFlowthruInspector<>).MakeGenericType(serviceType);
-      var inspector = ServiceProvider.GetService(inspectorType);
-      if (inspector is null)
-      {
-        Logger?.LogWarning(
-          "Service '{ServiceType}' (used by step(s) '{Steps}') has no registered "
-            + "IFlowthruInspector<{ServiceTypeName}>. Use services.AddFlowthruInspect<{ServiceTypeName}>(...) "
-            + "to enable preflight inspection.",
-          serviceType.FullName,
+        probeResult = await InspectCSharpServiceAsync(
+          csharp.ServiceType,
           stepsUsingService,
-          serviceType.Name,
-          serviceType.Name
+          cancellationToken
         );
-        continue;
       }
-
-      // Invoke the inspector reflectively. The inspector itself is strongly-typed;
-      // only the lookup is reflective.
-      try
+      else
       {
-        var inspectMethod = inspectorType.GetMethod(
-          nameof(Effects.IFlowthruInspector<object>.InspectAsync)
-        )!;
-        var flowIo = (FlowIO<Data.Validation.ValidationResult>)
-          inspectMethod.Invoke(inspector, new[] { serviceInstance, (object)cancellationToken })!;
-        var probeResult = await flowIo.Run(cancellationToken);
-        aggregate.Merge(probeResult);
-
-        if (probeResult.IsValid)
-        {
-          Logger?.LogInformation(
-            "Service '{ServiceType}' passed preflight inspection",
-            serviceType.FullName
-          );
-        }
-        else
+        var dispatcher = dispatchers.FirstOrDefault(d => d.CanHandle(serviceRef));
+        if (dispatcher is null)
         {
           Logger?.LogWarning(
-            "Service '{ServiceType}' failed preflight inspection: {ErrorCount} error(s)",
-            serviceType.FullName,
-            probeResult.Errors.Count
+            "Service '{ServiceRef}' (used by step(s) '{Steps}') has no matching "
+              + "IServiceRefDispatcher registered; preflight cannot inspect it.",
+            serviceRef.DagId,
+            stepsUsingService
+          );
+          continue;
+        }
+
+        try
+        {
+          probeResult = await dispatcher.InspectAsync(serviceRef, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+          Logger?.LogError(
+            ex,
+            "Exception during preflight inspection of service '{ServiceRef}'",
+            serviceRef.DagId
+          );
+          probeResult = Data.Validation.ValidationResult.FromException(
+            serviceRef.DisplayName,
+            ex
           );
         }
       }
-      catch (Exception ex)
+
+      aggregate.Merge(probeResult);
+
+      if (probeResult.IsValid)
       {
-        Logger?.LogError(
-          ex,
-          "Exception during preflight inspection of service '{ServiceType}'",
-          serviceType.FullName
+        Logger?.LogInformation(
+          "Service '{ServiceRef}' passed preflight inspection",
+          serviceRef.DagId
         );
-        aggregate.Merge(
-          Data.Validation.ValidationResult.FromException(serviceType.Name, ex)
+      }
+      else
+      {
+        Logger?.LogWarning(
+          "Service '{ServiceRef}' failed preflight inspection: {ErrorCount} error(s)",
+          serviceRef.DagId,
+          probeResult.Errors.Count
         );
       }
     }
 
     return aggregate;
+  }
+
+  /// <summary>
+  /// Inspects a C# service ref via the existing
+  /// <see cref="System.IServiceProvider"/> + <see cref="Effects.IFlowthruInspector{TService}"/>
+  /// pattern. Pulled into a helper so the dispatch loop stays linear.
+  /// </summary>
+  private async Task<Data.Validation.ValidationResult> InspectCSharpServiceAsync(
+    Type serviceType,
+    string stepsUsingService,
+    CancellationToken cancellationToken
+  )
+  {
+    if (ServiceProvider is null)
+    {
+      return Data.Validation.ValidationResult.Success();
+    }
+
+    var serviceInstance = ServiceProvider.GetService(serviceType);
+    if (serviceInstance is null)
+    {
+      Logger?.LogWarning(
+        "Service '{ServiceType}' (used by step(s) '{Steps}') is not registered in DI; "
+          + "preflight cannot inspect it.",
+        serviceType.FullName,
+        stepsUsingService
+      );
+      return Data.Validation.ValidationResult.Success();
+    }
+
+    var inspectorType = typeof(Effects.IFlowthruInspector<>).MakeGenericType(serviceType);
+    var inspector = ServiceProvider.GetService(inspectorType);
+    if (inspector is null)
+    {
+      Logger?.LogWarning(
+        "Service '{ServiceType}' (used by step(s) '{Steps}') has no registered "
+          + "IFlowthruInspector<{ServiceTypeName}>. Use services.AddFlowthruInspect<{ServiceTypeName}>(...) "
+          + "to enable preflight inspection.",
+        serviceType.FullName,
+        stepsUsingService,
+        serviceType.Name,
+        serviceType.Name
+      );
+      return Data.Validation.ValidationResult.Success();
+    }
+
+    try
+    {
+      var inspectMethod = inspectorType.GetMethod(
+        nameof(Effects.IFlowthruInspector<object>.InspectAsync)
+      )!;
+      var flowIo = (FlowIO<Data.Validation.ValidationResult>)
+        inspectMethod.Invoke(inspector, new[] { serviceInstance, (object)cancellationToken })!;
+      return await flowIo.Run(cancellationToken);
+    }
+    catch (Exception ex)
+    {
+      Logger?.LogError(
+        ex,
+        "Exception during preflight inspection of service '{ServiceType}'",
+        serviceType.FullName
+      );
+      return Data.Validation.ValidationResult.FromException(serviceType.Name, ex);
+    }
   }
 
   /// <summary>

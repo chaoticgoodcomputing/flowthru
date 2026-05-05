@@ -134,20 +134,25 @@ public static partial class PythonStepFactory
       throw new ArgumentNullException(nameof(executor));
     }
 
-    // Phase 4: Registration-time validation via executor
-    executor.ValidateStep(module, function);
-
+    // Construction validates the step (decorator present, function exists,
+    // schema metadata) and captures any declared service dependencies via
+    // the executor's ValidateStep. We then build the FlowStep directly so
+    // wrapper.ServiceRefs flow into FlowStep.ServiceDependencies — the
+    // standard AddStep path goes through StepMetadataResolver which finds
+    // no _Metadata companion for PythonStepWrapper.
     var wrapper = new PythonStepWrapper<TInput, TOutput>(executor, module, function);
 
-    // Delegate to the existing AddStep infrastructure
-    // This ensures DAG scheduling, dependency analysis, and all other
-    // Flow mechanics work identically for Python and C# steps
-    return builder.AddStep(
+    var serviceRefs = wrapper.ServiceRefs.Count > 0 ? wrapper.ServiceRefs : null;
+
+    var flowStep = new FlowStep(
       label: label,
-      transform: wrapper.GetTransform(),
-      input: input,
-      output: output,
-      description: description
+      description: description,
+      step: wrapper.GetTransform(),
+      inputs: new List<INode> { input },
+      outputs: new List<INode> { output },
+      serviceDependencies: serviceRefs
     );
+
+    return builder.AddFlowStep(flowStep);
   }
 }

@@ -4,8 +4,10 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Apache.Arrow;
+using Flowthru.Core.Data.Validation;
 using Flowthru.Extensions.Python.Marshalling;
 using Flowthru.Extensions.Python.Runtime;
+using Flowthru.Extensions.Python.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -33,6 +35,7 @@ namespace Flowthru.Extensions.Python.Execution;
 public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
 {
   private readonly PythonRuntimeOptions _options;
+  private readonly IPythonConfigurationFlattener _flattener;
   private readonly ILogger<SubprocessPythonExecutor> _logger;
 
   private Process? _worker;
@@ -47,14 +50,21 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   /// The Python worker process is started lazily upon the first call to <see cref="Invoke{TInput, TOutput}"/> or <see cref="ValidateStep"/>.
   /// </summary>
   /// <param name="options">The Python runtime options.</param>
+  /// <param name="flattener">
+  /// IConfiguration → env-var bridge. Called at subprocess spawn to populate
+  /// the worker's <see cref="ProcessStartInfo.EnvironmentVariables"/> from
+  /// the section named in <see cref="PythonRuntimeOptions.ConfigurationSection"/>.
+  /// </param>
   /// <param name="logger">The logger instance.</param>
   /// <exception cref="ArgumentNullException"></exception>
   public SubprocessPythonExecutor(
     IOptions<PythonRuntimeOptions> options,
+    IPythonConfigurationFlattener flattener,
     ILogger<SubprocessPythonExecutor> logger
   )
   {
     _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    _flattener = flattener ?? throw new ArgumentNullException(nameof(flattener));
     _logger = logger ?? throw new ArgumentNullException(nameof(logger));
   }
 
@@ -107,7 +117,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   }
 
   /// <inheritdoc />
-  public void ValidateStep(string moduleName, string functionName)
+  public PythonStepMetadata ValidateStep(string moduleName, string functionName)
   {
     EnsureStarted();
 
@@ -127,6 +137,130 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
         $"Python step validation failed for {moduleName}.{functionName}: {msg}"
       );
     }
+
+    // Extract the optional "services" array from the validate response.
+    // Empty / missing → no service dependencies declared.
+    var services = ExtractStringList(resp, "services");
+    return services.Count == 0
+      ? PythonStepMetadata.Empty
+      : new PythonStepMetadata(services);
+  }
+
+  /// <inheritdoc />
+  public ValidationResult InvokeInspector(PythonServiceRegistration registration)
+  {
+    if (registration is null)
+    {
+      throw new ArgumentNullException(nameof(registration));
+    }
+
+    EnsureStarted();
+
+    var req = new JsonObject
+    {
+      ["type"] = "inspect",
+      ["service_module"] = registration.ServiceModule,
+      ["service_class"] = registration.ServiceClass,
+      ["inspector_module"] = registration.InspectorModule,
+      ["inspector_function"] = registration.InspectorFunction,
+    };
+
+    var resp = SendRequest(req);
+
+    if (resp["status"]?.GetValue<string>() != "ok")
+    {
+      var msg = resp["message"]?.GetValue<string>() ?? "Unknown error";
+      // The worker raised before/during inspector invocation — surface as a
+      // generic InspectionFailure so the preflight loop's diagnostic flow
+      // treats it consistently with C#-side inspector exceptions.
+      return ValidationResult.Failure(
+        catalogKey: registration.ServiceClassPath,
+        errorType: ValidationErrorType.InspectionFailure,
+        message: $"Python inspector for '{registration.ServiceClassPath}' failed: {msg}"
+      );
+    }
+
+    if (resp["result"] is not JsonObject result)
+    {
+      return ValidationResult.Failure(
+        catalogKey: registration.ServiceClassPath,
+        errorType: ValidationErrorType.InspectionFailure,
+        message:
+          $"Python inspector for '{registration.ServiceClassPath}' returned a "
+          + "malformed payload (no 'result' object)."
+      );
+    }
+
+    return TranslateInspectorResult(result, registration.ServiceClassPath);
+  }
+
+  /// <summary>
+  /// Translates the worker's <c>{success, source, error_type, message}</c>
+  /// dict into a C# <see cref="ValidationResult"/>. Unknown
+  /// <c>error_type</c> strings (the Python side's enum is broader than
+  /// C#'s catalog-validation enum) fall through to
+  /// <see cref="ValidationErrorType.InspectionFailure"/> with the original
+  /// string preserved in the result's <c>Details</c>.
+  /// </summary>
+  private static ValidationResult TranslateInspectorResult(
+    JsonObject result,
+    string serviceClassPath
+  )
+  {
+    var success = result["success"]?.GetValue<bool>() ?? false;
+    if (success)
+    {
+      return ValidationResult.Success();
+    }
+
+    var source = result["source"]?.GetValue<string>();
+    if (string.IsNullOrWhiteSpace(source))
+    {
+      source = serviceClassPath;
+    }
+    var message = result["message"]?.GetValue<string>() ?? "(no message)";
+    var errorTypeText = result["error_type"]?.GetValue<string>() ?? "InspectionFailure";
+
+    var errorType = Enum.TryParse<ValidationErrorType>(
+      errorTypeText,
+      ignoreCase: true,
+      out var parsed
+    )
+      ? parsed
+      : ValidationErrorType.InspectionFailure;
+
+    // When we fell back to InspectionFailure on an unknown Python-side
+    // category, preserve the original string in Details so log readers can
+    // still see it ("Forbidden", "Configuration", etc.).
+    string? details = errorType == ValidationErrorType.InspectionFailure
+      && !string.Equals(errorTypeText, "InspectionFailure", StringComparison.OrdinalIgnoreCase)
+      ? $"PythonErrorType={errorTypeText}"
+      : null;
+
+    return ValidationResult.Failure(
+      catalogKey: source,
+      errorType: errorType,
+      message: message,
+      details: details
+    );
+  }
+
+  private static List<string> ExtractStringList(JsonObject root, string key)
+  {
+    if (root[key] is not JsonArray array)
+    {
+      return new List<string>(capacity: 0);
+    }
+    var result = new List<string>(capacity: array.Count);
+    foreach (var node in array)
+    {
+      var value = node?.GetValue<string>();
+      if (!string.IsNullOrEmpty(value))
+      {
+        result.Add(value);
+      }
+    }
+    return result;
   }
 
   // ── Worker lifecycle ──────────────────────────────────────────────────────────────────
@@ -175,6 +309,26 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
       CreateNoWindow = true,
     };
     psi.ArgumentList.Add(workerScript);
+
+    // ── IConfiguration → env-var bridge ──────────────────────────────────
+    // Inject the flattened section *before* Process.Start. The parent
+    // environment is inherited by default (UseShellExecute=false), so
+    // standard variables like PATH and HOME pass through unchanged; the
+    // flattener's entries layer on top using .NET's native :→__ rule.
+    // Pipeline-side Python code reads them via flowthru.config (or any
+    // other env-var consumer of the developer's choice).
+    var flattenedEnv = _flattener.Flatten();
+    if (flattenedEnv.Count > 0)
+    {
+      foreach (var (key, value) in flattenedEnv)
+      {
+        psi.EnvironmentVariables[key] = value;
+      }
+      _logger.LogDebug(
+        "Injected {Count} configuration env var(s) into Python subprocess.",
+        flattenedEnv.Count
+      );
+    }
 
     _worker =
       Process.Start(psi)

@@ -1,6 +1,8 @@
 using System.Runtime.CompilerServices;
+using Flowthru.Core.Data.Validation;
 using Flowthru.Extensions.Python.Marshalling;
 using Flowthru.Extensions.Python.Runtime;
+using Flowthru.Extensions.Python.Services;
 using Flowthru.Extensions.Python.Validation;
 using Microsoft.Extensions.Logging;
 using Python.Runtime;
@@ -123,10 +125,146 @@ public sealed class PythonNetExecutor : IPythonExecutor
   }
 
   /// <inheritdoc />
-  public void ValidateStep(string moduleName, string functionName)
+  public PythonStepMetadata ValidateStep(string moduleName, string functionName)
   {
     _runtime.Initialize();
-    PythonStepRegistrationValidator.ValidateRegistration(_runtime, moduleName, functionName);
+    return PythonStepRegistrationValidator.ValidateRegistration(
+      _runtime,
+      moduleName,
+      functionName
+    );
+  }
+
+  /// <inheritdoc />
+  public ValidationResult InvokeInspector(PythonServiceRegistration registration)
+  {
+    if (registration is null)
+    {
+      throw new ArgumentNullException(nameof(registration));
+    }
+
+    _runtime.Initialize();
+
+    using (_runtime.AcquireGil())
+    {
+      try
+      {
+        // 1) Import the service module and resolve the service class.
+        var serviceMod = ImportModule(registration.ServiceModule);
+        if (!serviceMod.HasAttr(registration.ServiceClass))
+        {
+          return ValidationResult.Failure(
+            catalogKey: registration.ServiceClassPath,
+            errorType: ValidationErrorType.InspectionFailure,
+            message:
+              $"Service class '{registration.ServiceClass}' not found in module "
+              + $"'{registration.ServiceModule}'."
+          );
+        }
+        using PyObject serviceCls = serviceMod.GetAttr(registration.ServiceClass);
+
+        // 2) Construct the service with no args; config flows in via env vars.
+        using PyObject svc = serviceCls.Invoke();
+
+        // 3) Import the inspector module and resolve the inspector function.
+        var inspectorMod = ImportModule(registration.InspectorModule);
+        if (!inspectorMod.HasAttr(registration.InspectorFunction))
+        {
+          return ValidationResult.Failure(
+            catalogKey: registration.ServiceClassPath,
+            errorType: ValidationErrorType.InspectionFailure,
+            message:
+              $"Inspector function '{registration.InspectorFunction}' not found in "
+              + $"module '{registration.InspectorModule}'."
+          );
+        }
+        using PyObject inspectorFn = inspectorMod.GetAttr(registration.InspectorFunction);
+
+        // 4) Call inspector(svc) and translate the returned ValidationResult.
+        using PyObject pyResult = inspectorFn.Invoke(svc);
+        return TranslatePyValidationResult(pyResult, registration.ServiceClassPath);
+      }
+      catch (PythonException ex)
+      {
+        return ValidationResult.Failure(
+          catalogKey: registration.ServiceClassPath,
+          errorType: ValidationErrorType.InspectionFailure,
+          message:
+            $"Python inspector for '{registration.ServiceClassPath}' raised: {ex.Message}",
+          details: ex.ToString()
+        );
+      }
+    }
+  }
+
+  /// <summary>
+  /// Pulls a <c>flowthru.ValidationResult</c> Python instance into a C#
+  /// <see cref="ValidationResult"/>. Mirrors the subprocess executor's
+  /// <c>TranslateInspectorResult</c> path: known error_type strings map to
+  /// the C# enum, unknowns fall back to
+  /// <see cref="ValidationErrorType.InspectionFailure"/> with the original
+  /// preserved in <c>Details</c>.
+  /// </summary>
+  private static ValidationResult TranslatePyValidationResult(
+    PyObject pyResult,
+    string serviceClassPath
+  )
+  {
+    if (!pyResult.HasAttr("success"))
+    {
+      return ValidationResult.Failure(
+        catalogKey: serviceClassPath,
+        errorType: ValidationErrorType.InspectionFailure,
+        message:
+          $"Inspector for '{serviceClassPath}' returned a value that is not a "
+          + "flowthru.ValidationResult (no 'success' attribute)."
+      );
+    }
+
+    using PyObject successPy = pyResult.GetAttr("success");
+    bool success = successPy.As<bool>();
+    if (success)
+    {
+      return ValidationResult.Success();
+    }
+
+    string source = pyResult.HasAttr("source")
+      ? pyResult.GetAttr("source").As<string>() ?? string.Empty
+      : string.Empty;
+    if (string.IsNullOrWhiteSpace(source))
+    {
+      source = serviceClassPath;
+    }
+    string message = pyResult.HasAttr("message")
+      ? pyResult.GetAttr("message").As<string>() ?? "(no message)"
+      : "(no message)";
+    string errorTypeText = pyResult.HasAttr("error_type")
+      ? pyResult.GetAttr("error_type").As<string>() ?? "InspectionFailure"
+      : "InspectionFailure";
+
+    var errorType = Enum.TryParse<ValidationErrorType>(
+      errorTypeText,
+      ignoreCase: true,
+      out var parsed
+    )
+      ? parsed
+      : ValidationErrorType.InspectionFailure;
+
+    string? details = errorType == ValidationErrorType.InspectionFailure
+      && !string.Equals(errorTypeText, "InspectionFailure", StringComparison.OrdinalIgnoreCase)
+      ? $"PythonErrorType={errorTypeText}"
+      : null;
+
+    return ValidationResult.Failure(source, errorType, message, details);
+  }
+
+  private PyObject ImportModule(string moduleName)
+  {
+    // Reuse the existing module cache if entries flow through it. The
+    // private cache field is populated by the invoke paths; for inspector
+    // invocations we just call Py.Import (which is itself cached by
+    // sys.modules and returns the same object on repeat).
+    return Py.Import(moduleName);
   }
 
   // ── Scalar path ──────────────────────────────────────────────────────────────────────

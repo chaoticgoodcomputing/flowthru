@@ -1,3 +1,4 @@
+using Flowthru.Core.Effects;
 using Flowthru.Core.Graph.Validation;
 using Flowthru.Core.Services;
 using Flowthru.Extensions.Python.Execution;
@@ -5,6 +6,7 @@ using Flowthru.Extensions.Python.Runtime;
 using Flowthru.Extensions.Python.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Flowthru.Extensions.Python.Services;
 
@@ -64,6 +66,21 @@ public static class FlowthruServiceBuilderExtensions
       // Already registered (e.g., test double injected before UsePython)
       return builder;
     }
+
+    // ── Cross-cutting Python-extension singletons ──────────────────────────
+    // These exist regardless of execution mode and are consumed by both the
+    // subprocess and in-process executor paths (the latter wired in a later
+    // phase). Registered with TryAddSingleton semantics so test doubles or
+    // user overrides registered earlier in the pipeline take precedence.
+    builder.Services.TryAddSingleton<IPythonConfigurationFlattener, PythonConfigurationFlattener>();
+    builder.Services.TryAddSingleton<IPythonServiceInspectorRegistry, PythonServiceInspectorRegistry>();
+
+    // Plug into Core's preflight dispatch: when the loop encounters a
+    // ServiceRef.Python, this dispatcher resolves the matching registration
+    // and forwards to IPythonExecutor.InvokeInspector. Multiple dispatcher
+    // implementations co-exist via the IEnumerable<IServiceRefDispatcher>
+    // resolution, so this Add is additive — not exclusive.
+    builder.Services.AddSingleton<IServiceRefDispatcher, PythonServiceRefDispatcher>();
 
     // Determine execution mode: peek at options to decide which executor to register.
     // We read the bound section directly here because the DI container hasn't been built yet.

@@ -226,10 +226,11 @@ internal static class DagBuilder
       }
 
       // Service dependencies populated by the source-generated *_Metadata at flow
-      // construction. Use FullName when available — falling back to Name keeps the
-      // metadata stable for closed generic types whose FullName is null.
+      // construction (C# refs) or by AddPythonStep at registration (Python refs).
+      // Both variants expose a stable DagId string used to deduplicate service
+      // nodes across steps and to render service node IDs.
       var serviceDependencies = flowStep
-        .ServiceDependencies.Select(t => t.FullName ?? t.Name)
+        .ServiceDependencies.Select(r => r.DagId)
         .ToList();
 
       stepMetadataList.Add(
