@@ -1,3 +1,13 @@
+## 0.16.1 (2026-05-06)
+
+### 🩹 Fixes
+
+- remove initial fp stab ([e480f118](https://github.com/chaoticgoodcomputing/flowthru/commit/e480f118))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.16.0 (2026-05-05)
 
 ### 🚀 Features
