@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroIrisFUnit.Data._07_ModelOutput.Schemas;
 
 namespace KedroIrisFUnit.Data;
@@ -12,11 +12,10 @@ public partial class Catalog
   /// Predictions from the trained model on the test set.
   /// </summary>
   public IItem<IEnumerable<PredictionSchema>> Predictions =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<PredictionSchema>(
-          label: "Predictions",
-          filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.csv"
-        )
+    CreateItem(() =>
+      ItemFactory.Enumerable.Json<PredictionSchema>(
+        label: "Predictions",
+        filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.json"
+      )
     );
 }

@@ -11,9 +11,6 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.NUnit" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.NUnit" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit.Analyzers" />
@@ -25,12 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Direct references needed by Roslyn test infrastructure -->
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <!--
+      ReferenceOutputAssembly=true so the analyzer's symbols are resolvable
+      in test code (e.g., AddReferences(typeof(ClosedSumExhaustivenessAnalyzer).Assembly)).
+    -->
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj"
-                      ReferenceOutputAssembly="true" />
-    <ProjectReference Include="..\..\helpers\Flowthru.Tests.Helpers\Flowthru.Tests.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

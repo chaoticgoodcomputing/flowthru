@@ -1,7 +1,6 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,24 +14,18 @@ namespace SpaceflightsEFCore;
 
 /// <summary>
 /// Main application entry point for the Spaceflights price prediction pipeline.
-/// Demonstrates EFCore integration using a SQLite database for intermediate pipeline state.
+/// Demonstrates EFCore integration using a SQLite database for intermediate
+/// pipeline state, with metadata emission via the JSON + Mermaid extensions.
 /// </summary>
 public class Program
 {
-  /// <summary>
-  /// Main entry point for the Spaceflights pipeline CLI application.
-  /// </summary>
-  /// <param name="args">Command-line arguments</param>
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
       services => ConfigureServices(services, Directory.GetCurrentDirectory())
     );
 
-  /// <summary>
-  /// Configures services for the application. Used by test infrastructure.
-  /// </summary>
-  /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
+  /// <summary>Build a service provider for tests / external host adapters.</summary>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var services = new ServiceCollection();
@@ -40,16 +33,12 @@ public class Program
     return services.BuildServiceProvider();
   }
 
-  /// <summary>
-  /// Shared service configuration logic.
-  /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
     var dbPath = Path.Combine(basePath, "Data", "spaceflights.db");
 
-    // Register EFCore DbContextFactory with SQLite.
-    // IDbContextFactory produces a fresh DbContext per Load/Save operation, which is the
-    // idiomatic pattern for concurrent pipeline execution.
+    // IDbContextFactory produces a fresh DbContext per Load/Save operation —
+    // the idiomatic pattern for concurrent pipeline execution.
     services.AddDbContextFactory<SpaceflightsDbContext>(options =>
       options.UseSqlite($"Data Source={dbPath}")
     );
@@ -59,45 +48,38 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
+    services.AddFlowthru(b =>
+    {
+      b.RegisterCatalog(sp => new Catalog(
+        basePath: Path.Combine(basePath, "Data"),
+        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
+      ));
+      b.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
+
+      b.RegisterFlow<Catalog, FlowConfig>("DataProcessing", DataProcessingFlow.Create)
+        .WithDescription("Preprocesses companies and shuttles data");
+
+      b.RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .WithDescription("Trains linear regression model for price prediction");
+
+      b.RegisterFlow<Catalog, FlowConfig>("Reporting", ReportingFlow.Create)
+        .WithDescription("Generates passenger capacity reports and visualizations");
+
+      // Pre-flight registration hooks — catch host misconfiguration at
+      // startup rather than at first flow run.
+      b.VerifyEFCoreConnection<SpaceflightsDbContext>();
+      b.VerifyEFCoreConfiguration<SpaceflightsDbContext>();
+
+      b.ConfigureMetadata(meta =>
       {
-        flowthru.RegisterCatalog(sp => new Catalog(
-          basePath: Path.Combine(basePath, "Data"),
-          contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
-        ));
-        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
-
-        // Register data processing pipeline
-        flowthru
-          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-          .WithDescription("Preprocesses companies and shuttles data");
-
-        // Register data science pipeline
-        flowthru
-          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-          .WithDescription("Trains linear regression model for price prediction");
-
-        // Register reporting pipeline
-        flowthru
-          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
-          .WithDescription("Generates passenger capacity reports and visualizations");
-
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta
-            .AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
-      }
-    );
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta
+          .AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath))
+          .AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
+    });
 
     services.AddLogging(logging =>
     {

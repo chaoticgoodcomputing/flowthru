@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroIrisFUnit.Data._05_ModelInput.Schemas;
 using KedroIrisFUnit.Data._06_Models.Schemas;
 using KedroIrisFUnit.Data._07_ModelOutput.Schemas;
@@ -21,9 +21,8 @@ public static class PredictStep
   public static Func<
     (ModelWeightsSchema Model, IEnumerable<FeatureVectorSchema> TestX),
     IEnumerable<PredictionSchema>
-  > Create()
-  {
-    return (input) =>
+  > Create() =>
+    input =>
     {
       var (model, testX) = input;
 
@@ -77,7 +76,6 @@ public static class PredictStep
 
       return predictions;
     };
-  }
 
   /// <summary>
   /// Sigmoid activation function: 1 / (1 + exp(-z)).
@@ -107,7 +105,7 @@ public static class PredictStep
     /// The step must emit exactly one <see cref="PredictionSchema"/> per input
     /// feature row — output length must equal input length.
     /// </summary>
-    [StepTest(typeof(PredictStep))]
+    [FUnitStepTest(typeof(PredictStep))]
     public void ReturnsOnePredictionPerInputRow()
     {
       // Arrange
@@ -134,7 +132,7 @@ public static class PredictStep
     /// With a zero-weight model, sigmoid(0) = 0.5 for every class and argmax
     /// returns class 0 — still a valid, in-range index.
     /// </summary>
-    [StepTest(typeof(PredictStep))]
+    [FUnitStepTest(typeof(PredictStep))]
     public void PredictedClass_IsAlwaysWithinValidRange()
     {
       // Arrange

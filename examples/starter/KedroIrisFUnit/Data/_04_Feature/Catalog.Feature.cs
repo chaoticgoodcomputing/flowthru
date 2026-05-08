@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroIrisFUnit.Data._04_Feature.Schemas;
 
 namespace KedroIrisFUnit.Data;
@@ -13,11 +13,10 @@ public partial class Catalog
   /// Created by the DataEngineering pipeline after splitting and encoding.
   /// </summary>
   public IItem<IEnumerable<IrisFeatureSchema>> IrisFeatures =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<IrisFeatureSchema>(
-          label: "IrisFeatures",
-          filePath: $"{_basePath}/_04_Feature/Datasets/iris_features.csv"
-        )
+    CreateItem(() =>
+      ItemFactory.Enumerable.Json<IrisFeatureSchema>(
+        label: "IrisFeatures",
+        filePath: $"{_basePath}/_04_Feature/Datasets/iris_features.json"
+      )
     );
 }

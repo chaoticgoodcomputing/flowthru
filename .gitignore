@@ -288,3 +288,6 @@ __pycache__/
 Flowthru.sln.DotSettings.user
 
 .fake
+
+# src-old from functional programming rewrite
+src-old/

@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,10 +22,11 @@ public partial class Catalog : CatalogAbstract
     _basePath = basePath;
     _contextFactory = contextFactory;
 
-    // Ensure the SQLite database and schema exist before catalog entries are initialized.
+    // Ensure the SQLite database and schema exist before catalog
+    // entries are dereferenced. EFCore items are wired to expect the
+    // DB to be present; this gives us a one-shot CREATE TABLE for the
+    // demo without depending on migrations.
     using var ctx = contextFactory.CreateDbContext();
     ctx.Database.EnsureCreated();
-
-    InitializeCatalogProperties();
   }
 }

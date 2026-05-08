@@ -1,5 +1,5 @@
-using Flowthru.Core.Data;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage.EFCore;
 using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
 
 namespace SpaceflightsEFCore.Data;
@@ -16,7 +16,7 @@ public partial class Catalog
   public IItem<ModelMetrics> ModelMetrics =>
     CreateItem(
       () =>
-        EFCoreItemFactory.Single.EFCore<ModelMetrics, SpaceflightsDbContext>(
+        ItemFactory.Singleton.EFCore<ModelMetrics, SpaceflightsDbContext>(
           label: "ModelMetrics",
           contextFactory: _contextFactory
         )
@@ -28,7 +28,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
     CreateItem(
       () =>
-        EFCoreItemFactory.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
+        ItemFactory.Enumerable.EFCore<ModelPredictions, SpaceflightsDbContext>(
           label: "ModelPredictions",
           contextFactory: _contextFactory
         )

@@ -1,20 +1,23 @@
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Diagnostics.Mermaid;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Flowthru.Extensions.Metadata.Mermaid.Tests;
 
 /// <summary>
-/// Tests for <see cref="MermaidMetadataProviderBuilder"/> fluent setters.
+/// Fluent-builder tests — return-type chaining + null-argument
+/// guards on <see cref="MermaidMetadataProviderBuilder"/>.
 /// </summary>
-/// <remarks>
-/// Each setter is a 4–5 line method that assigns a private field and returns <c>this</c>.
-/// One test per setter exercises the line. The full-chain test verifies that all setters
-/// compose without throwing through a <see cref="MermaidMetadataProviderBuilder.Build"/>.
-/// </remarks>
 [TestFixture]
+[Category("Metadata.Mermaid")]
 public class MermaidMetadataProviderBuilderTests
 {
+  [Test]
+  public void WithOutputDirectory_ReturnsBuilder()
+  {
+    var builder = new MermaidMetadataProviderBuilder();
+    Assert.That(builder.WithOutputDirectory("metadata"), Is.SameAs(builder));
+  }
+
   [Test]
   public void WithFilenameTemplate_ReturnsBuilder()
   {
@@ -48,7 +51,7 @@ public class MermaidMetadataProviderBuilderTests
   {
     var builder = new MermaidMetadataProviderBuilder();
     Assert.That(
-      builder.WithDirection(MermaidMetadataProvider.MermaidFlowchartDirection.LeftToRight),
+      builder.WithDirection(MermaidFlowchartDirection.LeftToRight),
       Is.SameAs(builder)
     );
   }
@@ -64,21 +67,28 @@ public class MermaidMetadataProviderBuilderTests
   public void WithActiveDataColor_AppliesColor()
   {
     var builder = new MermaidMetadataProviderBuilder();
-    Assert.That(builder.WithActiveDataColor("#00FF00"), Is.SameAs(builder));
+    Assert.That(builder.WithActiveDataColor("#0000FF"), Is.SameAs(builder));
   }
 
   [Test]
   public void WithFailedStepColor_AppliesColor()
   {
     var builder = new MermaidMetadataProviderBuilder();
-    Assert.That(builder.WithFailedStepColor("#0000FF"), Is.SameAs(builder));
+    Assert.That(builder.WithFailedStepColor("#FF1111"), Is.SameAs(builder));
   }
 
   [Test]
-  public void WithNotRunStepColor_AppliesColor()
+  public void WithSkippedStepColor_AppliesColor()
   {
     var builder = new MermaidMetadataProviderBuilder();
-    Assert.That(builder.WithNotRunStepColor("#888888"), Is.SameAs(builder));
+    Assert.That(builder.WithSkippedStepColor("#999999"), Is.SameAs(builder));
+  }
+
+  [Test]
+  public void WithShowFullDag_ReturnsBuilder()
+  {
+    var builder = new MermaidMetadataProviderBuilder();
+    Assert.That(builder.WithShowFullDag(false), Is.SameAs(builder));
   }
 
   [Test]
@@ -96,12 +106,12 @@ public class MermaidMetadataProviderBuilderTests
       .WithFilenameTemplate("dag-{FlowName}")
       .WithRunFilenameTemplate("run-{FlowName}")
       .WithTimestamp("yyyyMMdd")
-      .WithDirection(MermaidMetadataProvider.MermaidFlowchartDirection.LeftToRight)
-      .WithActiveStepColor("#FF0000")
-      .WithActiveDataColor("#00FF00")
-      .WithFailedStepColor("#0000FF")
-      .WithNotRunStepColor("#888888")
-      .WithShowFullDag(false)
+      .WithDirection(MermaidFlowchartDirection.LeftToRight)
+      .WithActiveStepColor("#2E7D32")
+      .WithActiveDataColor("#2E7D32")
+      .WithFailedStepColor("#C62828")
+      .WithSkippedStepColor("#757575")
+      .WithShowFullDag(true)
       .WithLogger(NullLogger.Instance)
       .Build();
 
@@ -113,11 +123,20 @@ public class MermaidMetadataProviderBuilderTests
   public void NullArguments_ThrowArgumentNullException()
   {
     var builder = new MermaidMetadataProviderBuilder();
+    Assert.That(() => builder.WithOutputDirectory(null!), Throws.ArgumentNullException);
     Assert.That(() => builder.WithFilenameTemplate(null!), Throws.ArgumentNullException);
     Assert.That(() => builder.WithRunFilenameTemplate(null!), Throws.ArgumentNullException);
     Assert.That(() => builder.WithActiveStepColor(null!), Throws.ArgumentNullException);
     Assert.That(() => builder.WithActiveDataColor(null!), Throws.ArgumentNullException);
     Assert.That(() => builder.WithFailedStepColor(null!), Throws.ArgumentNullException);
-    Assert.That(() => builder.WithNotRunStepColor(null!), Throws.ArgumentNullException);
+    Assert.That(() => builder.WithSkippedStepColor(null!), Throws.ArgumentNullException);
+    Assert.That(() => builder.WithLogger(null!), Throws.ArgumentNullException);
+  }
+
+  [Test]
+  public void Build_MalformedTimestampFormat_ThrowsArgumentException()
+  {
+    var builder = new MermaidMetadataProviderBuilder().WithTimestamp("\"");
+    Assert.That(() => builder.Build(), Throws.ArgumentException);
   }
 }

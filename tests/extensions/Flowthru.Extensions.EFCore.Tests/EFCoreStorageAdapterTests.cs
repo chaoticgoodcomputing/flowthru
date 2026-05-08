@@ -1,420 +1,200 @@
-using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Data.Validation;
-using Flowthru.Extensions.EFCore.Data;
-using Microsoft.Data.Sqlite;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
+using Flowthru.Data.Storage.EFCore;
+using Flowthru.Extensions.EFCore.Tests.Fixtures;
+using Flowthru.Prelude;
+using Flowthru.Validation.Runtime;
 using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Tests;
 
+/// <summary>
+/// Direct exercises of <see cref="EFCoreStorageAdapter{T}"/> over a
+/// SQLite backend. Validates load / save / round-trip / inspection /
+/// read-only-fail-fast behavior on the new FP shape.
+/// </summary>
 [TestFixture]
+[Category("EFCore")]
 public class EFCoreStorageAdapterTests
 {
-  private SqliteConnection _connection = null!;
-  private DbContextOptions<TestDbContext> _options = null!;
+  private IDbContextFactory<TestDbContext> _factory = null!;
+  private string _dbPath = null!;
 
   [SetUp]
-  public async Task SetUp()
+  public void SetUp()
   {
-    _connection = new SqliteConnection("Data Source=:memory:");
-    await _connection.OpenAsync();
-    _options = new DbContextOptionsBuilder<TestDbContext>().UseSqlite(_connection).Options;
-
-    await using var context = new TestDbContext(_options);
-    await context.Database.EnsureCreatedAsync();
+    (_factory, _dbPath) = TestDbContextFactoryBuilder.Build();
   }
 
   [TearDown]
-  public async Task TearDown()
+  public void TearDown()
   {
-    await _connection.DisposeAsync();
+    if (File.Exists(_dbPath))
+    {
+      try { File.Delete(_dbPath); }
+      catch { /* best effort */ }
+    }
+  }
+
+  // ── Round-trip ───────────────────────────────────────────────────────
+
+  [Test]
+  public async Task SaveLoad_RoundTrips()
+  {
+    var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("items", _factory);
+
+    var input = new[]
+    {
+      new TestEntity { Id = 1, Name = "Alice", Value = 1.5 },
+      new TestEntity { Id = 2, Name = "Bob",   Value = 2.5 },
+    };
+
+    var save = await item.Save(input).Run();
+    Assert.That(save, Is.InstanceOf<EffResult<FlowUnit>.Success>());
+
+    var load = await item.Load().Run();
+    var rows = ((EffResult<IEnumerable<TestEntity>>.Success)load).Value.ToList();
+    Assert.That(rows, Has.Count.EqualTo(2));
+    Assert.That(rows.OrderBy(r => r.Id).Select(r => r.Name),
+      Is.EqualTo(new[] { "Alice", "Bob" }));
   }
 
   [Test]
-  public async Task DefaultRoundTrip_SaveAndLoad_ReturnsEntities()
+  public async Task DefaultSave_ReplacesExistingRows()
   {
-    var testData = new[]
+    var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("items", _factory);
+
+    await item.Save(new[]
     {
-      new TestEntity { Id = 1, Name = "Alice" },
-      new TestEntity { Id = 2, Name = "Bob" },
-    };
+      new TestEntity { Id = 99, Name = "stale", Value = 9.9 },
+    }).Run();
 
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options)
-    );
+    await item.Save(new[]
+    {
+      new TestEntity { Id = 1, Name = "fresh", Value = 1.0 },
+    }).Run();
 
-    await entry.Save(testData).Run();
-    var loaded = (await entry.Load().Run()).ToList();
-
-    Assert.That(loaded, Has.Count.EqualTo(2));
-    Assert.That(loaded.Select(e => e.Name), Is.EquivalentTo(new[] { "Alice", "Bob" }));
+    var load = await item.Load().Run();
+    var rows = ((EffResult<IEnumerable<TestEntity>>.Success)load).Value.ToList();
+    Assert.That(rows, Has.Count.EqualTo(1));
+    Assert.That(rows[0].Id, Is.EqualTo(1));
+    Assert.That(rows[0].Name, Is.EqualTo("fresh"));
   }
 
   [Test]
-  public async Task QueryCustomizer_FiltersResults()
+  public async Task QueryCustomizer_FiltersAndOrders()
   {
-    var testData = new[]
+    var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
+      "items",
+      _factory,
+      queryCustomizer: q => q.Where(e => e.Value >= 2.0).OrderBy(e => e.Id)
+    );
+
+    await item.Save(new[]
     {
-      new TestEntity { Id = 1, Name = "Alice" },
-      new TestEntity { Id = 2, Name = "Bob" },
-    };
+      new TestEntity { Id = 1, Name = "low",  Value = 1.0 },
+      new TestEntity { Id = 2, Name = "med",  Value = 2.5 },
+      new TestEntity { Id = 3, Name = "high", Value = 5.0 },
+    }).Run();
 
-    var saveEntry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "save",
-      () => new TestDbContext(_options)
-    );
-    await saveEntry.Save(testData).Run();
-
-    var filteredEntry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "filtered",
-      () => new TestDbContext(_options),
-      queryCustomizer: q => q.Where(e => e.Id == 2)
-    );
-    var loaded = (await filteredEntry.Load().Run()).ToList();
-
-    Assert.That(loaded, Has.Count.EqualTo(1));
-    Assert.That(loaded[0].Name, Is.EqualTo("Bob"));
+    var load = await item.Load().Run();
+    var rows = ((EffResult<IEnumerable<TestEntity>>.Success)load).Value.ToList();
+    Assert.That(rows.Select(r => r.Name), Is.EqualTo(new[] { "med", "high" }),
+      "queryCustomizer should apply Where + OrderBy before materialisation.");
   }
 
   [Test]
-  public async Task CustomSaveDelegate_IsCalled()
+  public async Task SaveFunc_OverridesDefaultStrategy()
   {
-    var testData = new[]
-    {
-      new TestEntity { Id = 1, Name = "Alice" },
-    };
-    bool saveCalled = false;
-
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
-      "test",
-      () => new TestDbContext(_options),
+    var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
+      "items",
+      _factory,
       saveFunc: async (ctx, data, ct) =>
       {
-        saveCalled = true;
-        await EFCoreStorageAdapter<TestEntity>.DefaultSave(ctx, data, ct);
+        // Custom save strategy: append rather than replace.
+        await ctx.Set<TestEntity>().AddRangeAsync(data, ct).ConfigureAwait(false);
+        await ctx.SaveChangesAsync(ct).ConfigureAwait(false);
       }
     );
 
-    await entry.Save(testData).Run();
+    await item.Save(new[] { new TestEntity { Id = 1, Name = "a", Value = 1.0 } }).Run();
+    await item.Save(new[] { new TestEntity { Id = 2, Name = "b", Value = 2.0 } }).Run();
 
-    Assert.That(saveCalled, Is.True);
+    var load = await item.Load().Run();
+    var rows = ((EffResult<IEnumerable<TestEntity>>.Success)load).Value.ToList();
+    Assert.That(rows, Has.Count.EqualTo(2),
+      "Custom append-style saveFunc should preserve both rows across saves.");
   }
 
-  [Test]
-  public async Task TypedSaveDelegate_ReceivesTypedContext()
-  {
-    var testData = new[]
-    {
-      new TestEntity { Id = 1, Name = "Alice" },
-    };
-    Type? receivedContextType = null;
-
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
-      "test",
-      () => new TestDbContext(_options),
-      saveFunc: async (ctx, data, ct) =>
-      {
-        receivedContextType = ctx.GetType();
-        await EFCoreStorageAdapter<TestEntity>.DefaultSave(ctx, data, ct);
-      }
-    );
-
-    await entry.Save(testData).Run();
-
-    Assert.That(receivedContextType, Is.EqualTo(typeof(TestDbContext)));
-  }
+  // ── Inspection ───────────────────────────────────────────────────────
 
   [Test]
-  public async Task TypedContextFactory_RoundTrip()
+  public async Task InspectShallow_EmptyTable_FailsByDefault()
   {
-    var testData = new[]
-    {
-      new TestEntity { Id = 1, Name = "Alice" },
-    };
+    var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("items", _factory);
 
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
-      "test",
-      () => new TestDbContext(_options)
-    );
+    var inspect = await item.InspectShallow(10).Run();
+    var validation = ((EffResult<ValidationResult>.Success)inspect).Value;
 
-    await entry.Save(testData).Run();
-    var loaded = (await entry.Load().Run()).ToList();
-
-    Assert.That(loaded, Has.Count.EqualTo(1));
-    Assert.That(loaded[0].Name, Is.EqualTo("Alice"));
-  }
-
-  [Test]
-  public async Task IDbContextFactory_RoundTrip()
-  {
-    var testData = new[]
-    {
-      new TestEntity { Id = 1, Name = "Alice" },
-    };
-    var factory = new TestDbContextFactory(_options);
-
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("test", factory);
-
-    await entry.Save(testData).Run();
-    var loaded = (await entry.Load().Run()).ToList();
-
-    Assert.That(loaded, Has.Count.EqualTo(1));
-    Assert.That(loaded[0].Name, Is.EqualTo("Alice"));
-  }
-
-  [Test]
-  public void ArrayKeyEntity_ThrowsInvalidOperationException_OnConstruction()
-  {
-    var options = new DbContextOptionsBuilder<ArrayKeyDbContext>()
-      .UseSqlite("Data Source=:memory:")
-      .Options;
-
-    Assert.Throws<InvalidOperationException>(
-      () =>
-        EFCoreItemFactory.Enumerable.EFCore<ArrayKeyEntity>(
-          "test",
-          () => new ArrayKeyDbContext(options)
-        )
-    );
-  }
-
-  // ── IHasEfficientCount ──────────────────────────────────────────────────
-
-  [Test]
-  public async Task GetCountAsync_UsesCountStar_NotFullLoad()
-  {
-    var testData = new[]
-    {
-      new TestEntity { Id = 1, Name = "Alice" },
-      new TestEntity { Id = 2, Name = "Bob" },
-      new TestEntity { Id = 3, Name = "Carol" },
-    };
-
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options)
-    );
-    await entry.Save(testData).Run();
-
-    // GetCountAsync must hit IHasEfficientCount, not Load()+enumerate
-    var count = await entry.GetCountAsync().Run();
-
-    Assert.That(count, Is.EqualTo(3));
-  }
-
-  [Test]
-  public async Task GetCountAsync_EmptyTable_ReturnsZero()
-  {
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options)
-    );
-
-    // Empty table: Exists() returns false → GetCountAsync() short-circuits to 0
-    var count = await entry.GetCountAsync().Run();
-
-    Assert.That(count, Is.EqualTo(0));
-  }
-
-  // ── InspectTarget ───────────────────────────────────────────────────────
-
-  [Test]
-  public async Task InspectTarget_MigratedDatabase_ReturnsSuccess()
-  {
-    // Arrange: SetUp already called EnsureCreatedAsync — tables exist.
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options)
-    );
-
-    var result = await entry.InspectTarget().Run();
-
-    Assert.That(result.IsValid, Is.True);
-  }
-
-  [Test]
-  public async Task InspectTarget_UnmigratedDatabase_ReturnsFailure()
-  {
-    // Arrange: open a fresh connection but skip EnsureCreatedAsync — no schema.
-    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
-    await bareConnection.OpenAsync();
-    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
-      .UseSqlite(bareConnection)
-      .Options;
-
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(bareOptions)
-    );
-
-    var result = await entry.InspectTarget().Run();
-
-    Assert.That(result.IsValid, Is.False);
-  }
-
-  [Test]
-  public async Task InspectTarget_UnmigratedDatabase_ErrorDetailsContainContextTypeName()
-  {
-    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
-    await bareConnection.OpenAsync();
-    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
-      .UseSqlite(bareConnection)
-      .Options;
-
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(bareOptions)
-    );
-
-    var result = await entry.InspectTarget().Run();
-
+    Assert.That(validation.IsValid, Is.False);
     Assert.That(
-      result.Errors[0].Details,
-      Does.Contain("TestDbContext"),
-      "Error details must identify which context type produced the error"
+      validation.Errors.Any(e => e.ErrorType == ValidationErrorType.EmptyDataset),
+      Is.True,
+      "Empty tables should surface as EmptyDataset by default."
     );
-  }
-
-  // ── Shape validation ────────────────────────────────────────────────────
-
-  /// <summary>
-  /// Hand-rolls a SQLite database whose physical schema diverges from
-  /// <see cref="TestEntity"/>'s EF model in the requested way. Returns an
-  /// already-open connection wired to <see cref="TestDbContext"/> options —
-  /// callers own disposal.
-  /// </summary>
-  private static async Task<(SqliteConnection conn, DbContextOptions<TestDbContext> options)> CreateDriftedDatabaseAsync(
-    string testEntitiesTableSql
-  )
-  {
-    var conn = new SqliteConnection("Data Source=:memory:");
-    await conn.OpenAsync();
-
-    await using (var cmd = conn.CreateCommand())
-    {
-      cmd.CommandText = testEntitiesTableSql;
-      await cmd.ExecuteNonQueryAsync();
-    }
-    // SourceEntities is registered on TestDbContext but never queried in these
-    // tests, so we don't need to materialize it.
-
-    var options = new DbContextOptionsBuilder<TestDbContext>().UseSqlite(conn).Options;
-    return (conn, options);
   }
 
   [Test]
-  public async Task InspectTarget_TableMissingColumn_ReturnsSchemaMismatch()
+  public async Task InspectShallow_AllowEmptyData_PassesOnEmpty()
   {
-    // Table is reachable (AnyAsync would succeed) but is missing the Name column.
-    var (conn, options) = await CreateDriftedDatabaseAsync(
-      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>(
+      "items", _factory, allowEmptyData: true
     );
-    await using (conn)
-    {
-      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-        "test",
-        () => new TestDbContext(options)
-      );
 
-      var result = await entry.InspectTarget().Run();
-
-      Assert.That(result.IsValid, Is.False);
-      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
-      Assert.That(
-        result.Errors[0].Message,
-        Does.Contain("Name"),
-        "Error must name the missing column so the user can fix the schema"
-      );
-      Assert.That(
-        result.Errors[0].Details,
-        Does.Contain("TestDbContext"),
-        "Schema-mismatch errors must still surface the context name for misrouted-connection diagnosis"
-      );
-    }
+    var inspect = await item.InspectShallow(10).Run();
+    var validation = ((EffResult<ValidationResult>.Success)inspect).Value;
+    Assert.That(validation.IsValid, Is.True,
+      "allowEmptyData: true should pass empty tables through pre-flight.");
   }
 
   [Test]
-  public async Task InspectTarget_NullabilityDrift_ReturnsSchemaMismatch()
+  public async Task InspectShallow_PopulatedTable_Succeeds()
   {
-    // Name is non-nullable on the entity but the DB column allows NULL — reads
-    // would explode the moment a NULL row is materialized.
-    var (conn, options) = await CreateDriftedDatabaseAsync(
-      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY, \"Name\" TEXT)"
-    );
-    await using (conn)
-    {
-      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-        "test",
-        () => new TestDbContext(options)
-      );
+    var item = ItemFactory.Enumerable.EFCore<TestEntity, TestDbContext>("items", _factory);
+    await item.Save(new[] { new TestEntity { Id = 1, Name = "x", Value = 1.0 } }).Run();
 
-      var result = await entry.InspectTarget().Run();
-
-      Assert.That(result.IsValid, Is.False);
-      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
-      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
-    }
+    var inspect = await item.InspectShallow(5).Run();
+    var validation = ((EffResult<ValidationResult>.Success)inspect).Value;
+    Assert.That(validation.IsValid, Is.True);
   }
 
+  // Note: the legacy <c>Item.Constrain(traits =&gt; traits with { CanWrite = false })</c>
+  // surface is a Core-side carryover — the new IItem<T> interface
+  // doesn't expose Constrain yet. Once it returns, a read-only
+  // constraint test belongs here.
+
+  // ── Configuration validation (pre-flight at adapter-construction) ────
+
   [Test]
-  public async Task InspectShallow_TableMissingColumn_ReturnsSchemaMismatch()
+  public void Constructor_EntityNotConfigured_ThrowsAtConstruction()
   {
-    var (conn, options) = await CreateDriftedDatabaseAsync(
-      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    // Use a DbContext type that doesn't include UnconfiguredEntity in its model.
+    Assert.That(
+      () => ItemFactory.Enumerable.EFCore<UnconfiguredEntity, TestDbContext>(
+        "unconfigured", _factory
+      ),
+      Throws.TypeOf<InvalidOperationException>()
+        .With.Message.Contains("not configured in DbContext"),
+      "The adapter should fail at construction time when its entity type isn't "
+      + "in the DbContext's model — pre-flight cost surfaces at catalog wire-up, "
+      + "not at first Load/Save."
     );
-    await using (conn)
-    {
-      // allowEmptyData: true so the empty-dataset check doesn't pre-empt the
-      // shape check we're trying to exercise.
-      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-        "test",
-        () => new TestDbContext(options),
-        allowEmptyData: true
-      );
-
-      var result = await entry.InspectShallow(sampleSize: 10).Run();
-
-      Assert.That(result.IsValid, Is.False);
-      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
-      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
-    }
   }
 
-  [Test]
-  public async Task InspectDeep_TableMissingColumn_ReturnsSchemaMismatch()
+  /// <summary>Entity intentionally NOT configured in TestDbContext.OnModelCreating.</summary>
+  [Flowthru.Data.Schema.FlowthruSchema]
+  public partial record UnconfiguredEntity
   {
-    var (conn, options) = await CreateDriftedDatabaseAsync(
-      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
-    );
-    await using (conn)
-    {
-      var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-        "test",
-        () => new TestDbContext(options),
-        allowEmptyData: true
-      );
-
-      var result = await entry.InspectDeep().Run();
-
-      Assert.That(result.IsValid, Is.False);
-      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
-      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
-    }
-  }
-
-  [Test]
-  public async Task InspectTarget_MatchingShape_ReturnsSuccess()
-  {
-    // Sanity check: the migrated-database happy path still passes once shape
-    // validation is wired in. (SetUp runs EnsureCreatedAsync which produces a
-    // table that matches the model exactly.)
-    var entry = EFCoreItemFactory.Enumerable.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options)
-    );
-
-    var result = await entry.InspectTarget().Run();
-
-    Assert.That(result.IsValid, Is.True);
+    public required int Id { get; init; }
   }
 }

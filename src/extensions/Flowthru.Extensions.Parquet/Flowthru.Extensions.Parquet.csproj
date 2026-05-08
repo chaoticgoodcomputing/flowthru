@@ -4,16 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru</RootNamespace>
-    <Description>Parquet format support for Flowthru data catalogs</Description>
+    <Description>Parquet (binary columnar) format support for Flowthru data catalogs.</Description>
 
-    <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Extensions.Parquet</PackageId>
-    <PackageTags>data-engineering;pipeline;parquet</PackageTags>
+    <PackageTags>data-engineering;pipeline;parquet;columnar</PackageTags>
+
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core Flowthru library -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
   </ItemGroup>
 
@@ -22,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Include README and LICENSE in package -->
     <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 

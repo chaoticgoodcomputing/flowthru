@@ -1,40 +1,69 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using KedroIrisFUnit.Data;
+using KedroIrisFUnit.Data._05_ModelInput.Schemas;
+using KedroIrisFUnit.Data._06_Models.Schemas;
+using KedroIrisFUnit.Data._07_ModelOutput.Schemas;
+using KedroIrisFUnit.Data._08_Reporting.Schemas;
 using KedroIrisFUnit.Flows.DataScience.Steps;
 
 namespace KedroIrisFUnit.Flows.DataScience;
 
 /// <summary>
-/// Creates the data science pipeline that trains and evaluates a classification model.
+/// Creates the data science pipeline that trains and evaluates a
+/// classification model. Per §2.6, the flow factory closes over the
+/// <see cref="FlowConfig"/> value (a DI-resolved "params catalog"); the
+/// per-step <c>transform</c> lambda burns the options in via closure
+/// capture, so the flow's data dependencies stay typed end-to-end and
+/// the AddStep arity matches the data shape (no synthetic
+/// in-memory option items polluting the DAG).
 /// </summary>
 public static class DataScienceFlow
 {
-  public static Flow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    var trainOptions = config.TrainOptions;
+    var trainTransform = TrainModelStep.Create();
+
+    return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<FeatureVectorSchema>,
+        IEnumerable<TargetLabelSchema>,
+        ModelWeightsSchema
+      >(
         label: "TrainModel",
-        description: "Trains a multi-class logistic regression model using gradient descent.",
-        transform: TrainModelStep.Create,
-        input: (catalog.TrainX, catalog.TrainY, config.TrainOptions),
-        output: catalog.IrisModel
+        transform: pair =>
+        {
+          var (trainX, trainY) = pair;
+          return trainTransform((trainX, trainY, trainOptions));
+        },
+        input1: catalog.TrainX,
+        input2: catalog.TrainY,
+        output1: catalog.IrisModel
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        ModelWeightsSchema,
+        IEnumerable<FeatureVectorSchema>,
+        IEnumerable<PredictionSchema>
+      >(
         label: "Predict",
-        description: "Predicts species classifications for the test set using the trained model.",
         transform: PredictStep.Create(),
-        input: (catalog.IrisModel, catalog.TestX),
-        output: catalog.Predictions
+        input1: catalog.IrisModel,
+        input2: catalog.TestX,
+        output1: catalog.Predictions
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PredictionSchema>,
+        IEnumerable<TargetLabelSchema>,
+        MetricsSchema
+      >(
         label: "Evaluate",
-        description: "Evaluates prediction accuracy and saves metrics to the reporting layer.",
         transform: EvaluateModelStep.Create(),
-        input: (catalog.Predictions, catalog.TestY),
-        output: catalog.Metrics
+        input1: catalog.Predictions,
+        input2: catalog.TestY,
+        output1: catalog.Metrics
       );
     });
   }

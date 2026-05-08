@@ -16,7 +16,8 @@
         "_test:planner-consumption",
         "_test:capability-matrix-freshness",
         "_test:row-features-claims",
-        "_test:row-features-inventory"
+        "_test:row-features-inventory",
+        "_test:package-versions"
       ]
     },
     "_test:project-mirror": {
@@ -165,6 +166,20 @@
       ],
       "options": {
         "commands": [ "node scripts/_test/row-features-inventory.mjs" ],
+        "cwd": "{workspaceRoot}",
+        "parallel": false
+      }
+    },
+    "_test:package-versions": {
+      "//": "Every <PackageVersion> in Directory.Packages.props declares a major-only floor (N.0.0 for 1+ majors, 0.M.0 for 0-majors) by default. Higher floors require a same-line <!-- ... --> justification comment. Bracketed versions and floating wildcards are forbidden outright. Rationale: every floor here becomes the minimum stamped into the .nuspec of any in-repo package that depends on it, so a tighter-than-necessary floor excludes downstream consumers on otherwise-compatible versions. The escape-hatch comment makes any narrower floor a deliberate, reviewed decision. Private subtarget.",
+      "executor": "nx:run-commands",
+      "inputs": [
+        "{workspaceRoot}/Directory.Packages.props",
+        "{workspaceRoot}/scripts/_test/_lib.mjs",
+        "{workspaceRoot}/scripts/_test/package-versions.mjs"
+      ],
+      "options": {
+        "commands": [ "node scripts/_test/package-versions.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }

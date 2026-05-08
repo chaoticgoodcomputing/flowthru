@@ -1,49 +1,52 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsEFCore.Data;
+using SpaceflightsEFCore.Data._01_Raw.Schemas;
+using SpaceflightsEFCore.Data._02_Intermediate.Schemas;
+using SpaceflightsEFCore.Data._03_Primary.Schemas;
 using SpaceflightsEFCore.Flows.DataProcessing.Steps;
 
 namespace SpaceflightsEFCore.Flows.DataProcessing;
 
 /// <summary>
-/// Creates the data processing pipeline that preprocesses raw company and shuttle data
-/// and joins it with reviews to create a model input table.
+/// Data processing pipeline: cleans raw company + shuttle data and joins
+/// them with reviews to produce a unified model input table.
 /// </summary>
 public static class DataProcessingFlow
 {
-  /// <summary>
-  /// Creates the data processing pipeline.
-  /// </summary>
-  /// <param name="catalog">The data catalog containing input and output entries.</param>
-  /// <returns>A configured pipeline that produces a model input table from raw data sources.</returns>
-  public static Flow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    var preprocessCompanies = PreprocessCompaniesStep.Create();
+    var preprocessShuttles = PreprocessShuttlesStep.Create();
+    var createModelInputTable = CreateModelInputTableStep.Create();
+
+    return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
-        description: "Cleans and preprocesses raw company data.",
-        transform: PreprocessCompaniesStep.Create(),
-        input: catalog.Companies,
-        output: catalog.PreprocessedCompanies
+        transform: preprocessCompanies,
+        input1: catalog.Companies,
+        output1: catalog.PreprocessedCompanies
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
-        description: "Cleans and preprocesses raw shuttle data.",
-        transform: PreprocessShuttlesStep.Create(),
-        input: catalog.Shuttles,
-        output: catalog.PreprocessedShuttles
+        transform: preprocessShuttles,
+        input1: catalog.Shuttles,
+        output1: catalog.PreprocessedShuttles
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedCompanySchema>,
+        IEnumerable<ReviewSchema>,
+        IEnumerable<ModelInputTableSchema>
+      >(
         label: "CreateModelInputTable",
-        description: """
-          Joins preprocessed shuttle and company data with review scores to create a
-          unified model input table.
-        """,
-        transform: CreateModelInputTableStep.Create(),
-        input: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),
-        output: catalog.ModelInputTable
+        transform: createModelInputTable,
+        input1: catalog.PreprocessedShuttles,
+        input2: catalog.PreprocessedCompanies,
+        input3: catalog.Reviews,
+        output1: catalog.ModelInputTable
       );
     });
   }

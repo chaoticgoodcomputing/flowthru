@@ -1,5 +1,5 @@
-using Flowthru.Core.Data;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage.EFCore;
 using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
 
 namespace SpaceflightsEFCore.Data;
@@ -16,7 +16,7 @@ public partial class Catalog
   public IItem<IEnumerable<TrainingData>> TrainSplit =>
     CreateItem(
       () =>
-        EFCoreItemFactory.Enumerable.EFCore<TrainingData, SpaceflightsDbContext>(
+        ItemFactory.Enumerable.EFCore<TrainingData, SpaceflightsDbContext>(
           label: "XTrain",
           contextFactory: _contextFactory
         )
@@ -28,7 +28,7 @@ public partial class Catalog
   public IItem<IEnumerable<TestData>> TestSplit =>
     CreateItem(
       () =>
-        EFCoreItemFactory.Enumerable.EFCore<TestData, SpaceflightsDbContext>(
+        ItemFactory.Enumerable.EFCore<TestData, SpaceflightsDbContext>(
           label: "XTest",
           contextFactory: _contextFactory
         )

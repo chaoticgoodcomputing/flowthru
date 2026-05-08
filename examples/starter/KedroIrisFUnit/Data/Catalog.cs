@@ -1,9 +1,10 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 
 namespace KedroIrisFUnit.Data;
 
 /// <summary>
-/// Data catalog for the Iris classification pipeline, providing access to datasets across all data layers.
+/// Data catalog for the Iris classification pipeline, providing
+/// access to datasets across all data layers.
 /// </summary>
 public partial class Catalog : CatalogAbstract
 {
@@ -16,6 +17,5 @@ public partial class Catalog : CatalogAbstract
   public Catalog(string basePath)
   {
     _basePath = basePath;
-    InitializeCatalogProperties();
   }
 }

@@ -1,85 +1,80 @@
-using Flowthru.Core.Data.Storage.Medium;
-
-namespace Flowthru.Core.Data.Storage;
+namespace Flowthru.Data.Storage;
 
 /// <summary>
-/// Default implementation of <see cref="IStorageMediumResolver"/>.
+/// Default <see cref="IStorageMediumResolver"/> implementation —
+/// composes a list of <see cref="IStorageMediumProvider"/>s (typically
+/// supplied by DI from extension registrations) with a built-in
+/// fallback to <see cref="FileStorageMediumProvider"/> for bare paths
+/// and <c>file://</c> URIs.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Consults registered <see cref="IStorageMediumProvider"/> instances in order, falling
-/// back to <see cref="FileStorageMedium"/> for bare file paths and <c>file://</c> URIs.
+/// <strong>Dispatch order.</strong> URI schemes are tried against
+/// registered providers in registration order; first match wins.
+/// Bare paths (and <c>file://</c> URIs) bypass provider dispatch and
+/// resolve directly via the built-in
+/// <see cref="FileStorageMediumProvider"/>.
 /// </para>
 /// <para>
-/// <strong>Two construction modes:</strong>
+/// <strong>Filesystem-only fallback.</strong>
+/// <see cref="Filesystem"/> exposes a singleton resolver constructed
+/// with no extra providers — used by format extensions when their
+/// caller passes <c>null</c> for the resolver argument.
 /// </para>
-/// <list type="bullet">
-/// <item>
-/// <strong>DI-injected:</strong> The DI container passes all registered
-/// <c>IStorageMediumProvider</c> singletons via
-/// <see cref="StorageMediumResolver(IEnumerable{IStorageMediumProvider})"/>.
-/// Used automatically when <c>services.AddFlowthru(...)</c> registers this type.
-/// </item>
-/// <item>
-/// <strong>Direct construction:</strong> Use the parameterless constructor and chain
-/// <see cref="Register"/> calls. Useful in tests or standalone programs that don't
-/// use the DI service layer.
-/// </item>
-/// </list>
 /// </remarks>
 public sealed class StorageMediumResolver : IStorageMediumResolver
 {
-  private readonly List<IStorageMediumProvider> _providers;
+  private static readonly FileStorageMediumProvider _fileProvider = new();
 
-  /// <summary>
-  /// DI constructor — providers are collected from all registered
-  /// <see cref="IStorageMediumProvider"/> singletons.
-  /// </summary>
+  private readonly IReadOnlyList<IStorageMediumProvider> _providers;
+
   public StorageMediumResolver(IEnumerable<IStorageMediumProvider> providers)
   {
+    if (providers is null) throw new ArgumentNullException(nameof(providers));
     _providers = providers.ToList();
   }
 
   /// <summary>
-  /// Parameterless constructor for direct construction outside the DI container.
-  /// Chain <see cref="Register"/> to add providers.
+  /// Singleton resolver with no registered providers — only resolves
+  /// bare paths and <c>file://</c> URIs. Used as the default fallback
+  /// when format-extension factories receive a null resolver
+  /// argument.
   /// </summary>
-  public StorageMediumResolver()
-  {
-    _providers = new List<IStorageMediumProvider>();
-  }
-
-  /// <summary>
-  /// Adds a provider to the resolver's dispatch chain.
-  /// </summary>
-  /// <returns><c>this</c> for fluent chaining.</returns>
-  public StorageMediumResolver Register(IStorageMediumProvider provider)
-  {
-    _providers.Add(provider);
-    return this;
-  }
+  public static IStorageMediumResolver Filesystem { get; } =
+    new StorageMediumResolver(Array.Empty<IStorageMediumProvider>());
 
   /// <inheritdoc/>
   public IStorageMedium Resolve(string pathOrUri)
   {
-    // Only parse as URI if it looks like an absolute URI with a non-file scheme.
-    // Uri.TryCreate will happily parse "C:\path\to\file" as a valid absolute URI
-    // on Windows, so we guard against that by checking the scheme explicitly.
-    if (
-      Uri.TryCreate(pathOrUri, UriKind.Absolute, out var uri)
-      && uri.Scheme != "file"
-      && uri.Scheme.Length > 1 // exclude Windows drive letters (e.g. "C:")
-    )
+    if (string.IsNullOrWhiteSpace(pathOrUri))
+    {
+      throw new ArgumentException(
+        "Path or URI must be a non-empty string.", nameof(pathOrUri)
+      );
+    }
+
+    // Try to parse as an absolute URI. Bare paths (relative or
+    // platform-rooted like /foo or C:\foo) fall through to file
+    // medium without going through the provider list.
+    if (Uri.TryCreate(pathOrUri, UriKind.Absolute, out var uri)
+        && !string.IsNullOrEmpty(uri.Scheme)
+        && !uri.IsFile)
     {
       foreach (var provider in _providers)
       {
-        if (provider.CanHandle(uri))
-        {
-          return provider.Create(uri);
-        }
+        if (provider.CanHandle(uri)) return provider.Create(uri);
       }
+
+      throw new InvalidOperationException(
+        $"No IStorageMediumProvider is registered for URI scheme '{uri.Scheme}://'. "
+        + $"Either register the corresponding extension (e.g. builder.UseHttp() for "
+        + $"http/https) or pass a bare file path. Got: '{pathOrUri}'."
+      );
     }
 
-    return new FileStorageMedium(pathOrUri);
+    // Bare path or file:// — resolve via the built-in file provider.
+    return uri is { IsFile: true }
+      ? _fileProvider.Create(uri)
+      : new FileStorageMedium(pathOrUri);
   }
 }

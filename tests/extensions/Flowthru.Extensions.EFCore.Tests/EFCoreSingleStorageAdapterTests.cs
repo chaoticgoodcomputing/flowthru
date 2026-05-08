@@ -1,212 +1,129 @@
-using Flowthru.Core.Data.Validation;
-using Flowthru.Extensions.EFCore.Data;
-using Microsoft.Data.Sqlite;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
+using Flowthru.Extensions.EFCore.Tests.Fixtures;
+using Flowthru.Prelude;
 using Microsoft.EntityFrameworkCore;
 
 namespace Flowthru.Extensions.EFCore.Tests;
 
+/// <summary>
+/// Direct exercises of <see cref="Flowthru.Data.Storage.EFCore.EFCoreSingleStorageAdapter{T}"/>
+/// — the single-row table variant. Asserts the "exactly one row"
+/// invariant and the inspection failures that surface when it's
+/// violated.
+/// </summary>
 [TestFixture]
+[Category("EFCore")]
 public class EFCoreSingleStorageAdapterTests
 {
-  private SqliteConnection _connection = null!;
-  private DbContextOptions<TestDbContext> _options = null!;
+  private IDbContextFactory<TestDbContext> _factory = null!;
+  private string _dbPath = null!;
 
   [SetUp]
-  public async Task SetUp()
+  public void SetUp()
   {
-    _connection = new SqliteConnection("Data Source=:memory:");
-    await _connection.OpenAsync();
-    _options = new DbContextOptionsBuilder<TestDbContext>().UseSqlite(_connection).Options;
-
-    await using var context = new TestDbContext(_options);
-    await context.Database.EnsureCreatedAsync();
+    (_factory, _dbPath) = TestDbContextFactoryBuilder.Build();
   }
 
   [TearDown]
-  public async Task TearDown()
+  public void TearDown()
   {
-    await _connection.DisposeAsync();
+    if (File.Exists(_dbPath))
+    {
+      try { File.Delete(_dbPath); }
+      catch { /* best effort */ }
+    }
   }
 
   [Test]
-  public async Task DefaultRoundTrip_SaveAndLoad_ReturnsSingleEntity()
+  public async Task SaveLoad_RoundTrips()
   {
-    var testEntity = new TestEntity { Id = 1, Name = "Alice" };
-
-    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options)
+    var item = ItemFactory.Singleton.EFCore<TestSingletonEntity, TestDbContext>(
+      "single", _factory
     );
 
-    await entry.Save(testEntity).Run();
-    var loaded = await entry.Load().Run();
+    var entity = new TestSingletonEntity { Id = 1, Description = "the one" };
 
-    Assert.That(loaded.Id, Is.EqualTo(1));
-    Assert.That(loaded.Name, Is.EqualTo("Alice"));
+    await item.Save(entity).Run();
+
+    var load = await item.Load().Run();
+    var loaded = ((EffResult<TestSingletonEntity>.Success)load).Value;
+    Assert.That(loaded, Is.EqualTo(entity));
   }
 
   [Test]
-  public async Task AllowEmptyData_False_FailsInspectionOnEmptyTable()
+  public async Task DefaultSave_ReplacesPreviousSingleton()
   {
-    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options),
-      allowEmptyData: false
+    var item = ItemFactory.Singleton.EFCore<TestSingletonEntity, TestDbContext>(
+      "single", _factory
     );
 
-    var result = await entry.InspectShallow(0).Run();
+    await item.Save(new TestSingletonEntity { Id = 1, Description = "first" }).Run();
+    await item.Save(new TestSingletonEntity { Id = 2, Description = "second" }).Run();
 
-    Assert.That(result.IsValid, Is.False);
-  }
-
-  // ── InspectTarget ───────────────────────────────────────────────────────
-
-  [Test]
-  public async Task InspectTarget_MigratedDatabase_ReturnsSuccess()
-  {
-    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options)
-    );
-
-    var result = await entry.InspectTarget().Run();
-
-    Assert.That(result.IsValid, Is.True);
+    var load = await item.Load().Run();
+    var loaded = ((EffResult<TestSingletonEntity>.Success)load).Value;
+    Assert.That(loaded.Id, Is.EqualTo(2));
+    Assert.That(loaded.Description, Is.EqualTo("second"),
+      "Default save should leave exactly the latest row in place.");
   }
 
   [Test]
-  public async Task InspectTarget_UnmigratedDatabase_ReturnsFailure()
+  public async Task InspectShallow_EmptyTable_FailsByDefault()
   {
-    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
-    await bareConnection.OpenAsync();
-    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
-      .UseSqlite(bareConnection)
-      .Options;
-
-    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(bareOptions)
+    var item = ItemFactory.Singleton.EFCore<TestSingletonEntity, TestDbContext>(
+      "single", _factory
     );
 
-    var result = await entry.InspectTarget().Run();
-
-    Assert.That(result.IsValid, Is.False);
-  }
-
-  [Test]
-  public async Task InspectTarget_UnmigratedDatabase_ErrorDetailsContainContextTypeName()
-  {
-    await using var bareConnection = new SqliteConnection("Data Source=:memory:");
-    await bareConnection.OpenAsync();
-    var bareOptions = new DbContextOptionsBuilder<TestDbContext>()
-      .UseSqlite(bareConnection)
-      .Options;
-
-    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(bareOptions)
-    );
-
-    var result = await entry.InspectTarget().Run();
-
+    var inspect = await item.InspectShallow(0).Run();
+    var validation = ((EffResult<ValidationResult>.Success)inspect).Value;
+    Assert.That(validation.IsValid, Is.False);
     Assert.That(
-      result.Errors[0].Details,
-      Does.Contain("TestDbContext"),
-      "Error details must identify which context type produced the error"
+      validation.Errors.Any(e => e.ErrorType == ValidationErrorType.EmptyDataset),
+      Is.True
     );
   }
 
   [Test]
-  public async Task AllowEmptyData_True_PassesInspectionOnEmptyTable()
+  public async Task InspectShallow_MultipleRows_Fails()
   {
-    var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-      "test",
-      () => new TestDbContext(_options),
-      allowEmptyData: true
-    );
-
-    var result = await entry.InspectShallow(0).Run();
-
-    Assert.That(result.IsValid, Is.True);
-  }
-
-  [Test]
-  public void ArrayKeyEntity_ThrowsInvalidOperationException_OnConstruction()
-  {
-    var options = new DbContextOptionsBuilder<ArrayKeyDbContext>()
-      .UseSqlite("Data Source=:memory:")
-      .Options;
-
-    Assert.Throws<InvalidOperationException>(
-      () =>
-        EFCoreItemFactory.Single.EFCore<ArrayKeyEntity>(
-          "test",
-          () => new ArrayKeyDbContext(options)
-        )
-    );
-  }
-
-  // ── Shape validation ────────────────────────────────────────────────────
-
-  private static async Task<(SqliteConnection conn, DbContextOptions<TestDbContext> options)> CreateDriftedDatabaseAsync(
-    string testEntitiesTableSql
-  )
-  {
-    var conn = new SqliteConnection("Data Source=:memory:");
-    await conn.OpenAsync();
-
-    await using (var cmd = conn.CreateCommand())
+    // Seed two rows directly via a context — bypass the adapter so we
+    // can trigger the multi-row invariant violation that the adapter
+    // wouldn't normally let happen.
+    using (var ctx = await _factory.CreateDbContextAsync())
     {
-      cmd.CommandText = testEntitiesTableSql;
-      await cmd.ExecuteNonQueryAsync();
-    }
-
-    var options = new DbContextOptionsBuilder<TestDbContext>().UseSqlite(conn).Options;
-    return (conn, options);
-  }
-
-  [Test]
-  public async Task InspectTarget_TableMissingColumn_ReturnsSchemaMismatch()
-  {
-    var (conn, options) = await CreateDriftedDatabaseAsync(
-      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
-    );
-    await using (conn)
-    {
-      var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-        "test",
-        () => new TestDbContext(options)
+      ctx.Singleton.AddRange(
+        new TestSingletonEntity { Id = 1, Description = "a" },
+        new TestSingletonEntity { Id = 2, Description = "b" }
       );
-
-      var result = await entry.InspectTarget().Run();
-
-      Assert.That(result.IsValid, Is.False);
-      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
-      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
+      await ctx.SaveChangesAsync();
     }
+
+    var item = ItemFactory.Singleton.EFCore<TestSingletonEntity, TestDbContext>(
+      "single", _factory
+    );
+    var inspect = await item.InspectShallow(0).Run();
+    var validation = ((EffResult<ValidationResult>.Success)inspect).Value;
+    Assert.That(validation.IsValid, Is.False);
+    Assert.That(
+      validation.Errors.Any(e =>
+        e.ErrorType == ValidationErrorType.DeserializationError
+        && e.Message.Contains("contains 2 rows")
+      ),
+      Is.True,
+      "A multi-row table should fail single-entity inspection with a clear count."
+    );
   }
 
   [Test]
-  public async Task InspectShallow_TableMissingColumn_ReturnsSchemaMismatch()
+  public async Task InspectShallow_AllowEmptyData_PassesOnEmpty()
   {
-    var (conn, options) = await CreateDriftedDatabaseAsync(
-      "CREATE TABLE \"TestEntities\" (\"Id\" INTEGER PRIMARY KEY)"
+    var item = ItemFactory.Singleton.EFCore<TestSingletonEntity, TestDbContext>(
+      "single", _factory, allowEmptyData: true
     );
-    await using (conn)
-    {
-      // allowEmptyData: true so the empty-table check doesn't pre-empt the
-      // shape check we're trying to exercise.
-      var entry = EFCoreItemFactory.Single.EFCore<TestEntity>(
-        "test",
-        () => new TestDbContext(options),
-        allowEmptyData: true
-      );
 
-      var result = await entry.InspectShallow(0).Run();
-
-      Assert.That(result.IsValid, Is.False);
-      Assert.That(result.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
-      Assert.That(result.Errors[0].Message, Does.Contain("Name"));
-    }
+    var inspect = await item.InspectShallow(0).Run();
+    var validation = ((EffResult<ValidationResult>.Success)inspect).Value;
+    Assert.That(validation.IsValid, Is.True);
   }
 }

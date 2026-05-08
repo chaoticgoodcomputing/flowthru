@@ -1,5 +1,5 @@
-using Flowthru.Core.Data;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage.EFCore;
 using SpaceflightsEFCore.Data._06_Models.Schemas;
 
 namespace SpaceflightsEFCore.Data;
@@ -16,7 +16,7 @@ public partial class Catalog
   public IItem<LinearRegressionModel> Regressor =>
     CreateItem(
       () =>
-        EFCoreItemFactory.Single.EFCore<LinearRegressionModel, SpaceflightsDbContext>(
+        ItemFactory.Singleton.EFCore<LinearRegressionModel, SpaceflightsDbContext>(
           label: "Regressor",
           contextFactory: _contextFactory
         )

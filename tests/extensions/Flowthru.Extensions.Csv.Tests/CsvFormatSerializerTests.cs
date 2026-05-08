@@ -1,48 +1,46 @@
 using System.Text;
-using Flowthru.Core.Data.Storage.Format;
 using Flowthru.Extensions.Csv.Tests.Fixtures;
+using Flowthru.Data.Storage.Csv;
 
 namespace Flowthru.Extensions.Csv.Tests;
 
+/// <summary>
+/// Direct exercises of <see cref="CsvFormatSerializer{TRow}"/> on flat
+/// schemas — round-trip, header semantics, <c>[SerializedLabel]</c>
+/// honoring, and null-argument guards.
+/// </summary>
 [TestFixture]
 [Category("Csv")]
 public class CsvFormatSerializerTests
 {
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
   private static async IAsyncEnumerable<T> AsAsync<T>(IEnumerable<T> source)
   {
     foreach (var item in source)
+    {
       yield return item;
+      await Task.Yield();
+    }
   }
 
   private static async Task<List<T>> ToList<T>(IAsyncEnumerable<T> source)
   {
     var list = new List<T>();
     await foreach (var item in source)
+    {
       list.Add(item);
+    }
     return list;
   }
 
-  // ── Round-trip ────────────────────────────────────────────────────────────
+  // ── Round-trip ──────────────────────────────────────────────────────
 
   [Test]
-  public async Task RoundTrip_SerializeThenDeserialize_ReturnsSameRows()
+  public async Task RoundTrip_SerializeThenDeserialize_PreservesRows()
   {
     var rows = new[]
     {
-      new FlatRow
-      {
-        Id = 1,
-        Name = "Alice",
-        Value = 1.5,
-      },
-      new FlatRow
-      {
-        Id = 2,
-        Name = "Bob",
-        Value = 2.5,
-      },
+      new FlatRow { Id = 1, Name = "Alice", Value = 1.5 },
+      new FlatRow { Id = 2, Name = "Bob", Value = 2.5 },
     };
     var serializer = new CsvFormatSerializer<FlatRow>();
     using var stream = new MemoryStream();
@@ -68,15 +66,12 @@ public class CsvFormatSerializerTests
     Assert.That(csv.Trim(), Is.EqualTo("Id,Name,Value"));
   }
 
-  // ── SerializedLabel ───────────────────────────────────────────────────────
+  // ── SerializedLabel ─────────────────────────────────────────────────
 
   [Test]
   public async Task SerializedLabel_WritesExternalColumnNames()
   {
-    var rows = new[]
-    {
-      new LabeledRow { CompanyId = 42, CompanyName = "Acme" },
-    };
+    var rows = new[] { new LabeledRow { CompanyId = 42, CompanyName = "Acme" } };
     var serializer = new CsvFormatSerializer<LabeledRow>();
     using var stream = new MemoryStream();
 
@@ -103,7 +98,7 @@ public class CsvFormatSerializerTests
     Assert.That(result[0].CompanyName, Is.EqualTo("TestCo"));
   }
 
-  // ── Traits ────────────────────────────────────────────────────────────────
+  // ── Traits ──────────────────────────────────────────────────────────
 
   [Test]
   public void Traits_CanStream_IsTrue()
@@ -111,7 +106,7 @@ public class CsvFormatSerializerTests
     Assert.That(new CsvFormatSerializer<FlatRow>().Traits.CanStream, Is.True);
   }
 
-  // ── Null-argument guards ──────────────────────────────────────────────────
+  // ── Null-argument guards ────────────────────────────────────────────
 
   [Test]
   public void DeserializeRows_NullStream_ThrowsArgumentNullException()
@@ -129,5 +124,29 @@ public class CsvFormatSerializerTests
     Assert.ThrowsAsync<ArgumentNullException>(
       async () => await serializer.SerializeRows(null!, AsAsync(Array.Empty<FlatRow>()))
     );
+  }
+
+  // ── SerializedEnum ──────────────────────────────────────────────────
+
+  [Test]
+  public async Task SerializedEnum_RoundTripsEnumValue()
+  {
+    var rows = new[]
+    {
+      new CheckStatusRow { Id = 1, Status = CheckStatus.Complete },
+      new CheckStatusRow { Id = 2, Status = CheckStatus.Incomplete },
+    };
+    var serializer = new CsvFormatSerializer<CheckStatusRow>();
+    using var stream = new MemoryStream();
+
+    await serializer.SerializeRows(stream, AsAsync(rows));
+    var csv = Encoding.UTF8.GetString(stream.ToArray());
+    Assert.That(csv, Does.Contain(",t"));
+    Assert.That(csv, Does.Contain(",f"));
+
+    stream.Position = 0;
+    var result = await ToList(serializer.DeserializeRows(stream));
+    Assert.That(result[0].Status, Is.EqualTo(CheckStatus.Complete));
+    Assert.That(result[1].Status, Is.EqualTo(CheckStatus.Incomplete));
   }
 }

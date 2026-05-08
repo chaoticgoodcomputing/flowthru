@@ -1,46 +1,61 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsEFCore.Data;
+using SpaceflightsEFCore.Data._03_Primary.Schemas;
+using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
+using SpaceflightsEFCore.Data._06_Models.Schemas;
+using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
 using SpaceflightsEFCore.Flows.DataScience.Steps;
 
 namespace SpaceflightsEFCore.Flows.DataScience;
 
 /// <summary>
-/// Creates the data science pipeline that trains and evaluates a price prediction model.
+/// Data science pipeline: trains and evaluates a price-prediction model.
+/// Closes over <see cref="FlowConfig.ModelOptions"/> at flow-construction
+/// time per §2.6 — config values are catalog-resolved properties, not
+/// catalog items.
 /// </summary>
 public static class DataScienceFlow
 {
-  /// <summary>
-  /// Creates the data science pipeline.
-  /// </summary>
-  /// <param name="catalog">The data catalog containing input and output entries.</param>
-  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
-  /// <returns>A configured pipeline that produces a trained model and evaluation metrics.</returns>
-  public static Flow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    var modelOptions = config.ModelOptions;
+    var splitTransform = SplitDataStep.Create();
+    var trainTransform = TrainModelStep.Create();
+    var evaluateTransform = EvaluateModelStep.Create();
+
+    return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<ModelInputTableSchema>,
+        IEnumerable<TrainingData>,
+        IEnumerable<TestData>
+      >(
         label: "SplitData",
-        description: "Splits model input data into training and test sets.",
-        transform: SplitDataStep.Create,
-        input: (catalog.ModelInputTable, config.ModelOptions),
-        output: (catalog.TrainSplit, catalog.TestSplit)
+        transform: data => splitTransform((data, modelOptions)),
+        input1: catalog.ModelInputTable,
+        output1: catalog.TrainSplit,
+        output2: catalog.TestSplit
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<TrainingData>, LinearRegressionModel>(
         label: "TrainModel",
-        description: "Trains a regression model to predict shuttle prices.",
-        transform: Steps.TrainModelStep.Create(),
-        input: catalog.TrainSplit,
-        output: catalog.Regressor
+        transform: trainTransform,
+        input1: catalog.TrainSplit,
+        output1: catalog.Regressor
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        LinearRegressionModel,
+        IEnumerable<TestData>,
+        ModelMetrics,
+        IEnumerable<ModelPredictions>
+      >(
         label: "EvaluateModel",
-        description: "Evaluates the trained model on the test set and computes metrics and predictions.",
-        transform: Steps.EvaluateModelStep.Create(),
-        input: (catalog.Regressor, catalog.TestSplit),
-        output: (catalog.ModelMetrics, catalog.ModelPredictions)
+        transform: evaluateTransform,
+        input1: catalog.Regressor,
+        input2: catalog.TestSplit,
+        output1: catalog.ModelMetrics,
+        output2: catalog.ModelPredictions
       );
     });
   }

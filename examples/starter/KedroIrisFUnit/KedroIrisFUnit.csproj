@@ -10,15 +10,43 @@
     <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
-  <!-- Define FUNIT_ENABLED so [StepTest] inner classes are conditionally compiled
+  <!-- Define FUNIT_ENABLED so [FUnitStepTest] inner classes are conditionally compiled
        out of Release. -->
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flowthru" />
-    <PackageReference Include="Flowthru.FUnit" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit/FUnit.csproj" />
+  </ItemGroup>
+
+  <!-- Wire Core's source generators (FlowBuilderGenerator emits AddStep arity overloads;
+       SchemaInterfaceGenerator emits marker interfaces for [FlowthruSchema] records;
+       StepMetadataGenerator emits per-step metadata companions) plus FUnit's source
+       generators (StepTestRegistryGenerator emits per-test-class NUnit runners).
+       Analyzer references don't propagate transitively across ProjectReferences, so
+       they're declared on this project explicitly. -->
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.CodeFixes/FUnit.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
   </ItemGroup>
 
   <!-- NUnit + Test Sdk: only included in Debug so Release builds carry zero test
@@ -35,15 +63,5 @@
     <None Update="Data/**/*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <!-- In-repo dual-mode: swap Flowthru* PackageReferences for ProjectReferences,
-       register Core source generators. Skipped for template instantiations. -->
-  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
-          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
-
-  <!-- In-repo FUnit analyzer wiring. NuGet end-users get the same wiring auto-imported
-       from the Flowthru.FUnit package's build/ folder. -->
-  <Import Project="$(RepoRoot)build/FlowthruFUnit.props"
-          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruFUnit.props')" />
 
 </Project>

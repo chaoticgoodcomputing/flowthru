@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using SpaceflightsEFCore.Data._07_ModelOutput.Schemas;
@@ -39,66 +39,64 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
-  {
-    var (predictions, opts) = (input.Data.ToList(), input.Options);
-
-    if (!predictions.Any())
+  public static Func<
+    (IEnumerable<ModelPredictions> Data, Options Options),
+    GenericChart
+  > Create() =>
+    input =>
     {
-      throw new InvalidOperationException("Cannot create confusion matrix from empty predictions");
-    }
+      var (predictions, opts) = (input.Data.ToList(), input.Options);
 
-    // Calculate percentile thresholds based on actual values
-    var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
-    var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
-
-    // Bin predictions into classes
-    var binnedPredictions = predictions
-      .Select(p =>
-        (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
-      )
-      .ToList();
-
-    // Build NxN confusion matrix
-    var matrix = new int[opts.NumBins, opts.NumBins];
-    foreach (var (actual, predicted) in binnedPredictions)
-    {
-      matrix[actual, predicted]++;
-    }
-
-    // Convert to format for Plotly heatmap (list of lists)
-    var zData = new List<List<int>>();
-    for (int i = 0; i < opts.NumBins; i++)
-    {
-      var row = new List<int>();
-      for (int j = 0; j < opts.NumBins; j++)
+      if (!predictions.Any())
       {
-        row.Add(matrix[i, j]);
+        throw new InvalidOperationException("Cannot create confusion matrix from empty predictions");
       }
-      zData.Add(row);
-    }
 
-    // Generate labels based on percentile ranges
-    var labels = GeneratePercentileLabels(opts.NumBins);
-    var xLabels = labels.Select(l => $"Pred {l}").ToArray();
-    var yLabels = labels.Select(l => $"Actual {l}").ToArray();
+      var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
+      var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
 
-    // Create heatmap using Plotly.NET.CSharp API
-    var binName = opts.NumBins switch
-    {
-      2 => "Median Split",
-      3 => "Tertiles",
-      4 => "Quartiles",
-      5 => "Quintiles",
-      10 => "Deciles",
-      _ => $"{opts.NumBins} Bins",
+      var binnedPredictions = predictions
+        .Select(p =>
+          (Actual: AssignBin(p.Actual, thresholds), Predicted: AssignBin(p.Predicted, thresholds))
+        )
+        .ToList();
+
+      var matrix = new int[opts.NumBins, opts.NumBins];
+      foreach (var (actual, predicted) in binnedPredictions)
+      {
+        matrix[actual, predicted]++;
+      }
+
+      var zData = new List<List<int>>();
+      for (int i = 0; i < opts.NumBins; i++)
+      {
+        var row = new List<int>();
+        for (int j = 0; j < opts.NumBins; j++)
+        {
+          row.Add(matrix[i, j]);
+        }
+        zData.Add(row);
+      }
+
+      var labels = GeneratePercentileLabels(opts.NumBins);
+      var xLabels = labels.Select(l => $"Pred {l}").ToArray();
+      var yLabels = labels.Select(l => $"Actual {l}").ToArray();
+
+      var binName = opts.NumBins switch
+      {
+        2 => "Median Split",
+        3 => "Tertiles",
+        4 => "Quartiles",
+        5 => "Quintiles",
+        10 => "Deciles",
+        _ => $"{opts.NumBins} Bins",
+      };
+
+      return CSharpChart
+        .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
+        .WithTitle($"Confusion Matrix ({binName})")
+        .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
     };
-
-    return CSharpChart
-      .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
-      .WithTitle($"Confusion Matrix ({binName})")
-      .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
-  }
 
   /// <summary>
   /// Calculates percentile threshold values for binning.

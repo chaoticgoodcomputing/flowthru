@@ -1,5 +1,5 @@
-using Flowthru.Core.Data;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage.EFCore;
 using SpaceflightsEFCore.Data._03_Primary.Schemas;
 
 namespace SpaceflightsEFCore.Data;
@@ -17,7 +17,7 @@ public partial class Catalog
   public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
     CreateItem(
       () =>
-        EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
+        ItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
           label: "ModelInputTable",
           contextFactory: _contextFactory,
           // Demonstrates query customization: order by shuttle ID for deterministic output.

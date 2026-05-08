@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroIrisFUnit.Data._06_Models.Schemas;
 
 namespace KedroIrisFUnit.Data;
@@ -13,11 +13,10 @@ public partial class Catalog
   /// Contains weight matrix for all three species classifiers.
   /// </summary>
   public IItem<ModelWeightsSchema> IrisModel =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Json<ModelWeightsSchema>(
-          label: "IrisModel",
-          filePath: $"{_basePath}/_06_Models/Datasets/iris_model.json"
-        )
+    CreateItem(() =>
+      ItemFactory.Singleton.Json<ModelWeightsSchema>(
+        label: "IrisModel",
+        filePath: $"{_basePath}/_06_Models/Datasets/iris_model.json"
+      )
     );
 }

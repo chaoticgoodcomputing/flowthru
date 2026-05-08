@@ -6,8 +6,6 @@
     <Nullable>enable</Nullable>
     <IsRoslynComponent>true</IsRoslynComponent>
     <PackageId>Flowthru.Core.CodeFixes</PackageId>
-    <!-- CodeFixProviders require Workspaces APIs; EnforceExtendedAnalyzerRules would
-         block them. CodeFix projects deliberately do NOT set that property. -->
     <NoWarn>RS2008;RS2007</NoWarn>
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -18,7 +16,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- Reference the analyzer project so fixer IDs can reference shared constants -->
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />

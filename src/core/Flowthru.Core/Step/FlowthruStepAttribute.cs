@@ -1,0 +1,45 @@
+namespace Flowthru.Step;
+
+/// <summary>
+/// Marks a static class as a Flowthru step. The
+/// <c>StepMetadataGenerator</c> source generator emits a companion
+/// <c>{ClassName}_Metadata</c> record describing the step (label,
+/// archetype, traits) — used by diagnostics, metadata exporters, and
+/// architecture tests that walk every step in an assembly.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Per §2.4, every <c>[FlowthruStep]</c>-decorated class follows the
+/// single canonical authoring shape:
+/// <code>
+/// [FlowthruStep]
+/// public static class FooStep
+/// {
+///   public static Func&lt;TIn, TOut&gt; Create() => input => { /* … */ };
+/// }
+/// </code>
+/// </para>
+/// <para>
+/// The framework calls <c>Create</c> once at flow-construction time,
+/// captures the returned delegate, and wraps it as the
+/// <see cref="IStepNode{TIn, TOut}.Transform"/>. Service injection
+/// happens via <c>Create</c>'s parameters (Reader-shaped closure). The
+/// transform delegate's signature is the canonical declaration of the
+/// step's input/output types — there is no second mechanism.
+/// </para>
+/// </remarks>
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+public sealed class FlowthruStepAttribute : Attribute
+{
+  /// <summary>
+  /// Optional override for the step's display label. Defaults to the
+  /// step class name.
+  /// </summary>
+  public string? Label { get; init; }
+
+  /// <summary>True if the step is idempotent (rerunnable safely).</summary>
+  public bool IsIdempotent { get; init; }
+
+  /// <summary>True if the step has side effects beyond declared outputs.</summary>
+  public bool HasSideEffects { get; init; }
+}

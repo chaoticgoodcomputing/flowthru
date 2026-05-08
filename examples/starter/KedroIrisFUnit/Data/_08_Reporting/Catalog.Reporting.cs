@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroIrisFUnit.Data._08_Reporting.Schemas;
 
 namespace KedroIrisFUnit.Data;
@@ -12,11 +12,10 @@ public partial class Catalog
   /// Model evaluation metrics including accuracy and confusion statistics.
   /// </summary>
   public IItem<MetricsSchema> Metrics =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Json<MetricsSchema>(
-          label: "Metrics",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/metrics.json"
-        )
+    CreateItem(() =>
+      ItemFactory.Singleton.Json<MetricsSchema>(
+        label: "Metrics",
+        filePath: $"{_basePath}/_08_Reporting/Datasets/metrics.json"
+      )
     );
 }

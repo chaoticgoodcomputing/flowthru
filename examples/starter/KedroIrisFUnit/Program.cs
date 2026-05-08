@@ -1,7 +1,5 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Hosting;
 using KedroIrisFUnit.Data;
 using KedroIrisFUnit.Flows.DataEngineering;
 using KedroIrisFUnit.Flows.DataScience;
@@ -12,14 +10,15 @@ using Microsoft.Extensions.Logging;
 namespace KedroIrisFUnit;
 
 /// <summary>
-/// Main application entry point for the Iris classification pipeline.
+/// Main entry point for the Iris classification pipeline. Phase 7's
+/// done-criterion: this program runs end-to-end against
+/// <c>Flowthru.Core</c> + <c>FUnit</c> only — no extension packages —
+/// exercising schemas, catalog with attribute-driven items,
+/// canonical <c>Create() => Func</c> step shapes,
+/// <c>FlowBuilder</c>, and the hosting + CLI surface.
 /// </summary>
 public class Program
 {
-  /// <summary>
-  /// Main entry point for the Iris classification pipeline CLI application.
-  /// </summary>
-  /// <param name="args">Command-line arguments</param>
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
@@ -27,9 +26,8 @@ public class Program
     );
 
   /// <summary>
-  /// Configures services for the application. Used by test infrastructure.
+  /// Build a service provider for tests / external host adapters.
   /// </summary>
-  /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var services = new ServiceCollection();
@@ -38,44 +36,31 @@ public class Program
   }
 
   /// <summary>
-  /// Shared service configuration logic.
+  /// Shared service-configuration logic. Per Phase 4: catalogs are
+  /// DI-resolvable values; flows declare which ones they need by
+  /// parameter list and the framework resolves each from DI before
+  /// invoking the factory.
   /// </summary>
-  private static void ConfigureServices(IServiceCollection services, string basePath)
+  public static void ConfigureServices(IServiceCollection services, string basePath)
   {
     var configuration = new ConfigurationBuilder()
       .SetBasePath(basePath)
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
-      {
-        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
-        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
+    services.AddFlowthru(b =>
+    {
+      b.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      b.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
 
-        // Output pipeline metadata
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
+      b.RegisterFlow<Catalog, FlowConfig>("DataEngineering", DataEngineeringFlow.Create)
+        .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
-        flowthru
-          .RegisterFlow(label: "DataEngineering", flow: DataEngineeringFlow.Create)
-          .WithDescription("Splits iris data into training and test sets with one-hot encoding");
-
-        flowthru
-          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-          .WithDescription("Trains multi-class logistic regression model for iris classification");
-      }
-    );
+      b.RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .WithDescription("Trains multi-class logistic regression model for iris classification");
+    });
 
     services.AddLogging(logging =>
     {

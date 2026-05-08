@@ -1,0 +1,175 @@
+using System.Diagnostics;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
+using Flowthru.Diagnostics;
+using Flowthru.Flow;
+
+namespace Flowthru.Validation.PreFlight;
+
+/// <summary>
+/// Runs the three pre-flight contribution layers against a built
+/// flow and combines their outcomes via
+/// <see cref="Validated.ZipAll{TError, TValue}"/>: adapter-internal
+/// inspections of every input item, registered
+/// <see cref="IFlowValidationHook"/>s, and any caller-supplied
+/// service inspections. The user sees every problem at once, not
+/// one error per re-run.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Per §2.5, the pre-flight pipeline is the system-level invariant
+/// that a flow which passes pre-flight should always complete
+/// successfully. Adding a new closed <see cref="PreFlightError"/>
+/// case is the way Core lifts a runtime invariant into a build-time
+/// or pre-run check.
+/// </para>
+/// </remarks>
+public static class PreFlightPipeline
+{
+  /// <summary>
+  /// Run every layer for <paramref name="flow"/>. The adapter layer
+  /// is always run; <paramref name="hooks"/> and
+  /// <paramref name="serviceProbes"/> default to empty.
+  /// </summary>
+  public static FlowIO<Validated<PreFlightError, FlowUnit>> Run(
+    BuiltFlow flow,
+    IReadOnlyList<IFlowValidationHook>? hooks = null,
+    IReadOnlyList<FlowIO<Validated<PreFlightError, FlowUnit>>>? serviceProbes = null,
+    InspectionLevel inspectionLevel = InspectionLevel.Shallow
+  )
+  {
+    if (flow is null) throw new ArgumentNullException(nameof(flow));
+
+    return FlowIO.LiftAsync(async ct =>
+    {
+      using var activity = FlowthruActivitySource.Source.StartActivity(
+        FlowthruActivitySource.PreFlightActivityName,
+        ActivityKind.Internal
+      );
+
+      var aggregated = new List<Validated<PreFlightError, FlowUnit>>();
+
+      // Layer 1 — adapter-internal inspection of every external input. An
+      // "external" input is one whose label is NOT produced by any step in
+      // this flow — intermediate items that some upstream step writes
+      // won't exist until the flow runs, so inspecting them at pre-flight
+      // time is a category error.
+      var producedItemLabels = new HashSet<string>(
+        flow.Steps.SelectMany(s => s.Outputs.Select(o => o.Label)),
+        StringComparer.Ordinal
+      );
+
+      foreach (var step in flow.Steps)
+      {
+        foreach (var input in step.Inputs)
+        {
+          if (producedItemLabels.Contains(input.Label)) continue;
+
+          // Per-item cap: when the item declares a ceiling via
+          // IItem<T>.WithMaxInspectionLevel(...), the effective level
+          // is the tighter of the caller-requested level and the cap.
+          // Items without a cap run at the caller-requested level.
+          var effectiveLevel = input.MaxInspectionLevel is { } cap
+            ? (InspectionLevel)Math.Min((int)inspectionLevel, (int)cap)
+            : inspectionLevel;
+
+          // Skip the item entirely when the cap drives effective to
+          // None — lets a catalog author flag "trust the producer;
+          // don't probe" on a per-item basis.
+          if (effectiveLevel == InspectionLevel.None) continue;
+
+          var inspectIO = effectiveLevel switch
+          {
+            InspectionLevel.Deep => input.InspectDeep(),
+            InspectionLevel.Target => input.InspectTarget(),
+            _ => input.InspectShallow(),
+          };
+          var inspectResult = await inspectIO.Run(ct).ConfigureAwait(false);
+          aggregated.Add(inspectResult switch
+          {
+            EffResult<ValidationResult>.Success ok =>
+              ToValidated(ok.Value, input.Label),
+            EffResult<ValidationResult>.Failure failure =>
+              Validated<PreFlightError, FlowUnit>.Fail(
+                new PreFlightError.InspectionFailed(input.Label, failure.Error.Message)
+              ),
+            _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
+          });
+        }
+      }
+
+      // Layer 2 — caller-supplied flow validation hooks.
+      if (hooks is not null)
+      {
+        foreach (var hook in hooks)
+        {
+          var result = await hook.Validate(flow).Run(ct).ConfigureAwait(false);
+          aggregated.Add(result switch
+          {
+            EffResult<Validated<PreFlightError, FlowUnit>>.Success ok => ok.Value,
+            EffResult<Validated<PreFlightError, FlowUnit>>.Failure failure =>
+              Validated<PreFlightError, FlowUnit>.Fail(
+                new PreFlightError.InspectionFailed(hook.HookId, failure.Error.Message)
+              ),
+            _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
+          });
+        }
+      }
+
+      // Layer 3 — caller-supplied service-inspector probes.
+      if (serviceProbes is not null)
+      {
+        foreach (var probe in serviceProbes)
+        {
+          var result = await probe.Run(ct).ConfigureAwait(false);
+          aggregated.Add(result switch
+          {
+            EffResult<Validated<PreFlightError, FlowUnit>>.Success ok => ok.Value,
+            EffResult<Validated<PreFlightError, FlowUnit>>.Failure failure =>
+              Validated<PreFlightError, FlowUnit>.Fail(
+                new PreFlightError.InspectionFailed("service-probe", failure.Error.Message)
+              ),
+            _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
+          });
+        }
+      }
+
+      var combined = Validated.ZipAll(aggregated).Map(_ => FlowUnit.Default);
+      if (combined is Validated<PreFlightError, FlowUnit>.Invalid invalid)
+      {
+        activity?.SetTag(FlowthruActivitySource.TagPreFlightErrorCount, invalid.Errors.Count);
+        activity?.SetStatus(ActivityStatusCode.Error, $"{invalid.Errors.Count} pre-flight error(s)");
+      }
+      else
+      {
+        activity?.SetStatus(ActivityStatusCode.Ok);
+      }
+      return combined;
+    });
+  }
+
+  /// <summary>
+  /// Translate a <see cref="ValidationResult"/> emitted by an adapter
+  /// into a <see cref="Validated{TError, TValue}"/> over
+  /// <see cref="PreFlightError"/>. Each
+  /// <see cref="ValidationError"/> maps to the closest matching
+  /// closed-sum case.
+  /// </summary>
+  private static Validated<PreFlightError, FlowUnit> ToValidated(
+    ValidationResult result,
+    string itemLabel
+  )
+  {
+    if (result.IsValid) return Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
+    var errors = result.Errors.Select<ValidationError, PreFlightError>(e => e.ErrorType switch
+    {
+      ValidationErrorType.NotFound =>
+        new PreFlightError.MissingInput(itemLabel, e.Message),
+      ValidationErrorType.SchemaMismatch =>
+        new PreFlightError.SchemaDrift(itemLabel, "expected schema", e.Message),
+      _ => new PreFlightError.InspectionFailed(itemLabel, e.Message),
+    }).ToList();
+    return new Validated<PreFlightError, FlowUnit>.Invalid(errors);
+  }
+}
+

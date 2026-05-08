@@ -1,37 +1,26 @@
 using System.Text;
-using Flowthru.Core.Abstractions;
-using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Data.Storage.Format;
+using Flowthru.Extensions.Csv.Tests.Fixtures;
+using Flowthru.Data.Storage;
+using Flowthru.Data.Storage.Csv;
 
 namespace Flowthru.Extensions.Csv.Tests;
 
 /// <summary>
-/// Tests for <see cref="CsvFormatSerializer{TRow}"/>'s null handling — empty cells and
-/// configurable null sentinels.
+/// Null-handling for <see cref="CsvFormatSerializer{TRow}"/> — empty
+/// cells, configurable null sentinels, and round-trip preservation.
 /// </summary>
 [TestFixture]
 [Category("Csv")]
 public class CsvNullHandlingTests
 {
-  // ── Test schemas ──────────────────────────────────────────────────────────
-
-  /// <summary>Schema with both nullable and non-nullable string members.</summary>
-  public record NullableRow : IFlatSchema, ITextSerializable
+  private static async IAsyncEnumerable<T> AsAsync<T>(IEnumerable<T> source)
   {
-    [SerializedLabel("id")]
-    public required int Id { get; init; }
-
-    [SerializedLabel("nullable_name")]
-    public string? NullableName { get; init; }
-
-    [SerializedLabel("non_nullable_name")]
-    public string NonNullableName { get; init; } = string.Empty;
-
-    [SerializedLabel("nullable_value")]
-    public int? NullableValue { get; init; }
+    foreach (var item in source)
+    {
+      yield return item;
+      await Task.Yield();
+    }
   }
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
 
   private static async Task<List<T>> Deserialize<T>(IFormatSerializer<T> serializer, string csv)
     where T : notnull
@@ -44,8 +33,6 @@ public class CsvNullHandlingTests
     }
     return rows;
   }
-
-  // ── Default null handling ─────────────────────────────────────────────────
 
   [Test]
   public async Task DefaultBehavior_EmptyCellsBecomeNull_ForNullableProperties()
@@ -62,8 +49,10 @@ public class CsvNullHandlingTests
     Assert.That(rows, Has.Count.EqualTo(2));
     Assert.That(rows[0].NullableName, Is.EqualTo("Alice"));
     Assert.That(rows[0].NullableValue, Is.EqualTo(42));
-    Assert.That(rows[1].NullableName, Is.Null, "Empty cell should deserialize to null for string?");
-    Assert.That(rows[1].NullableValue, Is.Null, "Empty cell should deserialize to null for int?");
+    Assert.That(rows[1].NullableName, Is.Null,
+      "Empty cell should deserialize to null for string?");
+    Assert.That(rows[1].NullableValue, Is.Null,
+      "Empty cell should deserialize to null for int?");
   }
 
   [Test]
@@ -77,14 +66,9 @@ public class CsvNullHandlingTests
 
     var rows = await Deserialize(serializer, csv);
 
-    Assert.That(
-      rows[0].NonNullableName,
-      Is.EqualTo(string.Empty),
-      "Non-nullable string field should preserve empty-string semantics, not become null."
-    );
+    Assert.That(rows[0].NonNullableName, Is.EqualTo(string.Empty),
+      "Non-nullable string field should preserve empty-string semantics, not become null.");
   }
-
-  // ── Custom null-value list ────────────────────────────────────────────────
 
   [Test]
   public async Task CustomNullValues_PandasStyleSentinels_DeserializeToNull()
@@ -112,7 +96,6 @@ public class CsvNullHandlingTests
   [Test]
   public async Task CustomNullValues_NonNullableStringStillEmptyOnEmptyCell()
   {
-    // Even with custom null-values, non-nullable string properties keep empty-string semantics.
     var serializer = new CsvFormatSerializer<NullableRow>(
       nullValues: new[] { string.Empty, "NA" }
     );
@@ -123,14 +106,9 @@ public class CsvNullHandlingTests
 
     var rows = await Deserialize(serializer, csv);
 
-    Assert.That(
-      rows[0].NonNullableName,
-      Is.EqualTo(string.Empty),
-      "Custom null-values should not affect non-nullable string properties."
-    );
+    Assert.That(rows[0].NonNullableName, Is.EqualTo(string.Empty),
+      "Custom null-values should not affect non-nullable string properties.");
   }
-
-  // ── Round-trip ────────────────────────────────────────────────────────────
 
   [Test]
   public async Task RoundTrip_NullableValues_PreservedAcrossSerialize()
@@ -155,7 +133,7 @@ public class CsvNullHandlingTests
     };
 
     using var buffer = new MemoryStream();
-    await serializer.SerializeRows(buffer, ToAsync(input));
+    await serializer.SerializeRows(buffer, AsAsync(input));
     buffer.Position = 0;
 
     var output = new List<NullableRow>();
@@ -167,14 +145,5 @@ public class CsvNullHandlingTests
     Assert.That(output, Has.Count.EqualTo(2));
     Assert.That(output[0], Is.EqualTo(input[0]));
     Assert.That(output[1], Is.EqualTo(input[1]));
-  }
-
-  private static async IAsyncEnumerable<T> ToAsync<T>(IEnumerable<T> source)
-  {
-    foreach (var item in source)
-    {
-      yield return item;
-      await Task.Yield();
-    }
   }
 }
