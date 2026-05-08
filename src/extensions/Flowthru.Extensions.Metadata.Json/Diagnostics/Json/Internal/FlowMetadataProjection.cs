@@ -187,27 +187,42 @@ internal sealed record RunMetadataProjection
   };
 }
 
-/// <summary>Result projection: per-step outcome + overall success flag.</summary>
+/// <summary>Result projection: per-step outcome + overall success flag + run duration.</summary>
 internal sealed record RunResultProjection
 {
   [JsonPropertyOrder(0)]
   public required bool Success { get; init; }
 
+  /// <summary>
+  /// Total wall-clock duration of the run, in seconds, as measured
+  /// by the scheduler. Surface for downstream tooling (RunSummary,
+  /// Mermaid heat-map, dashboards) that don't want to re-aggregate
+  /// per-step durations.
+  /// </summary>
   [JsonPropertyOrder(1)]
+  public required double DurationSeconds { get; init; }
+
+  [JsonPropertyOrder(2)]
   public required IReadOnlyList<StepResultProjection> StepResults { get; init; }
 
   public static RunResultProjection From(FlowResult result) => new()
   {
     Success = result.IsSuccess,
+    DurationSeconds = result.Duration.TotalSeconds,
     StepResults = result.StepResults.Select(StepResultProjection.From).ToList(),
   };
 }
 
-/// <summary>Per-step outcome: succeeded, failed, or skipped.</summary>
+/// <summary>
+/// Per-step outcome: succeeded, failed, or skipped. Succeeded and
+/// Failed carry per-step <see cref="DurationSeconds"/>; Skipped omits
+/// it because the step did not run.
+/// </summary>
 internal sealed record StepResultProjection
 {
   public required string StepLabel { get; init; }
   public required string Status { get; init; }
+  public double? DurationSeconds { get; init; }
   public string? FailureMessage { get; init; }
   public string? SkipReason { get; init; }
 
@@ -217,6 +232,7 @@ internal sealed record StepResultProjection
     {
       StepLabel = s.StepLabel,
       Status = "succeeded",
+      DurationSeconds = s.Duration.TotalSeconds,
     },
     StepResult.Skipped s => new StepResultProjection
     {
@@ -228,6 +244,7 @@ internal sealed record StepResultProjection
     {
       StepLabel = f.StepLabel,
       Status = "failed",
+      DurationSeconds = f.Duration.TotalSeconds,
       FailureMessage = f.Error.Message,
     },
     _ => throw new InvalidOperationException(

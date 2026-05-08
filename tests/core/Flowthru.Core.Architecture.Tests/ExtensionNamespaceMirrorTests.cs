@@ -2,10 +2,13 @@ using System.Reflection;
 using Flowthru.Data.Storage.Csv;
 using Flowthru.Data.Storage.EFCore;
 using Flowthru.Data.Storage.Excel;
+using Flowthru.Data.Storage.Gql;
+using Flowthru.Data.Storage.Http;
 using Flowthru.Data.Storage.Parquet;
 using Flowthru.Data.Storage.Xml;
 using Flowthru.Diagnostics.Json;
 using Flowthru.Diagnostics.Mermaid;
+using Flowthru.Diagnostics.Run;
 
 namespace Flowthru.Core.Architecture.Tests;
 
@@ -143,6 +146,45 @@ public class ExtensionNamespaceMirrorTests
         AllowedNamespacePrefixes: new[]
         {
           "Flowthru.Data.Storage.Xml",
+          "Flowthru.Data.Catalog",
+        },
+        ForbiddenAlgebraRoots: new[]
+        {
+          "Flowthru.Data.Storage",
+        }
+      ),
+      new ExtensionMirror(
+        Name: "Flowthru.Extensions.Http",
+        ProbeType: typeof(HttpStorageMedium),
+        AllowedNamespacePrefixes: new[]
+        {
+          "Flowthru.Data.Storage.Http",
+          // Http contributes the UseHttp() extension method on
+          // IFlowthruBuilder, declared in the Hosting algebra root
+          // — same shape as EFCore's VerifyEFCoreXxx hooks.
+          "Flowthru.Hosting",
+        },
+        ForbiddenAlgebraRoots: new[]
+        {
+          "Flowthru.Data.Storage",
+        }
+      ),
+      new ExtensionMirror(
+        Name: "Flowthru.Extensions.Metadata.Diagnostics",
+        ProbeType: typeof(StepTimingProvider),
+        AllowedNamespacePrefixes: new[]
+        {
+          "Flowthru.Diagnostics.Run",
+          "Flowthru.Diagnostics",
+        },
+        ForbiddenAlgebraRoots: Array.Empty<string>()
+      ),
+      new ExtensionMirror(
+        Name: "Flowthru.Extensions.GQL",
+        ProbeType: typeof(GqlSingleStorageAdapter<,>),
+        AllowedNamespacePrefixes: new[]
+        {
+          "Flowthru.Data.Storage.Gql",
           "Flowthru.Data.Catalog",
         },
         ForbiddenAlgebraRoots: new[]

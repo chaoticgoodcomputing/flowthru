@@ -53,8 +53,13 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
 
     var orderedSteps = flow.Steps;
     var resultsByIndex = new StepResult?[orderedSteps.Count];
+    var runStopwatch = Stopwatch.StartNew();
 
-    if (orderedSteps.Count == 0) return new FlowResult(Array.Empty<StepResult>());
+    if (orderedSteps.Count == 0)
+    {
+      runStopwatch.Stop();
+      return new FlowResult(Array.Empty<StepResult>(), runStopwatch.Elapsed);
+    }
 
     // ── Build dependency adjacency ────────────────────────────────────
     var indexByStep = new Dictionary<IStepNode, int>(ReferenceEqualityComparer.Instance);
@@ -140,13 +145,18 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       );
     }
 
-    return new FlowResult(resultsByIndex.Cast<StepResult>().ToList());
+    runStopwatch.Stop();
+    return new FlowResult(resultsByIndex.Cast<StepResult>().ToList(), runStopwatch.Elapsed);
   }
 
   /// <summary>
   /// Execute a single step inside an <see cref="Activity"/> scope and
   /// return its outcome alongside its index for the dispatch loop's
-  /// <see cref="Task.WhenAny"/> bookkeeping.
+  /// <see cref="Task.WhenAny"/> bookkeeping. Wall-clock duration is
+  /// captured by a <see cref="Stopwatch"/> spanning the load →
+  /// transform → save chain — diagnostic providers (heat-map,
+  /// step-timings, run-summary) consume it directly off the
+  /// resulting <see cref="StepResult"/>.
   /// </summary>
   private static async Task<(int Index, StepResult Result)> ExecuteOneAsync(
     IStepNode step,
@@ -159,7 +169,8 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
     {
       return (index, new StepResult.Failed(
         step.Label,
-        new RuntimeError.Cancelled("Cancellation requested before step execution")
+        new RuntimeError.Cancelled("Cancellation requested before step execution"),
+        TimeSpan.Zero
       ));
     }
 
@@ -180,13 +191,17 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
       }
     );
 
+    var sw = Stopwatch.StartNew();
     var result = await step.Execute().Run(cancellationToken).ConfigureAwait(false);
+    sw.Stop();
+
     var stepResult = result switch
     {
-      EffResult<FlowUnit>.Success => (StepResult)new StepResult.Succeeded(step.Label),
+      EffResult<FlowUnit>.Success => (StepResult)new StepResult.Succeeded(step.Label, sw.Elapsed),
       EffResult<FlowUnit>.Failure f => new StepResult.Failed(
         step.Label,
-        f.Error is RuntimeError.StepFailed ? f.Error : new RuntimeError.StepFailed(step.Label, f.Error)
+        f.Error is RuntimeError.StepFailed ? f.Error : new RuntimeError.StepFailed(step.Label, f.Error),
+        sw.Elapsed
       ),
       _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
     };

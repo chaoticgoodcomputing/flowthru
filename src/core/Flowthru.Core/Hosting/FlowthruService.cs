@@ -86,7 +86,8 @@ public sealed class FlowthruService : IFlowthruService
           var summary = ConsoleErrorFormatter.FormatAll(new[] { err });
           return (StepResult)new StepResult.Failed(
             label,
-            new RuntimeError.InvariantViolated("RegistrationValidation", summary)
+            new RuntimeError.InvariantViolated("RegistrationValidation", summary),
+            TimeSpan.Zero
           );
         })
         .ToList();
@@ -162,7 +163,7 @@ public sealed class FlowthruService : IFlowthruService
           runActivity?.SetStatus(ActivityStatusCode.Error, acquireFailure.Error.Message);
           return new FlowResult(new[]
           {
-            (StepResult)new StepResult.Failed("resource.acquire", acquireFailure.Error),
+            (StepResult)new StepResult.Failed("resource.acquire", acquireFailure.Error, TimeSpan.Zero),
           });
         }
         acquired.Add((resource, ((EffResult<object?>.Success)acquireResult).Value));
@@ -218,9 +219,10 @@ public sealed class FlowthruService : IFlowthruService
       var augmented = bodyResult.StepResults.ToList();
       for (var i = 0; i < releaseErrors.Count; i++)
       {
-        augmented.Add(new StepResult.Failed($"resource.release[{i}]", releaseErrors[i]));
+        augmented.Add(new StepResult.Failed(
+          $"resource.release[{i}]", releaseErrors[i], TimeSpan.Zero));
       }
-      return new FlowResult(augmented);
+      return new FlowResult(augmented, bodyResult.Duration);
     }
     return bodyResult;
   }
@@ -377,7 +379,8 @@ public sealed class FlowthruService : IFlowthruService
         {
           (StepResult)new StepResult.Failed(
             "preflight",
-            new RuntimeError.InvariantViolated("PreFlightPipeline", summary)
+            new RuntimeError.InvariantViolated("PreFlightPipeline", summary),
+            TimeSpan.Zero
           ),
         });
       }
@@ -392,7 +395,7 @@ public sealed class FlowthruService : IFlowthruService
     {
       return new FlowResult(new[]
       {
-        (StepResult)new StepResult.Failed("metadata.preRun", preRunFailure.Error),
+        (StepResult)new StepResult.Failed("metadata.preRun", preRunFailure.Error, TimeSpan.Zero),
       });
     }
 
@@ -417,8 +420,9 @@ public sealed class FlowthruService : IFlowthruService
     if (postRun is EffResult<FlowUnit>.Failure postRunFailure)
     {
       var augmented = flowResult.StepResults.ToList();
-      augmented.Add(new StepResult.Failed("metadata.postRun", postRunFailure.Error));
-      var augmentedResult = new FlowResult(augmented);
+      augmented.Add(new StepResult.Failed(
+        "metadata.postRun", postRunFailure.Error, TimeSpan.Zero));
+      var augmentedResult = new FlowResult(augmented, flowResult.Duration);
       runActivity?.SetStatus(ActivityStatusCode.Error, postRunFailure.Error.Message);
       return augmentedResult;
     }

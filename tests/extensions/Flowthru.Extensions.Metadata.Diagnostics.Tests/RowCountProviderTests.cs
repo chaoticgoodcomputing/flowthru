@@ -1,143 +1,138 @@
-using Flowthru.Core.Data;
-using Flowthru.Core.Flows;
-using Flowthru.Core.Graph.Meta.Models;
-using Flowthru.Meta.Diagnostics;
-using Flowthru.Meta.Diagnostics.Providers;
-using Flowthru.Meta.Diagnostics.Tests.Fixtures;
-using Microsoft.Extensions.DependencyInjection;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Run;
+using Flowthru.Extensions.Metadata.Diagnostics.Tests.Fixtures;
+using Flowthru.Flow;
+using Flowthru.Prelude;
 
-namespace Flowthru.Meta.Diagnostics.Tests;
+namespace Flowthru.Extensions.Metadata.Diagnostics.Tests;
 
 [TestFixture]
 [Category("Diagnostics")]
-[Category("RowCounts")]
 public class RowCountProviderTests
 {
-  private RecordingLogger _logger = null!;
-
-  [SetUp]
-  public void SetUp() => _logger = new RecordingLogger();
-
-  private static (RunMetadata Run, IServiceProvider Services) BuildContext(params IItem[] items)
+  [Test]
+  public async Task Emit_ItemWithoutEfficientCount_ReportsQuestionMark()
   {
-    var dag = new DagMetadata
+    var logger = new RecordingLogger();
+    var provider = new RowCountProvider(new RowCountOptions(), logger);
+
+    // Singleton.Memory uses MemoryStorageAdapter which doesn't
+    // implement IHasEfficientCount.
+    var output = ItemFactory.Singleton.Memory<int>("opaque");
+    var flow = FlowBuilder.CreateFlow("flow", b =>
     {
-      FlowName = "TestFlow",
-      Steps = new()
+      b.AddStep<int>("seed", () => 1, output);
+    });
+
+    await provider.Emit(Build(flow, "seed")).Run();
+
+    Assert.That(logger.Messages, Has.Some.Contains("opaque"));
+    Assert.That(logger.Messages, Has.Some.Contains("?"));
+  }
+
+  [Test]
+  public async Task Emit_DirectoryItem_HasEfficientCount_ReportsActualCount()
+  {
+    // DirectoryStorageAdapter implements IHasEfficientCount via
+    // file-listing length. Build a directory with N files.
+    var dir = Path.Combine(Path.GetTempPath(), $"flowthru-rowcount-{Guid.NewGuid():N}");
+    Directory.CreateDirectory(dir);
+    File.WriteAllText(Path.Combine(dir, "a.json"), "{}");
+    File.WriteAllText(Path.Combine(dir, "b.json"), "{}");
+    File.WriteAllText(Path.Combine(dir, "c.json"), "{}");
+    try
+    {
+      var logger = new RecordingLogger();
+      var provider = new RowCountProvider(new RowCountOptions(), logger);
+
+      var item = ItemFactory.Directory.JsonDocuments<RowCountSchema>("dir-item", dir);
+      var flow = FlowBuilder.CreateFlow("flow", b =>
       {
-        new StepMetadata
-        {
-          Id = "stepA",
-          Label = "StepA",
-          StepType = "FakeStep",
-          FlowName = "TestFlow",
-          Outputs = items.Select(i => i.Label).ToList(),
-        },
-      },
-    };
-    var run = new RunMetadata
+        b.AddStep<Directory<RowCountSchema>>(
+          "seed", () => Directory<RowCountSchema>.Empty, item);
+      });
+
+      await provider.Emit(Build(flow, "seed")).Run();
+
+      Assert.That(logger.Messages, Has.Some.Matches<string>(
+        m => m.Contains("dir-item") && m.Contains("3")));
+    }
+    finally
     {
-      Dag = dag,
-      Result = FlowResult.CreateSuccess(TimeSpan.Zero, new(), "TestFlow"),
-    };
-
-    var sc = new ServiceCollection();
-    sc.AddSingleton<CatalogAbstract>(new FakeCatalog(items));
-    return (run, sc.BuildServiceProvider());
+      try { Directory.Delete(dir, recursive: true); } catch { /* best effort */ }
+    }
   }
 
   [Test]
-  public void Consume_OnlyEfficient_SkipsItemsWithoutEfficientCount()
+  public async Task Emit_Disabled_NoOutput()
   {
-    var efficient = new FakeItem { Label = "Cheap", HasEfficientCount = true, Count = 42 };
-    var expensive = new FakeItem { Label = "Expensive", HasEfficientCount = false, Count = 999 };
-    var (run, services) = BuildContext(efficient, expensive);
-
-    var provider = new RowCountProvider(new RowCountOptions { Enabled = true }, _logger);
-    provider.Consume(run, services);
-
-    Assert.That(efficient.GetCountCalls, Is.EqualTo(1), "Efficient item should be counted");
-    Assert.That(expensive.GetCountCalls, Is.EqualTo(0), "Expensive item must not trigger materialization");
-    Assert.That(string.Join("\n", _logger.Messages), Does.Contain("42"));
-    Assert.That(string.Join("\n", _logger.Messages), Does.Contain("?"));
-  }
-
-  [Test]
-  public void Consume_ForceCountAll_CountsEveryItem()
-  {
-    var efficient = new FakeItem { Label = "Cheap", HasEfficientCount = true, Count = 1 };
-    var expensive = new FakeItem { Label = "Expensive", HasEfficientCount = false, Count = 7 };
-    var (run, services) = BuildContext(efficient, expensive);
-
+    var logger = new RecordingLogger();
     var provider = new RowCountProvider(
-      new RowCountOptions { Enabled = true, ForceCountAll = true },
-      _logger
-    );
-    provider.Consume(run, services);
+      new RowCountOptions { Enabled = false }, logger);
 
-    Assert.That(efficient.GetCountCalls, Is.EqualTo(1));
-    Assert.That(expensive.GetCountCalls, Is.EqualTo(1));
-  }
-
-  [Test]
-  public void Consume_CountThrows_LogsWarningAndContinues()
-  {
-    var ok = new FakeItem { Label = "OK", HasEfficientCount = true, Count = 5 };
-    var bad = new FakeItem
+    var output = ItemFactory.Singleton.Memory<int>("x");
+    var flow = FlowBuilder.CreateFlow("flow", b =>
     {
-      Label = "Bad",
-      HasEfficientCount = true,
-      CountThrows = new InvalidOperationException("boom"),
-    };
-    var (run, services) = BuildContext(ok, bad);
-
-    var provider = new RowCountProvider(new RowCountOptions { Enabled = true }, _logger);
-    provider.Consume(run, services);
-
-    Assert.That(string.Join("\n", _logger.Messages), Does.Contain("count failed for Bad"));
-    Assert.That(string.Join("\n", _logger.Messages), Does.Contain("5"));
+      b.AddStep<int>("seed", () => 1, output);
+    });
+    await provider.Emit(Build(flow, "seed")).Run();
+    Assert.That(logger.Entries, Is.Empty);
   }
 
   [Test]
-  public void Consume_Disabled_EmitsNothing()
+  public async Task Emit_OnlyReportsActiveSliceSteps()
   {
-    var item = new FakeItem { Label = "X", HasEfficientCount = true, Count = 1 };
-    var (run, services) = BuildContext(item);
+    var logger = new RecordingLogger();
+    var provider = new RowCountProvider(new RowCountOptions(), logger);
 
-    var provider = new RowCountProvider(new RowCountOptions { Enabled = false }, _logger);
-    provider.Consume(run, services);
+    var inactiveOut = ItemFactory.Singleton.Memory<int>("inactive-out");
+    var activeOut = ItemFactory.Singleton.Memory<int>("active-out");
 
-    Assert.That(item.GetCountCalls, Is.EqualTo(0));
-    Assert.That(_logger.Entries.Where(e => e.Level == Microsoft.Extensions.Logging.LogLevel.Information), Is.Empty);
-  }
-
-  [Test]
-  public void Consume_NoCatalogServices_LogsDebugAndExits()
-  {
-    var run = new RunMetadata
+    var flow = FlowBuilder.CreateFlow("merged", b =>
     {
-      Dag = new DagMetadata { FlowName = "X" },
-      Result = FlowResult.CreateSuccess(TimeSpan.Zero, new(), "X"),
+      b.AddStep<int>("inactive-step", () => 0, inactiveOut);
+      b.AddStep<int>("active-step", () => 1, activeOut);
+    });
+    var ctx = new FlowRunMetadataContext
+    {
+      Static = new FlowMetadataContext
+      {
+        MergedFlow = flow,
+        EffectiveFlow = flow,
+        ActiveStepLabels = new HashSet<string>(new[] { "active-step" }, StringComparer.Ordinal),
+        RequestedFlowLabel = null,
+      },
+      Result = new FlowResult(new[]
+      {
+        (StepResult)new StepResult.Succeeded("active-step", TimeSpan.FromMilliseconds(1)),
+      }, TimeSpan.FromMilliseconds(1)),
     };
-    var services = new ServiceCollection().BuildServiceProvider();
 
-    var provider = new RowCountProvider(new RowCountOptions { Enabled = true }, _logger);
+    await provider.Emit(ctx).Run();
 
-    Assert.DoesNotThrow(() => provider.Consume(run, services));
+    Assert.That(logger.Messages, Has.Some.Contains("active-out"));
+    Assert.That(logger.Messages, Has.None.Contains("inactive-out"));
   }
 
-  [Test]
-  public void Consume_WithoutServiceProvider_FallsBackQuietly()
-  {
-    // The bare Consume(RunMetadata) overload should not throw when called without DI;
-    // it logs at Debug level and exits.
-    var run = new RunMetadata
-    {
-      Dag = new DagMetadata { FlowName = "X" },
-      Result = FlowResult.CreateSuccess(TimeSpan.Zero, new(), "X"),
-    };
-    var provider = new RowCountProvider(new RowCountOptions { Enabled = true }, _logger);
+  // ── Helpers ─────────────────────────────────────────────────────────
 
-    Assert.DoesNotThrow(() => provider.Consume(run));
+  private static FlowRunMetadataContext Build(BuiltFlow flow, string activeStep)
+  {
+    return new FlowRunMetadataContext
+    {
+      Static = new FlowMetadataContext
+      {
+        MergedFlow = flow,
+        EffectiveFlow = flow,
+        ActiveStepLabels = new HashSet<string>(new[] { activeStep }, StringComparer.Ordinal),
+        RequestedFlowLabel = null,
+      },
+      Result = new FlowResult(new[]
+      {
+        (StepResult)new StepResult.Succeeded(activeStep, TimeSpan.FromMilliseconds(1)),
+      }, TimeSpan.FromMilliseconds(10)),
+    };
   }
 }

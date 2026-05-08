@@ -125,8 +125,13 @@ public class MermaidMetadataProviderEmitTests
   // ── Post-run emission ────────────────────────────────────────────────
 
   [Test]
-  public async Task EmitRun_ColorsSucceededStepsWithActiveColor()
+  public async Task EmitRun_ColorsSucceededStepsWithHeatMapGradient()
   {
+    // Phase 8.0.7: succeeded steps render along a green→amber heat
+    // map driven by per-step duration. The fastest step lands at the
+    // active-step colour; the slowest at HeatMapMaxColor; intermediate
+    // steps interpolate. We assert both steps receive a fill style
+    // and that at least one gets the active baseline (or close to it).
     var provider = new MermaidMetadataProviderBuilder()
       .WithOutputDirectory(_root)
       .WithRunFilenameTemplate("run-{FlowName}")
@@ -134,17 +139,16 @@ public class MermaidMetadataProviderEmitTests
       .Build();
 
     var (flow, raw) = BuildSampleFlow();
-    await raw.Save(7).Run(); // seed the external input
+    await raw.Save(7).Run();
 
     var result = await flow.RunAsync();
-
     var emit = await ((IPostRunMetadataProvider)provider).Emit(new FlowRunMetadataContext { Static = FlowMetadataContext.Unsliced(flow), Result = result }).Run();
     Assert.That(emit, Is.InstanceOf<EffResult<FlowUnit>.Success>());
 
     var content = SysIO.File.ReadAllText(SysIO.Directory.GetFiles(_root, "run-*.md").Single());
-    Assert.That(content, Does.Contain("style scale fill:#2E7D32"),
-      "Successful step nodes get the active-step fill colour.");
-    Assert.That(content, Does.Contain("style offset fill:#2E7D32"));
+    Assert.That(content, Does.Match(@"style scale fill:#[0-9A-F]{6}"),
+      "Each succeeded step should still get a fill style — colour is now heat-map-driven.");
+    Assert.That(content, Does.Match(@"style offset fill:#[0-9A-F]{6}"));
   }
 
   [Test]

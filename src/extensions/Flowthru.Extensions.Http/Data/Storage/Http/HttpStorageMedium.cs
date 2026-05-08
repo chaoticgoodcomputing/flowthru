@@ -1,4 +1,5 @@
 using Flowthru.Prelude;
+using Flowthru.Validation.Runtime;
 
 namespace Flowthru.Data.Storage.Http;
 
@@ -38,7 +39,6 @@ public sealed class HttpStorageMedium : IStorageMedium
   /// <inheritdoc/>
   public StorageTraits Traits => new()
   {
-    RequiresNetwork = true,
     CanWrite = false,
     CanStream = true,
   };
@@ -55,10 +55,19 @@ public sealed class HttpStorageMedium : IStorageMedium
     });
 
   /// <inheritdoc/>
-  /// <exception cref="NotSupportedException">Always thrown — HTTP sources are read-only.</exception>
+  /// <remarks>
+  /// HTTP is read-only here; <c>Save</c> at the catalog level
+  /// short-circuits as <see cref="RuntimeError.External"/> wrapping
+  /// an <see cref="InvalidOperationException"/>. Catalog authors
+  /// should also <c>Constrain</c> remote items with
+  /// <c>traits =&gt; traits with { CanWrite = false }</c> so the
+  /// constraint surfaces at wire-up rather than at first save.
+  /// </remarks>
   public FlowIO<FlowUnit> WriteStream(Stream stream) =>
-    FlowIO.Fail<FlowUnit>(new InvalidOperationException(
-      $"HttpStorageMedium is read-only; cannot write to '{_uri}'."));
+    FlowIO.Fail<FlowUnit>(new RuntimeError.External(
+      $"HttpStorageMedium.WriteStream[{_uri}]",
+      new InvalidOperationException(
+        $"HttpStorageMedium is read-only; cannot write to '{_uri}'.")));
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists() =>

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flowthru.Extensions.GQL</RootNamespace>
+    <Description>GraphQL integration for Flowthru data catalogs via StrawberryShake</Description>
+
+    <!-- NuGet Package Configuration -->
+    <PackageId>Flowthru.Extensions.GQL</PackageId>
+    <PackageTags>data-engineering;pipeline;graphql;gql;strawberryshake</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core Flowthru library -->
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- StrawberryShake core runtime — provides IOperationResult<T>, IClientError, GraphQLClientException -->
+    <PackageReference Include="StrawberryShake.Core" />
+  </ItemGroup>
+
+</Project>

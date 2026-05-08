@@ -6,6 +6,18 @@ namespace Flowthru.Flow;
 /// dry run or because an upstream failure stopped the engine), or
 /// failed with a <see cref="RuntimeError"/>.
 /// </summary>
+/// <remarks>
+/// <para>
+/// <strong>Timing.</strong> <see cref="Succeeded"/> and
+/// <see cref="Failed"/> carry the wall-clock <see cref="Duration"/>
+/// the scheduler measured for the step's load → transform → save
+/// chain. <see cref="Skipped"/> has no duration — by definition the
+/// step did not run, so a duration would be misleading. Diagnostic
+/// providers (Mermaid heat-map, RunSummary, StepTimings) consume
+/// this directly; consumers that don't care about timing can ignore
+/// it.
+/// </para>
+/// </remarks>
 public abstract record StepResult
 {
   private StepResult() { }
@@ -14,7 +26,7 @@ public abstract record StepResult
   public abstract string StepLabel { get; }
 
   /// <summary>The step ran to completion.</summary>
-  public sealed record Succeeded(string StepLabel) : StepResult
+  public sealed record Succeeded(string StepLabel, TimeSpan Duration) : StepResult
   {
     public override string StepLabel { get; } = StepLabel;
   }
@@ -30,7 +42,7 @@ public abstract record StepResult
   }
 
   /// <summary>The step's transform (or its load/save plumbing) failed.</summary>
-  public sealed record Failed(string StepLabel, RuntimeError Error) : StepResult
+  public sealed record Failed(string StepLabel, RuntimeError Error, TimeSpan Duration) : StepResult
   {
     public override string StepLabel { get; } = StepLabel;
   }

@@ -50,4 +50,17 @@ public sealed class Item<T> : IItem<T>
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> Validate() => InspectShallow();
+
+  /// <inheritdoc/>
+  public bool HasEfficientCount => _storage is IHasEfficientCount;
+
+  /// <inheritdoc/>
+  public FlowIO<int> GetCountAsync() =>
+    _storage is IHasEfficientCount counter
+      ? counter.GetCountAsync()
+      : FlowIO.Fail<int>(new Validation.Runtime.RuntimeError.External(
+          $"Item[{Label}].GetCountAsync",
+          new InvalidOperationException(
+            $"Storage adapter for item '{Label}' (type {_storage.GetType().Name}) "
+            + "does not implement IHasEfficientCount.")));
 }

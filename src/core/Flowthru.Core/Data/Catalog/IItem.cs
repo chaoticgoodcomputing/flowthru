@@ -78,4 +78,28 @@ public interface IItem : INode
   /// <c>ExecutionOptions.ValidationDepth</c>.
   /// </summary>
   InspectionLevel? MaxInspectionLevel => null;
+
+  /// <summary>
+  /// True when the underlying storage adapter implements
+  /// <see cref="IHasEfficientCount"/> — i.e. a row count is available
+  /// without materialising the dataset (a SQL <c>COUNT(*)</c>, a
+  /// directory's file count, etc.). Diagnostic providers gate count
+  /// calls on this flag so they don't accidentally trigger expensive
+  /// load-and-count fallbacks.
+  /// </summary>
+  bool HasEfficientCount => false;
+
+  /// <summary>
+  /// Returns the row count from the underlying storage adapter when
+  /// it implements <see cref="IHasEfficientCount"/>. Throws via the
+  /// FlowIO failure channel when called on an item whose adapter
+  /// doesn't claim the capability — callers should check
+  /// <see cref="HasEfficientCount"/> first.
+  /// </summary>
+  FlowIO<int> GetCountAsync() =>
+    FlowIO.Fail<int>(new Validation.Runtime.RuntimeError.External(
+      "IItem.GetCountAsync",
+      new InvalidOperationException(
+        "Item's storage adapter does not implement IHasEfficientCount. "
+        + "Check IItem.HasEfficientCount before calling GetCountAsync.")));
 }

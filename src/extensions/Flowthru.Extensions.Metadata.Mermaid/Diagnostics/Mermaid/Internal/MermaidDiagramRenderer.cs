@@ -50,7 +50,13 @@ internal static class MermaidDiagramRenderer
     string SkippedStepColor,
     string InactiveStepColor = "#E0E0E0",
     string InactiveDataColor = "#F5F5F5",
-    string InactiveTextColor = "#9E9E9E"
+    string InactiveTextColor = "#9E9E9E",
+    // Heat-map endpoint for the slowest succeeded step. The fastest
+    // step uses ActiveStepColor; intermediate steps interpolate linearly
+    // toward HeatMapMaxColor. Default amber/orange is high-contrast
+    // against the green baseline without bleeding into the
+    // FailedStepColor's red space.
+    string HeatMapMaxColor = "#FF8F00"
   )
   {
     public static Theme Default => new(
@@ -131,6 +137,17 @@ internal static class MermaidDiagramRenderer
     var resultsByLabel = result?.StepResults
       .ToDictionary(r => r.StepLabel, r => r, StringComparer.Ordinal);
 
+    // Heat-map normalisation — the slowest succeeded step pins the
+    // amber endpoint; faster steps interpolate toward the green
+    // baseline. Skipped/Failed steps don't participate in the
+    // gradient because their colours come from the dedicated theme
+    // slots. Null when no run result is present (pre-run diagram).
+    var heatMapMax = result?.StepResults
+      .OfType<StepResult.Succeeded>()
+      .Select(s => s.Duration)
+      .DefaultIfEmpty(TimeSpan.Zero)
+      .Max();
+
     // Group steps by their flow of origin. A merged DAG collects steps
     // from multiple registered flows; each step's IStepNode.FlowLabel
     // still names the flow that originally declared it, so we render
@@ -177,7 +194,7 @@ internal static class MermaidDiagramRenderer
         if (resultsByLabel is not null
           && resultsByLabel.TryGetValue(step.Label, out var stepResult))
         {
-          var color = ColorFor(stepResult, theme);
+          var color = ColorFor(stepResult, theme, heatMapMax);
           sb.AppendLine($"        style {stepId} fill:{color}");
         }
         else if (!stepActive)
@@ -269,15 +286,62 @@ internal static class MermaidDiagramRenderer
     sb.AppendLine($"    class {classList} service");
   }
 
-  private static string ColorFor(StepResult result, Theme theme) => result switch
+  private static string ColorFor(StepResult result, Theme theme, TimeSpan? heatMapMax) => result switch
   {
     StepResult.Failed => theme.FailedStepColor,
     StepResult.Skipped => theme.SkippedStepColor,
-    StepResult.Succeeded => theme.ActiveStepColor,
+    StepResult.Succeeded s => HeatMapColor(s.Duration, heatMapMax, theme),
     _ => throw new InvalidOperationException(
       $"Unreachable: StepResult is a closed sum, got {result.GetType().Name}."
     ),
   };
+
+  /// <summary>
+  /// Interpolate between <see cref="Theme.ActiveStepColor"/> (fastest)
+  /// and <see cref="Theme.HeatMapMaxColor"/> (slowest succeeded step)
+  /// based on this step's duration. Returns the active colour
+  /// directly when the heat-map normaliser is unset or zero —
+  /// happens for pre-run diagrams or when every step is
+  /// instantaneous.
+  /// </summary>
+  private static string HeatMapColor(TimeSpan duration, TimeSpan? max, Theme theme)
+  {
+    if (max is not { } slowest || slowest <= TimeSpan.Zero)
+    {
+      return theme.ActiveStepColor;
+    }
+    var t = Math.Clamp(duration.TotalMilliseconds / slowest.TotalMilliseconds, 0.0, 1.0);
+    return InterpolateHex(theme.ActiveStepColor, theme.HeatMapMaxColor, t);
+  }
+
+  /// <summary>
+  /// Linear RGB interpolation between two <c>#RRGGBB</c> colours.
+  /// <paramref name="t"/> is in [0, 1]; <c>0</c> returns
+  /// <paramref name="from"/>, <c>1</c> returns <paramref name="to"/>.
+  /// Falls back to <paramref name="from"/> if either input fails to
+  /// parse — diagnostics shouldn't crash on a malformed theme.
+  /// </summary>
+  internal static string InterpolateHex(string from, string to, double t)
+  {
+    if (!TryParseHex(from, out var fr, out var fg, out var fb)
+        || !TryParseHex(to, out var tr, out var tg, out var tb))
+    {
+      return from;
+    }
+    var r = (int)Math.Round(fr + (tr - fr) * t);
+    var g = (int)Math.Round(fg + (tg - fg) * t);
+    var b = (int)Math.Round(fb + (tb - fb) * t);
+    return $"#{r:X2}{g:X2}{b:X2}";
+  }
+
+  private static bool TryParseHex(string hex, out int r, out int g, out int b)
+  {
+    r = g = b = 0;
+    if (string.IsNullOrEmpty(hex) || hex.Length != 7 || hex[0] != '#') return false;
+    return int.TryParse(hex.AsSpan(1, 2), System.Globalization.NumberStyles.HexNumber, null, out r)
+        && int.TryParse(hex.AsSpan(3, 2), System.Globalization.NumberStyles.HexNumber, null, out g)
+        && int.TryParse(hex.AsSpan(5, 2), System.Globalization.NumberStyles.HexNumber, null, out b);
+  }
 
   private static string ServiceNodeId(ServiceRef svc) => "svc_" + SanitizeId(svc.DagId);
 

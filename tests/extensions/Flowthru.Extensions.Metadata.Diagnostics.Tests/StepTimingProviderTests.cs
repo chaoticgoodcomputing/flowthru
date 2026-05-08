@@ -1,96 +1,110 @@
-using Flowthru.Core.Flows;
-using Flowthru.Core.Graph.Meta.Models;
-using Flowthru.Meta.Diagnostics;
-using Flowthru.Meta.Diagnostics.Providers;
-using Flowthru.Meta.Diagnostics.Tests.Fixtures;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Run;
+using Flowthru.Extensions.Metadata.Diagnostics.Tests.Fixtures;
+using Flowthru.Flow;
+using Flowthru.Prelude;
+using Flowthru.Validation.Runtime;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Meta.Diagnostics.Tests;
+namespace Flowthru.Extensions.Metadata.Diagnostics.Tests;
 
 [TestFixture]
 [Category("Diagnostics")]
-[Category("StepTimings")]
 public class StepTimingProviderTests
 {
-  private RecordingLogger _logger = null!;
-
-  [SetUp]
-  public void SetUp() => _logger = new RecordingLogger();
-
-  private static RunMetadata BuildRun(params (string Name, double Seconds)[] steps)
+  [Test]
+  public async Task Emit_NoLogger_NoSideEffect()
   {
-    var stepResults = steps.ToDictionary(
-      s => s.Name,
-      s => StepResult.CreateSuccess(s.Name, TimeSpan.FromSeconds(s.Seconds))
-    );
-
-    return new RunMetadata
+    var provider = new StepTimingProvider(); // no logger
+    var ctx = ContextWith(new[]
     {
-      Dag = new DagMetadata { FlowName = "TestFlow" },
-      Result = FlowResult.CreateSuccess(TimeSpan.FromSeconds(10), stepResults, "TestFlow"),
-    };
+      (StepResult)new StepResult.Succeeded("a", TimeSpan.FromMilliseconds(10)),
+    });
+
+    var result = await provider.Emit(ctx).Run();
+    Assert.That(result, Is.InstanceOf<EffResult<FlowUnit>.Success>());
   }
 
   [Test]
-  public void Consume_TopN_LogsSlowestStepsInOrder()
+  public async Task Emit_TopSlowest_ReportsSlowestFirst()
   {
-    var run = BuildRun(("Fast", 0.1), ("Slow", 5.0), ("Medium", 1.5));
-    var provider = new StepTimingProvider(new StepTimingOptions { TopSlowest = 2 }, _logger);
-
-    provider.Consume(run);
-
-    var indexOfSlow = _logger.Messages.ToList().FindIndex(m => m.Contains("Slow"));
-    var indexOfMedium = _logger.Messages.ToList().FindIndex(m => m.Contains("Medium"));
-    Assert.That(indexOfSlow, Is.GreaterThanOrEqualTo(0));
-    Assert.That(indexOfMedium, Is.GreaterThanOrEqualTo(0));
-    Assert.That(indexOfSlow, Is.LessThan(indexOfMedium), "Slowest step should be reported first");
-    Assert.That(_logger.Messages, Has.None.Contains("Fast"), "Top-2 should exclude the fastest step");
-  }
-
-  [Test]
-  public void Consume_SlowThreshold_FlagsExcessSteps()
-  {
-    var run = BuildRun(("Fast", 0.1), ("Slow", 5.0));
+    var logger = new RecordingLogger();
     var provider = new StepTimingProvider(
-      new StepTimingOptions { TopSlowest = 0, SlowThreshold = TimeSpan.FromSeconds(1) },
-      _logger
-    );
+      new StepTimingOptions { TopSlowest = 2 }, logger);
 
-    provider.Consume(run);
+    var ctx = ContextWith(new[]
+    {
+      (StepResult)new StepResult.Succeeded("fast", TimeSpan.FromMilliseconds(1)),
+      new StepResult.Succeeded("medium", TimeSpan.FromMilliseconds(10)),
+      new StepResult.Succeeded("slow", TimeSpan.FromMilliseconds(100)),
+    });
 
-    var warnings = _logger.Entries.Where(e => e.Level == LogLevel.Warning).ToList();
-    Assert.That(warnings, Has.Count.EqualTo(1));
-    Assert.That(warnings[0].Message, Does.Contain("Slow"));
-    Assert.That(warnings[0].Message, Does.Contain("exceeded threshold"));
+    await provider.Emit(ctx).Run();
+    var lines = logger.Messages.ToList();
+
+    Assert.That(lines, Has.Some.Contains("slow"));
+    Assert.That(lines, Has.Some.Contains("medium"));
+    // Top 2 only — the fastest should not appear in the slowest list.
+    var slowestSection = string.Join("\n", lines.Where(m => m.Contains("→") || m.StartsWith("  ")));
+    var slowIdx = slowestSection.IndexOf("slow");
+    var medIdx = slowestSection.IndexOf("medium");
+    Assert.That(slowIdx, Is.GreaterThanOrEqualTo(0));
+    Assert.That(medIdx, Is.GreaterThanOrEqualTo(0));
+    Assert.That(slowIdx, Is.LessThan(medIdx),
+      "Slowest step should be reported before the medium one.");
   }
 
   [Test]
-  public void Consume_Disabled_EmitsNothing()
+  public async Task Emit_OverThreshold_FlagsAsWarning()
   {
-    var run = BuildRun(("A", 0.1));
-    var provider = new StepTimingProvider(new StepTimingOptions { Enabled = false }, _logger);
+    var logger = new RecordingLogger();
+    var provider = new StepTimingProvider(
+      new StepTimingOptions
+      {
+        TopSlowest = 0,
+        SlowThreshold = TimeSpan.FromMilliseconds(50),
+      }, logger);
 
-    provider.Consume(run);
+    var ctx = ContextWith(new[]
+    {
+      (StepResult)new StepResult.Succeeded("ok",   TimeSpan.FromMilliseconds(10)),
+      new StepResult.Succeeded("slow", TimeSpan.FromMilliseconds(75)),
+    });
+    await provider.Emit(ctx).Run();
 
-    Assert.That(_logger.Entries, Is.Empty);
+    Assert.That(logger.Entries, Has.Some.Matches<(LogLevel Level, string Message)>(
+      e => e.Level == LogLevel.Warning && e.Message.Contains("slow")
+        && e.Message.Contains("exceeded threshold")));
+    Assert.That(logger.Entries, Has.None.Matches<(LogLevel Level, string Message)>(
+      e => e.Level == LogLevel.Warning && e.Message.Contains("ok ")),
+      "Steps under the threshold should not warn.");
   }
 
   [Test]
-  public void Consume_NoLogger_DoesNotThrow()
+  public async Task Emit_Disabled_NoOutput()
   {
-    var run = BuildRun(("A", 0.1));
-    var provider = new StepTimingProvider(logger: null);
+    var logger = new RecordingLogger();
+    var provider = new StepTimingProvider(
+      new StepTimingOptions { Enabled = false }, logger);
+    var ctx = ContextWith(new[]
+    {
+      (StepResult)new StepResult.Succeeded("a", TimeSpan.FromMilliseconds(10)),
+    });
+    await provider.Emit(ctx).Run();
 
-    Assert.DoesNotThrow(() => provider.Consume(run));
+    Assert.That(logger.Entries, Is.Empty);
   }
 
-  [Test]
-  public void Consume_Dag_NoOp()
+  // ── Helpers ─────────────────────────────────────────────────────────
+
+  private static FlowRunMetadataContext ContextWith(StepResult[] results)
   {
-    var provider = new StepTimingProvider(logger: _logger);
-
-    provider.Consume(new DagMetadata { FlowName = "X" });
-
-    Assert.That(_logger.Entries, Is.Empty);
+    var raw = Flowthru.Data.Catalog.ItemFactory.Singleton.Memory<int>("raw");
+    var flow = FlowBuilder.CreateFlow("test", _ => { });
+    return new FlowRunMetadataContext
+    {
+      Static = FlowMetadataContext.Unsliced(flow),
+      Result = new FlowResult(results, TimeSpan.FromMilliseconds(200)),
+    };
   }
 }
