@@ -10,11 +10,11 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit.Analyzers" />
     <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,37 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Reference the Python extension -->
-    <ProjectReference Include="$(RepoRoot)src\extensions\Flowthru.Extensions.Python\Flowthru.Extensions.Python.csproj" />
-    
-    <!-- Reference the core library (for FlowthruServiceBuilder) -->
-    <ProjectReference Include="$(RepoRoot)src\core\Flowthru\Flowthru.csproj" />
-    
-    <!-- Reference test common helpers (CompilationTestHelper) -->
-    <ProjectReference Include="..\..\helpers\Flowthru.Tests.Helpers\Flowthru.Tests.Helpers.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
   </ItemGroup>
-
-  <!--
-    Python test files (*.py) should be copied to output directory.
-    The MSBuild targets from the extension should handle this automatically,
-    but we explicitly include test fixtures here for clarity.
-  -->
-  <ItemGroup>
-    <Content Include="_Fixtures\**\*.py" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <!-- 
-    Python environment files for uv sync.
-    These are copied to the output directory during build. At runtime, PythonRuntime.Initialize()
-    automatically runs "uv sync" with the frozen flag to materialize .venv/ using these files.
-  -->
-  <ItemGroup>
-    <Content Include="pyproject.toml" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="uv.lock" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <!-- Import Python extension .targets for schema export and generator registration -->
-  <Import Project="$(RepoRoot)src\extensions\Flowthru.Extensions.Python\build\Flowthru.Extensions.Python.targets" />
 
 </Project>

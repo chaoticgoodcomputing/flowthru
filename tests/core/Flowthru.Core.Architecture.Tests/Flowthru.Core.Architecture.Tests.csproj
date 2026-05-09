@@ -33,6 +33,7 @@
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj" />
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Diagnostics/Flowthru.Extensions.Metadata.Diagnostics.csproj" />
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,7 @@ using Flowthru.Data.Storage.Xml;
 using Flowthru.Diagnostics.Json;
 using Flowthru.Diagnostics.Mermaid;
 using Flowthru.Diagnostics.Run;
+using Flowthru.Step.Python;
 
 namespace Flowthru.Core.Architecture.Tests;
 
@@ -192,15 +193,56 @@ public class ExtensionNamespaceMirrorTests
           "Flowthru.Data.Storage",
         }
       ),
+      new ExtensionMirror(
+        Name: "Flowthru.Extensions.Python",
+        ProbeType: typeof(PythonStep<,>),
+        AllowedNamespacePrefixes: new[]
+        {
+          "Flowthru.Step.Python",
+          // FlowBuilder.AddPythonStep extension methods live in
+          // FlowBuilder's algebra root.
+          "Flowthru.Flow",
+          // UsePython() extension method on IFlowthruBuilder.
+          "Flowthru.Hosting",
+          // PythonRuntimeError + PythonServiceRef live alongside
+          // Core's Validation.Runtime closed sums.
+          "Flowthru.Validation.Runtime.Python",
+          // PythonPreFlightError + PythonStepValidationHook.
+          "Flowthru.Validation.PreFlight.Python",
+        },
+        ForbiddenAlgebraRoots: new[]
+        {
+          // Step archetypes are Core's bookkeeping; concrete step
+          // impls must live in a sub-namespace.
+          "Flowthru.Step",
+        }
+      ),
     };
+
+  /// <summary>
+  /// Robust replacement for <see cref="Assembly.GetTypes"/> — extensions
+  /// that depend on native runtimes (Python.NET, etc.) can fail to
+  /// fully load their type closure; we fall back to the partial list
+  /// the loader did manage to materialise.
+  /// </summary>
+  private static IEnumerable<Type> SafeGetTypes(Assembly assembly)
+  {
+    try
+    {
+      return assembly.GetTypes();
+    }
+    catch (ReflectionTypeLoadException ex)
+    {
+      return ex.Types.Where(t => t is not null).Cast<Type>();
+    }
+  }
 
   // ── Mirror invariants (one parameterised case per extension) ────────
 
   [TestCaseSource(nameof(MigratedExtensions))]
   public void PublicTypes_LiveInAllowedNamespaces(ExtensionMirror ext)
   {
-    var publicTypes = ext.ProbeType.Assembly
-      .GetTypes()
+    var publicTypes = SafeGetTypes(ext.ProbeType.Assembly)
       .Where(t => t.IsPublic)
       .ToList();
 
@@ -220,8 +262,7 @@ public class ExtensionNamespaceMirrorTests
   [TestCaseSource(nameof(MigratedExtensions))]
   public void NoTypesLeakIntoUnscopedAlgebraRoot(ExtensionMirror ext)
   {
-    var publicTypes = ext.ProbeType.Assembly
-      .GetTypes()
+    var publicTypes = SafeGetTypes(ext.ProbeType.Assembly)
       .Where(t => t.IsPublic)
       .ToList();
 
@@ -247,13 +288,13 @@ public class ExtensionNamespaceMirrorTests
         // extension-method classes; sub-namespaces hold interpreters.
         p == "Flowthru.Data.Catalog"
           || p == "Flowthru.Step"
+          || p == "Flowthru.Flow"           // step extensions: AddXxx on FlowBuilder
           || p == "Flowthru.Diagnostics"
           || p == "Flowthru.Hosting"
       )
       .ToHashSet();
 
-    var extensionMethodClasses = assembly
-      .GetTypes()
+    var extensionMethodClasses = SafeGetTypes(assembly)
       .Where(t => t.IsPublic && t.IsSealed && t.IsAbstract) // static class
       .Where(t => algebraNamespaces.Contains(t.Namespace ?? string.Empty))
       .ToList();

@@ -7,7 +7,7 @@ description: Use when authoring or modifying Flowthru data pipelines — creatin
 
 You are working inside a Flowthru data pipeline project. Flowthru is a type-safe data engineering framework for .NET. You have baseline knowledge of data pipelines, DAGs, and ETL — this guide tells you how to express those concepts in Flowthru's structure.
 
-Exact syntax for schemas, catalog items, steps, and flows can be gleaned from the existing code in this project. Use the structure below to locate examples, and follow the workflow to complete tasks.
+Exact syntax for schemas, catalog items, steps, and flows can be gleaned from the existing code in this project. **The canonical reference is `examples/starter/KedroIrisFUnit/`** — when in doubt, model new code on that example's shape.
 
 ## Project Structure
 
@@ -39,10 +39,13 @@ Flows/                              # All flows
 
 **Key relationships:**
 
-- Each **catalog item** references a **schema** type and declares a **storage strategy** (CSV, Parquet, EFCore, etc.).
-- Each **step** declares typed inputs and outputs that match schema types.
-- Each **flow** wires steps to catalog items, forming the DAG.
-- `Program.cs` registers flows so the CLI runner can discover and execute them.
+- Each **catalog item** is an `IItem<T>` referencing a **schema** type and produced by a smart constructor (`ItemFactory.Enumerable.Csv<T>(...)`, `ItemFactory.Singleton.EFCore<T, TContext>(...)`, etc.) from `using Flowthru.Data.Catalog;`.
+- Each **schema** is a `[FlowthruSchema] public partial record` — the `partial` keyword is required by the source generator (FT1001 enforces this).
+- Each **step** is a `[FlowthruStep] public static class` with the canonical `public static Func<TIn, TOut> Create([deps]) => input => …` authoring shape. Service injection is parameters to `Create`, captured by closure.
+- Each **flow** wires steps to catalog items via `FlowBuilder.CreateFlow(label, b => b.AddStep(label, step.Create(deps), input1, input2, output))`. `BuiltFlow` is the immutable result.
+- `Program.cs` registers flows via `services.AddFlowthru(b => b.RegisterCatalog<TCatalog>().RegisterFlow<TCatalog>(label, factory).UseXxx())` so the CLI runner can discover and execute them.
+
+**Effects.** I/O is wrapped in `FlowIO<T>` from `using Flowthru.Prelude;`. Failures are typed values (`RuntimeError`/`PreFlightError` closed sums) — nothing throws across the FlowIO boundary. Most step bodies don't see this directly; the framework wraps the user's `Func<TIn, TOut>` for them.
 
 ## Workflow
 
@@ -52,9 +55,11 @@ Follow these steps in order:
 
 1. **Plan transformation steps.** Determine what discrete transformations are needed to get from the input data to the output data.
 2. **Plan intermediate schemas.** Identify what data shapes are needed between each transformation step.
-3. **Write schemas.** Create schema classes for input, output, and all intermediary data in the appropriate `Data/<Layer>/Schemas/` directories.
-4. **Create catalog items.** Add catalog items for each schema in the corresponding `Catalog.<Layer>.cs` file. Each item declares its schema type and storage strategy.
-5. **Write steps.** Implement the transformation logic in `Flows/<FlowName>/Steps/`. Each step declares typed inputs and outputs matching the schemas from step 3.
-6. **Wire the flow.** Connect steps to their catalog items in `Flows/<FlowName>/<FlowName>Flow.cs`.
-7. **Register the flow.** Add the flow to `Program.cs` so the CLI runner can discover it.
-8. **Run and confirm.** Execute the flow with `dotnet run` and verify the output.
+3. **Write schemas.** Create `[FlowthruSchema] public partial record` types for input, output, and all intermediary data in the appropriate `Data/<Layer>/Schemas/` directories. Use `[SerializedLabel]` for external-name aliases and `[SerializedEnum]` for enum-as-string serialization.
+4. **Create catalog items.** Add `IItem<T>` properties to the corresponding `Catalog.<Layer>.cs` file using `ItemFactory.X.Y(...)` smart constructors from `using Flowthru.Data.Catalog;`. Each item identifies its schema type via the generic parameter and its storage strategy via the smart-constructor choice.
+5. **Write steps.** Add `[FlowthruStep] public static class` files in `Flows/<FlowName>/Steps/`. Each step has the canonical shape: `public static Func<TIn, TOut> Create([deps]) => input => …`. Tuples (e.g. `(IEnumerable<X>, IEnumerable<Y>)`) carry multi-input / multi-output shape.
+6. **Wire the flow.** In `Flows/<FlowName>/<FlowName>Flow.cs`, define a `Create(Catalog catalog, …)` method returning `BuiltFlow` via `FlowBuilder.CreateFlow(label, b => b.AddStep(...))`. The `AddStep<...>` overloads are typed — passing the wrong-typed catalog item is a C# compile error.
+7. **Register the flow.** In `Program.cs`, call `services.AddFlowthru(b => b.RegisterCatalog<Catalog>().RegisterFlow<Catalog>(label, FlowName.Create))` plus `b.UseXxx()` for each consumed extension (`UseHttp`, `UsePython`, `UseDiagnostics`, etc.).
+8. **Run and confirm.** Execute the project with `dotnet run` (no args) and verify the output. The CLI runner discovers registered flows and runs them.
+
+**If a build error or runtime failure surfaces something the skill doesn't cover, stop and ask.** The framework's API surface is intentionally narrow; if the natural code shape doesn't fit it, that's a signal to discuss before working around it.

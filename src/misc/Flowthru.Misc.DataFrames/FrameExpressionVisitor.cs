@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using Flowthru.Core.Abstractions;
 
 namespace Flowthru.Misc.DataFrames;
 
@@ -179,13 +178,27 @@ public abstract class FrameExpressionVisitor
   // ──────────────────────────────────────────────
 
   /// <summary>
-  /// Resolves the external column name for a schema property, respecting
-  /// <see cref="SerializedLabelAttribute"/> if present.
+  /// Resolves the external column name for a schema property. Honors
+  /// any <c>[SerializedLabel(string)]</c>-shaped attribute attached to
+  /// the member by structural lookup (attribute type name matches
+  /// <c>SerializedLabelAttribute</c> and exposes a <c>Label</c>
+  /// string property). Duck-typed deliberately so this utility stays
+  /// framework-agnostic — it works with Flowthru's
+  /// <c>[SerializedLabel]</c> when present but does not depend on
+  /// <c>Flowthru.Core</c>.
   /// </summary>
   protected static string ResolveColumnName(MemberInfo member)
   {
-    var attr = member.GetCustomAttribute<SerializedLabelAttribute>();
-    return attr?.Label ?? member.Name;
+    foreach (var attr in member.GetCustomAttributes())
+    {
+      var attrType = attr.GetType();
+      if (attrType.Name != "SerializedLabelAttribute") continue;
+      var labelProp = attrType.GetProperty("Label");
+      if (labelProp is null) continue;
+      if (labelProp.GetValue(attr) is string label && !string.IsNullOrEmpty(label))
+        return label;
+    }
+    return member.Name;
   }
 
   /// <summary>

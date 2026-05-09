@@ -13,10 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <!-- Standalone utility — no Flowthru.Core dependency. Schema-attribute
+         interop is duck-typed (attribute type name + Label property) so
+         this package is usable in Spark/ML.NET projects with or without
+         Flowthru. -->
     <ProjectReference Include="$(RepoRoot)src/misc/Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
