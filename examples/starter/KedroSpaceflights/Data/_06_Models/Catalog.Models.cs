@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflights.Data._06_Models.Schemas;
 
 namespace KedroSpaceflights.Data;
@@ -9,15 +9,10 @@ namespace KedroSpaceflights.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Trained linear regression model with coefficients and feature names.
-  /// </summary>
+  /// <summary>Trained linear regression model with coefficients and feature names.</summary>
   public IItem<LinearRegressionModel> Regressor =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Json<LinearRegressionModel>(
-          label: "Regressor",
-          filePath: $"{_basePath}/_06_Models/Datasets/regressor.json"
-        )
-    );
+    CreateItem(() => Item.Of<LinearRegressionModel>("Regressor")
+      .Json()
+      .AtPath($"{_basePath}/_06_Models/Datasets/regressor.json")
+      .Build());
 }

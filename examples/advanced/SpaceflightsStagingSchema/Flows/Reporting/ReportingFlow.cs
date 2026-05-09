@@ -1,46 +1,42 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsStagingSchema.Data;
+using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
+using SpaceflightsStagingSchema.Data._07_ModelOutput.Schemas;
+using SpaceflightsStagingSchema.Data._08_Reporting.Schemas;
 using SpaceflightsStagingSchema.Flows.Reporting.Steps;
+using Plotly.NET;
 
 namespace SpaceflightsStagingSchema.Flows.Reporting;
 
 /// <summary>
-/// Reads from the production database (production.Shuttles for the capacity
-/// report and chart, production.ModelPredictions for the confusion matrix) and
-/// produces reporting outputs. Never touches staging or the model input view.
+/// Reads from the production database and produces reporting outputs.
+/// Never touches staging or the model input view.
 /// </summary>
-/// <remarks>
-/// Capacity reports source from <c>production.Shuttles</c> rather than the
-/// model input table. The model input table is restricted to shuttles that
-/// have at least one review (because of the inner join on ShuttleId);
-/// capacity-by-shuttle-type rollups are more useful when they cover the
-/// canonical shuttle catalog.
-/// </remarks>
 public static class ReportingFlow
 {
-  public static Flow Create(ProductionCatalog production, FlowConfig config)
+  public static BuiltFlow Create(ProductionCatalog production, FlowConfig config)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, IEnumerable<ShuttleCapacityReport>>(
         label: "ComparePassengerCapacity",
         transform: ComparePassengerCapacityStep.Create(),
-        input: production.Shuttles,
-        output: production.ShuttleCapacityReport
+        input1: production.Shuttles,
+        output1: production.ShuttleCapacityReport
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, GenericChart>(
         label: "GeneratePassengerCapacityChart",
         transform: GeneratePassengerCapacityChartStep.Create(),
-        input: production.Shuttles,
-        output: production.ShuttlePassengerCapacityChart
+        input1: production.Shuttles,
+        output1: production.ShuttlePassengerCapacityChart
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
         label: "GenerateConfusionMatrixChart",
-        transform: CreateConfusionMatrixStep.Create,
-        input: (production.ModelPredictions, config.ConfusionMatrixOptions),
-        output: production.ConfusionMatrixChart
+        transform: CreateConfusionMatrixStep.Create(config.ConfusionMatrixOptions),
+        input1: production.ModelPredictions,
+        output1: production.ConfusionMatrixChart
       );
     });
   }

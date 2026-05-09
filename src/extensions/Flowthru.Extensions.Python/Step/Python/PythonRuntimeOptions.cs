@@ -162,7 +162,7 @@ public sealed class PythonRuntimeOptions
   /// <summary>
   /// Registers a Python service for preflight inspection via a separately-
   /// defined sidecar inspector module. Mirrors .NET's
-  /// <c>AddFlowthruInspect&lt;TService, TInspector&gt;()</c>: the service
+  /// <c>AddFlowServiceInspector&lt;TService, TInspector&gt;()</c>: the service
   /// class is unmodified user code; the inspector is a Python module that
   /// exports an <c>inspect(svc)</c> function returning a
   /// <c>flowthru.ValidationResult</c>.

@@ -11,7 +11,7 @@ namespace Flowthru.Step.Python;
 /// <remarks>
 /// <para>
 /// This interface is the Python analogue of looking up an
-/// <see cref="Flowthru.Core.Effects.IFlowthruInspector{TService}"/>
+/// <see cref="Flowthru.Core.Effects.IFlowServiceInspector{TService}"/>
 /// registration on the C# side. Both paths feed the same preflight
 /// aggregation loop in <c>Flow.RunAsync</c> after the
 /// <c>ServiceRef</c> migration in core.
@@ -21,7 +21,7 @@ namespace Flowthru.Step.Python;
 /// match against the fully-qualified class path captured from the Python
 /// step's <c>@step(services=[...])</c> decorator. Unregistered class paths
 /// return <see langword="false"/>; the preflight loop logs a warning in that
-/// case (mirroring the C#-side warning when no <c>AddFlowthruInspect&lt;T&gt;</c>
+/// case (mirroring the C#-side warning when no <c>AddFlowServiceInspector&lt;T&gt;</c>
 /// is registered for a declared service).
 /// </para>
 /// </remarks>

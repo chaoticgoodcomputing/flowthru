@@ -1,52 +1,49 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsStagingSchema.Data;
+using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
 using SpaceflightsStagingSchema.Flows.Promotion.Steps;
 
 namespace SpaceflightsStagingSchema.Flows.Promotion;
 
 /// <summary>
 /// Promotes the three preprocessed source tables from the ephemeral staging
-/// database into the FK-constrained production database. The DAG order matters
-/// because production enforces referential integrity:
-/// <list type="number">
-///   <item>Companies (no FK dependency)</item>
-///   <item>Shuttles (FK on CompanyId → Companies.Id)</item>
-///   <item>Reviews (FK on ShuttleId → Shuttles.Id)</item>
-/// </list>
-/// Each step is identity-shaped; the work is done by the cross-catalog write
-/// going through production's constraint enforcement.
+/// database into the FK-constrained production database.
 /// </summary>
 public static class PromotionFlow
 {
-  public static Flow Create(StagingCatalog staging, ProductionCatalog production)
+  public static BuiltFlow Create(StagingCatalog staging, ProductionCatalog production)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Promotion", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<PreprocessedCompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PromoteCompanies",
-        description: "Copies preprocessed companies from staging into production (PK enforced).",
         transform: PromoteCompaniesStep.Create(),
-        input: staging.Companies,
-        output: production.Companies
+        input1: staging.Companies,
+        output1: production.Companies
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedCompanySchema>,
+        IEnumerable<PreprocessedShuttleSchema>
+      >(
         label: "PromoteShuttles",
-        description: "Copies preprocessed shuttles from staging into production. Depends on PromoteCompanies for FK CompanyId integrity.",
         transform: PromoteShuttlesStep.Create(),
-        // production.Companies appears as a second input solely so the DAG
-        // enforces Companies-before-Shuttles ordering for FK integrity. The
-        // step body ignores that input.
-        input: (staging.Shuttles, production.Companies),
-        output: production.Shuttles
+        input1: staging.Shuttles,
+        input2: production.Companies,
+        output1: production.Shuttles
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PreprocessedReviewSchema>,
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedReviewSchema>
+      >(
         label: "PromoteReviews",
-        description: "Copies preprocessed reviews from staging into production. Depends on PromoteShuttles for FK ShuttleId integrity.",
         transform: PromoteReviewsStep.Create(),
-        input: (staging.Reviews, production.Shuttles),
-        output: production.Reviews
+        input1: staging.Reviews,
+        input2: production.Shuttles,
+        output1: production.Reviews
       );
     });
   }

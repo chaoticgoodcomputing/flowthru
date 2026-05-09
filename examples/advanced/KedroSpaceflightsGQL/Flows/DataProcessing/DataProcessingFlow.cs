@@ -1,6 +1,9 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
+using Flowthru.Data.Storage.Gql;
 using KedroSpaceflightsGQL.Data;
+using KedroSpaceflightsGQL.Data._03_Primary.Schemas;
 using KedroSpaceflightsGQL.Flows.DataProcessing.Steps;
+using KedroSpaceflightsGQL.Infra.GqlClient;
 
 namespace KedroSpaceflightsGQL.Flows.DataProcessing;
 
@@ -10,20 +13,24 @@ namespace KedroSpaceflightsGQL.Flows.DataProcessing;
 /// </summary>
 public static class DataProcessingFlow
 {
-  public static Flow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<
+        bool,
+        GqlQuery<IGetShuttlesResult, IGetShuttles_Shuttles>,
+        GqlQuery<IGetCompaniesResult, IGetCompanies_Companies>,
+        GqlQuery<IGetReviewsResult, IGetReviews_Reviews>,
+        IEnumerable<ModelInputTableSchema>
+      >(
         label: "CreateModelInputTable",
-        description: """
-          Joins typed shuttle, company, and review data queried from the GQL server
-          into a unified model input table. GqlDatabaseSeeded is consumed as an explicit
-          DAG gate ensuring Ingest has completed before this step executes.
-        """,
         transform: CreateModelInputTableStep.Create(),
-        input: (catalog.GqlDatabaseSeeded, catalog.Shuttles, catalog.Companies, catalog.Reviews),
-        output: catalog.ModelInputTable
+        input1: catalog.GqlDatabaseSeeded,
+        input2: catalog.Shuttles,
+        input3: catalog.Companies,
+        input4: catalog.Reviews,
+        output1: catalog.ModelInputTable
       );
     });
   }

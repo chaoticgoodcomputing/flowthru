@@ -1,5 +1,5 @@
-using Flowthru.Core.Data;
-using Flowthru.Extensions.GQL.Data;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage.Gql;
 using KedroSpaceflightsGQL.Data._01_Raw.Schemas;
 using KedroSpaceflightsGQL.Infra.GqlClient;
 
@@ -13,45 +13,36 @@ public partial class Catalog
   /// Raw company data read from CSV. Used by the Ingest flow to seed the GQL server.
   /// </summary>
   public IItem<IEnumerable<CompanySchema>> SeedCompanies =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<CompanySchema>(
-          label: "SeedCompanies",
-          filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<CompanySchema>>("SeedCompanies")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
+      .Build());
 
   /// <summary>
   /// Raw review data read from CSV. Used by the Ingest flow to seed the GQL server.
   /// </summary>
   public IItem<IEnumerable<ReviewSchema>> SeedReviews =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<ReviewSchema>(
-          label: "SeedReviews",
-          filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ReviewSchema>>("SeedReviews")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/reviews.csv")
+      .Build());
 
   /// <summary>
   /// Raw shuttle data read from Excel. Used by the Ingest flow to seed the GQL server.
   /// </summary>
   public IItem<IEnumerable<ShuttleSchema>> SeedShuttles =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Excel<ShuttleSchema>(
-          label: "SeedShuttles",
-          filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
-          sheetName: "Sheet1"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ShuttleSchema>>("SeedShuttles")
+      .Excel()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/shuttles.xlsx")
+      .WithSheet("Sheet1")
+      .Build());
 
   /// <summary>
   /// In-memory flag written by the Ingest flow after all mutations succeed.
   /// Downstream flows depend on this via the DAG.
   /// </summary>
   public IItem<bool> GqlDatabaseSeeded =>
-    CreateItem(() => ItemFactory.Single.Memory<bool>("GqlDatabaseSeeded"));
+    CreateItem(() => Item.Of<bool>("GqlDatabaseSeeded").Memory().Build());
 
   // ── Raw GQL entries — consumed by the DataProcessing flow ───────────────
   //
@@ -65,43 +56,34 @@ public partial class Catalog
   /// via <c>ToList()</c>, which fires the <c>GetCompanies</c> query against the server.
   /// </summary>
   public IItem<GqlQuery<IGetCompaniesResult, IGetCompanies_Companies>> Companies =>
-    CreateItem(
-      () =>
-        GqlItemFactory.Query.NonPaged<IGetCompaniesResult, IGetCompanies_Companies>(
-          label: "GQLCompanies",
-          queryFunc: ct => _client.GetCompanies.ExecuteAsync(ct),
-          selectData: r => r.Companies,
-          allowEmptyData: true
-        )
-    );
+    CreateItem(() => Item.Of<GqlQuery<IGetCompaniesResult, IGetCompanies_Companies>>("GQLCompanies")
+      .GqlDeferred(
+        queryFunc: ct => _client.GetCompanies.ExecuteAsync(ct),
+        selectData: r => r.Companies)
+      .AllowEmpty()
+      .Build());
 
   /// <summary>
   /// Deferred GQL query handle for shuttle data. The consuming step materializes this
   /// via <c>ToList()</c>, which fires the <c>GetShuttles</c> query against the server.
   /// </summary>
   public IItem<GqlQuery<IGetShuttlesResult, IGetShuttles_Shuttles>> Shuttles =>
-    CreateItem(
-      () =>
-        GqlItemFactory.Query.NonPaged<IGetShuttlesResult, IGetShuttles_Shuttles>(
-          label: "GQLShuttles",
-          queryFunc: ct => _client.GetShuttles.ExecuteAsync(ct),
-          selectData: r => r.Shuttles,
-          allowEmptyData: true
-        )
-    );
+    CreateItem(() => Item.Of<GqlQuery<IGetShuttlesResult, IGetShuttles_Shuttles>>("GQLShuttles")
+      .GqlDeferred(
+        queryFunc: ct => _client.GetShuttles.ExecuteAsync(ct),
+        selectData: r => r.Shuttles)
+      .AllowEmpty()
+      .Build());
 
   /// <summary>
   /// Deferred GQL query handle for review data. The consuming step materializes this
   /// via <c>ToList()</c>, which fires the <c>GetReviews</c> query against the server.
   /// </summary>
   public IItem<GqlQuery<IGetReviewsResult, IGetReviews_Reviews>> Reviews =>
-    CreateItem(
-      () =>
-        GqlItemFactory.Query.NonPaged<IGetReviewsResult, IGetReviews_Reviews>(
-          label: "GQLReviews",
-          queryFunc: ct => _client.GetReviews.ExecuteAsync(ct),
-          selectData: r => r.Reviews,
-          allowEmptyData: true
-        )
-    );
+    CreateItem(() => Item.Of<GqlQuery<IGetReviewsResult, IGetReviews_Reviews>>("GQLReviews")
+      .GqlDeferred(
+        queryFunc: ct => _client.GetReviews.ExecuteAsync(ct),
+        selectData: r => r.Reviews)
+      .AllowEmpty()
+      .Build());
 }

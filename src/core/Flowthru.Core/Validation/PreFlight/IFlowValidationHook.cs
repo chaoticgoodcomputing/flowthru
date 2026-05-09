@@ -14,7 +14,7 @@ namespace Flowthru.Validation.PreFlight;
 /// <para>
 /// Per §2.5, this is one of three pre-flight contribution layers
 /// (alongside adapter-internal validation and
-/// <see cref="IFlowthruInspector{T}"/>). Hooks are how an extension
+/// <see cref="IFlowServiceInspector{T}"/>). Hooks are how an extension
 /// surfaces flow-shape checks that depend on its own concepts —
 /// Python's <c>PythonStepValidator</c> uses a hook to walk all Python
 /// steps and verify their decorators, for example.

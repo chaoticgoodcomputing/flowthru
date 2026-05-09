@@ -1,9 +1,9 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
-using Flowthru.Extensions.Python;
-using Flowthru.Extensions.Python.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
+using Flowthru.Hosting;
+using Flowthru.Step.Python;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,11 +17,6 @@ namespace SpaceflightsPythonEFCore;
 
 /// <summary>
 /// Entry point for the SpaceflightsPythonEFCore advanced example.
-///
-/// Demonstrates mixed extension use within a single pipeline:
-///   - DataProcessing: C# nodes writing to EFCore/SQLite
-///   - DataScience:    Python nodes reading from and writing to EFCore/SQLite
-///   - Reporting:      Python nodes reading from EFCore/SQLite for visualization
 /// </summary>
 public class Program
 {
@@ -73,56 +68,40 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.RegisterCatalog(sp => new Catalog(
+        basePath: Path.Combine(basePath, "Data"),
+        contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
+      ));
+
+      flowthru.ConfigureMetadata(meta =>
       {
-        flowthru.RegisterCatalog(sp => new Catalog(
-          basePath: Path.Combine(basePath, "Data"),
-          contextFactory: sp.GetRequiredService<IDbContextFactory<SpaceflightsDbContext>>()
-        ));
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
 
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
+      flowthru.UsePython(python =>
+      {
+        python.ModuleSearchPaths.Add(basePath);
+        python.ModuleSearchPaths.Add(outputPath);
+        python.VenvPath = outputPath;
+      });
 
-        // Configure Python runtime; module search paths include the project root so
-        // "Flows.DataScience.Steps.*" and "Flows.Reporting.Steps.*" resolve correctly.
-        flowthru.UsePython(python =>
-        {
-          python.ModuleSearchPaths.Add(basePath);
-          python.ModuleSearchPaths.Add(outputPath);
-          python.VenvPath = outputPath;
-        });
+      flowthru
+        .RegisterFlow<Catalog>("DataProcessing", DataProcessingFlow.Create)
+        .WithDescription("Preprocesses companies and shuttles (C#), stores in EFCore");
 
-        // Resolve the Python executor before pipeline registration (Phase 6 workaround).
-        // NOTE: Do not dispose — singleton instances must stay alive.
-        var tempProvider = flowthru.Services.BuildServiceProvider();
-        var executor =
-          tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
+      flowthru
+        .RegisterFlow<Catalog, IPythonExecutor>("DataScience", DataScienceFlow.Create)
+        .WithDescription("Trains and evaluates regression model (Python); reads/writes EFCore");
 
-        flowthru
-          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-          .WithDescription("Preprocesses companies and shuttles (C#), stores in EFCore");
-
-        flowthru
-          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-          .WithDescription("Trains and evaluates regression model (Python); reads/writes EFCore");
-
-        flowthru
-          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
-          .WithDescription(
-            "Generates visualizations (Python); reads PreprocessedShuttles and ModelPredictions from EFCore"
-          );
-      }
-    );
+      flowthru
+        .RegisterFlow<Catalog, IPythonExecutor>("Reporting", ReportingFlow.Create)
+        .WithDescription("Generates visualizations (Python); reads PreprocessedShuttles and ModelPredictions from EFCore");
+    });
   }
 }

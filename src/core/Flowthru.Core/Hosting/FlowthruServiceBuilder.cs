@@ -180,21 +180,54 @@ public sealed class FlowthruServiceBuilder : IFlowthruBuilder
   }
 
   /// <inheritdoc/>
-  public IFlowthruBuilder AddFlowthruInspect<TService>(IFlowthruInspector<TService> inspector)
+  public IFlowthruBuilder AddFlowServiceInspector<TService>(IFlowServiceInspector<TService> inspector)
     where TService : class
   {
     if (inspector is null) throw new ArgumentNullException(nameof(inspector));
-    _inspectors.Add(new InspectorRegistration(typeof(TService), sp =>
-    {
-      var service = sp.GetService<TService>()
-        ?? throw new InvalidOperationException(
-          $"Inspector for service type '{typeof(TService).FullName}' was registered, "
-          + "but the service itself is not registered in DI. "
-          + "Call services.AddSingleton<" + typeof(TService).Name + ">(...) before AddFlowthru."
-        );
-      return inspector.Inspect(service);
-    }));
+    _inspectors.Add(BuildInspectorRegistration<TService>(
+      (svc, ct) => inspector.InspectAsync(svc, ct)
+    ));
     return this;
+  }
+
+  /// <inheritdoc/>
+  public IFlowthruBuilder AddFlowServiceInspector<TService>(
+    Func<TService, CancellationToken, Task<InspectionResult>> probe
+  )
+    where TService : class
+  {
+    if (probe is null) throw new ArgumentNullException(nameof(probe));
+    _inspectors.Add(BuildInspectorRegistration(probe));
+    return this;
+  }
+
+  /// <summary>
+  /// Bridge a user-facing <see cref="InspectionResult"/>-returning
+  /// probe into the dispatcher pipeline's
+  /// <see cref="FlowIO{A}"/>+<see cref="Validated{TError, TValue}"/>
+  /// shape. Hides the FP-algebra unwrap from the call site.
+  /// </summary>
+  private static InspectorRegistration BuildInspectorRegistration<TService>(
+    Func<TService, CancellationToken, Task<InspectionResult>> probe
+  )
+    where TService : class
+  {
+    return new InspectorRegistration(typeof(TService), sp =>
+      FlowIO.LiftAsync<Validated<PreFlightError, FlowUnit>>(
+        async ct =>
+        {
+          var service = sp.GetService<TService>()
+            ?? throw new InvalidOperationException(
+              $"Inspector for service type '{typeof(TService).FullName}' was registered, "
+              + "but the service itself is not registered in DI. "
+              + "Call services.AddSingleton<" + typeof(TService).Name + ">(...) before AddFlowthru."
+            );
+          var result = await probe(service, ct).ConfigureAwait(false);
+          return result.Internal;
+        },
+        source: $"FlowServiceInspector[{typeof(TService).Name}]"
+      )
+    );
   }
 
   /// <inheritdoc/>

@@ -8,7 +8,7 @@ namespace Flowthru.Hosting;
 /// <see cref="IFlowthruService"/>: any number of catalog factories,
 /// one or more flow factories, optional metadata providers,
 /// <see cref="IFlowValidationHook"/> registrations, and
-/// <see cref="IFlowthruInspector{T}"/> sidecars.
+/// <see cref="IFlowServiceInspector{T}"/> sidecars.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -114,9 +114,22 @@ public interface IFlowthruBuilder
   /// Register a service-reachability inspector for
   /// <typeparamref name="TService"/>. The host resolves the service
   /// from DI and passes it to <paramref name="inspector"/> at
-  /// pre-flight time.
+  /// pre-flight time. Use this overload for non-trivial inspectors
+  /// that benefit from being a real type.
   /// </summary>
-  IFlowthruBuilder AddFlowthruInspect<TService>(IFlowthruInspector<TService> inspector)
+  IFlowthruBuilder AddFlowServiceInspector<TService>(IFlowServiceInspector<TService> inspector)
+    where TService : class;
+
+  /// <summary>
+  /// Function-shaped registration of a service inspector — for
+  /// declarative one-line probes. The probe receives the resolved
+  /// service and a cancellation token; return
+  /// <see cref="Inspect.Pass"/> on success or
+  /// <see cref="Inspect.Fail(string, string?)"/> on failure.
+  /// </summary>
+  IFlowthruBuilder AddFlowServiceInspector<TService>(
+    Func<TService, CancellationToken, Task<InspectionResult>> probe
+  )
     where TService : class;
 
   /// <summary>

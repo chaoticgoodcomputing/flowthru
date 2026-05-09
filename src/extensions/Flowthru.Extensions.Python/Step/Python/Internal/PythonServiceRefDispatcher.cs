@@ -21,7 +21,7 @@ namespace Flowthru.Step.Python.Internal;
 /// <c>RegisterService(...)</c> entry in the inspector registry, the
 /// dispatcher logs a warning and returns success — missing inspectors
 /// are non-fatal, mirroring the C#-side
-/// <see cref="IFlowthruInspector{T}"/> resolution semantics.
+/// <see cref="IFlowServiceInspector{T}"/> resolution semantics.
 /// </para>
 /// </remarks>
 internal sealed class PythonServiceRefDispatcher : IServiceRefDispatcher
@@ -68,7 +68,7 @@ internal sealed class PythonServiceRefDispatcher : IServiceRefDispatcher
           + "registration; pre-flight cannot inspect it.",
         python.ClassPath
       );
-      // Non-fatal — match C# side behaviour for missing IFlowthruInspector.
+      // Non-fatal — match C# side behaviour for missing IFlowServiceInspector.
       return FlowIO.Pure(Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default));
     }
 

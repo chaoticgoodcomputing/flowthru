@@ -1,7 +1,8 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
+using Flowthru.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,19 +21,6 @@ namespace SpaceflightsStagingSchema;
 /// promoted into the durable <c>public</c> schema. PostgreSQL is brought up
 /// via Testcontainers for the duration of the run.
 /// </summary>
-/// <remarks>
-/// <para>
-/// Both schemas live in a single PostgreSQL database, sharing one connection
-/// string. This is the architectural unlock: items in
-/// <see cref="StagingCatalog"/> and <see cref="ProductionCatalog"/> share a
-/// <c>DbScope</c>, so cross-schema promotion takes the framework's fused
-/// <c>INSERT-FROM-SELECT</c> path — no rows materialize in C#.
-/// </para>
-/// <para>
-/// Requires Docker on the host. The container is created on
-/// <see cref="Main"/> entry and disposed on exit.
-/// </para>
-/// </remarks>
 public class Program
 {
   public static async Task<int> Main(string[] args)
@@ -74,8 +62,6 @@ public class Program
   {
     var dataPath = Path.Combine(basePath, "Data");
 
-    // Both contexts target the same connection. Their schema separation is
-    // declared at model build time via HasDefaultSchema in OnModelCreating.
     services.AddDbContextFactory<StagingDbContext>(options =>
       options.UseNpgsql(connectionString)
     );
@@ -88,58 +74,45 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.RegisterCatalog(_ => new RawCatalog(dataPath));
+      flowthru.RegisterCatalog(sp => new StagingCatalog(
+        contextFactory: sp.GetRequiredService<IDbContextFactory<StagingDbContext>>()
+      ));
+      flowthru.RegisterCatalog(sp => new ProductionCatalog(
+        contextFactory: sp.GetRequiredService<IDbContextFactory<ProductionDbContext>>(),
+        basePath: dataPath
+      ));
+      flowthru.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
+
+      flowthru.VerifyEFCoreConnection<ProductionDbContext>();
+
+      flowthru.ConfigureMetadata(meta =>
       {
-        flowthru.RegisterCatalog(_ => new RawCatalog(dataPath));
-        flowthru.RegisterCatalog(sp => new StagingCatalog(
-          contextFactory: sp.GetRequiredService<IDbContextFactory<StagingDbContext>>()
-        ));
-        flowthru.RegisterCatalog(sp => new ProductionCatalog(
-          contextFactory: sp.GetRequiredService<IDbContextFactory<ProductionDbContext>>(),
-          basePath: dataPath
-        ));
-        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
 
-        flowthru
-          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-          .WithDescription(
-            "Reads raw inputs and writes preprocessed/joined data to the ephemeral staging schema."
-          );
+      flowthru
+        .RegisterFlow<RawCatalog, StagingCatalog, FlowConfig>("DataProcessing", DataProcessingFlow.Create)
+        .WithDescription("Reads raw inputs and writes preprocessed/joined data to the ephemeral staging schema.");
 
-        flowthru
-          .RegisterFlow(label: "Promotion", flow: PromotionFlow.Create)
-          .WithDescription(
-            "Promotes staging tables into the production schema via fused INSERT-FROM-SELECT."
-          );
+      flowthru
+        .RegisterFlow<StagingCatalog, ProductionCatalog>("Promotion", PromotionFlow.Create)
+        .WithDescription("Promotes staging tables into the production schema via fused INSERT-FROM-SELECT.");
 
-        flowthru
-          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-          .WithDescription(
-            "Trains and evaluates a regression model from production data."
-          );
+      flowthru
+        .RegisterFlow<ProductionCatalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .WithDescription("Trains and evaluates a regression model from production data.");
 
-        flowthru
-          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
-          .WithDescription(
-            "Generates capacity reports and a confusion matrix from production data."
-          );
-
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta
-            .AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
-      }
-    );
+      flowthru
+        .RegisterFlow<ProductionCatalog, FlowConfig>("Reporting", ReportingFlow.Create)
+        .WithDescription("Generates capacity reports and a confusion matrix from production data.");
+    });
 
     services.AddLogging(logging =>
     {

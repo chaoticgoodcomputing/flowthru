@@ -1,5 +1,7 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsStagingSchema.Data;
+using SpaceflightsStagingSchema.Data._01_Raw.Schemas;
+using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
 using SpaceflightsStagingSchema.Flows.DataProcessing.Steps;
 
 namespace SpaceflightsStagingSchema.Flows.DataProcessing;
@@ -7,39 +9,33 @@ namespace SpaceflightsStagingSchema.Flows.DataProcessing;
 /// <summary>
 /// Reads raw filesystem inputs, parses each independently, optionally appends
 /// synthetic rows for bulk-test scaling (per <see cref="SeedingOptions"/>),
-/// and writes the combined typed form to the ephemeral staging schema. Three
-/// preprocess steps run with no inter-dependency — staging has no FK
-/// constraints, so load order doesn't matter. Production is not touched by
-/// this flow.
+/// and writes the combined typed form to the ephemeral staging schema.
 /// </summary>
 public static class DataProcessingFlow
 {
-  public static Flow Create(RawCatalog raw, StagingCatalog staging, FlowConfig config)
+  public static BuiltFlow Create(RawCatalog raw, StagingCatalog staging, FlowConfig config)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
-        description: "Parses raw company records into typed records and appends synthetic rows.",
-        transform: PreprocessCompaniesStep.Create(),
-        input: (raw.Companies, config.SeedingOptions),
-        output: staging.Companies
+        transform: PreprocessCompaniesStep.Create(config.SeedingOptions),
+        input1: raw.Companies,
+        output1: staging.Companies
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
-        description: "Parses raw shuttle records into typed records and appends synthetic rows.",
-        transform: PreprocessShuttlesStep.Create(),
-        input: (raw.Shuttles, config.SeedingOptions),
-        output: staging.Shuttles
+        transform: PreprocessShuttlesStep.Create(config.SeedingOptions),
+        input1: raw.Shuttles,
+        output1: staging.Shuttles
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ReviewSchema>, IEnumerable<PreprocessedReviewSchema>>(
         label: "PreprocessReviews",
-        description: "Parses raw review records into typed records and appends synthetic rows.",
-        transform: PreprocessReviewsStep.Create(),
-        input: (raw.Reviews, config.SeedingOptions),
-        output: staging.Reviews
+        transform: PreprocessReviewsStep.Create(config.SeedingOptions),
+        input1: raw.Reviews,
+        output1: staging.Reviews
       );
     });
   }

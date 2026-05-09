@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 
 namespace SpaceflightsDistributed.DataProcessing.Data;
@@ -6,30 +6,21 @@ namespace SpaceflightsDistributed.DataProcessing.Data;
 public partial class DataProcessingCatalog
 {
   public IItem<IEnumerable<CompanySchema>> Companies =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<CompanySchema>(
-          label: "Companies",
-          filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<CompanySchema>>("Companies")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
+      .Build());
 
   public IItem<IEnumerable<ReviewSchema>> Reviews =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<ReviewSchema>(
-          label: "Reviews",
-          filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ReviewSchema>>("Reviews")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/reviews.csv")
+      .Build());
 
   public IItem<IEnumerable<ShuttleSchema>> Shuttles =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Excel<ShuttleSchema>(
-          label: "Shuttles",
-          filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
-          sheetName: "Sheet1"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ShuttleSchema>>("Shuttles")
+      .Excel()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/shuttles.xlsx")
+      .WithSheet("Sheet1")
+      .Build());
 }

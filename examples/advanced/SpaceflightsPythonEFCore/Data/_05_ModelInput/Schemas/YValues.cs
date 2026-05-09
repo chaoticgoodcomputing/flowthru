@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 
 namespace SpaceflightsPythonEFCore.Data._05_ModelInput.Schemas;
 

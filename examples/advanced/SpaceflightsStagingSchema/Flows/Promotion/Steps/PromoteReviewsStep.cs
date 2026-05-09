@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
 
 namespace SpaceflightsStagingSchema.Flows.Promotion.Steps;

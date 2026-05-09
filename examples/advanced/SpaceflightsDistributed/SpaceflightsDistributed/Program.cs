@@ -1,7 +1,8 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
+using Flowthru.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,16 +17,6 @@ namespace SpaceflightsDistributed;
 
 /// <summary>
 /// Entry point for the SpaceflightsDistributed pipeline.
-///
-/// This example demonstrates Flowthru's multi-catalog pipeline registration API.
-/// Three independently-versioned library projects each define their own catalog
-/// and the pipelines between them are expressed via multi-catalog RegisterFlow
-/// overloads — making cross-domain data dependencies part of the type signature, not
-/// a runtime convention.
-///
-///   DataProcessingFlow.Create(DataProcessingCatalog dc)
-///   DataScienceFlow.Create(DataProcessingCatalog dp, DataScienceCatalog ds, Params p)
-///   ReportingFlow.Create(DataProcessingCatalog dp, DataScienceCatalog ds, ReportingCatalog r)
 /// </summary>
 public class Program
 {
@@ -35,9 +26,6 @@ public class Program
       services => ConfigureServices(services, Directory.GetCurrentDirectory())
     );
 
-  /// <summary>
-  /// Configures services for the application.
-  /// </summary>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var services = new ServiceCollection();
@@ -54,50 +42,37 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
+      flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
+      flowthru.RegisterCatalog(sp => new DataScienceFlowConfig(sp.GetRequiredService<IConfiguration>()));
+      flowthru.RegisterCatalog(sp => new ReportingFlowConfig(sp.GetRequiredService<IConfiguration>()));
+
+      flowthru.ConfigureMetadata(meta =>
       {
-        // ─── Catalog Registration ──────────────────────────────────────────────
-        // Each library owns its own catalog.
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
 
-        flowthru.RegisterCatalog(_ => new DataProcessingCatalog(dataPath));
-        flowthru.RegisterCatalog(_ => new DataScienceCatalog(dataPath));
-        flowthru.RegisterCatalog(_ => new ReportingCatalog(dataPath));
-        flowthru.RegisterCatalog(_ => new DataScienceFlowConfig(configuration));
-        flowthru.RegisterCatalog(_ => new ReportingFlowConfig(configuration));
+      flowthru
+        .RegisterFlow<DataProcessingCatalog>("DataProcessing", DataProcessingFlow.Create)
+        .WithDescription("Preprocesses companies and shuttles data into a model input table");
 
-        // ─── Flow Registration ─────────────────────────────────────────────
+      flowthru
+        .RegisterFlow<DataProcessingCatalog, DataScienceCatalog, DataScienceFlowConfig>(
+          "DataScience", DataScienceFlow.Create)
+        .WithDescription("Trains linear regression model for shuttle price prediction");
 
-        flowthru
-          .RegisterFlow(label: "DataProcessing", flow: DataProcessingFlow.Create)
-          .WithDescription("Preprocesses companies and shuttles data into a model input table");
-
-        flowthru
-          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-          .WithDescription("Trains linear regression model for shuttle price prediction");
-
-        flowthru
-          .RegisterFlow(label: "Reporting", flow: ReportingFlow.Create)
-          .WithDescription(
-            "Generates passenger capacity reports and confusion matrix visualizations"
-          );
-
-        // ─── Metadata Providers ───────────────────────────────────────────────
-
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
-      }
-    );
+      flowthru
+        .RegisterFlow<DataProcessingCatalog, DataScienceCatalog, ReportingCatalog, ReportingFlowConfig>(
+          "Reporting", ReportingFlow.Create)
+        .WithDescription("Generates passenger capacity reports and confusion matrix visualizations");
+    });
 
     services.AddLogging(logging =>
     {

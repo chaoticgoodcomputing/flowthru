@@ -9,9 +9,33 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-    <PackageReference Include="Flowthru.Extensions.EFCore" Version="FlowthruVersion" />
-    <PackageReference Include="Flowthru.Extensions.Python" Version="FlowthruVersion" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Granular Flowthru references — only what the example consumes. -->
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,8 +48,5 @@
     <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
-          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

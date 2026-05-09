@@ -5,28 +5,22 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <GenerateProgramFile>false</GenerateProgramFile>
-  </PropertyGroup>
-
-  <!-- FUnitAggregate: collect [StepTest] methods from all referenced sub-libraries
-       and emit NUnit runner classes in this project. The FUnit source generator
-       reads this as build_property.FUnitAggregate. -->
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <FUnitAggregate>true</FUnitAggregate>
-    <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="NUnit" />
-    <PackageReference Include="NUnit.Analyzers" />
-    <PackageReference Include="NUnit3TestAdapter" />
-    <Using Include="NUnit.Framework" />
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,11 +32,5 @@
   <ItemGroup>
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
-          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
-
-  <Import Project="$(RepoRoot)build/FlowthruFUnit.props"
-          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruFUnit.props')" />
 
 </Project>

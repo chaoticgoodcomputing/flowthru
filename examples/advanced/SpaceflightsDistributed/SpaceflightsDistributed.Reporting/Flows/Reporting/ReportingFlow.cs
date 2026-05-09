@@ -1,57 +1,48 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
+using Plotly.NET;
 using SpaceflightsDistributed.DataProcessing.Data;
+using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 using SpaceflightsDistributed.DataScience.Data;
+using SpaceflightsDistributed.DataScience.Data._07_ModelOutput.Schemas;
 using SpaceflightsDistributed.Reporting.Data;
+using SpaceflightsDistributed.Reporting.Data._08_Reporting.Schemas;
 using SpaceflightsDistributed.Reporting.Flows.Reporting.Steps;
 
 namespace SpaceflightsDistributed.Reporting.Flows.Reporting;
 
 /// <summary>
 /// Generates visualizations and reports from processed and modeled shuttle data.
-/// This pipeline signature expresses its cross-catalog dependencies directly:
-/// it reads from DataProcessing (preprocessed shuttles) and DataScience (model predictions),
-/// and writes all outputs to its own ReportingCatalog.
 /// </summary>
 public static class ReportingFlow
 {
-  /// <summary>
-  /// Creates the reporting pipeline.
-  /// </summary>
-  /// <param name="dp">The data processing catalog supplying preprocessed shuttle data.</param>
-  /// <param name="ds">The data science catalog supplying model predictions.</param>
-  /// <param name="r">The reporting catalog receiving all report and chart outputs.</param>
-  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
-  public static Flow Create(
+  public static BuiltFlow Create(
     DataProcessingCatalog dp,
     DataScienceCatalog ds,
     ReportingCatalog r,
     ReportingFlowConfig config
   )
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, IEnumerable<ShuttleCapacityReport>>(
         label: "ComparePassengerCapacity",
-        description: "Aggregates average shuttle passenger capacity grouped by shuttle type.",
         transform: ComparePassengerCapacityStep.Create(),
-        input: dp.PreprocessedShuttles,
-        output: r.ShuttleCapacityReport
+        input1: dp.PreprocessedShuttles,
+        output1: r.ShuttleCapacityReport
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, GenericChart>(
         label: "GeneratePassengerCapacityChart",
-        description: "Generates a bar chart of passenger capacity rankings by shuttle type.",
         transform: GeneratePassengerCapacityChartStep.Create(),
-        input: dp.PreprocessedShuttles,
-        output: r.ShuttlePassengerCapacityChart
+        input1: dp.PreprocessedShuttles,
+        output1: r.ShuttlePassengerCapacityChart
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
         label: "GenerateConfusionMatrixChart",
-        description: "Generates a confusion matrix heatmap from model price predictions.",
-        transform: CreateConfusionMatrixStep.Create,
-        input: (ds.ModelPredictions, config.ConfusionMatrixOptions),
-        output: r.ConfusionMatrixChart
+        transform: CreateConfusionMatrixStep.Create(config.ConfusionMatrixOptions),
+        input1: ds.ModelPredictions,
+        output1: r.ConfusionMatrixChart
       );
     });
   }

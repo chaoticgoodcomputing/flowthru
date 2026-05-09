@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.Extensions.GQL.Data;
+using Flowthru.Step;
+using Flowthru.Data.Storage.Gql;
 using KedroSpaceflightsGQL.Data._03_Primary.Schemas;
 using KedroSpaceflightsGQL.Infra.GqlClient;
 

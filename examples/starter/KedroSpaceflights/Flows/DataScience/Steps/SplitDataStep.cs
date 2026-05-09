@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using KedroSpaceflights.Data._03_Primary.Schemas;
 using KedroSpaceflights.Data._05_ModelInput.Schemas;
 
@@ -32,13 +32,15 @@ public static class SplitDataStep
   }
 
   /// <summary>
-  /// Splits input data into training and test sets.
+  /// Canonical Func-returning Create — closes over <paramref name="options"/>
+  /// at flow-construction time so the per-step transform stays a typed
+  /// data-only mapping.
   /// </summary>
-  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
-    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
-  )
+  public static Func<
+    IEnumerable<ModelInputTableSchema>,
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
+  > Create(ModelOptions options) => rawData =>
   {
-    var (rawData, options) = input;
     var data = rawData.ToList();
 
     // Use random state for reproducibility
@@ -84,5 +86,5 @@ public static class SplitDataStep
       });
 
     return (trainData, testData);
-  }
+  };
 }

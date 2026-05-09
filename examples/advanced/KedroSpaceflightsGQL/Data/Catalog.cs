@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflightsGQL.Infra.GqlClient;
 
 namespace KedroSpaceflightsGQL.Data;
@@ -23,6 +23,5 @@ public partial class Catalog : CatalogAbstract
   {
     _basePath = basePath;
     _client = client;
-    InitializeCatalogProperties();
   }
 }

@@ -1,5 +1,4 @@
-using Flowthru.Core.Data;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Data.Catalog;
 using SpaceflightsPythonEFCore.Data._03_Primary.Schemas;
 
 namespace SpaceflightsPythonEFCore.Data;
@@ -7,17 +6,13 @@ namespace SpaceflightsPythonEFCore.Data;
 /// <summary>
 /// Primary data layer: Joined model input table.
 /// Written by the C# DataProcessing pipeline and read by the Python DataScience pipeline.
-/// This is the EFCore → Python handoff point.
 /// </summary>
 public partial class Catalog
 {
   public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-    CreateItem(
-      () =>
-        EFCoreItemFactory.Enumerable.EFCore<ModelInputTableSchema, SpaceflightsDbContext>(
-          label: "ModelInputTable",
-          contextFactory: _contextFactory,
-          queryCustomizer: q => q.OrderBy(r => r.ShuttleId)
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ModelInputTableSchema>>("ModelInputTable")
+      .EFCoreTable<ModelInputTableSchema, SpaceflightsDbContext>()
+      .WithContextFactory(_contextFactory)
+      .WithQuery(q => q.OrderBy(r => r.ShuttleId))
+      .Build());
 }

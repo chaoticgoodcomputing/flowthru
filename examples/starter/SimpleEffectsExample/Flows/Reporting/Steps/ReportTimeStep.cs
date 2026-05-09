@@ -1,7 +1,7 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SimpleEffectsExample.Services;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 using Microsoft.Extensions.DependencyInjection;
 #endif
 
@@ -70,7 +70,7 @@ public static class ReportTimeStep
   /// </remarks>
   public class Tests : FUnitContext
   {
-    [StepTest(typeof(ReportTimeStep))]
+    [FUnitStepTest(typeof(ReportTimeStep))]
     public void FormatsTemplateWithEasternTime()
     {
       var service = GetRequiredService<IRemoteTimeService>();

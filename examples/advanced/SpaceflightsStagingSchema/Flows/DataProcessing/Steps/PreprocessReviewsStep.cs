@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SpaceflightsStagingSchema.Data._01_Raw.Schemas;
 using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
 
@@ -11,22 +11,18 @@ namespace SpaceflightsStagingSchema.Flows.DataProcessing.Steps;
 public static class PreprocessReviewsStep
 {
   public static Func<
-    (IEnumerable<ReviewSchema> Raw, SeedingOptions Options),
+    IEnumerable<ReviewSchema>,
     IEnumerable<PreprocessedReviewSchema>
-  > Create()
+  > Create(SeedingOptions options) => raw =>
   {
-    return (input) =>
-    {
-      var (raw, options) = input;
-      var real = raw.Select(Parse).Where(item => item is not null).Cast<PreprocessedReviewSchema>();
-      var synthetic = SyntheticDataSeeder.Reviews(
-        options.SyntheticReviews,
-        options.SyntheticShuttles,
-        options.RandomSeed
-      );
-      return real.Concat(synthetic);
-    };
-  }
+    var real = raw.Select(Parse).Where(item => item is not null).Cast<PreprocessedReviewSchema>();
+    var synthetic = SyntheticDataSeeder.Reviews(
+      options.SyntheticReviews,
+      options.SyntheticShuttles,
+      options.RandomSeed
+    );
+    return real.Concat(synthetic);
+  };
 
   private static PreprocessedReviewSchema? Parse(ReviewSchema raw)
   {

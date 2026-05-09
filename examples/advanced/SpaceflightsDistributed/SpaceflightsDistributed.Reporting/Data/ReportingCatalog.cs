@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 
 namespace SpaceflightsDistributed.Reporting.Data;
 
@@ -13,6 +13,5 @@ public partial class ReportingCatalog : CatalogAbstract
   public ReportingCatalog(string basePath)
   {
     _basePath = basePath;
-    InitializeCatalogProperties();
   }
 }

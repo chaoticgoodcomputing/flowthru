@@ -7,7 +7,7 @@ namespace Flowthru.Step.Python;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Mirrors the .NET <c>AddFlowthruInspect&lt;TService, TInspector&gt;</c>
+/// Mirrors the .NET <c>AddFlowServiceInspector&lt;TService, TInspector&gt;</c>
 /// shape: the service class is unmodified user code; the inspector is a
 /// separately-defined unit (a Python module exporting an <c>inspect(svc)</c>
 /// function) that the framework wires together with the service via this

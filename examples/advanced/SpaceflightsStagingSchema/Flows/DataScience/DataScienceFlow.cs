@@ -1,5 +1,10 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsStagingSchema.Data;
+using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
+using SpaceflightsStagingSchema.Data._03_Primary.Schemas;
+using SpaceflightsStagingSchema.Data._05_ModelInput.Schemas;
+using SpaceflightsStagingSchema.Data._06_Models.Schemas;
+using SpaceflightsStagingSchema.Data._07_ModelOutput.Schemas;
 
 namespace SpaceflightsStagingSchema.Flows.DataScience;
 
@@ -7,44 +12,59 @@ namespace SpaceflightsStagingSchema.Flows.DataScience;
 /// Builds the model input table as a deferred SQL join over the three
 /// FK-constrained production tables, splits the joined view into train/test
 /// sets, trains a regression model, and writes evaluation metrics + per-row
-/// predictions back to production. Staging is never referenced.
+/// predictions back to production.
 /// </summary>
 public static class DataScienceFlow
 {
-  public static Flow Create(ProductionCatalog production, FlowConfig config)
+  public static BuiltFlow Create(ProductionCatalog production, FlowConfig config)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedCompanySchema>,
+        IEnumerable<PreprocessedReviewSchema>,
+        IEnumerable<ModelInputTableSchema>
+      >(
         label: "BuildModelInputTable",
-        description: "Composes the model input table as a deferred SQL join over Companies, Shuttles, and Reviews.",
         transform: Steps.BuildModelInputTableStep.Create(),
-        input: (production.Shuttles, production.Companies, production.Reviews),
-        output: production.ModelInputTable
+        input1: production.Shuttles,
+        input2: production.Companies,
+        input3: production.Reviews,
+        output1: production.ModelInputTable
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<ModelInputTableSchema>,
+        IEnumerable<TrainingData>,
+        IEnumerable<TestData>
+      >(
         label: "SplitData",
-        description: "Splits the model input view into training and test sets. Iteration triggers the SQL join.",
-        transform: Steps.SplitDataStep.Create,
-        input: (production.ModelInputTable, config.ModelOptions),
-        output: (production.TrainSplit, production.TestSplit)
+        transform: Steps.SplitDataStep.Create(config.ModelOptions),
+        input1: production.ModelInputTable,
+        output1: production.TrainSplit,
+        output2: production.TestSplit
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<TrainingData>, LinearRegressionModel>(
         label: "TrainModel",
-        description: "Trains a regression model to predict shuttle prices.",
         transform: Steps.TrainModelStep.Create(),
-        input: production.TrainSplit,
-        output: production.Regressor
+        input1: production.TrainSplit,
+        output1: production.Regressor
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        LinearRegressionModel,
+        IEnumerable<TestData>,
+        ModelMetrics,
+        IEnumerable<ModelPredictions>
+      >(
         label: "EvaluateModel",
-        description: "Evaluates the trained model on the test set and computes metrics + predictions.",
         transform: Steps.EvaluateModelStep.Create(),
-        input: (production.Regressor, production.TestSplit),
-        output: (production.ModelMetrics, production.ModelPredictions)
+        input1: production.Regressor,
+        input2: production.TestSplit,
+        output1: production.ModelMetrics,
+        output2: production.ModelPredictions
       );
     });
   }

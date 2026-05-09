@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Step;
+using Flowthru.Data.Storage.EFCore;
 using SpaceflightsStagingSchema.Data;
 using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
 using SpaceflightsStagingSchema.Data._03_Primary.Schemas;

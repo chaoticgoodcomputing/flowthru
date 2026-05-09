@@ -1,5 +1,4 @@
-using Flowthru.Core.Data;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Data.Catalog;
 using SpaceflightsStagingSchema.Data._06_Models.Schemas;
 
 namespace SpaceflightsStagingSchema.Data;
@@ -11,11 +10,8 @@ public partial class ProductionCatalog
   /// save (no bulk needed for one row).
   /// </summary>
   public IItem<LinearRegressionModel> Regressor =>
-    CreateItem(
-      () =>
-        EFCoreItemFactory.Single.EFCore<LinearRegressionModel, ProductionDbContext>(
-          label: "Regressor",
-          contextFactory: _contextFactory
-        )
-    );
+    CreateItem(() => Item.Of<LinearRegressionModel>("Regressor")
+      .EFCoreEntity<LinearRegressionModel, ProductionDbContext>()
+      .WithContextFactory(_contextFactory)
+      .Build());
 }

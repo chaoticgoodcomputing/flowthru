@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using SpaceflightsPythonEFCore.Data._05_ModelInput.Schemas;
 
 namespace SpaceflightsPythonEFCore.Data;
@@ -10,14 +10,14 @@ namespace SpaceflightsPythonEFCore.Data;
 public partial class Catalog
 {
   public IItem<IEnumerable<XValues>> XTest =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<XValues>(label: "XTest"));
+    CreateItem(() => Item.Of<IEnumerable<XValues>>("XTest").Memory().Build());
 
   public IItem<IEnumerable<XValues>> XTrain =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<XValues>(label: "XTrain"));
+    CreateItem(() => Item.Of<IEnumerable<XValues>>("XTrain").Memory().Build());
 
   public IItem<IEnumerable<YValues>> YTest =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<YValues>(label: "YTest"));
+    CreateItem(() => Item.Of<IEnumerable<YValues>>("YTest").Memory().Build());
 
   public IItem<IEnumerable<YValues>> YTrain =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<YValues>(label: "YTrain"));
+    CreateItem(() => Item.Of<IEnumerable<YValues>>("YTrain").Memory().Build());
 }

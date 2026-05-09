@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SpaceflightsStagingSchema.Data._03_Primary.Schemas;
 using SpaceflightsStagingSchema.Data._05_ModelInput.Schemas;
 
@@ -14,11 +14,11 @@ public static class SplitDataStep
     public string[] Features { get; init; } = Array.Empty<string>();
   }
 
-  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
-    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
-  )
+  public static Func<
+    IEnumerable<ModelInputTableSchema>,
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
+  > Create(ModelOptions options) => rawData =>
   {
-    var (rawData, options) = input;
     var data = rawData.ToList();
 
     var random = new Random(options.RandomState);
@@ -43,7 +43,7 @@ public static class SplitDataStep
       });
 
     return (trainData, testData);
-  }
+  };
 
   private static FeatureVector ToFeatureVector(ModelInputTableSchema row) =>
     new FeatureVector

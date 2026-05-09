@@ -1,5 +1,4 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
 using SpaceflightsDistributed.DataProcessing.Data._03_Primary.Schemas;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 
@@ -14,11 +13,11 @@ public static class SplitDataStep
     public int RandomState { get; init; } = 3;
   }
 
-  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
-    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
-  )
+  public static Func<
+    IEnumerable<ModelInputTableSchema>,
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
+  > Create(ModelOptions options) => rawData =>
   {
-    var (rawData, options) = input;
     var data = rawData.ToList();
     var random = new Random(options.RandomState);
     var shuffled = data.OrderBy(_ => random.Next()).ToList();
@@ -61,7 +60,7 @@ public static class SplitDataStep
       });
 
     return (trainData, testData);
-  }
+  };
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="SplitDataStep"/>.</summary>

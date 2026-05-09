@@ -1,6 +1,4 @@
-using Flowthru.Core.Data;
-using Flowthru.Core.Data.Validation;
-using Flowthru.Extensions.EFCore.Data;
+using Flowthru.Data.Catalog;
 using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
 
 namespace SpaceflightsPythonEFCore.Data;
@@ -12,24 +10,14 @@ namespace SpaceflightsPythonEFCore.Data;
 public partial class Catalog
 {
   public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
-    CreateItem(
-      () =>
-        EFCoreItemFactory
-          .Enumerable.EFCore<PreprocessedCompanySchema, SpaceflightsDbContext>(
-            label: "PreprocessedCompanies",
-            contextFactory: _contextFactory
-          )
-          .WithInspectionLevel(InspectionLevel.Shallow)
-    );
+    CreateItem(() => Item.Of<IEnumerable<PreprocessedCompanySchema>>("PreprocessedCompanies")
+      .EFCoreTable<PreprocessedCompanySchema, SpaceflightsDbContext>()
+      .WithContextFactory(_contextFactory)
+      .Build());
 
   public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
-    CreateItem(
-      () =>
-        EFCoreItemFactory
-          .Enumerable.EFCore<PreprocessedShuttleSchema, SpaceflightsDbContext>(
-            label: "PreprocessedShuttles",
-            contextFactory: _contextFactory
-          )
-          .WithInspectionLevel(InspectionLevel.Shallow)
-    );
+    CreateItem(() => Item.Of<IEnumerable<PreprocessedShuttleSchema>>("PreprocessedShuttles")
+      .EFCoreTable<PreprocessedShuttleSchema, SpaceflightsDbContext>()
+      .WithContextFactory(_contextFactory)
+      .Build());
 }

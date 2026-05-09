@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
