@@ -31,7 +31,10 @@
   <Project Path="tests/core/Flowthru.Core.Architecture.Tests/Flowthru.Core.Architecture.Tests.csproj" />
   <Project Path="tests/core/Flowthru.Core.SourceGenerators.Tests/Flowthru.Core.SourceGenerators.Tests.csproj" />
   <Project Path="tests/core/Flowthru.Cli.Tests/Flowthru.Cli.Tests.csproj" />
-  <Project Path="tests/core/Flowthru.FUnit.Tests/Flowthru.FUnit.Tests.csproj" />
+  <Project Path="tests/core/Flowthru.Core.CodeFixes.Tests/Flowthru.Core.CodeFixes.Tests.csproj" />
+  <Project Path="tests/funit/FUnit.Tests/FUnit.Tests.csproj" />
+  <Project Path="tests/funit/FUnit.CodeFixes.Tests/FUnit.CodeFixes.Tests.csproj" />
+  <Project Path="tests/funit/FUnit.SourceGenerators.Tests/FUnit.SourceGenerators.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Csv.Tests/Flowthru.Extensions.Csv.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Tests/Flowthru.Extensions.EFCore.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.EFCore.Bulk.Tests/Flowthru.Extensions.EFCore.Bulk.Tests.csproj" />
@@ -43,6 +46,7 @@
   <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Diagnostics.Tests/Flowthru.Extensions.Metadata.Diagnostics.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Parquet.Tests/Flowthru.Extensions.Parquet.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Python.Tests/Flowthru.Extensions.Python.Tests.csproj" />
+  <Project Path="tests/extensions/Flowthru.Extensions.Python.SourceGenerators.Tests/Flowthru.Extensions.Python.SourceGenerators.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Xml.Tests/Flowthru.Extensions.Xml.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.Tests/Flowthru.Misc.DataFrames.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.CodeFixes.Tests/Flowthru.Misc.DataFrames.CodeFixes.Tests.csproj" />

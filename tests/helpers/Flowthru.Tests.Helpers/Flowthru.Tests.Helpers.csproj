@@ -7,6 +7,20 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <!-- Pre-rewrite generator/metadata helpers — quarantined pending FP-rewrite migration.
+       These helpers reference legacy namespaces (Flowthru.Core.Data, Flowthru.Core.SourceGenerators.*,
+       IMetadataProvider, DagMetadata) that don't exist post-rewrite. Their consumers in
+       tests/core/Flowthru.Core.Tests/{01_Compilation,02_Validation,04_Services} are
+       quarantined under <Compile Remove> in that csproj, so no active test depends on them
+       today. Reactivate alongside the Phase-7.5 test-debt recovery work when those
+       categories come back online. -->
+  <ItemGroup>
+    <Compile Remove="CapturingMetadataProvider.cs" />
+    <Compile Remove="CompilationTestHelper.cs" />
+    <Compile Remove="FUnitGeneratorTestHelper.cs" />
+    <Compile Remove="GeneratorTestHelper.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" />
@@ -19,9 +33,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Flowthru references — swapped to ProjectReference in-repo via FlowthruInRepoSwap.props. -->
+    <!-- Flowthru references — swapped to ProjectReference in-repo via FlowthruInRepoSwap.props.
+         The bare `FUnit` identity (not `Flowthru.FUnit`) matches the package id and the
+         src/funit/FUnit/ directory layout post-graduation (§4.5 — Phase 5 carryover). -->
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
-    <PackageReference Include="Flowthru.FUnit" Version="FlowthruVersion" />
+    <PackageReference Include="FUnit" Version="FlowthruVersion" />
 
     <!-- Source generator DLLs as REGULAR runtime dependencies (note ReferenceOutputAssembly=true).
          Tests.Helpers drives CSharpGeneratorDriver against the SGs in-process, so the SG

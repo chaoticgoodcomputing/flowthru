@@ -57,13 +57,17 @@
     <_FlowthruCandidate Include="@(PackageReference)" />
   </ItemGroup>
 
-  <!-- Step 2: Compute the three candidate in-repo csproj paths for each
+  <!-- Step 2: Compute the four candidate in-repo csproj paths for each
        candidate. Same-item-type %(Identity) interpolated into metadata VALUES
        iterates per item at evaluation time. Non-Flowthru identities yield
-       paths like src/core/Newtonsoft.Json/... that simply won't exist on disk. -->
+       paths like src/core/Newtonsoft.Json/... that simply won't exist on disk.
+       The src/funit/ candidate exists because FUnit graduated to its own
+       top-level domain (Phase 5 carryover) — its package id is bare `FUnit`,
+       not `Flowthru.FUnit`. -->
   <ItemGroup>
     <_FlowthruCandidate Update="@(_FlowthruCandidate)">
       <CoreCsproj>$(RepoRoot)src/core/%(Identity)/%(Identity).csproj</CoreCsproj>
+      <FUnitCsproj>$(RepoRoot)src/funit/%(Identity)/%(Identity).csproj</FUnitCsproj>
       <ExtensionsCsproj>$(RepoRoot)src/extensions/%(Identity)/%(Identity).csproj</ExtensionsCsproj>
       <MiscCsproj>$(RepoRoot)src/misc/%(Identity)/%(Identity).csproj</MiscCsproj>
     </_FlowthruCandidate>
@@ -71,12 +75,13 @@
 
   <!-- Step 3: Resolve to the first existing candidate. Same-item-type %(Meta)
        in Conditions on metadata elements is permitted; Exists() runs per item.
-       Order matters: core wins over extensions wins over misc, but Flowthru
-       package identities are unique across these directories so there's no
-       actual conflict. -->
+       Order matters: core wins over funit wins over extensions wins over misc,
+       but Flowthru package identities are unique across these directories so
+       there's no actual conflict. -->
   <ItemGroup>
     <_FlowthruCandidate Update="@(_FlowthruCandidate)">
       <ResolvedPath Condition="Exists('%(CoreCsproj)')">%(CoreCsproj)</ResolvedPath>
+      <ResolvedPath Condition="Exists('%(FUnitCsproj)')">%(FUnitCsproj)</ResolvedPath>
       <ResolvedPath Condition="Exists('%(ExtensionsCsproj)')">%(ExtensionsCsproj)</ResolvedPath>
       <ResolvedPath Condition="Exists('%(MiscCsproj)')">%(MiscCsproj)</ResolvedPath>
     </_FlowthruCandidate>

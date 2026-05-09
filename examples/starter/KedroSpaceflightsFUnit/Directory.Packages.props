@@ -27,7 +27,13 @@
     <PackageVersion Include="Plotly.NET" Version="5.1.0" />
     <PackageVersion Include="Plotly.NET.CSharp" Version="0.13.0" />
     <PackageVersion Include="Plotly.NET.ImageExport" Version="6.1.0" />
-    <!-- Flowthru* packages — Version is replaced by the template engine at instantiation time. -->
+  </ItemGroup>
+
+  <!-- Flowthru* packages — Version is replaced by the template engine at instantiation time.
+       Skipped in-repo: the consuming csproj uses <ProjectReference> directly to
+       src/core/Flowthru.* during monorepo development; the literal "FlowthruVersion"
+       placeholder would otherwise fail NuGet's PackageVersion validation at restore. -->
+  <ItemGroup Condition="'$(RepoRoot)' == ''">
     <PackageVersion Include="Flowthru" Version="FlowthruVersion" />
     <PackageVersion Include="Flowthru.FUnit" Version="FlowthruVersion" />
   </ItemGroup>
