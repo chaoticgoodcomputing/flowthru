@@ -107,7 +107,7 @@ public sealed class SingletonItemFactory
 /// <summary>
 /// Smart-constructor surface for <see cref="IItem{T}"/> values backed
 /// by a directory of same-schema files. Each file is one independent
-/// unit; <see cref="Directory{T}"/> is the resulting key→payload view.
+/// unit; <see cref="DirectoryOf{T}"/> is the resulting key→payload view.
 /// </summary>
 public sealed class DirectoryItemFactory
 {
@@ -118,13 +118,13 @@ public sealed class DirectoryItemFactory
   /// <typeparamref name="TRow"/> rows. Per-file adapter is the same
   /// composed JSON adapter as <see cref="EnumerableItemFactory.Json{TRow}"/>.
   /// </summary>
-  public IItem<Directory<IEnumerable<TRow>>> JsonArrays<TRow>(
+  public IItem<DirectoryOf<IEnumerable<TRow>>> JsonArrays<TRow>(
     string label,
     string directoryPath,
     string filePattern = "*.json"
   )
     where TRow : notnull, IStructuredSerializable =>
-    new Item<Directory<IEnumerable<TRow>>>(
+    new Item<DirectoryOf<IEnumerable<TRow>>>(
       label,
       new DirectoryStorageAdapter<IEnumerable<TRow>>(
         directoryPath,
@@ -143,13 +143,13 @@ public sealed class DirectoryItemFactory
   /// Per-file adapter is the same singleton-JSON adapter as
   /// <see cref="SingletonItemFactory.Json{T}"/>.
   /// </summary>
-  public IItem<Directory<T>> JsonDocuments<T>(
+  public IItem<DirectoryOf<T>> JsonDocuments<T>(
     string label,
     string directoryPath,
     string filePattern = "*.json"
   )
     where T : notnull, IStructuredSerializable =>
-    new Item<Directory<T>>(
+    new Item<DirectoryOf<T>>(
       label,
       new DirectoryStorageAdapter<T>(
         directoryPath,

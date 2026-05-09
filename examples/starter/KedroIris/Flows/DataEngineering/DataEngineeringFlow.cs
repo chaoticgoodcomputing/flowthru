@@ -1,5 +1,8 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using KedroIris.Data;
+using KedroIris.Data._01_Raw.Schemas;
+using KedroIris.Data._04_Feature.Schemas;
+using KedroIris.Data._05_ModelInput.Schemas;
 using KedroIris.Flows.DataEngineering.Steps;
 
 namespace KedroIris.Flows.DataEngineering;
@@ -9,25 +12,29 @@ namespace KedroIris.Flows.DataEngineering;
 /// </summary>
 public static class DataEngineeringFlow
 {
-  /// <summary>
-  /// Creates the data engineering pipeline.
-  /// </summary>
-  /// <param name="catalog">The data catalog containing input and output entries.</param>
-  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
-  /// <returns>A configured pipeline that produces training and test splits with one-hot encoding.</returns>
-  public static Flow Create(Catalog catalog, FlowConfig config)
+  public static BuiltFlow Create(Catalog catalog, FlowConfig config)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    var splitOptions = config.SplitOptions;
+    var splitTransform = SplitAndEncodeStep.Create();
+
+    return FlowBuilder.CreateFlow("DataEngineering", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<IrisRawSchema>,
+        IEnumerable<IrisFeatureSchema>,
+        IEnumerable<FeatureVectorSchema>,
+        IEnumerable<TargetLabelSchema>,
+        IEnumerable<FeatureVectorSchema>,
+        IEnumerable<TargetLabelSchema>
+      >(
         label: "SplitAndEncode",
-        description: """
-          Splits the Iris dataset into training and test sets.
-          Applies one-hot encoding to species labels and separates features from targets.
-        """,
-        transform: SplitAndEncodeStep.Create,
-        input: (catalog.IrisRaw, config.SplitOptions),
-        output: (catalog.IrisFeatures, catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY)
+        transform: rawData => splitTransform((rawData, splitOptions)),
+        input1: catalog.IrisRaw,
+        output1: catalog.IrisFeatures,
+        output2: catalog.TrainX,
+        output3: catalog.TrainY,
+        output4: catalog.TestX,
+        output5: catalog.TestY
       );
     });
   }

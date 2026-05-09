@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using KedroSpaceflightsCustom.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflightsCustom.Flows.DataScience.Steps;
@@ -31,12 +31,15 @@ public static class CreateTestTrainSplitStep
   /// Creates a transformation function that splits data into train/test sets.
   /// </summary>
   /// <param name="parameters">Parameters controlling the split (test size, random seed)</param>
-  public static async Task<(
-    IEnumerable<FeatureRow> XTrain,
-    IEnumerable<FeatureRow> XTest,
-    IEnumerable<TargetValue> YTrain,
-    IEnumerable<TargetValue> YTest
-  )> Create((IEnumerable<ModelInputSchema> Data, TestTrainSplitParams Options) input)
+  public static Func<
+    (IEnumerable<ModelInputSchema> Data, TestTrainSplitParams Options),
+    Task<(
+      IEnumerable<FeatureRow> XTrain,
+      IEnumerable<FeatureRow> XTest,
+      IEnumerable<TargetValue> YTrain,
+      IEnumerable<TargetValue> YTest
+    )>
+  > Create() => async input =>
   {
     var (rawInput, config) = input;
     var data = rawInput.ToList();
@@ -88,5 +91,5 @@ public static class CreateTestTrainSplitStep
     );
 
     return await Task.FromResult(result);
-  }
+  };
 }

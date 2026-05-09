@@ -14,6 +14,8 @@ namespace Flowthru.Data.Catalog;
 /// receiver-type pattern <c>IEnumerable&lt;TRow&gt;</c> lets C# infer
 /// <c>TRow</c> from anchors typed over <c>IEnumerable&lt;X&gt;</c>,
 /// <c>List&lt;X&gt;</c>, <c>X[]</c>, or any other collection type.
+/// Directory-of-JSON items are constructed via the universal
+/// <see cref="DirectoryOfExtensions.Directory{T, TBuilder}"/> lift.
 /// </summary>
 public static class JsonExtensions
 {
@@ -36,8 +38,10 @@ public static class JsonExtensions
     new(anchor.Label);
 }
 
-/// <summary>Tier-1 builder for a singleton-JSON catalog item.</summary>
-public sealed class JsonSingletonBuilder<T> where T : notnull, IStructuredSerializable
+/// <summary>Tier-1 builder for a singleton-JSON catalog item (single document or, via lift, directory).</summary>
+public sealed class JsonSingletonBuilder<T>
+  : IFileItemBuilder<T>
+  where T : notnull, IStructuredSerializable
 {
   private readonly string _label;
   private string? _path;
@@ -46,6 +50,12 @@ public sealed class JsonSingletonBuilder<T> where T : notnull, IStructuredSerial
   {
     _label = label;
   }
+
+  /// <inheritdoc/>
+  public string Label => _label;
+
+  /// <inheritdoc/>
+  public string DefaultFilePattern => "*.json";
 
   /// <summary>Set the filesystem path for this JSON file.</summary>
   public JsonSingletonBuilder<T> AtPath(string path)
@@ -56,6 +66,10 @@ public sealed class JsonSingletonBuilder<T> where T : notnull, IStructuredSerial
     return this;
   }
 
+  /// <inheritdoc/>
+  public IStorageAdapter<T> CreateAdapterForFile(string filePath) =>
+    new SingletonJsonAdapter<T>(filePath);
+
   /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
   public IItem<T> Build()
   {
@@ -63,12 +77,14 @@ public sealed class JsonSingletonBuilder<T> where T : notnull, IStructuredSerial
       throw new InvalidOperationException(
         $"Json item '{_label}' requires AtPath(...) before Build()."
       );
-    return new Item<T>(_label, new SingletonJsonAdapter<T>(_path));
+    return new Item<T>(_label, CreateAdapterForFile(_path));
   }
 }
 
-/// <summary>Tier-1 builder for an array-JSON catalog item.</summary>
-public sealed class JsonArrayBuilder<TRow> where TRow : notnull, IStructuredSerializable
+/// <summary>Tier-1 builder for an array-JSON catalog item (single file or, via lift, directory).</summary>
+public sealed class JsonArrayBuilder<TRow>
+  : IFileItemBuilder<IEnumerable<TRow>>
+  where TRow : notnull, IStructuredSerializable
 {
   private readonly string _label;
   private string? _path;
@@ -78,6 +94,12 @@ public sealed class JsonArrayBuilder<TRow> where TRow : notnull, IStructuredSeri
   {
     _label = label;
   }
+
+  /// <inheritdoc/>
+  public string Label => _label;
+
+  /// <inheritdoc/>
+  public string DefaultFilePattern => "*.json";
 
   /// <summary>
   /// Set the path or URI for this JSON file. Bare paths and
@@ -105,6 +127,17 @@ public sealed class JsonArrayBuilder<TRow> where TRow : notnull, IStructuredSeri
     return this;
   }
 
+  /// <inheritdoc/>
+  public IStorageAdapter<IEnumerable<TRow>> CreateAdapterForFile(string filePath)
+  {
+    var medium = (_resolver ?? StorageMediumResolver.Filesystem).Resolve(filePath);
+    return new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+      medium,
+      new JsonFormatSerializer<TRow>(),
+      new EnumerableContainerAdapter<TRow>()
+    );
+  }
+
   /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
   public IItem<IEnumerable<TRow>> Build()
   {
@@ -112,14 +145,6 @@ public sealed class JsonArrayBuilder<TRow> where TRow : notnull, IStructuredSeri
       throw new InvalidOperationException(
         $"JsonArray item '{_label}' requires AtPath(...) before Build()."
       );
-    var medium = (_resolver ?? StorageMediumResolver.Filesystem).Resolve(_path);
-    return new Item<IEnumerable<TRow>>(
-      _label,
-      new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
-        medium,
-        new JsonFormatSerializer<TRow>(),
-        new EnumerableContainerAdapter<TRow>()
-      )
-    );
+    return new Item<IEnumerable<TRow>>(_label, CreateAdapterForFile(_path));
   }
 }

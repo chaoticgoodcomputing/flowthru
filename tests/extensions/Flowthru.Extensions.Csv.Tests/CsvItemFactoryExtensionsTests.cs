@@ -102,7 +102,7 @@ public class CsvItemFactoryExtensionsTests
   {
     var item = ItemFactory.Directory.Csv<FlatRow>("dir", _root);
 
-    var input = new Directory<IEnumerable<FlatRow>>(
+    var input = new DirectoryOf<IEnumerable<FlatRow>>(
       new Dictionary<string, IEnumerable<FlatRow>>
       {
         [SysIO.Path.Combine(_root, "a.csv")] =
@@ -114,7 +114,7 @@ public class CsvItemFactoryExtensionsTests
 
     await item.Save(input).Run();
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<FlatRow>>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<FlatRow>>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
   }
@@ -126,7 +126,7 @@ public class CsvItemFactoryExtensionsTests
     await SysIO.File.WriteAllTextAsync(stale, "Id,Name,Value\n99,stale,9.9\n");
 
     var item = ItemFactory.Directory.Csv<FlatRow>("dir", _root);
-    var fresh = new Directory<IEnumerable<FlatRow>>(
+    var fresh = new DirectoryOf<IEnumerable<FlatRow>>(
       new Dictionary<string, IEnumerable<FlatRow>>
       {
         ["fresh.csv"] = new[] { new FlatRow { Id = 1, Name = "Fresh", Value = 1.0 } },

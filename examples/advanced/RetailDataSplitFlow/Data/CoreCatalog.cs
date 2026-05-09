@@ -1,5 +1,5 @@
-using Flowthru.Core.Data;
-using Flowthru.Core.Data.Storage;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
 
 namespace RetailDataMultipipeline.Data;
 
@@ -12,6 +12,5 @@ public partial class CoreCatalog : CatalogAbstract
   {
     _basePath = basePath;
     _resolver = resolver;
-    InitializeCatalogProperties();
   }
 }

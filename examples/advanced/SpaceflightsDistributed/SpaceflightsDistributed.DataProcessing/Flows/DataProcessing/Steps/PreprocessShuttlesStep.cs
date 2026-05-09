@@ -1,5 +1,5 @@
 using Flowthru.Step;
-
+using Flowthru.Step.Testing;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 
@@ -83,7 +83,7 @@ public static class PreprocessShuttlesStep
         MoonClearanceComplete = "f",
       };
 
-    [StepTest(typeof(PreprocessShuttlesStep))]
+    [FUnitStepTest(typeof(PreprocessShuttlesStep))]
     public void ValidRecord_ParsesAllFieldsCorrectly()
     {
       var result = Invoke(Create(), Samples.Of(ValidRaw)).ToList();
@@ -97,7 +97,7 @@ public static class PreprocessShuttlesStep
       Assert.That(result[0].MoonClearanceComplete, Is.False);
     }
 
-    [StepTest(typeof(PreprocessShuttlesStep))]
+    [FUnitStepTest(typeof(PreprocessShuttlesStep))]
     public void NonNumericEngines_RecordIsFiltered()
     {
       var result = Invoke(Create(), Samples.Of(ValidRaw with { Engines = "not-a-number" }))
@@ -106,7 +106,7 @@ public static class PreprocessShuttlesStep
       Assert.That(result, Is.Empty);
     }
 
-    [StepTest(typeof(PreprocessShuttlesStep))]
+    [FUnitStepTest(typeof(PreprocessShuttlesStep))]
     public void InvalidPrice_RecordIsFiltered()
     {
       var result = Invoke(Create(), Samples.Of(ValidRaw with { Price = "free" })).ToList();
@@ -114,7 +114,7 @@ public static class PreprocessShuttlesStep
       Assert.That(result, Is.Empty);
     }
 
-    [StepTest(typeof(PreprocessShuttlesStep))]
+    [FUnitStepTest(typeof(PreprocessShuttlesStep))]
     public void PriceWithDollarSignAndComma_ParsesCorrectly()
     {
       var result = Invoke(Create(), Samples.Of(ValidRaw with { Price = "$10,000.00" })).ToList();

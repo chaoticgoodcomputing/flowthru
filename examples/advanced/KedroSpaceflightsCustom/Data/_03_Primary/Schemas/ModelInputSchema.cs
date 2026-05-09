@@ -1,5 +1,5 @@
-using Flowthru.Core.Abstractions;
-using Flowthru.Core.Data;
+using Flowthru.Data.Schema;
+using Flowthru.Data.Catalog;
 
 namespace KedroSpaceflightsCustom.Data._03_Primary.Schemas;
 

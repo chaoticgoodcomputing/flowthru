@@ -1,8 +1,8 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._01_Raw.Schemas;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Coverage.Steps;
@@ -149,7 +149,7 @@ public static class BuildMethodHitSummaryStep
     /// Subgroup is looked up via the manifest, restricted to <c>Library</c> entries —
     /// non-Library packages get an empty-string subgroup (then sorted to the bottom).
     /// </summary>
-    [StepTest(typeof(BuildMethodHitSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodHitSummaryStep))]
     public void Subgroup_IsResolvedFromLibraryManifestEntries()
     {
       var reports = new[] { Report("Flowthru.Core", "Flowthru.Core", "Foo", "Bar()", ("T", 1)) };
@@ -168,7 +168,7 @@ public static class BuildMethodHitSummaryStep
     /// ProjectHits is the count of distinct test projects whose hits exceed zero — not the
     /// total number of test projects. Zero-hit projects don't count.
     /// </summary>
-    [StepTest(typeof(BuildMethodHitSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodHitSummaryStep))]
     public void ProjectHits_CountsOnlyProjectsWithNonZeroHits()
     {
       var reports = new[] { Report("Pkg", "Ns", "Cls", "M()", ("TestA", 5), ("TestB", 0), ("TestC", 1)) };
@@ -183,7 +183,7 @@ public static class BuildMethodHitSummaryStep
     /// Sort order: subgroup (Core → Extensions → Misc) primary, TotalHits ascending secondary,
     /// then Id alphabetical for stable ties.
     /// </summary>
-    [StepTest(typeof(BuildMethodHitSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodHitSummaryStep))]
     public void Output_IsSortedBySubgroupThenTotalHitsAscending()
     {
       var reports = new[]
@@ -210,7 +210,7 @@ public static class BuildMethodHitSummaryStep
     /// Id concatenates namespace, className, and methodSignature with dots — the segment is
     /// omitted when empty. Verifies the four documented cases of <c>BuildId</c>.
     /// </summary>
-    [StepTest(typeof(BuildMethodHitSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodHitSummaryStep))]
     public void Id_IsBuiltFromNamespaceClassNameAndMethodSignature()
     {
       var reports = new[] { Report("Pkg", "Pkg.Ns", "Foo", "Bar()", ("T", 1)) };
@@ -225,7 +225,7 @@ public static class BuildMethodHitSummaryStep
     /// SourceFile and LineCount pass through from the upstream MethodCoverage row — these
     /// are the click-to-source and prioritization signals coverage triage relies on.
     /// </summary>
-    [StepTest(typeof(BuildMethodHitSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodHitSummaryStep))]
     public void SourceFileAndLineCount_PassThroughFromMethodCoverage()
     {
       var reports = new[]
@@ -245,7 +245,7 @@ public static class BuildMethodHitSummaryStep
     /// don't have a clean "null" representation, and downstream consumers can treat empty as
     /// "missing" without ambiguity.
     /// </summary>
-    [StepTest(typeof(BuildMethodHitSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodHitSummaryStep))]
     public void NullSourceFile_CollapsesToEmptyString()
     {
       var reports = new[]

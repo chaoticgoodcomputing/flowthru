@@ -13,7 +13,7 @@ public static class TranscriptionFlow
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonStep<Directory<byte[]>, IEnumerable<TranscriptSegmentSchema>>(
+      pipeline.AddPythonStep<DirectoryOf<byte[]>, IEnumerable<TranscriptSegmentSchema>>(
         label: "Transcribe",
         description: "Transcribe each normalized clip via Whisper.",
         module: "Flows.Transcription.Steps.transcribe",

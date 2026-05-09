@@ -5,6 +5,8 @@ namespace Flowthru.Data.Catalog;
 /// <summary>
 /// Binary-file item-builder extensions. Like <see cref="TextExtensions"/>
 /// but for <see cref="byte"/>-array content — PNG/JPG/PDF/etc.
+/// Directory-of-binary items are constructed via the universal
+/// <see cref="DirectoryOfExtensions.Directory{T, TBuilder}"/> lift.
 /// </summary>
 public static class BinaryExtensions
 {
@@ -16,8 +18,8 @@ public static class BinaryExtensions
   public static BinaryBuilder Binary(this ItemAnchor<byte[]> anchor) => new(anchor.Label);
 }
 
-/// <summary>Tier-1 builder for a binary-file catalog item.</summary>
-public sealed class BinaryBuilder
+/// <summary>Tier-1 builder for a binary-file catalog item (single file or, via lift, directory).</summary>
+public sealed class BinaryBuilder : IFileItemBuilder<byte[]>
 {
   private readonly string _label;
   private string? _path;
@@ -26,6 +28,12 @@ public sealed class BinaryBuilder
   {
     _label = label;
   }
+
+  /// <inheritdoc/>
+  public string Label => _label;
+
+  /// <inheritdoc/>
+  public string DefaultFilePattern => "*";
 
   /// <summary>Set the filesystem path for this binary file.</summary>
   public BinaryBuilder AtPath(string path)
@@ -36,6 +44,10 @@ public sealed class BinaryBuilder
     return this;
   }
 
+  /// <inheritdoc/>
+  public IStorageAdapter<byte[]> CreateAdapterForFile(string filePath) =>
+    new BinaryFileStorageAdapter(filePath);
+
   /// <summary>Materialise the <see cref="IItem{ByteArray}"/>.</summary>
   public IItem<byte[]> Build()
   {
@@ -43,6 +55,6 @@ public sealed class BinaryBuilder
       throw new InvalidOperationException(
         $"Binary item '{_label}' requires AtPath(...) before Build()."
       );
-    return new Item<byte[]>(_label, new BinaryFileStorageAdapter(_path));
+    return new Item<byte[]>(_label, CreateAdapterForFile(_path));
   }
 }

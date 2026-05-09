@@ -72,7 +72,7 @@ public class XmlItemFactoryExtensionsTests
   {
     var item = ItemFactory.Directory.Xml<XmlTestItem>("docs", _root);
 
-    var input = new Directory<XmlTestItem>(new Dictionary<string, XmlTestItem>
+    var input = new DirectoryOf<XmlTestItem>(new Dictionary<string, XmlTestItem>
     {
       ["a.xml"] = new XmlTestItem { Name = "Alpha", Count = 1 },
       ["b.xml"] = new XmlTestItem { Name = "Beta", Count = 2 },
@@ -80,7 +80,7 @@ public class XmlItemFactoryExtensionsTests
 
     await item.Save(input).Run();
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<XmlTestItem>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<XmlTestItem>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
     var byBase = loaded.ToDictionary(
@@ -100,7 +100,7 @@ public class XmlItemFactoryExtensionsTests
       filePattern: "*.config.xml"
     );
 
-    var input = new Directory<XmlTestItem>(new Dictionary<string, XmlTestItem>
+    var input = new DirectoryOf<XmlTestItem>(new Dictionary<string, XmlTestItem>
     {
       ["alpha.config.xml"] = new XmlTestItem { Name = "Alpha", Count = 1 },
     });

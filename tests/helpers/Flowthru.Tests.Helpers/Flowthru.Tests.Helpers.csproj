@@ -32,7 +32,7 @@
          analyzer and runtime references coexist for the same csproj. -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
-    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>
 

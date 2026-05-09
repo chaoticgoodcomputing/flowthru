@@ -23,44 +23,46 @@ namespace SpaceflightsStagingSchema;
 /// </summary>
 public class Program
 {
-  public static async Task<int> Main(string[] args)
+  public static Task<int> Main(string[] args) =>
+    FlowthruCli.RunStandaloneAsync(
+      args,
+      services => ConfigureServices(services, Directory.GetCurrentDirectory())
+    );
+
+  /// <summary>
+  /// Harness-conformant entry point. Boots a PostgreSQL Testcontainer
+  /// synchronously (the only async work needed before flow execution),
+  /// registers it as an <see cref="IAsyncDisposable"/> factory-singleton
+  /// so the returned <see cref="IServiceProvider"/>'s disposal tears it
+  /// down, and wires up Flowthru against its connection string.
+  /// </summary>
+  public static IServiceProvider ConfigureServices(string? basePath = null)
   {
-    await using var pg = new PostgreSqlBuilder()
+    var services = new ServiceCollection();
+    ConfigureServices(services, basePath ?? Directory.GetCurrentDirectory());
+    return services.BuildServiceProvider();
+  }
+
+  private static void ConfigureServices(IServiceCollection services, string basePath)
+  {
+    var dataPath = Path.Combine(basePath, "Data");
+
+    // Boot the PostgreSQL container synchronously and register it as a
+    // factory-singleton so DI disposes it when the provider is torn down.
+    // The blocking ~2s start is the price of the harness's sync contract.
+    var pg = new PostgreSqlBuilder()
       .WithImage("postgres:17")
       .WithDatabase("spaceflights")
       .WithUsername("flowthru")
       .WithPassword("flowthru")
       .Build();
-
     Console.WriteLine("→ Starting PostgreSQL container...");
-    await pg.StartAsync();
+    pg.StartAsync().GetAwaiter().GetResult();
     var connectionString = pg.GetConnectionString();
     Console.WriteLine(
       $"  ✓ PostgreSQL ready at {pg.Hostname}:{pg.GetMappedPublicPort(5432)}"
     );
-
-    try
-    {
-      return await FlowthruCli.RunStandaloneAsync(
-        args,
-        services =>
-          ConfigureServices(services, Directory.GetCurrentDirectory(), connectionString)
-      );
-    }
-    finally
-    {
-      Console.WriteLine("→ Stopping PostgreSQL container...");
-      await pg.DisposeAsync();
-    }
-  }
-
-  private static void ConfigureServices(
-    IServiceCollection services,
-    string basePath,
-    string connectionString
-  )
-  {
-    var dataPath = Path.Combine(basePath, "Data");
+    services.AddSingleton<PostgreSqlContainer>(_ => pg);
 
     services.AddDbContextFactory<StagingDbContext>(options =>
       options.UseNpgsql(connectionString)

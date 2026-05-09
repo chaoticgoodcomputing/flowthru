@@ -12,7 +12,7 @@ public partial class Catalog
   /// <c>NormalizeAudio</c> step transcodes to 16kHz mono PCM before either
   /// Whisper or pyannote sees it.
   /// </summary>
-  public IItem<Directory<byte[]>> AudioClips =>
+  public IItem<DirectoryOf<byte[]>> AudioClips =>
     CreateItem(() =>
       ItemFactory.Enumerable.BinaryDirectory(
         label: "AudioClips",

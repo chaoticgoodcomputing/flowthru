@@ -464,7 +464,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   }
 
   private static bool IsDirectoryType(Type type) =>
-    type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Flowthru.Data.Storage.Directory<>);
+    type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Flowthru.Data.Storage.DirectoryOf<>);
 
   private static bool IsValueTuple(Type type)
   {
@@ -509,7 +509,7 @@ public sealed class SubprocessPythonExecutor : IPythonExecutor, IDisposable
   }
 
   /// <summary>
-  /// Builds the output_directory_spec object for <see cref="Flowthru.Data.Storage.Directory{T}"/>
+  /// Builds the output_directory_spec object for <see cref="Flowthru.Data.Storage.DirectoryOf{T}"/>
   /// outputs. Tells the worker the inner kind (and dtype spec when inner is tabular) so it can
   /// encode each dict entry correctly.
   /// </summary>

@@ -1,9 +1,9 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._01_Raw.Schemas;
 using FlowthruCoverage.Data._02_Intermediate.Schemas;
 using FlowthruCoverage.Data._04_Reporting.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Reporting.Steps;
@@ -358,7 +358,7 @@ public static class BuildIcicleCoverageStep
     /// Three single-method files at 100/50/0 % roll up to a project at 50 % (3 lines covered
     /// out of 6 instrumented). Confirms the example shape the icicle is built to render.
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void ThreeFiles_OneMethodEach_RollUpToProjectAggregate()
     {
       var rows = new[]
@@ -388,7 +388,7 @@ public static class BuildIcicleCoverageStep
     /// A line hit by any test project counts as covered. Two test projects, one with hits=0
     /// and one with hits=5 on the same line, must produce CoveredLines=1.
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void LineCovered_IfAnyTestProjectHits()
     {
       var rows = new[]
@@ -410,7 +410,7 @@ public static class BuildIcicleCoverageStep
     /// contain a <c>/{srcPackage}/</c> segment are excluded — the icicle only describes
     /// authored src/ code, and unattributable rows would otherwise muddy the file hierarchy.
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void NonLibraryAndUnattributableSources_AreExcluded()
     {
       var rows = new[]
@@ -437,7 +437,7 @@ public static class BuildIcicleCoverageStep
     /// rows for tests that consume libraries via NuGet+SourceLink) gets dropped and every
     /// project reads 0%.
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void LocalAndUrlPaths_CollapseByCanonicalRelativePath()
     {
       var rows = new[]
@@ -458,7 +458,7 @@ public static class BuildIcicleCoverageStep
     /// File labels are basenames; directory segments become their own intermediate Directory
     /// nodes. A file at <c>Sub/A.cs</c> renders as Project → Directory("Sub") → File("A.cs").
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void FileLabel_IsBasename_DirectorySegmentsBecomeOwnLevel()
     {
       var rows = new[]
@@ -480,7 +480,7 @@ public static class BuildIcicleCoverageStep
     /// Files at the package root parent directly on the project — no intermediate Directory
     /// node is emitted when the relative path has no slash. Confirms the degenerate case.
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void RootLevelFile_ParentsDirectlyOnProject_NoDirectoryNode()
     {
       var rows = new[]
@@ -501,7 +501,7 @@ public static class BuildIcicleCoverageStep
     /// produces two Directory nodes (<c>Data</c>, <c>Capabilities</c>) with the deeper one
     /// parented on the shallower.
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void NestedDirectories_FormProperParentChain()
     {
       var rows = new[]
@@ -525,7 +525,7 @@ public static class BuildIcicleCoverageStep
     /// Directory-level totals roll up from descendants. A directory with a single file at
     /// 50% and a sub-directory containing one file at 100% reports 75% across 4 lines.
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void DirectoryTotals_RollUpFromFilesAndSubDirectories()
     {
       var rows = new[]
@@ -552,7 +552,7 @@ public static class BuildIcicleCoverageStep
     /// node's Id; Project nodes have empty ParentId. With Directory nodes, this contract
     /// extends to a multi-level chain (Method → File → Dir(s) → Project).
     /// </summary>
-    [StepTest(typeof(BuildIcicleCoverageStep))]
+    [FUnitStepTest(typeof(BuildIcicleCoverageStep))]
     public void ParentIds_FormValidTree()
     {
       var rows = new[]

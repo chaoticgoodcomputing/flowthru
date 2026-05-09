@@ -74,7 +74,7 @@ public class XmlDirectoryAdapterTests
   public async Task Load_EmptyDirectory_ReturnsEmptyDirectory()
   {
     var result = await Adapter(_tempDir).Load().Run();
-    var dir = ((EffResult<Directory<XmlTestItem>>.Success)result).Value;
+    var dir = ((EffResult<DirectoryOf<XmlTestItem>>.Success)result).Value;
     Assert.That(dir.Count, Is.EqualTo(0));
   }
 
@@ -84,7 +84,7 @@ public class XmlDirectoryAdapterTests
     WriteXml("item.xml", new XmlTestItem { Name = "Alpha", Count = 42 });
 
     var result = await Adapter(_tempDir).Load().Run();
-    var dir = ((EffResult<Directory<XmlTestItem>>.Success)result).Value;
+    var dir = ((EffResult<DirectoryOf<XmlTestItem>>.Success)result).Value;
 
     Assert.That(dir.Count, Is.EqualTo(1));
     var (path, item) = dir.Single();
@@ -101,7 +101,7 @@ public class XmlDirectoryAdapterTests
     WriteXml("b.xml", new XmlTestItem { Name = "Beta", Count = 2 });
 
     var result = await Adapter(_tempDir).Load().Run();
-    var dir = ((EffResult<Directory<XmlTestItem>>.Success)result).Value;
+    var dir = ((EffResult<DirectoryOf<XmlTestItem>>.Success)result).Value;
 
     Assert.That(dir.Count, Is.EqualTo(3));
     var byBase = dir.ToDictionary(
@@ -120,7 +120,7 @@ public class XmlDirectoryAdapterTests
     SysIO.File.WriteAllText(SysIO.Path.Combine(_tempDir, "readme.txt"), "ignored");
 
     var result = await Adapter(_tempDir).Load().Run();
-    var dir = ((EffResult<Directory<XmlTestItem>>.Success)result).Value;
+    var dir = ((EffResult<DirectoryOf<XmlTestItem>>.Success)result).Value;
     Assert.That(dir.Count, Is.EqualTo(1));
   }
 
@@ -129,7 +129,7 @@ public class XmlDirectoryAdapterTests
   [Test]
   public async Task Save_WritesOneFilePerEntry()
   {
-    var dir = new Directory<XmlTestItem>(new Dictionary<string, XmlTestItem>
+    var dir = new DirectoryOf<XmlTestItem>(new Dictionary<string, XmlTestItem>
     {
       ["alpha.xml"] = new XmlTestItem { Name = "Alpha", Count = 1 },
       ["beta.xml"] = new XmlTestItem { Name = "Beta", Count = 2 },
@@ -149,7 +149,7 @@ public class XmlDirectoryAdapterTests
   {
     WriteXml("stale.xml", new XmlTestItem { Name = "Stale", Count = 99 });
 
-    var dir = new Directory<XmlTestItem>(new Dictionary<string, XmlTestItem>
+    var dir = new DirectoryOf<XmlTestItem>(new Dictionary<string, XmlTestItem>
     {
       ["fresh.xml"] = new XmlTestItem { Name = "Fresh", Count = 1 },
     });
@@ -165,7 +165,7 @@ public class XmlDirectoryAdapterTests
   [Test]
   public async Task SaveLoad_RoundTrips()
   {
-    var input = new Directory<XmlTestItem>(new Dictionary<string, XmlTestItem>
+    var input = new DirectoryOf<XmlTestItem>(new Dictionary<string, XmlTestItem>
     {
       ["a.xml"] = new XmlTestItem { Name = "Alpha", Count = 1 },
       ["b.xml"] = new XmlTestItem { Name = "Beta", Count = 2 },
@@ -174,7 +174,7 @@ public class XmlDirectoryAdapterTests
     var adapter = Adapter(_tempDir);
     await adapter.Save(input).Run();
     var loadResult = await adapter.Load().Run();
-    var loaded = ((EffResult<Directory<XmlTestItem>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<XmlTestItem>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
     var byBase = loaded.ToDictionary(

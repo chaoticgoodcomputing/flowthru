@@ -44,7 +44,7 @@ public class JsonDocumentsStorageAdapterConformance
       SysIO.Directory.Delete(_rootDir, recursive: true);
   }
 
-  protected override Directory<TraditionalSchema> LoadFixture(string fixturePath) =>
+  protected override DirectoryOf<TraditionalSchema> LoadFixture(string fixturePath) =>
     new(new Dictionary<string, TraditionalSchema>
     {
       ["alpha.json"] = new TraditionalSchema
@@ -61,8 +61,8 @@ public class JsonDocumentsStorageAdapterConformance
       },
     });
 
-  protected override IStorageAdapter<Directory<TraditionalSchema>> CreateWellFormed(
-    Directory<TraditionalSchema> data
+  protected override IStorageAdapter<DirectoryOf<TraditionalSchema>> CreateWellFormed(
+    DirectoryOf<TraditionalSchema> data
   )
   {
     var adapter = BuildAdapter(_wellFormedDir);
@@ -70,14 +70,14 @@ public class JsonDocumentsStorageAdapterConformance
     return adapter;
   }
 
-  protected override IStorageAdapter<Directory<TraditionalSchema>> CreateMissingSource() =>
+  protected override IStorageAdapter<DirectoryOf<TraditionalSchema>> CreateMissingSource() =>
     BuildAdapter(Path.Combine(_rootDir, $"missing-{Guid.NewGuid():N}"));
 
   protected override string WellFormedDirectoryPath => _wellFormedDir;
 
   protected override string FileExtension => ".json";
 
-  protected override IStorageAdapter<Directory<TraditionalSchema>> CreateAdapterForWellFormedPath() =>
+  protected override IStorageAdapter<DirectoryOf<TraditionalSchema>> CreateAdapterForWellFormedPath() =>
     BuildAdapter(_wellFormedDir);
 
   protected override void PlantWellFormedFile(string filePath)
@@ -89,10 +89,10 @@ public class JsonDocumentsStorageAdapterConformance
     );
   }
 
-  protected override IEqualityComparer<Directory<TraditionalSchema>>? Comparer =>
+  protected override IEqualityComparer<DirectoryOf<TraditionalSchema>>? Comparer =>
     new DirectoryEqualityComparer<TraditionalSchema>(new SchemaComparer());
 
-  private static IStorageAdapter<Directory<TraditionalSchema>> BuildAdapter(string dir) =>
+  private static IStorageAdapter<DirectoryOf<TraditionalSchema>> BuildAdapter(string dir) =>
     new DirectoryStorageAdapter<TraditionalSchema>(
       directoryPath: dir,
       filePattern: "*.json",

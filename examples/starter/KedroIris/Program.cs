@@ -1,5 +1,5 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
+using Flowthru.Cli;
+using Flowthru.Hosting;
 using KedroIris.Data;
 using KedroIris.Flows.DataEngineering;
 using KedroIris.Flows.DataScience;
@@ -14,20 +14,12 @@ namespace KedroIris;
 /// </summary>
 public class Program
 {
-  /// <summary>
-  /// Main entry point for the Iris classification pipeline CLI application.
-  /// </summary>
-  /// <param name="args">Command-line arguments</param>
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
       services => ConfigureServices(services, basePath: Directory.GetCurrentDirectory())
     );
 
-  /// <summary>
-  /// Configures services for the application. Used by test infrastructure.
-  /// </summary>
-  /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var services = new ServiceCollection();
@@ -35,9 +27,6 @@ public class Program
     return services.BuildServiceProvider();
   }
 
-  /// <summary>
-  /// Shared service configuration logic.
-  /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
     var configuration = new ConfigurationBuilder()
@@ -45,23 +34,21 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
-      {
-        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
-        flowthru.RegisterCatalog(_ => new FlowConfig(configuration));
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+      flowthru.RegisterCatalog(sp => new FlowConfig(sp.GetRequiredService<IConfiguration>()));
 
-        flowthru
-          .RegisterFlow(label: "DataEngineering", flow: DataEngineeringFlow.Create)
-          .WithDescription("Splits iris data into training and test sets with one-hot encoding");
+      flowthru
+        .RegisterFlow<Catalog, FlowConfig>("DataEngineering", DataEngineeringFlow.Create)
+        .WithDescription("Splits iris data into training and test sets with one-hot encoding");
 
-        flowthru
-          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-          .WithDescription("Trains multi-class logistic regression model for iris classification");
-      }
-    );
+      flowthru
+        .RegisterFlow<Catalog, FlowConfig>("DataScience", DataScienceFlow.Create)
+        .WithDescription("Trains multi-class logistic regression model for iris classification");
+    });
 
     services.AddLogging(logging =>
     {

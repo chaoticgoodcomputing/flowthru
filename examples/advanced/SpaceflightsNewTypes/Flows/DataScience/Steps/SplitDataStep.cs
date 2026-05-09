@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SpaceflightsNewTypes.Data._03_Primary.Schemas;
 using SpaceflightsNewTypes.Data._05_ModelInput.Schemas;
 
@@ -15,33 +15,24 @@ public static class SplitDataStep
   /// </summary>
   public record ModelOptions
   {
-    /// <summary>
-    /// The proportion of data to use for testing. Default is 0.2 (20%).
-    /// </summary>
+    /// <summary>The proportion of data to use for testing. Default is 0.2 (20%).</summary>
     public double TestSize { get; init; } = 0.2;
 
-    /// <summary>
-    /// Random seed for reproducible shuffling. Default is 3.
-    /// </summary>
+    /// <summary>Random seed for reproducible shuffling. Default is 3.</summary>
     public int RandomState { get; init; } = 3;
 
-    /// <summary>
-    /// Feature names to include in the model (currently unused).
-    /// </summary>
+    /// <summary>Feature names to include in the model (currently unused).</summary>
     public string[] Features { get; init; } = Array.Empty<string>();
   }
 
-  /// <summary>
-  /// Splits input data into training and test sets.
-  /// </summary>
-  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
-    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
-  )
+  public static Func<
+    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options),
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
+  > Create() => input =>
   {
     var (rawData, options) = input;
     var data = rawData.ToList();
 
-    // Use random state for reproducibility
     var random = new Random(options.RandomState);
     var shuffled = data.OrderBy(_ => random.Next()).ToList();
 
@@ -84,5 +75,5 @@ public static class SplitDataStep
       });
 
     return (trainData, testData);
-  }
+  };
 }

@@ -9,19 +9,38 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flowthru" />
-    <PackageReference Include="Flowthru.Extensions.Python" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
 
-  <!-- Python environment files for uv sync. Copied to the output directory during
-       build. PythonRuntime.Initialize() runs uv sync at startup to materialize .venv/. -->
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+  </ItemGroup>
+
   <ItemGroup>
     <Content Include="pyproject.toml" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="uv.lock" CopyToOutputDirectory="PreserveNewest" />
     <Content Include=".python-version" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <Import Project="$(RepoRoot)build/FlowthruInRepoSwap.props"
-          Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
 </Project>

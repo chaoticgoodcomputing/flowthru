@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._01_Raw.Schemas;
 using KedroSpaceflightsFUnit.Data._02_Intermediate.Schemas;
 
@@ -101,7 +101,7 @@ public static class PreprocessCompaniesStep
     /// <summary>
     /// A well-formed record should produce one output with correctly parsed fields.
     /// </summary>
-    [StepTest(typeof(PreprocessCompaniesStep))]
+    [FUnitStepTest(typeof(PreprocessCompaniesStep))]
     public void ValidRecord_ParsesCorrectly()
     {
       // Arrange
@@ -121,7 +121,7 @@ public static class PreprocessCompaniesStep
     /// <summary>
     /// "f" in IataApproved should parse to false.
     /// </summary>
-    [StepTest(typeof(PreprocessCompaniesStep))]
+    [FUnitStepTest(typeof(PreprocessCompaniesStep))]
     public void IataApprovedFalse_ParsesCorrectly()
     {
       // Arrange
@@ -137,7 +137,7 @@ public static class PreprocessCompaniesStep
     /// <summary>
     /// A record whose company_rating is not a valid percentage string should be filtered out.
     /// </summary>
-    [StepTest(typeof(PreprocessCompaniesStep))]
+    [FUnitStepTest(typeof(PreprocessCompaniesStep))]
     public void InvalidRating_RecordIsFiltered()
     {
       // Arrange

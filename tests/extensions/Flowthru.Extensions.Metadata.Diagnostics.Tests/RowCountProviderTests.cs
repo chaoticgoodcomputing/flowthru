@@ -50,8 +50,8 @@ public class RowCountProviderTests
       var item = ItemFactory.Directory.JsonDocuments<RowCountSchema>("dir-item", dir);
       var flow = FlowBuilder.CreateFlow("flow", b =>
       {
-        b.AddStep<Directory<RowCountSchema>>(
-          "seed", () => Directory<RowCountSchema>.Empty, item);
+        b.AddStep<DirectoryOf<RowCountSchema>>(
+          "seed", () => DirectoryOf<RowCountSchema>.Empty, item);
       });
 
       await provider.Emit(Build(flow, "seed")).Run();

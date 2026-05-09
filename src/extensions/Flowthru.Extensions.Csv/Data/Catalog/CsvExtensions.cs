@@ -5,37 +5,27 @@ using Flowthru.Data.Storage.Csv;
 namespace Flowthru.Data.Catalog;
 
 /// <summary>
-/// CSV item-builder extensions on <see cref="ItemAnchor{T}"/>.
-/// CSV is always a row stream — single overload over
-/// <c>ItemAnchor&lt;IEnumerable&lt;TRow&gt;&gt;</c>; the row type
-/// must satisfy <see cref="IFlatSchema"/> +
+/// CSV item-builder extensions on <see cref="ItemAnchor{T}"/>. Single
+/// per-file overload over <c>ItemAnchor&lt;IEnumerable&lt;TRow&gt;&gt;</c>;
+/// the row type must satisfy <see cref="IFlatSchema"/> +
 /// <see cref="ITextSerializable"/>, both of which the
 /// <c>[FlowthruSchema]</c> source generator emits when the schema's
-/// shape is CSV-compatible.
+/// shape is CSV-compatible. Directory-of-CSV items are constructed
+/// via the universal <see cref="DirectoryOfExtensions.Directory{T, TBuilder}"/>
+/// lift on <c>ItemAnchor&lt;DirectoryOf&lt;IEnumerable&lt;TRow&gt;&gt;&gt;</c>.
 /// </summary>
 public static class CsvExtensions
 {
-  /// <summary>
-  /// Build a CSV file catalog item (single file, row stream).
-  /// </summary>
+  /// <summary>Build a CSV file catalog item (single file, row stream).</summary>
   public static CsvBuilder<TRow> Csv<TRow>(this ItemAnchor<IEnumerable<TRow>> anchor)
-    where TRow : notnull, IFlatSchema, ITextSerializable =>
-    new(anchor.Label);
-
-  /// <summary>
-  /// Build a directory-of-CSV-files catalog item — each file is an
-  /// independent <see cref="IEnumerable{TRow}"/> sharing the same
-  /// schema.
-  /// </summary>
-  public static CsvDirectoryBuilder<TRow> Csv<TRow>(
-    this ItemAnchor<Directory<IEnumerable<TRow>>> anchor
-  )
     where TRow : notnull, IFlatSchema, ITextSerializable =>
     new(anchor.Label);
 }
 
-/// <summary>Tier-1 builder for a single-file CSV catalog item.</summary>
-public sealed class CsvBuilder<TRow> where TRow : notnull, IFlatSchema, ITextSerializable
+/// <summary>Tier-1 builder for a CSV catalog item (single file or, via lift, directory).</summary>
+public sealed class CsvBuilder<TRow>
+  : IFileItemBuilder<IEnumerable<TRow>>
+  where TRow : notnull, IFlatSchema, ITextSerializable
 {
   private readonly string _label;
   private string? _path;
@@ -46,6 +36,12 @@ public sealed class CsvBuilder<TRow> where TRow : notnull, IFlatSchema, ITextSer
   {
     _label = label;
   }
+
+  /// <inheritdoc/>
+  public string Label => _label;
+
+  /// <inheritdoc/>
+  public string DefaultFilePattern => "*.csv";
 
   /// <summary>
   /// Set the path or URI for this CSV file. Bare paths and
@@ -84,6 +80,20 @@ public sealed class CsvBuilder<TRow> where TRow : notnull, IFlatSchema, ITextSer
     return this;
   }
 
+  /// <inheritdoc/>
+  public IStorageAdapter<IEnumerable<TRow>> CreateAdapterForFile(string filePath)
+  {
+    var format = _nullValues is null
+      ? new CsvFormatSerializer<TRow>()
+      : new CsvFormatSerializer<TRow>(_nullValues);
+    var medium = (_resolver ?? StorageMediumResolver.Filesystem).Resolve(filePath);
+    return new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
+      medium,
+      format,
+      new EnumerableContainerAdapter<TRow>()
+    );
+  }
+
   /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
   public IItem<IEnumerable<TRow>> Build()
   {
@@ -91,83 +101,6 @@ public sealed class CsvBuilder<TRow> where TRow : notnull, IFlatSchema, ITextSer
       throw new InvalidOperationException(
         $"Csv item '{_label}' requires AtPath(...) before Build()."
       );
-    var format = _nullValues is null
-      ? new CsvFormatSerializer<TRow>()
-      : new CsvFormatSerializer<TRow>(_nullValues);
-    var medium = (_resolver ?? StorageMediumResolver.Filesystem).Resolve(_path);
-    return new Item<IEnumerable<TRow>>(
-      _label,
-      new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
-        medium,
-        format,
-        new EnumerableContainerAdapter<TRow>()
-      )
-    );
-  }
-}
-
-/// <summary>Tier-1 builder for a directory-of-CSV-files catalog item.</summary>
-public sealed class CsvDirectoryBuilder<TRow> where TRow : notnull, IFlatSchema, ITextSerializable
-{
-  private readonly string _label;
-  private string? _directoryPath;
-  private string _filePattern = "*.csv";
-  private IReadOnlyList<string>? _nullValues;
-
-  internal CsvDirectoryBuilder(string label)
-  {
-    _label = label;
-  }
-
-  /// <summary>Set the directory path holding the CSV files.</summary>
-  public CsvDirectoryBuilder<TRow> AtPath(string directoryPath)
-  {
-    if (string.IsNullOrWhiteSpace(directoryPath))
-      throw new ArgumentException("Path cannot be null or whitespace.", nameof(directoryPath));
-    _directoryPath = directoryPath;
-    return this;
-  }
-
-  /// <summary>
-  /// Override the default <c>*.csv</c> filename pattern (e.g.
-  /// <c>partition-*.csv</c> for partitioned datasets).
-  /// </summary>
-  public CsvDirectoryBuilder<TRow> WithFilePattern(string filePattern)
-  {
-    if (string.IsNullOrWhiteSpace(filePattern))
-      throw new ArgumentException("File pattern cannot be null or whitespace.", nameof(filePattern));
-    _filePattern = filePattern;
-    return this;
-  }
-
-  /// <summary>See <see cref="CsvBuilder{TRow}.WithNullValues"/>.</summary>
-  public CsvDirectoryBuilder<TRow> WithNullValues(IReadOnlyList<string> nullValues)
-  {
-    _nullValues = nullValues ?? throw new ArgumentNullException(nameof(nullValues));
-    return this;
-  }
-
-  /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
-  public IItem<Directory<IEnumerable<TRow>>> Build()
-  {
-    if (_directoryPath is null)
-      throw new InvalidOperationException(
-        $"Csv directory item '{_label}' requires AtPath(...) before Build()."
-      );
-    var format = _nullValues is null
-      ? new CsvFormatSerializer<TRow>()
-      : new CsvFormatSerializer<TRow>(_nullValues);
-    return new Item<Directory<IEnumerable<TRow>>>(
-      _label,
-      new DirectoryStorageAdapter<IEnumerable<TRow>>(
-        _directoryPath,
-        _filePattern,
-        perFilePath => new ComposedStorageAdapter<IEnumerable<TRow>, TRow>(
-          new FileStorageMedium(perFilePath),
-          format,
-          new EnumerableContainerAdapter<TRow>()
-        )
-      )
-    );
+    return new Item<IEnumerable<TRow>>(_label, CreateAdapterForFile(_path));
   }
 }

@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._02_Intermediate.Schemas;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
@@ -98,7 +98,7 @@ public static class GeneratePassengerCapacityChartStep
     /// <summary>
     /// Valid shuttle data should produce a non-null GenericChart without throwing.
     /// </summary>
-    [StepTest(typeof(GeneratePassengerCapacityChartStep))]
+    [FUnitStepTest(typeof(GeneratePassengerCapacityChartStep))]
     public void ValidInput_ReturnsNonNullChart()
     {
       // Arrange

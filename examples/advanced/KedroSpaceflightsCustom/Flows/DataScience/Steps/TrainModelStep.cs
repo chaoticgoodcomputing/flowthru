@@ -1,5 +1,5 @@
-using Flowthru.Core.Abstractions;
-using Flowthru.Core.Steps;
+using Flowthru.Data.Schema;
+using Flowthru.Step;
 using KedroSpaceflightsCustom.Data._03_Primary.Schemas;
 using KedroSpaceflightsCustom.Data._04_Models.Schemas;
 using MathNet.Numerics;

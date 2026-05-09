@@ -5,43 +5,30 @@ namespace KedroIrisFUnit.Data;
 
 /// <summary>
 /// Model input data layer: Joined feature tables ("master tables").
-/// Contains training and test splits ready for model consumption.
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>Training feature vectors (X).</summary>
   public IItem<IEnumerable<FeatureVectorSchema>> TrainX =>
-    CreateItem(() =>
-      ItemFactory.Enumerable.Json<FeatureVectorSchema>(
-        label: "TrainX",
-        filePath: $"{_basePath}/_05_ModelInput/Datasets/train_x.json"
-      )
-    );
+    CreateItem(() => Item.Of<IEnumerable<FeatureVectorSchema>>("TrainX")
+      .Json()
+      .AtPath($"{_basePath}/_05_ModelInput/Datasets/train_x.json")
+      .Build());
 
-  /// <summary>Training target labels (Y).</summary>
   public IItem<IEnumerable<TargetLabelSchema>> TrainY =>
-    CreateItem(() =>
-      ItemFactory.Enumerable.Json<TargetLabelSchema>(
-        label: "TrainY",
-        filePath: $"{_basePath}/_05_ModelInput/Datasets/train_y.json"
-      )
-    );
+    CreateItem(() => Item.Of<IEnumerable<TargetLabelSchema>>("TrainY")
+      .Json()
+      .AtPath($"{_basePath}/_05_ModelInput/Datasets/train_y.json")
+      .Build());
 
-  /// <summary>Test feature vectors (X).</summary>
   public IItem<IEnumerable<FeatureVectorSchema>> TestX =>
-    CreateItem(() =>
-      ItemFactory.Enumerable.Json<FeatureVectorSchema>(
-        label: "TestX",
-        filePath: $"{_basePath}/_05_ModelInput/Datasets/test_x.json"
-      )
-    );
+    CreateItem(() => Item.Of<IEnumerable<FeatureVectorSchema>>("TestX")
+      .Json()
+      .AtPath($"{_basePath}/_05_ModelInput/Datasets/test_x.json")
+      .Build());
 
-  /// <summary>Test target labels (Y).</summary>
   public IItem<IEnumerable<TargetLabelSchema>> TestY =>
-    CreateItem(() =>
-      ItemFactory.Enumerable.Json<TargetLabelSchema>(
-        label: "TestY",
-        filePath: $"{_basePath}/_05_ModelInput/Datasets/test_y.json"
-      )
-    );
+    CreateItem(() => Item.Of<IEnumerable<TargetLabelSchema>>("TestY")
+      .Json()
+      .AtPath($"{_basePath}/_05_ModelInput/Datasets/test_y.json")
+      .Build());
 }

@@ -18,7 +18,7 @@ public static class AudioPreparationFlow
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonStep<Directory<byte[]>, Directory<byte[]>>(
+      pipeline.AddPythonStep<DirectoryOf<byte[]>, DirectoryOf<byte[]>>(
         label: "NormalizeAudio",
         description: "Transcode each clip to 16kHz mono PCM via ffmpeg.",
         module: "Flows.AudioPreparation.Steps.normalize_audio",

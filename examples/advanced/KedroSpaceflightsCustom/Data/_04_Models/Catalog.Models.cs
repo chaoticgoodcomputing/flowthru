@@ -1,21 +1,14 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflightsCustom.Data._04_Models.Schemas;
 
 namespace KedroSpaceflightsCustom.Data;
 
 public partial class Catalog
 {
-  /// <summary>
-  /// Trained ordinary least squares linear regression model.
-  /// Contains intercept and coefficients for price prediction.
-  /// Stored as JSON to enable cross-pipeline usage (DataEvaluation depends on this).
-  /// </summary>
+  /// <summary>Trained ordinary least squares linear regression model.</summary>
   public IItem<LinearRegressionModel> Regressor =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Json<LinearRegressionModel>(
-          label: "Regressor",
-          filePath: $"{_basePath}/_04_Models/Datasets/regressor.json"
-        )
-    );
+    CreateItem(() => Item.Of<LinearRegressionModel>("Regressor")
+      .Json()
+      .AtPath($"{_basePath}/_04_Models/Datasets/regressor.json")
+      .Build());
 }

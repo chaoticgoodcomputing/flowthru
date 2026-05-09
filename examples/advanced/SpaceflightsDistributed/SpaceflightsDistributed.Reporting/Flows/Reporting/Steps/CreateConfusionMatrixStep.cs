@@ -1,6 +1,6 @@
 using Flowthru.Step;
+using Flowthru.Step.Testing;
 using Plotly.NET;
-using Plotly.NET.LayoutObjects;
 using SpaceflightsDistributed.DataScience.Data._07_ModelOutput.Schemas;
 using CSharpChart = Plotly.NET.CSharp.Chart;
 
@@ -21,8 +21,17 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(Options options) => data =>
+  /// <summary>
+  /// Tuple-input shape so FUnit tests can drive the step directly with
+  /// <c>(predictions, options)</c>; the flow wraps this with a closure
+  /// over <see cref="Options"/> at flow-construction time.
+  /// </summary>
+  public static Func<
+    (IEnumerable<ModelPredictions> Data, Options Options),
+    GenericChart
+  > Create() => input =>
   {
+    var (data, options) = input;
     var predictions = data.ToList();
 
     if (!predictions.Any())
@@ -117,7 +126,7 @@ public static class CreateConfusionMatrixStep
   /// <summary>FUnit tests for <see cref="CreateConfusionMatrixStep"/>.</summary>
   public class Tests : FUnitContext
   {
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void DefaultOptions_ProducesChart()
     {
       var predictions = Samples.Of(
@@ -127,12 +136,12 @@ public static class CreateConfusionMatrixStep
         new ModelPredictions { Actual = 400, Predicted = 390 }
       );
 
-      var chart = Invoke(Create, (predictions, new Options()));
+      var chart = Invoke(Create(), (predictions, new Options()));
 
       Assert.That(chart, Is.Not.Null);
     }
 
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void CustomBinCount_ProducesChart()
     {
       var predictions = Samples.Of(
@@ -141,16 +150,16 @@ public static class CreateConfusionMatrixStep
         new ModelPredictions { Actual = 300, Predicted = 300 }
       );
 
-      var chart = Invoke(Create, (predictions, new Options { NumBins = 3 }));
+      var chart = Invoke(Create(), (predictions, new Options { NumBins = 3 }));
 
       Assert.That(chart, Is.Not.Null);
     }
 
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void EmptyInput_Throws()
     {
       Assert.That(
-        () => Invoke(Create, (Enumerable.Empty<ModelPredictions>(), new Options())),
+        () => Invoke(Create(), (Enumerable.Empty<ModelPredictions>(), new Options())),
         Throws.InvalidOperationException
       );
     }

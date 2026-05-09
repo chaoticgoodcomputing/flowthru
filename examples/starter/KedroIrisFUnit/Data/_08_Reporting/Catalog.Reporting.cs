@@ -8,14 +8,9 @@ namespace KedroIrisFUnit.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Model evaluation metrics including accuracy and confusion statistics.
-  /// </summary>
   public IItem<MetricsSchema> Metrics =>
-    CreateItem(() =>
-      ItemFactory.Singleton.Json<MetricsSchema>(
-        label: "Metrics",
-        filePath: $"{_basePath}/_08_Reporting/Datasets/metrics.json"
-      )
-    );
+    CreateItem(() => Item.Of<MetricsSchema>("Metrics")
+      .Json()
+      .AtPath($"{_basePath}/_08_Reporting/Datasets/metrics.json")
+      .Build());
 }

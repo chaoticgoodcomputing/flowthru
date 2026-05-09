@@ -1,8 +1,8 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._01_Raw.Schemas;
 using FlowthruCoverage.Data._02_Intermediate.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Reporting.Steps;
@@ -66,7 +66,7 @@ public static class FilterLineCoverageByTestProjectTypeStep
     /// Only rows whose <c>TestProject</c> matches a manifest entry of the requested type
     /// pass through. Confirms the load-bearing case for slicing example-only coverage.
     /// </summary>
-    [StepTest(typeof(FilterLineCoverageByTestProjectTypeStep))]
+    [FUnitStepTest(typeof(FilterLineCoverageByTestProjectTypeStep))]
     public void Filter_KeepsOnlyMatchingProjectType()
     {
       var rows = new[] { Row("LibTests"), Row("ExampleA"), Row("ExampleB"), Row("Other") };
@@ -89,7 +89,7 @@ public static class FilterLineCoverageByTestProjectTypeStep
     /// staged coverage XML directory contains files produced by projects that don't exist
     /// in the manifest yet.
     /// </summary>
-    [StepTest(typeof(FilterLineCoverageByTestProjectTypeStep))]
+    [FUnitStepTest(typeof(FilterLineCoverageByTestProjectTypeStep))]
     public void Filter_DropsRowsForUnknownTestProjects()
     {
       var rows = new[] { Row("Known"), Row("Unknown") };
@@ -100,7 +100,7 @@ public static class FilterLineCoverageByTestProjectTypeStep
       Assert.That(result.Select(r => r.TestProject), Is.EqualTo(new[] { "Known" }));
     }
 
-    [StepTest(typeof(FilterLineCoverageByTestProjectTypeStep))]
+    [FUnitStepTest(typeof(FilterLineCoverageByTestProjectTypeStep))]
     public void Filter_EmptyInput_YieldsEmptyOutput()
     {
       var result = Invoke(

@@ -8,7 +8,7 @@ namespace Flowthru.Data.Storage;
 /// <typeparamref name="T"/>; the directory holds N units of the same
 /// shape. Backing container for
 /// <see cref="DirectoryStorageAdapter{T}"/> and the
-/// <c>ItemFactory.Directory</c> family of smart constructors.
+/// <c>ItemFactory.DirectoryOf</c> family of smart constructors.
 /// </summary>
 /// <typeparam name="T">
 /// Payload type for each file — e.g., <c>byte[]</c> for one binary
@@ -18,7 +18,7 @@ namespace Flowthru.Data.Storage;
 /// <remarks>
 /// <para>
 /// <strong>This is not a partitioning primitive.</strong> Each entry
-/// represents an independent file; <see cref="Directory{T}"/>
+/// represents an independent file; <see cref="DirectoryOf{T}"/>
 /// intentionally exposes no fan-in helpers. If you need to chunk one
 /// logical dataset across multiple files, do that in a step before
 /// write and reassemble in a step after read — keep the partition
@@ -31,25 +31,25 @@ namespace Flowthru.Data.Storage;
 /// consumers see an opaque <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
 /// </para>
 /// </remarks>
-public sealed class Directory<T> : IReadOnlyDictionary<string, T>
+public sealed class DirectoryOf<T> : IReadOnlyDictionary<string, T>
 {
   private readonly Dictionary<string, T> _entries;
 
-  public Directory(IDictionary<string, T> entries)
+  public DirectoryOf(IDictionary<string, T> entries)
   {
     if (entries is null) throw new ArgumentNullException(nameof(entries));
     _entries = new Dictionary<string, T>(entries, StringComparer.Ordinal);
   }
 
-  public Directory(IEnumerable<KeyValuePair<string, T>> entries)
+  public DirectoryOf(IEnumerable<KeyValuePair<string, T>> entries)
   {
     if (entries is null) throw new ArgumentNullException(nameof(entries));
     _entries = new Dictionary<string, T>(StringComparer.Ordinal);
     foreach (var kvp in entries) _entries.Add(kvp.Key, kvp.Value);
   }
 
-  public static Directory<T> Empty { get; } =
-    new Directory<T>(new Dictionary<string, T>(StringComparer.Ordinal));
+  public static DirectoryOf<T> Empty { get; } =
+    new DirectoryOf<T>(new Dictionary<string, T>(StringComparer.Ordinal));
 
   public T this[string key] => _entries[key];
   public IEnumerable<string> Keys => _entries.Keys;

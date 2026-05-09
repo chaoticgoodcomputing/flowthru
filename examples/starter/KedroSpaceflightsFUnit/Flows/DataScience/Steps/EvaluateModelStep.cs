@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._05_ModelInput.Schemas;
 using KedroSpaceflightsFUnit.Data._06_Models.Schemas;
 using KedroSpaceflightsFUnit.Data._07_ModelOutput.Schemas;
@@ -185,7 +185,7 @@ public static class EvaluateModelStep
     /// <summary>
     /// Empty test data should return zero-valued metrics and an empty predictions list.
     /// </summary>
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void EmptyInput_ReturnsZeroMetrics()
     {
       // Apply
@@ -201,7 +201,7 @@ public static class EvaluateModelStep
     /// <summary>
     /// Output prediction count must equal the number of test rows provided.
     /// </summary>
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void PredictionCount_MatchesInputCount()
     {
       // Arrange

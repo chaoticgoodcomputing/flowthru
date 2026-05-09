@@ -46,11 +46,11 @@ public class JsonDirectoryStorageAdapterConformance
       SysIO.Directory.Delete(_rootDir, recursive: true);
   }
 
-  protected override Directory<IEnumerable<TraditionalSchema>> LoadFixture(string fixturePath)
+  protected override DirectoryOf<IEnumerable<TraditionalSchema>> LoadFixture(string fixturePath)
   {
     var rows = FixtureLoader.Load<TraditionalSchema>(fixturePath).ToList();
     var midpoint = rows.Count / 2;
-    return new Directory<IEnumerable<TraditionalSchema>>(
+    return new DirectoryOf<IEnumerable<TraditionalSchema>>(
       new Dictionary<string, IEnumerable<TraditionalSchema>>
       {
         ["alpha.json"] = rows.Take(midpoint).ToList(),
@@ -59,8 +59,8 @@ public class JsonDirectoryStorageAdapterConformance
     );
   }
 
-  protected override IStorageAdapter<Directory<IEnumerable<TraditionalSchema>>> CreateWellFormed(
-    Directory<IEnumerable<TraditionalSchema>> data
+  protected override IStorageAdapter<DirectoryOf<IEnumerable<TraditionalSchema>>> CreateWellFormed(
+    DirectoryOf<IEnumerable<TraditionalSchema>> data
   )
   {
     var adapter = BuildAdapter(_wellFormedDir);
@@ -68,14 +68,14 @@ public class JsonDirectoryStorageAdapterConformance
     return adapter;
   }
 
-  protected override IStorageAdapter<Directory<IEnumerable<TraditionalSchema>>> CreateMissingSource() =>
+  protected override IStorageAdapter<DirectoryOf<IEnumerable<TraditionalSchema>>> CreateMissingSource() =>
     BuildAdapter(Path.Combine(_rootDir, $"missing-{Guid.NewGuid():N}"));
 
   protected override string WellFormedDirectoryPath => _wellFormedDir;
 
   protected override string FileExtension => ".json";
 
-  protected override IStorageAdapter<Directory<IEnumerable<TraditionalSchema>>> CreateAdapterForWellFormedPath() =>
+  protected override IStorageAdapter<DirectoryOf<IEnumerable<TraditionalSchema>>> CreateAdapterForWellFormedPath() =>
     BuildAdapter(_wellFormedDir);
 
   protected override void PlantWellFormedFile(string filePath)
@@ -87,10 +87,10 @@ public class JsonDirectoryStorageAdapterConformance
     );
   }
 
-  protected override IEqualityComparer<Directory<IEnumerable<TraditionalSchema>>>? Comparer =>
+  protected override IEqualityComparer<DirectoryOf<IEnumerable<TraditionalSchema>>>? Comparer =>
     new DirectoryEqualityComparer<IEnumerable<TraditionalSchema>>(new SequenceEqualityComparer());
 
-  private static IStorageAdapter<Directory<IEnumerable<TraditionalSchema>>> BuildAdapter(string dir)
+  private static IStorageAdapter<DirectoryOf<IEnumerable<TraditionalSchema>>> BuildAdapter(string dir)
   {
     var format = new JsonFormatSerializer<TraditionalSchema>();
     var container = new EnumerableContainerAdapter<TraditionalSchema>();

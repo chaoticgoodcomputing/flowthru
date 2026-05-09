@@ -3,16 +3,16 @@ using Flowthru.Core.Data;
 namespace Flowthru.Tests.Kits.Storage;
 
 /// <summary>
-/// Equality comparer for <see cref="Directory{T}"/> that normalises keys to filename-only
+/// Equality comparer for <see cref="DirectoryOf{T}"/> that normalises keys to filename-only
 /// before comparing entries. Round-trips through the directory adapter typically write with
 /// short keys (e.g. <c>"foo.csv"</c>) and read back with absolute paths
 /// (<c>"/abs/dir/foo.csv"</c>); the comparer treats those as equivalent so subclasses can
-/// pass a fixture <c>Directory{T}</c> through <c>SaveAndLoad_RoundTrips</c> unchanged.
+/// pass a fixture <c>DirectoryOf{T}</c> through <c>SaveAndLoad_RoundTrips</c> unchanged.
 /// </summary>
 /// <typeparam name="TInner">The per-file payload type — compared element-wise via
 /// <paramref name="innerComparer"/> when supplied, otherwise via the type's default
 /// equality.</typeparam>
-public sealed class DirectoryEqualityComparer<TInner> : IEqualityComparer<Directory<TInner>>
+public sealed class DirectoryEqualityComparer<TInner> : IEqualityComparer<DirectoryOf<TInner>>
 {
   private readonly IEqualityComparer<TInner> _innerComparer;
 
@@ -21,7 +21,7 @@ public sealed class DirectoryEqualityComparer<TInner> : IEqualityComparer<Direct
     _innerComparer = innerComparer ?? EqualityComparer<TInner>.Default;
   }
 
-  public bool Equals(Directory<TInner>? x, Directory<TInner>? y)
+  public bool Equals(DirectoryOf<TInner>? x, DirectoryOf<TInner>? y)
   {
     if (x is null || y is null)
       return ReferenceEquals(x, y);
@@ -43,5 +43,5 @@ public sealed class DirectoryEqualityComparer<TInner> : IEqualityComparer<Direct
     return true;
   }
 
-  public int GetHashCode(Directory<TInner> obj) => obj.Count;
+  public int GetHashCode(DirectoryOf<TInner> obj) => obj.Count;
 }

@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._01_Raw.Schemas;
 using KedroSpaceflightsFUnit.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsFUnit.Data._03_Primary.Schemas;
@@ -114,7 +114,7 @@ public static class CreateModelInputTableStep
     /// <summary>
     /// A matched shuttle, company, and review should produce exactly one output row.
     /// </summary>
-    [StepTest(typeof(CreateModelInputTableStep))]
+    [FUnitStepTest(typeof(CreateModelInputTableStep))]
     public void MatchedRow_ProducesOneOutput()
     {
       // Arrange
@@ -134,7 +134,7 @@ public static class CreateModelInputTableStep
     /// <summary>
     /// A shuttle with no matching company should not appear in the output.
     /// </summary>
-    [StepTest(typeof(CreateModelInputTableStep))]
+    [FUnitStepTest(typeof(CreateModelInputTableStep))]
     public void UnmatchedCompany_ShuttleExcluded()
     {
       // Arrange
@@ -152,7 +152,7 @@ public static class CreateModelInputTableStep
     /// <summary>
     /// A review with a non-numeric score should be excluded, dropping the shuttle row.
     /// </summary>
-    [StepTest(typeof(CreateModelInputTableStep))]
+    [FUnitStepTest(typeof(CreateModelInputTableStep))]
     public void NonNumericReviewScore_RowExcluded()
     {
       // Arrange

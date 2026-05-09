@@ -1,7 +1,7 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._04_Reporting.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Reporting.Steps;
@@ -70,7 +70,7 @@ public static class AggregatePackageCoverageStep
         IsGhost = isGhost,
       };
 
-    [StepTest(typeof(AggregatePackageCoverageStep))]
+    [FUnitStepTest(typeof(AggregatePackageCoverageStep))]
     public void EmptyInput_YieldsEmptyOutput()
     {
       var result = Invoke(
@@ -88,7 +88,7 @@ public static class AggregatePackageCoverageStep
     /// in `Core.Tests` reports 0% but in `SourceGenerators.Tests` reports 74.41%;
     /// without max-rollup the package looks uncovered.
     /// </summary>
-    [StepTest(typeof(AggregatePackageCoverageStep))]
+    [FUnitStepTest(typeof(AggregatePackageCoverageStep))]
     public void MultipleTestProjects_PerPackage_Collapses_ToMax()
     {
       var rows = new[]
@@ -105,7 +105,7 @@ public static class AggregatePackageCoverageStep
       Assert.That(result[0].BestTestProject, Is.EqualTo("FooSpecial.Tests"));
     }
 
-    [StepTest(typeof(AggregatePackageCoverageStep))]
+    [FUnitStepTest(typeof(AggregatePackageCoverageStep))]
     public void GhostRows_AreExcludedFromAggregation()
     {
       var rows = new[]
@@ -120,7 +120,7 @@ public static class AggregatePackageCoverageStep
       Assert.That(result[0].MaxCoveragePercent, Is.EqualTo(50.0));
     }
 
-    [StepTest(typeof(AggregatePackageCoverageStep))]
+    [FUnitStepTest(typeof(AggregatePackageCoverageStep))]
     public void Output_IsSortedBySubgroupThenPackage()
     {
       var rows = new[]

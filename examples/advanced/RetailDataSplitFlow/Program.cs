@@ -1,11 +1,10 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Services;
-using Flowthru.Extensions.Http.Services;
-using Flowthru.Extensions.Python;
-using Flowthru.Extensions.Python.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Data.Storage;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
+using Flowthru.Hosting;
+using Flowthru.Step.Python;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -56,85 +55,73 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
+    var dataPath = Path.Combine(basePath, "Data");
+    var countries =
+      configuration.GetSection("Analysis:Countries").Get<string[]>()
+      ?? throw new InvalidOperationException(
+        "Analysis:Countries not configured in appsettings.json"
+      );
+
+    // Shard catalogs are constructed once and closure-captured by the
+    // flow factories below; no DI registration needed because each shard
+    // is bound to a specific country.
+    var shardCatalogs = countries.Select(c => new CountryShardCatalog(c, dataPath)).ToList();
+
+    services.AddFlowthru(flowthru =>
+    {
+      // HTTP storage medium — routes https:// catalog item paths through
+      // a cached HTTP client. Conditional GET avoids re-downloading the
+      // 43MB CSV on every run.
+      flowthru.UseHttp(http =>
       {
-        // Enable HTTP(S) remote file access with local disk cache.
-        // Conditional GET (ETag/Last-Modified) avoids re-downloading the 43MB CSV on every run.
-        flowthru.UseHttp(http =>
+        http.Cache = new Flowthru.Data.Storage.Http.HttpCacheOptions
         {
-          http.Cache = new Flowthru.Extensions.Http.HttpCacheOptions
-          {
-            Directory = Path.Combine(basePath, ".http-cache"),
-            MaxAge = TimeSpan.FromHours(24),
-          };
-        });
+          Directory = Path.Combine(basePath, ".http-cache"),
+          MaxAge = TimeSpan.FromHours(24),
+        };
+      });
 
-        // Configure Python runtime — makes Flows/ importable and exposes the @step decorator
-        flowthru.UsePython(python =>
-        {
-          python.ModuleSearchPaths.Add(basePath);
-          python.ModuleSearchPaths.Add(outputPath);
-          python.VenvPath = outputPath;
-        });
+      flowthru.UsePython(python =>
+      {
+        python.ModuleSearchPaths.Add(basePath);
+        python.ModuleSearchPaths.Add(outputPath);
+        python.VenvPath = outputPath;
+      });
 
-        var dataPath = Path.Combine(basePath, "Data");
-        var countries =
-          flowthru.Configuration.GetSection("Analysis:Countries").Get<string[]>()
-          ?? throw new InvalidOperationException(
-            "Analysis:Countries not configured in appsettings.json"
-          );
+      flowthru.RegisterCatalog<CoreCatalog>(sp => new CoreCatalog(
+        dataPath,
+        sp.GetRequiredService<IStorageMediumResolver>()
+      ));
 
-        // Core catalog: raw inputs → intermediate → reporting.
-        // Registered via DI factory so the resolver (populated by UseHttp above) is injected.
-        flowthru.RegisterCatalog<CoreCatalog>(sp => new CoreCatalog(
-          dataPath,
-          sp.GetRequiredService<IStorageMediumResolver>()
-        ));
+      flowthru
+        .RegisterFlow<CoreCatalog>("DataIngestion", DataIngestionFlow.Create)
+        .WithDescription("Parses raw retail CSV (HTTP) into typed Parquet");
 
-        // Shard catalogs: one per country, labelled {Country}ShardCatalog
-        var shardCatalogs = countries.Select(c => new CountryShardCatalog(c, dataPath)).ToList();
-        flowthru.RegisterCatalogs(shardCatalogs);
+      flowthru
+        .RegisterFlow<CoreCatalog>("Analysis", core => AnalysisFlow.Create(core, shardCatalogs))
+        .WithDescription("Per-country weekly DTU computation (one step per country)");
 
-        // Static pipelines resolved via DI
-        flowthru.RegisterFlow("DataIngestion", (CoreCatalog cat) => DataIngestionFlow.Create(cat));
-        flowthru.RegisterFlow("Reporting", (CoreCatalog cat) => ReportingFlow.Create(cat));
-        flowthru.RegisterFlow("Graphing", GraphingFlow.Create);
+      flowthru
+        .RegisterFlow<CoreCatalog>("Consolidation", core => ConsolidationFlow.Create(core, shardCatalogs))
+        .WithDescription("Variadic fan-in over all per-country shards");
 
-        // Dynamic per-country analysis pipelines + fan-in consolidation.
-        // CoreCatalog is resolved from DI here (same singleton registered above).
-        flowthru.RegisterFlows(sp =>
-        {
-          var coreCatalog = sp.GetRequiredService<CoreCatalog>();
-          var pipelines = new Dictionary<string, Flowthru.Core.Flows.Flow>();
-          foreach (var shard in shardCatalogs)
-          {
-            pipelines[$"Analysis_{shard.Country.Replace(' ', '_')}"] = AnalysisFlow.Create(
-              coreCatalog,
-              shard
-            );
-          }
-          pipelines["Consolidation"] = ConsolidationFlow.Create(coreCatalog, shardCatalogs);
-          return pipelines;
-        });
+      flowthru
+        .RegisterFlow<CoreCatalog, IPythonExecutor>("Graphing", GraphingFlow.Create)
+        .WithDescription("Plotly line charts (PNG) from consolidated DTU dataset");
 
-        // Output pipeline metadata
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
+      flowthru
+        .RegisterFlow<CoreCatalog>("Reporting", ReportingFlow.Create)
+        .WithDescription("Country debit/credit summary CSV");
 
-        flowthru.ConfigureExecution(opts => opts.MaxDegreeOfParallelism = 8);
-      }
-    );
+      flowthru.ConfigureMetadata(meta =>
+      {
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
+    });
 
     services.AddLogging(logging =>
     {

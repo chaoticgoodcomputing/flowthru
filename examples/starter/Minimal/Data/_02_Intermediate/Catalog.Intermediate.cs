@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using Minimal.Data._02_Intermediate.Schemas;
 
 namespace Minimal.Data;
@@ -9,11 +9,8 @@ public partial class Catalog
   /// Greetings with "Hello" prefix.
   /// </summary>
   public IItem<IEnumerable<GreetingSchema>> HelloGreetings =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<GreetingSchema>(
-          label: "HelloGreetings",
-          filePath: $"{_basePath}/Data/_02_Intermediate/Datasets/hello_greetings.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<GreetingSchema>>("HelloGreetings")
+      .Csv()
+      .AtPath($"{_basePath}/Data/_02_Intermediate/Datasets/hello_greetings.csv")
+      .Build());
 }

@@ -26,7 +26,7 @@ namespace Flowthru.Tests.Kits.Storage;
 /// <list type="bullet">
 /// <item>
 ///   <c>Save_HardDeletesExistingMatchingFiles</c> — confirms the deterministic-rerun
-///   contract: writing a <see cref="Directory{T}"/> deletes pre-existing files matching
+///   contract: writing a <see cref="DirectoryOf{T}"/> deletes pre-existing files matching
 ///   the adapter's pattern that aren't in the new directory.
 /// </item>
 /// <item>
@@ -47,7 +47,7 @@ namespace Flowthru.Tests.Kits.Storage;
 /// </para>
 /// </remarks>
 public abstract class DirectoryStorageAdapterConformance<TInner>
-  : StorageAdapterConformance<Directory<TInner>>
+  : StorageAdapterConformance<DirectoryOf<TInner>>
 {
   protected DirectoryStorageAdapterConformance(string fixturePath) : base(fixturePath) { }
 
@@ -70,7 +70,7 @@ public abstract class DirectoryStorageAdapterConformance<TInner>
   /// it. Used by the planted-file tests so we can introduce files via the filesystem
   /// before invoking the adapter.
   /// </summary>
-  protected abstract IStorageAdapter<Directory<TInner>> CreateAdapterForWellFormedPath();
+  protected abstract IStorageAdapter<DirectoryOf<TInner>> CreateAdapterForWellFormedPath();
 
   /// <summary>
   /// Writes a well-formed file at <paramref name="filePath"/> using the same on-disk
@@ -99,7 +99,7 @@ public abstract class DirectoryStorageAdapterConformance<TInner>
   /// <summary>
   /// Save deletes pre-existing files matching the pattern that aren't in the new directory.
   /// This is the deterministic-rerun contract: after Save, the directory state matches the
-  /// <see cref="Directory{T}"/> that produced it — no leftovers from prior runs.
+  /// <see cref="DirectoryOf{T}"/> that produced it — no leftovers from prior runs.
   /// </summary>
   [Test]
   public async Task Save_HardDeletesExistingMatchingFiles_ForDeterministicReruns()
@@ -133,7 +133,7 @@ public abstract class DirectoryStorageAdapterConformance<TInner>
   }
 
   /// <summary>
-  /// An empty <see cref="Directory{T}"/> round-trips: Save creates the directory if absent
+  /// An empty <see cref="DirectoryOf{T}"/> round-trips: Save creates the directory if absent
   /// and clears any prior contents; Load returns a directory with zero entries.
   /// </summary>
   [Test]
@@ -147,7 +147,7 @@ public abstract class DirectoryStorageAdapterConformance<TInner>
       );
     }
 
-    await adapter.Save(Directory<TInner>.Empty).Run();
+    await adapter.Save(DirectoryOf<TInner>.Empty).Run();
     var loaded = await adapter.Load().Run();
 
     Assert.That(loaded.Count, Is.EqualTo(0));

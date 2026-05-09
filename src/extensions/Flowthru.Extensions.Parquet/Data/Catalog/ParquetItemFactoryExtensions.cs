@@ -59,7 +59,7 @@ public static class ParquetItemFactoryExtensions
   /// To chunk one logical dataset across files, do that as a step
   /// before write and reassemble in a step after read.
   /// </remarks>
-  public static IItem<Directory<IEnumerable<TRow>>> Parquet<TRow>(
+  public static IItem<DirectoryOf<IEnumerable<TRow>>> Parquet<TRow>(
     this DirectoryItemFactory factory,
     string label,
     string directoryPath,
@@ -67,7 +67,7 @@ public static class ParquetItemFactoryExtensions
     ParquetItemOptions<TRow>? options = null
   )
     where TRow : notnull, IFlatSchema, IBinarySerializable =>
-    new Item<Directory<IEnumerable<TRow>>>(
+    new Item<DirectoryOf<IEnumerable<TRow>>>(
       label,
       new DirectoryStorageAdapter<IEnumerable<TRow>>(
         directoryPath,

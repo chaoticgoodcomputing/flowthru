@@ -20,6 +20,9 @@ public static class DataScienceFlow
     DataScienceFlowConfig config
   )
   {
+    var splitOptions = config.ModelOptions;
+    var splitTransform = SplitDataStep.Create();
+
     return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
       pipeline.AddStep<
@@ -28,7 +31,7 @@ public static class DataScienceFlow
         IEnumerable<TestData>
       >(
         label: "SplitData",
-        transform: SplitDataStep.Create(config.ModelOptions),
+        transform: rawData => splitTransform((rawData, splitOptions)),
         input1: dp.ModelInputTable,
         output1: ds.TrainSplit,
         output2: ds.TestSplit

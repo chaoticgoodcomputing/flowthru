@@ -42,28 +42,28 @@ public class BinaryDirectoryStorageAdapterConformance : DirectoryStorageAdapterC
       SysIO.Directory.Delete(_rootDir, recursive: true);
   }
 
-  protected override Directory<byte[]> LoadFixture(string fixturePath) =>
+  protected override DirectoryOf<byte[]> LoadFixture(string fixturePath) =>
     new(new Dictionary<string, byte[]>
     {
       ["alpha.bin"] = new byte[] { 0x01, 0x02, 0x03 },
       ["beta.bin"] = new byte[] { 0x10, 0x20, 0x30, 0x40 },
     });
 
-  protected override IStorageAdapter<Directory<byte[]>> CreateWellFormed(Directory<byte[]> data)
+  protected override IStorageAdapter<DirectoryOf<byte[]>> CreateWellFormed(DirectoryOf<byte[]> data)
   {
     var adapter = BuildAdapter(_wellFormedDir);
     adapter.Save(data).Run().GetAwaiter().GetResult();
     return adapter;
   }
 
-  protected override IStorageAdapter<Directory<byte[]>> CreateMissingSource() =>
+  protected override IStorageAdapter<DirectoryOf<byte[]>> CreateMissingSource() =>
     BuildAdapter(Path.Combine(_rootDir, $"missing-{Guid.NewGuid():N}"));
 
   protected override string WellFormedDirectoryPath => _wellFormedDir;
 
   protected override string FileExtension => ".bin";
 
-  protected override IStorageAdapter<Directory<byte[]>> CreateAdapterForWellFormedPath() =>
+  protected override IStorageAdapter<DirectoryOf<byte[]>> CreateAdapterForWellFormedPath() =>
     BuildAdapter(_wellFormedDir);
 
   protected override void PlantWellFormedFile(string filePath)
@@ -72,10 +72,10 @@ public class BinaryDirectoryStorageAdapterConformance : DirectoryStorageAdapterC
     File.WriteAllBytes(filePath, new byte[] { 0xFF, 0xEE, 0xDD });
   }
 
-  protected override IEqualityComparer<Directory<byte[]>>? Comparer =>
+  protected override IEqualityComparer<DirectoryOf<byte[]>>? Comparer =>
     new DirectoryEqualityComparer<byte[]>(new ByteArrayComparer());
 
-  private static IStorageAdapter<Directory<byte[]>> BuildAdapter(string dir) =>
+  private static IStorageAdapter<DirectoryOf<byte[]>> BuildAdapter(string dir) =>
     new DirectoryStorageAdapter<byte[]>(
       directoryPath: dir,
       filePattern: "*.bin",

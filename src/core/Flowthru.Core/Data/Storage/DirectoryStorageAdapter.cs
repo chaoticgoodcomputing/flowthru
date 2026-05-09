@@ -3,7 +3,7 @@ using SysIO = System.IO;
 namespace Flowthru.Data.Storage;
 
 /// <summary>
-/// Format-agnostic storage adapter for a <see cref="Directory{T}"/>
+/// Format-agnostic storage adapter for a <see cref="DirectoryOf{T}"/>
 /// of same-schema files. Format concerns are externalised through
 /// <c>perFileAdapter</c>: the directory owns enumeration, save
 /// ordering, and target validation; the per-file adapter owns
@@ -19,16 +19,16 @@ namespace Flowthru.Data.Storage;
 /// adapter's <c>filePattern</c> are deleted before write, then each
 /// entry is written via its per-file adapter. Re-runs are
 /// deterministic — the directory state after Save matches the
-/// <see cref="Directory{T}"/> that produced it.
+/// <see cref="DirectoryOf{T}"/> that produced it.
 /// </para>
 /// <para>
 /// <strong>Load semantics:</strong> files matching <c>filePattern</c>
 /// are enumerated in ordinal-string order and loaded via per-file
-/// adapters. Keys in the resulting <see cref="Directory{T}"/> are the
+/// adapters. Keys in the resulting <see cref="DirectoryOf{T}"/> are the
 /// full file paths.
 /// </para>
 /// </remarks>
-public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, IHasEfficientCount
+public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<DirectoryOf<T>>, IHasEfficientCount
 {
   private readonly string _directoryPath;
   private readonly string _filePattern;
@@ -44,7 +44,7 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
   /// Factory that, given a file path, returns the storage adapter
   /// for one file. Called once per file on Load (with paths from
   /// the glob) and once per entry on Save (with paths from the
-  /// <see cref="Directory{T}"/>'s keys).
+  /// <see cref="DirectoryOf{T}"/>'s keys).
   /// </param>
   public DirectoryStorageAdapter(
     string directoryPath,
@@ -72,24 +72,24 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
   public StorageTraits Traits => _traits;
 
   /// <inheritdoc/>
-  public FlowIO<Directory<T>> Load() =>
+  public FlowIO<DirectoryOf<T>> Load() =>
     FlowIO.Lift(() => SysIO.Directory.Exists(_directoryPath))
       .Bind(exists =>
         !exists
-          ? FlowIO.Pure(Directory<T>.Empty)
+          ? FlowIO.Pure(DirectoryOf<T>.Empty)
           : FlowIO.Lift(() => EnumerateFiles().ToList())
               .Bind(LoadAllFiles)
       );
 
   /// <summary>
   /// Sequentially load each path through its per-file adapter and
-  /// fold the results into a <see cref="Directory{T}"/>. Per-file
+  /// fold the results into a <see cref="DirectoryOf{T}"/>. Per-file
   /// failures propagate through <see cref="FlowIO{A}.Bind"/> as
   /// typed <see cref="RuntimeError"/> values — no throw-recapture
   /// at the directory boundary, so a downstream consumer can still
   /// pattern-match on the original error variant.
   /// </summary>
-  private FlowIO<Directory<T>> LoadAllFiles(IReadOnlyList<string> paths)
+  private FlowIO<DirectoryOf<T>> LoadAllFiles(IReadOnlyList<string> paths)
   {
     var seed = FlowIO.Pure(new Dictionary<string, T>(StringComparer.Ordinal));
     var folded = paths.Aggregate(seed, (accIO, path) =>
@@ -97,7 +97,7 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
       from value in _perFileAdapter(path).Load()
       select WithEntry(acc, path, value)
     );
-    return folded.Map(dict => new Directory<T>(dict));
+    return folded.Map(dict => new DirectoryOf<T>(dict));
   }
 
   private static Dictionary<string, T> WithEntry(
@@ -111,7 +111,7 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
   }
 
   /// <inheritdoc/>
-  public FlowIO<FlowUnit> Save(Directory<T> data)
+  public FlowIO<FlowUnit> Save(DirectoryOf<T> data)
   {
     // Pre-IO setup (existence check, CanWrite probe, hard-delete of
     // existing matching files) runs in a single Lift block; per-entry
@@ -142,7 +142,7 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
   /// per-file adapter. Per-file failures short-circuit the chain
   /// and propagate the typed inner error verbatim.
   /// </summary>
-  private FlowIO<FlowUnit> SaveAllEntries(Directory<T> data) =>
+  private FlowIO<FlowUnit> SaveAllEntries(DirectoryOf<T> data) =>
     data.Aggregate(
       FlowIO.Pure(FlowUnit.Default),
       (accIO, kvp) =>

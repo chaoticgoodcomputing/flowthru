@@ -100,7 +100,7 @@ public sealed class PythonNetExecutor : IPythonExecutor
           return InvokeMulti<TInput, TOutput>(moduleName, functionName, input);
         }
 
-        // Directory<T> dispatch is uniform: marshal input via MarshalSingleArg (which
+        // DirectoryOf<T> dispatch is uniform: marshal input via MarshalSingleArg (which
         // handles directory + tabular + scalar), invoke, unmarshal via UnmarshalElement
         // (likewise). Routed before the tabular/scalar split so both ends stay simple.
         if (IsDirectoryType(inputType) || IsDirectoryType(outputType))
@@ -468,7 +468,7 @@ public sealed class PythonNetExecutor : IPythonExecutor
   // ── Marshalling helpers ───────────────────────────────────────────────────────────────
 
   private static bool IsDirectoryType(Type type) =>
-    type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Flowthru.Data.Storage.Directory<>);
+    type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Flowthru.Data.Storage.DirectoryOf<>);
 
   private static bool IsValueTuple(Type type)
   {
@@ -534,7 +534,7 @@ public sealed class PythonNetExecutor : IPythonExecutor
   }
 
   /// <summary>
-  /// Converts a <see cref="Flowthru.Core.Data.Directory{T}"/> to a Python <c>dict</c> whose
+  /// Converts a <see cref="Flowthru.Core.Data.DirectoryOf{T}"/> to a Python <c>dict</c> whose
   /// keys are file paths and whose values are marshalled per the inner type's kind:
   /// scalar/bytes through <see cref="ScalarMarshaller"/>, tabular through Arrow IPC,
   /// directory recursively (though nested directories aren't a typical shape). The Python
@@ -645,7 +645,7 @@ public sealed class PythonNetExecutor : IPythonExecutor
   }
 
   /// <summary>
-  /// Converts a Python <c>dict[str, T]</c> back into a <see cref="Flowthru.Core.Data.Directory{T}"/>.
+  /// Converts a Python <c>dict[str, T]</c> back into a <see cref="Flowthru.Core.Data.DirectoryOf{T}"/>.
   /// Each value is unmarshalled via <see cref="UnmarshalElement"/> so the inner kind
   /// (scalar/tabular/directory) is handled uniformly.
   /// </summary>

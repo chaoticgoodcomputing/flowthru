@@ -106,7 +106,7 @@ public class ParquetItemFactoryExtensionsTests
   {
     var item = ItemFactory.Directory.Parquet<FlatRow>("dir", _root);
 
-    var input = new Directory<IEnumerable<FlatRow>>(
+    var input = new DirectoryOf<IEnumerable<FlatRow>>(
       new Dictionary<string, IEnumerable<FlatRow>>
       {
         [SysIO.Path.Combine(_root, "a.parquet")] =
@@ -118,7 +118,7 @@ public class ParquetItemFactoryExtensionsTests
 
     await item.Save(input).Run();
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<FlatRow>>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<FlatRow>>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
   }
@@ -133,7 +133,7 @@ public class ParquetItemFactoryExtensionsTests
     Assert.That(SysIO.File.Exists(stale), Is.True);
 
     var item = ItemFactory.Directory.Parquet<FlatRow>("dir", _root);
-    var fresh = new Directory<IEnumerable<FlatRow>>(
+    var fresh = new DirectoryOf<IEnumerable<FlatRow>>(
       new Dictionary<string, IEnumerable<FlatRow>>
       {
         ["fresh.parquet"] = new[] { new FlatRow { Id = 1, Name = "Fresh", Value = 1.0 } },

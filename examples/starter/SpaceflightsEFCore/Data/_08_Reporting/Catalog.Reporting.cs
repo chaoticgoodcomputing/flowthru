@@ -9,28 +9,15 @@ namespace SpaceflightsEFCore.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>Passenger capacity analysis report grouped by shuttle type.</summary>
   public IItem<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
-    CreateItem(() =>
-      ItemFactory.Enumerable.Json<ShuttleCapacityReport>(
-        label: "ShuttleCapacityReport",
-        filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json"
-      )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ShuttleCapacityReport>>("ShuttleCapacityReport")
+      .Json()
+      .AtPath($"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json")
+      .Build());
 
-  /// <summary>
-  /// Shuttle passenger capacity bar chart (in-memory <see cref="GenericChart"/>).
-  /// PNG export is currently disabled because Plotly.NET's image
-  /// pipeline is too slow to run as part of every flow.
-  /// </summary>
   public IItem<GenericChart> ShuttlePassengerCapacityChart =>
-    CreateItem(() =>
-      ItemFactory.Singleton.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
-    );
+    CreateItem(() => Item.Of<GenericChart>("ShuttlePassengerCapacityChart").Memory().Build());
 
-  /// <summary>Confusion matrix heatmap (in-memory <see cref="GenericChart"/>).</summary>
   public IItem<GenericChart> ConfusionMatrixChart =>
-    CreateItem(() =>
-      ItemFactory.Singleton.Memory<GenericChart>(label: "ConfusionMatrixChart")
-    );
+    CreateItem(() => Item.Of<GenericChart>("ConfusionMatrixChart").Memory().Build());
 }

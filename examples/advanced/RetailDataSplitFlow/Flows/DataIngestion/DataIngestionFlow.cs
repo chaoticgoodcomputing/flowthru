@@ -1,5 +1,7 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using RetailDataMultipipeline.Data;
+using RetailDataMultipipeline.Data._01_Raw.Schemas;
+using RetailDataMultipipeline.Data._02_Intermediate.Schemas;
 using RetailDataMultipipeline.Flows.DataIngestion.Steps;
 
 namespace RetailDataMultipipeline.Flows.DataIngestion;
@@ -9,16 +11,15 @@ namespace RetailDataMultipipeline.Flows.DataIngestion;
 /// </summary>
 public static class DataIngestionFlow
 {
-  public static Flow Create(CoreCatalog catalog)
+  public static BuiltFlow Create(CoreCatalog catalog)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("DataIngestion", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<RetailTransactionSchema>, IEnumerable<RetailTransactionIntermediateSchema>>(
         label: "ValidateCsvTransactions",
-        description: "Coerces all-string raw transaction records into fully-typed intermediate schema and writes a unified Parquet dataset.",
         transform: ValidateCsvStep.Create(),
-        input: catalog.RetailTransactionsRaw,
-        output: catalog.AllRetailTransactions
+        input1: catalog.RetailTransactionsRaw,
+        output1: catalog.AllRetailTransactions
       );
     });
   }

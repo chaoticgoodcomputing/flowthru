@@ -43,7 +43,6 @@
   <Project Path="tests/extensions/Flowthru.Extensions.Metadata.Diagnostics.Tests/Flowthru.Extensions.Metadata.Diagnostics.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Parquet.Tests/Flowthru.Extensions.Parquet.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Python.Tests/Flowthru.Extensions.Python.Tests.csproj" />
-  <Project Path="tests/extensions/Flowthru.Extensions.Python.SourceGenerators.Tests/Flowthru.Extensions.Python.SourceGenerators.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Xml.Tests/Flowthru.Extensions.Xml.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.Tests/Flowthru.Misc.DataFrames.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.CodeFixes.Tests/Flowthru.Misc.DataFrames.CodeFixes.Tests.csproj" />

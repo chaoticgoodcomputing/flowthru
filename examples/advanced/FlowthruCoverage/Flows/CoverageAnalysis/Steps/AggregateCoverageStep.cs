@@ -1,8 +1,8 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._02_Intermediate.Schemas;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Coverage.Steps;
@@ -62,7 +62,7 @@ public static class AggregateCoverageStep
     /// All-uncovered group reports CoveragePercent=0 with CoveredLines=0 and TotalLines
     /// equal to the input row count.
     /// </summary>
-    [StepTest(typeof(AggregateCoverageStep))]
+    [FUnitStepTest(typeof(AggregateCoverageStep))]
     public void AllUncovered_ReportsZeroPercent()
     {
       var rows = new[] { Row("T", "P", 0), Row("T", "P", 0), Row("T", "P", 0) };
@@ -78,7 +78,7 @@ public static class AggregateCoverageStep
     /// All-covered group reports 100% — any hit count above zero counts the line as covered,
     /// regardless of magnitude.
     /// </summary>
-    [StepTest(typeof(AggregateCoverageStep))]
+    [FUnitStepTest(typeof(AggregateCoverageStep))]
     public void AllCovered_ReportsHundredPercent()
     {
       var rows = new[] { Row("T", "P", 1), Row("T", "P", 100), Row("T", "P", 5) };
@@ -94,7 +94,7 @@ public static class AggregateCoverageStep
     /// CoveragePercent is rounded to 2 decimal places — verifies the
     /// <c>Math.Round(..., 2)</c> contract documented in <see cref="PackageCoverageRow.CoveragePercent"/>.
     /// </summary>
-    [StepTest(typeof(AggregateCoverageStep))]
+    [FUnitStepTest(typeof(AggregateCoverageStep))]
     public void PartialCoverage_RoundsToTwoDecimals()
     {
       var rows = new[]
@@ -113,7 +113,7 @@ public static class AggregateCoverageStep
     /// Distinct (TestProject, SrcPackage) tuples produce separate rows; grouping keys do not
     /// bleed across boundaries.
     /// </summary>
-    [StepTest(typeof(AggregateCoverageStep))]
+    [FUnitStepTest(typeof(AggregateCoverageStep))]
     public void DistinctGroups_ProduceSeparateRows()
     {
       var rows = new[]
@@ -138,7 +138,7 @@ public static class AggregateCoverageStep
     /// Output ordering is SrcPackage ascending, then TestProject ascending — important so the
     /// downstream pivot lands rows in deterministic order.
     /// </summary>
-    [StepTest(typeof(AggregateCoverageStep))]
+    [FUnitStepTest(typeof(AggregateCoverageStep))]
     public void Output_IsSortedBySrcPackageThenTestProject()
     {
       var rows = new[]

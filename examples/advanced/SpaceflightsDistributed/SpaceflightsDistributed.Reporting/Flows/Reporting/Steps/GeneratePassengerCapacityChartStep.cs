@@ -1,5 +1,5 @@
 using Flowthru.Step;
-
+using Flowthru.Step.Testing;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
@@ -57,7 +57,7 @@ public static class GeneratePassengerCapacityChartStep
         MoonClearanceComplete = false,
       };
 
-    [StepTest(typeof(GeneratePassengerCapacityChartStep))]
+    [FUnitStepTest(typeof(GeneratePassengerCapacityChartStep))]
     public void ValidInput_ProducesChart()
     {
       var input = Samples.Of(MakeShuttle("TypeA", 100), MakeShuttle("TypeB", 200));
@@ -67,7 +67,7 @@ public static class GeneratePassengerCapacityChartStep
       Assert.That(chart, Is.Not.Null);
     }
 
-    [StepTest(typeof(GeneratePassengerCapacityChartStep))]
+    [FUnitStepTest(typeof(GeneratePassengerCapacityChartStep))]
     public void SingleShuttleType_ProducesChart()
     {
       var input = Samples.Of(MakeShuttle("TypeA", 150));

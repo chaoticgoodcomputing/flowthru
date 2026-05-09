@@ -134,7 +134,7 @@ public class ExcelItemFactoryExtensionsTests
 
     var item = ItemFactory.Directory.Excel<ProductRow>("dir", _root, "Products");
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<ProductRow>>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<ProductRow>>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
     var byBaseName = loaded.ToDictionary(

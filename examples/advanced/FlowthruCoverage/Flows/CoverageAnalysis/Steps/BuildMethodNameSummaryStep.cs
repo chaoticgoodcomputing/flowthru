@@ -1,8 +1,8 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._01_Raw.Schemas;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Coverage.Steps;
@@ -179,7 +179,7 @@ public static class BuildMethodNameSummaryStep
     /// Overloads share the same name but different signatures. After name-summarization, they
     /// collapse into one row with TotalHits summed across signatures.
     /// </summary>
-    [StepTest(typeof(BuildMethodNameSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodNameSummaryStep))]
     public void Overloads_CollapseIntoOneRowWithSummedHits()
     {
       var reports = new[]
@@ -201,7 +201,7 @@ public static class BuildMethodNameSummaryStep
     /// ProjectHits unions across overloads — a project that hits any overload counts once.
     /// Verifies the documented "distinct projects covering ANY overload" semantic.
     /// </summary>
-    [StepTest(typeof(BuildMethodNameSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodNameSummaryStep))]
     public void ProjectHits_UnionsAcrossOverloads()
     {
       var reports = new[]
@@ -223,7 +223,7 @@ public static class BuildMethodNameSummaryStep
     /// overloads collapse. Distinct (namespace, className, methodName) triples produce
     /// distinct rows.
     /// </summary>
-    [StepTest(typeof(BuildMethodNameSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodNameSummaryStep))]
     public void DifferentClasses_KeepSameNameMethodsSeparate()
     {
       var reports = new[]
@@ -243,7 +243,7 @@ public static class BuildMethodNameSummaryStep
     /// Same sort contract as <see cref="BuildMethodHitSummaryStep"/>: subgroup primary,
     /// TotalHits ascending secondary. The name-summarization step must preserve it.
     /// </summary>
-    [StepTest(typeof(BuildMethodNameSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodNameSummaryStep))]
     public void Output_IsSortedBySubgroupThenTotalHits()
     {
       var reports = new[]
@@ -267,7 +267,7 @@ public static class BuildMethodNameSummaryStep
     /// at 7 lines collapses into one row of 12 lines. Importantly, the sum is per distinct
     /// overload signature — multiple test-project entries for the same overload don't double-count.
     /// </summary>
-    [StepTest(typeof(BuildMethodNameSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodNameSummaryStep))]
     public void LineCount_SumsAcrossOverloadsButNotAcrossTestProjects()
     {
       var reports = new[]
@@ -288,7 +288,7 @@ public static class BuildMethodNameSummaryStep
     /// shared file path. Picks the first non-empty value to handle Cobertura entries that
     /// occasionally drop the filename attribute on individual overloads.
     /// </summary>
-    [StepTest(typeof(BuildMethodNameSummaryStep))]
+    [FUnitStepTest(typeof(BuildMethodNameSummaryStep))]
     public void SourceFile_ResolvesFromAnyContributingOverload()
     {
       var reports = new[]

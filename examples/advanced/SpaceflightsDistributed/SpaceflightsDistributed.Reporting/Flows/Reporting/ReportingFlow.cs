@@ -22,6 +22,9 @@ public static class ReportingFlow
     ReportingFlowConfig config
   )
   {
+    var confusionOptions = config.ConfusionMatrixOptions;
+    var confusionTransform = CreateConfusionMatrixStep.Create();
+
     return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, IEnumerable<ShuttleCapacityReport>>(
@@ -40,7 +43,7 @@ public static class ReportingFlow
 
       pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
         label: "GenerateConfusionMatrixChart",
-        transform: CreateConfusionMatrixStep.Create(config.ConfusionMatrixOptions),
+        transform: predictions => confusionTransform((predictions, confusionOptions)),
         input1: ds.ModelPredictions,
         output1: r.ConfusionMatrixChart
       );

@@ -22,7 +22,7 @@ public partial record DirDoc
 
 /// <summary>
 /// End-to-end tests for <see cref="DirectoryStorageAdapter{T}"/>
-/// + the <c>ItemFactory.Directory</c> family of smart constructors.
+/// + the <c>ItemFactory.DirectoryOf</c> family of smart constructors.
 /// Reactivates the legacy directory-storage conformance coverage
 /// against the Phase-2 storage substrate.
 /// </summary>
@@ -61,7 +61,7 @@ public class DirectoryStorageAdapterTests
 
     var fileA = SysIO.Path.Combine(_root, "a.json");
     var fileB = SysIO.Path.Combine(_root, "b.json");
-    var input = new Directory<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
+    var input = new DirectoryOf<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
     {
       [fileA] = new[]
       {
@@ -78,8 +78,8 @@ public class DirectoryStorageAdapterTests
     Assert.That(saveResult, Is.InstanceOf<EffResult<FlowUnit>.Success>());
 
     var loadResult = await item.Load().Run();
-    Assert.That(loadResult, Is.InstanceOf<EffResult<Directory<IEnumerable<DirRow>>>.Success>());
-    var loaded = ((EffResult<Directory<IEnumerable<DirRow>>>.Success)loadResult).Value;
+    Assert.That(loadResult, Is.InstanceOf<EffResult<DirectoryOf<IEnumerable<DirRow>>>.Success>());
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<DirRow>>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
     Assert.That(loaded[fileA].Select(r => r.Name), Is.EquivalentTo(new[] { "alpha", "beta" }));
@@ -94,7 +94,7 @@ public class DirectoryStorageAdapterTests
     await SysIO.File.WriteAllTextAsync(stale, "[]");
     Assert.That(SysIO.File.Exists(stale), Is.True);
 
-    var newDir = new Directory<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
+    var newDir = new DirectoryOf<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
     {
       [SysIO.Path.Combine(_root, "fresh.json")] =
         new[] { new DirRow { Id = 9, Name = "fresh" } },
@@ -102,7 +102,7 @@ public class DirectoryStorageAdapterTests
     await item.Save(newDir).Run();
 
     Assert.That(SysIO.File.Exists(stale), Is.False,
-      "Save should hard-delete stale files matching the pattern so post-Save state matches the saved Directory<T>.");
+      "Save should hard-delete stale files matching the pattern so post-Save state matches the saved DirectoryOf<T>.");
   }
 
   [Test]
@@ -110,7 +110,7 @@ public class DirectoryStorageAdapterTests
   {
     var item = ItemFactory.Directory.JsonArrays<DirRow>("empty", _root, "*.json");
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<DirRow>>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<DirRow>>>.Success)loadResult).Value;
     Assert.That(loaded.Count, Is.EqualTo(0));
   }
 
@@ -121,7 +121,7 @@ public class DirectoryStorageAdapterTests
     var item = ItemFactory.Directory.JsonArrays<DirRow>("missing", missing, "*.json");
 
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<DirRow>>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<DirRow>>>.Success)loadResult).Value;
     Assert.That(loaded.Count, Is.EqualTo(0));
   }
 
@@ -135,14 +135,14 @@ public class DirectoryStorageAdapterTests
     );
 
     var fileA = SysIO.Path.Combine(_root, "data.json");
-    var input = new Directory<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
+    var input = new DirectoryOf<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
     {
       [fileA] = new[] { new DirRow { Id = 1, Name = "ok" } },
     });
     await item.Save(input).Run();
 
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<DirRow>>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<DirRow>>>.Success)loadResult).Value;
     Assert.That(loaded.Count, Is.EqualTo(1),
       "Files that don't match filePattern should be invisible to Load.");
   }
@@ -158,7 +158,7 @@ public class DirectoryStorageAdapterTests
 
     var first = SysIO.Path.Combine(_root, "first.json");
     var second = SysIO.Path.Combine(_root, "second.json");
-    var input = new Directory<DirDoc>(new Dictionary<string, DirDoc>
+    var input = new DirectoryOf<DirDoc>(new Dictionary<string, DirDoc>
     {
       [first] = new DirDoc { Title = "first-title", Score = 10 },
       [second] = new DirDoc { Title = "second-title", Score = 20 },
@@ -167,7 +167,7 @@ public class DirectoryStorageAdapterTests
     await item.Save(input).Run();
 
     var loadResult = await item.Load().Run();
-    var loaded = ((EffResult<Directory<DirDoc>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<DirDoc>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
     Assert.That(loaded[first].Title, Is.EqualTo("first-title"));
@@ -194,7 +194,7 @@ public class DirectoryStorageAdapterTests
   public async Task BareKeysInSavePath_ResolveIntoDirectory()
   {
     var item = ItemFactory.Directory.JsonArrays<DirRow>("bare-keys", _root, "*.json");
-    var input = new Directory<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
+    var input = new DirectoryOf<IEnumerable<DirRow>>(new Dictionary<string, IEnumerable<DirRow>>
     {
       ["bare.json"] = new[] { new DirRow { Id = 7, Name = "bare-key" } },
     });
@@ -226,8 +226,8 @@ public class DirectoryStorageAdapterTests
     await SysIO.File.WriteAllTextAsync(SysIO.Path.Combine(_root, "trigger.json"), "{}");
 
     var loadResult = await directoryAdapter.Load().Run();
-    Assert.That(loadResult, Is.InstanceOf<EffResult<Directory<int>>.Failure>());
-    var failure = (EffResult<Directory<int>>.Failure)loadResult;
+    Assert.That(loadResult, Is.InstanceOf<EffResult<DirectoryOf<int>>.Failure>());
+    var failure = (EffResult<DirectoryOf<int>>.Failure)loadResult;
 
     Assert.That(failure.Error, Is.SameAs(sentinel),
       "Per-file adapter's typed RuntimeError should propagate verbatim — "

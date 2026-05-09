@@ -55,14 +55,14 @@ public static class XmlItemFactoryExtensions
   /// unit. To chunk one logical dataset across files, do that as a
   /// step before write and reassemble in a step after read.
   /// </remarks>
-  public static IItem<Directory<T>> Xml<T>(
+  public static IItem<DirectoryOf<T>> Xml<T>(
     this DirectoryItemFactory _,
     string label,
     string directoryPath,
     string filePattern = "*.xml"
   )
     where T : notnull, IStructuredSerializable =>
-    new Item<Directory<T>>(
+    new Item<DirectoryOf<T>>(
       label,
       new DirectoryStorageAdapter<T>(
         directoryPath,

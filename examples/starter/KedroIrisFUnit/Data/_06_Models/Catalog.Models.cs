@@ -8,15 +8,9 @@ namespace KedroIrisFUnit.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Trained multi-class logistic regression model.
-  /// Contains weight matrix for all three species classifiers.
-  /// </summary>
   public IItem<ModelWeightsSchema> IrisModel =>
-    CreateItem(() =>
-      ItemFactory.Singleton.Json<ModelWeightsSchema>(
-        label: "IrisModel",
-        filePath: $"{_basePath}/_06_Models/Datasets/iris_model.json"
-      )
-    );
+    CreateItem(() => Item.Of<ModelWeightsSchema>("IrisModel")
+      .Json()
+      .AtPath($"{_basePath}/_06_Models/Datasets/iris_model.json")
+      .Build());
 }

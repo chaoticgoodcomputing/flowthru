@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._07_ModelOutput.Schemas;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
@@ -40,7 +40,15 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
+  /// <summary>
+  /// Tuple-input shape so the flow can close over <see cref="Options"/> at
+  /// flow-construction time while FUnit tests still drive the step directly
+  /// with a tuple.
+  /// </summary>
+  public static Func<
+    (IEnumerable<ModelPredictions> Data, Options Options),
+    GenericChart
+  > Create() => input =>
   {
     var (predictions, opts) = (input.Data.ToList(), input.Options);
 
@@ -99,7 +107,7 @@ public static class CreateConfusionMatrixStep
       .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
       .WithTitle($"Confusion Matrix ({binName})")
       .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
-  }
+  };
 
   /// <summary>
   /// Calculates percentile threshold values for binning.
@@ -156,7 +164,7 @@ public static class CreateConfusionMatrixStep
     /// <summary>
     /// Valid predictions should produce a non-null GenericChart without throwing.
     /// </summary>
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void ValidPredictions_ReturnsNonNullChart()
     {
       // Arrange
@@ -168,7 +176,7 @@ public static class CreateConfusionMatrixStep
       );
 
       // Apply
-      var chart = Invoke(Create, (input, new Options()));
+      var chart = Invoke(Create(), (input, new Options()));
 
       // Assert
       Assert.That(chart, Is.Not.Null);
@@ -177,11 +185,11 @@ public static class CreateConfusionMatrixStep
     /// <summary>
     /// Empty predictions should throw <see cref="InvalidOperationException"/>.
     /// </summary>
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void EmptyInput_ThrowsInvalidOperationException()
     {
       Assert.Throws<InvalidOperationException>(
-        () => Invoke(Create, (Enumerable.Empty<ModelPredictions>(), new Options()))
+        () => Invoke(Create(), (Enumerable.Empty<ModelPredictions>(), new Options()))
       );
     }
   }

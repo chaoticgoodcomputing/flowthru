@@ -1,5 +1,5 @@
 using Flowthru.Step;
-
+using Flowthru.Step.Testing;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 using SpaceflightsDistributed.DataScience.Data._06_Models.Schemas;
 using SpaceflightsDistributed.DataScience.Data._07_ModelOutput.Schemas;
@@ -133,7 +133,7 @@ public static class EvaluateModelStep
         Label = label,
       };
 
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void PerfectPredictions_R2IsOne()
     {
       // When predicted == actual for every row, R2 should be 1.0
@@ -151,7 +151,7 @@ public static class EvaluateModelStep
       Assert.That((double)metrics.MaxError, Is.EqualTo(0.0).Within(1e-9));
     }
 
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void PredictionsReturned_CountMatchesInput()
     {
       var model = IdentityModel();
@@ -162,7 +162,7 @@ public static class EvaluateModelStep
       Assert.That(predictions.Count(), Is.EqualTo(2));
     }
 
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void EmptyTestData_ReturnsZeroMetrics()
     {
       var model = IdentityModel();

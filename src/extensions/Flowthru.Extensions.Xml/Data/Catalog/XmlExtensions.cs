@@ -7,8 +7,9 @@ namespace Flowthru.Data.Catalog;
 /// <summary>
 /// XML item-builder extensions on <see cref="ItemAnchor{T}"/>. XML
 /// in this extension is document-mode only — one file holds one
-/// <typeparamref name="T"/>, and a directory holds N independent
-/// documents.
+/// <typeparamref name="T"/>, and a directory (constructed via the
+/// universal <see cref="DirectoryOfExtensions.Directory{T, TBuilder}"/>
+/// lift) holds N independent documents.
 /// </summary>
 public static class XmlExtensions
 {
@@ -16,15 +17,12 @@ public static class XmlExtensions
   public static XmlBuilder<T> Xml<T>(this ItemAnchor<T> anchor)
     where T : notnull, IStructuredSerializable =>
     new(anchor.Label);
-
-  /// <summary>Build a directory-of-XML-documents catalog item.</summary>
-  public static XmlDirectoryBuilder<T> Xml<T>(this ItemAnchor<Directory<T>> anchor)
-    where T : notnull, IStructuredSerializable =>
-    new(anchor.Label);
 }
 
-/// <summary>Tier-1 builder for a single-XML-file catalog item.</summary>
-public sealed class XmlBuilder<T> where T : notnull, IStructuredSerializable
+/// <summary>Tier-1 builder for an XML catalog item (single document or, via lift, directory).</summary>
+public sealed class XmlBuilder<T>
+  : IFileItemBuilder<T>
+  where T : notnull, IStructuredSerializable
 {
   private readonly string _label;
   private string? _path;
@@ -33,6 +31,12 @@ public sealed class XmlBuilder<T> where T : notnull, IStructuredSerializable
   {
     _label = label;
   }
+
+  /// <inheritdoc/>
+  public string Label => _label;
+
+  /// <inheritdoc/>
+  public string DefaultFilePattern => "*.xml";
 
   /// <summary>Set the filesystem path for this XML file.</summary>
   public XmlBuilder<T> AtPath(string path)
@@ -43,6 +47,10 @@ public sealed class XmlBuilder<T> where T : notnull, IStructuredSerializable
     return this;
   }
 
+  /// <inheritdoc/>
+  public IStorageAdapter<T> CreateAdapterForFile(string filePath) =>
+    new SingletonXmlAdapter<T>(filePath);
+
   /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
   public IItem<T> Build()
   {
@@ -50,54 +58,6 @@ public sealed class XmlBuilder<T> where T : notnull, IStructuredSerializable
       throw new InvalidOperationException(
         $"Xml item '{_label}' requires AtPath(...) before Build()."
       );
-    return new Item<T>(_label, new SingletonXmlAdapter<T>(_path));
-  }
-}
-
-/// <summary>Tier-1 builder for a directory-of-XML-files catalog item.</summary>
-public sealed class XmlDirectoryBuilder<T> where T : notnull, IStructuredSerializable
-{
-  private readonly string _label;
-  private string? _directoryPath;
-  private string _filePattern = "*.xml";
-
-  internal XmlDirectoryBuilder(string label)
-  {
-    _label = label;
-  }
-
-  /// <summary>Set the directory path holding the XML files.</summary>
-  public XmlDirectoryBuilder<T> AtPath(string directoryPath)
-  {
-    if (string.IsNullOrWhiteSpace(directoryPath))
-      throw new ArgumentException("Path cannot be null or whitespace.", nameof(directoryPath));
-    _directoryPath = directoryPath;
-    return this;
-  }
-
-  /// <summary>Override the default <c>*.xml</c> filename pattern.</summary>
-  public XmlDirectoryBuilder<T> WithFilePattern(string filePattern)
-  {
-    if (string.IsNullOrWhiteSpace(filePattern))
-      throw new ArgumentException("File pattern cannot be null or whitespace.", nameof(filePattern));
-    _filePattern = filePattern;
-    return this;
-  }
-
-  /// <summary>Materialise the <see cref="IItem{T}"/>.</summary>
-  public IItem<Directory<T>> Build()
-  {
-    if (_directoryPath is null)
-      throw new InvalidOperationException(
-        $"Xml directory item '{_label}' requires AtPath(...) before Build()."
-      );
-    return new Item<Directory<T>>(
-      _label,
-      new DirectoryStorageAdapter<T>(
-        _directoryPath,
-        _filePattern,
-        perFilePath => new SingletonXmlAdapter<T>(perFilePath)
-      )
-    );
+    return new Item<T>(_label, CreateAdapterForFile(_path));
   }
 }

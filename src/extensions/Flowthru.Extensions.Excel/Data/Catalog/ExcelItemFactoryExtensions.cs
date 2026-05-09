@@ -64,7 +64,7 @@ public static class ExcelItemFactoryExtensions
   /// independent collection of <typeparamref name="TRow"/> rows on
   /// the same named sheet. All files must share identical headers.
   /// </summary>
-  public static IItem<Directory<IEnumerable<TRow>>> Excel<TRow>(
+  public static IItem<DirectoryOf<IEnumerable<TRow>>> Excel<TRow>(
     this DirectoryItemFactory factory,
     string label,
     string directoryPath,
@@ -78,7 +78,7 @@ public static class ExcelItemFactoryExtensions
       ? new ExcelFormatSerializer<TRow>(sheetName)
       : new ExcelFormatSerializer<TRow>(sheetName, nullValues);
 
-    return new Item<Directory<IEnumerable<TRow>>>(
+    return new Item<DirectoryOf<IEnumerable<TRow>>>(
       label,
       new DirectoryStorageAdapter<IEnumerable<TRow>>(
         directoryPath,

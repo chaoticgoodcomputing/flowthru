@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using KedroSpaceflightsCustom.Data._03_Primary.Schemas;
 using KedroSpaceflightsCustom.Data._06_Reporting.Schemas;
 using Microsoft.ML;
@@ -42,9 +42,10 @@ public static class CrossValidateModelStep
     public float KedroReferenceR2Score { get; init; }
   }
 
-  public static async Task<CrossValidationResults> Create(
-    (IEnumerable<ModelInputSchema> Data, Params Options) input
-  )
+  public static Func<
+    (IEnumerable<ModelInputSchema> Data, Params Options),
+    Task<CrossValidationResults>
+  > Create() => async input =>
   {
     var (rawInput, config) = input;
     var data = rawInput.ToList();
@@ -150,5 +151,5 @@ public static class CrossValidateModelStep
     };
 
     return results;
-  }
+  };
 }

@@ -7,6 +7,8 @@ namespace Flowthru.Data.Catalog;
 /// <see cref="ItemAnchor{T}"/> receiver is constrained to the
 /// <see cref="string"/>-typed anchor — text items are always
 /// <c>string</c>-typed; if you need structure, use Json/Csv/Parquet.
+/// Directory-of-text items are constructed via the universal
+/// <see cref="DirectoryOfExtensions.Directory{T, TBuilder}"/> lift.
 /// </summary>
 public static class TextExtensions
 {
@@ -18,8 +20,8 @@ public static class TextExtensions
   public static TextBuilder Text(this ItemAnchor<string> anchor) => new(anchor.Label);
 }
 
-/// <summary>Tier-1 builder for a text-file catalog item.</summary>
-public sealed class TextBuilder
+/// <summary>Tier-1 builder for a text-file catalog item (single file or, via lift, directory).</summary>
+public sealed class TextBuilder : IFileItemBuilder<string>
 {
   private readonly string _label;
   private string? _path;
@@ -28,6 +30,12 @@ public sealed class TextBuilder
   {
     _label = label;
   }
+
+  /// <inheritdoc/>
+  public string Label => _label;
+
+  /// <inheritdoc/>
+  public string DefaultFilePattern => "*.txt";
 
   /// <summary>Set the filesystem path for this text file.</summary>
   public TextBuilder AtPath(string path)
@@ -38,6 +46,10 @@ public sealed class TextBuilder
     return this;
   }
 
+  /// <inheritdoc/>
+  public IStorageAdapter<string> CreateAdapterForFile(string filePath) =>
+    new TextFileStorageAdapter(filePath);
+
   /// <summary>Materialise the <see cref="IItem{String}"/>.</summary>
   public IItem<string> Build()
   {
@@ -45,6 +57,6 @@ public sealed class TextBuilder
       throw new InvalidOperationException(
         $"Text item '{_label}' requires AtPath(...) before Build()."
       );
-    return new Item<string>(_label, new TextFileStorageAdapter(_path));
+    return new Item<string>(_label, CreateAdapterForFile(_path));
   }
 }

@@ -82,7 +82,7 @@ public static class CsvItemFactoryExtensions
   /// chunk one logical dataset across files, do that as a step before
   /// write and reassemble in a step after read.
   /// </remarks>
-  public static IItem<Directory<IEnumerable<TRow>>> Csv<TRow>(
+  public static IItem<DirectoryOf<IEnumerable<TRow>>> Csv<TRow>(
     this DirectoryItemFactory _,
     string label,
     string directoryPath,
@@ -95,7 +95,7 @@ public static class CsvItemFactoryExtensions
       ? new CsvFormatSerializer<TRow>()
       : new CsvFormatSerializer<TRow>(nullValues);
 
-    return new Item<Directory<IEnumerable<TRow>>>(
+    return new Item<DirectoryOf<IEnumerable<TRow>>>(
       label,
       new DirectoryStorageAdapter<IEnumerable<TRow>>(
         directoryPath,

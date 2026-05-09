@@ -1,35 +1,22 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflightsPython.Data._05_ModelInput.Schemas;
 
 namespace KedroSpaceflightsPython.Data;
 
 /// <summary>
-/// Model input data layer: Joined feature tables ("master tables").
-/// Contains training and test splits ready for model consumption.
+/// Model input data layer: Joined feature tables ("master tables"). Transient (memory only).
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Training features split from the model input table. Transient (memory only).
-  /// </summary>
   public IItem<IEnumerable<XValues>> XTest =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<XValues>(label: "XTest"));
+    CreateItem(() => Item.Of<IEnumerable<XValues>>("XTest").Memory().Build());
 
-  /// <summary>
-  /// Test features split from the model input table. Transient (memory only).
-  /// </summary>
   public IItem<IEnumerable<XValues>> XTrain =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<XValues>(label: "XTrain"));
+    CreateItem(() => Item.Of<IEnumerable<XValues>>("XTrain").Memory().Build());
 
-  /// <summary>
-  /// Test targets split from the model input table. Transient (memory only).
-  /// </summary>
   public IItem<IEnumerable<YValues>> YTest =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<YValues>(label: "YTest"));
+    CreateItem(() => Item.Of<IEnumerable<YValues>>("YTest").Memory().Build());
 
-  /// <summary>
-  /// Training targets split from the model input table. Transient (memory only).
-  /// </summary>
   public IItem<IEnumerable<YValues>> YTrain =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<YValues>(label: "YTrain"));
+    CreateItem(() => Item.Of<IEnumerable<YValues>>("YTrain").Memory().Build());
 }

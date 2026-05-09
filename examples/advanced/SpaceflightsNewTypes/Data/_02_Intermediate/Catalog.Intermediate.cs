@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using SpaceflightsNewTypes.Data._02_Intermediate.Schemas;
 
 namespace SpaceflightsNewTypes.Data;
@@ -12,22 +12,18 @@ public partial class Catalog
   // a `ShuttleId`-typed column to Parquet silently drops it. The starter
   // KedroSpaceflights example uses Parquet here because it stores raw `string`s.
   // Once the Parquet IScalar gap is closed, these can be reverted to
-  // `ItemFactory.Enumerable.Parquet<...>` without changing the schemas.
+  // `Item.Of<...>(...).Parquet()` without changing the schemas.
   // ─────────────────────────────────────────────────────────────────────────
 
-  /// <summary>
-  /// Preprocessed company data with validated and strongly-typed fields.
-  /// </summary>
+  /// <summary>Preprocessed company data with validated and strongly-typed fields.</summary>
   public IItem<IEnumerable<PreprocessedCompanySchema>> PreprocessedCompanies =>
-    CreateItem(
-      () => ItemFactory.Enumerable.Memory<PreprocessedCompanySchema>(label: "PreprocessedCompanies")
-    );
+    CreateItem(() => Item.Of<IEnumerable<PreprocessedCompanySchema>>("PreprocessedCompanies")
+      .Memory()
+      .Build());
 
-  /// <summary>
-  /// Preprocessed shuttle data with validated and strongly-typed fields.
-  /// </summary>
+  /// <summary>Preprocessed shuttle data with validated and strongly-typed fields.</summary>
   public IItem<IEnumerable<PreprocessedShuttleSchema>> PreprocessedShuttles =>
-    CreateItem(
-      () => ItemFactory.Enumerable.Memory<PreprocessedShuttleSchema>(label: "PreprocessedShuttles")
-    );
+    CreateItem(() => Item.Of<IEnumerable<PreprocessedShuttleSchema>>("PreprocessedShuttles")
+      .Memory()
+      .Build());
 }

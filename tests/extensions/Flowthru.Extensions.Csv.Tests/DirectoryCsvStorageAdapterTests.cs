@@ -83,7 +83,7 @@ public class DirectoryCsvStorageAdapterTests
   public async Task Load_EmptyDirectory_ReturnsEmptyDirectory()
   {
     var result = await Adapter(_tempDir).Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<FlatRow>>>.Success)result).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<FlatRow>>>.Success)result).Value;
     Assert.That(loaded.Count, Is.EqualTo(0));
   }
 
@@ -93,7 +93,7 @@ public class DirectoryCsvStorageAdapterTests
     WriteCsv("data.csv", "Id,Name,Value\n1,Alice,1.5\n2,Bob,2.5\n");
 
     var result = await Adapter(_tempDir).Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<FlatRow>>>.Success)result).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<FlatRow>>>.Success)result).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(1));
     var rows = loaded.Values.Single().ToList();
@@ -110,7 +110,7 @@ public class DirectoryCsvStorageAdapterTests
     WriteCsv("b_chunk.csv", "Id,Name,Value\n2,Bob,2.5\n");
 
     var result = await Adapter(_tempDir).Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<FlatRow>>>.Success)result).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<FlatRow>>>.Success)result).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(3));
     var byBaseName = loaded.ToDictionary(
@@ -129,7 +129,7 @@ public class DirectoryCsvStorageAdapterTests
     SysIO.File.WriteAllText(SysIO.Path.Combine(_tempDir, "readme.txt"), "ignored");
 
     var result = await Adapter(_tempDir).Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<FlatRow>>>.Success)result).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<FlatRow>>>.Success)result).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(1));
   }
@@ -139,7 +139,7 @@ public class DirectoryCsvStorageAdapterTests
   [Test]
   public async Task Save_WritesOneFilePerEntry()
   {
-    var dir = new Directory<IEnumerable<FlatRow>>(
+    var dir = new DirectoryOf<IEnumerable<FlatRow>>(
       new Dictionary<string, IEnumerable<FlatRow>>
       {
         ["a.csv"] = new[] { new FlatRow { Id = 1, Name = "Alice", Value = 1.5 } },
@@ -162,7 +162,7 @@ public class DirectoryCsvStorageAdapterTests
   {
     WriteCsv("stale.csv", "Id,Name,Value\n99,Stale,9.9\n");
 
-    var dir = new Directory<IEnumerable<FlatRow>>(
+    var dir = new DirectoryOf<IEnumerable<FlatRow>>(
       new Dictionary<string, IEnumerable<FlatRow>>
       {
         ["fresh.csv"] = new[] { new FlatRow { Id = 1, Name = "Fresh", Value = 1.0 } },
@@ -181,7 +181,7 @@ public class DirectoryCsvStorageAdapterTests
   [Test]
   public async Task SaveLoad_RoundTrips()
   {
-    var input = new Directory<IEnumerable<FlatRow>>(
+    var input = new DirectoryOf<IEnumerable<FlatRow>>(
       new Dictionary<string, IEnumerable<FlatRow>>
       {
         ["one.csv"] = new[] { new FlatRow { Id = 1, Name = "X", Value = 1.0 } },
@@ -196,7 +196,7 @@ public class DirectoryCsvStorageAdapterTests
     var adapter = Adapter(_tempDir);
     await adapter.Save(input).Run();
     var loadResult = await adapter.Load().Run();
-    var loaded = ((EffResult<Directory<IEnumerable<FlatRow>>>.Success)loadResult).Value;
+    var loaded = ((EffResult<DirectoryOf<IEnumerable<FlatRow>>>.Success)loadResult).Value;
 
     Assert.That(loaded.Count, Is.EqualTo(2));
     var byBase = loaded.ToDictionary(
