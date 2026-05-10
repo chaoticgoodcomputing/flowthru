@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Data.Schema.Mapping;
 
 /// <summary>
@@ -17,6 +19,7 @@ namespace Flowthru.Data.Schema.Mapping;
 /// </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[ExcludeFromCodeCoverage] // Decorator only; presence is inspected by the architecture-test, not at runtime.
 public sealed class OptOutOfPropertyPlannerAttribute : Attribute
 {
   /// <summary>Human-readable reason this format does not consume the planner.</summary>

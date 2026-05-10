@@ -3,7 +3,7 @@ namespace Flowthru.Step.Python;
 /// <summary>
 /// Fluent builder for declaring how a Python service's preflight inspector
 /// should be located. Used inside the lambda passed to
-/// <see cref="Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.RegisterService(string, System.Action{PythonServiceBuilder})"/>.
+/// <see cref="Flowthru.Step.Python.PythonRuntimeOptions.RegisterService(string, System.Action{PythonServiceBuilder})"/>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -72,7 +72,7 @@ public sealed class PythonServiceBuilder
 
   /// <summary>
   /// Materializes the configured registration. Called by
-  /// <see cref="Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.RegisterService(string, System.Action{PythonServiceBuilder})"/>
+  /// <see cref="Flowthru.Step.Python.PythonRuntimeOptions.RegisterService(string, System.Action{PythonServiceBuilder})"/>
   /// after the user's configure callback has run.
   /// </summary>
   /// <exception cref="InvalidOperationException">

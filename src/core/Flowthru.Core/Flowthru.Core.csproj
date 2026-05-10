@@ -16,6 +16,15 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 
+  <!-- Expose `internal` members to the unit-test assembly. The
+       InspectionResult.Internal property is intentionally internal at the
+       public API surface (users see only the opaque struct + Inspect helpers)
+       but the dispatcher pipeline + tests need to inspect the wrapped
+       Validated value. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Core.Tests" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="Flowthru.Prelude" />
     <Using Include="Flowthru.Validation.PreFlight" />

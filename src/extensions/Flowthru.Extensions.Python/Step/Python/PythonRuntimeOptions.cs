@@ -3,26 +3,6 @@ using Flowthru.Step.Python;
 namespace Flowthru.Step.Python;
 
 /// <summary>
-/// Controls how Python step execution is isolated between FlowthruService instances.
-/// </summary>
-public enum PythonExecutionMode
-{
-  /// <summary>
-  /// Executes Python steps in the same process via Python.NET.
-  /// Fast (no IPC overhead), but all services share one Python interpreter,
-  /// <c>sys.modules</c>, and GIL. Use when co-hosted flows are known to be compatible.
-  /// </summary>
-  InProcess,
-
-  /// <summary>
-  /// Executes Python steps in an isolated child process per FlowthruService.
-  /// Each service gets its own Python interpreter, venv, <c>sys.path</c>, and module cache.
-  /// Default for multi-service scenarios.
-  /// </summary>
-  Subprocess,
-}
-
-/// <summary>
 /// Configuration options for the Python runtime.
 /// </summary>
 /// <remarks>
@@ -37,39 +17,9 @@ public enum PythonExecutionMode
 /// to the output directory. On first run, the application automatically executes <c>uv sync --frozen</c>
 /// in the output directory to materialize <c>.venv/</c> in-place.
 /// </para>
-/// <para>
-/// <strong>Auto-detection hierarchy:</strong>
-/// <list type="number">
-/// <item>Explicit value set via <c>UsePython(opts => opts.PythonDll = "...")</c></item>
-/// <item>Environment variable (<c>PYTHONNET_PYDLL</c> for containers/CI)</item>
-/// <item>Explicit <c>VenvPath</c> override</item>
-/// <item>Auto-initialization via <c>uv sync --frozen</c> in output directory</item>
-/// <item>Fallback to <c>VIRTUAL_ENV</c> if set (compatibility with <c>uv run</c>)</item>
-/// </list>
-/// </para>
 /// </remarks>
 public sealed class PythonRuntimeOptions
 {
-  /// <summary>
-  /// Path to the Python shared library (e.g., libpython3.12.so, python312.dll).
-  /// </summary>
-  /// <remarks>
-  /// <para>
-  /// If not set, resolved in order:
-  /// <list type="number">
-  /// <item><c>PYTHONNET_PYDLL</c> environment variable (explicit override)</item>
-  /// <item>Explicit <c>VenvPath</c> override</item>
-  /// <item>Auto-materialized <c>.venv/</c> via <c>uv sync --frozen</c> in output directory</item>
-  /// <item><c>VIRTUAL_ENV</c> environment variable (compatibility with <c>uv run</c>)</item>
-  /// </list>
-  /// </para>
-  /// <para>
-  /// Container deployments typically set <c>PYTHONNET_PYDLL</c> to point to system Python.
-  /// Local development and deployables use <c>uv sync</c> to create <c>.venv/</c> in-place.
-  /// </para>
-  /// </remarks>
-  public string? PythonDll { get; set; }
-
   /// <summary>
   /// Path to the Python virtual environment (e.g., <c>.venv/</c>).
   /// </summary>
@@ -100,17 +50,10 @@ public sealed class PythonRuntimeOptions
   /// <para>
   /// Used by auto-initialization when <c>pyproject.toml</c> and <c>uv.lock</c> exist in
   /// the output directory. To disable auto-initialization entirely, set <c>VenvPath</c>
-  /// explicitly or set <c>PYTHONNET_PYDLL</c> to point to system Python.
+  /// explicitly.
   /// </para>
   /// </remarks>
   public string UvPath { get; set; } = "uv";
-
-  /// <summary>
-  /// Controls whether Python steps run in the same process or an isolated child process.
-  /// Defaults to <see cref="PythonExecutionMode.Subprocess"/> for per-service isolation.
-  /// Set to <see cref="PythonExecutionMode.InProcess"/> to opt in to shared-interpreter mode.
-  /// </summary>
-  public PythonExecutionMode ExecutionMode { get; set; } = PythonExecutionMode.Subprocess;
 
   /// <summary>
   /// Directories to add to Python's <c>sys.path</c> for module resolution.

@@ -54,7 +54,6 @@
     <PackageVersion Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="Microsoft.ML.OnnxTransformer" Version="4.0.3" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="Parquet.Net" Version="5.6.0" /> <!-- tracks current stable; revisit before publish -->
-    <PackageVersion Include="pythonnet" Version="3.0.5" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="StrawberryShake.Core" Version="15.1.14" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="StrawberryShake.Server" Version="15.1.14" /> <!-- tracks current stable; revisit before publish -->
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />

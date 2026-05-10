@@ -6,18 +6,14 @@ using Flowthru.Validation.Runtime;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Flowthru.Hosting;
 
 /// <summary>
 /// <c>UsePython()</c> extension methods on <see cref="IFlowthruBuilder"/>.
 /// Registers Python step support — runtime options (bound from
-/// <c>Flowthru:Python</c>), an <see cref="IPythonExecutor"/>
-/// (subprocess by default; in-process opt-in via
-/// <see cref="PythonExecutionMode"/>), the
-/// <see cref="IPythonServiceInspectorRegistry"/>, the
+/// <c>Flowthru:Python</c>), the subprocess <see cref="IPythonExecutor"/>,
+/// the <see cref="IPythonServiceInspectorRegistry"/>, the
 /// <see cref="IServiceRefDispatcher"/> for
 /// <see cref="Flowthru.Validation.Runtime.Python.PythonServiceRef"/>,
 /// and the pre-flight <see cref="IFlowValidationHook"/> that audits
@@ -27,16 +23,14 @@ public static class PythonFlowthruBuilderExtensions
 {
   /// <summary>
   /// Register Python step support with configuration bound from the
-  /// <c>Flowthru:Python</c> section. Platform defaults are applied
-  /// after binding (e.g. <c>PYTHONNET_PYDLL</c> picked up from the
-  /// process environment if present).
+  /// <c>Flowthru:Python</c> section.
   /// </summary>
   /// <example>
   /// <code>
   /// services.AddFlowthru(configuration, b =>
   /// {
   ///   b.RegisterCatalog&lt;Catalog&gt;();
-  ///   b.UsePython();  // subprocess executor by default
+  ///   b.UsePython();
   /// });
   /// </code>
   /// </example>
@@ -47,17 +41,6 @@ public static class PythonFlowthruBuilderExtensions
     builder.Services
       .AddOptions<PythonRuntimeOptions>()
       .Configure<IConfiguration>((opts, cfg) => cfg.GetSection("Flowthru:Python").Bind(opts))
-      .PostConfigure(opts =>
-      {
-        // PYTHONNET_PYDLL is a Python.NET convention that predates
-        // Flowthru's config namespace — read it as a platform default
-        // rather than via IConfiguration.
-        if (string.IsNullOrWhiteSpace(opts.PythonDll))
-        {
-          var envDll = Environment.GetEnvironmentVariable("PYTHONNET_PYDLL");
-          if (!string.IsNullOrWhiteSpace(envDll)) opts.PythonDll = envDll;
-        }
-      })
       .ValidateOnStart();
 
     // Cross-cutting Python-extension singletons. TryAddSingleton
@@ -65,32 +48,7 @@ public static class PythonFlowthruBuilderExtensions
     // earlier in the pipeline take precedence.
     builder.Services.TryAddSingleton<IPythonConfigurationFlattener, PythonConfigurationFlattener>();
     builder.Services.TryAddSingleton<IPythonServiceInspectorRegistry, PythonServiceInspectorRegistry>();
-
-    // PythonRuntime is needed only by the in-process executor, but
-    // it's harmless to register unconditionally — initialization is
-    // lazy on first use.
-    builder.Services.TryAddSingleton<PythonRuntime>();
-
-    // Executor: factory-resolved so the configured
-    // PythonExecutionMode picks at runtime, not at registration time.
-    // This lets the user register UsePython() unconditionally and
-    // switch modes via configuration.
-    builder.Services.TryAddSingleton<IPythonExecutor>(sp =>
-    {
-      var options = sp.GetRequiredService<IOptions<PythonRuntimeOptions>>().Value;
-      return options.ExecutionMode switch
-      {
-        PythonExecutionMode.InProcess => new PythonNetExecutor(
-          sp.GetRequiredService<PythonRuntime>(),
-          sp.GetRequiredService<ILogger<PythonNetExecutor>>()
-        ),
-        _ => new SubprocessPythonExecutor(
-          sp.GetRequiredService<IOptions<PythonRuntimeOptions>>(),
-          sp.GetRequiredService<IPythonConfigurationFlattener>(),
-          sp.GetRequiredService<ILogger<SubprocessPythonExecutor>>()
-        ),
-      };
-    });
+    builder.Services.TryAddSingleton<IPythonExecutor, SubprocessPythonExecutor>();
 
     // Service-ref dispatch: matches Category="python".
     builder.Services.AddSingleton<IServiceRefDispatcher, PythonServiceRefDispatcher>();
@@ -105,16 +63,15 @@ public static class PythonFlowthruBuilderExtensions
 
   /// <summary>
   /// Register Python step support with code-first option overrides.
-  /// The configure callback runs after the
-  /// <c>Flowthru:Python</c> section binding and platform-default
-  /// fallbacks, so it can selectively override individual values.
+  /// The configure callback runs after the <c>Flowthru:Python</c> section binding,
+  /// so it can selectively override individual values.
   /// </summary>
   /// <example>
   /// <code>
   /// b.UsePython(opts =>
   /// {
-  ///   opts.ExecutionMode = PythonExecutionMode.InProcess;
   ///   opts.ModuleSearchPaths.Add("Flows");
+  ///   opts.VenvPath = "/opt/venv";
   /// });
   /// </code>
   /// </example>

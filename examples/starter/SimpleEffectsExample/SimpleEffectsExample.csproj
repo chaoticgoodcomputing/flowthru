@@ -29,6 +29,7 @@
     <!-- Granular Flowthru references — only what the example actually consumes. -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Diagnostics/Flowthru.Extensions.Metadata.Diagnostics.csproj" />
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
     <ProjectReference Include="$(RepoRoot)src/funit/FUnit/FUnit.csproj" />

@@ -244,47 +244,4 @@ public static class ArrowSchemaMapper
     return dict;
   }
 
-  /// <summary>
-  /// Builds a Python dictionary (PyDict) mapping column names to pandas dtype strings.
-  /// </summary>
-  /// <typeparam name="T">The C# schema type</typeparam>
-  /// <returns>PyDict with dtype specifications for df_to_ipc</returns>
-  /// <remarks>
-  /// Maps Arrow types to pandas dtype strings:
-  /// - Int32Type → 'int32'
-  /// - Int64Type → 'int64'
-  /// - FloatType → 'float32'
-  /// - DoubleType → 'float64'
-  /// - BooleanType → 'bool'
-  /// - StringType → 'object'
-  /// </remarks>
-  public static object BuildDtypeSpec<T>()
-    where T : notnull
-  {
-    var schema = BuildArrowSchema<T>();
-    var dtypeDict = new global::Python.Runtime.PyDict();
-
-    foreach (var field in schema.FieldsList)
-    {
-      var pandasDtype = field.DataType switch
-      {
-        Int32Type => "int32",
-        Int64Type => "int64",
-        Int16Type => "int16",
-        UInt8Type => "uint8",
-        FloatType => "float32",
-        DoubleType => "float64",
-        BooleanType => "bool",
-        StringType => "object",
-        TimestampType ts => ts.Timezone != null ? "datetime64[ns, UTC]" : "datetime64[ns]",
-        DurationType => "timedelta64[ns]",
-        BinaryType => "object",
-        _ => "object", // Fallback for unsupported types
-      };
-
-      dtypeDict.SetItem(field.Name, new global::Python.Runtime.PyString(pandasDtype));
-    }
-
-    return dtypeDict;
-  }
 }

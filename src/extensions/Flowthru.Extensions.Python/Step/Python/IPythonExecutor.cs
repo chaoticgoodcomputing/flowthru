@@ -14,20 +14,11 @@ namespace Flowthru.Step.Python;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Two implementations ship.</strong>
-/// <list type="bullet">
-///   <item>
-///     <c>SubprocessPythonExecutor</c> — default. Spawns one child
-///     Python process per executor instance; full OS-level isolation.
-///     JSON over stdin/stdout, Apache Arrow IPC for tabular data.
-///   </item>
-///   <item>
-///     <c>PythonNetExecutor</c> — opt-in via
-///     <c>UsePython(o => o.ExecutionMode = InProcess)</c>. In-process
-///     interpreter via Python.NET; lower marshalling overhead at the
-///     cost of GIL-shared interpreter state across all executors.
-///   </item>
-/// </list>
+/// One implementation ships: <c>SubprocessPythonExecutor</c>. It spawns one
+/// child Python process per executor instance for full OS-level isolation,
+/// using JSON over stdin/stdout for control + Apache Arrow IPC for tabular
+/// data. Custom executors (in-process Python.NET, FFI, RPC over network,
+/// etc.) can be registered against this interface via DI.
 /// </para>
 /// </remarks>
 public interface IPythonExecutor

@@ -8,7 +8,7 @@
 
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Extensions.Python</PackageId>
-    <PackageTags>data-engineering;pipeline;python;pythonnet</PackageTags>
+    <PackageTags>data-engineering;pipeline;python</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,10 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Python.NET — embedded Python runtime (used by PythonNetExecutor) -->
-    <PackageReference Include="pythonnet" />
-
-    <!-- Apache Arrow — tabular data interchange wire format -->
+    <!-- Apache Arrow — tabular data interchange wire format with the subprocess worker -->
     <PackageReference Include="Apache.Arrow" />
 
     <!-- MSBuild task authoring (PythonSchemaExportTask) -->

@@ -4,7 +4,7 @@ namespace Flowthru.Step.Python;
 
 /// <summary>
 /// Lookup surface for Python service ↔ sidecar inspector registrations.
-/// Populated by <see cref="Flowthru.Extensions.Python.Runtime.PythonRuntimeOptions.RegisterService(string, System.Action{PythonServiceBuilder})"/>
+/// Populated by <see cref="Flowthru.Step.Python.PythonRuntimeOptions.RegisterService(string, System.Action{PythonServiceBuilder})"/>
 /// at options-configuration time; consumed by the preflight loop to dispatch
 /// inspector calls for each declared Python service dependency.
 /// </summary>

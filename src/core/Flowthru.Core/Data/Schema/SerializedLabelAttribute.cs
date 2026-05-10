@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Data.Schema;
 
 /// <summary>
@@ -7,6 +9,7 @@ namespace Flowthru.Data.Schema;
 /// is used as-is.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+[ExcludeFromCodeCoverage] // Decorator only; behaviour exercised through schema source-generator output.
 public sealed class SerializedLabelAttribute : Attribute
 {
   /// <summary>The external field name in the serialized data.</summary>

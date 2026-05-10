@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Data.Schema;
 
 /// <summary>
@@ -7,6 +9,7 @@ namespace Flowthru.Data.Schema;
 /// enum member used in a serializable schema (validated at build time).
 /// </summary>
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+[ExcludeFromCodeCoverage] // Decorator only; behaviour exercised through schema source-generator output.
 public sealed class SerializedEnumAttribute : Attribute
 {
   /// <summary>The string value used when serializing this enum member.</summary>

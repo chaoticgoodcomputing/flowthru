@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Step;
 
 /// <summary>
@@ -29,6 +31,7 @@ namespace Flowthru.Step;
 /// </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[ExcludeFromCodeCoverage] // Decorator only; behaviour exercised through StepMetadataGenerator output.
 public sealed class FlowthruStepAttribute : Attribute
 {
   /// <summary>

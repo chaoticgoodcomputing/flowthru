@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flowthru.Data.Catalog;
 
 /// <summary>
@@ -28,6 +30,7 @@ namespace Flowthru.Data.Catalog;
 /// </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+[ExcludeFromCodeCoverage] // Decorator only; behaviour exercised through CatalogPropertyGenerator output.
 public sealed class JsonItemAttribute : Attribute
 {
   /// <summary>The JSON file path (relative or absolute).</summary>

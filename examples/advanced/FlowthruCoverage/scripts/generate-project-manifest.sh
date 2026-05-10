@@ -9,16 +9,21 @@ mkdir -p "$(dirname "$MANIFEST")"
 
 echo "AssemblyName,ProjectType,Subgroup" > "$MANIFEST"
 
-# Packages excluded from coverage measurement (kept in sync with [Flowthru.Misc.ML]*
-# in coverlet.runsettings <Exclude>). These produce no Cobertura data; keeping their
-# entries here would create permanent ghost rows in the heatmap.
-EXCLUDED_PACKAGES="Flowthru.Misc.ML Flowthru.Misc.ML.Tests"
-
+# Packages excluded from coverage measurement (kept in sync with the
+# coverlet.runsettings <Exclude> patterns). These produce no Cobertura data; keeping
+# their entries here would create permanent ghost rows in the heatmap.
+#
+# Roslyn analyzer / source-generator / code-fix projects (matching *.SourceGenerators
+# and *.CodeFixes) are also excluded — they execute inside the C# compiler at build
+# time, never in the test runtime, so coverlet has nothing to instrument. Their
+# behaviour is verified through *.SourceGenerators.Tests / *.CodeFixes.Tests via
+# CSharpGeneratorDriver / CSharpCodeFixVerifier (snapshot-style fixtures).
 is_excluded() {
-  for ex in $EXCLUDED_PACKAGES; do
-    [ "$1" = "$ex" ] && return 0
-  done
-  return 1
+  case "$1" in
+    *.SourceGenerators|*.SourceGenerators.Tests) return 0 ;;
+    *.CodeFixes|*.CodeFixes.Tests)               return 0 ;;
+    *)                                           return 1 ;;
+  esac
 }
 
 for proj in src/core/*/;       do name=$(basename "$proj"); is_excluded "$name" || echo "$name,Library,Core";       done >> "$MANIFEST"
@@ -28,6 +33,11 @@ for proj in src/misc/*/;       do name=$(basename "$proj"); is_excluded "$name" 
 for proj in tests/core/*/;       do name=$(basename "$proj"); is_excluded "$name" || echo "$name,LibraryTest,Core";       done >> "$MANIFEST"
 for proj in tests/extensions/*/; do name=$(basename "$proj"); is_excluded "$name" || echo "$name,LibraryTest,Extensions"; done >> "$MANIFEST"
 for proj in tests/misc/*/;       do name=$(basename "$proj"); is_excluded "$name" || echo "$name,LibraryTest,Misc";       done >> "$MANIFEST"
+
+# FUnit graduated to its own top-level domain (Phase 5 carryover); src/funit and
+# tests/funit follow the same Library / LibraryTest split as core/extensions/misc.
+for proj in src/funit/*/;       do name=$(basename "$proj"); is_excluded "$name" || echo "$name,Library,FUnit";       done >> "$MANIFEST"
+for proj in tests/funit/*/;     do name=$(basename "$proj"); is_excluded "$name" || echo "$name,LibraryTest,FUnit"; done >> "$MANIFEST"
 
 for proj in tests/helpers/*/;     do echo "$(basename "$proj"),IntegrationTest,"; done >> "$MANIFEST"
 for proj in tests/integration/*/; do echo "$(basename "$proj"),IntegrationTest,"; done >> "$MANIFEST"

@@ -81,6 +81,11 @@ public class Program
           var metadataPath = Path.Combine(basePath, "Metadata");
           meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
           meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+          // Diagnostics: register the curated default provider set
+          // (StepTimings + RunSummary, both free post-run computations).
+          // RowCounts and OutputExistence remain opt-in via the configure
+          // lambda when an example wants the heavier observation.
+          meta.UseDiagnostics();
         });
 
         flowthru
