@@ -23,38 +23,38 @@ public static class ReportingFlow
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, IEnumerable<ShuttleCapacityReport>>(
         label: "ComparePassengerCapacity",
         transform: ComparePassengerCapacityStep.Create(),
-        input1: catalog.PreprocessedShuttles,
-        output1: catalog.ShuttleCapacityReport
+        inputs: catalog.PreprocessedShuttles,
+        outputs: catalog.ShuttleCapacityReport
       );
 
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, GenericChart>(
         label: "GeneratePassengerCapacityChart",
         transform: GeneratePassengerCapacityChartStep.Create(),
-        input1: catalog.PreprocessedShuttles,
-        output1: catalog.ShuttlePassengerCapacityChart
+        inputs: catalog.PreprocessedShuttles,
+        outputs: catalog.ShuttlePassengerCapacityChart
       );
 
       // NOTE: PNG export commented out due to Plotly.NET PuppeteerSharp performance issues.
       // pipeline.AddStep<GenericChart, byte[]>(
       //   label: "ExportPassengerCapacityPng",
       //   transform: PlotlyImageExportStep.Create(),
-      //   input1: catalog.ShuttlePassengerCapacityChart,
-      //   output1: catalog.ShuttlePassengerCapacityPlotPng
+      //   inputs: catalog.ShuttlePassengerCapacityChart,
+      //   outputs: catalog.ShuttlePassengerCapacityPlotPng
       // );
 
       pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
         label: "GenerateConfusionMatrixChart",
         transform: predictions => confusionTransform((predictions, confusionOptions)),
-        input1: catalog.ModelPredictions,
-        output1: catalog.ConfusionMatrixChart
+        inputs: catalog.ModelPredictions,
+        outputs: catalog.ConfusionMatrixChart
       );
 
       // NOTE: PNG export commented out due to Plotly.NET PuppeteerSharp performance issues.
       // pipeline.AddStep<GenericChart, byte[]>(
       //   label: "ExportConfusionMatrixPng",
       //   transform: PlotlyImageExportStep.Create(),
-      //   input1: catalog.ConfusionMatrixChart,
-      //   output1: catalog.ConfusionMatrixPlotPng
+      //   inputs: catalog.ConfusionMatrixChart,
+      //   outputs: catalog.ConfusionMatrixPlotPng
       // );
     });
   }

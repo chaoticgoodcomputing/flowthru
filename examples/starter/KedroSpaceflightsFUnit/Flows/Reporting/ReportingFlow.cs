@@ -23,22 +23,22 @@ public static class ReportingFlow
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, IEnumerable<ShuttleCapacityReport>>(
         label: "ComparePassengerCapacity",
         transform: ComparePassengerCapacityStep.Create(),
-        input1: catalog.PreprocessedShuttles,
-        output1: catalog.ShuttleCapacityReport
+        inputs: catalog.PreprocessedShuttles,
+        outputs: catalog.ShuttleCapacityReport
       );
 
       pipeline.AddStep<IEnumerable<PreprocessedShuttleSchema>, GenericChart>(
         label: "GeneratePassengerCapacityChart",
         transform: GeneratePassengerCapacityChartStep.Create(),
-        input1: catalog.PreprocessedShuttles,
-        output1: catalog.ShuttlePassengerCapacityChart
+        inputs: catalog.PreprocessedShuttles,
+        outputs: catalog.ShuttlePassengerCapacityChart
       );
 
       pipeline.AddStep<IEnumerable<ModelPredictions>, GenericChart>(
         label: "GenerateConfusionMatrixChart",
         transform: predictions => confusionTransform((predictions, confusionOptions)),
-        input1: catalog.ModelPredictions,
-        output1: catalog.ConfusionMatrixChart
+        inputs: catalog.ModelPredictions,
+        outputs: catalog.ConfusionMatrixChart
       );
     });
   }

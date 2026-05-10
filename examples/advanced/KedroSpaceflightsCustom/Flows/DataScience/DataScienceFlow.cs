@@ -27,19 +27,15 @@ public static class DataScienceFlow
       >(
         label: "CreateTestTrainSplitDatasets",
         transform: data => splitTransform((data, modelParams)),
-        input1: catalog.ModelInputTable,
-        output1: catalog.XTrain,
-        output2: catalog.XTest,
-        output3: catalog.YTrain,
-        output4: catalog.YTest
+        inputs: catalog.ModelInputTable,
+        outputs: (catalog.XTrain, catalog.XTest, catalog.YTrain, catalog.YTest)
       );
 
       pipeline.AddStep<IEnumerable<FeatureRow>, IEnumerable<TargetValue>, LinearRegressionModel>(
         label: "TrainOLSModel",
         transform: TrainModelStep.Create(),
-        input1: catalog.XTrain,
-        input2: catalog.YTrain,
-        output1: catalog.Regressor
+        inputs: (catalog.XTrain, catalog.YTrain),
+        outputs: catalog.Regressor
       );
     });
   }

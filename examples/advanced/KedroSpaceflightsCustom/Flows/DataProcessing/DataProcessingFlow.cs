@@ -19,22 +19,22 @@ public static class DataProcessingFlow
       pipeline.AddStep<IEnumerable<CompanyRawSchema>, IEnumerable<CompanySchema>>(
         label: "PreprocessCompanies",
         transform: PreprocessCompaniesStep.Create(),
-        input1: catalog.Companies,
-        output1: catalog.CleanedCompanies
+        inputs: catalog.Companies,
+        outputs: catalog.CleanedCompanies
       );
 
       pipeline.AddStep<IEnumerable<ShuttleRawSchema>, IEnumerable<ShuttleSchema>>(
         label: "PreprocessShuttles",
         transform: PreprocessShuttlesStep.Create(),
-        input1: catalog.Shuttles,
-        output1: catalog.CleanedShuttles
+        inputs: catalog.Shuttles,
+        outputs: catalog.CleanedShuttles
       );
 
       pipeline.AddStep<IEnumerable<ReviewRawSchema>, IEnumerable<ReviewSchema>>(
         label: "PreprocessReviews",
         transform: PreprocessReviewsStep.Create(),
-        input1: catalog.Reviews,
-        output1: catalog.CleanedReviews
+        inputs: catalog.Reviews,
+        outputs: catalog.CleanedReviews
       );
 
       pipeline.AddStep<
@@ -45,10 +45,8 @@ public static class DataProcessingFlow
       >(
         label: "CreateModelInputTable",
         transform: CreateModelInputTableStep.Create(),
-        input1: catalog.CleanedShuttles,
-        input2: catalog.CleanedCompanies,
-        input3: catalog.CleanedReviews,
-        output1: catalog.ModelInputTable
+        inputs: (catalog.CleanedShuttles, catalog.CleanedCompanies, catalog.CleanedReviews),
+        outputs: catalog.ModelInputTable
       );
     });
   }

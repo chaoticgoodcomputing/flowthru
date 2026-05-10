@@ -31,8 +31,8 @@ public static class ReportTimeFlow
         pipeline.AddStep<string, string>(
           label: label,
           transform: ReportTimeStep.Create(timeService, zone, abbrev),
-          input1: catalog.ReportTemplate,
-          output1: outputSelector(catalog)
+          inputs: catalog.ReportTemplate,
+          outputs: outputSelector(catalog)
         );
       }
     });

@@ -19,8 +19,8 @@ public static class GreetingsFlow
       pipeline.AddStep<IEnumerable<NameSchema>, IEnumerable<GreetingSchema>>(
         label: "CreateHello",
         transform: CreateHelloStep.Create(),
-        input1: catalog.Names,
-        output1: catalog.HelloGreetings
+        inputs: catalog.Names,
+        outputs: catalog.HelloGreetings
       );
 
       pipeline.AddStep<
@@ -30,9 +30,8 @@ public static class GreetingsFlow
       >(
         label: "TransformGreetings",
         transform: TransformGreetingsStep.Create(),
-        input1: catalog.HelloGreetings,
-        output1: catalog.Goodbyes,
-        output2: catalog.SoLongs
+        inputs: catalog.HelloGreetings,
+        outputs: (catalog.Goodbyes, catalog.SoLongs)
       );
     });
   }

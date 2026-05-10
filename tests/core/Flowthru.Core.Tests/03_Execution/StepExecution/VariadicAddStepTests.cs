@@ -80,7 +80,7 @@ public class VariadicAddStepTests
         label: "Concat",
         transform: batches => batches.SelectMany(b => b),
         inputs: shards,
-        output1: master
+        outputs: master
       )
     );
 
@@ -105,7 +105,7 @@ public class VariadicAddStepTests
         label: "Concat",
         transform: batches => batches.SelectMany(b => b),
         inputs: shards,
-        output1: master
+        outputs: master
       )
     );
 
@@ -132,7 +132,7 @@ public class VariadicAddStepTests
         label: "Concat",
         transform: batches => batches.SelectMany(b => b),
         inputs: shards,
-        output1: master
+        outputs: master
       )
     );
 
@@ -161,7 +161,7 @@ public class VariadicAddStepTests
           return batches.SelectMany(b => b).ToList();
         },
         inputs: shards,
-        output1: master
+        outputs: master
       )
     );
 
@@ -193,7 +193,7 @@ public class VariadicAddStepTests
           return batches.SelectMany(b => b).ToList();
         },
         inputs: shards,
-        output1: master
+        outputs: master
       )
     );
 
@@ -220,7 +220,7 @@ public class VariadicAddStepTests
         label: null!,
         transform: batches => batches.SelectMany(b => b),
         inputs: shards,
-        output1: master
+        outputs: master
       ));
 
     Assert.Throws<ArgumentNullException>(() =>
@@ -228,7 +228,7 @@ public class VariadicAddStepTests
         label: "x",
         transform: (Func<IEnumerable<IEnumerable<Row>>, IEnumerable<Row>>)null!,
         inputs: shards,
-        output1: master
+        outputs: master
       ));
 
     Assert.Throws<ArgumentNullException>(() =>
@@ -236,7 +236,7 @@ public class VariadicAddStepTests
         label: "x",
         transform: batches => batches.SelectMany(b => b),
         inputs: null!,
-        output1: master
+        outputs: master
       ));
 
     Assert.Throws<ArgumentNullException>(() =>
@@ -244,7 +244,7 @@ public class VariadicAddStepTests
         label: "x",
         transform: batches => batches.SelectMany(b => b),
         inputs: shards,
-        output1: null!
+        outputs: null!
       ));
   }
 

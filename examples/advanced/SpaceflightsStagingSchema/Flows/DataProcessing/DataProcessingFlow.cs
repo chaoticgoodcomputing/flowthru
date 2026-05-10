@@ -20,22 +20,22 @@ public static class DataProcessingFlow
       pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
         transform: PreprocessCompaniesStep.Create(config.SeedingOptions),
-        input1: raw.Companies,
-        output1: staging.Companies
+        inputs: raw.Companies,
+        outputs: staging.Companies
       );
 
       pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
         transform: PreprocessShuttlesStep.Create(config.SeedingOptions),
-        input1: raw.Shuttles,
-        output1: staging.Shuttles
+        inputs: raw.Shuttles,
+        outputs: staging.Shuttles
       );
 
       pipeline.AddStep<IEnumerable<ReviewSchema>, IEnumerable<PreprocessedReviewSchema>>(
         label: "PreprocessReviews",
         transform: PreprocessReviewsStep.Create(config.SeedingOptions),
-        input1: raw.Reviews,
-        output1: staging.Reviews
+        inputs: raw.Reviews,
+        outputs: staging.Reviews
       );
     });
   }

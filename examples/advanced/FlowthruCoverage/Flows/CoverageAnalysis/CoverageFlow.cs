@@ -18,29 +18,29 @@ public static class CoverageAnalysisFlow
       pipeline.AddStep<DirectoryOf<CoberturaReport>, IEnumerable<LineCoverageRow>>(
         label: "FlattenCobertura",
         transform: FlattenCoberturaStep.Create(),
-        input1: catalog.CoverageXmlFiles,
-        output1: catalog.LineCoverage
+        inputs: catalog.CoverageXmlFiles,
+        outputs: catalog.LineCoverage
       );
 
       pipeline.AddStep<IEnumerable<LineCoverageRow>, IEnumerable<PackageCoverageRow>>(
         label: "AggregateCoverage",
         transform: AggregateCoverageStep.Create(),
-        input1: catalog.LineCoverage,
-        output1: catalog.PackageCoverage
+        inputs: catalog.LineCoverage,
+        outputs: catalog.PackageCoverage
       );
 
       pipeline.AddStep<IEnumerable<LineCoverageRow>, IEnumerable<LineCoverageRow>>(
         label: "FilterCompilerGenerated",
         transform: FilterCompilerGeneratedStep.Create(),
-        input1: catalog.LineCoverage,
-        output1: catalog.MethodLineCoverage
+        inputs: catalog.LineCoverage,
+        outputs: catalog.MethodLineCoverage
       );
 
       pipeline.AddStep<IEnumerable<LineCoverageRow>, IEnumerable<PackageCoverageReport>>(
         label: "BuildMethodCoverage",
         transform: BuildMethodCoverageStep.Create(),
-        input1: catalog.MethodLineCoverage,
-        output1: catalog.MethodCoverage
+        inputs: catalog.MethodLineCoverage,
+        outputs: catalog.MethodCoverage
       );
 
       pipeline.AddStep<
@@ -50,9 +50,8 @@ public static class CoverageAnalysisFlow
       >(
         label: "BuildMethodHitSummary",
         transform: BuildMethodHitSummaryStep.Create(),
-        input1: catalog.MethodCoverage,
-        input2: catalog.ProjectManifest,
-        output1: catalog.MethodHitSummary
+        inputs: (catalog.MethodCoverage, catalog.ProjectManifest),
+        outputs: catalog.MethodHitSummary
       );
 
       pipeline.AddStep<
@@ -62,9 +61,8 @@ public static class CoverageAnalysisFlow
       >(
         label: "BuildMethodNameSummary",
         transform: BuildMethodNameSummaryStep.Create(),
-        input1: catalog.MethodCoverage,
-        input2: catalog.ProjectManifest,
-        output1: catalog.MethodNameSummary
+        inputs: (catalog.MethodCoverage, catalog.ProjectManifest),
+        outputs: catalog.MethodNameSummary
       );
     });
   }

@@ -121,17 +121,14 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var tinType = TupleOrSingle("TIn", m);
     var toutType = TupleOrSingle("TOut", n);
     var typeParams = string.Join(", ", tinTypeParams.Concat(toutTypeParams));
-
-    var inputParams = string.Join(", ",
-      Enumerable.Range(1, m).Select(i => $"global::Flowthru.Data.Catalog.IItem<TIn{i}> input{i}"));
-    var outputParams = string.Join(", ",
-      Enumerable.Range(1, n).Select(i => $"global::Flowthru.Data.Catalog.IItem<TOut{i}> output{i}"));
+    var inputsParam = ItemTupleParam("TIn", m, "inputs");
+    var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
     sb.AppendLine($"  public FlowBuilder AddStep<{typeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, {toutType}> transform,");
-    sb.AppendLine($"    {inputParams},");
-    sb.AppendLine($"    {outputParams})");
+    sb.AppendLine($"    {inputsParam},");
+    sb.AppendLine($"    {outputsParam})");
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.Lift<{toutType}>(() => transform(input), \"step:\" + label)");
@@ -145,17 +142,14 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var tinType = TupleOrSingle("TIn", m);
     var toutType = TupleOrSingle("TOut", n);
     var typeParams = string.Join(", ", tinTypeParams.Concat(toutTypeParams));
-
-    var inputParams = string.Join(", ",
-      Enumerable.Range(1, m).Select(i => $"global::Flowthru.Data.Catalog.IItem<TIn{i}> input{i}"));
-    var outputParams = string.Join(", ",
-      Enumerable.Range(1, n).Select(i => $"global::Flowthru.Data.Catalog.IItem<TOut{i}> output{i}"));
+    var inputsParam = ItemTupleParam("TIn", m, "inputs");
+    var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
     sb.AppendLine($"  public FlowBuilder AddStep<{typeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {inputParams},");
-    sb.AppendLine($"    {outputParams})");
+    sb.AppendLine($"    {inputsParam},");
+    sb.AppendLine($"    {outputsParam})");
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync(_ => transform(input))");
@@ -169,22 +163,34 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     var tinType = TupleOrSingle("TIn", m);
     var toutType = TupleOrSingle("TOut", n);
     var typeParams = string.Join(", ", tinTypeParams.Concat(toutTypeParams));
-
-    var inputParams = string.Join(", ",
-      Enumerable.Range(1, m).Select(i => $"global::Flowthru.Data.Catalog.IItem<TIn{i}> input{i}"));
-    var outputParams = string.Join(", ",
-      Enumerable.Range(1, n).Select(i => $"global::Flowthru.Data.Catalog.IItem<TOut{i}> output{i}"));
+    var inputsParam = ItemTupleParam("TIn", m, "inputs");
+    var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
     sb.AppendLine($"  public FlowBuilder AddStep<{typeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {inputParams},");
-    sb.AppendLine($"    {outputParams})");
+    sb.AppendLine($"    {inputsParam},");
+    sb.AppendLine($"    {outputsParam})");
     sb.AppendLine("  {");
     EmitBody(sb, m, n, tinType, toutType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync(ct => transform(input, ct))");
     sb.AppendLine("  }");
     sb.AppendLine();
+  }
+
+  /// <summary>
+  /// Render the parameter declaration for a tuple-shaped <c>inputs</c> /
+  /// <c>outputs</c> parameter. Arity 1 collapses to a single value (no
+  /// surrounding tuple parens) since C# treats a 1-tuple as identical to
+  /// the underlying type at the parameter signature.
+  /// </summary>
+  private static string ItemTupleParam(string typeParamPrefix, int arity, string name)
+  {
+    if (arity == 1)
+      return $"global::Flowthru.Data.Catalog.IItem<{typeParamPrefix}1> {name}";
+    var inner = string.Join(", ",
+      Enumerable.Range(1, arity).Select(i => $"global::Flowthru.Data.Catalog.IItem<{typeParamPrefix}{i}>"));
+    return $"({inner}) {name}";
   }
 
   private static (string[] tin, string[] tout) TypeParams(int m, int n) =>
@@ -205,6 +211,15 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
   /// closure that reads each input, the save closure that writes
   /// each output, and the call to <c>Add(new Step&lt;…&gt;(…))</c>.
   /// </summary>
+  /// <remarks>
+  /// Inputs are destructured from the <c>inputs</c> parameter (a tuple
+  /// when m &gt; 1, a single <c>IItem</c> when m = 1) into local
+  /// <c>i1..im</c> bindings; outputs likewise into <c>o1..on</c>. The
+  /// load/save closures then sequence those locals via
+  /// <c>FlowIO.Bind</c>, identical to the prior numbered-parameter
+  /// shape — just sourced from the tuple's <c>.Item1</c>/<c>.Item2</c>
+  /// projections instead of independent parameters.
+  /// </remarks>
   private static void EmitBody(
     StringBuilder sb,
     int m,
@@ -214,18 +229,22 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     string transformInvocation
   )
   {
+    // Destructure inputs / outputs into local IItem<TInI> / IItem<TOutI> bindings
+    EmitInputDestructuring(sb, m);
+    EmitOutputDestructuring(sb, n);
+
     // loadInputs closure — sequence inputs through bind
     sb.AppendLine($"    global::System.Func<global::Flowthru.Prelude.FlowIO<{tinType}>> loadInputs = () =>");
     if (m == 1)
     {
-      sb.AppendLine("      input1.Load();");
+      sb.AppendLine("      i1.Load();");
     }
     else
     {
       sb.Append("      ");
       for (var i = 1; i <= m; i++)
       {
-        sb.Append($"input{i}.Load().Bind(v{i} =>\n      ");
+        sb.Append($"i{i}.Load().Bind(v{i} =>\n      ");
       }
       var values = string.Join(", ", Enumerable.Range(1, m).Select(i => $"v{i}"));
       sb.Append($"global::Flowthru.Prelude.FlowIO.Pure<{tinType}>(({values}))");
@@ -240,7 +259,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"    global::System.Func<{toutType}, global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> saveOutputs = output =>");
     if (n == 1)
     {
-      sb.AppendLine("      output1.Save(output);");
+      sb.AppendLine("      o1.Save(output);");
     }
     else
     {
@@ -249,11 +268,11 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
       {
         if (i < n)
         {
-          sb.Append($"output{i}.Save(output.Item{i}).Bind(_ =>\n      ");
+          sb.Append($"o{i}.Save(output.Item{i}).Bind(_ =>\n      ");
         }
         else
         {
-          sb.Append($"output{i}.Save(output.Item{i})");
+          sb.Append($"o{i}.Save(output.Item{i})");
         }
       }
       for (var i = 1; i < n; i++)
@@ -264,9 +283,9 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     }
 
     var inputsArray = string.Join(", ",
-      Enumerable.Range(1, m).Select(i => $"input{i}"));
+      Enumerable.Range(1, m).Select(i => $"i{i}"));
     var outputsArray = string.Join(", ",
-      Enumerable.Range(1, n).Select(i => $"output{i}"));
+      Enumerable.Range(1, n).Select(i => $"o{i}"));
 
     sb.AppendLine($"    return Add(new global::Flowthru.Step.Step<{tinType}, {toutType}>(");
     sb.AppendLine("      label,");
@@ -276,6 +295,34 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      loadInputs,");
     sb.AppendLine("      saveOutputs,");
     sb.AppendLine("      flowLabel: this.Label));");
+  }
+
+  /// <summary>Destructure the <c>inputs</c> parameter into <c>i1..iM</c> locals.</summary>
+  private static void EmitInputDestructuring(StringBuilder sb, int m)
+  {
+    if (m == 1)
+    {
+      sb.AppendLine("    var i1 = inputs;");
+    }
+    else
+    {
+      var lhs = string.Join(", ", Enumerable.Range(1, m).Select(i => $"i{i}"));
+      sb.AppendLine($"    var ({lhs}) = inputs;");
+    }
+  }
+
+  /// <summary>Destructure the <c>outputs</c> parameter into <c>o1..oN</c> locals.</summary>
+  private static void EmitOutputDestructuring(StringBuilder sb, int n)
+  {
+    if (n == 1)
+    {
+      sb.AppendLine("    var o1 = outputs;");
+    }
+    else
+    {
+      var lhs = string.Join(", ", Enumerable.Range(1, n).Select(i => $"o{i}"));
+      sb.AppendLine($"    var ({lhs}) = outputs;");
+    }
   }
 
   // ────────────────────────────────────────────────────────────────────────
@@ -335,14 +382,13 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // (0, n>=1) — produces N outputs from no inputs.
     var toutTypeParams = string.Join(", ", Enumerable.Range(1, n).Select(i => $"TOut{i}"));
     var toutType = TupleOrSingle("TOut", n);
-    var outputParams = string.Join(", ",
-      Enumerable.Range(1, n).Select(i => $"global::Flowthru.Data.Catalog.IItem<TOut{i}> output{i}"));
+    var outputsParam = ItemTupleParam("TOut", n, "outputs");
 
     // Sync: Func<TOut>.
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{toutType}> transform,");
-    sb.AppendLine($"    {outputParams})");
+    sb.AppendLine($"    {outputsParam})");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.Lift<{toutType}>(() => transform(), \"step:\" + label)"
@@ -354,7 +400,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {outputParams})");
+    sb.AppendLine($"    {outputsParam})");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.LiftAsync<{toutType}>(_ => transform(), \"step:\" + label)"
@@ -366,7 +412,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{toutTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task<{toutType}>> transform,");
-    sb.AppendLine($"    {outputParams})");
+    sb.AppendLine($"    {outputsParam})");
     sb.AppendLine("  {");
     EmitSourceBody(sb, n, toutType,
       transformInvocation: $"global::Flowthru.Prelude.FlowIO.LiftAsync<{toutType}>(ct => transform(ct), \"step:\" + label)"
@@ -380,14 +426,13 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     // (m>=1, 0) — consumes M inputs, no outputs.
     var tinTypeParams = string.Join(", ", Enumerable.Range(1, m).Select(i => $"TIn{i}"));
     var tinType = TupleOrSingle("TIn", m);
-    var inputParams = string.Join(", ",
-      Enumerable.Range(1, m).Select(i => $"global::Flowthru.Data.Catalog.IItem<TIn{i}> input{i}"));
+    var inputsParam = ItemTupleParam("TIn", m, "inputs");
 
     // Sync: Action<TIn>.
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Action<{tinType}> transform,");
-    sb.AppendLine($"    {inputParams})");
+    sb.AppendLine($"    {inputsParam})");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.Lift<global::Flowthru.Prelude.FlowUnit>(() => { transform(input); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
@@ -399,7 +444,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.Tasks.Task> transform,");
-    sb.AppendLine($"    {inputParams})");
+    sb.AppendLine($"    {inputsParam})");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async _ => { await transform(input).ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
@@ -411,7 +456,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine($"  public FlowBuilder AddStep<{tinTypeParams}>(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    global::System.Func<{tinType}, global::System.Threading.CancellationToken, global::System.Threading.Tasks.Task> transform,");
-    sb.AppendLine($"    {inputParams})");
+    sb.AppendLine($"    {inputsParam})");
     sb.AppendLine("  {");
     EmitSinkBody(sb, m, tinType,
       transformInvocation: "global::Flowthru.Prelude.FlowIO.LiftAsync<global::Flowthru.Prelude.FlowUnit>(async ct => { await transform(input, ct).ConfigureAwait(false); return global::Flowthru.Prelude.FlowUnit.Default; }, \"step:\" + label)"
@@ -445,7 +490,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
 
   /// <summary>
   /// Emit body for (0, n) — source step. TIn = FlowUnit; saveOutputs
-  /// fans out to N output items.
+  /// fans out to N output items destructured from <c>outputs</c>.
   /// </summary>
   private static void EmitSourceBody(
     StringBuilder sb,
@@ -454,25 +499,26 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     string transformInvocation
   )
   {
+    EmitOutputDestructuring(sb, n);
     sb.AppendLine("    global::System.Func<global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> loadInputs = () => global::Flowthru.Prelude.FlowIO.Pure(global::Flowthru.Prelude.FlowUnit.Default);");
     sb.AppendLine($"    global::System.Func<{toutType}, global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> saveOutputs = output =>");
     if (n == 1)
     {
-      sb.AppendLine("      output1.Save(output);");
+      sb.AppendLine("      o1.Save(output);");
     }
     else
     {
       sb.Append("      ");
       for (var i = 1; i <= n; i++)
       {
-        if (i < n) sb.Append($"output{i}.Save(output.Item{i}).Bind(_ =>\n      ");
-        else sb.Append($"output{i}.Save(output.Item{i})");
+        if (i < n) sb.Append($"o{i}.Save(output.Item{i}).Bind(_ =>\n      ");
+        else sb.Append($"o{i}.Save(output.Item{i})");
       }
       for (var i = 1; i < n; i++) sb.Append(")");
       sb.AppendLine(";");
     }
 
-    var outputsArray = string.Join(", ", Enumerable.Range(1, n).Select(i => $"output{i}"));
+    var outputsArray = string.Join(", ", Enumerable.Range(1, n).Select(i => $"o{i}"));
     sb.AppendLine($"    return Add(new global::Flowthru.Step.Step<global::Flowthru.Prelude.FlowUnit, {toutType}>(");
     sb.AppendLine("      label,");
     sb.AppendLine($"      input => {transformInvocation},");
@@ -485,7 +531,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
 
   /// <summary>
   /// Emit body for (m, 0) — sink step. TOut = FlowUnit; saveOutputs
-  /// is a no-op.
+  /// is a no-op. Inputs are destructured from <c>inputs</c>.
   /// </summary>
   private static void EmitSinkBody(
     StringBuilder sb,
@@ -494,15 +540,16 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     string transformInvocation
   )
   {
+    EmitInputDestructuring(sb, m);
     sb.AppendLine($"    global::System.Func<global::Flowthru.Prelude.FlowIO<{tinType}>> loadInputs = () =>");
     if (m == 1)
     {
-      sb.AppendLine("      input1.Load();");
+      sb.AppendLine("      i1.Load();");
     }
     else
     {
       sb.Append("      ");
-      for (var i = 1; i <= m; i++) sb.Append($"input{i}.Load().Bind(v{i} =>\n      ");
+      for (var i = 1; i <= m; i++) sb.Append($"i{i}.Load().Bind(v{i} =>\n      ");
       var values = string.Join(", ", Enumerable.Range(1, m).Select(i => $"v{i}"));
       sb.Append($"global::Flowthru.Prelude.FlowIO.Pure<{tinType}>(({values}))");
       for (var i = 1; i <= m; i++) sb.Append(")");
@@ -510,7 +557,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     }
 
     sb.AppendLine("    global::System.Func<global::Flowthru.Prelude.FlowUnit, global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> saveOutputs = _ => global::Flowthru.Prelude.FlowIO.Pure(global::Flowthru.Prelude.FlowUnit.Default);");
-    var inputsArray = string.Join(", ", Enumerable.Range(1, m).Select(i => $"input{i}"));
+    var inputsArray = string.Join(", ", Enumerable.Range(1, m).Select(i => $"i{i}"));
     sb.AppendLine($"    return Add(new global::Flowthru.Step.Step<{tinType}, global::Flowthru.Prelude.FlowUnit>(");
     sb.AppendLine("      label,");
     sb.AppendLine($"      input => {transformInvocation},");

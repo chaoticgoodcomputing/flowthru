@@ -101,8 +101,7 @@ public class ZeroArityStepTests
       builder.AddStep<int, string>(
         "produce",
         () => (123, "hello"),
-        a,
-        b
+        (a, b)
       )
     );
     var result = await flow.RunAsync();
@@ -160,8 +159,7 @@ public class ZeroArityStepTests
       builder.AddStep<int, int>(
         "consume-two",
         pair => { sum = pair.Item1 + pair.Item2; },
-        a,
-        b
+        (a, b)
       )
     );
     var result = await flow.RunAsync();

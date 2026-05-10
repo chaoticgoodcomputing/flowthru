@@ -46,24 +46,24 @@ public sealed partial class FlowBuilder
   /// Catalog items to reduce over. Order is preserved into the
   /// transform's <see cref="IEnumerable{T}"/> argument.
   /// </param>
-  /// <param name="output1">Catalog item receiving the reduction's result.</param>
+  /// <param name="outputs">Catalog item receiving the reduction's result.</param>
   public FlowBuilder AddStep<TIn, TOut>(
     string label,
     Func<IEnumerable<TIn>, TOut> transform,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> output1
+    IItem<TOut> outputs
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
     if (transform is null) throw new ArgumentNullException(nameof(transform));
     if (inputs is null) throw new ArgumentNullException(nameof(inputs));
-    if (output1 is null) throw new ArgumentNullException(nameof(output1));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
 
     return AddVariadicStep(
       label,
       input => FlowIO.Lift(() => transform(input), source: "step:" + label),
       inputs,
-      output1
+      outputs
     );
   }
 
@@ -75,19 +75,19 @@ public sealed partial class FlowBuilder
     string label,
     Func<IEnumerable<TIn>, Task<TOut>> transform,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> output1
+    IItem<TOut> outputs
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
     if (transform is null) throw new ArgumentNullException(nameof(transform));
     if (inputs is null) throw new ArgumentNullException(nameof(inputs));
-    if (output1 is null) throw new ArgumentNullException(nameof(output1));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
 
     return AddVariadicStep(
       label,
       input => FlowIO.LiftAsync(_ => transform(input), source: "step:" + label),
       inputs,
-      output1
+      outputs
     );
   }
 
@@ -98,19 +98,19 @@ public sealed partial class FlowBuilder
     string label,
     Func<IEnumerable<TIn>, CancellationToken, Task<TOut>> transform,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> output1
+    IItem<TOut> outputs
   )
   {
     if (label is null) throw new ArgumentNullException(nameof(label));
     if (transform is null) throw new ArgumentNullException(nameof(transform));
     if (inputs is null) throw new ArgumentNullException(nameof(inputs));
-    if (output1 is null) throw new ArgumentNullException(nameof(output1));
+    if (outputs is null) throw new ArgumentNullException(nameof(outputs));
 
     return AddVariadicStep(
       label,
       input => FlowIO.LiftAsync(ct => transform(input, ct), source: "step:" + label),
       inputs,
-      output1
+      outputs
     );
   }
 
@@ -120,7 +120,7 @@ public sealed partial class FlowBuilder
     string label,
     Func<IEnumerable<TIn>, FlowIO<TOut>> transformIO,
     IReadOnlyList<IItem<TIn>> inputs,
-    IItem<TOut> output1
+    IItem<TOut> outputs
   )
   {
     // Snapshot the input list so closures don't see later mutations.
@@ -152,14 +152,14 @@ public sealed partial class FlowBuilder
     };
 
     // saveOutputs: single-output, identical to the typed (N, 1) cell.
-    var capturedOutput = output1;
+    var capturedOutput = outputs;
     Func<TOut, FlowIO<FlowUnit>> saveOutputs = output => capturedOutput.Save(output);
 
     return Add(new Step<IEnumerable<TIn>, TOut>(
       label: label,
       transform: transformIO,
       inputs: inputsArr.Cast<IItem>().ToArray(),
-      outputs: new IItem[] { output1 },
+      outputs: new IItem[] { outputs },
       loadInputs: loadInputs,
       saveOutputs: saveOutputs,
       flowLabel: this.Label

@@ -30,10 +30,8 @@ public static class AnalysisFlow
         >(
           label: $"Analyze_{Slugify(captured.Country)}",
           transform: ComputeWeeklyDtuStep.Create(captured.Country),
-          input1: core.AllRetailTransactions,
-          input2: core.CountryCurrencies,
-          input3: core.OfxRates,
-          output1: captured.WeeklyDtu
+          inputs: (core.AllRetailTransactions, core.CountryCurrencies, core.OfxRates),
+          outputs: captured.WeeklyDtu
         );
       }
     });

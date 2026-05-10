@@ -29,18 +29,15 @@ public static class DataEvaluationFlow
       >(
         label: "EvaluateOLSModel",
         transform: EvaluateModelStep.Create(),
-        input1: catalog.Regressor,
-        input2: catalog.XTest,
-        input3: catalog.YTest,
-        output1: catalog.ModelMetrics,
-        output2: catalog.ModelPredictions
+        inputs: (catalog.Regressor, catalog.XTest, catalog.YTest),
+        outputs: (catalog.ModelMetrics, catalog.ModelPredictions)
       );
 
       pipeline.AddStep<IEnumerable<ModelInputSchema>, CrossValidationResults>(
         label: "PerformCrossValidatedOLSRegressionTest",
         transform: data => crossValidateTransform((data, crossValidationParams)),
-        input1: catalog.ModelInputTable,
-        output1: catalog.CrossValidationResults
+        inputs: catalog.ModelInputTable,
+        outputs: catalog.CrossValidationResults
       );
     });
   }

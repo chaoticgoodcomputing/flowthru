@@ -27,16 +27,15 @@ public static class DataScienceFlow
       >(
         label: "SplitData",
         transform: rawData => splitTransform((rawData, modelOptions)),
-        input1: catalog.ModelInputTable,
-        output1: catalog.TrainSplit,
-        output2: catalog.TestSplit
+        inputs: catalog.ModelInputTable,
+        outputs: (catalog.TrainSplit, catalog.TestSplit)
       );
 
       pipeline.AddStep<IEnumerable<TrainingData>, LinearRegressionModel>(
         label: "TrainModel",
         transform: TrainModelStep.Create(),
-        input1: catalog.TrainSplit,
-        output1: catalog.Regressor
+        inputs: catalog.TrainSplit,
+        outputs: catalog.Regressor
       );
 
       pipeline.AddStep<
@@ -47,10 +46,8 @@ public static class DataScienceFlow
       >(
         label: "EvaluateModel",
         transform: EvaluateModelStep.Create(),
-        input1: catalog.Regressor,
-        input2: catalog.TestSplit,
-        output1: catalog.ModelMetrics,
-        output2: catalog.ModelPredictions
+        inputs: (catalog.Regressor, catalog.TestSplit),
+        outputs: (catalog.ModelMetrics, catalog.ModelPredictions)
       );
     });
   }

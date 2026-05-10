@@ -57,8 +57,7 @@ public class StubFlowEndToEndTests
       builder.AddStep<int, int, int>(
         "sum",
         pair => pair.Item1 + pair.Item2,
-        a,
-        b,
+        (a, b),
         sum
       )
     );
@@ -236,8 +235,7 @@ public class StubFlowEndToEndTests
         "split",
         x => (x * 2, x * 3),
         input,
-        doubled,
-        tripled
+        (doubled, tripled)
       )
     );
 

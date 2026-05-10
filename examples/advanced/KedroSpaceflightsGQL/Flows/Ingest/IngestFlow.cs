@@ -22,22 +22,22 @@ public static class IngestFlow
       pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
         transform: PreprocessCompaniesStep.Create(),
-        input1: catalog.SeedCompanies,
-        output1: catalog.PreprocessedCompanies
+        inputs: catalog.SeedCompanies,
+        outputs: catalog.PreprocessedCompanies
       );
 
       pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
         transform: PreprocessShuttlesStep.Create(),
-        input1: catalog.SeedShuttles,
-        output1: catalog.PreprocessedShuttles
+        inputs: catalog.SeedShuttles,
+        outputs: catalog.PreprocessedShuttles
       );
 
       pipeline.AddStep<IEnumerable<ReviewSchema>, IEnumerable<PreprocessedReviewSchema>>(
         label: "PreprocessReviews",
         transform: PreprocessReviewsStep.Create(),
-        input1: catalog.SeedReviews,
-        output1: catalog.PreprocessedReviews
+        inputs: catalog.SeedReviews,
+        outputs: catalog.PreprocessedReviews
       );
 
       pipeline.AddStep<
@@ -48,10 +48,8 @@ public static class IngestFlow
       >(
         label: "SeedGqlDatabase",
         transform: SeedGqlDatabaseStep.Create(client),
-        input1: catalog.PreprocessedCompanies,
-        input2: catalog.PreprocessedShuttles,
-        input3: catalog.PreprocessedReviews,
-        output1: catalog.GqlDatabaseSeeded
+        inputs: (catalog.PreprocessedCompanies, catalog.PreprocessedShuttles, catalog.PreprocessedReviews),
+        outputs: catalog.GqlDatabaseSeeded
       );
     });
   }

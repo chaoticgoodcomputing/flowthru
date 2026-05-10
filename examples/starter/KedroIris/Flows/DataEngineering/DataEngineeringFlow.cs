@@ -29,12 +29,8 @@ public static class DataEngineeringFlow
       >(
         label: "SplitAndEncode",
         transform: rawData => splitTransform((rawData, splitOptions)),
-        input1: catalog.IrisRaw,
-        output1: catalog.IrisFeatures,
-        output2: catalog.TrainX,
-        output3: catalog.TrainY,
-        output4: catalog.TestX,
-        output5: catalog.TestY
+        inputs: catalog.IrisRaw,
+        outputs: (catalog.IrisFeatures, catalog.TrainX, catalog.TrainY, catalog.TestX, catalog.TestY)
       );
     });
   }

@@ -21,68 +21,67 @@ public static class ReportingFlow
       pipeline.AddStep<IEnumerable<ShuttleSchema>, GenericChart>(
         label: "GeneratePassengerCapacityChart",
         transform: ComparePassengerCapacityStep.Create(),
-        input1: catalog.CleanedShuttles,
-        output1: catalog.ShuttlePassengerCapacityChart
+        inputs: catalog.CleanedShuttles,
+        outputs: catalog.ShuttlePassengerCapacityChart
       );
 
       pipeline.AddStep<GenericChart, string>(
         label: "ExportPassengerCapacityJson",
         transform: PlotlyJsonExportStep.Create(),
-        input1: catalog.ShuttlePassengerCapacityChart,
-        output1: catalog.ShuttlePassengerCapacityPlot
+        inputs: catalog.ShuttlePassengerCapacityChart,
+        outputs: catalog.ShuttlePassengerCapacityPlot
       );
 
       // ===== Confusion Matrix Visualization =====
       pipeline.AddStep<IEnumerable<CompanySchema>, GenericChart>(
         label: "GenerateConfusionMatrixChart",
         transform: CreateConfusionMatrixStep.Create(),
-        input1: catalog.CleanedCompanies,
-        output1: catalog.ConfusionMatrixChart
+        inputs: catalog.CleanedCompanies,
+        outputs: catalog.ConfusionMatrixChart
       );
 
       pipeline.AddStep<GenericChart, string>(
         label: "ExportConfusionMatrixJson",
         transform: PlotlyJsonExportStep.Create(),
-        input1: catalog.ConfusionMatrixChart,
-        output1: catalog.ConfusionMatrixPlot
+        inputs: catalog.ConfusionMatrixChart,
+        outputs: catalog.ConfusionMatrixPlot
       );
 
       // ===== Cross-Validation Results Visualization =====
       pipeline.AddStep<CrossValidationResults, GenericChart>(
         label: "GenerateCrossValidationChart",
         transform: VisualizeCrossValidationStep.Create(),
-        input1: catalog.CrossValidationResults,
-        output1: catalog.CrossValidationChart
+        inputs: catalog.CrossValidationResults,
+        outputs: catalog.CrossValidationChart
       );
 
       pipeline.AddStep<GenericChart, string>(
         label: "ExportCrossValidationJson",
         transform: PlotlyJsonExportStep.Create(),
-        input1: catalog.CrossValidationChart,
-        output1: catalog.CrossValidationPlot
+        inputs: catalog.CrossValidationChart,
+        outputs: catalog.CrossValidationPlot
       );
 
       pipeline.AddStep<CrossValidationResults, string>(
         label: "GenerateCrossValidationReport",
         transform: GenerateCrossValidationReportStep.Create(),
-        input1: catalog.CrossValidationResults,
-        output1: catalog.CrossValidationReport
+        inputs: catalog.CrossValidationResults,
+        outputs: catalog.CrossValidationReport
       );
 
       // ===== Prediction Scatter Plot Visualization =====
       pipeline.AddStep<ModelMetrics, IEnumerable<ModelPredictions>, GenericChart>(
         label: "GeneratePredictionScatterChart",
         transform: GeneratePredictionScatterStep.Create(),
-        input1: catalog.ModelMetrics,
-        input2: catalog.ModelPredictions,
-        output1: catalog.PredictionScatterChart
+        inputs: (catalog.ModelMetrics, catalog.ModelPredictions),
+        outputs: catalog.PredictionScatterChart
       );
 
       pipeline.AddStep<GenericChart, string>(
         label: "ExportPredictionScatterJson",
         transform: PlotlyJsonExportStep.Create(),
-        input1: catalog.PredictionScatterChart,
-        output1: catalog.PredictionScatterPlot
+        inputs: catalog.PredictionScatterChart,
+        outputs: catalog.PredictionScatterPlot
       );
     });
   }

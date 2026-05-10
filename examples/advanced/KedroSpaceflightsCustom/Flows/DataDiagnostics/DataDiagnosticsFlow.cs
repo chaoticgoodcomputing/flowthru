@@ -19,36 +19,35 @@ public static class DataDiagnosticsFlow
       pipeline.AddStep<IEnumerable<ModelInputSchema>, IEnumerable<KedroModelInputSchema>>(
         label: "ValidateModelInputTableAgainstKedroSource",
         transform: ValidateAgainstKedroStep.Create(),
-        input1: catalog.ModelInputTable,
-        input2: catalog.KedroModelInputTable
+        inputs: (catalog.ModelInputTable, catalog.KedroModelInputTable)
       );
 
       pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<CompanySchema>>(
         label: "ExportCompaniesToDiagnosticCsv",
         transform: PassthroughInputToOutputStep<CompanySchema>.Create(),
-        input1: catalog.CleanedCompanies,
-        output1: catalog.CleanedCompaniesCsv
+        inputs: catalog.CleanedCompanies,
+        outputs: catalog.CleanedCompaniesCsv
       );
 
       pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<ShuttleSchema>>(
         label: "ExportShuttlesToDiagnosticCsv",
         transform: PassthroughInputToOutputStep<ShuttleSchema>.Create(),
-        input1: catalog.CleanedShuttles,
-        output1: catalog.CleanedShuttlesCsv
+        inputs: catalog.CleanedShuttles,
+        outputs: catalog.CleanedShuttlesCsv
       );
 
       pipeline.AddStep<IEnumerable<ModelInputSchema>, IEnumerable<ModelInputSchema>>(
         label: "ExportModelInputTableToDiagnosticCsv",
         transform: PassthroughInputToOutputStep<ModelInputSchema>.Create(),
-        input1: catalog.ModelInputTable,
-        output1: catalog.ModelInputTableCsv
+        inputs: catalog.ModelInputTable,
+        outputs: catalog.ModelInputTableCsv
       );
 
       pipeline.AddStep<IEnumerable<ModelInputSchema>, IEnumerable<ModelInputSchema>>(
         label: "ExportModelInputTableToMinifiedJson",
         transform: PassthroughInputToOutputStep<ModelInputSchema>.Create(),
-        input1: catalog.ModelInputTable,
-        output1: catalog.ModelInputTableJsonMinified
+        inputs: catalog.ModelInputTable,
+        outputs: catalog.ModelInputTableJsonMinified
       );
     });
   }

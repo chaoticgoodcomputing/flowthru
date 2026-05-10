@@ -18,8 +18,8 @@ public static class PromotionFlow
       pipeline.AddStep<IEnumerable<PreprocessedCompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PromoteCompanies",
         transform: PromoteCompaniesStep.Create(),
-        input1: staging.Companies,
-        output1: production.Companies
+        inputs: staging.Companies,
+        outputs: production.Companies
       );
 
       pipeline.AddStep<
@@ -29,9 +29,8 @@ public static class PromotionFlow
       >(
         label: "PromoteShuttles",
         transform: PromoteShuttlesStep.Create(),
-        input1: staging.Shuttles,
-        input2: production.Companies,
-        output1: production.Shuttles
+        inputs: (staging.Shuttles, production.Companies),
+        outputs: production.Shuttles
       );
 
       pipeline.AddStep<
@@ -41,9 +40,8 @@ public static class PromotionFlow
       >(
         label: "PromoteReviews",
         transform: PromoteReviewsStep.Create(),
-        input1: staging.Reviews,
-        input2: production.Shuttles,
-        output1: production.Reviews
+        inputs: (staging.Reviews, production.Shuttles),
+        outputs: production.Reviews
       );
     });
   }

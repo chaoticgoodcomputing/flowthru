@@ -18,8 +18,8 @@ public static class ReportingFlow
       pipeline.AddStep<IEnumerable<RetailTransactionIntermediateSchema>, IEnumerable<CountryTransactionSummarySchema>>(
         label: "SummarizeByCountry",
         transform: SummarizeByCountryStep.Create(),
-        input1: catalog.AllRetailTransactions,
-        output1: catalog.CountryTransactionSummary
+        inputs: catalog.AllRetailTransactions,
+        outputs: catalog.CountryTransactionSummary
       );
     });
   }

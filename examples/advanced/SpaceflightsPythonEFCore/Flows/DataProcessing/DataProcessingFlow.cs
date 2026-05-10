@@ -19,15 +19,15 @@ public static class DataProcessingFlow
       pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
         transform: PreprocessCompaniesStep.Create(),
-        input1: catalog.Companies,
-        output1: catalog.PreprocessedCompanies
+        inputs: catalog.Companies,
+        outputs: catalog.PreprocessedCompanies
       );
 
       pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
         transform: PreprocessShuttlesStep.Create(),
-        input1: catalog.Shuttles,
-        output1: catalog.PreprocessedShuttles
+        inputs: catalog.Shuttles,
+        outputs: catalog.PreprocessedShuttles
       );
 
       pipeline.AddStep<
@@ -38,10 +38,8 @@ public static class DataProcessingFlow
       >(
         label: "CreateModelInputTable",
         transform: CreateModelInputTableStep.Create(),
-        input1: catalog.PreprocessedShuttles,
-        input2: catalog.PreprocessedCompanies,
-        input3: catalog.Reviews,
-        output1: catalog.ModelInputTable
+        inputs: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),
+        outputs: catalog.ModelInputTable
       );
     });
   }

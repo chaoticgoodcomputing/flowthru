@@ -18,8 +18,8 @@ public static class DataIngestionFlow
       pipeline.AddStep<IEnumerable<RetailTransactionSchema>, IEnumerable<RetailTransactionIntermediateSchema>>(
         label: "ValidateCsvTransactions",
         transform: ValidateCsvStep.Create(),
-        input1: catalog.RetailTransactionsRaw,
-        output1: catalog.AllRetailTransactions
+        inputs: catalog.RetailTransactionsRaw,
+        outputs: catalog.AllRetailTransactions
       );
     });
   }

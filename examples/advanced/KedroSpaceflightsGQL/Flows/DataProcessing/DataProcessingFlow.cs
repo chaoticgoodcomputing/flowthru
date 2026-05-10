@@ -26,11 +26,8 @@ public static class DataProcessingFlow
       >(
         label: "CreateModelInputTable",
         transform: CreateModelInputTableStep.Create(),
-        input1: catalog.GqlDatabaseSeeded,
-        input2: catalog.Shuttles,
-        input3: catalog.Companies,
-        input4: catalog.Reviews,
-        output1: catalog.ModelInputTable
+        inputs: (catalog.GqlDatabaseSeeded, catalog.Shuttles, catalog.Companies, catalog.Reviews),
+        outputs: catalog.ModelInputTable
       );
     });
   }

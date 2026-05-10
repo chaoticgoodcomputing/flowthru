@@ -24,7 +24,7 @@ public static class ConsolidationFlow
         label: "ConsolidateShards",
         transform: batches => batches.SelectMany(b => b),
         inputs: inputs,
-        output1: core.AllCountriesWeeklyDtu
+        outputs: core.AllCountriesWeeklyDtu
       );
     });
   }

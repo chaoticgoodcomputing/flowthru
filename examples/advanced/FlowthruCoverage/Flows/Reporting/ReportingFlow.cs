@@ -23,9 +23,8 @@ public static class ReportingFlow
       >(
         label: "ClassifyCoverage",
         transform: ClassifyCoverageStep.Create(),
-        input1: catalog.PackageCoverage,
-        input2: catalog.ProjectManifest,
-        output1: catalog.PivotCoverage
+        inputs: (catalog.PackageCoverage, catalog.ProjectManifest),
+        outputs: catalog.PivotCoverage
       );
 
       pipeline.AddPythonStep(
@@ -44,9 +43,8 @@ public static class ReportingFlow
       >(
         label: "BuildIcicleCoverage",
         transform: BuildIcicleCoverageStep.Create(),
-        input1: catalog.MethodLineCoverage,
-        input2: catalog.ProjectManifest,
-        output1: catalog.IcicleCoverage
+        inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest),
+        outputs: catalog.IcicleCoverage
       );
 
       pipeline.AddPythonStep(
@@ -65,9 +63,8 @@ public static class ReportingFlow
       >(
         label: "FilterToExampleLineCoverage",
         transform: FilterLineCoverageByTestProjectTypeStep.Create("Example"),
-        input1: catalog.MethodLineCoverage,
-        input2: catalog.ProjectManifest,
-        output1: catalog.ExampleMethodLineCoverage
+        inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest),
+        outputs: catalog.ExampleMethodLineCoverage
       );
 
       pipeline.AddStep<
@@ -77,9 +74,8 @@ public static class ReportingFlow
       >(
         label: "BuildExampleIcicleCoverage",
         transform: BuildIcicleCoverageStep.Create(),
-        input1: catalog.ExampleMethodLineCoverage,
-        input2: catalog.ProjectManifest,
-        output1: catalog.ExampleIcicleCoverage
+        inputs: (catalog.ExampleMethodLineCoverage, catalog.ProjectManifest),
+        outputs: catalog.ExampleIcicleCoverage
       );
 
       pipeline.AddPythonStep(
@@ -94,8 +90,8 @@ public static class ReportingFlow
       pipeline.AddStep<IEnumerable<PivotCoverageRow>, IEnumerable<PackageCoverageMaxRow>>(
         label: "AggregatePackageCoverage",
         transform: AggregatePackageCoverageStep.Create(),
-        input1: catalog.PivotCoverage,
-        output1: catalog.PackageCoverageMax
+        inputs: catalog.PivotCoverage,
+        outputs: catalog.PackageCoverageMax
       );
 
       Func<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>> filterUncovered =
@@ -104,29 +100,29 @@ public static class ReportingFlow
       pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterUncoveredMethodHits",
         transform: filterUncovered,
-        input1: catalog.MethodHitSummary,
-        output1: catalog.UncoveredMethodHitsRaw
+        inputs: catalog.MethodHitSummary,
+        outputs: catalog.UncoveredMethodHitsRaw
       );
 
       pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterUncoveredMethodNames",
         transform: filterUncovered,
-        input1: catalog.MethodNameSummary,
-        output1: catalog.UncoveredMethodNamesRaw
+        inputs: catalog.MethodNameSummary,
+        outputs: catalog.UncoveredMethodNamesRaw
       );
 
       pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterRemoteSourceFilesHits",
         transform: FilterRemoteSourceFilesStep.Create(),
-        input1: catalog.UncoveredMethodHitsRaw,
-        output1: catalog.UncoveredMethodHits
+        inputs: catalog.UncoveredMethodHitsRaw,
+        outputs: catalog.UncoveredMethodHits
       );
 
       pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterRemoteSourceFilesNames",
         transform: FilterRemoteSourceFilesStep.Create(),
-        input1: catalog.UncoveredMethodNamesRaw,
-        output1: catalog.UncoveredMethodNames
+        inputs: catalog.UncoveredMethodNamesRaw,
+        outputs: catalog.UncoveredMethodNames
       );
     });
   }

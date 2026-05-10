@@ -28,10 +28,8 @@ public static class DataScienceFlow
       >(
         label: "BuildModelInputTable",
         transform: Steps.BuildModelInputTableStep.Create(),
-        input1: production.Shuttles,
-        input2: production.Companies,
-        input3: production.Reviews,
-        output1: production.ModelInputTable
+        inputs: (production.Shuttles, production.Companies, production.Reviews),
+        outputs: production.ModelInputTable
       );
 
       pipeline.AddStep<
@@ -41,16 +39,15 @@ public static class DataScienceFlow
       >(
         label: "SplitData",
         transform: Steps.SplitDataStep.Create(config.ModelOptions),
-        input1: production.ModelInputTable,
-        output1: production.TrainSplit,
-        output2: production.TestSplit
+        inputs: production.ModelInputTable,
+        outputs: (production.TrainSplit, production.TestSplit)
       );
 
       pipeline.AddStep<IEnumerable<TrainingData>, LinearRegressionModel>(
         label: "TrainModel",
         transform: Steps.TrainModelStep.Create(),
-        input1: production.TrainSplit,
-        output1: production.Regressor
+        inputs: production.TrainSplit,
+        outputs: production.Regressor
       );
 
       pipeline.AddStep<
@@ -61,10 +58,8 @@ public static class DataScienceFlow
       >(
         label: "EvaluateModel",
         transform: Steps.EvaluateModelStep.Create(),
-        input1: production.Regressor,
-        input2: production.TestSplit,
-        output1: production.ModelMetrics,
-        output2: production.ModelPredictions
+        inputs: (production.Regressor, production.TestSplit),
+        outputs: (production.ModelMetrics, production.ModelPredictions)
       );
     });
   }
