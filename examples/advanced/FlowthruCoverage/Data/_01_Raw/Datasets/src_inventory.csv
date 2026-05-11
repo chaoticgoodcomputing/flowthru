@@ -2,7 +2,7 @@ AssemblyName,RelativePath,TotalLines
 Flowthru.Core,Validation/PreFlight/PreFlightError.cs,164
 Flowthru.Core,Validation/PreFlight/IRegistrationValidationHook.cs,50
 Flowthru.Core,Validation/PreFlight/IFlowValidationHook.cs,45
-Flowthru.Core,Validation/PreFlight/PreFlightPipeline.cs,246
+Flowthru.Core,Validation/PreFlight/PreFlightPipeline.cs,322
 Flowthru.Core,Validation/Runtime/ServiceRef.cs,98
 Flowthru.Core,Validation/Runtime/IServiceRefDispatcher.cs,35
 Flowthru.Core,Validation/Runtime/InspectionResult.cs,75
@@ -89,15 +89,16 @@ Flowthru.Core,Step/FlowthruStepAttribute.cs,48
 Flowthru.Core,Flow/ValidationDepth.cs,18
 Flowthru.Core,Flow/DryRunOption.cs,18
 Flowthru.Core,Flow/DependencyAnalyzer.cs,173
-Flowthru.Core,Flow/FlowSliceStrategy.cs,44
 Flowthru.Core,Flow/IFlowScheduler.cs,42
 Flowthru.Core,Flow/ExecutionOptions.cs,39
-Flowthru.Core,Flow/BuiltFlow.cs,74
 Flowthru.Core,Flow/StepResult.cs,55
 Flowthru.Core,Flow/FlowResult.cs,45
 Flowthru.Core,Flow/ParallelFlowScheduler.cs,215
 Flowthru.Core,Flow/FlowBuilder.AddStep.Variadic.cs,168
 Flowthru.Core,Flow/FlowBuilder.cs,116
+Flowthru.Core,Flow/BuiltFlow.cs,104
+Flowthru.Core,Flow/FlowSliceStrategy.cs,326
+Flowthru.Core,Flow/FlowSlicing.cs,216
 Flowthru.Core,Diagnostics/RuntimeErrorReport.cs,17
 Flowthru.Core,Diagnostics/ConsoleErrorFormatter.cs,75
 Flowthru.Core,Diagnostics/DagBuilder.cs,89
@@ -113,8 +114,8 @@ Flowthru.Core,Hosting/IFlowthruService.cs,61
 Flowthru.Core,Hosting/ServiceCollectionExtensions.cs,56
 Flowthru.Core,Hosting/IFlowthruBuilder.cs,140
 Flowthru.Core,Hosting/FlowthruServiceBuilder.cs,288
-Flowthru.Core,Hosting/FlowthruService.cs,525
 Flowthru.Core,Hosting/FlowthruBuilderExtensions.cs,72
+Flowthru.Core,Hosting/FlowthruService.cs,534
 Flowthru.Core.SourceGenerators,Schema/SchemaPropertyClassifier.cs,188
 Flowthru.Core.SourceGenerators,Schema/SchemaGeneratorDiagnostics.cs,46
 Flowthru.Core.SourceGenerators,Schema/SchemaInterfaceGenerator.cs,299

@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Flowthru.Core.Tests.Flow;
 
 /// <summary>
-/// Tests for the slice primitives — <see cref="FlowSliceStrategy.SliceTo"/>,
+/// Tests for the slice primitives — <see cref="FlowSlicing.SliceTo"/>,
 /// <see cref="BuiltFlow.RunSliceAsync"/>, and the merged-DAG slicing path
 /// exposed by <see cref="IFlowthruService.RunAsync"/>.
 /// </summary>
@@ -39,7 +39,7 @@ namespace Flowthru.Core.Tests.Flow;
 public class SlicingTests
 {
   // ─────────────────────────────────────────────────────────────────────────
-  // Direct API tests for FlowSliceStrategy.SliceTo
+  // Direct API tests for FlowSlicing.SliceTo
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
@@ -58,7 +58,7 @@ public class SlicingTests
       builder.AddStep<int, int>("StepC", x => x, c, d);
     });
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "slice-linear-c" }
@@ -88,7 +88,7 @@ public class SlicingTests
     });
 
     var orderedAllLabels = flow.Steps.Select(s => s.Label).ToList();
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "slice-order-sink" }
@@ -118,7 +118,7 @@ public class SlicingTests
       builder.AddStep<int, int>("side", x => x + 100, src, sideOut);
     });
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "slice-branch-main" }
@@ -145,7 +145,7 @@ public class SlicingTests
       builder.AddStep<int, int>("b-step", x => x, src, bOut);
     });
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "slice-union-a", "slice-union-b" }
@@ -174,7 +174,7 @@ public class SlicingTests
       builder.AddStep<int, int>("branch-b", x => x, shared, midB);
     });
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "slice-shared-midA", "slice-shared-midB" }
@@ -199,7 +199,7 @@ public class SlicingTests
       builder.AddStep<int, int>("only", x => x, src, sink)
     );
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "does_not_exist" }
@@ -221,7 +221,7 @@ public class SlicingTests
       builder.AddStep<int, int>("consume", x => x, seed, sink)
     );
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "slice-seed" }
@@ -240,7 +240,7 @@ public class SlicingTests
       builder.AddStep<int, int>("only", x => x, src, sink)
     );
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       Array.Empty<string>()
@@ -261,11 +261,11 @@ public class SlicingTests
     var producer = BuildProducerMap(flow);
 
     Assert.Throws<ArgumentNullException>(() =>
-      FlowSliceStrategy.SliceTo(null!, producer, new[] { "slice-null-sink" }));
+      FlowSlicing.SliceTo(null!, producer, new[] { "slice-null-sink" }));
     Assert.Throws<ArgumentNullException>(() =>
-      FlowSliceStrategy.SliceTo(flow.Steps, null!, new[] { "slice-null-sink" }));
+      FlowSlicing.SliceTo(flow.Steps, null!, new[] { "slice-null-sink" }));
     Assert.Throws<ArgumentNullException>(() =>
-      FlowSliceStrategy.SliceTo(flow.Steps, producer, null!));
+      FlowSlicing.SliceTo(flow.Steps, producer, null!));
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -327,7 +327,7 @@ public class SlicingTests
   [Test]
   public async Task RunSliceAsync_UnknownLabel_RunsZeroSteps()
   {
-    // Consistent with FlowSliceStrategy.SliceTo: unknown targets are silently
+    // Consistent with FlowSlicing.SliceTo: unknown targets are silently
     // skipped. RunSliceAsync therefore executes no steps and returns Success.
     var src = ItemFactory.Singleton.Memory<int>("rsa-unknown-src");
     var sink = ItemFactory.Singleton.Memory<int>("rsa-unknown-sink");
@@ -386,7 +386,7 @@ public class SlicingTests
       builder.AddStep<int, int>("step-two", x => x, b, c);
     });
 
-    var sliced = FlowSliceStrategy.SliceTo(
+    var sliced = FlowSlicing.SliceTo(
       flow.Steps,
       BuildProducerMap(flow),
       new[] { "attr-c" }
@@ -704,13 +704,279 @@ public class SlicingTests
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // FlowSliceStrategy algebra — closed-sum primitives + composition
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public void Strategy_To_EquivalentToSliceTo()
+  {
+    // To(...) is a thin wrapper over FlowSlicing.SliceTo — same result.
+    var src = ItemFactory.Singleton.Memory<int>("strat-to-src");
+    var mid = ItemFactory.Singleton.Memory<int>("strat-to-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("strat-to-sink");
+    var flow = FlowBuilder.CreateFlow("to", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, sink);
+    });
+
+    var fromStrategy = FlowSliceStrategy
+      .ToLabels("strat-to-mid")
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(fromStrategy.Select(s => s.Label), Is.EqualTo(new[] { "A" }),
+      "To(mid) selects only the producer of 'mid' — equivalent to SliceTo.");
+  }
+
+  [Test]
+  public void Strategy_From_IncludesDownstreamSteps()
+  {
+    var src = ItemFactory.Singleton.Memory<int>("strat-from-src");
+    var mid = ItemFactory.Singleton.Memory<int>("strat-from-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("strat-from-sink");
+    var flow = FlowBuilder.CreateFlow("from", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, sink);
+    });
+
+    var sliced = FlowSliceStrategy
+      .FromLabels("strat-from-src")
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "A", "B" }),
+      "From(src) seeds at A (producer of src) and walks forward to B.");
+  }
+
+  [Test]
+  public void Strategy_Only_SelectsExactSteps()
+  {
+    var src = ItemFactory.Singleton.Memory<int>("only-src");
+    var mid = ItemFactory.Singleton.Memory<int>("only-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("only-sink");
+    var flow = FlowBuilder.CreateFlow("only", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, sink);
+    });
+
+    var sliced = FlowSliceStrategy
+      .OnlySteps("B")
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "B" }),
+      "Only('B') selects exactly the matching step — no upstream expansion.");
+  }
+
+  [Test]
+  public void Strategy_Flows_SelectsByFlowLabel()
+  {
+    var srcA = ItemFactory.Singleton.Memory<int>("flowsel-a-src");
+    var sinkA = ItemFactory.Singleton.Memory<int>("flowsel-a-sink");
+    var srcB = ItemFactory.Singleton.Memory<int>("flowsel-b-src");
+    var sinkB = ItemFactory.Singleton.Memory<int>("flowsel-b-sink");
+    // Each FlowBuilder.CreateFlow stamps its Label onto every step's FlowLabel.
+    var alpha = FlowBuilder.CreateFlow("Alpha", b => b.AddStep<int, int>("aStep", x => x, srcA, sinkA));
+    var beta = FlowBuilder.CreateFlow("Beta", b => b.AddStep<int, int>("bStep", x => x, srcB, sinkB));
+    // Merge by concatenating the step lists into a synthetic flow.
+    var mergedSteps = alpha.Steps.Concat(beta.Steps).ToList();
+    var producerMap = mergedSteps
+      .SelectMany(s => s.Outputs.Select(o => (o.Label, Step: s)))
+      .ToDictionary(t => t.Label, t => t.Step);
+
+    var sliced = FlowSliceStrategy
+      .InFlows("Alpha")
+      .Apply(mergedSteps, producerMap);
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "aStep" }),
+      "Flows('Alpha') selects only steps whose FlowLabel matches.");
+  }
+
+  [Test]
+  public void Strategy_All_ReturnsEveryStep()
+  {
+    var src = ItemFactory.Singleton.Memory<int>("all-src");
+    var mid = ItemFactory.Singleton.Memory<int>("all-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("all-sink");
+    var flow = FlowBuilder.CreateFlow("all", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, sink);
+    });
+
+    var sliced = new FlowSliceStrategy.All()
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "A", "B" }),
+      "All is the identity slice.");
+  }
+
+  [Test]
+  public void Strategy_None_ReturnsEmpty()
+  {
+    var src = ItemFactory.Singleton.Memory<int>("none-src");
+    var sink = ItemFactory.Singleton.Memory<int>("none-sink");
+    var flow = FlowBuilder.CreateFlow("none", b =>
+      b.AddStep<int, int>("A", x => x, src, sink)
+    );
+
+    var sliced = new FlowSliceStrategy.None()
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced, Is.Empty, "None is the empty slice.");
+  }
+
+  [Test]
+  public void Strategy_GlobPattern_OnlyMatchesByWildcard()
+  {
+    var src = ItemFactory.Singleton.Memory<int>("glob-src");
+    var sink = ItemFactory.Singleton.Memory<int>("glob-sink");
+    var flow = FlowBuilder.CreateFlow("glob", b =>
+    {
+      b.AddStep<int, int>("transform.A.normalize", x => x, src, sink);
+    });
+
+    var sliced = FlowSliceStrategy
+      .OnlySteps("transform.*")
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label),
+      Is.EqualTo(new[] { "transform.A.normalize" }),
+      "Glob '*' matches any sequence — 'transform.*' should match 'transform.A.normalize'.");
+  }
+
+  [Test]
+  public void Strategy_GlobPattern_ItemLabelExpansionInTo()
+  {
+    var srcA = ItemFactory.Singleton.Memory<int>("data.region.us");
+    var srcB = ItemFactory.Singleton.Memory<int>("data.region.eu");
+    var srcOther = ItemFactory.Singleton.Memory<int>("metrics.region.us");
+    var flow = FlowBuilder.CreateFlow("globitem", b =>
+    {
+      b.AddStep<int>("aux-A", () => 0, srcA);
+      b.AddStep<int>("aux-B", () => 0, srcB);
+      b.AddStep<int>("aux-Other", () => 0, srcOther);
+    });
+
+    var sliced = FlowSliceStrategy
+      .ToLabels("data.region.*")
+      .Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label).OrderBy(s => s),
+      Is.EqualTo(new[] { "aux-A", "aux-B" }),
+      "Glob 'data.region.*' should expand to all matching item-label producers, "
+        + "skipping 'metrics.region.us'.");
+  }
+
+  [Test]
+  public void Strategy_And_IsIntersection()
+  {
+    // Three-step flow: A → B → C. From(srcA-out) gives {A,B,C}; Only(B) gives {B}.
+    // And of the two: {B}.
+    var src = ItemFactory.Singleton.Memory<int>("and-src");
+    var mid = ItemFactory.Singleton.Memory<int>("and-mid");
+    var midB = ItemFactory.Singleton.Memory<int>("and-midB");
+    var sink = ItemFactory.Singleton.Memory<int>("and-sink");
+    var flow = FlowBuilder.CreateFlow("and", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, midB);
+      b.AddStep<int, int>("C", x => x, midB, sink);
+    });
+
+    var sliced = new FlowSliceStrategy.And(
+      FlowSliceStrategy.FromLabels("and-src"),
+      FlowSliceStrategy.OnlySteps("B")
+    ).Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "B" }),
+      "And(From(src), Only(B)) ∩ {A,B,C} ∩ {B} = {B}.");
+  }
+
+  [Test]
+  public void Strategy_Or_IsUnion()
+  {
+    var src = ItemFactory.Singleton.Memory<int>("or-src");
+    var mid = ItemFactory.Singleton.Memory<int>("or-mid");
+    var midB = ItemFactory.Singleton.Memory<int>("or-midB");
+    var sink = ItemFactory.Singleton.Memory<int>("or-sink");
+    var flow = FlowBuilder.CreateFlow("or", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid);
+      b.AddStep<int, int>("B", x => x, mid, midB);
+      b.AddStep<int, int>("C", x => x, midB, sink);
+    });
+
+    var sliced = new FlowSliceStrategy.Or(
+      FlowSliceStrategy.OnlySteps("A"),
+      FlowSliceStrategy.OnlySteps("C")
+    ).Apply(flow.Steps, BuildProducerMap(flow));
+
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "A", "C" }),
+      "Or(Only(A), Only(C)) ∪ {A} ∪ {C} = {A, C}, topo order preserved.");
+  }
+
+  [Test]
+  public void Strategy_OutputPreservesTopologicalOrder()
+  {
+    // Even when sub-strategies pick non-contiguous steps, the resolved
+    // step list keeps the source list's topo order.
+    var src = ItemFactory.Singleton.Memory<int>("topo-src");
+    var mid1 = ItemFactory.Singleton.Memory<int>("topo-mid1");
+    var mid2 = ItemFactory.Singleton.Memory<int>("topo-mid2");
+    var mid3 = ItemFactory.Singleton.Memory<int>("topo-mid3");
+    var sink = ItemFactory.Singleton.Memory<int>("topo-sink");
+    var flow = FlowBuilder.CreateFlow("topo", b =>
+    {
+      b.AddStep<int, int>("A", x => x, src, mid1);
+      b.AddStep<int, int>("B", x => x, mid1, mid2);
+      b.AddStep<int, int>("C", x => x, mid2, mid3);
+      b.AddStep<int, int>("D", x => x, mid3, sink);
+    });
+
+    var sliced = new FlowSliceStrategy.Or(
+      FlowSliceStrategy.OnlySteps("D"),
+      FlowSliceStrategy.OnlySteps("A")
+    ).Apply(flow.Steps, BuildProducerMap(flow));
+
+    // Or sub-args reversed alphabetically — but slice preserves topo order.
+    Assert.That(sliced.Select(s => s.Label), Is.EqualTo(new[] { "A", "D" }),
+      "Slicing preserves topological order of the source list regardless of "
+        + "the order in which sub-strategies match.");
+  }
+
+  [Test]
+  public async Task BuiltFlow_RunSliceAsync_AcceptsStrategy_AlgebraComposes()
+  {
+    var src = ItemFactory.Singleton.Memory<int>("runslice-src");
+    var mid = ItemFactory.Singleton.Memory<int>("runslice-mid");
+    var sink = ItemFactory.Singleton.Memory<int>("runslice-sink");
+    await src.Save(7).Run();
+
+    var flow = FlowBuilder.CreateFlow("runslice", b =>
+    {
+      b.AddStep<int, int>("A", x => x * 2, src, mid);
+      b.AddStep<int, int>("B", x => x + 1, mid, sink);
+    });
+
+    // Slicing to "B" only should execute B but not A. We seed mid manually
+    // so B has its input.
+    await mid.Save(100).Run();
+
+    var result = await flow.RunSliceAsync(FlowSliceStrategy.OnlySteps("B"));
+    Assert.That(result.IsSuccess, Is.True);
+    Assert.That(((EffResult<int>.Success)await sink.Load().Run()).Value, Is.EqualTo(101),
+      "Only(B) ran B with our manually-seeded mid; A was skipped.");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Helpers
   // ─────────────────────────────────────────────────────────────────────────
 
   /// <summary>
   /// Materialises the producer map for a <see cref="BuiltFlow"/>. The map is
   /// kept private inside <see cref="BuiltFlow"/>; for direct
-  /// <see cref="FlowSliceStrategy.SliceTo"/> tests we re-derive it from the
+  /// <see cref="FlowSlicing.SliceTo"/> tests we re-derive it from the
   /// step list — which is the same computation
   /// <see cref="DependencyAnalyzer"/> performs internally.
   /// </summary>

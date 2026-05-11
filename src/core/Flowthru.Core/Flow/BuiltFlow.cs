@@ -52,7 +52,9 @@ public sealed class BuiltFlow
   /// Run only the subgraph that produces the items named in
   /// <paramref name="targetItemLabels"/>. The labels reference
   /// <see cref="IItem.Label"/>s declared as outputs by some step in
-  /// the flow.
+  /// the flow. Equivalent to
+  /// <see cref="RunSliceAsync(FlowSliceStrategy, ExecutionOptions?, CancellationToken)"/>
+  /// with a <see cref="FlowSliceStrategy.To"/> strategy.
   /// </summary>
   public Task<FlowResult> RunSliceAsync(
     IEnumerable<string> targetItemLabels,
@@ -62,7 +64,35 @@ public sealed class BuiltFlow
   {
     var sliced = new BuiltFlow(
       Label,
-      FlowSliceStrategy.SliceTo(_orderedSteps, _producerByItemLabel, targetItemLabels),
+      FlowSlicing.SliceTo(_orderedSteps, _producerByItemLabel, targetItemLabels),
+      _producerByItemLabel
+    );
+    return new ParallelFlowScheduler().ExecuteAsync(
+      sliced,
+      options ?? ExecutionOptions.Default,
+      cancellationToken
+    );
+  }
+
+  /// <summary>
+  /// Run the subgraph described by <paramref name="strategy"/>. The
+  /// strategy may compose primitives (<see cref="FlowSliceStrategy.From"/>,
+  /// <see cref="FlowSliceStrategy.To"/>, <see cref="FlowSliceStrategy.Only"/>,
+  /// <see cref="FlowSliceStrategy.Flows"/>) via
+  /// <see cref="FlowSliceStrategy.And"/> / <see cref="FlowSliceStrategy.Or"/>,
+  /// and may use glob wildcards (<c>*</c>, <c>?</c>) in item and step
+  /// labels.
+  /// </summary>
+  public Task<FlowResult> RunSliceAsync(
+    FlowSliceStrategy strategy,
+    ExecutionOptions? options = null,
+    CancellationToken cancellationToken = default
+  )
+  {
+    if (strategy is null) throw new ArgumentNullException(nameof(strategy));
+    var sliced = new BuiltFlow(
+      Label,
+      strategy.Apply(_orderedSteps, _producerByItemLabel),
       _producerByItemLabel
     );
     return new ParallelFlowScheduler().ExecuteAsync(

@@ -220,7 +220,7 @@ public class TargetPreFlightTests
     var producerByLabel = fullFlow.Steps
       .SelectMany(s => s.Outputs.Select(o => (o.Label, Step: s)))
       .ToDictionary(t => t.Label, t => t.Step);
-    var slicedSteps = FlowSliceStrategy.SliceTo(
+    var slicedSteps = FlowSlicing.SliceTo(
       fullFlow.Steps,
       producerByLabel,
       new[] { "mainOut" }
@@ -281,7 +281,7 @@ public class TargetPreFlightTests
     var producerByLabel = fullFlow.Steps
       .SelectMany(s => s.Outputs.Select(o => (o.Label, Step: s)))
       .ToDictionary(t => t.Label, t => t.Step);
-    var consumerOnly = FlowSliceStrategy.SliceTo(
+    var consumerOnly = FlowSlicing.SliceTo(
       fullFlow.Steps.Where(s => s.Label == "consumer").ToList(),
       producerByLabel,
       new[] { "final" }
@@ -322,7 +322,7 @@ public class TargetPreFlightTests
     var producerByLabel = flow.Steps
       .SelectMany(s => s.Outputs.Select(o => (o.Label, Step: s)))
       .ToDictionary(t => t.Label, t => t.Step);
-    var slicedSteps = FlowSliceStrategy.SliceTo(
+    var slicedSteps = FlowSlicing.SliceTo(
       flow.Steps,
       producerByLabel,
       new[] { "final" }

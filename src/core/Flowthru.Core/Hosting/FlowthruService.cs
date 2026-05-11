@@ -117,7 +117,7 @@ public sealed class FlowthruService : IFlowthruService
       // same pre-flight + metadata orchestration path below.
       effectiveFlow = new BuiltFlow(
         label: flowLabel,
-        orderedSteps: FlowSliceStrategy.SliceTo(merged.Flow.Steps, merged.ProducerByItemLabel, targets),
+        orderedSteps: FlowSlicing.SliceTo(merged.Flow.Steps, merged.ProducerByItemLabel, targets),
         producerByItemLabel: merged.ProducerByItemLabel
       );
     }
