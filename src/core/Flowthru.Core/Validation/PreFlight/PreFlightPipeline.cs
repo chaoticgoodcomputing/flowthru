@@ -31,14 +31,34 @@ public static class PreFlightPipeline
   /// is always run; <paramref name="hooks"/> and
   /// <paramref name="serviceProbes"/> default to empty.
   /// </summary>
+  /// <param name="flow">The built flow whose external inputs are inspected.</param>
+  /// <param name="hooks">Flow-level validation hooks; null = none.</param>
+  /// <param name="serviceProbes">Service-inspector probes; null = none.</param>
+  /// <param name="inspectionLevel">Adapter inspection depth.</param>
+  /// <param name="maxDegreeOfParallelism">
+  /// Maximum number of adapter inspections to run concurrently. The
+  /// default <c>1</c> preserves the historical sequential behaviour
+  /// (deterministic ordering, no concurrency); values <c>&gt; 1</c>
+  /// dispatch up to N inspections in flight at once. Errors aggregate
+  /// regardless of concurrency — none are dropped.
+  /// </param>
   public static FlowIO<Validated<PreFlightError, FlowUnit>> Run(
     BuiltFlow flow,
     IReadOnlyList<IFlowValidationHook>? hooks = null,
     IReadOnlyList<FlowIO<Validated<PreFlightError, FlowUnit>>>? serviceProbes = null,
-    InspectionLevel inspectionLevel = InspectionLevel.Shallow
+    InspectionLevel inspectionLevel = InspectionLevel.Shallow,
+    int maxDegreeOfParallelism = 1
   )
   {
     if (flow is null) throw new ArgumentNullException(nameof(flow));
+    if (maxDegreeOfParallelism < 1)
+    {
+      throw new ArgumentOutOfRangeException(
+        nameof(maxDegreeOfParallelism),
+        maxDegreeOfParallelism,
+        "maxDegreeOfParallelism must be >= 1."
+      );
+    }
 
     return FlowIO.LiftAsync(async ct =>
     {
@@ -59,43 +79,94 @@ public static class PreFlightPipeline
         StringComparer.Ordinal
       );
 
+      // Collect every distinct external input so each adapter is
+      // inspected at most once even if more than one step consumes it.
+      var externalInputs = new List<IItem>();
+      var seenInputLabels = new HashSet<string>(StringComparer.Ordinal);
       foreach (var step in flow.Steps)
       {
         foreach (var input in step.Inputs)
         {
           if (producedItemLabels.Contains(input.Label)) continue;
-
-          // Per-item cap: when the item declares a ceiling via
-          // IItem<T>.WithMaxInspectionLevel(...), the effective level
-          // is the tighter of the caller-requested level and the cap.
-          // Items without a cap run at the caller-requested level.
-          var effectiveLevel = input.MaxInspectionLevel is { } cap
-            ? (InspectionLevel)Math.Min((int)inspectionLevel, (int)cap)
-            : inspectionLevel;
-
-          // Skip the item entirely when the cap drives effective to
-          // None — lets a catalog author flag "trust the producer;
-          // don't probe" on a per-item basis.
-          if (effectiveLevel == InspectionLevel.None) continue;
-
-          var inspectIO = effectiveLevel switch
-          {
-            InspectionLevel.Deep => input.InspectDeep(),
-            InspectionLevel.Target => input.InspectTarget(),
-            _ => input.InspectShallow(),
-          };
-          var inspectResult = await inspectIO.Run(ct).ConfigureAwait(false);
-          aggregated.Add(inspectResult switch
-          {
-            EffResult<ValidationResult>.Success ok =>
-              ToValidated(ok.Value, input.Label),
-            EffResult<ValidationResult>.Failure failure =>
-              Validated<PreFlightError, FlowUnit>.Fail(
-                new PreFlightError.InspectionFailed(input.Label, failure.Error.Message)
-              ),
-            _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
-          });
+          if (!seenInputLabels.Add(input.Label)) continue;
+          externalInputs.Add(input);
         }
+      }
+
+      // Per-input inspection — runs the level-appropriate Inspect* IO
+      // and lifts the ValidationResult into a Validated.
+      async Task<Validated<PreFlightError, FlowUnit>> InspectOne(IItem input)
+      {
+        // Per-item cap: when the item declares a ceiling via
+        // IItem<T>.WithMaxInspectionLevel(...), the effective level
+        // is the tighter of the caller-requested level and the cap.
+        // Items without a cap run at the caller-requested level.
+        var effectiveLevel = input.MaxInspectionLevel is { } cap
+          ? (InspectionLevel)Math.Min((int)inspectionLevel, (int)cap)
+          : inspectionLevel;
+
+        // Skip the item entirely when the cap drives effective to
+        // None — lets a catalog author flag "trust the producer;
+        // don't probe" on a per-item basis.
+        if (effectiveLevel == InspectionLevel.None)
+        {
+          return Validated<PreFlightError, FlowUnit>.Pure(FlowUnit.Default);
+        }
+
+        var inspectIO = effectiveLevel switch
+        {
+          InspectionLevel.Deep => input.InspectDeep(),
+          InspectionLevel.Target => input.InspectTarget(),
+          _ => input.InspectShallow(),
+        };
+        var inspectResult = await inspectIO.Run(ct).ConfigureAwait(false);
+        return inspectResult switch
+        {
+          EffResult<ValidationResult>.Success ok =>
+            ToValidated(ok.Value, input.Label),
+          EffResult<ValidationResult>.Failure failure =>
+            Validated<PreFlightError, FlowUnit>.Fail(
+              new PreFlightError.InspectionFailed(input.Label, failure.Error.Message)
+            ),
+          _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
+        };
+      }
+
+      if (maxDegreeOfParallelism == 1 || externalInputs.Count <= 1)
+      {
+        // Sequential fast path — preserves deterministic ordering.
+        foreach (var input in externalInputs)
+        {
+          aggregated.Add(await InspectOne(input).ConfigureAwait(false));
+        }
+      }
+      else
+      {
+        // Bounded parallel fan-out. SemaphoreSlim caps in-flight
+        // inspections at maxDegreeOfParallelism; we don't rely on
+        // Parallel.ForEachAsync so we keep async-friendly semantics
+        // (each FlowIO awaits independently) and aggregate
+        // every result regardless of failures elsewhere.
+        var gate = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism);
+        var tasks = new List<Task<Validated<PreFlightError, FlowUnit>>>(externalInputs.Count);
+        foreach (var input in externalInputs)
+        {
+          var captured = input;
+          tasks.Add(Task.Run(async () =>
+          {
+            await gate.WaitAsync(ct).ConfigureAwait(false);
+            try
+            {
+              return await InspectOne(captured).ConfigureAwait(false);
+            }
+            finally
+            {
+              gate.Release();
+            }
+          }, ct));
+        }
+        var perInput = await Task.WhenAll(tasks).ConfigureAwait(false);
+        aggregated.AddRange(perInput);
       }
 
       // Layer 2 — caller-supplied flow validation hooks.
