@@ -1,3 +1,5 @@
+using Flowthru.Validation.PreFlight;
+
 namespace Flowthru.Validation.Runtime;
 
 /// <summary>
@@ -84,6 +86,26 @@ public abstract record RuntimeError
   {
     public override string Message =>
       $"Pre-flight invariant '{CheckName}' violated at runtime — this is a bug in Flowthru. {Detail}";
+  }
+
+  /// <summary>
+  /// A legitimate, user-actionable pre-flight failure surfaced into the
+  /// runtime error channel. Distinct from <see cref="InvariantViolated"/>:
+  /// this is <em>not</em> a Flowthru bug. It exists so pre-flight outcomes
+  /// can be reported through the same <see cref="StepResult.Failed"/>
+  /// envelope as runtime errors, while still surfacing the inner FT3xxx
+  /// diagnostic code (missing input, schema drift, duplicate producer,
+  /// etc.) instead of being misclassified as FT4004 "bug in Flowthru".
+  /// </summary>
+  /// <remarks>
+  /// The classifier delegates this case to <c>PreFlightErrorClassifier</c>
+  /// so the surfaced report carries the inner <see cref="PreFlightError"/>'s
+  /// FT3xxx code and category, not a runtime FT4xxx wrapper. Users with
+  /// a missing CSV input see FT3003, not "file an issue with Flowthru".
+  /// </remarks>
+  public sealed record PreFlightFailed(PreFlightError Cause) : RuntimeError
+  {
+    public override string Message => $"Pre-flight failure: {Cause.Message}";
   }
 
   /// <summary>

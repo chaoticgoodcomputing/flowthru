@@ -51,6 +51,7 @@ public static class RuntimeErrorClassifier
         v.Message,
         v
       ),
+      RuntimeError.PreFlightFailed p => PreFlightDelegated(p),
       RuntimeError.SchemaMismatch sm => new RuntimeErrorReport(
         FlowthruDiagnosticCodes.RuntimeSchemaMismatch,
         "SchemaMismatch",
@@ -71,5 +72,11 @@ public static class RuntimeErrorClassifier
       ),
       _ => throw new InvalidOperationException("Unreachable: RuntimeError is a closed sum"),
     };
+  }
+
+  private static RuntimeErrorReport PreFlightDelegated(RuntimeError.PreFlightFailed wrapped)
+  {
+    var inner = PreFlightErrorClassifier.Classify(wrapped.Cause);
+    return new RuntimeErrorReport(inner.DiagnosticCode, inner.Category, inner.Message, wrapped);
   }
 }

@@ -81,12 +81,11 @@ public sealed class FlowthruService : IFlowthruService
         .Select((err, i) =>
         {
           var label = err is PreFlightError.RegistrationCheckFailed rcf
-            ? $"registration:{rcf.HookId}"
-            : $"registration:[{i}]";
-          var summary = ConsoleErrorFormatter.FormatAll(new[] { err });
+            ? $"preflight:registration:{rcf.HookId}"
+            : $"preflight:registration:[{i}]";
           return (StepResult)new StepResult.Failed(
             label,
-            new RuntimeError.InvariantViolated("RegistrationValidation", summary),
+            new RuntimeError.PreFlightFailed(err),
             TimeSpan.Zero
           );
         })
@@ -374,15 +373,33 @@ public sealed class FlowthruService : IFlowthruService
 
       if (preFlightOutcome is Validated<PreFlightError, FlowUnit>.Invalid invalid)
       {
-        var summary = ConsoleErrorFormatter.FormatAll(invalid.Errors);
-        return new FlowResult(new[]
-        {
-          (StepResult)new StepResult.Failed(
-            "preflight",
-            new RuntimeError.InvariantViolated("PreFlightPipeline", summary),
-            TimeSpan.Zero
-          ),
-        });
+        // Surface every pre-flight error as its own synthetic StepResult so
+        // the FlowResult preserves per-error granularity (and per-cause
+        // FT3xxx codes via PreFlightFailed → classifier delegation). Labels
+        // identify the source: input items, registration hooks, services,
+        // etc. — matching the cause's natural addressee.
+        var preFlightFailures = invalid.Errors
+          .Select((err, i) =>
+          {
+            var label = err switch
+            {
+              PreFlightError.MissingInput mi => $"preflight:input:{mi.ItemId}",
+              PreFlightError.SchemaDrift sd => $"preflight:input:{sd.ItemId}",
+              PreFlightError.InspectionFailed iff => $"preflight:input:{iff.ItemId}",
+              PreFlightError.DuplicateProducer dp => $"preflight:dag:{dp.ItemId}",
+              PreFlightError.CircularDependency => $"preflight:dag:cycle[{i}]",
+              PreFlightError.RegistrationCheckFailed rcf => $"preflight:registration:{rcf.HookId}",
+              PreFlightError.External ext => $"preflight:external:{ext.Cause.Category}",
+              _ => $"preflight:[{i}]",
+            };
+            return (StepResult)new StepResult.Failed(
+              label,
+              new RuntimeError.PreFlightFailed(err),
+              TimeSpan.Zero
+            );
+          })
+          .ToList();
+        return new FlowResult(preFlightFailures);
       }
     }
 

@@ -228,7 +228,7 @@ public class FlowthruServiceTests
   }
 
   [Test]
-  public async Task PreFlightFailure_SurfacesAsStepResultFailedWithInvariantViolated()
+  public async Task PreFlightFailure_SurfacesAsStepResultFailedWithPreFlightFailed()
   {
     var services = new ServiceCollection();
     services.AddFlowthru(b =>
@@ -249,8 +249,14 @@ public class FlowthruServiceTests
     Assert.That(result.HasFailures, Is.True);
     var failure = result.FirstFailure;
     Assert.That(failure, Is.Not.Null);
-    Assert.That(failure!.StepLabel, Is.EqualTo("preflight"));
-    Assert.That(failure!.Error, Is.InstanceOf<RuntimeError.InvariantViolated>());
+    Assert.That(failure!.StepLabel, Does.StartWith("preflight:input:"),
+      "Pre-flight failures must surface with per-error labels prefixed by 'preflight:'.");
+    Assert.That(failure!.Error, Is.InstanceOf<RuntimeError.PreFlightFailed>(),
+      "Pre-flight outcomes must NOT be wrapped in InvariantViolated — that's reserved "
+        + "for actual Flowthru bugs. Legitimate user-actionable pre-flight failures "
+        + "use the PreFlightFailed variant so the classifier surfaces FT3xxx, not FT4004.");
+    var pff = (RuntimeError.PreFlightFailed)failure.Error;
+    Assert.That(pff.Cause, Is.InstanceOf<PreFlightError.MissingInput>());
   }
 
   [Test]
