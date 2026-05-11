@@ -6,7 +6,7 @@
   <packages>
     <package name="FUnit.SourceGenerators" line-rate="0.8865999999999999" branch-rate="0.6537999999999999" complexity="134">
       <classes>
-        <class name="Flowthru.FUnit.SourceGenerators.FUnitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/funit/FUnit.SourceGenerators/FUnitDiagnosticAnalyzer.cs" line-rate="0.8959" branch-rate="0.6829000000000001" complexity="85">
+        <class name="Flowthru.FUnit.SourceGenerators.FUnitDiagnosticAnalyzer" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/core/Flowthru.FUnit.SourceGenerators/FUnitDiagnosticAnalyzer.cs" line-rate="0.8959" branch-rate="0.6829000000000001" complexity="85">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -882,7 +882,7 @@
             <line number="102" hits="1" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FUnitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/funit/FUnit.SourceGenerators/FUnitSyntaxHelpers.cs" line-rate="0.5151" branch-rate="0.4285" complexity="14">
+        <class name="Flowthru.FUnit.SourceGenerators.FUnitSyntaxHelpers" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/core/Flowthru.FUnit.SourceGenerators/FUnitSyntaxHelpers.cs" line-rate="0.5151" branch-rate="0.4285" complexity="14">
           <methods>
             <method name="IsInsidePreprocessorGuard" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax,System.String)" line-rate="0.5151" branch-rate="0.4285" complexity="14">
               <lines>
@@ -1008,7 +1008,7 @@
             <line number="56" hits="9" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/funit/FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0.9353" branch-rate="0.6764" complexity="35">
+        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0.9353" branch-rate="0.6764" complexity="35">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="1" branch-rate="1" complexity="1">
               <lines>

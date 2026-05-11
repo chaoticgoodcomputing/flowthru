@@ -28,7 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit/FUnit.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
   </ItemGroup>
 
   <!-- Wire Core's source generators (FlowBuilderGenerator emits AddStep arity overloads;
@@ -41,10 +41,10 @@
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.CodeFixes/FUnit.CodeFixes.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
   </ItemGroup>

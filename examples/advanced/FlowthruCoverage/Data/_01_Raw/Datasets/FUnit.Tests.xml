@@ -6,7 +6,7 @@
   <packages>
     <package name="FUnit" line-rate="0.9068999999999999" branch-rate="0.9285" complexity="22">
       <classes>
-        <class name="Flowthru.Step.Testing.FUnitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/funit/FUnit/FUnitContext.cs" line-rate="0.9047" branch-rate="0.9285" complexity="21">
+        <class name="Flowthru.Step.Testing.FUnitContext" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/core/Flowthru.FUnit/FUnitContext.cs" line-rate="0.9047" branch-rate="0.9285" complexity="21">
           <methods>
             <method name="get_Services" signature="()" line-rate="1" branch-rate="1" complexity="1">
               <lines>
@@ -186,7 +186,7 @@
             <line number="60" hits="5" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Step.Testing.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/funit/FUnit/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
+        <class name="Flowthru.Step.Testing.SampleBuilder" filename="https://raw.githubusercontent.com/chaoticgoodcomputing/flowthru/8d842d299425574864074136a1b255c81d38b35e/src/core/Flowthru.FUnit/SampleBuilder.cs" line-rate="1" branch-rate="1" complexity="1">
           <methods>
             <method name="Of" signature="(T[])" line-rate="1" branch-rate="1" complexity="1">
               <lines>

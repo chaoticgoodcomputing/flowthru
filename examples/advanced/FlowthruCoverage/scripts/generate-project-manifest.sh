@@ -24,10 +24,10 @@ for proj in tests/core/*/;       do echo "$(basename "$proj"),LibraryTest,Core";
 for proj in tests/extensions/*/; do echo "$(basename "$proj"),LibraryTest,Extensions"; done >> "$MANIFEST"
 for proj in tests/misc/*/;       do echo "$(basename "$proj"),LibraryTest,Misc";       done >> "$MANIFEST"
 
-# FUnit graduated to its own top-level domain (Phase 5 carryover); src/funit and
-# tests/funit follow the same Library / LibraryTest split as core/extensions/misc.
-for proj in src/funit/*/;       do echo "$(basename "$proj"),Library,FUnit";       done >> "$MANIFEST"
-for proj in tests/funit/*/;     do echo "$(basename "$proj"),LibraryTest,FUnit"; done >> "$MANIFEST"
+# FUnit graduated to its own top-level domain (Phase 5 carryover); src/core and
+# tests/core follow the same Library / LibraryTest split as core/extensions/misc.
+for proj in src/core/*/;       do echo "$(basename "$proj"),Library,FUnit";       done >> "$MANIFEST"
+for proj in tests/core/*/;     do echo "$(basename "$proj"),LibraryTest,FUnit"; done >> "$MANIFEST"
 
 for proj in tests/helpers/*/;     do echo "$(basename "$proj"),IntegrationTest,"; done >> "$MANIFEST"
 for proj in tests/integration/*/; do echo "$(basename "$proj"),IntegrationTest,"; done >> "$MANIFEST"

@@ -181,14 +181,14 @@ component_management:
       paths:
         - src/misc/Flowthru.Misc.DataFrames.SourceGenerators/**
     - component_id: funit
-      name: FUnit
+      name: Flowthru.FUnit
       paths:
-        - src/funit/FUnit/**
+        - src/core/Flowthru.FUnit/**
     - component_id: funit_codefixes
-      name: FUnit.CodeFixes
+      name: Flowthru.FUnit.CodeFixes
       paths:
-        - src/funit/FUnit.CodeFixes/**
+        - src/core/Flowthru.FUnit.CodeFixes/**
     - component_id: funit_sourcegenerators
-      name: FUnit.SourceGenerators
+      name: Flowthru.FUnit.SourceGenerators
       paths:
-        - src/funit/FUnit.SourceGenerators/**
+        - src/core/Flowthru.FUnit.SourceGenerators/**

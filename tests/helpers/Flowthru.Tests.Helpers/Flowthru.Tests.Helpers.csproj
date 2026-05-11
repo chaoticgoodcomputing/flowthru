@@ -21,7 +21,7 @@
   <ItemGroup>
     <!-- Flowthru references — swapped to ProjectReference in-repo via FlowthruInRepoSwap.props.
          The bare `FUnit` identity (not `Flowthru.FUnit`) matches the package id and the
-         src/funit/FUnit/ directory layout post-graduation (§4.5 — Phase 5 carryover). -->
+         src/core/Flowthru.FUnit/ directory layout post-graduation (§4.5 — Phase 5 carryover). -->
     <PackageReference Include="Flowthru" Version="FlowthruVersion" />
     <PackageReference Include="FUnit" Version="FlowthruVersion" />
 
@@ -34,7 +34,7 @@
          analyzer and runtime references coexist for the same csproj. -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>
 

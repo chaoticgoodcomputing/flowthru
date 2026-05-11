@@ -11,10 +11,10 @@
                [Flowthru*]* covers Flowthru, Flowthru.Core, Flowthru.Extensions.*,
                Flowthru.Misc.*.
                [FUnit*]* covers FUnit, FUnit.SourceGenerators, FUnit.CodeFixes —
-               these assemblies live under src/funit/ but ship with the bare
+               these assemblies live under src/core/ but ship with the bare
                `FUnit` identity (post-graduation), so the [Flowthru*]* glob
                doesn't catch them. -->
-          <Include>[Flowthru*]*,[FUnit*]*</Include>
+          <Include>[Flowthru*]*</Include>
 
           <!-- Exclude patterns: comma-separated.
                IMPORTANT: Coverlet's collector parses these by splitting on commas only

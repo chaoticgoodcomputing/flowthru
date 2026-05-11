@@ -32,7 +32,7 @@
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Diagnostics/Flowthru.Extensions.Metadata.Diagnostics.csproj" />
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit/FUnit.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit/Flowthru.FUnit.csproj" />
   </ItemGroup>
 
   <!-- Wire Core + FUnit source generators explicitly — analyzer references
@@ -41,10 +41,10 @@
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.CodeFixes/FUnit.CodeFixes.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
   </ItemGroup>

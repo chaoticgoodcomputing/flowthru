@@ -25,12 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.CodeFixes/FUnit.CodeFixes.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
                       ReferenceOutputAssembly="true" />
     <!-- ReferenceOutputAssembly="true" so the codefix's symbols are resolvable
          in test code (e.g. CSharpCodeFixTest<FUnitDiagnosticAnalyzer, ...>) and
          coverlet instruments it at test runtime. -->
-    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
     <ProjectReference Include="$(RepoRoot)tests/helpers/Flowthru.Tests.Helpers/Flowthru.Tests.Helpers.csproj" />
   </ItemGroup>

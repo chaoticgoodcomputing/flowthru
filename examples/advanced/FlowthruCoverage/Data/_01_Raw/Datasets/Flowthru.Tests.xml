@@ -20146,7 +20146,7 @@
     </package>
     <package name="FUnit" line-rate="0" branch-rate="0" complexity="22">
       <classes>
-        <class name="Flowthru.Step.Testing.FUnitContext" filename="/home/spelkington/Repos/cgc/flowthru/src/funit/FUnit/FUnitContext.cs" line-rate="0" branch-rate="0" complexity="21">
+        <class name="Flowthru.Step.Testing.FUnitContext" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/FUnitContext.cs" line-rate="0" branch-rate="0" complexity="21">
           <methods>
             <method name="get_Services" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20326,7 +20326,7 @@
             <line number="60" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.Step.Testing.SampleBuilder" filename="/home/spelkington/Repos/cgc/flowthru/src/funit/FUnit/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
+        <class name="Flowthru.Step.Testing.SampleBuilder" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit/SampleBuilder.cs" line-rate="0" branch-rate="1" complexity="1">
           <methods>
             <method name="Of" signature="(T[])" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -20342,7 +20342,7 @@
     </package>
     <package name="FUnit.SourceGenerators" line-rate="0" branch-rate="0" complexity="134">
       <classes>
-        <class name="Flowthru.FUnit.SourceGenerators.FUnitDiagnosticAnalyzer" filename="/home/spelkington/Repos/cgc/flowthru/src/funit/FUnit.SourceGenerators/FUnitDiagnosticAnalyzer.cs" line-rate="0" branch-rate="0" complexity="85">
+        <class name="Flowthru.FUnit.SourceGenerators.FUnitDiagnosticAnalyzer" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit.SourceGenerators/FUnitDiagnosticAnalyzer.cs" line-rate="0" branch-rate="0" complexity="85">
           <methods>
             <method name="get_SupportedDiagnostics" signature="()" line-rate="0" branch-rate="1" complexity="1">
               <lines>
@@ -21218,7 +21218,7 @@
             <line number="102" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.FUnitSyntaxHelpers" filename="/home/spelkington/Repos/cgc/flowthru/src/funit/FUnit.SourceGenerators/FUnitSyntaxHelpers.cs" line-rate="0" branch-rate="0" complexity="14">
+        <class name="Flowthru.FUnit.SourceGenerators.FUnitSyntaxHelpers" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit.SourceGenerators/FUnitSyntaxHelpers.cs" line-rate="0" branch-rate="0" complexity="14">
           <methods>
             <method name="IsInsidePreprocessorGuard" signature="(Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax,System.String)" line-rate="0" branch-rate="0" complexity="14">
               <lines>
@@ -21344,7 +21344,7 @@
             <line number="56" hits="0" branch="False" />
           </lines>
         </class>
-        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="/home/spelkington/Repos/cgc/flowthru/src/funit/FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0" branch-rate="0" complexity="35">
+        <class name="Flowthru.FUnit.SourceGenerators.StepTestRegistryGenerator" filename="/home/spelkington/Repos/cgc/flowthru/src/core/Flowthru.FUnit.SourceGenerators/StepTestRegistryGenerator.cs" line-rate="0" branch-rate="0" complexity="35">
           <methods>
             <method name="Initialize" signature="(Microsoft.CodeAnalysis.IncrementalGeneratorInitializationContext)" line-rate="0" branch-rate="1" complexity="1">
               <lines>

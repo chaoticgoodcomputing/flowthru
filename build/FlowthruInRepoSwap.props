@@ -13,14 +13,30 @@
             Condition="'$(RepoRoot)' != '' AND Exists('$(RepoRoot)build/FlowthruInRepoSwap.props')" />
 
   Algorithm: scan every <PackageReference> the consumer declared, derive the
-  three candidate in-repo csproj paths (src/core/<Id>/<Id>.csproj,
-  src/extensions/<Id>/<Id>.csproj, src/misc/<Id>/<Id>.csproj), and if any of
-  them exist, remove the PackageReference and add a ProjectReference to the
-  resolved path. There is no central registry of Flowthru packages — adding a
-  new package to src/core, src/extensions, or src/misc is a zero-edit
-  operation here, and the consumer just declares its <PackageReference> as
-  normal. Non-Flowthru PackageReferences resolve to non-existent candidate
-  paths and pass through unchanged.
+  six candidate in-repo csproj paths — three tiers (core, extensions, misc) ×
+  two name patterns (literal Identity, and "Flowthru."-prefixed Identity) —
+  and if any of them exist, remove the PackageReference and add a
+  ProjectReference to the resolved path. There is no central registry of
+  Flowthru packages — adding a new package to src/core, src/extensions, or
+  src/misc is a zero-edit operation here, and the consumer just declares its
+  <PackageReference> as normal. Non-Flowthru PackageReferences resolve to
+  non-existent candidate paths and pass through unchanged.
+
+  The prefixed-Identity variant exists for packages whose published id is the
+  bare name but whose source directory carries the "Flowthru." prefix — e.g.,
+  <PackageReference Include="FUnit"> resolves to
+  src/core/Flowthru.FUnit/Flowthru.FUnit.csproj, which sets
+  <PackageId>FUnit</PackageId>. Without this, the lookup would silently miss
+  and NuGet would later trip on the literal "FlowthruVersion" placeholder.
+
+  Fail-fast guard: a Flowthru-namespace PackageReference inside this monorepo
+  always carries the literal Version="FlowthruVersion" (the dotnet template
+  engine substitutes it during template instantiation; in-repo we expect the
+  swap to remove the PackageReference before NuGet sees it). If a candidate
+  still carries that placeholder after resolution, the in-repo lookup missed
+  and we error out with a clear, Flowthru-specific message instead of letting
+  NuGet emit "'FlowthruVersion' is not a valid version string" pointing at a
+  line in NuGet.targets.
 
   Why it works at evaluation time (where I previously thought it was
   impossible):
@@ -44,55 +60,36 @@
 -->
 <Project>
 
-  <!-- Marker property: Directory.Build.targets reads this to skip its legacy fallback
-       Core/FUnit targets imports for projects that have already opted into
-       FlowthruInRepoSwap. Avoids double-importing the analyzer registration. -->
   <PropertyGroup>
     <FlowthruInRepoSwapImported>true</FlowthruInRepoSwapImported>
   </PropertyGroup>
 
-  <!-- Step 1: Mirror every PackageReference into a candidate item type so we can
-       attach custom metadata without touching the strict PackageReference schema. -->
   <ItemGroup>
     <_FlowthruCandidate Include="@(PackageReference)" />
   </ItemGroup>
 
-  <!-- Step 2: Compute the four candidate in-repo csproj paths for each
-       candidate. Same-item-type %(Identity) interpolated into metadata VALUES
-       iterates per item at evaluation time. Non-Flowthru identities yield
-       paths like src/core/Newtonsoft.Json/... that simply won't exist on disk.
-       The src/funit/ candidate exists because FUnit graduated to its own
-       top-level domain (Phase 5 carryover) — its package id is bare `FUnit`,
-       not `Flowthru.FUnit`. -->
   <ItemGroup>
     <_FlowthruCandidate Update="@(_FlowthruCandidate)">
       <CoreCsproj>$(RepoRoot)src/core/%(Identity)/%(Identity).csproj</CoreCsproj>
-      <FUnitCsproj>$(RepoRoot)src/funit/%(Identity)/%(Identity).csproj</FUnitCsproj>
       <ExtensionsCsproj>$(RepoRoot)src/extensions/%(Identity)/%(Identity).csproj</ExtensionsCsproj>
       <MiscCsproj>$(RepoRoot)src/misc/%(Identity)/%(Identity).csproj</MiscCsproj>
+      <CorePrefixedCsproj>$(RepoRoot)src/core/Flowthru.%(Identity)/Flowthru.%(Identity).csproj</CorePrefixedCsproj>
+      <ExtensionsPrefixedCsproj>$(RepoRoot)src/extensions/Flowthru.%(Identity)/Flowthru.%(Identity).csproj</ExtensionsPrefixedCsproj>
+      <MiscPrefixedCsproj>$(RepoRoot)src/misc/Flowthru.%(Identity)/Flowthru.%(Identity).csproj</MiscPrefixedCsproj>
     </_FlowthruCandidate>
   </ItemGroup>
 
-  <!-- Step 3: Resolve to the first existing candidate. Same-item-type %(Meta)
-       in Conditions on metadata elements is permitted; Exists() runs per item.
-       Order matters: core wins over funit wins over extensions wins over misc,
-       but Flowthru package identities are unique across these directories so
-       there's no actual conflict. -->
   <ItemGroup>
     <_FlowthruCandidate Update="@(_FlowthruCandidate)">
       <ResolvedPath Condition="Exists('%(CoreCsproj)')">%(CoreCsproj)</ResolvedPath>
-      <ResolvedPath Condition="Exists('%(FUnitCsproj)')">%(FUnitCsproj)</ResolvedPath>
       <ResolvedPath Condition="Exists('%(ExtensionsCsproj)')">%(ExtensionsCsproj)</ResolvedPath>
       <ResolvedPath Condition="Exists('%(MiscCsproj)')">%(MiscCsproj)</ResolvedPath>
+      <ResolvedPath Condition="Exists('%(CorePrefixedCsproj)')">%(CorePrefixedCsproj)</ResolvedPath>
+      <ResolvedPath Condition="Exists('%(ExtensionsPrefixedCsproj)')">%(ExtensionsPrefixedCsproj)</ResolvedPath>
+      <ResolvedPath Condition="Exists('%(MiscPrefixedCsproj)')">%(MiscPrefixedCsproj)</ResolvedPath>
     </_FlowthruCandidate>
   </ItemGroup>
 
-  <!-- Step 4: Project candidates with non-empty ResolvedPath into two derived
-       item lists — one keyed by csproj path (for ProjectReference Include) and
-       one keyed by package Identity (for PackageReference Remove). The
-       Include + Exclude with WithMetadataValue('ResolvedPath','') filters to
-       items that actually resolved, sidestepping the cross-type-Condition
-       restriction. -->
   <ItemGroup>
     <_FlowthruResolvedPath Include="@(_FlowthruCandidate->'%(ResolvedPath)')"
                            Exclude="@(_FlowthruCandidate->WithMetadataValue('ResolvedPath','')->'%(ResolvedPath)')" />
@@ -101,16 +98,21 @@
                                Exclude="@(_FlowthruCandidate->WithMetadataValue('ResolvedPath','')->'%(Identity)')" />
   </ItemGroup>
 
-  <!-- Step 5: Swap. Remove the resolved PackageReferences and add the
-       corresponding ProjectReferences. -->
   <ItemGroup>
     <PackageReference Remove="@(_FlowthruResolvedIdentity)" />
     <ProjectReference Include="@(_FlowthruResolvedPath)" />
   </ItemGroup>
 
-  <!-- Always import the Flowthru.Core targets in-repo to register source generators
-       + code fixes as analyzers. Mirrors NuGet's auto-import of the same file from
-       the Flowthru.Core package. The targets file itself is dual-mode-aware. -->
+  <ItemGroup>
+    <_FlowthruUnresolvedPlaceholder Include="@(_FlowthruCandidate->WithMetadataValue('Version','FlowthruVersion')->WithMetadataValue('ResolvedPath',''))" />
+  </ItemGroup>
+
+  <Target Name="_FlowthruInRepoSwap_FailFast"
+          BeforeTargets="_GenerateRestoreGraphProjectEntry;CollectPackageReferences;BeforeBuild">
+    <Error Condition="'@(_FlowthruUnresolvedPlaceholder)' != ''"
+           Text="Flowthru in-repo swap could not resolve PackageReference(s) [@(_FlowthruUnresolvedPlaceholder, ', ')] in $(MSBuildProjectFile). Searched src/core, src/extensions, src/misc (with and without 'Flowthru.' prefix). The package was likely renamed or removed in this monorepo — check src/ for the current name, update the PackageReference, or drop the placeholder Version=&quot;FlowthruVersion&quot; if this is meant to resolve from the published NuGet feed." />
+  </Target>
+
   <Import Project="$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets"
           Condition="Exists('$(RepoRoot)src/core/Flowthru.Core/build/Flowthru.Core.targets')" />
 
