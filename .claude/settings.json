@@ -1,9 +1,7 @@
 {
-  {
-    "attribution": {
-      "commit": "",
-      "pr": ""
-    }
+  "attribution": {
+    "commit": "",
+    "pr": ""
   },
   "hooks": {
     "SessionStart": [
