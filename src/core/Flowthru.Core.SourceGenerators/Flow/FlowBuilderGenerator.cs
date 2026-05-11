@@ -229,6 +229,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     string transformInvocation
   )
   {
+    EmitTransformNullGuard(sb);
     // Destructure inputs / outputs into local IItem<TInI> / IItem<TOutI> bindings
     EmitInputDestructuring(sb, m);
     EmitOutputDestructuring(sb, n);
@@ -295,6 +296,19 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     sb.AppendLine("      loadInputs,");
     sb.AppendLine("      saveOutputs,");
     sb.AppendLine("      flowLabel: this.Label));");
+  }
+
+  /// <summary>
+  /// Emit a null-arg guard for the <c>transform</c> parameter. Null
+  /// transforms are a caller-contract violation (programming error), so
+  /// the standard .NET ArgumentNullException is the right shape — the
+  /// no-throw analyzer (FT5002) whitelists Argument*Exception for
+  /// precisely this case. Surfaces the error at the AddStep call site
+  /// instead of deferring to the captured-closure dereference.
+  /// </summary>
+  private static void EmitTransformNullGuard(StringBuilder sb)
+  {
+    sb.AppendLine("    if (transform is null) throw new global::System.ArgumentNullException(nameof(transform));");
   }
 
   /// <summary>Destructure the <c>inputs</c> parameter into <c>i1..iM</c> locals.</summary>
@@ -476,6 +490,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     string transformInvocation
   )
   {
+    EmitTransformNullGuard(sb);
     sb.AppendLine("    global::System.Func<global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> loadInputs = () => global::Flowthru.Prelude.FlowIO.Pure(global::Flowthru.Prelude.FlowUnit.Default);");
     sb.AppendLine("    global::System.Func<global::Flowthru.Prelude.FlowUnit, global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> saveOutputs = _ => global::Flowthru.Prelude.FlowIO.Pure(global::Flowthru.Prelude.FlowUnit.Default);");
     sb.AppendLine("    return Add(new global::Flowthru.Step.Step<global::Flowthru.Prelude.FlowUnit, global::Flowthru.Prelude.FlowUnit>(");
@@ -499,6 +514,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     string transformInvocation
   )
   {
+    EmitTransformNullGuard(sb);
     EmitOutputDestructuring(sb, n);
     sb.AppendLine("    global::System.Func<global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> loadInputs = () => global::Flowthru.Prelude.FlowIO.Pure(global::Flowthru.Prelude.FlowUnit.Default);");
     sb.AppendLine($"    global::System.Func<{toutType}, global::Flowthru.Prelude.FlowIO<global::Flowthru.Prelude.FlowUnit>> saveOutputs = output =>");
@@ -540,6 +556,7 @@ public sealed class FlowBuilderGenerator : IIncrementalGenerator
     string transformInvocation
   )
   {
+    EmitTransformNullGuard(sb);
     EmitInputDestructuring(sb, m);
     sb.AppendLine($"    global::System.Func<global::Flowthru.Prelude.FlowIO<{tinType}>> loadInputs = () =>");
     if (m == 1)

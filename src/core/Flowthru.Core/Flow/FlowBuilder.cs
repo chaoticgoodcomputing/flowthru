@@ -17,6 +17,41 @@ namespace Flowthru.Flow;
 /// what's actually happening is the Kleisli arrow's type wouldn't
 /// compose under the catalog's indexed family.
 /// </para>
+/// <para>
+/// <strong>Arity matrix.</strong> The generator emits <c>AddStep</c>
+/// overloads for (M inputs × N outputs) where M ∈ {0..5} and N ∈ {0..5}.
+/// Each cell exposes sync, async (<c>Task</c>-returning), and async-with-
+/// cancellation-token variants. The transform shape follows .NET
+/// convention:
+/// </para>
+/// <code>
+/// // (M=1, N=1) — conventional step
+/// builder.AddStep&lt;Customer, OrderTotal&gt;(
+///   "compute-total",
+///   customer =&gt; OrderTotal.From(customer),
+///   inputs: catalog.Customer,
+///   outputs: catalog.OrderTotal);
+///
+/// // (M=0, N=1) — source step (no inputs; <c>inputs:</c> parameter is absent)
+/// builder.AddStep&lt;Report&gt;(
+///   "build-report",
+///   () =&gt; Report.Default,
+///   catalog.Report);
+///
+/// // (M=1, N=0) — sink step (no outputs; <c>outputs:</c> parameter is absent)
+/// builder.AddStep&lt;Report&gt;(
+///   "publish-report",
+///   report =&gt; PublisherClient.Send(report),
+///   catalog.Report);
+///
+/// // (M=0, N=0) — pure side-effect step
+/// builder.AddStep("warm-cache", () =&gt; CacheClient.Warm());
+/// </code>
+/// <para>
+/// Zero-arity overloads use .NET-idiomatic transform shapes
+/// (<c>Action</c>, <c>Func&lt;T&gt;</c>, <c>Action&lt;T&gt;</c>) so the
+/// <c>FlowUnit</c> internal type never appears in user-facing signatures.
+/// </para>
 /// </remarks>
 public sealed partial class FlowBuilder
 {
