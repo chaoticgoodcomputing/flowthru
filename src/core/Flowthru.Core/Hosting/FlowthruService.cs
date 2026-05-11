@@ -59,10 +59,35 @@ public sealed class FlowthruService : IFlowthruService
     _merged.Value.OutputsByLabel.Keys.ToList();
 
   /// <inheritdoc/>
-  public async Task<FlowResult> RunAsync(
+  public Task<FlowResult> RunAsync(
     string? flowLabel = null,
     ExecutionOptions? options = null,
     CancellationToken cancellationToken = default
+  ) => RunAsyncCore(flowLabel: flowLabel, strategy: null, options, cancellationToken);
+
+  /// <summary>
+  /// Run the merged DAG sliced by <paramref name="strategy"/>. The
+  /// strategy may compose primitives (<see cref="FlowSliceStrategy.From"/>,
+  /// <see cref="FlowSliceStrategy.To"/>, <see cref="FlowSliceStrategy.Only"/>,
+  /// <see cref="FlowSliceStrategy.Flows"/>) via
+  /// <see cref="FlowSliceStrategy.And"/> / <see cref="FlowSliceStrategy.Or"/>
+  /// and may use glob wildcards in step / item labels.
+  /// </summary>
+  public Task<FlowResult> RunAsync(
+    FlowSliceStrategy strategy,
+    ExecutionOptions? options = null,
+    CancellationToken cancellationToken = default
+  )
+  {
+    if (strategy is null) throw new ArgumentNullException(nameof(strategy));
+    return RunAsyncCore(flowLabel: null, strategy: strategy, options, cancellationToken);
+  }
+
+  private async Task<FlowResult> RunAsyncCore(
+    string? flowLabel,
+    FlowSliceStrategy? strategy,
+    ExecutionOptions? options,
+    CancellationToken cancellationToken
   )
   {
     options ??= ExecutionOptions.Default;
@@ -95,10 +120,21 @@ public sealed class FlowthruService : IFlowthruService
 
     var merged = _merged.Value;
 
-    // Slice the merged DAG to the requested label's outputs, or use
-    // the full DAG if no label is supplied.
+    // Three slicing modes:
+    //   • flowLabel non-null → legacy "slice to flow's declared outputs" path
+    //   • strategy non-null  → apply the closed-sum algebra to the merged DAG
+    //   • both null          → run the full merged DAG
     BuiltFlow effectiveFlow;
-    if (flowLabel is null)
+    if (strategy is not null)
+    {
+      var slicedSteps = strategy.Apply(merged.Flow.Steps, merged.ProducerByItemLabel);
+      effectiveFlow = new BuiltFlow(
+        label: merged.Flow.Label,
+        orderedSteps: slicedSteps,
+        producerByItemLabel: merged.ProducerByItemLabel
+      );
+    }
+    else if (flowLabel is null)
     {
       effectiveFlow = merged.Flow;
     }
@@ -111,10 +147,6 @@ public sealed class FlowthruService : IFlowthruService
           + string.Join(", ", merged.OutputsByLabel.Keys)
         );
       }
-      // Use a fresh BuiltFlow whose Steps are the slice. The merged
-      // flow's RunSliceAsync would do the slicing internally, but
-      // building the sliced BuiltFlow up front lets us reuse the
-      // same pre-flight + metadata orchestration path below.
       effectiveFlow = new BuiltFlow(
         label: flowLabel,
         orderedSteps: FlowSlicing.SliceTo(merged.Flow.Steps, merged.ProducerByItemLabel, targets),
@@ -122,6 +154,7 @@ public sealed class FlowthruService : IFlowthruService
       );
     }
 
+    var isSliced = flowLabel is not null || strategy is not null;
     using var runActivity = FlowthruActivitySource.Source.StartActivity(
       FlowthruActivitySource.RunActivityName,
       ActivityKind.Internal,
@@ -130,7 +163,7 @@ public sealed class FlowthruService : IFlowthruService
       {
         new(FlowthruActivitySource.TagFlowLabel, flowLabel ?? "(merged)"),
         new(FlowthruActivitySource.TagFlowStepCount, effectiveFlow.Steps.Count),
-        new(FlowthruActivitySource.TagFlowSliced, flowLabel is not null),
+        new(FlowthruActivitySource.TagFlowSliced, isSliced),
       }
     );
 

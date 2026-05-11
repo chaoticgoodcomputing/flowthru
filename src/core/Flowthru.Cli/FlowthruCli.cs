@@ -95,13 +95,17 @@ public static class FlowthruCli
       : new FlowthruActivityLogger(loggerFactory);
 
     // Per §2.4, all flows registered with the same FlowthruService
-    // merge into a single DAG. No --flow flag → run the full merged
-    // DAG; --flow <label> → slice the merged DAG to that label's
-    // declared outputs. The CLI passes the parsed FlowLabel (which
-    // is null when --flow wasn't supplied) straight through.
-    var result = await flowthru
-      .RunAsync(parsed.FlowLabel, parsed.Options, cancellationToken)
-      .ConfigureAwait(false);
+    // merge into a single DAG. Three dispatch paths, mutually exclusive
+    // (the parser rejects ambiguous combinations):
+    //   • --from/--to/--only → service.RunAsync(strategy, …) — the new
+    //     FlowSliceStrategy algebra with composition and glob wildcards.
+    //   • --flow <label>     → service.RunAsync(flowLabel, …) — the
+    //     legacy "slice to flow's declared outputs" path.
+    //   • neither            → service.RunAsync((string?)null, …) —
+    //     full merged DAG.
+    var result = parsed.Slice is not null
+      ? await flowthru.RunAsync(parsed.Slice, parsed.Options, cancellationToken).ConfigureAwait(false)
+      : await flowthru.RunAsync(parsed.FlowLabel, parsed.Options, cancellationToken).ConfigureAwait(false);
 
     return await RenderResult(result).ConfigureAwait(false);
   }

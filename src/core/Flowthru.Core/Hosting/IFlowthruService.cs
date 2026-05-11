@@ -42,6 +42,18 @@ public interface IFlowthruService
   );
 
   /// <summary>
+  /// Run the merged DAG sliced by <paramref name="strategy"/>. The
+  /// strategy supports the closed-sum algebra (<c>From</c>, <c>To</c>,
+  /// <c>Only</c>, <c>Flows</c>, <c>All</c>, <c>None</c>, <c>And</c>,
+  /// <c>Or</c>) and may use glob wildcards in step / item labels.
+  /// </summary>
+  Task<FlowResult> RunAsync(
+    FlowSliceStrategy strategy,
+    ExecutionOptions? options = null,
+    CancellationToken cancellationToken = default
+  );
+
+  /// <summary>
   /// Run every registered <see cref="IRegistrationValidationHook"/>.
   /// The first <see cref="RunAsync"/> call invokes this internally;
   /// callers can also invoke it during <c>Main</c> for fail-fast-at-
