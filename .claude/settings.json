@@ -10,6 +10,27 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/agents/hooks/stop-check.js",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node scripts/agents/hooks/stop-test-update-check.js",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "HOOK_TIMEOUT_SEC=300 node scripts/agents/hooks/stop-test-affected.js",
+            "timeout": 300
+          }
+        ]
+      }
     ]
   }
 }
