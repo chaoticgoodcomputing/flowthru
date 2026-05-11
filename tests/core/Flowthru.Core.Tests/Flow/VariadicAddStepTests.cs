@@ -3,7 +3,7 @@ using Flowthru.Data.Schema;
 using Flowthru.Flow;
 using Flowthru.Prelude;
 
-namespace Flowthru.Core.Tests.Execution.StepExecution;
+namespace Flowthru.Core.Tests.Flow;
 
 /// <summary>
 /// Tests for the variadic-input AddStep overload — the (N×1) reduce shape
