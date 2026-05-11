@@ -61,11 +61,4 @@
     <Compile Remove="_Fixtures/**/*.cs" />
   </ItemGroup>
 
-  <!-- Selectively re-include tests that exercise FP-rewrite functionality
-       added during the migration (don't depend on the broader 03_Execution/
-       fixture surface that's still pending rebuild). -->
-  <ItemGroup>
-    <Compile Include="03_Execution/StepExecution/VariadicAddStepTests.cs" />
-  </ItemGroup>
-
 </Project>
