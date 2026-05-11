@@ -201,28 +201,19 @@ public class SerializedEnumJsonConverterTests
 
   // ─────────────────────────────────────────────────────────────────────────
   // JSON round-trip via JsonFormatSerializer's options — exercised through
-  // plain JsonSerializer to mirror the original SerializedEnumJsonConverter
-  // direct-converter tests.
-  //
-  // These are currently ignored: the FP-rewrite JsonFormatSerializer does NOT
-  // register a SerializedEnumJsonConverterFactory; only SerializedLabel +
-  // IScalar are wired. Re-enable once the enum converter ports back.
+  // plain JsonSerializer to pin the converter's per-enum behaviour. The
+  // factory + per-type converter live at Data/Storage/SerializedEnumJsonConverter.cs;
+  // JsonFormatSerializer.ctor registers the factory next to the SerializedLabel
+  // factory, so any [SerializedEnum]-annotated enum surfaces here.
   // ─────────────────────────────────────────────────────────────────────────
-
-  private const string ConverterPortBackReason =
-    "Depends on SerializedEnumJsonConverter — pending port-back from Kit / main. "
-    + "The FP-rewrite JsonFormatSerializer only registers SerializedLabel; enums "
-    + "fall through to System.Text.Json default handling (member name / integer).";
 
   private static JsonSerializerOptions OptionsWithEnumConverter()
   {
-    // When the converter ports back, this is the entry point we'll re-target.
     var serializer = new JsonFormatSerializer<SeJsonEnumOnlySchema>();
     return serializer.Options;
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public void Write_SerializesEnumToConfiguredString()
   {
     var options = OptionsWithEnumConverter();
@@ -231,7 +222,6 @@ public class SerializedEnumJsonConverterTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public void Read_DeserializesConfiguredStringToEnum()
   {
     var options = OptionsWithEnumConverter();
@@ -240,7 +230,6 @@ public class SerializedEnumJsonConverterTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public void Read_NonStringToken_ThrowsJsonException()
   {
     var options = OptionsWithEnumConverter();
@@ -251,7 +240,6 @@ public class SerializedEnumJsonConverterTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public void Read_UnknownStringValue_ThrowsJsonException()
   {
     var options = OptionsWithEnumConverter();
@@ -262,7 +250,6 @@ public class SerializedEnumJsonConverterTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public void Write_UndefinedEnumValue_ThrowsJsonException()
   {
     var options = OptionsWithEnumConverter();
@@ -274,7 +261,6 @@ public class SerializedEnumJsonConverterTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public void Factory_AcceptsAnyEnumType()
   {
     var options = OptionsWithEnumConverter();

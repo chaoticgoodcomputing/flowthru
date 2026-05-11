@@ -99,12 +99,6 @@ public class SerializedEnumJsonRoundTripTests
     }
   }
 
-  private const string ConverterPortBackReason =
-    "Depends on SerializedEnumJsonConverter — pending port-back. "
-    + "FP-rewrite JsonFormatSerializer/SingletonJsonAdapter only register "
-    + "SerializedLabelJsonConverterFactory; enums fall through to default "
-    + "System.Text.Json handling (integers / member names).";
-
   // ─────────────────────────────────────────────────────────────────────────
   // Direct EnumBindingInfo assertions via planner output — verify the
   // mapping cache is ready for consumers (CSV, Excel, Parquet, JSON-once-
@@ -180,7 +174,6 @@ public class SerializedEnumJsonRoundTripTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public async Task CheckStatusSchema_RoundTripsThroughJson()
   {
     var path = SysIO.Path.Combine(_tempDir, "check-status.json");
@@ -196,7 +189,6 @@ public class SerializedEnumJsonRoundTripTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public async Task MultiEnumSchema_RoundTripsAcrossDistinctEnumTypes()
   {
     var path = SysIO.Path.Combine(_tempDir, "multi-enum.json");
@@ -218,7 +210,6 @@ public class SerializedEnumJsonRoundTripTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public async Task OptionalEnumSchema_PresentValue_RoundTrips()
   {
     var path = SysIO.Path.Combine(_tempDir, "optional-enum-present.json");
@@ -233,7 +224,6 @@ public class SerializedEnumJsonRoundTripTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public async Task OptionalEnumSchema_NullValue_RoundTrips()
   {
     var path = SysIO.Path.Combine(_tempDir, "optional-enum-null.json");
@@ -255,7 +245,6 @@ public class SerializedEnumJsonRoundTripTests
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public async Task CheckStatusSchema_OnDiskJson_UsesSerializedEnumString()
   {
     var path = SysIO.Path.Combine(_tempDir, "wire-format.json");
@@ -280,7 +269,6 @@ public class SerializedEnumJsonRoundTripTests
   }
 
   [Test]
-  [Ignore(ConverterPortBackReason)]
   public async Task RaritySnakeCase_OnDiskJson_UsesSerializedEnumString()
   {
     var path = SysIO.Path.Combine(_tempDir, "wire-rarity.json");

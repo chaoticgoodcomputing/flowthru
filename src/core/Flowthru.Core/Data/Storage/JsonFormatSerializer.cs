@@ -8,11 +8,24 @@ namespace Flowthru.Data.Storage;
 /// <summary>
 /// JSON format serializer using <c>System.Text.Json</c>, wired through
 /// <see cref="PropertyMappingPlanner"/> to honor
-/// <see cref="SerializedLabelAttribute"/> and <see cref="IScalar"/> NewType
-/// wrapping. Supports both flat and nested schemas (declared via
+/// <see cref="SerializedLabelAttribute"/> property-name remapping,
+/// <see cref="IScalar"/> NewType wrapping, and
+/// <see cref="SerializedEnumAttribute"/> enum-string mapping. Supports
+/// both flat and nested schemas (declared via
 /// <see cref="IStructuredSerializable"/>, emitted by the schema source
 /// generator).
 /// </summary>
+/// <remarks>
+/// <para>
+/// <strong>Extension contract.</strong> Format extensions that opt into
+/// <see cref="SerializedEnumAttribute"/> support must read the bidirectional
+/// mapping from <see cref="EnumBindingInfo"/> (populated by the planner)
+/// and translate at the field boundary. The JSON path does this via
+/// <see cref="SerializedEnumJsonConverterFactory"/>; CSV, Parquet, Excel,
+/// EFCore, etc. use their format's native converter hook. The rule is
+/// "one declared mapping, every format honors it identically".
+/// </para>
+/// </remarks>
 /// <typeparam name="TRow">The row schema type.</typeparam>
 public sealed class JsonFormatSerializer<TRow>
   : IFormatSerializer<TRow>, ISupportsIScalar, ISupportsNested
@@ -37,6 +50,10 @@ public sealed class JsonFormatSerializer<TRow>
     // name mapping AND IScalar wrapping. Runs for any class type that
     // isn't a collection or string.
     _options.Converters.Add(new SerializedLabelJsonConverterFactory());
+    // Enum converter honors [SerializedEnum] on every enum property in
+    // every row schema, so the declared mapping is the single source of
+    // truth for on-disk enum representation (parallel to CSV/Excel/etc.).
+    _options.Converters.Add(new SerializedEnumJsonConverterFactory());
   }
 
   /// <summary>The JSON serialization options in use.</summary>

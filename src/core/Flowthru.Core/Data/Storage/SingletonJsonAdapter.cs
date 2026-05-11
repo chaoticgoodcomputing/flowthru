@@ -39,6 +39,11 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
     _medium = new FileStorageMedium(filePath);
     _options = options ?? throw new ArgumentNullException(nameof(options));
     _options.Converters.Add(new SerializedLabelJsonConverterFactory());
+    // [SerializedEnum]-decorated enum properties honor their declared
+    // mapping (parallel to JsonFormatSerializer). Without this, enums
+    // round-trip as ordinals/member names and the on-disk wire format
+    // diverges from every other Flowthru format adapter.
+    _options.Converters.Add(new SerializedEnumJsonConverterFactory());
   }
 
   /// <inheritdoc/>
