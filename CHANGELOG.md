@@ -1,3 +1,13 @@
+## 0.17.0 (2026-05-11)
+
+### 🚀 Features
+
+- functional programming core overhaul ([#20](https://github.com/chaoticgoodcomputing/flowthru/pull/20), [#1](https://github.com/chaoticgoodcomputing/flowthru/issues/1), [#15](https://github.com/chaoticgoodcomputing/flowthru/issues/15), [#10](https://github.com/chaoticgoodcomputing/flowthru/issues/10), [#13](https://github.com/chaoticgoodcomputing/flowthru/issues/13), [#7](https://github.com/chaoticgoodcomputing/flowthru/issues/7), [#3](https://github.com/chaoticgoodcomputing/flowthru/issues/3), [#4](https://github.com/chaoticgoodcomputing/flowthru/issues/4), [#9](https://github.com/chaoticgoodcomputing/flowthru/issues/9), [#14](https://github.com/chaoticgoodcomputing/flowthru/issues/14), [#11](https://github.com/chaoticgoodcomputing/flowthru/issues/11), [#12](https://github.com/chaoticgoodcomputing/flowthru/issues/12), [#5](https://github.com/chaoticgoodcomputing/flowthru/issues/5), [#6](https://github.com/chaoticgoodcomputing/flowthru/issues/6), [#2](https://github.com/chaoticgoodcomputing/flowthru/issues/2), [#8](https://github.com/chaoticgoodcomputing/flowthru/issues/8), [#16](https://github.com/chaoticgoodcomputing/flowthru/issues/16), [#18](https://github.com/chaoticgoodcomputing/flowthru/issues/18))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.16.1 (2026-05-06)
 
 ### 🩹 Fixes

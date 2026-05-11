@@ -14,6 +14,10 @@ comment:
   behavior: default
   require_changes: false
 flags:
+  Flowthru.Cli.Tests:
+    carryforward: true
+  Flowthru.Core.Architecture.Tests:
+    carryforward: true
   Flowthru.Core.CodeFixes.Tests:
     carryforward: true
   Flowthru.Core.SourceGenerators.Tests:
@@ -38,8 +42,6 @@ flags:
     carryforward: true
   Flowthru.Extensions.Metadata.Mermaid.Tests:
     carryforward: true
-  Flowthru.Extensions.MLNet.Tests:
-    carryforward: true
   Flowthru.Extensions.Parquet.Tests:
     carryforward: true
   Flowthru.Extensions.Python.SourceGenerators.Tests:
@@ -48,25 +50,21 @@ flags:
     carryforward: true
   Flowthru.Extensions.Xml.Tests:
     carryforward: true
-  Flowthru.FUnit.CodeFixes.Tests:
-    carryforward: true
-  Flowthru.FUnit.SourceGenerators.Tests:
-    carryforward: true
-  Flowthru.FUnit.Tests:
-    carryforward: true
-  Flowthru.Misc.DataFrames.CodeFixes.Tests:
-    carryforward: true
   Flowthru.Misc.DataFrames.SourceGenerators.Tests:
     carryforward: true
   Flowthru.Misc.DataFrames.Tests:
-    carryforward: true
-  Flowthru.Misc.ML.Tests:
     carryforward: true
   Flowthru.Tests:
     carryforward: true
   Flowthru.Tests.Kits:
     carryforward: true
   FlowthruCoverage:
+    carryforward: true
+  FUnit.CodeFixes.Tests:
+    carryforward: true
+  FUnit.SourceGenerators.Tests:
+    carryforward: true
+  FUnit.Tests:
     carryforward: true
   KedroIris:
     carryforward: true
@@ -106,6 +104,10 @@ component_management:
       name: Flowthru
       paths:
         - src/core/Flowthru/**
+    - component_id: flowthru_cli
+      name: Flowthru.Cli
+      paths:
+        - src/core/Flowthru.Cli/**
     - component_id: flowthru_core
       name: Flowthru.Core
       paths:
@@ -154,10 +156,6 @@ component_management:
       name: Flowthru.Extensions.Metadata.Mermaid
       paths:
         - src/extensions/Flowthru.Extensions.Metadata.Mermaid/**
-    - component_id: flowthru_extensions_mlnet
-      name: Flowthru.Extensions.MLNet
-      paths:
-        - src/extensions/Flowthru.Extensions.MLNet/**
     - component_id: flowthru_extensions_parquet
       name: Flowthru.Extensions.Parquet
       paths:
@@ -174,31 +172,23 @@ component_management:
       name: Flowthru.Extensions.Xml
       paths:
         - src/extensions/Flowthru.Extensions.Xml/**
-    - component_id: flowthru_funit
-      name: Flowthru.FUnit
-      paths:
-        - src/core/Flowthru.FUnit/**
-    - component_id: flowthru_funit_codefixes
-      name: Flowthru.FUnit.CodeFixes
-      paths:
-        - src/core/Flowthru.FUnit.CodeFixes/**
-    - component_id: flowthru_funit_sourcegenerators
-      name: Flowthru.FUnit.SourceGenerators
-      paths:
-        - src/core/Flowthru.FUnit.SourceGenerators/**
     - component_id: flowthru_misc_dataframes
       name: Flowthru.Misc.DataFrames
       paths:
         - src/misc/Flowthru.Misc.DataFrames/**
-    - component_id: flowthru_misc_dataframes_codefixes
-      name: Flowthru.Misc.DataFrames.CodeFixes
-      paths:
-        - src/misc/Flowthru.Misc.DataFrames.CodeFixes/**
     - component_id: flowthru_misc_dataframes_sourcegenerators
       name: Flowthru.Misc.DataFrames.SourceGenerators
       paths:
         - src/misc/Flowthru.Misc.DataFrames.SourceGenerators/**
-    - component_id: flowthru_misc_ml
-      name: Flowthru.Misc.ML
+    - component_id: funit
+      name: FUnit
       paths:
-        - src/misc/Flowthru.Misc.ML/**
+        - src/funit/FUnit/**
+    - component_id: funit_codefixes
+      name: FUnit.CodeFixes
+      paths:
+        - src/funit/FUnit.CodeFixes/**
+    - component_id: funit_sourcegenerators
+      name: FUnit.SourceGenerators
+      paths:
+        - src/funit/FUnit.SourceGenerators/**
