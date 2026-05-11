@@ -50,6 +50,12 @@ flags:
     carryforward: true
   Flowthru.Extensions.Xml.Tests:
     carryforward: true
+  Flowthru.FUnit.CodeFixes.Tests:
+    carryforward: true
+  Flowthru.FUnit.SourceGenerators.Tests:
+    carryforward: true
+  Flowthru.FUnit.Tests:
+    carryforward: true
   Flowthru.Misc.DataFrames.SourceGenerators.Tests:
     carryforward: true
   Flowthru.Misc.DataFrames.Tests:
@@ -59,12 +65,6 @@ flags:
   Flowthru.Tests.Kits:
     carryforward: true
   FlowthruCoverage:
-    carryforward: true
-  FUnit.CodeFixes.Tests:
-    carryforward: true
-  FUnit.SourceGenerators.Tests:
-    carryforward: true
-  FUnit.Tests:
     carryforward: true
   KedroIris:
     carryforward: true
@@ -172,6 +172,18 @@ component_management:
       name: Flowthru.Extensions.Xml
       paths:
         - src/extensions/Flowthru.Extensions.Xml/**
+    - component_id: flowthru_funit
+      name: Flowthru.FUnit
+      paths:
+        - src/core/Flowthru.FUnit/**
+    - component_id: flowthru_funit_codefixes
+      name: Flowthru.FUnit.CodeFixes
+      paths:
+        - src/core/Flowthru.FUnit.CodeFixes/**
+    - component_id: flowthru_funit_sourcegenerators
+      name: Flowthru.FUnit.SourceGenerators
+      paths:
+        - src/core/Flowthru.FUnit.SourceGenerators/**
     - component_id: flowthru_misc_dataframes
       name: Flowthru.Misc.DataFrames
       paths:
@@ -180,15 +192,3 @@ component_management:
       name: Flowthru.Misc.DataFrames.SourceGenerators
       paths:
         - src/misc/Flowthru.Misc.DataFrames.SourceGenerators/**
-    - component_id: funit
-      name: Flowthru.FUnit
-      paths:
-        - src/core/Flowthru.FUnit/**
-    - component_id: funit_codefixes
-      name: Flowthru.FUnit.CodeFixes
-      paths:
-        - src/core/Flowthru.FUnit.CodeFixes/**
-    - component_id: funit_sourcegenerators
-      name: Flowthru.FUnit.SourceGenerators
-      paths:
-        - src/core/Flowthru.FUnit.SourceGenerators/**

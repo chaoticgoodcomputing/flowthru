@@ -1,3 +1,13 @@
+## 0.17.1 (2026-05-11)
+
+### 🩹 Fixes
+
+- restore topology for funit packages ([6069dde3](https://github.com/chaoticgoodcomputing/flowthru/commit/6069dde3))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.17.0 (2026-05-11)
 
 ### 🚀 Features
