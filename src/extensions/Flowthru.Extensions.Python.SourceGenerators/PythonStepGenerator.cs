@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -25,7 +24,6 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 /// </para>
 /// </remarks>
 [Generator]
-[ExcludeFromCodeCoverage]
 public class PythonStepGenerator : IIncrementalGenerator
 {
   private const int MaxInputs = 8;

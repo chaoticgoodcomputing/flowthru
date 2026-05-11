@@ -11,6 +11,9 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.NUnit" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.NUnit" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit.Analyzers" />
@@ -24,6 +27,12 @@
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src/funit/FUnit.CodeFixes/FUnit.CodeFixes.csproj"
                       ReferenceOutputAssembly="true" />
+    <!-- ReferenceOutputAssembly="true" so the codefix's symbols are resolvable
+         in test code (e.g. CSharpCodeFixTest<FUnitDiagnosticAnalyzer, ...>) and
+         coverlet instruments it at test runtime. -->
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="true" />
+    <ProjectReference Include="$(RepoRoot)tests/helpers/Flowthru.Tests.Helpers/Flowthru.Tests.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

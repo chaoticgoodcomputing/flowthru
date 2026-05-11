@@ -22,6 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      ReferenceOutputAssembly=true so the analyzer + generator symbols
+      are resolvable in test code, and coverlet can instrument the
+      FUnit.SourceGenerators assembly at test runtime.
+    -->
     <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>

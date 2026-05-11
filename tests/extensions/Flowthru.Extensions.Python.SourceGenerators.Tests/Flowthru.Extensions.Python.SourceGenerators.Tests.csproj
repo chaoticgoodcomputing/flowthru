@@ -22,6 +22,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      Flowthru.Core is referenced so test fixtures can decorate sample
+      record types with [FlowthruSchema] and verify that
+      PythonStepFactoryGenerator's schema-resolution path can find them
+      in the consuming compilation.
+    -->
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <!--
+      ReferenceOutputAssembly=true so the generator's types
+      (PythonStepFactoryGenerator, PythonStepGenerator) are resolvable
+      from test code via the GeneratorDriver harness.
+    -->
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
                       ReferenceOutputAssembly="true" />
   </ItemGroup>

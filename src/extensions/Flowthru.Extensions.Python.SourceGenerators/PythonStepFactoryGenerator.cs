@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -37,7 +36,6 @@ namespace Flowthru.Extensions.Python.SourceGenerators;
 /// </code>
 /// </remarks>
 [Generator]
-[ExcludeFromCodeCoverage]
 public class PythonStepFactoryGenerator : IIncrementalGenerator
 {
   // Diagnostic identifiers — FT2xxx range (composition / wiring).
