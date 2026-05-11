@@ -1,16 +1,20 @@
 using Flowthru.Core.Data;
 using Flowthru.Core.Flows;
 
-namespace Flowthru.Core.Tests.Execution;
+namespace Flowthru.Core.Tests.FlowAuthoring;
 
 /// <summary>
 /// Tests verifying execution of steps with zero inputs and/or zero outputs across
-/// all transform variants (sync, async, async-with-CancellationToken). These shapes
-/// replace the legacy <c>NoData</c>/<c>NullStorageAdapter</c> sentinel pattern.
+/// all transform variants (sync, async, async-with-CancellationToken).
+///
+/// All call-sites use the explicit plural <c>inputs:</c> / <c>outputs:</c> form,
+/// with <c>()</c> (empty <see cref="ValueTuple"/>) as the deliberate signal for
+/// a side of arity zero. This is the user-facing API contract for source-only
+/// (zero-input) and sink-only (zero-output) steps.
 /// </summary>
 [TestFixture]
-[Category("Execution")]
-[Category("StepExecution")]
+[Category("Flow")]
+[Category("ZeroArity")]
 public class ZeroArityStepTests
 {
   // ─────────────────────────────────────────────────────────────────────────
@@ -24,7 +28,12 @@ public class ZeroArityStepTests
 
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddStep(label: "Tick", transform: () => counter.Increment());
+      builder.AddStep(
+        label: "Tick",
+        transform: () => counter.Increment(),
+        inputs: default(ValueTuple),
+        outputs: default(ValueTuple)
+      );
     });
 
     pipeline.Build();
@@ -46,7 +55,9 @@ public class ZeroArityStepTests
         {
           await Task.Yield();
           counter.Increment();
-        }
+        },
+        inputs: default(ValueTuple),
+        outputs: default(ValueTuple)
       );
     });
 
@@ -70,7 +81,9 @@ public class ZeroArityStepTests
         {
           captured = ct;
           await Task.Yield();
-        }
+        },
+        inputs: default(ValueTuple),
+        outputs: default(ValueTuple)
       );
     });
 
@@ -83,13 +96,15 @@ public class ZeroArityStepTests
   }
 
   [Test]
-  public async Task ZeroByZero_WithDescription_RecordsDescription()
+  public void ZeroByZero_WithDescription_RecordsDescription()
   {
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       builder.AddStep(
         label: "TickWithDesc",
         transform: () => { },
+        inputs: default(ValueTuple),
+        outputs: default(ValueTuple),
         description: "Smoke-test step with no IO."
       );
     });
@@ -111,7 +126,12 @@ public class ZeroArityStepTests
 
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
-      builder.AddStep(label: "Produce", transform: () => 42, output: catalog.OutputInt);
+      builder.AddStep(
+        label: "Produce",
+        transform: () => 42,
+        inputs: default(ValueTuple),
+        outputs: catalog.OutputInt
+      );
     });
 
     pipeline.Build();
@@ -135,7 +155,8 @@ public class ZeroArityStepTests
           await Task.Yield();
           return 99;
         },
-        output: catalog.OutputInt
+        inputs: default(ValueTuple),
+        outputs: catalog.OutputInt
       );
     });
 
@@ -156,16 +177,23 @@ public class ZeroArityStepTests
       builder.AddStep(
         label: "ProduceTuple",
         transform: () => (1, "two", 3.0),
-        output: (catalog.OutputInt, catalog.OutputString, catalog.OutputDouble)
+        inputs: default(ValueTuple),
+        outputs: (catalog.OutputInt, catalog.OutputString, catalog.OutputDouble)
       );
     });
 
     pipeline.Build();
     await pipeline.RunAsync(CancellationToken.None);
 
-    Assert.That(await catalog.OutputInt.Load().Run(), Is.EqualTo(1));
-    Assert.That(await catalog.OutputString.Load().Run(), Is.EqualTo("two"));
-    Assert.That(await catalog.OutputDouble.Load().Run(), Is.EqualTo(3.0));
+    var intResult = await catalog.OutputInt.Load().Run();
+    var stringResult = await catalog.OutputString.Load().Run();
+    var doubleResult = await catalog.OutputDouble.Load().Run();
+    Assert.Multiple(() =>
+    {
+      Assert.That(intResult, Is.EqualTo(1));
+      Assert.That(stringResult, Is.EqualTo("two"));
+      Assert.That(doubleResult, Is.EqualTo(3.0));
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -184,7 +212,8 @@ public class ZeroArityStepTests
       builder.AddStep(
         label: "Consume",
         transform: (int v) => captured = v,
-        input: catalog.OutputInt
+        inputs: catalog.OutputInt,
+        outputs: default(ValueTuple)
       );
     });
 
@@ -210,7 +239,8 @@ public class ZeroArityStepTests
           await Task.Yield();
           captured = v;
         },
-        input: catalog.OutputInt
+        inputs: catalog.OutputInt,
+        outputs: default(ValueTuple)
       );
     });
 
@@ -242,16 +272,20 @@ public class ZeroArityStepTests
           capturedString = tuple.s;
           capturedDouble = tuple.d;
         },
-        input: (catalog.OutputInt, catalog.OutputString, catalog.OutputDouble)
+        inputs: (catalog.OutputInt, catalog.OutputString, catalog.OutputDouble),
+        outputs: default(ValueTuple)
       );
     });
 
     pipeline.Build();
     await pipeline.RunAsync(CancellationToken.None);
 
-    Assert.That(capturedInt, Is.EqualTo(5));
-    Assert.That(capturedString, Is.EqualTo("hello"));
-    Assert.That(capturedDouble, Is.EqualTo(2.5));
+    Assert.Multiple(() =>
+    {
+      Assert.That(capturedInt, Is.EqualTo(5));
+      Assert.That(capturedString, Is.EqualTo("hello"));
+      Assert.That(capturedDouble, Is.EqualTo(2.5));
+    });
   }
 
   [Test]
@@ -273,7 +307,8 @@ public class ZeroArityStepTests
           await Task.Yield();
           sum = tuple.i + tuple.d;
         },
-        input: (catalog.OutputInt, catalog.OutputString, catalog.OutputDouble)
+        inputs: (catalog.OutputInt, catalog.OutputString, catalog.OutputDouble),
+        outputs: default(ValueTuple)
       );
     });
 
@@ -286,8 +321,6 @@ public class ZeroArityStepTests
   // ─────────────────────────────────────────────────────────────────────────
   // Multi-arity async-with-CancellationToken — exercises the engine's
   // dataParameterCount logic that strips trailing CT from multi-input invokes.
-  // Previously unreachable: pre-Phase-1, the generator emitted no CT variants
-  // for non-1×1 arities.
   // ─────────────────────────────────────────────────────────────────────────
 
   [Test]
@@ -366,7 +399,9 @@ public class ZeroArityStepTests
     {
       builder.AddStep(
         label: "RespectsToken",
-        transform: (CancellationToken ct) => Task.Delay(TimeSpan.FromMinutes(5), ct)
+        transform: (CancellationToken ct) => Task.Delay(TimeSpan.FromMinutes(5), ct),
+        inputs: default(ValueTuple),
+        outputs: default(ValueTuple)
       );
     });
 
@@ -389,7 +424,8 @@ public class ZeroArityStepTests
       builder.AddStep(
         label: "ConsumeWithToken",
         transform: (int value, CancellationToken ct) => Task.Delay(TimeSpan.FromMinutes(5), ct),
-        input: catalog.OutputInt
+        inputs: catalog.OutputInt,
+        outputs: default(ValueTuple)
       );
     });
 
@@ -425,7 +461,8 @@ public class ZeroArityStepTests
           capturedToken = ct;
           return 123;
         },
-        output: catalog.OutputInt
+        inputs: default(ValueTuple),
+        outputs: catalog.OutputInt
       );
     });
 
@@ -459,7 +496,8 @@ public class ZeroArityStepTests
           capturedValue = value;
           capturedToken = ct;
         },
-        input: catalog.OutputInt
+        inputs: catalog.OutputInt,
+        outputs: default(ValueTuple)
       );
     });
 
@@ -486,12 +524,17 @@ public class ZeroArityStepTests
     var pipeline = FlowBuilder.CreateFlow(builder =>
     {
       // 0×1 — produces seed value (no upstream dependency).
-      builder.AddStep(label: "Seed", transform: () => 10, output: catalog.OutputInt);
+      builder.AddStep(
+        label: "Seed",
+        transform: () => 10,
+        inputs: default(ValueTuple),
+        outputs: catalog.OutputInt
+      );
 
-      // 1×1 — conventional transform consuming the seed.
+      // 1×1 — conventional transform consuming the seed (singular API form).
       builder.AddStep(
         label: "Double",
-        transform: (int v) => v * 2,
+        transform: (int v) => (double)(v * 2),
         input: catalog.OutputInt,
         output: catalog.OutputDouble
       );
@@ -500,7 +543,8 @@ public class ZeroArityStepTests
       builder.AddStep(
         label: "Notify",
         transform: (double _) => sideEffectFired = true,
-        input: catalog.OutputDouble
+        inputs: catalog.OutputDouble,
+        outputs: default(ValueTuple)
       );
     });
 
@@ -528,7 +572,9 @@ public class ZeroArityStepTests
     {
       builder.AddStep(
         label: "Boom",
-        transform: () => throw new InvalidOperationException("boom from 0×0")
+        transform: () => throw new InvalidOperationException("boom from 0x0"),
+        inputs: default(ValueTuple),
+        outputs: default(ValueTuple)
       );
     });
 
@@ -539,7 +585,7 @@ public class ZeroArityStepTests
     {
       Assert.That(result.Success, Is.False);
       Assert.That(result.Exception, Is.Not.Null);
-      Assert.That(result.Exception!.Message, Does.Contain("boom from 0×0"));
+      Assert.That(result.Exception!.Message, Does.Contain("boom from 0x0"));
     });
   }
 
@@ -553,8 +599,9 @@ public class ZeroArityStepTests
       builder.AddStep(
         label: "ProduceBoom",
         transform: () =>
-          Task.FromException<int>(new InvalidOperationException("boom from 0×1")),
-        output: catalog.OutputInt
+          Task.FromException<int>(new InvalidOperationException("boom from 0x1")),
+        inputs: default(ValueTuple),
+        outputs: catalog.OutputInt
       );
     });
 
@@ -565,7 +612,7 @@ public class ZeroArityStepTests
     {
       Assert.That(result.Success, Is.False);
       Assert.That(result.Exception, Is.Not.Null);
-      Assert.That(result.Exception!.Message, Does.Contain("boom from 0×1"));
+      Assert.That(result.Exception!.Message, Does.Contain("boom from 0x1"));
     });
   }
 

@@ -69,18 +69,38 @@ public class FlowBuilderGenerator : IIncrementalGenerator
       """
     );
 
-    // Generate overloads across the full matrix. No skip rule — the generator owns
-    // every shape, including 0×0 and 1×1.
-    for (int inputs = 0; inputs <= MaxInputs; inputs++)
+    // Two API surfaces share the same overload body:
+    //   plural: false → conventional `input:` / `output:` (singular) params,
+    //                   empty side omitted. Full 0-8 × 0-8 matrix.
+    //   plural: true  → explicit `inputs:` / `outputs:` (plural) params, empty
+    //                   side typed as ValueTuple (caller passes
+    //                   `default(ValueTuple)` as a deliberate signal). Emitted
+    //                   only when at least one side is empty — when both sides
+    //                   are populated the plural form would collide with the
+    //                   singular signature.
+    var variants = new[]
     {
-      for (int outputs = 0; outputs <= MaxOutputs; outputs++)
+      TransformVariant.Sync,
+      TransformVariant.Async,
+      TransformVariant.AsyncWithCancellation,
+    };
+    foreach (var plural in new[] { false, true })
+    {
+      for (int inputs = 0; inputs <= MaxInputs; inputs++)
       {
-        GenerateAddStepOverload(sb, inputs, outputs, TransformVariant.Sync);
-        sb.AppendLine();
-        GenerateAddStepOverload(sb, inputs, outputs, TransformVariant.Async);
-        sb.AppendLine();
-        GenerateAddStepOverload(sb, inputs, outputs, TransformVariant.AsyncWithCancellation);
-        sb.AppendLine();
+        for (int outputs = 0; outputs <= MaxOutputs; outputs++)
+        {
+          if (plural && inputs > 0 && outputs > 0)
+          {
+            continue;
+          }
+
+          foreach (var variant in variants)
+          {
+            GenerateAddStepOverload(sb, inputs, outputs, variant, plural);
+            sb.AppendLine();
+          }
+        }
       }
     }
 
@@ -89,45 +109,68 @@ public class FlowBuilderGenerator : IIncrementalGenerator
     context.AddSource("FlowBuilder.Generated.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
   }
 
+  /// <summary>
+  /// Emits one AddStep overload. The <paramref name="plural"/> flag selects
+  /// between two API surfaces that share the same body:
+  /// <list type="bullet">
+  /// <item><description>
+  ///   <c>plural: false</c> — conventional <c>input:</c> / <c>output:</c>
+  ///   singular parameters. Empty sides are omitted entirely.
+  /// </description></item>
+  /// <item><description>
+  ///   <c>plural: true</c> — explicit <c>inputs:</c> / <c>outputs:</c> plural
+  ///   parameters. Empty sides are typed as <see cref="System.ValueTuple"/>
+  ///   so the caller passes <c>default(ValueTuple)</c> as a deliberate signal.
+  /// </description></item>
+  /// </list>
+  /// </summary>
   private static void GenerateAddStepOverload(
     StringBuilder sb,
     int inputCount,
     int outputCount,
-    TransformVariant variant
+    TransformVariant variant,
+    bool plural = false
   )
   {
-    GenerateXmlDoc(sb, inputCount, outputCount, variant);
+    GenerateXmlDoc(sb, inputCount, outputCount, variant, plural);
 
     var typeParams = GenerateTypeParameters(inputCount, outputCount);
     var typeParamSection = string.IsNullOrEmpty(typeParams) ? "" : $"<{typeParams}>";
     var funcSignature = GenerateFuncSignature(inputCount, outputCount, variant);
+    var inputParamName = plural ? "inputs" : "input";
+    var outputParamName = plural ? "outputs" : "output";
 
     sb.AppendLine($"  public FlowBuilder AddStep{typeParamSection}(");
     sb.AppendLine("    string label,");
     sb.AppendLine($"    {funcSignature} transform,");
+
+    // Singular form omits the empty side entirely; plural form types it as ValueTuple.
     if (inputCount > 0)
     {
-      sb.AppendLine($"    {GenerateInputParameter(inputCount)} input,");
+      sb.AppendLine($"    {GenerateInputParameter(inputCount)} {inputParamName},");
+    }
+    else if (plural)
+    {
+      sb.AppendLine($"    ValueTuple {inputParamName},");
     }
     if (outputCount > 0)
     {
-      sb.AppendLine($"    {GenerateOutputParameter(outputCount)} output,");
+      sb.AppendLine($"    {GenerateOutputParameter(outputCount)} {outputParamName},");
     }
+    else if (plural)
+    {
+      sb.AppendLine($"    ValueTuple {outputParamName},");
+    }
+
     sb.AppendLine("    string description = \"\"");
     sb.AppendLine("  )");
     sb.AppendLine("  {");
 
-    GenerateInputDeconstruction(sb, inputCount);
-    GenerateOutputDeconstruction(sb, outputCount);
+    GenerateInputDeconstruction(sb, inputCount, inputParamName);
+    GenerateOutputDeconstruction(sb, outputCount, outputParamName);
 
-    var inputsArg =
-      inputCount == 0
-        ? "System.Array.Empty<INode>()"
-        : $"new List<INode> {{ {GenerateInputsList(inputCount)} }}";
-    var outputsArg =
-      outputCount == 0
-        ? "System.Array.Empty<INode>()"
-        : $"new List<INode> {{ {GenerateOutputsList(outputCount)} }}";
+    var inputsArg = BuildNodeListExpression(inputCount, inputParamName, isInput: true);
+    var outputsArg = BuildNodeListExpression(outputCount, outputParamName, isInput: false);
 
     sb.AppendLine(
       $$"""
@@ -147,11 +190,34 @@ public class FlowBuilderGenerator : IIncrementalGenerator
     );
   }
 
+  /// <summary>
+  /// Builds the C# expression used to populate the <c>FlowStep.inputs</c> or
+  /// <c>FlowStep.outputs</c> list for a given arity. Reads as one of:
+  /// <c>System.Array.Empty&lt;INode&gt;()</c> (arity 0),
+  /// <c>new List&lt;INode&gt; { paramName }</c> (arity 1), or
+  /// <c>new List&lt;INode&gt; { paramName1, paramName2, ... }</c> (arity ≥ 2,
+  /// where each <c>paramNameN</c> is a deconstructed local).
+  /// </summary>
+  private static string BuildNodeListExpression(int count, string paramName, bool isInput)
+  {
+    if (count == 0)
+    {
+      return "System.Array.Empty<INode>()";
+    }
+    if (count == 1)
+    {
+      return $"new List<INode> {{ {paramName} }}";
+    }
+    var items = isInput ? GenerateInputsList(count) : GenerateOutputsList(count);
+    return $"new List<INode> {{ {items} }}";
+  }
+
   private static void GenerateXmlDoc(
     StringBuilder sb,
     int inputCount,
     int outputCount,
-    TransformVariant variant
+    TransformVariant variant,
+    bool plural = false
   )
   {
     var variantDesc = variant switch
@@ -197,17 +263,34 @@ public class FlowBuilderGenerator : IIncrementalGenerator
 
     sb.AppendLine("  /// <param name=\"label\">Unique identifier for this step</param>");
     sb.AppendLine($"  /// <param name=\"transform\">{transformDesc}</param>");
-    if (inputCount > 0)
+
+    if (plural)
     {
       sb.AppendLine(
-        "  /// <param name=\"input\">Catalog item or tuple of catalog items providing input data</param>"
+        inputCount == 0
+          ? "  /// <param name=\"inputs\">Explicit empty tuple (<c>()</c>) — the step has no inputs.</param>"
+          : "  /// <param name=\"inputs\">Catalog item or tuple of catalog items providing input data.</param>"
+      );
+      sb.AppendLine(
+        outputCount == 0
+          ? "  /// <param name=\"outputs\">Explicit empty tuple (<c>()</c>) — the step has no outputs.</param>"
+          : "  /// <param name=\"outputs\">Catalog item or tuple of catalog items to store output data.</param>"
       );
     }
-    if (outputCount > 0)
+    else
     {
-      sb.AppendLine(
-        "  /// <param name=\"output\">Catalog item or tuple of catalog items to store output data</param>"
-      );
+      if (inputCount > 0)
+      {
+        sb.AppendLine(
+          "  /// <param name=\"input\">Catalog item or tuple of catalog items providing input data</param>"
+        );
+      }
+      if (outputCount > 0)
+      {
+        sb.AppendLine(
+          "  /// <param name=\"output\">Catalog item or tuple of catalog items to store output data</param>"
+        );
+      }
     }
     sb.AppendLine(
       "  /// <param name=\"description\">Optional description of the step's purpose</param>"
@@ -297,43 +380,46 @@ public class FlowBuilderGenerator : IIncrementalGenerator
     return $"({types})";
   }
 
-  private static void GenerateInputDeconstruction(StringBuilder sb, int inputCount)
+  private static void GenerateInputDeconstruction(
+    StringBuilder sb,
+    int inputCount,
+    string sourceName
+  ) => GenerateTupleDeconstruction(sb, inputCount, "input", sourceName);
+
+  private static void GenerateOutputDeconstruction(
+    StringBuilder sb,
+    int outputCount,
+    string sourceName
+  ) => GenerateTupleDeconstruction(sb, outputCount, "output", sourceName);
+
+  /// <summary>
+  /// Emits a deconstruction statement of the form
+  /// <c>var (slot1, slot2, ...) = source;</c> when <paramref name="count"/> ≥ 2.
+  /// For <paramref name="count"/> ≤ 1 the parameter is already a single value
+  /// (or absent) and no deconstruction is needed.
+  /// </summary>
+  private static void GenerateTupleDeconstruction(
+    StringBuilder sb,
+    int count,
+    string slotPrefix,
+    string sourceName
+  )
   {
-    if (inputCount <= 1)
+    if (count <= 1)
     {
       return;
     }
 
     sb.Append("    var (");
-    for (int i = 1; i <= inputCount; i++)
+    for (int i = 1; i <= count; i++)
     {
       if (i > 1)
       {
         sb.Append(", ");
       }
-      sb.Append($"input{i}");
+      sb.Append($"{slotPrefix}{i}");
     }
-    sb.AppendLine(") = input;");
-    sb.AppendLine();
-  }
-
-  private static void GenerateOutputDeconstruction(StringBuilder sb, int outputCount)
-  {
-    if (outputCount <= 1)
-    {
-      return;
-    }
-
-    sb.Append("    var (");
-    for (int i = 1; i <= outputCount; i++)
-    {
-      if (i > 1)
-      {
-        sb.Append(", ");
-      }
-      sb.Append($"output{i}");
-    }
-    sb.AppendLine(") = output;");
+    sb.AppendLine($") = {sourceName};");
     sb.AppendLine();
   }
 

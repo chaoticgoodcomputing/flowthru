@@ -67,11 +67,36 @@ namespace Flowthru.Core.Flows;
 ///         input: catalog.Config,
 ///         output: catalog.ExternalData
 ///     );
+///
+///     // Zero-input source step (no upstream dependency) — use the explicit
+///     // plural `inputs:` form with `default(ValueTuple)` as the empty marker.
+///     builder.AddStep(
+///         label: "SeedData",
+///         transform: SeedDataStep.Create(),
+///         inputs: default(ValueTuple),
+///         outputs: (catalog.TrainSplit, catalog.TestSplit)
+///     );
+///
+///     // Zero-output sink step (no downstream dependency) — use the explicit
+///     // plural `outputs:` form with `default(ValueTuple)` as the empty marker.
+///     builder.AddStep(
+///         label: "PublishReport",
+///         transform: PublishReportStep.Create(),
+///         inputs: catalog.ModelInputTable,
+///         outputs: default(ValueTuple)
+///     );
 /// });
 ///
 /// flow.Build();
 /// await flow.ExecuteAsync();
 /// </code>
+/// <para>
+/// <strong>Zero-arity steps:</strong> Steps with no inputs, no outputs, or both
+/// are first-class shapes. Use the explicit plural <c>inputs:</c> / <c>outputs:</c>
+/// parameter form with <c>default(ValueTuple)</c> for the empty side to make the
+/// authoring intent explicit at the call site. (C# does not allow <c>()</c> as a
+/// literal expression — <c>default(ValueTuple)</c> is the canonical alternative.)
+/// </para>
 /// </remarks>
 public partial class FlowBuilder
 {
