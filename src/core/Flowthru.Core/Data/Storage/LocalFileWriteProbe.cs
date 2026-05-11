@@ -1,44 +1,51 @@
-using Flowthru.Core.Data.Validation;
-
-namespace Flowthru.Core.Data.Storage;
+namespace Flowthru.Data.Storage;
 
 /// <summary>
-/// Shared write-access probe for local filesystem paths.
+/// Shared write-access probe for local filesystem paths. Used by
+/// file-based storage adapters and media to implement
+/// <c>InspectTarget()</c> consistently.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Used by all file-based storage adapters and media to implement
-/// <c>InspectTarget()</c> consistently without duplication.
+/// The probe walks up the directory tree until it finds the nearest
+/// existing ancestor, then writes and immediately deletes a zero-byte
+/// sentinel file there. A missing intermediate directory is *not* a
+/// pre-flight blocker — every file-based <c>Save()</c> calls
+/// <c>Directory.CreateDirectory()</c> at write time. Only an inaccessible
+/// filesystem root or refused-write at the nearest existing ancestor
+/// produces a <see cref="ValidationErrorType.WriteAccessDenied"/> result.
 /// </para>
-/// <para>
-/// <strong>Semantics:</strong>
-/// </para>
-/// <para>
-/// The probe intentionally does <em>not</em> require the destination directory to
-/// already exist. All file-based <c>Save()</c> implementations call
-/// <c>Directory.CreateDirectory()</c> at write time, so a missing directory is never
-/// a pre-flight blocker — only a missing or inaccessible filesystem root is.
-/// </para>
-/// <para>
-/// The probe walks up the directory tree until it finds the nearest ancestor that
-/// exists, then writes and immediately deletes a zero-byte sentinel file there. A
-/// <see cref="ValidationErrorType.WriteAccessDenied"/> failure is returned only when:
-/// </para>
-/// <list type="bullet">
-/// <item>No existing ancestor can be found (e.g. a nonexistent drive or mount point)</item>
-/// <item>The OS refuses the write at the nearest existing ancestor</item>
-/// </list>
 /// </remarks>
 public static class LocalFileWriteProbe
 {
   /// <summary>
-  /// Probes write access for the directory that <paramref name="filePath"/> would be
-  /// written to, walking up the tree to the nearest existing ancestor if needed.
+  /// Probes write access for the directory <paramref name="filePath"/>
+  /// would land in, walking up the tree to the nearest existing ancestor
+  /// if needed.
   /// </summary>
-  /// <param name="filePath">The intended destination file path (need not exist yet).</param>
-  /// <param name="ct">Cancellation token.</param>
-  public static async ValueTask<ValidationResult> ProbeAsync(string filePath, CancellationToken ct)
+  /// <remarks>
+  /// Every observable failure mode — including null/empty/whitespace
+  /// inputs — surfaces as a <see cref="ValidationResult.Failure"/>
+  /// (fail-as-value). The probe does not throw. This is the contract
+  /// every <c>InspectTarget()</c>-shaped probe in Flowthru holds: pre-flight
+  /// aggregates findings into FT3xxx diagnostics, so a thrown
+  /// <see cref="ArgumentException"/> would bypass the aggregation surface
+  /// and reach the user as a stack trace instead of an actionable
+  /// validation error.
+  /// </remarks>
+  public static async Task<ValidationResult> ProbeAsync(string filePath, CancellationToken ct)
   {
+    if (string.IsNullOrWhiteSpace(filePath))
+    {
+      return ValidationResult.Failure(
+        catalogKey: string.Empty,
+        errorType: ValidationErrorType.WriteAccessDenied,
+        message: "Write destination path is empty",
+        details: "An empty or whitespace path cannot be probed. "
+          + "Adapter configuration must supply a non-empty destination path."
+      );
+    }
+
     var fullPath = Path.GetFullPath(filePath);
     var directory = Path.GetDirectoryName(fullPath);
 
@@ -52,8 +59,8 @@ public static class LocalFileWriteProbe
       );
     }
 
-    // Walk up until we find an ancestor that already exists.
-    // Save() will create intermediate directories at runtime; we only need to know
+    // Walk up until we find an ancestor that already exists. Save() will
+    // create intermediate directories at runtime; we only need to know
     // whether the filesystem root is accessible and permits writes.
     var probe = directory;
     while (!string.IsNullOrEmpty(probe) && !Directory.Exists(probe))
@@ -71,7 +78,6 @@ public static class LocalFileWriteProbe
       );
     }
 
-    // Write and immediately delete a zero-byte sentinel file to confirm write access.
     var probeFile = Path.Combine(probe, $".flowthru-probe-{Guid.NewGuid():N}");
     try
     {
@@ -97,7 +103,7 @@ public static class LocalFileWriteProbe
         }
         catch
         {
-          // Probe cleanup failure is non-fatal; the sentinel file is identifiable by name.
+          // Probe cleanup failure is non-fatal.
         }
       }
     }

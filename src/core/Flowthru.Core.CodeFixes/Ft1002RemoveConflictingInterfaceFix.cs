@@ -3,7 +3,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Flowthru.Core.SourceGenerators.SchemaAnalysis;
+using Flowthru.Core.SourceGenerators.Schema;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;

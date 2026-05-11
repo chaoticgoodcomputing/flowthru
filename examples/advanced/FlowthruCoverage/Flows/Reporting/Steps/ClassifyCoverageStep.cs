@@ -1,9 +1,9 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._01_Raw.Schemas;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 using FlowthruCoverage.Data._04_Reporting.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Reporting.Steps;
@@ -193,7 +193,7 @@ public static class ClassifyCoverageStep
     /// Rows whose SrcPackage is not a manifest <c>Library</c> entry are excluded from the real
     /// rows entirely — they don't fit the Library × LibraryTest grid the heatmap displays.
     /// </summary>
-    [StepTest(typeof(ClassifyCoverageStep))]
+    [FUnitStepTest(typeof(ClassifyCoverageStep))]
     public void NonLibrarySrcPackage_IsExcluded()
     {
       var rows = new[]
@@ -218,7 +218,7 @@ public static class ClassifyCoverageStep
     /// A test project that ran but hit nothing is demoted to ghost rows so the X column
     /// is grayed out — confirms the all-zero demotion documented in the implementation.
     /// </summary>
-    [StepTest(typeof(ClassifyCoverageStep))]
+    [FUnitStepTest(typeof(ClassifyCoverageStep))]
     public void AllZeroTestProject_IsDemotedToGhost()
     {
       var rows = new[]
@@ -243,7 +243,7 @@ public static class ClassifyCoverageStep
     /// "Examples". LibraryTest entries must follow the <c>Foo.Tests</c> naming convention —
     /// the step assumes this when computing pair anchors.
     /// </summary>
-    [StepTest(typeof(ClassifyCoverageStep))]
+    [FUnitStepTest(typeof(ClassifyCoverageStep))]
     public void Section_IsDerivedFromTestProjectType()
     {
       var rows = new[]
@@ -273,7 +273,7 @@ public static class ClassifyCoverageStep
     /// A library with no Cobertura data still appears as a ghost Y-row anchor — the heatmap
     /// needs to know the package exists in the manifest even when nothing measured it.
     /// </summary>
-    [StepTest(typeof(ClassifyCoverageStep))]
+    [FUnitStepTest(typeof(ClassifyCoverageStep))]
     public void LibraryWithNoCoverageData_GetsGhostAnchor()
     {
       var rows = new[] { Row("PkgA.Tests", "PkgA", 50.0) };
@@ -294,7 +294,7 @@ public static class ClassifyCoverageStep
     /// Output is sorted by Section → Subgroup → TestProject (with .Tests suffix stripped) →
     /// SrcPackage. Verifies the deterministic ordering the downstream pivot relies on.
     /// </summary>
-    [StepTest(typeof(ClassifyCoverageStep))]
+    [FUnitStepTest(typeof(ClassifyCoverageStep))]
     public void Output_IsSortedBySectionThenSubgroupThenProject()
     {
       var rows = new[]

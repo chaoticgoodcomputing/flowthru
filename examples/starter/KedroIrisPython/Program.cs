@@ -1,9 +1,9 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
-using Flowthru.Extensions.Python;
-using Flowthru.Extensions.Python.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
+using Flowthru.Hosting;
+using Flowthru.Step.Python;
 using KedroIrisPython.Data;
 using KedroIrisPython.Flows.DataEngineering;
 using KedroIrisPython.Flows.DataScience;
@@ -18,9 +18,6 @@ namespace KedroIrisPython;
 /// </summary>
 public class Program
 {
-  /// <summary>
-  /// Main entry point for the CLI application.
-  /// </summary>
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
@@ -32,10 +29,6 @@ public class Program
         )
     );
 
-  /// <summary>
-  /// Configures services for the application. Used by test infrastructure.
-  /// </summary>
-  /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
   public static IServiceProvider ConfigureServices(
     string? basePath = null,
     string? outputPath = null
@@ -50,16 +43,12 @@ public class Program
     return services.BuildServiceProvider();
   }
 
-  /// <summary>
-  /// Shared service configuration logic.
-  /// </summary>
   private static void ConfigureServices(
     IServiceCollection services,
     string basePath,
     string outputPath
   )
   {
-    // Add logging first (required by PythonRuntime)
     services.AddLogging(logging =>
     {
       logging.AddConsole();
@@ -71,53 +60,33 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+
+      flowthru.ConfigureMetadata(meta =>
       {
-        flowthru.RegisterCatalog(_ => new Catalog(Path.Combine(basePath, "Data")));
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
 
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
+      flowthru.UsePython(python =>
+      {
+        python.ModuleSearchPaths.Add(basePath);
+        python.ModuleSearchPaths.Add(outputPath);
+        python.VenvPath = outputPath;
+      });
 
-        // Configure Python runtime
-        flowthru.UsePython(python =>
-        {
-          // Project root: makes Flows/ importable as a Python module tree
-          python.ModuleSearchPaths.Add(basePath);
-          // Output directory: contains the flowthru package (@step decorator)
-          python.ModuleSearchPaths.Add(outputPath);
-          // Use this example's own output directory for venv isolation
-          python.VenvPath = outputPath;
-        });
+      flowthru
+        .RegisterFlow<Catalog, IPythonExecutor>("DataEngineering", DataEngineeringFlow.Create)
+        .WithDescription("Splits iris data into training and test sets using Python");
 
-        // Phase 6 workaround: Resolve Python dependencies for pipeline registration
-        // Build temp provider after UsePython registers services but before pipeline registration
-        // NOTE: Don't dispose - we need the singleton instances to stay alive
-        var tempProvider = flowthru.Services.BuildServiceProvider();
-        var executor =
-          tempProvider.GetRequiredService<Flowthru.Extensions.Python.Execution.IPythonExecutor>();
-
-        // Register pipelines with resolved executor
-        flowthru
-          .RegisterFlow(label: "DataEngineering", flow: DataEngineeringFlow.Create)
-          .WithDescription("Splits iris data into training and test sets using Python");
-
-        flowthru
-          .RegisterFlow(label: "DataScience", flow: DataScienceFlow.Create)
-          .WithDescription(
-            "Trains multi-class logistic regression model and evaluates predictions using Python"
-          );
-      }
-    );
+      flowthru
+        .RegisterFlow<Catalog, IPythonExecutor>("DataScience", DataScienceFlow.Create)
+        .WithDescription("Trains multi-class logistic regression model and evaluates predictions using Python");
+    });
   }
 }

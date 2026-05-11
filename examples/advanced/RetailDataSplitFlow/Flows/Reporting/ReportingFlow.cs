@@ -1,5 +1,7 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using RetailDataMultipipeline.Data;
+using RetailDataMultipipeline.Data._02_Intermediate.Schemas;
+using RetailDataMultipipeline.Data._08_Reporting.Schemas;
 using RetailDataMultipipeline.Flows.Reporting.Steps;
 
 namespace RetailDataMultipipeline.Flows.Reporting;
@@ -9,16 +11,15 @@ namespace RetailDataMultipipeline.Flows.Reporting;
 /// </summary>
 public static class ReportingFlow
 {
-  public static Flow Create(CoreCatalog catalog)
+  public static BuiltFlow Create(CoreCatalog catalog)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<RetailTransactionIntermediateSchema>, IEnumerable<CountryTransactionSummarySchema>>(
         label: "SummarizeByCountry",
-        description: "Counts debit and credit line items per country across the full transaction history.",
         transform: SummarizeByCountryStep.Create(),
-        input: catalog.AllRetailTransactions,
-        output: catalog.CountryTransactionSummary
+        inputs: catalog.AllRetailTransactions,
+        outputs: catalog.CountryTransactionSummary
       );
     });
   }

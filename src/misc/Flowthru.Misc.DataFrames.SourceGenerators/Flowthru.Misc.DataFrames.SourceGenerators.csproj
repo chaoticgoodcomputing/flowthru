@@ -7,7 +7,7 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <PackageId>Flowthru.Misc.DataFrames.SourceGenerators</PackageId>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <NoWarn>RS2008;RS2007</NoWarn>
+    <NoWarn>RS2008;RS2007;CS1591</NoWarn>
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IsPackable>false</IsPackable>

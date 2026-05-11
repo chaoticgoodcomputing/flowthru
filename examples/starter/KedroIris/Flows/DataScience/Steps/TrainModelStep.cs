@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using KedroIris.Data._05_ModelInput.Schemas;
 using KedroIris.Data._06_Models.Schemas;
 
@@ -24,14 +24,17 @@ public static class TrainModelStep
 
   /// <summary>
   /// Trains a multi-class logistic regression model using gradient descent.
+  /// Tuple-input shape so the flow can close over <see cref="Options"/> at
+  /// flow-construction time.
   /// </summary>
-  public static ModelWeightsSchema Create(
+  public static Func<
     (
       IEnumerable<FeatureVectorSchema> TrainX,
       IEnumerable<TargetLabelSchema> TrainY,
       Options Options
-    ) input
-  )
+    ),
+    ModelWeightsSchema
+  > Create() => input =>
   {
     var (trainXSeq, trainYSeq, options) = input;
     var numIterations = options.NumTrainIter;
@@ -138,13 +141,10 @@ public static class TrainModelStep
       NumFeatures = numFeatures,
       NumClasses = numClasses,
     };
-  }
+  };
 
   /// <summary>
   /// Sigmoid activation function: 1 / (1 + exp(-z)).
   /// </summary>
-  private static double Sigmoid(double z)
-  {
-    return 1.0 / (1.0 + Math.Exp(-z));
-  }
+  private static double Sigmoid(double z) => 1.0 / (1.0 + Math.Exp(-z));
 }

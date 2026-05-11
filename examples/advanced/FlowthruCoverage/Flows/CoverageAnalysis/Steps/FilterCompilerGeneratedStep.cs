@@ -1,7 +1,7 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._02_Intermediate.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Coverage.Steps;
@@ -43,7 +43,7 @@ public static class FilterCompilerGeneratedStep
       };
 
     /// <summary>Empty input produces empty output — no spurious rows materialized.</summary>
-    [StepTest(typeof(FilterCompilerGeneratedStep))]
+    [FUnitStepTest(typeof(FilterCompilerGeneratedStep))]
     public void EmptyInput_YieldsEmptyOutput()
     {
       var result = Invoke(FilterCompilerGeneratedStep.Create(), Enumerable.Empty<LineCoverageRow>());
@@ -55,7 +55,7 @@ public static class FilterCompilerGeneratedStep
     /// Mixed input: every row whose class or method name carries an angle-bracket marker
     /// is dropped; authored rows survive untouched and in original order.
     /// </summary>
-    [StepTest(typeof(FilterCompilerGeneratedStep))]
+    [FUnitStepTest(typeof(FilterCompilerGeneratedStep))]
     public void MixedInput_DropsCompilerGeneratedAndPreservesAuthored()
     {
       var input = new[]
@@ -78,7 +78,7 @@ public static class FilterCompilerGeneratedStep
     /// All-authored input passes through unchanged — the filter does not mutate or reorder
     /// surviving rows.
     /// </summary>
-    [StepTest(typeof(FilterCompilerGeneratedStep))]
+    [FUnitStepTest(typeof(FilterCompilerGeneratedStep))]
     public void AllAuthored_PassesThroughUnchanged()
     {
       var input = new[]
@@ -97,7 +97,7 @@ public static class FilterCompilerGeneratedStep
     /// All-compiler-generated input is fully dropped — output is empty even when the input
     /// has many rows.
     /// </summary>
-    [StepTest(typeof(FilterCompilerGeneratedStep))]
+    [FUnitStepTest(typeof(FilterCompilerGeneratedStep))]
     public void AllCompilerGenerated_YieldsEmptyOutput()
     {
       var input = new[]

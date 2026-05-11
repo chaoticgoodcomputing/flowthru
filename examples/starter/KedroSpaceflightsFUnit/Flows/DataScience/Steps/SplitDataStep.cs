@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._03_Primary.Schemas;
 using KedroSpaceflightsFUnit.Data._05_ModelInput.Schemas;
 
@@ -33,11 +33,14 @@ public static class SplitDataStep
   }
 
   /// <summary>
-  /// Splits input data into training and test sets.
+  /// Splits input data into training and test sets. Tuple-input shape so
+  /// the flow can close over <see cref="ModelOptions"/> at flow-construction
+  /// time while FUnit tests still drive the step directly with a tuple.
   /// </summary>
-  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
-    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
-  )
+  public static Func<
+    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options),
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
+  > Create() => input =>
   {
     var (rawData, options) = input;
     var data = rawData.ToList();
@@ -85,7 +88,7 @@ public static class SplitDataStep
       });
 
     return (trainData, testData);
-  }
+  };
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="SplitDataStep"/>.</summary>
@@ -113,14 +116,14 @@ public static class SplitDataStep
     /// <summary>
     /// With 10 inputs and a 20% test split, train should have 8 rows and test 2.
     /// </summary>
-    [StepTest(typeof(SplitDataStep))]
+    [FUnitStepTest(typeof(SplitDataStep))]
     public void TenRows_SplitsCorrectly()
     {
       // Arrange
       var input = Samples.Generate(10, i => Row($"S{i}"));
 
       // Apply
-      var (train, test) = Invoke(Create, (input, DefaultOptions));
+      var (train, test) = Invoke(Create(), (input, DefaultOptions));
 
       // Assert
       Assert.That(train.Count(), Is.EqualTo(8));
@@ -130,14 +133,14 @@ public static class SplitDataStep
     /// <summary>
     /// Train count + test count must equal the total input count.
     /// </summary>
-    [StepTest(typeof(SplitDataStep))]
+    [FUnitStepTest(typeof(SplitDataStep))]
     public void TrainPlusTest_EqualsTotal()
     {
       // Arrange
       var input = Samples.Generate(15, i => Row($"S{i}"));
 
       // Apply
-      var (train, test) = Invoke(Create, (input, DefaultOptions));
+      var (train, test) = Invoke(Create(), (input, DefaultOptions));
 
       // Assert
       Assert.That(train.Count() + test.Count(), Is.EqualTo(15));
@@ -146,15 +149,15 @@ public static class SplitDataStep
     /// <summary>
     /// Same seed with same data must produce identical train/test order each call.
     /// </summary>
-    [StepTest(typeof(SplitDataStep))]
+    [FUnitStepTest(typeof(SplitDataStep))]
     public void SameSeed_IsDeterministic()
     {
       // Arrange
       var input = Samples.Generate(10, i => Row($"S{i}"));
 
       // Apply
-      var (train1, _) = Invoke(Create, (input, DefaultOptions));
-      var (train2, _) = Invoke(Create, (input, DefaultOptions));
+      var (train1, _) = Invoke(Create(), (input, DefaultOptions));
+      var (train2, _) = Invoke(Create(), (input, DefaultOptions));
 
       // Assert
       var ids1 = train1.Select(r => r.Features.Engines).ToList();

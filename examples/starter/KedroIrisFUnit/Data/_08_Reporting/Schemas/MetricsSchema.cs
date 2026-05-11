@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 
 namespace KedroIrisFUnit.Data._08_Reporting.Schemas;
 

@@ -1,56 +1,58 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsDistributed.DataProcessing.Data;
+using SpaceflightsDistributed.DataProcessing.Data._03_Primary.Schemas;
 using SpaceflightsDistributed.DataScience.Data;
+using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
+using SpaceflightsDistributed.DataScience.Data._06_Models.Schemas;
+using SpaceflightsDistributed.DataScience.Data._07_ModelOutput.Schemas;
 using SpaceflightsDistributed.DataScience.Flows.DataScience.Steps;
 
 namespace SpaceflightsDistributed.DataScience.Flows.DataScience;
 
 /// <summary>
 /// Trains and evaluates a price prediction model using processed shuttle data.
-/// Reads the model input table from the DataProcessing catalog and writes
-/// all model artifacts and outputs to the DataScience catalog.
 /// </summary>
 public static class DataScienceFlow
 {
-  /// <summary>
-  /// Creates the data science pipeline.
-  /// This pipeline signature expresses its cross-catalog dependency directly:
-  /// it requires both a DataProcessingCatalog (data source) and a
-  /// DataScienceCatalog (model output sink).
-  /// </summary>
-  /// <param name="dp">The data processing catalog supplying the model input table.</param>
-  /// <param name="ds">The data science catalog receiving splits, model, and metrics.</param>
-  /// <param name="config">Configuration catalog providing pipeline parameters.</param>
-  public static Flow Create(
+  public static BuiltFlow Create(
     DataProcessingCatalog dp,
     DataScienceCatalog ds,
     DataScienceFlowConfig config
   )
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    var splitOptions = config.ModelOptions;
+    var splitTransform = SplitDataStep.Create();
+
+    return FlowBuilder.CreateFlow("DataScience", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<ModelInputTableSchema>,
+        IEnumerable<TrainingData>,
+        IEnumerable<TestData>
+      >(
         label: "SplitData",
-        description: "Splits the model input table into training and test sets.",
-        transform: SplitDataStep.Create,
-        input: (dp.ModelInputTable, config.ModelOptions),
-        output: (ds.TrainSplit, ds.TestSplit)
+        transform: rawData => splitTransform((rawData, splitOptions)),
+        inputs: dp.ModelInputTable,
+        outputs: (ds.TrainSplit, ds.TestSplit)
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<TrainingData>, LinearRegressionModel>(
         label: "TrainModel",
-        description: "Trains a regression model to predict shuttle prices.",
         transform: TrainModelStep.Create(),
-        input: ds.TrainSplit,
-        output: ds.Regressor
+        inputs: ds.TrainSplit,
+        outputs: ds.Regressor
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        LinearRegressionModel,
+        IEnumerable<TestData>,
+        ModelMetrics,
+        IEnumerable<ModelPredictions>
+      >(
         label: "EvaluateModel",
-        description: "Evaluates the trained model on the test set and computes metrics.",
         transform: EvaluateModelStep.Create(),
-        input: (ds.Regressor, ds.TestSplit),
-        output: (ds.ModelMetrics, ds.ModelPredictions)
+        inputs: (ds.Regressor, ds.TestSplit),
+        outputs: (ds.ModelMetrics, ds.ModelPredictions)
       );
     });
   }

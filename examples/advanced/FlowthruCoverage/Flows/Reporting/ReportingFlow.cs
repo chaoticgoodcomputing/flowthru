@@ -1,44 +1,34 @@
-using Flowthru.Core.Flows;
-using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flow;
+using Flowthru.Step.Python;
 using FlowthruCoverage.Data;
+using FlowthruCoverage.Data._01_Raw.Schemas;
+using FlowthruCoverage.Data._02_Intermediate.Schemas;
 using FlowthruCoverage.Data._03_Primary.Schemas;
+using FlowthruCoverage.Data._04_Reporting.Schemas;
 using FlowthruCoverage.Flows.Reporting.Steps;
 
 namespace FlowthruCoverage.Flows.Reporting;
 
-/// <summary>
-/// Reporting pipeline:
-/// 1. <see cref="ClassifyCoverageStep"/> (C#) annotates each aggregate row with its heatmap
-///    section (Library Tests / Integration Tests / Examples) and writes the ordered CSV.
-/// 2. <see cref="generate_coverage_heatmap"/> (Python/Plotly) reads that CSV and produces
-///    the PNG heatmap.
-/// 3. <see cref="AggregatePackageCoverageStep"/> rolls up the per-(TestProject, SrcPackage)
-///    pivot to per-SrcPackage with MAX coverage, written to
-///    <c>_04_Reporting/Datasets/package_coverage_max.csv</c>.
-/// 4. Two filter steps extract zero-hit methods from the primary summaries; their output is
-///    then passed through <see cref="FilterRemoteSourceFilesStep"/> to drop rows whose
-///    <c>SourceFile</c> resolves to a remote SourceLink URL, and written to
-///    <c>_04_Reporting/Datasets/uncovered_method_hits.csv</c> and
-///    <c>_04_Reporting/Datasets/uncovered_method_names.csv</c>.
-/// </summary>
+/// <summary>Reporting pipeline: classifies coverage rows, generates heatmap and icicle outputs.</summary>
 public static class ReportingFlow
 {
-  public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  public static BuiltFlow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Reporting", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PackageCoverageRow>,
+        IEnumerable<ProjectManifestEntry>,
+        IEnumerable<PivotCoverageRow>
+      >(
         label: "ClassifyCoverage",
         transform: ClassifyCoverageStep.Create(),
-        input: (catalog.PackageCoverage, catalog.ProjectManifest),
-        output: catalog.PivotCoverage,
-        description: "Classifies and filters coverage rows using the project manifest: assigns Section/Subgroup to test columns, filters SrcPackage rows to manifest Library entries only, and sorts into display order."
+        inputs: (catalog.PackageCoverage, catalog.ProjectManifest),
+        outputs: catalog.PivotCoverage
       );
 
       pipeline.AddPythonStep(
         label: "GenerateCoverageHeatmap",
-        description: "Plotly PNG heatmap: test projects × src packages, colour = CoveragePercent. Sections and ordering driven by the Section column from ClassifyCoverage.",
         module: "Flows.Reporting.Steps.generate_coverage_heatmap",
         function: "generate_coverage_heatmap",
         input: catalog.PivotCoverage,
@@ -46,96 +36,77 @@ public static class ReportingFlow
         executor: executor
       );
 
-      pipeline.AddStep(
-        label: "BuildIcicleCoverage",
-        description: "Builds the flat project → file → method icicle hierarchy from line-level coverage rows. Filters to manifest Library packages (src/) and drops remote SourceLink URLs; sums covered/total lines at each level.",
-        transform: BuildIcicleCoverageStep.Create(),
-        input: (catalog.MethodLineCoverage, catalog.ProjectManifest),
-        output: catalog.IcicleCoverage
+      // ── Provenance icicle ──────────────────────────────────────────
+      // One tree per library; each node carries Total / Any / Unit /
+      // Integration line counts. The Python renderer maps those to a
+      // per-tile RGB so a single chart surfaces unit coverage,
+      // integration coverage (from example-pipeline runs), and combined
+      // coverage at once.
+
+      pipeline.AddStep<
+        IEnumerable<LineCoverageRow>,
+        IEnumerable<ProjectManifestEntry>,
+        IEnumerable<SrcInventoryEntry>,
+        IEnumerable<ProvenanceIcicleNode>
+      >(
+        label: "BuildProvenanceIcicleCoverage",
+        transform: BuildProvenanceIcicleStep.Create(),
+        inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest, catalog.SrcInventory),
+        outputs: catalog.ProvenanceIcicleCoverage
       );
 
       pipeline.AddPythonStep(
-        label: "GenerateCoverageIcicle",
-        description: "One Plotly PNG icicle per src library (file → method) written to the icicles/ directory. Box size = TotalLines; box colour = CoveragePercent.",
+        label: "GenerateProvenanceCoverageIcicle",
         module: "Flows.Reporting.Steps.generate_coverage_icicle",
-        function: "generate_coverage_icicle",
-        input: catalog.IcicleCoverage,
-        output: catalog.CoverageIcicles,
+        function: "generate_provenance_coverage_icicle",
+        input: catalog.ProvenanceIcicleCoverage,
+        output: catalog.ProvenanceCoverageIcicles,
         executor: executor
       );
 
-      // ── Example-only icicle variant ─────────────────────────────────────
-      // Same icicle pipeline, but the input line-coverage is filtered upstream so the
-      // resulting per-library PNGs reflect only what the manifest's Example projects
-      // exercised. Useful for answering "what does our example surface area cover?"
-
-      pipeline.AddStep(
-        label: "FilterToExampleLineCoverage",
-        description: "Drops every line-coverage row whose TestProject is not a manifest Example entry. The downstream BuildIcicleCoverage uses this to compute coverage attributed only to example test runs.",
-        transform: FilterLineCoverageByTestProjectTypeStep.Create("Example"),
-        input: (catalog.MethodLineCoverage, catalog.ProjectManifest),
-        output: catalog.ExampleMethodLineCoverage
+      pipeline.AddStep<IEnumerable<ProvenanceIcicleNode>, string, byte[]>(
+        label: "BuildUnitCoverageReport",
+        transform: BuildUnitCoverageReportStep.Create(),
+        inputs: (catalog.ProvenanceIcicleCoverage, catalog.UnitCoverageReportTemplate),
+        outputs: catalog.UnitCoverageReport
       );
 
-      pipeline.AddStep(
-        label: "BuildExampleIcicleCoverage",
-        description: "Same icicle build as BuildIcicleCoverage, but consumes the example-only line coverage so per-library aggregates reflect only what example projects covered.",
-        transform: BuildIcicleCoverageStep.Create(),
-        input: (catalog.ExampleMethodLineCoverage, catalog.ProjectManifest),
-        output: catalog.ExampleIcicleCoverage
-      );
-
-      pipeline.AddPythonStep(
-        label: "GenerateExampleCoverageIcicle",
-        description: "Per-library icicle PNGs derived from example-only coverage. Sister output to GenerateCoverageIcicle landing in icicles_examples/.",
-        module: "Flows.Reporting.Steps.generate_coverage_icicle",
-        function: "generate_example_coverage_icicle",
-        input: catalog.ExampleIcicleCoverage,
-        output: catalog.ExampleCoverageIcicles,
-        executor: executor
-      );
-
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<PivotCoverageRow>, IEnumerable<PackageCoverageMaxRow>>(
         label: "AggregatePackageCoverage",
-        description: "Rolls up per-(TestProject, SrcPackage) pivot rows to per-SrcPackage rows with MAX coverage. Avoids the multi-test-project double-count drag (e.g. SourceGenerators reading 0% in Core.Tests AND 74.41% in SourceGenerators.Tests).",
         transform: AggregatePackageCoverageStep.Create(),
-        input: catalog.PivotCoverage,
-        output: catalog.PackageCoverageMax
+        inputs: catalog.PivotCoverage,
+        outputs: catalog.PackageCoverageMax
       );
 
       Func<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>> filterUncovered =
         rows => rows.Where(r => r.TotalHits == 0);
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterUncoveredMethodHits",
-        description: "Filters the full-signature method hit summary to rows with TotalHits == 0.",
         transform: filterUncovered,
-        input: catalog.MethodHitSummary,
-        output: catalog.UncoveredMethodHitsRaw
+        inputs: catalog.MethodHitSummary,
+        outputs: catalog.UncoveredMethodHitsRaw
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterUncoveredMethodNames",
-        description: "Filters the method-name summary (overloads collapsed) to rows with TotalHits == 0.",
         transform: filterUncovered,
-        input: catalog.MethodNameSummary,
-        output: catalog.UncoveredMethodNamesRaw
+        inputs: catalog.MethodNameSummary,
+        outputs: catalog.UncoveredMethodNamesRaw
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterRemoteSourceFilesHits",
-        description: "Drops rows whose SourceFile is a remote SourceLink URL (https://...) — those resolve to NuGet-cached commit-pinned snapshots and add no analytical value to the published report.",
         transform: FilterRemoteSourceFilesStep.Create(),
-        input: catalog.UncoveredMethodHitsRaw,
-        output: catalog.UncoveredMethodHits
+        inputs: catalog.UncoveredMethodHitsRaw,
+        outputs: catalog.UncoveredMethodHits
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<MethodHitSummaryRow>, IEnumerable<MethodHitSummaryRow>>(
         label: "FilterRemoteSourceFilesNames",
-        description: "Drops method-name rows whose SourceFile is a remote SourceLink URL — same rationale as FilterRemoteSourceFilesHits.",
         transform: FilterRemoteSourceFilesStep.Create(),
-        input: catalog.UncoveredMethodNamesRaw,
-        output: catalog.UncoveredMethodNames
+        inputs: catalog.UncoveredMethodNamesRaw,
+        outputs: catalog.UncoveredMethodNames
       );
     });
   }

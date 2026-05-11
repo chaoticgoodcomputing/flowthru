@@ -9,8 +9,12 @@
 
           <!-- Include patterns: what to measure coverage for.
                [Flowthru*]* covers Flowthru, Flowthru.Core, Flowthru.Extensions.*,
-               Flowthru.FUnit, Flowthru.Misc.*. -->
-          <Include>[Flowthru*]*</Include>
+               Flowthru.Misc.*.
+               [FUnit*]* covers FUnit, FUnit.SourceGenerators, FUnit.CodeFixes —
+               these assemblies live under src/funit/ but ship with the bare
+               `FUnit` identity (post-graduation), so the [Flowthru*]* glob
+               doesn't catch them. -->
+          <Include>[Flowthru*]*,[FUnit*]*</Include>
 
           <!-- Exclude patterns: comma-separated.
                IMPORTANT: Coverlet's collector parses these by splitting on commas only
@@ -20,9 +24,14 @@
                - [*.Tests]* / [*.Tests.*]* drop test projects and helper test infrastructure.
                - [FlowthruCoverage]* drops this analysis pipeline assembly; it matches
                  [Flowthru*]* but is an example project, not a production package.
-               - [Flowthru.Misc.ML]* drops the deprecated UMAP package; it has no test
-                 project and no examples drive it. -->
-          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[Flowthru.Misc.ML]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
+
+               Roslyn analyzer / source-generator / code-fix assemblies are INCLUDED.
+               When the corresponding *.Tests project references them with
+               ReferenceOutputAssembly="true", coverlet instruments them at test
+               runtime — the Microsoft.CodeAnalysis.*.Testing.NUnit harness drives
+               the analyzer through a synthetic compilation in the test process,
+               which is where the lines actually execute. -->
+          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
 
           <!-- Attributes that mark code as out-of-scope. Comma-separated for the same
                parser reason as <Exclude> above. -->

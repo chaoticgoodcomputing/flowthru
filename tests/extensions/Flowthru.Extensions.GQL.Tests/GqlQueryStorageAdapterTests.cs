@@ -1,136 +1,197 @@
-using Flowthru.Core.Data;
-using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Data.Validation;
-using Flowthru.Extensions.GQL.Data;
+using Flowthru.Data.Storage;
+using Flowthru.Data.Storage.Gql;
+using Flowthru.Extensions.GQL.Tests.Fixtures;
+using Flowthru.Prelude;
 using StrawberryShake;
 
 namespace Flowthru.Extensions.GQL.Tests;
 
 /// <summary>
-/// Tests for <see cref="GqlQueryStorageAdapter{TResult, T}"/> — the deferred-handle adapter
-/// for read-only GraphQL queries.
+/// Unit tests for <see cref="GqlQueryStorageAdapter{TResult,T}"/> and
+/// the filtered <see cref="GqlQueryStorageAdapter{TFilter,TResult,T}"/>
+/// — the deferred query handle adapters.
 /// </summary>
-/// <remarks>
-/// This adapter does not fit the kit's <c>StorageAdapterConformance&lt;T&gt;</c> contract
-/// because <see cref="IStorageAdapter{T}.Exists"/> is hard-coded to <c>true</c> (the handle
-/// is always present at catalog construction time) and <see cref="IStorageAdapter{T}.Save"/>
-/// always throws. The kit assumes Exists tracks data presence and that round-trip is
-/// well-defined for write-capable adapters; neither holds here. So instead, a vanilla NUnit
-/// fixture covers the adapter's actual contract: handle is returned without I/O, Save fails
-/// with NotSupported, InspectShallow probes the endpoint, and Exists is consistently true.
-/// </remarks>
 [TestFixture]
 public class GqlQueryStorageAdapterTests
 {
-  private static Item<GqlQuery<TestPagedResult, TestUser>> CreateNonPaged(
-    Func<CancellationToken, Task<IOperationResult<TestPagedResult>>> queryFunc
-  ) =>
-    GqlItemFactory.Query.NonPaged<TestPagedResult, TestUser>(
-      label: "test-query",
-      queryFunc: queryFunc,
-      selectData: r => r.Nodes
-    );
+  private static readonly TestUser[] Users =
+  {
+    new() { Id = 1, Name = "Alice" },
+    new() { Id = 2, Name = "Bob" },
+  };
 
-  // ── Load returns the handle without I/O ──────────────────────────────────
+  // ── Load returns the deferred handle without I/O ─────────────────────
 
   [Test]
-  public async Task Load_ReturnsTheHandleWithoutInvokingQuery()
+  public async Task Load_ReturnsHandleWithoutInvokingQueryFunc()
   {
-    var queryInvocations = 0;
-    var item = CreateNonPaged(ct =>
-    {
-      queryInvocations++;
-      return Task.FromResult<IOperationResult<TestPagedResult>>(
-        StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Array.Empty<TestUser>() })
-      );
-    });
-
-    var handle = await item.Load().Run();
-
-    Assert.That(handle, Is.Not.Null, "Load should yield the deferred query handle.");
-    Assert.That(queryInvocations, Is.Zero, "Load should not invoke the query function.");
-  }
-
-  // ── Save always fails ─────────────────────────────────────────────────────
-
-  [Test]
-  public void Save_AlwaysThrowsNotSupportedException()
-  {
-    var item = CreateNonPaged(ct =>
-      Task.FromResult<IOperationResult<TestPagedResult>>(
-        StubOperationResult<TestPagedResult>.Success(new TestPagedResult())
-      )
+    var queryCalls = 0;
+    var query = new GqlQuery<TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: _ =>
+      {
+        queryCalls++;
+        return Task.FromResult<IOperationResult<TestPagedResult>>(
+          StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Users })
+        );
+      },
+      selectData: r => r.Nodes,
+      allowEmptyData: false
     );
 
-    var dummyHandle = item.Load().Run().GetAwaiter().GetResult();
+    var adapter = new GqlQueryStorageAdapter<TestPagedResult, TestUser>(query);
+    var result = await adapter.Load().Run();
 
-    Assert.ThrowsAsync<NotSupportedException>(async () => await item.Save(dummyHandle).Run());
-  }
-
-  // ── Exists is hard-coded true ─────────────────────────────────────────────
-
-  [Test]
-  public async Task Exists_AlwaysReturnsTrue()
-  {
-    var item = CreateNonPaged(_ =>
-      throw new InvalidOperationException("Exists must not invoke queryFunc")
-    );
-
-    var exists = await item.Exists().Run();
-
-    Assert.That(exists, Is.True);
-  }
-
-  // ── InspectShallow probes the endpoint ────────────────────────────────────
-
-  [Test]
-  public async Task InspectShallow_ReachableEndpoint_ReturnsSuccess()
-  {
-    var item = CreateNonPaged(ct =>
-      Task.FromResult<IOperationResult<TestPagedResult>>(
-        StubOperationResult<TestPagedResult>.Success(
-          new TestPagedResult { Nodes = new[] { new TestUser { Id = 1, Name = "Alice" } } }
-        )
-      )
-    );
-
-    var result = await item.InspectShallow(sampleSize: 1).Run();
-
-    Assert.That(result.IsValid, Is.True);
+    Assert.That(result, Is.InstanceOf<EffResult<GqlQuery<TestPagedResult, TestUser>>.Success>());
+    Assert.That(queryCalls, Is.Zero,
+      "Load() must not trigger the underlying query — the handle is deferred.");
   }
 
   [Test]
-  public async Task InspectShallow_UnreachableEndpoint_FailsWithExceptionOrNotFound()
+  public async Task HandleMaterialization_TriggersTheQuery()
   {
-    var item = CreateNonPaged(_ => throw new HttpRequestException("Endpoint unreachable"));
-
-    var result = await item.InspectShallow(sampleSize: 1).Run();
-
-    Assert.That(result.IsValid, Is.False);
-    // The adapter classifies failures as either NotFound (probe returned false) or
-    // captures the exception message via ValidationResult.FromException.
-    Assert.That(
-      result.Errors,
-      Has.Some.Matches<ValidationError>(e =>
-        e.ErrorType == ValidationErrorType.NotFound
-        || e.ErrorType == ValidationErrorType.InspectionFailure
-      )
+    var queryCalls = 0;
+    var query = new GqlQuery<TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: _ =>
+      {
+        queryCalls++;
+        return Task.FromResult<IOperationResult<TestPagedResult>>(
+          StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Users })
+        );
+      },
+      selectData: r => r.Nodes,
+      allowEmptyData: false
     );
+
+    var adapter = new GqlQueryStorageAdapter<TestPagedResult, TestUser>(query);
+    var loadResult = await adapter.Load().Run();
+    var handle = ((EffResult<GqlQuery<TestPagedResult, TestUser>>.Success)loadResult).Value;
+
+    var data = await handle.ToListAsync();
+    Assert.That(data, Has.Count.EqualTo(2));
+    Assert.That(queryCalls, Is.EqualTo(1));
   }
 
-  // ── InspectTarget is trivially valid (read-only adapter) ─────────────────
+  // ── Save / Exists ────────────────────────────────────────────────────
 
   [Test]
-  public async Task InspectTarget_AlwaysSucceedsTrivially()
+  public async Task Save_AlwaysFails()
   {
-    var item = CreateNonPaged(ct =>
-      Task.FromResult<IOperationResult<TestPagedResult>>(
-        StubOperationResult<TestPagedResult>.Success(new TestPagedResult())
-      )
+    var query = new GqlQuery<TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: _ => Task.FromResult<IOperationResult<TestPagedResult>>(
+        StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Users })
+      ),
+      selectData: r => r.Nodes,
+      allowEmptyData: false
+    );
+    var adapter = new GqlQueryStorageAdapter<TestPagedResult, TestUser>(query);
+
+    var result = await adapter.Save(query).Run();
+    Assert.That(result, Is.InstanceOf<EffResult<FlowUnit>.Failure>());
+  }
+
+  [Test]
+  public async Task Exists_AlwaysTrue()
+  {
+    var query = new GqlQuery<TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: _ => Task.FromResult<IOperationResult<TestPagedResult>>(
+        StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Users })
+      ),
+      selectData: r => r.Nodes,
+      allowEmptyData: false
+    );
+    var adapter = new GqlQueryStorageAdapter<TestPagedResult, TestUser>(query);
+
+    var result = await adapter.Exists().Run();
+    Assert.That(((EffResult<bool>.Success)result).Value, Is.True);
+  }
+
+  // ── InspectShallow ────────────────────────────────────────────────────
+
+  [Test]
+  public async Task InspectShallow_QueryReachable_Succeeds()
+  {
+    var query = new GqlQuery<TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: _ => Task.FromResult<IOperationResult<TestPagedResult>>(
+        StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Users })
+      ),
+      selectData: r => r.Nodes,
+      allowEmptyData: false
+    );
+    var adapter = new GqlQueryStorageAdapter<TestPagedResult, TestUser>(query);
+
+    var result = await adapter.InspectShallow(0).Run();
+    var validation = ((EffResult<ValidationResult>.Success)result).Value;
+    Assert.That(validation.IsValid, Is.True);
+  }
+
+  [Test]
+  public async Task InspectShallow_QueryThrows_ReportsNotFound()
+  {
+    var query = new GqlQuery<TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: _ => throw new HttpRequestException("unreachable"),
+      selectData: r => r.Nodes,
+      allowEmptyData: false
+    );
+    var adapter = new GqlQueryStorageAdapter<TestPagedResult, TestUser>(query);
+
+    var result = await adapter.InspectShallow(0).Run();
+    var validation = ((EffResult<ValidationResult>.Success)result).Value;
+    Assert.That(validation.HasErrors, Is.True);
+    Assert.That(validation.Errors[0].ErrorType, Is.EqualTo(ValidationErrorType.NotFound));
+  }
+
+  // ── Filtered variant ──────────────────────────────────────────────────
+
+  [Test]
+  public async Task FilteredQuery_WithFilter_FlowsThroughToTheDelegate()
+  {
+    TestFilter? observed = null;
+    var query = new GqlQuery<TestFilter, TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: (filter, _) =>
+      {
+        observed = filter;
+        return Task.FromResult<IOperationResult<TestPagedResult>>(
+          StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Users })
+        );
+      },
+      selectData: r => r.Nodes,
+      allowEmptyData: false
     );
 
-    var result = await item.InspectTarget().Run();
+    var adapter = new GqlQueryStorageAdapter<TestFilter, TestPagedResult, TestUser>(query);
+    var loadResult = await adapter.Load().Run();
+    var handle = ((EffResult<GqlQuery<TestFilter, TestPagedResult, TestUser>>.Success)loadResult).Value;
 
-    Assert.That(result.IsValid, Is.True);
+    var filter = new TestFilter { NameContains = "Al" };
+    await handle.WithFilter(filter).ToListAsync();
+
+    Assert.That(observed, Is.Not.Null);
+    Assert.That(observed!.NameContains, Is.EqualTo("Al"));
+  }
+
+  [Test]
+  public async Task FilteredQuery_HandleIsImmutable_OriginalLacksFilter()
+  {
+    var query = new GqlQuery<TestFilter, TestPagedResult, TestUser>(
+      label: "users",
+      queryFunc: (_, _) => Task.FromResult<IOperationResult<TestPagedResult>>(
+        StubOperationResult<TestPagedResult>.Success(new TestPagedResult { Nodes = Users })
+      ),
+      selectData: r => r.Nodes,
+      allowEmptyData: false
+    );
+
+    var withFilter = query.WithFilter(new TestFilter { NameContains = "x" });
+    Assert.That(query.Filter, Is.Null,
+      "Original handle should be unchanged — WithFilter returns a new handle.");
+    Assert.That(withFilter.Filter, Is.Not.Null);
+    await Task.CompletedTask;
   }
 }

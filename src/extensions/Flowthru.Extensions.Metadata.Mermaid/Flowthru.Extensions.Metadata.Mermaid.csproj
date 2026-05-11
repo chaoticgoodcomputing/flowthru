@@ -4,16 +4,24 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru</RootNamespace>
-    <Description>Mermaid diagram metadata provider for Flowthru pipelines</Description>
+    <Description>Mermaid diagram metadata provider for Flowthru pipelines — emits DAG flowcharts and run-result diagrams as Markdown files.</Description>
 
-    <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Extensions.Metadata.Mermaid</PackageId>
-    <PackageTags>data-engineering;pipeline;metadata;mermaid</PackageTags>
+    <PackageTags>data-engineering;pipeline;metadata;mermaid;flowchart</PackageTags>
+
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Extensions.Metadata.Mermaid.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

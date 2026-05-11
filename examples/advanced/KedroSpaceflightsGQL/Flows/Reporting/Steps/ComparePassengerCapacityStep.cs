@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using KedroSpaceflightsGQL.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsGQL.Data._08_Reporting.Schemas;
 

@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SpaceflightsNewTypes.Data._07_ModelOutput.Schemas;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
@@ -10,20 +10,6 @@ namespace SpaceflightsNewTypes.Flows.Reporting.Steps;
 /// Creates a confusion matrix heatmap from actual model predictions.
 /// Converts continuous regression predictions into multi-class classification for visualization.
 /// </summary>
-/// <remarks>
-/// <para>
-/// This node generates a confusion matrix by binning continuous prediction values into
-/// percentile-based ranges (quartiles, quintiles, deciles, etc.). This provides a more
-/// granular view of prediction accuracy across different value ranges compared to simple
-/// binary classification.
-/// </para>
-/// <para>
-/// <strong>Input:</strong> ModelPredictions enumerable with Actual and Predicted values
-/// </para>
-/// <para>
-/// <strong>Output:</strong> GenericChart heatmap object stored in memory for downstream PNG export
-/// </para>
-/// </remarks>
 [FlowthruStep]
 public static class CreateConfusionMatrixStep
 {
@@ -39,7 +25,10 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
+  public static Func<
+    (IEnumerable<ModelPredictions> Data, Options Options),
+    GenericChart
+  > Create() => input =>
   {
     var (predictions, opts) = (input.Data.ToList(), input.Options);
 
@@ -68,14 +57,12 @@ public static class CreateConfusionMatrixStep
       )
       .ToList();
 
-    // Build NxN confusion matrix
     var matrix = new int[opts.NumBins, opts.NumBins];
     foreach (var (actual, predicted) in binnedPredictions)
     {
       matrix[actual, predicted]++;
     }
 
-    // Convert to format for Plotly heatmap (list of lists)
     var zData = new List<List<int>>();
     for (int i = 0; i < opts.NumBins; i++)
     {
@@ -87,12 +74,10 @@ public static class CreateConfusionMatrixStep
       zData.Add(row);
     }
 
-    // Generate labels based on percentile ranges
     var labels = GeneratePercentileLabels(opts.NumBins);
     var xLabels = labels.Select(l => $"Pred {l}").ToArray();
     var yLabels = labels.Select(l => $"Actual {l}").ToArray();
 
-    // Create heatmap using Plotly.NET.CSharp API
     var binName = opts.NumBins switch
     {
       2 => "Median Split",
@@ -107,11 +92,8 @@ public static class CreateConfusionMatrixStep
       .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
       .WithTitle($"Confusion Matrix ({binName})")
       .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
-  }
+  };
 
-  /// <summary>
-  /// Calculates percentile threshold values for binning.
-  /// </summary>
   private static List<double> CalculatePercentileThresholds(List<double> sortedValues, int numBins)
   {
     var thresholds = new List<double>();
@@ -124,9 +106,6 @@ public static class CreateConfusionMatrixStep
     return thresholds;
   }
 
-  /// <summary>
-  /// Assigns a value to a bin based on percentile thresholds.
-  /// </summary>
   private static int AssignBin(double value, List<double> thresholds)
   {
     for (int i = 0; i < thresholds.Count; i++)
@@ -136,12 +115,9 @@ public static class CreateConfusionMatrixStep
         return i;
       }
     }
-    return thresholds.Count; // Last bin
+    return thresholds.Count;
   }
 
-  /// <summary>
-  /// Generates human-readable percentile range labels.
-  /// </summary>
   private static List<string> GeneratePercentileLabels(int numBins)
   {
     var labels = new List<string>();

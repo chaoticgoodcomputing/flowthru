@@ -1,5 +1,8 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using Minimal.Data;
+using Minimal.Data._01_Raw.Schemas;
+using Minimal.Data._02_Intermediate.Schemas;
+using Minimal.Data._03_Primary.Schemas;
 using Minimal.Flows.Greetings.Steps;
 
 namespace Minimal.Flows.Greetings;
@@ -9,33 +12,26 @@ namespace Minimal.Flows.Greetings;
 /// </summary>
 public static class GreetingsFlow
 {
-  /// <summary>
-  /// Creates the greetings pipeline.
-  /// </summary>
-  /// <param name="catalog">The data catalog containing input and output entries.</param>
-  /// <returns>
-  /// A configured pipeline that transforms names into various greeting formats.
-  /// </returns>
-  public static Flow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Greetings", pipeline =>
     {
-      // Step 1: Transform names to "Hello, {name}!"
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<NameSchema>, IEnumerable<GreetingSchema>>(
         label: "CreateHello",
-        description: "Transform names into 'Hello' greetings.",
         transform: CreateHelloStep.Create(),
-        input: catalog.Names,
-        output: catalog.HelloGreetings
+        inputs: catalog.Names,
+        outputs: catalog.HelloGreetings
       );
 
-      // Step 2: Transform "Hello" greetings into "Goodbye" and "So long" variants
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<GreetingSchema>,
+        IEnumerable<GoodbyeSchema>,
+        IEnumerable<SoLongSchema>
+      >(
         label: "TransformGreetings",
-        description: "Convert 'Hello' greetings into 'Goodbye' and 'So long' variants.",
         transform: TransformGreetingsStep.Create(),
-        input: catalog.HelloGreetings,
-        output: (catalog.Goodbyes, catalog.SoLongs)
+        inputs: catalog.HelloGreetings,
+        outputs: (catalog.Goodbyes, catalog.SoLongs)
       );
     });
   }

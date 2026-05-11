@@ -1,16 +1,20 @@
-using Flowthru.Core.Data;
+using Microsoft.Extensions.Configuration;
 using SpaceflightsDistributed.DataScience.Flows.DataScience.Steps;
 
 namespace SpaceflightsDistributed.DataScience.Data;
 
 /// <summary>
 /// Configuration catalog for the DataScience pipeline library.
-/// Properties are bound from appsettings.json via the source-generated constructor.
 /// </summary>
-[FlowthruConfig]
-public partial class DataScienceFlowConfig
+public sealed class DataScienceFlowConfig
 {
-  /// <summary>Configuration options for data splitting and model training.</summary>
-  [ConfigSection("Flowthru:Flows:DataScience:ModelOptions")]
-  public partial IItem<SplitDataStep.ModelOptions> ModelOptions { get; }
+  public SplitDataStep.ModelOptions ModelOptions { get; }
+
+  public DataScienceFlowConfig(IConfiguration configuration)
+  {
+    if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+    ModelOptions =
+      configuration.GetSection("Flowthru:Flows:DataScience:ModelOptions").Get<SplitDataStep.ModelOptions>()
+      ?? new SplitDataStep.ModelOptions();
+  }
 }

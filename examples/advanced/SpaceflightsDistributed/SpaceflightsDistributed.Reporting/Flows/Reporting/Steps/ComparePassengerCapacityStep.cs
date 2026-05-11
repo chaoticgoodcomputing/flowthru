@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 using SpaceflightsDistributed.Reporting.Data._08_Reporting.Schemas;
 
@@ -30,7 +30,7 @@ public static class ComparePassengerCapacityStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="ComparePassengerCapacityStep"/>.</summary>
-  public class Tests : Flowthru.FUnit.FUnitContext
+  public class Tests : FUnitContext
   {
     private static PreprocessedShuttleSchema MakeShuttle(string type, int capacity) =>
       new()
@@ -46,7 +46,7 @@ public static class ComparePassengerCapacityStep
         MoonClearanceComplete = false,
       };
 
-    [StepTest(typeof(ComparePassengerCapacityStep))]
+    [FUnitStepTest(typeof(ComparePassengerCapacityStep))]
     public void GroupsByShuttleType()
     {
       var input = new[]
@@ -69,7 +69,7 @@ public static class ComparePassengerCapacityStep
       );
     }
 
-    [StepTest(typeof(ComparePassengerCapacityStep))]
+    [FUnitStepTest(typeof(ComparePassengerCapacityStep))]
     public void EmptyInput_ReturnsEmpty()
     {
       var result = Invoke(Create(), Enumerable.Empty<PreprocessedShuttleSchema>()).ToList();

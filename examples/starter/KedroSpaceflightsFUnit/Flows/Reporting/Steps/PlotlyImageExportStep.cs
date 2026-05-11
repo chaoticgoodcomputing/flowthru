@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using Microsoft.Extensions.Logging;
 using Plotly.NET;
 
@@ -107,7 +107,7 @@ public static class PlotlyImageExportStep
     /// PNG export requires a headless Chromium browser (PuppeteerSharp) which is not
     /// available in all environments. Tests are skipped until a suitable test double exists.
     /// </summary>
-    [StepTest(typeof(PlotlyImageExportStep))]
+    [FUnitStepTest(typeof(PlotlyImageExportStep))]
     [Ignore("Requires headless Chromium via PuppeteerSharp — no test double available")]
     public void Export_ProducesNonEmptyPngBytes()
     {

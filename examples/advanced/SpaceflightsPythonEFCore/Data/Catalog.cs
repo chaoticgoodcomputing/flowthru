@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace SpaceflightsPythonEFCore.Data;
@@ -19,7 +19,5 @@ public partial class Catalog : CatalogAbstract
 
     using var ctx = contextFactory.CreateDbContext();
     ctx.Database.EnsureCreated();
-
-    InitializeCatalogProperties();
   }
 }

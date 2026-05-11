@@ -1,7 +1,7 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Reporting.Steps;
@@ -53,7 +53,7 @@ public static class FilterRemoteSourceFilesStep
         ProjectHits = 0,
       };
 
-    [StepTest(typeof(FilterRemoteSourceFilesStep))]
+    [FUnitStepTest(typeof(FilterRemoteSourceFilesStep))]
     public void EmptyInput_YieldsEmptyOutput()
     {
       var result = Invoke(
@@ -64,7 +64,7 @@ public static class FilterRemoteSourceFilesStep
       Assert.That(result, Is.Empty);
     }
 
-    [StepTest(typeof(FilterRemoteSourceFilesStep))]
+    [FUnitStepTest(typeof(FilterRemoteSourceFilesStep))]
     public void RemoteUrlRows_AreDropped()
     {
       var rows = new[]
@@ -80,7 +80,7 @@ public static class FilterRemoteSourceFilesStep
       Assert.That(result.All(r => !r.SourceFile.StartsWith("https://", StringComparison.Ordinal)));
     }
 
-    [StepTest(typeof(FilterRemoteSourceFilesStep))]
+    [FUnitStepTest(typeof(FilterRemoteSourceFilesStep))]
     public void EmptySourceFile_IsTreatedAsLocal()
     {
       // Empty SourceFile is sometimes emitted by Coverlet for top-level program

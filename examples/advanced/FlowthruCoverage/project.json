@@ -15,6 +15,16 @@
         "parallel": false
       }
     },
+    "_generate-src-inventory": {
+      "//": "Walks src/**/*.cs and emits a CSV inventory of every source file (AssemblyName, RelativePath, TotalLines). Used by BuildProvenanceIcicleStep as a denominator fallback so src projects whose test project produced no Cobertura output still appear in the report (as 0%-coverage rows).",
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "bash examples/advanced/FlowthruCoverage/scripts/generate-src-inventory.sh"
+        ],
+        "parallel": false
+      }
+    },
     "_stage-coverage-xml": {
       "//": "Copies the most-recent coverage.cobertura.xml from each test project into the raw datasets directory, named {ProjectName}.xml. Covers both standard test projects (tests/core|extensions|misc|integration) and per-example runs produced by Flowthru.Tests.Examples:test:all (TestResults/{ExampleName}/{guid}/).",
       "executor": "nx:run-commands",
@@ -32,6 +42,7 @@
         "commands": [
           "rm Data/_01_Raw/Datasets/*",
           "nx run FlowthruCoverage:_generate-project-manifest",
+          "nx run FlowthruCoverage:_generate-src-inventory",
           "nx run FlowthruCoverage:_stage-coverage-xml",
           "dotnet run"
         ],

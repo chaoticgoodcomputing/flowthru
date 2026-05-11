@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using MathNet.Numerics.LinearRegression;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 using SpaceflightsDistributed.DataScience.Data._06_Models.Schemas;
@@ -75,7 +75,7 @@ public static class TrainModelStep
         ReviewScoresRating = 4.5m,
       };
 
-    [StepTest(typeof(TrainModelStep))]
+    [FUnitStepTest(typeof(TrainModelStep))]
     public void ValidData_ProducesModelWithCorrectFeatureCount()
     {
       // QR regression requires at least features + 1 samples (7 features + intercept = 8 minimum)
@@ -90,7 +90,7 @@ public static class TrainModelStep
       Assert.That(model.FeatureNames, Has.Length.EqualTo(7));
     }
 
-    [StepTest(typeof(TrainModelStep))]
+    [FUnitStepTest(typeof(TrainModelStep))]
     public void EmptyTrainingData_Throws()
     {
       Assert.That(
@@ -99,7 +99,7 @@ public static class TrainModelStep
       );
     }
 
-    [StepTest(typeof(TrainModelStep))]
+    [FUnitStepTest(typeof(TrainModelStep))]
     public void PerfectLinearRelationship_FitsExactly()
     {
       // Each row varies all 7 features independently so the feature matrix is full-rank.

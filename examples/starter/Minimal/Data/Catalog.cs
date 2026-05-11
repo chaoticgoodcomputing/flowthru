@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 
 namespace Minimal.Data;
 
@@ -16,6 +16,5 @@ public partial class Catalog : CatalogAbstract
   public Catalog(string basePath)
   {
     _basePath = basePath;
-    InitializeCatalogProperties();
   }
 }

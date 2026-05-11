@@ -1,89 +1,54 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflightsCustom.Data._03_Primary.Schemas;
-using KedroSpaceflightsCustom.Flows.DataScience.Steps;
 
 namespace KedroSpaceflightsCustom.Data;
 
 public partial class Catalog
 {
-  /// <summary>
-  /// Model input table in Parquet format.
-  /// Joined dataset ready for ML training.
-  /// </summary>
+  /// <summary>Model input table in Parquet format.</summary>
   public IItem<IEnumerable<ModelInputSchema>> ModelInputTable =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<ModelInputSchema>(
-          label: "ModelInputTable",
-          filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ModelInputSchema>>("ModelInputTable")
+      .Parquet()
+      .AtPath($"{_basePath}/_03_Primary/Datasets/model_input_table.parquet")
+      .Build());
 
-  /// <summary>
-  /// Model input table exported as minified JSON (compact, production-ready format).
-  /// </summary>
+  /// <summary>Model input table exported as minified JSON.</summary>
   public IItem<IEnumerable<ModelInputSchema>> ModelInputTableJsonMinified =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Json<ModelInputSchema>(
-          label: "ModelInputTableJsonMinified",
-          filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.min.json"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ModelInputSchema>>("ModelInputTableJsonMinified")
+      .Json()
+      .AtPath($"{_basePath}/_03_Primary/Datasets/model_input_table.min.json")
+      .Build());
 
-  /// <summary>
-  /// Model input table exported as CSV (for debugging).
-  /// </summary>
+  /// <summary>Model input table exported as CSV (for debugging).</summary>
   public IItem<IEnumerable<ModelInputSchema>> ModelInputTableCsv =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<ModelInputSchema>(
-          label: "ModelInputTableCsv",
-          filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ModelInputSchema>>("ModelInputTableCsv")
+      .Csv()
+      .AtPath($"{_basePath}/_03_Primary/Datasets/model_input_table.csv")
+      .Build());
 
-  /// <summary>
-  /// Training features (X_train).
-  /// Feature vectors for model training.
-  /// Stored in memory as it's only used within the DataScience pipeline.
-  /// </summary>
+  /// <summary>Training features (X_train). Stored in memory.</summary>
   public IItem<IEnumerable<FeatureRow>> XTrain =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<FeatureRow>(label: "XTrain"));
+    CreateItem(() => Item.Of<IEnumerable<FeatureRow>>("XTrain")
+      .Memory()
+      .Build());
 
-  /// <summary>
-  /// Testing features (X_test).
-  /// Feature vectors for model evaluation.
-  /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
-  /// </summary>
+  /// <summary>Testing features (X_test). Stored as Parquet for cross-pipeline usage.</summary>
   public IItem<IEnumerable<FeatureRow>> XTest =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<FeatureRow>(
-          label: "XTest",
-          filePath: $"{_basePath}/_03_Primary/Datasets/x_test.parquet"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<FeatureRow>>("XTest")
+      .Parquet()
+      .AtPath($"{_basePath}/_03_Primary/Datasets/x_test.parquet")
+      .Build());
 
-  /// <summary>
-  /// Training targets (y_train).
-  /// Target prices for model training.
-  /// Stored in memory as it's only used within the DataScience pipeline.
-  /// </summary>
+  /// <summary>Training targets (y_train). Stored in memory.</summary>
   public IItem<IEnumerable<TargetValue>> YTrain =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<TargetValue>(label: "YTrain"));
+    CreateItem(() => Item.Of<IEnumerable<TargetValue>>("YTrain")
+      .Memory()
+      .Build());
 
-  /// <summary>
-  /// Testing targets (y_test).
-  /// Target prices for model evaluation.
-  /// Stored as Parquet to enable cross-pipeline usage (DataEvaluation depends on this).
-  /// </summary>
+  /// <summary>Testing targets (y_test). Stored as Parquet for cross-pipeline usage.</summary>
   public IItem<IEnumerable<TargetValue>> YTest =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<TargetValue>(
-          label: "YTest",
-          filePath: $"{_basePath}/_03_Primary/Datasets/y_test.parquet"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<TargetValue>>("YTest")
+      .Parquet()
+      .AtPath($"{_basePath}/_03_Primary/Datasets/y_test.parquet")
+      .Build());
 }

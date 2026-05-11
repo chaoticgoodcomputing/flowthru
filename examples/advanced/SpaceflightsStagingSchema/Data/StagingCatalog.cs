@@ -1,9 +1,6 @@
-using Flowthru.Core.Data;
-using Flowthru.Core.Effects;
-using Flowthru.Core.Services;
-using Flowthru.Extensions.EFCore.Data;
-using Flowthru.Extensions.EFCore.Lifecycle;
-using Flowthru.Extensions.EFCore.Validation;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage.EFCore;
+using Flowthru.Prelude;
 using Microsoft.EntityFrameworkCore;
 
 namespace SpaceflightsStagingSchema.Data;
@@ -35,16 +32,7 @@ public partial class StagingCatalog : CatalogAbstract
   public StagingCatalog(IDbContextFactory<StagingDbContext> contextFactory)
   {
     _contextFactory = contextFactory;
-    InitializeCatalogProperties();
   }
-
-  /// <summary>
-  /// Pre-flight validation. Verifies that the PostgreSQL database is
-  /// reachable — the schema doesn't exist yet (the resource creates it), but
-  /// the host database does, so a real connection check is appropriate here.
-  /// </summary>
-  public override FlowValidation Validate(FlowExecutionContext ctx) =>
-    DbValidations.CanConnect(_contextFactory);
 
   /// <summary>
   /// Ephemeral resource: the <c>staging</c> schema and its tables. Acquire
@@ -52,8 +40,8 @@ public partial class StagingCatalog : CatalogAbstract
   /// <see cref="StagingDbContext"/>'s model. Release drops the schema, unless
   /// <c>PreserveOnFailure</c> is set and the flow body threw.
   /// </summary>
-  public override FlowResource<DbScope> Resource =>
-    EFCoreResources.EphemeralSchema(_contextFactory, StagingDbContext.SchemaName, o =>
+  public override IFlowResource Resource =>
+    _contextFactory.EphemeralSchema(StagingDbContext.SchemaName, o =>
     {
       o.PreserveOnFailure = true;
     });

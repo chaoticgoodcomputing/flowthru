@@ -22,7 +22,7 @@ public static class DiarizationFlow
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonStep<Directory<byte[]>, IEnumerable<DiarizationSegmentSchema>>(
+      pipeline.AddPythonStep<DirectoryOf<byte[]>, IEnumerable<DiarizationSegmentSchema>>(
         label: "Diarize",
         description:
           "Identify speaker turns in each clip via pyannote. Service "

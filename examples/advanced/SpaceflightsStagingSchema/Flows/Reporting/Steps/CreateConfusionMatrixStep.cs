@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using Plotly.NET;
 using SpaceflightsStagingSchema.Data._07_ModelOutput.Schemas;
 using CSharpChart = Plotly.NET.CSharp.Chart;
@@ -13,9 +13,9 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
+  public static Func<IEnumerable<ModelPredictions>, GenericChart> Create(Options options) => data =>
   {
-    var (predictions, opts) = (input.Data.ToList(), input.Options);
+    var predictions = data.ToList();
 
     if (!predictions.Any())
     {
@@ -23,7 +23,7 @@ public static class CreateConfusionMatrixStep
     }
 
     var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
-    var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+    var thresholds = CalculatePercentileThresholds(sortedActuals, options.NumBins);
 
     var binnedPredictions = predictions
       .Select(p =>
@@ -31,42 +31,42 @@ public static class CreateConfusionMatrixStep
       )
       .ToList();
 
-    var matrix = new int[opts.NumBins, opts.NumBins];
+    var matrix = new int[options.NumBins, options.NumBins];
     foreach (var (actual, predicted) in binnedPredictions)
     {
       matrix[actual, predicted]++;
     }
 
     var zData = new List<List<int>>();
-    for (int i = 0; i < opts.NumBins; i++)
+    for (int i = 0; i < options.NumBins; i++)
     {
       var row = new List<int>();
-      for (int j = 0; j < opts.NumBins; j++)
+      for (int j = 0; j < options.NumBins; j++)
       {
         row.Add(matrix[i, j]);
       }
       zData.Add(row);
     }
 
-    var labels = GeneratePercentileLabels(opts.NumBins);
+    var labels = GeneratePercentileLabels(options.NumBins);
     var xLabels = labels.Select(l => $"Pred {l}").ToArray();
     var yLabels = labels.Select(l => $"Actual {l}").ToArray();
 
-    var binName = opts.NumBins switch
+    var binName = options.NumBins switch
     {
       2 => "Median Split",
       3 => "Tertiles",
       4 => "Quartiles",
       5 => "Quintiles",
       10 => "Deciles",
-      _ => $"{opts.NumBins} Bins",
+      _ => $"{options.NumBins} Bins",
     };
 
     return CSharpChart
       .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
       .WithTitle($"Confusion Matrix ({binName})")
-      .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
-  }
+      .WithSize(Math.Max(600, options.NumBins * 80), Math.Max(600, options.NumBins * 80));
+  };
 
   private static List<double> CalculatePercentileThresholds(List<double> sortedValues, int numBins)
   {

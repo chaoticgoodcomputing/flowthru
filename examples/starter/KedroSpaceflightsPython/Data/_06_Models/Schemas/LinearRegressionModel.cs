@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 
 namespace KedroSpaceflightsPython.Data._06_Models.Schemas;
 

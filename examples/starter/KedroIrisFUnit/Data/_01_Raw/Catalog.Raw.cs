@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroIrisFUnit.Data._01_Raw.Schemas;
 
 namespace KedroIrisFUnit.Data;
@@ -8,15 +8,9 @@ namespace KedroIrisFUnit.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Raw iris dataset with measurements and species labels.
-  /// </summary>
   public IItem<IEnumerable<IrisRawSchema>> IrisRaw =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<IrisRawSchema>(
-          label: "IrisRaw",
-          filePath: $"{_basePath}/_01_Raw/Datasets/iris.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<IrisRawSchema>>("IrisRaw")
+      .Json()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/iris.json")
+      .Build());
 }

@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 
 namespace KedroSpaceflightsPython.Data;
 

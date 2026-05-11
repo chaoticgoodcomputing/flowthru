@@ -1,67 +1,74 @@
 using System.Net;
-using Flowthru.Core.Data.Storage;
-using Flowthru.Core.Data.Storage.Medium;
-using Microsoft.Extensions.Options;
+using Flowthru.Data.Storage;
+using Flowthru.Data.Storage.Http;
 
 namespace Flowthru.Extensions.Http.Tests;
 
 /// <summary>
-/// Tests for <see cref="HttpStorageMediumProvider"/>.
-/// Verifies URI scheme routing and the correct medium type returned based on
-/// cache configuration presence.
+/// Tests for <see cref="HttpStorageMediumProvider"/> — verifies the
+/// scheme dispatch, plain vs. cached medium selection, and that
+/// non-HTTP schemes are rejected so the resolver can fall through
+/// to other providers.
 /// </summary>
 [TestFixture]
 [Category("Http")]
 public class HttpStorageMediumProviderTests
 {
-  // ── CanHandle ─────────────────────────────────────────────────────────────
+  private string _cacheDir = null!;
 
-  [TestCase("http://example.com/data.csv", true)]
-  [TestCase("https://example.com/data.csv", true)]
-  [TestCase("file:///local/data.csv", false)]
-  [TestCase("sftp://example.com/data.csv", false)]
-  public void CanHandle_CorrectlyIdentifiesHttpSchemes(string uri, bool expected)
+  [SetUp]
+  public void SetUp()
   {
-    var provider = new HttpStorageMediumProvider();
-    Assert.That(provider.CanHandle(new Uri(uri)), Is.EqualTo(expected));
+    _cacheDir = Path.Combine(Path.GetTempPath(), $"flowthru-http-prov-{Guid.NewGuid():N}");
   }
 
-  // ── Create — no cache config ──────────────────────────────────────────────
+  [TearDown]
+  public void TearDown()
+  {
+    if (Directory.Exists(_cacheDir))
+    {
+      try { Directory.Delete(_cacheDir, recursive: true); } catch { /* best effort */ }
+    }
+  }
+
+  // ── CanHandle ─────────────────────────────────────────────────────
+
+  [TestCase("http://example.com/data.csv", ExpectedResult = true)]
+  [TestCase("https://example.com/data.csv", ExpectedResult = true)]
+  [TestCase("file:///tmp/data.csv", ExpectedResult = false)]
+  [TestCase("ftp://example.com/data.csv", ExpectedResult = false)]
+  [TestCase("s3://bucket/data.csv", ExpectedResult = false)]
+  public bool CanHandle_OnlyTrueForHttpAndHttps(string uri)
+  {
+    var provider = new HttpStorageMediumProvider(
+      new HttpClient(new FakeHandler(HttpStatusCode.OK, ""))
+    );
+    return provider.CanHandle(new Uri(uri));
+  }
+
+  // ── Create ────────────────────────────────────────────────────────
 
   [Test]
-  public void Create_WithoutCacheConfig_ReturnsHttpStorageMedium()
+  public void Create_NoCache_ReturnsPlainHttpStorageMedium()
   {
-    var provider = new HttpStorageMediumProvider();
+    var provider = new HttpStorageMediumProvider(
+      new HttpClient(new FakeHandler(HttpStatusCode.OK, ""))
+    );
+
     var medium = provider.Create(new Uri("https://example.com/data.csv"));
     Assert.That(medium, Is.InstanceOf<HttpStorageMedium>());
+    Assert.That(medium, Is.Not.InstanceOf<CachedHttpStorageMedium>());
   }
 
-  // ── Create — with cache config ────────────────────────────────────────────
-
   [Test]
-  public void Create_WithCacheConfig_ReturnsCachedHttpStorageMedium()
+  public void Create_WithCache_ReturnsCachedHttpStorageMedium()
   {
-    var opts = Options.Create(
-      new HttpOptions
-      {
-        Cache = new HttpCacheOptions
-        {
-          Directory = Path.GetTempPath(),
-          MaxAge = TimeSpan.FromHours(1),
-        },
-      }
+    var provider = new HttpStorageMediumProvider(
+      new HttpClient(new FakeHandler(HttpStatusCode.OK, "")),
+      cache: new HttpCacheOptions { Directory = _cacheDir }
     );
-    var provider = new HttpStorageMediumProvider(opts);
+
     var medium = provider.Create(new Uri("https://example.com/data.csv"));
     Assert.That(medium, Is.InstanceOf<CachedHttpStorageMedium>());
-  }
-
-  // ── DI-less construction ──────────────────────────────────────────────────
-
-  [Test]
-  public void DefaultConstructor_CanHandleHttps()
-  {
-    var provider = new HttpStorageMediumProvider();
-    Assert.That(provider.CanHandle(new Uri("https://example.com/data.csv")), Is.True);
   }
 }

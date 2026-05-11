@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 using KedroSpaceflightsCustom.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflightsCustom.Data._04_Models.Schemas;

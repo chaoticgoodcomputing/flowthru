@@ -1,0 +1,226 @@
+namespace Flowthru.Extensions.Python.SourceGenerators.Tests;
+
+/// <summary>
+/// Behavioural tests for <see cref="PythonStepGenerator"/> — the
+/// 1..8 × 1..8 overload-matrix emitter that lives on
+/// <c>Flowthru.Flow.PythonStepFactory</c>. The generator gates on the
+/// compilation's assembly name being <c>Flowthru.Extensions.Python</c>
+/// so it only fires during the extension's own build (consumer projects
+/// must use the pre-compiled DLL to avoid duplicate-partial CS0121).
+/// These tests assert on the gating behaviour and on the structure of
+/// the emitted overloads.
+/// </summary>
+[TestFixture]
+public class PythonStepGeneratorTests
+{
+  // ── Assembly-name gating ──────────────────────────────────────────────
+
+  [Test]
+  public void NonPythonAssembly_EmitsNothing()
+  {
+    // Running the generator inside any compilation OTHER than
+    // Flowthru.Extensions.Python must be a no-op: emitting the
+    // overload set into a consumer compilation would create
+    // duplicate-partial declarations and ambiguous-call errors.
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "SomeConsumerProject"
+    );
+
+    Assert.That(result.GeneratedSources, Is.Empty,
+      "PythonStepGenerator must skip consumer-project compilations.");
+    Assert.That(result.Diagnostics, Is.Empty);
+  }
+
+  [Test]
+  public void PythonExtensionAssembly_EmitsMatrixHintName()
+  {
+    // Inside the gate-matching assembly, the generator emits a single
+    // file at the canonical hint name.
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    Assert.That(result.GeneratedSources, Does.ContainKey("PythonStepFactory.Generated.cs"),
+      "Generator should add the matrix file under the expected hint name.");
+  }
+
+  // ── Matrix shape ──────────────────────────────────────────────────────
+
+  [Test]
+  public void EmittedMatrix_OmitsOneByOneCell()
+  {
+    // The 1×1 overload is hand-written in Flowthru.Step.Python and
+    // must be skipped by the matrix to avoid duplicate signatures.
+    // A genuine 1×1 emission would have exactly two type parameters
+    // (TIn1, TOut1) — we look for the disambiguator instead.
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+    // The 1×2 overload (one input, two outputs) is the first cell
+    // after the skipped 1×1 — its presence proves the loop ran past
+    // the skip without also emitting the skipped cell.
+    Assert.That(emitted, Does.Contain("<TIn1, TOut1, TOut2>"),
+      "The 1x2 overload should exist.");
+    // A 1×1 signature with exactly these two type parameters would
+    // look like `<TIn1, TOut1>(` — keep an eye that the matrix doesn't
+    // accidentally re-emit it.
+    Assert.That(emitted, Does.Not.Contain("<TIn1, TOut1>("),
+      "The 1x1 cell is hand-written elsewhere; the generated matrix must skip it.");
+  }
+
+  [Test]
+  public void EmittedMatrix_ContainsCornerCells()
+  {
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+
+    // 8×8 corner — proves MaxInputs and MaxOutputs are both 8.
+    Assert.That(emitted,
+      Does.Contain("<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1, TOut2, TOut3, TOut4, TOut5, TOut6, TOut7, TOut8>"),
+      "The 8x8 overload should be emitted at the matrix bound.");
+
+    // 8×1 — proves we don't skip non-1×1 cells where input or output
+    // arity happens to be 1.
+    Assert.That(emitted,
+      Does.Contain("<TIn1, TIn2, TIn3, TIn4, TIn5, TIn6, TIn7, TIn8, TOut1>"),
+      "The 8x1 overload should be emitted.");
+  }
+
+  [Test]
+  public void EmittedMatrix_HasAllExpectedOverloadCount()
+  {
+    // 8 × 8 = 64 cells minus the skipped 1×1 = 63 overloads.
+    // Each is a `public static FlowBuilder AddPythonStep<` declaration,
+    // so the literal count of that prefix is a reliable structural check.
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+    var count = CountOccurrences(emitted, "public static FlowBuilder AddPythonStep<");
+    Assert.That(count, Is.EqualTo(63),
+      "Expected 8x8 minus the skipped 1x1 = 63 overloads.");
+  }
+
+  // ── Generated header / namespace ──────────────────────────────────────
+
+  [Test]
+  public void EmittedSource_HasAutoGeneratedHeaderAndExpectedNamespace()
+  {
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+    Assert.That(emitted, Does.Contain("// <auto-generated/>"));
+    Assert.That(emitted, Does.Contain("#nullable enable"));
+    Assert.That(emitted, Does.Contain("namespace Flowthru.Flow;"));
+    Assert.That(emitted, Does.Contain("public static partial class PythonStepFactory"));
+  }
+
+  // ── Validation guards inside each overload ────────────────────────────
+
+  [Test]
+  public void EachOverload_GuardsNullBuilderLabelModuleFunctionAndExecutor()
+  {
+    // The hand-written 1×1 overload guards its inputs at construction
+    // time. The generated matrix mirrors that contract — every overload
+    // must contain the four guard fragments verbatim, otherwise users
+    // get inconsistent error semantics across arities.
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+    Assert.That(emitted, Does.Contain("throw new System.ArgumentNullException(nameof(builder))"));
+    Assert.That(emitted, Does.Contain("\"Label cannot be null or whitespace.\""));
+    Assert.That(emitted, Does.Contain("\"Module name cannot be null or whitespace.\""));
+    Assert.That(emitted, Does.Contain("\"Function name cannot be null or whitespace.\""));
+    Assert.That(emitted, Does.Contain("throw new System.ArgumentNullException(nameof(executor))"));
+  }
+
+  [Test]
+  public void EachOverload_AddsConstructedStepToBuilder()
+  {
+    // Final line of every overload is `return builder.Add(step);` —
+    // assert the count matches the overload count to catch any
+    // overload that accidentally skips the Add call.
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+    Assert.That(
+      CountOccurrences(emitted, "return builder.Add(step);"),
+      Is.EqualTo(63),
+      "Every emitted overload should end with `return builder.Add(step);`.");
+  }
+
+  // ── Tuple deconstruction shape ────────────────────────────────────────
+
+  [Test]
+  public void MultiInputOverload_DeconstructsInputTuple()
+  {
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+    // 2×1 overload's deconstruction line.
+    Assert.That(emitted, Does.Contain("var (input1, input2) = input;"),
+      "Multi-input overloads must deconstruct the tuple parameter.");
+  }
+
+  [Test]
+  public void MultiOutputOverload_DeconstructsOutputTuple()
+  {
+    var result = GeneratorTestHarness.Run(
+      new PythonStepGenerator(),
+      source: "namespace Sample { public class Empty {} }",
+      assemblyName: "Flowthru.Extensions.Python"
+    );
+
+    var emitted = result.GeneratedSources["PythonStepFactory.Generated.cs"];
+    // 1×2 overload's output deconstruction line.
+    Assert.That(emitted, Does.Contain("var (output1, output2) = output;"),
+      "Multi-output overloads must deconstruct the tuple parameter.");
+  }
+
+  // ── helper ────────────────────────────────────────────────────────────
+
+  private static int CountOccurrences(string haystack, string needle)
+  {
+    if (string.IsNullOrEmpty(needle)) return 0;
+    var count = 0;
+    var index = 0;
+    while ((index = haystack.IndexOf(needle, index, StringComparison.Ordinal)) != -1)
+    {
+      count++;
+      index += needle.Length;
+    }
+    return count;
+  }
+}

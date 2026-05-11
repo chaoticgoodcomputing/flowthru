@@ -1,7 +1,8 @@
-using Flowthru.Core.Cli;
-using Flowthru.Core.Services;
-using Flowthru.Meta;
-using Flowthru.Meta.Providers;
+using Flowthru.Cli;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Json;
+using Flowthru.Diagnostics.Mermaid;
+using Flowthru.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,20 +16,12 @@ namespace Minimal;
 /// </summary>
 public class Program
 {
-  /// <summary>
-  /// Main entry point for the minimal greeting pipeline CLI application.
-  /// </summary>
-  /// <param name="args">Command-line arguments</param>
   public static Task<int> Main(string[] args) =>
     FlowthruCli.RunStandaloneAsync(
       args,
       services => ConfigureServices(services, Directory.GetCurrentDirectory())
     );
 
-  /// <summary>
-  /// Configures services for the application. Used by test infrastructure.
-  /// </summary>
-  /// <param name="basePath">Optional base path for data files (defaults to current directory)</param>
   public static IServiceProvider ConfigureServices(string? basePath = null)
   {
     var services = new ServiceCollection();
@@ -36,9 +29,6 @@ public class Program
     return services.BuildServiceProvider();
   }
 
-  /// <summary>
-  /// Shared service configuration logic.
-  /// </summary>
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
     var configuration = new ConfigurationBuilder()
@@ -46,31 +36,22 @@ public class Program
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
       .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false)
       .Build();
+    services.AddSingleton<IConfiguration>(configuration);
 
-    services.AddFlowthru(
-      configuration,
-      flowthru =>
+    services.AddFlowthru(flowthru =>
+    {
+      flowthru.RegisterCatalog(_ => new Catalog(basePath));
+      flowthru.ConfigureMetadata(meta =>
       {
-        flowthru.RegisterCatalog(_ => new Catalog(basePath));
-        flowthru.ConfigureMetadata(meta =>
-        {
-          var metadataPath = Path.Combine(basePath, "Metadata");
-          meta.AddProvider<JsonMetadataProvider, JsonMetadataProviderBuilder>(json =>
-              json.WithOutputDirectory(metadataPath)
-            )
-            .AddProvider<MermaidMetadataProvider, MermaidMetadataProviderBuilder>(mermaid =>
-              mermaid.WithOutputDirectory(metadataPath)
-            );
-        });
+        var metadataPath = Path.Combine(basePath, "Metadata");
+        meta.AddJsonMetadata(opt => opt.WithOutputDirectory(metadataPath));
+        meta.AddMermaidMetadata(opt => opt.WithOutputDirectory(metadataPath));
+      });
 
-        // Register the greetings pipeline
-        flowthru
-          .RegisterFlow(label: "Greetings", flow: GreetingsFlow.Create)
-          .WithDescription(
-            "A minimal pipeline demonstrating name transformation into multiple greeting formats"
-          );
-      }
-    );
+      flowthru
+        .RegisterFlow<Catalog>("Greetings", GreetingsFlow.Create)
+        .WithDescription("A minimal pipeline demonstrating name transformation into multiple greeting formats");
+    });
 
     services.AddLogging(logging =>
     {

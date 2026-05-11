@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using Plotly.NET;
 using SpaceflightsDistributed.Reporting.Data._08_Reporting.Schemas;
 
@@ -10,19 +10,14 @@ namespace SpaceflightsDistributed.Reporting.Data;
 public partial class ReportingCatalog
 {
   public IItem<IEnumerable<ShuttleCapacityReport>> ShuttleCapacityReport =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Json<ShuttleCapacityReport>(
-          label: "ShuttleCapacityReport",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ShuttleCapacityReport>>("ShuttleCapacityReport")
+      .Json()
+      .AtPath($"{_basePath}/_08_Reporting/Datasets/shuttle_capacity_report.json")
+      .Build());
 
   public IItem<GenericChart> ShuttlePassengerCapacityChart =>
-    CreateItem(
-      () => ItemFactory.Single.Memory<GenericChart>(label: "ShuttlePassengerCapacityChart")
-    );
+    CreateItem(() => Item.Of<GenericChart>("ShuttlePassengerCapacityChart").Memory().Build());
 
   public IItem<GenericChart> ConfusionMatrixChart =>
-    CreateItem(() => ItemFactory.Single.Memory<GenericChart>(label: "ConfusionMatrixChart"));
+    CreateItem(() => Item.Of<GenericChart>("ConfusionMatrixChart").Memory().Build());
 }

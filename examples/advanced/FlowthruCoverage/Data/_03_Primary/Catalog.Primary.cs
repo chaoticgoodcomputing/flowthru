@@ -1,62 +1,43 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 
 namespace FlowthruCoverage.Data;
 
 public partial class Catalog
 {
-  /// <summary>
-  /// Per-(TestProject, SrcPackage) coverage aggregates.
-  /// Pivot this CSV on TestProject vs SrcPackage to produce the coverage heatmap.
-  /// </summary>
+  /// <summary>Per-(TestProject, SrcPackage) coverage aggregates — heatmap pivot source.</summary>
   public IItem<IEnumerable<PackageCoverageRow>> PackageCoverage =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<PackageCoverageRow>(
-          label: "PackageCoverage",
-          filePath: $"{_basePath}/_03_Primary/Datasets/package_coverage.csv"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<PackageCoverageRow>>("PackageCoverage")
+        .Csv()
+        .AtPath($"{_basePath}/_03_Primary/Datasets/package_coverage.csv")
+        .Build()
     );
 
-  /// <summary>
-  /// Nested coverage report by package → namespace → class → method → test project.
-  /// One <see cref="PackageCoverageReport"/> per source assembly.
-  /// Use this as a model input table for per-library coverage-intensity analysis.
-  /// </summary>
+  /// <summary>Nested coverage report by package -> namespace -> class -> method.</summary>
   public IItem<IEnumerable<PackageCoverageReport>> MethodCoverage =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Json<PackageCoverageReport>(
-          label: "MethodCoverage",
-          filePath: $"{_basePath}/_03_Primary/Datasets/method_coverage.json"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<PackageCoverageReport>>("MethodCoverage")
+        .Json()
+        .AtPath($"{_basePath}/_03_Primary/Datasets/method_coverage.json")
+        .Build()
     );
 
-  /// <summary>
-  /// Flat per-method summary: identifier, total hits across all projects, and number of
-  /// projects that hit it. Ordered by <c>TotalHits</c> ascending — least-tested methods first.
-  /// </summary>
+  /// <summary>Flat per-method summary ordered by TotalHits ascending.</summary>
   public IItem<IEnumerable<MethodHitSummaryRow>> MethodHitSummary =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<MethodHitSummaryRow>(
-          label: "MethodHitSummary",
-          filePath: $"{_basePath}/_03_Primary/Datasets/method_hit_summary.csv"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<MethodHitSummaryRow>>("MethodHitSummary")
+        .Csv()
+        .AtPath($"{_basePath}/_03_Primary/Datasets/method_hit_summary.csv")
+        .Build()
     );
 
-  /// <summary>
-  /// Variant of <see cref="MethodHitSummary"/> where the ID uses only the method name
-  /// (<c>{namespace}.{className}.{methodName}</c>) — overloads are collapsed into one row.
-  /// <c>TotalHits</c> is summed across overloads; <c>ProjectHits</c> is the union of
-  /// projects that hit any overload. Same sort order: subgroup then <c>TotalHits</c> ascending.
-  /// </summary>
+  /// <summary>Method-name-only summary with overloads collapsed.</summary>
   public IItem<IEnumerable<MethodHitSummaryRow>> MethodNameSummary =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<MethodHitSummaryRow>(
-          label: "MethodNameSummary",
-          filePath: $"{_basePath}/_03_Primary/Datasets/method_name_summary.csv"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<MethodHitSummaryRow>>("MethodNameSummary")
+        .Csv()
+        .AtPath($"{_basePath}/_03_Primary/Datasets/method_name_summary.csv")
+        .Build()
     );
 }

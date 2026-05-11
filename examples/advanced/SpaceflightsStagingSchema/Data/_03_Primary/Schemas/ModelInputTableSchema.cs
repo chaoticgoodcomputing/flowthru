@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 
 namespace SpaceflightsStagingSchema.Data._03_Primary.Schemas;
 

@@ -1,128 +1,145 @@
-using Flowthru.Core.Data;
-using Flowthru.Core.Flows;
-using Flowthru.Core.Graph.Meta.Models;
-using Flowthru.Meta.Diagnostics;
-using Flowthru.Meta.Diagnostics.Providers;
-using Flowthru.Meta.Diagnostics.Tests.Fixtures;
-using Microsoft.Extensions.DependencyInjection;
+using Flowthru.Data.Catalog;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Run;
+using Flowthru.Extensions.Metadata.Diagnostics.Tests.Fixtures;
+using Flowthru.Flow;
 using Microsoft.Extensions.Logging;
 
-namespace Flowthru.Meta.Diagnostics.Tests;
+namespace Flowthru.Extensions.Metadata.Diagnostics.Tests;
 
 [TestFixture]
 [Category("Diagnostics")]
-[Category("OutputExistence")]
 public class OutputExistenceProviderTests
 {
-  private RecordingLogger _logger = null!;
-
-  [SetUp]
-  public void SetUp() => _logger = new RecordingLogger();
-
-  private static (RunMetadata Run, IServiceProvider Services) BuildContext(params IItem[] items)
+  [Test]
+  public async Task Emit_AllOutputsPresent_ReportMissingOnly_NoWarnings()
   {
-    var dag = new DagMetadata
+    var logger = new RecordingLogger();
+    var provider = new OutputExistenceProvider(
+      new OutputExistenceOptions { ReportMissingOnly = true }, logger);
+
+    // Memory items with seeded values — Exists() returns true.
+    var output = ItemFactory.Singleton.Memory<int>("present");
+    await output.Save(7).Run();
+
+    var flow = FlowBuilder.CreateFlow("flow", b =>
     {
-      FlowName = "TestFlow",
-      Steps = new()
+      b.AddStep<int>("seed", () => 7, output);
+    });
+    var ctx = Build(flow, new[] { (StepResult)new StepResult.Succeeded("seed", TimeSpan.FromMilliseconds(1)) });
+
+    await provider.Emit(ctx).Run();
+
+    Assert.That(logger.Entries, Has.None.Matches<(LogLevel Level, string Message)>(
+      e => e.Level == LogLevel.Warning),
+      "ReportMissingOnly + all-present should produce no warnings.");
+  }
+
+  [Test]
+  public async Task Emit_MissingOutput_LogsWarning()
+  {
+    var logger = new RecordingLogger();
+    var provider = new OutputExistenceProvider(
+      new OutputExistenceOptions { ReportMissingOnly = true }, logger);
+
+    // Memory item never Save'd — Exists() returns false.
+    var output = ItemFactory.Singleton.Memory<int>("vanished");
+    var flow = FlowBuilder.CreateFlow("flow", b =>
+    {
+      b.AddStep<int>("seed", () => 7, output);
+    });
+    var ctx = Build(flow, new[] { (StepResult)new StepResult.Succeeded("seed", TimeSpan.FromMilliseconds(1)) });
+
+    await provider.Emit(ctx).Run();
+
+    Assert.That(logger.Entries, Has.Some.Matches<(LogLevel Level, string Message)>(
+      e => e.Level == LogLevel.Warning && e.Message.Contains("vanished")));
+  }
+
+  [Test]
+  public async Task Emit_FullAudit_LogsBothPresentAndMissing()
+  {
+    var logger = new RecordingLogger();
+    var provider = new OutputExistenceProvider(
+      new OutputExistenceOptions { ReportMissingOnly = false }, logger);
+
+    var present = ItemFactory.Singleton.Memory<int>("present");
+    var missing = ItemFactory.Singleton.Memory<int>("missing");
+    await present.Save(1).Run();
+
+    var flow = FlowBuilder.CreateFlow("flow", b =>
+    {
+      b.AddStep<int>("a", () => 1, present);
+      b.AddStep<int>("b", () => 2, missing);
+    });
+    var ctx = Build(flow, new[]
+    {
+      (StepResult)new StepResult.Succeeded("a", TimeSpan.FromMilliseconds(1)),
+      new StepResult.Succeeded("b", TimeSpan.FromMilliseconds(1)),
+    });
+
+    await provider.Emit(ctx).Run();
+
+    Assert.That(logger.Messages, Has.Some.Contains("present"));
+    Assert.That(logger.Messages, Has.Some.Contains("missing"));
+    Assert.That(logger.Messages, Has.Some.Contains("✓"));
+    Assert.That(logger.Messages, Has.Some.Contains("✗"));
+  }
+
+  [Test]
+  public async Task Emit_RestrictsToActiveSlice()
+  {
+    var logger = new RecordingLogger();
+    var provider = new OutputExistenceProvider(
+      new OutputExistenceOptions { ReportMissingOnly = false }, logger);
+
+    var inactiveOut = ItemFactory.Singleton.Memory<int>("inactive-out");
+    var activeOut = ItemFactory.Singleton.Memory<int>("active-out");
+    await activeOut.Save(1).Run();
+
+    var flow = FlowBuilder.CreateFlow("merged", b =>
+    {
+      b.AddStep<int>("inactive-step", () => 0, inactiveOut);
+      b.AddStep<int>("active-step", () => 1, activeOut);
+    });
+
+    // Slice contains only "active-step".
+    var ctx = new FlowRunMetadataContext
+    {
+      Static = new FlowMetadataContext
       {
-        new StepMetadata
-        {
-          Id = "stepA",
-          Label = "StepA",
-          StepType = "FakeStep",
-          FlowName = "TestFlow",
-          Outputs = items.Select(i => i.Label).ToList(),
-        },
+        MergedFlow = flow,
+        EffectiveFlow = flow,
+        ActiveStepLabels = new HashSet<string>(new[] { "active-step" }, StringComparer.Ordinal),
+        RequestedFlowLabel = null,
       },
+      Result = new FlowResult(new[]
+      {
+        (StepResult)new StepResult.Succeeded("active-step", TimeSpan.FromMilliseconds(1)),
+      }, TimeSpan.FromMilliseconds(1)),
     };
-    var run = new RunMetadata
+
+    await provider.Emit(ctx).Run();
+
+    Assert.That(logger.Messages, Has.Some.Contains("active-out"));
+    Assert.That(logger.Messages, Has.None.Contains("inactive-out"),
+      "Inactive steps' outputs should not be probed — they didn't run.");
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────
+
+  private static FlowRunMetadataContext Build(BuiltFlow flow, StepResult[] results)
+  {
+    return new FlowRunMetadataContext
     {
-      Dag = dag,
-      Result = FlowResult.CreateSuccess(TimeSpan.Zero, new(), "TestFlow"),
+      Static = new FlowMetadataContext
+      {
+        MergedFlow = flow,
+        EffectiveFlow = flow,
+        ActiveStepLabels = flow.Steps.Select(s => s.Label).ToHashSet(StringComparer.Ordinal),
+        RequestedFlowLabel = null,
+      },
+      Result = new FlowResult(results, TimeSpan.FromMilliseconds(10)),
     };
-
-    var sc = new ServiceCollection();
-    sc.AddSingleton<CatalogAbstract>(new FakeCatalog(items));
-    return (run, sc.BuildServiceProvider());
-  }
-
-  [Test]
-  public void Consume_MissingOutput_LogsWarning()
-  {
-    var present = new FakeItem { Label = "Present", ExistsResult = true };
-    var missing = new FakeItem { Label = "Missing", ExistsResult = false };
-    var (run, services) = BuildContext(present, missing);
-
-    var provider = new OutputExistenceProvider(new OutputExistenceOptions { Enabled = true }, _logger);
-    provider.Consume(run, services);
-
-    var warnings = _logger.Entries.Where(e => e.Level == LogLevel.Warning).ToList();
-    Assert.That(string.Join("\n", warnings.Select(w => w.Message)), Does.Contain("Missing"));
-    Assert.That(string.Join("\n", warnings.Select(w => w.Message)), Does.Not.Contain("Present"));
-  }
-
-  [Test]
-  public void Consume_AllPresent_NoWarnings()
-  {
-    var a = new FakeItem { Label = "A", ExistsResult = true };
-    var b = new FakeItem { Label = "B", ExistsResult = true };
-    var (run, services) = BuildContext(a, b);
-
-    var provider = new OutputExistenceProvider(new OutputExistenceOptions { Enabled = true }, _logger);
-    provider.Consume(run, services);
-
-    Assert.That(_logger.Entries.Where(e => e.Level == LogLevel.Warning), Is.Empty);
-  }
-
-  [Test]
-  public void Consume_FullAudit_LogsEveryOutput()
-  {
-    var present = new FakeItem { Label = "Present", ExistsResult = true };
-    var missing = new FakeItem { Label = "Missing", ExistsResult = false };
-    var (run, services) = BuildContext(present, missing);
-
-    var provider = new OutputExistenceProvider(
-      new OutputExistenceOptions { Enabled = true, ReportMissingOnly = false },
-      _logger
-    );
-    provider.Consume(run, services);
-
-    var allMessages = string.Join("\n", _logger.Messages);
-    Assert.That(allMessages, Does.Contain("full audit"));
-    Assert.That(allMessages, Does.Contain("Present"));
-    Assert.That(allMessages, Does.Contain("Missing"));
-  }
-
-  [Test]
-  public void Consume_ExistsThrows_LogsWarningAndContinues()
-  {
-    var ok = new FakeItem { Label = "OK", ExistsResult = true };
-    var bad = new FakeItem
-    {
-      Label = "Bad",
-      ExistsThrows = new IOException("storage flapped"),
-    };
-    var (run, services) = BuildContext(ok, bad);
-
-    var provider = new OutputExistenceProvider(new OutputExistenceOptions { Enabled = true }, _logger);
-
-    Assert.DoesNotThrow(() => provider.Consume(run, services));
-    Assert.That(string.Join("\n", _logger.Messages), Does.Contain("Exists() failed for Bad"));
-  }
-
-  [Test]
-  public void Consume_Disabled_EmitsNothing()
-  {
-    var item = new FakeItem { Label = "X", ExistsResult = false };
-    var (run, services) = BuildContext(item);
-
-    var provider = new OutputExistenceProvider(
-      new OutputExistenceOptions { Enabled = false },
-      _logger
-    );
-    provider.Consume(run, services);
-
-    Assert.That(_logger.Entries, Is.Empty);
   }
 }

@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 
 namespace KedroSpaceflightsGQL.Data._02_Intermediate.Schemas;
 

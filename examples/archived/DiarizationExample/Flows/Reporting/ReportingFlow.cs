@@ -13,7 +13,7 @@ public static class ReportingFlow
   {
     return FlowBuilder.CreateFlow(pipeline =>
     {
-      pipeline.AddPythonStep<IEnumerable<AttributedSegmentSchema>, Directory<byte[]>>(
+      pipeline.AddPythonStep<IEnumerable<AttributedSegmentSchema>, DirectoryOf<byte[]>>(
         label: "RenderTranscript",
         description: "Render one Markdown transcript per clip.",
         module: "Flows.Reporting.Steps.render_transcript",

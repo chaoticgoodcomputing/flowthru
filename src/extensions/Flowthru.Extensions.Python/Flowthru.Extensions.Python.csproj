@@ -4,25 +4,16 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru.Extensions.Python</RootNamespace>
-    <Description>Python node integration for Flowthru data pipelines</Description>
-    
+    <Description>Python step integration for Flowthru data pipelines</Description>
+
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Extensions.Python</PackageId>
-    <PackageTags>data-engineering;pipeline;python;pythonnet</PackageTags>
+    <PackageTags>data-engineering;pipeline;python</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Expose internal test helpers to the Python test project -->
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>Flowthru.Extensions.Python.Tests</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Core Flowthru library -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
-    
+
     <!-- Source generator (isolated from runtime dependencies) -->
     <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
                       OutputItemType="Analyzer"
@@ -30,43 +21,47 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Python.NET for embedded Python runtime (official package) -->
-    <PackageReference Include="pythonnet" />
-    
-    <!-- Apache Arrow for tabular data interchange (Phase 3) -->
+    <!-- Apache Arrow — tabular data interchange wire format with the subprocess worker -->
     <PackageReference Include="Apache.Arrow" />
-    
-    <!-- MSBuild task authoring (Phase 5) -->
+
+    <!-- MSBuild task authoring (PythonSchemaExportTask) -->
     <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" />
+
+    <!-- DI / config / logging surface — UsePython() and the runtime options bind here -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Include README and LICENSE in package -->
-    <None Include="README.md" Pack="true" PackagePath="/" />
-    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
-    
-    <!-- Include MSBuild targets file in package -->
+    <InternalsVisibleTo Include="Flowthru.Extensions.Python.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- MSBuild targets file shipped to consumers -->
     <None Include="build\Flowthru.Extensions.Python.targets" Pack="true" PackagePath="build\" />
-    
-    <!-- Include Arrow bridge module for Python interop -->
-    <Content Include="build\_flowthru_arrow.py" 
-             CopyToOutputDirectory="PreserveNewest" 
+
+    <!-- Arrow IPC bridge module -->
+    <Content Include="build\_flowthru_arrow.py"
+             CopyToOutputDirectory="PreserveNewest"
              Link="_flowthru_arrow.py"
-             Pack="true" 
+             Pack="true"
              PackagePath="build\" />
 
-    <!-- Include subprocess worker script for isolated per-service execution -->
+    <!-- Subprocess worker script -->
     <Content Include="build\flowthru_worker.py"
              CopyToOutputDirectory="PreserveNewest"
              Link="flowthru_worker.py"
              Pack="true"
              PackagePath="build\" />
-    
-    <!-- Include flowthru Python package -->
-    <Content Include="build\flowthru\__init__.py" 
-             CopyToOutputDirectory="PreserveNewest" 
+
+    <!-- flowthru Python package (decorator + helpers) -->
+    <Content Include="build\flowthru\__init__.py"
+             CopyToOutputDirectory="PreserveNewest"
              Link="flowthru\__init__.py"
-             Pack="true" 
+             Pack="true"
              PackagePath="build\flowthru\" />
     <Content Include="build\flowthru\step.py"
              CopyToOutputDirectory="PreserveNewest"
@@ -86,11 +81,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Bundle Flowthru.Core.dll in the package build/ folder so MSBuild can resolve
-         it as a peer assembly when loading PythonSchemaExportTask at build time.
-         Without this, the task DLL fails to load in NuGet consumption scenarios
-         because the task assembly loader only probes the directory of the task DLL.
-         $(OutDir) already includes the TFM segment (e.g. net10.0/), so no double-nesting. -->
+    <!-- Bundle Flowthru.Core.dll alongside the MSBuild task DLL so the
+         PythonSchemaExportTask loader can resolve it as a peer assembly
+         when consumers import the package. $(OutDir) already includes
+         the TFM segment. -->
     <None Include="$(OutDir)Flowthru.Core.dll"
           Pack="true"
           PackagePath="build\"
@@ -108,12 +102,5 @@
           PackagePath="analyzers/dotnet/cs"
           Visible="false" />
   </ItemGroup>
-
-  <!-- Ensure source generators are built before packing -->
-  <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
-    <MSBuild Projects="$(RepoRoot)dist/src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj"
-             Targets="Build"
-             Properties="Configuration=$(Configuration)" />
-  </Target>
 
 </Project>

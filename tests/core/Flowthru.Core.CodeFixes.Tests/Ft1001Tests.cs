@@ -1,5 +1,5 @@
 using Flowthru.Core.CodeFixes;
-using Flowthru.Core.SourceGenerators.SchemaAnalysis;
+using Flowthru.Core.SourceGenerators.Schema;
 using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
@@ -16,7 +16,7 @@ public class Ft1001Tests
 {
   // Minimal stub so the compiler resolves [FlowthruSchema] without a real assembly reference.
   private const string AttributeStub = """
-    namespace Flowthru.Core.Abstractions
+    namespace Flowthru.Data.Schema
     {
         [System.AttributeUsage(System.AttributeTargets.All)]
         public class FlowthruSchemaAttribute : System.Attribute { }
@@ -32,7 +32,7 @@ public class Ft1001Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public record {|FT1001:MySchema|} { }
@@ -45,7 +45,7 @@ public class Ft1001Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public partial record MySchema { }
@@ -68,7 +68,7 @@ public class Ft1001Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public class {|FT1001:MySchema|} { }
@@ -81,7 +81,7 @@ public class Ft1001Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public partial class MySchema { }
@@ -104,7 +104,7 @@ public class Ft1001Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public partial record MySchema { }

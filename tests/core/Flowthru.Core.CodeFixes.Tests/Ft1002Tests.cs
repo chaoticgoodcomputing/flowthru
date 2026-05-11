@@ -1,5 +1,5 @@
 using Flowthru.Core.CodeFixes;
-using Flowthru.Core.SourceGenerators.SchemaAnalysis;
+using Flowthru.Core.SourceGenerators.Schema;
 using Flowthru.Tests.Helpers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
@@ -15,7 +15,7 @@ namespace Flowthru.Core.CodeFixes.Tests;
 public class Ft1002Tests
 {
   private const string Stubs = """
-    namespace Flowthru.Core.Abstractions
+    namespace Flowthru.Data.Schema
     {
         [System.AttributeUsage(System.AttributeTargets.All)]
         public class FlowthruSchemaAttribute : System.Attribute { }
@@ -37,7 +37,7 @@ public class Ft1002Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public partial record {|FT1002:MySchema|} : IFlatSchema { }
@@ -50,7 +50,7 @@ public class Ft1002Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public partial record MySchema { }
@@ -77,7 +77,7 @@ public class Ft1002Tests
 
         namespace TestProject
         {
-            using Flowthru.Core.Abstractions;
+            using Flowthru.Data.Schema;
 
             [FlowthruSchema]
             public partial record MySchema { }

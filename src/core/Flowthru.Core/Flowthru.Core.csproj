@@ -1,92 +1,48 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Description>A type-safe data engineering framework for .NET</Description>
-    
-    <!-- NuGet Package Configuration -->
+    <Description>Flowthru core library: data, effect, validation, step, flow, diagnostics, and hosting algebras for the Flowthru data pipeline framework.</Description>
+
     <PackageId>Flowthru.Core</PackageId>
-    <PackageTags>data-engineering;pipeline;kedro</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- Version inherited from Directory.Build.props -->
+    <PackageTags>data-engineering;pipeline;functional-programming</PackageTags>
+
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <!-- Expose `internal` members to the unit-test assembly. The
+       InspectionResult.Internal property is intentionally internal at the
+       public API surface (users see only the opaque struct + Inspect helpers)
+       but the dispatcher pipeline + tests need to inspect the wrapped
+       Validated value. -->
+  <ItemGroup>
     <InternalsVisibleTo Include="Flowthru.Core.Tests" />
-    <!-- Format extension packages need access to internal serialization helpers -->
-    <InternalsVisibleTo Include="Flowthru.Extensions.Csv" />
-    <InternalsVisibleTo Include="Flowthru.Extensions.Parquet" />
-    <InternalsVisibleTo Include="Flowthru.Extensions.Excel" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Dependency Injection Abstractions (no concrete container) -->
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Logging" />
-    
-    <!-- Logging Abstractions (Serilog compatible) -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    
-    <!-- Configuration Support -->
-    <PackageReference Include="Microsoft.Extensions.Configuration" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
-    
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
-    
-    <!-- Data Annotations for validation -->
-    <PackageReference Include="System.ComponentModel.Annotations" />
+    <Using Include="Flowthru.Prelude" />
+    <Using Include="Flowthru.Validation.PreFlight" />
+    <Using Include="Flowthru.Validation.Runtime" />
+    <Using Include="Flowthru.Step" />
+    <Using Include="Flowthru.Flow" />
+    <Using Include="Flowthru.Diagnostics" />
   </ItemGroup>
 
-  <!-- Reference own source generator for self-generation -->
+  <!--
+    Wire the source generators as analyzers on Flowthru.Core itself, so
+    [FlowthruSchema]-attributed types declared inside Core get marker
+    interfaces emitted at compile time.
+  -->
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Include README and LICENSE in package -->
-    <None Include="README.md" Pack="true" PackagePath="/" />
-    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
-    <!-- Include build props to auto-import source generators -->
-    <None Include="build/Flowthru.Core.props" Pack="true" PackagePath="build/" />
-  </ItemGroup>
-
-  <!-- Package source generators and code fixes in standard analyzer location -->
-  <ItemGroup>
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.SourceGenerators/$(Configuration)/netstandard2.0/Flowthru.Core.SourceGenerators.dll" 
-          Pack="true" 
-          PackagePath="analyzers/dotnet/cs" 
-          Visible="false" />
-    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.CodeFixes/$(Configuration)/netstandard2.0/Flowthru.Core.CodeFixes.dll" 
-          Pack="true" 
-          PackagePath="analyzers/dotnet/cs" 
-          Visible="false" />
-  </ItemGroup>
-
-  <!-- Ensure source generators and code fixes are built before packing -->
-  <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
-    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj" 
-             Targets="Build"
-             Properties="Configuration=$(Configuration)" />
-    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.Core.CodeFixes/Flowthru.Core.CodeFixes.csproj" 
-             Targets="Build"
-             Properties="Configuration=$(Configuration)" />
-  </Target>
-
-  <!-- Include templates in package -->
-  <!-- NoDefaultExcludes allows dotfiles (.gitignore, .gitkeep, etc.) to be packed -->
-  <PropertyGroup>
-    <NoDefaultExcludes>true</NoDefaultExcludes>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- MSBuild targets file for auto-registering source generators -->
-    <None Include="build\Flowthru.Core.targets" Pack="true" PackagePath="build\" />
   </ItemGroup>
 
 </Project>

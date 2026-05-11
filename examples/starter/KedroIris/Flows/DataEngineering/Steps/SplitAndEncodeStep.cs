@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using KedroIris.Data._01_Raw.Schemas;
 using KedroIris.Data._04_Feature.Schemas;
 using KedroIris.Data._05_ModelInput.Schemas;
@@ -23,14 +23,19 @@ public static class SplitAndEncodeStep
 
   /// <summary>
   /// Splits raw iris data into encoded feature sets and training/test splits.
+  /// Tuple-input shape so the flow can close over <see cref="Options"/> at
+  /// flow-construction time.
   /// </summary>
-  public static (
-    IEnumerable<IrisFeatureSchema> Features,
-    IEnumerable<FeatureVectorSchema> TrainX,
-    IEnumerable<TargetLabelSchema> TrainY,
-    IEnumerable<FeatureVectorSchema> TestX,
-    IEnumerable<TargetLabelSchema> TestY
-  ) Create((IEnumerable<IrisRawSchema> Data, Options Options) input)
+  public static Func<
+    (IEnumerable<IrisRawSchema> Data, Options Options),
+    (
+      IEnumerable<IrisFeatureSchema> Features,
+      IEnumerable<FeatureVectorSchema> TrainX,
+      IEnumerable<TargetLabelSchema> TrainY,
+      IEnumerable<FeatureVectorSchema> TestX,
+      IEnumerable<TargetLabelSchema> TestY
+    )
+  > Create() => input =>
   {
     var (rawData, options) = input;
 
@@ -90,5 +95,5 @@ public static class SplitAndEncodeStep
     });
 
     return (encoded, trainX, trainY, testX, testY);
-  }
+  };
 }

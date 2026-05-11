@@ -4,30 +4,30 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru.Extensions.EFCore</RootNamespace>
-    <Description>Entity Framework Core integration for Flowthru data catalogs</Description>
-    
-    <!-- NuGet Package Configuration -->
+    <Description>Entity Framework Core integration for Flowthru data catalogs — IStorageAdapter implementations for relational databases, plus catalog-attachable lifecycle resources for ephemeral databases and schemas.</Description>
+
     <PackageId>Flowthru.Extensions.EFCore</PackageId>
     <PackageTags>data-engineering;pipeline;entity-framework;efcore;database</PackageTags>
+
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core Flowthru library -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Entity Framework Core -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Internals visible for unit-testing internal helpers like DbScope.IsSameDatabase
-         that don't have a public surface. -->
     <InternalsVisibleTo Include="Flowthru.Extensions.EFCore.Tests" />
     <InternalsVisibleTo Include="Flowthru.Extensions.EFCore.Bulk.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(RepoRoot)LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>

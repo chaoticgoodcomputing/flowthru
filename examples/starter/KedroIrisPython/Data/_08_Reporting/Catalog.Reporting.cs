@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroIrisPython.Data._08_Reporting.Schemas;
 
 namespace KedroIrisPython.Data;
@@ -8,15 +8,9 @@ namespace KedroIrisPython.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Model accuracy report with detailed metrics.
-  /// </summary>
   public IItem<AccuracyReportSchema> AccuracyReport =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Json<AccuracyReportSchema>(
-          label: "AccuracyReport",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/accuracy_report.json"
-        )
-    );
+    CreateItem(() => Item.Of<AccuracyReportSchema>("AccuracyReport")
+      .Json()
+      .AtPath($"{_basePath}/_08_Reporting/Datasets/accuracy_report.json")
+      .Build());
 }

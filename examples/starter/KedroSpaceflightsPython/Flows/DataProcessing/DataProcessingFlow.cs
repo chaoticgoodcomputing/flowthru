@@ -1,10 +1,6 @@
-using Flowthru.Core.Flows;
-using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flow;
+using Flowthru.Step.Python;
 using KedroSpaceflightsPython.Data;
-using KedroSpaceflightsPython.Data._01_Raw.Schemas;
-using KedroSpaceflightsPython.Data._02_Intermediate.Schemas;
-using KedroSpaceflightsPython.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflightsPython.Flows.DataProcessing;
 
@@ -13,16 +9,12 @@ namespace KedroSpaceflightsPython.Flows.DataProcessing;
 /// </summary>
 public static class DataProcessingFlow
 {
-  /// <summary>
-  /// Creates the data processing pipeline.
-  /// </summary>
-  public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  public static BuiltFlow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
       pipeline.AddPythonStep(
         label: "PreprocessCompanies",
-        description: "Clean and parse company data (Python)",
         module: "Flows.DataProcessing.Steps.preprocess_companies",
         function: "preprocess_companies",
         input: catalog.Companies,
@@ -32,7 +24,6 @@ public static class DataProcessingFlow
 
       pipeline.AddPythonStep(
         label: "PreprocessShuttles",
-        description: "Clean and parse shuttle data (Python)",
         module: "Flows.DataProcessing.Steps.preprocess_shuttles",
         function: "preprocess_shuttles",
         input: catalog.Shuttles,
@@ -40,14 +31,8 @@ public static class DataProcessingFlow
         executor: executor
       );
 
-      pipeline.AddPythonStep<
-        IEnumerable<PreprocessedShuttleSchema>,
-        IEnumerable<PreprocessedCompanySchema>,
-        IEnumerable<ReviewSchema>,
-        IEnumerable<ModelInputTableSchema>
-      >(
+      pipeline.AddPythonStep(
         label: "CreateModelInputTable",
-        description: "Join shuttles, companies, and reviews (Python 3×1 node)",
         module: "Flows.DataProcessing.Steps.create_model_input_table",
         function: "create_model_input_table",
         input: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),

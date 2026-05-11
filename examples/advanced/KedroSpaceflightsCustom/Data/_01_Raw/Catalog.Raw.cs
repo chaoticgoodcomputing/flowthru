@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflightsCustom.Data._01_Raw.Schemas;
 using KedroSpaceflightsCustom.Data._03_Primary.Schemas;
 
@@ -6,75 +6,32 @@ namespace KedroSpaceflightsCustom.Data;
 
 public partial class Catalog
 {
-  /// <summary>
-  /// Raw company data from CSV file.
-  /// Contains company ratings and information.
-  /// </summary>
-  /// <remarks>
-  /// This is a critical Layer 0 input from an external source, configured for deep inspection
-  /// to ensure data quality before pipeline execution.
-  /// </remarks>
+  /// <summary>Raw company data from CSV file.</summary>
   public IItem<IEnumerable<CompanyRawSchema>> Companies =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<CompanyRawSchema>(
-          label: "RawCompanies",
-          filePath: $"{_basePath}/_01_Raw/Datasets/companies.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<CompanyRawSchema>>("RawCompanies")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/companies.csv")
+      .Build());
 
-  /// <summary>
-  /// Raw review data from CSV file.
-  /// Contains customer reviews with scores.
-  /// </summary>
-  /// <remarks>
-  /// This is a critical Layer 0 input from an external source, configured for deep inspection
-  /// to ensure data quality before pipeline execution.
-  /// </remarks>
+  /// <summary>Raw review data from CSV file.</summary>
   public IItem<IEnumerable<ReviewRawSchema>> Reviews =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<ReviewRawSchema>(
-          label: "RawReviews",
-          filePath: $"{_basePath}/_01_Raw/Datasets/reviews.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ReviewRawSchema>>("RawReviews")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/reviews.csv")
+      .Build());
 
-  /// <summary>
-  /// Raw shuttle data from Excel file (read-only).
-  /// Contains shuttle specifications and pricing.
-  /// </summary>
-  /// <remarks>
-  /// This dataset is read-only because Excel files cannot be written to by the ExcelDataReader library.
-  /// It can only be used as a pipeline input, not as an output.
-  /// This is a critical Layer 0 input from an external source, configured for deep inspection
-  /// to ensure data quality before pipeline execution.
-  /// </remarks>
+  /// <summary>Raw shuttle data from Excel file (read-only).</summary>
   public IItem<IEnumerable<ShuttleRawSchema>> Shuttles =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Excel<ShuttleRawSchema>(
-          label: "RawShuttles",
-          filePath: $"{_basePath}/_01_Raw/Datasets/shuttles.xlsx",
-          sheetName: "Sheet1"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ShuttleRawSchema>>("RawShuttles")
+      .Excel()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/shuttles.xlsx")
+      .WithSheet("Sheet1")
+      .Build());
 
-  /// <summary>
-  /// Reference model input table from Kedro pipeline (for validation).
-  /// Used to compare Flowthru implementation against original Kedro output.
-  /// </summary>
-  /// <remarks>
-  /// This is external reference data from the original Kedro implementation,
-  /// used for validation purposes in the DataDiagnostics pipeline.
-  /// Uses KedroModelInputSchema to match the external Kedro CSV format.
-  /// </remarks>
+  /// <summary>Reference model input table from Kedro pipeline (for validation).</summary>
   public IItem<IEnumerable<KedroModelInputSchema>> KedroModelInputTable =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<KedroModelInputSchema>(
-          label: "KedroModelInputTable",
-          filePath: $"{_basePath}/_01_Raw/Datasets/kedro_model_input_table.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<KedroModelInputSchema>>("KedroModelInputTable")
+      .Csv()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/kedro_model_input_table.csv")
+      .Build());
 }

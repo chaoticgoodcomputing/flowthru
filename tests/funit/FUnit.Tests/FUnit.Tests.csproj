@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!--
+      FUnit's authoring shape uses #if FUNIT_ENABLED to gate inline test
+      classes; tests need the symbol defined so the smoke fixtures compile.
+    -->
+    <DefineConstants>$(DefineConstants);FUNIT_ENABLED</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit/FUnit.csproj" />
+  </ItemGroup>
+
+  <!--
+    Wire FUnit's source generators as analyzers on the test project itself —
+    analyzer references don't propagate transitively across ProjectReferences,
+    so the test runner / step-test registry won't be emitted unless declared here.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.SourceGenerators/FUnit.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+    <ProjectReference Include="$(RepoRoot)src/funit/FUnit.CodeFixes/FUnit.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+    <!--
+      Flowthru.Core's source generators must also run on this project so
+      [FlowthruStep]-decorated classes (FooStep here) get their generated
+      _Metadata companion. Without it, only the FUnit generators run.
+    -->
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
+  </ItemGroup>
+
+</Project>

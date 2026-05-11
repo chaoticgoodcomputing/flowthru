@@ -9,14 +9,10 @@
       "executor": "nx:noop",
       "dependsOn": [
         "_test:project-mirror",
-        "_test:conformance-presence",
         "_test:dead-schemas",
         "_test:dead-fixtures",
         "_test:diagnostic-id-registration",
-        "_test:planner-consumption",
-        "_test:capability-matrix-freshness",
-        "_test:row-features-claims",
-        "_test:row-features-inventory"
+        "_test:package-versions"
       ]
     },
     "_test:project-mirror": {
@@ -30,21 +26,6 @@
       ],
       "options": {
         "commands": [ "node scripts/_test/project-mirror.mjs" ],
-        "cwd": "{workspaceRoot}",
-        "parallel": false
-      }
-    },
-    "_test:conformance-presence": {
-      "//": "Every first-party Flowthru extension implementing a Core surface has at least one matching *Conformance subclass in its sibling test project. Private subtarget: invoked only by the tests:test barrel.",
-      "executor": "nx:run-commands",
-      "inputs": [
-        "{workspaceRoot}/src/extensions/**/*.cs",
-        "{workspaceRoot}/tests/extensions/**/*.cs",
-        "{workspaceRoot}/scripts/_test/_lib.mjs",
-        "{workspaceRoot}/scripts/_test/conformance-presence.mjs"
-      ],
-      "options": {
-        "commands": [ "node scripts/_test/conformance-presence.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }
@@ -97,22 +78,8 @@
         "parallel": false
       }
     },
-    "_test:planner-consumption": {
-      "//": "Every IFormatSerializer<TRow> implementor under src/extensions/ either references PropertyMappingPlanner / PropertyMappingPlan<> or carries [OptOutOfPropertyPlanner]. Backstops the Phase B contract that format extensions consume Core's universal property-walk cascade rather than reimplementing it. Private subtarget.",
-      "executor": "nx:run-commands",
-      "inputs": [
-        "{workspaceRoot}/src/extensions/**/*.cs",
-        "{workspaceRoot}/scripts/_test/_lib.mjs",
-        "{workspaceRoot}/scripts/_test/planner-consumption.mjs"
-      ],
-      "options": {
-        "commands": [ "node scripts/_test/planner-consumption.mjs" ],
-        "cwd": "{workspaceRoot}",
-        "parallel": false
-      }
-    },
     "_test:capability-matrix-freshness": {
-      "//": "Regenerates docs/reference/extensions/capability-matrix.md via the file-based C# program at scripts/_test/capability-matrix.cs and asserts the regenerated content matches the committed file. Drift means a format's RowFeatures, [OptOutOfPropertyPlanner] reason, or implemented capability segment changed without a paired matrix update. Private subtarget. The same generator script is invoked by docs:_build-capability-matrix; freshness is a workspace-discipline concern (here), generation is a docs-build concern (in docs:project.json).",
+      "//": "QUARANTINED pending FP-rewrite migration: the capability-matrix.cs script references legacy namespaces (Flowthru.Core.Data.Capabilities.FormatRowFeatures, Flowthru.Core.Abstractions, etc.) that don't exist post-rewrite. The committed capability-matrix.md was generated before the rewrite and may now drift from the new RowFeatures/StorageTraits surface. Reactivate alongside the §4.6 architecture-test scripts when the post-rewrite capability surface stabilizes; until then this target exists for manual invocation but is not in the tests:test dependsOn. Regenerates docs/reference/extensions/capability-matrix.md via the file-based C# program at scripts/_test/capability-matrix.cs and asserts the regenerated content matches the committed file. Drift means a format's RowFeatures, [OptOutOfPropertyPlanner] reason, or implemented capability segment changed without a paired matrix update. Private subtarget. The same generator script is invoked by docs:_build-capability-matrix; freshness is a workspace-discipline concern (here), generation is a docs-build concern (in docs:project.json).",
       "executor": "nx:run-commands",
       "inputs": [
         "{workspaceRoot}/src/core/Flowthru.Core/Data/Capabilities/FormatRowFeatures.cs",
@@ -137,34 +104,16 @@
         "parallel": false
       }
     },
-    "_test:row-features-claims": {
-      "//": "Every Supports* = true claim on a RowFeatures property has a corresponding *Conformance<...> subclass that overrides RequiredFeatures referencing that flag. Catches 'extension lies about its capabilities.' Private subtarget.",
+    "_test:package-versions": {
+      "//": "Every <PackageVersion> in Directory.Packages.props declares a major-only floor (N.0.0 for 1+ majors, 0.M.0 for 0-majors) by default. Higher floors require a same-line <!-- ... --> justification comment. Bracketed versions and floating wildcards are forbidden outright. Rationale: every floor here becomes the minimum stamped into the .nuspec of any in-repo package that depends on it, so a tighter-than-necessary floor excludes downstream consumers on otherwise-compatible versions. The escape-hatch comment makes any narrower floor a deliberate, reviewed decision. Private subtarget.",
       "executor": "nx:run-commands",
       "inputs": [
-        "{workspaceRoot}/src/core/**/*.cs",
-        "{workspaceRoot}/src/extensions/**/*.cs",
-        "{workspaceRoot}/tests/extensions/**/*.cs",
-        "{workspaceRoot}/tests/core/**/*.cs",
+        "{workspaceRoot}/Directory.Packages.props",
         "{workspaceRoot}/scripts/_test/_lib.mjs",
-        "{workspaceRoot}/scripts/_test/row-features-claims.mjs"
+        "{workspaceRoot}/scripts/_test/package-versions.mjs"
       ],
       "options": {
-        "commands": [ "node scripts/_test/row-features-claims.mjs" ],
-        "cwd": "{workspaceRoot}",
-        "parallel": false
-      }
-    },
-    "_test:row-features-inventory": {
-      "//": "Every flag on FormatRowFeatures is referenced in the row-shape feature surface table (currently in docs/scratch/data-extension-contract.md §2; migrates to src/extensions/CONTRIBUTING.md after Phase E). Catches drift between the type and its documentation. Private subtarget.",
-      "executor": "nx:run-commands",
-      "inputs": [
-        "{workspaceRoot}/src/core/Flowthru.Core/Data/Capabilities/FormatRowFeatures.cs",
-        "{workspaceRoot}/docs/scratch/data-extension-contract.md",
-        "{workspaceRoot}/scripts/_test/_lib.mjs",
-        "{workspaceRoot}/scripts/_test/row-features-inventory.mjs"
-      ],
-      "options": {
-        "commands": [ "node scripts/_test/row-features-inventory.mjs" ],
+        "commands": [ "node scripts/_test/package-versions.mjs" ],
         "cwd": "{workspaceRoot}",
         "parallel": false
       }

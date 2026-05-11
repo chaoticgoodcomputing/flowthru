@@ -104,11 +104,28 @@ def _handle_validate(msg: dict) -> dict:
                 "message": f"Function '{fn}' not found in module '{msg['module']}'",
             }
         func = getattr(mod, fn)
-        # Surface the @step decorator's service-dependency list so the C#
-        # FlowStep can register them as ServiceRef.Python entries before the
-        # DAG is finalized. Empty list when the step declares no services.
+        # Surface the full @step decorator metadata so the C# pre-flight hook
+        # can verify schema agreement against the C# generic type parameters
+        # AND register declared service dependencies. Missing attributes yield
+        # empty lists (a function without @step would have failed the import
+        # checks above before reaching here).
+        if not hasattr(func, "__flowthru_inputs__") or not hasattr(func, "__flowthru_outputs__"):
+            return {
+                "status": "error",
+                "message": (
+                    f"Function '{msg['module']}.{fn}' is missing the @step decorator. "
+                    "Decorate the function with @flowthru.step(inputs=[...], outputs=[...])."
+                ),
+            }
+        inputs = list(getattr(func, "__flowthru_inputs__", []))
+        outputs = list(getattr(func, "__flowthru_outputs__", []))
         services = list(getattr(func, "__flowthru_services__", []))
-        return {"status": "ok", "services": services}
+        return {
+            "status": "ok",
+            "inputs": inputs,
+            "outputs": outputs,
+            "services": services,
+        }
     except Exception:
         return {"status": "error", "message": traceback.format_exc()}
 

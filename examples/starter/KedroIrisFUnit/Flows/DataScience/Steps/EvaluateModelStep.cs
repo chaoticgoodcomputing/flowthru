@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroIrisFUnit.Data._05_ModelInput.Schemas;
 using KedroIrisFUnit.Data._07_ModelOutput.Schemas;
 using KedroIrisFUnit.Data._08_Reporting.Schemas;
@@ -21,9 +21,8 @@ public static class EvaluateModelStep
   public static Func<
     (IEnumerable<PredictionSchema> Predictions, IEnumerable<TargetLabelSchema> TestY),
     MetricsSchema
-  > Create()
-  {
-    return (input) =>
+  > Create() =>
+    input =>
     {
       var (predictions, testY) = input;
 
@@ -71,7 +70,6 @@ public static class EvaluateModelStep
         NumTotal = numTotal,
       };
     };
-  }
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="EvaluateModelStep"/>.</summary>
@@ -103,7 +101,7 @@ public static class EvaluateModelStep
     /// When every predicted class index matches its true label, accuracy
     /// should be 1.0 (100%) and NumCorrect should equal NumTotal.
     /// </summary>
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void AllCorrect_ReturnsAccuracyOfOne()
     {
       // Arrange
@@ -128,7 +126,7 @@ public static class EvaluateModelStep
     /// When every predicted class index is wrong, accuracy should be 0.0
     /// and NumCorrect should be zero regardless of NumTotal.
     /// </summary>
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void NoneCorrect_ReturnsAccuracyOfZero()
     {
       // Arrange
@@ -152,7 +150,7 @@ public static class EvaluateModelStep
     /// When exactly half the predictions are correct, accuracy should be 0.5
     /// (NumCorrect / NumTotal = 1 / 2).
     /// </summary>
-    [StepTest(typeof(EvaluateModelStep))]
+    [FUnitStepTest(typeof(EvaluateModelStep))]
     public void HalfCorrect_ReturnsAccuracyOfPointFive()
     {
       // Arrange

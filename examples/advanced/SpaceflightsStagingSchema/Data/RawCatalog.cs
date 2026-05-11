@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 
 namespace SpaceflightsStagingSchema.Data;
 
@@ -13,6 +13,5 @@ public partial class RawCatalog : CatalogAbstract
   public RawCatalog(string basePath)
   {
     _basePath = basePath;
-    InitializeCatalogProperties();
   }
 }

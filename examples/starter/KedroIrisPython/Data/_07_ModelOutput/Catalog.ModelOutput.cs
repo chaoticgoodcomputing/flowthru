@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroIrisPython.Data._07_ModelOutput.Schemas;
 
 namespace KedroIrisPython.Data;
@@ -8,15 +8,9 @@ namespace KedroIrisPython.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Predicted class indices for test data.
-  /// </summary>
   public IItem<IEnumerable<PredictionSchema>> Predictions =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<PredictionSchema>(
-          label: "Predictions",
-          filePath: $"{_basePath}/_07_ModelOutput/Datasets/predictions.parquet"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<PredictionSchema>>("Predictions")
+      .Parquet()
+      .AtPath($"{_basePath}/_07_ModelOutput/Datasets/predictions.parquet")
+      .Build());
 }

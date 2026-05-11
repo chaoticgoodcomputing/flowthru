@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 using SpaceflightsNewTypes.Data._01_Raw.Schemas;
 using SpaceflightsNewTypes.Data._02_Intermediate.Schemas;
 

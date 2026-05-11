@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Cli/Flowthru.Cli.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Csv/Flowthru.Extensions.Csv.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Excel/Flowthru.Extensions.Excel.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Parquet/Flowthru.Extensions.Parquet.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Json/Flowthru.Extensions.Metadata.Json.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Mermaid/Flowthru.Extensions.Metadata.Mermaid.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.EFCore/Flowthru.Extensions.EFCore.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Xml/Flowthru.Extensions.Xml.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Http/Flowthru.Extensions.Http.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Metadata.Diagnostics/Flowthru.Extensions.Metadata.Diagnostics.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.GQL/Flowthru.Extensions.GQL.csproj" />
+    <ProjectReference Include="$(RepoRoot)src/extensions/Flowthru.Extensions.Python/Flowthru.Extensions.Python.csproj" />
+  </ItemGroup>
+
+</Project>

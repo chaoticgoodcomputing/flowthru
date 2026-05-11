@@ -1,4 +1,4 @@
-using Flowthru.Core.Abstractions;
+using Flowthru.Data.Schema;
 
 namespace FlowthruCoverage.Data._01_Raw.Schemas;
 

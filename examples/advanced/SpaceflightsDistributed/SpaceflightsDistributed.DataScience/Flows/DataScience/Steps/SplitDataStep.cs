@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using SpaceflightsDistributed.DataProcessing.Data._03_Primary.Schemas;
 using SpaceflightsDistributed.DataScience.Data._05_ModelInput.Schemas;
 
@@ -14,9 +14,15 @@ public static class SplitDataStep
     public int RandomState { get; init; } = 3;
   }
 
-  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
-    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
-  )
+  /// <summary>
+  /// Tuple-input shape so FUnit tests can drive the step directly with
+  /// <c>(rows, options)</c>; the flow wraps this with a closure over
+  /// <see cref="ModelOptions"/> at flow-construction time.
+  /// </summary>
+  public static Func<
+    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options),
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
+  > Create() => input =>
   {
     var (rawData, options) = input;
     var data = rawData.ToList();
@@ -61,11 +67,11 @@ public static class SplitDataStep
       });
 
     return (trainData, testData);
-  }
+  };
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="SplitDataStep"/>.</summary>
-  public class Tests : Flowthru.FUnit.FUnitContext
+  public class Tests : FUnitContext
   {
     private static ModelInputTableSchema MakeRow(string id, decimal price = 1000m) =>
       new()
@@ -84,26 +90,26 @@ public static class SplitDataStep
         ReviewScoresRating = 4.5m,
       };
 
-    [StepTest(typeof(SplitDataStep))]
+    [FUnitStepTest(typeof(SplitDataStep))]
     public void Split_ProducesCorrectTrainTestRatio()
     {
       var rows = Enumerable.Range(0, 10).Select(i => MakeRow(i.ToString()));
       var options = new ModelOptions { TestSize = 0.2, RandomState = 42 };
 
-      var (train, test) = Invoke(Create, (rows, options));
+      var (train, test) = Invoke(Create(), (rows, options));
 
       Assert.That(train.Count(), Is.EqualTo(8));
       Assert.That(test.Count(), Is.EqualTo(2));
     }
 
-    [StepTest(typeof(SplitDataStep))]
+    [FUnitStepTest(typeof(SplitDataStep))]
     public void Split_IsReproducibleWithSameRandomState()
     {
       var rows = Enumerable.Range(0, 10).Select(i => MakeRow(i.ToString()));
       var options = new ModelOptions { TestSize = 0.3, RandomState = 7 };
 
-      var (train1, _) = Invoke(Create, (rows, options));
-      var (train2, _) = Invoke(Create, (rows, options));
+      var (train1, _) = Invoke(Create(), (rows, options));
+      var (train2, _) = Invoke(Create(), (rows, options));
 
       Assert.That(train1.Select(r => r.Label), Is.EqualTo(train2.Select(r => r.Label)));
     }

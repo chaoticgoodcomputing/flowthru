@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsFUnit.Data._08_Reporting.Schemas;
 
@@ -58,7 +58,7 @@ public static class ComparePassengerCapacityStep
     /// <summary>
     /// Single shuttle type should produce one group with the correct average.
     /// </summary>
-    [StepTest(typeof(ComparePassengerCapacityStep))]
+    [FUnitStepTest(typeof(ComparePassengerCapacityStep))]
     public void SingleType_ProducesOneGroup()
     {
       // Arrange
@@ -76,7 +76,7 @@ public static class ComparePassengerCapacityStep
     /// <summary>
     /// Two distinct shuttle types should produce two groups with correct averages.
     /// </summary>
-    [StepTest(typeof(ComparePassengerCapacityStep))]
+    [FUnitStepTest(typeof(ComparePassengerCapacityStep))]
     public void TwoTypes_ProduceTwoGroups()
     {
       // Arrange

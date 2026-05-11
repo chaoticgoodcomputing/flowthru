@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
-using Flowthru.Core.Services;
+using Flowthru.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Tests.Examples.Infrastructure;
@@ -48,7 +48,7 @@ public sealed class ExampleTestRunner
       var flowthruService = services.GetRequiredService<IFlowthruService>();
 
       using var cts = new CancellationTokenSource();
-      var executionTask = flowthruService.ExecuteFlowAsync(cancellationToken: cts.Token);
+      var executionTask = flowthruService.RunAsync(cancellationToken: cts.Token);
       var timeoutTask = Task.Delay(_timeout, CancellationToken.None);
 
       var completedTask = await Task.WhenAny(executionTask, timeoutTask);
@@ -67,18 +67,15 @@ public sealed class ExampleTestRunner
 
       TestContext.Out.WriteLine($"  Completed in {stopwatch.Elapsed.TotalSeconds:F2}s");
 
-      if (!result.Success)
+      if (!result.IsSuccess)
       {
-        var message = $"Example '{_example.Name}' pipeline execution reported failure.";
+        var failure = result.FirstFailure;
+        var message = failure is not null
+          ? $"Example '{_example.Name}' pipeline execution reported failure: "
+            + $"step '{failure.StepLabel}' failed with {failure.Error}."
+          : $"Example '{_example.Name}' pipeline execution reported failure.";
 
-        if (result.Exception != null)
-        {
-          TestContext.Out.WriteLine(
-            $"  Exception: {result.Exception.GetType().Name}: {result.Exception.Message}"
-          );
-          throw new InvalidOperationException(message, result.Exception);
-        }
-
+        TestContext.Out.WriteLine($"  {message}");
         throw new InvalidOperationException(message);
       }
     }

@@ -1,52 +1,52 @@
 using System.Net;
-using Flowthru.Core.Data.Storage.Medium;
+using Flowthru.Data.Storage.Http;
+using Flowthru.Prelude;
 
 namespace Flowthru.Extensions.Http.Tests;
 
 /// <summary>
-/// Tests for <see cref="HttpStorageMedium"/>.
-///
-/// Error-surface focus: HTTP sources are read-only. Any write attempt must fail
-/// fast. Network failures during <c>Exists()</c> return <c>false</c> rather than
-/// propagating, so pre-flight can report them as validation failures instead of
-/// unhandled exceptions.
+/// Tests for <see cref="HttpStorageMedium"/>. HTTP sources are
+/// read-only — write attempts surface as typed
+/// <c>RuntimeError.External</c> failures rather than throws.
+/// Network failures during <c>Exists()</c> resolve to <c>false</c>
+/// so pre-flight reports them as validation failures, not runtime
+/// exceptions.
 /// </summary>
 [TestFixture]
 [Category("Http")]
 public class HttpStorageMediumTests
 {
-  // ── Traits ────────────────────────────────────────────────────────────────
+  // ── Traits ────────────────────────────────────────────────────────
 
   [Test]
-  public void Traits_CanWrite_IsFalse_RequiresNetwork_IsTrue_CanStream_IsTrue()
+  public void Traits_AreReadOnlyAndStreaming()
   {
     var medium = new HttpStorageMedium(
       new Uri("https://example.com/data.csv"),
       new HttpClient(new FakeHandler(HttpStatusCode.OK, ""))
     );
 
+    Assert.That(medium.Traits.CanRead, Is.True);
     Assert.That(medium.Traits.CanWrite, Is.False);
-    Assert.That(medium.Traits.RequiresNetwork, Is.True);
     Assert.That(medium.Traits.CanStream, Is.True);
   }
 
-  // ── WriteStream — always fails ────────────────────────────────────────────
+  // ── WriteStream — always fails as RuntimeError.External ───────────
 
   [Test]
-  public async Task WriteStream_ThrowsNotSupportedException()
+  public async Task WriteStream_ReturnsRuntimeErrorExternal()
   {
     var medium = new HttpStorageMedium(
       new Uri("https://example.com/data.csv"),
       new HttpClient(new FakeHandler(HttpStatusCode.OK, ""))
     );
 
-    await Assert.ThatAsync(
-      () => medium.WriteStream(new MemoryStream()).Run().AsTask(),
-      Throws.TypeOf<NotSupportedException>()
-    );
+    var result = await medium.WriteStream(new MemoryStream()).Run();
+    Assert.That(result, Is.InstanceOf<EffResult<FlowUnit>.Failure>(),
+      "Write attempts on read-only HTTP medium should be Failure, not Success.");
   }
 
-  // ── ReadStream ────────────────────────────────────────────────────────────
+  // ── ReadStream ────────────────────────────────────────────────────
 
   [Test]
   public async Task ReadStream_SuccessfulResponse_ReturnsContentStream()
@@ -57,28 +57,27 @@ public class HttpStorageMediumTests
       new HttpClient(new FakeHandler(HttpStatusCode.OK, body))
     );
 
-    using var stream = await medium.ReadStream().Run();
+    var result = await medium.ReadStream().Run();
+    using var stream = ((EffResult<Stream>.Success)result).Value;
     using var reader = new StreamReader(stream);
     var content = await reader.ReadToEndAsync();
-
     Assert.That(content, Is.EqualTo(body));
   }
 
   [Test]
-  public async Task ReadStream_ServerError_ThrowsHttpRequestException()
+  public async Task ReadStream_ServerError_ReturnsFailure()
   {
     var medium = new HttpStorageMedium(
       new Uri("https://example.com/data.csv"),
       new HttpClient(new FakeHandler(HttpStatusCode.InternalServerError, ""))
     );
 
-    await Assert.ThatAsync(
-      () => medium.ReadStream().Run().AsTask(),
-      Throws.TypeOf<HttpRequestException>()
-    );
+    var result = await medium.ReadStream().Run();
+    Assert.That(result, Is.InstanceOf<EffResult<Stream>.Failure>(),
+      "5xx response should surface as a typed failure rather than propagating.");
   }
 
-  // ── Exists ────────────────────────────────────────────────────────────────
+  // ── Exists ────────────────────────────────────────────────────────
 
   [Test]
   public async Task Exists_HeadReturns200_ReturnsTrue()
@@ -88,7 +87,8 @@ public class HttpStorageMediumTests
       new HttpClient(new FakeHandler(HttpStatusCode.OK, ""))
     );
 
-    Assert.That(await medium.Exists().Run(), Is.True);
+    var result = await medium.Exists().Run();
+    Assert.That(((EffResult<bool>.Success)result).Value, Is.True);
   }
 
   [Test]
@@ -99,18 +99,21 @@ public class HttpStorageMediumTests
       new HttpClient(new FakeHandler(HttpStatusCode.NotFound, ""))
     );
 
-    Assert.That(await medium.Exists().Run(), Is.False);
+    var result = await medium.Exists().Run();
+    Assert.That(((EffResult<bool>.Success)result).Value, Is.False);
   }
 
   [Test]
-  public async Task Exists_NetworkError_ReturnsFalseInsteadOfThrowing()
+  public async Task Exists_NetworkError_ReturnsFalseInsteadOfPropagating()
   {
     var medium = new HttpStorageMedium(
       new Uri("https://unreachable.example.com/data.csv"),
       new HttpClient(new ThrowingHandler())
     );
 
-    // Must not propagate — pre-flight must catch this as a validation failure.
-    Assert.That(await medium.Exists().Run(), Is.False);
+    var result = await medium.Exists().Run();
+    Assert.That(result, Is.InstanceOf<EffResult<bool>.Success>(),
+      "Network failures during Exists should resolve to Success(false), not Failure.");
+    Assert.That(((EffResult<bool>.Success)result).Value, Is.False);
   }
 }

@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._05_ModelInput.Schemas;
 using KedroSpaceflightsFUnit.Data._06_Models.Schemas;
 using MathNet.Numerics.LinearRegression;
@@ -103,7 +103,7 @@ public static class TrainModelStep
     /// <summary>
     /// Empty training data should throw <see cref="InvalidOperationException"/>.
     /// </summary>
-    [StepTest(typeof(TrainModelStep))]
+    [FUnitStepTest(typeof(TrainModelStep))]
     public void EmptyInput_ThrowsInvalidOperationException()
     {
       Assert.Throws<InvalidOperationException>(
@@ -114,7 +114,7 @@ public static class TrainModelStep
     /// <summary>
     /// The number of coefficients must equal the number of feature names.
     /// </summary>
-    [StepTest(typeof(TrainModelStep))]
+    [FUnitStepTest(typeof(TrainModelStep))]
     public void TrainedModel_CoefficientCountMatchesFeatureNames()
     {
       // Arrange — need at least as many rows as features for QR to be well-determined

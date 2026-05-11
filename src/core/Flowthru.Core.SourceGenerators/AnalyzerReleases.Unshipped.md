@@ -3,18 +3,27 @@
 
 ### New Rules
 
-| Rule ID | Category              | Severity | Notes                                                                       |
-| ------- | --------------------- | -------- | --------------------------------------------------------------------------- |
-| FT1001  | Flowthru.Schema       | Error    | FlowthruSchema type must be partial                                         |
-| FT1002  | Flowthru.Schema       | Warning  | Conflicting manual schema interface                                         |
-| FT1003  | Flowthru.Schema       | Error    | FlowthruColumn backing type must be a recognized scalar                     |
-| FT1004  | Flowthru.Schema       | Error    | FlowthruColumn declarations disagree on backing type                        |
-| FT2001  | Flowthru.Registration | Error    | Pipeline requires catalog not registered via RegisterCatalog                |
-| FT2002  | Flowthru.Registration | Warning  | Catalog registered but not referenced by any pipeline                       |
-| FT2003  | Flowthru.Registration | Warning  | Concrete pipeline parameter resolved from DI; consider configurationSection |
-| FT2004  | Flowthru.Registration | Error    | configurationSection specified but UseConfiguration() not called            |
-| FT3001  | Flowthru.Core.Config  | Error    | FlowthruConfig class must be partial                                        |
-| FT3002  | Flowthru.Core.Config  | Warning  | FlowthruConfig IItem property missing [ConfigSection] attribute             |
-| FT4001  | Flowthru.Core.Steps   | Warning  | Step factory class missing [FlowthruStep] attribute                         |
-| FT4002  | Flowthru.Core.Steps   | Warning  | Step service has no registered IFlowthruInspector                           |
-| FT4003  | Flowthru.Core.Steps   | Hidden   | Step with service dependencies lacks declared traits                        |
+| Rule ID | Category            | Severity | Notes                                                              |
+| ------- | ------------------- | -------- | ------------------------------------------------------------------ |
+| FT0001  | Flowthru.Algebra    | Warning  | Switch over closed sum is missing case                             |
+| FT1001  | Flowthru.Schema     | Error    | FlowthruSchema type must be partial                                |
+| FT1002  | Flowthru.Schema     | Warning  | Conflicting manual schema interface                                |
+| FT1003  | Flowthru.Schema     | Error    | FlowthruColumn property has invalid backing type                   |
+| FT1004  | Flowthru.Schema     | Error    | FlowthruColumn properties have inconsistent backing types          |
+| FT1101  | Flowthru.Step       | Warning  | Step factory class missing [FlowthruStep] attribute                |
+| FT2001  | Flowthru.Validation | Error    | Single-producer invariant violated                                 |
+| FT2002  | Flowthru.Validation | Error    | Step type alignment violated                                       |
+| FT3001  | Flowthru.Validation | Error    | Pre-flight: duplicate producer                                     |
+| FT3002  | Flowthru.Validation | Error    | Pre-flight: circular dependency                                    |
+| FT3003  | Flowthru.Validation | Error    | Pre-flight: missing input                                          |
+| FT3004  | Flowthru.Validation | Error    | Pre-flight: schema drift                                           |
+| FT3005  | Flowthru.Validation | Error    | Pre-flight: inspection failed                                      |
+| FT3006  | Flowthru.Validation | Error    | Pre-flight: registration check failed                              |
+| FT4001  | Flowthru.Runtime    | Error    | Runtime: external failure                                          |
+| FT4002  | Flowthru.Runtime    | Error    | Runtime: step failed                                               |
+| FT4003  | Flowthru.Runtime    | Error    | Runtime: cancelled                                                 |
+| FT4004  | Flowthru.Runtime    | Error    | Runtime: invariant violated                                        |
+| FT4005  | Flowthru.Runtime    | Error    | Runtime: schema mismatch                                           |
+| FT4006  | Flowthru.Runtime    | Error    | Runtime: constraint violated                                       |
+| FT5001  | Flowthru.FUnit      | Warning  | FUnit context registered no fixtures                               |
+| FT5002  | Flowthru.FUnit      | Warning  | Core code attempts throw inside of method with IO/Eff return value |

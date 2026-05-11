@@ -1,132 +1,55 @@
-using Flowthru.Core.Data.Capabilities;
-using Flowthru.Core.Effects;
-
-namespace Flowthru.Core.Data.Storage;
+namespace Flowthru.Data.Storage;
 
 /// <summary>
-/// Interface for storage medium - handles raw byte stream I/O.
+/// Storage medium — abstracts <em>where</em> bytes live (filesystem,
+/// memory, network, database). Composes with <see cref="IFormatSerializer{TRow}"/>
+/// (HOW bytes serialize) and <see cref="IContainerAdapter{TContainer, TRow}"/>
+/// (WHAT in-memory representation) to form a complete
+/// <see cref="IStorageAdapter{T}"/>.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Responsibility:</strong> Abstract WHERE data is stored (file system, memory, network, database).
+/// All operations return <see cref="FlowIO{A}"/> effects — lazy, async,
+/// cancellable, and failure-as-value.
 /// </para>
 /// <para>
-/// <strong>Separation of Concerns:</strong>
-/// </para>
-/// <para>
-/// The storage medium layer is isolated from:
-/// - Format serialization (CSV, JSON, Parquet) - handled by <see cref="IFormatSerializer{TRow}"/>
-/// - Container representation (IEnumerable, IDataView) - handled by <see cref="IContainerAdapter{TContainer, TRow}"/>
-/// </para>
-/// <para>
-/// <strong>Design Pattern:</strong>
-/// </para>
-/// <para>
-/// This is the lowest layer in the composition pattern:
-/// </para>
-/// <code>
-/// Medium (bytes) → Format (rows) → Container (in-memory)
-/// File/Memory    → CSV/JSON      → IEnumerable/IDataView
-/// </code>
-/// <para>
-/// <strong>Effect Types:</strong>
-/// </para>
-/// <para>
-/// All operations return <see cref="FlowIO{A}"/> effects to represent:
-/// - I/O operations that can fail
-/// - Async execution
-/// - Cancellation support
-/// - Functional composition
+/// Mediums that target databases, HTTP endpoints, or other "non-bytestream"
+/// sources may not fit this interface; those extensions implement
+/// <see cref="IStorageAdapter{T}"/> directly (see EFCore in §1.2).
 /// </para>
 /// </remarks>
-/// <example>
-/// <code>
-/// // File storage medium
-/// var fileMedium = new FileStorageMedium("data/file.csv");
-/// var readResult = await fileMedium.ReadStream().Run();
-/// </code>
-/// </example>
 public interface IStorageMedium
 {
   /// <summary>
-  /// Structural constraints and capabilities of this storage medium.
+  /// Capability matrix for this medium. Composed with format and container
+  /// traits to derive the adapter-level <see cref="StorageTraits"/>.
   /// </summary>
-  /// <remarks>
-  /// Medium traits focus on WHERE data is stored and the access patterns it supports.
-  /// For composed adapters, these traits are merged with format and container traits.
-  /// </remarks>
   StorageTraits Traits { get; }
 
   /// <summary>
-  /// Reads raw bytes from storage as a stream.
+  /// Reads raw bytes from storage as a stream. The returned stream is
+  /// positioned at the beginning; the caller disposes it.
   /// </summary>
-  /// <returns>Effect that produces a readable stream on success</returns>
-  /// <remarks>
-  /// <para>
-  /// The returned stream should be positioned at the beginning and ready to read.
-  /// The caller is responsible for disposing the stream.
-  /// </para>
-  /// <para>
-  /// <strong>Error Conditions:</strong>
-  /// </para>
-  /// <list type="bullet">
-  /// <item>Storage location does not exist</item>
-  /// <item>Access denied (permissions)</item>
-  /// <item>Network failure (for remote storage)</item>
-  /// <item>I/O error</item>
-  /// </list>
-  /// </remarks>
   FlowIO<Stream> ReadStream();
 
   /// <summary>
-  /// Writes raw bytes to storage from a stream.
+  /// Writes raw bytes to storage from the supplied stream. Implementations
+  /// should strive for atomic writes (write to temp, then rename) to avoid
+  /// partial writes on failure.
   /// </summary>
-  /// <param name="stream">Stream containing data to write</param>
-  /// <returns>Effect that completes on successful write</returns>
-  /// <remarks>
-  /// <para>
-  /// The stream will be read from its current position to the end.
-  /// The implementation should handle creating parent directories if needed.
-  /// </para>
-  /// <para>
-  /// <strong>Atomicity:</strong>
-  /// </para>
-  /// <para>
-  /// Implementations should strive for atomic writes (write to temp, then rename)
-  /// to avoid partial writes on failure.
-  /// </para>
-  /// <para>
-  /// <strong>Error Conditions:</strong>
-  /// </para>
-  /// <list type="bullet">
-  /// <item>Insufficient disk space</item>
-  /// <item>Access denied (permissions)</item>
-  /// <item>Network failure (for remote storage)</item>
-  /// <item>I/O error</item>
-  /// </list>
-  /// </remarks>
   FlowIO<FlowUnit> WriteStream(Stream stream);
 
   /// <summary>
-  /// Checks if data exists at this storage location.
+  /// True if data exists at this storage location. Used to distinguish
+  /// "seed" inputs from items produced by the pipeline.
   /// </summary>
-  /// <returns>Effect that produces true if data exists, false otherwise</returns>
-  /// <remarks>
-  /// <para>
-  /// This is used to determine if a catalog entry is a "seed" (Layer 0 input)
-  /// or if it's produced by a step in the pipeline.
-  /// </para>
-  /// </remarks>
   FlowIO<bool> Exists();
 
   /// <summary>
-  /// Validates that this storage location is accessible as a write destination.
+  /// Probes whether this medium is accessible as a write destination.
+  /// Default: success. Override for mediums that can meaningfully probe
+  /// write access ahead of execution (e.g., filesystem path checks).
   /// </summary>
-  /// <returns>Effect producing validation result</returns>
-  /// <remarks>
-  /// Default implementation returns success — override in medium implementations that
-  /// can meaningfully probe write access before execution (e.g., filesystem path checks).
-  /// </remarks>
-  FlowIO<Data.Validation.ValidationResult> InspectTarget() =>
-    FlowIO.Pure(Data.Validation.ValidationResult.Success());
+  FlowIO<ValidationResult> InspectTarget() =>
+    FlowIO<ValidationResult>.Pure(ValidationResult.Success());
 }

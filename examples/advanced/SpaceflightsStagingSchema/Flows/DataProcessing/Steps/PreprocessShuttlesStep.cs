@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SpaceflightsStagingSchema.Data._01_Raw.Schemas;
 using SpaceflightsStagingSchema.Data._02_Intermediate.Schemas;
 
@@ -8,22 +8,18 @@ namespace SpaceflightsStagingSchema.Flows.DataProcessing.Steps;
 public static class PreprocessShuttlesStep
 {
   public static Func<
-    (IEnumerable<ShuttleSchema> Raw, SeedingOptions Options),
+    IEnumerable<ShuttleSchema>,
     IEnumerable<PreprocessedShuttleSchema>
-  > Create()
+  > Create(SeedingOptions options) => raw =>
   {
-    return (input) =>
-    {
-      var (raw, options) = input;
-      var real = raw.Select(Parse).Where(item => item is not null).Cast<PreprocessedShuttleSchema>();
-      var synthetic = SyntheticDataSeeder.Shuttles(
-        options.SyntheticShuttles,
-        options.SyntheticCompanies,
-        options.RandomSeed
-      );
-      return real.Concat(synthetic);
-    };
-  }
+    var real = raw.Select(Parse).Where(item => item is not null).Cast<PreprocessedShuttleSchema>();
+    var synthetic = SyntheticDataSeeder.Shuttles(
+      options.SyntheticShuttles,
+      options.SyntheticCompanies,
+      options.RandomSeed
+    );
+    return real.Concat(synthetic);
+  };
 
   private static PreprocessedShuttleSchema? Parse(ShuttleSchema raw)
   {

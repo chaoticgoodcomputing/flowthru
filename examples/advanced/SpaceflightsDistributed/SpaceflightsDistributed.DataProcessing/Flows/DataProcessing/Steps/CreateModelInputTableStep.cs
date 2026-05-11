@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._03_Primary.Schemas;
@@ -96,7 +96,7 @@ public static class CreateModelInputTableStep
     private static ReviewSchema MakeReview(string shuttleId, string score = "4.5") =>
       new() { ShuttleId = shuttleId, ReviewScoresRating = score };
 
-    [StepTest(typeof(CreateModelInputTableStep))]
+    [FUnitStepTest(typeof(CreateModelInputTableStep))]
     public void MatchingShuttleCompanyAndReview_ProducesOneRow()
     {
       var input = (
@@ -113,7 +113,7 @@ public static class CreateModelInputTableStep
       Assert.That(result[0].IataApproved, Is.True);
     }
 
-    [StepTest(typeof(CreateModelInputTableStep))]
+    [FUnitStepTest(typeof(CreateModelInputTableStep))]
     public void ReviewWithInvalidScore_ShuttleExcluded()
     {
       var input = (
@@ -127,7 +127,7 @@ public static class CreateModelInputTableStep
       Assert.That(result, Is.Empty);
     }
 
-    [StepTest(typeof(CreateModelInputTableStep))]
+    [FUnitStepTest(typeof(CreateModelInputTableStep))]
     public void ShuttleWithNoMatchingCompany_Excluded()
     {
       var input = (

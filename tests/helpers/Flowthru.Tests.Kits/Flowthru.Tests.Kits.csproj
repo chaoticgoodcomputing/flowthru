@@ -28,6 +28,12 @@
 
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
+    <!-- Source generators are referenced as analyzers so [FlowthruSchema]-marked
+         row types in conformance fixtures (e.g., SerializedEnumConformance.KitRow)
+         get their IStructuredSerializable surface emitted at kit-build time. -->
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>

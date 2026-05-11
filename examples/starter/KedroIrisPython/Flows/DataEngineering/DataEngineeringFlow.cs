@@ -1,9 +1,6 @@
-using Flowthru.Core.Flows;
-using Flowthru.Extensions.Python.Execution;
-using Flowthru.Extensions.Python.Steps;
+using Flowthru.Flow;
+using Flowthru.Step.Python;
 using KedroIrisPython.Data;
-using KedroIrisPython.Data._01_Raw.Schemas;
-using KedroIrisPython.Data._05_ModelInput.Schemas;
 
 namespace KedroIrisPython.Flows.DataEngineering;
 
@@ -12,22 +9,12 @@ namespace KedroIrisPython.Flows.DataEngineering;
 /// </summary>
 public static class DataEngineeringFlow
 {
-  /// <summary>
-  /// Creates the data engineering pipeline.
-  /// </summary>
-  public static Flow Create(Catalog catalog, IPythonExecutor executor)
+  public static BuiltFlow Create(Catalog catalog, IPythonExecutor executor)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("DataEngineering", pipeline =>
     {
-      pipeline.AddPythonStep<
-        IEnumerable<IrisRawSchema>,
-        IEnumerable<FeatureVectorSchema>,
-        IEnumerable<TargetLabelSchema>,
-        IEnumerable<FeatureVectorSchema>,
-        IEnumerable<TargetLabelSchema>
-      >(
+      pipeline.AddPythonStep(
         label: "SplitData",
-        description: "Split iris data into train/test sets (Python 1×4 node)",
         module: "Flows.DataEngineering.Steps.split_data",
         function: "split_data",
         input: catalog.IrisRaw,

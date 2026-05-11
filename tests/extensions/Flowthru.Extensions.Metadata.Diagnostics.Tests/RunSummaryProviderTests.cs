@@ -1,90 +1,101 @@
-using Flowthru.Core.Flows;
-using Flowthru.Core.Graph.Meta.Models;
-using Flowthru.Meta.Diagnostics;
-using Flowthru.Meta.Diagnostics.Providers;
-using Flowthru.Meta.Diagnostics.Tests.Fixtures;
+using Flowthru.Diagnostics;
+using Flowthru.Diagnostics.Run;
+using Flowthru.Extensions.Metadata.Diagnostics.Tests.Fixtures;
+using Flowthru.Flow;
+using Flowthru.Validation.Runtime;
 
-namespace Flowthru.Meta.Diagnostics.Tests;
+namespace Flowthru.Extensions.Metadata.Diagnostics.Tests;
 
 [TestFixture]
 [Category("Diagnostics")]
-[Category("RunSummary")]
 public class RunSummaryProviderTests
 {
-  private RecordingLogger _logger = null!;
-
-  [SetUp]
-  public void SetUp() => _logger = new RecordingLogger();
-
   [Test]
-  public void Consume_Success_ReportsStatusDurationAndSlowest()
+  public async Task Emit_AllSucceeded_ReportsSuccessStatus()
   {
-    var stepResults = new Dictionary<string, StepResult>
-    {
-      ["Fast"] = StepResult.CreateSuccess("Fast", TimeSpan.FromMilliseconds(50)),
-      ["Slow"] = StepResult.CreateSuccess("Slow", TimeSpan.FromSeconds(2)),
-    };
-    var run = new RunMetadata
-    {
-      Dag = new DagMetadata { FlowName = "TestFlow" },
-      Result = FlowResult.CreateSuccess(TimeSpan.FromSeconds(3), stepResults, "TestFlow"),
-    };
-    var provider = new RunSummaryProvider(logger: _logger);
+    var logger = new RecordingLogger();
+    var provider = new RunSummaryProvider(new RunSummaryOptions(), logger);
+    var ctx = Build(
+      requested: "DataScience",
+      effective: "DataScience",
+      runDuration: TimeSpan.FromSeconds(2.5),
+      results: new[]
+      {
+        (StepResult)new StepResult.Succeeded("a", TimeSpan.FromMilliseconds(100)),
+        new StepResult.Succeeded("b", TimeSpan.FromMilliseconds(2400)),
+      }
+    );
 
-    provider.Consume(run);
+    await provider.Emit(ctx).Run();
 
-    var allMessages = string.Join("\n", _logger.Messages);
-    Assert.That(allMessages, Does.Contain("TestFlow"));
-    Assert.That(allMessages, Does.Contain("success"));
-    Assert.That(allMessages, Does.Contain("2 succeeded"));
-    Assert.That(allMessages, Does.Contain("0 failed"));
-    Assert.That(allMessages, Does.Contain("Slow"), "Slowest step should be named");
+    Assert.That(logger.Messages, Has.Some.Contains("DataScience"));
+    Assert.That(logger.Messages, Has.Some.Contains("success"));
+    Assert.That(logger.Messages, Has.Some.Contains("2.500s"),
+      "Total run duration should appear.");
+    Assert.That(logger.Messages, Has.Some.Contains("2 succeeded"));
+    Assert.That(logger.Messages, Has.Some.Contains("Slowest:  b"));
   }
 
   [Test]
-  public void Consume_Failure_ReportsFailureStatus()
+  public async Task Emit_WithFailure_ReportsFailureStatus()
   {
-    var stepResults = new Dictionary<string, StepResult>
-    {
-      ["StepA"] = StepResult.CreateSuccess("StepA", TimeSpan.FromMilliseconds(50)),
-      ["StepB"] = StepResult.CreateFailure(
-        "StepB",
-        TimeSpan.FromMilliseconds(10),
-        new InvalidOperationException("nope")
-      ),
-    };
-    var run = new RunMetadata
-    {
-      Dag = new DagMetadata { FlowName = "TestFlow" },
-      Result = FlowResult.CreateFailure(
-        TimeSpan.FromSeconds(1),
-        new InvalidOperationException("flow failed"),
-        stepResults,
-        "TestFlow"
-      ),
-    };
-    var provider = new RunSummaryProvider(logger: _logger);
+    var logger = new RecordingLogger();
+    var provider = new RunSummaryProvider(new RunSummaryOptions(), logger);
+    var ctx = Build(
+      requested: null,
+      effective: "__merged__",
+      runDuration: TimeSpan.FromSeconds(1),
+      results: new[]
+      {
+        (StepResult)new StepResult.Succeeded("a", TimeSpan.FromMilliseconds(500)),
+        new StepResult.Failed(
+          "b",
+          new RuntimeError.External("test", new InvalidOperationException("boom")),
+          TimeSpan.FromMilliseconds(500)),
+      }
+    );
 
-    provider.Consume(run);
+    await provider.Emit(ctx).Run();
 
-    var allMessages = string.Join("\n", _logger.Messages);
-    Assert.That(allMessages, Does.Contain("failure"));
-    Assert.That(allMessages, Does.Contain("1 succeeded"));
-    Assert.That(allMessages, Does.Contain("1 failed"));
+    Assert.That(logger.Messages, Has.Some.Contains("failure"));
+    Assert.That(logger.Messages, Has.Some.Contains("1 succeeded, 1 failed"));
   }
 
   [Test]
-  public void Consume_Disabled_EmitsNothing()
+  public async Task Emit_FlowNamePrefersRequestedSlice()
   {
-    var run = new RunMetadata
+    var logger = new RecordingLogger();
+    var provider = new RunSummaryProvider(new RunSummaryOptions(), logger);
+    var ctx = Build(
+      requested: "Reporting",  // user invoked the slice
+      effective: "Reporting",
+      runDuration: TimeSpan.FromMilliseconds(50),
+      results: new[]
+      {
+        (StepResult)new StepResult.Succeeded("only-step", TimeSpan.FromMilliseconds(50)),
+      }
+    );
+    await provider.Emit(ctx).Run();
+    Assert.That(logger.Messages, Has.Some.Contains("Reporting"));
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────
+
+  private static FlowRunMetadataContext Build(
+    string? requested, string effective, TimeSpan runDuration, StepResult[] results
+  )
+  {
+    var flow = FlowBuilder.CreateFlow(effective, _ => { });
+    return new FlowRunMetadataContext
     {
-      Dag = new DagMetadata { FlowName = "X" },
-      Result = FlowResult.CreateSuccess(TimeSpan.Zero, new(), "X"),
+      Static = new FlowMetadataContext
+      {
+        MergedFlow = flow,
+        EffectiveFlow = flow,
+        ActiveStepLabels = new HashSet<string>(StringComparer.Ordinal),
+        RequestedFlowLabel = requested,
+      },
+      Result = new FlowResult(results, runDuration),
     };
-    var provider = new RunSummaryProvider(new RunSummaryOptions { Enabled = false }, _logger);
-
-    provider.Consume(run);
-
-    Assert.That(_logger.Entries, Is.Empty);
   }
 }

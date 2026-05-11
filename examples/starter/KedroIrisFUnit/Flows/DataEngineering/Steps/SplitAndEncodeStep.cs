@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroIrisFUnit.Data._01_Raw.Schemas;
 using KedroIrisFUnit.Data._04_Feature.Schemas;
 using KedroIrisFUnit.Data._05_ModelInput.Schemas;
@@ -7,40 +7,42 @@ using KedroIrisFUnit.Data._05_ModelInput.Schemas;
 namespace KedroIrisFUnit.Flows.DataEngineering.Steps;
 
 /// <summary>
-/// Splits the classical Iris dataset into training and test sets with one-hot encoding.
-/// Each split is separated into features (X) and labels (Y).
+/// Splits the classical Iris dataset into training and test sets
+/// with one-hot encoding. Each split is separated into features
+/// (X) and labels (Y).
 /// </summary>
 [FlowthruStep]
 public static class SplitAndEncodeStep
 {
-  /// <summary>
-  /// Configuration options for <see cref="SplitAndEncodeStep"/>.
-  /// </summary>
+  /// <summary>Configuration options for <see cref="SplitAndEncodeStep"/>.</summary>
   public record Options
   {
-    /// <summary>
-    /// Proportion of data to use for testing (e.g., 0.2 for 20%).
-    /// </summary>
+    /// <summary>Proportion of data to use for testing (e.g., 0.2 for 20%).</summary>
     public double TestDataRatio { get; init; } = 0.2;
   }
 
-  private static readonly Options DefaultOptions = new();
-
   /// <summary>
-  /// Splits and encodes the raw iris data.
+  /// Per §2.4, every <c>[FlowthruStep]</c> follows the canonical
+  /// authoring shape: <c>Create() => input => …;</c>. The framework
+  /// calls <c>Create</c> once at flow construction time and captures
+  /// the returned delegate as the step's transform.
   /// </summary>
-  public static (
-    IEnumerable<IrisFeatureSchema> Features,
-    IEnumerable<FeatureVectorSchema> TrainX,
-    IEnumerable<TargetLabelSchema> TrainY,
-    IEnumerable<FeatureVectorSchema> TestX,
-    IEnumerable<TargetLabelSchema> TestY
-  ) Create((IEnumerable<IrisRawSchema> Data, Options Options) input)
-  {
-    var (rawData, options) = input;
-    var testDataRatio = options.TestDataRatio;
+  public static Func<
+    (IEnumerable<IrisRawSchema> Data, Options Options),
+    (
+      IEnumerable<IrisFeatureSchema> Features,
+      IEnumerable<FeatureVectorSchema> TrainX,
+      IEnumerable<TargetLabelSchema> TrainY,
+      IEnumerable<FeatureVectorSchema> TestX,
+      IEnumerable<TargetLabelSchema> TestY
+    )
+  > Create() =>
+    input =>
     {
-      // One-hot encode species labels
+      var (rawData, options) = input;
+      var testDataRatio = options.TestDataRatio;
+
+      // One-hot encode species labels.
       var encoded = rawData
         .Select(row => new IrisFeatureSchema
         {
@@ -54,17 +56,15 @@ public static class SplitAndEncodeStep
         })
         .ToList();
 
-      // Shuffle data for random train/test split
-      var random = new Random(42); // Fixed seed for reproducibility
+      // Shuffle for a deterministic random train/test split.
+      var random = new Random(42);
       var shuffled = encoded.OrderBy(_ => random.Next()).ToList();
 
-      // Split into train and test sets
       var totalCount = shuffled.Count;
       var testCount = (int)(totalCount * testDataRatio);
       var testData = shuffled.Take(testCount).ToList();
       var trainData = shuffled.Skip(testCount).ToList();
 
-      // Separate features (X) from labels (Y)
       var trainX = trainData.Select(row => new FeatureVectorSchema
       {
         SepalLength = row.SepalLength,
@@ -72,14 +72,12 @@ public static class SplitAndEncodeStep
         PetalLength = row.PetalLength,
         PetalWidth = row.PetalWidth,
       });
-
       var trainY = trainData.Select(row => new TargetLabelSchema
       {
         Setosa = row.Setosa,
         Versicolor = row.Versicolor,
         Virginica = row.Virginica,
       });
-
       var testX = testData.Select(row => new FeatureVectorSchema
       {
         SepalLength = row.SepalLength,
@@ -87,7 +85,6 @@ public static class SplitAndEncodeStep
         PetalLength = row.PetalLength,
         PetalWidth = row.PetalWidth,
       });
-
       var testY = testData.Select(row => new TargetLabelSchema
       {
         Setosa = row.Setosa,
@@ -96,24 +93,14 @@ public static class SplitAndEncodeStep
       });
 
       return (encoded, trainX, trainY, testX, testY);
-    }
-  }
+    };
 
 #if FUNIT_ENABLED
-  /// <summary>
-  /// FUnit tests for <see cref="SplitAndEncodeStep"/>.
-  /// </summary>
   public class Tests : FUnitContext
   {
-    /// <summary>
-    /// With a 20% test ratio on 10 rows, the step should place 2 rows in the test
-    /// split and 8 in training. Feature count must equal the full input count, and
-    /// each X split must have a paired Y split of the same length.
-    /// </summary>
-    [StepTest(typeof(SplitAndEncodeStep))]
+    [FUnitStepTest(typeof(SplitAndEncodeStep))]
     public void With20PercentRatio_ProducesCorrectSplitSizes()
     {
-      // Arrange — 10 rows cycling evenly across all three species
       var rawData = Samples.Generate(
         10,
         i => new IrisRawSchema
@@ -129,13 +116,11 @@ public static class SplitAndEncodeStep
         }
       );
 
-      // Apply
       var (features, trainX, trainY, testX, testY) = Invoke(
-        Create,
+        Create(),
         (rawData, new Options { TestDataRatio = 0.2 })
       );
 
-      // Assert
       Assert.That(features.Count(), Is.EqualTo(10));
       Assert.That(trainX.Count() + testX.Count(), Is.EqualTo(10));
       Assert.That(trainX.Count(), Is.EqualTo(8));
@@ -144,14 +129,9 @@ public static class SplitAndEncodeStep
       Assert.That(testY.Count(), Is.EqualTo(testX.Count()));
     }
 
-    /// <summary>
-    /// A setosa row should produce a one-hot encoding of [1, 0, 0] — only the
-    /// <c>Setosa</c> field set to 1.0, all others to 0.0.
-    /// </summary>
-    [StepTest(typeof(SplitAndEncodeStep))]
+    [FUnitStepTest(typeof(SplitAndEncodeStep))]
     public void SetosaRow_EncodesOneHotCorrectly()
     {
-      // Arrange — testDataRatio: 0.0 keeps all rows in train; features reflects full encoding
       var rawData = Samples.Of(
         new IrisRawSchema
         {
@@ -163,11 +143,9 @@ public static class SplitAndEncodeStep
         }
       );
 
-      // Apply
-      var (features, _, _, _, _) = Invoke(Create, (rawData, new Options { TestDataRatio = 0.0 }));
+      var (features, _, _, _, _) = Invoke(Create(), (rawData, new Options { TestDataRatio = 0.0 }));
       var feature = features.Single();
 
-      // Assert
       Assert.That(feature.Setosa, Is.EqualTo(1.0));
       Assert.That(feature.Versicolor, Is.EqualTo(0.0));
       Assert.That(feature.Virginica, Is.EqualTo(0.0));

@@ -1,41 +1,45 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using SpaceflightsPythonEFCore.Data;
+using SpaceflightsPythonEFCore.Data._01_Raw.Schemas;
+using SpaceflightsPythonEFCore.Data._02_Intermediate.Schemas;
+using SpaceflightsPythonEFCore.Data._03_Primary.Schemas;
 using SpaceflightsPythonEFCore.Flows.DataProcessing.Steps;
 
 namespace SpaceflightsPythonEFCore.Flows.DataProcessing;
 
 /// <summary>
 /// Data processing pipeline implemented entirely in C# with EFCore-backed catalog entries.
-/// Produces the ModelInputTable in SQLite, which is the EFCore → Python handoff point.
 /// </summary>
 public static class DataProcessingFlow
 {
-  public static Flow Create(Catalog catalog)
+  public static BuiltFlow Create(Catalog catalog)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("DataProcessing", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
-        description: "Parse and validate raw company data (C#). Stores result in EFCore.",
         transform: PreprocessCompaniesStep.Create(),
-        input: catalog.Companies,
-        output: catalog.PreprocessedCompanies
+        inputs: catalog.Companies,
+        outputs: catalog.PreprocessedCompanies
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
-        description: "Parse and validate raw shuttle data (C#). Stores result in EFCore.",
         transform: PreprocessShuttlesStep.Create(),
-        input: catalog.Shuttles,
-        output: catalog.PreprocessedShuttles
+        inputs: catalog.Shuttles,
+        outputs: catalog.PreprocessedShuttles
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedCompanySchema>,
+        IEnumerable<ReviewSchema>,
+        IEnumerable<ModelInputTableSchema>
+      >(
         label: "CreateModelInputTable",
-        description: "Join preprocessed shuttles, companies, and reviews into a model input table (C#). Stores result in EFCore for Python consumption.",
         transform: CreateModelInputTableStep.Create(),
-        input: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),
-        output: catalog.ModelInputTable
+        inputs: (catalog.PreprocessedShuttles, catalog.PreprocessedCompanies, catalog.Reviews),
+        outputs: catalog.ModelInputTable
       );
     });
   }

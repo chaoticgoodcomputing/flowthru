@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflights.Data._03_Primary.Schemas;
 
 namespace KedroSpaceflights.Data;
@@ -9,15 +9,10 @@ namespace KedroSpaceflights.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Unified model input table combining shuttle, company, and review data.
-  /// </summary>
+  /// <summary>Unified model input table combining shuttle, company, and review data.</summary>
   public IItem<IEnumerable<ModelInputTableSchema>> ModelInputTable =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<ModelInputTableSchema>(
-          label: "ModelInputTable",
-          filePath: $"{_basePath}/_03_Primary/Datasets/model_input_table.parquet"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ModelInputTableSchema>>("ModelInputTable")
+      .Parquet()
+      .AtPath($"{_basePath}/_03_Primary/Datasets/model_input_table.parquet")
+      .Build());
 }

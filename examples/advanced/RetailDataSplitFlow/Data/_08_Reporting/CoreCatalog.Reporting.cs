@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using RetailDataMultipipeline.Data._08_Reporting.Schemas;
 
 namespace RetailDataMultipipeline.Data;
@@ -6,41 +6,26 @@ namespace RetailDataMultipipeline.Data;
 public partial class CoreCatalog
 {
   public IItem<IEnumerable<CountryTransactionSummarySchema>> CountryTransactionSummary =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<CountryTransactionSummarySchema>(
-          label: "CountryTransactionSummary",
-          filePath: $"{_basePath}/_08_Reporting/Datasets/country_transaction_summary.csv"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<CountryTransactionSummarySchema>>("CountryTransactionSummary")
+      .Csv()
+      .AtPath($"{_basePath}/_08_Reporting/Datasets/country_transaction_summary.csv")
+      .Build());
 
-  /// <summary>Daily GBP revenue per country — line chart (PNG).</summary>
   public IItem<byte[]> DollarsChart =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Binary(
-          label: "DollarsChart",
-          filePath: $"{_basePath}/_08_Reporting/Charts/dollars_chart.png"
-        )
-    );
+    CreateItem(() => Item.Of<byte[]>("DollarsChart")
+      .Binary()
+      .AtPath($"{_basePath}/_08_Reporting/Charts/dollars_chart.png")
+      .Build());
 
-  /// <summary>Daily transaction count per country — line chart (PNG).</summary>
   public IItem<byte[]> TransactionsChart =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Binary(
-          label: "TransactionsChart",
-          filePath: $"{_basePath}/_08_Reporting/Charts/transactions_chart.png"
-        )
-    );
+    CreateItem(() => Item.Of<byte[]>("TransactionsChart")
+      .Binary()
+      .AtPath($"{_basePath}/_08_Reporting/Charts/transactions_chart.png")
+      .Build());
 
-  /// <summary>Daily unique customers per country — line chart (PNG).</summary>
   public IItem<byte[]> UsersChart =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Binary(
-          label: "UsersChart",
-          filePath: $"{_basePath}/_08_Reporting/Charts/users_chart.png"
-        )
-    );
+    CreateItem(() => Item.Of<byte[]>("UsersChart")
+      .Binary()
+      .AtPath($"{_basePath}/_08_Reporting/Charts/users_chart.png")
+      .Build());
 }

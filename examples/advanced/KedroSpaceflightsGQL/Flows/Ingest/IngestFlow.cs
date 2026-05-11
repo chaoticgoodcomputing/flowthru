@@ -1,5 +1,7 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using KedroSpaceflightsGQL.Data;
+using KedroSpaceflightsGQL.Data._01_Raw.Schemas;
+using KedroSpaceflightsGQL.Data._02_Intermediate.Schemas;
 using KedroSpaceflightsGQL.Flows.Ingest.Steps;
 using KedroSpaceflightsGQL.Infra.GqlClient;
 
@@ -13,51 +15,41 @@ namespace KedroSpaceflightsGQL.Flows.Ingest;
 /// </summary>
 public static class IngestFlow
 {
-  /// <summary>
-  /// Creates the ingest pipeline.
-  /// </summary>
-  public static Flow Create(Catalog catalog, ISpaceflightsClient client)
+  public static BuiltFlow Create(Catalog catalog, ISpaceflightsClient client)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Ingest", pipeline =>
     {
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<CompanySchema>, IEnumerable<PreprocessedCompanySchema>>(
         label: "PreprocessCompanies",
-        description: "Parses raw company CSV data (rating percentages, IATA flags) into typed records.",
         transform: PreprocessCompaniesStep.Create(),
-        input: catalog.SeedCompanies,
-        output: catalog.PreprocessedCompanies
+        inputs: catalog.SeedCompanies,
+        outputs: catalog.PreprocessedCompanies
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ShuttleSchema>, IEnumerable<PreprocessedShuttleSchema>>(
         label: "PreprocessShuttles",
-        description: "Parses raw shuttle Excel data (numeric fields, currency, boolean flags) into typed records.",
         transform: PreprocessShuttlesStep.Create(),
-        input: catalog.SeedShuttles,
-        output: catalog.PreprocessedShuttles
+        inputs: catalog.SeedShuttles,
+        outputs: catalog.PreprocessedShuttles
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<IEnumerable<ReviewSchema>, IEnumerable<PreprocessedReviewSchema>>(
         label: "PreprocessReviews",
-        description: "Parses raw review CSV data (rating strings) into typed decimal records.",
         transform: PreprocessReviewsStep.Create(),
-        input: catalog.SeedReviews,
-        output: catalog.PreprocessedReviews
+        inputs: catalog.SeedReviews,
+        outputs: catalog.PreprocessedReviews
       );
 
-      pipeline.AddStep(
+      pipeline.AddStep<
+        IEnumerable<PreprocessedCompanySchema>,
+        IEnumerable<PreprocessedShuttleSchema>,
+        IEnumerable<PreprocessedReviewSchema>,
+        bool
+      >(
         label: "SeedGqlDatabase",
-        description: """
-          Seeds the GraphQL server with preprocessed typed data via addCompany / addShuttle /
-          addReview mutations. Replace the in-process HotChocolate server with your own GQL
-          endpoint in Program.cs to point at production data.
-        """,
         transform: SeedGqlDatabaseStep.Create(client),
-        input: (
-          catalog.PreprocessedCompanies,
-          catalog.PreprocessedShuttles,
-          catalog.PreprocessedReviews
-        ),
-        output: catalog.GqlDatabaseSeeded
+        inputs: (catalog.PreprocessedCompanies, catalog.PreprocessedShuttles, catalog.PreprocessedReviews),
+        outputs: catalog.GqlDatabaseSeeded
       );
     });
   }

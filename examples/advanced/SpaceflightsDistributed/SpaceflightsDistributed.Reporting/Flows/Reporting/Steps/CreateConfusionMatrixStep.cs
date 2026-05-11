@@ -1,7 +1,6 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using Plotly.NET;
-using Plotly.NET.LayoutObjects;
 using SpaceflightsDistributed.DataScience.Data._07_ModelOutput.Schemas;
 using CSharpChart = Plotly.NET.CSharp.Chart;
 
@@ -22,9 +21,18 @@ public static class CreateConfusionMatrixStep
     public int NumBins { get; init; } = 4;
   }
 
-  public static GenericChart Create((IEnumerable<ModelPredictions> Data, Options Options) input)
+  /// <summary>
+  /// Tuple-input shape so FUnit tests can drive the step directly with
+  /// <c>(predictions, options)</c>; the flow wraps this with a closure
+  /// over <see cref="Options"/> at flow-construction time.
+  /// </summary>
+  public static Func<
+    (IEnumerable<ModelPredictions> Data, Options Options),
+    GenericChart
+  > Create() => input =>
   {
-    var (predictions, opts) = (input.Data.ToList(), input.Options);
+    var (data, options) = input;
+    var predictions = data.ToList();
 
     if (!predictions.Any())
     {
@@ -32,7 +40,7 @@ public static class CreateConfusionMatrixStep
     }
 
     var sortedActuals = predictions.Select(p => p.Actual).OrderBy(v => v).ToList();
-    var thresholds = CalculatePercentileThresholds(sortedActuals, opts.NumBins);
+    var thresholds = CalculatePercentileThresholds(sortedActuals, options.NumBins);
 
     var binnedPredictions = predictions
       .Select(p =>
@@ -40,17 +48,17 @@ public static class CreateConfusionMatrixStep
       )
       .ToList();
 
-    var matrix = new int[opts.NumBins, opts.NumBins];
+    var matrix = new int[options.NumBins, options.NumBins];
     foreach (var (actual, predicted) in binnedPredictions)
     {
       matrix[actual, predicted]++;
     }
 
     var zData = new List<List<int>>();
-    for (int i = 0; i < opts.NumBins; i++)
+    for (int i = 0; i < options.NumBins; i++)
     {
       var row = new List<int>();
-      for (int j = 0; j < opts.NumBins; j++)
+      for (int j = 0; j < options.NumBins; j++)
       {
         row.Add(matrix[i, j]);
       }
@@ -58,25 +66,25 @@ public static class CreateConfusionMatrixStep
       zData.Add(row);
     }
 
-    var labels = GeneratePercentileLabels(opts.NumBins);
+    var labels = GeneratePercentileLabels(options.NumBins);
     var xLabels = labels.Select(l => $"Pred {l}").ToArray();
     var yLabels = labels.Select(l => $"Actual {l}").ToArray();
 
-    var binName = opts.NumBins switch
+    var binName = options.NumBins switch
     {
       2 => "Median Split",
       3 => "Tertiles",
       4 => "Quartiles",
       5 => "Quintiles",
       10 => "Deciles",
-      _ => $"{opts.NumBins} Bins",
+      _ => $"{options.NumBins} Bins",
     };
 
     return CSharpChart
       .Heatmap<int, string, string, int>(zData, X: xLabels, Y: yLabels, ShowScale: true)
       .WithTitle($"Confusion Matrix ({binName})")
-      .WithSize(Math.Max(600, opts.NumBins * 80), Math.Max(600, opts.NumBins * 80));
-  }
+      .WithSize(Math.Max(600, options.NumBins * 80), Math.Max(600, options.NumBins * 80));
+  };
 
   private static List<double> CalculatePercentileThresholds(List<double> sortedValues, int numBins)
   {
@@ -118,7 +126,7 @@ public static class CreateConfusionMatrixStep
   /// <summary>FUnit tests for <see cref="CreateConfusionMatrixStep"/>.</summary>
   public class Tests : FUnitContext
   {
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void DefaultOptions_ProducesChart()
     {
       var predictions = Samples.Of(
@@ -128,12 +136,12 @@ public static class CreateConfusionMatrixStep
         new ModelPredictions { Actual = 400, Predicted = 390 }
       );
 
-      var chart = Invoke(Create, (predictions, new Options()));
+      var chart = Invoke(Create(), (predictions, new Options()));
 
       Assert.That(chart, Is.Not.Null);
     }
 
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void CustomBinCount_ProducesChart()
     {
       var predictions = Samples.Of(
@@ -142,16 +150,16 @@ public static class CreateConfusionMatrixStep
         new ModelPredictions { Actual = 300, Predicted = 300 }
       );
 
-      var chart = Invoke(Create, (predictions, new Options { NumBins = 3 }));
+      var chart = Invoke(Create(), (predictions, new Options { NumBins = 3 }));
 
       Assert.That(chart, Is.Not.Null);
     }
 
-    [StepTest(typeof(CreateConfusionMatrixStep))]
+    [FUnitStepTest(typeof(CreateConfusionMatrixStep))]
     public void EmptyInput_Throws()
     {
       Assert.That(
-        () => Invoke(Create, (Enumerable.Empty<ModelPredictions>(), new Options())),
+        () => Invoke(Create(), (Enumerable.Empty<ModelPredictions>(), new Options())),
         Throws.InvalidOperationException
       );
     }

@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using SpaceflightsEFCore.Data._03_Primary.Schemas;
 using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
 
@@ -31,58 +31,57 @@ public static class SplitDataStep
     public string[] Features { get; init; } = Array.Empty<string>();
   }
 
-  /// <summary>
-  /// Splits input data into training and test sets.
-  /// </summary>
-  public static (IEnumerable<TrainingData>, IEnumerable<TestData>) Create(
-    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options) input
-  )
-  {
-    var (rawData, options) = input;
-    var data = rawData.ToList();
+  /// <summary>Splits input data into training and test sets.</summary>
+  public static Func<
+    (IEnumerable<ModelInputTableSchema> Data, ModelOptions Options),
+    (IEnumerable<TrainingData>, IEnumerable<TestData>)
+  > Create() =>
+    input =>
+    {
+      var (rawData, options) = input;
+      var data = rawData.ToList();
 
-    // Use random state for reproducibility
-    var random = new Random(options.RandomState);
-    var shuffled = data.OrderBy(_ => random.Next()).ToList();
+      var random = new Random(options.RandomState);
+      var shuffled = data.OrderBy(_ => random.Next()).ToList();
 
-    var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
+      var splitIndex = (int)(shuffled.Count * (1 - options.TestSize));
 
-    var trainData = shuffled
-      .Take(splitIndex)
-      .Select(row => new TrainingData
-      {
-        Features = new FeatureVector
+      var trainData = shuffled
+        .Take(splitIndex)
+        .Select(row => new TrainingData
         {
-          Engines = row.Engines,
-          PassengerCapacity = row.PassengerCapacity,
-          Crew = row.Crew,
-          DCheckComplete = row.DCheckComplete,
-          MoonClearanceComplete = row.MoonClearanceComplete,
-          IataApproved = row.IataApproved,
-          CompanyRating = row.CompanyRating,
-          ReviewScoresRating = row.ReviewScoresRating,
-        },
-        Label = row.Price,
-      });
+          Features = new FeatureVector
+          {
+            Engines = row.Engines,
+            PassengerCapacity = row.PassengerCapacity,
+            Crew = row.Crew,
+            DCheckComplete = row.DCheckComplete,
+            MoonClearanceComplete = row.MoonClearanceComplete,
+            IataApproved = row.IataApproved,
+            CompanyRating = row.CompanyRating,
+            ReviewScoresRating = row.ReviewScoresRating,
+          },
+          Label = row.Price,
+        });
 
-    var testData = shuffled
-      .Skip(splitIndex)
-      .Select(row => new TestData
-      {
-        Features = new FeatureVector
+      var testData = shuffled
+        .Skip(splitIndex)
+        .Select(row => new TestData
         {
-          Engines = row.Engines,
-          PassengerCapacity = row.PassengerCapacity,
-          Crew = row.Crew,
-          DCheckComplete = row.DCheckComplete,
-          MoonClearanceComplete = row.MoonClearanceComplete,
-          IataApproved = row.IataApproved,
-          CompanyRating = row.CompanyRating,
-          ReviewScoresRating = row.ReviewScoresRating,
-        },
-        Label = row.Price,
-      });
+          Features = new FeatureVector
+          {
+            Engines = row.Engines,
+            PassengerCapacity = row.PassengerCapacity,
+            Crew = row.Crew,
+            DCheckComplete = row.DCheckComplete,
+            MoonClearanceComplete = row.MoonClearanceComplete,
+            IataApproved = row.IataApproved,
+            CompanyRating = row.CompanyRating,
+            ReviewScoresRating = row.ReviewScoresRating,
+          },
+          Label = row.Price,
+        });
 
-    return (trainData, testData);
-  }
+      return (trainData, testData);
+    };
 }

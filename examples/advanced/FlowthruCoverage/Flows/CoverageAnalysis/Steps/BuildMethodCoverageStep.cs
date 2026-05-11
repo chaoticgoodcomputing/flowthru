@@ -1,8 +1,8 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using FlowthruCoverage.Data._02_Intermediate.Schemas;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Coverage.Steps;
@@ -137,7 +137,7 @@ public static class BuildMethodCoverageStep
       };
 
     /// <summary>Empty input yields no PackageCoverageReports.</summary>
-    [StepTest(typeof(BuildMethodCoverageStep))]
+    [FUnitStepTest(typeof(BuildMethodCoverageStep))]
     public void EmptyInput_YieldsEmptyOutput()
     {
       var result = Invoke(BuildMethodCoverageStep.Create(), Enumerable.Empty<LineCoverageRow>());
@@ -150,7 +150,7 @@ public static class BuildMethodCoverageStep
     /// across all lines — Cobertura records the entry-point hit count there. Summing would
     /// overcount loop iterations.
     /// </summary>
-    [StepTest(typeof(BuildMethodCoverageStep))]
+    [FUnitStepTest(typeof(BuildMethodCoverageStep))]
     public void MethodTotalHits_UsesEarliestLineHitCount()
     {
       var rows = new[]
@@ -171,7 +171,7 @@ public static class BuildMethodCoverageStep
     /// SplitClassName produces (namespace, shortClassName). For
     /// <c>Pkg.Sub.Foo</c>, the namespace is <c>Pkg.Sub</c> and the short class is <c>Foo</c>.
     /// </summary>
-    [StepTest(typeof(BuildMethodCoverageStep))]
+    [FUnitStepTest(typeof(BuildMethodCoverageStep))]
     public void NestedClassName_SplitsIntoNamespaceAndShortClass()
     {
       var rows = new[] { Row("T", "Pkg", "Pkg.Sub.Foo", "Bar", "()", 1, 1) };
@@ -189,7 +189,7 @@ public static class BuildMethodCoverageStep
     /// its ClassName is the full (unqualified) name. The null ClassName branch only fires
     /// when Cobertura reports a method with no class context at all (empty class name).
     /// </summary>
-    [StepTest(typeof(BuildMethodCoverageStep))]
+    [FUnitStepTest(typeof(BuildMethodCoverageStep))]
     public void RootNamespaceClass_LandsInEmptyNamespaceBucket()
     {
       var rows = new[] { Row("T", "Pkg", "Foo", "Bar", "()", 1, 1) };
@@ -205,7 +205,7 @@ public static class BuildMethodCoverageStep
     /// The same method exercised by multiple test projects produces one MethodCoverage entry
     /// with one TestProjectHits per project — confirms the per-test-project breakdown.
     /// </summary>
-    [StepTest(typeof(BuildMethodCoverageStep))]
+    [FUnitStepTest(typeof(BuildMethodCoverageStep))]
     public void SameMethodAcrossTestProjects_YieldsPerProjectHits()
     {
       var rows = new[]
@@ -226,7 +226,7 @@ public static class BuildMethodCoverageStep
     /// on this to navigate from a row directly to the file. An empty source file collapses
     /// to null so consumers can distinguish "missing" from "present but empty string".
     /// </summary>
-    [StepTest(typeof(BuildMethodCoverageStep))]
+    [FUnitStepTest(typeof(BuildMethodCoverageStep))]
     public void SourceFile_PassesThroughFromUnderlyingLines()
     {
       var rows = new[] { Row("T", "Pkg", "Pkg.Foo", "Bar", "()", 1, 1, sourceFile: "src/Pkg/Foo.cs") };
@@ -245,7 +245,7 @@ public static class BuildMethodCoverageStep
     /// not the total row count. Multiple test projects covering the same lines must NOT
     /// inflate the count.
     /// </summary>
-    [StepTest(typeof(BuildMethodCoverageStep))]
+    [FUnitStepTest(typeof(BuildMethodCoverageStep))]
     public void LineCount_DeduplicatesLinesAcrossTestProjects()
     {
       var rows = new[]

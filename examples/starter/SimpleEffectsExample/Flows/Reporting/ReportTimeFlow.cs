@@ -1,4 +1,5 @@
-using Flowthru.Core.Flows;
+using Flowthru.Data.Catalog;
+using Flowthru.Flow;
 using SimpleEffectsExample.Data;
 using SimpleEffectsExample.Flows.Reporting.Steps;
 
@@ -12,7 +13,7 @@ namespace SimpleEffectsExample.Flows.Reporting;
 /// </summary>
 public static class ReportTimeFlow
 {
-  private static readonly (string Label, string ZoneId, string Abbrev, Func<Catalog, Flowthru.Core.Data.IItem<string>> Output)[] Zones =
+  private static readonly (string Label, string ZoneId, string Abbrev, Func<Catalog, IItem<string>> Output)[] Zones =
   {
     ("ReportEastern",  "America/New_York",    "ET", c => c.EasternTimeReport),
     ("ReportCentral",  "America/Chicago",     "CT", c => c.CentralTimeReport),
@@ -20,19 +21,18 @@ public static class ReportTimeFlow
     ("ReportPacific",  "America/Los_Angeles", "PT", c => c.PacificTimeReport),
   };
 
-  public static Flow Create(Catalog catalog, Services.IRemoteTimeService timeService)
+  public static BuiltFlow Create(Catalog catalog, Services.IRemoteTimeService timeService)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("ReportTime", pipeline =>
     {
       foreach (var (label, zoneId, abbrev, outputSelector) in Zones)
       {
         var zone = TimeZoneInfo.FindSystemTimeZoneById(zoneId);
-        pipeline.AddStep(
+        pipeline.AddStep<string, string>(
           label: label,
-          description: $"Fetches current UTC time and writes a {abbrev} report.",
           transform: ReportTimeStep.Create(timeService, zone, abbrev),
-          input: catalog.ReportTemplate,
-          output: outputSelector(catalog)
+          inputs: catalog.ReportTemplate,
+          outputs: outputSelector(catalog)
         );
       }
     });

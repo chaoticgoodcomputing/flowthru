@@ -1,9 +1,10 @@
-using Flowthru.Core.Data;
-using Flowthru.Core.Steps;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
+using Flowthru.Step;
 using FlowthruCoverage.Data._01_Raw.Schemas;
 using FlowthruCoverage.Data._02_Intermediate.Schemas;
 #if FUNIT_ENABLED
-using Flowthru.FUnit;
+using Flowthru.Step.Testing;
 #endif
 
 namespace FlowthruCoverage.Flows.Coverage.Steps;
@@ -17,7 +18,7 @@ namespace FlowthruCoverage.Flows.Coverage.Steps;
 public static class FlattenCoberturaStep
 {
   public static Func<
-    Directory<CoberturaReport>,
+    DirectoryOf<CoberturaReport>,
     IEnumerable<LineCoverageRow>
   > Create()
   {
@@ -56,7 +57,7 @@ public static class FlattenCoberturaStep
     private static KeyValuePair<string, CoberturaReport> Entry(string fileName, params CoberturaPackage[] packages) =>
       new(fileName, new CoberturaReport { Packages = packages.ToList() });
 
-    private static Directory<CoberturaReport> Dir(params KeyValuePair<string, CoberturaReport>[] entries) =>
+    private static DirectoryOf<CoberturaReport> Dir(params KeyValuePair<string, CoberturaReport>[] entries) =>
       new(entries);
 
     private static CoberturaPackage Package(string name, params CoberturaClass[] classes) =>
@@ -79,10 +80,10 @@ public static class FlattenCoberturaStep
       };
 
     /// <summary>Empty directory yields no rows — no spurious entries materialized.</summary>
-    [StepTest(typeof(FlattenCoberturaStep))]
+    [FUnitStepTest(typeof(FlattenCoberturaStep))]
     public void EmptyInput_YieldsEmptyOutput()
     {
-      var result = Invoke(FlattenCoberturaStep.Create(), Directory<CoberturaReport>.Empty);
+      var result = Invoke(FlattenCoberturaStep.Create(), DirectoryOf<CoberturaReport>.Empty);
 
       Assert.That(result, Is.Empty);
     }
@@ -91,7 +92,7 @@ public static class FlattenCoberturaStep
     /// The TestProject column is derived from the file path key, with the .xml extension
     /// stripped. This is the only signal tying coverage data back to which test run produced it.
     /// </summary>
-    [StepTest(typeof(FlattenCoberturaStep))]
+    [FUnitStepTest(typeof(FlattenCoberturaStep))]
     public void TestProjectName_IsDerivedFromFileNameWithoutExtension()
     {
       var dir = Dir(Entry(
@@ -111,7 +112,7 @@ public static class FlattenCoberturaStep
     /// One Cobertura line becomes one row carrying the full package/class/method context plus
     /// the line's number and hit count — verifying the four-level fan-out preserves all fields.
     /// </summary>
-    [StepTest(typeof(FlattenCoberturaStep))]
+    [FUnitStepTest(typeof(FlattenCoberturaStep))]
     public void NestedHierarchy_FlattensToOneRowPerLine()
     {
       var dir = Dir(Entry(
@@ -139,7 +140,7 @@ public static class FlattenCoberturaStep
     /// Multiple files flatten with each carrying its own TestProject derived from its key.
     /// Confirms no cross-contamination between source XMLs.
     /// </summary>
-    [StepTest(typeof(FlattenCoberturaStep))]
+    [FUnitStepTest(typeof(FlattenCoberturaStep))]
     public void MultipleDocuments_PreserveTestProjectPerDocument()
     {
       var dir = Dir(

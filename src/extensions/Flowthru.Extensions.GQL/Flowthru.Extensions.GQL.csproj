@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flowthru.Extensions.GQL</RootNamespace>
     <Description>GraphQL integration for Flowthru data catalogs via StrawberryShake</Description>
 
     <!-- NuGet Package Configuration -->
@@ -13,13 +12,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core Flowthru library -->
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core/Flowthru.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- StrawberryShake core runtime — provides IOperationResult<T>, IClientError, GraphQLClientException -->
     <PackageReference Include="StrawberryShake.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Flowthru.Extensions.GQL.Tests" />
   </ItemGroup>
 
 </Project>

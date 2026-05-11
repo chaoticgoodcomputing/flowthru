@@ -1,4 +1,4 @@
-using Flowthru.Core.Steps;
+using Flowthru.Step;
 using MathNet.Numerics.LinearRegression;
 using SpaceflightsEFCore.Data._05_ModelInput.Schemas;
 using SpaceflightsEFCore.Data._06_Models.Schemas;

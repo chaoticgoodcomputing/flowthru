@@ -1,16 +1,14 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using RetailDataMultipipeline.Data._03_Primary.Schemas;
 
 namespace RetailDataMultipipeline.Data;
 
 /// <summary>
-/// Per-country catalog for weekly DTU analysis shards.
+/// Per-country catalog for weekly DTU analysis shards. Each instance is
+/// labelled <c>{PascalCase(country)}ShardCatalog</c> so its entries
+/// receive distinct qualified identifiers in DAG metadata
+/// (e.g., <c>UnitedKingdomShardCatalog.WeeklyDtu</c>).
 /// </summary>
-/// <remarks>
-/// Each instance is labelled <c>{PascalCase(country)}ShardCatalog</c> so that its entries
-/// receive distinct qualified identifiers in the DAG metadata:
-/// e.g., <c>UnitedKingdomShardCatalog.WeeklyDtu</c>.
-/// </remarks>
 public class CountryShardCatalog : CatalogAbstract
 {
   private readonly string _basePath;
@@ -22,20 +20,13 @@ public class CountryShardCatalog : CatalogAbstract
   {
     Country = country;
     _basePath = basePath;
-    InitializeCatalogProperties();
   }
 
-  /// <summary>
-  /// Per-country weekly DTU Parquet shard, currency-converted to GBP.
-  /// </summary>
   public IItem<IEnumerable<WeeklyDtuSchema>> WeeklyDtu =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Parquet<WeeklyDtuSchema>(
-          label: $"WeeklyDtu_{Slugify(Country)}",
-          filePath: $"{_basePath}/_03_Primary/Datasets/weekly_dtu_{Slugify(Country)}.parquet"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<WeeklyDtuSchema>>($"WeeklyDtu_{Slugify(Country)}")
+      .Parquet()
+      .AtPath($"{_basePath}/_03_Primary/Datasets/weekly_dtu_{Slugify(Country)}.parquet")
+      .Build());
 
   private static string ToPascalCase(string country) =>
     string.Concat(

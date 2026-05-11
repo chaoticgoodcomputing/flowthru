@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 
 namespace SimpleEffectsExample.Data;
 
@@ -12,10 +12,8 @@ public partial class Catalog
   /// the fetched UTC timestamp.
   /// </summary>
   public IItem<string> ReportTemplate =>
-    CreateItem(
-      () => ItemFactory.Single.Text(
-        label: "ReportTemplate",
-        filePath: $"{_basePath}/_01_Raw/Datasets/report-template.txt"
-      )
-    );
+    CreateItem(() => Item.Of<string>("ReportTemplate")
+      .Text()
+      .AtPath($"{_basePath}/_01_Raw/Datasets/report-template.txt")
+      .Build());
 }

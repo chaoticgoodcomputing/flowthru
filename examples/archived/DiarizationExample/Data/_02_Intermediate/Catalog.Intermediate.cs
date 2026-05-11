@@ -9,7 +9,7 @@ public partial class Catalog
   /// expect this format; doing the transcode once here means downstream steps
   /// can run in parallel without each redoing the same work.
   /// </summary>
-  public IItem<Directory<byte[]>> NormalizedAudio =>
+  public IItem<DirectoryOf<byte[]>> NormalizedAudio =>
     CreateItem(() =>
       ItemFactory.Enumerable.BinaryDirectory(
         label: "NormalizedAudio",

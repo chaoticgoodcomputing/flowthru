@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using KedroSpaceflightsFUnit.Data._01_Raw.Schemas;
 using KedroSpaceflightsFUnit.Data._02_Intermediate.Schemas;
 
@@ -122,7 +122,7 @@ public static class PreprocessShuttlesStep
     /// <summary>
     /// A well-formed record should produce one output with all fields parsed correctly.
     /// </summary>
-    [StepTest(typeof(PreprocessShuttlesStep))]
+    [FUnitStepTest(typeof(PreprocessShuttlesStep))]
     public void ValidRecord_ParsesCorrectly()
     {
       // Arrange
@@ -143,7 +143,7 @@ public static class PreprocessShuttlesStep
     /// <summary>
     /// A record with a non-numeric engines field should be filtered out.
     /// </summary>
-    [StepTest(typeof(PreprocessShuttlesStep))]
+    [FUnitStepTest(typeof(PreprocessShuttlesStep))]
     public void NonNumericEngines_RecordIsFiltered()
     {
       // Arrange
@@ -159,7 +159,7 @@ public static class PreprocessShuttlesStep
     /// <summary>
     /// A currency string like "$1,234.56" should parse to 1234.56 exactly.
     /// </summary>
-    [StepTest(typeof(PreprocessShuttlesStep))]
+    [FUnitStepTest(typeof(PreprocessShuttlesStep))]
     public void CurrencyString_ParsesCorrectly()
     {
       // Arrange

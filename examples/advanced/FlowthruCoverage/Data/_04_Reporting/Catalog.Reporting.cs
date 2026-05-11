@@ -1,4 +1,6 @@
-using Flowthru.Core.Data;
+using System.Collections.Generic;
+using Flowthru.Data.Catalog;
+using Flowthru.Data.Storage;
 using FlowthruCoverage.Data._03_Primary.Schemas;
 using FlowthruCoverage.Data._04_Reporting.Schemas;
 
@@ -7,136 +9,99 @@ namespace FlowthruCoverage.Data;
 public partial class Catalog
 {
   public IItem<IEnumerable<PivotCoverageRow>> PivotCoverage =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<PivotCoverageRow>(
-          label: "PivotCoverage",
-          filePath: $"{_basePath}/_04_Reporting/Datasets/coverage_heatmap.csv"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<PivotCoverageRow>>("PivotCoverage")
+        .Csv()
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/coverage_heatmap.csv")
+        .Build()
     );
 
   public IItem<byte[]> CoverageHeatmap =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Binary(
-          label: "CoverageHeatmap",
-          filePath: $"{_basePath}/_04_Reporting/Datasets/coverage_heatmap.png"
-        )
+    CreateItem(() =>
+      Item.Of<byte[]>("CoverageHeatmap")
+        .Binary()
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/coverage_heatmap.png")
+        .Build()
     );
 
   /// <summary>
-  /// Flat project → file → method icicle nodes for src libraries. Pivot source for the
-  /// Plotly icicle chart: each row is one node with its parent id, level, and aggregated
-  /// covered/total line counts.
+  /// Flat project → directory → file → method icicle nodes augmented with
+  /// line-level provenance counts (total / any / unit / integration). One
+  /// row per node carries everything the downstream renderer needs to
+  /// colour each tile by unit + integration + total coverage simultaneously.
   /// </summary>
-  public IItem<IEnumerable<IcicleCoverageNode>> IcicleCoverage =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<IcicleCoverageNode>(
-          label: "IcicleCoverage",
-          filePath: $"{_basePath}/_04_Reporting/Datasets/icicle_coverage.csv"
-        )
+  public IItem<IEnumerable<ProvenanceIcicleNode>> ProvenanceIcicleCoverage =>
+    CreateItem(() =>
+      Item.Of<IEnumerable<ProvenanceIcicleNode>>("ProvenanceIcicleCoverage")
+        .Csv()
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/icicle_coverage_provenance.csv")
+        .Build()
     );
 
   /// <summary>
-  /// Per-library Plotly icicle SVGs, one file per src project. Keys are full file paths
-  /// under <c>_04_Reporting/Datasets/icicles/</c>; values are SVG bytes. SVG is used so
-  /// reviewers can zoom into method-level slices that would be unreadable at any
-  /// reasonable raster resolution.
+  /// Per-library Plotly icicle SVGs with provenance-encoded colour:
+  /// <c>R = 1 − Integration%</c>, <c>G = Any%</c>, <c>B = 1 − Unit%</c>.
+  /// One file per src project.
   /// </summary>
-  public IItem<Directory<byte[]>> CoverageIcicles =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.BinaryDirectory(
-          label: "CoverageIcicles",
-          directoryPath: $"{_basePath}/_04_Reporting/Datasets/icicles",
-          filePattern: "*.svg"
-        )
+  public IItem<DirectoryOf<byte[]>> ProvenanceCoverageIcicles =>
+    CreateItem(() =>
+      Item.Of<DirectoryOf<byte[]>>("ProvenanceCoverageIcicles")
+        .Directory(file => file.Binary())
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/icicles_provenance")
+        .WithFilePattern("*.svg")
+        .Build()
     );
 
-  /// <summary>
-  /// Flat icicle nodes computed from <see cref="ExampleMethodLineCoverage"/> — coverage
-  /// attributed to manifest <c>Example</c> test projects only.
-  /// </summary>
-  public IItem<IEnumerable<IcicleCoverageNode>> ExampleIcicleCoverage =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<IcicleCoverageNode>(
-          label: "ExampleIcicleCoverage",
-          filePath: $"{_basePath}/_04_Reporting/Datasets/icicle_coverage_examples.csv"
-        )
-    );
-
-  /// <summary>
-  /// Per-library Plotly icicle SVGs derived from example-only coverage. Sister output to
-  /// <see cref="CoverageIcicles"/>; lands in <c>_04_Reporting/Datasets/icicles_examples/</c>
-  /// so the two variants don't collide.
-  /// </summary>
-  public IItem<Directory<byte[]>> ExampleCoverageIcicles =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.BinaryDirectory(
-          label: "ExampleCoverageIcicles",
-          directoryPath: $"{_basePath}/_04_Reporting/Datasets/icicles_examples",
-          filePattern: "*.svg"
-        )
-    );
-
-  /// <summary>
-  /// Methods with zero total hits — full-signature variant — BEFORE the remote-source filter.
-  /// In-memory intermediate consumed by <see cref="Flows.Reporting.Steps.FilterRemoteSourceFilesStep"/>.
-  /// </summary>
+  /// <summary>Methods with zero total hits — full-signature variant — pre remote-source filter.</summary>
   public IItem<IEnumerable<MethodHitSummaryRow>> UncoveredMethodHitsRaw =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<MethodHitSummaryRow>(label: "UncoveredMethodHitsRaw"));
+    CreateItem(() =>
+      Item.Of<IEnumerable<MethodHitSummaryRow>>("UncoveredMethodHitsRaw").Memory().Build()
+    );
 
-  /// <summary>
-  /// Methods with zero total hits — method-name variant — BEFORE the remote-source filter.
-  /// In-memory intermediate consumed by <see cref="Flows.Reporting.Steps.FilterRemoteSourceFilesStep"/>.
-  /// </summary>
+  /// <summary>Methods with zero total hits — method-name variant — pre remote-source filter.</summary>
   public IItem<IEnumerable<MethodHitSummaryRow>> UncoveredMethodNamesRaw =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<MethodHitSummaryRow>(label: "UncoveredMethodNamesRaw"));
+    CreateItem(() =>
+      Item.Of<IEnumerable<MethodHitSummaryRow>>("UncoveredMethodNamesRaw").Memory().Build()
+    );
 
-  /// <summary>
-  /// Methods with zero total hits across all test projects — full-signature variant.
-  /// Subset of <see cref="MethodHitSummary"/> with rows whose <c>SourceFile</c> is a
-  /// remote SourceLink URL filtered out (see <see cref="Flows.Reporting.Steps.FilterRemoteSourceFilesStep"/>).
-  /// </summary>
+  /// <summary>Methods with zero total hits — full-signature variant.</summary>
   public IItem<IEnumerable<MethodHitSummaryRow>> UncoveredMethodHits =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<MethodHitSummaryRow>(
-          label: "UncoveredMethodHits",
-          filePath: $"{_basePath}/_04_Reporting/Datasets/uncovered_method_hits.csv"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<MethodHitSummaryRow>>("UncoveredMethodHits")
+        .Csv()
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/uncovered_method_hits.csv")
+        .Build()
     );
 
-  /// <summary>
-  /// Methods with zero total hits across all test projects — method-name variant (overloads collapsed).
-  /// Subset of <see cref="MethodNameSummary"/> with rows whose <c>SourceFile</c> is a
-  /// remote SourceLink URL filtered out (see <see cref="Flows.Reporting.Steps.FilterRemoteSourceFilesStep"/>).
-  /// </summary>
+  /// <summary>Methods with zero total hits — method-name variant (overloads collapsed).</summary>
   public IItem<IEnumerable<MethodHitSummaryRow>> UncoveredMethodNames =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<MethodHitSummaryRow>(
-          label: "UncoveredMethodNames",
-          filePath: $"{_basePath}/_04_Reporting/Datasets/uncovered_method_names.csv"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<MethodHitSummaryRow>>("UncoveredMethodNames")
+        .Csv()
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/uncovered_method_names.csv")
+        .Build()
     );
 
   /// <summary>
-  /// Per-source-package coverage rolled up to the maximum across test projects. Flattens the
-  /// double-counted shape of <see cref="PivotCoverage"/> (e.g. <c>Flowthru.Core.SourceGenerators</c>
-  /// reading 0% in <c>Core.Tests</c> AND 74.41% in <c>SourceGenerators.Tests</c>) into one row
-  /// per package showing the authoritative best reading. See
-  /// <see cref="Flows.Reporting.Steps.AggregatePackageCoverageStep"/>.
+  /// Markdown report ranking src libraries (and sub-trees within failing
+  /// libraries) by unit-coverage gap, plus a per-library method checklist
+  /// split into "quick wins" (covered by integration but not unit) and
+  /// "cold spots" (no coverage at all).
   /// </summary>
+  public IItem<byte[]> UnitCoverageReport =>
+    CreateItem(() =>
+      Item.Of<byte[]>("UnitCoverageReport")
+        .Binary()
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/unit_coverage_report.md")
+        .Build()
+    );
+
+  /// <summary>Per-source-package coverage rolled up to the maximum across test projects.</summary>
   public IItem<IEnumerable<PackageCoverageMaxRow>> PackageCoverageMax =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Csv<PackageCoverageMaxRow>(
-          label: "PackageCoverageMax",
-          filePath: $"{_basePath}/_04_Reporting/Datasets/package_coverage_max.csv"
-        )
+    CreateItem(() =>
+      Item.Of<IEnumerable<PackageCoverageMaxRow>>("PackageCoverageMax")
+        .Csv()
+        .AtPath($"{_basePath}/_04_Reporting/Datasets/package_coverage_max.csv")
+        .Build()
     );
 }

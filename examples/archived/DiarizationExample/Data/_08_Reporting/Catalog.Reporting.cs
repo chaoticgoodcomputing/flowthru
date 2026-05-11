@@ -7,7 +7,7 @@ public partial class Catalog
   /// <summary>
   /// Rendered transcripts (one Markdown file per clip) suitable for review.
   /// </summary>
-  public IItem<Directory<byte[]>> RenderedTranscripts =>
+  public IItem<DirectoryOf<byte[]>> RenderedTranscripts =>
     CreateItem(() =>
       ItemFactory.Enumerable.BinaryDirectory(
         label: "RenderedTranscripts",

@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflightsGQL.Data._07_ModelOutput.Schemas;
 
 namespace KedroSpaceflightsGQL.Data;
@@ -13,24 +13,18 @@ public partial class Catalog
   /// Evaluation metrics for the trained regression model.
   /// </summary>
   public IItem<ModelMetrics> ModelMetrics =>
-    CreateItem(
-      () =>
-        ItemFactory.Single.Json<ModelMetrics>(
-          label: "ModelMetrics",
-          filePath: $"{_basePath}/_07_ModelOutput/Datasets/model_metrics.json"
-        )
-    );
+    CreateItem(() => Item.Of<ModelMetrics>("ModelMetrics")
+      .Json()
+      .AtPath($"{_basePath}/_07_ModelOutput/Datasets/model_metrics.json")
+      .Build());
 
   /// <summary>
   /// Model predictions containing actual and predicted values from the test set.
   /// Used for generating confusion matrices and prediction accuracy visualizations.
   /// </summary>
   public IItem<IEnumerable<ModelPredictions>> ModelPredictions =>
-    CreateItem(
-      () =>
-        ItemFactory.Enumerable.Json<ModelPredictions>(
-          label: "ModelPredictions",
-          filePath: $"{_basePath}/_07_ModelOutput/Datasets/model_predictions.json"
-        )
-    );
+    CreateItem(() => Item.Of<IEnumerable<ModelPredictions>>("ModelPredictions")
+      .Json()
+      .AtPath($"{_basePath}/_07_ModelOutput/Datasets/model_predictions.json")
+      .Build());
 }

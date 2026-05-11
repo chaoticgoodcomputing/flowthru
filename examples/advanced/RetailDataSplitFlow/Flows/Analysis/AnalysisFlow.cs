@@ -1,26 +1,42 @@
-using Flowthru.Core.Flows;
+using Flowthru.Flow;
 using RetailDataMultipipeline.Data;
+using RetailDataMultipipeline.Data._01_Raw.Schemas;
+using RetailDataMultipipeline.Data._02_Intermediate.Schemas;
+using RetailDataMultipipeline.Data._03_Primary.Schemas;
 using RetailDataMultipipeline.Flows.Analysis.Steps;
 
 namespace RetailDataMultipipeline.Flows.Analysis;
 
 /// <summary>
-/// Computes weekly DTU metrics for a single country shard.
-/// Instantiated once per <see cref="CountryShardCatalog"/> via <c>RegisterFlows</c> in Program.cs.
+/// Computes weekly DTU metrics for every country shard. One flow, N steps —
+/// each <see cref="CountryShardCatalog"/> contributes one step that
+/// closure-captures its own country and writes to its own output item.
+/// The merged-DAG executor schedules siblings in parallel.
 /// </summary>
 public static class AnalysisFlow
 {
-  public static Flow Create(CoreCatalog core, CountryShardCatalog shard)
+  public static BuiltFlow Create(CoreCatalog core, IReadOnlyList<CountryShardCatalog> shards)
   {
-    return FlowBuilder.CreateFlow(pipeline =>
+    return FlowBuilder.CreateFlow("Analysis", pipeline =>
     {
-      pipeline.AddStep(
-        label: "ComputeWeeklyDtu",
-        description: $"Converts currency and aggregates weekly DTU metrics for {shard.Country}.",
-        transform: ComputeWeeklyDtuStep.Create(shard.Country),
-        input: (core.AllRetailTransactions, core.CountryCurrencies, core.OfxRates),
-        output: shard.WeeklyDtu
-      );
+      foreach (var shard in shards)
+      {
+        var captured = shard;
+        pipeline.AddStep<
+          IEnumerable<RetailTransactionIntermediateSchema>,
+          IEnumerable<CountryCurrencySchema>,
+          IEnumerable<OfxRateResponseSchema>,
+          IEnumerable<WeeklyDtuSchema>
+        >(
+          label: $"Analyze_{Slugify(captured.Country)}",
+          transform: ComputeWeeklyDtuStep.Create(captured.Country),
+          inputs: (core.AllRetailTransactions, core.CountryCurrencies, core.OfxRates),
+          outputs: captured.WeeklyDtu
+        );
+      }
     });
   }
+
+  private static string Slugify(string country) =>
+    country.ToLowerInvariant().Replace(' ', '_').Replace('.', '_');
 }

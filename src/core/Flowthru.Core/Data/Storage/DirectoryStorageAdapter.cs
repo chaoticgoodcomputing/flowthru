@@ -1,34 +1,34 @@
-using Flowthru.Core.Data.Capabilities;
-using Flowthru.Core.Data.Validation;
-using Flowthru.Core.Effects;
 using SysIO = System.IO;
 
-namespace Flowthru.Core.Data.Storage;
+namespace Flowthru.Data.Storage;
 
 /// <summary>
-/// Single, format-agnostic storage adapter for a <see cref="Directory{T}"/> of same-schema
-/// files. Format concerns are externalised through <c>perFileAdapter</c>: the directory
-/// owns enumeration, save ordering, and target validation; the per-file adapter owns
+/// Format-agnostic storage adapter for a <see cref="DirectoryOf{T}"/>
+/// of same-schema files. Format concerns are externalised through
+/// <c>perFileAdapter</c>: the directory owns enumeration, save
+/// ordering, and target validation; the per-file adapter owns
 /// serialisation for one path.
 /// </summary>
-/// <typeparam name="T">Payload type for each file (e.g. <c>byte[]</c>, <c>IEnumerable&lt;TRow&gt;</c>).</typeparam>
+/// <typeparam name="T">
+/// Payload type for each file (e.g., <c>byte[]</c>,
+/// <c>IEnumerable&lt;TRow&gt;</c>, <c>TDoc</c>).
+/// </typeparam>
 /// <remarks>
 /// <para>
-/// <strong>Save semantics:</strong> existing files matching the adapter's
-/// <c>filePattern</c> are deleted before write, then each entry is written via its
-/// per-file adapter. This guarantees the directory state after Save matches the
-/// <see cref="Directory{T}"/> that produced it — re-runs are deterministic.
+/// <strong>Save semantics:</strong> existing files matching the
+/// adapter's <c>filePattern</c> are deleted before write, then each
+/// entry is written via its per-file adapter. Re-runs are
+/// deterministic — the directory state after Save matches the
+/// <see cref="DirectoryOf{T}"/> that produced it.
 /// </para>
 /// <para>
-/// <strong>Load semantics:</strong> files matching <c>filePattern</c> are enumerated in
-/// ordinal-string order and loaded via per-file adapters. Keys in the resulting
-/// <see cref="Directory{T}"/> are the full file paths.
-/// </para>
-/// <para>
-/// <strong>Not a partitioning primitive.</strong> See <see cref="Directory{T}"/>'s remarks.
+/// <strong>Load semantics:</strong> files matching <c>filePattern</c>
+/// are enumerated in ordinal-string order and loaded via per-file
+/// adapters. Keys in the resulting <see cref="DirectoryOf{T}"/> are the
+/// full file paths.
 /// </para>
 /// </remarks>
-public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, IHasEfficientCount
+public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<DirectoryOf<T>>, IHasEfficientCount
 {
   private readonly string _directoryPath;
   private readonly string _filePattern;
@@ -36,14 +36,15 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
   private readonly StorageTraits _traits;
 
   /// <summary>
-  /// Initializes the adapter.
+  /// Initialises the adapter.
   /// </summary>
   /// <param name="directoryPath">Path to the directory.</param>
-  /// <param name="filePattern">Glob for matching files (e.g. <c>"*.csv"</c>, <c>"*.png"</c>).</param>
+  /// <param name="filePattern">Glob for matching files (e.g. <c>"*.json"</c>).</param>
   /// <param name="perFileAdapter">
-  /// Factory that, given a file path, returns the storage adapter that handles a single
-  /// file at that path. Called once per file on Load (with paths discovered via the glob)
-  /// and once per entry on Save (with paths from the <see cref="Directory{T}"/>'s keys).
+  /// Factory that, given a file path, returns the storage adapter
+  /// for one file. Called once per file on Load (with paths from
+  /// the glob) and once per entry on Save (with paths from the
+  /// <see cref="DirectoryOf{T}"/>'s keys).
   /// </param>
   public DirectoryStorageAdapter(
     string directoryPath,
@@ -60,9 +61,8 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
     _filePattern = filePattern;
     _perFileAdapter = perFileAdapter ?? throw new ArgumentNullException(nameof(perFileAdapter));
 
-    // Inherit CanWrite (and other format-level traits) from a probe per-file adapter.
-    // Read-only formats (Excel via ExcelDataReader, HTTP GET endpoints) propagate through
-    // so consumers see "directory of read-only files" as itself read-only.
+    // Inherit traits (CanWrite, etc.) from a probe per-file adapter so
+    // a directory of read-only files itself reports as read-only.
     var probeExt = filePattern.StartsWith('*') ? filePattern[1..] : string.Empty;
     var probePath = SysIO.Path.Combine(directoryPath, "_traits-probe" + probeExt);
     _traits = perFileAdapter(probePath).Traits;
@@ -72,117 +72,152 @@ public sealed class DirectoryStorageAdapter<T> : IStorageAdapter<Directory<T>>, 
   public StorageTraits Traits => _traits;
 
   /// <inheritdoc/>
-  public FlowIO<Directory<T>> Load() =>
-    FlowIO.LiftAsync(
-      async (CancellationToken ct) =>
-      {
-        if (!SysIO.Directory.Exists(_directoryPath))
-          return Directory<T>.Empty;
+  public FlowIO<DirectoryOf<T>> Load() =>
+    FlowIO.Lift(() => SysIO.Directory.Exists(_directoryPath))
+      .Bind(exists =>
+        !exists
+          ? FlowIO.Pure(DirectoryOf<T>.Empty)
+          : FlowIO.Lift(() => EnumerateFiles().ToList())
+              .Bind(LoadAllFiles)
+      );
 
-        var entries = new Dictionary<string, T>(StringComparer.Ordinal);
-        foreach (var path in EnumerateFiles())
-        {
-          ct.ThrowIfCancellationRequested();
-          var payload = await _perFileAdapter(path).Load().Run(ct);
-          entries[path] = payload;
-        }
-        return new Directory<T>(entries);
-      }
+  /// <summary>
+  /// Sequentially load each path through its per-file adapter and
+  /// fold the results into a <see cref="DirectoryOf{T}"/>. Per-file
+  /// failures propagate through <see cref="FlowIO{A}.Bind"/> as
+  /// typed <see cref="RuntimeError"/> values — no throw-recapture
+  /// at the directory boundary, so a downstream consumer can still
+  /// pattern-match on the original error variant.
+  /// </summary>
+  private FlowIO<DirectoryOf<T>> LoadAllFiles(IReadOnlyList<string> paths)
+  {
+    var seed = FlowIO.Pure(new Dictionary<string, T>(StringComparer.Ordinal));
+    var folded = paths.Aggregate(seed, (accIO, path) =>
+      from acc in accIO
+      from value in _perFileAdapter(path).Load()
+      select WithEntry(acc, path, value)
     );
+    return folded.Map(dict => new DirectoryOf<T>(dict));
+  }
+
+  private static Dictionary<string, T> WithEntry(
+    Dictionary<string, T> dict, string key, T value
+  )
+  {
+    // Local mutation contained to the fold; the dictionary is built
+    // up once and only observed at the end via Map.
+    dict[key] = value;
+    return dict;
+  }
 
   /// <inheritdoc/>
-  public FlowIO<FlowUnit> Save(Directory<T> data) =>
-    FlowIO.LiftAsync(
-      async (CancellationToken ct) =>
+  public FlowIO<FlowUnit> Save(DirectoryOf<T> data)
+  {
+    // Pre-IO setup (existence check, CanWrite probe, hard-delete of
+    // existing matching files) runs in a single Lift block; per-entry
+    // saves chain through Bind so each per-file Failure surfaces as
+    // a typed RuntimeError, not a wrapped IOException.
+    return FlowIO.Lift<FlowUnit>(() =>
       {
         if (!_traits.CanWrite)
+        {
           throw new NotSupportedException(
             $"DirectoryStorageAdapter at '{_directoryPath}' is read-only — its per-file "
-              + "adapter declares CanWrite = false. The format itself does not support "
-              + "writing (e.g., Excel via ExcelDataReader)."
+            + "adapter declares CanWrite = false."
           );
-
+        }
         SysIO.Directory.CreateDirectory(_directoryPath);
-
-        // Hard-delete existing matching files so the post-Save state matches `data` exactly.
         foreach (var existing in SysIO.Directory.EnumerateFiles(_directoryPath, _filePattern))
         {
           SysIO.File.Delete(existing);
         }
-
-        foreach (var (path, payload) in data)
-        {
-          ct.ThrowIfCancellationRequested();
-
-          // Allow callers to provide either bare keys (foo.csv) or full paths
-          // (/abs/dir/foo.csv); both resolve into the directory.
-          var resolvedPath = SysIO.Path.IsPathRooted(path)
-            ? path
-            : SysIO.Path.Combine(_directoryPath, path);
-
-          var parent = SysIO.Path.GetDirectoryName(resolvedPath);
-          if (!string.IsNullOrEmpty(parent))
-            SysIO.Directory.CreateDirectory(parent);
-
-          await _perFileAdapter(resolvedPath).Save(payload).Run(ct);
-        }
-
         return FlowUnit.Default;
-      }
+      },
+      source: $"DirectoryStorageAdapter.Save.PreIO[{_directoryPath}]"
+    ).Bind(_ => SaveAllEntries(data));
+  }
+
+  /// <summary>
+  /// Sequentially save each (path, payload) pair through its
+  /// per-file adapter. Per-file failures short-circuit the chain
+  /// and propagate the typed inner error verbatim.
+  /// </summary>
+  private FlowIO<FlowUnit> SaveAllEntries(DirectoryOf<T> data) =>
+    data.Aggregate(
+      FlowIO.Pure(FlowUnit.Default),
+      (accIO, kvp) =>
+        from _ in accIO
+        from saved in SaveOneEntry(kvp.Key, kvp.Value)
+        select FlowUnit.Default
     );
+
+  private FlowIO<FlowUnit> SaveOneEntry(string path, T payload)
+  {
+    // Allow bare keys (foo.json) or full paths (/abs/dir/foo.json);
+    // both resolve into the configured directory. Parent-directory
+    // creation is sync IO done in Lift before delegating to the
+    // per-file adapter's Save.
+    var resolvedPath = SysIO.Path.IsPathRooted(path)
+      ? path
+      : SysIO.Path.Combine(_directoryPath, path);
+
+    return FlowIO.Lift(
+      () =>
+      {
+        var parent = SysIO.Path.GetDirectoryName(resolvedPath);
+        if (!string.IsNullOrEmpty(parent)) SysIO.Directory.CreateDirectory(parent);
+        return resolvedPath;
+      },
+      source: $"DirectoryStorageAdapter.Save.MkParent[{resolvedPath}]"
+    ).Bind(p => _perFileAdapter(p).Save(payload));
+  }
 
   /// <inheritdoc/>
   public FlowIO<bool> Exists() => FlowIO.Lift(() => SysIO.Directory.Exists(_directoryPath));
 
   /// <inheritdoc/>
-  public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
-    FlowIO.LiftAsync(
-      async (CancellationToken ct) =>
+  public FlowIO<ValidationResult> InspectShallow(int sampleSize = 100) =>
+    FlowIO.LiftAsync(async ct =>
+    {
+      if (!SysIO.Directory.Exists(_directoryPath))
       {
-        if (!SysIO.Directory.Exists(_directoryPath))
-        {
-          return ValidationResult.Failure(
-            catalogKey: SysIO.Path.GetFileName(_directoryPath),
-            errorType: ValidationErrorType.NotFound,
-            message: $"Directory not found: {_directoryPath}"
-          );
-        }
-
-        foreach (var path in EnumerateFiles())
-        {
-          ct.ThrowIfCancellationRequested();
-          var probe = await _perFileAdapter(path).InspectShallow(sampleSize).Run(ct);
-          if (!probe.IsValid)
-            return probe;
-        }
-        return ValidationResult.Success();
+        return ValidationResult.Failure(
+          catalogKey: SysIO.Path.GetFileName(_directoryPath),
+          errorType: ValidationErrorType.NotFound,
+          message: $"Directory not found: {_directoryPath}"
+        );
       }
-    );
+
+      foreach (var path in EnumerateFiles())
+      {
+        ct.ThrowIfCancellationRequested();
+        var probeIO = _perFileAdapter(path).InspectShallow(sampleSize);
+        var probe = await probeIO.Run(ct).ConfigureAwait(false);
+        if (probe is EffResult<ValidationResult>.Success ok && !ok.Value.IsValid) return ok.Value;
+      }
+      return ValidationResult.Success();
+    });
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> InspectDeep() =>
-    FlowIO.LiftAsync(
-      async (CancellationToken ct) =>
+    FlowIO.LiftAsync(async ct =>
+    {
+      if (!SysIO.Directory.Exists(_directoryPath))
       {
-        if (!SysIO.Directory.Exists(_directoryPath))
-        {
-          return ValidationResult.Failure(
-            catalogKey: SysIO.Path.GetFileName(_directoryPath),
-            errorType: ValidationErrorType.NotFound,
-            message: $"Directory not found: {_directoryPath}"
-          );
-        }
-
-        foreach (var path in EnumerateFiles())
-        {
-          ct.ThrowIfCancellationRequested();
-          var probe = await _perFileAdapter(path).InspectDeep().Run(ct);
-          if (!probe.IsValid)
-            return probe;
-        }
-        return ValidationResult.Success();
+        return ValidationResult.Failure(
+          catalogKey: SysIO.Path.GetFileName(_directoryPath),
+          errorType: ValidationErrorType.NotFound,
+          message: $"Directory not found: {_directoryPath}"
+        );
       }
-    );
+      foreach (var path in EnumerateFiles())
+      {
+        ct.ThrowIfCancellationRequested();
+        var probe = await _perFileAdapter(path).InspectDeep().Run(ct).ConfigureAwait(false);
+        if (probe is EffResult<ValidationResult>.Success ok && !ok.Value.IsValid) return ok.Value;
+      }
+      return ValidationResult.Success();
+    });
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> InspectTarget() =>

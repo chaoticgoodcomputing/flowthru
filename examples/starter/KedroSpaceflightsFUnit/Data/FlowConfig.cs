@@ -1,21 +1,26 @@
-using Flowthru.Core.Data;
 using KedroSpaceflightsFUnit.Flows.DataScience.Steps;
 using KedroSpaceflightsFUnit.Flows.Reporting.Steps;
+using Microsoft.Extensions.Configuration;
 
 namespace KedroSpaceflightsFUnit.Data;
 
 /// <summary>
-/// Configuration catalog for the Spaceflights pipeline.
-/// Properties are bound from appsettings.json via the source-generated constructor.
+/// Configuration catalog for the Spaceflights pipeline. A plain reference type
+/// registered as a DI singleton via <c>RegisterCatalog</c>.
 /// </summary>
-[FlowthruConfig]
-public partial class FlowConfig
+public sealed class FlowConfig
 {
-  /// <summary>Configuration options for data splitting and model training.</summary>
-  [ConfigSection("Flowthru:Flows:DataScience:ModelOptions")]
-  public partial IItem<SplitDataStep.ModelOptions> ModelOptions { get; }
+  public SplitDataStep.ModelOptions ModelOptions { get; }
+  public CreateConfusionMatrixStep.Options ConfusionMatrixOptions { get; }
 
-  /// <summary>Configuration options for confusion matrix generation.</summary>
-  [ConfigSection("Flowthru:Flows:Reporting:ConfusionMatrixOptions")]
-  public partial IItem<CreateConfusionMatrixStep.Options> ConfusionMatrixOptions { get; }
+  public FlowConfig(IConfiguration configuration)
+  {
+    if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+    ModelOptions =
+      configuration.GetSection("Flowthru:Flows:DataScience:ModelOptions").Get<SplitDataStep.ModelOptions>()
+      ?? new SplitDataStep.ModelOptions();
+    ConfusionMatrixOptions =
+      configuration.GetSection("Flowthru:Flows:Reporting:ConfusionMatrixOptions").Get<CreateConfusionMatrixStep.Options>()
+      ?? new CreateConfusionMatrixStep.Options();
+  }
 }

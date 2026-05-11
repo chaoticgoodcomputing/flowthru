@@ -1,5 +1,5 @@
-using Flowthru.Core.Steps;
-using Flowthru.FUnit;
+using Flowthru.Step;
+using Flowthru.Step.Testing;
 using SpaceflightsDistributed.DataProcessing.Data._01_Raw.Schemas;
 using SpaceflightsDistributed.DataProcessing.Data._02_Intermediate.Schemas;
 
@@ -52,7 +52,7 @@ public static class PreprocessCompaniesStep
 
 #if FUNIT_ENABLED
   /// <summary>FUnit tests for <see cref="PreprocessCompaniesStep"/>.</summary>
-  public class Tests : Flowthru.FUnit.FUnitContext
+  public class Tests : FUnitContext
   {
     private static readonly CompanySchema ValidRaw =
       new()
@@ -63,7 +63,7 @@ public static class PreprocessCompaniesStep
         CompanyLocation = "UK",
       };
 
-    [StepTest(typeof(PreprocessCompaniesStep))]
+    [FUnitStepTest(typeof(PreprocessCompaniesStep))]
     public void ValidRecord_ParsesCorrectly()
     {
       var result = Invoke(Create(), Samples.Of(ValidRaw)).ToList();
@@ -73,7 +73,7 @@ public static class PreprocessCompaniesStep
       Assert.That(result[0].IataApproved, Is.True);
     }
 
-    [StepTest(typeof(PreprocessCompaniesStep))]
+    [FUnitStepTest(typeof(PreprocessCompaniesStep))]
     public void IataApprovedFalse_ParsesCorrectly()
     {
       var result = Invoke(Create(), Samples.Of(ValidRaw with { IataApproved = "f" })).ToList();
@@ -81,7 +81,7 @@ public static class PreprocessCompaniesStep
       Assert.That(result[0].IataApproved, Is.False);
     }
 
-    [StepTest(typeof(PreprocessCompaniesStep))]
+    [FUnitStepTest(typeof(PreprocessCompaniesStep))]
     public void InvalidRating_RecordIsFiltered()
     {
       var result = Invoke(Create(), Samples.Of(ValidRaw with { CompanyRating = "not-a-percent" }))

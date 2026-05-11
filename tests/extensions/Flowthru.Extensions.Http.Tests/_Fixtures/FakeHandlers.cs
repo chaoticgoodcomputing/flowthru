@@ -5,8 +5,8 @@ using System.Text;
 namespace Flowthru.Extensions.Http.Tests;
 
 /// <summary>
-/// Fake <see cref="HttpMessageHandler"/> that returns a pre-configured response.
-/// Records every request so tests can assert on method, headers, etc.
+/// Fake <see cref="HttpMessageHandler"/> that returns a pre-configured response
+/// and records every received request so tests can assert on method + headers.
 /// </summary>
 public sealed class FakeHandler : HttpMessageHandler
 {
@@ -18,7 +18,7 @@ public sealed class FakeHandler : HttpMessageHandler
   public HttpResponseMessage? NextResponse { get; set; }
 
   /// <summary>All requests received, in order.</summary>
-  public List<HttpRequestMessage> Requests { get; } = [];
+  public List<HttpRequestMessage> Requests { get; } = new();
 
   public FakeHandler(HttpStatusCode status, string body, string? etag = null)
   {
@@ -45,18 +45,12 @@ public sealed class FakeHandler : HttpMessageHandler
     {
       Content = new StringContent(_defaultBody, Encoding.UTF8),
     };
-
-    if (_etag is not null)
-      response.Headers.ETag = new EntityTagHeaderValue(_etag);
-
+    if (_etag is not null) response.Headers.ETag = new EntityTagHeaderValue(_etag);
     return Task.FromResult(response);
   }
 }
 
-/// <summary>
-/// Fake handler that always throws <see cref="HttpRequestException"/> to simulate
-/// network failures.
-/// </summary>
+/// <summary>Fake handler that always throws to simulate network failures.</summary>
 public sealed class ThrowingHandler : HttpMessageHandler
 {
   protected override Task<HttpResponseMessage> SendAsync(

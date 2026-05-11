@@ -1,4 +1,4 @@
-using Flowthru.Core.Data;
+using Flowthru.Data.Catalog;
 using KedroSpaceflights.Data._05_ModelInput.Schemas;
 
 namespace KedroSpaceflights.Data;
@@ -9,15 +9,15 @@ namespace KedroSpaceflights.Data;
 /// </summary>
 public partial class Catalog
 {
-  /// <summary>
-  /// Training dataset split from the model input table. Transient (memory only).
-  /// </summary>
+  /// <summary>Training dataset split from the model input table. Transient (memory only).</summary>
   public IItem<IEnumerable<TrainingData>> TrainSplit =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<TrainingData>(label: "XTrain"));
+    CreateItem(() => Item.Of<IEnumerable<TrainingData>>("XTrain")
+      .Memory()
+      .Build());
 
-  /// <summary>
-  /// Test dataset split from the model input table. Transient (memory only).
-  /// </summary>
+  /// <summary>Test dataset split from the model input table. Transient (memory only).</summary>
   public IItem<IEnumerable<TestData>> TestSplit =>
-    CreateItem(() => ItemFactory.Enumerable.Memory<TestData>(label: "XTest"));
+    CreateItem(() => Item.Of<IEnumerable<TestData>>("XTest")
+      .Memory()
+      .Build());
 }
