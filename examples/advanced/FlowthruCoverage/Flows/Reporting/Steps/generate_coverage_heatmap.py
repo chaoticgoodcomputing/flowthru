@@ -282,7 +282,7 @@ def generate_coverage_heatmap(pivot_coverage: pd.DataFrame) -> bytes:
 
     fig.update_layout(
         title=dict(text="Flowthru Coverage Heatmap", font=dict(size=20), y=0.99),
-        xaxis=dict(title="Test / Example Project", tickangle=-60, automargin=False),
+        xaxis=dict(title="Test / Integration Project", tickangle=-60, automargin=False),
         yaxis=dict(title="Source Package", automargin=False, dtick=1),
         shapes=shapes,
         annotations=annotations,

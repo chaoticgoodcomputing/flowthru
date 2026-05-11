@@ -23,4 +23,17 @@ public partial class Catalog
         .AtPath($"{_basePath}/_01_Raw/Datasets/project_manifest.csv")
         .Build()
     );
+
+  /// <summary>
+  /// Markdown template for the unit-coverage report — agent instructions and
+  /// report structure live here, separate from the pipeline source. The step
+  /// substitutes <c>{{token}}</c> placeholders with computed data fragments.
+  /// </summary>
+  public IItem<string> UnitCoverageReportTemplate =>
+    CreateItem(() =>
+      Item.Of<string>("UnitCoverageReportTemplate")
+        .Text()
+        .AtPath($"{_basePath}/_01_Raw/Templates/unit_coverage_report.md")
+        .Build()
+    );
 }

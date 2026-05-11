@@ -36,55 +36,38 @@ public static class ReportingFlow
         executor: executor
       );
 
+      // ── Provenance icicle ──────────────────────────────────────────
+      // One tree per library; each node carries Total / Any / Unit /
+      // Integration line counts. The Python renderer maps those to a
+      // per-tile RGB so a single chart surfaces unit coverage,
+      // integration coverage (from example-pipeline runs), and combined
+      // coverage at once.
+
       pipeline.AddStep<
         IEnumerable<LineCoverageRow>,
         IEnumerable<ProjectManifestEntry>,
-        IEnumerable<IcicleCoverageNode>
+        IEnumerable<ProvenanceIcicleNode>
       >(
-        label: "BuildIcicleCoverage",
-        transform: BuildIcicleCoverageStep.Create(),
+        label: "BuildProvenanceIcicleCoverage",
+        transform: BuildProvenanceIcicleStep.Create(),
         inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest),
-        outputs: catalog.IcicleCoverage
+        outputs: catalog.ProvenanceIcicleCoverage
       );
 
       pipeline.AddPythonStep(
-        label: "GenerateCoverageIcicle",
+        label: "GenerateProvenanceCoverageIcicle",
         module: "Flows.Reporting.Steps.generate_coverage_icicle",
-        function: "generate_coverage_icicle",
-        input: catalog.IcicleCoverage,
-        output: catalog.CoverageIcicles,
+        function: "generate_provenance_coverage_icicle",
+        input: catalog.ProvenanceIcicleCoverage,
+        output: catalog.ProvenanceCoverageIcicles,
         executor: executor
       );
 
-      pipeline.AddStep<
-        IEnumerable<LineCoverageRow>,
-        IEnumerable<ProjectManifestEntry>,
-        IEnumerable<LineCoverageRow>
-      >(
-        label: "FilterToExampleLineCoverage",
-        transform: FilterLineCoverageByTestProjectTypeStep.Create("Example"),
-        inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest),
-        outputs: catalog.ExampleMethodLineCoverage
-      );
-
-      pipeline.AddStep<
-        IEnumerable<LineCoverageRow>,
-        IEnumerable<ProjectManifestEntry>,
-        IEnumerable<IcicleCoverageNode>
-      >(
-        label: "BuildExampleIcicleCoverage",
-        transform: BuildIcicleCoverageStep.Create(),
-        inputs: (catalog.ExampleMethodLineCoverage, catalog.ProjectManifest),
-        outputs: catalog.ExampleIcicleCoverage
-      );
-
-      pipeline.AddPythonStep(
-        label: "GenerateExampleCoverageIcicle",
-        module: "Flows.Reporting.Steps.generate_coverage_icicle",
-        function: "generate_example_coverage_icicle",
-        input: catalog.ExampleIcicleCoverage,
-        output: catalog.ExampleCoverageIcicles,
-        executor: executor
+      pipeline.AddStep<IEnumerable<ProvenanceIcicleNode>, string, byte[]>(
+        label: "BuildUnitCoverageReport",
+        transform: BuildUnitCoverageReportStep.Create(),
+        inputs: (catalog.ProvenanceIcicleCoverage, catalog.UnitCoverageReportTemplate),
+        outputs: catalog.UnitCoverageReport
       );
 
       pipeline.AddStep<IEnumerable<PivotCoverageRow>, IEnumerable<PackageCoverageMaxRow>>(

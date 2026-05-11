@@ -23,12 +23,4 @@ public partial class Catalog
         .Build()
     );
 
-  /// <summary>MethodLineCoverage filtered to manifest Example test-project rows.</summary>
-  public IItem<IEnumerable<LineCoverageRow>> ExampleMethodLineCoverage =>
-    CreateItem(() =>
-      Item.Of<IEnumerable<LineCoverageRow>>("ExampleMethodLineCoverage")
-        .Csv()
-        .AtPath($"{_basePath}/_02_Intermediate/Datasets/example_method_line_coverage.csv")
-        .Build()
-    );
 }
