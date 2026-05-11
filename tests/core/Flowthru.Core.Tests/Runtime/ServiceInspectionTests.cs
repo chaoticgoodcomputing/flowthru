@@ -11,9 +11,10 @@ namespace Flowthru.Core.Tests.Runtime;
 /// <see cref="IFlowServiceInspector{TService}"/> sidecars (or
 /// delegate probes) via <see cref="IFlowthruBuilder.AddFlowServiceInspector{TService}(IFlowServiceInspector{TService})"/>
 /// and its lambda overload; <see cref="IFlowthruService.RunAsync"/> invokes them
-/// during pre-flight, surfacing the aggregated outcome as a single
-/// <c>preflight</c> <see cref="StepResult.Failed"/> wrapping a
-/// <see cref="RuntimeError.InvariantViolated"/>.
+/// during pre-flight, surfacing each error as its own
+/// <c>preflight:…</c>-labelled <see cref="StepResult.Failed"/> wrapping a
+/// <see cref="RuntimeError.PreFlightFailed"/> (which the classifier
+/// delegates to the inner FT3xxx code).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -129,10 +130,11 @@ public class ServiceInspectionTests
     {
       Assert.That(result.HasFailures, Is.True);
       var failed = result.FirstFailure!;
-      Assert.That(failed.StepLabel, Is.EqualTo("preflight"),
-        "Pre-flight failures collapse into a single 'preflight' StepResult.Failed.");
-      Assert.That(failed.Error, Is.InstanceOf<RuntimeError.InvariantViolated>(),
-        "The active pipeline currently wraps the aggregated pre-flight outcome in InvariantViolated.");
+      Assert.That(failed.StepLabel, Does.StartWith("preflight:"),
+        "Pre-flight failures surface as per-error StepResult.Faileds prefixed with 'preflight:'.");
+      Assert.That(failed.Error, Is.InstanceOf<RuntimeError.PreFlightFailed>(),
+        "Inspector exceptions become PreFlightFailed (FT3xxx via classifier delegation), "
+          + "NOT InvariantViolated (FT4004 'bug in Flowthru'). The user can fix their service.");
       Assert.That(failed.Error.Message, Does.Contain("simulated probe failure"),
         "The probe's exception message must reach the formatted pre-flight summary.");
     });
@@ -296,10 +298,10 @@ public class ServiceInspectionTests
     {
       Assert.That(result.HasFailures, Is.True);
       var failed = result.FirstFailure!;
-      Assert.That(failed.StepLabel, Is.EqualTo("preflight"));
-      Assert.That(failed.Error, Is.InstanceOf<RuntimeError.InvariantViolated>());
+      Assert.That(failed.StepLabel, Does.StartWith("preflight:"));
+      Assert.That(failed.Error, Is.InstanceOf<RuntimeError.PreFlightFailed>());
       Assert.That(failed.Error.Message, Does.Contain("unreachable"),
-        "Inspect.Fail's message must reach the aggregated pre-flight summary.");
+        "Inspect.Fail's message must reach the formatted pre-flight summary.");
     });
   }
 

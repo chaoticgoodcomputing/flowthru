@@ -3,6 +3,7 @@ using Flowthru.Flow;
 using Flowthru.Hosting;
 using Flowthru.Prelude;
 using Flowthru.Validation.PreFlight;
+using Flowthru.Validation.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flowthru.Core.Tests.Hosting;
@@ -193,8 +194,11 @@ public class RegistrationValidationHookTests
       "Registration validation must run before any step executes.");
 
     var failed = (StepResult.Failed)result.StepResults[0];
-    Assert.That(failed.StepLabel, Is.EqualTo("registration:blocker"),
-      "Synthetic step result should be labelled registration:<hookId>.");
+    Assert.That(failed.StepLabel, Is.EqualTo("preflight:registration:blocker"),
+      "Synthetic step result should be labelled preflight:registration:<hookId>.");
+    Assert.That(failed.Error, Is.InstanceOf<RuntimeError.PreFlightFailed>(),
+      "Registration failures are legitimate user-actionable pre-flight errors — they "
+        + "surface via PreFlightFailed so the classifier yields FT3006, not FT4004.");
   }
 
   // ── Hook implementation throwing ────────────────────────────────────
