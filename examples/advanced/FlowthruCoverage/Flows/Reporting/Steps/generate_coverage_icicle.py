@@ -11,9 +11,14 @@ provenance ratios.
 
 Colour encoding (per tile, ratios in [0,1] of TotalLines):
 
-    R = 1 − IntegrationCovered / TotalLines
-    G = AnyCovered             / TotalLines
-    B = 1 − UnitCovered        / TotalLines
+    R = 1 − ease(IntegrationCovered / TotalLines)
+    G =     ease(AnyCovered         / TotalLines)
+    B = 1 − ease(UnitCovered        / TotalLines)
+
+``ease`` is piecewise-linear: the first 80% of coverage compresses into the
+first 50% of the channel range, and the last 20% expands into the last 50%.
+This keeps the saturated green corner reserved for coverage ≥ 80% on all axes,
+so partial coverage reads as visibly under-target rather than trending green.
 
 Corner colours fall out as:
 
@@ -47,6 +52,18 @@ logger = logging.getLogger(__name__)
 
 
 _LEGEND_URI: str | None = None
+
+
+def _ease(x):
+    """Compress 0..0.8 into 0..0.5 and expand 0.8..1.0 into 0.5..1.0.
+
+    Reserves the saturated green corner for coverage ≥ 80% on all axes —
+    below that, channels stay closer to their uncovered extreme so partial
+    coverage doesn't visually approximate the "robust" target state.
+
+    Accepts scalars or numpy arrays.
+    """
+    return np.where(x <= 0.8, x * 0.625, 0.5 + (x - 0.8) * 2.5)
 
 
 def _load_font(size: int) -> ImageFont.ImageFont:
@@ -109,11 +126,13 @@ def _build_legend_image() -> Image.Image:
 
     n = 256
     # Origin at bottom-left = (Integration=0, Unit=0) = no coverage = magenta.
-    # X: Integration% increases left → right, so R = 1 − Integration% decreases.
-    # Y (PIL row 0 = top): Unit% is high at top and low at bottom, so
-    # B = 1 − Unit% is 0 at top and 1 at bottom.
-    r = np.tile(np.linspace(1.0, 0.0, n), (n, 1))
-    b = np.tile(np.linspace(0.0, 1.0, n).reshape(-1, 1), (1, n))
+    # X: Integration% increases left → right. Y (PIL row 0 = top): Unit%
+    # decreases top → bottom. Apply the same easing as the per-tile encoding
+    # so the legend's green corner aligns with the ≥80% threshold.
+    int_pct = np.tile(np.linspace(0.0, 1.0, n), (n, 1))
+    unit_pct = np.tile(np.linspace(1.0, 0.0, n).reshape(-1, 1), (1, n))
+    r = 1.0 - _ease(int_pct)
+    b = 1.0 - _ease(unit_pct)
     g = 1.0 - np.minimum(r, b)
     rgb = (np.stack([r, g, b], axis=-1) * 255.0).astype(np.uint8)
     spec = Image.fromarray(rgb, mode="RGB").resize(
@@ -209,9 +228,9 @@ def _provenance_colors(sub: pd.DataFrame) -> list[str]:
         if total <= 0:
             colors.append("#FF00FF")
             continue
-        r = 1.0 - (integration / total)
-        g = any_ / total
-        b = 1.0 - (unit / total)
+        r = float(1.0 - _ease(integration / total))
+        g = float(_ease(any_ / total))
+        b = float(1.0 - _ease(unit / total))
         # Clamp to [0,1] before quantising — guards against tiny FP drift past 1.0.
         r = max(0.0, min(1.0, r))
         g = max(0.0, min(1.0, g))

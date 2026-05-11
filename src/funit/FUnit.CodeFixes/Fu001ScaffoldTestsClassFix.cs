@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -8,18 +9,19 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Flowthru.FUnit.CodeFixes;
 
 /// <summary>
-/// Fix-it for FU001 — scaffolds an empty
-/// <c>public class Tests : FUnitContext { }</c> nested inside the
-/// flagged <c>[FlowthruStep]</c> class, wrapped in
-/// <c>#if FUNIT_ENABLED</c>. The user fills in
-/// <c>[FUnitStepTest]</c>-decorated methods.
+/// Code fix for FU001: scaffolds a stub <c>Tests : FUnitContext</c> class inside a
+/// <c>#if FUNIT_ENABLED</c> / <c>#endif</c> block at the end of the step class body,
+/// and inserts a <c>using Flowthru.Step.Testing;</c> directive if missing. The
+/// scaffold contains a placeholder <c>[FUnitStepTest]</c>-decorated method so
+/// applying the fix actually clears the FU001 diagnostic — the analyzer requires at
+/// least one <c>[FUnitStepTest]</c> method, not just an empty <c>Tests</c> class.
 /// </summary>
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Fu001ScaffoldTestsClassFix))]
-[Shared]
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Fu001ScaffoldTestsClassFix)), Shared]
 public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
 {
   /// <inheritdoc/>
@@ -31,65 +33,115 @@ public sealed class Fu001ScaffoldTestsClassFix : CodeFixProvider
   /// <inheritdoc/>
   public override async Task RegisterCodeFixesAsync(CodeFixContext context)
   {
-    var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-    if (root is null) return;
+    var root = await context
+      .Document.GetSyntaxRootAsync(context.CancellationToken)
+      .ConfigureAwait(false);
+    if (root is null)
+    {
+      return;
+    }
 
     var diagnostic = context.Diagnostics.First();
-    var classNode = root.FindNode(diagnostic.Location.SourceSpan).FirstAncestorOrSelf<ClassDeclarationSyntax>();
-    if (classNode is null) return;
+    var span = diagnostic.Location.SourceSpan;
+    var classDecl = root.FindToken(span.Start)
+      .Parent?.AncestorsAndSelf()
+      .OfType<ClassDeclarationSyntax>()
+      .FirstOrDefault();
+
+    if (classDecl is null)
+    {
+      return;
+    }
 
     context.RegisterCodeFix(
       CodeAction.Create(
-        title: "Scaffold inline FUnit Tests class",
-        createChangedDocument: ct => ScaffoldAsync(context.Document, classNode, ct),
+        title: $"Add nested 'Tests : FUnitContext' class inside '{classDecl.Identifier.Text}'",
+        createChangedDocument: ct => ScaffoldTestsClassAsync(context.Document, classDecl, ct),
         equivalenceKey: nameof(Fu001ScaffoldTestsClassFix)
       ),
       diagnostic
     );
   }
 
-  private static async Task<Document> ScaffoldAsync(
+  private static async Task<Document> ScaffoldTestsClassAsync(
     Document document,
-    ClassDeclarationSyntax classNode,
+    ClassDeclarationSyntax classDecl,
     CancellationToken cancellationToken
   )
   {
     var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-    if (root is null) return document;
+    if (root is null)
+    {
+      return document;
+    }
 
-    // Build:
-    //   #if FUNIT_ENABLED
-    //   public class Tests : Flowthru.Step.Testing.FUnitContext
-    //   {
-    //   }
-    //   #endif
-    var testsClass = SyntaxFactory
-      .ClassDeclaration("Tests")
-      .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
-      .AddBaseListTypes(
-        SyntaxFactory.SimpleBaseType(
-          SyntaxFactory.ParseTypeName("global::Flowthru.Step.Testing.FUnitContext")
-        )
-      )
-      .WithLeadingTrivia(
-        SyntaxFactory.Trivia(
-          SyntaxFactory.IfDirectiveTrivia(
-            SyntaxFactory.IdentifierName("FUNIT_ENABLED"),
-            isActive: true,
-            branchTaken: true,
-            conditionValue: true
-          )
-        )
-      )
-      .WithTrailingTrivia(
-        SyntaxFactory.Trivia(
-          SyntaxFactory.EndIfDirectiveTrivia(isActive: true)
-        ),
-        SyntaxFactory.EndOfLine("\n")
-      );
+    var sourceText = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
 
-    var newClass = classNode.AddMembers(testsClass);
-    var newRoot = root.ReplaceNode(classNode, newClass);
-    return document.WithSyntaxRoot(newRoot);
+    // Determine base indent from class declaration line so the nested class lines
+    // up with the existing source style.
+    var classLine = sourceText.Lines.GetLineFromPosition(classDecl.SpanStart);
+    var classIndent = classLine.ToString().Length - classLine.ToString().TrimStart().Length;
+    var indent = new string(' ', classIndent + 2);
+
+    var stepName = classDecl.Identifier.Text;
+
+    // The placeholder [FUnitStepTest] method is what actually closes the FU001
+    // diagnostic — the analyzer fires when a [FlowthruStep] class has no method
+    // anywhere in the compilation decorated with [FUnitStepTest(typeof(<this>))].
+    // An empty Tests class wouldn't satisfy the rule.
+    var stub = $$"""
+
+#if FUNIT_ENABLED
+{{indent}}/// <summary>FUnit tests for <see cref="{{stepName}}"/>.</summary>
+{{indent}}public class Tests : FUnitContext
+{{indent}}{
+{{indent}}    [FUnitStepTest(typeof({{stepName}}))]
+{{indent}}    public void TODO_WriteYourTestHere()
+{{indent}}    {
+{{indent}}        throw new System.NotImplementedException();
+{{indent}}    }
+{{indent}}}
+#endif
+
+""";
+
+    // Collect both text edits against the ORIGINAL source positions, then apply
+    // in reverse order so earlier insertions don't shift later positions.
+    var edits = new List<(TextSpan Span, string Text)>();
+
+    // Edit 1 (earlier in file): add `using Flowthru.Step.Testing;` if not already
+    // present. Required so the unqualified [FUnitStepTest] / FUnitContext resolve.
+    if (root is CompilationUnitSyntax compilationUnit)
+    {
+      const string funitNs = "Flowthru.Step.Testing";
+      bool hasUsing =
+        compilationUnit.Usings.Any(u => u.Name?.ToString() == funitNs)
+        || compilationUnit
+          .Members.OfType<BaseNamespaceDeclarationSyntax>()
+          .Any(ns => ns.Usings.Any(u => u.Name?.ToString() == funitNs));
+
+      if (!hasUsing)
+      {
+        // Insert after last top-level using, or at the start of the first member.
+        int insertPos =
+          compilationUnit.Usings.LastOrDefault()?.FullSpan.End
+          ?? compilationUnit.Members.FirstOrDefault()?.FullSpan.Start
+          ?? 0;
+        edits.Add((new TextSpan(insertPos, 0), "using Flowthru.Step.Testing;\n"));
+      }
+    }
+
+    // Edit 2 (later in file): insert stub before close brace.
+    var closeBrace = classDecl.CloseBraceToken;
+    edits.Add((new TextSpan(closeBrace.FullSpan.Start, 0), stub));
+
+    // Apply edits from the end of the file backwards so positions stay valid.
+    var newSourceText = sourceText;
+    foreach (var (span, text) in edits.OrderByDescending(e => e.Span.Start))
+    {
+      newSourceText = newSourceText.Replace(span, text);
+    }
+
+    return document.WithText(newSourceText);
   }
 }

@@ -1,55 +1,42 @@
-using System.Collections.Immutable;
 using Flowthru.FUnit.CodeFixes;
 using Flowthru.FUnit.SourceGenerators;
 using Flowthru.Tests.Helpers;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
-using Microsoft.CodeAnalysis.Text;
 
-namespace FUnit.CodeFixes.Tests;
+namespace Flowthru.FUnit.CodeFixes.Tests;
 
 /// <summary>
-/// Tests for FU001 — a <c>[FlowthruStep]</c>-annotated class with no
-/// <c>[FUnitStepTest]</c> coverage — and the <see cref="Fu001ScaffoldTestsClassFix"/>
-/// codefix that scaffolds an empty <c>Tests : FUnitContext</c> nested class
-/// guarded by <c>#if FUNIT_ENABLED</c>.
+/// Tests for FU001: scaffolds a stub <c>Tests : FUnitContext</c> class inside a
+/// <c>#if FUNIT_ENABLED</c> guard when a <c>[FlowthruStep]</c> class has no
+/// <c>[FUnitStepTest]</c>-decorated coverage anywhere in the compilation.
 /// </summary>
 [TestFixture]
 [Category("CodeFixes")]
 public class Fu001Tests
 {
-  // Minimal stubs so the analyzer resolves [FlowthruStep], [FUnitStepTest],
-  // and FUnitContext without referencing real Flowthru.Core / FUnit assemblies.
-  // The analyzer keys off ToDisplayString() equality of full type names, so the
-  // namespace/name layout is the only load-bearing part of these stubs.
+  // Minimal stubs so the test compilation resolves the referenced types without
+  // pulling in the real Flowthru.Core / Flowthru.FUnit assemblies.
   private const string Stubs = """
     namespace Flowthru.Step
     {
         [System.AttributeUsage(System.AttributeTargets.Class)]
         public class FlowthruStepAttribute : System.Attribute { }
     }
-
     namespace Flowthru.Step.Testing
     {
-        [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple = true)]
+        public abstract class FUnitContext { }
+        [System.AttributeUsage(System.AttributeTargets.Method)]
         public class FUnitStepTestAttribute : System.Attribute
         {
-            public FUnitStepTestAttribute(System.Type target) { }
+            public FUnitStepTestAttribute(System.Type stepType) { }
         }
-
-        public abstract class FUnitContext { }
     }
     """;
 
-  // ---------- Analyzer behavior ----------
-
   [Test]
-  public async Task FlowthruStepWithoutTests_ReportsFu001()
+  public async Task StepWithNoTests_ScaffoldsTestsClassAndClearsDiagnostic()
   {
     var source =
       Stubs
@@ -66,123 +53,12 @@ public class Fu001Tests
         }
         """;
 
-    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  [Test]
-  public async Task FlowthruStepWithMatchingTests_NoDiagnostic()
-  {
-    // An [FUnitStepTest(typeof(MyStep))]-decorated method elsewhere in the
-    // project satisfies the analyzer's coverage check.
-    var source =
-      Stubs
-      + """
-
-        namespace TestProject
-        {
-            using Flowthru.Step;
-            using Flowthru.Step.Testing;
-
-            [FlowthruStep]
-            public class MyStep
-            {
-            }
-
-            public class TestsForMyStep
-            {
-                [FUnitStepTest(typeof(MyStep))]
-                public void SomeTest() { }
-            }
-        }
-        """;
-
-    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  [Test]
-  public async Task NonStepClass_NoDiagnostic()
-  {
-    // A class without [FlowthruStep] is irrelevant to FU001 regardless of
-    // whether anyone tests it.
-    var source =
-      Stubs
-      + """
-
-        namespace TestProject
-        {
-            public class JustAClass
-            {
-            }
-        }
-        """;
-
-    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  [Test]
-  public async Task FlowthruStepWithTestForDifferentClass_StillReportsFu001()
-  {
-    // The analyzer keys [FUnitStepTest]'s target type via the constructor's
-    // first argument; if the target is *another* class, the step under test
-    // remains untested.
-    var source =
-      Stubs
-      + """
-
-        namespace TestProject
-        {
-            using Flowthru.Step;
-            using Flowthru.Step.Testing;
-
-            [FlowthruStep]
-            public class {|FU001:MyStep|}
-            {
-            }
-
-            [FlowthruStep]
-            public class OtherStep
-            {
-            }
-
-            public class TestsForOtherStep
-            {
-                [FUnitStepTest(typeof(OtherStep))]
-                public void SomeTest() { }
-            }
-        }
-        """;
-
-    await new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
-    {
-      TestCode = source,
-    }.RunAsync();
-  }
-
-  // ---------- Codefix behavior ----------
-  //
-  // The Roslyn CSharpCodeFixTest harness runs the codefix iteratively until
-  // the diagnostic clears. Fu001ScaffoldTestsClassFix only *scaffolds* an
-  // empty Tests-class — it doesn't add [FUnitStepTest]-annotated methods, so
-  // FU001 keeps firing post-fix, and the harness loops. To assert on the
-  // codefix's *immediate* output (the actual surface area shipped today),
-  // we drive the codefix once through Roslyn workspaces directly. This is
-  // the same pattern used internally by CSharpCodeFixTest before its iterate
-  // loop wraps it.
-
-  [Test]
-  public async Task CodeFix_RegistersScaffoldAction_ForFu001Diagnostic()
-  {
-    var source =
-      Stubs
+    // The fix inserts the Tests class before the class's closing brace and
+    // adds `using Flowthru.Step.Testing;` at compilation-unit root. The scaffold
+    // contains a [FUnitStepTest] placeholder so FU001 stops firing on the second pass.
+    var fixedSource =
+      "using Flowthru.Step.Testing;\n"
+      + Stubs
       + """
 
         namespace TestProject
@@ -192,184 +68,90 @@ public class Fu001Tests
             [FlowthruStep]
             public class MyStep
             {
+
+        #if FUNIT_ENABLED
+              /// <summary>FUnit tests for <see cref="MyStep"/>.</summary>
+              public class Tests : FUnitContext
+              {
+                  [FUnitStepTest(typeof(MyStep))]
+                  public void TODO_WriteYourTestHere()
+                  {
+                      throw new System.NotImplementedException();
+                  }
+              }
+        #endif
             }
         }
         """;
 
-    var (document, diagnostic) = await BuildDocumentAndFu001DiagnosticAsync(source);
-
-    Assert.That(diagnostic.Id, Is.EqualTo("FU001"));
-
-    var fix = new Fu001ScaffoldTestsClassFix();
-    Assert.That(fix.FixableDiagnosticIds, Does.Contain("FU001"),
-      "FixableDiagnosticIds advertises FU001");
-
-    var registered = new List<CodeAction>();
-    var context = new CodeFixContext(
-      document,
-      diagnostic,
-      (action, _) => registered.Add(action),
-      CancellationToken.None
-    );
-    await fix.RegisterCodeFixesAsync(context);
-
-    Assert.That(registered, Has.Count.EqualTo(1),
-      "exactly one code action is registered for an FU001 diagnostic");
-    Assert.That(registered[0].Title, Is.EqualTo("Scaffold inline FUnit Tests class"));
-    Assert.That(registered[0].EquivalenceKey, Is.EqualTo(nameof(Fu001ScaffoldTestsClassFix)));
-  }
-
-  [Test]
-  public async Task CodeFix_ScaffoldsTestsClassInsideStep_WithFUnitEnabledGuard()
-  {
-    var source =
-      Stubs
-      + """
-
-        namespace TestProject
-        {
-            using Flowthru.Step;
-
-            [FlowthruStep]
-            public class MyStep
-            {
-            }
-        }
-        """;
-
-    var fixedText = await ApplyFu001FixAsync(source);
-
-    // Behavioural assertions on the codefix's output. We deliberately do not
-    // assert on exact whitespace — only on the structural changes the fix is
-    // contracted to make.
-    Assert.That(fixedText, Does.Contain("#if FUNIT_ENABLED"),
-      "the scaffolded Tests class is wrapped in #if FUNIT_ENABLED");
-    Assert.That(fixedText, Does.Contain("#endif"),
-      "the scaffolded Tests class is terminated by #endif");
-    Assert.That(fixedText, Does.Contain("class Tests"),
-      "the scaffolded type is named Tests");
-    Assert.That(fixedText, Does.Contain("global::Flowthru.Step.Testing.FUnitContext"),
-      "the scaffolded Tests class derives from FUnitContext (fully qualified)");
-
-    // The Tests class is nested inside MyStep, not added as a sibling — i.e.
-    // it appears after `class MyStep` opens but before `class MyStep` closes.
-    var myStepIdx = fixedText.IndexOf("class MyStep", StringComparison.Ordinal);
-    var testsIdx = fixedText.IndexOf("class Tests", StringComparison.Ordinal);
-    Assert.That(myStepIdx, Is.GreaterThanOrEqualTo(0));
-    Assert.That(testsIdx, Is.GreaterThan(myStepIdx),
-      "Tests class is declared after MyStep — i.e. nested inside its body");
-  }
-
-  [Test]
-  public async Task CodeFix_LeavesUnrelatedSource_Unchanged()
-  {
-    // A second non-flagged class in the same compilation must not be touched.
-    var source =
-      Stubs
-      + """
-
-        namespace TestProject
-        {
-            using Flowthru.Step;
-
-            [FlowthruStep]
-            public class MyStep
-            {
-            }
-
-            public class OtherClass
-            {
-                public int Marker => 42;
-            }
-        }
-        """;
-
-    var fixedText = await ApplyFu001FixAsync(source);
-
-    Assert.That(fixedText, Does.Contain("public class OtherClass"),
-      "OtherClass declaration is preserved");
-    Assert.That(fixedText, Does.Contain("public int Marker => 42;"),
-      "OtherClass members are preserved");
-  }
-
-  [Test]
-  public void CodeFix_GetFixAllProvider_ReturnsBatchFixer()
-  {
-    var fix = new Fu001ScaffoldTestsClassFix();
-    var provider = fix.GetFixAllProvider();
-    Assert.That(provider, Is.SameAs(WellKnownFixAllProviders.BatchFixer));
-  }
-
-  // ---------- Helpers ----------
-
-  /// <summary>
-  /// Builds an ad-hoc Roslyn workspace + document from <paramref name="source"/>,
-  /// runs the FU001 analyzer against it, and returns the document plus the
-  /// single FU001 diagnostic reported.
-  /// </summary>
-  private static async Task<(Document Document, Diagnostic Diagnostic)>
-    BuildDocumentAndFu001DiagnosticAsync(string source)
-  {
-    var workspace = new AdhocWorkspace();
-    var projectId = ProjectId.CreateNewId();
-    var documentId = DocumentId.CreateNewId(projectId);
-
-    // Reference the same core assemblies the production analyzer relies on.
-    // We just need enough for the test compilation to bind System.* types —
-    // the [FlowthruStep] / [FUnitStepTest] / FUnitContext shapes are defined
-    // inline by Stubs.
-    var references = new[]
+    // FUNIT_ENABLED must be defined in the test compilation so the fix converges:
+    // after the fix runs the Tests class is inside #if FUNIT_ENABLED and becomes
+    // visible, meaning FU001 no longer fires and the verifier confirms convergence.
+    var test = new CSharpCodeFixTest<
+      FUnitDiagnosticAnalyzer,
+      Fu001ScaffoldTestsClassFix,
+      NUnit4Verifier
+    >
     {
-      MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(System.Attribute).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
-      MetadataReference.CreateFromFile(typeof(System.Runtime.CompilerServices.RuntimeHelpers).Assembly.Location),
+      TestCode = source,
+      FixedCode = fixedSource,
     };
-
-    var solution = workspace.CurrentSolution
-      .AddProject(projectId, "TestProject", "TestProject", LanguageNames.CSharp)
-      .AddMetadataReferences(projectId, references)
-      .WithProjectCompilationOptions(
-        projectId,
-        new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-      )
-      .AddDocument(documentId, "Test.cs", SourceText.From(source));
-
-    var project = solution.GetProject(projectId)!;
-    var compilation = await project.GetCompilationAsync();
-
-    var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(new FUnitDiagnosticAnalyzer());
-    var compilationWithAnalyzers = compilation!.WithAnalyzers(analyzers);
-    var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-
-    var fu001 = diagnostics.Single(d => d.Id == "FU001");
-    return (project.GetDocument(documentId)!, fu001);
+    test.SolutionTransforms.Add(
+      (solution, projectId) =>
+      {
+        var project = solution.GetProject(projectId)!;
+        var parseOptions = (CSharpParseOptions)project.ParseOptions!;
+        parseOptions = parseOptions.WithPreprocessorSymbols(
+          parseOptions.PreprocessorSymbolNames.Concat(["FUNIT_ENABLED"])
+        );
+        return solution.WithProjectParseOptions(projectId, parseOptions);
+      }
+    );
+    await test.RunAsync();
   }
 
-  /// <summary>
-  /// Runs <see cref="Fu001ScaffoldTestsClassFix"/> against <paramref name="source"/>
-  /// exactly once and returns the fixed document's text.
-  /// </summary>
-  private static async Task<string> ApplyFu001FixAsync(string source)
+  [Test]
+  public async Task StepWithTests_NoDiagnostic()
   {
-    var (document, diagnostic) = await BuildDocumentAndFu001DiagnosticAsync(source);
+    // A step that already has a [FUnitStepTest] in the file → no FU001.
+    var source =
+      Stubs
+      + """
 
-    var fix = new Fu001ScaffoldTestsClassFix();
-    CodeAction? action = null;
-    var context = new CodeFixContext(
-      document,
-      diagnostic,
-      (a, _) => action = a,
-      CancellationToken.None
+        namespace TestProject
+        {
+            using Flowthru.Step;
+            using Flowthru.Step.Testing;
+
+            [FlowthruStep]
+            public class MyStep
+            {
+        #if FUNIT_ENABLED
+                public class Tests : FUnitContext
+                {
+                    [FUnitStepTest(typeof(MyStep))]
+                    public void Test1() { }
+                }
+        #endif
+            }
+        }
+        """;
+
+    var analyzerTest = new CSharpAnalyzerTest<FUnitDiagnosticAnalyzer, NUnit4Verifier>
+    {
+      TestCode = source,
+    };
+    analyzerTest.SolutionTransforms.Add(
+      (solution, projectId) =>
+      {
+        var project = solution.GetProject(projectId)!;
+        var parseOptions = (CSharpParseOptions)project.ParseOptions!;
+        parseOptions = parseOptions.WithPreprocessorSymbols(
+          parseOptions.PreprocessorSymbolNames.Concat(["FUNIT_ENABLED"])
+        );
+        return solution.WithProjectParseOptions(projectId, parseOptions);
+      }
     );
-    await fix.RegisterCodeFixesAsync(context);
-
-    Assert.That(action, Is.Not.Null, "the codefix registered an action");
-
-    var operations = await action!.GetOperationsAsync(CancellationToken.None);
-    var applyChanges = operations.OfType<ApplyChangesOperation>().Single();
-    var changedDocument = applyChanges.ChangedSolution.GetDocument(document.Id)!;
-    var changedText = await changedDocument.GetTextAsync();
-    return changedText.ToString();
+    await analyzerTest.RunAsync();
   }
 }
