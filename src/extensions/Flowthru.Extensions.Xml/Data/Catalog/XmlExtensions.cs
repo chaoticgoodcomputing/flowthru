@@ -7,7 +7,7 @@ namespace Flowthru.Data.Catalog;
 /// <summary>
 /// XML item-builder extensions on <see cref="ItemAnchor{T}"/>. XML
 /// in this extension is document-mode only — one file holds one
-/// <typeparamref name="T"/>, and a directory (constructed via the
+/// <c>T</c>, and a directory (constructed via the
 /// universal <see cref="DirectoryOfExtensions.Directory{T, TBuilder}"/>
 /// lift) holds N independent documents.
 /// </summary>

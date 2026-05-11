@@ -152,7 +152,7 @@ public sealed class ParallelFlowScheduler : IFlowScheduler
   /// <summary>
   /// Execute a single step inside an <see cref="Activity"/> scope and
   /// return its outcome alongside its index for the dispatch loop's
-  /// <see cref="Task.WhenAny"/> bookkeeping. Wall-clock duration is
+  /// <c>Task.WhenAny</c> bookkeeping. Wall-clock duration is
   /// captured by a <see cref="Stopwatch"/> spanning the load →
   /// transform → save chain — diagnostic providers (heat-map,
   /// step-timings, run-summary) consume it directly off the

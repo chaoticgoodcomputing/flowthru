@@ -27,6 +27,7 @@ public static class ExcelItemFactoryExtensions
   /// <param name="label">Catalog label for DAG resolution.</param>
   /// <param name="filePath">Path to the .xlsx file.</param>
   /// <param name="sheetName">Name of the sheet to read.</param>
+  /// <param name="resolver">Optional storage-medium resolver override; null uses the filesystem default.</param>
   /// <param name="nullValues">
   /// Optional null-sentinel list for nullable properties. Defaults to
   /// <c>[""]</c> (only DBNull / empty cells round-trip as null). Pass

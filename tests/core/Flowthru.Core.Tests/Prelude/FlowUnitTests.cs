@@ -59,6 +59,14 @@ public class FlowUnitTests
     Assert.That(FlowUnit.Default.CompareTo(FlowUnit.Default), Is.EqualTo(0));
   }
 
+  // The reflexivity tests below intentionally compare FlowUnit.Default
+  // against itself — the unit type has exactly one inhabitant and its
+  // operator laws are precisely "every comparison is the constant
+  // implied by the operator". CS1718 ("comparison made to same
+  // variable") fires on the self-comparison; suppressed here because
+  // the self-comparison IS the test.
+#pragma warning disable CS1718
+
   [Test]
   public void EqualityOperator_AlwaysTrue()
   {
@@ -96,6 +104,8 @@ public class FlowUnitTests
   {
     Assert.That(FlowUnit.Default >= FlowUnit.Default, Is.True);
   }
+
+#pragma warning restore CS1718
 
   [Test]
   public void ImplicitConversion_ToValueTuple_RoundTrips()

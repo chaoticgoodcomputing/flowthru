@@ -13,7 +13,7 @@ namespace Flowthru.Hosting;
 /// flows, runs the pre-flight pipeline, executes flows, and
 /// orchestrates metadata providers. Resolved via DI as
 /// <see cref="IFlowthruService"/>; consumers (CLI, hosted apps) call
-/// <see cref="RunAsync"/> with an optional flow label and execution
+/// <c>RunAsync</c> with an optional flow label and execution
 /// options.
 /// </summary>
 /// <remarks>
@@ -22,7 +22,7 @@ namespace Flowthru.Hosting;
 /// merge into a single DAG. The flow label becomes a <em>slicing
 /// key</em>." Each <c>RegisterFlow(label, factory)</c> contributes
 /// its steps to one combined <see cref="BuiltFlow"/>; calling
-/// <see cref="RunAsync"/> with a non-null label slices the merged
+/// <c>RunAsync</c> with a non-null label slices the merged
 /// DAG to the subgraph reachable from that label's declared
 /// outputs (via <see cref="FlowSliceStrategy"/>); calling it with
 /// a null label runs the entire merged DAG.
@@ -497,7 +497,7 @@ public sealed class FlowthruService : IFlowthruService
   /// Materialise every registered flow's <see cref="BuiltFlow"/>,
   /// then merge the union of their steps into a single
   /// <see cref="BuiltFlow"/>. Each registration's output items are
-  /// stored under its label so <see cref="RunAsync"/> can slice
+  /// stored under its label so <c>RunAsync</c> can slice
   /// when called with that label.
   /// </summary>
   private MergedFlow BuildMergedFlow()

@@ -135,9 +135,9 @@ public abstract record RuntimeError
   /// The format adapter encountered a structural mismatch between the
   /// underlying source and the schema the catalog item declared (a
   /// missing column, a renamed header, a type-shape change). Carries
-  /// the adapter <see cref="Source"/> and a human-readable
-  /// <see cref="Detail"/> for diagnostic display; the classifier maps
-  /// this to <see cref="ValidationErrorType.SchemaMismatch"/> on the
+  /// the adapter <c>Source</c> and a human-readable
+  /// <c>Detail</c> for diagnostic display; the classifier maps
+  /// this to <c>ValidationErrorType.SchemaMismatch</c> on the
   /// pre-flight side.
   /// </summary>
   /// <remarks>

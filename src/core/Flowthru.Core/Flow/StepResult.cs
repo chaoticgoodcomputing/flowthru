@@ -9,7 +9,7 @@ namespace Flowthru.Flow;
 /// <remarks>
 /// <para>
 /// <strong>Timing.</strong> <see cref="Succeeded"/> and
-/// <see cref="Failed"/> carry the wall-clock <see cref="Duration"/>
+/// <see cref="Failed"/> carry the wall-clock <c>Duration</c>
 /// the scheduler measured for the step's load → transform → save
 /// chain. <see cref="Skipped"/> has no duration — by definition the
 /// step did not run, so a duration would be misleading. Diagnostic

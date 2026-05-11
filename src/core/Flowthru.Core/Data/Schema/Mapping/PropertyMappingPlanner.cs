@@ -4,7 +4,7 @@ namespace Flowthru.Data.Schema.Mapping;
 
 /// <summary>
 /// Pure type-indexed function: builds <see cref="PropertyMappingPlan{TRow}"/>
-/// instances by walking <typeparamref name="TRow"/>'s public properties
+/// instances by walking <c>TRow</c>'s public properties
 /// and classifying each under the universal Tier 1–5 cascade
 /// (CLR primitives, enums, byte-blobs, BCL scalar structs, IScalar NewType
 /// wrappers, anything else as nested).

@@ -26,7 +26,7 @@ namespace Flowthru.Data.Schema.Mapping;
 /// allocation cost is bounded by the number of enum properties (a
 /// schema-level constant) and bounded again by the format extension's
 /// own caching strategy (e.g., CsvHelper's per-converter instance is
-/// constructed once per <typeparamref name="TRow"/>).
+/// constructed once per <c>TRow</c>).
 /// </remarks>
 public sealed record EnumBindingInfo(
   Type EnumType,

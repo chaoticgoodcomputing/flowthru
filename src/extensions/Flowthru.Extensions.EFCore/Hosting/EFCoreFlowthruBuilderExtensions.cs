@@ -11,7 +11,7 @@ namespace Flowthru.Hosting;
 /// Extension methods on <see cref="IFlowthruBuilder"/> that register
 /// EFCore-specific <see cref="IRegistrationValidationHook"/>
 /// implementations. Each registers a Core registration-validation
-/// hook that runs at the first <see cref="IFlowthruService.RunAsync"/>
+/// hook that runs at the first <c>IFlowthruService.RunAsync</c>
 /// (or eagerly via
 /// <see cref="IFlowthruService.ValidateRegistrationAsync"/>) — so
 /// host misconfiguration surfaces at host startup, not at first

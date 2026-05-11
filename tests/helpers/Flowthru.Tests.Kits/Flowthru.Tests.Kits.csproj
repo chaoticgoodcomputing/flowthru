@@ -42,29 +42,4 @@
     </Content>
   </ItemGroup>
 
-  <!--
-    During the FP rewrite, kit directories and files that depend on types
-    not yet rebuilt are excluded from compilation. Each is restored as the
-    corresponding phase brings its target types back online:
-      Phase 2: Schemas/, Format/, Storage/, Medium/, Lifecycle/
-      Phase 4 (or later cleanup): Effects/{FlowResource,Ephemeral}Conformance.cs —
-        these need rewriting against the new Task<EffResult<A>> Run signature
-        and are deferred until catalog/storage types they exercise are back online.
-  -->
-  <ItemGroup>
-    <Compile Remove="Fixtures/FixtureLoader.cs" />
-    <Compile Remove="Format/**/*.cs" />
-    <Compile Remove="Lifecycle/**/*.cs" />
-    <Compile Remove="Medium/**/*.cs" />
-    <Compile Remove="Metadata/**/*.cs" />
-    <Compile Remove="Schemas/**/*.cs" />
-    <Compile Remove="Storage/StorageAdapterAssertions.cs" />
-    <Compile Remove="Storage/StorageAdapterTraitsConformance.cs" />
-    <Compile Remove="Storage/StorageAdapterConformance.cs" />
-    <Compile Remove="Storage/DirectoryStorageAdapterConformance.cs" />
-    <Compile Remove="Storage/DirectoryEqualityComparer.cs" />
-    <Compile Remove="Prelude/FlowResourceConformance.cs" />
-    <Compile Remove="Prelude/EphemeralResourceConformance.cs" />
-  </ItemGroup>
-
 </Project>

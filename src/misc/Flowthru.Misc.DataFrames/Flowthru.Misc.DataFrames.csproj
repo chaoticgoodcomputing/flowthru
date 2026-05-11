@@ -10,6 +10,11 @@
 
     <!-- NuGet Package Configuration -->
     <PackageId>Flowthru.Misc.DataFrames</PackageId>
+
+    <!-- CS1591 (missing XML doc on public member): the misc projects are
+         peripheral utilities undergoing Phase 10 decoupling; documenting
+         every public surface is not yet warranted. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -236,6 +236,13 @@ public abstract class InspectShallowConformance<TContainer>
 
     var adapter = CreateAdapter(path);
     var effResult = await adapter.InspectShallow(sampleSize: 0).Run();
+    // FT5002 fires on the kit-infrastructure throw below — the analyzer
+    // correctly enforces fail-as-value, but here we're at the kit's
+    // assertion boundary: a FlowIO-level failure from an InspectShallow
+    // adapter is a kit-contract violation (adapters must surface
+    // findings as ValidationResult values, not FlowIO failures), so we
+    // throw to fail the conformance test. Suppression with rationale.
+#pragma warning disable FT5002
     return effResult switch
     {
       EffResult<ValidationResult>.Success ok => ok.Value,
@@ -244,6 +251,7 @@ public abstract class InspectShallowConformance<TContainer>
       ),
       _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
     };
+#pragma warning restore FT5002
   }
 
   private static string FormatErrors(ValidationResult result) =>

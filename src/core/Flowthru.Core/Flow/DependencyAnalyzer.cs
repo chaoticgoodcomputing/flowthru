@@ -4,7 +4,7 @@ namespace Flowthru.Flow;
 
 /// <summary>
 /// Builds a dependency graph over a list of <see cref="IStepNode"/>s
-/// using <see cref="IItem.Label"/> as the edge identifier (the
+/// using <c>IItem.Label</c> as the edge identifier (the
 /// "single producer per item" law guarantees the labels are stable
 /// keys). Returns a topologically-ordered execution plan or, on
 /// detection, the offending cycle / single-producer violation.

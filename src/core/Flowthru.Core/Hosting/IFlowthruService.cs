@@ -55,7 +55,7 @@ public interface IFlowthruService
 
   /// <summary>
   /// Run every registered <see cref="IRegistrationValidationHook"/>.
-  /// The first <see cref="RunAsync"/> call invokes this internally;
+  /// The first <c>RunAsync</c> call invokes this internally;
   /// callers can also invoke it during <c>Main</c> for fail-fast-at-
   /// startup behaviour.
   /// </summary>

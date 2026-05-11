@@ -12,9 +12,8 @@ namespace Flowthru.Flow;
 /// <para>
 /// <strong>Heterogeneous labels.</strong>
 /// <see cref="From"/>, <see cref="To"/>, and <see cref="Only"/> accept
-/// labels that may match either a step's
-/// <see cref="IStepNode.Label"/> or any item's
-/// <see cref="IItem.Label"/>. The resolver checks both indices for
+/// labels that may match either a step's <c>Label</c> or any item's
+/// <c>Label</c>. The resolver checks both indices for
 /// every pattern. The resulting behaviour is:
 /// </para>
 /// <list type="bullet">

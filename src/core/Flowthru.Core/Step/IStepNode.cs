@@ -18,7 +18,7 @@ namespace Flowthru.Step;
 /// <see cref="Outputs"/> reference <see cref="IItem"/> instances by
 /// design; the typing on <see cref="IStepNode{TIn, TOut}"/> ties the
 /// I/O collection element types to the transform's
-/// <typeparamref name="TIn"/>/<typeparamref name="TOut"/> at the
+/// <c>TIn</c>/<c>TOut</c> at the
 /// construction site.
 /// </para>
 /// </remarks>

@@ -6,7 +6,7 @@ namespace Flowthru.Flow;
 /// Immutable description of a flow ready to run. Holds the
 /// topologically-ordered step list and the producer map the slicer
 /// needs. Construction is via <see cref="FlowBuilder.Build"/> — flows
-/// are not invoked until <see cref="RunAsync"/> is called.
+/// are not invoked until <c>RunAsync</c> is called.
 /// </summary>
 /// <remarks>
 /// Per §2.6, construction returns a description, not an action. A
@@ -51,7 +51,7 @@ public sealed class BuiltFlow
   /// <summary>
   /// Run only the subgraph that produces the items named in
   /// <paramref name="targetItemLabels"/>. The labels reference
-  /// <see cref="IItem.Label"/>s declared as outputs by some step in
+  /// <c>IItem.Label</c>s declared as outputs by some step in
   /// the flow. Equivalent to
   /// <see cref="RunSliceAsync(FlowSliceStrategy, ExecutionOptions?, CancellationToken)"/>
   /// with a <see cref="FlowSliceStrategy.To"/> strategy.

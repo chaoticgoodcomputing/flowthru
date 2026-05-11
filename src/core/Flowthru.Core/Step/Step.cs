@@ -11,7 +11,7 @@ namespace Flowthru.Step;
 /// arity-specific glue (packing N items into <typeparamref name="TIn"/>,
 /// unpacking <typeparamref name="TOut"/> into M items) is supplied by
 /// the <c>FlowBuilder.AddStep</c> overloads via the
-/// <paramref name="loadInputs"/> and <paramref name="saveOutputs"/>
+/// <c>loadInputs</c> and <c>saveOutputs</c>
 /// closures, so this class is arity-agnostic.
 /// </summary>
 /// <typeparam name="TIn">

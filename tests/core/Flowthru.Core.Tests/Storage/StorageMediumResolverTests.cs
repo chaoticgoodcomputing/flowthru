@@ -161,10 +161,14 @@ public class StorageMediumResolverTests
     }
 
     public StorageTraits Traits => new();
+    // FlowIO.LiftAsync is the standard lifting boundary — the throw is
+    // captured by the lifter and turned into a FlowIO failure, which is
+    // exactly the behavior we want for a "not-exercised" stub. Keeps
+    // FT5002 silent on test-fake methods.
     public FlowIO<Stream> ReadStream() =>
-      throw new NotImplementedException("Test fake — read path not exercised here.");
+      FlowIO.LiftAsync<Stream>(_ => throw new NotImplementedException("Test fake — read path not exercised here."));
     public FlowIO<FlowUnit> WriteStream(Stream stream) =>
-      throw new NotImplementedException();
+      FlowIO.LiftAsync<FlowUnit>(_ => throw new NotImplementedException());
     public FlowIO<bool> Exists() => FlowIO.Pure(true);
   }
 }

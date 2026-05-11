@@ -14,7 +14,7 @@ namespace Flowthru.Data.Catalog;
 /// </summary>
 /// <remarks>
 /// XML in this extension is document-mode only — one file holds one
-/// <typeparamref name="T"/>, and a directory holds N independent
+/// <c>T</c>, and a directory holds N independent
 /// documents. There is no row-streaming variant on
 /// <see cref="EnumerableItemFactory"/>; that would require a
 /// dedicated <c>XmlFormatSerializer&lt;TRow&gt;</c> implementing

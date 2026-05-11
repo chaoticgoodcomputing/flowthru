@@ -11,10 +11,10 @@ namespace Flowthru.Core.SourceGenerators.Algebra;
 /// <summary>
 /// FT0001 — closed-sum exhaustiveness. Flags <c>switch</c>
 /// expressions over a Flowthru closed-sum type
-/// (<see cref="PreFlightError"/>, <see cref="RuntimeError"/>,
-/// <see cref="ServiceRef"/>, <see cref="Validated{TError, TValue}"/>,
-/// <see cref="EffResult{A}"/>, <see cref="StepResult"/>,
-/// <see cref="DependencyAnalyzer.Result"/>) that don't include every
+/// (<c>PreFlightError</c>, <c>RuntimeError</c>,
+/// <c>ServiceRef</c>, <c>Validated&lt;TError, TValue&gt;</c>,
+/// <c>EffResult&lt;A&gt;</c>, <c>StepResult</c>,
+/// <c>DependencyAnalyzer.Result</c>) that don't include every
 /// nested-record case as an arm. The closed-sum invariant — "every
 /// case is matched, additions to the sum surface as build failures
 /// at every consumer" — is the load-bearing property of the FP shape
@@ -26,7 +26,7 @@ namespace Flowthru.Core.SourceGenerators.Algebra;
 /// abstract record (declared via <c>public abstract record X { …; }</c>)
 /// with at least two nested <c>sealed record</c> derivations. This
 /// matches every Flowthru closed-sum declaration shape — see
-/// <see cref="PreFlightError"/>'s file for the canonical example.
+/// <c>PreFlightError</c>'s file for the canonical example.
 /// </para>
 /// <para>
 /// Trigger: any <c>switch</c> expression whose governing-expression

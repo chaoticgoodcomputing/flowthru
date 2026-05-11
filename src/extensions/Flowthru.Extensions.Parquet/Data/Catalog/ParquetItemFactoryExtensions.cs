@@ -22,6 +22,7 @@ public static class ParquetItemFactoryExtensions
   /// <param name="factory">The factory anchor — discriminates the extension target.</param>
   /// <param name="label">Catalog label for DAG resolution.</param>
   /// <param name="filePath">Path to the Parquet file.</param>
+  /// <param name="resolver">Optional storage-medium resolver override; null uses the filesystem default.</param>
   /// <param name="options">
   /// Optional performance and behavior tuning. When <c>null</c>,
   /// production-ready defaults apply: Snappy compression, 1 000 000-row

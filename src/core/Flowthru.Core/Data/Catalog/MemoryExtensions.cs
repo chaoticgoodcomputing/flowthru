@@ -4,7 +4,7 @@ namespace Flowthru.Data.Catalog;
 
 /// <summary>
 /// In-memory item-builder extensions on <see cref="ItemAnchor{T}"/>.
-/// Memory items work for any <typeparamref name="T"/> — single value
+/// Memory items work for any <c>T</c> — single value
 /// or collection alike — so a single overload suffices.
 /// </summary>
 public static class MemoryExtensions

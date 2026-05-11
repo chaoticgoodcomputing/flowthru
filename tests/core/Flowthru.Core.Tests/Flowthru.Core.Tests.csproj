@@ -40,25 +40,4 @@
                       OutputItemType="Analyzer" />
   </ItemGroup>
 
-  <!--
-    During the FP rewrite, test directories that depend on types not yet
-    rebuilt are excluded from compilation. Each is restored as the
-    corresponding phase brings its target types back online:
-      Phase 2: 01_Compilation/, _Fixtures/, Conformance/
-      Phase 3: 03_Execution/
-      Phase 4: 02_Validation/, 04_Services/, 05_Cli/, 06_Results/
-    Existing Effects/ServiceRefTests.cs is excluded until ServiceRef
-    re-lands in Phase 4.
-  -->
-  <ItemGroup>
-    <Compile Remove="01_Compilation/**/*.cs" />
-    <Compile Remove="02_Validation/**/*.cs" />
-    <Compile Remove="03_Execution/**/*.cs" />
-    <Compile Remove="04_Services/**/*.cs" />
-    <Compile Remove="05_Cli/**/*.cs" />
-    <Compile Remove="06_Results/**/*.cs" />
-    <Compile Remove="Conformance/**/*.cs" />
-    <Compile Remove="_Fixtures/**/*.cs" />
-  </ItemGroup>
-
 </Project>

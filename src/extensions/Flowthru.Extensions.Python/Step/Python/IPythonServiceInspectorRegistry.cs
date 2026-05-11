@@ -11,7 +11,7 @@ namespace Flowthru.Step.Python;
 /// <remarks>
 /// <para>
 /// This interface is the Python analogue of looking up an
-/// <see cref="Flowthru.Core.Effects.IFlowServiceInspector{TService}"/>
+/// <c>IFlowServiceInspector&lt;TService&gt;</c>
 /// registration on the C# side. Both paths feed the same preflight
 /// aggregation loop in <c>Flow.RunAsync</c> after the
 /// <c>ServiceRef</c> migration in core.

@@ -63,7 +63,7 @@ def _ease(x):
 
     Accepts scalars or numpy arrays.
     """
-    return np.round(np.pow(x, 2) * 5.0) / 5.0
+    return np.round(np.pow(x, 1.3) * 5.0) / 5.0
 
 
 def _load_font(size: int) -> ImageFont.ImageFont:

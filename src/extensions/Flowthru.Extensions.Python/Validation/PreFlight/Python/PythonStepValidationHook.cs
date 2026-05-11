@@ -40,6 +40,7 @@ public sealed class PythonStepValidationHook : IFlowValidationHook
 {
   private readonly IPythonExecutor _executor;
 
+  /// <summary>Construct the hook with the executor it uses for schema introspection.</summary>
   public PythonStepValidationHook(IPythonExecutor executor)
   {
     _executor = executor ?? throw new ArgumentNullException(nameof(executor));
@@ -233,7 +234,7 @@ public sealed class PythonStepValidationHook : IFlowValidationHook
   /// Extract the list of schema names from a C# step's generic type
   /// parameter. Handles ValueTuple (multi-I/O), <c>IEnumerable&lt;T&gt;</c>
   /// (tabular), and bare scalar/byte[] types. Each entry's name is
-  /// the underlying schema type's <see cref="Type.Name"/> — matched
+  /// the underlying schema type's <c>Type.Name</c> — matched
   /// for string equality against decorator-declared names.
   /// </summary>
   private static IReadOnlyList<string> ExtractSchemaNames(Type type)

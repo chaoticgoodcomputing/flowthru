@@ -11,7 +11,7 @@ namespace Flowthru.Validation.PreFlight;
 /// <remarks>
 /// <para>
 /// <strong>When hooks run.</strong> The first
-/// <see cref="Hosting.IFlowthruService.RunAsync"/> call invokes
+/// <c>IFlowthruService.RunAsync</c> call invokes
 /// every registered hook before any flow's pre-flight runs. Catalog
 /// authors can also call
 /// <see cref="Hosting.IFlowthruService.ValidateRegistrationAsync"/>
