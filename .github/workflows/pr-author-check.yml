@@ -16,10 +16,34 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            // Co-authors matching an allowlist entry are always permitted.
             const allowedBots = [
               'github-actions[bot]',
               'dependabot[bot]'
             ];
+
+            // Glob patterns matched against "Name <email>".
+            // *  → any characters
+            // Entries are checked AFTER the allowlist, so allowed bots
+            // won't be caught by a broad pattern like *[bot]*.
+            const blockedPatterns = [
+              '*[bot]*',
+              '*@anthropic.com',
+              '*@openai.com',
+              '*@google.com',
+            ];
+
+            // Convert a glob pattern to a RegExp.
+            // Only supports '*' (wildcard) — brackets are literal.
+            function globToRegex(pattern) {
+              const escaped = pattern.replace(/([.+?^${}()|\\])/g, '\\$1')
+                                     .replace(/\[/g, '\\[')
+                                     .replace(/\]/g, '\\]')
+                                     .replace(/\*/g, '.*');
+              return new RegExp(`^${escaped}$`, 'i');
+            }
+
+            const blockedRegexes = blockedPatterns.map(globToRegex);
 
             // Fetch all commits in the PR
             const { data: commits } = await github.rest.pulls.listCommits({
@@ -33,40 +57,36 @@ jobs:
             for (const commit of commits) {
               const message = commit.commit.message;
               const sha = commit.sha.substring(0, 7);
-              
+
               // Extract Co-authored-by lines
               const coAuthorRegex = /^Co-authored-by:\s*(.+?)\s*<(.+?)>/gim;
               let match;
-              
+
               while ((match = coAuthorRegex.exec(message)) !== null) {
                 const name = match[1].trim();
                 const email = match[2].trim();
-                
-                // Check if this is a bot account
-                if (name.endsWith('[bot]')) {
-                  // Verify it's in the allowlist
-                  if (!allowedBots.includes(name)) {
-                    violations.push({
-                      sha: sha,
-                      name: name,
-                      email: email
-                    });
-                  }
+                const identity = `${name} <${email}>`;
+
+                // Skip explicitly allowed bots
+                if (allowedBots.includes(name)) continue;
+
+                // Reject if identity matches any blocked pattern
+                if (blockedRegexes.some(re => re.test(identity))) {
+                  violations.push({ sha, name, email });
                 }
-                // Human accounts (no [bot] suffix) are always allowed
               }
             }
 
             if (violations.length > 0) {
-              const errorReport = violations.map(v => 
+              const errorReport = violations.map(v =>
                 `  - Commit ${v.sha}: ${v.name} <${v.email}>`
               ).join('\n');
-              
+
               core.setFailed(
-                `❌ Unauthorized bot co-authors detected:\n\n${errorReport}\n\n` +
-                `Only human accounts and the following bot accounts are permitted as co-authors:\n` +
-                `  - ${allowedBots.join('\n  - ')}\n\n` +
-                `Please remove unauthorized co-authors from your commits using:\n` +
+                `❌ Blocked co-authors detected:\n\n${errorReport}\n\n` +
+                `Co-authors matching the following patterns are not permitted:\n` +
+                `  - ${blockedPatterns.join('\n  - ')}\n\n` +
+                `Please remove blocked co-authors from your commits using:\n` +
                 `  git rebase -i HEAD~<n>  # Edit commits\n` +
                 `  git commit --amend      # Modify commit message\n` +
                 `  git push --force        # Update PR`
