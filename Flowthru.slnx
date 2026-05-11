@@ -22,7 +22,6 @@
   <Project Path="src/extensions/Flowthru.Extensions.Python.SourceGenerators/Flowthru.Extensions.Python.SourceGenerators.csproj" />
   <Project Path="src/misc/Flowthru.Misc.DataFrames/Flowthru.Misc.DataFrames.csproj" />
   <Project Path="src/misc/Flowthru.Misc.DataFrames.SourceGenerators/Flowthru.Misc.DataFrames.SourceGenerators.csproj" />
-  <Project Path="src/misc/Flowthru.Misc.DataFrames.CodeFixes/Flowthru.Misc.DataFrames.CodeFixes.csproj" />
   <Project Path="tests/helpers/Flowthru.Tests.Helpers/Flowthru.Tests.Helpers.csproj" />
   <Project Path="tests/integration/Flowthru.Tests.Examples/Flowthru.Tests.Examples.csproj" />
   <Project Path="tests/core/Flowthru.Tests/Flowthru.Tests.csproj" />
@@ -48,7 +47,6 @@
   <Project Path="tests/extensions/Flowthru.Extensions.Python.SourceGenerators.Tests/Flowthru.Extensions.Python.SourceGenerators.Tests.csproj" />
   <Project Path="tests/extensions/Flowthru.Extensions.Xml.Tests/Flowthru.Extensions.Xml.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.Tests/Flowthru.Misc.DataFrames.Tests.csproj" />
-  <Project Path="tests/misc/Flowthru.Misc.DataFrames.CodeFixes.Tests/Flowthru.Misc.DataFrames.CodeFixes.Tests.csproj" />
   <Project Path="tests/misc/Flowthru.Misc.DataFrames.SourceGenerators.Tests/Flowthru.Misc.DataFrames.SourceGenerators.Tests.csproj" />
   <Project Path="examples/starter/SpaceflightsEFCore/SpaceflightsEFCore.csproj" />
   <Project Path="examples/advanced/SpaceflightsStagingSchema/SpaceflightsStagingSchema.csproj" />

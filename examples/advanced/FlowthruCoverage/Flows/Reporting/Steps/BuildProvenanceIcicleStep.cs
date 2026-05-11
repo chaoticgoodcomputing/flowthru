@@ -31,6 +31,15 @@ namespace FlowthruCoverage.Flows.Reporting.Steps;
 /// bottom-up roll-up. Each node carries the four counts the downstream
 /// renderer uses to derive the per-tile RGB encoding.
 /// </para>
+/// <para>
+/// <strong>Inventory fallback:</strong> a Library project listed in the
+/// manifest but absent from the coverage stream (i.e. its test project
+/// produced no Cobertura data because it has no tests to run) is
+/// synthesised from <see cref="SrcInventoryEntry"/> rows as a 0%-coverage
+/// Project/Directory/File subtree. This keeps such projects visible in
+/// the report — they appear at the top of cold spots — rather than being
+/// silently dropped.
+/// </para>
 /// </remarks>
 [FlowthruStep]
 public static class BuildProvenanceIcicleStep
@@ -43,13 +52,13 @@ public static class BuildProvenanceIcicleStep
   public const string UnitTestSuffix = ".Tests";
 
   public static Func<
-    (IEnumerable<LineCoverageRow>, IEnumerable<ProjectManifestEntry>),
+    (IEnumerable<LineCoverageRow>, IEnumerable<ProjectManifestEntry>, IEnumerable<SrcInventoryEntry>),
     IEnumerable<ProvenanceIcicleNode>
   > Create()
   {
     return inputs =>
     {
-      var (rows, manifestEntries) = inputs;
+      var (rows, manifestEntries, inventory) = inputs;
 
       var manifestList = manifestEntries.ToList();
       var libraryPackages = manifestList
@@ -223,12 +232,150 @@ public static class BuildProvenanceIcicleStep
         })
         .ToList();
 
+      // Synthesise 0%-coverage nodes for Library projects in the manifest
+      // that produced no coverage rows. Without this fallback they're
+      // invisible — hollow test projects emit no Cobertura output, so a
+      // src package with real code but no tests would silently disappear
+      // from the report.
+      var coveredProjects = projectNodes
+        .Select(p => p.Id)
+        .ToHashSet(StringComparer.Ordinal);
+      var missingProjects = libraryPackages
+        .Where(p => !coveredProjects.Contains(p))
+        .ToHashSet(StringComparer.Ordinal);
+
+      var synthetic = SynthesiseFromInventory(missingProjects, inventory.ToList());
+
       return projectNodes
+        .Concat(synthetic.Projects)
         .OrderBy(p => p.Id, StringComparer.Ordinal)
-        .Concat(directoryNodes.OrderBy(d => d.Id, StringComparer.Ordinal))
-        .Concat(fileNodes.OrderBy(f => f.Id, StringComparer.Ordinal))
+        .Concat(directoryNodes
+          .Concat(synthetic.Directories)
+          .OrderBy(d => d.Id, StringComparer.Ordinal))
+        .Concat(fileNodes
+          .Concat(synthetic.Files)
+          .OrderBy(f => f.Id, StringComparer.Ordinal))
         .Concat(methodNodes.OrderBy(m => m.Id, StringComparer.Ordinal));
     };
+  }
+
+  // ── Inventory fallback ─────────────────────────────────────────────
+
+  private record SyntheticNodes(
+    List<ProvenanceIcicleNode> Projects,
+    List<ProvenanceIcicleNode> Directories,
+    List<ProvenanceIcicleNode> Files
+  );
+
+  /// <summary>
+  /// Build 0%-coverage Project/Directory/File nodes for src packages that
+  /// have inventory entries but no coverage data. Method-level nodes are
+  /// omitted — inventory has no method awareness — so these projects show
+  /// up in the scoreboard and drill-down but contribute zero rows to the
+  /// per-method checklist (they appear there only once real tests start
+  /// producing coverage rows).
+  /// </summary>
+  private static SyntheticNodes SynthesiseFromInventory(
+    HashSet<string> missingProjects,
+    List<SrcInventoryEntry> inventory
+  )
+  {
+    var projects = new List<ProvenanceIcicleNode>();
+    var directories = new List<ProvenanceIcicleNode>();
+    var files = new List<ProvenanceIcicleNode>();
+
+    var byProject = inventory
+      .Where(e => missingProjects.Contains(e.AssemblyName))
+      .GroupBy(e => e.AssemblyName, StringComparer.Ordinal);
+
+    foreach (var pkg in byProject)
+    {
+      var srcPackage = pkg.Key;
+      var directoryParents = new Dictionary<string, string>(StringComparer.Ordinal);
+      var directoryLabels = new Dictionary<string, string>(StringComparer.Ordinal);
+
+      foreach (var entry in pkg)
+      {
+        var normalised = entry.RelativePath.Replace('\\', '/');
+        var fileId = MakeFileId(srcPackage, normalised);
+        var (parentId, fileLabel) = ResolveFileParent(srcPackage, normalised);
+
+        files.Add(new ProvenanceIcicleNode
+        {
+          Id = fileId,
+          ParentId = parentId,
+          Label = fileLabel,
+          Level = "File",
+          TotalLines = entry.TotalLines,
+          AnyCovered = 0,
+          UnitCovered = 0,
+          IntegrationCovered = 0,
+        });
+
+        RecordDirectoryChain(parentId, directoryParents, directoryLabels);
+      }
+
+      // Aggregate file totals up into directory nodes, then a project node.
+      var filesUnderDir = files
+        .Where(f => f.Id.StartsWith(srcPackage + "::", StringComparison.Ordinal))
+        .GroupBy(f => f.ParentId, StringComparer.Ordinal)
+        .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+
+      var subdirsByParent = directoryParents
+        .GroupBy(kv => kv.Value, StringComparer.Ordinal)
+        .ToDictionary(
+          g => g.Key,
+          g => g.Select(kv => kv.Key).ToList(),
+          StringComparer.Ordinal
+        );
+
+      var dirTotals = new Dictionary<string, int>(StringComparer.Ordinal);
+      foreach (var dirId in directoryParents.Keys
+        .OrderByDescending(id => id.Count(c => c == '/')))
+      {
+        var sum = 0;
+        if (filesUnderDir.TryGetValue(dirId, out var fs))
+          sum += fs.Sum(f => f.TotalLines);
+        if (subdirsByParent.TryGetValue(dirId, out var ss))
+          sum += ss.Sum(sub => dirTotals[sub]);
+        dirTotals[dirId] = sum;
+      }
+
+      foreach (var (dirId, parentId) in directoryParents)
+      {
+        directories.Add(new ProvenanceIcicleNode
+        {
+          Id = dirId,
+          ParentId = parentId,
+          Label = directoryLabels[dirId],
+          Level = "Directory",
+          TotalLines = dirTotals[dirId],
+          AnyCovered = 0,
+          UnitCovered = 0,
+          IntegrationCovered = 0,
+        });
+      }
+
+      var projectTotal = 0;
+      if (filesUnderDir.TryGetValue(srcPackage, out var topFiles))
+        projectTotal += topFiles.Sum(f => f.TotalLines);
+      if (subdirsByParent.TryGetValue(srcPackage, out var topDirs))
+        projectTotal += topDirs.Sum(sub => dirTotals[sub]);
+
+      projects.Add(new ProvenanceIcicleNode
+      {
+        Id = srcPackage,
+        ParentId = string.Empty,
+        Label = srcPackage,
+        Level = "Project",
+        TotalLines = projectTotal,
+        AnyCovered = 0,
+        UnitCovered = 0,
+        IntegrationCovered = 0,
+      });
+    }
+
+    return new SyntheticNodes(projects, directories, files);
   }
 
   /// <summary>
@@ -377,7 +524,7 @@ public static class BuildProvenanceIcicleStep
         Manifest("ExA", "Example"),
       };
 
-      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest))
+      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, Array.Empty<SrcInventoryEntry>()))
         .Single(n => n.Level == "Method");
 
       Assert.That(method.TotalLines, Is.EqualTo(1));
@@ -399,7 +546,7 @@ public static class BuildProvenanceIcicleStep
         Manifest("Pkg.Tests", "LibraryTest"),
       };
 
-      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest))
+      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, Array.Empty<SrcInventoryEntry>()))
         .Single(n => n.Level == "Method");
 
       Assert.That(method.AnyCovered, Is.EqualTo(1));
@@ -420,7 +567,7 @@ public static class BuildProvenanceIcicleStep
         Manifest("ExA", "Example"),
       };
 
-      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest))
+      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, Array.Empty<SrcInventoryEntry>()))
         .Single(n => n.Level == "Method");
 
       Assert.That(method.AnyCovered, Is.EqualTo(1));
@@ -443,7 +590,7 @@ public static class BuildProvenanceIcicleStep
         Manifest("OtherPkg.Tests", "LibraryTest"),
       };
 
-      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest))
+      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, Array.Empty<SrcInventoryEntry>()))
         .Single(n => n.Level == "Method");
 
       Assert.That(method.AnyCovered, Is.EqualTo(1));
@@ -464,7 +611,7 @@ public static class BuildProvenanceIcicleStep
         Manifest("Pkg.Tests", "LibraryTest"),
       };
 
-      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest))
+      var method = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, Array.Empty<SrcInventoryEntry>()))
         .Single(n => n.Level == "Method");
 
       Assert.That(method.TotalLines, Is.EqualTo(1));
@@ -491,7 +638,7 @@ public static class BuildProvenanceIcicleStep
         Manifest("ExA", "Example"),
       };
 
-      var sub = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest))
+      var sub = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, Array.Empty<SrcInventoryEntry>()))
         .Single(n => n.Level == "Directory" && n.Label == "Sub");
 
       Assert.That(sub.TotalLines, Is.EqualTo(3));
@@ -514,7 +661,7 @@ public static class BuildProvenanceIcicleStep
         Manifest("Pkg.Tests", "LibraryTest"),
       };
 
-      var nodes = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest)).ToList();
+      var nodes = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, Array.Empty<SrcInventoryEntry>())).ToList();
       var ids = nodes.Select(n => n.Id).ToHashSet(StringComparer.Ordinal);
 
       foreach (var node in nodes)
@@ -524,6 +671,87 @@ public static class BuildProvenanceIcicleStep
         else
           Assert.That(ids, Does.Contain(node.ParentId));
       }
+    }
+
+    [FUnitStepTest(typeof(BuildProvenanceIcicleStep))]
+    public void InventoryFallback_SynthesisesZeroCoverageNodes_ForProjectMissingFromCoverage()
+    {
+      // No coverage rows at all — but the manifest declares the project and
+      // the inventory lists two of its source files. The step should emit a
+      // Project + Directory + File subtree marked 0% across the board.
+      var manifest = new[]
+      {
+        new ProjectManifestEntry
+        {
+          AssemblyName = "EmptyPkg",
+          ProjectType = "Library",
+          Subgroup = "Core",
+        },
+      };
+      var inventory = new[]
+      {
+        new SrcInventoryEntry
+        {
+          AssemblyName = "EmptyPkg",
+          RelativePath = "A.cs",
+          TotalLines = 40,
+        },
+        new SrcInventoryEntry
+        {
+          AssemblyName = "EmptyPkg",
+          RelativePath = "Sub/B.cs",
+          TotalLines = 30,
+        },
+      };
+
+      var nodes = Invoke(
+        BuildProvenanceIcicleStep.Create(),
+        (Array.Empty<LineCoverageRow>(), manifest, inventory)
+      ).ToList();
+
+      var project = nodes.Single(n => n.Level == "Project");
+      Assert.That(project.Id, Is.EqualTo("EmptyPkg"));
+      Assert.That(project.TotalLines, Is.EqualTo(70));   // 40 + 30
+      Assert.That(project.AnyCovered, Is.EqualTo(0));
+      Assert.That(project.UnitCovered, Is.EqualTo(0));
+      Assert.That(project.IntegrationCovered, Is.EqualTo(0));
+
+      Assert.That(nodes.Count(n => n.Level == "File"), Is.EqualTo(2));
+      Assert.That(nodes.Count(n => n.Level == "Directory"), Is.EqualTo(1));
+      Assert.That(nodes.Count(n => n.Level == "Method"), Is.EqualTo(0));
+    }
+
+    [FUnitStepTest(typeof(BuildProvenanceIcicleStep))]
+    public void InventoryFallback_DoesNotShadowCoveredProject()
+    {
+      // The project HAS coverage data; the inventory row for the same project
+      // should be ignored (we don't want to overwrite real coverage with
+      // a synthetic 0% row).
+      var rows = new[]
+      {
+        Row("Pkg", "/repo/src/Pkg/A.cs", "Pkg.A", "M", "()", 1, 1, "Pkg.Tests"),
+      };
+      var manifest = new[]
+      {
+        Manifest("Pkg", "Library"),
+        Manifest("Pkg.Tests", "LibraryTest"),
+      };
+      var inventory = new[]
+      {
+        new SrcInventoryEntry
+        {
+          AssemblyName = "Pkg",
+          RelativePath = "A.cs",
+          TotalLines = 999,
+        },
+      };
+
+      var project = Invoke(BuildProvenanceIcicleStep.Create(), (rows, manifest, inventory))
+        .Single(n => n.Level == "Project" && n.Id == "Pkg");
+
+      // Should use coverlet's TotalLines (1), not inventory's (999).
+      Assert.That(project.TotalLines, Is.EqualTo(1));
+      Assert.That(project.UnitCovered, Is.EqualTo(1));
     }
   }
 #endif

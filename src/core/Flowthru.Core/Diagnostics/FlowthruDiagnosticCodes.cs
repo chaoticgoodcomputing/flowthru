@@ -11,7 +11,8 @@ namespace Flowthru.Diagnostics;
 /// Code ranges:
 /// <list type="bullet">
 ///   <item><c>FT0xxx</c> — algebra rules (effect-type discipline, exhaustive matching).</item>
-///   <item><c>FT1xxx</c> — algebra shape (interpreter conformance, smart-constructor signatures).</item>
+///   <item><c>FT1xxx</c> — algebra shape (interpreter conformance, smart-constructor signatures).
+///     Sub-ranges: <c>FT1001-1099</c> schema shape; <c>FT1101-1199</c> step shape.</item>
 ///   <item><c>FT2xxx</c> — composition / wiring (single-producer, type alignment, schema-format compatibility).</item>
 ///   <item><c>FT3xxx</c> — pre-flight failures.</item>
 ///   <item><c>FT4xxx</c> — runtime failures.</item>
@@ -38,6 +39,9 @@ public static class FlowthruDiagnosticCodes
 
   /// <summary>A <c>[FlowthruSchema]</c>-decorated type has a property the planner cannot classify.</summary>
   public const string SchemaPropertyClassificationFailed = "FT1002";
+
+  /// <summary>A step factory class is referenced by <c>FlowBuilder.AddStep</c> but lacks <c>[FlowthruStep]</c>.</summary>
+  public const string StepAttributeRequired = "FT1101";
 
   // ── FT2xxx — composition / wiring ───────────────────────────────────────
 

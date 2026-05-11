@@ -20,13 +20,14 @@
                - [*.Tests]* / [*.Tests.*]* drop test projects and helper test infrastructure.
                - [FlowthruCoverage]* drops this analysis pipeline assembly; it matches
                  [Flowthru*]* but is an example project, not a production package.
-               - [*.SourceGenerators]* / [*.CodeFixes]* drop Roslyn analyzer / generator /
-                 codefix projects: they execute inside the C# compiler at build time, never
-                 in the test runtime, so coverlet can't instrument them. Their behaviour is
-                 verified through *.SourceGenerators.Tests / *.CodeFixes.Tests using
-                 CSharpGeneratorDriver / CSharpCodeFixVerifier — i.e. via generator output
-                 snapshots, not runtime line counts. -->
-          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[*.SourceGenerators]*,[*.CodeFixes]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
+
+               Roslyn analyzer / source-generator / code-fix assemblies are INCLUDED.
+               When the corresponding *.Tests project references them with
+               ReferenceOutputAssembly="true", coverlet instruments them at test
+               runtime — the Microsoft.CodeAnalysis.*.Testing.NUnit harness drives
+               the analyzer through a synthetic compilation in the test process,
+               which is where the lines actually execute. -->
+          <Exclude>[*.Tests]*,[*.Tests.*]*,[FlowthruCoverage]*,[xunit.*]*,[NUnit.*]*,[Microsoft.*]*,[System.*]*</Exclude>
 
           <!-- Attributes that mark code as out-of-scope. Comma-separated for the same
                parser reason as <Exclude> above. -->

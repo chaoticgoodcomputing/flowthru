@@ -46,11 +46,12 @@ public static class ReportingFlow
       pipeline.AddStep<
         IEnumerable<LineCoverageRow>,
         IEnumerable<ProjectManifestEntry>,
+        IEnumerable<SrcInventoryEntry>,
         IEnumerable<ProvenanceIcicleNode>
       >(
         label: "BuildProvenanceIcicleCoverage",
         transform: BuildProvenanceIcicleStep.Create(),
-        inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest),
+        inputs: (catalog.MethodLineCoverage, catalog.ProjectManifest, catalog.SrcInventory),
         outputs: catalog.ProvenanceIcicleCoverage
       );
 
