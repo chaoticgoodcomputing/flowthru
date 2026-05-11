@@ -55,7 +55,7 @@ _LEGEND_URI: str | None = None
 
 
 def _ease(x):
-    """Compress 0..0.8 into 0..0.5 and expand 0.8..1.0 into 0.5..1.0.
+    """ Quadratic easing for 0.0..0.1
 
     Reserves the saturated green corner for coverage ≥ 80% on all axes —
     below that, channels stay closer to their uncovered extreme so partial
@@ -63,7 +63,7 @@ def _ease(x):
 
     Accepts scalars or numpy arrays.
     """
-    return np.where(x <= 0.8, x * 0.625, 0.5 + (x - 0.8) * 2.5)
+    return np.round(np.pow(x, 2) * 5.0) / 5.0
 
 
 def _load_font(size: int) -> ImageFont.ImageFont:

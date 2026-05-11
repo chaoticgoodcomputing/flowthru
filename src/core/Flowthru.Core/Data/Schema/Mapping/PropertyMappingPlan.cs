@@ -28,9 +28,31 @@ public sealed class PropertyMappingPlan<TRow>
   {
     Bindings = bindings;
     ByFieldName = byFieldName;
+    RequiredFieldNames = bindings
+      .Where(b => !b.IsNullable)
+      .Select(b => b.FieldName)
+      .ToList();
   }
 
   /// <summary>Try to look up a binding by external field name (case-insensitive).</summary>
   public bool TryGetByFieldName(string fieldName, [NotNullWhen(true)] out PropertyBinding? binding) =>
     ByFieldName.TryGetValue(fieldName, out binding);
+
+  /// <summary>
+  /// External field names of every required (non-nullable) property in
+  /// <typeparamref name="TRow"/>, in declaration order. Format adapters
+  /// consult this list during shallow inspection to verify that the
+  /// data source provides every field the schema requires — extra fields
+  /// in the data are tolerated (silently ignored on load), missing
+  /// required fields surface as <c>ValidationErrorType.SchemaMismatch</c>.
+  /// </summary>
+  /// <remarks>
+  /// "Required" here is approximated as <c>!IsNullable</c> on the binding.
+  /// C#'s <c>required</c> keyword typically implies a non-nullable type,
+  /// so this captures both signals without requiring the consumer to
+  /// reflect on <c>RequiredMemberAttribute</c> separately. Nullable
+  /// properties — including those with explicit <c>?</c> annotation —
+  /// are treated as optional and may be absent from the data source.
+  /// </remarks>
+  public IReadOnlyList<string> RequiredFieldNames { get; }
 }

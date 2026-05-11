@@ -55,10 +55,36 @@ public interface IStorageAdapter<T>
   FlowIO<bool> Exists();
 
   /// <summary>
-  /// Shallow inspection — existence, format, headers, and a sample of
-  /// rows. Default for raw inputs; minimal overhead. The adapter chooses
-  /// how to interpret the sample size.
+  /// Shallow inspection — existence, format, and field presence.
+  /// Default for raw inputs; minimal overhead.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <strong>Partial-match contract.</strong> Adapters that can enumerate
+  /// the data source's field names (JSON objects, CSV headers, Parquet
+  /// schemas, XML elements) MUST verify that every field the schema
+  /// declares as required is present in the data — the rule is
+  /// <em>data ⊇ schema</em>. Extra fields in the data are tolerated:
+  /// they're silently ignored on <see cref="Load"/>. Missing required
+  /// fields surface as <see cref="ValidationErrorType.SchemaMismatch"/>
+  /// with a detail line naming the absent fields.
+  /// </para>
+  /// <para>
+  /// Adapters source the required-field list from
+  /// <see cref="Flowthru.Data.Schema.Mapping.PropertyMappingPlan{TRow}.RequiredFieldNames"/>
+  /// — the single source of truth across every format. The
+  /// <paramref name="sampleSize"/> hint controls how many rows the
+  /// adapter inspects deeply (0 = field presence only; positive =
+  /// also verify a sample of values type-check); the value-validation
+  /// pass remains the adapter's choice, but field-presence checking
+  /// is non-negotiable for any adapter that can introspect fields.
+  /// </para>
+  /// <para>
+  /// Schema-less adapters (raw binary blobs, plain text) return
+  /// <see cref="ValidationResult.Success"/> unconditionally when the
+  /// source exists — there's no schema to compare against.
+  /// </para>
+  /// </remarks>
   FlowIO<ValidationResult> InspectShallow(int sampleSize);
 
   /// <summary>

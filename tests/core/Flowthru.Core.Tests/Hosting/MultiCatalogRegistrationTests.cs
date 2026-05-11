@@ -356,4 +356,102 @@ public class MultiCatalogRegistrationTests
     Assert.That(((FlowthruServiceBuilder.FlowRegistration)registration).Description,
       Is.EqualTo("Bridges upstream → downstream domain"));
   }
+
+  // ── RegisterCatalogs bulk-register extension ──────────────────────────
+
+  [Test]
+  public void RegisterCatalogs_AppliesEveryRegistrationInOrder()
+  {
+    var services = new ServiceCollection();
+    services.AddFlowthru(b =>
+    {
+      b.RegisterCatalogs(
+        bb => bb.RegisterCatalog(_ => new UpstreamCatalog()),
+        bb => bb.RegisterCatalog(_ => new DownstreamCatalog())
+      );
+    });
+
+    using var sp = services.BuildServiceProvider();
+    Assert.That(sp.GetService<UpstreamCatalog>(), Is.Not.Null,
+      "Each Action<IFlowthruBuilder> passed to RegisterCatalogs must run with the builder.");
+    Assert.That(sp.GetService<DownstreamCatalog>(), Is.Not.Null);
+  }
+
+  [Test]
+  public void RegisterCatalogs_AcceptsActionArrayForReusableBundles()
+  {
+    // The "catalog bundle" pattern: an extension exports its catalog
+    // registrations as a static Action<IFlowthruBuilder>[] that consumers
+    // splat into RegisterCatalogs in one line.
+    Action<IFlowthruBuilder>[] bundle = new Action<IFlowthruBuilder>[]
+    {
+      b => b.RegisterCatalog(_ => new UpstreamCatalog()),
+      b => b.RegisterCatalog(_ => new DownstreamCatalog()),
+    };
+
+    var services = new ServiceCollection();
+    services.AddFlowthru(b => b.RegisterCatalogs(bundle));
+
+    using var sp = services.BuildServiceProvider();
+    Assert.That(sp.GetService<UpstreamCatalog>(), Is.Not.Null);
+    Assert.That(sp.GetService<DownstreamCatalog>(), Is.Not.Null);
+  }
+
+  [Test]
+  public void RegisterCatalogs_EmptyArgs_NoOp_ReturnsBuilder()
+  {
+    // Zero registrations is a valid no-op — the call returns the builder
+    // so the caller's fluent chain isn't broken.
+    var services = new ServiceCollection();
+    Assert.DoesNotThrow(() =>
+      services.AddFlowthru(b =>
+      {
+        var returned = b.RegisterCatalogs();
+        Assert.That(returned, Is.SameAs(b),
+          "Empty RegisterCatalogs must return the same builder for fluent chaining.");
+      })
+    );
+  }
+
+  [Test]
+  public void RegisterCatalogs_ChainsFluently_WithIndividualRegisterCatalog()
+  {
+    var services = new ServiceCollection();
+    services.AddFlowthru(b =>
+    {
+      b
+        .RegisterCatalog(_ => new UpstreamCatalog())
+        .RegisterCatalogs(
+          bb => bb.RegisterCatalog(_ => new DownstreamCatalog())
+        );
+    });
+
+    using var sp = services.BuildServiceProvider();
+    Assert.That(sp.GetService<UpstreamCatalog>(), Is.Not.Null);
+    Assert.That(sp.GetService<DownstreamCatalog>(), Is.Not.Null);
+  }
+
+  [Test]
+  public void RegisterCatalogs_NullArray_ThrowsArgumentNullException()
+  {
+    var services = new ServiceCollection();
+    Assert.That(
+      () => services.AddFlowthru(b => b.RegisterCatalogs(null!)),
+      Throws.TypeOf<ArgumentNullException>()
+    );
+  }
+
+  [Test]
+  public void RegisterCatalogs_NullEntry_ThrowsArgumentNullException()
+  {
+    var services = new ServiceCollection();
+    Assert.That(
+      () => services.AddFlowthru(b => b.RegisterCatalogs(
+        bb => bb.RegisterCatalog(_ => new UpstreamCatalog()),
+        null!
+      )),
+      Throws.TypeOf<ArgumentNullException>(),
+      "Null entries must throw — silent skip would hide a typo'd bundle entry."
+    );
+  }
 }

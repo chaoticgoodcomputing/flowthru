@@ -356,8 +356,17 @@ public sealed class FlowthruService : IFlowthruService
         .Select(reg => reg.Probe(_services))
         .ToList();
 
+      // Extension-supplied service-ref dispatchers — resolved from DI as
+      // a plural surface so multiple extensions (Python + SQL + ...) can
+      // coexist. Layer 4 inside PreFlightPipeline matches each step's
+      // ServiceRef.External by Category to find its dispatcher; an
+      // unregistered category surfaces as PreFlightError.RegistrationCheckFailed.
+      var dispatchers = _services
+        .GetServices<Flowthru.Validation.Runtime.IServiceRefDispatcher>()
+        .ToList();
+
       var preFlightResult = await PreFlightPipeline
-        .Run(effectiveFlow, _registry.ValidationHooks, probes, inspectionLevel)
+        .Run(effectiveFlow, _registry.ValidationHooks, probes, dispatchers, inspectionLevel)
         .Run(cancellationToken)
         .ConfigureAwait(false);
 

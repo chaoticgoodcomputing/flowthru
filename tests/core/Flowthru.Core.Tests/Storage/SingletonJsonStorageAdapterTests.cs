@@ -119,6 +119,169 @@ public class SingletonJsonStorageAdapterTests
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // InspectShallow — partial-match (data ⊇ schema) contract
+  //
+  // Required fields per SingletonRow: "id", "name", "value".
+  // Optional fields: "timestamp", "description".
+  // ─────────────────────────────────────────────────────────────────────────
+
+  [Test]
+  public async Task InspectShallow_DataIsSupersetOfSchema_Succeeds()
+  {
+    // Data has all 3 required fields + 2 unknown extras. The unknowns are
+    // tolerated; presence of every required field is the only thing
+    // InspectShallow checks at this depth.
+    var path = Path.Combine(_tempDir, "superset.json");
+    await File.WriteAllTextAsync(path,
+      """
+      {
+        "id": "11111111-2222-3333-4444-555555555555",
+        "name": "test",
+        "value": 42,
+        "extra_field_one": "ignored on load",
+        "extra_field_two": 9001
+      }
+      """
+    );
+    var adapter = new SingletonJsonAdapter<SingletonRow>(path);
+
+    var result = await UnwrapInspectShallow(adapter);
+    Assert.That(result.IsValid, Is.True,
+      $"Data ⊇ schema must succeed (extras are tolerated). Got: {FormatFirstError(result)}");
+  }
+
+  [Test]
+  public async Task InspectShallow_DataIsExactMatchOfRequiredFields_Succeeds()
+  {
+    // Data has exactly the 3 required fields (no optionals, no extras).
+    var path = Path.Combine(_tempDir, "exact.json");
+    await File.WriteAllTextAsync(path,
+      """
+      {
+        "id": "11111111-2222-3333-4444-555555555555",
+        "name": "test",
+        "value": 42
+      }
+      """
+    );
+    var adapter = new SingletonJsonAdapter<SingletonRow>(path);
+
+    var result = await UnwrapInspectShallow(adapter);
+    Assert.That(result.IsValid, Is.True,
+      $"Exact required-field match must succeed. Got: {FormatFirstError(result)}");
+  }
+
+  [Test]
+  public async Task InspectShallow_OptionalFieldsAbsent_Succeeds()
+  {
+    // Same as exact-match: optional fields ("timestamp", "description")
+    // may be absent. The required-field set is what matters.
+    var path = Path.Combine(_tempDir, "no-optionals.json");
+    await File.WriteAllTextAsync(path,
+      """
+      {
+        "id": "11111111-2222-3333-4444-555555555555",
+        "name": "test",
+        "value": 42
+      }
+      """
+    );
+    var adapter = new SingletonJsonAdapter<SingletonRow>(path);
+
+    var result = await UnwrapInspectShallow(adapter);
+    Assert.That(result.IsValid, Is.True,
+      $"Absent optional fields must not block InspectShallow. Got: {FormatFirstError(result)}");
+  }
+
+  [Test]
+  public async Task InspectShallow_MissingRequiredField_FailsWithSchemaMismatch()
+  {
+    // "value" is missing from the data — schema requires it.
+    var path = Path.Combine(_tempDir, "missing-required.json");
+    await File.WriteAllTextAsync(path,
+      """
+      {
+        "id": "11111111-2222-3333-4444-555555555555",
+        "name": "test"
+      }
+      """
+    );
+    var adapter = new SingletonJsonAdapter<SingletonRow>(path);
+
+    var result = await UnwrapInspectShallow(adapter);
+    Assert.That(result.IsValid, Is.False,
+      "Missing required field must surface as SchemaMismatch, not silently default.");
+    Assert.That(result.Errors.Single().ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+    Assert.That(result.Errors.Single().Message, Does.Contain("'value'"),
+      "Error message must name the missing field so the user can locate it.");
+  }
+
+  [Test]
+  public async Task InspectShallow_MultipleMissingRequiredFields_ListsAllInDiff()
+  {
+    // Two required fields missing — error must name BOTH.
+    var path = Path.Combine(_tempDir, "missing-multiple.json");
+    await File.WriteAllTextAsync(path,
+      """
+      {
+        "id": "11111111-2222-3333-4444-555555555555"
+      }
+      """
+    );
+    var adapter = new SingletonJsonAdapter<SingletonRow>(path);
+
+    var result = await UnwrapInspectShallow(adapter);
+    Assert.That(result.IsValid, Is.False);
+    Assert.That(result.Errors.Single().ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+    var message = result.Errors.Single().Message;
+    Assert.That(message, Does.Contain("'name'"),
+      "Multi-missing diff must name every missing required field.");
+    Assert.That(message, Does.Contain("'value'"));
+  }
+
+  [Test]
+  public async Task InspectShallow_MissingFieldErrorDetailsListPresentAndRequiredSets()
+  {
+    // The Details field should make the diff self-explanatory — which
+    // fields the schema requires vs. which the data provided. Helps the
+    // user diagnose upstream schema drift (e.g., a column rename).
+    var path = Path.Combine(_tempDir, "diff-details.json");
+    await File.WriteAllTextAsync(path,
+      """
+      {
+        "id": "11111111-2222-3333-4444-555555555555",
+        "cust_id": 7
+      }
+      """
+    );
+    var adapter = new SingletonJsonAdapter<SingletonRow>(path);
+
+    var result = await UnwrapInspectShallow(adapter);
+    Assert.That(result.IsValid, Is.False);
+    var details = result.Errors.Single().Details!;
+    Assert.That(details, Does.Contain("'cust_id'"),
+      "Details should report what fields the data actually provided.");
+    Assert.That(details, Does.Contain("'id'"));
+    Assert.That(details, Does.Contain("'name'"));
+    Assert.That(details, Does.Contain("'value'"));
+  }
+
+  [Test]
+  public async Task InspectShallow_TopLevelArray_FailsWithSchemaMismatch()
+  {
+    // Singleton JSON expects a top-level object. An array (or any
+    // non-object shape) is a SchemaMismatch.
+    var path = Path.Combine(_tempDir, "array.json");
+    await File.WriteAllTextAsync(path, "[{\"id\":\"x\"}]");
+    var adapter = new SingletonJsonAdapter<SingletonRow>(path);
+
+    var result = await UnwrapInspectShallow(adapter);
+    Assert.That(result.IsValid, Is.False);
+    Assert.That(result.Errors.Single().ErrorType, Is.EqualTo(ValidationErrorType.SchemaMismatch));
+    Assert.That(result.Errors.Single().Message, Does.Contain("object"));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // InspectDeep — for singletons, equivalent to InspectShallow (must
   // round-trip the entire document either way).
   // ─────────────────────────────────────────────────────────────────────────

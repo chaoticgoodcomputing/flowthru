@@ -40,7 +40,6 @@ Flowthru.Extensions.Python.Tests,LibraryTest,Extensions
 Flowthru.Extensions.Xml.Tests,LibraryTest,Extensions
 Flowthru.Misc.DataFrames.SourceGenerators.Tests,LibraryTest,Misc
 Flowthru.Misc.DataFrames.Tests,LibraryTest,Misc
-Flowthru.Misc.ML.Tests,LibraryTest,Misc
 FUnit,Library,FUnit
 FUnit.CodeFixes,Library,FUnit
 FUnit.SourceGenerators,Library,FUnit

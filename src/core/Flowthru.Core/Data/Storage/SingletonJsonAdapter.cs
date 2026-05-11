@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Flowthru.Data.Schema;
+using Flowthru.Data.Schema.Mapping;
 
 namespace Flowthru.Data.Storage;
 
@@ -112,8 +113,119 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
   /// <inheritdoc/>
   public FlowIO<bool> Exists() => _medium.Exists();
 
+  /// <summary>
+  /// Cached set of required field names from the planner — built once
+  /// per adapter instance so repeated inspections don't re-reflect.
+  /// Case-insensitive comparison matches the planner's
+  /// <see cref="PropertyMappingPlan{TRow}.ByFieldName"/> lookup policy
+  /// — if <c>Load</c> would find a field, <c>InspectShallow</c> reports
+  /// it present.
+  /// </summary>
+  private static readonly IReadOnlySet<string> _requiredFieldNames =
+    PropertyMappingPlanner.Build<T>().RequiredFieldNames
+      .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
   /// <inheritdoc/>
+  /// <remarks>
+  /// Verifies that the on-disk JSON object's top-level properties
+  /// include every field the schema declares as required (non-nullable).
+  /// Extra fields are tolerated — they're silently ignored on Load —
+  /// so the rule is <em>data ⊇ schema</em>. Outcomes:
+  /// <list type="bullet">
+  ///   <item>Source missing → <c>NotFound</c>.</item>
+  ///   <item>Source unreadable / malformed JSON → <c>DeserializationError</c>.</item>
+  ///   <item>Top-level is not an object → <c>SchemaMismatch</c>.</item>
+  ///   <item>Required fields absent → <c>SchemaMismatch</c> with the missing-field diff.</item>
+  ///   <item>All required fields present → <c>Success</c> (values are NOT
+  ///     value-validated; that's <c>InspectDeep</c>'s contract).</item>
+  /// </list>
+  /// </remarks>
   public FlowIO<ValidationResult> InspectShallow(int sampleSize) =>
+    FlowIO.LiftAsync<ValidationResult>(async ct =>
+    {
+      var label = typeof(T).Name;
+      if (!File.Exists(_filePath))
+      {
+        return ValidationResult.Failure(
+          catalogKey: label,
+          errorType: ValidationErrorType.NotFound,
+          message: $"Singleton JSON file not found at '{_filePath}'"
+        );
+      }
+      JsonDocument? document = null;
+      try
+      {
+        await using var stream = new FileStream(
+          _filePath,
+          FileMode.Open,
+          FileAccess.Read,
+          FileShare.Read,
+          bufferSize: 4096,
+          useAsync: true
+        );
+        document = await JsonDocument.ParseAsync(stream, cancellationToken: ct).ConfigureAwait(false);
+      }
+      catch (Exception ex)
+      {
+        return ValidationResult.Failure(
+          catalogKey: label,
+          errorType: ValidationErrorType.DeserializationError,
+          message: $"Failed to parse singleton JSON for '{label}'",
+          details: ex.Message
+        );
+      }
+
+      using (document)
+      {
+        if (document.RootElement.ValueKind != JsonValueKind.Object)
+        {
+          return ValidationResult.Failure(
+            catalogKey: label,
+            errorType: ValidationErrorType.SchemaMismatch,
+            message: $"Singleton JSON for '{label}' must be a JSON object at the top level",
+            details: $"Found {document.RootElement.ValueKind} at the top level. "
+              + "Singleton JSON adapters expect an object shape, not an array or scalar."
+          );
+        }
+
+        var presentFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var property in document.RootElement.EnumerateObject())
+        {
+          presentFields.Add(property.Name);
+        }
+
+        var missing = new List<string>();
+        foreach (var required in _requiredFieldNames)
+        {
+          if (!presentFields.Contains(required))
+          {
+            missing.Add(required);
+          }
+        }
+        if (missing.Count > 0)
+        {
+          return ValidationResult.Failure(
+            catalogKey: label,
+            errorType: ValidationErrorType.SchemaMismatch,
+            message: $"Singleton JSON for '{label}' is missing required field(s): "
+              + string.Join(", ", missing.Select(f => $"'{f}'")),
+            details: $"Required by schema: {string.Join(", ", _requiredFieldNames.Select(f => $"'{f}'"))}. "
+              + $"Present in data: {string.Join(", ", presentFields.Select(f => $"'{f}'"))}."
+          );
+        }
+        return ValidationResult.Success();
+      }
+    });
+
+  /// <inheritdoc/>
+  /// <remarks>
+  /// Deep inspection deserializes the full document into a
+  /// <typeparamref name="T"/> instance — verifying every value is
+  /// type-compatible with the schema, not just that the required
+  /// field names are present. Use for critical inputs; the cost
+  /// scales with file size.
+  /// </remarks>
+  public FlowIO<ValidationResult> InspectDeep() =>
     FlowIO.LiftAsync<ValidationResult>(async ct =>
     {
       var label = typeof(T).Name;
@@ -148,9 +260,6 @@ public sealed class SingletonJsonAdapter<T> : IStorageAdapter<T>
         );
       }
     });
-
-  /// <inheritdoc/>
-  public FlowIO<ValidationResult> InspectDeep() => InspectShallow(sampleSize: 0);
 
   /// <inheritdoc/>
   public FlowIO<ValidationResult> InspectTarget() => _medium.InspectTarget();

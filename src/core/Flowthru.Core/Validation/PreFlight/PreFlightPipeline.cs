@@ -3,6 +3,7 @@ using Flowthru.Data.Catalog;
 using Flowthru.Data.Storage;
 using Flowthru.Diagnostics;
 using Flowthru.Flow;
+using Flowthru.Validation.Runtime;
 
 namespace Flowthru.Validation.PreFlight;
 
@@ -28,12 +29,23 @@ public static class PreFlightPipeline
 {
   /// <summary>
   /// Run every layer for <paramref name="flow"/>. The adapter layer
-  /// is always run; <paramref name="hooks"/> and
-  /// <paramref name="serviceProbes"/> default to empty.
+  /// is always run; <paramref name="hooks"/>,
+  /// <paramref name="serviceProbes"/>, and
+  /// <paramref name="serviceRefDispatchers"/> default to empty.
   /// </summary>
   /// <param name="flow">The built flow whose external inputs are inspected.</param>
   /// <param name="hooks">Flow-level validation hooks; null = none.</param>
   /// <param name="serviceProbes">Service-inspector probes; null = none.</param>
+  /// <param name="serviceRefDispatchers">
+  /// Extension-supplied dispatchers for
+  /// <see cref="ServiceRef.External"/> service references. Each dispatcher
+  /// declares the <see cref="IServiceRefDispatcher.Category"/> it handles;
+  /// the pipeline routes every external service ref encountered in the
+  /// flow's <c>ServiceDependencies</c> to its matching dispatcher's
+  /// <see cref="IServiceRefDispatcher.Inspect"/>. A category with no
+  /// registered dispatcher surfaces as
+  /// <see cref="PreFlightError.RegistrationCheckFailed"/>.
+  /// </param>
   /// <param name="inspectionLevel">Adapter inspection depth.</param>
   /// <param name="maxDegreeOfParallelism">
   /// Maximum number of adapter inspections to run concurrently. The
@@ -46,6 +58,7 @@ public static class PreFlightPipeline
     BuiltFlow flow,
     IReadOnlyList<IFlowValidationHook>? hooks = null,
     IReadOnlyList<FlowIO<Validated<PreFlightError, FlowUnit>>>? serviceProbes = null,
+    IReadOnlyList<IServiceRefDispatcher>? serviceRefDispatchers = null,
     InspectionLevel inspectionLevel = InspectionLevel.Shallow,
     int maxDegreeOfParallelism = 1
   )
@@ -202,6 +215,69 @@ public static class PreFlightPipeline
               ),
             _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
           });
+        }
+      }
+
+      // Layer 4 — dispatcher-resolved external service refs. Walk every
+      // step's ServiceDependencies, filter to ServiceRef.External, dedupe
+      // by DagId so each unique extension service is probed at most once
+      // per flow, then route to the dispatcher registered for the ref's
+      // Category. An external category with no registered dispatcher is
+      // a registration error — extensions that introduce a service-ref
+      // category must also register a dispatcher to resolve it. The loop
+      // runs unconditionally: zero dispatchers + zero External refs is a
+      // no-op; zero dispatchers + any External ref surfaces as
+      // RegistrationCheckFailed (the fail-loud default for incomplete
+      // extension wiring).
+      {
+        // Build a category → dispatcher index up front; last-write-wins
+        // on duplicate categories (matches the IServiceRefDispatcher
+        // contract: "categories must be unique").
+        var dispatchersByCategory = new Dictionary<string, IServiceRefDispatcher>(
+          StringComparer.Ordinal
+        );
+        if (serviceRefDispatchers is not null)
+        {
+          foreach (var dispatcher in serviceRefDispatchers)
+          {
+            dispatchersByCategory[dispatcher.Category] = dispatcher;
+          }
+        }
+
+        var seenServiceRefIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var step in flow.Steps)
+        {
+          foreach (var dependency in step.ServiceDependencies)
+          {
+            if (dependency is not ServiceRef.External external) continue;
+            if (!seenServiceRefIds.Add(external.Cause.DagId)) continue;
+
+            if (!dispatchersByCategory.TryGetValue(external.Cause.Category, out var dispatcher))
+            {
+              aggregated.Add(Validated<PreFlightError, FlowUnit>.Fail(
+                new PreFlightError.RegistrationCheckFailed(
+                  HookId: $"service-ref-dispatch:{external.Cause.Category}",
+                  CheckMessage: $"No IServiceRefDispatcher registered for category "
+                    + $"'{external.Cause.Category}' (referenced by service ref "
+                    + $"'{external.Cause.DagId}' on step '{step.Label}').",
+                  Details: "Extensions that introduce a ServiceRef.External category must also "
+                    + "register an IServiceRefDispatcher with that Category via DI."
+                )
+              ));
+              continue;
+            }
+
+            var result = await dispatcher.Inspect(external.Cause).Run(ct).ConfigureAwait(false);
+            aggregated.Add(result switch
+            {
+              EffResult<Validated<PreFlightError, FlowUnit>>.Success ok => ok.Value,
+              EffResult<Validated<PreFlightError, FlowUnit>>.Failure failure =>
+                Validated<PreFlightError, FlowUnit>.Fail(
+                  new PreFlightError.InspectionFailed(external.Cause.DagId, failure.Error.Message)
+                ),
+              _ => throw new InvalidOperationException("Unreachable: EffResult is a closed sum"),
+            });
+          }
         }
       }
 
