@@ -1,111 +1,20 @@
-using Flowthru.Core.Abstractions;
-using Flowthru.Core.Data.Serialization;
+using Flowthru.Data.Schema;
+using Flowthru.Data.Schema.Mapping;
 
-namespace Flowthru.Core.Tests.Execution.Serialization;
+namespace Flowthru.Core.Tests.Schema;
 
 /// <summary>
 /// Unit tests for <see cref="PropertyMappingPlanner"/>. Exercises every Tier 1–5 case in
 /// the property-classification cascade plus nullable wrappers, nested types,
 /// <see cref="SerializedLabelAttribute"/> field-name mapping, and
-/// <see cref="IScalar"/>-wrapper edge cases. Format extensions consume the planner's
-/// output to wire their serializers; tests here confirm the planner's output is correct
-/// before format-side migrations begin (Phase B2 onward).
+/// <see cref="IScalar"/>-wrapper edge cases. Sibling <c>PlannerDrivenJsonTests</c>
+/// exercises the planner's output through JSON round-trips; these tests pin the
+/// classifier rules directly so future format extensions inherit a known-good
+/// classification surface.
 /// </summary>
 [TestFixture]
-[Category("Execution")]
-[Category("Serialization")]
 public class PropertyMappingPlannerTests
 {
-  // ── Test schemas ─────────────────────────────────────────────────────────────
-
-  // Tier 1 / Tier 4 primitives + BCL scalar structs + DateTime variants.
-  private record AllPrimitivesSchema
-  {
-    public bool BoolValue { get; init; }
-    public byte ByteValue { get; init; }
-    public sbyte SByteValue { get; init; }
-    public short ShortValue { get; init; }
-    public ushort UShortValue { get; init; }
-    public int IntValue { get; init; }
-    public uint UIntValue { get; init; }
-    public long LongValue { get; init; }
-    public ulong ULongValue { get; init; }
-    public float FloatValue { get; init; }
-    public double DoubleValue { get; init; }
-    public decimal DecimalValue { get; init; }
-    public char CharValue { get; init; }
-    public string StringValue { get; init; } = string.Empty;
-    public DateTime DateTimeValue { get; init; }
-    public Guid GuidValue { get; init; }
-    public TimeSpan TimeSpanValue { get; init; }
-    public DateTimeOffset DateTimeOffsetValue { get; init; }
-    public DateOnly DateOnlyValue { get; init; }
-    public TimeOnly TimeOnlyValue { get; init; }
-  }
-
-  private record ByteArraySchema
-  {
-    public byte[] Blob { get; init; } = Array.Empty<byte>();
-  }
-
-  private enum Status
-  {
-    Active,
-    Inactive,
-  }
-
-  private record EnumPropertySchema
-  {
-    public Status Status { get; init; }
-  }
-
-  private readonly record struct CustomerId(string Value) : IScalar;
-
-  private readonly record struct OrderCount(int Value) : IScalar;
-
-  private record IScalarPropertySchema
-  {
-    public CustomerId Customer { get; init; }
-    public OrderCount Count { get; init; }
-  }
-
-  private record NullablePropertySchema
-  {
-    public int? OptionalInt { get; init; }
-    public string? OptionalString { get; init; }
-    public DateTime? OptionalDateTime { get; init; }
-    public Status? OptionalStatus { get; init; }
-    public CustomerId? OptionalCustomer { get; init; }
-  }
-
-  private record InnerNestedRecord(string Name, int Count);
-
-  private record NestedPropertySchema
-  {
-    public string TopLevel { get; init; } = string.Empty;
-    public InnerNestedRecord Inner { get; init; } = new(string.Empty, 0);
-  }
-
-  private record LabeledFieldSchema
-  {
-    [SerializedLabel("entity_id")]
-    public Guid EntityId { get; init; }
-
-    [SerializedLabel("display_name")]
-    public string DisplayName { get; init; } = string.Empty;
-
-    public int UnlabeledCount { get; init; }
-  }
-
-  // Negative case — IScalar declared but with multiple public properties (kit's
-  // "❌ Multi-property struct" anti-pattern). Should fall through to Nested.
-  private readonly record struct InvalidIScalar(string A, string B) : IScalar;
-
-  private record InvalidIScalarSchema
-  {
-    public InvalidIScalar Bad { get; init; }
-  }
-
   // ── Primitive classification ─────────────────────────────────────────────────
 
   [Test]
@@ -162,10 +71,13 @@ public class PropertyMappingPlannerTests
     var customerBinding = plan.Bindings.Single(b => b.Property.Name == "Customer");
     Assert.That(customerBinding.Kind, Is.EqualTo(PropertyKind.IScalar));
     Assert.That(customerBinding.IScalar, Is.Not.Null);
-    Assert.That(customerBinding.IScalar!.ScalarType, Is.EqualTo(typeof(CustomerId)));
+    Assert.That(customerBinding.IScalar!.ScalarType, Is.EqualTo(typeof(PlannerCustomerId)));
     Assert.That(customerBinding.IScalar.BackingType, Is.EqualTo(typeof(string)));
     Assert.That(customerBinding.IScalar.ValueProperty.Name, Is.EqualTo("Value"));
-    Assert.That(customerBinding.IScalar.WrappingConstructor.GetParameters().Single().ParameterType, Is.EqualTo(typeof(string)));
+    Assert.That(
+      customerBinding.IScalar.WrappingConstructor.GetParameters().Single().ParameterType,
+      Is.EqualTo(typeof(string))
+    );
 
     var countBinding = plan.Bindings.Single(b => b.Property.Name == "Count");
     Assert.That(countBinding.Kind, Is.EqualTo(PropertyKind.IScalar));
@@ -209,7 +121,7 @@ public class PropertyMappingPlannerTests
 
     var optCustomer = plan.Bindings.Single(b => b.Property.Name == "OptionalCustomer");
     Assert.That(optCustomer.IsNullable, Is.True);
-    Assert.That(optCustomer.EffectiveType, Is.EqualTo(typeof(CustomerId)));
+    Assert.That(optCustomer.EffectiveType, Is.EqualTo(typeof(PlannerCustomerId)));
     Assert.That(optCustomer.Kind, Is.EqualTo(PropertyKind.IScalar));
   }
 
@@ -348,4 +260,99 @@ public class PropertyMappingPlannerTests
       Assert.That(p2.Bindings[i].Kind, Is.EqualTo(p1.Bindings[i].Kind));
     }
   }
+}
+
+// ── Test schemas ────────────────────────────────────────────────────────────────
+// Plain records (no [FlowthruSchema] attribute) — the planner uses reflection over
+// public instance properties and does not depend on generated marker interfaces.
+
+/// <summary>Tier 1 / Tier 4 primitives + BCL scalar structs + DateTime variants.</summary>
+file record AllPrimitivesSchema
+{
+  public bool BoolValue { get; init; }
+  public byte ByteValue { get; init; }
+  public sbyte SByteValue { get; init; }
+  public short ShortValue { get; init; }
+  public ushort UShortValue { get; init; }
+  public int IntValue { get; init; }
+  public uint UIntValue { get; init; }
+  public long LongValue { get; init; }
+  public ulong ULongValue { get; init; }
+  public float FloatValue { get; init; }
+  public double DoubleValue { get; init; }
+  public decimal DecimalValue { get; init; }
+  public char CharValue { get; init; }
+  public string StringValue { get; init; } = string.Empty;
+  public DateTime DateTimeValue { get; init; }
+  public Guid GuidValue { get; init; }
+  public TimeSpan TimeSpanValue { get; init; }
+  public DateTimeOffset DateTimeOffsetValue { get; init; }
+  public DateOnly DateOnlyValue { get; init; }
+  public TimeOnly TimeOnlyValue { get; init; }
+}
+
+file record ByteArraySchema
+{
+  public byte[] Blob { get; init; } = Array.Empty<byte>();
+}
+
+file enum Status
+{
+  [SerializedEnum("A")]
+  Active,
+
+  [SerializedEnum("I")]
+  Inactive,
+}
+
+file record EnumPropertySchema
+{
+  public Status Status { get; init; }
+}
+
+file readonly record struct PlannerCustomerId(string Value) : IScalar;
+
+file readonly record struct PlannerOrderCount(int Value) : IScalar;
+
+file record IScalarPropertySchema
+{
+  public PlannerCustomerId Customer { get; init; }
+  public PlannerOrderCount Count { get; init; }
+}
+
+file record NullablePropertySchema
+{
+  public int? OptionalInt { get; init; }
+  public string? OptionalString { get; init; }
+  public DateTime? OptionalDateTime { get; init; }
+  public Status? OptionalStatus { get; init; }
+  public PlannerCustomerId? OptionalCustomer { get; init; }
+}
+
+file record InnerNestedRecord(string Name, int Count);
+
+file record NestedPropertySchema
+{
+  public string TopLevel { get; init; } = string.Empty;
+  public InnerNestedRecord Inner { get; init; } = new(string.Empty, 0);
+}
+
+file record LabeledFieldSchema
+{
+  [SerializedLabel("entity_id")]
+  public Guid EntityId { get; init; }
+
+  [SerializedLabel("display_name")]
+  public string DisplayName { get; init; } = string.Empty;
+
+  public int UnlabeledCount { get; init; }
+}
+
+// Negative case — IScalar declared but with multiple public properties
+// ("multi-property struct" anti-pattern). Should fall through to Nested.
+file readonly record struct InvalidIScalar(string A, string B) : IScalar;
+
+file record InvalidIScalarSchema
+{
+  public InvalidIScalar Bad { get; init; }
 }
