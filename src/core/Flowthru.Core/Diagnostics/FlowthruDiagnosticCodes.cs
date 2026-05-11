@@ -72,4 +72,15 @@ public static class FlowthruDiagnosticCodes
   // ── FT5xxx — warnings ───────────────────────────────────────────────────
 
   public const string FUnitNoFixturesDeclared = "FT5001";
+
+  /// <summary>
+  /// FT5002 — a method that participates in Flowthru's fail-as-value
+  /// surface (returns <c>Validated&lt;,&gt;</c>, <c>FlowIO&lt;&gt;</c>,
+  /// <c>EffResult&lt;&gt;</c>, or <c>ValidationResult</c>) contains an
+  /// explicit <c>throw</c>. The validation surface relies on errors
+  /// being aggregated by pre-flight as typed values; thrown exceptions
+  /// bypass the aggregation pipeline and reach the user as stack traces
+  /// instead of actionable FT3xxx diagnostics.
+  /// </summary>
+  public const string ThrowInFailAsValueMethod = "FT5002";
 }

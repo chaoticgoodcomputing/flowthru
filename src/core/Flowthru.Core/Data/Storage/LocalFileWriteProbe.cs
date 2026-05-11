@@ -23,8 +23,29 @@ public static class LocalFileWriteProbe
   /// would land in, walking up the tree to the nearest existing ancestor
   /// if needed.
   /// </summary>
+  /// <remarks>
+  /// Every observable failure mode — including null/empty/whitespace
+  /// inputs — surfaces as a <see cref="ValidationResult.Failure"/>
+  /// (fail-as-value). The probe does not throw. This is the contract
+  /// every <c>InspectTarget()</c>-shaped probe in Flowthru holds: pre-flight
+  /// aggregates findings into FT3xxx diagnostics, so a thrown
+  /// <see cref="ArgumentException"/> would bypass the aggregation surface
+  /// and reach the user as a stack trace instead of an actionable
+  /// validation error.
+  /// </remarks>
   public static async Task<ValidationResult> ProbeAsync(string filePath, CancellationToken ct)
   {
+    if (string.IsNullOrWhiteSpace(filePath))
+    {
+      return ValidationResult.Failure(
+        catalogKey: string.Empty,
+        errorType: ValidationErrorType.WriteAccessDenied,
+        message: "Write destination path is empty",
+        details: "An empty or whitespace path cannot be probed. "
+          + "Adapter configuration must supply a non-empty destination path."
+      );
+    }
+
     var fullPath = Path.GetFullPath(filePath);
     var directory = Path.GetDirectoryName(fullPath);
 

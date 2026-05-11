@@ -86,17 +86,33 @@ public class FsValidationsTests
   }
 
   [Test]
-  public void IsWritable_OnEmptyPath_Throws()
+  public async Task IsWritable_OnEmptyPath_FailsAsValue()
   {
-    // Empty path is a caller-contract violation, not a recoverable
-    // validation finding. The legacy helper returned Fail; the new probe
-    // surfaces this as an ArgumentException at the Path.GetFullPath
-    // boundary. Adapter-level callers always provide a non-empty path
-    // (the FileStorageMedium constructor rejects null/whitespace).
-    Assert.That(
-      async () => await LocalFileWriteProbe.ProbeAsync(string.Empty, CancellationToken.None),
-      Throws.TypeOf<ArgumentException>()
-    );
+    // Empty path is a recoverable validation finding, not an exception.
+    // Every probe-shaped helper in Flowthru holds the fail-as-value
+    // contract: pre-flight aggregates findings into FT3xxx diagnostics,
+    // so a thrown ArgumentException would bypass the aggregation surface.
+    // FT5xxx (no-throw analyzer) protects this invariant at the source
+    // level.
+    var result = await LocalFileWriteProbe.ProbeAsync(string.Empty, CancellationToken.None);
+
+    Assert.That(result.IsValid, Is.False,
+      "Empty path must surface as a ValidationResult.Failure, not throw.");
+    Assert.That(result.Errors.Single().ErrorType,
+      Is.EqualTo(ValidationErrorType.WriteAccessDenied));
+    Assert.That(result.Errors.Single().Message, Does.Contain("empty"));
+  }
+
+  [Test]
+  public async Task IsWritable_OnWhitespacePath_FailsAsValue()
+  {
+    // Whitespace is treated identically to empty — both are unambiguous
+    // configuration errors at the adapter boundary.
+    var result = await LocalFileWriteProbe.ProbeAsync("   ", CancellationToken.None);
+
+    Assert.That(result.IsValid, Is.False);
+    Assert.That(result.Errors.Single().ErrorType,
+      Is.EqualTo(ValidationErrorType.WriteAccessDenied));
   }
 
   [Test]
