@@ -40,7 +40,8 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "rm Data/_01_Raw/Datasets/*",
+          "rm -rf Data/_01_Raw/Datasets",
+          "mkdir -p Data/_01_Raw/Datasets",
           "nx run FlowthruCoverage:_generate-project-manifest",
           "nx run FlowthruCoverage:_generate-src-inventory",
           "nx run FlowthruCoverage:_stage-coverage-xml",

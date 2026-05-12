@@ -4,6 +4,9 @@ Flowthru.Cli,Library,Core
 Flowthru.Core,Library,Core
 Flowthru.Core.CodeFixes,Library,Core
 Flowthru.Core.SourceGenerators,Library,Core
+Flowthru.FUnit,Library,Core
+Flowthru.FUnit.CodeFixes,Library,Core
+Flowthru.FUnit.SourceGenerators,Library,Core
 Flowthru.Extensions.Csv,Library,Extensions
 Flowthru.Extensions.EFCore,Library,Extensions
 Flowthru.Extensions.EFCore.Bulk,Library,Extensions
@@ -24,6 +27,9 @@ Flowthru.Core.Architecture.Tests,LibraryTest,Core
 Flowthru.Core.CodeFixes.Tests,LibraryTest,Core
 Flowthru.Core.SourceGenerators.Tests,LibraryTest,Core
 Flowthru.Core.Tests,LibraryTest,Core
+Flowthru.FUnit.CodeFixes.Tests,LibraryTest,Core
+Flowthru.FUnit.SourceGenerators.Tests,LibraryTest,Core
+Flowthru.FUnit.Tests,LibraryTest,Core
 Flowthru.Tests,LibraryTest,Core
 Flowthru.Extensions.Csv.Tests,LibraryTest,Extensions
 Flowthru.Extensions.EFCore.Bulk.Tests,LibraryTest,Extensions
@@ -40,12 +46,6 @@ Flowthru.Extensions.Python.Tests,LibraryTest,Extensions
 Flowthru.Extensions.Xml.Tests,LibraryTest,Extensions
 Flowthru.Misc.DataFrames.SourceGenerators.Tests,LibraryTest,Misc
 Flowthru.Misc.DataFrames.Tests,LibraryTest,Misc
-FUnit,Library,FUnit
-FUnit.CodeFixes,Library,FUnit
-FUnit.SourceGenerators,Library,FUnit
-FUnit.CodeFixes.Tests,LibraryTest,FUnit
-FUnit.SourceGenerators.Tests,LibraryTest,FUnit
-FUnit.Tests,LibraryTest,FUnit
 Flowthru.Tests.Helpers,IntegrationTest,
 Flowthru.Tests.Kits,IntegrationTest,
 Flowthru.Tests.Examples,IntegrationTest,

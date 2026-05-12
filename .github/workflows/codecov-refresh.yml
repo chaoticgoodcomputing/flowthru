@@ -1,0 +1,57 @@
+name: Codecov Refresh
+
+# Re-anchors Codecov's carryforward chain by uploading the canonical, in-repo
+# coverage XMLs from examples/advanced/FlowthruCoverage/Data/_01_Raw/Datasets/
+# as a complete set against the current HEAD of main. Use when carryforward has
+# drifted (e.g. after a large rewrite) and the reports on Codecov no longer
+# reflect actual line coverage. Manual-only; restricted to main.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type REFRESH to confirm. This re-uploads every flag against the current HEAD of main.'
+        required: true
+        type: string
+
+concurrency:
+  group: codecov-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && inputs.confirm == 'REFRESH'
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup CI environment
+        uses: ./.github/actions/setup
+
+      - name: Sync Codecov flags
+        run: pnpm nx run tests:coverage:sync
+
+      - name: Install Codecov CLI
+        run: |
+          curl https://keybase.io/codecovsecurity/pgp_keys.asc \
+            | gpg --no-default-keyring --keyring trustedkeys.gpg --import
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM.sig
+          gpg --no-default-keyring --keyring trustedkeys.gpg \
+            --verify codecov.SHA256SUM.sig codecov.SHA256SUM
+          shasum -a 256 -c codecov.SHA256SUM
+          sudo chmod +x codecov
+          sudo mv codecov /usr/local/bin/codecov
+
+      - name: Refresh coverage from staged datasets
+        env:
+          CODECOV_TOKEN: ${{ secrets.FLOWTHRU_CODECOV_TOKEN }}
+        run: bash scripts/refresh-coverage-from-datasets.sh
