@@ -1,3 +1,13 @@
+## 0.17.2 (2026-05-12)
+
+### 🩹 Fixes
+
+- updated FlowthruCoverage advanced example for adjustment to funit reorg ([f1c7b3e8](https://github.com/chaoticgoodcomputing/flowthru/commit/f1c7b3e8))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.17.1 (2026-05-11)
 
 ### 🩹 Fixes
