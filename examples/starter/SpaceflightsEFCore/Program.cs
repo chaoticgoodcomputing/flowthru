@@ -35,13 +35,29 @@ public class Program
 
   private static void ConfigureServices(IServiceCollection services, string basePath)
   {
-    var dbPath = Path.Combine(basePath, "Data", "spaceflights.db");
+    var dataPath = Path.Combine(basePath, "Data");
+    var dbPath = Path.Combine(dataPath, "spaceflights.db");
 
     // IDbContextFactory produces a fresh DbContext per Load/Save operation —
     // the idiomatic pattern for concurrent pipeline execution.
     services.AddDbContextFactory<SpaceflightsDbContext>(options =>
       options.UseSqlite($"Data Source={dbPath}")
     );
+
+    // Ensure the SQLite file + schema exist before AddFlowthru registers
+    // the VerifyEFCoreConnection pre-flight hook. The hook probes the file
+    // via File.Exists, so creation has to be a host-level concern that runs
+    // before pre-flight — not a catalog-construction side-effect (catalogs
+    // are resolved after pre-flight). A real deployment would replace this
+    // with EF Core migrations.
+    Directory.CreateDirectory(dataPath);
+    using (var ctx = new SpaceflightsDbContext(
+      new DbContextOptionsBuilder<SpaceflightsDbContext>()
+        .UseSqlite($"Data Source={dbPath}")
+        .Options))
+    {
+      ctx.Database.EnsureCreated();
+    }
 
     var configuration = new ConfigurationBuilder()
       .SetBasePath(basePath)
