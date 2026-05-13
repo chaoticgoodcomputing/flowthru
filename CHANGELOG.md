@@ -1,3 +1,13 @@
+## 0.17.3 (2026-05-13)
+
+### 🩹 Fixes
+
+- correct funit ID for NuGet ([4555bdc3](https://github.com/chaoticgoodcomputing/flowthru/commit/4555bdc3))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.17.2 (2026-05-12)
 
 ### 🩹 Fixes
