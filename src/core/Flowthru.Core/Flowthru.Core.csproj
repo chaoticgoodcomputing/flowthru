@@ -43,6 +43,36 @@
     <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
                       OutputItemType="Analyzer" />
+    <ProjectReference Include="$(RepoRoot)src/core/Flowthru.Core.CodeFixes/Flowthru.Core.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
   </ItemGroup>
+
+  <!--
+    Pack the analyzer DLLs into the conventional analyzers/dotnet/cs/ slot and
+    ship build/Flowthru.Core.targets so NuGet consumers auto-register them.
+    Without this block, [FlowthruSchema]-annotated types in downstream
+    projects fail CS0311 because the marker-interface generator never runs.
+  -->
+  <ItemGroup>
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.SourceGenerators/$(Configuration)/netstandard2.0/Flowthru.Core.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.Core.CodeFixes/$(Configuration)/netstandard2.0/Flowthru.Core.CodeFixes.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+    <None Include="build/Flowthru.Core.targets" Pack="true" PackagePath="build/" />
+  </ItemGroup>
+
+  <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.Core.SourceGenerators/Flowthru.Core.SourceGenerators.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.Core.CodeFixes/Flowthru.Core.CodeFixes.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+  </Target>
 
 </Project>

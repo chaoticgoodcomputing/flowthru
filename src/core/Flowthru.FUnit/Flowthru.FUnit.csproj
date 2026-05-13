@@ -28,4 +28,30 @@
                       OutputItemType="Analyzer" />
   </ItemGroup>
 
+  <!--
+    Pack the analyzer DLLs into the conventional analyzers/dotnet/cs/ slot and
+    ship build/Flowthru.FUnit.targets so consumers auto-register them.
+    Mirrors the Flowthru.Core packaging.
+  -->
+  <ItemGroup>
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.FUnit.SourceGenerators/$(Configuration)/netstandard2.0/Flowthru.FUnit.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+    <None Include="$(RepoRoot)dist/src/core/Flowthru.FUnit.CodeFixes/$(Configuration)/netstandard2.0/Flowthru.FUnit.CodeFixes.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+    <None Include="build/Flowthru.FUnit.targets" Pack="true" PackagePath="build/" />
+  </ItemGroup>
+
+  <Target Name="EnsureAnalyzerDllsBuilt" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' != 'true'">
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.FUnit.SourceGenerators/Flowthru.FUnit.SourceGenerators.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+    <MSBuild Projects="$(RepoRoot)src/core/Flowthru.FUnit.CodeFixes/Flowthru.FUnit.CodeFixes.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+  </Target>
+
 </Project>

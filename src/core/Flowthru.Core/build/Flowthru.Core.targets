@@ -1,0 +1,39 @@
+<Project>
+  <!--
+    Auto-imported by NuGet for consumers of the Flowthru.Core package, and
+    explicitly imported in-repo from Directory.Build.targets and
+    build/FlowthruInRepoSwap.props so source-tree consumers get the same
+    analyzer wiring without depending on the packed nupkg layout.
+
+    Two branches:
+
+    1. In-repo: a sibling Flowthru.Core.SourceGenerators / Flowthru.Core.CodeFixes
+       csproj exists two directories up. Wire each as a ProjectReference with
+       OutputItemType="Analyzer" so the build graph picks them up. Skip when
+       the consumer IS Flowthru.Core itself — that wiring lives directly in
+       Flowthru.Core.csproj to avoid a self-referential cycle.
+
+    2. NuGet consumer: the analyzer DLLs sit at ../analyzers/dotnet/cs/
+       relative to this targets file inside the package. Register them via
+       <Analyzer Include="..."/> so Roslyn loads them at compile time.
+
+    The Exists() guards mean each branch silently no-ops when the other layout
+    is in effect.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Core' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.Core.SourceGenerators\Flowthru.Core.SourceGenerators.csproj')" />
+
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.Core' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.Core.CodeFixes\Flowthru.Core.CodeFixes.csproj')" />
+
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.SourceGenerators.dll"
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.SourceGenerators.dll')" />
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.CodeFixes.dll"
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.Core.CodeFixes.dll')" />
+  </ItemGroup>
+</Project>

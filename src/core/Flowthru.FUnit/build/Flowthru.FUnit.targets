@@ -1,0 +1,27 @@
+<Project>
+  <!--
+    Auto-imported by NuGet for consumers of the Flowthru.FUnit package, and
+    explicitly imported in-repo from Directory.Build.targets and
+    build/FlowthruInRepoSwap.props so source-tree consumers get the same
+    analyzer wiring without depending on the packed nupkg layout.
+
+    Mirrors src/core/Flowthru.Core/build/Flowthru.Core.targets. See that file
+    for the rationale on the two-branch (in-repo / NuGet) structure.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.FUnit' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.FUnit.SourceGenerators\Flowthru.FUnit.SourceGenerators.csproj')" />
+
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Flowthru.FUnit.CodeFixes\Flowthru.FUnit.CodeFixes.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      Condition="'$(MSBuildProjectName)' != 'Flowthru.FUnit' AND Exists('$(MSBuildThisFileDirectory)..\..\Flowthru.FUnit.CodeFixes\Flowthru.FUnit.CodeFixes.csproj')" />
+
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.FUnit.SourceGenerators.dll"
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.FUnit.SourceGenerators.dll')" />
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.FUnit.CodeFixes.dll"
+              Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\dotnet\cs\Flowthru.FUnit.CodeFixes.dll')" />
+  </ItemGroup>
+</Project>
