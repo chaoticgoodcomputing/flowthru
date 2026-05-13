@@ -1,3 +1,13 @@
+## 0.17.4 (2026-05-13)
+
+### 🩹 Fixes
+
+- resolve NuGet pack issues ([1d9ed487](https://github.com/chaoticgoodcomputing/flowthru/commit/1d9ed487))
+
+### ❤️ Thank You
+
+- Spencer Elkington
+
 ## 0.17.3 (2026-05-13)
 
 ### 🩹 Fixes
