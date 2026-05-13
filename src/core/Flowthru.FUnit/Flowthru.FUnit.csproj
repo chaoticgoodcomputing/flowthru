@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>Inline step-test framework for Flowthru pipelines</Description>
-    <PackageId>FUnit</PackageId>
+    <PackageId>Flowthru.FUnit</PackageId>
     <PackageTags>data-engineering;pipeline;testing;step-tests</PackageTags>
     <NoDefaultExcludes>true</NoDefaultExcludes>
 
